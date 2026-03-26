@@ -9,7 +9,7 @@ window.ArenaAPI = (function () {
 
   function fetchPrincipal() {
     if (!_principalPromise) {
-      _principalPromise = Promise.race([
+      var thisPromise = Promise.race([
         fetch('/.auth/me')
           .then(function (resp) { return resp.ok ? resp.json() : { clientPrincipal: null }; })
           .then(function (data) {
@@ -21,10 +21,11 @@ window.ArenaAPI = (function () {
           .catch(function () { return null; }),
         new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 5000); })
       ]).then(function (result) {
-        // If timed out, clear the cache so next call retries
-        if (result === null) _principalPromise = null;
+        // Clear cache atomically — only if WE are still the cached promise (prevents race condition)
+        if (_principalPromise === thisPromise && result === null) _principalPromise = null;
         return result;
       });
+      _principalPromise = thisPromise;
     }
     return _principalPromise;
   }

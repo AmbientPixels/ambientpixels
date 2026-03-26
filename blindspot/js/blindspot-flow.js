@@ -886,7 +886,10 @@
 
   async function loadUserCards() {
     try {
-      const data = await window.ArenaAPI.loadCards();
+      const data = await Promise.race([
+        window.ArenaAPI.loadCards(),
+        new Promise(function(_, reject) { setTimeout(function() { reject(new Error('loadCards timeout')); }, 8000); })
+      ]);
       var cards = (data.userCards || []).filter(function(c) { return !c.isDefault; });
       // Cache deck to localStorage for quick access
       if (cards.length > 0) setDeck(cards);
