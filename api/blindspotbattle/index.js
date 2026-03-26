@@ -408,7 +408,7 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossSt
   return 'counter';
 }
 
-function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState, stanceState, elements) {
+function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState, stanceState, elements, battle) {
   const config = loadArenaConfig();
   const events = [];
   const playerStance = (stanceState && stanceState.player) || 'balanced';
@@ -741,6 +741,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   }
 
   // ── Elemental damage multiplier ──
+  battle = battle || {};
   const ec = config.elementConfig || {};
   const elChart = ec.chart || {};
   const playerEl = (elements && elements.player) || 'chaos';
@@ -1492,7 +1493,8 @@ async function handleMove(context, containerClient, userId, body) {
     move, opponentMove, battle.tempEffects,
     battle.stamina ? { player: battle.stamina.player, opponent: battle.stamina.opponent } : null,
     battle.stances || null,
-    battle.elements || null
+    battle.elements || null,
+    battle
   );
 
   // B4: Crowd Boost — hype meter filled by crits/streaks/stuns, +15% dmg when spent
