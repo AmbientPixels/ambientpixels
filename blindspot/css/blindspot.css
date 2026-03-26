@@ -1978,6 +1978,38 @@
   }
 }
 
+/* --- Dual-Action Move Selection --- */
+.bs-page .arena-move-btn--selected-first {
+  border-color: var(--bs-accent) !important;
+  box-shadow: 0 0 12px rgba(239, 159, 39, 0.5), inset 0 0 8px rgba(239, 159, 39, 0.15) !important;
+  transform: scale(1.03);
+}
+.bs-page .arena-move-btn--selected-first::after {
+  content: '1st' !important;
+  position: absolute;
+  top: -8px;
+  right: -4px;
+  background: var(--bs-accent);
+  color: var(--bs-bg);
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  z-index: 2;
+}
+.bs-page .bs-move-select-prompt {
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--bs-accent);
+  padding: 0.25rem 0;
+  animation: selectPromptPulse 1.2s ease-in-out infinite;
+}
+@keyframes selectPromptPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
 /* --- Element Badge (battle nameplates) --- */
 .bs-page .arena-element-badge {
   display: inline-flex;

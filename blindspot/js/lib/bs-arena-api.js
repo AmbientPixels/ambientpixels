@@ -87,10 +87,14 @@ window.ArenaAPI = (function () {
     submitMove: function (battleId, round, move, extra) {
       // Auto-route async PvP battles to the async endpoint
       var endpoint = (battleId && battleId.indexOf('bs-async-') === 0) ? 'asyncBattle' : 'arenaBattle';
-      return apiFetch(endpoint, {
-        method: 'POST',
-        body: Object.assign({ action: 'move', battleId: battleId, round: round, move: move }, extra || {})
-      });
+      // Dual-action: send moves array if move is an array, else legacy single move
+      var payload = Object.assign({ action: 'move', battleId: battleId, round: round }, extra || {});
+      if (Array.isArray(move)) {
+        payload.moves = move;
+      } else {
+        payload.move = move;
+      }
+      return apiFetch(endpoint, { method: 'POST', body: payload });
     },
     forfeitBattle: function (battleId) {
       var endpoint = (battleId && battleId.indexOf('bs-async-') === 0) ? 'asyncBattle' : 'arenaBattle';

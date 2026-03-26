@@ -313,20 +313,32 @@ window.ArenaBattleUI = (function () {
     var textEl = document.getElementById('arena-boss-intent-text');
     if (!container || !iconEl || !textEl) return;
 
-    if (!intent || !intent.move) {
+    // Support both single intent object and array of 2 intents (dual-action)
+    var intents = Array.isArray(intent) ? intent : (intent && intent.move ? [intent] : []);
+    if (intents.length === 0) {
       container.style.display = 'none';
       return;
     }
 
-    var move = intent.move;
-    var flavor = intent.flavor || ('Enemy will ' + move);
-    var icon = INTENT_ICONS[move] || 'fa-question';
-    var color = INTENT_COLORS[move] || 'var(--bs-text-muted)';
+    // Build icons for all intents
+    var iconsHtml = intents.map(function(it) {
+      var icon = INTENT_ICONS[it.move] || 'fa-question';
+      var color = INTENT_COLORS[it.move] || 'var(--bs-text-muted)';
+      return '<i class="fas ' + icon + '" style="color:' + color + '"></i>';
+    }).join(' <span style="opacity:0.4;margin:0 0.15rem">then</span> ');
+    iconEl.innerHTML = iconsHtml;
 
-    iconEl.innerHTML = '<i class="fas ' + icon + '" style="color:' + color + '"></i>';
+    // Show first intent's flavor text (most descriptive)
+    var flavor = intents[0].flavor || ('Enemy will ' + intents[0].move);
+    if (intents.length > 1) {
+      // Short version for 2 intents
+      var m1 = intents[0].move.charAt(0).toUpperCase() + intents[0].move.slice(1);
+      var m2 = intents[1].move.charAt(0).toUpperCase() + intents[1].move.slice(1);
+      flavor = intents[0].flavor || (m1 + ' then ' + m2);
+    }
     textEl.textContent = flavor;
     container.style.display = '';
-    container.style.setProperty('--intent-color', color);
+    container.style.setProperty('--intent-color', INTENT_COLORS[intents[0].move] || 'var(--bs-text-muted)');
 
     // Animate entrance
     container.classList.remove('arena-boss-intent--enter');
@@ -741,9 +753,9 @@ window.ArenaBattleUI = (function () {
 
   // ─── Phase 1B: Combo banner ─────────────────────────────────────────────
   var COMBO_DEFS = {
-    flurry:    { name: 'FLURRY',    icon: '\uD83C\uDF2A\uFE0F', color: '#ff9100', desc: 'Triple Strike!' },
-    riposte:   { name: 'RIPOSTE',   icon: '\u2694\uFE0F',       color: '#3a9fff', desc: 'Guard into Counter!' },
-    empowered: { name: 'EMPOWERED', icon: '\u2728',             color: '#a855f7', desc: 'Heal into Ability!' }
+    flurry:    { name: 'FLURRY',    icon: '\uD83C\uDF2A\uFE0F', color: '#ff9100', desc: 'Strike + Strike!' },
+    riposte:   { name: 'RIPOSTE',   icon: '\u2694\uFE0F',       color: '#3a9fff', desc: 'Guard + Counter!' },
+    empowered: { name: 'EMPOWERED', icon: '\u2728',             color: '#a855f7', desc: 'Heal + Ability!' }
   };
 
   function showComboBanner(comboId) {
@@ -779,25 +791,24 @@ window.ArenaBattleUI = (function () {
 
   // ─── Phase 1A: Combo hint (preview next combo in move buttons) ──────────
   function updateComboHints() {
-    // Show subtle hint on move buttons when a combo is 1 move away
+    // Within-turn combo hints: show when first move is selected during phase 2
     var btns = document.querySelectorAll('.arena-move-btn');
     btns.forEach(function (btn) { btn.classList.remove('arena-move-btn--combo-hint'); });
 
-    var last1 = _moveHistory[_moveHistory.length - 1];
-    var last2 = _moveHistory[_moveHistory.length - 2];
+    if (!_firstMove) return; // No hints until first move is picked
 
-    // Flurry hint: 2 strikes in a row → hint on Strike
-    if (last1 === 'strike' && last2 === 'strike') {
+    // Flurry: Strike selected → hint on Strike (Strike + Strike)
+    if (_firstMove === 'strike') {
       var strikeBtn = document.querySelector('[data-move="strike"]');
       if (strikeBtn) strikeBtn.classList.add('arena-move-btn--combo-hint');
     }
-    // Riposte hint: just guarded → hint on Counter
-    if (last1 === 'guard') {
+    // Riposte: Guard selected → hint on Counter (Guard + Counter)
+    if (_firstMove === 'guard') {
       var counterBtn = document.querySelector('[data-move="counter"]');
       if (counterBtn) counterBtn.classList.add('arena-move-btn--combo-hint');
     }
-    // Empowered hint: just healed → hint on Ability
-    if (last1 === 'heal') {
+    // Empowered: Heal selected → hint on Ability (Heal + Ability)
+    if (_firstMove === 'heal') {
       var abilityBtn = document.querySelector('.arena-move-btn--ability');
       if (abilityBtn) abilityBtn.classList.add('arena-move-btn--combo-hint');
     }
@@ -1026,6 +1037,20 @@ window.ArenaBattleUI = (function () {
     _isAnimating = false;
   }
 
+  // Dual-action: 2-phase move selection state
+  var _firstMove = null;
+  var _selectPromptEl = null;
+  var CD_MOVES = ['heal', 'counter', 'ability'];
+
+  function clearMoveSelection() {
+    _firstMove = null;
+    document.querySelectorAll('.arena-move-btn').forEach(function(btn) {
+      btn.classList.remove('arena-move-btn--selected-first');
+    });
+    var prompt = document.getElementById('bs-move-select-prompt');
+    if (prompt) prompt.style.display = 'none';
+  }
+
   async function handleMoveClick(move) {
     if (_isAnimating || !_battleData) return;
 
@@ -1035,6 +1060,38 @@ window.ArenaBattleUI = (function () {
       return;
     }
 
+    // PHASE 1: First move selection
+    if (_firstMove === null) {
+      _firstMove = move;
+      // Highlight the selected button
+      var btn1 = document.querySelector('.arena-move-btn[data-move="' + move + '"]');
+      if (btn1) btn1.classList.add('arena-move-btn--selected-first');
+      // Show prompt
+      var prompt = document.getElementById('bs-move-select-prompt');
+      if (prompt) { prompt.textContent = 'Pick second move'; prompt.style.display = ''; }
+      // Disable CD moves that were already picked (can't use same CD move twice)
+      if (CD_MOVES.indexOf(move) >= 0) {
+        var cdBtn = document.querySelector('.arena-move-btn[data-move="' + move + '"]');
+        if (cdBtn) cdBtn.classList.add('arena-move-btn--on-cooldown');
+      }
+      addLogEntry('1st: ' + move.charAt(0).toUpperCase() + move.slice(1) + ' — pick your 2nd move.');
+      updateComboHints();
+      return;
+    }
+
+    // Clicking the same first-move button = deselect
+    if (move === _firstMove && CD_MOVES.indexOf(move) < 0) {
+      // Non-CD move clicked again is fine (Strike+Strike allowed)
+    } else if (move === _firstMove && CD_MOVES.indexOf(move) >= 0) {
+      // CD move clicked again = deselect
+      clearMoveSelection();
+      enableMoves(true);
+      return;
+    }
+
+    // PHASE 2: Second move selected — submit both
+    var bothMoves = [_firstMove, move];
+    clearMoveSelection();
     enableMoves(false);
 
     try {
@@ -1045,10 +1102,10 @@ window.ArenaBattleUI = (function () {
       if (window._pendingItemUse) { moveExtra.useItem = window._pendingItemUse; window._pendingItemUse = null; }
       if (_playerStance !== 'balanced') moveExtra.stance = _playerStance;
       const response = await window.ArenaAPI.submitMove(
-        _battleData.battleId, _currentRound, move, moveExtra
+        _battleData.battleId, _currentRound, bothMoves, moveExtra
       );
 
-      // Hide boss intent during animation — the telegraphed move is playing out
+      // Hide boss intent during animation — the telegraphed moves are playing out
       hideBossIntent();
 
       await animateRoundResult(response.roundResult);
@@ -1060,9 +1117,7 @@ window.ArenaBattleUI = (function () {
         }
         var endAudio = window.ArenaAudio;
         if (endAudio) endAudio.play(response.battleResult.winner === 'player' ? 'victory' : 'defeat');
-        // Stop any looping music
         if (endAudio && typeof endAudio.stopMusic === 'function') endAudio.stopMusic();
-        // Show post-battle actions, hide forfeit
         var forfeitBtn = document.getElementById('arena-forfeit-btn');
         var postActions = document.getElementById('arena-battle-post');
         if (forfeitBtn) forfeitBtn.style.display = 'none';
@@ -1072,23 +1127,14 @@ window.ArenaBattleUI = (function () {
       } else {
         _currentRound = response.currentRound;
         updateRoundLabel(_currentRound);
-        addLogEntry(`Round ${_currentRound} — Choose your move.`);
-        // Telegraph: Show boss's next committed move
+        addLogEntry(`Round ${_currentRound} — Choose your moves.`);
+        // Telegraph: Show boss's next 2 committed moves
         if (response.roundResult && response.roundResult.nextBossIntent) {
           showBossIntent(response.roundResult.nextBossIntent);
         }
-        // Tutorial hooks — wait one frame for CSS to settle after animation
         if (window.BsTutorial && window.BsTutorial.isActive()) {
           requestAnimationFrame(function () {
-            window.BsTutorial.onMoveComplete(move);
-            window.BsTutorial.checkContextual({
-              playerHp: response.roundResult.playerHp,
-              playerMaxHp: _battleData.player.maxHp,
-              charges: _playerCharges,
-              abilityCost: _abilityCost,
-              hype: _hype,
-              round: _currentRound
-            });
+            window.BsTutorial.onMoveComplete(bothMoves[0]);
           });
         }
         enableMoves(true);

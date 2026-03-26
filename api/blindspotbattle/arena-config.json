@@ -116,10 +116,10 @@
     "maxCharges": 4
   },
   "staminaConfig": {
-    "basePool": 12,
-    "endPoolBonus": 10,
-    "baseRegen": 1,
-    "endRegenDiv": 50,
+    "basePool": 20,
+    "endPoolBonus": 5,
+    "baseRegen": 2,
+    "endRegenDiv": 25,
     "exhaustionThreshold": 3,
     "exhaustionBurnPct": 0.05,
     "costs": { "strike": 4, "guard": 1, "heal": 2, "counter": 4, "ability": 5 }

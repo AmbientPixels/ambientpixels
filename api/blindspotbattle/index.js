@@ -408,6 +408,72 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossSt
   return 'counter';
 }
 
+// Generate 2 boss moves for dual-action turns
+// Slot 2 is aware of slot 1: offensive follow-up after Guard, defensive hedge after Strike, etc.
+function generateBossMoves(boss, round, currentHp, maxHp, opponentCharges, bossStamina, bossMaxStamina, bossCooldowns, bossStance) {
+  var move1 = generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossStamina, bossMaxStamina, bossCooldowns, bossStance);
+
+  // Slot 2: re-roll with awareness of slot 1
+  var config = loadArenaConfig();
+  var pattern = config.aiPatterns[boss.arenaOverrides?.aiPattern || 'balanced'];
+  var w2 = { ...pattern };
+
+  // Slot-1-aware weight adjustments
+  if (move1 === 'guard') {
+    w2.strike = (w2.strike || 0) + 15;  // offensive follow-up
+    w2.ability = (w2.ability || 0) + 10;
+  } else if (move1 === 'strike') {
+    w2.guard = (w2.guard || 0) + 12;    // hedge after aggression
+    w2.heal = (w2.heal || 0) + 8;
+  } else if (move1 === 'heal') {
+    w2.guard = (w2.guard || 0) + 15;    // protect the recovery
+  } else if (move1 === 'ability') {
+    w2.guard = (w2.guard || 0) + 10;    // defensive after big spend
+  }
+
+  // CD moves used in slot 1 can't appear in slot 2
+  var cdCfg = config.cooldownConfig || {};
+  if (cdCfg[move1] > 0) w2[move1] = 0;
+
+  // Same stamina/charge/cooldown awareness as slot 1
+  var cc = config.chargeConfig || {};
+  if (opponentCharges !== undefined && opponentCharges < (cc.abilityCost || 2)) {
+    w2.strike += w2.ability || 0;
+    w2.ability = 0;
+  }
+  if (bossStamina !== undefined) {
+    var sc = config.staminaConfig || {};
+    var costs = sc.costs || {};
+    ['strike', 'guard', 'ability', 'heal', 'counter'].forEach(function(m) {
+      if (bossStamina < (costs[m] || 2)) w2[m] = Math.max(0, (w2[m] || 0) * 0.2);
+    });
+  }
+  if (bossCooldowns) {
+    Object.keys(bossCooldowns).forEach(function(m) {
+      if (bossCooldowns[m] > 0) w2[m] = 0;
+    });
+  }
+  if (bossStance === 'defensive') {
+    w2.guard = (w2.guard || 0) + 10;
+    w2.heal = (w2.heal || 0) + 10;
+  } else if (bossStance === 'aggressive') {
+    w2.strike = (w2.strike || 0) + 10;
+    w2.ability = (w2.ability || 0) + 5;
+  }
+
+  var counterWeight2 = w2.counter || 8;
+  var total2 = w2.strike + w2.guard + w2.ability + (w2.heal || 0) + counterWeight2;
+  var roll2 = Math.random() * total2;
+  var move2;
+  if (roll2 < w2.strike) move2 = 'strike';
+  else if (roll2 < w2.strike + w2.guard) move2 = 'guard';
+  else if (roll2 < w2.strike + w2.guard + w2.ability) move2 = 'ability';
+  else if (roll2 < w2.strike + w2.guard + w2.ability + (w2.heal || 0)) move2 = 'heal';
+  else move2 = 'counter';
+
+  return [move1, move2];
+}
+
 function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState, stanceState, elements, battle) {
   const config = loadArenaConfig();
   const events = [];
@@ -1303,22 +1369,21 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     }
   }
 
-  // Telegraph: Pre-generate boss's first move so client can show intent
+  // Telegraph: Pre-generate boss's first 2 moves (dual-action) so client can show intent
   let bossIntent = null;
   if (type === 'pve') {
-    const firstBossMove = generateBossMove(
+    const firstBossMoves = generateBossMoves(
       { arenaOverrides: opponentCard.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponentCombat },
       1, opponentMaxHp, opponentMaxHp, battleState.charges.opponent,
       battleState.stamina.opponent, battleState.maxStamina.opponent,
       battleState.cooldowns.opponent, battleState.stances.opponent
     );
-    battleState.pendingBossMove = firstBossMove;
-    // Build intent with flavor text from boss telegraph data
+    battleState.pendingBossMoves = firstBossMoves;
+    // Build intents with flavor text from boss telegraph data
     const telegraphStrings = opponentCard.telegraph || {};
-    bossIntent = {
-      move: firstBossMove,
-      flavor: telegraphStrings[firstBossMove] || (opponentCard.name + ' prepares to ' + firstBossMove + '...')
-    };
+    bossIntent = firstBossMoves.map(function(m) {
+      return { move: m, flavor: telegraphStrings[m] || (opponentCard.name + ' prepares to ' + m + '...') };
+    });
   }
 
   await uploadJsonBlob(containerClient, `arena/battles/${battleId}.json`, battleState);
@@ -1389,14 +1454,34 @@ function getStaminaCost(move, passives, config) {
 // --- Action: move ---
 
 async function handleMove(context, containerClient, userId, body) {
-  const { battleId, round, move, crowdBoost, useItem } = body;
+  const { battleId, round, crowdBoost, useItem } = body;
+  const VALID_MOVES = ['strike', 'guard', 'ability', 'heal', 'counter'];
 
-  if (!battleId || !round || !move) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'battleId, round, and move are required' } };
+  // Dual-action: accept moves[] array or legacy move string
+  let playerMoves;
+  if (Array.isArray(body.moves) && body.moves.length === 2) {
+    playerMoves = body.moves;
+  } else if (body.move && VALID_MOVES.includes(body.move)) {
+    playerMoves = [body.move, 'guard']; // Legacy compat: single move + Guard
+  } else {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'moves (array of 2) or move (string) is required' } };
     return;
   }
-  if (!['strike', 'guard', 'ability', 'heal', 'counter'].includes(move)) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'move must be strike, guard, ability, heal, or counter' } };
+  // Backward compat alias — many downstream refs use `move`
+  const move = playerMoves[0];
+
+  if (!battleId || !round) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'battleId and round are required' } };
+    return;
+  }
+  if (!playerMoves.every(function(m) { return VALID_MOVES.includes(m); })) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Each move must be strike, guard, ability, heal, or counter' } };
+    return;
+  }
+  // CD moves can only appear once per turn
+  var cdMoves = playerMoves.filter(function(m) { return m === 'heal' || m === 'counter' || m === 'ability'; });
+  if (cdMoves.length !== new Set(cdMoves).size) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Cooldown moves (heal, counter, ability) can only appear once per turn' } };
     return;
   }
 
@@ -1426,31 +1511,33 @@ async function handleMove(context, containerClient, userId, body) {
   const config = loadArenaConfig();
   const cc = config.chargeConfig || {};
 
-  // Charge validation: ability requires enough charges
-  // ability_discount passive (INT 60+) reduces cost by 1
+  // Charge validation: ability requires enough charges (check if either move is ability)
   const hasCharges = battle.charges && battle.charges.player !== undefined;
   const playerAbilityDiscount = getPassiveValue(player.passives || [], 'ability_discount');
   const playerAbilityCost = Math.max(1, (cc.abilityCost || 2) - playerAbilityDiscount);
-  if (move === 'ability' && hasCharges) {
+  if (playerMoves.includes('ability') && hasCharges) {
     if (battle.charges.player < playerAbilityCost) {
       context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Not enough charges to use ability' } };
       return;
     }
   }
 
-  // Stamina validation: hard-block Ability if can't afford (other moves use soft exhaustion penalty)
-  if (move === 'ability' && battle.stamina) {
-    const playerStaminaCost = getStaminaCost(move, player.passives || [], config);
-    if (battle.stamina.player < playerStaminaCost) {
+  // Stamina validation: hard-block if can't afford total Ability cost across both moves
+  if (playerMoves.includes('ability') && battle.stamina) {
+    const abilityCost = getStaminaCost('ability', player.passives || [], config);
+    if (battle.stamina.player < abilityCost) {
       context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Not enough stamina for Ability' } };
       return;
     }
   }
 
-  // Cooldown check — hard-block if move is on cooldown
-  if (battle.cooldowns && battle.cooldowns.player[move] > 0) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: { error: move + ' is on cooldown (' + battle.cooldowns.player[move] + ' rounds)' } };
-    return;
+  // Cooldown check — hard-block if either move is on cooldown
+  for (var mi = 0; mi < playerMoves.length; mi++) {
+    var pm = playerMoves[mi];
+    if (battle.cooldowns && battle.cooldowns.player[pm] > 0) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: pm + ' is on cooldown (' + battle.cooldowns.player[pm] + ' rounds)' } };
+      return;
+    }
   }
 
   // Stance switch (optional — null/undefined means keep current)
@@ -1485,29 +1572,34 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
-  // Telegraph system: Use pre-generated boss move (committed last round / at battle start)
-  let opponentMove;
+  // Dual-action: Get boss's 2 pre-generated moves (or generate fallback)
+  let opponentMoves;
   if (battle._mirrorNextMove) {
-    // Mirror passive — boss copies player's last move (overrides telegraph)
-    opponentMove = battle._mirrorNextMove;
+    // Mirror passive — boss copies player's last move (overrides telegraph for move 1)
+    opponentMoves = [battle._mirrorNextMove, 'guard'];
     delete battle._mirrorNextMove;
+  } else if (Array.isArray(battle.pendingBossMoves) && battle.pendingBossMoves.length === 2) {
+    opponentMoves = battle.pendingBossMoves;
+    delete battle.pendingBossMoves;
   } else if (battle.pendingBossMove) {
-    // Use the pre-generated (telegraphed) move — boss committed to this
-    opponentMove = battle.pendingBossMove;
+    // Legacy single-move telegraph
+    opponentMoves = [battle.pendingBossMove, 'guard'];
     delete battle.pendingBossMove;
   } else if (hasCharges) {
-    // Fallback: generate on-the-fly (PvP or legacy battles without telegraph)
-    opponentMove = generateBossMove(
-      battle.type === 'pve' ? { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats } : { arenaOverrides: { aiPattern: 'balanced' } },
-      round, opponent.hp, opponent.maxHp, battle.charges.opponent,
+    // Fallback: generate on-the-fly (PvP or legacy battles)
+    var bossObj = battle.type === 'pve' ? { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats } : { arenaOverrides: { aiPattern: 'balanced' } };
+    opponentMoves = generateBossMoves(
+      bossObj, round, opponent.hp, opponent.maxHp, battle.charges.opponent,
       battle.stamina ? battle.stamina.opponent : undefined,
       battle.maxStamina ? battle.maxStamina.opponent : undefined,
       battle.cooldowns ? battle.cooldowns.opponent : undefined,
       battle.stances ? battle.stances.opponent : undefined
     );
   } else {
-    opponentMove = opponent.moves[round - 1] || 'strike';
+    opponentMoves = [opponent.moves[round - 1] || 'strike', 'guard'];
   }
+  // Backward compat alias for single-move downstream code
+  const opponentMove = opponentMoves[0];
 
   // Resolve the round with ability keys, temp effects, and boss strategy data
   const result = resolveRound(
@@ -1733,9 +1825,47 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
-  // Apply damage and healing
+  // Apply damage and healing — CLASH 1
   player.hp = Math.min(player.maxHp, Math.max(0, player.hp - result.playerDamageTaken + result.playerHeal));
   opponent.hp = Math.min(opponent.maxHp, Math.max(0, opponent.hp - result.opponentDamageTaken + result.opponentHeal));
+
+  // ── CLASH 2: Resolve second move pair if both sides alive ──
+  var clash2Result = null;
+  if (player.hp > 0 && opponent.hp > 0 && playerMoves.length === 2) {
+    var pMove2 = playerMoves[1];
+    var oMove2 = opponentMoves[1] || 'guard';
+    clash2Result = resolveRound(
+      { combatStats: player.combatStats, passives: player.passives, maxHp: player.maxHp, abilityKey: player.abilityKey },
+      { combatStats: opponent.combatStats, passives: opponent.passives, maxHp: opponent.maxHp, abilityKey: opponent.abilityKey,
+        bossResistances: opponent.bossResistances || {}, bossWeaknesses: opponent.bossWeaknesses || {} },
+      pMove2, oMove2, battle.tempEffects,
+      battle.stamina ? { player: battle.stamina.player, opponent: battle.stamina.opponent } : null,
+      battle.stances || null,
+      battle.elements || null,
+      battle
+    );
+    // Last Stand applies to clash 2 as well
+    var pLS2 = player.hp > 0 && player.hp < player.maxHp * 0.20;
+    var oLS2 = opponent.hp > 0 && opponent.hp < opponent.maxHp * 0.20;
+    if (pLS2 && clash2Result.opponentDamageTaken > 0) {
+      clash2Result.opponentDamageTaken += 10;
+      clash2Result.events.push('\u26A1 Last Stand! You fight with desperate fury! (+10 damage)');
+    }
+    if (oLS2 && clash2Result.playerDamageTaken > 0) {
+      clash2Result.playerDamageTaken += 10;
+      clash2Result.events.push('\u26A1 Last Stand! Enemy fights with desperate fury! (+10 damage)');
+    }
+    // Apply HP — CLASH 2
+    player.hp = Math.min(player.maxHp, Math.max(0, player.hp - clash2Result.playerDamageTaken + clash2Result.playerHeal));
+    opponent.hp = Math.min(opponent.maxHp, Math.max(0, opponent.hp - clash2Result.opponentDamageTaken + clash2Result.opponentHeal));
+    // Merge clash 2 events into main result
+    result.events.push('--- Clash 2 ---');
+    result.events = result.events.concat(clash2Result.events);
+    result.playerDamageTaken += clash2Result.playerDamageTaken;
+    result.opponentDamageTaken += clash2Result.opponentDamageTaken;
+    result.playerHeal += clash2Result.playerHeal;
+    result.opponentHeal += clash2Result.opponentHeal;
+  }
 
   // Update charges
   if (hasCharges) {
@@ -1744,28 +1874,39 @@ async function handleMove(context, containerClient, userId, body) {
     // Gain charges
     battle.charges.player = Math.min(maxCh, battle.charges.player + (rate.player || 1));
     battle.charges.opponent = Math.min(maxCh, battle.charges.opponent + (rate.opponent || 1));
-    // Deduct if ability was used (ability_discount passive reduces cost)
-    if (move === 'ability') battle.charges.player -= playerAbilityCost;
+    // Deduct if ability was used in either move (ability_discount passive reduces cost)
+    var playerAbilityCount = playerMoves.filter(function(m) { return m === 'ability'; }).length;
+    if (playerAbilityCount > 0) battle.charges.player -= playerAbilityCost * playerAbilityCount;
     const oppAbilityDiscount = getPassiveValue(opponent.passives || [], 'ability_discount');
     const oppAbilityCost = Math.max(1, (cc.abilityCost || 2) - oppAbilityDiscount);
-    if (opponentMove === 'ability') battle.charges.opponent -= oppAbilityCost;
+    var oppAbilityCount = opponentMoves.filter(function(m) { return m === 'ability'; }).length;
+    if (oppAbilityCount > 0) battle.charges.opponent -= oppAbilityCost * oppAbilityCount;
     battle.charges.player = Math.max(0, battle.charges.player);
     battle.charges.opponent = Math.max(0, battle.charges.opponent);
   }
 
-  // Update stamina: regen first, then deduct costs
+  // Update stamina: regen first, then deduct costs for BOTH moves
   if (battle.stamina) {
-    // AGI 60+ (speed_priority) = first move costs 1 less stamina
-    let pCost = getStaminaCost(move, player.passives || [], config);
-    let oCost = getStaminaCost(opponentMove, opponent.passives || [], config);
-    if (getPassiveValue(player.passives || [], 'speed_priority') > 0) pCost = Math.max(1, pCost - 1);
-    if (getPassiveValue(opponent.passives || [], 'speed_priority') > 0) oCost = Math.max(1, oCost - 1);
-    // Stance stamina cost adjustment: Aggressive +1, Defensive -1
     var stCfgR = config.stanceConfig || {};
     var pStanceAdj = (stCfgR[battle.stances.player] || {}).staminaCostAdj || 0;
     var oStanceAdj = (stCfgR[battle.stances.opponent] || {}).staminaCostAdj || 0;
-    pCost = Math.max(1, pCost + pStanceAdj);
-    oCost = Math.max(1, oCost + oStanceAdj);
+    // Sum costs for both player moves
+    let pCost = 0;
+    playerMoves.forEach(function(pm, idx) {
+      var c = getStaminaCost(pm, player.passives || [], config);
+      // AGI 60+ discount applies to first move only
+      if (idx === 0 && getPassiveValue(player.passives || [], 'speed_priority') > 0) c = Math.max(1, c - 1);
+      c = Math.max(1, c + pStanceAdj);
+      pCost += c;
+    });
+    // Sum costs for both opponent moves
+    let oCost = 0;
+    opponentMoves.forEach(function(om, idx) {
+      var c = getStaminaCost(om, opponent.passives || [], config);
+      if (idx === 0 && getPassiveValue(opponent.passives || [], 'speed_priority') > 0) c = Math.max(1, c - 1);
+      c = Math.max(1, c + oStanceAdj);
+      oCost += c;
+    });
 
     // Adrenaline Spike: zero stamina cost for N turns
     if (battle.adrenalineSpike && battle.adrenalineSpike.player > 0) {
@@ -1812,9 +1953,9 @@ async function handleMove(context, containerClient, userId, body) {
         if (battle.cooldowns[side][m] <= 0) delete battle.cooldowns[side][m];
       });
     });
-    // Set cooldown for moves just used
-    if (cdCfg[move] > 0) battle.cooldowns.player[move] = cdCfg[move];
-    if (cdCfg[opponentMove] > 0) battle.cooldowns.opponent[opponentMove] = cdCfg[opponentMove];
+    // Set cooldown for all moves used this turn (both slots)
+    playerMoves.forEach(function(pm) { if (cdCfg[pm] > 0) battle.cooldowns.player[pm] = cdCfg[pm]; });
+    opponentMoves.forEach(function(om) { if (cdCfg[om] > 0) battle.cooldowns.opponent[om] = cdCfg[om]; });
   }
 
   // Update temp effects: replace with new ones from this round
@@ -1822,40 +1963,48 @@ async function handleMove(context, containerClient, userId, body) {
     battle.tempEffects = result.newTempEffects || { player: [], opponent: [] };
   }
 
-  // Combo detection — check move history including current move
+  // Within-turn combo detection — check the 2 moves picked this turn
   let comboTriggered = null;
-  const prevMoves = player.moves; // moves BEFORE this round (push happens after)
-  const moveSeq = prevMoves.slice(-2).concat(move); // last 2 + current = 3 moves
+  var m1 = playerMoves[0], m2 = playerMoves[1];
 
-  if (moveSeq.length >= 3 && moveSeq[0] === 'strike' && moveSeq[1] === 'strike' && moveSeq[2] === 'strike') {
-    // Flurry: Strike x3 = +30% damage on 3rd strike
-    if (result.opponentDamageTaken > 0) {
-      const bonus = Math.round(result.opponentDamageTaken * 0.30);
-      result.opponentDamageTaken += bonus;
-      result.events.push(`\uD83C\uDF2A\uFE0F FLURRY! Triple strike combo! (+${bonus} damage)`);
+  if (m1 === 'strike' && m2 === 'strike') {
+    // Flurry: Strike + Strike = +30% on slot-2 hit
+    var flurryBase = clash2Result ? clash2Result.opponentDamageTaken : 0;
+    if (flurryBase > 0) {
+      var flurryBonus = Math.round(flurryBase * 0.30);
+      // Apply bonus damage to opponent HP (clash2 already applied its damage)
+      opponent.hp = Math.max(0, opponent.hp - flurryBonus);
+      result.opponentDamageTaken += flurryBonus;
+      result.events.push(`\uD83C\uDF2A\uFE0F FLURRY! Double strike combo! (+${flurryBonus} damage)`);
       comboTriggered = 'flurry';
     }
-  } else if (moveSeq.length >= 2 && moveSeq[moveSeq.length - 2] === 'guard' && move === 'counter') {
-    // Riposte: Guard → Counter = guaranteed reflect (counter always works as if opponent struck)
-    if (opponentMove !== 'strike' && !result.playerCounterReflect) {
-      // Force a reflect even if opponent didn't strike
-      const reflectDmg = Math.max(5, Math.round(player.combatStats.str * 0.25));
-      result.opponentDamageTaken += reflectDmg;
-      result.events.push(`\u2694\uFE0F RIPOSTE! Guard into Counter forces a reflect! (+${reflectDmg} damage)`);
-      comboTriggered = 'riposte';
-    } else if (result.playerCounterReflect) {
-      // Counter already reflected — add bonus damage
-      const bonus = Math.round(result.opponentDamageTaken * 0.25);
-      result.opponentDamageTaken += bonus;
-      result.events.push(`\u2694\uFE0F RIPOSTE! Perfect counter technique! (+${bonus} bonus reflect damage)`);
-      comboTriggered = 'riposte';
+  } else if (m1 === 'guard' && m2 === 'counter') {
+    // Riposte: Guard + Counter — only triggers if boss slot-1 was Strike (Guard must actually block)
+    if (opponentMoves[0] === 'strike') {
+      var riposteBase = clash2Result ? clash2Result.opponentDamageTaken : 0;
+      if (riposteBase > 0) {
+        var riposteBonus = Math.round(riposteBase * 0.25);
+        opponent.hp = Math.max(0, opponent.hp - riposteBonus);
+        result.opponentDamageTaken += riposteBonus;
+        result.events.push(`\u2694\uFE0F RIPOSTE! Guard into Counter — perfect counter! (+${riposteBonus} damage)`);
+        comboTriggered = 'riposte';
+      } else {
+        // Force a reflect even if counter didn't naturally reflect
+        var reflectDmg = Math.max(5, Math.round(player.combatStats.str * 0.25));
+        opponent.hp = Math.max(0, opponent.hp - reflectDmg);
+        result.opponentDamageTaken += reflectDmg;
+        result.events.push(`\u2694\uFE0F RIPOSTE! Guard into Counter forces a reflect! (+${reflectDmg} damage)`);
+        comboTriggered = 'riposte';
+      }
     }
-  } else if (moveSeq.length >= 2 && moveSeq[moveSeq.length - 2] === 'heal' && move === 'ability') {
-    // Empowered: Heal → Ability = +50% ability damage
-    if (result.opponentDamageTaken > 0) {
-      const bonus = Math.round(result.opponentDamageTaken * 0.50);
-      result.opponentDamageTaken += bonus;
-      result.events.push(`\u2728 EMPOWERED! Heal channeled into ability! (+${bonus} damage)`);
+  } else if (m1 === 'heal' && m2 === 'ability') {
+    // Empowered: Heal + Ability = +50% ability damage
+    var empBase = clash2Result ? clash2Result.opponentDamageTaken : 0;
+    if (empBase > 0) {
+      var empBonus = Math.round(empBase * 0.50);
+      opponent.hp = Math.max(0, opponent.hp - empBonus);
+      result.opponentDamageTaken += empBonus;
+      result.events.push(`\u2728 EMPOWERED! Heal channeled into ability! (+${empBonus} damage)`);
       comboTriggered = 'empowered';
     }
   }
@@ -1863,19 +2012,20 @@ async function handleMove(context, containerClient, userId, body) {
   // Combo Primer: +50% bonus when any combo triggers
   if (battle.comboPrimer && battle.comboPrimer.player && comboTriggered) {
     var cpBonus = Math.round(result.opponentDamageTaken * 0.50);
-    result.opponentDamageTaken += cpBonus;
-    // Also apply the extra combo primer damage to opponent HP
     opponent.hp = Math.max(0, opponent.hp - cpBonus);
+    result.opponentDamageTaken += cpBonus;
     battle.comboPrimer.player = false;
     result.events.push('\uD83C\uDFAF COMBO PRIMER amplifies ' + comboTriggered + '! (+' + cpBonus + ' bonus damage!)');
   }
 
-  player.moves.push(move);
+  player.moves.push(m1, m2);
 
   const roundResult = {
     round,
-    playerMove: move,
-    opponentMove,
+    playerMoves: playerMoves,
+    opponentMoves: opponentMoves,
+    playerMove: move,         // backward compat (slot 1)
+    opponentMove: opponentMove, // backward compat (slot 1)
     playerDamage: result.opponentDamageTaken,
     opponentDamage: result.playerDamageTaken,
     playerHp: player.hp,
@@ -1908,12 +2058,12 @@ async function handleMove(context, containerClient, userId, body) {
     }
   };
 
-  // Telegraph: Pre-generate NEXT boss move for the next round
+  // Telegraph: Pre-generate NEXT 2 boss moves for the next round
   let nextBossIntent = null;
   if (battle.type === 'pve' && player.hp > 0 && opponent.hp > 0) {
     const bossData = loadBossData();
     const bossEntry = bossData.bosses.find(b => b.id === opponent.cardId || b.id === battle.player2.userId);
-    const nextBossMove = generateBossMove(
+    const nextBossMoves = generateBossMoves(
       { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats },
       round + 1, opponent.hp, opponent.maxHp,
       battle.charges ? battle.charges.opponent : 0,
@@ -1922,12 +2072,11 @@ async function handleMove(context, containerClient, userId, body) {
       battle.cooldowns ? battle.cooldowns.opponent : undefined,
       battle.stances ? battle.stances.opponent : undefined
     );
-    battle.pendingBossMove = nextBossMove;
+    battle.pendingBossMoves = nextBossMoves;
     const telegraphStrings = (bossEntry && bossEntry.telegraph) || {};
-    nextBossIntent = {
-      move: nextBossMove,
-      flavor: telegraphStrings[nextBossMove] || (opponent.cardSnapshot.name + ' prepares to ' + nextBossMove + '...')
-    };
+    nextBossIntent = nextBossMoves.map(function(m) {
+      return { move: m, flavor: telegraphStrings[m] || (opponent.cardSnapshot.name + ' prepares to ' + m + '...') };
+    });
   }
 
   roundResult.nextBossIntent = nextBossIntent || undefined;
