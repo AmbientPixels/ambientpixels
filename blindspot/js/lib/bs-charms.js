@@ -163,11 +163,10 @@ window.BsCharms = (function () {
       applyCharmEffect(def);
       removeCharm(_equippedCharm);
       _equippedCharm = null;
-      renderPlayerItemIcons();
+      addPlayerItemChip(def.name, def.icon || 'fa-gem');
       if (_callbacks.toast) _callbacks.toast(def.name + ' activated!');
       if (_callbacks.sfx) _callbacks.sfx('loot');
     }, { once: true });
-    renderPlayerItemIcons();
   }
 
   // ── Charm Visual Effects (client-side only) ──
@@ -238,7 +237,6 @@ window.BsCharms = (function () {
     var movesEl = document.getElementById('arena-items-row') || document.getElementById('arena-moves');
     if (!movesEl) return;
 
-    renderPlayerItemIcons();
     allBattleItems.forEach(function(item, idx) {
       if (movesEl.querySelector('[data-item-idx="' + idx + '"]')) return;
       var btn = document.createElement('button');
@@ -259,9 +257,8 @@ window.BsCharms = (function () {
         btn.disabled = true;
         btn.classList.add('arena-move-btn--used');
         window._pendingItemUse = item.id;
-        // Mark chip as used on player card
-        var chip = document.querySelector('#arena-player-items .arena-item-chip[data-item-name="' + item.name.replace(/"/g, '\\"') + '"]');
-        if (chip) chip.classList.add('arena-item-chip--used');
+        // Show item chip on player card when activated
+        addPlayerItemChip(item.name, item.icon || 'fa-box');
         if (_callbacks.toast) _callbacks.toast(item.name + ' ready \u2014 pick your move!');
         if (_callbacks.sfx) _callbacks.sfx('click');
       }, { once: true });
@@ -270,33 +267,14 @@ window.BsCharms = (function () {
 
   // ── Player Card Item Display ──
 
-  function renderPlayerItemIcons() {
+  function addPlayerItemChip(name, icon) {
     var el = document.getElementById('arena-player-items');
     if (!el) return;
-    el.innerHTML = '';
-    // Gather all battle items (charm + adventure + inventory)
-    var items = [];
-    if (_equippedCharm) {
-      var cDef = getCharmDef(_equippedCharm);
-      if (cDef) items.push({ name: cDef.name, icon: cDef.icon || 'fa-gem' });
-    }
-    var invItems = _selectedInventoryItems.map(function(id) {
-      var def = getCharmDef(id);
-      return def ? { name: def.name, icon: def.icon || 'fa-box' } : null;
-    }).filter(Boolean);
-    var advItems = _adventureItems.map(function(it) {
-      return { name: it.name, icon: it.icon || 'fa-box' };
-    });
-    items = items.concat(advItems).concat(invItems);
-    if (items.length === 0) return;
-    items.forEach(function(item) {
-      var chip = document.createElement('span');
-      chip.className = 'arena-item-chip';
-      chip.title = item.name;
-      chip.dataset.itemName = item.name;
-      chip.innerHTML = '<i class="fas ' + (item.icon) + '"></i>';
-      el.appendChild(chip);
-    });
+    var chip = document.createElement('span');
+    chip.className = 'arena-item-chip';
+    chip.title = name;
+    chip.innerHTML = '<i class="fas ' + (icon || 'fa-box') + '"></i>';
+    el.appendChild(chip);
   }
 
   // ── State Management ──
