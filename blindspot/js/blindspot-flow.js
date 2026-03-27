@@ -245,6 +245,8 @@
   }
 
   function showScreen(id) {
+    // Reset charm/item state when leaving battle screen
+    if (id !== 'battle' && _Chm.resetBattleState) _Chm.resetBattleState();
     document.querySelectorAll('.bs-screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById('bs-screen-' + id);
     if (target) target.classList.add('active');

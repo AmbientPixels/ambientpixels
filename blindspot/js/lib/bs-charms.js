@@ -274,6 +274,9 @@ window.BsCharms = (function () {
     _adventureItemsUsed = {};
     _selectedInventoryItems = [];
     window._pendingItemUse = null;
+    // Clear item/charm buttons from DOM
+    var itemsRow = document.getElementById('arena-items-row');
+    if (itemsRow) itemsRow.innerHTML = '';
   }
 
   function getSelectedInventoryItems() {
