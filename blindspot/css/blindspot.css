@@ -1670,6 +1670,7 @@
   margin: 0 auto;
   padding: 0 1.5rem 0.75rem;
   background: var(--bs-bg);
+  min-height: calc(100vh - 52px);
 }
 
 /* --- Header --- */
