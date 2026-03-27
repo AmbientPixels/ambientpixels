@@ -5281,6 +5281,20 @@
   display: flex;
   flex-direction: column;
 }
+@media (max-width: 480px) {
+  .bs-screen.active#bs-screen-battle {
+    padding: 0.25rem 0.5rem 0;
+    max-width: 100%;
+    margin: 0;
+  }
+}
+@media (max-width: 375px) {
+  .bs-screen.active#bs-screen-battle {
+    padding: 0.25rem 0.15rem 0;
+    max-width: 100%;
+    margin: 0;
+  }
+}
 
 /* Index.html battle container — fill viewport when visible */
 #bs-battle-container {
