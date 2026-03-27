@@ -46,7 +46,7 @@ window.BsCharms = (function () {
     var cfg = config || _callbacks.getConfig && _callbacks.getConfig();
     if (!cfg || !cfg.crates || !cfg.crates.dropPools) return null;
     // Search all consumable pools
-    var pools = ['battle_charms', 'stamina_items', 'elemental_items', 'element_resist_charms'];
+    var pools = ['battle_charms', 'stamina_items', 'elemental_items', 'element_resist_charms', 'battle_surge'];
     for (var i = 0; i < pools.length; i++) {
       var pool = cfg.crates.dropPools[pools[i]];
       if (pool && pool.items) {
