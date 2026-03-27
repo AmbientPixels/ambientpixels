@@ -2276,6 +2276,7 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem;
   padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+  margin-bottom: 1.5rem;
 }
 .bs-page .arena-move-btn {
   position: relative;
