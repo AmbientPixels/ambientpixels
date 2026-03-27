@@ -680,7 +680,12 @@
       _config = configResp;
       _buildCosmeticCaches();
       if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount: getForgeVisitCount });
-      if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast });
+      if (_Shop.setCallbacks) _Shop.setCallbacks({
+        getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast,
+        getDeck: getDeck, getSelectedCard: function() { return _selectedCard; },
+        getLockedCards: function() { return _progress.lockedCards || []; },
+        removeCardFromDeck: removeCardFromDeck, addSparks: addSparks
+      });
       if (_Shop.setConfig) _Shop.setConfig(_config);
       if (_BossRew.setCallbacks) _BossRew.setCallbacks({
         getProgress: function() { return _progress; },
@@ -792,7 +797,6 @@
         getSelectedCard: function() { return _selectedCard; },
         setActiveCard: function(card) { _selectedCard = card; ensureCombatStats(_selectedCard); _progress.selectedCardId = _selectedCard.id; syncProgressToServer(); },
         removeCardFromDeck: removeCardFromDeck,
-        addSparks: addSparks,
         showSuccessToast: showSuccessToast
       });
       var _Wager = window.BsWager || {};

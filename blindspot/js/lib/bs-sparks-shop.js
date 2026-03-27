@@ -144,6 +144,8 @@
       html = renderConsumables(sparks);
     } else if (_activeTab === 'cosmetics') {
       html = renderCosmetics(sparks);
+    } else if (_activeTab === 'sell') {
+      html = renderSellTab(sparks);
     }
 
     // Loyalty bar
@@ -473,6 +475,116 @@
     return null;
   }
 
+  // ── Sell Tab ──
+
+  var SELL_RARITY_BONUS = { common: 0, uncommon: 5, rare: 15, epic: 25, legendary: 40 };
+  var _sellInProgress = false;
+
+  function computeSellValue(card) {
+    var stats = card.combatStats || {};
+    var total = (stats.str || 0) + (stats.agi || 0) + (stats.int || 0) + (stats.end || 0) + (stats.lck || 0);
+    var rarityKey = (card.rarity || 'common').toLowerCase();
+    return 10 + Math.floor(total / 50) + (SELL_RARITY_BONUS[rarityKey] || 0);
+  }
+
+  function renderSellTab(sparks) {
+    var deck = _cb.getDeck ? _cb.getDeck() : [];
+    var selectedCard = _cb.getSelectedCard ? _cb.getSelectedCard() : null;
+    var lockedCards = _cb.getLockedCards ? _cb.getLockedCards() : [];
+
+    var eligible = deck.filter(function(c) {
+      if (selectedCard && selectedCard.id === c.id) return false;
+      if (lockedCards.indexOf(c.id) !== -1) return false;
+      if (c.inActiveWager) return false;
+      return true;
+    });
+
+    var html = '<div class="bs-shop__section-title"><i class="fas fa-fire" aria-hidden="true"></i> Sell Cards for Sparks</div>';
+
+    if (deck.length <= 1) {
+      html += '<div class="bs-shop__empty"><p>You need at least 2 cards to sell one.</p></div>';
+      return html;
+    }
+
+    if (eligible.length === 0) {
+      html += '<div class="bs-shop__empty"><p>No eligible cards. Your active card, locked cards, and wagered cards cannot be sold.</p></div>';
+      return html;
+    }
+
+    html += '<div class="bs-shop__grid">';
+    for (var i = 0; i < eligible.length; i++) {
+      var card = eligible[i];
+      var sellValue = computeSellValue(card);
+      var rarityKey = (card.rarity || 'common').toLowerCase();
+      var rarityLabel = card.rarity || 'Common';
+
+      html += '<div class="bs-shop-card bs-shop-card--sell" data-sell-card-id="' + escHtml(card.id) + '" data-sell-value="' + sellValue + '">' +
+        '<div class="bs-shop-card__icon">' +
+          (card.avatar ? '<img src="' + escHtml(card.avatar) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:0.5rem;">' : '<i class="fas fa-id-card" style="font-size:2rem;color:var(--bs-text-muted);"></i>') +
+        '</div>' +
+        '<div class="bs-shop-card__name">' + escHtml(card.name || 'Unnamed') + '</div>' +
+        '<div class="bs-shop-card__desc">' + escHtml(card.class || card.characterClass || '') + ' &middot; ' + escHtml(rarityLabel) + '</div>' +
+        '<div class="bs-shop-card__price" style="color:var(--bs-accent-glow, #fbbf24);">' +
+          '<i class="fas fa-fire"></i> ' + sellValue + ' Sparks' +
+        '</div>' +
+      '</div>';
+    }
+    html += '</div>';
+
+    return html;
+  }
+
+  function showSellConfirm(cardId, sellValue) {
+    var deck = _cb.getDeck ? _cb.getDeck() : [];
+    var card = deck.find(function(c) { return c.id === cardId; });
+    if (!card) return;
+
+    var existing = document.getElementById('bs-shop-sell-confirm');
+    if (existing) existing.remove();
+
+    var overlay = document.createElement('div');
+    overlay.id = 'bs-shop-sell-confirm';
+    overlay.className = 'bs-deck-confirm-overlay';
+    overlay.setAttribute('role', 'alertdialog');
+    overlay.innerHTML =
+      '<div class="bs-deck-confirm">' +
+        '<h3 class="bs-deck-confirm__title"><i class="fas fa-fire"></i> Sell for Sparks?</h3>' +
+        '<p class="bs-deck-confirm__text">Sell <strong>' + escHtml(card.name || 'this card') + '</strong> for <strong>' + sellValue + ' Sparks</strong>? This cannot be undone.</p>' +
+        '<div class="bs-deck-confirm__actions">' +
+          '<button class="bs-btn bs-btn--secondary" id="bs-shop-sell-cancel">Cancel</button>' +
+          '<button class="bs-btn bs-shop-sell-confirm-btn" id="bs-shop-sell-yes"><i class="fas fa-fire"></i> Sell for ' + sellValue + ' Sparks</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+
+    document.getElementById('bs-shop-sell-cancel').addEventListener('click', function() { overlay.remove(); });
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+
+    document.getElementById('bs-shop-sell-yes').addEventListener('click', async function() {
+      if (_sellInProgress) return;
+      _sellInProgress = true;
+      var btn = document.getElementById('bs-shop-sell-yes');
+      if (btn) { btn.disabled = true; btn.textContent = 'Selling...'; }
+
+      try {
+        var result = await window.ArenaAPI.sellCard(cardId);
+        var earned = result.sparksEarned || sellValue;
+        // Update local state
+        if (_cb.addSparks) _cb.addSparks(earned);
+        if (_cb.removeCardFromDeck) _cb.removeCardFromDeck(cardId);
+        overlay.remove();
+        render(); // Re-render sell tab
+        if (_cb.toast) _cb.toast('Sold ' + (card.name || 'card') + ' for ' + earned + ' Sparks!');
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-fire"></i> Sell for ' + sellValue + ' Sparks'; }
+        if (_cb.toast) _cb.toast('Sell failed: ' + (err.message || 'Unknown error'));
+      } finally {
+        _sellInProgress = false;
+      }
+    });
+  }
+
   // ── Event delegation ──
 
   function bindContainerEvents(container) {
@@ -488,6 +600,18 @@
         if (wishId) {
           toggleWishlist(wishId);
           render();
+        }
+        return;
+      }
+
+      // Sell card click
+      var sellCard = e.target.closest('.bs-shop-card--sell');
+      if (sellCard) {
+        e.stopPropagation();
+        var sellId = sellCard.dataset.sellCardId;
+        var sellVal = parseInt(sellCard.dataset.sellValue, 10) || 0;
+        if (sellId && sellVal > 0) {
+          showSellConfirm(sellId, sellVal);
         }
         return;
       }
@@ -518,6 +642,7 @@
   window.BsSparksShop = {
     render: render,
     setTab: setTab,
+    computeSellValue: computeSellValue,
     setCallbacks: function (cbs) { _cb = cbs || {}; },
     setConfig: function (cfg) { _config = cfg; }
   };

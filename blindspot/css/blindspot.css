@@ -8814,6 +8814,29 @@ body.bs-battle-active .bs-play {
   color: #ef4444;
 }
 
+/* Sell tab */
+.bs-shop-card--sell {
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.bs-shop-card--sell:hover {
+  border-color: var(--bs-accent-glow, #fbbf24);
+}
+.bs-shop-sell-confirm-btn {
+  background: var(--bs-accent-glow, #fbbf24) !important;
+  color: var(--bs-bg, #0a0a0f) !important;
+  font-weight: 600;
+}
+.bs-shop-sell-confirm-btn:hover {
+  filter: brightness(1.15);
+}
+.bs-shop__empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--bs-text-muted);
+  font-size: 0.85rem;
+}
+
 /* Loyalty bar */
 .bs-shop__loyalty {
   margin-top: 1.5rem;
@@ -9196,42 +9219,6 @@ body.bs-battle-active .bs-play {
   opacity: 1;
 }
 
-.bs-deck-card__sell {
-  position: absolute;
-  bottom: 0.35rem;
-  left: 0.35rem;
-  background: var(--bs-surface-2);
-  border: 1px solid var(--bs-border);
-  color: var(--bs-accent-glow, #fbbf24);
-  padding: 0.2rem 0.5rem;
-  border-radius: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  opacity: 0;
-  transition: opacity 0.2s;
-  white-space: nowrap;
-}
-.bs-deck-card__sell:hover {
-  background: var(--bs-accent-glow, #fbbf24);
-  color: var(--bs-bg, #0a0a0f);
-}
-.bs-deck-card:hover .bs-deck-card__sell,
-.bs-deck-card:focus-within .bs-deck-card__sell {
-  opacity: 1;
-}
-.bs-deck-confirm__sell-btn {
-  background: var(--bs-accent-glow, #fbbf24) !important;
-  color: var(--bs-bg, #0a0a0f) !important;
-  font-weight: 600;
-}
-.bs-deck-confirm__sell-btn:hover {
-  filter: brightness(1.15);
-}
-
 /* Lock system */
 .bs-deck-card--locked {
   box-shadow: 0 0 0 2px var(--bs-accent-dim, #4ade80);
@@ -9352,7 +9339,6 @@ body.bs-battle-active .bs-play {
   }
   .bs-deck-card__name { font-size: 0.65rem; }
   .bs-deck-card__delete { opacity: 1; }
-  .bs-deck-card__sell { opacity: 1; }
   .bs-deck-card__lock-toggle { opacity: 1; }
   .bs-deck-sort__btn { font-size: 0.65rem; padding: 0.3rem 0.6rem; }
 }
