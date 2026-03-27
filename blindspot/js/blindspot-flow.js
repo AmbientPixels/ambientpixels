@@ -791,7 +791,9 @@
         escHtml: escHtml,
         getSelectedCard: function() { return _selectedCard; },
         setActiveCard: function(card) { _selectedCard = card; ensureCombatStats(_selectedCard); _progress.selectedCardId = _selectedCard.id; syncProgressToServer(); },
-        removeCardFromDeck: removeCardFromDeck
+        removeCardFromDeck: removeCardFromDeck,
+        addSparks: addSparks,
+        showSuccessToast: showSuccessToast
       });
       if (_Br.setCallbacks) _Br.setCallbacks({
         playSfx: playSfx, addSparks: addSparks, showSuccessToast: showSuccessToast,
@@ -1181,6 +1183,11 @@
     if (profile && profile.pveProgress && profile.pveProgress.blindspotHighestDefeated !== undefined) {
       var serverBoss = profile.pveProgress.blindspotHighestDefeated - 100;
       if (serverBoss > _progress.highestBoss) _progress.highestBoss = serverBoss;
+    }
+
+    // Sync locked cards from server profile to deck module
+    if (_Deck.setLockedCards && Array.isArray(_progress.lockedCards)) {
+      _Deck.setLockedCards(_progress.lockedCards);
     }
 
     updateLoadingProgress(85, 'Preparing lobby...');

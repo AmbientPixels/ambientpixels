@@ -182,6 +182,21 @@ window.ArenaAPI = (function () {
         method: 'POST',
         body: { action: 'clear' }
       });
+    },
+
+    // ── Card Economy ──
+
+    sellCard: function (cardId) {
+      return apiFetch('sellCard', {
+        method: 'POST',
+        body: { cardId: cardId }
+      });
+    },
+    lockCard: function (cardId, action) {
+      return apiFetch('lockCard', {
+        method: 'POST',
+        body: { cardId: cardId, action: action }
+      });
     }
   };
 })();

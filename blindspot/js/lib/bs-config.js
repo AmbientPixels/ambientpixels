@@ -23,7 +23,10 @@ window._config.apiEndpoints = {
   asyncBattle: 'blindspotasyncbattle',
   resultsInbox: 'blindspotresultsinbox',
   // AI generation (shared)
-  geminiProxy: 'geminiproxy'
+  geminiProxy: 'geminiproxy',
+  // Wager system
+  sellCard: 'cardforge-sell-card',
+  lockCard: 'cardforge-lock-card'
 };
 
 window._config.environment = (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')) ? 'production' : 'development';

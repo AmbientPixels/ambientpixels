@@ -9157,6 +9157,88 @@ body.bs-battle-active .bs-play {
   opacity: 1;
 }
 
+.bs-deck-card__sell {
+  position: absolute;
+  bottom: 0.35rem;
+  left: 0.35rem;
+  background: var(--bs-surface-2);
+  border: 1px solid var(--bs-border);
+  color: var(--bs-accent-glow, #fbbf24);
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+.bs-deck-card__sell:hover {
+  background: var(--bs-accent-glow, #fbbf24);
+  color: var(--bs-bg, #0a0a0f);
+}
+.bs-deck-card:hover .bs-deck-card__sell,
+.bs-deck-card:focus-within .bs-deck-card__sell {
+  opacity: 1;
+}
+.bs-deck-confirm__sell-btn {
+  background: var(--bs-accent-glow, #fbbf24) !important;
+  color: var(--bs-bg, #0a0a0f) !important;
+  font-weight: 600;
+}
+.bs-deck-confirm__sell-btn:hover {
+  filter: brightness(1.15);
+}
+
+/* Lock system */
+.bs-deck-card--locked {
+  box-shadow: 0 0 0 2px var(--bs-accent-dim, #4ade80);
+}
+.bs-deck-card__lock-badge {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  background: var(--bs-surface-2, rgba(0,0,0,0.7));
+  color: var(--bs-accent-dim, #4ade80);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  pointer-events: none;
+}
+.bs-deck-card__lock-toggle {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  background: var(--bs-surface-2);
+  border: 1px solid var(--bs-border);
+  color: var(--bs-text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.bs-deck-card__lock-toggle--locked {
+  color: var(--bs-accent-dim, #4ade80);
+  opacity: 1;
+}
+.bs-deck-card:hover .bs-deck-card__lock-toggle,
+.bs-deck-card:focus-within .bs-deck-card__lock-toggle {
+  opacity: 1;
+}
+
 /* Delete confirmation overlay */
 .bs-deck-confirm-overlay {
   position: fixed;
@@ -9231,6 +9313,8 @@ body.bs-battle-active .bs-play {
   }
   .bs-deck-card__name { font-size: 0.65rem; }
   .bs-deck-card__delete { opacity: 1; }
+  .bs-deck-card__sell { opacity: 1; }
+  .bs-deck-card__lock-toggle { opacity: 1; }
   .bs-deck-sort__btn { font-size: 0.65rem; padding: 0.3rem 0.6rem; }
 }
 

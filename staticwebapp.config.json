@@ -234,6 +234,16 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cardforge-sell-card",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-sell-card",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforge-lock-card",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-lock-card",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardshare",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardshare",
       "allowedRoles": ["anonymous"]

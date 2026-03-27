@@ -114,7 +114,15 @@ function createDefaultProfile(userId) {
     bounties: {},
     lastDaily: '',
     createdAt: new Date().toISOString(),
-    lastPlayedAt: null
+    lastPlayedAt: null,
+    // Wager system fields
+    peakRank: 'Iron',
+    lockedCards: [],
+    trophyKills: 0,
+    scars: 0,
+    badges: [],
+    rematchTokens: [],
+    activeWagers: []
   };
 }
 
@@ -223,6 +231,42 @@ function mergeProfiles(server, client) {
     merged.weeklyBoss = client.weeklyBoss;
   }
 
+  // Wager system fields
+  // peakRank: high-watermark — keep whichever maps to a higher PVP rank index
+  const PVP_RANK_NAMES = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+  const serverRankIdx = PVP_RANK_NAMES.indexOf(merged.peakRank || 'Iron');
+  const clientRankIdx = PVP_RANK_NAMES.indexOf(client.peakRank || 'Iron');
+  if (clientRankIdx > serverRankIdx) {
+    merged.peakRank = client.peakRank;
+  } else if (serverRankIdx < 0) {
+    merged.peakRank = 'Iron';
+  }
+
+  // lockedCards, rematchTokens, activeWagers: server-authoritative (mutations happen via API)
+  // Do not overwrite from client — server is source of truth for these
+
+  // trophyKills, scars: high-watermark
+  if (typeof client.trophyKills === 'number') {
+    merged.trophyKills = Math.max(merged.trophyKills || 0, client.trophyKills);
+  }
+  if (typeof client.scars === 'number') {
+    merged.scars = Math.max(merged.scars || 0, client.scars);
+  }
+
+  // badges: union by type (deduplicate)
+  if (Array.isArray(client.badges) && client.badges.length > 0) {
+    const serverBadges = Array.isArray(merged.badges) ? merged.badges : [];
+    const badgeSet = new Set(serverBadges.map(b => typeof b === 'string' ? b : b.type));
+    for (const badge of client.badges) {
+      const key = typeof badge === 'string' ? badge : badge.type;
+      if (!badgeSet.has(key)) {
+        serverBadges.push(badge);
+        badgeSet.add(key);
+      }
+    }
+    merged.badges = serverBadges;
+  }
+
   merged.lastPlayedAt = new Date().toISOString();
   return merged;
 }
@@ -271,6 +315,26 @@ module.exports = async function (context, req) {
         await uploadJsonBlob(containerClient, profilePath, profile);
         isNew = true;
         context.log(`[Blindspot] Created new profile for user ${userId}`);
+      }
+
+      // Backfill peakRank for existing players who don't have it yet
+      if ((!profile.peakRank || profile.peakRank === 'Iron') && (profile.pvpElo || 0) >= 900) {
+        const PVP_RANK_THRESHOLDS = [
+          { name: 'Iron', min: 0 }, { name: 'Bronze', min: 900 }, { name: 'Silver', min: 1100 },
+          { name: 'Gold', min: 1300 }, { name: 'Platinum', min: 1500 }, { name: 'Diamond', min: 1700 }
+        ];
+        let derived = 'Iron';
+        for (let i = PVP_RANK_THRESHOLDS.length - 1; i >= 0; i--) {
+          if (profile.pvpElo >= PVP_RANK_THRESHOLDS[i].min) {
+            derived = PVP_RANK_THRESHOLDS[i].name;
+            break;
+          }
+        }
+        if (derived !== 'Iron') {
+          profile.peakRank = derived;
+          await uploadJsonBlob(containerClient, profilePath, profile);
+          context.log(`[Blindspot] Backfilled peakRank to ${derived} for user ${userId} (Elo: ${profile.pvpElo})`);
+        }
       }
 
       context.res = {

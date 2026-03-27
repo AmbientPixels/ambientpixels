@@ -138,9 +138,38 @@ module.exports = async function (context, req) {
       cards = userCardsData.cards;
     }
     
+    // Wager/lock guard: prevent deletion of locked or wagered cards
+    const targetCard = cards.find(c => c.id === cardId);
+    if (targetCard) {
+      if (targetCard.inActiveWager) {
+        context.res = {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          body: { error: 'Cannot delete a card that is in an active wager' }
+        };
+        return;
+      }
+      // Check if card is locked on Blindspot profile
+      try {
+        const bsProfilePath = `blindspot/profiles/${userId}.json`;
+        const bsProfile = await downloadJsonBlobWithRetry(containerClient, bsProfilePath, context);
+        if (bsProfile && Array.isArray(bsProfile.lockedCards) && bsProfile.lockedCards.includes(cardId)) {
+          context.res = {
+            status: 400,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            body: { error: 'Cannot delete a locked card. Unlock it first.' }
+          };
+          return;
+        }
+      } catch (profileErr) {
+        context.log.warn(`Could not check lock status: ${profileErr.message}`);
+        // Continue with deletion if profile check fails — fail-open for backwards compat
+      }
+    }
+
     const originalCount = cards.length;
     const filtered = cards.filter(c => c.id !== cardId);
-    
+
     if (filtered.length === originalCount) {
       context.log.warn(`Card ${cardId} not found in user's cards`);
     } else {

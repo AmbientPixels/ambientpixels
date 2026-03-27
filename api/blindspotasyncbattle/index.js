@@ -973,6 +973,11 @@ async function finalizeAsyncBattle(context, containerClient, userId, battle, res
   attackerProfile.pvpElo = Math.max(0, attackerElo + attackerEloChange);
   defenderProfile.pvpElo = Math.max(0, defenderElo + defenderEloChange);
 
+  // Update peakRank if Elo pushes to a higher rank tier
+  const { maybeUpdatePeakRank } = require('../_utils/pvpRanks');
+  maybeUpdatePeakRank(attackerProfile, attackerProfile.pvpElo);
+  maybeUpdatePeakRank(defenderProfile, defenderProfile.pvpElo);
+
   if (!attackerProfile.pvpRecord) attackerProfile.pvpRecord = { w: 0, l: 0 };
   if (!defenderProfile.pvpRecord) defenderProfile.pvpRecord = { w: 0, l: 0 };
 

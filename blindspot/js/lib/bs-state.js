@@ -51,7 +51,10 @@ window.BsState = (function () {
     towerClaimed: [], weeklyBoss: {}, challenges: {}, bounties: {},
     lastDaily: '', cardHistory: {},
     defenseCardId: null, asyncInboxCount: 0,
-    wishlist: [], lifetimeSparksSpent: 0
+    wishlist: [], lifetimeSparksSpent: 0,
+    // Wager system
+    peakRank: 'Iron', lockedCards: [], trophyKills: 0, scars: 0,
+    badges: [], rematchTokens: [], activeWagers: []
   };
   var _progressLoaded = false;
   var _syncInFlight = false;
