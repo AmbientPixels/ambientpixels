@@ -244,6 +244,21 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cardforge-challenger",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-challenger",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforge-skull-ante",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-skull-ante",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforge-challenge-board",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-challenge-board",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardshare",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardshare",
       "allowedRoles": ["anonymous"]

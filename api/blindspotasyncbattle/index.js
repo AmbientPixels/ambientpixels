@@ -1099,6 +1099,29 @@ async function finalizeAsyncBattle(context, containerClient, userId, battle, res
   // Clean up battle state
   await deleteBlob(containerClient, `arena/battles/${battle.battleId}.json`);
 
+  // ── Wager hook: if this battle is part of a wager, process the result ──
+  if (battle.wagerId) {
+    try {
+      const wagerResolve = require('../_utils/wagerResolve');
+      const matchWinnerId = attackerWon ? userId : defenderId;
+      // Check wager tier to determine flow
+      const wagerData = await downloadJsonBlob(containerClient, `wagers/${battle.wagerId}.json`);
+      if (wagerData && wagerData.status === 'active') {
+        if (wagerData.tier === 'challenger') {
+          // Bo1 — resolve immediately
+          await wagerResolve.resolveWagerMatch(battle.wagerId, matchWinnerId, containerClient, context, 'match_complete');
+        } else if (wagerData.tier === 'skull') {
+          // Bo3 — process match within series
+          await wagerResolve.processSkullMatchResult(battle.wagerId, matchWinnerId, containerClient, context);
+        }
+        context.log(`[AsyncPvP] Wager ${battle.wagerId} match processed (${wagerData.tier})`);
+      }
+    } catch (wagerErr) {
+      context.log.error(`[AsyncPvP] Wager resolution error for ${battle.wagerId}: ${wagerErr.message}`);
+      // Non-blocking — battle result still returns to player
+    }
+  }
+
   context.log(`[AsyncPvP] Battle ${battle.battleId} complete: ${result}, attacker Elo ${attackerElo}→${attackerProfile.pvpElo}, defender Elo ${defenderElo}→${defenderProfile.pvpElo}`);
 
   return {

@@ -26,7 +26,10 @@ window._config.apiEndpoints = {
   geminiProxy: 'geminiproxy',
   // Wager system
   sellCard: 'cardforge-sell-card',
-  lockCard: 'cardforge-lock-card'
+  lockCard: 'cardforge-lock-card',
+  challenger: 'cardforge-challenger',
+  skullAnte: 'cardforge-skull-ante',
+  challengeBoard: 'cardforge-challenge-board'
 };
 
 window._config.environment = (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')) ? 'production' : 'development';

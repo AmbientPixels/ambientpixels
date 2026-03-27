@@ -197,6 +197,57 @@ window.ArenaAPI = (function () {
         method: 'POST',
         body: { cardId: cardId, action: action }
       });
+    },
+
+    // ── Challenger Mode (Tier 2) ──
+
+    postChallenger: function (cardId, targetUserId) {
+      return apiFetch('challenger', {
+        method: 'POST',
+        body: { action: 'post', cardId: cardId, targetUserId: targetUserId }
+      });
+    },
+    acceptChallenger: function (wagerId, cardId) {
+      return apiFetch('challenger', {
+        method: 'POST',
+        body: { action: 'accept', wagerId: wagerId, cardId: cardId }
+      });
+    },
+    declineChallenger: function (wagerId) {
+      return apiFetch('challenger', {
+        method: 'POST',
+        body: { action: 'decline', wagerId: wagerId }
+      });
+    },
+    useRematchToken: function (wagerId, cardId) {
+      return apiFetch('challenger', {
+        method: 'POST',
+        body: { action: 'rematch', wagerId: wagerId, cardId: cardId }
+      });
+    },
+
+    // ── Skull Ante (Tier 3) ──
+
+    loadChallengeBoard: function () {
+      return apiFetch('challengeBoard');
+    },
+    postSkullChallenge: function (cardId, challengeType, targetUserId) {
+      return apiFetch('skullAnte', {
+        method: 'POST',
+        body: { action: 'post', cardId: cardId, challengeType: challengeType, targetUserId: targetUserId }
+      });
+    },
+    acceptSkullChallenge: function (wagerId, cardId) {
+      return apiFetch('skullAnte', {
+        method: 'POST',
+        body: { action: 'accept', wagerId: wagerId, cardId: cardId }
+      });
+    },
+    declineSkullChallenge: function (wagerId) {
+      return apiFetch('skullAnte', {
+        method: 'POST',
+        body: { action: 'decline', wagerId: wagerId }
+      });
     }
   };
 })();
