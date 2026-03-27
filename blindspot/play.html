@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="css/blindspot.css">
   <link rel="stylesheet" href="css/blindspot-cards.css">
+  <link rel="stylesheet" href="css/bs-wager.css">
 </head>
 <body class="bs-page bs-page--loading" data-theme="dark">
 
@@ -222,6 +223,9 @@
           <button class="bs-pvp-tab" data-pvp-tab="defense" role="tab" aria-selected="false">
             <i class="fas fa-shield-halved"></i> Defense
           </button>
+          <button class="bs-pvp-tab" data-pvp-tab="skull" role="tab" aria-selected="false">
+            <i class="fas fa-skull" style="color:#ff3333;"></i> Skull Ante
+          </button>
           <button class="bs-pvp-tab" data-pvp-tab="inbox" role="tab" aria-selected="false">
             <i class="fas fa-envelope"></i> Inbox <span id="bs-inbox-badge" class="bs-inbox-badge" style="display:none;">0</span>
           </button>
@@ -247,6 +251,16 @@
         <div id="bs-pvp-panel-defense" class="bs-pvp-panel" style="display:none;">
           <div id="bs-defense-status" style="padding: 1rem;">
             <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading defense status...</div>
+          </div>
+        </div>
+
+        <!-- TAB: Skull Ante (wager challenge board) -->
+        <div id="bs-pvp-panel-skull" class="bs-pvp-panel" style="display:none;">
+          <div id="bs-wager-board" style="padding: 0.5rem 0;">
+            <div class="bs-wager-empty">
+              <i class="fas fa-skull" style="font-size:2rem;opacity:0.3;"></i>
+              <p>Loading challenge board...</p>
+            </div>
           </div>
         </div>
 
@@ -809,6 +823,7 @@
   <script src="js/lib/bs-card-share.js"></script>
   <script src="js/lib/bs-charms.js"></script>
   <script src="js/lib/bs-rewards.js"></script>
+  <script src="js/lib/bs-wager.js"></script>
   <script src="js/lib/bs-pvp.js"></script>
   <script src="js/lib/bs-campaign.js"></script>
   <script src="js/lib/bs-forge.js"></script>

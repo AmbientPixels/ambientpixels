@@ -258,6 +258,7 @@
         // Lazy-load tab content
         if (target === 'defense') renderDefensePanel();
         if (target === 'inbox') renderInboxPanel();
+        if (target === 'skull' && window.BsWager && window.BsWager.renderBoard) window.BsWager.renderBoard();
       });
     });
   }

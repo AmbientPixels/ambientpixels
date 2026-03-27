@@ -795,6 +795,17 @@
         addSparks: addSparks,
         showSuccessToast: showSuccessToast
       });
+      var _Wager = window.BsWager || {};
+      if (_Wager.setCallbacks) _Wager.setCallbacks({
+        getDeck: getDeck,
+        renderCardHTML: renderCardHTML,
+        escHtml: escHtml,
+        showToast: showSuccessToast,
+        getLockedCards: function() { return _progress.lockedCards || []; },
+        getSelectedCard: function() { return _selectedCard; },
+        refreshDeck: function() { renderLobby(); },
+        getProgress: function() { return _progress; }
+      });
       if (_Br.setCallbacks) _Br.setCallbacks({
         playSfx: playSfx, addSparks: addSparks, showSuccessToast: showSuccessToast,
         showOverlay: showOverlay, safeLSSet: safeLSSet, syncProgressToServer: syncProgressToServer,
