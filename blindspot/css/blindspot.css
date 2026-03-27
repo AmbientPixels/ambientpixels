@@ -469,7 +469,6 @@
 
 .bs-play {
   min-height: 100vh;
-  padding-bottom: 2rem;
 }
 
 /* Top bar */
@@ -1670,7 +1669,10 @@
   margin: 0 auto;
   padding: 0 1.5rem 0.75rem;
   background: var(--bs-bg);
-  min-height: calc(100vh - 52px);
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* --- Header --- */
@@ -1707,6 +1709,8 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  flex: 1;
+  min-height: 0;
 }
 .bs-page .arena-battle__stage::before {
   content: '';
@@ -5231,7 +5235,11 @@
 .bs-screen.active#bs-screen-battle {
   max-width: 860px;
   margin: 0 auto;
-  padding: 0.5rem 2rem 1rem;
+  padding: 0.5rem 2rem 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Index.html battle container — fill viewport when visible */
@@ -5278,8 +5286,10 @@ body.bs-battle-active {
 body.bs-battle-active .bs-play {
   padding-bottom: 0;
   min-height: 0;
-  height: 100vh;
+  height: calc(100dvh - 52px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Campaign progress no-wrap */
