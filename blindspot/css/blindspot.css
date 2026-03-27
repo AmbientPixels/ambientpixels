@@ -4633,9 +4633,17 @@
   .bs-arena-option__img { height: 28px; }
 }
 
+@media (max-width: 480px) {
+  /* Mobile battle — stage must shrink for viewport fit */
+  .bs-page .arena-battle__stage { max-height: 240px; }
+  body.bs-battle-active .bs-play { height: calc(100dvh - 44px); }
+  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.5rem 0; }
+  .bs-page .arena-battle__moves { margin-bottom: 0.5rem; }
+}
+
 @media (max-width: 375px) {
   /* Battle screen — prevent overflow on narrowest phones */
-  #bs-screen-battle { padding: 0.5rem; }
+  #bs-screen-battle { padding: 0.25rem 0.5rem 0; }
   .bs-page .arena-battle__field { padding: 0.75rem 0.25rem; gap: 0.4rem; }
   .bs-page .arena-combatant { padding: 0.5rem; gap: 0.5rem; }
   .bs-page .arena-combatant__card { width: 56px; height: 70px; min-height: auto; }
@@ -4643,6 +4651,7 @@
   .bs-page .arena-move-btn { min-height: 56px; padding: 0.625rem 0.25rem; }
   .bs-page .arena-move-btn i { font-size: 1.2rem; }
   .bs-page .arena-move-btn__label { font-size: 0.75rem; }
+  .bs-page .arena-battle__stage { max-height: 200px; }
 }
 
 @media (max-width: 360px) {
