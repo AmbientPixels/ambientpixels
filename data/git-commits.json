@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "77a646c2-69df-4047-8012-0b8fc9c9c4cc",
-      "hash": "139e79e45aaa6c8196bdfb60898b8cd3c9e310da",
-      "message": "Make collection Items tab read-only, shop is sole purchase surface",
-      "timestamp": "2026-03-25 22:29:22 -0700",
+      "id": "ce35cbf6-476a-48d5-bbab-55f2763d1346",
+      "hash": "03d447e6bd67882132cc1ef871c73fc99ddf1558",
+      "message": "Remove overflow: hidden from .arena-battle at mobile",
+      "timestamp": "2026-03-26 22:51:09 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/139e79e45aaa6c8196bdfb60898b8cd3c9e310da"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/03d447e6bd67882132cc1ef871c73fc99ddf1558"
     }
   ],
-  "timestamp": "2026-03-26T14:25:34.287Z",
+  "timestamp": "2026-03-27T14:12:55.087Z",
   "count": 1,
-  "scanId": 1774535134287
+  "scanId": 1774620775087
 }

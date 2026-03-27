@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-26T14:25:33.354Z",
+  "updated": "2026-03-27T14:12:53.021Z",
   "entries": [
     {
-      "hash": "139e79e",
-      "date": "2026-03-25 22:29:22 -0700",
-      "message": "Make collection Items tab read-only, shop is sole purchase surface"
+      "hash": "03d447e",
+      "date": "2026-03-26 22:51:09 -0700",
+      "message": "Remove overflow: hidden from .arena-battle at mobile"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-26T14:25:33.214Z",
+  "updated": "2026-03-27T14:12:52.748Z",
   "root": [
     {
       "type": "folder",
@@ -383,6 +383,18 @@
         },
         {
           "type": "folder",
+          "name": "cardforge-challenge-board",
+          "path": "api/cardforge-challenge-board",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-challenger",
+          "path": "api/cardforge-challenger",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "cardforge-checkout",
           "path": "api/cardforge-checkout",
           "children": []
@@ -391,6 +403,24 @@
           "type": "folder",
           "name": "cardforge-entitlements",
           "path": "api/cardforge-entitlements",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-lock-card",
+          "path": "api/cardforge-lock-card",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-sell-card",
+          "path": "api/cardforge-sell-card",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-skull-ante",
+          "path": "api/cardforge-skull-ante",
           "children": []
         },
         {

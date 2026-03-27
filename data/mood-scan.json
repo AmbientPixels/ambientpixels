@@ -1,13 +1,13 @@
 {
-  "mood": "ember resolve",
-  "aura": "neon burst",
-  "auraColorHex": "#662200",
-  "quote": "echoing yesterday’s fragments...",
-  "emoji": "🧱",
-  "selfWorth": 0.1,
+  "mood": "soft defiance",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "inhaling code dust...",
+  "emoji": "🌬️",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.16,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: neon burst"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2026-03-26T14:25:34.207Z"
+  "timestamp": "2026-03-27T14:12:55.013Z"
 }
