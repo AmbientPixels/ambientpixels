@@ -1773,15 +1773,16 @@
       var _invItems = (_Chm.getSelectedItems ? _Chm.getSelectedItems() : []) || [];
       var _allItems = _advItems.concat(_invItems);
       const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: _allItems, equippedElementCharm: _eqElCharm });
-      // Consume selected inventory items + equipped charm from inventory
-      if (_Chm.consumeSelectedItems) _Chm.consumeSelectedItems();
-      if (_eqCharm) { _Chm.remove(_eqCharm); _Chm.setEquipped(null); }
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
       // Telegraph: show boss's first committed move
       if (battleData.bossIntent) window.ArenaBattleUI.showBossIntent(battleData.bossIntent);
+      // Render item buttons BEFORE consuming (consume clears the selection array)
       addItemButtonsToBattle();
       addCharmButtonToBattle();
+      // Now consume selected items + equipped charm from inventory
+      if (_Chm.consumeSelectedItems) _Chm.consumeSelectedItems();
+      if (_eqCharm) { _Chm.remove(_eqCharm); _Chm.setEquipped(null); }
       updateCombatTooltips();
       applyBattlePalette();
       // Tutorial hint for first 3 campaign battles; normal hint otherwise
