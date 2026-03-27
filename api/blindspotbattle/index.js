@@ -1555,13 +1555,14 @@ async function handleMove(context, containerClient, userId, body) {
     var stCfg = config.stanceConfig || {};
     var switchCost = body.stance === 'balanced' ? 0 : (stCfg.switchCost || 2);
     if (battle.stamina && battle.stamina.player < switchCost) {
-      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Not enough stamina to switch stance' } };
-      return;
+      // Can't afford stance switch — skip it silently, execute move in current stance
+      context.log('[Blindspot] Stance switch skipped — not enough stamina (' + battle.stamina.player + '/' + switchCost + ')');
+    } else {
+      // Deducts switch cost immediately. Player may hit 0 before their move resolves —
+      // this is intentional: switching to Aggressive when low on stamina is a risky all-in play.
+      if (battle.stamina) battle.stamina.player -= switchCost;
+      battle.stances.player = body.stance;
     }
-    // Deducts switch cost immediately. Player may hit 0 before their move resolves —
-    // this is intentional: switching to Aggressive when low on stamina is a risky all-in play.
-    if (battle.stamina) battle.stamina.player -= switchCost;
-    battle.stances.player = body.stance;
   }
 
   // Boss stance shifts at HP thresholds
