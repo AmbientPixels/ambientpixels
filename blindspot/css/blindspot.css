@@ -2348,6 +2348,10 @@
 .bs-page .arena-move-btn--counter:hover:not(:disabled) { border-color: rgba(139, 184, 208, 0.4); box-shadow: 0 0 12px rgba(139, 184, 208, 0.1); }
 
 /* --- Buff & Status Chips --- */
+.bs-page .arena-player-items { display: flex; gap: 0.35rem; justify-content: center; margin-top: 0.25rem; }
+.bs-page .arena-item-chip { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(239, 159, 39, 0.12); border: 1px solid rgba(239, 159, 39, 0.3); }
+.bs-page .arena-item-chip i { font-size: 0.6rem; color: var(--bs-accent); }
+.bs-page .arena-item-chip--used { opacity: 0.3; border-color: rgba(255,255,255,0.1); }
 .bs-page .arena-player-buffs { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
 .bs-page .arena-buff-chip { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.15rem 0.4rem; border-radius: 6px; background: rgba(239, 159, 39, 0.1); border: 1px solid rgba(239, 159, 39, 0.25); color: var(--bs-text); font-size: 0.65rem; font-weight: 600; white-space: nowrap; }
 .bs-page .arena-buff-chip i { font-size: 0.55rem; color: var(--bs-accent); }
