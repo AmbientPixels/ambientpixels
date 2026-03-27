@@ -70,22 +70,16 @@ window.BsCharms = (function () {
       return;
     }
 
-    // Split owned items into charms (slot: charm) vs items (slot: item) by looking up defs
-    var charmCounts = {};
+    // Unified consumable list — no charm/item split. All go into pick-up-to-3.
     var itemCounts = {};
     allOwned.forEach(function(id) {
       var def = getCharmDef(id);
       if (!def) return;
-      if (def.slot === 'item') {
-        itemCounts[id] = (itemCounts[id] || 0) + 1;
-      } else {
-        charmCounts[id] = (charmCounts[id] || 0) + 1;
-      }
+      itemCounts[id] = (itemCounts[id] || 0) + 1;
     });
-    var charmIds = Object.keys(charmCounts);
     var itemIds = Object.keys(itemCounts);
 
-    if (charmIds.length === 0 && itemIds.length === 0) {
+    if (itemIds.length === 0) {
       container.style.display = 'none';
       _equippedCharm = null;
       _selectedInventoryItems = [];
@@ -93,83 +87,46 @@ window.BsCharms = (function () {
     }
 
     container.style.display = '';
-    var html = '';
 
-    // ── Charm section (pick 1) ──
-    if (charmIds.length > 0) {
-      html += '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.4rem;"><i class="fas fa-flask"></i> Equip a charm (optional):</p>'
-        + '<div class="bs-charm-options">'
-        + charmIds.map(function(id) {
-            var def = getCharmDef(id);
-            if (!def) return '';
-            var selected = _equippedCharm === id;
-            return '<button class="bs-charm-option' + (selected ? ' bs-charm-option--selected' : '') + '"'
-              + ' data-charm="' + escHtml(id) + '"'
-              + ' title="' + escHtml(def.description || def.name) + '"'
-              + ' aria-label="' + escHtml(def.name) + ' x' + charmCounts[id] + '">'
-              + '<i class="fas ' + (def.icon || 'fa-flask') + '"></i>'
-              + '<span>' + escHtml(def.name) + '</span>'
-              + '<span class="bs-charm-count">x' + charmCounts[id] + '</span>'
-              + '</button>';
-          }).join('')
-        + '<button class="bs-charm-option' + (!_equippedCharm ? ' bs-charm-option--selected' : '') + '" data-charm="none" aria-label="No charm">'
-        + '<i class="fas fa-ban"></i><span>None</span></button>'
-        + '</div>';
-    }
+    // Count selections
+    var selCounts = {};
+    _selectedInventoryItems.forEach(function(id) { selCounts[id] = (selCounts[id] || 0) + 1; });
+    var totalSelected = _selectedInventoryItems.length;
 
-    // ── Item section (pick up to 3) ──
-    if (itemIds.length > 0) {
-      // Count how many of each are selected
-      var selCounts = {};
-      _selectedInventoryItems.forEach(function(id) { selCounts[id] = (selCounts[id] || 0) + 1; });
-      var totalSelected = _selectedInventoryItems.length;
-
-      html += '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.4rem; margin-top:0.6rem;">'
-        + '<i class="fas fa-box-open"></i> Bring items (up to ' + MAX_INVENTORY_ITEMS + '):'
-        + (totalSelected > 0 ? ' <span style="color:var(--bs-accent);">' + totalSelected + '/' + MAX_INVENTORY_ITEMS + ' selected</span>' : '')
-        + '</p>'
-        + '<div class="bs-charm-options">'
-        + itemIds.map(function(id) {
-            var def = getCharmDef(id);
-            if (!def) return '';
-            var owned = itemCounts[id];
-            var picked = selCounts[id] || 0;
-            var active = picked > 0;
-            return '<button class="bs-charm-option' + (active ? ' bs-charm-option--selected' : '') + '"'
-              + ' data-item="' + escHtml(id) + '"'
-              + ' title="' + escHtml(def.description || def.name) + '"'
-              + ' aria-label="' + escHtml(def.name) + ' (' + picked + '/' + owned + ')">'
-              + '<i class="fas ' + (def.icon || 'fa-box') + '"></i>'
-              + '<span>' + escHtml(def.name) + '</span>'
-              + '<span class="bs-charm-count">' + (active ? picked + '/' : '') + 'x' + owned + '</span>'
-              + '</button>';
-          }).join('')
-        + '</div>';
-    }
+    var html = '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.4rem;">'
+      + '<i class="fas fa-box-open"></i> Bring items (up to ' + MAX_INVENTORY_ITEMS + '):'
+      + (totalSelected > 0 ? ' <span style="color:var(--bs-accent);">' + totalSelected + '/' + MAX_INVENTORY_ITEMS + ' selected</span>' : '')
+      + '</p>'
+      + '<div class="bs-charm-options">'
+      + itemIds.map(function(id) {
+          var def = getCharmDef(id);
+          if (!def) return '';
+          var owned = itemCounts[id];
+          var picked = selCounts[id] || 0;
+          var active = picked > 0;
+          return '<button class="bs-charm-option' + (active ? ' bs-charm-option--selected' : '') + '"'
+            + ' data-item="' + escHtml(id) + '"'
+            + ' title="' + escHtml(def.description || def.name) + '"'
+            + ' aria-label="' + escHtml(def.name) + ' (' + picked + '/' + owned + ')">'
+            + '<i class="fas ' + (def.icon || 'fa-box') + '"></i>'
+            + '<span>' + escHtml(def.name) + '</span>'
+            + '<span class="bs-charm-count">' + (active ? picked + '/' : '') + 'x' + owned + '</span>'
+            + '</button>';
+        }).join('')
+      + '</div>';
 
     container.innerHTML = html;
 
-    // ── Charm click handlers ──
-    container.querySelectorAll('[data-charm]').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var id = btn.dataset.charm;
-        _equippedCharm = id === 'none' ? null : id;
-        renderCharmSelector();
-      });
-    });
-
-    // ── Item click handlers (toggle: click to add, click again to remove) ──
+    // ── Click handlers (toggle: click to add, click again to remove) ──
     container.querySelectorAll('[data-item]').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var id = btn.dataset.item;
         var pickedCount = _selectedInventoryItems.filter(function(x) { return x === id; }).length;
         var ownedCount = itemCounts[id] || 0;
         if (pickedCount > 0) {
-          // Remove one instance
           var idx = _selectedInventoryItems.indexOf(id);
           if (idx >= 0) _selectedInventoryItems.splice(idx, 1);
         } else if (_selectedInventoryItems.length < MAX_INVENTORY_ITEMS && pickedCount < ownedCount) {
-          // Add one instance
           _selectedInventoryItems.push(id);
         }
         renderCharmSelector();
@@ -269,11 +226,17 @@ window.BsCharms = (function () {
   // ── Adventure Item Buttons in Battle ──
 
   function addItemButtonsToBattle() {
-    if (_adventureItems.length === 0) return;
+    // Merge adventure items + inventory items for battle display
+    var invItems = _selectedInventoryItems.map(function(id) {
+      var def = getCharmDef(id);
+      return def ? { id: id, name: def.name, icon: def.icon || 'fa-box', description: def.description || '' } : null;
+    }).filter(Boolean);
+    var allBattleItems = _adventureItems.concat(invItems);
+    if (allBattleItems.length === 0) return;
     var movesEl = document.getElementById('arena-items-row') || document.getElementById('arena-moves');
     if (!movesEl) return;
 
-    _adventureItems.forEach(function(item, idx) {
+    allBattleItems.forEach(function(item, idx) {
       if (movesEl.querySelector('[data-item-idx="' + idx + '"]')) return;
       var btn = document.createElement('button');
       btn.className = 'arena-move-btn arena-move-btn--item';
