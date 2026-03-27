@@ -8816,20 +8816,25 @@ body.bs-battle-active .bs-play {
 }
 
 /* Sell tab */
-.bs-shop-card--sell {
-  cursor: pointer;
-  transition: border-color 0.2s;
+.bs-shop-sell__art {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bs-surface-2, #1a1a2e);
+  margin-bottom: 0.25rem;
 }
-.bs-shop-card--sell:hover {
-  border-color: var(--bs-accent-glow, #fbbf24);
+.bs-shop-sell__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.bs-shop-sell-confirm-btn {
-  background: var(--bs-accent-glow, #fbbf24) !important;
-  color: var(--bs-bg, #0a0a0f) !important;
-  font-weight: 600;
-}
-.bs-shop-sell-confirm-btn:hover {
-  filter: brightness(1.15);
+.bs-shop-sell__art i {
+  font-size: 2rem;
+  color: var(--bs-text-muted);
 }
 .bs-shop__empty {
   text-align: center;

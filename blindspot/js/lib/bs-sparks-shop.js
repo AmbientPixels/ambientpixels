@@ -519,12 +519,12 @@
       var rarityLabel = card.rarity || 'Common';
 
       html += '<div class="bs-shop-card bs-shop-card--sell" data-sell-card-id="' + escHtml(card.id) + '" data-sell-value="' + sellValue + '">' +
-        '<div class="bs-shop-card__icon">' +
-          (card.avatar ? '<img src="' + escHtml(card.avatar) + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:0.5rem;">' : '<i class="fas fa-id-card" style="font-size:2rem;color:var(--bs-text-muted);"></i>') +
+        '<div class="bs-shop-sell__art">' +
+          (card.avatar ? '<img src="' + escHtml(card.avatar) + '" alt="">' : '<i class="fas fa-id-card"></i>') +
         '</div>' +
         '<div class="bs-shop-card__name">' + escHtml(card.name || 'Unnamed') + '</div>' +
         '<div class="bs-shop-card__desc">' + escHtml(card.class || card.characterClass || '') + ' &middot; ' + escHtml(rarityLabel) + '</div>' +
-        '<div class="bs-shop-card__price" style="color:var(--bs-accent-glow, #fbbf24);">' +
+        '<div class="bs-shop-card__price">' +
           '<i class="fas fa-fire"></i> ' + sellValue + ' Sparks' +
         '</div>' +
       '</div>';
@@ -552,7 +552,7 @@
         '<p class="bs-deck-confirm__text">Sell <strong>' + escHtml(card.name || 'this card') + '</strong> for <strong>' + sellValue + ' Sparks</strong>? This cannot be undone.</p>' +
         '<div class="bs-deck-confirm__actions">' +
           '<button class="bs-btn bs-btn--secondary" id="bs-shop-sell-cancel">Cancel</button>' +
-          '<button class="bs-btn bs-shop-sell-confirm-btn" id="bs-shop-sell-yes"><i class="fas fa-fire"></i> Sell for ' + sellValue + ' Sparks</button>' +
+          '<button class="bs-btn bs-btn--primary" id="bs-shop-sell-yes"><i class="fas fa-fire"></i> Sell for ' + sellValue + ' Sparks</button>' +
         '</div>' +
       '</div>';
 
