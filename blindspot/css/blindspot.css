@@ -4549,17 +4549,20 @@
   }
 
   /* Combatant — compact for small phones, must fit both + moves in viewport */
-  .bs-page .arena-battle__stage { margin-bottom: 0.25rem; }
+  .bs-page .arena-battle__stage { margin-bottom: 0.25rem; overflow: hidden; width: 100%; }
   .bs-page .arena-battle__field {
     gap: 0.2rem;
     padding: 0.4rem 0.25rem;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
   }
   .bs-page .arena-combatant {
     padding: 0.3rem 0.5rem;
     gap: 0.4rem;
     min-width: 0;
-    max-width: calc(50% - 18px);
+    flex: 1 1 0;
+    overflow: hidden;
   }
   .bs-page .arena-combatant__card {
     width: 64px;
@@ -4573,11 +4576,12 @@
     max-width: 100%;
     overflow: hidden;
   }
-  .bs-page .arena-combatant__name { font-size: 0.65rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bs-page .arena-hp-bar { height: 8px; }
+  .bs-page .arena-combatant__name { font-size: 0.65rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .bs-page .arena-hp-bar { height: 8px; max-width: 100%; }
   .bs-page .arena-hp-bar__text { font-size: 0.55rem; }
-  .bs-page .arena-battle__vs { width: 28px; height: 20px; }
-  .bs-page .arena-battle__vs-text { font-size: 0.7rem; }
+  .bs-page .arena-stamina-bar { max-width: 100%; }
+  .bs-page .arena-battle__vs { width: 24px; flex-shrink: 0; height: 20px; }
+  .bs-page .arena-battle__vs-text { font-size: 0.65rem; }
   .bs-page .arena-battle__vs::before,
   .bs-page .arena-battle__vs::after { display: none; }
 
@@ -4642,13 +4646,13 @@
 
 @media (max-width: 480px) {
   /* Mobile battle — stage shrinks, remove max-height and let flex handle it */
-  body.bs-battle-active .bs-play { height: calc(100dvh - 44px); }
-  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.5rem 0; overflow-x: hidden; }
-  .bs-page .arena-battle { padding: 0 0.5rem 0.25rem; overflow-x: hidden; }
+  body.bs-battle-active .bs-play { height: calc(100dvh - 44px); overflow-x: hidden; }
+  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.5rem 0; overflow-x: hidden; max-width: 100vw; }
+  .bs-page .arena-battle { padding: 0 0.5rem 0.25rem; overflow-x: hidden; max-width: 100%; }
   .bs-page .arena-battle__stage { max-height: none; }
-  .bs-page .arena-battle__moves { margin-bottom: 0.5rem; }
-  .bs-page .arena-move-btn { min-height: auto; padding: 0.4rem 0.3rem; }
-  .bs-page .arena-move-btn__label { font-size: 0.7rem; }
+  .bs-page .arena-battle__moves { margin-bottom: 0.5rem; width: 100%; max-width: 100%; }
+  .bs-page .arena-move-btn { min-height: auto; padding: 0.4rem 0.3rem; min-width: 0; overflow: hidden; }
+  .bs-page .arena-move-btn__label { font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bs-page .arena-move-btn__stat { font-size: 0.55rem; }
   .bs-page .arena-move-btn__cost { font-size: 0.45rem; }
   .bs-page .arena-stance-row { margin: 0.15rem 0; }
@@ -4657,20 +4661,22 @@
 
 @media (max-width: 375px) {
   /* Battle screen — prevent overflow on narrowest phones */
-  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.15rem 0; }
-  .bs-page .arena-battle { padding: 0 0.15rem 0.25rem; overflow-x: hidden; }
-  .bs-page .arena-battle__field { padding: 0.35rem 0.15rem; gap: 0.15rem; }
-  .bs-page .arena-combatant { padding: 0.25rem 0.3rem; gap: 0.25rem; min-width: 0; max-width: calc(50% - 16px); }
+  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.15rem 0; max-width: 100vw; }
+  .bs-page .arena-battle { padding: 0 0.15rem 0.25rem; overflow: hidden; max-width: 100%; }
+  .bs-page .arena-battle__stage { overflow: hidden; }
+  .bs-page .arena-battle__field { padding: 0.3rem 0.15rem; gap: 0.15rem; max-width: 100%; }
+  .bs-page .arena-combatant { padding: 0.25rem 0.25rem; gap: 0.2rem; min-width: 0; flex: 1 1 0; overflow: hidden; }
   .bs-page .arena-combatant__card { width: 56px; height: 70px; min-height: auto; }
-  .bs-page .arena-combatant__name { font-size: 0.6rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .bs-page .arena-battle__vs { width: 20px; }
-  .bs-page .arena-battle__vs-text { font-size: 0.6rem; letter-spacing: 0; }
-  .bs-page .arena-battle__moves { gap: 0.25rem; padding: 0 0.1rem; }
-  .bs-page .arena-move-btn { padding: 0.35rem 0.2rem; }
-  .bs-page .arena-move-btn i { font-size: 1rem; }
-  .bs-page .arena-move-btn__label { font-size: 0.6rem; }
+  .bs-page .arena-combatant__name { font-size: 0.6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  .bs-page .arena-battle__vs { width: 18px; }
+  .bs-page .arena-battle__vs-text { font-size: 0.55rem; letter-spacing: 0; }
+  .bs-page .arena-battle__moves { gap: 0.2rem; padding: 0; width: 100%; max-width: 100%; }
+  .bs-page .arena-move-btn { padding: 0.3rem 0.15rem; min-width: 0; overflow: hidden; }
+  .bs-page .arena-move-btn i { font-size: 0.95rem; }
+  .bs-page .arena-move-btn__label { font-size: 0.58rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bs-page .arena-stamina-bar__text { font-size: 0.5rem; }
   .bs-page .arena-hp-bar__text { font-size: 0.5rem; }
+  .bs-page .arena-battle__log { max-width: 100%; }
 }
 
 @media (max-width: 360px) {
@@ -9950,7 +9956,7 @@ body.bs-adventure-active {
   .bs-lobby { gap: 0.75rem; padding-top: 0.5rem; }
 
   /* Battle move buttons — ensure 56px min-height (from 52px) */
-  .bs-page .arena-move-btn { min-height: 56px; }
+  .bs-page .arena-move-btn { min-height: 56px; min-width: 0; overflow: hidden; }
 
   /* Matchmaking — compact for phones */
   .bs-mm-vs-row { gap: 0.75rem; max-width: 100%; }
@@ -9971,13 +9977,22 @@ body.bs-adventure-active {
 
 /* --- 375px: iPhone SE and smallest phones --- */
 @media (max-width: 375px) {
-  /* Battle moves — widen touch padding from 0.25rem to 0.4rem */
+  /* Battle — force everything to fit 375px viewport */
+  .bs-page .arena-battle { width: 100%; max-width: 100%; margin: 0; overflow: hidden; }
+  .bs-page .arena-battle__stage { overflow: hidden; }
+  .bs-page .arena-battle__field { width: 100%; max-width: 100%; }
+  .bs-page .arena-combatant { min-width: 0; flex: 1 1 0; overflow: hidden; }
+
+  /* Battle moves — compact padding to fit 3+2 grid within 375px */
   .bs-page .arena-move-btn {
-    padding: 0.5rem 0.4rem;
-    min-height: 54px;
+    padding: 0.4rem 0.2rem;
+    min-height: 48px;
+    min-width: 0;
+    overflow: hidden;
   }
-  /* Battle moves — slightly more gap so fingers don't hit neighbors */
-  .bs-page .arena-battle__moves { gap: 0.35rem; }
+  .bs-page .arena-move-btn__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Battle moves — tight gap to prevent overflow */
+  .bs-page .arena-battle__moves { gap: 0.25rem; width: 100%; max-width: 100%; }
 
   /* Lobby — minimal gap, no wasted space */
   .bs-lobby { gap: 0.5rem; }
