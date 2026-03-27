@@ -4553,10 +4553,13 @@
   .bs-page .arena-battle__field {
     gap: 0.2rem;
     padding: 0.4rem 0.25rem;
+    overflow: hidden;
   }
   .bs-page .arena-combatant {
     padding: 0.3rem 0.5rem;
     gap: 0.4rem;
+    min-width: 0;
+    max-width: calc(50% - 18px);
   }
   .bs-page .arena-combatant__card {
     width: 64px;
@@ -4567,12 +4570,16 @@
   .bs-page .arena-combatant__nameplate {
     margin-top: 0;
     padding: 0.1rem 0.3rem;
+    max-width: 100%;
+    overflow: hidden;
   }
-  .bs-page .arena-combatant__name { font-size: 0.65rem; }
+  .bs-page .arena-combatant__name { font-size: 0.65rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .bs-page .arena-hp-bar { height: 8px; }
   .bs-page .arena-hp-bar__text { font-size: 0.55rem; }
-  .bs-page .arena-battle__vs { height: 20px; }
-  .bs-page .arena-battle__vs-text { font-size: 0.75rem; }
+  .bs-page .arena-battle__vs { width: 28px; height: 20px; }
+  .bs-page .arena-battle__vs-text { font-size: 0.7rem; }
+  .bs-page .arena-battle__vs::before,
+  .bs-page .arena-battle__vs::after { display: none; }
 
   /* Hide buff chips on mobile — too noisy, takes space */
   .bs-page .arena-player-buffs { display: none; }
@@ -4636,8 +4643,8 @@
 @media (max-width: 480px) {
   /* Mobile battle — stage shrinks, remove max-height and let flex handle it */
   body.bs-battle-active .bs-play { height: calc(100dvh - 44px); }
-  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.5rem 0; }
-  .bs-page .arena-battle { padding: 0 0.5rem 0.25rem; }
+  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.5rem 0; overflow-x: hidden; }
+  .bs-page .arena-battle { padding: 0 0.5rem 0.25rem; overflow-x: hidden; }
   .bs-page .arena-battle__stage { max-height: none; }
   .bs-page .arena-battle__moves { margin-bottom: 0.5rem; }
   .bs-page .arena-move-btn { min-height: auto; padding: 0.4rem 0.3rem; }
@@ -4650,15 +4657,20 @@
 
 @media (max-width: 375px) {
   /* Battle screen — prevent overflow on narrowest phones */
-  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.25rem 0; }
-  .bs-page .arena-battle { padding: 0 0.25rem 0.25rem; }
-  .bs-page .arena-battle__field { padding: 0.4rem 0.25rem; gap: 0.2rem; }
-  .bs-page .arena-combatant { padding: 0.3rem 0.4rem; gap: 0.3rem; }
+  .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.15rem 0; }
+  .bs-page .arena-battle { padding: 0 0.15rem 0.25rem; overflow-x: hidden; }
+  .bs-page .arena-battle__field { padding: 0.35rem 0.15rem; gap: 0.15rem; }
+  .bs-page .arena-combatant { padding: 0.25rem 0.3rem; gap: 0.25rem; min-width: 0; max-width: calc(50% - 16px); }
   .bs-page .arena-combatant__card { width: 56px; height: 70px; min-height: auto; }
-  .bs-page .arena-battle__moves { gap: 0.25rem; }
-  .bs-page .arena-move-btn { padding: 0.35rem 0.25rem; }
+  .bs-page .arena-combatant__name { font-size: 0.6rem; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bs-page .arena-battle__vs { width: 20px; }
+  .bs-page .arena-battle__vs-text { font-size: 0.6rem; letter-spacing: 0; }
+  .bs-page .arena-battle__moves { gap: 0.25rem; padding: 0 0.1rem; }
+  .bs-page .arena-move-btn { padding: 0.35rem 0.2rem; }
   .bs-page .arena-move-btn i { font-size: 1rem; }
-  .bs-page .arena-move-btn__label { font-size: 0.65rem; }
+  .bs-page .arena-move-btn__label { font-size: 0.6rem; }
+  .bs-page .arena-stamina-bar__text { font-size: 0.5rem; }
+  .bs-page .arena-hp-bar__text { font-size: 0.5rem; }
 }
 
 @media (max-width: 360px) {
