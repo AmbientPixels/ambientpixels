@@ -1703,6 +1703,8 @@
         window.ArenaBattleUI.initBattle(battleData);
         // Telegraph: show boss's first committed move
         if (battleData.bossIntent) window.ArenaBattleUI.showBossIntent(battleData.bossIntent);
+        addItemButtonsToBattle();
+        addCharmButtonToBattle();
         updateCombatTooltips();
         applyBattlePalette();
       } catch (err) {
@@ -1778,6 +1780,8 @@
       window.ArenaBattleUI.initBattle(battleData);
       // Telegraph: show boss's first committed move
       if (battleData.bossIntent) window.ArenaBattleUI.showBossIntent(battleData.bossIntent);
+      addItemButtonsToBattle();
+      addCharmButtonToBattle();
       updateCombatTooltips();
       applyBattlePalette();
       // Tutorial hint for first 3 campaign battles; normal hint otherwise
