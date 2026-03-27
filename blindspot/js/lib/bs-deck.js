@@ -102,6 +102,15 @@
       '</div>';
     }).join('');
 
+    // Append ghost cards (lost in wager)
+    var _W = window.BsWager || {};
+    if (_W.detectGhostCards) {
+      var ghosts = _W.detectGhostCards([], deck);
+      if (ghosts.length > 0 && _W.renderGhostCard) {
+        grid.innerHTML += ghosts.map(function(g) { return _W.renderGhostCard(g); }).join('');
+      }
+    }
+
     // Bind events (once)
     if (!_deckEventsBound) {
       _deckEventsBound = true;
@@ -120,6 +129,16 @@
 
     // Card click = set active (delegated)
     grid.onclick = function(e) {
+      var ghostDismiss = e.target.closest('[data-dismiss-ghost]');
+      if (ghostDismiss) {
+        e.stopPropagation();
+        var ghostId = ghostDismiss.dataset.dismissGhost;
+        if (window.BsWager && window.BsWager.dismissGhost) window.BsWager.dismissGhost(ghostId);
+        var ghostEl = ghostDismiss.closest('.bs-deck-card--ghost');
+        if (ghostEl) ghostEl.remove();
+        return;
+      }
+
       var lockBtn = e.target.closest('.bs-deck-card__lock-toggle');
       if (lockBtn) {
         e.stopPropagation();

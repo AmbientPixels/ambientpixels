@@ -475,6 +475,190 @@
   }
 
   // ═══════════════════════════════════════
+  // ACTIVE WAGER SERIES TRACKER
+  // ═══════════════════════════════════════
+
+  function renderSeriesTracker(wager) {
+    if (!wager || wager.tier !== 'skull') return '';
+    var record = wager.seriesRecord || [null, null, null];
+    var myUserId = getProgress().userId || '';
+    var mySide = wager.playerA && wager.playerA.userId === myUserId ? 'playerA' : 'playerB';
+    var oppSide = mySide === 'playerA' ? 'playerB' : 'playerA';
+
+    var dots = '';
+    for (var i = 0; i < 3; i++) {
+      var cls = 'bs-wager-series__dot';
+      if (record[i] === mySide) cls += ' bs-wager-series__dot--win';
+      else if (record[i] === oppSide) cls += ' bs-wager-series__dot--loss';
+      else if (record[i] === null && i <= (wager.currentMatchIndex || 0)) cls += ' bs-wager-series__dot--current';
+      dots += '<div class="' + cls + '"></div>';
+    }
+
+    var myWins = record.filter(function(r) { return r === mySide; }).length;
+    var oppWins = record.filter(function(r) { return r === oppSide; }).length;
+    var oppName = wager[oppSide] && wager[oppSide].snapshot ? wager[oppSide].snapshot.name : 'Opponent';
+
+    return '<div class="bs-wager-series">' +
+      '<div class="bs-wager-series__header"><i class="fas fa-skull" style="color:#ff3333;"></i> Skull Ante Series</div>' +
+      '<div class="bs-wager-series__score">' + myWins + ' — ' + oppWins + '</div>' +
+      '<div class="bs-wager-series__dots">' + dots + '</div>' +
+      '<div class="bs-wager-series__opponent">vs ' + escHtml(oppName) + '</div>' +
+      (wager.status === 'active' ? '<div class="bs-wager-series__status">Match ' + ((wager.currentMatchIndex || 0) + 1) + ' of 3</div>' : '') +
+    '</div>';
+  }
+
+  function renderActiveWagers() {
+    var container = document.getElementById('bs-active-wagers');
+    if (!container) return;
+
+    var progress = getProgress();
+    var activeWagers = progress.activeWagers || [];
+    if (activeWagers.length === 0) {
+      container.innerHTML = '';
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = '';
+    container.innerHTML = '<div class="bs-active-wagers__title"><i class="fas fa-swords"></i> Active Wagers (' + activeWagers.length + ')</div>' +
+      '<div class="bs-active-wagers__list" id="bs-active-wagers-list"><div class="bs-loading"><div class="bs-spinner"></div></div></div>';
+
+    // Load wager details (async, lazy)
+    // For now, show count — details require API call to load each wager
+    // TODO: Phase 8 — add endpoint to batch-load active wagers
+  }
+
+  // ═══════════════════════════════════════
+  // WAGER RESULTS OVERLAY
+  // ═══════════════════════════════════════
+
+  function showWagerResult(result) {
+    var existing = document.getElementById('bs-wager-result-overlay');
+    if (existing) existing.remove();
+
+    var isWin = result.outcome === 'win' && result.winnerId === (getProgress().userId || '');
+    var isDraw = result.outcome === 'draw';
+    var isSkull = result.tier === 'skull';
+
+    var icon, title, subtitle, bgClass;
+    if (isDraw) {
+      icon = 'fa-handshake';
+      title = 'Draw';
+      subtitle = 'Series expired — both cards returned.';
+      bgClass = 'bs-wager-result--draw';
+    } else if (isWin) {
+      icon = isSkull ? 'fa-skull' : 'fa-trophy';
+      title = isSkull ? 'TROPHY KILL' : 'Challenger Victory!';
+      subtitle = isSkull ? 'Their card is yours now.' : 'You received a copy of their card.';
+      bgClass = 'bs-wager-result--win';
+    } else {
+      icon = 'fa-heart-crack';
+      title = isSkull ? 'Skull Ante Lost' : 'Challenger Defeat';
+      subtitle = isSkull ? 'Your card has been claimed.' : 'They received a copy of your card.';
+      bgClass = 'bs-wager-result--loss';
+    }
+
+    var badgeHtml = '';
+    if (result.badges && result.badges.length > 0) {
+      badgeHtml = '<div class="bs-wager-result__badges">' +
+        result.badges.map(function(b) { return renderBadge(b); }).join('') +
+      '</div>';
+    }
+
+    var overlay = document.createElement('div');
+    overlay.id = 'bs-wager-result-overlay';
+    overlay.className = 'bs-wager-overlay';
+    overlay.innerHTML =
+      '<div class="bs-wager-result ' + bgClass + '">' +
+        '<div class="bs-wager-result__icon"><i class="fas ' + icon + '"></i></div>' +
+        '<h2 class="bs-wager-result__title">' + title + '</h2>' +
+        '<p class="bs-wager-result__subtitle">' + subtitle + '</p>' +
+        badgeHtml +
+        '<button class="bs-btn bs-wager-result__dismiss" id="bs-wager-result-close">Continue</button>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+    document.getElementById('bs-wager-result-close').addEventListener('click', function() {
+      overlay.remove();
+      refreshDeck();
+    });
+  }
+
+  // ═══════════════════════════════════════
+  // GHOST CARDS
+  // ═══════════════════════════════════════
+
+  var _ghostCards = [];
+
+  function setGhostCards(ghosts) {
+    _ghostCards = Array.isArray(ghosts) ? ghosts : [];
+  }
+
+  function getGhostCards() {
+    return _ghostCards;
+  }
+
+  function renderGhostCard(ghost) {
+    var name = ghost.name || 'Lost Card';
+    return '<div class="bs-deck-card bs-deck-card--ghost" data-ghost-id="' + escHtml(ghost.cardId || ghost.id || '') + '">' +
+      '<div class="bs-deck-card--ghost__overlay">' +
+        '<i class="fas fa-skull"></i>' +
+        '<span>LOST IN WAGER</span>' +
+      '</div>' +
+      '<div class="bs-deck-card--ghost__name">' + escHtml(name) + '</div>' +
+      '<button class="bs-deck-card--ghost__dismiss" data-dismiss-ghost="' + escHtml(ghost.cardId || ghost.id || '') + '"><i class="fas fa-times"></i></button>' +
+    '</div>';
+  }
+
+  function dismissGhost(cardId) {
+    _ghostCards = _ghostCards.filter(function(g) { return (g.cardId || g.id) !== cardId; });
+    // Persist dismissal
+    try {
+      var dismissed = JSON.parse(localStorage.getItem('bs-dismissed-ghosts') || '[]');
+      if (dismissed.indexOf(cardId) === -1) dismissed.push(cardId);
+      localStorage.setItem('bs-dismissed-ghosts', JSON.stringify(dismissed));
+    } catch (e) { /* non-critical */ }
+  }
+
+  // Build ghost list from completed wagers where user lost a card
+  function detectGhostCards(activeWagers, deck) {
+    // Ghost cards are cards that were in activeWagers but are no longer in the deck
+    // This is detected by checking if any wager with transferComplete has the user's card missing
+    // For now, ghosts are populated by the inbox result entries (skull_loss)
+    // The inbox handler can call setGhostCards with the lost card data
+    var dismissed = [];
+    try { dismissed = JSON.parse(localStorage.getItem('bs-dismissed-ghosts') || '[]'); } catch (e) {}
+    return _ghostCards.filter(function(g) { return dismissed.indexOf(g.cardId || g.id) === -1; });
+  }
+
+  // ═══════════════════════════════════════
+  // BADGE RENDERING
+  // ═══════════════════════════════════════
+
+  var BADGE_DEFS = {
+    challenger_win:    { icon: 'fa-swords',          color: '#FFD700', label: 'Challenger' },
+    skull_executioner:  { icon: 'fa-skull-crossbones', color: '#ff3333', label: 'Executioner' },
+    skull_resurrect:    { icon: 'fa-cross',            color: '#4ade80', label: 'Resurrect' },
+    skull_scar:         { icon: 'fa-skull',            color: '#8a8a8a', label: 'Scar' }
+  };
+
+  function renderBadge(badge) {
+    var type = typeof badge === 'string' ? badge : (badge.type || '');
+    var def = BADGE_DEFS[type];
+    if (!def) return '';
+    return '<span class="bs-wager-badge" style="color:' + def.color + ';" title="' + escHtml(def.label) + '">' +
+      '<i class="fas ' + def.icon + '"></i> ' + escHtml(def.label) +
+    '</span>';
+  }
+
+  function renderBadgeRow(badges) {
+    if (!badges || badges.length === 0) return '';
+    return '<div class="bs-wager-badge-row">' +
+      badges.map(function(b) { return renderBadge(b); }).join('') +
+    '</div>';
+  }
+
+  // ═══════════════════════════════════════
   // PUBLIC API
   // ═══════════════════════════════════════
 
@@ -484,6 +668,18 @@
     showPostModal: showPostModal,
     showAcceptModal: showAcceptModal,
     renderInboxWagerEntry: renderInboxWagerEntry,
-    isWagerInboxEntry: isWagerInboxEntry
+    isWagerInboxEntry: isWagerInboxEntry,
+    // Phase 6b additions
+    renderSeriesTracker: renderSeriesTracker,
+    renderActiveWagers: renderActiveWagers,
+    showWagerResult: showWagerResult,
+    setGhostCards: setGhostCards,
+    getGhostCards: getGhostCards,
+    renderGhostCard: renderGhostCard,
+    dismissGhost: dismissGhost,
+    detectGhostCards: detectGhostCards,
+    renderBadge: renderBadge,
+    renderBadgeRow: renderBadgeRow,
+    BADGE_DEFS: BADGE_DEFS
   };
 })();

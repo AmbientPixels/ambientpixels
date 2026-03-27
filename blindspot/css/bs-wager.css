@@ -346,6 +346,209 @@
   background: rgba(255, 51, 51, 0.05);
 }
 
+/* ── Series Tracker (Bo3) ── */
+.bs-wager-series {
+  background: var(--bs-surface-2, #1a1a2e);
+  border: 1px solid var(--bs-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.bs-wager-series__header {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ff3333;
+  margin-bottom: 0.35rem;
+}
+.bs-wager-series__score {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--bs-text);
+  letter-spacing: 0.1em;
+}
+.bs-wager-series__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+.bs-wager-series__dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--bs-border);
+  background: transparent;
+}
+.bs-wager-series__dot--win {
+  background: var(--bs-success, #4ade80);
+  border-color: var(--bs-success, #4ade80);
+}
+.bs-wager-series__dot--loss {
+  background: var(--bs-danger, #ff5252);
+  border-color: var(--bs-danger, #ff5252);
+}
+.bs-wager-series__dot--current {
+  border-color: var(--bs-accent-glow, #fbbf24);
+  animation: bs-wager-pulse 2s infinite;
+}
+@keyframes bs-wager-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+}
+.bs-wager-series__opponent {
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+}
+.bs-wager-series__status {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ── Active Wagers Panel ── */
+.bs-active-wagers__title {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bs-border);
+}
+
+/* ── Wager Result Overlay ── */
+.bs-wager-result {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  border-radius: 1rem;
+}
+.bs-wager-result--win {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(74, 222, 128, 0.1));
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+.bs-wager-result--loss {
+  background: linear-gradient(135deg, rgba(255, 51, 51, 0.15), rgba(100, 30, 30, 0.1));
+  border: 1px solid rgba(255, 51, 51, 0.3);
+}
+.bs-wager-result--draw {
+  background: var(--bs-surface, #141420);
+  border: 1px solid var(--bs-border);
+}
+.bs-wager-result__icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+.bs-wager-result--win .bs-wager-result__icon { color: #fbbf24; }
+.bs-wager-result--loss .bs-wager-result__icon { color: #ff3333; }
+.bs-wager-result--draw .bs-wager-result__icon { color: var(--bs-text-muted); }
+.bs-wager-result__title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  color: var(--bs-text);
+}
+.bs-wager-result__subtitle {
+  font-size: 0.85rem;
+  color: var(--bs-text-muted);
+  margin: 0 0 1rem;
+}
+.bs-wager-result__badges {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.bs-wager-result__dismiss {
+  margin-top: 0.5rem;
+}
+
+/* ── Ghost Cards ── */
+.bs-deck-card--ghost {
+  position: relative;
+  opacity: 0.3;
+  pointer-events: auto;
+  filter: grayscale(1);
+}
+.bs-deck-card--ghost__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ff3333;
+  font-size: 0.75rem;
+  font-weight: 700;
+  gap: 0.25rem;
+  z-index: 2;
+  border-radius: inherit;
+}
+.bs-deck-card--ghost__overlay i {
+  font-size: 1.5rem;
+}
+.bs-deck-card--ghost__name {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  padding: 0.2rem 0;
+}
+.bs-deck-card--ghost__dismiss {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background: var(--bs-surface-2);
+  border: 1px solid var(--bs-border);
+  color: var(--bs-text-muted);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  z-index: 3;
+}
+
+/* ── Badge Display ── */
+.bs-wager-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.bs-wager-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.5rem 0;
+}
+
+/* ── PvP Rating Wager Stats ── */
+.bs-pvp-wager-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--bs-border, #2a2a3a);
+}
+.bs-pvp-wager-stat {
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 /* ── Mobile ── */
 @media (max-width: 480px) {
   .bs-wager-grid {

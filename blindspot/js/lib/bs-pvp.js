@@ -79,13 +79,43 @@
       progressHtml = '<div class="bs-pvp-progress"><div class="bs-pvp-progress__fill" style="width:' + pct + '%;background:' + rank.color + ';"></div></div>' +
         '<span class="bs-pvp-next">' + nextRank.name + ' at ' + nextRank.min + '</span>';
     }
+    // Wager stats
+    var trophyKills = _progress.trophyKills || 0;
+    var scars = _progress.scars || 0;
+    var peakRank = _progress.peakRank || 'Iron';
+    var badges = _progress.badges || [];
+    var wagerStatsHtml = '';
+
+    if (trophyKills > 0 || scars > 0 || badges.length > 0) {
+      wagerStatsHtml = '<div class="bs-pvp-wager-stats">';
+      if (peakRank && peakRank !== 'Iron') {
+        var peakRankDef = PVP_RANKS.find(function(r) { return r.name === peakRank; });
+        var peakColor = peakRankDef ? peakRankDef.color : '#8a8a8a';
+        wagerStatsHtml += '<span class="bs-pvp-wager-stat" title="Peak Rank"><i class="fas fa-mountain" style="color:' + peakColor + ';"></i> Peak: ' + peakRank + '</span>';
+      }
+      if (trophyKills > 0) {
+        wagerStatsHtml += '<span class="bs-pvp-wager-stat" title="Trophy Kills"><i class="fas fa-skull" style="color:#ff3333;"></i> ' + trophyKills + ' Kill' + (trophyKills !== 1 ? 's' : '') + '</span>';
+      }
+      if (scars > 0) {
+        wagerStatsHtml += '<span class="bs-pvp-wager-stat" title="Scars — you played for real"><i class="fas fa-heart-crack" style="color:#8a8a8a;"></i> ' + scars + ' Scar' + (scars !== 1 ? 's' : '') + '</span>';
+      }
+      wagerStatsHtml += '</div>';
+
+      // Badge row
+      var _W = window.BsWager || {};
+      if (badges.length > 0 && _W.renderBadgeRow) {
+        wagerStatsHtml += _W.renderBadgeRow(badges);
+      }
+    }
+
     el.innerHTML =
       '<div class="bs-pvp-rank-badge" style="color:' + rank.color + ';">' +
         '<i class="fas ' + rank.icon + '"></i> ' + rank.name +
       '</div>' +
       '<div class="bs-pvp-elo">' + elo + ' Elo</div>' +
       '<div class="bs-pvp-record">' + rec.w + 'W / ' + rec.l + 'L</div>' +
-      progressHtml;
+      progressHtml +
+      wagerStatsHtml;
   }
 
   // ── PvP Gallery ──
@@ -490,13 +520,32 @@
       var losses = inbox.filter(function(r) { return r.result === 'loss'; }).length;
       var totalSparks = data.totalSparks || 0;
 
+      // Separate wager entries from defense results
+      var _W = window.BsWager || {};
+      var wagerEntries = [];
+      var defenseEntries = [];
+      inbox.forEach(function(r) {
+        if (_W.isWagerInboxEntry && _W.isWagerInboxEntry(r)) {
+          wagerEntries.push(r);
+        } else {
+          defenseEntries.push(r);
+        }
+      });
+
+      // Render wager entries first
+      var wagerHtml = '';
+      if (wagerEntries.length > 0 && _W.renderInboxWagerEntry) {
+        wagerHtml = wagerEntries.map(function(e) { return _W.renderInboxWagerEntry(e) || ''; }).join('');
+      }
+
       container.innerHTML =
         '<div style="display:flex;justify-content:space-between;padding:0.5rem 1rem;font-size:0.8rem;color:var(--bs-text-muted);border-bottom:1px solid var(--bs-border);">' +
           '<span><i class="fas fa-shield-halved"></i> ' + wins + 'W / ' + losses + 'L</span>' +
           '<span><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ' + totalSparks + ' Sparks earned</span>' +
           (data.unreadCount > 0 ? '<button class="bs-btn--link" id="bs-dismiss-all" style="font-size:0.75rem;color:var(--bs-accent);cursor:pointer;background:none;border:none;">Mark all read</button>' : '') +
         '</div>' +
-        inbox.map(function(r) {
+        wagerHtml +
+        defenseEntries.map(function(r) {
           var isWin = r.result === 'win';
           var icon = isWin ? 'fa-trophy' : 'fa-skull';
           var color = isWin ? 'var(--bs-success, #4ade80)' : 'var(--bs-danger)';
@@ -535,6 +584,32 @@
         btn.addEventListener('click', function() {
           var opponentUserId = btn.dataset.revenge;
           if (_cb.startAsyncBattle) _cb.startAsyncBattle(opponentUserId, true);
+        });
+      });
+
+      // Wager inbox accept/decline buttons
+      container.querySelectorAll('[data-accept-wager]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var wagerId = btn.dataset.acceptWager;
+          var tier = btn.dataset.wagerTier || 'challenger';
+          if (_W.showAcceptModal) _W.showAcceptModal(wagerId, tier);
+        });
+      });
+      container.querySelectorAll('[data-decline-wager]').forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          var wagerId = btn.dataset.declineWager;
+          var tier = btn.dataset.wagerTier || 'challenger';
+          try {
+            if (tier === 'skull') {
+              await window.ArenaAPI.declineSkullChallenge(wagerId);
+            } else {
+              await window.ArenaAPI.declineChallenger(wagerId);
+            }
+            renderInboxPanel();
+          } catch (err) {
+            if (window.BsWager && window.BsWager.showToast) window.BsWager.showToast('Decline failed: ' + err.message);
+            else alert('Decline failed: ' + err.message);
+          }
         });
       });
     } catch (err) {
