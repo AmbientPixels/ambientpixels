@@ -539,27 +539,30 @@
     var card = deck.find(function(c) { return c.id === cardId; });
     if (!card) return;
 
-    var existing = document.getElementById('bs-shop-sell-confirm');
-    if (existing) existing.remove();
+    // Reuse the shop preview overlay (same pattern as buy confirmation)
+    var overlay = document.getElementById('bs-shop-preview');
+    if (!overlay) return;
 
-    var overlay = document.createElement('div');
-    overlay.id = 'bs-shop-sell-confirm';
-    overlay.className = 'bs-deck-confirm-overlay';
-    overlay.setAttribute('role', 'alertdialog');
-    overlay.innerHTML =
-      '<div class="bs-deck-confirm">' +
-        '<h3 class="bs-deck-confirm__title"><i class="fas fa-fire"></i> Sell for Sparks?</h3>' +
-        '<p class="bs-deck-confirm__text">Sell <strong>' + escHtml(card.name || 'this card') + '</strong> for <strong>' + sellValue + ' Sparks</strong>? This cannot be undone.</p>' +
-        '<div class="bs-deck-confirm__actions">' +
-          '<button class="bs-btn bs-btn--secondary" id="bs-shop-sell-cancel">Cancel</button>' +
-          '<button class="bs-btn bs-btn--primary" id="bs-shop-sell-yes"><i class="fas fa-fire"></i> Sell for ' + sellValue + ' Sparks</button>' +
-        '</div>' +
-      '</div>';
+    var rarityLabel = card.rarity || 'Common';
 
-    document.body.appendChild(overlay);
+    var html = '<div class="bs-shop-preview__card">'
+      + '<button class="bs-shop-preview__close" id="bs-shop-preview-close" aria-label="Close"><i class="fas fa-times"></i></button>'
+      + '<div class="bs-shop-preview__icon" style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i></div>'
+      + '<div class="bs-shop-preview__name">' + escHtml(card.name || 'Unnamed') + '</div>'
+      + '<div class="bs-shop-preview__rarity">' + escHtml(rarityLabel) + ' &middot; ' + escHtml(card.class || card.characterClass || '') + '</div>'
+      + '<div class="bs-shop-preview__desc">Sell this card for Sparks. This cannot be undone.</div>'
+      + '<button class="bs-shop-preview__buy" id="bs-shop-sell-yes">'
+      + '<i class="fas fa-fire"></i> Sell for ' + sellValue + ' Sparks'
+      + '</button>'
+      + '<button class="bs-shop-preview__cancel" id="bs-shop-sell-cancel">Cancel</button>'
+      + '</div>';
 
-    document.getElementById('bs-shop-sell-cancel').addEventListener('click', function() { overlay.remove(); });
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+    overlay.innerHTML = html;
+    overlay.classList.remove('bs-overlay--hidden');
+
+    document.getElementById('bs-shop-preview-close').addEventListener('click', hidePreview);
+    document.getElementById('bs-shop-sell-cancel').addEventListener('click', hidePreview);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) hidePreview(); });
 
     document.getElementById('bs-shop-sell-yes').addEventListener('click', async function() {
       if (_sellInProgress) return;
@@ -570,11 +573,10 @@
       try {
         var result = await window.ArenaAPI.sellCard(cardId);
         var earned = result.sparksEarned || sellValue;
-        // Update local state
         if (_cb.addSparks) _cb.addSparks(earned);
         if (_cb.removeCardFromDeck) _cb.removeCardFromDeck(cardId);
-        overlay.remove();
-        render(); // Re-render sell tab
+        hidePreview();
+        render();
         if (_cb.toast) _cb.toast('Sold ' + (card.name || 'card') + ' for ' + earned + ' Sparks!');
       } catch (err) {
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-fire"></i> Sell for ' + sellValue + ' Sparks'; }
