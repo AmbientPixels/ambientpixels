@@ -1711,6 +1711,7 @@
   background-repeat: no-repeat;
   flex: 1;
   min-height: 0;
+  max-height: 420px;
 }
 .bs-page .arena-battle__stage::before {
   content: '';
@@ -2277,7 +2278,7 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem;
   padding-bottom: env(safe-area-inset-bottom, 0.5rem);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 .bs-page .arena-move-btn {
   position: relative;
@@ -2349,6 +2350,7 @@
 
 /* --- Buff & Status Chips --- */
 .bs-page .arena-player-items { display: flex; gap: 0.35rem; justify-content: center; margin-top: 0.25rem; }
+.bs-page .arena-player-items:empty { display: none; }
 .bs-page .arena-item-chip { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(239, 159, 39, 0.12); border: 1px solid rgba(239, 159, 39, 0.3); }
 .bs-page .arena-item-chip i { font-size: 0.6rem; color: var(--bs-accent); }
 .bs-page .arena-item-chip--used { opacity: 0.3; border-color: rgba(255,255,255,0.1); }
