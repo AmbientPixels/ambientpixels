@@ -22,6 +22,7 @@ window.ArenaBattleUI = (function () {
   let _moveHistory = [];
   // Stance system
   let _playerStance = 'balanced';
+  let _stanceChangedThisTurn = false;
 
   function initBattle(battleData) {
     _battleData = battleData;
@@ -264,6 +265,7 @@ window.ArenaBattleUI = (function () {
       btn.classList.toggle('arena-stance-btn--active', stance === _playerStance);
       btn.onclick = function() {
         if (_isAnimating) return;
+        _stanceChangedThisTurn = (stance !== _playerStance);
         _playerStance = stance;
         row.querySelectorAll('.arena-stance-btn').forEach(function(b) {
           b.classList.toggle('arena-stance-btn--active', b.getAttribute('data-stance') === stance);
@@ -1083,7 +1085,8 @@ window.ArenaBattleUI = (function () {
       var moveExtra = {};
       if (boost) moveExtra.crowdBoost = true;
       if (window._pendingItemUse) { moveExtra.useItem = window._pendingItemUse; window._pendingItemUse = null; }
-      if (_playerStance !== 'balanced') moveExtra.stance = _playerStance;
+      if (_stanceChangedThisTurn) moveExtra.stance = _playerStance;
+      _stanceChangedThisTurn = false;
       const response = await window.ArenaAPI.submitMove(
         _battleData.battleId, _currentRound, submitMove, moveExtra
       );
