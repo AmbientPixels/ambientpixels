@@ -4649,7 +4649,7 @@
   /* Mobile battle — stage shrinks, remove max-height and let flex handle it */
   body.bs-battle-active .bs-play { height: calc(100dvh - 44px); overflow-x: hidden; }
   .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.5rem 0; overflow-x: hidden; max-width: 100vw; }
-  .bs-page .arena-battle { padding: 0 0.5rem 0.25rem; overflow-x: hidden; max-width: 100%; }
+  .bs-page .arena-battle { padding: 0 0.5rem 0.25rem; max-width: 100%; }
   .bs-page .arena-battle__stage { max-height: none; }
   .bs-page .arena-battle__moves { margin-bottom: 0.5rem; width: 100%; max-width: 100%; }
   .bs-page .arena-move-btn { min-height: auto; padding: 0.4rem 0.3rem; min-width: 0; overflow: hidden; }
@@ -4663,7 +4663,7 @@
 @media (max-width: 375px) {
   /* Battle screen — prevent overflow on narrowest phones */
   .bs-screen.active#bs-screen-battle { padding: 0.25rem 0.15rem 0; max-width: 100vw; }
-  .bs-page .arena-battle { padding: 0 0.15rem 0.25rem; overflow: hidden; max-width: 100%; }
+  .bs-page .arena-battle { padding: 0 0.15rem 0.25rem; max-width: 100%; }
   .bs-page .arena-battle__stage { overflow: visible; }
   .bs-page .arena-battle__field { padding: 0.3rem 0.15rem; gap: 0.15rem; max-width: 100%; }
   .bs-page .arena-combatant { padding: 0.25rem 0.25rem; gap: 0.2rem; min-width: 0; flex: 1 1 0; overflow: visible; }
@@ -9984,7 +9984,7 @@ body.bs-adventure-active {
 /* --- 375px: iPhone SE and smallest phones --- */
 @media (max-width: 375px) {
   /* Battle — force everything to fit 375px viewport */
-  .bs-page .arena-battle { width: 100%; max-width: 100%; margin: 0; overflow: hidden; }
+  .bs-page .arena-battle { width: 100%; max-width: 100%; margin: 0; }
   .bs-page .arena-battle__stage { overflow: visible; }
   .bs-page .arena-battle__field { width: 100%; max-width: 100%; }
   .bs-page .arena-combatant { min-width: 0; flex: 1 1 0; overflow: visible; }
