@@ -9394,7 +9394,13 @@ body.bs-adventure-active {
   overflow-y: auto;
   padding: 1.25rem 1.5rem 0;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-accent-dim, rgba(239, 159, 39, 0.3)) transparent;
 }
+.bs-adventure__story::-webkit-scrollbar { width: 6px; }
+.bs-adventure__story::-webkit-scrollbar-track { background: transparent; }
+.bs-adventure__story::-webkit-scrollbar-thumb { background: var(--bs-accent-dim, rgba(239, 159, 39, 0.3)); border-radius: 3px; }
+.bs-adventure__story::-webkit-scrollbar-thumb:hover { background: var(--bs-accent); }
 
 /* Persistent buff/item status bar under header */
 .bs-adventure__status-bar {
@@ -9441,7 +9447,6 @@ body.bs-adventure-active {
 .bs-adventure__image-wrap {
   width: 100%;
   aspect-ratio: 16 / 9;
-  max-height: 200px;
   border-radius: 12px;
   overflow: hidden;
   background: var(--bs-surface, #1a1610);
@@ -9523,14 +9528,14 @@ body.bs-adventure-active {
 /* --- Scene Text --- */
 
 .bs-adventure__text {
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--bs-text);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   text-align: left;
 }
 
 .bs-adventure__text p {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.75rem;
 }
 
 .bs-adventure__text p:last-child {
