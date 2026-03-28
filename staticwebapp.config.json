@@ -199,6 +199,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/blindspotlivebattle",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotlivebattle",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardforgearenabattle",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabattle",
       "allowedRoles": ["anonymous"]
