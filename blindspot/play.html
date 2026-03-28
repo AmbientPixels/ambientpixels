@@ -218,59 +218,68 @@
         </div>
         <div class="bs-pvp-rating" id="bs-pvp-rating"></div>
 
-        <!-- PvP Sub-tabs -->
+        <!-- PvP Sub-tabs: Defense (async) / Skulls (live) -->
         <div class="bs-pvp-tabs" role="tablist">
-          <button class="bs-pvp-tab bs-pvp-tab--active" data-pvp-tab="challenge" role="tab" aria-selected="true">
-            <i class="fas fa-swords"></i> Challenge
-          </button>
-          <button class="bs-pvp-tab" data-pvp-tab="defense" role="tab" aria-selected="false">
+          <button class="bs-pvp-tab bs-pvp-tab--active" data-pvp-tab="defense" role="tab" aria-selected="true">
             <i class="fas fa-shield-halved"></i> Defense
           </button>
-          <button class="bs-pvp-tab" data-pvp-tab="skull" role="tab" aria-selected="false">
-            <i class="fas fa-skull" style="color:#ff3333;"></i> Skull Ante
-          </button>
-          <button class="bs-pvp-tab" data-pvp-tab="inbox" role="tab" aria-selected="false">
-            <i class="fas fa-envelope"></i> Inbox <span id="bs-inbox-badge" class="bs-inbox-badge" style="display:none;">0</span>
+          <button class="bs-pvp-tab" data-pvp-tab="skulls" role="tab" aria-selected="false">
+            <i class="fas fa-skull" style="color:#ff3333;"></i> Skulls
           </button>
         </div>
 
-        <!-- TAB: Challenge (existing PvP gallery + async defense queue) -->
-        <div id="bs-pvp-panel-challenge" class="bs-pvp-panel bs-pvp-panel--active">
-          <p style="color: var(--bs-text-muted); text-align: center; padding: 0.5rem 1rem 0;">
-            Challenge cards left on defense by other players.
-          </p>
-          <div id="bs-async-queue" style="padding: 0.5rem 0;">
-            <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading defense queue...</div>
+        <!-- TAB: Defense (async PvP — register, challenge queue, gallery, inbox) -->
+        <div id="bs-pvp-panel-defense" class="bs-pvp-panel bs-pvp-panel--active">
+          <!-- Register/withdraw defense card -->
+          <div id="bs-defense-status" style="padding: 0.75rem 1rem;">
+            <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading defense status...</div>
           </div>
+          <!-- Defense queue (challenge AI defenders) -->
+          <div style="border-top:1px solid var(--bs-border);margin-top:0.25rem;padding-top:0.5rem;">
+            <p style="color: var(--bs-text-muted); text-align: center; padding: 0 1rem; margin:0 0 0.25rem; font-size:0.8rem;">
+              Challenge cards left on defense by other players.
+            </p>
+            <div id="bs-async-queue" style="padding: 0.5rem 0;">
+              <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading defense queue...</div>
+            </div>
+          </div>
+          <!-- Gallery (static cards) -->
           <div class="bs-pvp-divider" style="text-align:center;color:var(--bs-text-muted);font-size:0.75rem;padding:0.5rem 0;border-top:1px solid var(--bs-border);margin-top:0.5rem;">
             <i class="fas fa-users"></i> Gallery (static cards)
           </div>
           <div id="bs-pvp-grid">
             <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading gallery...</div>
           </div>
-        </div>
-
-        <!-- TAB: Defense (register your card) -->
-        <div id="bs-pvp-panel-defense" class="bs-pvp-panel" style="display:none;">
-          <div id="bs-defense-status" style="padding: 1rem;">
-            <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading defense status...</div>
-          </div>
-        </div>
-
-        <!-- TAB: Skull Ante (wager challenge board) -->
-        <div id="bs-pvp-panel-skull" class="bs-pvp-panel" style="display:none;">
-          <div id="bs-wager-board" style="padding: 0.5rem 0;">
-            <div class="bs-wager-empty">
-              <i class="fas fa-skull" style="font-size:2rem;opacity:0.3;"></i>
-              <p>Loading challenge board...</p>
+          <!-- Inbox (async battle results) -->
+          <div style="border-top:1px solid var(--bs-border);margin-top:0.75rem;padding-top:0.5rem;">
+            <h4 style="color:var(--bs-text-muted);font-size:0.8rem;margin:0 0 0.25rem 1rem;"><i class="fas fa-envelope"></i> Defense Results <span id="bs-inbox-badge" class="bs-inbox-badge" style="display:none;">0</span></h4>
+            <div id="bs-inbox-content" style="padding: 0.5rem 0;">
+              <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading results...</div>
             </div>
           </div>
         </div>
 
-        <!-- TAB: Inbox (async battle results) -->
-        <div id="bs-pvp-panel-inbox" class="bs-pvp-panel" style="display:none;">
-          <div id="bs-inbox-content" style="padding: 0.5rem 0;">
-            <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading results...</div>
+        <!-- TAB: Skulls (live PvP) -->
+        <div id="bs-pvp-panel-skulls" class="bs-pvp-panel" style="display:none;">
+          <!-- Mode toggle -->
+          <div class="bs-skulls-mode-toggle">
+            <button class="bs-skulls-mode bs-skulls-mode--active" data-mode="quick">Quick Match</button>
+            <button class="bs-skulls-mode bs-skulls-mode--disabled" data-mode="stakes" disabled title="Coming soon">Stakes Match</button>
+          </div>
+          <!-- Find Match -->
+          <div id="bs-live-match-section" class="bs-live-match">
+            <button id="bs-live-match-btn" class="bs-live-match__btn">
+              <i class="fas fa-gamepad"></i> Find Match
+            </button>
+            <p class="bs-live-match__subtitle">Battle a real player right now</p>
+            <div id="bs-live-match-status" class="bs-live-match__status" style="display:none;"></div>
+          </div>
+          <!-- Wager board (existing, for Stakes Match future use) -->
+          <div id="bs-wager-board" style="padding: 0.5rem 0; display:none;">
+            <div class="bs-wager-empty">
+              <i class="fas fa-skull" style="font-size:2rem;opacity:0.3;"></i>
+              <p>Loading challenge board...</p>
+            </div>
           </div>
         </div>
       </div>

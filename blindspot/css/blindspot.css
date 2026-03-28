@@ -6795,9 +6795,116 @@ body.bs-battle-active .bs-play {
   border-left: 2px solid var(--bs-accent, #00e5ff);
 }
 
+/* ── Skulls Tab: Mode Toggle ── */
+.bs-skulls-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  justify-content: center;
+}
+.bs-skulls-mode {
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--bs-border, #333);
+  background: transparent;
+  color: var(--bs-text-muted, #8a8a8a);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+.bs-skulls-mode:hover:not(:disabled) {
+  border-color: var(--bs-accent, #00e5ff);
+  color: var(--bs-accent, #00e5ff);
+}
+.bs-skulls-mode--active {
+  background: var(--bs-accent, #00e5ff);
+  color: var(--bs-bg, #0a0a0f);
+  border-color: var(--bs-accent, #00e5ff);
+  font-weight: 700;
+}
+.bs-skulls-mode--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Live Match Button ── */
+.bs-live-match {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+.bs-live-match__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2.5rem;
+  font-size: 1.1rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  color: var(--bs-bg, #0a0a0f);
+  background: linear-gradient(135deg, var(--bs-accent, #EF9F27), #ffcc33);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 12px rgba(239, 159, 39, 0.3);
+}
+.bs-live-match__btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(239, 159, 39, 0.5);
+}
+.bs-live-match__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.bs-live-match__subtitle {
+  color: var(--bs-text-muted, #8a8a8a);
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0;
+}
+.bs-live-match__status {
+  color: var(--bs-text, #e0e0e0);
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 0.75rem 0 0;
+}
+
+/* ── Waiting Indicator (in-battle) ── */
+.arena-waiting-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(10, 10, 15, 0.9);
+  border: 1px solid var(--bs-accent, #EF9F27);
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  color: var(--bs-text, #e0e0e0);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  z-index: 20;
+  text-align: center;
+  animation: arena-waiting-pulse 2s infinite;
+}
+@keyframes arena-waiting-pulse {
+  0%, 100% { border-color: var(--bs-accent, #EF9F27); box-shadow: 0 0 8px rgba(239, 159, 39, 0.2); }
+  50% { border-color: rgba(239, 159, 39, 0.4); box-shadow: 0 0 16px rgba(239, 159, 39, 0.4); }
+}
+
+/* ── Round Timer ── */
+.arena-round-timer {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.25rem 0;
+}
+
 @media (max-width: 480px) {
   .bs-pvp-tabs { padding: 0 0.5rem; }
   .bs-pvp-tab { font-size: 0.75rem; padding: 0.5rem 0.3rem; }
+  .bs-live-match__btn { padding: 0.75rem 1.5rem; font-size: 0.95rem; }
+  .bs-skulls-mode { font-size: 0.75rem; padding: 0.4rem 0.8rem; }
 }
 
 /* ============================================================

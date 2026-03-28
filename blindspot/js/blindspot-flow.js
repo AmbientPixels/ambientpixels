@@ -709,7 +709,12 @@
         hideOverlay: hideOverlay,
         renderCharmSelector: renderCharmSelector,
         startPvPBattle: startPvPBattle,
-        startAsyncBattle: startAsyncBattle
+        startAsyncBattle: startAsyncBattle,
+        startLiveBattle: startLiveBattle,
+        resumeLiveBattle: resumeLiveBattle,
+        onLiveRoundResolved: onLiveRoundResolved,
+        onLivePollUpdate: onLivePollUpdate,
+        onLiveBattleComplete: onLiveBattleComplete
       });
       if (_Rew.setCallbacks) _Rew.setCallbacks({
         getHighestBoss: getHighestBossDefeated, getBestStreak: getBestStreak,
@@ -1212,6 +1217,14 @@
     bindPlayNavigation();
     updatePlayAuthUI();
     dismissLoadingGate();
+
+    // Check for active live PvP battle to resume
+    if (!checkForActiveLiveBattle()) {
+      // Also check profile fallback
+      if (_profile && _profile.activeLiveBattle) {
+        resumeLiveBattle(_profile.activeLiveBattle);
+      }
+    }
 
     // Post-Quick-Build onboarding: show 3-step welcome on first lobby visit
     // Skip if server profile shows returning player (cache clear shouldn't re-onboard)
@@ -2017,6 +2030,217 @@
       showErrorToast(err.message || 'Async PvP battle failed.');
       showScreen('pvp');
     }
+  }
+
+  // ============================================================
+  // LIVE PVP — real-time player vs player
+  // ============================================================
+
+  async function startLiveBattle(battleId) {
+    _battleType = 'live_pvp';
+    _currentBossId = null;
+
+    if (window.ArenaAudio && window.ArenaBackgrounds) {
+      window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
+    }
+
+    try {
+      // Poll for initial battle state
+      var data = await window.ArenaAPI.pollBattle(battleId);
+      if (!data || data.status === 'expired') {
+        showErrorToast('Battle expired.');
+        _Pvp.clearActiveBattle();
+        showScreen('pvp');
+        return;
+      }
+
+      // Build battleData in the format ArenaBattleUI expects
+      var battleData = buildLiveBattleData(data, battleId);
+      _activeBattle = battleData;
+
+      showScreen('battle');
+      window.ArenaBattleUI.initBattle(battleData);
+      updateCombatTooltips();
+
+      // Show waiting indicator if it's the start of a round
+      showLiveWaiting(data);
+
+      // Start polling
+      _Pvp.startBattlePoll(battleId);
+    } catch (err) {
+      console.error('[Blindspot] Live PvP error:', err);
+      showErrorToast('Live PvP battle failed.');
+      _Pvp.clearActiveBattle();
+      showScreen('pvp');
+    }
+  }
+
+  async function resumeLiveBattle(battleId) {
+    try {
+      var data = await window.ArenaAPI.pollBattle(battleId);
+      if (!data || data.status === 'complete' || data.status === 'expired') {
+        _Pvp.clearActiveBattle();
+        if (data && data.status === 'complete') {
+          onLiveBattleComplete(data);
+        }
+        return;
+      }
+      startLiveBattle(battleId);
+    } catch (err) {
+      _Pvp.clearActiveBattle();
+    }
+  }
+
+  function buildLiveBattleData(pollData, battleId) {
+    var config = window._config || {};
+    return {
+      battleId: battleId,
+      type: 'live_pvp',
+      player: {
+        name: (pollData.myCard && pollData.myCard.name) || 'You',
+        class: (pollData.myCard && pollData.myCard.class) || '',
+        avatar: (pollData.myCard && pollData.myCard.avatar) || '',
+        combatStats: pollData.myCombatStats || {},
+        maxHp: pollData.myMaxHp,
+        hp: pollData.myHp,
+        passives: pollData.myPassives || [],
+        abilityKey: pollData.myAbilityKey,
+        element: pollData.myElement,
+        abilityDef: pollData.abilityDefs ? pollData.abilityDefs[pollData.myAbilityKey] : null
+      },
+      opponent: {
+        name: (pollData.opponentCard && pollData.opponentCard.name) || 'Opponent',
+        class: (pollData.opponentCard && pollData.opponentCard.class) || '',
+        avatar: (pollData.opponentCard && pollData.opponentCard.avatar) || '',
+        combatStats: pollData.opponentCombatStats || {},
+        maxHp: pollData.opponentMaxHp,
+        hp: pollData.opponentHp,
+        element: pollData.opponentElement,
+        abilityKey: pollData.opponentAbilityKey
+      },
+      charges: { player: pollData.myCharges || 0, opponent: pollData.opponentCharges || 0 },
+      chargeRate: 1,
+      abilityCost: pollData.abilityCost || 2,
+      maxCharges: pollData.maxCharges || 4,
+      stamina: { player: pollData.myStamina || 20, opponent: pollData.opponentStamina || 20 },
+      maxStamina: { player: pollData.myMaxStamina || 20, opponent: pollData.opponentMaxStamina || 20 },
+      staminaRegen: { player: 2, opponent: 2 },
+      cooldowns: { player: pollData.myCooldowns || {}, opponent: pollData.opponentCooldowns || {} },
+      stances: { player: pollData.myStance || 'balanced', opponent: pollData.opponentStance || 'balanced' },
+      elements: { player: pollData.myElement || 'chaos', opponent: pollData.opponentElement || 'chaos' },
+      currentRound: pollData.currentRound || 1,
+      totalRounds: 99,
+      status: 'active'
+    };
+  }
+
+  function showLiveWaiting(pollData) {
+    var indicator = document.getElementById('arena-waiting-indicator');
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.id = 'arena-waiting-indicator';
+      indicator.className = 'arena-waiting-indicator';
+      var field = document.querySelector('.arena-battle__field');
+      if (field) field.appendChild(indicator);
+    }
+
+    if (pollData.myMoveSubmitted && !pollData.opponentMoveSubmitted) {
+      indicator.innerHTML = '<i class="fas fa-hourglass-half fa-spin"></i> Waiting for opponent...';
+      indicator.style.display = '';
+    } else if (!pollData.myMoveSubmitted && pollData.opponentMoveSubmitted) {
+      indicator.innerHTML = '<i class="fas fa-exclamation-circle" style="color:var(--bs-accent);"></i> Opponent ready! Choose your moves.';
+      indicator.style.display = '';
+    } else {
+      indicator.style.display = 'none';
+    }
+  }
+
+  function onLiveRoundResolved(pollData) {
+    // Update battle state from poll
+    if (!_activeBattle) return;
+    _activeBattle.charges = { player: pollData.myCharges, opponent: pollData.opponentCharges };
+    _activeBattle.stamina = { player: pollData.myStamina, opponent: pollData.opponentStamina };
+    _activeBattle.cooldowns = { player: pollData.myCooldowns || {}, opponent: pollData.opponentCooldowns || {} };
+    _activeBattle.stances = { player: pollData.myStance || 'balanced', opponent: pollData.opponentStance || 'balanced' };
+    _activeBattle.currentRound = pollData.currentRound;
+
+    // Update HP bars
+    if (window.ArenaBattleUI) {
+      window.ArenaBattleUI.updateHpBars(pollData.myHp, pollData.myMaxHp, pollData.opponentHp, pollData.opponentMaxHp);
+      if (window.ArenaBattleUI.updateStaminaBars) window.ArenaBattleUI.updateStaminaBars();
+      if (window.ArenaBattleUI.updateChargeDisplay) window.ArenaBattleUI.updateChargeDisplay();
+      if (window.ArenaBattleUI.updateCooldownOverlays) window.ArenaBattleUI.updateCooldownOverlays();
+      if (window.ArenaBattleUI.enableMoves) window.ArenaBattleUI.enableMoves(true);
+    }
+
+    showLiveWaiting(pollData);
+  }
+
+  function onLivePollUpdate(pollData) {
+    showLiveWaiting(pollData);
+
+    // Update round countdown
+    if (pollData.roundDeadline) {
+      var offset = _Pvp.getClockOffset ? _Pvp.getClockOffset() : 0;
+      var remaining = Math.max(0, new Date(pollData.roundDeadline).getTime() - (Date.now() + offset));
+      var seconds = Math.ceil(remaining / 1000);
+      var timerEl = document.getElementById('arena-round-timer');
+      if (!timerEl) {
+        timerEl = document.createElement('div');
+        timerEl.id = 'arena-round-timer';
+        timerEl.className = 'arena-round-timer';
+        var roundLabel = document.querySelector('.arena-round-label');
+        if (roundLabel && roundLabel.parentNode) roundLabel.parentNode.insertBefore(timerEl, roundLabel.nextSibling);
+      }
+      if (timerEl) {
+        timerEl.textContent = seconds + 's';
+        timerEl.style.color = seconds <= 10 ? 'var(--bs-danger)' : 'var(--bs-text-muted)';
+      }
+    }
+  }
+
+  function onLiveBattleComplete(data) {
+    _Pvp.stopBattlePoll();
+    localStorage.removeItem('bs-activeLiveBattle');
+
+    // Remove waiting indicator and timer
+    var indicator = document.getElementById('arena-waiting-indicator');
+    if (indicator) indicator.remove();
+    var timer = document.getElementById('arena-round-timer');
+    if (timer) timer.remove();
+
+    if (data.winner === 'you') {
+      showSuccessToast('Victory!');
+    } else if (data.winner === 'opponent') {
+      showErrorToast('Defeated!');
+    } else {
+      showSuccessToast('Draw!');
+    }
+
+    // Show Elo change
+    if (data.finalization) {
+      var mySlot = data.winner === 'you' ? 'player1' : 'player2'; // Approximate
+      var fin = data.finalization;
+      // The poll already translates winner to 'you'/'opponent', but finalization uses player1/player2
+      // We'll show Elo from the perspective data when available
+    }
+
+    // Return to PvP screen after delay
+    setTimeout(function() {
+      showScreen('pvp');
+      _Pvp.clearActiveBattle();
+      _Pvp.updateRatingDisplay();
+    }, 3000);
+  }
+
+  // Check for active live battle on page load
+  function checkForActiveLiveBattle() {
+    var storedBattle = localStorage.getItem('bs-activeLiveBattle');
+    if (storedBattle) {
+      resumeLiveBattle(storedBattle);
+      return true;
+    }
+    return false;
   }
 
   // ============================================================

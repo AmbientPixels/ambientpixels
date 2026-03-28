@@ -286,12 +286,205 @@
         if (panel) { panel.style.display = ''; panel.classList.add('bs-pvp-panel--active'); }
 
         // Lazy-load tab content
-        if (target === 'defense') renderDefensePanel();
-        if (target === 'inbox') renderInboxPanel();
-        if (target === 'skull' && window.BsWager && window.BsWager.renderBoard) window.BsWager.renderBoard();
+        if (target === 'defense') {
+          renderDefensePanel();
+          renderDefenseQueue();
+          renderInboxPanel();
+        }
+        if (target === 'skulls') initSkullsTab();
       });
     });
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // LIVE PVP — Matchmaking Manager (Skulls tab)
+  // ═══════════════════════════════════════════════════════════════
+
+  var _matchmakingInterval = null;
+  var _matchmakingStartTime = 0;
+  var _eloRange = 100;
+  var _clockOffset = 0;
+  var _liveBattlePollInterval = null;
+  var _activeLiveBattleId = null;
+
+  function initSkullsTab() {
+    var btn = document.getElementById('bs-live-match-btn');
+    if (!btn) return;
+
+    // Check for active battle to resume
+    var storedBattle = localStorage.getItem('bs-activeLiveBattle');
+    if (storedBattle) {
+      btn.innerHTML = '<i class="fas fa-play"></i> Resume Battle';
+      btn.onclick = function() { if (_cb.resumeLiveBattle) _cb.resumeLiveBattle(storedBattle); };
+    } else {
+      btn.innerHTML = '<i class="fas fa-gamepad"></i> Find Match';
+      btn.onclick = function() { startMatchmaking(); };
+    }
+  }
+
+  function startMatchmaking() {
+    var selectedCard = _cb.getSelectedCard ? _cb.getSelectedCard() : null;
+    if (!selectedCard) {
+      showMatchStatus('Select a card first from your collection.', 'error');
+      return;
+    }
+    if (_cb.ensureCombatStats) _cb.ensureCombatStats(selectedCard);
+
+    var btn = document.getElementById('bs-live-match-btn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+    }
+
+    _eloRange = 100;
+    _matchmakingStartTime = Date.now();
+    showMatchStatus('Searching for opponent...', 'searching');
+
+    // Join queue
+    window.ArenaAPI.joinMatchmaking(selectedCard.id, selectedCard, _eloRange)
+      .then(function(resp) {
+        if (resp.status === 'matched') {
+          onMatchFound(resp.battleId);
+        } else {
+          // Start polling
+          _matchmakingInterval = setInterval(pollMatchmaking, 3000);
+        }
+      })
+      .catch(function(err) {
+        showMatchStatus('Failed to join queue: ' + err.message, 'error');
+        resetMatchButton();
+      });
+  }
+
+  function pollMatchmaking() {
+    var elapsed = Date.now() - _matchmakingStartTime;
+
+    // Expand Elo range every 10s
+    _eloRange = Math.min(500, 100 + Math.floor(elapsed / 10000) * 50);
+
+    // Timeout after 90s
+    if (elapsed > 90000) {
+      cancelMatchmaking();
+      showMatchStatus('No opponents found. Try again later.', 'timeout');
+      resetMatchButton();
+      return;
+    }
+
+    var seconds = Math.floor(elapsed / 1000);
+    var rangeLabel = _eloRange >= 300 ? 'Searching wider...' : '';
+    showMatchStatus('Searching... (' + seconds + 's) ' + rangeLabel, 'searching');
+
+    window.ArenaAPI.pollQueueStatus(_eloRange)
+      .then(function(resp) {
+        if (resp.status === 'matched') {
+          onMatchFound(resp.battleId);
+        }
+      })
+      .catch(function() { /* silent — retry next poll */ });
+  }
+
+  function cancelMatchmaking() {
+    if (_matchmakingInterval) { clearInterval(_matchmakingInterval); _matchmakingInterval = null; }
+    window.ArenaAPI.cancelMatchmaking().catch(function() {});
+  }
+
+  function onMatchFound(battleId) {
+    if (_matchmakingInterval) { clearInterval(_matchmakingInterval); _matchmakingInterval = null; }
+
+    _activeLiveBattleId = battleId;
+    localStorage.setItem('bs-activeLiveBattle', battleId);
+
+    showMatchStatus('Opponent found! Loading battle...', 'matched');
+
+    // Short delay for the "found" animation, then start battle
+    setTimeout(function() {
+      if (_cb.startLiveBattle) _cb.startLiveBattle(battleId);
+    }, 1200);
+  }
+
+  function showMatchStatus(msg, type) {
+    var el = document.getElementById('bs-live-match-status');
+    if (!el) return;
+    el.style.display = '';
+    var icon = '';
+    if (type === 'searching') icon = '<i class="fas fa-spinner fa-spin" style="margin-right:0.4rem;"></i>';
+    else if (type === 'matched') icon = '<i class="fas fa-check-circle" style="color:var(--bs-success, #4ade80);margin-right:0.4rem;"></i>';
+    else if (type === 'error') icon = '<i class="fas fa-exclamation-circle" style="color:var(--bs-danger);margin-right:0.4rem;"></i>';
+    else if (type === 'timeout') icon = '<i class="fas fa-clock" style="color:var(--bs-text-muted);margin-right:0.4rem;"></i>';
+    el.innerHTML = icon + msg +
+      (type === 'searching' ? ' <button id="bs-cancel-matchmaking" class="bs-btn--link" style="font-size:0.8rem;color:var(--bs-danger);margin-left:0.5rem;background:none;border:none;cursor:pointer;">Cancel</button>' : '');
+
+    var cancelBtn = document.getElementById('bs-cancel-matchmaking');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function() {
+        cancelMatchmaking();
+        showMatchStatus('', '');
+        var statusEl = document.getElementById('bs-live-match-status');
+        if (statusEl) statusEl.style.display = 'none';
+        resetMatchButton();
+      });
+    }
+  }
+
+  function resetMatchButton() {
+    var btn = document.getElementById('bs-live-match-btn');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-gamepad"></i> Find Match'; btn.onclick = function() { startMatchmaking(); }; }
+  }
+
+  // ── Live Battle Polling ──
+
+  function startBattlePoll(battleId) {
+    _activeLiveBattleId = battleId;
+    if (_liveBattlePollInterval) clearInterval(_liveBattlePollInterval);
+    _liveBattlePollInterval = setInterval(function() {
+      if (document.visibilityState === 'hidden') return; // Pause when tab hidden
+      pollLiveBattle(battleId);
+    }, 2500);
+  }
+
+  function stopBattlePoll() {
+    if (_liveBattlePollInterval) { clearInterval(_liveBattlePollInterval); _liveBattlePollInterval = null; }
+    _activeLiveBattleId = null;
+  }
+
+  function pollLiveBattle(battleId) {
+    window.ArenaAPI.pollBattle(battleId)
+      .then(function(resp) {
+        // Sync clock offset on every poll
+        if (resp.serverTime) _clockOffset = new Date(resp.serverTime).getTime() - Date.now();
+
+        if (resp.status === 'complete' || resp.status === 'expired') {
+          stopBattlePoll();
+          localStorage.removeItem('bs-activeLiveBattle');
+          if (_cb.onLiveBattleComplete) _cb.onLiveBattleComplete(resp);
+          return;
+        }
+
+        // Check if round resolved (opponent submitted since our last poll)
+        if (resp.lastRoundResult && _cb.onLiveRoundResolved) {
+          _cb.onLiveRoundResolved(resp);
+        }
+
+        // Update waiting indicator
+        if (_cb.onLivePollUpdate) _cb.onLivePollUpdate(resp);
+      })
+      .catch(function(err) {
+        // Battle may have been cleaned up
+        if (err.message && err.message.indexOf('not found') > -1) {
+          stopBattlePoll();
+          localStorage.removeItem('bs-activeLiveBattle');
+        }
+      });
+  }
+
+  function clearActiveBattle() {
+    stopBattlePoll();
+    localStorage.removeItem('bs-activeLiveBattle');
+    _activeLiveBattleId = null;
+    resetMatchButton();
+  }
+
+  function getClockOffset() { return _clockOffset; }
 
   // ── Defense Queue Rendering ──
 
@@ -676,6 +869,15 @@
     getPvPRank: getPvPRank,
     estimateOpponentElo: estimateOpponentElo,
     calcEloChange: calcEloChange,
-    setCallbacks: setCallbacks
+    setCallbacks: setCallbacks,
+    // Live PvP
+    startMatchmaking: startMatchmaking,
+    cancelMatchmaking: cancelMatchmaking,
+    startBattlePoll: startBattlePoll,
+    stopBattlePoll: stopBattlePoll,
+    clearActiveBattle: clearActiveBattle,
+    getClockOffset: getClockOffset,
+    getActiveBattleId: function() { return _activeLiveBattleId; },
+    initSkullsTab: initSkullsTab
   };
 })();

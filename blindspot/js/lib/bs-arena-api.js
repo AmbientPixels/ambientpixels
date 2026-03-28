@@ -85,8 +85,14 @@ window.ArenaAPI = (function () {
       });
     },
     submitMove: function (battleId, round, move, extra) {
-      // Auto-route async PvP battles to the async endpoint
-      var endpoint = (battleId && battleId.indexOf('bs-async-') === 0) ? 'asyncBattle' : 'arenaBattle';
+      // Auto-route by battle ID prefix:
+      //   bs-live-*  → liveBattle  (real-time PvP)
+      //   bs-async-* → asyncBattle (async PvP)
+      //   bs-battle-* / other → arenaBattle (PvE)
+      var endpoint;
+      if (battleId && battleId.indexOf('bs-live-') === 0) endpoint = 'liveBattle';
+      else if (battleId && battleId.indexOf('bs-async-') === 0) endpoint = 'asyncBattle';
+      else endpoint = 'arenaBattle';
       // Dual-action: send moves array if move is an array, else legacy single move
       var payload = Object.assign({ action: 'move', battleId: battleId, round: round }, extra || {});
       if (Array.isArray(move)) {
@@ -97,7 +103,10 @@ window.ArenaAPI = (function () {
       return apiFetch(endpoint, { method: 'POST', body: payload });
     },
     forfeitBattle: function (battleId) {
-      var endpoint = (battleId && battleId.indexOf('bs-async-') === 0) ? 'asyncBattle' : 'arenaBattle';
+      var endpoint;
+      if (battleId && battleId.indexOf('bs-live-') === 0) endpoint = 'liveBattle';
+      else if (battleId && battleId.indexOf('bs-async-') === 0) endpoint = 'asyncBattle';
+      else endpoint = 'arenaBattle';
       return apiFetch(endpoint, {
         method: 'POST',
         body: { action: 'forfeit', battleId: battleId }
@@ -181,6 +190,43 @@ window.ArenaAPI = (function () {
       return apiFetch('resultsInbox', {
         method: 'POST',
         body: { action: 'clear' }
+      });
+    },
+
+    // ── Live PvP ──
+
+    joinMatchmaking: function (cardId, cardData, eloRange) {
+      return apiFetch('liveBattle', {
+        method: 'POST',
+        body: { action: 'queue', cardId: cardId, cardData: cardData, eloRange: eloRange || 100 }
+      });
+    },
+    cancelMatchmaking: function () {
+      return apiFetch('liveBattle', {
+        method: 'POST',
+        body: { action: 'cancel' }
+      });
+    },
+    pollQueueStatus: function (eloRange) {
+      return apiFetch('liveBattle', {
+        params: { action: 'queueStatus', eloRange: eloRange || 100 }
+      });
+    },
+    pollBattle: function (battleId) {
+      return apiFetch('liveBattle', {
+        params: { action: 'poll', battleId: battleId }
+      });
+    },
+    submitLiveMove: function (battleId, round, moves, stance) {
+      return apiFetch('liveBattle', {
+        method: 'POST',
+        body: { action: 'move', battleId: battleId, round: round, moves: moves, stance: stance }
+      });
+    },
+    forfeitLiveBattle: function (battleId) {
+      return apiFetch('liveBattle', {
+        method: 'POST',
+        body: { action: 'forfeit', battleId: battleId }
       });
     },
 

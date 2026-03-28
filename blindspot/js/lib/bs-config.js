@@ -22,6 +22,8 @@ window._config.apiEndpoints = {
   defenseQueue: 'blindspotdefensequeue',
   asyncBattle: 'blindspotasyncbattle',
   resultsInbox: 'blindspotresultsinbox',
+  // Live PvP endpoint
+  liveBattle: 'blindspotlivebattle',
   // AI generation (shared)
   geminiProxy: 'geminiproxy',
   // Wager system

@@ -1087,6 +1087,68 @@ window.ArenaBattleUI = (function () {
       if (window._pendingItemUse) { moveExtra.useItem = window._pendingItemUse; window._pendingItemUse = null; }
       if (_stanceChangedThisTurn) moveExtra.stance = _playerStance;
       _stanceChangedThisTurn = false;
+      // Live PvP: use submitLiveMove, handle waiting state
+      if (_battleData.type === 'live_pvp') {
+        var liveMoves = Array.isArray(submitMove) ? submitMove : [submitMove, 'guard'];
+        var liveResponse = await window.ArenaAPI.submitLiveMove(
+          _battleData.battleId, _currentRound, liveMoves, moveExtra.stance || _playerStance
+        );
+
+        if (liveResponse.status === 'waiting') {
+          // Move locked in, waiting for opponent
+          addLogEntry('Move locked in. Waiting for opponent...', 'hint');
+          // Show waiting indicator
+          var waitEl = document.getElementById('arena-waiting-indicator');
+          if (!waitEl) {
+            waitEl = document.createElement('div');
+            waitEl.id = 'arena-waiting-indicator';
+            waitEl.className = 'arena-waiting-indicator';
+            var field = document.querySelector('.arena-battle__field');
+            if (field) field.appendChild(waitEl);
+          }
+          waitEl.innerHTML = '<i class="fas fa-hourglass-half fa-spin"></i> Waiting for opponent...';
+          waitEl.style.display = '';
+          // Don't re-enable moves — polling will handle round resolution
+          return;
+        }
+
+        if (liveResponse.status === 'resolved') {
+          // Both players submitted — animate the round result
+          var waitInd = document.getElementById('arena-waiting-indicator');
+          if (waitInd) waitInd.style.display = 'none';
+          hideBossIntent();
+
+          // Live PvP round result has slot1Events/slot2Events
+          if (liveResponse.roundResult) {
+            var lr = liveResponse.roundResult;
+            // Build a combined events list for the battle log
+            var allEvents = (lr.slot1Events || []).concat(lr.slot2Events || []);
+            allEvents.forEach(function(e) { addLogEntry(e); });
+
+            // Update HP bars
+            updateHpBars(lr.myHp, lr.myMaxHp, lr.opponentHp, lr.opponentMaxHp);
+          }
+
+          if (liveResponse.battleStatus === 'complete') {
+            var endAudio2 = window.ArenaAudio;
+            if (endAudio2) endAudio2.play(liveResponse.winner === 'you' ? 'victory' : 'defeat');
+            if (endAudio2 && typeof endAudio2.stopMusic === 'function') endAudio2.stopMusic();
+            addLogEntry(liveResponse.winner === 'you' ? 'Victory!' : liveResponse.winner === 'opponent' ? 'Defeated!' : 'Draw!', 'event');
+          } else {
+            _currentRound = liveResponse.roundResult ? liveResponse.roundResult.round + 1 : _currentRound + 1;
+            updateRoundLabel(_currentRound);
+            addLogEntry('Round ' + _currentRound + ' — Choose your moves.');
+            enableMoves(true);
+          }
+          return;
+        }
+
+        // Expired or error
+        addLogEntry('Battle ended: ' + (liveResponse.message || 'unknown'), 'error');
+        return;
+      }
+
+      // PvE / Async PvP: original flow
       const response = await window.ArenaAPI.submitMove(
         _battleData.battleId, _currentRound, submitMove, moveExtra
       );
@@ -1197,5 +1259,5 @@ window.ArenaBattleUI = (function () {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  return { initBattle, bindEvents, enableMoves, showBossIntent, hideBossIntent, activateBattleSurge };
+  return { initBattle, bindEvents, enableMoves, showBossIntent, hideBossIntent, activateBattleSurge, updateHpBars, updateStaminaBars: typeof updateStaminaBars === 'function' ? updateStaminaBars : function(){}, updateChargeDisplay: typeof updateChargeDisplay === 'function' ? updateChargeDisplay : function(){}, updateCooldownOverlays: typeof updateCooldownOverlays === 'function' ? updateCooldownOverlays : function(){} };
 })();
