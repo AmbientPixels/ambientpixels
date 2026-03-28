@@ -306,6 +306,9 @@
   var _clockOffset = 0;
   var _liveBattlePollInterval = null;
   var _activeLiveBattleId = null;
+  var _lastResolvedRound = 0;
+  var _opponentWasSubmitted = false;
+  var _isQueuing = false;
 
   function initSkullsTab() {
     var btn = document.getElementById('bs-live-match-btn');
@@ -323,12 +326,16 @@
   }
 
   function startMatchmaking() {
+    // Double-click guard
+    if (_isQueuing) return;
+
     var selectedCard = _cb.getSelectedCard ? _cb.getSelectedCard() : null;
     if (!selectedCard) {
       showMatchStatus('Select a card first from your collection.', 'error');
       return;
     }
     if (_cb.ensureCombatStats) _cb.ensureCombatStats(selectedCard);
+    _isQueuing = true;
 
     var btn = document.getElementById('bs-live-match-btn');
     if (btn) {
@@ -352,6 +359,7 @@
       })
       .catch(function(err) {
         showMatchStatus('Failed to join queue: ' + err.message, 'error');
+        _isQueuing = false;
         resetMatchButton();
       });
   }
@@ -385,6 +393,7 @@
 
   function cancelMatchmaking() {
     if (_matchmakingInterval) { clearInterval(_matchmakingInterval); _matchmakingInterval = null; }
+    _isQueuing = false;
     window.ArenaAPI.cancelMatchmaking().catch(function() {});
   }
 
@@ -394,12 +403,57 @@
     _activeLiveBattleId = battleId;
     localStorage.setItem('bs-activeLiveBattle', battleId);
 
-    showMatchStatus('Opponent found! Loading battle...', 'matched');
+    showMatchStatus('Opponent found!', 'matched');
 
-    // Short delay for the "found" animation, then start battle
-    setTimeout(function() {
+    // Fetch battle data to show VS overlay with opponent info
+    window.ArenaAPI.pollBattle(battleId).then(function(data) {
+      var selectedCard = _cb.getSelectedCard ? _cb.getSelectedCard() : {};
+      var playerName = (selectedCard && selectedCard.name) || 'You';
+      var playerAvatar = (selectedCard && selectedCard.avatar) || '';
+      var oppName = (data.opponentCard && data.opponentCard.name) || 'Opponent';
+      var oppAvatar = (data.opponentCard && data.opponentCard.avatar) || '';
+      var oppClass = (data.opponentCard && data.opponentCard.class) || '';
+
+      // Create matchmaking VS overlay (reuses existing bs-matchmaking CSS)
+      document.querySelector('.bs-matchmaking')?.remove();
+      var overlay = document.createElement('div');
+      overlay.className = 'bs-overlay bs-matchmaking';
+      overlay.innerHTML =
+        '<div class="bs-mm-content">' +
+          '<div class="bs-mm-vs-row">' +
+            '<div class="bs-mm-fighter bs-mm-fighter--left">' +
+              (playerAvatar ? '<img src="' + escHtml(playerAvatar) + '" alt="" class="bs-mm-fighter__img">' : '<div class="bs-mm-fighter__icon"><i class="fas fa-user"></i></div>') +
+              '<span class="bs-mm-fighter__name">' + escHtml(playerName) + '</span>' +
+            '</div>' +
+            '<div class="bs-mm-vs">' +
+              '<span class="bs-mm-vs__text bs-mm-vs__text--visible">VS</span>' +
+              '<span style="font-size:0.7rem;color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;"><i class="fas fa-gamepad" style="color:var(--bs-accent);margin-right:0.3em;"></i>Live PvP</span>' +
+            '</div>' +
+            '<div class="bs-mm-fighter bs-mm-fighter--right">' +
+              (oppAvatar ? '<img src="' + escHtml(oppAvatar) + '" alt="" class="bs-mm-fighter__img">' : '<div class="bs-mm-fighter__icon"><i class="fas fa-skull"></i></div>') +
+              '<span class="bs-mm-fighter__name">' + escHtml(oppName) + '</span>' +
+              (oppClass ? '<span class="bs-mm-fighter__class">' + escHtml(oppClass) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<p class="bs-mm-status">Get ready!</p>' +
+        '</div>';
+      document.body.appendChild(overlay);
+      requestAnimationFrame(function() { overlay.classList.add('bs-matchmaking--active'); });
+
+      if (window.ArenaAudio && window.ArenaBackgrounds) {
+        window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
+      }
+
+      // After 2s reveal, transition to battle
+      setTimeout(function() {
+        overlay.classList.add('bs-matchmaking--exit');
+        setTimeout(function() { overlay.remove(); }, 400);
+        if (_cb.startLiveBattle) _cb.startLiveBattle(battleId);
+      }, 2000);
+    }).catch(function() {
+      // Fallback: just start battle without overlay
       if (_cb.startLiveBattle) _cb.startLiveBattle(battleId);
-    }, 1200);
+    });
   }
 
   function showMatchStatus(msg, type) {
@@ -456,16 +510,27 @@
         if (resp.status === 'complete' || resp.status === 'expired') {
           stopBattlePoll();
           localStorage.removeItem('bs-activeLiveBattle');
+          // Show disconnect toast if opponent caused forfeit
+          if (resp.finishReason === 'disconnect') {
+            showLiveToast('Opponent disconnected — you win!', 'success');
+          }
           if (_cb.onLiveBattleComplete) _cb.onLiveBattleComplete(resp);
           return;
         }
 
-        // Check if round resolved (opponent submitted since our last poll)
-        if (resp.lastRoundResult && _cb.onLiveRoundResolved) {
-          _cb.onLiveRoundResolved(resp);
+        // Detect new round resolution (only fire once per round)
+        if (resp.currentRound > _lastResolvedRound + 1 || (resp.lastRoundResult && resp.lastRoundResult.round > _lastResolvedRound)) {
+          _lastResolvedRound = resp.lastRoundResult ? resp.lastRoundResult.round : resp.currentRound - 1;
+          if (_cb.onLiveRoundResolved) _cb.onLiveRoundResolved(resp);
         }
 
-        // Update waiting indicator
+        // Detect opponent timeout (their move auto-submitted as guard)
+        if (_opponentWasSubmitted && !resp.opponentMoveSubmitted && resp.currentRound > 1) {
+          // Round resolved with opponent timeout — they may have disconnected
+        }
+        _opponentWasSubmitted = resp.opponentMoveSubmitted;
+
+        // Update waiting indicator + timer
         if (_cb.onLivePollUpdate) _cb.onLivePollUpdate(resp);
       })
       .catch(function(err) {
@@ -477,10 +542,24 @@
       });
   }
 
+  function showLiveToast(msg, type) {
+    var toast = document.createElement('div');
+    toast.className = 'bs-live-toast bs-live-toast--' + (type || 'info');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    requestAnimationFrame(function() { toast.classList.add('bs-live-toast--visible'); });
+    setTimeout(function() {
+      toast.classList.remove('bs-live-toast--visible');
+      setTimeout(function() { toast.remove(); }, 400);
+    }, 3000);
+  }
+
   function clearActiveBattle() {
     stopBattlePoll();
     localStorage.removeItem('bs-activeLiveBattle');
     _activeLiveBattleId = null;
+    _lastResolvedRound = 0;
+    _isQueuing = false;
     resetMatchButton();
   }
 
@@ -878,6 +957,7 @@
     clearActiveBattle: clearActiveBattle,
     getClockOffset: getClockOffset,
     getActiveBattleId: function() { return _activeLiveBattleId; },
-    initSkullsTab: initSkullsTab
+    initSkullsTab: initSkullsTab,
+    showLiveToast: showLiveToast
   };
 })();
