@@ -1148,8 +1148,8 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     const isWeeklyBoss = bossLevel >= 201;
 
     if (isDemo) {
-      // Demo: only first Blindspot boss (101), no weekly
-      if (bossLevel !== 101) {
+      // Demo: story bosses (101-110) allowed, weekly bosses require sign-in
+      if (!isBlindspotBoss) {
         context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Sign in to unlock more bosses' } };
         return;
       }
