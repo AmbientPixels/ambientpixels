@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-27T14:12:53.021Z",
+  "updated": "2026-03-28T13:52:38.652Z",
   "entries": [
     {
-      "hash": "03d447e",
-      "date": "2026-03-26 22:51:09 -0700",
-      "message": "Remove overflow: hidden from .arena-battle at mobile"
+      "hash": "e83bbb5",
+      "date": "2026-03-27 22:30:21 -0700",
+      "message": "Allow demo users to fight all story bosses (101-110), not just boss 101"
     }
   ]
 }

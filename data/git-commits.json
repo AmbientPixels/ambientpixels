@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ce35cbf6-476a-48d5-bbab-55f2763d1346",
-      "hash": "03d447e6bd67882132cc1ef871c73fc99ddf1558",
-      "message": "Remove overflow: hidden from .arena-battle at mobile",
-      "timestamp": "2026-03-26 22:51:09 -0700",
+      "id": "939a8f74-b47a-4894-80dd-d85a573d5edb",
+      "hash": "e83bbb577c71392cf772f9ca74b633bd75b9c466",
+      "message": "Allow demo users to fight all story bosses (101-110), not just boss 101",
+      "timestamp": "2026-03-27 22:30:21 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/03d447e6bd67882132cc1ef871c73fc99ddf1558"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/e83bbb577c71392cf772f9ca74b633bd75b9c466"
     }
   ],
-  "timestamp": "2026-03-27T14:12:55.087Z",
+  "timestamp": "2026-03-28T13:52:40.060Z",
   "count": 1,
-  "scanId": 1774620775087
+  "scanId": 1774705960060
 }

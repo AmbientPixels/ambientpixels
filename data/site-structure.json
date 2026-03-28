@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-27T14:12:52.748Z",
+  "updated": "2026-03-28T13:52:38.522Z",
   "root": [
     {
       "type": "folder",
@@ -343,6 +343,12 @@
           "type": "folder",
           "name": "blindspotdefensequeue",
           "path": "api/blindspotdefensequeue",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blindspotlivebattle",
+          "path": "api/blindspotlivebattle",
           "children": []
         },
         {
