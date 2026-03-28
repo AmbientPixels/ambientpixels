@@ -1,13 +1,14 @@
 /* ═══════════════════════════════════════
    bs-wager.css — Wager system styles
    Skull Ante + Challenger UI
+   Aligned with Blindspot global design tokens
    ═══════════════════════════════════════ */
 
 /* ── Overlay / Modal ── */
 .bs-wager-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(10, 8, 5, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,42 +18,47 @@
 }
 
 .bs-wager-modal {
-  background: var(--bs-surface, #141420);
-  border: 1px solid var(--bs-border, #2a2a3a);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  background: var(--bs-surface, #1E1812);
+  border: 1px solid var(--bs-border, #2A2018);
+  border-radius: 16px;
+  padding: 1.75rem;
   max-width: 480px;
-  width: 100%;
-  max-height: 90vh;
+  width: 90%;
+  max-height: 85vh;
   overflow-y: auto;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .bs-wager-modal__title {
-  font-size: 1.1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
   font-weight: 700;
   margin: 0 0 0.25rem;
-  color: var(--bs-text, #e5e5f0);
+  color: var(--bs-accent, #EF9F27);
+  letter-spacing: 0.05em;
 }
 
 .bs-wager-modal__subtitle {
   font-size: 0.8rem;
-  color: var(--bs-text-muted, #8a8aa0);
+  color: var(--bs-text-muted, #A09888);
   margin: 0 0 1rem;
 }
 
 .bs-wager-modal__section {
+  font-family: 'Cinzel', serif;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   margin: 1rem 0 0.5rem;
+  letter-spacing: 0.05em;
 }
 
 .bs-wager-modal__warning {
   font-size: 0.8rem;
-  color: #ff5252;
-  background: rgba(255, 82, 82, 0.1);
-  border: 1px solid rgba(255, 82, 82, 0.2);
-  border-radius: 0.5rem;
+  color: var(--bs-danger, #D85A30);
+  background: rgba(216, 90, 48, 0.1);
+  border: 1px solid rgba(216, 90, 48, 0.25);
+  border-radius: 4px;
   padding: 0.5rem 0.75rem;
   margin: 0.5rem 0;
 }
@@ -64,18 +70,35 @@
   margin-top: 1.25rem;
 }
 
+.bs-wager-modal__actions .bs-btn {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+}
+
 .bs-wager-modal__confirm {
-  background: var(--bs-accent-glow, #fbbf24) !important;
-  color: var(--bs-bg, #0a0a0f) !important;
-  font-weight: 600;
+  background: var(--bs-accent, #EF9F27) !important;
+  color: var(--bs-bg, #100C08) !important;
+  border-color: var(--bs-accent, #EF9F27) !important;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.bs-wager-modal__confirm:hover {
+  background: var(--bs-accent-glow, #FAC775) !important;
+  border-color: var(--bs-accent-glow, #FAC775) !important;
 }
 .bs-wager-modal__confirm:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 .bs-wager-modal__confirm--danger {
-  background: #ff3333 !important;
+  background: var(--bs-danger, #D85A30) !important;
+  border-color: var(--bs-danger, #D85A30) !important;
   color: #fff !important;
+}
+.bs-wager-modal__confirm--danger:hover {
+  filter: brightness(1.15);
 }
 
 /* ── Card Picker ── */
@@ -91,28 +114,38 @@
 .bs-wager-picker__card {
   position: relative;
   cursor: pointer;
-  border: 2px solid transparent;
-  border-radius: 0.5rem;
+  border: 2px solid var(--bs-border, #2A2018);
+  border-radius: 4px;
   overflow: hidden;
   transition: border-color 0.2s, transform 0.2s;
 }
 .bs-wager-picker__card:hover {
-  border-color: var(--bs-border, #2a2a3a);
+  border-color: var(--bs-accent-dim, #BA7517);
   transform: scale(1.03);
 }
 .bs-wager-picker__card--selected {
-  border-color: var(--bs-accent-glow, #fbbf24) !important;
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+  border-color: var(--bs-accent, #EF9F27) !important;
+  box-shadow: 0 0 12px rgba(239, 159, 39, 0.3);
 }
 
 .bs-wager-picker__name {
   text-align: center;
+  font-family: 'Cinzel', serif;
   font-size: 0.65rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text, #F5F0E8);
   padding: 0.2rem 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: var(--bs-surface-2, #241E16);
+}
+
+.bs-wager-picker__power {
+  text-align: center;
+  font-size: 0.6rem;
+  color: var(--bs-accent, #EF9F27);
+  padding: 0 0 0.2rem;
+  background: var(--bs-surface-2, #241E16);
 }
 
 /* ── Challenge Type Selector ── */
@@ -127,23 +160,25 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 0.8rem;
-  color: var(--bs-text);
+  color: var(--bs-text, #F5F0E8);
   cursor: pointer;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--bs-border);
-  border-radius: 0.5rem;
+  border: 1px solid var(--bs-border, #2A2018);
+  border-radius: 4px;
+  background: var(--bs-surface-2, #241E16);
   transition: border-color 0.2s;
 }
 .bs-wager-type:has(input:checked) {
-  border-color: var(--bs-accent-glow, #fbbf24);
+  border-color: var(--bs-accent, #EF9F27);
 }
 .bs-wager-type input[type="radio"] {
-  accent-color: var(--bs-accent-glow, #fbbf24);
+  accent-color: var(--bs-accent, #EF9F27);
 }
 .bs-wager-type__desc {
   font-size: 0.7rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   margin-left: auto;
 }
 
@@ -157,11 +192,16 @@
 .bs-wager-input {
   flex: 1;
   padding: 0.4rem 0.6rem;
-  border: 1px solid var(--bs-border);
-  border-radius: 0.375rem;
-  background: var(--bs-surface-2, #1a1a2e);
-  color: var(--bs-text);
+  border: 1px solid var(--bs-border, #2A2018);
+  border-radius: 4px;
+  background: var(--bs-surface-2, #241E16);
+  color: var(--bs-text, #F5F0E8);
+  font-family: 'Share Tech Mono', monospace;
   font-size: 0.8rem;
+}
+.bs-wager-input:focus {
+  outline: none;
+  border-color: var(--bs-accent, #EF9F27);
 }
 
 /* ── Opponent Preview ── */
@@ -170,17 +210,18 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: var(--bs-surface-2, #1a1a2e);
-  border-radius: 0.5rem;
+  background: var(--bs-surface-2, #241E16);
+  border-radius: 4px;
   margin-bottom: 0.5rem;
 }
 .bs-wager-opponent__label {
   font-size: 0.75rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
 }
 .bs-wager-opponent__name {
+  font-family: 'Cinzel', serif;
   font-weight: 600;
-  color: var(--bs-text);
+  color: var(--bs-text, #F5F0E8);
 }
 
 /* ── Challenge Board Grid ── */
@@ -192,16 +233,16 @@
 }
 
 .bs-wager-card {
-  background: var(--bs-surface-2, #1a1a2e);
-  border: 1px solid var(--bs-border, #2a2a3a);
-  border-radius: 0.75rem;
+  background: var(--bs-surface-2, #241E16);
+  border: 1px solid var(--bs-border, #2A2018);
+  border-radius: 4px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: border-color 0.2s;
 }
 .bs-wager-card:hover {
-  border-color: #ff3333;
+  border-color: var(--bs-danger, #D85A30);
 }
 
 .bs-wager-card__art {
@@ -213,8 +254,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bs-surface, #141420);
-  color: #ff3333;
+  background: var(--bs-surface, #1E1812);
+  color: var(--bs-danger, #D85A30);
   font-size: 2rem;
   opacity: 0.3;
 }
@@ -224,14 +265,15 @@
   flex: 1;
 }
 .bs-wager-card__name {
+  font-family: 'Cinzel', serif;
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--bs-text);
+  color: var(--bs-text, #F5F0E8);
   display: block;
 }
 .bs-wager-card__meta {
   font-size: 0.7rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   display: block;
 }
 .bs-wager-card__rank {
@@ -241,33 +283,37 @@
 }
 .bs-wager-card__timer {
   font-size: 0.65rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   margin-top: 0.15rem;
   display: block;
 }
 
 .bs-wager-accept-btn {
   margin: 0 0.75rem 0.75rem;
-  background: #ff3333 !important;
+  background: var(--bs-danger, #D85A30) !important;
   color: #fff !important;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.8rem;
-  border-radius: 0.375rem;
+  border-radius: 4px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 /* ── My Active Challenge ── */
 .bs-wager-my-challenge {
-  background: rgba(255, 51, 51, 0.08);
-  border: 1px solid rgba(255, 51, 51, 0.25);
-  border-radius: 0.75rem;
+  background: rgba(216, 90, 48, 0.08);
+  border: 1px solid rgba(216, 90, 48, 0.25);
+  border-radius: 4px;
   padding: 0.75rem;
   margin-bottom: 0.75rem;
 }
 .bs-wager-my-challenge__header {
+  font-family: 'Cinzel', serif;
   font-weight: 700;
   font-size: 0.85rem;
-  color: #ff3333;
+  color: var(--bs-danger, #D85A30);
   margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
 }
 .bs-wager-my-challenge__card {
   display: flex;
@@ -285,18 +331,24 @@
   padding: 0.75rem 0;
 }
 .bs-wager-post-btn {
-  background: #ff3333 !important;
+  background: var(--bs-danger, #D85A30) !important;
+  border-color: var(--bs-danger, #D85A30) !important;
   color: #fff !important;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
   padding: 0.6rem 1.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.bs-wager-post-btn:hover {
+  filter: brightness(1.15);
 }
 
 /* ── Empty State ── */
 .bs-wager-empty {
   text-align: center;
   padding: 2rem 1rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   font-size: 0.8rem;
 }
 .bs-wager-empty i {
@@ -310,7 +362,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid var(--bs-border, #2a2a3a);
+  border-bottom: 1px solid var(--bs-border, #2A2018);
 }
 .bs-wager-inbox-entry__icon {
   font-size: 1.1rem;
@@ -323,13 +375,14 @@
   min-width: 0;
 }
 .bs-wager-inbox-entry__title {
+  font-family: 'Cinzel', serif;
   font-weight: 600;
   font-size: 0.8rem;
-  color: var(--bs-text);
+  color: var(--bs-text, #F5F0E8);
 }
 .bs-wager-inbox-entry__desc {
   font-size: 0.7rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -340,31 +393,34 @@
   flex-shrink: 0;
 }
 .bs-wager-inbox-entry--invite {
-  background: rgba(251, 191, 36, 0.05);
+  background: rgba(239, 159, 39, 0.05);
 }
 .bs-wager-inbox-entry--skull {
-  background: rgba(255, 51, 51, 0.05);
+  background: rgba(216, 90, 48, 0.05);
 }
 
 /* ── Series Tracker (Bo3) ── */
 .bs-wager-series {
-  background: var(--bs-surface-2, #1a1a2e);
-  border: 1px solid var(--bs-border);
-  border-radius: 0.75rem;
+  background: var(--bs-surface-2, #241E16);
+  border: 1px solid var(--bs-border, #2A2018);
+  border-radius: 4px;
   padding: 0.75rem;
   text-align: center;
   margin-bottom: 0.75rem;
 }
 .bs-wager-series__header {
+  font-family: 'Cinzel', serif;
   font-weight: 700;
   font-size: 0.85rem;
-  color: #ff3333;
+  color: var(--bs-danger, #D85A30);
   margin-bottom: 0.35rem;
+  letter-spacing: 0.05em;
 }
 .bs-wager-series__score {
+  font-family: 'Cinzel', serif;
   font-size: 1.5rem;
   font-weight: 800;
-  color: var(--bs-text);
+  color: var(--bs-text, #F5F0E8);
   letter-spacing: 0.1em;
 }
 .bs-wager-series__dots {
@@ -377,42 +433,44 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  border: 2px solid var(--bs-border);
+  border: 2px solid var(--bs-border, #2A2018);
   background: transparent;
 }
 .bs-wager-series__dot--win {
-  background: var(--bs-success, #4ade80);
-  border-color: var(--bs-success, #4ade80);
+  background: var(--bs-success, #1D9E75);
+  border-color: var(--bs-success, #1D9E75);
 }
 .bs-wager-series__dot--loss {
-  background: var(--bs-danger, #ff5252);
-  border-color: var(--bs-danger, #ff5252);
+  background: var(--bs-danger, #D85A30);
+  border-color: var(--bs-danger, #D85A30);
 }
 .bs-wager-series__dot--current {
-  border-color: var(--bs-accent-glow, #fbbf24);
+  border-color: var(--bs-accent, #EF9F27);
   animation: bs-wager-pulse 2s infinite;
 }
 @keyframes bs-wager-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4); }
-  50% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 159, 39, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(239, 159, 39, 0); }
 }
 .bs-wager-series__opponent {
   font-size: 0.8rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
 }
 .bs-wager-series__status {
   font-size: 0.7rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   margin-top: 0.25rem;
 }
 
 /* ── Active Wagers Panel ── */
 .bs-active-wagers__title {
+  font-family: 'Cinzel', serif;
   font-weight: 600;
   font-size: 0.8rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--bs-border);
+  border-bottom: 1px solid var(--bs-border, #2A2018);
+  letter-spacing: 0.05em;
 }
 
 /* ── Wager Result Overlay ── */
@@ -421,36 +479,38 @@
   padding: 2rem 1.5rem;
   max-width: 400px;
   width: 100%;
-  border-radius: 1rem;
+  border-radius: 16px;
 }
 .bs-wager-result--win {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(74, 222, 128, 0.1));
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: linear-gradient(135deg, rgba(239, 159, 39, 0.15), rgba(29, 158, 117, 0.1));
+  border: 1px solid rgba(239, 159, 39, 0.3);
 }
 .bs-wager-result--loss {
-  background: linear-gradient(135deg, rgba(255, 51, 51, 0.15), rgba(100, 30, 30, 0.1));
-  border: 1px solid rgba(255, 51, 51, 0.3);
+  background: linear-gradient(135deg, rgba(216, 90, 48, 0.15), rgba(100, 40, 20, 0.1));
+  border: 1px solid rgba(216, 90, 48, 0.3);
 }
 .bs-wager-result--draw {
-  background: var(--bs-surface, #141420);
-  border: 1px solid var(--bs-border);
+  background: var(--bs-surface, #1E1812);
+  border: 1px solid var(--bs-border, #2A2018);
 }
 .bs-wager-result__icon {
   font-size: 3rem;
   margin-bottom: 0.75rem;
 }
-.bs-wager-result--win .bs-wager-result__icon { color: #fbbf24; }
-.bs-wager-result--loss .bs-wager-result__icon { color: #ff3333; }
-.bs-wager-result--draw .bs-wager-result__icon { color: var(--bs-text-muted); }
+.bs-wager-result--win .bs-wager-result__icon { color: var(--bs-accent, #EF9F27); }
+.bs-wager-result--loss .bs-wager-result__icon { color: var(--bs-danger, #D85A30); }
+.bs-wager-result--draw .bs-wager-result__icon { color: var(--bs-text-muted, #A09888); }
 .bs-wager-result__title {
+  font-family: 'Cinzel', serif;
   font-size: 1.4rem;
   font-weight: 800;
   margin: 0 0 0.35rem;
-  color: var(--bs-text);
+  color: var(--bs-text, #F5F0E8);
+  letter-spacing: 0.05em;
 }
 .bs-wager-result__subtitle {
   font-size: 0.85rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   margin: 0 0 1rem;
 }
 .bs-wager-result__badges {
@@ -478,7 +538,7 @@
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.6);
-  color: #ff3333;
+  color: var(--bs-danger, #D85A30);
   font-size: 0.75rem;
   font-weight: 700;
   gap: 0.25rem;
@@ -491,16 +551,16 @@
 .bs-deck-card--ghost__name {
   text-align: center;
   font-size: 0.65rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   padding: 0.2rem 0;
 }
 .bs-deck-card--ghost__dismiss {
   position: absolute;
   top: 0.25rem;
   right: 0.25rem;
-  background: var(--bs-surface-2);
-  border: 1px solid var(--bs-border);
-  color: var(--bs-text-muted);
+  background: var(--bs-surface-2, #241E16);
+  border: 1px solid var(--bs-border, #2A2018);
+  color: var(--bs-text-muted, #A09888);
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -520,9 +580,9 @@
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.2rem 0.5rem;
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: rgba(239, 159, 39, 0.08);
+  border: 1px solid rgba(239, 159, 39, 0.15);
 }
 .bs-wager-badge-row {
   display: flex;
@@ -539,11 +599,11 @@
   justify-content: center;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid var(--bs-border, #2a2a3a);
+  border-top: 1px solid var(--bs-border, #2A2018);
 }
 .bs-pvp-wager-stat {
   font-size: 0.75rem;
-  color: var(--bs-text-muted);
+  color: var(--bs-text-muted, #A09888);
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -562,5 +622,8 @@
   }
   .bs-wager-type__desc {
     display: none;
+  }
+  .bs-wager-modal__actions .bs-btn {
+    min-height: 44px;
   }
 }

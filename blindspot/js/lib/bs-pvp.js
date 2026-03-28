@@ -327,7 +327,7 @@
               '<div class="bs-boss-card__class">' + escHtml(entry.cardClass) + ' <span style="color:' + rank.color + ';font-size:0.8rem;"><i class="fas ' + rank.icon + '"></i> ' + (entry.pvpElo || 1000) + '</span> <span style="color:' + diffColor + ';font-size:0.75rem;">' + diffLabel + '</span></div>' +
             '</div>' +
             '<div class="bs-boss-card__action">' +
-              '<button class="bs-btn bs-btn--sm" style="padding:0.4rem 0.8rem;font-size:0.8rem;background:var(--bs-accent);" data-async-fight="' + escHtml(entry.userId) + '"><i class="fas fa-swords"></i> Fight</button>' +
+              '<button class="bs-btn bs-btn--sm" style="padding:0.4rem 0.8rem;font-size:0.8rem;background:var(--bs-accent);color:var(--bs-bg);" data-async-fight="' + escHtml(entry.userId) + '"><i class="fas fa-swords"></i> Fight</button>' +
             '</div>' +
           '</div>';
         }).join('');
