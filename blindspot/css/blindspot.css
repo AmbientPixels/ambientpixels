@@ -9821,14 +9821,27 @@ body.bs-adventure-active {
 
 /* --- Responsive --- */
 
+@media (max-width: 768px) {
+  .bs-adventure__image-wrap {
+    aspect-ratio: 2 / 1;
+    flex-shrink: 0;
+  }
+  .bs-adventure__text { font-size: 0.9rem; line-height: 1.6; }
+  .bs-adventure__story { gap: 0.75rem; }
+}
 @media (max-width: 480px) {
   .bs-adventure__header { padding: 1rem 0.75rem 0; }
-  .bs-adventure__story { padding: 1rem 0.75rem 1rem; }
+  .bs-adventure__story { padding: 1rem 0.75rem 1rem; gap: 0.5rem; }
   .bs-adventure__sidebar { padding: 1rem 0.75rem 0.75rem; }
   .bs-adventure__title { font-size: 1rem; }
-  .bs-adventure__text { font-size: 0.9rem; }
+  .bs-adventure__text { font-size: 0.85rem; line-height: 1.5; }
   .bs-adventure__choice { padding: 0.7rem 0.85rem; font-size: 0.9rem; }
   .bs-adventure__dice-value { font-size: 2.5rem; }
+  .bs-adventure__image-wrap {
+    aspect-ratio: 21 / 9;
+    border-radius: 8px;
+  }
+  .bs-adventure__choices { margin-top: 0.75rem; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
