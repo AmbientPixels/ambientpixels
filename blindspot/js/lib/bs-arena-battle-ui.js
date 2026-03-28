@@ -1054,24 +1054,27 @@ window.ArenaBattleUI = (function () {
       return;
     }
 
-    // Battle Surge: 2-phase selection when active
-    if (_battleSurgeActive && _firstMove === null) {
+    // Live PvP + Battle Surge: 2-phase selection (pick 2 moves)
+    var isDualAction = _battleSurgeActive || (_battleData && _battleData.type === 'live_pvp');
+    if (isDualAction && _firstMove === null) {
       _firstMove = move;
       var btn1 = document.querySelector('.arena-move-btn[data-move="' + move + '"]');
       if (btn1) btn1.classList.add('arena-move-btn--selected-first');
       var prompt = document.getElementById('bs-move-select-prompt');
-      if (prompt) { prompt.textContent = 'SURGE — Pick second move'; prompt.style.display = ''; }
-      addLogEntry('\u26A1 SURGE! ' + move.charAt(0).toUpperCase() + move.slice(1) + ' locked — pick 2nd move.');
-      updateComboHints();
+      var isLive = _battleData && _battleData.type === 'live_pvp';
+      if (prompt) { prompt.textContent = isLive ? 'Pick second move' : 'SURGE \u2014 Pick second move'; prompt.style.display = ''; }
+      addLogEntry((isLive ? '\u2694\uFE0F ' : '\u26A1 SURGE! ') + move.charAt(0).toUpperCase() + move.slice(1) + ' locked \u2014 pick 2nd move.');
+      if (typeof updateComboHints === 'function') updateComboHints();
       return;
     }
 
     // Resolve the move(s) to submit
     var submitMove = move;
-    if (_battleSurgeActive && _firstMove) {
+    if (isDualAction && _firstMove) {
       submitMove = [_firstMove, move];
       _firstMove = null;
-      _battleSurgeActive = false;
+      // Only reset Battle Surge flag (live PvP stays dual-action permanently)
+      if (_battleSurgeActive) _battleSurgeActive = false;
       document.querySelectorAll('.arena-move-btn').forEach(function(b) { b.classList.remove('arena-move-btn--selected-first'); });
       var prompt2 = document.getElementById('bs-move-select-prompt');
       if (prompt2) prompt2.style.display = 'none';
@@ -1114,19 +1117,10 @@ window.ArenaBattleUI = (function () {
 
         if (liveResponse.status === 'resolved') {
           // Both players submitted — animate the round result
-          var waitInd = document.getElementById('arena-waiting-indicator');
-          if (waitInd) waitInd.style.display = 'none';
           hideBossIntent();
 
-          // Live PvP round result has slot1Events/slot2Events
           if (liveResponse.roundResult) {
-            var lr = liveResponse.roundResult;
-            // Build a combined events list for the battle log
-            var allEvents = (lr.slot1Events || []).concat(lr.slot2Events || []);
-            allEvents.forEach(function(e) { addLogEntry(e); });
-
-            // Update HP bars
-            updateHpBars(lr.myHp, lr.myMaxHp, lr.opponentHp, lr.opponentMaxHp);
+            await animateLiveRound(liveResponse.roundResult);
           }
 
           if (liveResponse.battleStatus === 'complete') {
@@ -1259,5 +1253,148 @@ window.ArenaBattleUI = (function () {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  return { initBattle, bindEvents, enableMoves, showBossIntent, hideBossIntent, activateBattleSurge, updateHpBars, updateStaminaBars: typeof updateStaminaBars === 'function' ? updateStaminaBars : function(){}, updateChargeDisplay: typeof updateChargeDisplay === 'function' ? updateChargeDisplay : function(){}, updateCooldownOverlays: typeof updateCooldownOverlays === 'function' ? updateCooldownOverlays : function(){} };
+  // ═══════════════════════════════════════════════════════════════
+  // LIVE PVP ROUND ANIMATION
+  // Adapts the live PvP perspective-shifted round result into
+  // sequential attack animations using existing primitives.
+  // ═══════════════════════════════════════════════════════════════
+
+  async function animateLiveRound(lr) {
+    if (!lr || !_battleData) return;
+    _isAnimating = true;
+    enableMoves(false);
+
+    // Hide waiting indicator
+    var waitEl = document.getElementById('arena-waiting-indicator');
+    if (waitEl) waitEl.style.display = 'none';
+
+    var audio = window.ArenaAudio;
+    var moveNames = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal', counter: 'Counter' };
+
+    // ── Slot 1 animation ──
+    var myMove1 = lr.myMoves ? lr.myMoves[0] : 'guard';
+    var oppMove1 = lr.opponentMoves ? lr.opponentMoves[0] : 'guard';
+    addLogEntry('\u2694\uFE0F Slot 1: You chose ' + (moveNames[myMove1] || myMove1) + ' \u2014 Opponent chose ' + (moveNames[oppMove1] || oppMove1));
+
+    // Speed badge
+    if (lr.slot1SpeedWinner) showSpeedBadge(lr.slot1SpeedWinner === 'player' ? 'player' : 'opponent');
+
+    // Animate damage
+    var myDmg1 = lr.slot1MyDmgTaken || 0;
+    var oppDmg1 = lr.slot1OpponentDmgTaken || 0;
+
+    if (oppDmg1 > 0) {
+      showDamageFloat('opponent', oppDmg1, false);
+      triggerHitShake('opponent');
+      if (audio) audio.play('hit');
+    }
+    if (lr.slot1MyHeal > 0) {
+      showDamageFloat('player', lr.slot1MyHeal, true);
+    }
+    if (myDmg1 > 0) {
+      await sleep(300);
+      showDamageFloat('player', myDmg1, false);
+      triggerHitShake('player');
+      if (audio) audio.play('hit');
+    }
+    if (lr.slot1OpponentHeal > 0) {
+      showDamageFloat('opponent', lr.slot1OpponentHeal, true);
+    }
+
+    // Log slot 1 events
+    if (lr.slot1Events) lr.slot1Events.forEach(function(e) { addLogEntry(e, 'event'); });
+
+    await sleep(600);
+
+    // ── Slot 2 animation (if both still alive) ──
+    if (lr.slot2Events && lr.slot2Events.length > 0) {
+      var myMove2 = lr.myMoves ? lr.myMoves[1] : 'guard';
+      var oppMove2 = lr.opponentMoves ? lr.opponentMoves[1] : 'guard';
+      addLogEntry('\u2694\uFE0F Slot 2: You chose ' + (moveNames[myMove2] || myMove2) + ' \u2014 Opponent chose ' + (moveNames[oppMove2] || oppMove2));
+
+      var oppDmg2 = lr.slot2OpponentDmgTaken || 0;
+      var myDmg2 = lr.slot2MyDmgTaken || 0;
+
+      if (oppDmg2 > 0) {
+        showDamageFloat('opponent', oppDmg2, false);
+        triggerHitShake('opponent');
+        if (audio) audio.play('hit');
+      }
+      if (lr.slot2MyHeal > 0) {
+        showDamageFloat('player', lr.slot2MyHeal, true);
+      }
+      if (myDmg2 > 0) {
+        await sleep(300);
+        showDamageFloat('player', myDmg2, false);
+        triggerHitShake('player');
+        if (audio) audio.play('hit');
+      }
+      if (lr.slot2OpponentHeal > 0) {
+        showDamageFloat('opponent', lr.slot2OpponentHeal, true);
+      }
+
+      lr.slot2Events.forEach(function(e) { addLogEntry(e, 'event'); });
+      await sleep(400);
+    }
+
+    // Counter reflect animation
+    if (lr.slot1MyCounterReflect || lr.slot2MyCounterReflect) {
+      showReflectBanner('player');
+      if (audio) audio.play('crit');
+      await sleep(400);
+    } else if (lr.slot1OpponentCounterReflect || lr.slot2OpponentCounterReflect) {
+      showReflectBanner('opponent');
+      if (audio) audio.play('crit');
+      await sleep(400);
+    }
+
+    // ── Update HP bars (final values after both slots) ──
+    updateHpBars(lr.myHp, lr.myMaxHp, lr.opponentHp, lr.opponentMaxHp);
+
+    // Kill shot check
+    if (lr.myHp <= 0 || lr.opponentHp <= 0) {
+      var defeatedSide = lr.myHp <= 0 ? 'player' : 'opponent';
+      await sleep(200);
+      await triggerKillShot(defeatedSide);
+    }
+
+    // Update stamina
+    if (lr.stamina && typeof updateStaminaBars === 'function') {
+      _battleData.stamina = { player: lr.stamina.my, opponent: lr.stamina.opponent };
+      updateStaminaBars(lr.stamina.my, _battleData.maxStamina ? _battleData.maxStamina.player : 20, lr.stamina.opponent, _battleData.maxStamina ? _battleData.maxStamina.opponent : 20);
+      if (typeof updateMoveCosts === 'function') updateMoveCosts(lr.stamina.my);
+    }
+
+    // Update cooldowns
+    if (lr.cooldowns) {
+      _battleData.cooldowns = { player: lr.cooldowns.my || {}, opponent: lr.cooldowns.opponent || {} };
+      if (typeof updateCooldownOverlays === 'function') updateCooldownOverlays(lr.cooldowns.my);
+    }
+
+    // Update charges
+    if (lr.charges) {
+      _playerCharges = lr.charges.my || 0;
+      if (typeof updateChargeDisplay === 'function') updateChargeDisplay();
+    }
+
+    // Update temp effects
+    if (lr.tempEffects && typeof renderStatusEffects === 'function') {
+      renderStatusEffects({ player: lr.tempEffects.my || [], opponent: lr.tempEffects.opponent || [] });
+    }
+
+    // Update local HP state
+    _battleData.player.hp = lr.myHp;
+    _battleData.opponent.hp = lr.opponentHp;
+
+    await sleep(300);
+    _isAnimating = false;
+  }
+
+  return {
+    initBattle, bindEvents, enableMoves, showBossIntent, hideBossIntent, activateBattleSurge,
+    updateHpBars, animateLiveRound,
+    updateStaminaBars: typeof updateStaminaBars === 'function' ? updateStaminaBars : function(){},
+    updateChargeDisplay: typeof updateChargeDisplay === 'function' ? updateChargeDisplay : function(){},
+    updateCooldownOverlays: typeof updateCooldownOverlays === 'function' ? updateCooldownOverlays : function(){}
+  };
 })();

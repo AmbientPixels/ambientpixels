@@ -2156,24 +2156,33 @@
   }
 
   function onLiveRoundResolved(pollData) {
-    // Update battle state from poll
     if (!_activeBattle) return;
-    _activeBattle.charges = { player: pollData.myCharges, opponent: pollData.opponentCharges };
-    _activeBattle.stamina = { player: pollData.myStamina, opponent: pollData.opponentStamina };
-    _activeBattle.cooldowns = { player: pollData.myCooldowns || {}, opponent: pollData.opponentCooldowns || {} };
-    _activeBattle.stances = { player: pollData.myStance || 'balanced', opponent: pollData.opponentStance || 'balanced' };
-    _activeBattle.currentRound = pollData.currentRound;
 
-    // Update HP bars
-    if (window.ArenaBattleUI) {
-      window.ArenaBattleUI.updateHpBars(pollData.myHp, pollData.myMaxHp, pollData.opponentHp, pollData.opponentMaxHp);
-      if (window.ArenaBattleUI.updateStaminaBars) window.ArenaBattleUI.updateStaminaBars();
-      if (window.ArenaBattleUI.updateChargeDisplay) window.ArenaBattleUI.updateChargeDisplay();
-      if (window.ArenaBattleUI.updateCooldownOverlays) window.ArenaBattleUI.updateCooldownOverlays();
-      if (window.ArenaBattleUI.enableMoves) window.ArenaBattleUI.enableMoves(true);
+    // Animate the round result using the full animation pipeline
+    if (pollData.lastRoundResult && window.ArenaBattleUI && window.ArenaBattleUI.animateLiveRound) {
+      window.ArenaBattleUI.animateLiveRound(pollData.lastRoundResult).then(function() {
+        // Update battle state after animation
+        _activeBattle.charges = { player: pollData.myCharges, opponent: pollData.opponentCharges };
+        _activeBattle.stamina = { player: pollData.myStamina, opponent: pollData.opponentStamina };
+        _activeBattle.cooldowns = { player: pollData.myCooldowns || {}, opponent: pollData.opponentCooldowns || {} };
+        _activeBattle.stances = { player: pollData.myStance || 'balanced', opponent: pollData.opponentStance || 'balanced' };
+        _activeBattle.currentRound = pollData.currentRound;
+
+        var roundLabel = document.querySelector('.arena-round-label');
+        if (roundLabel) roundLabel.textContent = 'Round ' + pollData.currentRound;
+
+        if (window.ArenaBattleUI.enableMoves) window.ArenaBattleUI.enableMoves(true);
+        showLiveWaiting(pollData);
+      });
+    } else {
+      // Fallback: direct update
+      _activeBattle.currentRound = pollData.currentRound;
+      if (window.ArenaBattleUI) {
+        window.ArenaBattleUI.updateHpBars(pollData.myHp, pollData.myMaxHp, pollData.opponentHp, pollData.opponentMaxHp);
+        if (window.ArenaBattleUI.enableMoves) window.ArenaBattleUI.enableMoves(true);
+      }
+      showLiveWaiting(pollData);
     }
-
-    showLiveWaiting(pollData);
   }
 
   function onLivePollUpdate(pollData) {
@@ -2209,20 +2218,74 @@
     var timer = document.getElementById('arena-round-timer');
     if (timer) timer.remove();
 
-    if (data.winner === 'you') {
-      showSuccessToast('Victory!');
-    } else if (data.winner === 'opponent') {
-      showErrorToast('Defeated!');
-    } else {
-      showSuccessToast('Draw!');
+    // Determine result
+    var won = data.winner === 'you';
+    var draw = !data.winner || data.winner === 'draw';
+    var lost = data.winner === 'opponent';
+
+    // Play audio
+    var endAudio = window.ArenaAudio;
+    if (endAudio) endAudio.play(won ? 'victory' : 'defeat');
+    if (endAudio && typeof endAudio.stopMusic === 'function') endAudio.stopMusic();
+
+    // Compute Elo change from the poll data or finalization
+    var eloChange = 0;
+    var sparksEarned = 0;
+    if (data.finalization) {
+      // Poll response includes finalization with player1/player2 data
+      // We need to figure out which slot we are — check if poll perspective already translated
+      // The finalization is stored as player1/player2 on server; we pick based on myCard
+      var myUserId = _profile ? _profile.userId : null;
+      if (data.finalization.player1 && data.finalization.player2) {
+        // We can't directly know our slot from poll data, but the Elo change sign tells us:
+        // If we won, our eloChange is positive
+        var fin1 = data.finalization.player1;
+        var fin2 = data.finalization.player2;
+        if (won) {
+          eloChange = fin1.eloChange > 0 ? fin1.eloChange : fin2.eloChange;
+          sparksEarned = fin1.eloChange > 0 ? fin1.sparks : fin2.sparks;
+        } else if (lost) {
+          eloChange = fin1.eloChange < 0 ? fin1.eloChange : fin2.eloChange;
+          sparksEarned = fin1.eloChange < 0 ? fin1.sparks : fin2.sparks;
+        } else {
+          sparksEarned = fin1.sparks; // Draw gives same to both
+        }
+      }
     }
 
-    // Show Elo change
-    if (data.finalization) {
-      var mySlot = data.winner === 'you' ? 'player1' : 'player2'; // Approximate
-      var fin = data.finalization;
-      // The poll already translates winner to 'you'/'opponent', but finalization uses player1/player2
-      // We'll show Elo from the perspective data when available
+    // Show Elo change toast
+    if (eloChange !== 0 && _Pvp.showEloChange) {
+      var changeText = (eloChange > 0 ? '+' : '') + eloChange;
+      var changeColor = eloChange > 0 ? 'var(--bs-success, #4ade80)' : 'var(--bs-danger, #D85A30)';
+      // Check for rank up
+      var newElo = (_Pvp.getPvPElo ? _Pvp.getPvPElo() : 1000) + eloChange;
+      var oldRank = _Pvp.getPvPRank ? _Pvp.getPvPRank(_Pvp.getPvPElo()) : null;
+      var newRank = _Pvp.getPvPRank ? _Pvp.getPvPRank(newElo) : null;
+      var rankUp = (newRank && oldRank && newRank.name !== oldRank.name && newElo > _Pvp.getPvPElo()) ? newRank : null;
+      _Pvp.showEloChange(changeText, changeColor, rankUp);
+    }
+
+    // Update local Elo + Sparks
+    if (_Pvp.setPvPElo && eloChange !== 0) {
+      _Pvp.setPvPElo((_Pvp.getPvPElo ? _Pvp.getPvPElo() : 1000) + eloChange);
+    }
+    if (_Pvp.setPvPRecord) {
+      var rec = _Pvp.getPvPRecord ? _Pvp.getPvPRecord() : { w: 0, l: 0 };
+      if (won) rec.w = (rec.w || 0) + 1;
+      else if (lost) rec.l = (rec.l || 0) + 1;
+      _Pvp.setPvPRecord(rec);
+    }
+    if (sparksEarned > 0) {
+      _progress.sparks = (_progress.sparks || 0) + sparksEarned;
+    }
+
+    // Show result toast
+    if (won) {
+      showSuccessToast('Victory! +' + sparksEarned + ' Sparks');
+    } else if (lost) {
+      showErrorToast('Defeated! +' + sparksEarned + ' Sparks');
+    } else {
+      showSuccessToast('Draw! +' + sparksEarned + ' Sparks');
     }
 
     // Return to PvP screen after delay
@@ -2230,7 +2293,7 @@
       showScreen('pvp');
       _Pvp.clearActiveBattle();
       _Pvp.updateRatingDisplay();
-    }, 3000);
+    }, 3500);
   }
 
   // Check for active live battle on page load

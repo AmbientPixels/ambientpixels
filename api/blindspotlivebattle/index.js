@@ -1258,15 +1258,26 @@ function executeLiveRound(battle, config) {
     slot2Events: result2 ? result2.events : [],
     slot1SpeedWinner: result1.speedWinner,
     slot2SpeedWinner: result2 ? result2.speedWinner : null,
-    slot1PlayerDmg: result1.playerDamageTaken,
-    slot1OpponentDmg: result1.opponentDamageTaken,
-    slot2PlayerDmg: result2 ? result2.playerDamageTaken : 0,
-    slot2OpponentDmg: result2 ? result2.opponentDamageTaken : 0,
+    slot1PlayerDmgTaken: result1.playerDamageTaken,
+    slot1OpponentDmgTaken: result1.opponentDamageTaken,
+    slot1PlayerHeal: result1.playerHeal,
+    slot1OpponentHeal: result1.opponentHeal,
+    slot1PlayerCounterReflect: result1.playerCounterReflect,
+    slot1OpponentCounterReflect: result1.opponentCounterReflect,
+    slot2PlayerDmgTaken: result2 ? result2.playerDamageTaken : 0,
+    slot2OpponentDmgTaken: result2 ? result2.opponentDamageTaken : 0,
+    slot2PlayerHeal: result2 ? result2.playerHeal : 0,
+    slot2OpponentHeal: result2 ? result2.opponentHeal : 0,
+    slot2PlayerCounterReflect: result2 ? result2.playerCounterReflect : false,
+    slot2OpponentCounterReflect: result2 ? result2.opponentCounterReflect : false,
     charges: { ...battle.charges },
     stamina: { ...battle.stamina },
     cooldowns: JSON.parse(JSON.stringify(battle.cooldowns)),
     tempEffects: { player1: battle.tempEffects.player1, player2: battle.tempEffects.player2 }
   };
+
+  // Store last round result for poll-based clients to pick up
+  battle.lastRoundResult = roundResult;
 
   battle.roundLog.push({ round: battle.currentRound, p1: p1Moves.moves, p2: p2Moves.moves });
   battle.currentRound++;
@@ -1279,6 +1290,10 @@ function executeLiveRound(battle, config) {
 // Translate round result from player1/player2 to my/opponent perspective
 function perspectiveShift(roundResult, mySlot) {
   const other = mySlot === 'player1' ? 'player2' : 'player1';
+  // For player1: "Player" in resolveRound = me, "Opponent" = them
+  // For player2: swap — "Player" damage taken = their damage taken, "Opponent" = mine
+  var myPrefix = mySlot === 'player1' ? 'Player' : 'Opponent';
+  var oppPrefix = mySlot === 'player1' ? 'Opponent' : 'Player';
   return {
     round: roundResult.round,
     myMoves: roundResult[mySlot + 'Move'],
@@ -1294,6 +1309,19 @@ function perspectiveShift(roundResult, mySlot) {
     slot2Events: mySlot === 'player1' ? roundResult.slot2Events : swapEventPerspective(roundResult.slot2Events),
     slot1SpeedWinner: flipSpeed(roundResult.slot1SpeedWinner, mySlot),
     slot2SpeedWinner: flipSpeed(roundResult.slot2SpeedWinner, mySlot),
+    // Damage/heal: swap if player2 (resolveRound uses player1 as "player")
+    slot1MyDmgTaken: roundResult['slot1' + myPrefix + 'DmgTaken'],
+    slot1OpponentDmgTaken: roundResult['slot1' + oppPrefix + 'DmgTaken'],
+    slot1MyHeal: roundResult['slot1' + myPrefix + 'Heal'],
+    slot1OpponentHeal: roundResult['slot1' + oppPrefix + 'Heal'],
+    slot1MyCounterReflect: roundResult['slot1' + myPrefix + 'CounterReflect'],
+    slot1OpponentCounterReflect: roundResult['slot1' + oppPrefix + 'CounterReflect'],
+    slot2MyDmgTaken: roundResult['slot2' + myPrefix + 'DmgTaken'],
+    slot2OpponentDmgTaken: roundResult['slot2' + oppPrefix + 'DmgTaken'],
+    slot2MyHeal: roundResult['slot2' + myPrefix + 'Heal'],
+    slot2OpponentHeal: roundResult['slot2' + oppPrefix + 'Heal'],
+    slot2MyCounterReflect: roundResult['slot2' + myPrefix + 'CounterReflect'],
+    slot2OpponentCounterReflect: roundResult['slot2' + oppPrefix + 'CounterReflect'],
     charges: { my: roundResult.charges[mySlot], opponent: roundResult.charges[other] },
     stamina: { my: roundResult.stamina[mySlot], opponent: roundResult.stamina[other] },
     cooldowns: { my: roundResult.cooldowns[mySlot], opponent: roundResult.cooldowns[other] },
