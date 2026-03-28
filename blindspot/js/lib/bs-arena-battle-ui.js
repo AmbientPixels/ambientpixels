@@ -1054,27 +1054,24 @@ window.ArenaBattleUI = (function () {
       return;
     }
 
-    // Live PvP + Battle Surge: 2-phase selection (pick 2 moves)
-    var isDualAction = _battleSurgeActive || (_battleData && _battleData.type === 'live_pvp');
-    if (isDualAction && _firstMove === null) {
+    // Battle Surge: 2-phase selection when active (PvE consumable only)
+    if (_battleSurgeActive && _firstMove === null) {
       _firstMove = move;
       var btn1 = document.querySelector('.arena-move-btn[data-move="' + move + '"]');
       if (btn1) btn1.classList.add('arena-move-btn--selected-first');
       var prompt = document.getElementById('bs-move-select-prompt');
-      var isLive = _battleData && _battleData.type === 'live_pvp';
-      if (prompt) { prompt.textContent = isLive ? 'Pick second move' : 'SURGE \u2014 Pick second move'; prompt.style.display = ''; }
-      addLogEntry((isLive ? '\u2694\uFE0F ' : '\u26A1 SURGE! ') + move.charAt(0).toUpperCase() + move.slice(1) + ' locked \u2014 pick 2nd move.');
-      if (typeof updateComboHints === 'function') updateComboHints();
+      if (prompt) { prompt.textContent = 'SURGE \u2014 Pick second move'; prompt.style.display = ''; }
+      addLogEntry('\u26A1 SURGE! ' + move.charAt(0).toUpperCase() + move.slice(1) + ' locked \u2014 pick 2nd move.');
+      updateComboHints();
       return;
     }
 
     // Resolve the move(s) to submit
     var submitMove = move;
-    if (isDualAction && _firstMove) {
+    if (_battleSurgeActive && _firstMove) {
       submitMove = [_firstMove, move];
       _firstMove = null;
-      // Only reset Battle Surge flag (live PvP stays dual-action permanently)
-      if (_battleSurgeActive) _battleSurgeActive = false;
+      _battleSurgeActive = false;
       document.querySelectorAll('.arena-move-btn').forEach(function(b) { b.classList.remove('arena-move-btn--selected-first'); });
       var prompt2 = document.getElementById('bs-move-select-prompt');
       if (prompt2) prompt2.style.display = 'none';
