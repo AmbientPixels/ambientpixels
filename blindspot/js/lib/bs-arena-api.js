@@ -195,10 +195,10 @@ window.ArenaAPI = (function () {
 
     // ── Live PvP ──
 
-    joinMatchmaking: function (cardId, cardData, eloRange) {
+    joinMatchmaking: function (cardId, cardData, eloRange, mode) {
       return apiFetch('liveBattle', {
         method: 'POST',
-        body: { action: 'queue', cardId: cardId, cardData: cardData, eloRange: eloRange || 100 }
+        body: { action: 'queue', cardId: cardId, cardData: cardData, eloRange: eloRange || 100, mode: mode || 'quick' }
       });
     },
     cancelMatchmaking: function () {

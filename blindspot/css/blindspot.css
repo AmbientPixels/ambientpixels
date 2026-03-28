@@ -6823,9 +6823,17 @@ body.bs-battle-active .bs-play {
   border-color: var(--bs-accent, #00e5ff);
   font-weight: 700;
 }
-.bs-skulls-mode--disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+/* ── Stakes Warning ── */
+.bs-stakes-warning {
+  text-align: center;
+  padding: 0.5rem 1rem;
+  margin: 0 1rem;
+  background: rgba(255, 51, 51, 0.08);
+  border: 1px solid rgba(255, 51, 51, 0.3);
+  border-radius: 6px;
+  color: var(--bs-danger, #D85A30);
+  font-size: 0.8rem;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 /* ── Live Match Button ── */

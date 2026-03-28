@@ -309,10 +309,28 @@
   var _lastResolvedRound = 0;
   var _opponentWasSubmitted = false;
   var _isQueuing = false;
+  var _selectedMode = 'quick'; // 'quick' or 'stakes'
 
   function initSkullsTab() {
     var btn = document.getElementById('bs-live-match-btn');
     if (!btn) return;
+
+    // Wire mode toggle buttons
+    var modeButtons = document.querySelectorAll('.bs-skulls-mode[data-mode]');
+    modeButtons.forEach(function(mb) {
+      mb.addEventListener('click', function() {
+        _selectedMode = mb.dataset.mode;
+        modeButtons.forEach(function(b) { b.classList.toggle('bs-skulls-mode--active', b.dataset.mode === _selectedMode); });
+        var warning = document.getElementById('bs-stakes-warning');
+        if (warning) warning.style.display = _selectedMode === 'stakes' ? '' : 'none';
+        // Update button text
+        if (!localStorage.getItem('bs-activeLiveBattle')) {
+          btn.innerHTML = _selectedMode === 'stakes'
+            ? '<i class="fas fa-skull" style="color:#ff3333;"></i> Find Stakes Match'
+            : '<i class="fas fa-gamepad"></i> Find Match';
+        }
+      });
+    });
 
     // Check for active battle to resume
     var storedBattle = localStorage.getItem('bs-activeLiveBattle');
@@ -345,10 +363,20 @@
 
     _eloRange = 100;
     _matchmakingStartTime = Date.now();
-    showMatchStatus('Searching for opponent...', 'searching');
+
+    // Stakes mode confirmation
+    if (_selectedMode === 'stakes') {
+      if (!confirm('Stakes Match: Your card "' + (selectedCard.name || 'Unnamed') + '" is at risk. The loser\'s card is transferred to the winner. Continue?')) {
+        _isQueuing = false;
+        resetMatchButton();
+        return;
+      }
+    }
+
+    showMatchStatus(_selectedMode === 'stakes' ? 'Searching for stakes opponent...' : 'Searching for opponent...', 'searching');
 
     // Join queue
-    window.ArenaAPI.joinMatchmaking(selectedCard.id, selectedCard, _eloRange)
+    window.ArenaAPI.joinMatchmaking(selectedCard.id, selectedCard, _eloRange, _selectedMode)
       .then(function(resp) {
         if (resp.status === 'matched') {
           onMatchFound(resp.battleId);

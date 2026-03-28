@@ -2279,13 +2279,25 @@
       _progress.sparks = (_progress.sparks || 0) + sparksEarned;
     }
 
-    // Show result toast
-    if (won) {
-      showSuccessToast('Victory! +' + sparksEarned + ' Sparks');
-    } else if (lost) {
-      showErrorToast('Defeated! +' + sparksEarned + ' Sparks');
+    // Show result toast — stakes-aware
+    var isStakes = data.mode === 'stakes';
+    var transferInfo = (data.finalization && data.finalization.transfer) || null;
+    if (isStakes && transferInfo && transferInfo.cardName) {
+      if (won) {
+        showSuccessToast('Victory! You won "' + transferInfo.cardName + '" +' + sparksEarned + ' Sparks');
+      } else if (lost) {
+        showErrorToast('Defeated! You lost "' + transferInfo.cardName + '" +' + sparksEarned + ' Sparks');
+      } else {
+        showSuccessToast('Draw! Cards returned. +' + sparksEarned + ' Sparks');
+      }
     } else {
-      showSuccessToast('Draw! +' + sparksEarned + ' Sparks');
+      if (won) {
+        showSuccessToast('Victory! +' + sparksEarned + ' Sparks');
+      } else if (lost) {
+        showErrorToast('Defeated! +' + sparksEarned + ' Sparks');
+      } else {
+        showSuccessToast('Draw! +' + sparksEarned + ' Sparks');
+      }
     }
 
     // Return to PvP screen after delay

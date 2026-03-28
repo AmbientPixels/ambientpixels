@@ -678,6 +678,7 @@ function calcSparksPayout(won, eloGap) {
 
 async function handleQueue(context, containerClient, userId, body) {
   const { cardId, cardData, eloRange } = body;
+  const mode = body.mode === 'stakes' ? 'stakes' : 'quick';
   if (!cardId || !cardData) {
     context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'cardId and cardData are required' } };
     return;
@@ -691,6 +692,29 @@ async function handleQueue(context, containerClient, userId, body) {
   const playerElo = (profile && profile.pvpElo) || ELO_DEFAULT;
   const playerRank = computeRank((profile && profile.xp) || 0);
 
+  // Stakes mode: validate card is not already wagered or locked
+  if (mode === 'stakes') {
+    const userCards = await downloadJsonBlob(containerClient, 'user/' + userId + '/cards.json');
+    const cards = (userCards && userCards.cards) || [];
+    const card = cards.find(function(c) { return c.id === cardId; });
+    if (!card) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Card not found in your collection' } };
+      return;
+    }
+    if (card.inActiveWager) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Card is already in an active wager' } };
+      return;
+    }
+    var lockedCards = (profile && profile.lockedCards) || [];
+    if (lockedCards.includes(cardId)) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Locked cards cannot be wagered' } };
+      return;
+    }
+    // Flag card as in active wager
+    card.inActiveWager = true;
+    await uploadJsonBlob(containerClient, 'user/' + userId + '/cards.json', userCards);
+  }
+
   const maxRetries = 5;
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const { data: rawQueue, etag } = await downloadBlobWithETag(containerClient, QUEUE_BLOB);
@@ -703,7 +727,6 @@ async function handleQueue(context, containerClient, userId, body) {
     // Check if player is already in queue
     const existing = queue.find(function(e) { return e.userId === userId; });
     if (existing) {
-      // Update eloRange if re-queuing
       existing.eloRange = range;
       try {
         await uploadBlobConditional(containerClient, QUEUE_BLOB, queue, etag);
@@ -715,11 +738,12 @@ async function handleQueue(context, containerClient, userId, body) {
       }
     }
 
-    // Scan for a compatible match
+    // Scan for a compatible match — mode must match (quick↔quick, stakes↔stakes)
     let matchIdx = -1;
     for (let i = 0; i < queue.length; i++) {
       const entry = queue[i];
       if (entry.userId === userId) continue;
+      if ((entry.mode || 'quick') !== mode) continue; // Only match same mode
       const eloDiff = Math.abs(playerElo - entry.elo);
       if (eloDiff <= Math.min(range, entry.eloRange)) {
         matchIdx = i;
@@ -741,14 +765,21 @@ async function handleQueue(context, containerClient, userId, body) {
 
       // Create battle blob
       const battle = createLiveBattle(userId, cardData, playerElo, playerRank, opponent, config);
+      battle.mode = mode;
+      if (mode === 'stakes') {
+        battle.stakes = {
+          player1CardId: cardId,
+          player2CardId: opponent.cardId
+        };
+      }
       await uploadJsonBlob(containerClient, 'arena/battles/' + battle.battleId + '.json', battle);
 
       // Set activeLiveBattle on both profiles
       await setActiveBattle(containerClient, userId, battle.battleId);
       await setActiveBattle(containerClient, opponent.userId, battle.battleId);
 
-      context.log('[LivePvP] Match created: ' + battle.battleId + ' (' + userId + ' vs ' + opponent.userId + ')');
-      context.res = { status: 200, headers: CORS_HEADERS, body: { status: 'matched', battleId: battle.battleId } };
+      context.log('[LivePvP] Match created (' + mode + '): ' + battle.battleId + ' (' + userId + ' vs ' + opponent.userId + ')');
+      context.res = { status: 200, headers: CORS_HEADERS, body: { status: 'matched', battleId: battle.battleId, mode: mode } };
       return;
     }
 
@@ -761,6 +792,7 @@ async function handleQueue(context, containerClient, userId, body) {
       elo: playerElo,
       rank: playerRank,
       eloRange: range,
+      mode: mode,
       joinedAt: new Date().toISOString()
     });
 
@@ -782,6 +814,7 @@ async function handleCancel(context, containerClient, userId) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const { data: rawQueue, etag } = await downloadBlobWithETag(containerClient, QUEUE_BLOB);
     let queue = Array.isArray(rawQueue) ? rawQueue : [];
+    const myEntry = queue.find(function(e) { return e.userId === userId; });
     const before = queue.length;
     queue = queue.filter(function(e) { return e.userId !== userId; });
     if (queue.length === before) {
@@ -790,6 +823,10 @@ async function handleCancel(context, containerClient, userId) {
     }
     try {
       await uploadBlobConditional(containerClient, QUEUE_BLOB, queue, etag);
+      // Clear inActiveWager flag if was in stakes queue
+      if (myEntry && myEntry.mode === 'stakes' && myEntry.cardId) {
+        await clearWagerFlag(containerClient, userId, myEntry.cardId);
+      }
       context.res = { status: 200, headers: CORS_HEADERS, body: { status: 'ok', message: 'Removed from queue' } };
       return;
     } catch (err) {
@@ -798,6 +835,19 @@ async function handleCancel(context, containerClient, userId) {
     }
   }
   context.res = { status: 200, headers: CORS_HEADERS, body: { status: 'ok' } };
+}
+
+// Clear inActiveWager flag from a card
+async function clearWagerFlag(containerClient, usrId, cardId) {
+  try {
+    var userCards = await downloadJsonBlob(containerClient, 'user/' + usrId + '/cards.json');
+    if (!userCards || !userCards.cards) return;
+    var card = userCards.cards.find(function(c) { return c.id === cardId; });
+    if (card) {
+      delete card.inActiveWager;
+      await uploadJsonBlob(containerClient, 'user/' + usrId + '/cards.json', userCards);
+    }
+  } catch (e) { /* best effort */ }
 }
 
 async function handleQueueStatus(context, containerClient, userId, query) {
@@ -1412,12 +1462,14 @@ async function handlePoll(context, containerClient, userId, query) {
     myPassives: battle[slot].passives,
     abilityCost: Math.max(1, (cc.abilityCost || 2) - getPassiveValue(battle[slot].passives || [], 'ability_discount')),
     maxCharges: cc.maxCharges || 4,
-    abilityDefs: config.abilityDefs
+    abilityDefs: config.abilityDefs,
+    mode: battle.mode || 'quick'
   };
 
   if (battle.status === 'complete') {
     resp.winner = battle.winner === slot ? 'you' : battle.winner === other ? 'opponent' : 'draw';
     resp.finishReason = battle.finishReason;
+    resp.finalization = battle.finalization;
   }
 
   // Include last round result if available
@@ -1482,17 +1534,95 @@ async function finalizeBattle(containerClient, battle, winnerSlot, reason, conte
   await updateProfile(containerClient, battle.player1.userId, p1EloChange, p1Sparks, winnerSlot === 'player1');
   await updateProfile(containerClient, battle.player2.userId, p2EloChange, p2Sparks, winnerSlot === 'player2');
 
+  // Stakes mode: transfer loser's card to winner
+  var transferResult = null;
+  if (battle.mode === 'stakes' && battle.stakes && winnerSlot) {
+    transferResult = await handleStakesTransfer(containerClient, battle, winnerSlot, context);
+  }
+
+  // Clear inActiveWager flags for both cards (even on draw/idle)
+  if (battle.mode === 'stakes' && battle.stakes) {
+    await clearWagerFlag(containerClient, battle.player1.userId, battle.stakes.player1CardId);
+    await clearWagerFlag(containerClient, battle.player2.userId, battle.stakes.player2CardId);
+  }
+
   // Store finalization data in battle blob for client to read
   battle.finalization = {
     player1: { eloChange: p1EloChange, sparks: p1Sparks },
-    player2: { eloChange: p2EloChange, sparks: p2Sparks }
+    player2: { eloChange: p2EloChange, sparks: p2Sparks },
+    transfer: transferResult
   };
   battle.completedAt = new Date().toISOString();
   const battlePath = 'arena/battles/' + battle.battleId + '.json';
   await uploadJsonBlob(containerClient, battlePath, battle);
 
   if (context && context.log) {
-    context.log('[LivePvP] Battle finalized: ' + battle.battleId + ' winner=' + (winnerSlot || 'none') + ' reason=' + reason);
+    context.log('[LivePvP] Battle finalized: ' + battle.battleId + ' mode=' + (battle.mode || 'quick') + ' winner=' + (winnerSlot || 'none') + ' reason=' + reason);
+  }
+}
+
+// Stakes card transfer: move loser's card to winner's collection
+async function handleStakesTransfer(containerClient, battle, winnerSlot, context) {
+  var loserSlot = winnerSlot === 'player1' ? 'player2' : 'player1';
+  var winnerId = battle[winnerSlot].userId;
+  var loserId = battle[loserSlot].userId;
+  var lostCardId = battle.stakes[loserSlot + 'CardId'];
+
+  try {
+    // Remove card from loser's collection
+    var loserCards = await downloadJsonBlob(containerClient, 'user/' + loserId + '/cards.json');
+    if (!loserCards || !loserCards.cards) return { error: 'loser cards not found' };
+    var cardIdx = loserCards.cards.findIndex(function(c) { return c.id === lostCardId; });
+    if (cardIdx < 0) return { error: 'card not found in loser collection' };
+
+    var transferredCard = loserCards.cards.splice(cardIdx, 1)[0];
+    delete transferredCard.inActiveWager;
+    await uploadJsonBlob(containerClient, 'user/' + loserId + '/cards.json', loserCards);
+
+    // Add card to winner's collection
+    var winnerCards = await downloadJsonBlob(containerClient, 'user/' + winnerId + '/cards.json');
+    if (!winnerCards) winnerCards = { cards: [] };
+    if (!winnerCards.cards) winnerCards.cards = [];
+    winnerCards.cards.push(transferredCard);
+    await uploadJsonBlob(containerClient, 'user/' + winnerId + '/cards.json', winnerCards);
+
+    // Update profiles: trophyKills for winner, scars for loser
+    var winnerProfile = await downloadJsonBlob(containerClient, 'blindspot/profiles/' + winnerId + '.json');
+    if (winnerProfile) {
+      winnerProfile.trophyKills = (winnerProfile.trophyKills || 0) + 1;
+      await uploadJsonBlob(containerClient, 'blindspot/profiles/' + winnerId + '.json', winnerProfile);
+    }
+    var loserProfile = await downloadJsonBlob(containerClient, 'blindspot/profiles/' + loserId + '.json');
+    if (loserProfile) {
+      loserProfile.scars = (loserProfile.scars || 0) + 1;
+      await uploadJsonBlob(containerClient, 'blindspot/profiles/' + loserId + '.json', loserProfile);
+    }
+
+    // Remove from published gallery if present
+    try {
+      var published = await downloadJsonBlob(containerClient, 'published-cards.json');
+      if (published && published.publishedCards) {
+        var pubIdx = published.publishedCards.findIndex(function(c) { return c.id === lostCardId; });
+        if (pubIdx >= 0) {
+          published.publishedCards.splice(pubIdx, 1);
+          await uploadJsonBlob(containerClient, 'published-cards.json', published);
+        }
+      }
+    } catch (e) { /* gallery cleanup is best-effort */ }
+
+    if (context && context.log) {
+      context.log('[LivePvP Stakes] Card transferred: ' + transferredCard.name + ' (' + lostCardId + ') from ' + loserId + ' to ' + winnerId);
+    }
+
+    return {
+      cardId: lostCardId,
+      cardName: transferredCard.name || 'Unknown',
+      from: loserId,
+      to: winnerId
+    };
+  } catch (err) {
+    if (context && context.log) context.log.error('[LivePvP Stakes] Transfer failed: ' + err.message);
+    return { error: err.message };
   }
 }
 
