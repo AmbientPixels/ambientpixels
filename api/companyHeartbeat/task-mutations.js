@@ -67,8 +67,8 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
     tasks.push(task);
     if (tasks.length > 500) tasks.splice(0, tasks.length - 500);
 
-    // Auto-escalate to approval queue if needed
-    if (requiresApproval) {
+    // Auto-escalate to approval queue if needed (skip social tasks — CEO approves the ACTION, not the task)
+    if (requiresApproval && _SOCIAL_TASK_TYPES.indexOf(update.task.taskType) === -1) {
       _pendingEscalations.push({
         taskId: task.id,
         taskTitle: task.title,
