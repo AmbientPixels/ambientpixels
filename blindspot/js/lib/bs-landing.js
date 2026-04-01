@@ -216,6 +216,12 @@
     document.body.classList.remove('bs-battle-active');
 
     if (isWin) {
+      // Record Boss 1 (Gatekeeper) as beaten — the Stranger fight IS the Gatekeeper fight
+      if (_cb.safeLSSet) {
+        _cb.safeLSSet('bs-highest-boss', '1');
+        _cb.safeLSSet('blindspot-highest-boss', '1');
+        _cb.safeLSSet('bs-total-wins', '1');
+      }
       if (_cb.showOverlay) _cb.showOverlay('bs-stranger-win');
       var buildBtn = document.getElementById('bs-build-btn');
       if (buildBtn) buildBtn.addEventListener('click', function () {
