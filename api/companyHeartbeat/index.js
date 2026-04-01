@@ -2072,7 +2072,7 @@ module.exports = async function (context) {
               const _tcTask = tasks.find(t => t.id === ceo.taskId);
               const _tcTaskType = _tcTask && _tcTask.taskType || '';
               const _tcTitle = (ceo.taskTitle || '').toLowerCase();
-              const _INTERNAL_TASK_TYPES = ['research', 'general', 'ops', 'bug_fix', 'editorial', 'design_asset', 'internal_doc', 'social_copy', 'finance', 'intake', 'support'];
+              const _INTERNAL_TASK_TYPES = ['research', 'general', 'ops', 'bug_fix', 'editorial', 'design_asset', 'internal_doc', 'social_copy', 'finance', 'intake', 'support', 'social_x', 'social_linkedin', 'social_bluesky', 'social_facebook', 'social_reddit'];
               const _INTERNAL_TITLE_PATTERNS = /\b(traffic brief|review brief|research|analysis|audit|report|internal|ops|bugfix|hotfix)\b/i;
               const _isInternal = _INTERNAL_TASK_TYPES.indexOf(_tcTaskType) !== -1 || _INTERNAL_TITLE_PATTERNS.test(_tcTitle);
               if (_isInternal) {
@@ -2088,7 +2088,7 @@ module.exports = async function (context) {
               // Dedupe: skip if a task_completion.approve already exists for this taskId
               const existingApproval = actionsStore.find(a => a.type === 'task_completion.approve' && a.payload && a.payload.taskId === ceo.taskId);
               // Skip if ANY social post action was ever linked to this task — social post approval is the gate, not task_completion
-              const linkedSocialAction = actionsStore.find(a => a._parentTaskId === ceo.taskId && a.type && a.type.indexOf('social_post') === 0);
+              const linkedSocialAction = actionsStore.find(a => a._parentTaskId === ceo.taskId && a.type && (a.type === 'create-social-action' || a.type.indexOf('social_post') === 0));
               // Skip if a content package approval exists for this task — content.package approval is the gate
               const linkedContentPkg = actionsStore.find(a => a._parentTaskId === ceo.taskId && a.type === 'content.package');
               // Also check approvalQueue for content.package items linked to this task
