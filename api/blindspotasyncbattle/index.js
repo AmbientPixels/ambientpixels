@@ -173,7 +173,7 @@ function applyStatPassives(combatStats, passives) {
 }
 
 function computeMaxHp(combatStats) {
-  return Math.round(80 + (combatStats.end * 1.5) + (combatStats.str * 0.3));
+  return Math.round(60 + (combatStats.end * 5) + (combatStats.str * 1));
 }
 
 function getAbilityByDominantStat(combatStats, config) {
@@ -332,7 +332,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (playerBlind && Math.random() < 0.4) {
       events.push('😵 Blinded! Your strike misses!');
     } else {
-      let dmg = Math.round(player.combatStats.str * 0.3 + Math.random() * (player.combatStats.str * 0.1));
+      let dmg = Math.round(player.combatStats.str * 0.5 + Math.random() * (player.combatStats.str * 0.15));
       const isCrit = Math.random() * 100 < playerCritChance;
       if (isCrit) {
         const critMult = 1.5 + getPassiveValue(player.passives, 'crit_damage') / 100;
@@ -355,7 +355,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     const healDr = getPassiveValue(player.passives, 'heal_dr');
     if (healDr > 0) newTempEffects.player.push({ effect: 'fortified', value: healDr, roundsLeft: 1 });
   } else if (effectivePlayerMove === 'heal') {
-    let h = Math.round(player.combatStats.end * 0.5 + Math.random() * (player.combatStats.end * 0.12));
+    let h = Math.round(player.combatStats.end * 0.35 + Math.random() * (player.combatStats.end * 0.08));
     if (effectiveOpponentMove === 'strike') { h = Math.round(h * 0.5); events.push('⚔️ Heal disrupted by enemy strike!'); }
     if (effectiveOpponentMove === 'ability') { h = Math.round(h * 0.3); events.push('💫 Heal disrupted by enemy ability!'); }
     playerHeal += h;
@@ -385,7 +385,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (opponentBlind && Math.random() < 0.4) {
       events.push('😵 Enemy blinded! Their strike misses!');
     } else {
-      let dmg = Math.round(opponent.combatStats.str * 0.3 + Math.random() * (opponent.combatStats.str * 0.1));
+      let dmg = Math.round(opponent.combatStats.str * 0.5 + Math.random() * (opponent.combatStats.str * 0.15));
       const isCrit = Math.random() * 100 < opponentCritChance;
       if (isCrit) {
         const critMult = 1.5 + getPassiveValue(opponent.passives, 'crit_damage') / 100;
@@ -406,7 +406,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   } else if (effectiveOpponentMove === 'guard') {
     // Already handled in player strike
   } else if (effectiveOpponentMove === 'heal') {
-    let h = Math.round(opponent.combatStats.end * 0.5 + Math.random() * (opponent.combatStats.end * 0.12));
+    let h = Math.round(opponent.combatStats.end * 0.35 + Math.random() * (opponent.combatStats.end * 0.08));
     if (effectivePlayerMove === 'strike') h = Math.round(h * 0.5);
     if (effectivePlayerMove === 'ability') h = Math.round(h * 0.3);
     opponentHeal += h;

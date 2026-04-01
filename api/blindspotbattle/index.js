@@ -234,9 +234,9 @@ function applyStatPassives(combatStats, passives) {
   }
 }
 
-// HP = 80 base + END contribution (150%) + STR contribution (30%)
+// HP = 60 base + END contribution (100%) + STR contribution (20%)
 function computeMaxHp(combatStats) {
-  return Math.round(80 + (combatStats.end * 7.5) + (combatStats.str * 1.5));
+  return Math.round(60 + (combatStats.end * 5) + (combatStats.str * 1));
 }
 
 function getClassAbility(className, config) {
@@ -568,9 +568,9 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   if (playerStunned) {
     events.push('\uD83D\uDCA5 You are stunned and cannot act this round!');
   } else if (playerMove === 'strike') {
-    // Strike: 40% of STR as base + up to 10% STR as random variance
+    // Strike: 50% of STR as base + up to 15% STR as random variance
     const str = player.combatStats.str + playerStrBonus;
-    playerOutDmg = str * 0.3 + Math.random() * (str * 0.1);
+    playerOutDmg = str * 0.5 + Math.random() * (str * 0.15);
     const isCrit = Math.random() * 100 < playerCritChance;
     if (isCrit) {
       const critDmgBonus = getPassiveValue(player.passives, 'crit_damage');
@@ -632,9 +632,9 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   } else if (playerMove === 'guard') {
     events.push('\uD83D\uDEE1\uFE0F You raised your guard, bracing for impact.');
   } else if (playerMove === 'heal') {
-    // Heal: 30% of END as base + up to 10% END as random variance
+    // Heal: 35% of END as base + up to 8% END as random variance
     const end = player.combatStats.end;
-    let healAmt = end * 0.5 + Math.random() * (end * 0.12);
+    let healAmt = end * 0.35 + Math.random() * (end * 0.08);
     if (opponentMove === 'strike') {
       healAmt *= 0.75;
       events.push('\u26A0\uFE0F Your healing was disrupted by the enemy strike! (25% reduced)');
@@ -664,7 +664,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     events.push('\uD83D\uDCA5 Enemy is stunned and cannot act this round!');
   } else if (opponentMove === 'strike') {
     const str = opponent.combatStats.str + opponentStrBonus;
-    opponentOutDmg = str * 0.3 + Math.random() * (str * 0.1);
+    opponentOutDmg = str * 0.5 + Math.random() * (str * 0.15);
     const isCrit = Math.random() * 100 < opponentCritChance;
     if (isCrit) {
       const critDmgBonus = getPassiveValue(opponent.passives, 'crit_damage');
@@ -727,7 +727,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     events.push('\uD83D\uDEE1\uFE0F Enemy raised their guard, bracing for impact.');
   } else if (opponentMove === 'heal') {
     const end = opponent.combatStats.end;
-    let healAmt = end * 0.5 + Math.random() * (end * 0.12);
+    let healAmt = end * 0.35 + Math.random() * (end * 0.08);
     if (playerMove === 'strike') {
       healAmt *= 0.75;
       events.push('\u26A0\uFE0F Enemy healing was disrupted by your strike! (25% reduced)');

@@ -9,11 +9,11 @@
       "avatar": "/blindspot/img/bosses/Training-Dummy-02.webp",
       "bio": "A slow enforcer who tests newcomers. Methodical but predictable.",
       "stats": [
-        { "name": "Strength", "value": 9 },
-        { "name": "Agility", "value": 7 },
-        { "name": "Intelligence", "value": 6 },
-        { "name": "Endurance", "value": 12 },
-        { "name": "Luck", "value": 5 }
+        { "name": "Strength", "value": 8 },
+        { "name": "Agility", "value": 6 },
+        { "name": "Intelligence", "value": 5 },
+        { "name": "Endurance", "value": 10 },
+        { "name": "Luck", "value": 4 }
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "None" }],
@@ -36,11 +36,11 @@
       "avatar": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp",
       "bio": "A career fighter who believes in structure. Hits hard, plays fair.",
       "stats": [
-        { "name": "Strength", "value": 11 },
-        { "name": "Agility", "value": 7 },
+        { "name": "Strength", "value": 10 },
+        { "name": "Agility", "value": 8 },
         { "name": "Intelligence", "value": 6 },
         { "name": "Endurance", "value": 11 },
-        { "name": "Luck", "value": 6 }
+        { "name": "Luck", "value": 5 }
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Iron" }],
@@ -117,11 +117,11 @@
       "avatar": "/blindspot/img/bosses/Warlord-Grax01.webp",
       "bio": "Pure aggression. Massive STR pool, relentless Power Strikes, gets dangerous when low.",
       "stats": [
-        { "name": "Strength", "value": 17 },
-        { "name": "Agility", "value": 10 },
-        { "name": "Intelligence", "value": 5 },
+        { "name": "Strength", "value": 14 },
+        { "name": "Agility", "value": 6 },
+        { "name": "Intelligence", "value": 4 },
         { "name": "Endurance", "value": 14 },
-        { "name": "Luck", "value": 8 }
+        { "name": "Luck", "value": 5 }
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Fire" }],
@@ -171,11 +171,11 @@
       "avatar": "/blindspot/img/bosses/Titanium-Aegis-01.webp",
       "bio": "Massive HP pool. Fortify heals and reduces damage. You'll run out of steam before they do.",
       "stats": [
-        { "name": "Strength", "value": 11 },
-        { "name": "Agility", "value": 7 },
-        { "name": "Intelligence", "value": 8 },
-        { "name": "Endurance", "value": 18 },
-        { "name": "Luck", "value": 10 }
+        { "name": "Strength", "value": 10 },
+        { "name": "Agility", "value": 5 },
+        { "name": "Intelligence", "value": 5 },
+        { "name": "Endurance", "value": 17 },
+        { "name": "Luck", "value": 4 }
       ],
       "badges": [{ "category": "Honor", "icon": "shield", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Titanium" }],
@@ -198,11 +198,11 @@
       "avatar": "/blindspot/img/bosses/Void-Harbinger-01.webp",
       "bio": "Wild Card ability means every round is a coin flip. 25% crit or 10% fizzle. High LCK amplifies chaos.",
       "stats": [
-        { "name": "Strength", "value": 12 },
-        { "name": "Agility", "value": 13 },
-        { "name": "Intelligence", "value": 12 },
-        { "name": "Endurance", "value": 11 },
-        { "name": "Luck", "value": 16 }
+        { "name": "Strength", "value": 9 },
+        { "name": "Agility", "value": 10 },
+        { "name": "Intelligence", "value": 13 },
+        { "name": "Endurance", "value": 12 },
+        { "name": "Luck", "value": 9 }
       ],
       "badges": [{ "category": "Champion", "icon": "trophy", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Crystal" }],
@@ -225,11 +225,11 @@
       "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp",
       "bio": "Relentless berserker with massive STR and END. Last Stand makes them even deadlier.",
       "stats": [
-        { "name": "Strength", "value": 18 },
-        { "name": "Agility", "value": 12 },
-        { "name": "Intelligence", "value": 6 },
+        { "name": "Strength", "value": 15 },
+        { "name": "Agility", "value": 9 },
+        { "name": "Intelligence", "value": 4 },
         { "name": "Endurance", "value": 16 },
-        { "name": "Luck", "value": 10 }
+        { "name": "Luck", "value": 6 }
       ],
       "badges": [
         { "category": "Champion", "icon": "trophy", "quantity": 3 },
@@ -286,11 +286,11 @@
       "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp",
       "bio": "A relentless weekly challenger. High STR and END with punishing counter-attacks.",
       "stats": [
-        { "name": "Strength", "value": 16 },
-        { "name": "Agility", "value": 9 },
-        { "name": "Intelligence", "value": 7 },
+        { "name": "Strength", "value": 14 },
+        { "name": "Agility", "value": 8 },
+        { "name": "Intelligence", "value": 5 },
         { "name": "Endurance", "value": 17 },
-        { "name": "Luck", "value": 11 }
+        { "name": "Luck", "value": 6 }
       ],
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Blood" }],
@@ -340,11 +340,11 @@
       "avatar": "/blindspot/img/bosses/Titanium-Aegis-01.webp",
       "bio": "A weekly tank. Massive END wall with self-healing. A war of attrition.",
       "stats": [
-        { "name": "Strength", "value": 10 },
-        { "name": "Agility", "value": 6 },
-        { "name": "Intelligence", "value": 9 },
-        { "name": "Endurance", "value": 19 },
-        { "name": "Luck", "value": 12 }
+        { "name": "Strength", "value": 11 },
+        { "name": "Agility", "value": 4 },
+        { "name": "Intelligence", "value": 4 },
+        { "name": "Endurance", "value": 18 },
+        { "name": "Luck", "value": 3 }
       ],
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Iron" }],
