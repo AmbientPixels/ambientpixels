@@ -13,7 +13,8 @@ const {
   AGENT_ROLES, GUARDRAILS, DOMAIN_LEAD_MAP,
   MAX_TOOL_CALLS_PER_AGENT, MAX_MEMORIES_PER_AGENT,
   MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS,
-  MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS
+  MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS,
+  MAX_RESEARCH_INTEL_PER_DAY
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
@@ -1422,7 +1423,12 @@ Write the full deliverable first, then the structured JSON block.`;
             try {
               const _riActStore = (await storage.getState('actions')) || [];
               const _riExists = _riActStore.some(a => a.type === 'research_intel.approve' && a._parentTaskId === action.taskId && a.approval && a.approval.status === 'pending');
-              if (!_riExists) {
+              // Daily cap: count today's research intel submissions
+              const _riTodayStart = new Date(); _riTodayStart.setUTCHours(0,0,0,0);
+              const _riTodayCount = _riActStore.filter(a => a.type === 'research_intel.approve' && new Date(a.created_at) >= _riTodayStart).length;
+              if (_riTodayCount >= MAX_RESEARCH_INTEL_PER_DAY) {
+                context.log('[Heartbeat] RESEARCH INTEL: daily cap reached (' + _riTodayCount + '/' + MAX_RESEARCH_INTEL_PER_DAY + '), skipping submission for task:', action.taskId);
+              } else if (!_riExists) {
                 const _riPayload = { id: _riId, title: task.title, summary: deliverable.substring(0, 600), content: deliverable, task_id: action.taskId, created_at: _riNow, agent: 'scout', source: 'execute-task' };
                 _riActStore.push({ id: _riId, type: 'research_intel.approve', created_at: _riNow, created_by: 'scout', payload: _riPayload, approval: { status: 'pending' }, execution: { status: 'pending' }, requires_approval: true, risk_level: 'low', brand_impact: 'low', budget_impact: 0, classification: 'advisory', _parentTaskId: action.taskId, source: 'heartbeat' });
                 await storage.setState('actions', _riActStore);
