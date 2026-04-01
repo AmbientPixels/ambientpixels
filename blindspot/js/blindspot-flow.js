@@ -1078,6 +1078,7 @@
       if (_isFirstRealFight) {
         _origShowResults.call(window.ArenaResults, battleResult, battleData);
         handleFirstRealFightResult(battleResult, battleData);
+        handlePlayPageResult(battleResult, battleData);
         return;
       }
       if (isOnPlayPage()) {
