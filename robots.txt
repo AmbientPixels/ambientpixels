@@ -5,6 +5,7 @@ Allow: /log/
 Allow: /nova/
 Allow: /cardforge/
 Allow: /storyforge/
+Allow: /blindspot/
 Allow: /projects/
 Allow: /about/
 
