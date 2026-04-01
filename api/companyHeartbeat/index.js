@@ -2072,7 +2072,7 @@ module.exports = async function (context) {
               const _tcTask = tasks.find(t => t.id === ceo.taskId);
               const _tcTaskType = _tcTask && _tcTask.taskType || '';
               const _tcTitle = (ceo.taskTitle || '').toLowerCase();
-              const _INTERNAL_TASK_TYPES = ['research', 'general', 'ops', 'bug_fix', 'editorial'];
+              const _INTERNAL_TASK_TYPES = ['research', 'general', 'ops', 'bug_fix', 'editorial', 'design_asset', 'internal_doc', 'social_copy', 'finance', 'intake', 'support'];
               const _INTERNAL_TITLE_PATTERNS = /\b(traffic brief|review brief|research|analysis|audit|report|internal|ops|bugfix|hotfix)\b/i;
               const _isInternal = _INTERNAL_TASK_TYPES.indexOf(_tcTaskType) !== -1 || _INTERNAL_TITLE_PATTERNS.test(_tcTitle);
               if (_isInternal) {
