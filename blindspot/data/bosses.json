@@ -7,14 +7,14 @@
     "class": "Enforcer",
     "element": "earth",
     "flavor": "Everyone passes through here once.",
-    "combatStats": { "str": 9, "agi": 7, "int": 6, "end": 12, "lck": 5 },
+    "combatStats": { "str": 8, "agi": 6, "int": 5, "end": 10, "lck": 4 },
     "reward": { "type": "stat_bonus", "stat": "str", "amount": 1, "label": "+1 STR" },
-    "avatar": "/blindspot/img/bosses/Training-Dummy-02.webp",
+    "avatar": "/blindspot/img/bosses/Gatekeeper-01.webp",
     "weakness": "int",
-    "resistances": { "strike": 15 },
-    "moveWeaknesses": { "ability": 20 },
-    "signaturePassive": { "name": "Fortified Start", "desc": "Starts with armor that fades each round" },
-    "bossTip": "Resists strikes but weak to abilities. Armor fades over time — be patient early."
+    "resistances": {},
+    "moveWeaknesses": { "ability": 20, "strike": 10 },
+    "signaturePassive": { "name": "Fortified Start", "desc": "Starts with light armor that fades each round" },
+    "bossTip": "Weak to strikes and abilities. Light armor fades fast — press the attack."
   },
   {
     "boss": 2,

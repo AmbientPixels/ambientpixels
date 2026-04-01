@@ -6,7 +6,7 @@
       "name": "The Gatekeeper",
       "class": "Enforcer",
       "quote": "Everyone passes through here once.",
-      "avatar": "/blindspot/img/bosses/Training-Dummy-02.webp",
+      "avatar": "/blindspot/img/bosses/Gatekeeper-01.webp",
       "bio": "A slow enforcer who tests newcomers. Methodical but predictable.",
       "stats": [
         { "name": "Strength", "value": 8 },
