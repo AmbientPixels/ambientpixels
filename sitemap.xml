@@ -2,174 +2,174 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Main Pages -->
   <url>
-    <loc>https://ambientpixels.ai/</loc>
+    <loc>https://www.ambientpixels.ai/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/about/</loc>
+    <loc>https://www.ambientpixels.ai/about/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/projects/</loc>
+    <loc>https://www.ambientpixels.ai/projects/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/art.html</loc>
+    <loc>https://www.ambientpixels.ai/art.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- Blog (dynamic content, crawl frequently) -->
   <url>
-    <loc>https://ambientpixels.ai/blog/</loc>
+    <loc>https://www.ambientpixels.ai/blog/</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/introducing-ambientpixels-ai-native-marketing-for-the-modern-web</loc>
+    <loc>https://www.ambientpixels.ai/blog/introducing-ambientpixels-ai-native-marketing-for-the-modern-web</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/introducing-ambientos-the-ai-operating-system-powering-ambientpixels</loc>
+    <loc>https://www.ambientpixels.ai/blog/introducing-ambientos-the-ai-operating-system-powering-ambientpixels</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/introducing-ambientscore-quantifying-the-vibe-of-your-digital-spaces</loc>
+    <loc>https://www.ambientpixels.ai/blog/introducing-ambientscore-quantifying-the-vibe-of-your-digital-spaces</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/cardforge-unleashed-forge-your-destiny-with-40-million-unique-card-combinations</loc>
+    <loc>https://www.ambientpixels.ai/blog/cardforge-unleashed-forge-your-destiny-with-40-million-unique-card-combinations</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/embark-on-infinite-adventures-with-storyforge-ai-powered-tales-await</loc>
+    <loc>https://www.ambientpixels.ai/blog/embark-on-infinite-adventures-with-storyforge-ai-powered-tales-await</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/the-rise-of-ai-enhanced-cybersecurity-threats-what-it-means-for-ai-native-companies</loc>
+    <loc>https://www.ambientpixels.ai/blog/the-rise-of-ai-enhanced-cybersecurity-threats-what-it-means-for-ai-native-companies</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/ai-agents-your-new-creative-teammates-published-2026-03-07</loc>
+    <loc>https://www.ambientpixels.ai/blog/ai-agents-your-new-creative-teammates-published-2026-03-07</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blog/enter-the-arena-blindspot-launches-today</loc>
+    <loc>https://www.ambientpixels.ai/blog/enter-the-arena-blindspot-launches-today</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- Activity Log (daily updates) -->
   <url>
-    <loc>https://ambientpixels.ai/log/</loc>
+    <loc>https://www.ambientpixels.ai/log/</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Nova -->
   <url>
-    <loc>https://ambientpixels.ai/nova/</loc>
+    <loc>https://www.ambientpixels.ai/nova/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/nova/about.html</loc>
+    <loc>https://www.ambientpixels.ai/nova/about.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/nova/awareness.html</loc>
+    <loc>https://www.ambientpixels.ai/nova/awareness.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/nova/dashboard.html</loc>
+    <loc>https://www.ambientpixels.ai/nova/dashboard.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/nova/logs.html</loc>
+    <loc>https://www.ambientpixels.ai/nova/logs.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- CardForge -->
   <url>
-    <loc>https://ambientpixels.ai/cardforge/</loc>
+    <loc>https://www.ambientpixels.ai/cardforge/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/cardforge/deck.html</loc>
+    <loc>https://www.ambientpixels.ai/cardforge/deck.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://ambientpixels.ai/cardforge/arena.html</loc>
+    <loc>https://www.ambientpixels.ai/cardforge/arena.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/cardforge/devlog.html</loc>
+    <loc>https://www.ambientpixels.ai/cardforge/devlog.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- Blindspot -->
   <url>
-    <loc>https://ambientpixels.ai/blindspot/</loc>
+    <loc>https://www.ambientpixels.ai/blindspot/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/blindspot/play.html</loc>
+    <loc>https://www.ambientpixels.ai/blindspot/play.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- StoryForge -->
   <url>
-    <loc>https://ambientpixels.ai/storyforge/</loc>
+    <loc>https://www.ambientpixels.ai/storyforge/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/storyforge/play.html</loc>
+    <loc>https://www.ambientpixels.ai/storyforge/play.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/storyforge/gallery.html</loc>
+    <loc>https://www.ambientpixels.ai/storyforge/gallery.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- GlitchLab -->
   <url>
-    <loc>https://ambientpixels.ai/glitchlab.html</loc>
+    <loc>https://www.ambientpixels.ai/glitchlab.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- Legal -->
   <url>
-    <loc>https://ambientpixels.ai/privacy.html</loc>
+    <loc>https://www.ambientpixels.ai/privacy.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://ambientpixels.ai/terms.html</loc>
+    <loc>https://www.ambientpixels.ai/terms.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
