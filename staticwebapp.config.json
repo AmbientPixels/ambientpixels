@@ -46,7 +46,7 @@
  "routes": [
   {
    "route": "/sitemap.xml",
-   "rewrite": "/api/sitemapXml"
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/sitemapXml"
   },
   {
    "route": "/blindspot/*",

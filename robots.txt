@@ -19,4 +19,4 @@ Disallow: /.auth/
 Disallow: /data/
 Disallow: /account/
 
-Sitemap: https://ambientpixels.ai/sitemap.xml
+Sitemap: https://www.ambientpixels.ai/sitemap.xml

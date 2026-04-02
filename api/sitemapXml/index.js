@@ -3,7 +3,7 @@
 
 const storage = require('../_utils/companyStorage');
 
-const SITE = 'https://ambientpixels.ai';
+const SITE = 'https://www.ambientpixels.ai';
 
 // 10-minute cache
 var _cache = null;
