@@ -426,11 +426,9 @@
     slider.style.setProperty('--fill', value + '%');
 
     slider.addEventListener('input', function() {
-      enforceBudget(def.key, parseInt(this.value));
-      const clamped = parseInt(this.value);
-      display.textContent = clamped;
-      this.style.setProperty('--fill', clamped + '%');
-      updateBudgetDisplay();
+      var val = parseInt(this.value);
+      display.textContent = val;
+      this.style.setProperty('--fill', val + '%');
       updatePreview();
     });
 

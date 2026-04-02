@@ -217,7 +217,7 @@
           <div class="qb-stats-panel">
             <div class="qb-stats-header">
               <span class="qb-stats-title"><i class="fas fa-sliders"></i> Allocate Stats</span>
-              <span class="qb-stats-budget ${remaining < 0 ? 'over' : remaining === 0 ? 'exact' : ''}">${remaining} / ${STAT_BUDGET}</span>
+              <span class="qb-stats-budget"></span>
             </div>
             <div class="qb-stats-sliders" id="qb-stats-sliders">
               ${STAT_DEFS.map(d => `
@@ -456,32 +456,13 @@
     document.querySelectorAll('.qb-stat-slider').forEach(slider => {
       slider.addEventListener('input', () => {
         const key = slider.dataset.stat;
-        let requested = parseInt(slider.value, 10);
+        let val = parseInt(slider.value, 10);
         if (!_state.customStats) _state.customStats = { ..._getActiveStats() };
 
-        // Enforce budget: clamp so total never exceeds STAT_BUDGET
-        let otherTotal = 0;
-        STAT_DEFS.forEach(d => {
-          if (d.key !== key) otherTotal += (_state.customStats[d.key] || 0);
-        });
-        const maxAllowed = Math.max(0, STAT_BUDGET - otherTotal);
-        const clamped = Math.min(requested, maxAllowed);
-
-        _state.customStats[key] = clamped;
-        slider.value = clamped;
-        slider.style.setProperty('--fill', clamped + '%');
+        _state.customStats[key] = val;
+        slider.style.setProperty('--fill', val + '%');
         const display = slider.closest('.qb-stat-row').querySelector('.qb-stat-value');
-        if (display) display.textContent = clamped;
-
-        // Update budget display
-        const spent = STAT_DEFS.reduce((sum, d) => sum + (_state.customStats[d.key] || 0), 0);
-        const remaining = STAT_BUDGET - spent;
-        const budgetEl = document.querySelector('.qb-stats-budget');
-        if (budgetEl) {
-          budgetEl.textContent = `${remaining} / ${STAT_BUDGET}`;
-          budgetEl.classList.toggle('over', remaining < 0);
-          budgetEl.classList.toggle('exact', remaining === 0);
-        }
+        if (display) display.textContent = val;
 
         // Update spider chart in-place
         const spiderWrap = document.getElementById('qb-spider-wrap');
