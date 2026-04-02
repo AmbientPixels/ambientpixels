@@ -7,7 +7,7 @@
   'use strict';
 
   const CLASSES = [
-    { id: 'Fighter',  label: 'Fighter',  icon: 'fa-hand-fist',        playstyle: 'Brawler',    desc: 'Highest strike damage in the arena. Power Strike hits 1.4× and triggers Last Stand (+10 dmg) when low on HP.' },
+    { id: 'Fighter',  label: 'Fighter',  icon: 'fa-hand-fist',        playstyle: 'Brawler',    desc: 'Highest strike damage of any class. Power Strike hits 1.4× and triggers Last Stand (+10 dmg) when low on HP.' },
     { id: 'Caster',   label: 'Caster',   icon: 'fa-wand-magic-sparkles', playstyle: 'Spellcaster', desc: 'Arcane Blast applies Vulnerable (+15% dmg taken). High INT + LCK combo unlocks powerful Wild Card crits.' },
     { id: 'Rogue',    label: 'Rogue',    icon: 'fa-user-ninja',       playstyle: 'Speedster',  desc: 'Shadow Strike always attacks first and crits apply Blind (40% miss). AGI 50+ charges abilities 50% faster.' },
     { id: 'Guardian', label: 'Guardian', icon: 'fa-shield-halved',    playstyle: 'Tank',       desc: 'Largest HP pool — END is 80% of max HP. Fortify heals and grants -20% damage taken for a full round.' },
@@ -196,7 +196,7 @@
     };
 
     return `
-      <p class="qb-panel-desc">Your class determines combat abilities and stat bonuses in the Arena.</p>
+      <p class="qb-panel-desc">Your class determines combat abilities and stat bonuses.</p>
       <div class="qb-class-grid">
         ${CLASSES.map(c => `
           <div class="qb-class-card ${_state.cardClass === c.id ? 'selected' : ''}" data-class-id="${c.id}">

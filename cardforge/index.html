@@ -7,19 +7,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CardForge — Create custom RPG cards, build decks, and battle in the arena. AI-powered card creator with class abilities, PvE combat, and a public gallery.">
+  <meta name="description" content="CardForge — Design custom RPG cards with AI-powered generation. 40M+ unique combinations, custom stats, deck building, and a public gallery. Free to use.">
   <link rel="canonical" href="https://www.ambientpixels.ai/cardforge/" />
-  <title>CardForge — RPG Card Game | Create, Collect & Battle</title>
+  <title>CardForge — RPG Card Creator | Design, Customize & Share</title>
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="CardForge — Modular RPG Card Creator" />
-  <meta property="og:description" content="Create custom RPG cards with 40M+ unique combinations. AI-powered card creator with PvE arena battles and a public gallery." />
+  <meta property="og:title" content="CardForge — AI-Powered RPG Card Creator" />
+  <meta property="og:description" content="Design custom RPG cards with 40M+ unique combinations. AI-powered generation, custom stats, deck building, and a public gallery." />
   <meta property="og:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.jpg" />
   <meta property="og:url" content="https://www.ambientpixels.ai/cardforge/" />
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="CardForge — Modular RPG Card Creator" />
-  <meta name="twitter:description" content="Create custom RPG cards with 40M+ unique combinations. AI-powered card creator with PvE arena battles and a public gallery." />
+  <meta name="twitter:title" content="CardForge — AI-Powered RPG Card Creator" />
+  <meta name="twitter:description" content="Design custom RPG cards with 40M+ unique combinations. AI generation, custom stats, and a public gallery." />
   <meta name="twitter:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.jpg" />
   <meta name="csrf-token" content="">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
@@ -53,7 +53,7 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "CardForge",
-    "description": "Modular RPG card creator with AI-powered generation, 40M+ unique combinations, PvE arena battles, and a public gallery.",
+    "description": "AI-powered RPG card creator with 40M+ unique combinations, custom stats, deck building, and a public gallery.",
     "url": "https://www.ambientpixels.ai/cardforge/",
     "applicationCategory": "GameApplication",
     "operatingSystem": "Web Browser",
@@ -140,9 +140,6 @@
     <a href="https://ambientpixels.ai" class="cf-page-bar__subtitle cf-brand-link">by AmbientPixels</a>
   </div>
   <div class="cf-page-bar__actions" aria-label="Page controls">
-    <a href="/cardforge/arena.html" class="cf-new-card-btn" title="Enter the Arena" style="text-decoration:none;">
-      <i class="fas fa-shield-halved"></i> Arena
-    </a>
     <button type="button" id="clear-all-btn" class="cf-new-card-btn" title="New Card">
       <i class="fas fa-plus"></i> New Card
     </button>
@@ -185,14 +182,11 @@
 <section class="cf-hero">
   <div class="cf-hero__content">
     <h2 class="cf-hero__title">Forge Your Legend</h2>
-    <p class="cf-hero__subtitle">40 million unique RPG card combinations. Design, customize, and battle in the arena.</p>
+    <p class="cf-hero__subtitle">40 million unique RPG card combinations. Design, customize, and share.</p>
     <div class="cf-hero__actions">
       <button class="cf-hero__cta" onclick="document.querySelector('.presets-section').scrollIntoView({behavior:'smooth'})">
         <i class="fas fa-hammer"></i> Start Creating
       </button>
-      <a href="/cardforge/arena.html" class="cf-hero__cta cf-hero__cta--secondary">
-        <i class="fas fa-shield-halved"></i> Enter Arena
-      </a>
     </div>
   </div>
   <div class="cf-hero__showcase">
@@ -1198,7 +1192,7 @@
 
                 <div class="effect-progression-banner" id="effect-progression-banner">
                   <i class="fas fa-lock effect-progression-banner__icon"></i>
-                  <span class="effect-progression-banner__text">Play Arena battles to unlock more effects.</span>
+                  <span class="effect-progression-banner__text">More visual effects available as you create cards.</span>
                   <span class="effect-progression-banner__stats" id="effect-progression-stats"></span>
                 </div>
                 <div class="effect-control">
@@ -1333,7 +1327,7 @@
                   <option value="Trickster">Trickster</option>
                   <option value="Wildcard">Wildcard</option>
                 </select>
-                <small class="field-hint">Determines your card's ability in the Arena</small>
+                <small class="field-hint">Determines your card's special ability</small>
               </div>
               <div class="stat-row">
                 <label for="card-subclass" class="sr-only">Subclass</label>
@@ -1534,7 +1528,7 @@
           <div id="buff-empty-state" class="buff-empty-state">
             <i class="fas fa-shield-halved buff-empty-state__icon"></i>
             <p class="buff-empty-state__text">No buffs assigned yet.</p>
-            <p class="buff-empty-state__hint">Use <strong>Roll Character</strong> to assign buffs. Play Arena battles to unlock more buff slots, higher quantities, and new buff types.</p>
+            <p class="buff-empty-state__hint">Use <strong>Roll Character</strong> to assign buffs.</p>
             <div id="buff-empty-state__progress" class="buff-empty-state__progress"></div>
           </div>
           <button type="button" id="add-buff-btn" class="add-buff-btn">+ Add Buff</button>
@@ -1851,7 +1845,7 @@
     <div class="cf-tour-welcome" id="cf-tour-welcome">
       <div class="cf-tour-welcome__icon"><i class="fas fa-hammer"></i></div>
       <h2>Welcome to CardForge</h2>
-      <p>Design custom RPG cards, build decks, and battle in the arena. Let us show you around.</p>
+      <p>Design custom RPG cards, build decks, and share your creations. Let us show you around.</p>
       <div class="cf-tour-welcome__actions">
         <button class="cf-tour-btn cf-tour-btn--primary" id="cf-tour-start"><i class="fas fa-play"></i> Take the Tour</button>
         <button class="cf-tour-btn cf-tour-btn--ghost" id="cf-tour-skip">Skip</button>
@@ -1871,12 +1865,10 @@
 
   <!-- CardForge Core — bump ?v= to bust CDN cache on deploy -->
   <script src="/cardforge/js/config.js?v=20260310g"></script>
-  <script src="/cardforge/js/arena-api.js?v=20260310g"></script>
   <script src="/cardforge/js/csrf-protection.js?v=20260310g"></script>
   <script src="/cardforge/js/validation-utils.js?v=20260310g"></script>
   <script src="/cardforge/js/ui-utils.js?v=20260310g"></script>
   <script>if(location.hostname!=='ambientpixels.ai'){document.write('<scr'+'ipt src="/cardforge/js/debug-utils.js?v=20260310g"><\/scr'+'ipt>')}</script>
-  <script src="/cardforge/js/effect-tiers.js?v=20260310g"></script>
   <script src="/cardforge/js/entitlements.js?v=20260310g"></script>
   <script src="/cardforge/js/card-forge.js?v=20260310g" defer></script>
   <script src="/cardforge/js/cardforge-template-loader.js?v=20260310g" defer></script>

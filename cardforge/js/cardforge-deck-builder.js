@@ -307,8 +307,8 @@
     if (isAuthed) {
       try {
         const loadUrl = window.buildApiPath('loadCards');
-        const authHeaders = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
-          ? await window.ArenaAPI.getPrincipalHeader() : {};
+        const authHeaders = window._cfGetAuthHeaders
+          ? await window._cfGetAuthHeaders() : {};
         const resp = await fetch(loadUrl, {
           method: 'GET',
           headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)

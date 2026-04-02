@@ -21,11 +21,6 @@ window._config = {
     template: 'cardforgetemplate',
     cardShare: 'cardshare',
     deckShare: 'deckshare',
-    arenaProfile: 'cardforgearenaprofile',
-    arenaBattle: 'cardforgearenabattle',
-    arenaBosses: 'cardforgearenabosses',
-    arenaHistory: 'cardforgearenahistory',
-    arenaLeaderboard: 'cardforgearenaleaderboard',
     entitlements: 'cardforge-entitlements',
     checkout: 'cardforge-checkout',
     billingPortal: 'cardforge-billing-portal',
@@ -72,6 +67,49 @@ window.buildApiPath = function(endpoint, params = {}) {
     .join('&');
   
   return `${baseUrl}/${path}${queryString ? '?' + queryString : ''}`;
+};
+
+// Auth helper — fetches principal from /.auth/me for API calls
+// (Replaces ArenaAPI.getPrincipalHeader which was in the removed arena-api.js)
+window._cfGetAuthHeaders = (function () {
+  var _cached = null;
+  return async function () {
+    if (_cached) return _cached;
+    try {
+      var resp = await fetch('/.auth/me');
+      if (!resp.ok) return {};
+      var data = await resp.json();
+      var principal = data.clientPrincipal;
+      if (principal && principal.userId) {
+        _cached = { 'X-CF-Auth-Principal': JSON.stringify(principal) };
+        return _cached;
+      }
+    } catch (e) { /* silent */ }
+    return {};
+  };
+})();
+
+// EffectTiers shim — all effects unlocked (arena removed, no rank gating)
+window.EffectTiers = {
+  getSlotCap: function () { return 4; },
+  getMaxBuffQty: function () { return 3; },
+  getUnlockedBuffs: function () { return this.BUFF_DEFS; },
+  getUnlockedEffects: function () { return ['none', 'clean', 'border', 'glow', 'bg', 'overlay', 'imageFilter', 'scanlines', 'noise', 'vignette', 'bloom', 'duotone', 'pixelate', 'halftone']; },
+  isEffectUnlocked: function () { return true; },
+  isBuffUnlocked: function () { return true; },
+  getQtyTooltip: function () { return ''; },
+  BUFF_DEFS: [
+    { key: 'attack_boost', label: 'Attack Boost', icon: 'sword', description: '+10% attack power' },
+    { key: 'defense_boost', label: 'Defense Boost', icon: 'shield', description: '+10% defense' },
+    { key: 'speed_boost', label: 'Speed Boost', icon: 'bolt', description: '+10% speed' },
+    { key: 'heal_boost', label: 'Heal Boost', icon: 'heart', description: '+10% healing' },
+    { key: 'crit_boost', label: 'Critical Boost', icon: 'crosshairs', description: '+10% crit chance' },
+    { key: 'luck_boost', label: 'Luck Boost', icon: 'clover', description: '+10% luck' },
+    { key: 'shield_wall', label: 'Shield Wall', icon: 'shield-halved', description: 'Block incoming damage' },
+    { key: 'berserker', label: 'Berserker', icon: 'fire', description: 'Deal more damage at low HP' },
+    { key: 'regeneration', label: 'Regeneration', icon: 'heart-pulse', description: 'Heal over time' },
+    { key: 'evasion', label: 'Evasion', icon: 'feather', description: 'Chance to dodge attacks' }
+  ]
 };
 
 // Environment info available via window._config.environment and window._config.debug

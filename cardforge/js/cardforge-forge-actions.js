@@ -286,8 +286,8 @@ class CardForgeActions {
           };
         }
         // Get auth header for direct API calls (SWA strips reserved headers)
-        const authHeaders = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
-          ? await window.ArenaAPI.getPrincipalHeader() : {};
+        const authHeaders = window._cfGetAuthHeaders
+          ? await window._cfGetAuthHeaders() : {};
         fetch(saveUrl, {
           method: 'POST',
           headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
@@ -1092,8 +1092,8 @@ class CardForgeActions {
     if (isAuthed) {
       try {
         const loadUrl = window.buildApiPath('loadCards');
-        const authHeaders = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
-          ? await window.ArenaAPI.getPrincipalHeader() : {};
+        const authHeaders = window._cfGetAuthHeaders
+          ? await window._cfGetAuthHeaders() : {};
 const resp = await fetch(loadUrl, {
   method: 'GET',
   headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)
@@ -1347,8 +1347,8 @@ const resp = await fetch(loadUrl, {
 
     try {
       const loadUrl = window.buildApiPath('loadCards');
-      const authHeaders = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
-        ? await window.ArenaAPI.getPrincipalHeader() : {};
+      const authHeaders = window._cfGetAuthHeaders
+        ? await window._cfGetAuthHeaders() : {};
       const resp = await fetch(loadUrl, {
         method: 'GET',
         headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)

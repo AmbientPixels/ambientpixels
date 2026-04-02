@@ -199,11 +199,9 @@
    ]
   },
   {
-   "route": "/api/cardforgearenaprofile",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenaprofile",
-   "allowedRoles": [
-    "anonymous"
-   ]
+   "route": "/cardforge/arena.html",
+   "redirect": "/blindspot/",
+   "statusCode": 301
   },
   {
    "route": "/api/blindspotbattle",
@@ -243,27 +241,6 @@
   {
    "route": "/api/blindspotlivebattle",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotlivebattle",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
-   "route": "/api/cardforgearenabattle",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabattle",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
-   "route": "/api/cardforgearenabosses",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabosses",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
-   "route": "/api/cardforgearenahistory",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenahistory",
    "allowedRoles": [
     "anonymous"
    ]
