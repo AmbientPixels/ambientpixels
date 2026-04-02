@@ -4,6 +4,8 @@
 (function () {
   'use strict';
 
+  if (window.ProductAnalytics) ProductAnalytics.init('ambientscore');
+
   var API = window.location.hostname === 'localhost'
     ? '/api'
     : 'https://ambientpixels-nova-api.azurewebsites.net/api';
@@ -171,6 +173,7 @@
     resultsSection.style.display = 'block';
 
     currentReportId = data.reportId;
+    if (window.ProductAnalytics) ProductAnalytics.trackFunnel('scan_completed', { score: data.score, grade: data.grade, reportId: data.reportId });
 
     // Score gauge
     var score = data.score || 0;
@@ -267,6 +270,7 @@
     }
 
     currentUrl = url;
+    if (window.ProductAnalytics) ProductAnalytics.trackFunnel('scan_started', { url: url });
     showLoading();
 
     fetch(API + '/as-analyze', {
@@ -282,6 +286,7 @@
       })
       .then(renderResults)
       .catch(function (err) {
+        if (window.ProductAnalytics) ProductAnalytics.trackError('scan_failed', { error: err.message || '' });
         showError(friendlyError(err.message || '', url));
       });
   });
@@ -290,6 +295,7 @@
 
   function handleBuy(priceType) {
     if (!currentUrl || !currentReportId) return;
+    if (window.ProductAnalytics) ProductAnalytics.trackConversion('checkout_started', { priceType: priceType, reportId: currentReportId });
 
     buySingle.disabled = true;
     buyPack.disabled = true;
@@ -393,6 +399,7 @@
   // ── Handle cancelled return from Stripe ────────
 
   if (window.location.search.includes('cancelled=1')) {
+    if (window.ProductAnalytics) ProductAnalytics.trackConversion('checkout_cancelled');
     showError('Checkout was cancelled. Your free scan results are still available below.');
     // Clear the param
     window.history.replaceState({}, '', window.location.pathname);

@@ -4,6 +4,8 @@
 (function () {
   'use strict';
 
+  if (window.ProductAnalytics) ProductAnalytics.init('ambientscore');
+
   var API = window.location.hostname === 'localhost'
     ? '/api'
     : 'https://ambientpixels-nova-api.azurewebsites.net/api';
@@ -86,6 +88,7 @@
   // ── Paywall ────────────────────────────────────
 
   function renderPaywall(report) {
+    if (window.ProductAnalytics) ProductAnalytics.trackFunnel('paywall_shown', { reportId: reportId, score: report.score });
     loadingEl.style.display = 'none';
     contentEl.style.display = 'block';
     contentEl.innerHTML = '<div class="as-paywall">' +
@@ -177,6 +180,7 @@
   // ── Full Report ────────────────────────────────
 
   function renderFullReport(report) {
+    if (window.ProductAnalytics) ProductAnalytics.trackFunnel('report_unlocked', { reportId: reportId, score: report.score, priceType: report.priceType });
     loadingEl.style.display = 'none';
     contentEl.style.display = 'block';
 

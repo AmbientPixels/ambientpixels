@@ -13,6 +13,7 @@
   }
 
   function init() {
+    if (window.ProductAnalytics) ProductAnalytics.init('cardforge');
     initRailToggle();
     initDragDivider();
     initStepper();

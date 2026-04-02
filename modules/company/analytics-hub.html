@@ -82,6 +82,37 @@
       <p>Site traffic, social engagement, and platform metrics.</p>
     </div>
 
+    <!-- ═══ Product Analytics ═══ -->
+    <section class="sa-panel">
+      <div class="sa-panel-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span><i class="fas fa-cube dash-icon-sky co-icon-mr"></i> Product Analytics</span>
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+          <select id="pa-product-filter" style="font-size:0.6rem;padding:0.2rem 0.4rem;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:inherit;">
+            <option value="all">All Products</option>
+            <option value="ambientscore">AmbientScore</option>
+            <option value="blindspot">Blindspot</option>
+            <option value="cardforge">CardForge</option>
+            <option value="storyforge">StoryForge</option>
+            <option value="blog">Blog</option>
+            <option value="tileforge">TileForge</option>
+            <option value="nova">Nova</option>
+          </select>
+          <select id="pa-range-filter" style="font-size:0.6rem;padding:0.2rem 0.4rem;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:inherit;">
+            <option value="7d">7 days</option>
+            <option value="1d">Today</option>
+            <option value="30d">30 days</option>
+          </select>
+          <button class="sa-btn sa-btn--ghost sa-btn--xs" id="pa-refresh" title="Refresh"><i class="fas fa-rotate"></i></button>
+        </div>
+      </div>
+      <div id="pa-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:0.4rem;margin-bottom:0.6rem;">
+        <div style="opacity:0.3;padding:1rem;text-align:center;font-size:0.7rem;grid-column:1/-1;">Loading product analytics...</div>
+      </div>
+      <div id="pa-products" style="margin-bottom:0.6rem;"></div>
+      <div id="pa-funnel" style="margin-bottom:0.6rem;"></div>
+      <div id="pa-events"></div>
+    </section>
+
     <!-- ═══ Social Command Center ═══ -->
     <section class="sa-panel">
       <div class="sa-panel-title"><i class="fas fa-satellite-dish dash-icon-sky co-icon-mr"></i> Social Command Center</div>
@@ -125,6 +156,7 @@
   <script src="/modules/company/js/demo-toast.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/modules/company/js/analytics-hub.js"></script>
+  <script src="/modules/company/js/product-analytics-dashboard.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script src="/modules/company/js/social-command.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>

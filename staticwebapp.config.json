@@ -284,6 +284,16 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/productAnalyticsIngest",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsIngest",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/product-analytics-query",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsQuery",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/company-state",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state",
       "allowedRoles": ["anonymous"]

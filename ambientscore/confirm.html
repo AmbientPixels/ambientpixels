@@ -6,6 +6,9 @@
   <title>Confirm Strategy Session — AmbientScore</title>
   <link rel="icon" href="/images/favicon.ico">
   <link rel="stylesheet" href="/ambientscore/css/ambientscore.css">
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
   <style>
     .as-confirm-header { text-align: center; padding: 64px 0 32px; }
     .as-confirm-header h1 { font-size: 24px; color: var(--as-accent); margin-bottom: 8px; }
@@ -80,6 +83,8 @@
   <script>
   (function () {
     'use strict';
+
+    if (window.ProductAnalytics) ProductAnalytics.init('ambientscore');
 
     var API = window.location.hostname === 'localhost'
       ? '/api/as-confirm'

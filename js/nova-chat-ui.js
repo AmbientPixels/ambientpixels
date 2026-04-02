@@ -8,6 +8,7 @@
   let isInitialized = false;
 
   function init() {
+    if (window.ProductAnalytics) ProductAnalytics.init('nova');
     chatMessages = document.getElementById('nova-chat-messages');
     chatInput = document.getElementById('nova-chat-input');
     chatSend = document.getElementById('nova-chat-send');
@@ -115,6 +116,7 @@
   async function sendMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
+    if (window.ProductAnalytics) try { ProductAnalytics.track('chat_message_sent', { length: text.length }); } catch(_){}
 
     chatInput.value = '';
     chatInput.style.height = 'auto';

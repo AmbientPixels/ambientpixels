@@ -2,6 +2,8 @@
 (function () {
   'use strict';
 
+  if (window.ProductAnalytics) ProductAnalytics.init('blog');
+
   var API_BASE = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
     ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
     : '/api';
@@ -37,6 +39,7 @@
       })
       .then(function (post) {
         renderPost(post);
+        if (window.ProductAnalytics) try { ProductAnalytics.track('post_viewed', { slug: slug, title: post.title || '' }); } catch(_){}
         // Track view (fire-and-forget)
         try {
           var fp = (navigator.userAgent || '').slice(0, 64);

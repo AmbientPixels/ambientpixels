@@ -638,6 +638,7 @@ window.ArenaBattleUI = (function () {
         if (forfeitBtn) forfeitBtn.style.display = 'none';
         if (postActions) postActions.style.display = '';
         await sleep(600);
+        if (window.ProductAnalytics) try { ProductAnalytics.track('arena_battle_end', { result: response.battleResult.winner === 'player' ? 'win' : 'loss' }); } catch(_){}
         window.ArenaResults.showResults(response.battleResult, _battleData);
       } else {
         _currentRound = response.currentRound;

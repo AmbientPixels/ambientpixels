@@ -18,6 +18,7 @@
   }
 
   function init() {
+    if (window.ProductAnalytics) ProductAnalytics.init('storyforge');
     // Wait for auth check to complete before loading entitlements
     var authPromise = window.authReady || Promise.resolve();
     var entPromise = authPromise.then(function () { return Ent ? Ent.load() : null; });

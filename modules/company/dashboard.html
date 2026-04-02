@@ -300,6 +300,11 @@
           <div class="ceo-stat-value" id="cstat-health"><i class="fas fa-circle" style="font-size:0.6em;"></i></div>
           <div class="ceo-stat-sub" id="cstat-health-sub">checking...</div>
         </div>
+        <div class="ceo-stat cstat--amber">
+          <div class="ceo-stat-label">Product Pulse</div>
+          <div class="ceo-stat-value" id="cstat-pulse">—</div>
+          <div class="ceo-stat-sub" id="cstat-pulse-sub">active users (7d)</div>
+        </div>
       </div>
 
       <!-- CEO: Status Strip (Zone 2) -->
@@ -1483,6 +1488,28 @@
         }
       }
 
+      // ── Product Pulse stat card ──
+      var cstatPulse = document.getElementById('cstat-pulse');
+      var cstatPulseSub = document.getElementById('cstat-pulse-sub');
+      if (cstatPulse) {
+        var pulseApi = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : 'https://ambientpixels-nova-api.azurewebsites.net/api';
+        fetch(pulseApi + '/productAnalyticsQuery?range=7d&product=all&metric=overview', { headers: { 'x-company-secret': 'pixelpusher' } })
+          .then(function(r) { return r.json(); })
+          .then(function(resp) {
+            if (resp && resp.data) {
+              cstatPulse.textContent = resp.data.uniqueUsers || 0;
+              var byProd = resp.data.byProduct || {};
+              var topProduct = '';
+              var topCount = 0;
+              for (var pk in byProd) {
+                if (byProd[pk] > topCount) { topCount = byProd[pk]; topProduct = pk; }
+              }
+              cstatPulseSub.textContent = 'users (7d)' + (topProduct ? ' · top: ' + topProduct : '');
+            }
+          })
+          .catch(function() { cstatPulse.textContent = '—'; });
+      }
+
       // ── CEO Agent Health Grid ──
       var _hbPerAgent = {};
       function renderCeoAgentGrid() {
@@ -1770,7 +1797,8 @@
             { key: 'ambientscore',    prefix: '/ambientscore',     label: 'AmbientScore',icon: 'chart-line',     color: '#a3e635' },
             { key: 'tileforge',       prefix: '/hanson/tileforge', label: 'TileForge',   icon: 'th-large',       color: '#fbbf24' },
             { key: 'nova',            prefix: '/nova',             label: 'Nova',        icon: 'star',           color: '#7dd3fc' },
-            { key: 'blog',            prefix: '/blog',             label: 'Blog',        icon: 'rss',            color: '#34d399' }
+            { key: 'blog',            prefix: '/blog',             label: 'Blog',        icon: 'rss',            color: '#34d399' },
+            { key: 'blindspot',       prefix: '/blindspot',        label: 'Blindspot',   icon: 'crosshairs',     color: '#EF9F27' }
           ];
           products.forEach(function (p) {
             p.views = 0;

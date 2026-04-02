@@ -1258,6 +1258,7 @@
   // --- Start Adventure ---
   function startAdventure() {
     if (!selectedGenre || isProcessing) return;
+    if (window.ProductAnalytics) try { ProductAnalytics.trackFunnel('adventure_started', { genre: selectedGenre.id || '' }); } catch(_){}
     // Disable button immediately to prevent double-clicks
     var startBtn = UI.$('startAdventureBtn');
     if (startBtn) startBtn.disabled = true;

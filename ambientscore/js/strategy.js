@@ -4,6 +4,8 @@
 (function () {
   'use strict';
 
+  if (window.ProductAnalytics) ProductAnalytics.init('ambientscore');
+
   var API = window.location.hostname === 'localhost'
     ? '/api/formIntake'
     : 'https://ambientpixels-nova-api.azurewebsites.net/api/formIntake';
@@ -110,6 +112,7 @@
       form_started_at_ms: formStartedAt || Date.now()
     };
 
+    if (window.ProductAnalytics) ProductAnalytics.trackFunnel('strategy_submitted', { reportId: qReportId, score: qScore, primaryGoal: primaryGoal });
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
@@ -167,6 +170,7 @@
         }
       })
       .catch(function (err) {
+        if (window.ProductAnalytics) ProductAnalytics.trackError('strategy_failed', { error: err.message });
         var msg = 'Something went wrong. Please try again.';
         if (err.message === 'status_429') msg = 'Too many submissions. Please try again later.';
         if (err.message === 'status_400') msg = 'Please check your form fields and try again.';

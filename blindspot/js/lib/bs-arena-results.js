@@ -32,6 +32,22 @@ window.ArenaResults = (function () {
     const isWin = battleResult.winner === 'player';
     const isDraw = battleResult.winner === 'draw';
 
+    // Product analytics: battle end
+    try {
+      if (window.ProductAnalytics) {
+        var _bt = battleData.type || (battleData.battleId && battleData.battleId.indexOf('bs-async-') === 0 ? 'pvp' : 'pve');
+        ProductAnalytics.track('battle_end', {
+          type: _bt,
+          result: isWin ? 'win' : isDraw ? 'draw' : 'loss',
+          opponent: battleData.opponent ? battleData.opponent.name : '',
+          rounds: battleResult.rounds || 0
+        });
+        if (isWin && _bt === 'pve' && battleData.opponent) {
+          ProductAnalytics.trackFunnel('boss_defeated', { boss: battleData.opponent.name });
+        }
+      }
+    } catch (_) { /* silent */ }
+
     // Banner
     const title = document.getElementById('arena-results-title');
     const subtitle = document.getElementById('arena-results-subtitle');

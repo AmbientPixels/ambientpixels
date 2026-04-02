@@ -2300,6 +2300,14 @@ async function finalizeBattle(context, containerClient, userId, battle, result) 
   // Clean up battle state
   await deleteBlob(containerClient, `arena/battles/${battle.battleId}.json`);
 
+  // Product analytics event
+  try {
+    const pa = require('../_utils/productAnalytics');
+    await pa.emitEvent('blindspot', 'battle_end', {
+      battleType: type, result, bossLevel, rounds: battle.roundLog.length, xpEarned: totalXp
+    }, { userId });
+  } catch (_) { /* non-blocking */ }
+
   context.log(`[Blindspot] Battle ${battle.battleId} complete: ${result}, +${totalXp} XP, rank: ${oldRank} -> ${newRank}`);
 
   return {

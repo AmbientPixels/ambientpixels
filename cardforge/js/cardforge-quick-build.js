@@ -843,6 +843,8 @@
         }
       }
 
+      if (window.ProductAnalytics) try { ProductAnalytics.trackFunnel('quickbuild_completed', { published: !!publish, cardClass: _state.cardClass || '' }); } catch(_){}
+
       // Show success
       const body = _overlayEl?.querySelector('.qb-body');
       if (body) {

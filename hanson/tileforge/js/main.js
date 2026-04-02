@@ -3,6 +3,7 @@
 
 // --- Global Meta & Shared Renderers (About/Version) --- /* updated by Cascade */
 // Single source of truth for version/build info
+if (window.ProductAnalytics) ProductAnalytics.init('tileforge');
 window.TileForgeMeta = window.TileForgeMeta || {
   version: '2.4.1',
   buildDate: 'August 2025',

@@ -1122,6 +1122,14 @@ async function finalizeAsyncBattle(context, containerClient, userId, battle, res
     }
   }
 
+  // Product analytics event
+  try {
+    const pa = require('../_utils/productAnalytics');
+    await pa.emitEvent('blindspot', 'pvp_result', {
+      result, rounds: battle.roundLog.length, eloChange: attackerProfile.pvpElo - attackerElo
+    }, { userId });
+  } catch (_) { /* non-blocking */ }
+
   context.log(`[AsyncPvP] Battle ${battle.battleId} complete: ${result}, attacker Elo ${attackerElo}→${attackerProfile.pvpElo}, defender Elo ${defenderElo}→${defenderProfile.pvpElo}`);
 
   return {

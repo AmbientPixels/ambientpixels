@@ -2567,6 +2567,7 @@
   // ============================================================
 
   document.addEventListener('DOMContentLoaded', () => {
+    if (window.ProductAnalytics) ProductAnalytics.init('blindspot');
     cleanupLocalStorage();
     if (isOnLandingPage()) initLanding();
     else if (isOnPlayPage()) initPlay();

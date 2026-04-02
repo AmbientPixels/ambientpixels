@@ -690,6 +690,10 @@
 
       close(true);
 
+      if (window.ProductAnalytics) {
+        try { ProductAnalytics.trackFunnel('card_created', { class: cardData.class || '', element: cardData.element || '' }); } catch(_){}
+      }
+
       if (_onComplete) {
         _onComplete(savedCardId, cardData);
       }
