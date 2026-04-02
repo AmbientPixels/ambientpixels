@@ -91,7 +91,7 @@
   },
   {
    "route": "/blog/*",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blogSSR/{*}"
+   "rewrite": "/api/blogSSR/{*}"
   },
   {
    "route": "/log/*.css"

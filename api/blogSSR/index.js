@@ -193,7 +193,21 @@ function buildPage(post, slug) {
 }
 
 module.exports = async function (context, req) {
-  var slug = context.bindingData.slug || '';
+  // Slug comes from route binding, query param, or parsed from URL path
+  var slug = (context.bindingData && context.bindingData.slug) || (req.query && req.query.slug) || '';
+
+  // Fallback: parse from the request URL path (handles SWA rewrite scenarios)
+  if (!slug && req.url) {
+    var urlPath = req.url.split('?')[0];
+    var parts = urlPath.split('/').filter(Boolean);
+    // URL may be /api/blogSSR/my-slug or just /my-slug after rewrite
+    var ssrIdx = parts.indexOf('blogSSR');
+    if (ssrIdx !== -1 && parts[ssrIdx + 1]) {
+      slug = parts[ssrIdx + 1];
+    } else if (parts.length > 0) {
+      slug = parts[parts.length - 1];
+    }
+  }
 
   if (!slug) {
     context.res = { status: 400, headers: { 'Content-Type': 'text/plain' }, body: 'Missing slug' };

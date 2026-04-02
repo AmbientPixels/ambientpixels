@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get"],
-      "route": "blogSSR/{slug}"
+      "route": "blogSSR/{*slug}"
     },
     {
       "type": "http",
