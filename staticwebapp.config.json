@@ -45,6 +45,10 @@
  },
  "routes": [
   {
+   "route": "/sitemap.xml",
+   "rewrite": "/api/sitemapXml"
+  },
+  {
    "route": "/blindspot/*",
    "allowedRoles": [
     "anonymous"
