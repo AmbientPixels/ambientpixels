@@ -1,636 +1,824 @@
 {
-  "platform": {
-    "apiRuntime": "node:20"
+ "platform": {
+  "apiRuntime": "node:20"
+ },
+ "allowedForwardedHosts": [
+  "ambientpixels-nova-api.azurewebsites.net"
+ ],
+ "navigationFallback": {
+  "rewrite": "/index.html",
+  "exclude": [
+   "/.auth/*",
+   "/images/*",
+   "/lab/*",
+   "/api/*",
+   "/data/*",
+   "/*.css",
+   "/*.js",
+   "/*.json",
+   "/*.svg",
+   "/*.png",
+   "/*.ico",
+   "/*.jpg",
+   "/*.jpeg",
+   "/*.gif"
+  ]
+ },
+ "mimeTypes": {
+  ".json": "application/json"
+ },
+ "responseOverrides": {
+  "401": {
+   "rewrite": "/pages/401.html",
+   "statusCode": 401
   },
-  "allowedForwardedHosts": [
-    "ambientpixels-nova-api.azurewebsites.net"
-  ],
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/.auth/*",
-      "/images/*",
-      "/lab/*",
-      "/api/*",
-      "/data/*",
-      "/*.css",
-      "/*.js",
-      "/*.json",
-      "/*.svg",
-      "/*.png",
-      "/*.ico",
-      "/*.jpg",
-      "/*.jpeg",
-      "/*.gif"
-    ]
-  },
-  "mimeTypes": {
-    ".json": "application/json"
-  },
-  "responseOverrides": {
-    "401": {
-      "rewrite": "/pages/401.html",
-      "statusCode": 401
-    },
-    "404": {
-      "rewrite": "/index.html",
-      "statusCode": 404
-    }
-  },
-  "globalHeaders": {
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "X-XSS-Protection": "1; mode=block",
-    "Content-Security-Policy": "default-src 'self'; script-src 'self' https://js.monitor.azure.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://alcdn.msauth.net https://js.stripe.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://ambientpixels.ai https://*.ambientpixels.ai https://cardforgeblobdata.blob.core.windows.net; connect-src 'self' https://ambientpixels.ai https://*.ambientpixels.ai https://ambientpixels-nova-api.azurewebsites.net https://*.azure.com https://*.applicationinsights.azure.com https://ambientpixelsai.ciamlogin.com https://login.microsoftonline.com https://*.login.microsoftonline.com https://cardforgeblobdata.blob.core.windows.net https://api.stripe.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;"
-  },
-  "routes": [
-    {
-      "route": "/blindspot/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/gridos/*",
-      "redirect": "/ambientos/",
-      "statusCode": 301
-    },
-    {
-      "route": "/ambientcore/*",
-      "redirect": "/ambientos/",
-      "statusCode": 301
-    },
-    {
-      "route": "/conversioncore/*",
-      "redirect": "/ambientscore/",
-      "statusCode": 301
-    },
-    {
-      "route": "/modules/company/social-analytics.html",
-      "redirect": "/modules/company/analytics-hub.html",
-      "statusCode": 301
-    },
-    {
-      "route": "/blog/*.css"
-    },
-    {
-      "route": "/blog/*.js"
-    },
-    {
-      "route": "/blog/*",
-      "rewrite": "/blog/index.html"
-    },
-    {
-      "route": "/log/*.css"
-    },
-    {
-      "route": "/log/*.js"
-    },
-    {
-      "route": "/log/*",
-      "rewrite": "/log/index.html"
-    },
-    {
-      "route": "/ambientscore/*.css"
-    },
-    {
-      "route": "/ambientscore/*.js"
-    },
-    {
-      "route": "/ambientscore/report.html"
-    },
-    {
-      "route": "/ambientscore/strategy.html"
-    },
-    {
-      "route": "/ambientscore/confirm.html"
-    },
-    {
-      "route": "/ambientscore/*",
-      "rewrite": "/ambientscore/index.html"
-    },
-    {
-      "route": "/modules/company/css/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/modules/company/demo.html",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/modules/company/*",
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/docs/published/*",
-      "rewrite": "/docs/published/index.html",
-      "allowedRoles": ["authenticated"]
-    },
-    {
-      "route": "/hanson*",
-      "allowedRoles": ["hansonuser"]
-    },
-    {
-      "route": "/api/cardforgesavecards",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgesavecards",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgetemplate",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgetemplate",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgepublish",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgepublish",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgedeckpublish",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckpublish",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgedeckload",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckload",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgedeckdelete",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckdelete",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgedeletecard",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeletecard",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgeloadcards",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgearenaprofile",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenaprofile",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/blindspotbattle",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotbattle",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/blindspotbosses",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotbosses",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/blindspotdefensequeue",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotdefensequeue",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/blindspotasyncbattle",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotasyncbattle",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/blindspotresultsinbox",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotresultsinbox",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/blindspotlivebattle",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotlivebattle",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgearenabattle",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabattle",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgearenabosses",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabosses",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforgearenahistory",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenahistory",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-checkout",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-checkout",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-billing-webhook",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-billing-webhook",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-entitlements",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-entitlements",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-billing-portal",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-billing-portal",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-sell-card",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-sell-card",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-lock-card",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-lock-card",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-challenger",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-challenger",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-skull-ante",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-skull-ante",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardforge-challenge-board",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-challenge-board",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/cardshare",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardshare",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/geminiproxy",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/novachat",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/novachat",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/agentchat",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agentchat",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/productAnalyticsIngest",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsIngest",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/product-analytics-query",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsQuery",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/company-state",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/company-logs",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-logs",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/company-report",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-report",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/company-heartbeat-trigger",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-heartbeat-trigger",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/blogPosts",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blogPosts",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/dailyLog",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/dailyLog",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/company-standup-run",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-standup-run",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/linkedin-test",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/linkedin-test",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/content-brief",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-brief",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/content-generate",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-generate",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/content-quick-generate",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/content-retry",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-retry",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/content-index",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-index",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/content-package",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-package",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/agent-create-content",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-create-content",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/agent-run-campaign",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-run-campaign",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/formIntake",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntake",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/formIntake/*",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntake/{path}",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/formIntakeDigest",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntakeDigest",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/tasks/mark-replied",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/tasks/mark-replied",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/telemetry/summary",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/as-analyze",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-analyze",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/as-report",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-report",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/as-webhook",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-webhook",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/as-credits",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-credits",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/as-confirm",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-confirm",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/storyforgesave",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgesave",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/storyforgeload",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgeload",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/storyforgegallery",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgegallery",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/storyforgeshare",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgeshare",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/storyforge-checkout",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-checkout",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/storyforge-entitlements",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-entitlements",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/storyforge-billing-webhook",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-billing-webhook",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-run",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-run",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-catalog",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-catalog",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-checkout",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-checkout",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-billing-webhook",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-billing-webhook",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-entitlements",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-entitlements",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-review",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-review",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-submit",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-submit",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-community",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-community",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/agentforge-drafts",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agentforge-drafts",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-remove",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-remove",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/pixel-agent-approve",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-approve",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/api/*",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
-    },
-    {
-      "route": "/data/*"
-    },
-    {
-      "route": "/pixel-agents/data/*"
-    },
-    {
-      "route": "/pixel-agents/css/*"
-    },
-    {
-      "route": "/pixel-agents/js/*"
-    },
-    {
-      "route": "/pixel-agents/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/agent-forge/css/*"
-    },
-    {
-      "route": "/agent-forge/js/*"
-    },
-    {
-      "route": "/agent-forge/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/storyforge/css/*",
-      "allowedRoles": ["anonymous"],
-      "headers": {
-        "Cache-Control": "public, max-age=604800, immutable"
-      }
-    },
-    {
-      "route": "/storyforge/js/*",
-      "allowedRoles": ["anonymous"],
-      "headers": {
-        "Cache-Control": "public, max-age=86400"
-      }
-    },
-    {
-      "route": "/storyforge/data/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/storyforge/images/*",
-      "allowedRoles": ["anonymous"],
-      "headers": {
-        "Cache-Control": "public, max-age=604800, immutable"
-      }
-    },
-    {
-      "route": "/storyforge/gallery.html",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/storyforge/*",
-      "allowedRoles": ["anonymous"]
-    },
-    {
-      "route": "/cardforge/*.css",
-      "allowedRoles": ["anonymous"],
-      "headers": {
-        "Cache-Control": "public, max-age=604800, immutable"
-      }
-    },
-    {
-      "route": "/cardforge/*.js",
-      "allowedRoles": ["anonymous"],
-      "headers": {
-        "Cache-Control": "public, max-age=86400"
-      }
-    },
-    {
-      "route": "/cardforge/images/*",
-      "allowedRoles": ["anonymous"],
-      "headers": {
-        "Cache-Control": "public, max-age=604800"
-      }
-    },
-    {
-      "route": "/images/*",
-      "headers": {
-        "Cache-Control": "public, max-age=604800"
-      }
-    }
-  ],
-  "auth": {
-    "identityProviders": {
-      "azureActiveDirectory": {
-        "registration": {
-          "openIdIssuer": "https://ambientpixelsid.ciamlogin.com/ambientpixelsid.onmicrosoft.com/v2.0/",
-          "clientIdSettingName": "B2C_CLIENT_ID"
-        },
-        "login": {
-          "loginParameters": [
-            "p=SignUpSignIn",
-            "scope=openid profile",
-            "response_type=id_token",
-            "response_mode=form_post"
-          ],
-          "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-        },
-        "redirectToProvider": "azureActiveDirectory",
-        "redirectToProviderOptions": {
-          "postLoginRedirectUri": "/.auth/login/aad/callback"
-        }
-      },
-      "google": {
-        "registration": {
-          "clientIdSettingName": "GOOGLE_CLIENT_ID",
-          "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
-        }
-      }
-    }
+  "404": {
+   "rewrite": "/index.html",
+   "statusCode": 404
   }
+ },
+ "globalHeaders": {
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+  "X-XSS-Protection": "1; mode=block",
+  "Content-Security-Policy": "default-src 'self'; script-src 'self' https://js.monitor.azure.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://alcdn.msauth.net https://js.stripe.com 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://ambientpixels.ai https://*.ambientpixels.ai https://cardforgeblobdata.blob.core.windows.net; connect-src 'self' https://ambientpixels.ai https://*.ambientpixels.ai https://ambientpixels-nova-api.azurewebsites.net https://*.azure.com https://*.applicationinsights.azure.com https://ambientpixelsai.ciamlogin.com https://login.microsoftonline.com https://*.login.microsoftonline.com https://cardforgeblobdata.blob.core.windows.net https://api.stripe.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com;"
+ },
+ "routes": [
+  {
+   "route": "/blindspot/*",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/gridos/*",
+   "redirect": "/ambientos/",
+   "statusCode": 301
+  },
+  {
+   "route": "/ambientcore/*",
+   "redirect": "/ambientos/",
+   "statusCode": 301
+  },
+  {
+   "route": "/conversioncore/*",
+   "redirect": "/ambientscore/",
+   "statusCode": 301
+  },
+  {
+   "route": "/modules/company/social-analytics.html",
+   "redirect": "/modules/company/analytics-hub.html",
+   "statusCode": 301
+  },
+  {
+   "route": "/blog/*.css"
+  },
+  {
+   "route": "/blog/*.js"
+  },
+  {
+   "route": "/blog/*",
+   "rewrite": "/blog/index.html"
+  },
+  {
+   "route": "/log/*.css"
+  },
+  {
+   "route": "/log/*.js"
+  },
+  {
+   "route": "/log/*",
+   "rewrite": "/log/index.html"
+  },
+  {
+   "route": "/ambientscore/*.css"
+  },
+  {
+   "route": "/ambientscore/*.js"
+  },
+  {
+   "route": "/ambientscore/report.html"
+  },
+  {
+   "route": "/ambientscore/strategy.html"
+  },
+  {
+   "route": "/ambientscore/confirm.html"
+  },
+  {
+   "route": "/ambientscore/*",
+   "rewrite": "/ambientscore/index.html"
+  },
+  {
+   "route": "/modules/company/css/*",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/modules/company/demo.html",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/modules/company/*",
+   "allowedRoles": [
+    "authenticated"
+   ]
+  },
+  {
+   "route": "/docs/published/*",
+   "rewrite": "/docs/published/index.html",
+   "allowedRoles": [
+    "authenticated"
+   ]
+  },
+  {
+   "route": "/hanson*",
+   "allowedRoles": [
+    "hansonuser"
+   ]
+  },
+  {
+   "route": "/api/cardforgesavecards",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgesavecards",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgetemplate",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgetemplate",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgepublish",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgepublish",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgedeckpublish",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckpublish",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgedeckload",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckload",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgedeckdelete",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeckdelete",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgedeletecard",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgedeletecard",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgeloadcards",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgearenaprofile",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenaprofile",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotbattle",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotbattle",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotbosses",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotbosses",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotdefensequeue",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotdefensequeue",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotasyncbattle",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotasyncbattle",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotresultsinbox",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotresultsinbox",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotlivebattle",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotlivebattle",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgearenabattle",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabattle",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgearenabosses",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabosses",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforgearenahistory",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenahistory",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-checkout",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-checkout",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-billing-webhook",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-billing-webhook",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-entitlements",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-entitlements",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-billing-portal",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-billing-portal",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-sell-card",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-sell-card",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-lock-card",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-lock-card",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-challenger",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-challenger",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-skull-ante",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-skull-ante",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardforge-challenge-board",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-challenge-board",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/cardshare",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardshare",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/geminiproxy",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/novachat",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/novachat",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/agentchat",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agentchat",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/productAnalyticsIngest",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsIngest",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/product-analytics-query",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsQuery",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/company-state",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/company-logs",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-logs",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/company-report",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-report",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/company-heartbeat-trigger",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-heartbeat-trigger",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blogPosts",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blogPosts",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/dailyLog",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/dailyLog",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/company-standup-run",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-standup-run",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/linkedin-test",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/linkedin-test",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/content-brief",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-brief",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/content-generate",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-generate",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/content-quick-generate",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/content-retry",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-retry",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/content-index",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-index",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/content-package",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-package",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/agent-create-content",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-create-content",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/agent-run-campaign",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-run-campaign",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/formIntake",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntake",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/formIntake/*",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntake/{path}",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/formIntakeDigest",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntakeDigest",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/tasks/mark-replied",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/tasks/mark-replied",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/telemetry/summary",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/as-analyze",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-analyze",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/as-report",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-report",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/as-webhook",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-webhook",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/as-credits",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-credits",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/as-confirm",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-confirm",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/storyforgesave",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgesave",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/storyforgeload",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgeload",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/storyforgegallery",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgegallery",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/storyforgeshare",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgeshare",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/storyforge-checkout",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-checkout",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/storyforge-entitlements",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-entitlements",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/storyforge-billing-webhook",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-billing-webhook",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-run",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-run",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-catalog",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-catalog",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-checkout",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-checkout",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-billing-webhook",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-billing-webhook",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-entitlements",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-entitlements",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-review",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-review",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-submit",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-submit",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-community",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-community",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/agentforge-drafts",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agentforge-drafts",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-remove",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-remove",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/pixel-agent-approve",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-approve",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/*",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
+  },
+  {
+   "route": "/data/*"
+  },
+  {
+   "route": "/pixel-agents/data/*"
+  },
+  {
+   "route": "/pixel-agents/css/*"
+  },
+  {
+   "route": "/pixel-agents/js/*"
+  },
+  {
+   "route": "/pixel-agents/*",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/agent-forge/css/*"
+  },
+  {
+   "route": "/agent-forge/js/*"
+  },
+  {
+   "route": "/agent-forge/*",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/storyforge/css/*",
+   "allowedRoles": [
+    "anonymous"
+   ],
+   "headers": {
+    "Cache-Control": "public, max-age=604800, immutable"
+   }
+  },
+  {
+   "route": "/storyforge/js/*",
+   "allowedRoles": [
+    "anonymous"
+   ],
+   "headers": {
+    "Cache-Control": "public, max-age=86400"
+   }
+  },
+  {
+   "route": "/storyforge/data/*",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/storyforge/images/*",
+   "allowedRoles": [
+    "anonymous"
+   ],
+   "headers": {
+    "Cache-Control": "public, max-age=604800, immutable"
+   }
+  },
+  {
+   "route": "/storyforge/gallery.html",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/storyforge/*",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/cardforge/*.css",
+   "allowedRoles": [
+    "anonymous"
+   ],
+   "headers": {
+    "Cache-Control": "public, max-age=604800, immutable"
+   }
+  },
+  {
+   "route": "/cardforge/*.js",
+   "allowedRoles": [
+    "anonymous"
+   ],
+   "headers": {
+    "Cache-Control": "public, max-age=86400"
+   }
+  },
+  {
+   "route": "/cardforge/images/*",
+   "allowedRoles": [
+    "anonymous"
+   ],
+   "headers": {
+    "Cache-Control": "public, max-age=604800"
+   }
+  },
+  {
+   "route": "/images/*",
+   "headers": {
+    "Cache-Control": "public, max-age=604800"
+   }
+  }
+ ],
+ "auth": {
+  "identityProviders": {
+   "azureActiveDirectory": {
+    "registration": {
+     "openIdIssuer": "https://ambientpixelsid.ciamlogin.com/ambientpixelsid.onmicrosoft.com/v2.0/",
+     "clientIdSettingName": "B2C_CLIENT_ID"
+    },
+    "login": {
+     "loginParameters": [
+      "p=SignUpSignIn",
+      "scope=openid profile",
+      "response_type=id_token",
+      "response_mode=form_post"
+     ],
+     "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+    },
+    "redirectToProvider": "azureActiveDirectory",
+    "redirectToProviderOptions": {
+     "postLoginRedirectUri": "/.auth/login/aad/callback"
+    }
+   },
+   "google": {
+    "registration": {
+     "clientIdSettingName": "GOOGLE_CLIENT_ID",
+     "clientSecretSettingName": "GOOGLE_CLIENT_SECRET"
+    }
+   }
+  }
+ }
 }
