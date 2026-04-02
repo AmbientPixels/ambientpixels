@@ -193,14 +193,30 @@ function buildPage(post, slug) {
 }
 
 module.exports = async function (context, req) {
-  // Slug comes from route binding, query param, or parsed from URL path
+  // Slug resolution order:
+  // 1. Route binding ({*slug} from /api/blogSSR/my-slug)
+  // 2. Query param (?slug=my-slug)
+  // 3. x-ms-original-url header (set by Azure SWA on rewrites, e.g. /blog/my-slug)
+  // 4. Parsed from req.url path
   var slug = (context.bindingData && context.bindingData.slug) || (req.query && req.query.slug) || '';
 
-  // Fallback: parse from the request URL path (handles SWA rewrite scenarios)
+  // Azure SWA sets x-ms-original-url when rewriting (e.g. /blog/my-slug → /api/blogSSR)
+  if (!slug) {
+    var originalUrl = (req.headers && (req.headers['x-ms-original-url'] || req.headers['x-original-url'])) || '';
+    if (originalUrl) {
+      var origPath = originalUrl.split('?')[0].replace(/\/$/, '');
+      var origParts = origPath.split('/').filter(Boolean);
+      var blogIdx = origParts.indexOf('blog');
+      if (blogIdx !== -1 && origParts[blogIdx + 1]) {
+        slug = origParts[blogIdx + 1];
+      }
+    }
+  }
+
+  // Fallback: parse from the request URL path
   if (!slug && req.url) {
     var urlPath = req.url.split('?')[0];
     var parts = urlPath.split('/').filter(Boolean);
-    // URL may be /api/blogSSR/my-slug or just /my-slug after rewrite
     var ssrIdx = parts.indexOf('blogSSR');
     if (ssrIdx !== -1 && parts[ssrIdx + 1]) {
       slug = parts[ssrIdx + 1];
@@ -209,8 +225,12 @@ module.exports = async function (context, req) {
     }
   }
 
-  if (!slug) {
-    context.res = { status: 400, headers: { 'Content-Type': 'text/plain' }, body: 'Missing slug' };
+  // Log for debugging
+  context.log('[BlogSSR] slug=' + slug + ', url=' + (req.url || ''), 'original-url=' + ((req.headers && req.headers['x-ms-original-url']) || 'none'));
+
+  if (!slug || slug === 'blogSSR') {
+    // No slug = redirect to blog index
+    context.res = { status: 302, headers: { 'Location': '/blog/' }, body: '' };
     return;
   }
 

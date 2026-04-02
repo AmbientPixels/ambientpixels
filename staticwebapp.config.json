@@ -91,7 +91,7 @@
   },
   {
    "route": "/blog/*",
-   "rewrite": "/api/blogSSR/{*}"
+   "rewrite": "/api/blogSSR"
   },
   {
    "route": "/log/*.css"
