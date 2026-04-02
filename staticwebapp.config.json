@@ -77,8 +77,21 @@
    "route": "/blog/*.js"
   },
   {
-   "route": "/blog/*",
+   "route": "/blog/*.png"
+  },
+  {
+   "route": "/blog/*.jpg"
+  },
+  {
+   "route": "/blog/",
    "rewrite": "/blog/index.html"
+  },
+  {
+   "route": "/blog/index.html"
+  },
+  {
+   "route": "/blog/*",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blogSSR/{*}"
   },
   {
    "route": "/log/*.css"

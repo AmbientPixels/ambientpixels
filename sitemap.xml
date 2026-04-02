@@ -28,6 +28,46 @@
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/introducing-ambientpixels-ai-native-marketing-for-the-modern-web</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/introducing-ambientos-the-ai-operating-system-powering-ambientpixels</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/introducing-ambientscore-quantifying-the-vibe-of-your-digital-spaces</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/cardforge-unleashed-forge-your-destiny-with-40-million-unique-card-combinations</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/embark-on-infinite-adventures-with-storyforge-ai-powered-tales-await</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/the-rise-of-ai-enhanced-cybersecurity-threats-what-it-means-for-ai-native-companies</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/ai-agents-your-new-creative-teammates-published-2026-03-07</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/blog/enter-the-arena-blindspot-launches-today</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 
   <!-- Activity Log (daily updates) -->
   <url>
