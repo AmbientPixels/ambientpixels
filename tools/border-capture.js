@@ -29,24 +29,39 @@ const OUT_DIR = path.join(__dirname, '..', 'cardforge', 'images', 'borders');
   await page.waitForTimeout(2000);
 
   for (const id of BORDERS) {
-    const el = await page.locator('#' + id);
     const outPath = path.join(OUT_DIR, id + '.png');
 
-    // Remove label before screenshot
+    // Hide label + force transparent backgrounds for clean capture
     await page.evaluate((borderId) => {
-      const label = document.querySelector('#' + borderId + ' .border-label');
+      var el = document.getElementById(borderId);
+      // Hide label
+      var label = el.querySelector('.border-label');
       if (label) label.style.display = 'none';
+      // Make body transparent
+      document.body.style.background = 'transparent';
+      // Remove any background from the frame itself
+      el.style.background = 'transparent';
+      // Remove inset box-shadow darkness (keep only border + outer glow)
+      // We need to strip inset shadows that fill the interior with dark color
+      var computed = getComputedStyle(el);
+      var shadow = computed.boxShadow;
+      if (shadow && shadow !== 'none') {
+        // Keep only non-inset shadows (outer glows)
+        var parts = shadow.split(/,(?![^(]*\))/);
+        var filtered = parts.filter(function(p) { return p.indexOf('inset') === -1; });
+        el.style.boxShadow = filtered.length > 0 ? filtered.join(',') : 'none';
+      }
     }, id);
 
+    const el = await page.locator('#' + id);
     await el.screenshot({ path: outPath, omitBackground: true });
     console.log('Saved:', outPath);
   }
 
-  // Also save with labels for preview
+  // Also save with labels for preview (reload to restore original styles)
   const previewDir = path.join(OUT_DIR, 'preview');
   if (!fs.existsSync(previewDir)) fs.mkdirSync(previewDir, { recursive: true });
 
-  // Reload to restore labels
   await page.goto('file://' + htmlPath.replace(/\\/g, '/'));
   await page.waitForTimeout(1500);
 
