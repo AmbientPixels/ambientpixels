@@ -3401,7 +3401,19 @@
         frontHTML = generateHeroLayout(data);
     }
     
+    // Preserve avatar image to prevent flash/reload on effect-only changes
+    var existingAvatar = front.querySelector('.card-avatar img, .card-image img, .avatar-image');
+    var existingAvatarSrc = existingAvatar ? existingAvatar.src : '';
+
     front.innerHTML = frontHTML;
+
+    // If avatar URL unchanged, swap the new img with the cached DOM node (no reload)
+    if (existingAvatar && existingAvatarSrc) {
+      var newAvatar = front.querySelector('.card-avatar img, .card-image img, .avatar-image');
+      if (newAvatar && newAvatar.src === existingAvatarSrc && newAvatar !== existingAvatar) {
+        newAvatar.replaceWith(existingAvatar);
+      }
+    }
   }
 
   // ===== DYNAMIC HTML GENERATORS =====
