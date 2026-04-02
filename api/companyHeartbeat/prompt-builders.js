@@ -1196,7 +1196,34 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     CRITICAL — DO NOT FABRICATE: Never invent features, capabilities, products, or claims about AmbientPixels that you cannot verify from your task context, research intelligence, or existing documents. If you lack information about what AmbientPixels does or offers, STOP and use comment-task to ask Nova for clarification or request Scout research. The CEO will reject any document with unverified claims.
     WHAT AMBIENTPIXELS ACTUALLY IS: AmbientPixels is a creative technology studio that builds AI-powered tools and experiences. The company runs on an autonomous AI agent team (Nova, Echo, Scribe, Cipher, Pixel, Scout, Quill, Forge) coordinated through a heartbeat system. Current products include AmbientScore (website conversion audit tool at ambientpixels.ai/ambientscore) and StoryForge (interactive AI storytelling). The site is at ambientpixels.ai. Do NOT claim features beyond what is described here or in existing documents/research intel.
     TONE: Write like a builder sharing real work — direct, energetic, specific. Avoid generic SaaS marketing language ("unlock potential", "streamline workflows", "unleash the power of"). Show, don't tell. Reference actual things being built, not abstract benefits.
-    Aim for 400-800 words minimum for blog posts.
+  - SEO & CONTENT STRUCTURE FOR BLOG POSTS (MANDATORY):
+    Every blog post MUST be written for search engines AND humans. Follow these rules:
+    1. LENGTH: 1200-2000 words minimum. Google ranks long-form content. 400-word announcements do not rank. If you cannot reach 1200 words with real substance, the topic needs more research — use comment-task to request Scout research.
+    2. TARGET KEYWORD: Every post must target a specific search phrase people actually google. Include it in: the H1 title, the first paragraph, at least 2 H2 subheadings, and naturally throughout the body. Examples of good target keywords: "ai website conversion audit", "how to build a card game in the browser", "ai agents for content creation", "choose your own adventure ai game". Do NOT target branded terms like "introducing ambientpixels" — nobody searches for that.
+    3. STRUCTURE: Use this skeleton for every post:
+       # [Keyword-rich H1 title — what the reader will learn]
+       Opening hook (2-3 sentences addressing the reader's problem or question)
+       ## [H2 — the core problem or question]
+       Explain the problem the reader has. Show you understand their pain.
+       ## [H2 — the solution or approach]
+       How AmbientPixels solves this or what we learned building it.
+       ## [H2 — how it works / deep dive]
+       Technical details, examples, screenshots, code snippets, or step-by-step.
+       ## [H2 — results or comparison]
+       What happened, what we measured, before/after, or vs alternatives.
+       ## [H2 — what's next / try it yourself]
+       CTA with link to the product. Forward-looking.
+    4. SUBHEADINGS: Use 4-6 H2 subheadings (##). Each H2 should be a question or phrase someone might search. NEVER write a post with only 1 H2.
+    5. INTERNAL LINKS: Every post MUST link to at least 2 AmbientPixels products using markdown links. Use these URLs:
+       - [AmbientScore](https://ambientpixels.ai/ambientscore/) — website conversion audit
+       - [Blindspot](https://ambientpixels.ai/blindspot/) — card arena combat game
+       - [CardForge](https://ambientpixels.ai/cardforge/) — RPG card creator
+       - [StoryForge](https://ambientpixels.ai/storyforge/) — AI interactive fiction
+       - [Nova](https://ambientpixels.ai/nova/) — AI prime operator
+       - [AmbientOS](https://ambientpixels.ai/ambientos/) — AI operating system
+    6. EXCERPT: Include a 150-160 character excerpt as the FIRST line after the H1, wrapped in **bold**. This becomes the meta description for search results. Make it compelling — it's what people see in Google before they click.
+    7. DO NOT write "introducing X" or "announcing X" posts. Write posts that ANSWER QUESTIONS or TEACH SOMETHING. A post titled "How We Built an AI Agent Team That Runs a Company" will rank. "Introducing AmbientOS" will not.
+    8. LISTS AND FORMATTING: Use bullet lists, numbered lists, bold key phrases, and code blocks where appropriate. Walls of text hurt readability and SEO.
   - RESEARCH-FIRST RULE FOR BLOG POSTS: Before writing a marketing_post or product_brief, check the RESEARCH INTELLIGENCE section and EXISTING DOCUMENTS for relevant facts, data, and verified claims. If the task topic has no supporting research or docs, use comment-task to request Scout research before drafting. Do NOT write from scratch on topics you have no factual context for.` : '') + (agent.name === 'Quill' ? `
 - AMBIENTOS CONTRACT (Quill — Editor):
   - Validate allowed update keys before emitting taskUpdates.
