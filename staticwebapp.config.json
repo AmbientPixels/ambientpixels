@@ -81,21 +81,8 @@
    "route": "/blog/*.js"
   },
   {
-   "route": "/blog/*.png"
-  },
-  {
-   "route": "/blog/*.jpg"
-  },
-  {
-   "route": "/blog/",
-   "rewrite": "/blog/index.html"
-  },
-  {
-   "route": "/blog/index.html"
-  },
-  {
    "route": "/blog/*",
-   "rewrite": "/api/blogSSR"
+   "rewrite": "/blog/index.html"
   },
   {
    "route": "/log/*.css"
