@@ -90,14 +90,37 @@ window._cfGetAuthHeaders = (function () {
 })();
 
 // EffectTiers shim — all effects unlocked (arena removed, no rank gating)
+// Covers every method the editor calls on window.EffectTiers
 window.EffectTiers = {
+  // Slot caps — return max
   getSlotCap: function () { return 4; },
   getMaxBuffQty: function () { return 3; },
-  getUnlockedBuffs: function () { return this.BUFF_DEFS; },
-  getUnlockedEffects: function () { return ['none', 'clean', 'border', 'glow', 'bg', 'overlay', 'imageFilter', 'scanlines', 'noise', 'vignette', 'bloom', 'duotone', 'pixelate', 'halftone']; },
+  // Unlock checks — always true
   isEffectUnlocked: function () { return true; },
   isBuffUnlocked: function () { return true; },
+  // Return all effects/buffs as unlocked
+  getUnlockedBuffs: function () { return this.BUFF_DEFS; },
+  getUnlockedEffects: function (cat) {
+    var all = this.EFFECT_TIERS || {};
+    var result = ['none', 'clean'];
+    for (var rank in all) { var effs = all[rank][cat]; if (effs) result = result.concat(effs); }
+    return result;
+  },
+  // Tier/rank helpers — no locking
+  getEffectTier: function () { return 'bronze'; },
+  getRankLabel: function () { return ''; },
+  getNextBuffUnlockDescription: function () { return null; },
   getQtyTooltip: function () { return ''; },
+  // Rank data
+  RANK_ORDER: ['bronze', 'silver', 'gold', 'platinum', 'diamond'],
+  EFFECT_TIERS: {
+    bronze: { bg: ['gradient', 'radial', 'split'], border: ['thin', 'thick', 'double'], glow: ['soft', 'pulse'], imageFilter: ['grayscale', 'sepia'], overlay: ['noise', 'scanlines'] },
+    silver: { bg: ['mesh', 'diagonal'], border: ['ornate', 'rounded'], glow: ['neon', 'rainbow'], imageFilter: ['contrast', 'hue-rotate'], overlay: ['vignette'] },
+    gold: { bg: ['aurora', 'fire'], border: ['animated', 'holographic'], glow: ['fire', 'electric'], imageFilter: ['invert', 'saturate'], overlay: ['bloom', 'dust'] },
+    platinum: { bg: ['void', 'cosmic'], border: ['crystal', 'shadow'], glow: ['cosmic', 'shadow'], imageFilter: ['pixelate', 'halftone'], overlay: ['glitch', 'matrix'] },
+    diamond: { bg: ['prismatic'], border: ['divine'], glow: ['divine'], imageFilter: ['duotone'], overlay: ['holographic'] }
+  },
+  // Buff definitions
   BUFF_DEFS: [
     { key: 'attack_boost', label: 'Attack Boost', icon: 'sword', description: '+10% attack power' },
     { key: 'defense_boost', label: 'Defense Boost', icon: 'shield', description: '+10% defense' },
