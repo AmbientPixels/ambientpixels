@@ -97,6 +97,58 @@
     /* Empty */
     .ch-empty { text-align: center; padding: 2rem; color: rgba(255,255,255,0.25); font-size: 0.85rem; }
 
+    /* Edit Modal */
+    .ch-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000;
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    .ch-modal-overlay[hidden] { display: none; }
+    .ch-modal {
+      background: #1c1c1e; border-radius: 12px; width: 100%; max-width: 800px;
+      max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .ch-modal__header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .ch-modal__title { font-size: 1rem; font-weight: 700; }
+    .ch-modal__close {
+      background: none; border: none; color: rgba(255,255,255,0.4); font-size: 1.2rem;
+      cursor: pointer; padding: 0.25rem; line-height: 1;
+    }
+    .ch-modal__close:hover { color: #fff; }
+    .ch-modal__body { padding: 1.25rem; overflow-y: auto; flex: 1; }
+    .ch-modal__footer {
+      display: flex; justify-content: flex-end; gap: 0.5rem;
+      padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .ch-modal label {
+      display: block; font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.5);
+      margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .ch-modal input, .ch-modal textarea {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px; padding: 0.5rem 0.65rem; color: #fff; font-family: inherit;
+      font-size: 0.85rem; margin-bottom: 0.75rem; resize: vertical;
+    }
+    .ch-modal input:focus, .ch-modal textarea:focus { outline: none; border-color: rgba(96,165,250,0.5); }
+    .ch-modal textarea { min-height: 300px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; line-height: 1.5; }
+    .ch-modal .ch-btn--save {
+      background: rgba(96,165,250,0.15); border: 1px solid rgba(96,165,250,0.4);
+      color: #60a5fa; padding: 0.4rem 1.2rem; font-size: 0.8rem;
+    }
+    .ch-modal .ch-btn--save:hover { background: rgba(96,165,250,0.25); }
+    .ch-modal .ch-btn--cancel {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5); padding: 0.4rem 1rem; font-size: 0.8rem;
+    }
+    .ch-modal .ch-btn--cancel:hover { background: rgba(255,255,255,0.08); }
+    .ch-modal__status { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-right: auto; align-self: center; }
+    .ch-modal__status--saving { color: #fbbf24; }
+    .ch-modal__status--saved { color: #4ade80; }
+    .ch-modal__status--error { color: #f87171; }
+
     /* Link row */
     .ch-link-row { text-align: right; padding: 0.5rem 0.6rem; }
     .ch-link-row a { font-size: 0.7rem; color: rgba(255,255,255,0.35); text-decoration: none; }
@@ -175,6 +227,34 @@
       </div>
     </div>
 
+  <!-- Blog Edit Modal -->
+  <div class="ch-modal-overlay" id="ch-edit-overlay" hidden>
+    <div class="ch-modal">
+      <div class="ch-modal__header">
+        <div class="ch-modal__title"><i class="fas fa-pen-to-square" style="margin-right:0.4rem;opacity:0.5;"></i> Edit Blog Post</div>
+        <button class="ch-modal__close" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="ch-modal__body">
+        <input type="hidden" id="ch-edit-slug">
+        <label>Title</label>
+        <input type="text" id="ch-edit-title" placeholder="Post title">
+        <label>Slug</label>
+        <input type="text" id="ch-edit-slug-display" disabled style="opacity:0.4;">
+        <label>Excerpt <span style="font-weight:400;opacity:0.6;">(150-160 chars for SEO)</span></label>
+        <input type="text" id="ch-edit-excerpt" placeholder="Brief description for search results" maxlength="200">
+        <label>Tags <span style="font-weight:400;opacity:0.6;">(comma separated)</span></label>
+        <input type="text" id="ch-edit-tags" placeholder="ai, automation, blindspot">
+        <label>Content (Markdown)</label>
+        <textarea id="ch-edit-content" placeholder="# Article Title\n\nYour markdown content..."></textarea>
+      </div>
+      <div class="ch-modal__footer">
+        <span class="ch-modal__status" id="ch-edit-status"></span>
+        <button class="ch-btn ch-btn--cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="ch-btn ch-btn--save" onclick="saveBlog()"><i class="fas fa-save" style="margin-right:0.3rem;"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
   </main>
   <script src="/js/company-store-adapter.js"></script>
   <script src="/modules/company/js/demo-toast.js"></script>
@@ -233,6 +313,7 @@
               '</div>' +
               '<div class="ch-row-actions">' +
                 '<a href="/blog/' + esc(post.slug) + '" target="_blank" class="ch-btn ch-btn--view">View</a>' +
+                '<button class="ch-btn ch-btn--edit" onclick="editBlog(\'' + esc(post.slug) + '\')">Edit</button>' +
                 '<button class="ch-btn ch-btn--delete" onclick="deleteBlog(\'' + esc(post.slug) + '\')">Delete</button>' +
               '</div>' +
             '</div>';
@@ -375,6 +456,97 @@
         else { alert('Error: ' + (d.error || 'Unknown')); }
       }).catch(function(err) { alert('Failed: ' + err.message); });
     }
+
+    // ══════════════════════════════════════
+    // BLOG EDITOR
+    // ══════════════════════════════════════
+    var _allPosts = [];
+
+    function editBlog(slug) {
+      var statusEl = document.getElementById('ch-edit-status');
+      statusEl.textContent = 'Loading...';
+      statusEl.className = 'ch-modal__status ch-modal__status--saving';
+      document.getElementById('ch-edit-overlay').hidden = false;
+
+      fetch(API_BASE + '/company-state?key=blogPosts', { headers: HDRS })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          _allPosts = data.value || data || [];
+          if (!Array.isArray(_allPosts)) _allPosts = [];
+          var post = _allPosts.find(function(p) { return p.slug === slug; });
+          if (!post) { statusEl.textContent = 'Post not found'; statusEl.className = 'ch-modal__status ch-modal__status--error'; return; }
+
+          document.getElementById('ch-edit-slug').value = slug;
+          document.getElementById('ch-edit-slug-display').value = slug;
+          document.getElementById('ch-edit-title').value = post.title || '';
+          document.getElementById('ch-edit-excerpt').value = post.excerpt || '';
+          document.getElementById('ch-edit-tags').value = (post.tags || []).join(', ');
+          document.getElementById('ch-edit-content').value = post.content_md || '';
+          statusEl.textContent = '';
+          statusEl.className = 'ch-modal__status';
+        })
+        .catch(function(err) {
+          statusEl.textContent = 'Load failed: ' + err.message;
+          statusEl.className = 'ch-modal__status ch-modal__status--error';
+        });
+    }
+
+    function saveBlog() {
+      var slug = document.getElementById('ch-edit-slug').value;
+      var statusEl = document.getElementById('ch-edit-status');
+      if (!slug) return;
+
+      var post = _allPosts.find(function(p) { return p.slug === slug; });
+      if (!post) { statusEl.textContent = 'Post not found in data'; statusEl.className = 'ch-modal__status ch-modal__status--error'; return; }
+
+      // Update fields
+      post.title = document.getElementById('ch-edit-title').value.trim();
+      post.excerpt = document.getElementById('ch-edit-excerpt').value.trim();
+      post.content_md = document.getElementById('ch-edit-content').value;
+      post.updated_at = new Date().toISOString();
+
+      var tagsRaw = document.getElementById('ch-edit-tags').value;
+      post.tags = tagsRaw ? tagsRaw.split(',').map(function(t) { return t.trim(); }).filter(Boolean) : [];
+
+      statusEl.textContent = 'Saving...';
+      statusEl.className = 'ch-modal__status ch-modal__status--saving';
+
+      fetch(API_BASE + '/company-state', {
+        method: 'POST',
+        headers: HDRS_JSON,
+        body: JSON.stringify({ key: 'blogPosts', value: _allPosts })
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.status === 'saved' || d.key === 'blogPosts') {
+            statusEl.textContent = 'Saved!';
+            statusEl.className = 'ch-modal__status ch-modal__status--saved';
+            renderBlog();
+            setTimeout(function() { statusEl.textContent = ''; }, 2000);
+          } else {
+            statusEl.textContent = 'Save returned unexpected response';
+            statusEl.className = 'ch-modal__status ch-modal__status--error';
+          }
+        })
+        .catch(function(err) {
+          statusEl.textContent = 'Save failed: ' + err.message;
+          statusEl.className = 'ch-modal__status ch-modal__status--error';
+        });
+    }
+
+    function closeEditModal() {
+      document.getElementById('ch-edit-overlay').hidden = true;
+    }
+
+    // Close on overlay click (not modal body)
+    document.getElementById('ch-edit-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeEditModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !document.getElementById('ch-edit-overlay').hidden) closeEditModal();
+    });
 
     function deleteAgent(agentId, agentName) {
       if (!confirm('Delete "' + agentName + '" from the Pixel Agents catalog?')) return;
