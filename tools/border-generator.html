@@ -11,13 +11,15 @@
     height: 525px;
     position: relative;
     background: transparent;
+    border-radius: 16px;
+    overflow: hidden;
   }
 
-  /* 1. Gold Filigree */
+  /* 1. Gold Filigree — uses outline+box-shadow instead of border-image (which kills border-radius) */
   .border--gold-filigree {
     border: 4px solid #b8860b;
-    border-image: linear-gradient(135deg, #ffd700, #b8860b 30%, #ffd700 50%, #b8860b 70%, #ffd700) 1;
-    box-shadow: inset 0 0 0 2px #1a1000, inset 0 0 0 6px rgba(255,215,0,0.15), inset 0 0 0 8px #1a1000;
+    background: linear-gradient(135deg, rgba(255,215,0,0.06), transparent 30%, rgba(255,215,0,0.04) 50%, transparent 70%, rgba(255,215,0,0.06)) border-box;
+    box-shadow: inset 0 0 0 2px #1a1000, inset 0 0 0 6px rgba(255,215,0,0.15), inset 0 0 0 8px #1a1000, 0 0 12px rgba(255,215,0,0.15);
   }
   .border--gold-filigree::before {
     content: '';
@@ -39,10 +41,10 @@
     height: 40px;
     border: 2px solid rgba(255,215,0,0.5);
   }
-  .border--gold-filigree .corner--tl { top: 6px; left: 6px; border-right: none; border-bottom: none; }
-  .border--gold-filigree .corner--tr { top: 6px; right: 6px; border-left: none; border-bottom: none; }
-  .border--gold-filigree .corner--bl { bottom: 6px; left: 6px; border-right: none; border-top: none; }
-  .border--gold-filigree .corner--br { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+  .border--gold-filigree .corner--tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  .border--gold-filigree .corner--tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+  .border--gold-filigree .corner--bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+  .border--gold-filigree .corner--br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
   .border--gold-filigree .corner::before {
     content: '';
     position: absolute;
@@ -258,8 +260,8 @@
 
   /* 8. Royal/Ornate */
   .border--royal {
-    border: 5px solid;
-    border-image: linear-gradient(180deg, #c9a84c, #8b6914 20%, #c9a84c 40%, #8b6914 60%, #c9a84c 80%, #8b6914) 1;
+    border: 5px solid #c9a84c;
+    box-shadow: 0 0 10px rgba(201,168,76,0.2);
     position: relative;
   }
   .border--royal::before {
