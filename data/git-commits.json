@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "52dfe3d5-7702-44d5-bb8b-04f8996b1387",
-      "hash": "1b257d8d753c91a2149323bc4a21c138d2a20ab5",
-      "message": "Remove task_completion.approve from CEO approval queue entirely",
-      "timestamp": "2026-03-31 21:47:23 -0700",
+      "id": "98056438-88bb-4c5a-afbf-97a50639a580",
+      "hash": "7eb45846bc487a29cec4d18e07fde0b6be9f397c",
+      "message": "Fix card image flash on effect changes",
+      "timestamp": "2026-04-01 21:44:07 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/1b257d8d753c91a2149323bc4a21c138d2a20ab5"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7eb45846bc487a29cec4d18e07fde0b6be9f397c"
     }
   ],
-  "timestamp": "2026-04-01T14:42:12.094Z",
+  "timestamp": "2026-04-02T14:22:29.635Z",
   "count": 1,
-  "scanId": 1775054532094
+  "scanId": 1775139749635
 }

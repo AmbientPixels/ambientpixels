@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-04-01T14:42:11.151Z",
+  "updated": "2026-04-02T14:22:28.490Z",
   "root": [
     {
       "type": "folder",
@@ -125,6 +125,12 @@
           "type": "folder",
           "name": "css",
           "path": "ambientscore/css",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "images",
+          "path": "ambientscore/images",
           "children": []
         },
         {
@@ -371,6 +377,12 @@
         },
         {
           "type": "folder",
+          "name": "blogSSR",
+          "path": "api/blogSSR",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "blogViews",
           "path": "api/blogViews",
           "children": []
@@ -427,36 +439,6 @@
           "type": "folder",
           "name": "cardforge-skull-ante",
           "path": "api/cardforge-skull-ante",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "cardforgearenabattle",
-          "path": "api/cardforgearenabattle",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "cardforgearenabosses",
-          "path": "api/cardforgearenabosses",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "cardforgearenahistory",
-          "path": "api/cardforgearenahistory",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "cardforgearenaleaderboard",
-          "path": "api/cardforgearenaleaderboard",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "cardforgearenaprofile",
-          "path": "api/cardforgearenaprofile",
           "children": []
         },
         {
@@ -815,8 +797,32 @@
         },
         {
           "type": "folder",
+          "name": "productAnalyticsIngest",
+          "path": "api/productAnalyticsIngest",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "productAnalyticsQuery",
+          "path": "api/productAnalyticsQuery",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "productAnalyticsRollup",
+          "path": "api/productAnalyticsRollup",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "publishedDocs",
           "path": "api/publishedDocs",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "sitemapXml",
+          "path": "api/sitemapXml",
           "children": []
         },
         {
@@ -1030,11 +1036,6 @@
       "path": "cardforge",
       "children": [
         {
-          "type": "page",
-          "name": "arena.html",
-          "path": "cardforge/arena.html"
-        },
-        {
           "type": "folder",
           "name": "audio",
           "path": "cardforge/audio",
@@ -1060,7 +1061,21 @@
           "type": "folder",
           "name": "images",
           "path": "cardforge/images",
-          "children": []
+          "children": [
+            {
+              "type": "folder",
+              "name": "borders",
+              "path": "cardforge/images/borders",
+              "children": [
+                {
+                  "type": "folder",
+                  "name": "preview",
+                  "path": "cardforge/images/borders/preview",
+                  "children": []
+                }
+              ]
+            }
+          ]
         },
         {
           "type": "folder",
@@ -1198,6 +1213,12 @@
               "type": "folder",
               "name": "css",
               "path": "hanson/tileforge/css",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "images",
+              "path": "hanson/tileforge/images",
               "children": []
             },
             {
@@ -2392,6 +2413,11 @@
         },
         {
           "type": "page",
+          "name": "border-generator.html",
+          "path": "tools/border-generator.html"
+        },
+        {
+          "type": "page",
           "name": "color-demo.html",
           "path": "tools/color-demo.html"
         },
@@ -2434,6 +2460,11 @@
           "type": "page",
           "name": "link-styles-demo.html",
           "path": "tools/link-styles-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "og-generator.html",
+          "path": "tools/og-generator.html"
         },
         {
           "type": "page",
