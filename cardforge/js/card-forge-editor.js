@@ -1209,7 +1209,7 @@
       
       // Card Effects (separate categories)
       bgEffects: ['none', 'foil', 'holographic', 'sparkle', 'aurora', 'pulse', 'particles', 'grain', 'vignette', 'scanlines', 'frosted', 'linen', 'brushed-metal', 'parchment'],
-      borderEffects: ['none', 'border', 'double', 'inset', 'thick', 'dashed', 'ridge', 'beveled', 'corners', 'animated-border'],
+      borderEffects: ['none', 'border', 'double', 'inset', 'thick', 'dashed', 'ridge', 'beveled', 'corners', 'animated-border', 'img-gold', 'img-arcane', 'img-royal'],
       glowEffects: ['none', 'glow', 'soft-ambient', 'inner-glow', 'neon-glow', 'halo', 'drop-shadow', 'pulse-glow', 'color-shift'],
       fontFamilies: ['inter', 'montserrat', 'poppins', 'rajdhani', 'playfair', 'cinzel', 'orbitron', 'medievalsharp', 'pirata']
     };

@@ -123,3 +123,43 @@
     outline-offset: 3px;
   }
 }
+
+/* ═══════════════════════════════════════
+   IMAGE-BASED BORDER FRAMES
+   Transparent PNG overlays positioned absolutely over the card.
+   ═══════════════════════════════════════ */
+
+/* Shared: suppress default border + glow, add overlay via ::after */
+.card-preview-canvas.rarity-style-img-gold,
+.card-preview-canvas.rarity-style-img-arcane,
+.card-preview-canvas.rarity-style-img-royal {
+  border: none !important;
+}
+.card-preview-canvas.rarity-style-img-gold::before,
+.card-preview-canvas.rarity-style-img-arcane::before,
+.card-preview-canvas.rarity-style-img-royal::before {
+  opacity: 0 !important;
+  animation: none !important;
+}
+.card-preview-canvas.rarity-style-img-gold::after,
+.card-preview-canvas.rarity-style-img-arcane::after,
+.card-preview-canvas.rarity-style-img-royal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border-radius: 1rem;
+}
+
+.card-preview-canvas.rarity-style-img-gold::after {
+  background-image: url('/cardforge/images/borders/border-gold-filigree.png');
+}
+.card-preview-canvas.rarity-style-img-arcane::after {
+  background-image: url('/cardforge/images/borders/border-arcane.png');
+}
+.card-preview-canvas.rarity-style-img-royal::after {
+  background-image: url('/cardforge/images/borders/border-royal.png');
+}
