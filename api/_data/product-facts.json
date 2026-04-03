@@ -17,7 +17,7 @@
     },
     "PixelAgents": {
       "description": "AI agent marketplace with 24 built-in agents across 12 categories, plus community Agent Forge",
-      "features": ["text-only agents", "web search agents (Brave API)", "URL fetch agents", "image generation agents (Gemini)", "Agent Forge builder", "community submissions"],
+      "features": ["text-only agents", "web search agents (Brave API)", "URL fetch agents", "image generation agents (Gemini)", "Agent Forge builder", "community submissions", "24 built-in agents: Roast My Site, Thread It, Name Storm, Validate This, Pitch Doctor, Vibe Check, Fridge Raid, Prompt Forge, Resume Roast, Signal, Hype Check, Buzz Check, Hivemind, Site Glow-Up, Color Thief, Roast My LinkedIn, Explain Like I'm 5, Startup Obituary, Legal Eagle, Email Fixer, Code Roast, Meeting Killer, Plot Twist, Debate Me"],
       "notThis": ["it is NOT a web scraper", "it does NOT browse URLs interactively", "it does NOT fill forms", "it does NOT export CSV files", "agents do NOT have persistent memory between sessions"]
     },
     "AmbientScore": {
