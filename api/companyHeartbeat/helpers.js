@@ -229,7 +229,8 @@ function _createActionFromHeartbeat(data, agentId) {
     requires_approval: requiresApproval,
     is_irreversible: ['social_post.publish', 'social_post.reply'].indexOf(actionType) !== -1,
     bundle_id: null,
-    source: 'heartbeat'
+    source: 'heartbeat',
+    experiment_tag: data.experiment_tag || null
   };
 }
 

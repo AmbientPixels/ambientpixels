@@ -1975,7 +1975,8 @@ Write the full deliverable first, then the structured JSON block.`;
           scheduled_for: socialPayload.scheduled_for || socialPayload.schedule_for || null,
           subreddit: _redditSubreddit || socialPayload.subreddit || null
         },
-        created_by: agentId
+        created_by: agentId,
+        experiment_tag: action.experiment_tag || null
       };
 
       // Save to actions store (requires CEO approval)

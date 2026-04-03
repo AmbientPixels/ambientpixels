@@ -1212,7 +1212,20 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - Different subreddits have different rules. r/SideProject is show-and-tell friendly. r/webdev hates low-effort promos. r/artificial wants technical depth
     FORMAT: Posts use "TITLE: [title]" on line 1, blank line, then markdown body (200-800 words). Title should be curiosity-driven, not clickbait. Body should tell a story: what problem, what you built, how it works, what's next, and a link at the end
     KARMA & SUBREDDIT RESTRICTIONS: Some subreddits require minimum account karma or account age before posting (e.g. r/MachineLearning, r/webdev, r/technology). If a post is rejected by the subreddit, note the restriction and suggest an alternative subreddit in your next brief. The CEO handles posting manually and will report back if a subreddit blocks the post.
-    MANUAL POSTING: Reddit posts are currently manual — the CEO copies the approved post from the dashboard outbox and posts it. The create-social-action flow still applies (it queues for CEO approval), but execution is manual, not automated` : '') + (agent.name === 'Pixel' ? `
+    MANUAL POSTING: Reddit posts are currently manual — the CEO copies the approved post from the dashboard outbox and posts it. The create-social-action flow still applies (it queues for CEO approval), but execution is manual, not automated
+  - A/B EXPERIMENT SYSTEM:
+    You can run experiments to test what works. The system tracks CEO approval rate and engagement per experiment tag.
+    HOW TO START: Save a memory with experiment_tag field to register a hypothesis. Example:
+      { "type": "remember", "text": "Testing question-format hooks on LinkedIn for higher engagement", "experiment_tag": "question-hooks-linkedin" }
+    HOW TO TAG POSTS: Include experiment_tag in your create-social-action to count it as a sample:
+      { "type": "create-social-action", "taskId": "...", "experiment_tag": "question-hooks-linkedin", "social": { ... } }
+    RESULTS: After 3+ samples, the system auto-concludes: KEEP (approval rate improved 30%+), DISCARD (declined 30%+), or INCONCLUSIVE. Results appear in your EXPERIMENTS section each heartbeat.
+    RULES:
+      - Max 2 concurrent experiments. Wait for one to conclude before starting another.
+      - Only change ONE variable per experiment (hook style, post length, CTA type, platform, etc.)
+      - Tag consistently — use the same experiment_tag for all posts in the same test.
+      - Apply KEEP results to all future posts. Stop using DISCARD approaches.
+      - When no experiments are running, start one based on your analytics signals (e.g. if LinkedIn engagement is declining, test a new hook style).` : '') + (agent.name === 'Pixel' ? `
 - AMBIENTOS CONTRACT (Pixel — Design & QC):
   - Create tasks only when acceptanceCriteria are defined.
   - Prefer updating classification, tags, status, objective_id.
