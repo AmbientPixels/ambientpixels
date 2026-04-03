@@ -381,6 +381,19 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
       warning;
   }
 
+  // Scribe: concise social copy performance — which copy resonated
+  if (agent.name === 'Scribe') {
+    var scTop = (socialIntel.topPosts7d || []).slice(0, 3);
+    if (scTop.length > 0) {
+      var scLines = scTop.map(function (p) {
+        return '  - ' + p.platform + ': ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments' + (p.post_url ? ' (' + p.post_url + ')' : '');
+      }).join('\n');
+      return '\n\nSOCIAL COPY PERFORMANCE (posts using your copy — 7d):\n' + scLines +
+        '\nFavor copy styles and angles that drive engagement.' + warning;
+    }
+    return '';
+  }
+
   var shortRecs = (socialIntel.recommendations || []).slice(0, 2).map(function (r) { return '- ' + r; }).join('\n') || '- (none)';
   return '\n\nSOCIAL INTEL DIGEST (Nova — concise, 7d UTC):' +
     acctSection +

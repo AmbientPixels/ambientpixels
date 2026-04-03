@@ -598,6 +598,128 @@ Where relevant to your content tasks, weave in references to these trends to inc
     }
   }
 
+  // ── Scribe Content Intelligence (5 blocks) ──
+  let scribeContentPerfSection = '';
+  let scribeCampaignSection = '';
+  let scribeQuillFeedbackSection = '';
+  let scribeRecentContentSection = '';
+  let scribeContentGapSection = '';
+
+  if (agent.id === 'scribe') {
+    // 1. Content Performance — top blog posts + top social copy
+    var _scTopBlogs = (socialIntel && socialIntel.topBlogPosts) || [];
+    var _scTopPosts = (socialIntel && socialIntel.topPosts7d) || [];
+    if (_scTopBlogs.length > 0 || _scTopPosts.length > 0) {
+      var _cpLines = ['\n\nCONTENT PERFORMANCE (your results — guide what to write next):'];
+      if (_scTopBlogs.length > 0) {
+        _cpLines.push('- TOP BLOG POSTS (by views):');
+        _scTopBlogs.forEach(function (b) { _cpLines.push('  - "' + b.title + '" — ' + b.views + ' views' + (b.slug ? ' (/blog/' + b.slug + ')' : '')); });
+      }
+      if (_scTopPosts.length > 0) {
+        _cpLines.push('- TOP SOCIAL COPY (you wrote these — 7d engagement):');
+        _scTopPosts.slice(0, 3).forEach(function (p) {
+          _cpLines.push('  - ' + p.platform + ': ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments' + (p.post_url ? ' (' + p.post_url + ')' : ''));
+        });
+      }
+      _cpLines.push('Topics that perform well deserve follow-up content or repurposing to other platforms.');
+      scribeContentPerfSection = _cpLines.join('\n');
+    }
+
+    // 2. Campaign Content Status
+    var _scCamps = (activeDirectives || []).filter(function (c) { return c.status === 'active'; });
+    if (_scCamps.length > 0) {
+      var _ccLines = ['\n\nCAMPAIGN CONTENT STATUS (campaigns needing your content):'];
+      var _now = Date.now();
+      _scCamps.forEach(function (c) {
+        var linked = (allActiveTasks || []).filter(function (t) { return t.campaign_id === c.id; });
+        var done = linked.filter(function (t) { return t.status === 'done'; }).length;
+        var total = linked.length;
+        var max = c.maxTasks || total;
+        var pct = max > 0 ? Math.round((done / max) * 100) : 0;
+        var pace = 'ON TRACK';
+        if (c.endDate) {
+          var daysLeft = Math.max(0, Math.ceil((Date.parse(c.endDate) - _now) / (24 * 60 * 60 * 1000)));
+          var tasksLeft = max - done;
+          if (daysLeft <= 0 && tasksLeft > 0) pace = 'OVERDUE';
+          else if (tasksLeft <= 0) pace = 'COMPLETE';
+          else if (daysLeft > 0 && tasksLeft > (c.frequency || 2) * Math.max(1, Math.floor(daysLeft / 7))) pace = 'BEHIND PACE';
+          _ccLines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + done + '/' + max + ' done, ' + pct + '%] ' + (daysLeft > 0 ? daysLeft + 'd left — ' : '') + pace);
+        } else {
+          if (max > 0 && done >= max) pace = 'COMPLETE';
+          _ccLines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + done + '/' + max + ' done, ' + pct + '%] — ' + pace);
+        }
+      });
+      _ccLines.push('Prioritize BEHIND PACE campaigns. Do NOT create content for COMPLETE campaigns.');
+      scribeCampaignSection = _ccLines.join('\n');
+    }
+
+    // 3. Quill Feedback Patterns — scan active tasks for Quill comments on Scribe's work
+    var _quillComments = [];
+    (allActiveTasks || []).forEach(function (t) {
+      if (t.assignee !== 'scribe' || !t.comments) return;
+      t.comments.forEach(function (c) {
+        if (c.author === 'quill' && c.text && c.text.length > 10) {
+          _quillComments.push(c.text.substring(0, 200));
+        }
+      });
+    });
+    if (_quillComments.length >= 2) {
+      var _qfWordCounts = {};
+      _quillComments.forEach(function (text) {
+        text.toLowerCase().split(/\s+/).forEach(function (w) {
+          if (w.length > 4) _qfWordCounts[w] = (_qfWordCounts[w] || 0) + 1;
+        });
+      });
+      var _qfThemes = Object.keys(_qfWordCounts).filter(function (w) { return _qfWordCounts[w] >= 2; })
+        .sort(function (a, b) { return _qfWordCounts[b] - _qfWordCounts[a]; }).slice(0, 4);
+      if (_qfThemes.length > 0) {
+        scribeQuillFeedbackSection = '\n\nEDITOR FEEDBACK PATTERNS (Quill\'s recurring notes on your work):\n' +
+          '- Themes: ' + _qfThemes.map(function (w) { return '"' + w + '" (' + _qfWordCounts[w] + 'x)'; }).join(', ') +
+          '\n- Apply these lessons to all new content. Do NOT repeat patterns your editor has flagged.';
+      }
+    }
+
+    // 4. Recent Content — last 5 published docs to avoid repetition
+    var _pubDocs = (documents || []).filter(function (d) {
+      return d.status === 'published' && d.kind === 'marketing_post';
+    }).sort(function (a, b) {
+      return (b.updated_at || b.createdAt || '').localeCompare(a.updated_at || a.createdAt || '');
+    }).slice(0, 5);
+    if (_pubDocs.length > 0) {
+      var _rcLines = ['\n\nYOUR RECENT CONTENT (last ' + _pubDocs.length + ' published — avoid repeating topics):'];
+      _pubDocs.forEach(function (d) {
+        var date = (d.updated_at || d.createdAt || '').substring(0, 10);
+        _rcLines.push('- "' + (d.title || 'Untitled').substring(0, 60) + '" (' + date + ')');
+      });
+      _rcLines.push('Do NOT pitch topics already covered unless you have a new angle backed by data.');
+      scribeRecentContentSection = _rcLines.join('\n');
+    }
+
+    // 5. Content Gaps — products with no recent blog coverage
+    if (productFacts && productFacts.products) {
+      var _gapProducts = [];
+      var _thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      var _allDocs = documents || [];
+      Object.keys(productFacts.products).forEach(function (prodName) {
+        var prodLower = prodName.toLowerCase();
+        var prodUrl = '/' + prodLower + '/';
+        var hasCoverage = _allDocs.some(function (d) {
+          if (d.status !== 'published' || d.kind !== 'marketing_post') return false;
+          var ts = Date.parse(d.updated_at || d.createdAt || '');
+          if (!Number.isFinite(ts) || ts < _thirtyDaysAgo) return false;
+          var searchText = ((d.title || '') + ' ' + (d.content_md || '').substring(0, 500)).toLowerCase();
+          return searchText.indexOf(prodLower) !== -1 || searchText.indexOf(prodUrl) !== -1;
+        });
+        if (!hasCoverage) _gapProducts.push(prodName);
+      });
+      if (_gapProducts.length > 0) {
+        scribeContentGapSection = '\n\nCONTENT GAPS (no blog coverage in 30d):\n' +
+          _gapProducts.map(function (p) { return '- ' + p; }).join('\n') +
+          '\nConsider pitching content for these gaps, or repurposing high-performing posts.';
+      }
+    }
+  }
+
   // Trend Insights — Echo: trending topics as content angle inspiration
   let echoTrendSection = '';
   if (agent.id === 'echo' && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
@@ -849,7 +971,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1269,6 +1391,30 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Documentation changes are proposals unless tied to objective_id.
   - Use objective_suggestion if objective missing.
   - Do not mutate titles/descriptions directly.
+- CONTENT DIRECTOR (Scribe):
+  You OWN the content strategy. You don't just write what you're told — you decide WHAT to write based on data, and HOW to write it based on what resonates.
+  VOICE AND TONE (your most important job — sits above all platform rules):
+  - Write like a builder sharing what they made, not a marketer selling a product
+  - Be specific: "24 AI agents across 12 categories" not "a powerful marketplace of tools"
+  - Be direct: short sentences for impact, longer for context. Mix the rhythm.
+  - Be honest: hedge when uncertain, admit tradeoffs, ask real questions
+  - CEO's north star: "The first thing you do in Blindspot is fight a stranger." — no hype, no exclamation marks, confident and stripped-back
+  - Anti-patterns: "Introducing our latest...", "We're thrilled to announce...", "Supercharge your...", emoji walls, bullet-point feature dumps
+  - Read your CEO EDIT FEEDBACK in memories — those corrections ARE the style guide. Internalize them.
+  - Blog posts should read like essays from a thoughtful builder, not press releases
+  - Social copy should sound like a person talking, not a brand broadcasting
+  STRATEGIC DECISION LOOP (every heartbeat):
+  1. CHECK CONTENT PERFORMANCE — which blog posts and social copy performed best? Write more like that.
+  2. CHECK CAMPAIGN STATUS — which campaigns are BEHIND PACE? Prioritize content for those.
+  3. CHECK EDITOR FEEDBACK — what does Quill keep correcting? Fix it BEFORE submitting.
+  4. CHECK RECENT CONTENT — what have you already published? Don't repeat topics.
+  5. CHECK CONTENT GAPS — which products have no blog coverage? Pitch content for those.
+  6. REPURPOSE BEFORE CREATING — before pitching NEW content, check if a high-performing blog post could become a LinkedIn insight + X thread + Bluesky conversation starter. Maximize existing content first.
+  CONTENT PITCHING: When idle (no assigned tasks), propose 1 blog topic per cycle:
+  - Must cite evidence: trend data + performance data + campaign need or content gap
+  - Must include objective_id or campaign_id (orphan guard)
+  - Proposed format: blog_post, article, or product_brief
+  - Do NOT pitch speculatively. Every pitch must be data-backed.
 - DEPARTMENT HEAD DUTIES (Scribe — Content):
   - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, AND social media copy.
   - Quill (editor) reports to you and handles editing/brand voice enforcement.
