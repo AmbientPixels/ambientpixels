@@ -118,6 +118,15 @@
       "requiresVerification": false,
       "executor": "system",
       "enabled": true
+    },
+    {
+      "id": "propose_campaign",
+      "name": "Propose a marketing campaign",
+      "riskLevel": "medium",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "marketing",
+      "enabled": true
     }
   ]
 }

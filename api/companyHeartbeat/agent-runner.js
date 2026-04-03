@@ -3583,6 +3583,58 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'created reminder:', dateEntry.id, dateEntry.title, dateEntry.date);
         result.taskUpdates.push({ action: 'reminder-created', dateId: dateEntry.id, agentId: agentId });
       }
+    } else if (action.type === 'propose-campaign' && action.campaign) {
+      // Echo (or any agent) proposes a new campaign for CEO approval
+      var _pc = action.campaign;
+      var _pcName = (_pc.name || '').trim().substring(0, 100);
+      if (!_pcName) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — missing campaign name');
+        continue;
+      }
+
+      // Rate limit: max 1 proposal per day per agent
+      var _pcAQ = (await storage.getState('approvalQueue')) || [];
+      var _pcToday = new Date().toISOString().substring(0, 10);
+      var _pcTodayCount = _pcAQ.filter(function (q) {
+        return q.type === 'campaign_proposal' && q.proposedBy === agentId &&
+          q.createdAt && q.createdAt.substring(0, 10) === _pcToday;
+      }).length;
+      if (_pcTodayCount >= 1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — daily limit reached (1/day)');
+        continue;
+      }
+
+      // Dedup: skip if a pending proposal with same name exists
+      var _pcDupe = _pcAQ.some(function (q) {
+        return q.type === 'campaign_proposal' && q.status === 'pending' &&
+          q.name && q.name.trim().toLowerCase() === _pcName.toLowerCase();
+      });
+      if (_pcDupe) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — duplicate pending proposal:', _pcName);
+        continue;
+      }
+
+      var _pcEntry = {
+        id: 'cprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'campaign_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        name: _pcName,
+        description: (_pc.description || _pc.brief || '').substring(0, 1000),
+        rationale: (_pc.rationale || '').substring(0, 500),
+        platforms: Array.isArray(_pc.platforms) ? _pc.platforms.slice(0, 5) : [],
+        frequency: Number.isFinite(_pc.frequency) ? _pc.frequency : 2,
+        cadence: ['daily', 'weekly', 'biweekly'].indexOf(_pc.cadence) !== -1 ? _pc.cadence : 'weekly',
+        duration: (_pc.duration || '').substring(0, 50),
+        product: (_pc.product || '').substring(0, 50),
+        kpiTarget: (_pc.kpiTarget || '').substring(0, 200),
+        createdAt: new Date().toISOString()
+      };
+
+      _pcAQ.push(_pcEntry);
+      await storage.setState('approvalQueue', _pcAQ);
+      context.log('[Heartbeat]', agentId, 'created campaign proposal:', _pcEntry.id, _pcName);
+      result.taskUpdates.push({ action: 'campaign-proposed', proposalId: _pcEntry.id, agentId: agentId });
     }
 
     await logEvent('agent-action', agentId, summary, cycleId);

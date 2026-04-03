@@ -397,6 +397,14 @@
             </div>
             <div class="act-panel-body" id="needs-attention-list"></div>
           </div>
+          <!-- Campaign Proposals -->
+          <div class="act-panel" id="campaign-proposals-panel" style="display:none;">
+            <div class="act-panel-head" style="border-bottom-color:rgba(139,92,246,0.15);">
+              <span style="color:#a78bfa;"><i class="fas fa-bullhorn"></i> Campaign Proposals</span>
+              <span id="campaign-proposals-count" class="act-count-badge" style="background:rgba(139,92,246,0.12);color:#a78bfa;"></span>
+            </div>
+            <div class="act-panel-body" id="campaign-proposals-list"></div>
+          </div>
           <!-- Agent Forge Submissions -->
           <div class="act-panel" id="agent-forge-panel" style="display:none;">
             <div class="act-panel-head">
@@ -647,6 +655,7 @@
       renderExecutionPulse();
       renderRawStats();
       renderNeedsAttention();
+      renderCampaignProposals();
       renderPending();
       renderContentPackages();
       renderRevisions();
@@ -1116,6 +1125,158 @@
       _naUpdateTask(taskId, { status: 'done' })
         .then(function() { return _naRemoveFromQueue(queueItemId); })
         .then(function() { renderNeedsAttention(); });
+    }
+
+    // ── Campaign Proposals ──
+    function renderCampaignProposals() {
+      var panel = document.getElementById('campaign-proposals-panel');
+      var list = document.getElementById('campaign-proposals-list');
+      var countEl = document.getElementById('campaign-proposals-count');
+      if (!panel || !list) return;
+
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) queue = [];
+          var proposals = queue.filter(function(item) { return item.type === 'campaign_proposal' && item.status === 'pending'; });
+
+          if (proposals.length === 0) { panel.style.display = 'none'; return; }
+          panel.style.display = '';
+          countEl.textContent = proposals.length;
+          window._campaignProposals = proposals;
+
+          var html = '';
+          proposals.forEach(function(p, idx) {
+            var name = esc(p.name || 'Untitled');
+            var agent = esc(p.proposedBy || '?');
+            var platforms = (p.platforms || []).join(', ');
+            var created = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '';
+            html += '<div class="act-row" style="padding:0.5rem 0;cursor:pointer;" onclick="openProposalDrawer(' + idx + ')">';
+            html += '<div class="act-row-icon" style="background:rgba(139,92,246,0.08);color:#a78bfa;"><i class="fas fa-bullhorn"></i></div>';
+            html += '<div class="act-row-info">';
+            html += '<div class="act-row-title">' + name + '</div>';
+            html += '<div class="act-row-meta">' + agent + ' · ' + esc(platforms) + ' · ' + created + '</div>';
+            html += '</div>';
+            html += '<button class="act-btn act-btn--details" onclick="event.stopPropagation();openProposalDrawer(' + idx + ')"><i class="fas fa-eye"></i></button>';
+            html += '</div>';
+          });
+          list.innerHTML = html;
+        })
+        .catch(function() { panel.style.display = 'none'; });
+    }
+
+    function openProposalDrawer(idx) {
+      var p = (window._campaignProposals || [])[idx];
+      if (!p) return;
+      var el = document.getElementById('drawer-content');
+      var html = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button>';
+      html += '<h3><i class="fas fa-bullhorn" style="color:#a78bfa;margin-right:0.3rem;"></i>' + esc(p.name || 'Campaign Proposal') + '</h3>';
+      html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
+      html += '<span class="act-drawer-badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;">Proposal</span>';
+      html += '<span style="font-size:0.65rem;opacity:0.5;">From ' + esc((p.proposedBy || '?').charAt(0).toUpperCase() + (p.proposedBy || '').slice(1)) + '</span>';
+      html += '</div>';
+      if (p.description) {
+        html += '<div class="act-drawer-section"><h4>Description</h4><p style="white-space:pre-wrap;font-size:0.8rem;">' + esc(p.description) + '</p></div>';
+      }
+      if (p.rationale) {
+        html += '<div class="act-drawer-section"><h4>Rationale</h4><p style="white-space:pre-wrap;font-size:0.8rem;color:#a78bfa;">' + esc(p.rationale) + '</p></div>';
+      }
+      html += '<div class="act-drawer-section"><h4>Details</h4><div style="font-size:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;">';
+      html += '<div>Platforms: <strong>' + esc((p.platforms || []).join(', ') || 'any') + '</strong></div>';
+      html += '<div>Frequency: <strong>' + (p.frequency || '?') + '/' + esc(p.cadence || 'week') + '</strong></div>';
+      html += '<div>Duration: <strong>' + esc(p.duration || 'ongoing') + '</strong></div>';
+      html += '<div>Product: <strong>' + esc(p.product || 'general') + '</strong></div>';
+      if (p.kpiTarget) html += '<div style="grid-column:span 2;">KPI: <strong>' + esc(p.kpiTarget) + '</strong></div>';
+      html += '</div></div>';
+      html += '<div class="act-drawer-actions" style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">';
+      html += '<button class="act-btn act-btn--approve" onclick="approveCampaignProposal(\'' + p.id + '\')"><i class="fas fa-check"></i> Approve</button>';
+      html += '<button class="act-btn act-btn--reject" onclick="rejectCampaignProposal(\'' + p.id + '\')"><i class="fas fa-times"></i> Reject</button>';
+      html += '</div>';
+      el.innerHTML = html;
+      document.getElementById('drawer-overlay').classList.add('open');
+    }
+
+    function approveCampaignProposal(proposalId) {
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      // Find the proposal
+      var p = (window._campaignProposals || []).find(function(x) { return x.id === proposalId; });
+      if (!p) return;
+
+      // 1. Create campaign from proposal
+      fetch(apiBase + '/company-state?key=campaigns', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var campaigns = data.value || data || [];
+          if (!Array.isArray(campaigns)) campaigns = [];
+          var startDate = new Date().toISOString().substring(0, 10);
+          var endDate = '';
+          if (p.duration) {
+            var weeks = parseInt(p.duration) || 4;
+            endDate = new Date(Date.now() + weeks * 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+          }
+          var newCampaign = {
+            id: 'camp-' + Date.now().toString(36),
+            title: p.name,
+            description: p.description || '',
+            status: 'active',
+            startDate: startDate,
+            endDate: endDate || null,
+            allowedTaskTypes: p.platforms || [],
+            frequency: p.frequency || 2,
+            cadence: p.cadence || 'weekly',
+            source: 'echo-proposal',
+            proposalId: proposalId,
+            createdAt: new Date().toISOString()
+          };
+          campaigns.push(newCampaign);
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'campaigns', value: campaigns })
+          });
+        })
+        .then(function() {
+          // 2. Update proposal status in approvalQueue
+          return fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } });
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          var item = queue.find(function(q) { return q.id === proposalId; });
+          if (item) { item.status = 'approved'; item.approvedAt = new Date().toISOString(); }
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'approvalQueue', value: queue })
+          });
+        })
+        .then(function() {
+          closeDrawer();
+          renderCampaignProposals();
+        });
+    }
+
+    function rejectCampaignProposal(proposalId) {
+      var note = prompt('Rejection reason (optional):') || '';
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          var item = queue.find(function(q) { return q.id === proposalId; });
+          if (item) { item.status = 'rejected'; item.rejectedAt = new Date().toISOString(); item.rejectionNote = note; }
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'approvalQueue', value: queue })
+          });
+        })
+        .then(function() {
+          closeDrawer();
+          renderCampaignProposals();
+        });
     }
 
     // ── Agent Forge Submissions ──
