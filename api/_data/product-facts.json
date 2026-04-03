@@ -25,6 +25,11 @@
       "features": ["URL-based scanning", "conversion score rating", "AI-generated recommendations", "scan history"],
       "notThis": ["it is NOT an SEO tool", "it does NOT track rankings", "it does NOT monitor competitors", "it is NOT an accessibility or WCAG compliance tool"]
     },
+    "Blindspot": {
+      "description": "Browser-based arena combat card RPG — no download, no install. Players build a fighter card, battle through a 10-boss campaign, then enter async PvP",
+      "features": ["10-boss campaign with CYOA pre-boss adventures", "async PvP with Elo ranking and defense queue", "5-element type system (Fire/Earth/Arcane/Shadow/Chaos)", "stamina, cooldowns, stances, move combos", "card progression with border evolution and title milestones", "loot crates, cosmetics, battle charms, consumable items", "Quick Build card creator (5 steps)", "Forge for card customization (stats, look, details)", "Sparks economy (earn from battles, spend in shop)", "per-card battle history with nemesis tracking", "card sharing (canvas-to-PNG export)", "ascension system for replayability"],
+      "notThis": ["it is NOT a trading card game — no card marketplace or trading", "it is NOT CardForge — Blindspot is a standalone game, fully decoupled", "it does NOT require download or install — 100% browser-based", "it does NOT use real money for gameplay — Sparks are earned in-game", "cards are NOT randomly generated — players build them in Quick Build or Forge", "it is NOT turn-based strategy — it's real-time move selection with rock-paper-scissors combat"]
+    },
     "AgentForge": {
       "description": "Visual agent builder where users create custom AI agents with a card-based pipeline",
       "features": ["drag-and-drop builder", "test before submit", "AI gatekeeper review", "CEO approval", "community catalog"],
