@@ -719,12 +719,28 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
     lines.push('- Governance violations: ' + data.governanceViolations + ' (reduce policy-violating actions)');
   }
 
-  // CEO revision note themes
+  // CEO revision note themes + pattern summary
   if (data.ceoRevisionNotes && data.ceoRevisionNotes.length > 0) {
     lines.push('- Recent CEO feedback:');
     data.ceoRevisionNotes.slice(0, 3).forEach(function (n) {
       lines.push('  - "' + n.slice(0, 100) + '"');
     });
+    // Add theme clustering for agents with enough notes
+    if (data.ceoRevisionNotes.length >= 2) {
+      var _fbWordCounts = {};
+      data.ceoRevisionNotes.forEach(function (note) {
+        note.toLowerCase().split(/\s+/).forEach(function (w) {
+          if (w.length > 4) _fbWordCounts[w] = (_fbWordCounts[w] || 0) + 1;
+        });
+      });
+      var _fbThemes = Object.keys(_fbWordCounts)
+        .filter(function (w) { return _fbWordCounts[w] >= 2; })
+        .sort(function (a, b) { return _fbWordCounts[b] - _fbWordCounts[a]; })
+        .slice(0, 3);
+      if (_fbThemes.length > 0) {
+        lines.push('- CEO feedback themes: ' + _fbThemes.map(function (w) { return '"' + w + '" (' + _fbWordCounts[w] + 'x)'; }).join(', ') + ' — address these patterns');
+      }
+    }
   }
 
   return lines.join('\n');

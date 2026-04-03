@@ -10,7 +10,7 @@ const H = require('./helpers');
 const { _buildBlockedProposal, _normalizeProposal, _isValidProposal } = require('./normalization');
 const { _fetchSiteIntel } = require('./site-intelligence');
 const { applyTaskUpdate } = require('./task-mutations');
-const { _socialIntelBuildDigest } = require('./social-intel');
+const { _socialIntelBuildDigest, _buildWeeklySnapshot, _buildCampaignVelocityBlock } = require('./social-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 
@@ -397,15 +397,32 @@ module.exports = async function (context) {
     const socialEngagementMeta = (await storage.getState('socialEngagementMeta')) || {};
     const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
     const socialAccountStats = (await storage.getState('socialAccountStats')) || null;
+    let _weeklySnapshots = [];
+    try { _weeklySnapshots = (await storage.getState('socialWeeklySnapshots')) || []; } catch (_e) { /* non-fatal */ }
+    let _blogPostViewsForDigest = [];
+    try { _blogPostViewsForDigest = (await storage.getState('blogPostViews')) || []; } catch (_e) { /* non-fatal */ }
     const socialIntel = _socialIntelBuildDigest(
       runtimeMemory && runtimeMemory.socialIntel,
       socialMetricsEvents,
       socialEngagementSnapshots,
       socialEngagementMeta,
       Date.now(),
-      socialAccountStats
+      socialAccountStats,
+      _weeklySnapshots,
+      _blogPostViewsForDigest
     );
     runtimeMemory.socialIntel = socialIntel;
+    // Save weekly snapshot for WoW delta computation (keep last 4 weeks)
+    var _newSnapshot = _buildWeeklySnapshot(socialIntel);
+    if (_newSnapshot) {
+      var _lastSnap = _weeklySnapshots.length > 0 ? _weeklySnapshots[_weeklySnapshots.length - 1] : null;
+      // Only save if new week or no snapshots yet
+      if (!_lastSnap || _lastSnap.week !== _newSnapshot.week) {
+        _weeklySnapshots.push(_newSnapshot);
+        if (_weeklySnapshots.length > 4) _weeklySnapshots = _weeklySnapshots.slice(-4);
+        try { await storage.setState('socialWeeklySnapshots', _weeklySnapshots); } catch (_e) { context.log('[heartbeat] Failed to save weekly snapshot:', _e.message); }
+      }
+    }
     // Build agent performance digest (AutoResearch feedback loop)
     const _existingPerf = (runtimeMemory && runtimeMemory.agentPerformance) || null;
     let _perfHeartbeatRuns = [], _perfGeminiUsage = [], _perfGovernanceLog = [], _perfBlogPostViews = [];
@@ -1584,7 +1601,7 @@ module.exports = async function (context) {
           _agentCampaignCtx, siteIntel,
           agentId === 'nova' ? workerReports : null,
           _agentMemoryStore, trendRadarStore,
-          (agentId === 'nova' || agentId === 'scribe') ? trendInsightsStore : null,
+          (agentId === 'nova' || agentId === 'scribe' || agentId === 'echo') ? trendInsightsStore : null,
           performanceDigest, agentExperiments,
           productFacts,
           productBriefs

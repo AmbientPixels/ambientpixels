@@ -4,7 +4,7 @@
 const { SOCIAL_INTEL_FRESHNESS_MS, SOCIAL_INTEL_WINDOW_DAYS } = require('./constants');
 const { _socialIntelIsoDayUTC, _socialIntelEventTs, _socialIntelResolveMode } = require('./helpers');
 
-function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs, accountStats) {
+function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs, accountStats, weeklyHistory, blogPostViews) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
   var existingAsOf = existingDigest && existingDigest.asOfUtc ? Date.parse(existingDigest.asOfUtc) : NaN;
   if (existingDigest && Number.isFinite(existingAsOf) && (now - existingAsOf) < SOCIAL_INTEL_FRESHNESS_MS) {
@@ -215,6 +215,39 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
     recommendations.push('Maintain current cadence and monitor latency and issue drift daily.');
   }
 
+  // Week-over-week deltas (compare current 7d vs last week's snapshot)
+  var deltas = null;
+  var prevWeek = Array.isArray(weeklyHistory) && weeklyHistory.length > 0 ? weeklyHistory[weeklyHistory.length - 1] : null;
+  if (prevWeek && prevWeek.engagement) {
+    deltas = { followers: {}, engagement: {}, postCount: {} };
+    ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+      var prevF = (prevWeek.followers && prevWeek.followers[p]) || 0;
+      var curF = acctFollowers[p] || 0;
+      deltas.followers[p] = prevF > 0 ? Math.round(((curF - prevF) / prevF) * 1000) / 10 : 0;
+
+      var prevE = (prevWeek.engagement[p] && prevWeek.engagement[p].total) || 0;
+      var curE = (byPlatform[p] ? byPlatform[p].likes7d + byPlatform[p].comments7d + byPlatform[p].reposts7d : 0);
+      deltas.engagement[p] = prevE > 0 ? Math.round(((curE - prevE) / prevE) * 1000) / 10 : 0;
+
+      var prevP = (prevWeek.engagement[p] && prevWeek.engagement[p].posts) || 0;
+      var curP = byPlatform[p] ? byPlatform[p].posts7d : 0;
+      deltas.postCount[p] = curP - prevP;
+    });
+  }
+
+  // Top blog posts by views (for Echo's promotion digest)
+  var topBlogPosts = [];
+  var bpv = Array.isArray(blogPostViews) ? blogPostViews : [];
+  if (bpv.length > 0) {
+    topBlogPosts = bpv
+      .filter(function (v) { return (v.views || 0) > 0; })
+      .sort(function (a, b) { return (b.views || 0) - (a.views || 0); })
+      .slice(0, 3)
+      .map(function (v) {
+        return { title: (v.title || '').substring(0, 80), slug: v.slug || '', views: v.views || 0 };
+      });
+  }
+
   return {
     asOfUtc: new Date(now).toISOString(),
     windowDays: 7,
@@ -236,6 +269,8 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
       topLivePosts: acctTopPosts
     },
     topPosts7d: topPosts7d,
+    deltas: deltas,
+    topBlogPosts: topBlogPosts,
     signals: signals.slice(0, 4),
     recommendations: recommendations.slice(0, 3)
   };
@@ -268,24 +303,81 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
   }
 
   if (agent.name === 'Echo') {
+    var deltas = socialIntel.deltas || null;
+
+    // Helper: trend arrow + % for a delta value
+    function _trendArrow(pct) {
+      if (pct === 0 || pct === null || pct === undefined) return '(flat)';
+      var arrow = pct > 0 ? '↑' : '↓';
+      return '(' + arrow + Math.abs(pct) + '% wow)';
+    }
+    function _healthLabel(fDelta, eDelta) {
+      if (fDelta < -5 || eDelta < -10) return 'DECLINING';
+      if (fDelta > 5 || eDelta > 15) return 'GROWING';
+      return 'STABLE';
+    }
+
+    // Platform health with WoW trends
+    var platformLines = '';
+    ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+      var bp = byPlatform[p] || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
+      var eng = bp.likes7d + bp.comments7d + bp.reposts7d;
+      var fol = followers[p] || 0;
+      var fDelta = deltas && deltas.followers[p] || 0;
+      var eDelta = deltas && deltas.engagement[p] || 0;
+      var health = deltas ? _healthLabel(fDelta, eDelta) : '';
+      var healthTag = health === 'DECLINING' ? ' — DECLINING' : (health === 'GROWING' ? ' — GROWING' : '');
+      platformLines += '\n  - ' + p + ': ' + fol + ' followers ' + (deltas ? _trendArrow(fDelta) : '') +
+        ', ' + eng + ' engagement ' + (deltas ? _trendArrow(eDelta) : '') +
+        ', ' + bp.posts7d + ' posts' + healthTag;
+    });
+
+    // Platform health summary (actionable)
+    var healthSummary = '';
+    if (deltas) {
+      var declining = [];
+      var growing = [];
+      ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+        var fD = deltas.followers[p] || 0;
+        var eD = deltas.engagement[p] || 0;
+        if (fD < -5 || eD < -10) declining.push(p);
+        if (fD > 5 || eD > 15) growing.push(p);
+      });
+      if (declining.length > 0 || growing.length > 0) {
+        healthSummary = '\n- PLATFORM HEALTH: ';
+        if (declining.length) healthSummary += declining.join(', ') + ' declining — needs strategy refresh. ';
+        if (growing.length) healthSummary += growing.join(', ') + ' growing — capitalize with increased cadence.';
+      }
+    }
+
     var top3 = (socialIntel.topPosts7d || []).slice(0, 3);
     var top3Lines = top3.length
       ? top3.map(function (p) {
-        return '- ' + p.platform + ': ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments, ' + (p.reposts || 0) + ' reposts' + (p.post_url ? ' (' + p.post_url + ')' : '');
+        return '  - ' + p.platform + ': ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments' + (p.post_url ? ' (' + p.post_url + ')' : '');
       }).join('\n')
-      : '- (none)';
+      : '  - (none)';
+
+    // Blog performance for promotion
+    var blogSection = '';
+    var topBlogs = socialIntel.topBlogPosts || [];
+    if (topBlogs.length > 0) {
+      blogSection = '\n- TOP BLOG CONTENT (promote on social):';
+      topBlogs.forEach(function (b) {
+        blogSection += '\n  - "' + b.title + '" — ' + b.views + ' views' + (b.slug ? ' (/blog/' + b.slug + ')' : '');
+      });
+    }
+
     var recLines = (socialIntel.recommendations || []).slice(0, 3).map(function (r) { return '- ' + r; }).join('\n') || '- (none)';
-    return '\n\nSOCIAL INTEL DIGEST (Echo — delivery + engagement + account, 7d UTC):' +
+
+    return '\n\nSOCIAL ANALYTICS (Echo — 7d, week-over-week):' +
       '\n- As of: ' + (socialIntel.asOfUtc || '') +
-      acctSection +
-      '\n- Delivery: successRate7d=' + (socialIntel.delivery && socialIntel.delivery.successRate7d || 0) + '%, publishedToday=' + (socialIntel.delivery && socialIntel.delivery.publishedToday || 0) + ', failures24h=' + (socialIntel.delivery && socialIntel.delivery.failures24h || 0) + ', avgLatencyMs7d=' + (socialIntel.delivery && socialIntel.delivery.avgExecutionLatencyMs7d || 0) + ', topIssue24h=' + ((socialIntel.delivery && socialIntel.delivery.topIssue24h) || 'null') +
-      '\n- Engagement by platform (agent posts, 7d):' +
-      '\n  - x: likes=' + px.likes7d + ', comments=' + px.comments7d + ', reposts=' + px.reposts7d + ', posts=' + px.posts7d +
-      '\n  - linkedin: likes=' + pl.likes7d + ', comments=' + pl.comments7d + ', reposts=' + pl.reposts7d + ', posts=' + pl.posts7d +
-      '\n  - bluesky: likes=' + pb.likes7d + ', comments=' + pb.comments7d + ', reposts=' + pb.reposts7d + ', posts=' + pb.posts7d +
+      '\n- Delivery: ' + (socialIntel.delivery && socialIntel.delivery.successRate7d || 0) + '% success, ' + (socialIntel.delivery && socialIntel.delivery.publishedToday || 0) + ' today, ' + (socialIntel.delivery && socialIntel.delivery.failures24h || 0) + ' failures 24h' +
+      '\n- Platform performance (7d):' + platformLines +
+      healthSummary +
       livePostsSection +
-      '\n- Agent top posts (max 3):\n' + top3Lines +
-      '\n- Recommendations (max 3):\n' + recLines +
+      '\n- Top agent posts (3):\n' + top3Lines +
+      blogSection +
+      '\n- Recommendations:\n' + recLines +
       warning;
   }
 
@@ -299,7 +391,76 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
     warning;
 }
 
+// Build a compact weekly snapshot for WoW delta computation (stored in socialWeeklySnapshots blob)
+function _buildWeeklySnapshot(digest) {
+  if (!digest) return null;
+  var bp = (digest.engagement && digest.engagement.byPlatform) || {};
+  var followers = (digest.account && digest.account.followers) || {};
+  var snapshot = {
+    week: new Date().toISOString().substring(0, 10),
+    timestamp: digest.asOfUtc || new Date().toISOString(),
+    followers: { x: followers.x || 0, linkedin: followers.linkedin || 0, bluesky: followers.bluesky || 0, total: followers.total || 0 },
+    engagement: {}
+  };
+  ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+    var pl = bp[p] || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
+    snapshot.engagement[p] = {
+      total: pl.likes7d + pl.comments7d + pl.reposts7d,
+      likes: pl.likes7d,
+      comments: pl.comments7d,
+      reposts: pl.reposts7d,
+      posts: pl.posts7d
+    };
+  });
+  return snapshot;
+}
+
+// Campaign velocity digest for Echo — which campaigns are behind/on-track/ahead
+function _buildCampaignVelocityBlock(campaigns, allTasks) {
+  if (!Array.isArray(campaigns) || campaigns.length === 0) return '';
+  var now = Date.now();
+  var lines = [];
+  var socialTypes = ['social_linkedin', 'social_x', 'social_bluesky', 'social_facebook', 'social_reddit'];
+
+  campaigns.forEach(function (c) {
+    if (c.status !== 'active') return;
+    var types = c.allowedTaskTypes || (c.taskType ? [c.taskType] : []);
+    var isSocial = types.some(function (t) { return socialTypes.indexOf(t) !== -1; });
+    if (!isSocial) return;
+
+    var linked = (allTasks || []).filter(function (t) { return t.campaign_id === c.id; });
+    var done = linked.filter(function (t) { return t.status === 'done'; }).length;
+    var total = linked.length;
+    var max = c.maxTasks || 0;
+    var pct = max > 0 ? Math.round((done / max) * 100) : (total > 0 ? Math.round((done / total) * 100) : 0);
+
+    var pace = 'ON TRACK';
+    if (c.endDate) {
+      var daysLeft = Math.max(0, Math.ceil((Date.parse(c.endDate) - now) / (24 * 60 * 60 * 1000)));
+      var tasksLeft = (max || total) - done;
+      if (daysLeft <= 0 && tasksLeft > 0) {
+        pace = 'OVERDUE';
+      } else if (daysLeft > 0 && tasksLeft > 0) {
+        var needed = Math.ceil(tasksLeft / Math.max(1, Math.floor(daysLeft / 3.5))); // posts per ~half-week
+        if (needed > (c.frequency || 2)) pace = 'BEHIND PACE (need ~' + needed + '/week)';
+      }
+      if (tasksLeft <= 0) pace = 'COMPLETE';
+      lines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + done + '/' + (max || total) + ' done, ' + pct + '%] ' + (daysLeft > 0 ? daysLeft + 'd left' : '') + ' — ' + pace);
+    } else {
+      if (max > 0 && done >= max) pace = 'COMPLETE';
+      lines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + done + '/' + (max || total) + ' done, ' + pct + '%] — ' + pace);
+    }
+  });
+
+  if (lines.length === 0) return '';
+  return '\n\nCAMPAIGN VELOCITY (your active social campaigns):\n' +
+    lines.join('\n') +
+    '\nPrioritize BEHIND PACE campaigns. Do NOT create tasks for COMPLETE campaigns.';
+}
+
 module.exports = {
   _socialIntelBuildDigest,
-  _buildSocialIntelPromptBlock
+  _buildSocialIntelPromptBlock,
+  _buildWeeklySnapshot,
+  _buildCampaignVelocityBlock
 };

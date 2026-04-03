@@ -4,7 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
-const { _buildSocialIntelPromptBlock } = require('./social-intel');
+const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
 
 // ── Prompt Coverage Guard ──
@@ -595,6 +595,59 @@ Where relevant to your content tasks, weave in references to these trends to inc
     }
   }
 
+  // Trend Insights — Echo: trending topics as content angle inspiration
+  let echoTrendSection = '';
+  if (agent.id === 'echo' && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
+    var _echoLatest = trendInsightsStore[trendInsightsStore.length - 1];
+    var _echoAge = Date.now() - new Date(_echoLatest.timestamp || _echoLatest.analysisDate || 0).getTime();
+    if (_echoAge < TREND_RADAR_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 && Array.isArray(_echoLatest.insights)) {
+      var _echoTrends = _echoLatest.insights
+        .filter(function (i) { return i.significance === 'high' || i.significance === 'medium'; })
+        .sort(function (a, b) { var o = { high: 0, medium: 1 }; return (o[a.significance] || 2) - (o[b.significance] || 2); })
+        .slice(0, 4);
+      if (_echoTrends.length > 0) {
+        var _echoLines = _echoTrends.map(function (i) {
+          return '- ' + i.trendName + ' [' + i.significance + '] — ' + (i.interpretation || '').substring(0, 120) +
+            '\n  Content angle: ' + (i.actionRecommendation || 'explore for social content');
+        }).join('\n');
+        echoTrendSection = '\n\nTRENDING TOPICS (Scout\'s Radar — use for timely social content angles):\n' +
+          (_echoLatest.summary ? 'Landscape: ' + _echoLatest.summary.substring(0, 200) + '\n' : '') +
+          _echoLines +
+          '\nWeave trends into social content where naturally relevant. Propose trend-based campaigns if no matching campaign exists.';
+      }
+    }
+  }
+
+  // Campaign velocity digest for Echo
+  let campaignVelocitySection = '';
+  if (agent.id === 'echo') {
+    campaignVelocitySection = _buildCampaignVelocityBlock(activeDirectives, allActiveTasks);
+  }
+
+  // Social → site traffic for Echo (requires siteIntel param)
+  let socialTrafficSection = '';
+  if (agent.id === 'echo' && productBriefs && productBriefs._siteIntel) {
+    var _si = productBriefs._siteIntel;
+    if (_si.telemetry && Array.isArray(_si.telemetry.topReferrers)) {
+      var _referrers = _si.telemetry.topReferrers;
+      var _socialRefs = _referrers.filter(function (r) {
+        return /twitter|x\.com|linkedin|bluesky|bsky|reddit|facebook|t\.co/i.test(r.referrer || '');
+      });
+      var _totalSessions = _referrers.reduce(function (s, r) { return s + (r.sessions || 0); }, 0);
+      var _socialSessions = _socialRefs.reduce(function (s, r) { return s + (r.sessions || 0); }, 0);
+      if (_totalSessions > 0) {
+        var _pct = Math.round((_socialSessions / _totalSessions) * 100);
+        var _refLines = _socialRefs.slice(0, 3).map(function (r) {
+          return '  - ' + r.referrer + ': ' + r.sessions + ' sessions';
+        }).join('\n');
+        socialTrafficSection = '\n\nSOCIAL → SITE TRAFFIC (7d referrers):\n' +
+          '- Social referrals: ' + _socialSessions + '/' + _totalSessions + ' sessions (' + _pct + '% of referral traffic)\n' +
+          (_refLines || '  (no social referrals detected)') +
+          '\nUse this to prioritize platforms that drive real site visits.';
+      }
+    }
+  }
+
   // CEO workspace context: high-priority memories + upcoming critical dates (token-capped)
   const MAX_WORKSPACE_CHARS = 1000;
   let workspaceSection = '';
@@ -813,7 +866,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 

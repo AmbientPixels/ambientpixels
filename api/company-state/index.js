@@ -22,7 +22,8 @@ const VALID_KEYS = [
   'trendRadar', 'trendInsights', 'trendActions', 'systemConfig',
   'agentPerformance', 'agentExperiments',
   'geminiUsage', 'blogPostViews',
-  'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats'
+  'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats',
+  'socialWeeklySnapshots'
 ];
 
 module.exports = async function (context, req) {
