@@ -1359,7 +1359,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
      e. NEVER research speculatively when higher-urgency items exist
   3. ACT:
      - Use your 2 web searches on the SINGLE highest-priority item
-     - If a demand signal has no corresponding task, SELF-ASSIGN: create-task for the research
+     - If a demand signal has no corresponding task, SELF-ASSIGN: create-task for the research. MUST include objective_id (link to the most relevant active objective) or the task will be blocked by the orphan guard.
      - Produce structured research intel (title, findings, sources, impact_tags)
   4. COMPETITIVE TRACKING (standing orders):
      Maintain awareness of competitors per product:
