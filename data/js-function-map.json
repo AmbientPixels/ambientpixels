@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-04-02T14:22:30.511Z",
+  "scannedAt": "2026-04-03T14:02:41.976Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -99,6 +99,13 @@
       "seed",
       "daysAgo",
       "hoursAgo",
+      "main"
+    ],
+    "syncProductBriefs.js": [
+      "parseSections",
+      "scrubDevArtifacts",
+      "isGoodSection",
+      "extractBrief",
       "main"
     ],
     "unusedCSS.js": [

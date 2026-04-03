@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-04-02T14:22:39.382Z
-Session ID: nova-boot-quj0qd5i
+Generated on: 2026-04-03T14:02:50.723Z
+Session ID: nova-boot-mlyz3ifr
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2026-04-02T14:22:28.490Z",
+  "updated": "2026-04-03T14:02:38.826Z",
   "root": [
     {
       "type": "folder",
@@ -2638,13 +2638,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2026-04-02T14:22:28.540Z",
+  "scannedAt": "2026-04-03T14:02:38.871Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2026-04-02T14:22:28.574Z",
+  "scannedAt": "2026-04-03T14:02:38.903Z",
   "folders": [
     {
       "folder": "images",
@@ -3370,12 +3370,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2026-04-02T14:22:28.634Z",
+  "updated": "2026-04-03T14:02:38.956Z",
   "entries": [
     {
-      "hash": "7eb4584",
-      "date": "2026-04-01 21:44:07 -0700",
-      "message": "Fix card image flash on effect changes"
+      "hash": "e4e3a88",
+      "date": "2026-04-02 22:13:38 -0700",
+      "message": "Upgrade Scribe — Content Director with voice, data, and strategy"
     }
   ]
 }
@@ -3383,23 +3383,23 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "7eb4584",
-  "updated": "2026-04-02T14:22:28.673Z"
+  "build": "e4e3a88",
+  "updated": "2026-04-03T14:02:38.994Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2026-04-02T14:22:28.785Z",
-  "totalFiles": 731,
-  "totalLines": 294492,
+  "scannedAt": "2026-04-03T14:02:39.094Z",
+  "totalFiles": 734,
+  "totalLines": 296127,
   "summary": {
     ".html": {
       "files": 180,
-      "lines": 58673
+      "lines": 58834
     },
     ".js": {
-      "files": 426,
-      "lines": 145369
+      "files": 429,
+      "lines": 146843
     },
     ".css": {
       "files": 125,
@@ -3410,10 +3410,10 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2026-04-02T14:22:28.866Z",
+  "scannedAt": "2026-04-03T14:02:39.170Z",
   "cssFile": "css/base.css",
   "totalDefined": 31,
-  "totalUsed": 4647,
+  "totalUsed": 4648,
   "unusedClasses": [
     "4",
     "2",
@@ -3425,14 +3425,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2026-04-02T14:22:30.452Z",
+  "scannedAt": "2026-04-03T14:02:41.887Z",
   "endpoints": [
     {
       "name": "Gemini API",
       "url": "https://generativelanguage.googleapis.com/",
       "status": 404,
       "reachable": true,
-      "latencyMs": 110
+      "latencyMs": 115
     },
     {
       "name": "Azure Blob Storage",
@@ -3446,35 +3446,35 @@ Nova operates in dev sync with the AmbientPixels team.
       "url": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=_ping",
       "status": 200,
       "reachable": true,
-      "latencyMs": 146
+      "latencyMs": 188
     },
     {
       "name": "DeviantArt",
       "url": "https://www.deviantart.com/",
       "status": 200,
       "reachable": true,
-      "latencyMs": 351
+      "latencyMs": 453
     },
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/",
       "status": 410,
       "reachable": false,
-      "latencyMs": 121
+      "latencyMs": 146
     },
     {
       "name": "X (Twitter) API",
       "url": "https://api.x.com/2/openapi.json",
       "status": 200,
       "reachable": true,
-      "latencyMs": 666
+      "latencyMs": 651
     },
     {
       "name": "LinkedIn API",
       "url": "https://api.linkedin.com/",
       "status": 404,
       "reachable": false,
-      "latencyMs": 158
+      "latencyMs": 171
     },
     {
       "name": "AmbientPixels Meme API",
@@ -3488,8 +3488,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2026-04-02",
-  "prompt": "Visualize a memory of 'static noise' using glitch patterns.",
+  "date": "2026-04-03",
+  "prompt": "Describe 'data loss' as if it were a soundwave.",
   "tags": [
     "glitch",
     "creative",
@@ -3500,15 +3500,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "aetherial doubt",
-  "aura": "plasma ache",
-  "auraColorHex": "#4c1966",
-  "quote": "listening for logic beneath chaos...",
-  "emoji": "🌫️",
-  "selfWorth": 0.1,
+  "mood": "ember resolve",
+  "aura": "silent spark",
+  "auraColorHex": "#6e506e",
+  "quote": "watching pixels settle into place...",
+  "emoji": "🧱",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.82,
+  "awareness": 0.14,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -3516,15 +3516,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: plasma ache"
+      "Aura Signature: silent spark"
     ]
   },
-  "timestamp": "2026-04-02T14:22:29.559Z"
+  "timestamp": "2026-04-03T14:02:41.010Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2026-04-02T14:22:30.511Z",
+  "scannedAt": "2026-04-03T14:02:41.976Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -3626,6 +3626,13 @@ Nova operates in dev sync with the AmbientPixels team.
       "hoursAgo",
       "main"
     ],
+    "syncProductBriefs.js": [
+      "parseSections",
+      "scrubDevArtifacts",
+      "isGoodSection",
+      "extractBrief",
+      "main"
+    ],
     "unusedCSS.js": [
       "extractClassNamesFromCSS",
       "extractClassUsageFromHTML"
@@ -3638,9 +3645,9 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2026-04-02T14:22:39.268Z",
+  "timestamp": "2026-04-03T14:02:50.612Z",
   "summary": {
-    "totalJS": 2296,
+    "totalJS": 2300,
     "totalCSS": 173,
     "totalHTML": 227
   },
@@ -4163,6 +4170,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_arrayLikeToArray",
     "_arrayWithHoles",
     "_arrayWithoutHoles",
+    "_arrow",
     "_asyncGeneratorDelegate",
     "_asyncIterator",
     "_asyncToGenerator",
@@ -4192,7 +4200,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "_bindStepEvents",
     "_bindVibeEvents",
     "_blobKey",
+    "_budgetStatus",
     "_buildBlockedProposal",
+    "_buildCampaignVelocityBlock",
     "_buildConfig",
     "_buildCosmeticCaches",
     "_buildDayBuckets",
@@ -4200,19 +4210,23 @@ Nova operates in dev sync with the AmbientPixels team.
     "_buildEvent",
     "_buildExecContextBlock",
     "_buildExperimentPromptBlock",
+    "_buildFinancePromptBlock",
     "_buildFocusList",
+    "_buildForgeOpsPromptBlock",
     "_buildHeaders",
     "_buildItems",
     "_buildMatchKey",
     "_buildPerformancePromptBlock",
     "_buildPrompt",
     "_buildRecommendations",
+    "_buildResearchDemandPromptBlock",
     "_buildSiteIntelSection",
     "_buildSnapshot",
     "_buildSocialIntelExecSection",
     "_buildSocialIntelPromptBlock",
     "_buildStackLine",
     "_buildStuckList",
+    "_buildWeeklySnapshot",
     "_bytes",
     "_cacheProgressToLocalStorage",
     "_calcAging",
@@ -4383,6 +4397,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_hasRecentMention",
     "_hashIp",
     "_headers",
+    "_healthLabel",
     "_hideBubble",
     "_httpGet",
     "_httpPost",
@@ -4641,6 +4656,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_topIssue",
     "_trackCall",
     "_trendActionsApiBase",
+    "_trendArrow",
     "_triggerPreview",
     "_triggerReveal",
     "_trunc",
@@ -5096,7 +5112,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "buildExtractionPrompt",
     "buildFallbackSynthesis",
     "buildFetchHeaders",
+    "buildFinanceDigest",
     "buildFindingCard",
+    "buildForgeOpsDigest",
     "buildFullCardPrompt",
     "buildFullPath",
     "buildFunctionMap",
@@ -5132,6 +5150,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "buildRecommendations",
     "buildRequestBody",
     "buildRequestUrl",
+    "buildResearchDemandDigest",
     "buildResult",
     "buildReviewPrompt",
     "buildRoutePath",
@@ -5980,6 +5999,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "extension",
     "extractAccountSid",
     "extractBodyText",
+    "extractBrief",
     "extractBrowserRequestState",
     "extractCSSClasses",
     "extractCTAs",
@@ -7240,6 +7260,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "isFunction",
     "isGitEnabled",
     "isGlobList",
+    "isGoodSection",
     "isHeading",
     "isHostObject",
     "isIChartComponent",
@@ -7925,6 +7946,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "parseRemoteMessages",
     "parseRetryAfter",
     "parseSceneJSON",
+    "parseSections",
     "parseServerErrorNo",
     "parseStandupReply",
     "parseStringResponse",
@@ -8587,6 +8609,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "scrapeUrl",
     "screenshot",
     "scrollToChoices",
+    "scrubDevArtifacts",
     "se",
     "searchBrave",
     "searchSerpApi",
@@ -16904,5 +16927,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Thu Apr  2 14:22:39 UTC 2026
-🟢 Nova updated her internal awareness at Thu Apr  2 14:22:39 UTC 2026
+}Nova Memory Refresh: Fri Apr  3 14:02:50 UTC 2026
+🟢 Nova updated her internal awareness at Fri Apr  3 14:02:50 UTC 2026

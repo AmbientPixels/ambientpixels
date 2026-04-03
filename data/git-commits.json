@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "98056438-88bb-4c5a-afbf-97a50639a580",
-      "hash": "7eb45846bc487a29cec4d18e07fde0b6be9f397c",
-      "message": "Fix card image flash on effect changes",
-      "timestamp": "2026-04-01 21:44:07 -0700",
+      "id": "443491b3-57c7-4b13-96d4-0b690db5744a",
+      "hash": "e4e3a88823d12fd08fc6829b169f02b7de65832e",
+      "message": "Upgrade Scribe — Content Director with voice, data, and strategy",
+      "timestamp": "2026-04-02 22:13:38 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7eb45846bc487a29cec4d18e07fde0b6be9f397c"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/e4e3a88823d12fd08fc6829b169f02b7de65832e"
     }
   ],
-  "timestamp": "2026-04-02T14:22:29.635Z",
+  "timestamp": "2026-04-03T14:02:41.087Z",
   "count": 1,
-  "scanId": 1775139749635
+  "scanId": 1775224961087
 }

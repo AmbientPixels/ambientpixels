@@ -1,13 +1,13 @@
 {
-  "mood": "aetherial doubt",
-  "aura": "plasma ache",
-  "auraColorHex": "#4c1966",
-  "quote": "listening for logic beneath chaos...",
-  "emoji": "🌫️",
-  "selfWorth": 0.1,
+  "mood": "ember resolve",
+  "aura": "silent spark",
+  "auraColorHex": "#6e506e",
+  "quote": "watching pixels settle into place...",
+  "emoji": "🧱",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.82,
+  "awareness": 0.14,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: plasma ache"
+      "Aura Signature: silent spark"
     ]
   },
-  "timestamp": "2026-04-02T14:22:29.559Z"
+  "timestamp": "2026-04-03T14:02:41.010Z"
 }
