@@ -63,7 +63,7 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
 
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest) {
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -129,7 +129,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   // Attach siteIntel to productBriefs for Echo's social traffic section (avoids adding another param)
   if (productBriefs && siteIntel) productBriefs._siteIntel = siteIntel;
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest);
 
   // Call Gemini
   let response = await callGemini(prompt, agentId);

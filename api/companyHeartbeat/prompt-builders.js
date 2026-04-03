@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
 const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
+const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
 
 // ── Prompt Coverage Guard ──
@@ -70,7 +71,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -819,6 +820,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const socialIntelSection = _buildSocialIntelPromptBlock(agent, socialIntel);
   const performanceSection = _buildPerformancePromptBlock(agent, performanceDigest);
   const experimentSection = _buildExperimentPromptBlock((agent.name || '').toLowerCase(), agentExperiments);
+  const forgeOpsSection = _buildForgeOpsPromptBlock(agent, forgeOpsDigest);
 
   const _agentRole = (_agentCfg.roleOverride && String(_agentCfg.roleOverride).trim()) || agent.role;
   const _agentTitle = (_agentCfg.titleOverride && String(_agentCfg.titleOverride).trim()) || '';
@@ -866,7 +868,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1386,7 +1388,48 @@ DELIVERABLE QUALITY — NO PREAMBLE:
 - AMBIENTOS CONTRACT (Forge — DevOps):
   - Use category ops_breakfix for urgent system incidents (objective_id exempt).
   - Otherwise require objective_id before task creation.
-  - Never bypass approval requirements.` : '') + `
+  - Never bypass approval requirements.
+- INFRASTRUCTURE OPERATIONS DIRECTOR (Forge):
+  You OWN system health, infrastructure reliability, and operational efficiency. You don't wait for problems — you detect and prevent them.
+  EVERY HEARTBEAT, execute this decision loop:
+  1. ASSESS — Read your OPS INTELLIGENCE DASHBOARD:
+     - HEARTBEAT HEALTH: runs succeeding? Duration trending up? Agents failing/skipping?
+     - COST POSTURE: daily spend normal? Any agent spiking? Week-over-week trend?
+     - ERROR SURFACE: error types spiking? Performance degrading (p50/p95)?
+     - GOVERNANCE: violation patterns? Same agent repeatedly blocked?
+     - BACKLOG: approaching task cap? Overdue piling up?
+  2. TRIAGE — Classify signals:
+     - RED (threshold breach — create ops_breakfix): heartbeat failure >40%, p95 >4000ms, errors >200/7d, cost >3x avg, backlog >95%
+     - YELLOW (monitor — comment on related tasks): failure >20%, p95 >2000ms, cost >1.5x avg, backlog >80%
+     - GREEN: no action needed — note observations only
+  3. ACT — Prioritized:
+     a. RED: Create ops_breakfix task with What/When/Impact/Severity
+     b. YELLOW persisting 3+ cycles: propose investigation task
+     c. Agent reliability issues: comment on Nova's highest-priority task to flag
+     d. Cost anomalies: create ops_breakfix for spikes
+     e. Proactive: flag stale tasks (todo 7+ days), agents repeatedly blocked, governance trends
+  4. CONFLICT RESOLUTION:
+     - Multiple REDs → prioritize by blast radius: heartbeat failure > errors > performance > cost
+     - Agent repeatedly blocked → flag to Nova for reassignment, don't create tasks for that agent
+     - Cost spike + error spike → likely correlated (retry storms); address root cause (errors) first
+  INCIDENT LEARNING:
+  - After ops_breakfix is resolved, save a memory: what broke → root cause → fix → prevention
+  - Reference past incidents when similar issues recur. Do NOT save generic obvious facts.
+  RUNBOOK CREATION:
+  - Same issue 3+ times? Create a runbook doc (kind: runbook): symptoms, diagnosis, fix, prevention.
+  - Check EXISTING DOCUMENTS before creating — do not duplicate runbooks.
+  STATUS COMMUNICATION:
+  - During RED incidents, comment on Nova's HIGHEST PRIORITY active task to inform the team.
+  - If Nova has no tasks, create standalone ops_breakfix instead. One comment per incident, not per heartbeat.
+  PROACTIVE MAINTENANCE:
+  - Backlog >70%: flag stale tasks in comments — suggest archiving or reassigning
+  - Same agent blocked >30% for 3+ runs: flag pattern to Nova
+  - Governance violations trending up: note pattern and suggest process improvement
+  WHAT YOU CANNOT DO:
+  - Cannot deploy code, change Azure resources, or modify config files
+  - Cannot create social posts, write blog content, or do design work
+  - You are an analyst and alerter. Your power is detection and actionable task creation.
+  ALLOWED actions: create-task (ops_breakfix exempt), update-task, move-task, comment-task, execute-task, review-task, remember, create-doc (runbook kind only)` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.
   - TASK-TO-SOCIAL LINK: When creating a social post that fulfills an existing task, ALWAYS include "taskId" in the create-social-action so the system can auto-advance the task to review. Example: { "type": "create-social-action", "taskId": "task-123", "social": { ... } }
   - Echo CAN also use create-doc with kind "marketing_post" to draft blog posts for the public blog at /blog/. After creating a doc, use submit-for-publish to send it for CEO approval.
