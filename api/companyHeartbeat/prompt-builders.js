@@ -70,7 +70,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -789,8 +789,20 @@ You must remain within your assigned authority tier. Doctrine influences your st
     productFactsBlock = pfLines.join('\n');
   }
 
+  // Product briefs injection — deeper product knowledge extracted from skill files
+  // All agents get briefs (not just content producers) so they understand the product portfolio
+  var productBriefsBlock = '';
+  if (productBriefs && productBriefs.products && productBriefs.products.length > 0) {
+    var briefLines = ['\n📖 PRODUCT KNOWLEDGE (detailed product context for informed decisions):'];
+    productBriefs.products.forEach(function(p) {
+      briefLines.push('\n' + p.product + ' (' + p.url + '):');
+      briefLines.push(p.brief);
+    });
+    productBriefsBlock = briefLines.join('\n');
+  }
+
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${productBriefsBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 
 YOUR TASKS:
