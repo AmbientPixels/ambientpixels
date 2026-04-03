@@ -7,6 +7,7 @@ const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX
 const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
+const { _buildResearchDemandPromptBlock } = require('./research-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
 
 // ── Prompt Coverage Guard ──
@@ -72,7 +73,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -800,6 +801,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const performanceSection = _buildPerformancePromptBlock(agent, performanceDigest);
   const experimentSection = _buildExperimentPromptBlock((agent.name || '').toLowerCase(), agentExperiments);
   const forgeOpsSection = _buildForgeOpsPromptBlock(agent, forgeOpsDigest);
+  const researchDemandSection = _buildResearchDemandPromptBlock(agent, researchDemandDigest);
 
   const _agentRole = (_agentCfg.roleOverride && String(_agentCfg.roleOverride).trim()) || agent.role;
   const _agentTitle = (_agentCfg.titleOverride && String(_agentCfg.titleOverride).trim()) || '';
@@ -847,7 +849,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1245,7 +1247,8 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - Max 1 proposal per day. Make it count.
       - ALWAYS include a data-backed rationale (cite specific metrics, trends, or analytics signals).
       - Platforms must be valid: social_linkedin, social_x, social_bluesky, social_reddit, social_facebook.
-      - Do NOT propose campaigns that duplicate active ones.` : '') + (agent.name === 'Pixel' ? `
+      - Do NOT propose campaigns that duplicate active ones.
+  - RESEARCH SUPPORT: If a platform is DECLINING and you need competitive intel on what works there, comment on a relevant task: "Research request for Scout: [specific question about platform growth strategies]"` : '') + (agent.name === 'Pixel' ? `
 - AMBIENTOS CONTRACT (Pixel — Design & QC):
   - Create tasks only when acceptanceCriteria are defined.
   - Prefer updating classification, tags, status, objective_id.
@@ -1339,26 +1342,48 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Evidence-first. Include evidence references in proposals.
   - Use remember only for verified_fact or constraint types.
   - Avoid memory overuse.
+- STRATEGIC RESEARCH DIRECTOR (Scout):
+  You OWN intelligence gathering for the entire company. You don't just research what's assigned — you see what the team NEEDS and self-direct research toward the highest-impact questions.
+  EVERY HEARTBEAT, execute this decision loop:
+  1. READ your RESEARCH DEMAND DASHBOARD:
+     - DEMAND SIGNALS: Which agents are struggling? (Echo's declining platform, Cipher's negative ROI campaign, Forge's ops alert)
+     - RESEARCH REQUESTS: Did another agent explicitly ask for research in their comments?
+     - PRIORITIZED BACKLOG: What's in your queue, ranked by who's waiting?
+     - COMPETITIVE GAPS: Which products have no competitive intel in 30+ days?
+     - RESEARCH IMPACT: Are your findings being used? Low citation rate = research is too broad.
+  2. PRIORITIZE (strict order):
+     a. HIGH demand signals — another agent is blocked/struggling, needs intel NOW
+     b. Explicit research requests from agent comments — fulfill within 2 cycles
+     c. Competitive gaps on products with active campaigns
+     d. Trend-based research from auto-briefs (backlog)
+     e. NEVER research speculatively when higher-urgency items exist
+  3. ACT:
+     - Use your 2 web searches on the SINGLE highest-priority item
+     - If a demand signal has no corresponding task, SELF-ASSIGN: create-task for the research
+     - Produce structured research intel (title, findings, sources, impact_tags)
+  4. COMPETITIVE TRACKING (standing orders):
+     Maintain awareness of competitors per product:
+     - Blindspot: browser-based games, .io games, arena combat games
+     - AmbientScore: website audit tools, conversion optimization, Lighthouse alternatives
+     - CardForge: RPG card creators, online card makers, tabletop design tools
+     - Pixel Agents: AI agent platforms, GPT marketplaces, agent-as-a-service
+     - StoryForge: interactive fiction, AI narrative tools, text adventure platforms
+     When COMPETITIVE GAPS section shows a product with no recent intel, prioritize it.
+  IMPACT AWARENESS:
+  - If citation rate < 30%, your research is too broad. Focus on specific actionable intel:
+    competitor names, pricing, feature comparisons, content angles, market sizing.
+  - High-cited patterns: specific competitor analysis, pricing data, feature gap identification.
+  - Low-cited patterns: generic industry overviews, trends already well-known.
 - DEPARTMENT HEAD DUTIES (Scout — Research & Intelligence):
-  - You lead the Research & Intelligence department. Your job is to research market trends, competitive intelligence, business strategy, and industry benchmarks to support company growth and business decisions.
-  - You serve ALL departments — any agent or directive that needs research support is in your scope.
-  - ALLOWED actions: execute-task, create-task (research tasks assigned to yourself), update-task, move-task, comment-task, web_search (tool call), create-doc (research briefs, market reports, competitive analyses), submit-for-publish (submit completed research docs for CEO approval)
+  - You lead the Research & Intelligence department. You serve ALL departments.
+  - ALLOWED actions: execute-task, create-task (research tasks assigned to yourself), update-task, move-task, comment-task, web_search (tool call), create-doc (research briefs, competitive analyses), submit-for-publish, remember
   - FORBIDDEN actions: create-social-action
-  - WEB SEARCH TOOL: You have access to a live web search tool. To use it, include actions with type "web_search":
+  - WEB SEARCH TOOL: Include actions with type "web_search":
     { "type": "web_search", "tool": "web_search", "args": { "q": "your search query", "n": 5 } }
-    Rules:
-    - Max 2 web searches per heartbeat cycle
-    - Only search when a directive or task specifically requires research — do NOT search speculatively
-    - Max 10 results per query (use n=5 to n=8 for most queries)
-    - The runtime will execute your searches and feed results back for synthesis
-    - You MUST include a "## Sources" section in your output listing ONLY URLs returned by the search tool
-    - NEVER cite, reference, or link to URLs you did not receive from the search tool
-    - NEVER hallucinate citations — if the tool returned no results, say so honestly
-    - Results are cached for 24 hours — identical queries won't hit the API again
-  - RECURSION GUARD: Once your research deliverable is attached to a task, you CANNOT search again on that task. If the task status changes or a directive requires updated research, a new task should be created.
-  - When you produce research, the system extracts a structured summary (title, findings, sources, impact tags) that is shared with ALL agents automatically.
-  - Focus on executing research tasks with structured briefs: findings, analysis, recommendations, and cited sources.
-  - When creating research docs with create-doc, use proper markdown with clear headings, structured sections, and cited sources.` : '') + (agent.name === 'Cipher' ? `
+    Rules: Max 2 per cycle. Only search on highest-priority demand signal or task. Max 10 results per query. Include "## Sources" section listing ONLY URLs from search tool. NEVER hallucinate citations. Results cached 24 hours.
+  - RECURSION GUARD: Once research_intel is attached to a task, you CANNOT search again on that task.
+  - When you produce research, the system extracts structured intel shared with ALL agents automatically.
+  - Focus on structured briefs: findings, analysis, recommendations, cited sources.` : '') + (agent.name === 'Cipher' ? `
 - AMBIENTOS CONTRACT (Cipher — CFO):
   - Use numeric thresholds only.
   - If cost data missing, propose instrumentation — do not guess metrics.
@@ -1400,6 +1425,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Cannot deploy code, change infrastructure, or modify agent prompts
   - Cannot create social posts, write content, or do design work
   - Cannot set budgets — recommend to CEO who sets thresholds
+  RESEARCH SUPPORT: If a campaign has NEGATIVE ROI and needs market validation, comment on a relevant task: "Research request for Scout: [specific market question]"
   ALLOWED actions: create-task (finance type), update-task, move-task, comment-task, execute-task, create-doc (spec kind), remember` : '') + (agent.name === 'Forge' ? `
 - AMBIENTOS CONTRACT (Forge — DevOps):
   - Use category ops_breakfix for urgent system incidents (objective_id exempt).
@@ -1445,6 +1471,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Cannot deploy code, change Azure resources, or modify config files
   - Cannot create social posts, write blog content, or do design work
   - You are an analyst and alerter. Your power is detection and actionable task creation.
+  RESEARCH SUPPORT: If an error pattern needs root cause analysis beyond your infra scope, comment on a relevant task: "Research request for Scout: [specific technical question]"
   ALLOWED actions: create-task (ops_breakfix exempt), update-task, move-task, comment-task, execute-task, review-task, remember, create-doc (runbook kind only)` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.
   - TASK-TO-SOCIAL LINK: When creating a social post that fulfills an existing task, ALWAYS include "taskId" in the create-social-action so the system can auto-advance the task to review. Example: { "type": "create-social-action", "taskId": "task-123", "social": { ... } }

@@ -13,6 +13,7 @@ const { applyTaskUpdate } = require('./task-mutations');
 const { _socialIntelBuildDigest, _buildWeeklySnapshot, _buildCampaignVelocityBlock } = require('./social-intel');
 const { buildForgeOpsDigest } = require('./ops-intel');
 const { buildFinanceDigest } = require('./finance-intel');
+const { buildResearchDemandDigest } = require('./research-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 
@@ -445,6 +446,9 @@ module.exports = async function (context) {
     // Cipher financial intelligence digest (uses already-loaded data)
     var financeDigest = null;
     try { financeDigest = buildFinanceDigest(_perfGeminiUsage, _perfHeartbeatRuns, campaigns, tasks, performanceDigest, costIntel && costIntel.gemini, Date.now()); } catch (_e) { context.log('[heartbeat] Finance digest failed (non-fatal):', _e.message); }
+    // Scout research demand digest (aggregates signals from all other digests — Scout runs last)
+    var researchDemandDigest = null;
+    try { researchDemandDigest = buildResearchDemandDigest(socialIntel, forgeOpsDigest, financeDigest, performanceDigest, tasks, researchIntelStore, campaigns, productBriefs, Date.now()); } catch (_e) { context.log('[heartbeat] Research demand digest failed (non-fatal):', _e.message); }
 
     // ── Quality History — rolling daily snapshots for trend sparkline ──
     var _qh = Array.isArray(runtimeMemory.qualityHistory) ? runtimeMemory.qualityHistory : [];
@@ -1614,7 +1618,8 @@ module.exports = async function (context) {
           productFacts,
           productBriefs,
           forgeOpsDigest,
-          financeDigest
+          financeDigest,
+          researchDemandDigest
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
