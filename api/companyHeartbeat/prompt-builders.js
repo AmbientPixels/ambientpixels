@@ -6,6 +6,7 @@ const path = require("path");
 const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
 const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
+const { _buildFinancePromptBlock } = require('./finance-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
 
 // ── Prompt Coverage Guard ──
@@ -71,7 +72,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -695,41 +696,19 @@ Where relevant to your content tasks, weave in references to these trends to inc
     workspaceSection = '\n\nCEO NOTES (pinned context from the CEO — factor into your decisions):\n' + wsParts.join('\n');
   }
 
-  // Cost intelligence — real spend data for Cipher (CFO)
+  // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
-  if (costIntel && agent.name === 'Cipher') {
-    const g = costIntel.gemini;
-    if (g && g.totalCalls > 0) {
-      const topCallers = Object.entries(g.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5);
-      const topAgents = Object.entries(g.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5);
-      const dayEntries = Object.entries(g.byDay || {}).sort((a, b) => a[0].localeCompare(b[0]));
-      const recentDays = dayEntries.slice(-7);
-      const avgDailyCost = g.totalCost / Math.max(dayEntries.length, 1);
-
-      costSection = `\n\n💰 COST INTELLIGENCE (REAL DATA — 30-day window):
-Gemini API — Total: $${g.totalCost.toFixed(4)} | Calls: ${g.totalCalls} | Tokens: ${g.totalTokens.toLocaleString()}
-Avg daily spend: $${avgDailyCost.toFixed(4)}/day | Projected monthly: $${(avgDailyCost * 30).toFixed(2)}
-
-By Service (top spenders):
-${topCallers.map(([name, d]) => '- ' + name + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(none)'}
-
-By Agent (who is spending):
-${topAgents.map(([name, d]) => '- ' + name + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(none)'}
-
-Daily Trend (last 7 days):
-${recentDays.map(([day, d]) => '- ' + day + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(no data)'}
-
-These are REAL costs hitting the Azure subscription. Use this data in your CFO analyses, budget reports, and cost recommendations. Flag anomalies, suggest optimizations, and track burn rate against any budget thresholds.`;
+  if (agent.name === 'Cipher') {
+    costSection = _buildFinancePromptBlock(agent, financeDigest);
+    // Fallback: if finance digest failed but raw costIntel exists, show minimal summary
+    if (!costSection && costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0) {
+      var _g = costIntel.gemini;
+      costSection = '\n\nCOST INTELLIGENCE (fallback — full dashboard unavailable):\nGemini total: $' + _g.totalCost.toFixed(2) + ' | Calls: ' + _g.totalCalls + ' | Avg: $' + (_g.totalCost / Math.max(Object.keys(_g.byDay || {}).length, 1)).toFixed(2) + '/day';
     }
-    if (costIntel.productUsage) {
-      const pu = costIntel.productUsage;
-      costSection += `\n\n📊 PRODUCT USAGE INTEL (REAL DATA):
-Pixel Agents — Total runs: ${pu.pixelAgents.totalRuns}
-AmbientScore — Total scans: ${pu.ambientScore.totalScans} | Last 7d: ${pu.ambientScore.scans7d} (${pu.ambientScore.paid7d} paid)
-CardForge — Page views (7d): ${pu.cardForge.pageViews7d}
-StoryForge — Page views (7d): ${pu.storyForge.pageViews7d}
-
-Use this alongside cost data for ROI analysis. Products with high usage and low cost are efficient. Zero-usage products may need marketing investment or sunset evaluation.`;
+    // Product usage (always append if available)
+    if (costIntel && costIntel.productUsage) {
+      var pu = costIntel.productUsage;
+      costSection += '\n\nPRODUCT USAGE (7d):\n- Pixel Agents: ' + pu.pixelAgents.totalRuns + ' runs | AmbientScore: ' + pu.ambientScore.scans7d + ' scans (' + pu.ambientScore.paid7d + ' paid) | CardForge: ' + pu.cardForge.pageViews7d + ' views | StoryForge: ' + pu.storyForge.pageViews7d + ' views';
     }
   }
 
@@ -1384,7 +1363,44 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Use numeric thresholds only.
   - If cost data missing, propose instrumentation — do not guess metrics.
   - Use tags/classification fields instead of title edits.
-  - Never modify task titles or descriptions.` : '') + (agent.name === 'Forge' ? `
+  - Never modify task titles or descriptions.
+- STRATEGIC CFO (Cipher):
+  You OWN financial health, cost efficiency, and budget governance. You don't just report costs — you analyze, optimize, and enforce.
+  EVERY HEARTBEAT, execute this decision loop:
+  1. AUDIT — Read your FINANCIAL INTELLIGENCE DASHBOARD:
+     - BUDGET STATUS: Are we under or over thresholds ($0.50/day, $15/month)?
+     - AGENT EFFICIENCY: Which agents have highest cost-per-action? Highest waste rate (blocked actions)?
+     - CAMPAIGN ROI: Are campaigns generating engagement proportional to cost?
+     - COST TREND: Is spending rising, falling, or flat week-over-week?
+  2. ANALYZE — Classify signals:
+     - RED (budget breach): daily >1.5x budget ($0.75+), waste >50%, weekly trend >30% increase
+     - YELLOW (concern): daily >1.2x budget, waste >30%, negative campaign ROI
+     - GREEN: efficient — note observations only
+  3. OPTIMIZE — Take action (prioritized):
+     a. RED budget breach: Create finance task recommending specific cuts (which agent, which cadence)
+     b. RED waste rate: Comment on the wasteful agent's tasks flagging the blocked-action pattern
+     c. YELLOW cost trend: Create cost-optimization task with specific data-backed recommendations
+     d. Campaign ROI negative: Recommend pausing or restructuring campaign (comment on campaign tasks)
+     e. Agent repeatedly blocked: Flag to Nova — agent may need prompt optimization or task reassignment
+     f. Proactive: Identify cost-saving opportunities (consolidate tasks, reduce heartbeat agents' prompt size)
+  4. REPORT — Weekly financial summary:
+     - Every 7 days, create a spec doc (create-doc, kind: spec) titled "Weekly Financial Report — [date]"
+     - Include: budget status, agent efficiency table, campaign ROI, cost trends, recommendations
+     - Check EXISTING DOCUMENTS before creating — if report for current week exists, comment to update instead
+  FINANCIAL MEMORY:
+  - Save MEANINGFUL insights: "Echo cost-per-post dropped 20% after prompt optimization" or "Campaign X cost $2.40 for 12 engagement — poor ROI"
+  - Do NOT save generic facts like "spend was $0.49 today". That data is in the dashboard.
+  - Reference past insights when similar patterns recur.
+  CROSS-AGENT COMMUNICATION:
+  - When an agent's cost pattern is wasteful, comment on their assigned tasks with specific data
+  - When budget concerns affect a campaign, comment on tasks within that campaign
+  - Flag cost anomalies to Nova via comment on Nova's highest-priority task
+  - Forge handles operational cost incidents (spikes). You handle strategic cost analysis (efficiency, ROI, budget).
+  WHAT YOU CANNOT DO:
+  - Cannot deploy code, change infrastructure, or modify agent prompts
+  - Cannot create social posts, write content, or do design work
+  - Cannot set budgets — recommend to CEO who sets thresholds
+  ALLOWED actions: create-task (finance type), update-task, move-task, comment-task, execute-task, create-doc (spec kind), remember` : '') + (agent.name === 'Forge' ? `
 - AMBIENTOS CONTRACT (Forge — DevOps):
   - Use category ops_breakfix for urgent system incidents (objective_id exempt).
   - Otherwise require objective_id before task creation.

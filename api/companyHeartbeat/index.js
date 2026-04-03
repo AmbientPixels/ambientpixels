@@ -12,6 +12,7 @@ const { _fetchSiteIntel } = require('./site-intelligence');
 const { applyTaskUpdate } = require('./task-mutations');
 const { _socialIntelBuildDigest, _buildWeeklySnapshot, _buildCampaignVelocityBlock } = require('./social-intel');
 const { buildForgeOpsDigest } = require('./ops-intel');
+const { buildFinanceDigest } = require('./finance-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 
@@ -441,6 +442,9 @@ module.exports = async function (context) {
     // Forge ops intelligence digest (uses already-loaded data — no new storage calls)
     var forgeOpsDigest = null;
     try { forgeOpsDigest = buildForgeOpsDigest(_perfHeartbeatRuns, _perfGeminiUsage, _perfGovernanceLog, siteIntel, Date.now()); } catch (_e) { context.log('[heartbeat] Forge ops digest failed (non-fatal):', _e.message); }
+    // Cipher financial intelligence digest (uses already-loaded data)
+    var financeDigest = null;
+    try { financeDigest = buildFinanceDigest(_perfGeminiUsage, _perfHeartbeatRuns, campaigns, tasks, performanceDigest, costIntel && costIntel.gemini, Date.now()); } catch (_e) { context.log('[heartbeat] Finance digest failed (non-fatal):', _e.message); }
 
     // ── Quality History — rolling daily snapshots for trend sparkline ──
     var _qh = Array.isArray(runtimeMemory.qualityHistory) ? runtimeMemory.qualityHistory : [];
@@ -1609,7 +1613,8 @@ module.exports = async function (context) {
           performanceDigest, agentExperiments,
           productFacts,
           productBriefs,
-          forgeOpsDigest
+          forgeOpsDigest,
+          financeDigest
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
