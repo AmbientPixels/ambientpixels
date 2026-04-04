@@ -339,48 +339,63 @@ async function loadCompanyContext(agentId) {
 
 // Parse structured JSON response from model (Gemini or Claude)
 function parseActionResponse(text) {
-  // Try pure JSON
+  // Strategy 1: pure JSON parse
   try {
-    const parsed = JSON.parse(text);
+    var parsed = JSON.parse(text);
     if (parsed.reply !== undefined) {
       return { reply: parsed.reply || '', actions: Array.isArray(parsed.actions) ? parsed.actions : [] };
     }
   } catch (e) { /* not pure JSON */ }
 
-  // Try JSON in code fence
-  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  // Strategy 2: JSON in code fence
+  var fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fenceMatch) {
     try {
-      const parsed = JSON.parse(fenceMatch[1]);
-      const before = text.substring(0, text.indexOf('```')).trim();
-      return { reply: parsed.reply || before || '', actions: Array.isArray(parsed.actions) ? parsed.actions : [] };
+      var parsed2 = JSON.parse(fenceMatch[1]);
+      return { reply: parsed2.reply || '', actions: Array.isArray(parsed2.actions) ? parsed2.actions : [] };
     } catch (e) { /* parse failed */ }
   }
 
-  // Try to find {"reply":...} object in text — greedy match
-  const rawMatch = text.match(/\{[\s\S]*"reply"\s*:[\s\S]*\}/);
-  if (rawMatch) {
-    try {
-      const parsed = JSON.parse(rawMatch[0]);
-      return { reply: parsed.reply || '', actions: Array.isArray(parsed.actions) ? parsed.actions : [] };
-    } catch (e) {
-      // Claude often puts real newlines in JSON strings — try fixing them
-      try {
-        var fixed = rawMatch[0].replace(/(?<=:[ ]*"[^"]*)\n/g, '\\n');
-        const parsed2 = JSON.parse(fixed);
-        return { reply: (parsed2.reply || '').replace(/\\n/g, '\n'), actions: Array.isArray(parsed2.actions) ? parsed2.actions : [] };
-      } catch (e2) { /* still failed */ }
-    }
-  }
+  // Strategy 3: Structural extraction — find "reply":" and ", "actions" as anchors
+  // This handles Claude's multiline strings with any content (tables, pipes, quotes, etc.)
+  var replyStart = text.indexOf('"reply"');
+  var actionsStart = text.lastIndexOf('"actions"');
+  if (replyStart !== -1 && actionsStart !== -1 && actionsStart > replyStart) {
+    // Extract reply: find opening quote after "reply":, then find the closing quote before "actions"
+    var afterReplyKey = text.indexOf(':', replyStart);
+    if (afterReplyKey !== -1) {
+      var openQuote = text.indexOf('"', afterReplyKey + 1);
+      if (openQuote !== -1) {
+        // Find the closing quote — it's the last " before , "actions"
+        var beforeActions = text.substring(0, actionsStart);
+        var closeQuote = beforeActions.lastIndexOf('"');
+        if (closeQuote > openQuote) {
+          var replyText = text.substring(openQuote + 1, closeQuote);
+          // Unescape
+          replyText = replyText.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 
-  // Last resort: try to extract reply field manually with regex
-  var replyMatch = text.match(/"reply"\s*:\s*"([\s\S]*?)"\s*,\s*"actions"/);
-  if (replyMatch) {
-    var extractedReply = replyMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
-    var actionsMatch = text.match(/"actions"\s*:\s*(\[[\s\S]*?\])\s*\}/);
-    var actions = [];
-    if (actionsMatch) { try { actions = JSON.parse(actionsMatch[1]); } catch (_) {} }
-    return { reply: extractedReply, actions: Array.isArray(actions) ? actions : [] };
+          // Extract actions array
+          var actions = [];
+          var actionsColon = text.indexOf(':', actionsStart);
+          if (actionsColon !== -1) {
+            var bracketStart = text.indexOf('[', actionsColon);
+            if (bracketStart !== -1) {
+              // Find matching closing bracket
+              var depth = 0;
+              var bracketEnd = -1;
+              for (var i = bracketStart; i < text.length; i++) {
+                if (text[i] === '[') depth++;
+                else if (text[i] === ']') { depth--; if (depth === 0) { bracketEnd = i; break; } }
+              }
+              if (bracketEnd !== -1) {
+                try { actions = JSON.parse(text.substring(bracketStart, bracketEnd + 1)); } catch (_) {}
+              }
+            }
+          }
+          return { reply: replyText, actions: Array.isArray(actions) ? actions : [] };
+        }
+      }
+    }
   }
 
   // Fallback: entire text is the reply
