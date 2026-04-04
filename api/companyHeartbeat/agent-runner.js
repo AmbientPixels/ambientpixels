@@ -908,9 +908,13 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // SERVER-SIDE GUARD: agent-created tasks must link to a goal or campaign
+      // Exempt operational categories (finance, ops, governance, maintenance) — these are reactive/proactive
+      // tasks that don't map to a strategic objective or campaign
+      const _taskCategory = (action.task.category || action.task.taskType || '').toLowerCase();
+      const _operationalExempt = ['finance', 'ops', 'ops_breakfix', 'governance', 'maintenance'].indexOf(_taskCategory) !== -1;
       const _hasObjective = _taskObjectiveId || (action.task.source && action.task.source.type === 'ceo');
       const _hasCampaign = _taskCampaignId;
-      if (!_hasObjective && !_hasCampaign) {
+      if (!_hasObjective && !_hasCampaign && !_operationalExempt) {
         result.guardrails.orphanBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or campaign_id');
         continue;
