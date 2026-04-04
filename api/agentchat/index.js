@@ -664,6 +664,81 @@ async function executeChatActions(context, actions, agentId) {
           break;
         }
 
+        case 'pause-campaign': {
+          var pcCamps = (await storage.getState('campaigns')) || [];
+          var pcTarget = pcCamps.find(function (c) { return c.id === action.campaignId && c.status === 'active'; });
+          if (!pcTarget) { results.push({ type: 'pause-campaign', success: false, summary: 'Campaign not found or not active: ' + action.campaignId }); break; }
+          pcTarget.status = 'paused'; pcTarget.pausedAt = new Date().toISOString(); pcTarget.pausedBy = agentId; pcTarget.pauseReason = (action.reason || '').substring(0, 200);
+          await storage.setState('campaigns', pcCamps);
+          results.push({ type: 'pause-campaign', success: true, summary: 'Paused: ' + pcTarget.title });
+          break;
+        }
+        case 'resume-campaign': {
+          var rcCamps = (await storage.getState('campaigns')) || [];
+          var rcTarget = rcCamps.find(function (c) { return c.id === action.campaignId && c.status === 'paused'; });
+          if (!rcTarget) { results.push({ type: 'resume-campaign', success: false, summary: 'Campaign not found or not paused: ' + action.campaignId }); break; }
+          rcTarget.status = 'active'; rcTarget.resumedAt = new Date().toISOString();
+          await storage.setState('campaigns', rcCamps);
+          results.push({ type: 'resume-campaign', success: true, summary: 'Resumed: ' + rcTarget.title });
+          break;
+        }
+        case 'complete-campaign': {
+          var ccCamps = (await storage.getState('campaigns')) || [];
+          var ccTarget = ccCamps.find(function (c) { return c.id === action.campaignId; });
+          if (!ccTarget) { results.push({ type: 'complete-campaign', success: false, summary: 'Campaign not found: ' + action.campaignId }); break; }
+          ccTarget.status = 'completed'; ccTarget.completedAt = new Date().toISOString();
+          await storage.setState('campaigns', ccCamps);
+          results.push({ type: 'complete-campaign', success: true, summary: 'Completed: ' + ccTarget.title });
+          break;
+        }
+        case 'archive-objective': {
+          var aoObjs = (await storage.getState('objectives')) || [];
+          var aoTarget = aoObjs.find(function (o) { return o.id === action.objectiveId; });
+          if (!aoTarget) { results.push({ type: 'archive-objective', success: false, summary: 'Objective not found: ' + action.objectiveId }); break; }
+          aoTarget.status = 'archived'; aoTarget.archivedAt = new Date().toISOString();
+          await storage.setState('objectives', aoObjs);
+          results.push({ type: 'archive-objective', success: true, summary: 'Archived: ' + aoTarget.title });
+          break;
+        }
+        case 'propose-campaign': {
+          var propCamp = action.campaign || {};
+          var propName = (propCamp.name || '').trim();
+          if (!propName) { results.push({ type: 'propose-campaign', success: false, summary: 'Campaign name required' }); break; }
+          var aq = (await storage.getState('approvalQueue')) || [];
+          aq.push({
+            id: 'cprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            type: 'campaign_proposal', status: 'pending', proposedBy: agentId,
+            name: propName, description: (propCamp.description || '').substring(0, 1000),
+            rationale: (propCamp.rationale || '').substring(0, 500),
+            platforms: Array.isArray(propCamp.platforms) ? propCamp.platforms : [],
+            frequency: propCamp.frequency || 2, cadence: propCamp.cadence || 'weekly',
+            duration: (propCamp.duration || '').substring(0, 50),
+            product: (propCamp.product || '').substring(0, 50),
+            createdAt: new Date().toISOString()
+          });
+          await storage.setState('approvalQueue', aq);
+          results.push({ type: 'propose-campaign', success: true, summary: 'Proposed campaign: ' + propName + ' (pending CEO approval)' });
+          break;
+        }
+        case 'propose-objective': {
+          var propObj = action.objective || {};
+          var propTitle = (propObj.title || '').trim();
+          if (!propTitle) { results.push({ type: 'propose-objective', success: false, summary: 'Objective title required' }); break; }
+          var oaq = (await storage.getState('approvalQueue')) || [];
+          oaq.push({
+            id: 'oprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            type: 'objective_proposal', status: 'pending', proposedBy: agentId,
+            title: propTitle, description: (propObj.description || '').substring(0, 1000),
+            rationale: (propObj.rationale || '').substring(0, 500),
+            successCriteria: (propObj.successCriteria || '').substring(0, 300),
+            timeHorizon: (propObj.timeHorizon || '').substring(0, 50),
+            createdAt: new Date().toISOString()
+          });
+          await storage.setState('approvalQueue', oaq);
+          results.push({ type: 'propose-objective', success: true, summary: 'Proposed objective: ' + propTitle + ' (pending CEO approval)' });
+          break;
+        }
+
         default:
           results.push({ type: action.type, success: false, summary: 'Unknown action type: ' + action.type });
       }
