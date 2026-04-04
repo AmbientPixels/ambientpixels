@@ -143,7 +143,7 @@ function renderCard(agent) {
         <div class="pa-card-footer">
           <span class="pa-card-usage">${runsLabel}</span>
           <span class="pa-card-action">
-            <i class="fas fa-play"></i> Hire Agent
+            <i class="fas fa-play"></i> Deploy Agent
           </span>
         </div>
       </div>

@@ -6,131 +6,235 @@
   <meta name="description" content="Pixel Agents — hire a specialized AI agent to analyze, create, or validate. Powered by AmbientPixels." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Run Agent — Pixel Agents</title>
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Shared site CSS -->
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/hero-base.css" />
-  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents.css" />
+
+  <!-- Pixel Agents v2 design system + layout -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+
+  <!-- Run page styles (old + v2 overrides) -->
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-run.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-run-v2.css" />
 </head>
-<body data-theme="dark">
+<body class="pa-shell" data-theme="dark">
 
-  <!-- Minimal Top Bar -->
-  <header class="pa-topbar">
-    <div class="pa-topbar-brand">
-      <a href="/pixel-agents/" class="pa-topbar-logo"><i class="fas fa-robot"></i> Pixel Agents</a>
-      <a href="https://ambientpixels.ai" class="pa-topbar-byline">by Ambient Pixels</a>
+  <!-- ═══════════════════════════════════
+       SIDEBAR (Desktop)
+       ═══════════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-sidebar-logo">
+      <span class="pa-logo-accent">Pixel</span><br>Agents
     </div>
+
+    <nav class="pa-sidebar-nav">
+      <a href="/pixel-agents/" data-nav="explore">
+        <i class="fas fa-compass"></i><span>Explore</span>
+      </a>
+      <a href="/pixel-agents/#agent-grid" data-nav="agents">
+        <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="#" aria-disabled="true" data-nav="vault">
+        <i class="fas fa-vault"></i><span>Vault</span>
+        <span class="pa-coming-soon">Soon</span>
+      </a>
+      <a href="#" aria-disabled="true" data-nav="activity">
+        <i class="fas fa-chart-line"></i><span>Activity</span>
+        <span class="pa-coming-soon">Soon</span>
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-footer">
+      <a href="/agent-forge/" class="pa-sidebar-forge">
+        <i class="fas fa-hammer"></i><span>Agent Forge</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════
+       TOP BAR
+       ═══════════════════════════════════ -->
+  <header class="pa-topbar-v2">
+    <span class="pa-wordmark">Pixel Agents</span>
     <div class="pa-topbar-actions">
-      <a href="/pixel-agents/" class="pa-topbar-link"><i class="fas fa-arrow-left"></i> All Agents</a>
-      <button id="pa-theme-toggle" class="pa-topbar-icon" title="Toggle theme"><i class="fas fa-moon"></i></button>
-      <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/" class="pa-topbar-login"><i class="fas fa-sign-in-alt"></i> Login</a>
-      <span id="pa-user-status" class="pa-topbar-user" style="display:none;">
-        <span class="pa-user-dot"></span>
-        <span id="pa-user-name"></span>
-        <a id="pa-logout-btn" href="#" class="pa-topbar-logout">Logout</a>
-      </span>
-    </div>
-  </header>
-
-  <!-- Hero (dynamic — filled by JS) -->
-  <section class="hero-base" data-hero="control">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <p class="pa-run-breadcrumb"><a href="/pixel-agents/">Pixel Agents</a></p>
-      <h1 id="pa-agent-name">Loading Agent...</h1>
-      <h2 id="pa-agent-tagline"></h2>
-    </div>
-  </section>
-
-  <main class="pa-run-shell">
-
-    <!-- Agent Identity Card -->
-    <div class="pa-run-identity" id="pa-identity">
-      <div class="pa-run-identity-icon" id="pa-identity-icon">
-        <i class="fas fa-robot"></i>
+      <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="pa-btn-icon" title="Notifications">
+        <i class="fas fa-bell"></i>
+      </button>
+      <div class="pa-avatar" id="pa-avatar" title="Account">
+        <i class="fas fa-user"></i>
       </div>
-      <div class="pa-run-identity-info">
-        <span class="pa-run-identity-tier" id="pa-identity-tier"></span>
-        <ul class="pa-run-identity-caps" id="pa-identity-caps"></ul>
-      </div>
-    </div>
-
-    <!-- Input Section -->
-    <section class="pa-run-input-section" id="pa-input-section">
-      <label class="pa-run-label" id="pa-input-label" for="pa-input">Enter your input</label>
-      <div class="pa-run-input-wrap">
-        <!-- URL input (default) -->
-        <input type="url" id="pa-input-url" class="pa-run-input" placeholder="https://example.com" />
-        <!-- Textarea input (hidden by default) -->
-        <textarea id="pa-input-text" class="pa-run-input pa-run-textarea" placeholder="Paste your content here..." rows="6" style="display:none"></textarea>
-      </div>
-      <div class="pa-run-actions">
-        <button class="pa-run-btn" id="pa-run-btn" onclick="runAgent()">
-          <i class="fas fa-play"></i> Hire Agent
-        </button>
-        <span class="pa-run-remaining" id="pa-remaining"></span>
-      </div>
-    </section>
-
-    <!-- Loading State -->
-    <section class="pa-run-loading" id="pa-loading" style="display:none">
-      <div class="pa-run-spinner"></div>
-      <p class="pa-run-loading-text" id="pa-loading-text">Analyzing...</p>
-    </section>
-
-    <!-- Error State -->
-    <section class="pa-run-error" id="pa-error" style="display:none">
-      <i class="fas fa-exclamation-triangle"></i>
-      <p id="pa-error-text"></p>
-      <button class="pa-run-btn pa-run-btn--secondary" onclick="resetRun()">Try Again</button>
-    </section>
-
-    <!-- Result Section -->
-    <section class="pa-run-result" id="pa-result" style="display:none">
-      <div class="pa-result-header">
-        <h2>Results</h2>
-        <div class="pa-result-actions">
-          <button class="pa-run-btn pa-run-btn--secondary" onclick="copyResult()">
-            <i class="fas fa-copy"></i> Copy
-          </button>
-          <button class="pa-run-btn pa-run-btn--secondary" onclick="shareResult()">
-            <i class="fas fa-share-alt"></i> Share
-          </button>
-          <button class="pa-run-btn pa-run-btn--secondary" onclick="resetRun()">
-            <i class="fas fa-redo"></i> Run Again
+      <div class="pa-avatar-menu" id="pa-avatar-menu">
+        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <div id="pa-user-status" style="display:none;">
+          <span style="padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--pa-text-muted);display:block;">
+            Signed in as <strong id="pa-user-name" style="color:var(--pa-text);"></strong>
+          </span>
+          <button id="pa-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
           </button>
         </div>
       </div>
-      <div class="pa-result-body" id="pa-result-body">
-        <!-- Rendered dynamically by JS -->
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════ -->
+  <main class="pa-main">
+
+    <!-- Agent Header (replaces old hero — populated by JS) -->
+    <div class="pa-run-header" id="pa-run-header">
+      <div class="pa-run-header-portrait" id="pa-run-portrait">
+        <!-- Populated by JS after agent loads -->
       </div>
-      <div class="pa-result-footer">
-        <span class="pa-result-powered">Powered by <a href="/">AmbientPixels</a></span>
-        <a href="/pixel-agents/" class="pa-result-browse">Browse All Agents &rarr;</a>
+      <div class="pa-run-header-info">
+        <p class="pa-run-breadcrumb"><a href="/pixel-agents/">Pixel Agents</a> <span class="pa-text-muted">/</span></p>
+        <h1 id="pa-agent-name">Loading Agent...</h1>
+        <h2 id="pa-agent-tagline"></h2>
       </div>
-    </section>
+    </div>
+
+    <!-- Run Shell (all existing IDs preserved for JS compatibility) -->
+    <div class="pa-run-shell">
+
+      <!-- Agent Identity Card -->
+      <div class="pa-run-identity" id="pa-identity">
+        <div class="pa-run-identity-icon" id="pa-identity-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="pa-run-identity-info">
+          <span class="pa-run-identity-tier" id="pa-identity-tier"></span>
+          <ul class="pa-run-identity-caps" id="pa-identity-caps"></ul>
+        </div>
+      </div>
+
+      <!-- Input Section -->
+      <section class="pa-run-input-section" id="pa-input-section">
+        <label class="pa-run-label" id="pa-input-label" for="pa-input">Enter your input</label>
+        <div class="pa-run-input-wrap">
+          <input type="url" id="pa-input-url" class="pa-run-input" placeholder="https://example.com" />
+          <textarea id="pa-input-text" class="pa-run-input pa-run-textarea" placeholder="Paste your content here..." rows="6" style="display:none"></textarea>
+        </div>
+        <div class="pa-run-actions">
+          <button class="pa-run-btn" id="pa-run-btn" onclick="runAgent()">
+            <i class="fas fa-play"></i> Deploy Agent
+          </button>
+          <span class="pa-run-remaining" id="pa-remaining"></span>
+        </div>
+      </section>
+
+      <!-- Loading State -->
+      <section class="pa-run-loading" id="pa-loading" style="display:none">
+        <div class="pa-run-spinner"></div>
+        <p class="pa-run-loading-text" id="pa-loading-text">Analyzing...</p>
+      </section>
+
+      <!-- Error State -->
+      <section class="pa-run-error" id="pa-error" style="display:none">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p id="pa-error-text"></p>
+        <button class="pa-run-btn pa-run-btn--secondary" onclick="resetRun()">Try Again</button>
+      </section>
+
+      <!-- Result Section -->
+      <section class="pa-run-result" id="pa-result" style="display:none">
+        <div class="pa-result-header">
+          <h2>Results</h2>
+          <div class="pa-result-actions">
+            <button class="pa-run-btn pa-run-btn--secondary" onclick="copyResult()">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+            <button class="pa-run-btn pa-run-btn--secondary" onclick="shareResult()">
+              <i class="fas fa-share-alt"></i> Share
+            </button>
+            <button class="pa-run-btn pa-run-btn--secondary" onclick="resetRun()">
+              <i class="fas fa-redo"></i> Run Again
+            </button>
+          </div>
+        </div>
+        <div class="pa-result-body" id="pa-result-body"></div>
+        <div class="pa-result-footer">
+          <span class="pa-result-powered">Powered by <a href="/">AmbientPixels</a></span>
+          <a href="/pixel-agents/" class="pa-result-browse">Browse All Agents &rarr;</a>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="pa-footer-v2">
+      <span>&copy; 2026 Pixel Agents</span>
+      <div class="pa-footer-links">
+        <a href="/pixel-agents/">All Agents</a>
+        <a href="/agent-forge/">Agent Forge</a>
+      </div>
+    </footer>
 
   </main>
 
-  <!-- Minimal Footer -->
-  <footer class="pa-footer">
-    <span>&copy; 2026 <a href="https://ambientpixels.ai">Ambient Pixels</a></span>
-    <span class="pa-footer-sep">&middot;</span>
-    <a href="/pixel-agents/">All Agents</a>
-    <span class="pa-footer-sep">&middot;</span>
-    <a href="/agent-forge/">Agent Forge</a>
-  </footer>
+  <!-- ═══════════════════════════════════
+       BOTTOM NAV (Mobile)
+       ═══════════════════════════════════ -->
+  <nav class="pa-bottom-nav">
+    <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
+    <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+  </nav>
 
+  <!-- ═══════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════ -->
   <script src="/pixel-agents/js/pixel-agent-run.js"></script>
   <script>
-  // Inline auth
+  // Populate portrait after agent loads
   (function() {
+    var origRender = window.renderAgentUI;
+    if (typeof origRender === 'function') {
+      window.renderAgentUI = function(agent) {
+        origRender(agent);
+        // Add portrait to header
+        var portrait = document.getElementById('pa-run-portrait');
+        if (portrait && agent) {
+          portrait.innerHTML =
+            '<img src="/pixel-agents/img/' + agent.id + '.png" alt="' + (agent.name||'') + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+            '<div class="pa-portrait-fallback" style="display:none"><i class="' + (agent.icon||'fas fa-robot') + '"></i></div>';
+        }
+      };
+    }
+  })();
+
+  // Auth + theme toggle
+  (function() {
+    // Avatar menu toggle
+    var avatar = document.getElementById('pa-avatar');
+    var menu = document.getElementById('pa-avatar-menu');
+    if (avatar && menu) {
+      avatar.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', function() {
+        menu.classList.remove('open');
+      });
+    }
+
+    // Auth check
     var cached = sessionStorage.getItem('pa_auth');
-    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) { showUser(d.name); isLoggedIn = true; } } catch {} }
+    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) { showUser(d.name); isLoggedIn = true; } } catch(e) {} }
 
     fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
       if (d && d.clientPrincipal) {
@@ -142,30 +246,40 @@
     }).catch(function() {});
 
     function showUser(name) {
-      document.getElementById('pa-login-btn').style.display = 'none';
-      document.getElementById('pa-user-status').style.display = '';
-      document.getElementById('pa-user-name').textContent = name;
+      var loginBtn = document.getElementById('pa-login-btn');
+      var userStatus = document.getElementById('pa-user-status');
+      var userName = document.getElementById('pa-user-name');
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (userStatus) userStatus.style.display = '';
+      if (userName) userName.textContent = name;
     }
 
-    document.getElementById('pa-logout-btn').addEventListener('click', function(e) {
-      e.preventDefault();
-      sessionStorage.removeItem('pa_auth');
-      window.location.href = '/.auth/logout?post_logout_redirect_uri=/pixel-agents/';
-    });
+    var logoutBtn = document.getElementById('pa-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sessionStorage.removeItem('pa_auth');
+        window.location.href = '/.auth/logout?post_logout_redirect_uri=/pixel-agents/';
+      });
+    }
 
+    // Theme toggle
     var savedTheme = localStorage.getItem('preferred-theme');
     if (savedTheme) {
       document.body.setAttribute('data-theme', savedTheme);
       var icon = document.querySelector('#pa-theme-toggle i');
       if (icon) icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
     }
-    document.getElementById('pa-theme-toggle').addEventListener('click', function() {
-      var isDark = document.body.getAttribute('data-theme') === 'dark';
-      var next = isDark ? 'light' : 'dark';
-      document.body.setAttribute('data-theme', next);
-      localStorage.setItem('preferred-theme', next);
-      this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
-    });
+    var themeBtn = document.getElementById('pa-theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        var isDark = document.body.getAttribute('data-theme') === 'dark';
+        var next = isDark ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', next);
+        localStorage.setItem('preferred-theme', next);
+        this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+      });
+    }
   })();
   </script>
 </body>

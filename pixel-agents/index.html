@@ -3,100 +3,260 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Pixel Agents — a library of specialized AI agents you can hire for one-shot tasks. Analyze, create, validate, and more." />
+  <meta name="description" content="Pixel Agents — deploy specialized AI agents for any task. Analyze, create, validate, and more." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Pixel Agents — AI Agents for Hire</title>
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Shared site CSS -->
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/hero-base.css" />
-  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-card.css" />
-  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents.css" />
-</head>
-<body data-theme="dark">
 
-  <!-- Minimal Top Bar -->
-  <header class="pa-topbar">
-    <div class="pa-topbar-brand">
-      <a href="/pixel-agents/" class="pa-topbar-logo"><i class="fas fa-robot"></i> Pixel Agents</a>
-      <a href="https://ambientpixels.ai" class="pa-topbar-byline">by Ambient Pixels</a>
+  <!-- Pixel Agents v2 design system -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+</head>
+<body class="pa-shell" data-theme="dark">
+
+  <!-- ═══════════════════════════════════
+       SIDEBAR (Desktop)
+       ═══════════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-sidebar-logo">
+      <span class="pa-logo-accent">Pixel</span><br>Agents
     </div>
+
+    <nav class="pa-sidebar-nav">
+      <a href="/pixel-agents/" class="active" data-nav="explore">
+        <i class="fas fa-compass"></i><span>Explore</span>
+      </a>
+      <a href="#agent-grid" data-nav="agents">
+        <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="#" aria-disabled="true" data-nav="vault">
+        <i class="fas fa-vault"></i><span>Vault</span>
+        <span class="pa-coming-soon">Soon</span>
+      </a>
+      <a href="#" aria-disabled="true" data-nav="activity">
+        <i class="fas fa-chart-line"></i><span>Activity</span>
+        <span class="pa-coming-soon">Soon</span>
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-footer">
+      <a href="/agent-forge/" class="pa-sidebar-forge">
+        <i class="fas fa-hammer"></i><span>Agent Forge</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════
+       TOP BAR
+       ═══════════════════════════════════ -->
+  <header class="pa-topbar-v2">
+    <span class="pa-wordmark">Pixel Agents</span>
     <div class="pa-topbar-actions">
-      <a href="/agent-forge/" class="pa-topbar-link"><i class="fas fa-hammer"></i> Build</a>
-      <button id="pa-theme-toggle" class="pa-topbar-icon" title="Toggle theme"><i class="fas fa-moon"></i></button>
-      <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/" class="pa-topbar-login"><i class="fas fa-sign-in-alt"></i> Login</a>
-      <span id="pa-user-status" class="pa-topbar-user" style="display:none;">
-        <span class="pa-user-dot"></span>
-        <span id="pa-user-name"></span>
-        <a id="pa-logout-btn" href="#" class="pa-topbar-logout">Logout</a>
-      </span>
+      <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="pa-btn-icon" title="Notifications">
+        <i class="fas fa-bell"></i>
+      </button>
+      <div class="pa-avatar" id="pa-avatar" title="Account">
+        <i class="fas fa-user"></i>
+      </div>
+      <!-- Avatar dropdown menu -->
+      <div class="pa-avatar-menu" id="pa-avatar-menu">
+        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <div id="pa-user-status" style="display:none;">
+          <span style="padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--pa-text-muted);display:block;">
+            Signed in as <strong id="pa-user-name" style="color:var(--pa-text);"></strong>
+          </span>
+          <button id="pa-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <section class="hero-base" data-hero="infrastructure">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>Pixel Agents</h1>
-      <h2>Specialized AI Agents for Hire</h2>
-      <p>Pick an agent. Give it a task. Get results in seconds.</p>
-      <a href="/agent-forge/" class="pa-hero-cta"><i class="fas fa-hammer"></i> Build Your Own Agent</a>
-    </div>
-  </section>
+  <!-- ═══════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════ -->
+  <main class="pa-main">
 
-  <main class="pa-catalog-shell">
-
-    <!-- Filter Bar -->
-    <div class="pa-catalog-toolbar">
-      <div class="pa-catalog-filters" id="pa-filters">
-        <button class="pa-filter-btn active" data-category="all">All</button>
-        <button class="pa-filter-btn" data-category="audit">Audit</button>
-        <button class="pa-filter-btn" data-category="content">Content</button>
-        <button class="pa-filter-btn" data-category="strategy">Strategy</button>
-        <button class="pa-filter-btn" data-category="naming">Naming</button>
-        <button class="pa-filter-btn" data-category="pitch">Pitch</button>
-        <button class="pa-filter-btn" data-category="design">Design</button>
-        <button class="pa-filter-btn" data-category="lifestyle">Lifestyle</button>
-        <button class="pa-filter-btn" data-category="tools">Tools</button>
-        <button class="pa-filter-btn" data-category="career">Career</button>
-        <button class="pa-filter-btn" data-category="intel">Intel</button>
-        <button class="pa-filter-btn" data-category="gaming">Gaming</button>
-        <button class="pa-filter-btn" data-category="creative">Creative</button>
+    <!-- ── Hero ── -->
+    <section class="pa-hero-v2 pa-noise pa-scanlines">
+      <div class="pa-hero-content">
+        <div class="pa-hero-protocol">
+          <span>Protocol v2.4 :: Initialized</span>
+          <span class="pa-blink"></span>
+        </div>
+        <h1>The Future,<br>Agent-Side</h1>
+        <p class="pa-hero-sub">
+          Deploy bespoke digital entities designed for the cyber-frontier.
+          <strong>High-fidelity intelligence, luxury performance.</strong>
+        </p>
+        <a href="#agent-grid" class="pa-btn-primary" style="margin-top:0.5rem;">
+          Initialize <i class="fas fa-arrow-right"></i>
+        </a>
       </div>
-      <span class="pa-catalog-count" id="pa-count"></span>
-    </div>
+      <div class="pa-hero-right">
+        <div class="pa-hero-stat-box">
+          <i class="fas fa-robot pa-hero-stat-icon"></i>
+          <div>
+            <div class="pa-stat-value" id="pa-stat-agents">24</div>
+            <div class="pa-stat-label">Agents Online</div>
+          </div>
+        </div>
+        <div class="pa-hero-stat-box">
+          <i class="fas fa-play pa-hero-stat-icon"></i>
+          <div>
+            <div class="pa-stat-value" id="pa-stat-runs">0</div>
+            <div class="pa-stat-label">Total Deployments</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <!-- Agent Grid -->
-    <div class="pa-catalog-grid" id="pa-grid"></div>
+    <!-- ── Agent Spotlight ── -->
+    <section class="pa-spotlight" id="pa-spotlight">
+      <!-- Rendered by pixel-agents-ui.js -->
+    </section>
 
-    <!-- Empty state -->
-    <div class="pa-catalog-empty" id="pa-empty" style="display:none">
-      <i class="fas fa-robot"></i>
-      <p>No agents found in this category.</p>
-    </div>
+    <!-- ── Top Rated Carousel ── -->
+    <section class="pa-section">
+      <div class="pa-section-header">
+        <div>
+          <h2>Top Rated Agents</h2>
+          <p class="pa-section-sub">Most deployed entities this cycle across the Pixel network.</p>
+        </div>
+        <div class="pa-carousel-nav">
+          <button class="pa-btn-icon" id="pa-carousel-prev" title="Previous">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="pa-btn-icon" id="pa-carousel-next" title="Next">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="pa-carousel-wrap">
+        <div class="pa-carousel" id="pa-carousel">
+          <!-- Rendered by pixel-agents-ui.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Category Filters + Full Grid ── -->
+    <section class="pa-section" id="agent-grid">
+      <div class="pa-section-header">
+        <h2>All Agents</h2>
+      </div>
+      <div class="pa-filter-tabs" id="pa-filters">
+        <!-- Rendered by pixel-agents-ui.js -->
+      </div>
+      <span class="pa-grid-count" id="pa-count"></span>
+      <div class="pa-agent-grid" id="pa-grid">
+        <!-- Rendered by pixel-agents-ui.js -->
+      </div>
+      <div class="pa-empty" id="pa-empty" style="display:none">
+        <i class="fas fa-robot"></i>
+        <p>No agents found in this category.</p>
+      </div>
+    </section>
+
+    <!-- ── Build Your Own ── -->
+    <section class="pa-terminal-section">
+      <div class="pa-terminal-grid">
+        <div>
+          <h2>Build Your Own Agent</h2>
+          <p class="pa-terminal-sub">Create a custom AI agent with our visual builder. Drag components, write prompts, test live, and publish to the catalog.</p>
+          <div class="pa-terminal-features">
+            <div class="pa-terminal-feature">
+              <i class="fas fa-puzzle-piece pa-text-cyan"></i>
+              Drag-and-drop pipeline builder
+            </div>
+            <div class="pa-terminal-feature">
+              <i class="fas fa-flask pa-text-purple"></i>
+              Test your agent before publishing
+            </div>
+            <div class="pa-terminal-feature">
+              <i class="fas fa-users pa-text-pink"></i>
+              Share with the community
+            </div>
+          </div>
+          <a href="/agent-forge/" class="pa-btn-primary" style="margin-top:1.5rem;">
+            Open Agent Forge <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+        <div class="pa-terminal">
+          <div class="pa-terminal-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="pa-terminal-body">
+            <p><span class="pa-text-muted">$</span> pixel-agent forge --new</p>
+            <p><span class="pa-text-muted">&gt;</span> Choose a template: <span class="pa-text-cyan">Analyzer</span></p>
+            <p><span class="pa-text-muted">&gt;</span> Configuring identity... done</p>
+            <p><span class="pa-text-muted">&gt;</span> Writing system prompt... done</p>
+            <p><span class="pa-text-muted">&gt;</span> Running test... <span class="pa-text-cyan">passed</span></p>
+            <p><span class="pa-text-muted">&gt;</span> <span class="pa-text-purple">[Ready]</span> Submit for review? <span class="pa-terminal-cursor"></span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Footer ── -->
+    <footer class="pa-footer-v2">
+      <span>&copy; 2026 Pixel Agents</span>
+      <div class="pa-footer-links">
+        <a href="/agent-forge/">Agent Forge</a>
+        <a href="/storyforge/">StoryForge</a>
+        <a href="/cardforge/">CardForge</a>
+      </div>
+    </footer>
 
   </main>
 
-  <!-- Minimal Footer -->
-  <footer class="pa-footer">
-    <span>&copy; 2026 <a href="https://ambientpixels.ai">Ambient Pixels</a></span>
-    <span class="pa-footer-sep">&middot;</span>
-    <a href="/agent-forge/">Agent Forge</a>
-    <span class="pa-footer-sep">&middot;</span>
-    <a href="/storyforge/">StoryForge</a>
-    <span class="pa-footer-sep">&middot;</span>
-    <a href="/cardforge/">CardForge</a>
-  </footer>
+  <!-- ═══════════════════════════════════
+       BOTTOM NAV (Mobile)
+       ═══════════════════════════════════ -->
+  <nav class="pa-bottom-nav">
+    <a href="/pixel-agents/" class="active"><i class="fas fa-compass"></i><span>Explore</span></a>
+    <a href="#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+  </nav>
 
-  <script src="/pixel-agents/js/pixel-agents.js"></script>
+  <!-- ═══════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════ -->
+  <script src="/pixel-agents/js/pixel-agents-ui.js"></script>
   <script>
-  // Inline auth
+  // Auth + theme toggle
   (function() {
+    // Avatar menu toggle
+    var avatar = document.getElementById('pa-avatar');
+    var menu = document.getElementById('pa-avatar-menu');
+    if (avatar && menu) {
+      avatar.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', function() {
+        menu.classList.remove('open');
+      });
+    }
+
+    // Auth check
     var cached = sessionStorage.getItem('pa_auth');
-    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) showUser(d.name); } catch {} }
+    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) showUser(d.name); } catch(e) {} }
 
     fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
       if (d && d.clientPrincipal) {
@@ -107,30 +267,40 @@
     }).catch(function() {});
 
     function showUser(name) {
-      document.getElementById('pa-login-btn').style.display = 'none';
-      document.getElementById('pa-user-status').style.display = '';
-      document.getElementById('pa-user-name').textContent = name;
+      var loginBtn = document.getElementById('pa-login-btn');
+      var userStatus = document.getElementById('pa-user-status');
+      var userName = document.getElementById('pa-user-name');
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (userStatus) userStatus.style.display = '';
+      if (userName) userName.textContent = name;
     }
 
-    document.getElementById('pa-logout-btn').addEventListener('click', function(e) {
-      e.preventDefault();
-      sessionStorage.removeItem('pa_auth');
-      window.location.href = '/.auth/logout?post_logout_redirect_uri=/pixel-agents/';
-    });
+    var logoutBtn = document.getElementById('pa-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sessionStorage.removeItem('pa_auth');
+        window.location.href = '/.auth/logout?post_logout_redirect_uri=/pixel-agents/';
+      });
+    }
 
+    // Theme toggle
     var savedTheme = localStorage.getItem('preferred-theme');
     if (savedTheme) {
       document.body.setAttribute('data-theme', savedTheme);
       var icon = document.querySelector('#pa-theme-toggle i');
       if (icon) icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
     }
-    document.getElementById('pa-theme-toggle').addEventListener('click', function() {
-      var isDark = document.body.getAttribute('data-theme') === 'dark';
-      var next = isDark ? 'light' : 'dark';
-      document.body.setAttribute('data-theme', next);
-      localStorage.setItem('preferred-theme', next);
-      this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
-    });
+    var themeBtn = document.getElementById('pa-theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        var isDark = document.body.getAttribute('data-theme') === 'dark';
+        var next = isDark ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', next);
+        localStorage.setItem('preferred-theme', next);
+        this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+      });
+    }
   })();
   </script>
 </body>

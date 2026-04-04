@@ -1,0 +1,176 @@
+/* ═══════════════════════════════════════════════════════════
+   Pixel Agents v2 — Design System
+   Tokens, fonts, scoped resets, utility classes
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap');
+
+:root {
+  /* ── Brand ── */
+  --pa-primary:          #8F00FF;
+  --pa-primary-dim:      rgba(143, 0, 255, 0.12);
+  --pa-primary-border:   rgba(143, 0, 255, 0.30);
+  --pa-primary-glow:     rgba(143, 0, 255, 0.25);
+
+  --pa-secondary:        #00F0FF;
+  --pa-secondary-dim:    rgba(0, 240, 255, 0.12);
+  --pa-secondary-border: rgba(0, 240, 255, 0.30);
+
+  --pa-tertiary:         #FF00D4;
+  --pa-tertiary-dim:     rgba(255, 0, 212, 0.12);
+  --pa-tertiary-border:  rgba(255, 0, 212, 0.30);
+
+  /* ── Surfaces ── */
+  --pa-neutral:          #08080A;
+  --pa-surface:          #111114;
+  --pa-surface-raised:   #1A1A1F;
+  --pa-surface-hover:    #222228;
+
+  /* ── Text ── */
+  --pa-text:             #E8E8F0;
+  --pa-text-muted:       #6B6B80;
+  --pa-text-faint:       #3E3E50;
+
+  /* ── Separators ── */
+  --pa-sep:              rgba(255, 255, 255, 0.06);
+  --pa-sep-strong:       rgba(255, 255, 255, 0.12);
+
+  /* ── Tier rarity colors ── */
+  --pa-tier-legendary:   #f59e0b;
+  --pa-tier-epic:        #a78bfa;
+  --pa-tier-rare:        #60a5fa;
+  --pa-tier-uncommon:    #34d399;
+  --pa-tier-common:      #9ca3af;
+
+  /* ── Typography ── */
+  --pa-font-display:     'Space Grotesk', sans-serif;
+  --pa-font-body:        'Manrope', sans-serif;
+  --pa-font-mono:        'Courier New', 'Fira Code', monospace;
+
+  /* ── Radii ── */
+  --pa-radius-sm:        6px;
+  --pa-radius-md:        10px;
+  --pa-radius-lg:        16px;
+  --pa-radius-pill:      999px;
+
+  /* ── Transitions ── */
+  --pa-transition-fast:  150ms ease;
+  --pa-transition:       250ms ease;
+  --pa-transition-slow:  400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Layout ── */
+  --pa-sidebar-width:    240px;
+  --pa-sidebar-collapsed: 64px;
+  --pa-topbar-height:    56px;
+  --pa-bottom-nav-height: 60px;
+}
+
+/* ── Scoped Reset ──
+   Override shared base.css styles within the Pixel Agents shell */
+.pa-shell {
+  font-family: var(--pa-font-body);
+  color: var(--pa-text);
+  background: var(--pa-neutral);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.pa-shell *,
+.pa-shell *::before,
+.pa-shell *::after {
+  box-sizing: border-box;
+}
+
+.pa-shell h1,
+.pa-shell h2,
+.pa-shell h3,
+.pa-shell h4 {
+  font-family: var(--pa-font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+  color: var(--pa-text);
+}
+
+.pa-shell p {
+  margin: 0;
+  color: var(--pa-text-muted);
+}
+
+.pa-shell a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pa-shell button {
+  font-family: var(--pa-font-display);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+.pa-shell ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pa-shell img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ── Noise Overlay ──
+   Subtle grain texture, apply to any container */
+.pa-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Scanline Overlay ── */
+.pa-scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.015) 2px,
+    rgba(255, 255, 255, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Text Color Utilities ── */
+.pa-text-cyan    { color: var(--pa-secondary); }
+.pa-text-purple  { color: var(--pa-primary); }
+.pa-text-pink    { color: var(--pa-tertiary); }
+.pa-text-muted   { color: var(--pa-text-muted); }
+.pa-text-gold    { color: var(--pa-tier-legendary); }
+
+/* ── Font Utilities ── */
+.pa-font-display { font-family: var(--pa-font-display); }
+.pa-font-body    { font-family: var(--pa-font-body); }
+.pa-font-mono    { font-family: var(--pa-font-mono); }
+
+/* ── Scrollbar (thin, subtle) ── */
+.pa-shell ::-webkit-scrollbar { width: 6px; height: 6px; }
+.pa-shell ::-webkit-scrollbar-track { background: transparent; }
+.pa-shell ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+.pa-shell ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
