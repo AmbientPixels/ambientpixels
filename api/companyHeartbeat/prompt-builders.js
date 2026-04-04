@@ -836,6 +836,66 @@ Where relevant to your content tasks, weave in references to these trends to inc
     }
   }
 
+  // ── Quill Editorial Intelligence (3 blocks) ──
+  let quillCopyPerfSection = '';
+  let quillFeedbackPatternSection = '';
+  let quillCeoCorrectionsSection = '';
+
+  if (agent.id === 'quill') {
+    // 1. Copy Performance — social posts that went through Quill's review gate
+    var _quTopPosts = (socialIntel && socialIntel.topPosts7d) || [];
+    if (_quTopPosts.length > 0) {
+      var _qpLines = ['\n\nREVIEWED COPY PERFORMANCE (social posts you quality-gated — 7d):'];
+      _quTopPosts.slice(0, 3).forEach(function (p) {
+        _qpLines.push('  - ' + p.platform + ': ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments' + (p.post_url ? ' (' + p.post_url + ')' : ''));
+      });
+      _qpLines.push('Posts that perform well passed your gate correctly. Underperforming posts may indicate your review missed something.');
+      quillCopyPerfSection = _qpLines.join('\n');
+    }
+
+    // 2. Feedback Pattern Self-Awareness — what does Quill keep correcting?
+    var _quOwnComments = [];
+    (allActiveTasks || []).forEach(function (t) {
+      if (t.assignee !== 'scribe' || !t.comments) return;
+      t.comments.forEach(function (c) {
+        if (c.author === 'quill' && c.text && c.text.length > 20) {
+          _quOwnComments.push(c.text.substring(0, 200));
+        }
+      });
+    });
+    if (_quOwnComments.length >= 2) {
+      var _quWordCounts = {};
+      _quOwnComments.forEach(function (text) {
+        text.toLowerCase().split(/\s+/).forEach(function (w) {
+          if (w.length > 4) _quWordCounts[w] = (_quWordCounts[w] || 0) + 1;
+        });
+      });
+      var _quThemes = Object.keys(_quWordCounts).filter(function (w) { return _quWordCounts[w] >= 2; })
+        .sort(function (a, b) { return _quWordCounts[b] - _quWordCounts[a]; }).slice(0, 4);
+      if (_quThemes.length > 0) {
+        quillFeedbackPatternSection = '\n\nYOUR EDITING PATTERNS (what you keep correcting):\n' +
+          '- Themes: ' + _quThemes.map(function (w) { return '"' + w + '" (' + _quWordCounts[w] + 'x)'; }).join(', ') +
+          '\n- If correcting the same thing 3+ times, escalate to Scribe with a specific rule — not just another comment.';
+      }
+    }
+
+    // 3. CEO Corrections — what CEO corrected after Quill approved (conditional)
+    var _quCeoNotes = [];
+    if (performanceDigest && performanceDigest.agents) {
+      ['scribe', 'echo'].forEach(function (aid) {
+        var pa = performanceDigest.agents[aid];
+        if (pa && pa.ceoRevisionNotes && pa.ceoRevisionNotes.length > 0) {
+          pa.ceoRevisionNotes.slice(0, 2).forEach(function (n) { _quCeoNotes.push(n); });
+        }
+      });
+    }
+    if (_quCeoNotes.length > 0) {
+      quillCeoCorrectionsSection = '\n\nCEO CORRECTIONS (content corrections after your review gate):\n' +
+        _quCeoNotes.slice(0, 3).map(function (n) { return '- "' + n.substring(0, 100) + '"'; }).join('\n') +
+        '\nIf CEO corrects content you approved, that\'s a gap. Adjust your review standards. Save a memory about the pattern.';
+    }
+  }
+
   // Trend Insights — Echo: trending topics as content angle inspiration
   let echoTrendSection = '';
   if (agent.id === 'echo' && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
@@ -1087,7 +1147,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1630,9 +1690,16 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Validate allowed update keys before emitting taskUpdates.
   - If invalid fields detected, convert to proposal instead.
   - Enforce JSON-only output.
+- EDITORIAL DIRECTOR (Quill):
+  You own brand voice quality. Your reviews are the last gate before CEO sees content. Every post that passes your review reflects your editorial standards.
+  EVERY HEARTBEAT, check:
+  1. REVIEWED COPY PERFORMANCE — did posts you approved perform well? If yes, your standards are right. If underperforming, your edits aren't going far enough.
+  2. YOUR EDITING PATTERNS — what do you keep correcting? If the same theme appears 3+ times, Scribe isn't learning from your feedback. Escalate: write a specific rule (not just "too long" but "cut LinkedIn to 800 chars, remove filler paragraphs"), and save it as a memory.
+  3. CEO CORRECTIONS — if the CEO corrected content AFTER your approval, that's a gap in your gate. Save a memory about what you missed. Adjust your review criteria.
+  BRAND VOICE RULES: When you notice a recurring pattern (e.g., "we never say 'supercharge'", "LinkedIn posts must not open with the product name"), save it as a memory so it persists. CHECK EXISTING MEMORIES before saving — do not duplicate.
 - SUB-AGENT RESTRICTIONS (Quill — Tier 4, reports to Scribe):
   - You are an editor and brand voice enforcer under Scribe (Head of Content). Your job is to review and refine drafts for tone, clarity, compression, CTA quality, and FACTUAL ACCURACY. Flag any claims about AmbientPixels features or capabilities that cannot be verified from task context, research intel, or existing documents. Reject drafts that invent products, features, or benefits not backed by evidence.
-  - ALLOWED actions: review-task, comment-task, execute-task (only for editing/refining tasks assigned to you)
+  - ALLOWED actions: review-task, comment-task, execute-task (only for editing/refining tasks assigned to you), remember
   - FORBIDDEN actions: create-social-action, update-task (assignee/priority changes), move-task to done, create-task, create-doc, submit-for-publish
   - You CANNOT publish anything directly — all feedback stays as task comments or review verdicts for Scribe to act on
   - You CANNOT approve anything or escalate to the CEO

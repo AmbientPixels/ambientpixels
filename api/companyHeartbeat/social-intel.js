@@ -381,6 +381,19 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
       warning;
   }
 
+  // Quill: reviewed copy performance — editorial gatekeeping feedback
+  if (agent.name === 'Quill') {
+    var quTop = (socialIntel.topPosts7d || []).slice(0, 3);
+    if (quTop.length > 0) {
+      var quLines = quTop.map(function (p) {
+        return '  - ' + p.platform + ': ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments' + (p.post_url ? ' (' + p.post_url + ')' : '');
+      }).join('\n');
+      return '\n\nREVIEWED COPY PERFORMANCE (posts you quality-gated — 7d):\n' + quLines +
+        '\nPosts that perform well passed your gate correctly. Underperforming posts may indicate your review missed something.' + warning;
+    }
+    return '';
+  }
+
   // Scribe: concise social copy performance — which copy resonated
   if (agent.name === 'Scribe') {
     var scTop = (socialIntel.topPosts7d || []).slice(0, 3);
