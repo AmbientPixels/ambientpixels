@@ -206,7 +206,15 @@
   function addMsg(role, text) {
     var div = document.createElement('div');
     div.className = 'qc-msg qc-msg--' + role;
-    div.textContent = text;
+    // Render basic markdown (bold, bullets, line breaks) instead of raw text
+    var html = (text || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^[-*] (.+)$/gm, '<span style="display:block;padding-left:0.8rem;">• $1</span>')
+      .replace(/^(\d+)\. (.+)$/gm, '<span style="display:block;padding-left:0.8rem;">$1. $2</span>')
+      .replace(/---/g, '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:0.3rem 0;">')
+      .replace(/\n/g, '<br>');
+    div.innerHTML = html;
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
   }
@@ -217,7 +225,7 @@
       var color = action.success ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)';
       var border = action.success ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)';
       var textColor = action.success ? '#34d399' : '#f87171';
-      var iconMap = { 'create-task': 'fa-plus-circle', 'update-task': 'fa-edit', 'move-task': 'fa-arrows-alt', 'comment-task': 'fa-comment', 'create-doc': 'fa-file-alt', 'update-doc': 'fa-file-edit' };
+      var iconMap = { 'create-task': 'fa-plus-circle', 'update-task': 'fa-edit', 'move-task': 'fa-arrows-alt', 'comment-task': 'fa-comment', 'create-doc': 'fa-file-alt', 'update-doc': 'fa-file-edit', 'pause-campaign': 'fa-pause-circle', 'resume-campaign': 'fa-play-circle', 'complete-campaign': 'fa-check-circle', 'archive-objective': 'fa-archive', 'propose-campaign': 'fa-bullhorn', 'propose-objective': 'fa-bullseye' };
       var icon = iconMap[action.type] || 'fa-bolt';
       div.style.cssText = 'padding:0.3rem 0.5rem; margin:0.15rem 0; border-radius:6px; background:' + color + '; border:1px solid ' + border + '; font-size:0.65rem; color:' + textColor + '; align-self:flex-start;';
       div.innerHTML = '<i class="fas ' + icon + '"></i> ' + (action.success ? '\u2713' : '\u2717') + ' ' + (action.summary || action.type);
