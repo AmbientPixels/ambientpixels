@@ -514,7 +514,12 @@ module.exports = async function (context, req) {
 
       // Load company context and build system prompt
       const companyCtx = await loadCompanyContext(agentId);
-      if (index === 0) context.log('[StandupRun] Context preview (' + companyCtx.length + ' chars):', companyCtx.substring(0, 300));
+      context.log('[StandupRun] Context for ' + agentId + ': ' + companyCtx.length + ' chars');
+      if (index === 0) {
+        context.log('[StandupRun] Context preview:', companyCtx.substring(0, 500));
+        // Save context debug info to standup for API-level forensics
+        standup._debugContext = { chars: companyCtx.length, preview: companyCtx.substring(0, 500) };
+      }
       const systemPrompt = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId) + SHARED_RULES + companyCtx;
       const userMessage = buildStandupMessage(contextMsg);
 
