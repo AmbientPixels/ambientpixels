@@ -81,6 +81,10 @@ module.exports = async function (context) {
         if (sinceLastAttempt < RETRY_COOLDOWN_MS) continue;
       }
 
+      // Manual platforms (Reddit, Facebook) — never expire, CEO posts manually
+      const _manualPlatforms = ['reddit', 'facebook'];
+      if (_manualPlatforms.indexOf((a.platform || '').toLowerCase()) !== -1) continue;
+
       // Must have a scheduled_for time that has passed
       const scheduledFor = (a.payload && a.payload.scheduled_for) || null;
       if (!scheduledFor) continue;
