@@ -59,18 +59,33 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   if (prevAvg > 0 && avgDurationMs > prevAvg * 1.2) trend = 'degrading';
   else if (prevAvg > 0 && avgDurationMs < prevAvg * 0.8) trend = 'improving';
 
-  // Per-agent reliability from recent runs
+  // Per-agent reliability from recent runs (supports both old agentResults and new perAgent format)
   var perAgent = {};
   recentRuns.forEach(function (r) {
-    if (!r.agentResults) return;
-    Object.keys(r.agentResults).forEach(function (aid) {
-      if (!perAgent[aid]) perAgent[aid] = { ran: 0, failed: 0, blocked: 0, executed: 0 };
+    var agentData = r.perAgent || r.agentResults;
+    if (!agentData) return;
+    Object.keys(agentData).forEach(function (aid) {
+      if (!perAgent[aid]) perAgent[aid] = { ran: 0, failed: 0, blocked: 0, executed: 0, zeroActionRuns: 0 };
       perAgent[aid].ran++;
-      var ar = r.agentResults[aid];
+      var ar = agentData[aid];
       if (ar.error) perAgent[aid].failed++;
       perAgent[aid].blocked += (ar.actionsBlocked || 0);
-      perAgent[aid].executed += (ar.actionsExecuted || ar.actions || 0);
+      var exec = ar.actionsExecuted || ar.actionsAttempted || ar.actions || 0;
+      perAgent[aid].executed += exec;
+      if (exec === 0 && !ar.error) perAgent[aid].zeroActionRuns++;
     });
+  });
+
+  // Stalled agent detection: agents with 0 actions over 5+ consecutive recent runs
+  // Exclude quill (reactive editor) from stall detection
+  var stalledAgents = [];
+  var STALL_THRESHOLD = 5;
+  Object.keys(perAgent).forEach(function (aid) {
+    if (aid === 'quill') return;
+    var a = perAgent[aid];
+    if (a.ran >= STALL_THRESHOLD && a.zeroActionRuns >= STALL_THRESHOLD && a.executed === 0) {
+      stalledAgents.push({ agent: aid, runs: a.ran, zeroRuns: a.zeroActionRuns });
+    }
   });
 
   // Top blocked patterns
@@ -194,6 +209,11 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   if (violations7d.length >= THRESHOLDS.governanceViolations7d.red) alerts.push({ level: 'RED', signal: violations7d.length + ' governance violations (7d)', threshold: THRESHOLDS.governanceViolations7d.red });
   else if (violations7d.length >= THRESHOLDS.governanceViolations7d.yellow) alerts.push({ level: 'YELLOW', signal: violations7d.length + ' governance violations (7d)', threshold: THRESHOLDS.governanceViolations7d.yellow });
 
+  // Stalled agent alerts
+  stalledAgents.forEach(function (s) {
+    alerts.push({ level: 'YELLOW', signal: s.agent + ' produced 0 actions across ' + s.zeroRuns + ' consecutive runs — may be blocked or misconfigured', threshold: STALL_THRESHOLD + ' zero-action runs' });
+  });
+
   return {
     asOfUtc: new Date(now).toISOString(),
     heartbeatHealth: {
@@ -203,6 +223,7 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
       avgDurationMs: avgDurationMs,
       trend: trend,
       perAgent: perAgent,
+      stalledAgents: stalledAgents,
       topBlocked: topBlocked,
       backlog: backlog
     },
@@ -253,7 +274,7 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
     lines.push('  - ' + ts + ': ' + r.status.toUpperCase() + ', ' + Math.round(r.durationMs / 1000) + 's, ' + r.actionsExecuted + ' actions' + (r.actionsBlocked > 0 ? ' (' + r.actionsBlocked + ' blocked)' : '') + (r.errorSummary ? ' — ERROR: ' + r.errorSummary : ''));
   });
 
-  // Per-agent reliability (only show agents with issues)
+  // Per-agent reliability (show agents with issues: failures, high block rate, or stalled)
   var agentIssues = [];
   Object.keys(hb.perAgent || {}).forEach(function (aid) {
     var a = hb.perAgent[aid];
@@ -264,6 +285,15 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
   });
   if (agentIssues.length > 0) {
     lines.push('- Agent issues: ' + agentIssues.join(' | '));
+  }
+
+  // Stalled agents (0 actions over multiple consecutive runs)
+  var stalled = hb.stalledAgents || [];
+  if (stalled.length > 0) {
+    lines.push('- STALLED AGENTS (0 output, ' + stalled[0].zeroRuns + '+ runs):');
+    stalled.forEach(function (s) {
+      lines.push('  - ' + s.agent + ': 0 actions across ' + s.zeroRuns + '/' + s.runs + ' runs — investigate: prompt issue? blocked by guardrail? no assigned work?');
+    });
   }
 
   var blocked = (hb.topBlocked || []);
