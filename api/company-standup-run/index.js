@@ -1,6 +1,7 @@
 // company-standup-run — HTTP POST trigger
 // Runs a full daily standup server-side (same pipeline as UI runStandup)
 // Called by GitHub Actions cron or manually. Never auto-approves anything.
+const _CODE_VERSION = '2026-04-04T19';
 
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
@@ -518,7 +519,7 @@ module.exports = async function (context, req) {
       if (index === 0) {
         context.log('[StandupRun] Context preview:', companyCtx.substring(0, 500));
         // Save context debug info to standup for API-level forensics
-        standup._debugContext = { chars: companyCtx.length, preview: companyCtx.substring(0, 500) };
+        standup._debugContext = { codeVersion: _CODE_VERSION, chars: companyCtx.length, preview: companyCtx.substring(0, 500) };
       }
       const systemPrompt = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId) + SHARED_RULES + companyCtx;
       const userMessage = buildStandupMessage(contextMsg);
