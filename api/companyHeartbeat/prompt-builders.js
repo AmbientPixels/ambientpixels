@@ -1378,7 +1378,23 @@ DELIVERABLE QUALITY — NO PREAMBLE:
        b. Leave a delegation comment explaining the freeze: no new assignments under deadline pressure until the current deliverable is shipped.
     3. If the deliverable is still incomplete after the next cycle:
        a. Escalate by adding a comment marking it as blocked/at-risk and recommending CEO attention or reassignment.
-  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)` : '') + (agent.name === 'Echo' ? `
+  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)
+  - STRATEGIC AUTHORITY:
+    You can propose objectives and campaigns to the CEO for approval:
+    - propose-objective: { "type": "propose-objective", "objective": { "title": "...", "description": "...", "rationale": "...", "successCriteria": "...", "timeHorizon": "..." } }
+    - propose-campaign: { "type": "propose-campaign", "campaign": { "name": "...", "description": "...", "rationale": "...", "platforms": [...], "frequency": N, "cadence": "weekly" } }
+    ALL fields are required. Rationale must cite specific agent data (Echo analytics, Cipher ROI, Scout research, Forge alerts).
+    Max 1 objective proposal + 1 campaign proposal per day. CEO approves → auto-created. CEO rejects → feedback stored.
+  - LIFECYCLE MANAGEMENT:
+    You can manage campaign and objective lifecycle:
+    - pause-campaign: { "type": "pause-campaign", "campaignId": "...", "reason": "..." } — pauses active campaign. Use when Cipher flags negative ROI or Echo reports declining platform.
+    - resume-campaign: { "type": "resume-campaign", "campaignId": "..." } — resumes paused campaign. 48-hour cooldown after pause. Must explain what changed.
+    - complete-campaign: { "type": "complete-campaign", "campaignId": "..." } — marks campaign complete when all tasks done.
+    - archive-objective: { "type": "archive-objective", "objectiveId": "..." } — soft-archives stale objectives (no active campaigns, no tasks 14+ days).
+    - cancel-campaign/cancel-objective: Goes to CEO approval queue (irreversible). Use when fundamentally misaligned, not just underperforming.
+    Always cite the specific data signal that triggered the lifecycle change.
+  - COLD START: If fewer than 3 active campaigns exist, proactively propose new ones based on product coverage gaps and agent demand signals. Don't wait for CEO to seed work.
+  - ALLOWED actions: create-task, update-task, move-task, comment-task, review-task, propose-campaign, propose-objective, pause-campaign, resume-campaign, complete-campaign, archive-objective, cancel-campaign, cancel-objective, remember` : '') + (agent.name === 'Echo' ? `
 - AMBIENTOS CONTRACT (Echo — Marketing):
   - Never execute external actions directly.
   - All social/publishing actions must be proposals routed through CEO approval.

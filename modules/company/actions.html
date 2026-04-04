@@ -405,6 +405,14 @@
             </div>
             <div class="act-panel-body" id="campaign-proposals-list"></div>
           </div>
+          <!-- Objective Proposals -->
+          <div class="act-panel" id="objective-proposals-panel" style="display:none;">
+            <div class="act-panel-head" style="border-bottom-color:rgba(96,165,250,0.15);">
+              <span style="color:#60a5fa;"><i class="fas fa-bullseye"></i> Objective Proposals</span>
+              <span id="objective-proposals-count" class="act-count-badge" style="background:rgba(96,165,250,0.12);color:#60a5fa;"></span>
+            </div>
+            <div class="act-panel-body" id="objective-proposals-list"></div>
+          </div>
           <!-- Agent Forge Submissions -->
           <div class="act-panel" id="agent-forge-panel" style="display:none;">
             <div class="act-panel-head">
@@ -656,6 +664,7 @@
       renderRawStats();
       renderNeedsAttention();
       renderCampaignProposals();
+      renderObjectiveProposals();
       renderPending();
       renderContentPackages();
       renderRevisions();
@@ -1279,6 +1288,132 @@
         });
     }
 
+    // ── Objective Proposals ──
+    function renderObjectiveProposals() {
+      var panel = document.getElementById('objective-proposals-panel');
+      var list = document.getElementById('objective-proposals-list');
+      var countEl = document.getElementById('objective-proposals-count');
+      if (!panel || !list) return;
+
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) queue = [];
+          var proposals = queue.filter(function(item) { return item.type === 'objective_proposal' && item.status === 'pending'; });
+
+          if (proposals.length === 0) { panel.style.display = 'none'; return; }
+          panel.style.display = '';
+          countEl.textContent = proposals.length;
+          window._objectiveProposals = proposals;
+
+          var html = '';
+          proposals.forEach(function(p, idx) {
+            var name = esc(p.title || 'Untitled');
+            var agent = esc(p.proposedBy || '?');
+            var created = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '';
+            html += '<div class="act-row" style="padding:0.5rem 0;cursor:pointer;" onclick="openObjProposalDrawer(' + idx + ')">';
+            html += '<div class="act-row-icon" style="background:rgba(96,165,250,0.08);color:#60a5fa;"><i class="fas fa-bullseye"></i></div>';
+            html += '<div class="act-row-info">';
+            html += '<div class="act-row-title">' + name + '</div>';
+            html += '<div class="act-row-meta">' + agent + ' · ' + esc(p.timeHorizon || '') + ' · ' + created + '</div>';
+            html += '</div>';
+            html += '<button class="act-btn act-btn--details" onclick="event.stopPropagation();openObjProposalDrawer(' + idx + ')"><i class="fas fa-eye"></i></button>';
+            html += '</div>';
+          });
+          list.innerHTML = html;
+        })
+        .catch(function() { panel.style.display = 'none'; });
+    }
+
+    function openObjProposalDrawer(idx) {
+      var p = (window._objectiveProposals || [])[idx];
+      if (!p) return;
+      var el = document.getElementById('drawer-content');
+      var html = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button>';
+      html += '<h3><i class="fas fa-bullseye" style="color:#60a5fa;margin-right:0.3rem;"></i>' + esc(p.title || 'Objective Proposal') + '</h3>';
+      html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
+      html += '<span class="act-drawer-badge" style="background:rgba(96,165,250,0.15);color:#60a5fa;">Objective</span>';
+      html += '<span style="font-size:0.65rem;opacity:0.5;">From ' + esc((p.proposedBy || '?').charAt(0).toUpperCase() + (p.proposedBy || '').slice(1)) + '</span>';
+      html += '</div>';
+      if (p.description) html += '<div class="act-drawer-section"><h4>Description</h4><p style="white-space:pre-wrap;font-size:0.8rem;">' + esc(p.description) + '</p></div>';
+      if (p.rationale) html += '<div class="act-drawer-section"><h4>Rationale</h4><p style="white-space:pre-wrap;font-size:0.8rem;color:#60a5fa;">' + esc(p.rationale) + '</p></div>';
+      html += '<div class="act-drawer-section"><h4>Details</h4><div style="font-size:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;">';
+      html += '<div>Success Criteria: <strong>' + esc(p.successCriteria || 'not specified') + '</strong></div>';
+      html += '<div>Time Horizon: <strong>' + esc(p.timeHorizon || 'not specified') + '</strong></div>';
+      if (p.suggestedCampaigns && p.suggestedCampaigns.length > 0) html += '<div style="grid-column:span 2;">Suggested Campaigns: <strong>' + esc(p.suggestedCampaigns.join(', ')) + '</strong></div>';
+      html += '</div></div>';
+      html += '<div class="act-drawer-actions" style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">';
+      html += '<button class="act-btn act-btn--approve" onclick="approveObjectiveProposal(\'' + p.id + '\')"><i class="fas fa-check"></i> Approve</button>';
+      html += '<button class="act-btn act-btn--reject" onclick="rejectObjectiveProposal(\'' + p.id + '\')"><i class="fas fa-times"></i> Reject</button>';
+      html += '</div>';
+      el.innerHTML = html;
+      document.getElementById('drawer-overlay').classList.add('open');
+    }
+
+    function approveObjectiveProposal(proposalId) {
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      var p = (window._objectiveProposals || []).find(function(x) { return x.id === proposalId; });
+      if (!p) return;
+      fetch(apiBase + '/company-state?key=objectives', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var objectives = data.value || data || [];
+          if (!Array.isArray(objectives)) objectives = [];
+          objectives.push({
+            id: 'obj-' + Date.now().toString(36),
+            title: p.title,
+            description: p.description || '',
+            status: 'active',
+            progress: 0,
+            successCriteria: p.successCriteria || '',
+            timeHorizon: p.timeHorizon || '',
+            source: 'agent-proposal',
+            proposalId: proposalId,
+            createdAt: new Date().toISOString()
+          });
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'objectives', value: objectives })
+          });
+        })
+        .then(function() {
+          return fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } });
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          var item = queue.find(function(q) { return q.id === proposalId; });
+          if (item) { item.status = 'approved'; item.approvedAt = new Date().toISOString(); }
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'approvalQueue', value: queue })
+          });
+        })
+        .then(function() { closeDrawer(); renderObjectiveProposals(); });
+    }
+
+    function rejectObjectiveProposal(proposalId) {
+      var note = prompt('Rejection reason (optional):') || '';
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          var item = queue.find(function(q) { return q.id === proposalId; });
+          if (item) { item.status = 'rejected'; item.rejectedAt = new Date().toISOString(); item.rejectionNote = note; }
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'approvalQueue', value: queue })
+          });
+        })
+        .then(function() { closeDrawer(); renderObjectiveProposals(); });
+    }
+
     // ── Agent Forge Submissions ──
     function renderAgentForgeSubmissions() {
       var panel = document.getElementById('agent-forge-panel');
@@ -1593,6 +1728,19 @@
       if (!_qg && window._aqItemsByActionId) { var _aqI = window._aqItemsByActionId[a.id]; if (_aqI) _qg = _aqI.qualityGate; }
       if (_qg && _qg.pass === false) html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(239,68,68,0.12);color:#ef4444;font-weight:600;" title="' + esc((_qg.issues || []).join('; ')) + '"><i class="fas fa-exclamation-triangle"></i>Quality Flag</span>';
       else if (_qg && _qg.pass === true) html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.08);color:#34d399;font-weight:600;"><i class="fas fa-check"></i>Verified</span>';
+      // Pipeline trust signal badge
+      var _ps = a._pipelineSteps;
+      if (!_ps && a._parentTaskId) { /* check from approval queue */ var _aqPS = window._aqItemsByActionId && window._aqItemsByActionId[a.id]; if (_aqPS) _ps = _aqPS._pipelineSteps; }
+      if (_ps) {
+        var _psSteps = [_ps.echoBrief ? '✓Brief' : '✗Brief', _ps.scribeCopy ? '✓Copy' : '✗Copy', _ps.peerReview ? '✓Review' : '✗Review'];
+        var _qgPass = (_qg && _qg.pass === true);
+        if (_qg) _psSteps.push(_qgPass ? '✓QG' : '✗QG');
+        var _psFull = _ps.echoBrief && _ps.scribeCopy && _ps.peerReview && _qgPass;
+        var _psBg = _psFull ? 'rgba(52,211,153,0.08)' : 'rgba(251,191,36,0.08)';
+        var _psColor = _psFull ? '#34d399' : '#fbbf24';
+        var _psLabel = _psFull ? 'Full Pipeline' : 'Partial';
+        html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.45rem;padding:0.1rem 0.4rem;border-radius:3px;background:' + _psBg + ';color:' + _psColor + ';font-weight:600;" title="' + _psSteps.join(' → ') + '"><i class="fas ' + (_psFull ? 'fa-shield-check' : 'fa-shield-halved') + '"></i>' + _psLabel + '</span>';
+      }
       if (a.is_irreversible) html += '<span class="act-badge act-badge--irreversible">irreversible</span>';
       html += '</div>';
       if (actionTitle) html += '<div style="font-size:0.9rem;font-weight:600;margin-top:2px;">' + esc(actionTitle) + '</div>';

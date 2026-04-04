@@ -1993,6 +1993,19 @@ Write the full deliverable first, then the structured JSON block.`;
       // Link action to parent task if provided
       if (action.taskId) newAction._parentTaskId = action.taskId;
 
+      // Pipeline trust signals — attach metadata showing which steps this action went through
+      if (action.taskId) {
+        var _ptTask = tasks.find(function (t) { return t.id === action.taskId; });
+        if (_ptTask) {
+          newAction._pipelineSteps = {
+            echoBrief: !!(_ptTask.comments || []).find(function (c) { return c.author === 'echo' && c.type === 'deliverable'; }),
+            scribeCopy: !!_ptTask.reviewed_copy,
+            peerReview: _ptTask.status === 'done',
+            qualityGate: newAction.qualityGate || null
+          };
+        }
+      }
+
       actionsStore.push(newAction);
       await storage.setState('actions', actionsStore);
 
@@ -3635,6 +3648,145 @@ Write the full deliverable first, then the structured JSON block.`;
       await storage.setState('approvalQueue', _pcAQ);
       context.log('[Heartbeat]', agentId, 'created campaign proposal:', _pcEntry.id, _pcName);
       result.taskUpdates.push({ action: 'campaign-proposed', proposalId: _pcEntry.id, agentId: agentId });
+
+    } else if (action.type === 'propose-objective' && action.objective) {
+      // Nova (or any agent) proposes a new objective for CEO approval
+      var _po = action.objective;
+      var _poTitle = (_po.title || '').trim().substring(0, 100);
+      var _poDesc = (_po.description || '').trim();
+      var _poRationale = (_po.rationale || '').trim();
+      var _poSuccess = (_po.successCriteria || '').trim();
+      var _poHorizon = (_po.timeHorizon || '').trim();
+
+      // Required fields validation
+      if (!_poTitle || !_poDesc || !_poRationale || !_poSuccess || !_poHorizon) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — missing required fields (title, description, rationale, successCriteria, timeHorizon)');
+        continue;
+      }
+
+      // Rate limit: 1 objective proposal per day per agent
+      var _poAQ = (await storage.getState('approvalQueue')) || [];
+      var _poToday = new Date().toISOString().substring(0, 10);
+      var _poTodayCount = _poAQ.filter(function (q) {
+        return q.type === 'objective_proposal' && q.proposedBy === agentId && q.createdAt && q.createdAt.substring(0, 10) === _poToday;
+      }).length;
+      if (_poTodayCount >= 1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — daily limit reached');
+        continue;
+      }
+
+      // Dedup
+      var _poDupe = _poAQ.some(function (q) {
+        return q.type === 'objective_proposal' && q.status === 'pending' && q.title && q.title.trim().toLowerCase() === _poTitle.toLowerCase();
+      });
+      if (_poDupe) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — duplicate pending proposal');
+        continue;
+      }
+
+      var _poEntry = {
+        id: 'oprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'objective_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        title: _poTitle,
+        description: _poDesc.substring(0, 1000),
+        rationale: _poRationale.substring(0, 500),
+        successCriteria: _poSuccess.substring(0, 300),
+        timeHorizon: _poHorizon.substring(0, 50),
+        suggestedCampaigns: Array.isArray(_po.suggestedCampaigns) ? _po.suggestedCampaigns.slice(0, 3) : [],
+        createdAt: new Date().toISOString()
+      };
+
+      _poAQ.push(_poEntry);
+      await storage.setState('approvalQueue', _poAQ);
+      context.log('[Heartbeat]', agentId, 'created objective proposal:', _poEntry.id, _poTitle);
+      result.taskUpdates.push({ action: 'objective-proposed', proposalId: _poEntry.id, agentId: agentId });
+
+    } else if (action.type === 'pause-campaign' && action.campaignId) {
+      // Nova can pause an active campaign (reversible, auto-execute)
+      var _pauseCamps = (await storage.getState('campaigns')) || [];
+      var _pauseTarget = _pauseCamps.find(function (c) { return c.id === action.campaignId && c.status === 'active'; });
+      if (_pauseTarget) {
+        _pauseTarget.status = 'paused';
+        _pauseTarget.pausedAt = new Date().toISOString();
+        _pauseTarget.pausedBy = agentId;
+        _pauseTarget.pauseReason = (action.reason || '').substring(0, 200);
+        await storage.setState('campaigns', _pauseCamps);
+        context.log('[Heartbeat]', agentId, 'paused campaign:', action.campaignId);
+        result.taskUpdates.push({ action: 'campaign-paused', campaignId: action.campaignId, agentId: agentId });
+      }
+
+    } else if (action.type === 'resume-campaign' && action.campaignId) {
+      var _resCamps = (await storage.getState('campaigns')) || [];
+      var _resTarget = _resCamps.find(function (c) { return c.id === action.campaignId && c.status === 'paused'; });
+      if (_resTarget) {
+        // 48-hour cooldown check
+        var _pausedAt = Date.parse(_resTarget.pausedAt || '');
+        if (Number.isFinite(_pausedAt) && (Date.now() - _pausedAt) < 48 * 60 * 60 * 1000) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED resume-campaign — 48hr pause cooldown not met:', action.campaignId);
+          continue;
+        }
+        _resTarget.status = 'active';
+        _resTarget.resumedAt = new Date().toISOString();
+        _resTarget.resumedBy = agentId;
+        await storage.setState('campaigns', _resCamps);
+        context.log('[Heartbeat]', agentId, 'resumed campaign:', action.campaignId);
+        result.taskUpdates.push({ action: 'campaign-resumed', campaignId: action.campaignId, agentId: agentId });
+      }
+
+    } else if (action.type === 'complete-campaign' && action.campaignId) {
+      var _compCamps = (await storage.getState('campaigns')) || [];
+      var _compTarget = _compCamps.find(function (c) { return c.id === action.campaignId && c.status === 'active'; });
+      if (_compTarget) {
+        _compTarget.status = 'completed';
+        _compTarget.completedAt = new Date().toISOString();
+        _compTarget.completedBy = agentId;
+        await storage.setState('campaigns', _compCamps);
+        context.log('[Heartbeat]', agentId, 'completed campaign:', action.campaignId);
+        result.taskUpdates.push({ action: 'campaign-completed', campaignId: action.campaignId, agentId: agentId });
+      }
+
+    } else if (action.type === 'archive-objective' && action.objectiveId) {
+      var _archObjs = (await storage.getState('objectives')) || [];
+      var _archTarget = _archObjs.find(function (o) { return o.id === action.objectiveId; });
+      if (_archTarget && _archTarget.status !== 'archived') {
+        _archTarget.status = 'archived';
+        _archTarget.archivedAt = new Date().toISOString();
+        _archTarget.archivedBy = agentId;
+        await storage.setState('objectives', _archObjs);
+        context.log('[Heartbeat]', agentId, 'archived objective:', action.objectiveId);
+        result.taskUpdates.push({ action: 'objective-archived', objectiveId: action.objectiveId, agentId: agentId });
+      }
+
+    } else if (action.type === 'cancel-campaign' && action.campaignId) {
+      // Irreversible — goes to CEO approval queue
+      var _ccAQ = (await storage.getState('approvalQueue')) || [];
+      _ccAQ.push({
+        id: 'ccancel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'campaign_cancellation',
+        status: 'pending',
+        proposedBy: agentId,
+        campaignId: action.campaignId,
+        reason: (action.reason || '').substring(0, 500),
+        createdAt: new Date().toISOString()
+      });
+      await storage.setState('approvalQueue', _ccAQ);
+      context.log('[Heartbeat]', agentId, 'proposed campaign cancellation:', action.campaignId);
+
+    } else if (action.type === 'cancel-objective' && action.objectiveId) {
+      var _coAQ = (await storage.getState('approvalQueue')) || [];
+      _coAQ.push({
+        id: 'ocancel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'objective_cancellation',
+        status: 'pending',
+        proposedBy: agentId,
+        objectiveId: action.objectiveId,
+        reason: (action.reason || '').substring(0, 500),
+        createdAt: new Date().toISOString()
+      });
+      await storage.setState('approvalQueue', _coAQ);
+      context.log('[Heartbeat]', agentId, 'proposed objective cancellation:', action.objectiveId);
     }
 
     await logEvent('agent-action', agentId, summary, cycleId);

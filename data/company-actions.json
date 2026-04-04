@@ -127,6 +127,69 @@
       "requiresVerification": false,
       "executor": "marketing",
       "enabled": true
+    },
+    {
+      "id": "propose_objective",
+      "name": "Propose a strategic objective",
+      "riskLevel": "medium",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "enabled": true
+    },
+    {
+      "id": "pause_campaign",
+      "name": "Pause an active campaign",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "enabled": true
+    },
+    {
+      "id": "resume_campaign",
+      "name": "Resume a paused campaign",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "enabled": true
+    },
+    {
+      "id": "complete_campaign",
+      "name": "Mark campaign as complete",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "enabled": true
+    },
+    {
+      "id": "archive_objective",
+      "name": "Archive a stale objective",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "enabled": true
+    },
+    {
+      "id": "cancel_campaign",
+      "name": "Cancel a campaign (irreversible)",
+      "riskLevel": "high",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "enabled": true
+    },
+    {
+      "id": "cancel_objective",
+      "name": "Cancel an objective (irreversible)",
+      "riskLevel": "high",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "enabled": true
     }
   ]
 }
