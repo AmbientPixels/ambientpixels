@@ -338,6 +338,14 @@ var AgentEngine = (function () {
       inputPrice: '$3.00 / 1M tokens',
       outputPrice: '$15.00 / 1M tokens'
     }, {
+      id: 'claude-haiku-4-5-20251001',
+      name: 'Claude Haiku 4.5',
+      provider: 'Anthropic',
+      status: 'available',
+      usage: 'Lightweight alternative — faster, ~4x cheaper than Sonnet',
+      inputPrice: '$0.80 / 1M tokens',
+      outputPrice: '$4.00 / 1M tokens'
+    }, {
       id: 'gemini-2.0-flash',
       name: 'Gemini 2.0 Flash',
       provider: 'Google',
