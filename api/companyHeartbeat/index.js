@@ -303,7 +303,7 @@ module.exports = async function (context) {
     const _now = Date.now();
     const _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
     const _taskTypeToAgent = {
-      blog_post: 'echo', social_linkedin: 'echo', social_bluesky: 'echo',
+      blog_post: 'scribe', social_linkedin: 'echo', social_bluesky: 'echo',
       social_x: 'echo', social_facebook: 'echo', design_asset: 'pixel',
       research: 'scout', internal_doc: 'scribe', general: 'nova'
     };
