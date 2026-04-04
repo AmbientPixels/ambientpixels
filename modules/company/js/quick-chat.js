@@ -183,9 +183,17 @@
     _thinking = true;
     sendBtn.disabled = true;
 
+    // Show thinking indicator
+    var thinkingEl = document.createElement('div');
+    thinkingEl.className = 'qc-msg qc-msg--agent qc-thinking';
+    thinkingEl.innerHTML = '<span class="qc-thinking-dots"><span>.</span><span>.</span><span>.</span></span>';
+    messages.appendChild(thinkingEl);
+    messages.scrollTop = messages.scrollHeight;
+
     AgentEngine.chat(agentId, msg, 'chat').then(function (result) {
       _thinking = false;
       sendBtn.disabled = false;
+      if (thinkingEl.parentNode) thinkingEl.remove();
       if (result && result.reply) {
         addMsg('agent', result.reply, agent);
         if (result.actions && result.actions.length > 0) {
@@ -199,6 +207,7 @@
     }).catch(function () {
       _thinking = false;
       sendBtn.disabled = false;
+      if (thinkingEl.parentNode) thinkingEl.remove();
       addMsg('agent', '(error — try again)');
     });
   }
