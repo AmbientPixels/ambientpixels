@@ -337,7 +337,7 @@ async function loadCompanyContext(agentId) {
   }
 }
 
-// Parse structured JSON response from Gemini
+// Parse structured JSON response from model (Gemini or Claude)
 function parseActionResponse(text) {
   // Try pure JSON
   try {
@@ -357,13 +357,30 @@ function parseActionResponse(text) {
     } catch (e) { /* parse failed */ }
   }
 
-  // Try to find {"reply":...} object in text
+  // Try to find {"reply":...} object in text — greedy match
   const rawMatch = text.match(/\{[\s\S]*"reply"\s*:[\s\S]*\}/);
   if (rawMatch) {
     try {
       const parsed = JSON.parse(rawMatch[0]);
       return { reply: parsed.reply || '', actions: Array.isArray(parsed.actions) ? parsed.actions : [] };
-    } catch (e) { /* parse failed */ }
+    } catch (e) {
+      // Claude often puts real newlines in JSON strings — try fixing them
+      try {
+        var fixed = rawMatch[0].replace(/(?<=:[ ]*"[^"]*)\n/g, '\\n');
+        const parsed2 = JSON.parse(fixed);
+        return { reply: (parsed2.reply || '').replace(/\\n/g, '\n'), actions: Array.isArray(parsed2.actions) ? parsed2.actions : [] };
+      } catch (e2) { /* still failed */ }
+    }
+  }
+
+  // Last resort: try to extract reply field manually with regex
+  var replyMatch = text.match(/"reply"\s*:\s*"([\s\S]*?)"\s*,\s*"actions"/);
+  if (replyMatch) {
+    var extractedReply = replyMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+    var actionsMatch = text.match(/"actions"\s*:\s*(\[[\s\S]*?\])\s*\}/);
+    var actions = [];
+    if (actionsMatch) { try { actions = JSON.parse(actionsMatch[1]); } catch (_) {} }
+    return { reply: extractedReply, actions: Array.isArray(actions) ? actions : [] };
   }
 
   // Fallback: entire text is the reply
