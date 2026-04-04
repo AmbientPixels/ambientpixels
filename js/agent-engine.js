@@ -330,21 +330,21 @@ var AgentEngine = (function () {
 
   function getModelFleet() {
     return [{
-      id: 'gemini-2.0-flash',
-      name: 'Gemini 2.0 Flash',
-      provider: 'Google',
-      status: 'active',
-      usage: 'All agents — chat, standup, tasks, reports',
-      inputPrice: '$0.10 / 1M tokens',
-      outputPrice: '$0.40 / 1M tokens'
-    }, {
       id: 'claude-sonnet-4-6',
       name: 'Claude Sonnet 4.6',
       provider: 'Anthropic',
       status: 'active',
-      usage: 'Pixel Agents — public AI tools',
+      usage: 'Heartbeat agents, chat, standup, reports, Pixel Agents',
       inputPrice: '$3.00 / 1M tokens',
       outputPrice: '$15.00 / 1M tokens'
+    }, {
+      id: 'gemini-2.0-flash',
+      name: 'Gemini 2.0 Flash',
+      provider: 'Google',
+      status: 'active',
+      usage: 'Image generation, fallback model',
+      inputPrice: '$0.10 / 1M tokens',
+      outputPrice: '$0.40 / 1M tokens'
     }];
   }
 

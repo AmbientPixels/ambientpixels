@@ -324,6 +324,11 @@
           <div class="ceo-obs-light-label">Deploy</div>
           <div class="ceo-obs-light-value" id="ceo-strip-val-deploy">—</div>
         </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-model"></div>
+          <div class="ceo-obs-light-label">AI Model</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-model">—</div>
+        </div>
         <div id="ceo-strip-alert-row"></div>
       </div>
 
@@ -1365,7 +1370,7 @@
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderContentKPIs, renderGovernanceLog, renderGovernanceLogDev,
          renderTrendRadar, renderMeetingsWidget, updateActionBadge, renderOrgChart,
-         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget, renderAgentIntelWidget].forEach(function(fn) {
+         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderActiveModel, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget, renderAgentIntelWidget].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
       }
@@ -2041,6 +2046,39 @@
         if (srcAlert && dstAlert) dstAlert.innerHTML = srcAlert.innerHTML;
       }
 
+      // ── Active AI Model Indicator ──
+      var _detectedModel = null;
+      function renderActiveModel() {
+        var dotModel = document.getElementById('ceo-strip-dot-model');
+        var valModel = document.getElementById('ceo-strip-val-model');
+        var storeMode = AgentEngine.getStoreMode ? AgentEngine.getStoreMode() : 'local';
+        if (storeMode !== 'server' || !dotModel) return;
+
+        fetch(getApiBase() + '/company-state?key=geminiUsage', {
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}
+        }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (resp) {
+          var usage = (resp && resp.value) || [];
+          if (!Array.isArray(usage) || usage.length === 0) return;
+          // Find the most recent heartbeat call to determine active model
+          var heartbeatCalls = usage.filter(function (u) { return u.caller === 'heartbeat'; });
+          var latest = heartbeatCalls.length > 0 ? heartbeatCalls[heartbeatCalls.length - 1] : usage[usage.length - 1];
+          var model = (latest.model || '').toLowerCase();
+          _detectedModel = model;
+
+          var isClaude = model.indexOf('claude') !== -1;
+          var isGemini = model.indexOf('gemini') !== -1;
+          var label = isClaude ? 'Claude Sonnet' : isGemini ? 'Gemini Flash' : model;
+          var dotClass = isClaude ? 'ceo-obs-light-dot ceo-obs-light-dot--ok' : 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+
+          if (dotModel) { dotModel.className = dotClass; }
+          if (valModel) { valModel.textContent = label; }
+        }).catch(function () {
+          if (dotModel) dotModel.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          if (valModel) valModel.textContent = '—';
+        });
+      }
+
       // ── CEO Insights Mirrors (sync cost + content data) ──
       function renderCeoInsightsMirrors() {
         // Mirror cost summary
@@ -2413,16 +2451,25 @@
         panelFleet.innerHTML = '';
 
         fleet.forEach(function (model) {
+          // Detect which model is actually primary based on recent usage
+          var isPrimary = _detectedModel && model.id && _detectedModel.indexOf(model.id.split('-')[0]) !== -1;
+          // Smarter match: claude-sonnet-4-6 matches detected "claude-sonnet-4-6"
+          if (!isPrimary && _detectedModel) {
+            isPrimary = _detectedModel === model.id || _detectedModel.indexOf(model.id) !== -1;
+          }
+          var statusLabel = isPrimary ? 'PRIMARY' : model.status;
+          var statusClass = isPrimary ? 'active' : model.status;
+
           var el = document.createElement('div');
-          el.className = 'fleet-item';
+          el.className = 'fleet-item' + (isPrimary ? ' fleet-item--primary' : '');
           el.innerHTML =
             '<div class="fleet-icon"><i class="fas fa-brain"></i></div>' +
             '<div class="fleet-info">' +
-              '<div class="fleet-name">' + model.name + '</div>' +
+              '<div class="fleet-name">' + model.name + (isPrimary ? ' <span style="color:var(--glow-confirm);font-size:0.7em;font-weight:600;">● HEARTBEAT</span>' : '') + '</div>' +
               '<div class="fleet-detail">' + model.provider + ' · ' + model.inputPrice + ' in / ' + model.outputPrice + ' out</div>' +
               '<div class="fleet-detail">' + model.usage + '</div>' +
             '</div>' +
-            '<span class="fleet-status fleet-status--' + model.status + '">' + model.status + '</span>';
+            '<span class="fleet-status fleet-status--' + statusClass + '">' + statusLabel + '</span>';
           panelFleet.appendChild(el);
         });
       }
