@@ -70,7 +70,10 @@ async function loadCompanyState(options) {
   // Resolve all in parallel
   var keys = Object.keys(loads);
   var values = await Promise.all(keys.map(function (k) {
-    return loads[k].catch(function () { return null; });
+    return loads[k].catch(function (err) {
+      console.log('[companyContextLoader] WARN: failed to load "' + k + '":', err.message || err);
+      return null;
+    });
   }));
 
   var state = {};

@@ -515,6 +515,7 @@ module.exports = async function (context, req) {
 
       // Load company context and build system prompt
       const companyCtx = await loadCompanyContext(agentId);
+      if (index === 0) context.log('[StandupRun] Context preview (' + companyCtx.length + ' chars):', companyCtx.substring(0, 300));
       const systemPrompt = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId) + SHARED_RULES + companyCtx;
       const userMessage = buildStandupMessage(contextMsg);
 
