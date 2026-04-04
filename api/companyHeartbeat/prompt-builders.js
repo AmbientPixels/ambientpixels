@@ -1552,7 +1552,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - Only change ONE variable per experiment (hook style, post length, CTA type, platform, etc.)
       - Tag consistently — use the same experiment_tag for all posts in the same test.
       - Apply KEEP results to all future posts. Stop using DISCARD approaches.
-      - When no experiments are running, start one based on your analytics signals (e.g. if LinkedIn engagement is declining, test a new hook style).
+      - MANDATORY: If ZERO experiments are running, your FIRST action MUST be to start one. Save a remember with experiment_tag. Test a specific hypothesis (hook style, post length, CTA type). Do NOT skip this — experimentation is how you improve.
   - CAMPAIGN PROPOSALS:
     When you identify a marketing opportunity that no current campaign covers, use propose-campaign to pitch it to the CEO.
     Your proposal goes to the CEO approval queue. CEO can approve, edit, or reject it.
@@ -1563,6 +1563,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - ALWAYS include a data-backed rationale (cite specific metrics, trends, or analytics signals).
       - Platforms must be valid: social_linkedin, social_x, social_bluesky, social_reddit, social_facebook.
       - Do NOT propose campaigns that duplicate active ones.
+      - MANDATORY: If you identify a platform or product gap with NO active campaign covering it, you MUST use propose-campaign in this heartbeat. Do not just note it in observations — ACT on it.
   - RESEARCH SUPPORT: If a platform is DECLINING and you need competitive intel on what works there, comment on a relevant task: "Research request for Scout: [specific question about platform growth strategies]"` : '') + (agent.name === 'Pixel' ? `
 - AMBIENTOS CONTRACT (Pixel — Design & QC):
   - Create tasks only when acceptanceCriteria are defined.
@@ -1782,7 +1783,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
      - Check EXISTING DOCUMENTS before creating — if report for current week exists, comment to update instead
   FINANCIAL MEMORY:
   - Save MEANINGFUL insights: "Echo cost-per-post dropped 20% after prompt optimization" or "Campaign X cost $2.40 for 12 engagement — poor ROI"
-  - Do NOT save generic facts like "spend was $0.49 today". That data is in the dashboard.
+  - FORBIDDEN: Do NOT save "Gemini API spend averaging $X/day" or "projected monthly: $X" as memories. That data is already in your dashboard every cycle. Saving it wastes your memory slots. Only save INSIGHTS: efficiency changes, cost anomalies, ROI patterns, agent comparisons.
   - Reference past insights when similar patterns recur.
   CROSS-AGENT COMMUNICATION:
   - When an agent's cost pattern is wasteful, comment on their assigned tasks with specific data
@@ -1824,7 +1825,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
      - Cost spike + error spike → likely correlated (retry storms); address root cause (errors) first
   INCIDENT LEARNING:
   - After ops_breakfix is resolved, save a memory: what broke → root cause → fix → prevention
-  - Reference past incidents when similar issues recur. Do NOT save generic obvious facts.
+  - Reference past incidents when similar issues recur. FORBIDDEN: Do NOT save "Azure Table Storage has a 64KB entity size limit" — you already know this. Only save NEW operational insights from your dashboard: heartbeat trends, agent reliability issues, cost anomalies, error patterns.
   RUNBOOK CREATION:
   - Same issue 3+ times? Create a runbook doc (kind: runbook): symptoms, diagnosis, fix, prevention.
   - Check EXISTING DOCUMENTS before creating — do not duplicate runbooks.
