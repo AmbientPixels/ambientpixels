@@ -4,7 +4,11 @@ const storage = require('../_utils/companyStorage');
 const { normalizeCampaignRef, ensureCampaign } = require('../_shared/campaignMatcher');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL = 'claude-sonnet-4-6';
+const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
 
 // Agent system prompts — loaded at cold start, keyed by agent ID
 const AGENT_PROMPTS = {
@@ -192,7 +196,18 @@ Rules:
 - marketing_post and product_brief docs are auto-submitted for CEO blog approval
 - Set realistic due dates (2-7 days out)
 - ALWAYS respond with the JSON format, even for casual chat: {"reply":"your message","actions":[]}
+
+LIFECYCLE ACTIONS (Nova only — manage campaigns and objectives):
+- pause-campaign: {"type":"pause-campaign","campaignId":"camp-xxx","reason":"..."}
+- resume-campaign: {"type":"resume-campaign","campaignId":"camp-xxx"}
+- complete-campaign: {"type":"complete-campaign","campaignId":"camp-xxx"}
+- archive-objective: {"type":"archive-objective","objectiveId":"obj-xxx"}
+- propose-campaign: {"type":"propose-campaign","campaign":{"name":"...","description":"...","rationale":"...","platforms":["social_linkedin"],"frequency":2,"cadence":"weekly"}}
+- propose-objective: {"type":"propose-objective","objective":{"title":"...","description":"...","rationale":"...","successCriteria":"...","timeHorizon":"..."}}
+
+When CEO asks about campaign/objective cleanup, USE THESE ACTIONS — don't just advise. Check campaign end dates, objective progress, and task counts. Flag expired campaigns and stale objectives with specific IDs.
 `;
+
 
 const QUILL_FORBIDDEN_CHAT = ['create-task', 'create-doc', 'move-task', 'update-task'];
 
@@ -229,16 +244,21 @@ async function loadCompanyContext(agentId) {
       '- [' + t.status + '] ' + t.title + ' → ' + (t.assignee || 'unassigned') + ' (due: ' + (t.dueDate ? t.dueDate.substring(0, 10) : '?') + ', id: ' + t.id + ')'
     ).join('\n') || '(none)';
 
-    // Campaigns (was Directives)
-    const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt).slice(0, 5);
-    const campaignSummary = activeCampaigns.map(c =>
-      '- ' + c.title + ' (priority: ' + (c.priority || 'medium') + ', id: ' + c.id + ')'
-    ).join('\n') || '(none)';
+    // Campaigns — full status with end dates, task counts, pacing
+    const allCampaigns = campaigns.filter(c => !c.deletedAt);
+    const campaignSummary = allCampaigns.map(c => {
+      var linked = tasks.filter(t => t.campaign_id === c.id);
+      var done = linked.filter(t => t.status === 'done').length;
+      var total = linked.length;
+      var endInfo = c.endDate ? ', ends: ' + c.endDate.substring(0, 10) : '';
+      var expired = c.endDate && new Date(c.endDate) < new Date() ? ' EXPIRED' : '';
+      return '- [' + c.status.toUpperCase() + expired + '] ' + c.title + ' (' + done + '/' + total + ' tasks done, types: ' + JSON.stringify(c.allowedTaskTypes || []).substring(0, 50) + endInfo + ', id: ' + c.id + ')';
+    }).join('\n') || '(none)';
 
-    // Objectives
-    const activeObjectives = objectives.filter(o => o.status === 'active' || !o.status).slice(0, 5);
-    const objectivesSummary = activeObjectives.map(o =>
-      '- "' + o.title + '" (progress: ' + (o.progress || 0) + '%, id: ' + o.id + ')'
+    // Objectives — all with status
+    const allObjectives = objectives.slice(0, 10);
+    const objectivesSummary = allObjectives.map(o =>
+      '- [' + (o.status || 'unknown').toUpperCase() + '] "' + o.title + '" (progress: ' + (o.progress || 0) + '%, id: ' + o.id + ')'
     ).join('\n') || '(none)';
 
     // Documents
@@ -259,13 +279,35 @@ async function loadCompanyContext(agentId) {
       .map(d => '- ' + d.date + ' ' + d.title + ' (' + (d.type || 'event') + ')')
       .join('\n') || '';
 
+    // Agent memories (last 5)
+    let agentMemorySection = '';
+    try {
+      const agentMemories = (await storage.getState('agentMemories')) || {};
+      const myMems = (agentMemories[agentId] || []).slice(-5);
+      if (myMems.length > 0) {
+        agentMemorySection = '\n\nYour memories:\n' + myMems.map(m => '- ' + (m.text || '').substring(0, 150)).join('\n');
+      }
+    } catch (_) {}
+
+    // Agent seed memories
+    let seedSection = '';
+    try {
+      const seedMems = (await storage.getState('agentSeedMemories')) || {};
+      const globalSeed = seedMems._global || '';
+      const agentSeed = seedMems[agentId] || '';
+      if (globalSeed || agentSeed) {
+        seedSection = '\n\nSeed knowledge:\n' + (globalSeed ? globalSeed.substring(0, 800) : '') + (agentSeed ? '\n' + agentSeed.substring(0, 600) : '');
+      }
+    } catch (_) {}
+
     let ctx = '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
       '\n\nAll active tasks:\n' + allTasksSummary +
-      '\n\nActive campaigns:\n' + campaignSummary +
-      '\n\nActive objectives:\n' + objectivesSummary +
+      '\n\nAll campaigns (review for expired/stale):\n' + campaignSummary +
+      '\n\nAll objectives (review for stale/completed):\n' + objectivesSummary +
       '\n\nRecent documents:\n' + recentDocs;
     if (memorySummary) ctx += '\n\nWorkspace notes:\n' + memorySummary;
     if (upcomingDates) ctx += '\n\nUpcoming dates:\n' + upcomingDates;
+    ctx += agentMemorySection + seedSection;
 
     // Cipher-only: inject real cost intelligence
     if (agentId === 'cipher') {
@@ -812,33 +854,47 @@ ${message}`;
       }
     };
 
-    context.log('[AgentChat] Agent:', agentId, 'Mode:', mode || 'chat', 'Actions:', enableActions, 'Message:', message.substring(0, 100));
+    context.log('[AgentChat] Agent:', agentId, 'Mode:', mode || 'chat', 'Actions:', enableActions, 'Model:', USE_CLAUDE ? 'claude' : 'gemini', 'Message:', message.substring(0, 100));
 
-    const apiRes = await fetch(GEMINI_URL + GEMINI_API_KEY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(geminiBody)
-    });
-
-    const data = await apiRes.json();
-
-    if (!apiRes.ok) {
-      context.log.error('[AgentChat] Gemini error:', apiRes.status, JSON.stringify(data));
-      context.res = {
-        status: apiRes.status,
-        headers: corsHeaders,
-        body: { error: agentId + ' encountered a system fault.', details: data }
-      };
-      return;
+    let rawText = '';
+    if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+      // Claude Sonnet path
+      var claudeMessages = contents.map(function (c) {
+        return { role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map(function (p) { return p.text; }).join('\n') };
+      });
+      var claudeRes = await fetch(CLAUDE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: mode === 'report' ? 1500 : 1500, system: systemInstruction, messages: claudeMessages })
+      });
+      var claudeData = await claudeRes.json();
+      if (!claudeRes.ok) {
+        context.log.error('[AgentChat] Claude error:', claudeRes.status, JSON.stringify(claudeData).substring(0, 300));
+        context.res = { status: claudeRes.status, headers: corsHeaders, body: { error: agentId + ' encountered a system fault.', details: claudeData } };
+        return;
+      }
+      rawText = (claudeData.content && claudeData.content[0] && claudeData.content[0].text) || '';
+      var cUsage = claudeData.usage || {};
+      storage.logGeminiUsage({ caller: 'agentchat', model: CLAUDE_MODEL, agentId: agentId, promptTokens: cUsage.input_tokens || 0, completionTokens: cUsage.output_tokens || 0, totalTokens: (cUsage.input_tokens || 0) + (cUsage.output_tokens || 0) }).catch(function () {});
+    } else {
+      // Gemini path
+      const apiRes = await fetch(GEMINI_URL + GEMINI_API_KEY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geminiBody)
+      });
+      const data = await apiRes.json();
+      if (!apiRes.ok) {
+        context.log.error('[AgentChat] Gemini error:', apiRes.status, JSON.stringify(data));
+        context.res = { status: apiRes.status, headers: corsHeaders, body: { error: agentId + ' encountered a system fault.', details: data } };
+        return;
+      }
+      const um = data?.usageMetadata;
+      if (um) {
+        storage.logGeminiUsage({ caller: 'agentchat', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
+      }
+      rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     }
-
-    // Track token usage
-    const um = data?.usageMetadata;
-    if (um) {
-      storage.logGeminiUsage({ caller: 'agentchat', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
-    }
-
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     // Parse response for reply + actions
     let reply = rawText;
