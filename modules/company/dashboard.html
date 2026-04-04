@@ -2071,9 +2071,10 @@
           var model = (latest.model || '').toLowerCase();
           _detectedModel = model;
 
+          var isHaiku = model.indexOf('haiku') !== -1;
           var isClaude = model.indexOf('claude') !== -1;
           var isGemini = model.indexOf('gemini') !== -1;
-          var label = isClaude ? 'Claude Sonnet' : isGemini ? 'Gemini Flash' : model;
+          var label = isHaiku ? 'Claude Haiku' : isClaude ? 'Claude Sonnet' : isGemini ? 'Gemini Flash' : model;
           var dotClass = isClaude ? 'ceo-obs-light-dot ceo-obs-light-dot--ok' : 'ceo-obs-light-dot ceo-obs-light-dot--ok';
 
           if (dotModel) { dotModel.className = dotClass; }

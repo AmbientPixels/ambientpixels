@@ -194,24 +194,27 @@ const AGENT_INFO = {
 
 // ── Company context loader (matches agentchat pattern) ──
 async function loadCompanyContext(agentId) {
-  // Shared context modules — rich state grounded in real data
-  // NO try/catch wrapper — let errors surface in logs instead of silently returning empty context
-  const { loadCompanyState } = require('../_utils/companyContextLoader');
-  const { formatRichContext } = require('../_utils/companyContextFormatters');
+  try {
+    const { loadCompanyState } = require('../_utils/companyContextLoader');
+    const { formatRichContext } = require('../_utils/companyContextFormatters');
 
-  const state = await loadCompanyState({
-    includeTasks: true,
-    includeCampaigns: true,
-    includeObjectives: true,
-    includeDocuments: true,
-    includeMemories: true,
-    includeProductFacts: true,
-    includeIntelData: agentId === 'cipher', // Cipher needs geminiUsage for cost block
-    agentId: agentId
-  });
-  const ctx = formatRichContext(state, agentId);
-  console.log('[loadCompanyContext] Loaded for', agentId, ':', ctx.length, 'chars, tasks:', (state.tasks||[]).length, 'campaigns:', (state.campaigns||[]).length);
-  return ctx;
+    const state = await loadCompanyState({
+      includeTasks: true,
+      includeCampaigns: true,
+      includeObjectives: true,
+      includeDocuments: true,
+      includeMemories: true,
+      includeProductFacts: true,
+      includeIntelData: agentId === 'cipher',
+      agentId: agentId
+    });
+    const ctx = formatRichContext(state, agentId);
+    console.log('[loadCompanyContext] Loaded for', agentId, ':', ctx.length, 'chars, tasks:', (state.tasks||[]).length, 'campaigns:', (state.campaigns||[]).length);
+    return ctx;
+  } catch (err) {
+    console.error('[loadCompanyContext] FAILED for', agentId, ':', err.message);
+    return '';
+  }
 }
 
 // ── Standup mode message formatting (matches agentchat standup mode) ──
