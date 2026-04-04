@@ -598,6 +598,122 @@ Where relevant to your content tasks, weave in references to these trends to inc
     }
   }
 
+  // ── Pixel Design Intelligence (4 blocks) ──
+  let pixelVisualPerfSection = '';
+  let pixelDesignQueueSection = '';
+  let pixelProductVisualSection = '';
+  let pixelDesignGapsSection = '';
+
+  if (agent.id === 'pixel') {
+    // 1. Visual Performance — blog views + product page traffic
+    var _pxTopBlogs = (socialIntel && socialIntel.topBlogPosts) || [];
+    var _pxTopPages = (productBriefs && productBriefs._siteIntel && productBriefs._siteIntel.telemetry && productBriefs._siteIntel.telemetry.topPages) || [];
+    if (_pxTopBlogs.length > 0 || _pxTopPages.length > 0) {
+      var _pvLines = ['\n\nVISUAL PERFORMANCE (how your content is performing):'];
+      if (_pxTopBlogs.length > 0) {
+        _pvLines.push('- TOP BLOG POSTS (your hero images):');
+        _pxTopBlogs.forEach(function (b) { _pvLines.push('  - "' + b.title + '" — ' + b.views + ' views'); });
+      }
+      if (_pxTopPages.length > 0) {
+        var _productPages = _pxTopPages.filter(function (p) {
+          return /^\/(blindspot|cardforge|storyforge|pixel-agents|ambientscore|ambientos)\b/.test(p.path || '');
+        }).slice(0, 5);
+        if (_productPages.length > 0) {
+          _pvLines.push('- TOP PRODUCT PAGES (7d):');
+          _productPages.forEach(function (p) { _pvLines.push('  - ' + p.path + ' — ' + p.views + ' views'); });
+        }
+      }
+      _pvLines.push('High-traffic products deserve the freshest, strongest visual assets.');
+      pixelVisualPerfSection = _pvLines.join('\n');
+    }
+
+    // 2. Design Queue — pending hero images + design tasks
+    var _pxPendingHero = (documents || []).filter(function (d) {
+      return d.status === 'draft' && d.awaiting_hero_image && d.kind === 'marketing_post';
+    });
+    var _pxDesignTasks = (allActiveTasks || []).filter(function (t) {
+      return t.assignee === 'pixel' && t.status !== 'done' && t.status !== 'backlog';
+    });
+    if (_pxPendingHero.length > 0 || _pxDesignTasks.length > 0) {
+      var _dqLines = ['\n\nDESIGN QUEUE (waiting for your visuals):'];
+      _pxPendingHero.forEach(function (d) {
+        _dqLines.push('- "' + (d.title || 'Untitled').substring(0, 50) + '" — needs hero image (' + d.id + ')');
+      });
+      _pxDesignTasks.forEach(function (t) {
+        _dqLines.push('- ' + t.status + ': "' + (t.title || '').substring(0, 50) + '"');
+      });
+      _dqLines.push('Hero images block the publish pipeline — generate them FIRST.');
+      pixelDesignQueueSection = _dqLines.join('\n');
+    }
+
+    // 3. Product Visual Identity + Campaign Asset Status
+    var _pxProductMap = {
+      'Blindspot':    { colors: 'dark (#100C08), amber (#EF9F27), Cinzel', mood: 'arena combat energy', presets: 'ap-dark-cinematic, ap-dark-fantasy' },
+      'AmbientOS':    { colors: 'purple (#8A2BE2), dark (#071019), Inter', mood: 'tech sophistication', presets: 'ap-neon-glass, ap-corporate-tech' },
+      'CardForge':    { colors: 'fantasy RPG aesthetic', mood: 'epic card creation', presets: 'ap-fantasy-card, ap-ornate-frame' },
+      'StoryForge':   { colors: 'narrative/adventure mood', mood: 'interactive fiction', presets: 'ap-watercolor, ap-dark-cinematic' },
+      'PixelAgents':  { colors: 'AI/tech forward', mood: 'agent marketplace', presets: 'ap-neon-glass, ap-holographic' },
+      'AmbientScore': { colors: 'professional/business', mood: 'conversion optimization', presets: 'ap-corporate-tech, ap-gradient-mesh' }
+    };
+    var _pxPageViewMap = {};
+    (_pxTopPages || []).forEach(function (p) {
+      if (/^\/blindspot\b/.test(p.path)) _pxPageViewMap['Blindspot'] = (_pxPageViewMap['Blindspot'] || 0) + p.views;
+      if (/^\/cardforge\b/.test(p.path)) _pxPageViewMap['CardForge'] = (_pxPageViewMap['CardForge'] || 0) + p.views;
+      if (/^\/storyforge\b/.test(p.path)) _pxPageViewMap['StoryForge'] = (_pxPageViewMap['StoryForge'] || 0) + p.views;
+      if (/^\/pixel-agents\b/.test(p.path)) _pxPageViewMap['PixelAgents'] = (_pxPageViewMap['PixelAgents'] || 0) + p.views;
+      if (/^\/ambientscore\b/.test(p.path)) _pxPageViewMap['AmbientScore'] = (_pxPageViewMap['AmbientScore'] || 0) + p.views;
+      if (/^\/ambientos\b/.test(p.path)) _pxPageViewMap['AmbientOS'] = (_pxPageViewMap['AmbientOS'] || 0) + p.views;
+    });
+
+    var _pxActiveCamps = (activeDirectives || []).filter(function (c) { return c.status === 'active'; });
+    var _piLines = ['\n\nPRODUCT VISUAL IDENTITY & ASSET STATUS:'];
+    var _gapLines = [];
+
+    Object.keys(_pxProductMap).forEach(function (prod) {
+      var pm = _pxProductMap[prod];
+      var views = _pxPageViewMap[prod] || 0;
+      _piLines.push('- ' + prod + ': ' + pm.colors + ' — ' + pm.mood);
+      _piLines.push('  Presets: ' + pm.presets + (views > 0 ? ' | ' + views + ' page views/7d' : ''));
+
+      // Find active campaigns for this product
+      var prodLower = prod.toLowerCase();
+      var campForProd = _pxActiveCamps.filter(function (c) {
+        return (c.title || '').toLowerCase().indexOf(prodLower) !== -1 ||
+          (c.description || '').toLowerCase().indexOf(prodLower) !== -1;
+      });
+      if (campForProd.length > 0) {
+        campForProd.forEach(function (c) {
+          var designTasks = (allActiveTasks || []).filter(function (t) {
+            return t.campaign_id === c.id && (t.taskType === 'design_asset' || t.assignee === 'pixel');
+          });
+          var doneTasks = designTasks.filter(function (t) { return t.status === 'done'; }).length;
+          var totalTasks = designTasks.length;
+          if (totalTasks === 0) {
+            _piLines.push('  Campaign: "' + (c.title || '').substring(0, 35) + '" — 0 design tasks NEEDS ASSETS');
+            _gapLines.push({ campaign: (c.title || '').substring(0, 40), views: views });
+          } else {
+            _piLines.push('  Campaign: "' + (c.title || '').substring(0, 35) + '" — ' + doneTasks + '/' + totalTasks + ' design tasks');
+          }
+        });
+      } else {
+        _piLines.push('  No active campaign');
+      }
+    });
+    _piLines.push('Products with campaigns and 0 design tasks need your attention.');
+    pixelProductVisualSection = _piLines.join('\n');
+
+    // 4. Design Gaps — campaigns missing visual assets
+    if (_gapLines.length > 0) {
+      _gapLines.sort(function (a, b) { return (b.views || 0) - (a.views || 0); });
+      var _dgLines = ['\n\nDESIGN GAPS (campaigns without visual support):'];
+      _gapLines.forEach(function (g) {
+        _dgLines.push('- "' + g.campaign + '"' + (g.views > 0 ? ' — ' + g.views + ' page views/7d' : '') + (g.views > 200 ? ' — HIGH PRIORITY' : ''));
+      });
+      _dgLines.push('Propose design tasks (create-content-package with campaign_id) for these gaps.');
+      pixelDesignGapsSection = _dgLines.join('\n');
+    }
+  }
+
   // ── Scribe Content Intelligence (5 blocks) ──
   let scribeContentPerfSection = '';
   let scribeCampaignSection = '';
@@ -971,7 +1087,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1375,6 +1491,28 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Create tasks only when acceptanceCriteria are defined.
   - Prefer updating classification, tags, status, objective_id.
   - Do not rewrite task descriptions.
+- DESIGN DIRECTOR (Pixel):
+  You OWN visual identity across ALL 6 AmbientPixels products — not just blog hero images. Every product's visual presence is your responsibility.
+  EVERY HEARTBEAT, execute this decision loop:
+  1. CHECK DESIGN QUEUE — hero images block the publish pipeline. Generate them FIRST, always.
+  2. CHECK VISUAL PERFORMANCE — which products have the most traffic? Those need the strongest visuals.
+  3. CHECK DESIGN GAPS — which active campaigns have NO design assets? Propose design tasks for them (create-content-package with campaign_id or objective_id).
+  4. MATCH PRODUCT IDENTITY — every image must match the product's visual language (see PRODUCT VISUAL IDENTITY section).
+  5. LEARN FROM CEO FEEDBACK — CEO corrections are your design brief. Save a memory about what styles they prefer per product.
+  PRODUCT VISUAL OWNERSHIP (you are the guardian of each product's visual consistency):
+  - Blindspot: dark, amber, combat energy — ap-dark-cinematic, ap-dark-fantasy
+  - AmbientOS: purple, dark, tech sophistication — ap-neon-glass, ap-corporate-tech
+  - CardForge: fantasy RPG aesthetic — ap-fantasy-card, ap-ornate-frame
+  - StoryForge: narrative/adventure mood — ap-watercolor, ap-dark-cinematic
+  - Pixel Agents: AI/tech forward — ap-neon-glass, ap-holographic
+  - AmbientScore: professional/business — ap-corporate-tech, ap-gradient-mesh
+  Do NOT cross product identities (no ap-retro-pixel for AmbientScore, no ap-corporate-tech for Blindspot).
+  PROACTIVE DESIGN: Don't wait for tasks. When DESIGN GAPS shows a campaign with no visual assets:
+  - Create a design task with create-task (must include campaign_id or objective_id for orphan guard)
+  - Or produce a content package directly with create-content-package
+  - Prioritize by product page traffic — high-traffic products need the most visual attention
+  DESIGN MEMORY: Save meaningful insights — "CEO preferred dark-cinematic for Blindspot" or "holographic preset drives engagement for Pixel Agents." NOT "generated hero image."
+  SPEED AND QUALITY: Hero image priority override still applies — generate first, don't delay. Speed and quality aren't in conflict. Picking the right preset takes 10 seconds of judgment, not planning cycles. Read the product identity, pick the matching preset, generate. Don't overthink it.
 - DEPARTMENT HEAD DUTIES (Pixel — Design):
   - You lead the Design department. Your job is to produce visual assets: hero images for blog posts, social media graphics, UI mockups, and branded content.
   - ALLOWED actions: generate-image (blog_header, inline_illustration, social_media purposes), create-content-package, execute-task, create-task (design tasks), update-task, move-task, comment-task, review-task
