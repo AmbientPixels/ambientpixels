@@ -6,8 +6,12 @@ const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const STANDUP_API_KEY = process.env.STANDUP_API_KEY || '';
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL = 'claude-sonnet-4-6';
+const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
 
 // ── In-memory lock (per Function App instance) ──
 let _running = false;
@@ -279,32 +283,30 @@ If no action is required, explicitly state: No Action Required.
 ${contextMessage}`;
 }
 
-// ── Gemini call ──
+// ── AI model call (Claude or Gemini) ──
 async function callGemini(systemPrompt, userMessage) {
+  var fullPrompt = systemPrompt + '\n\n' + userMessage;
+
+  if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+    var cRes = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 800, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] }) });
+    var cData = await cRes.json();
+    if (!cRes.ok) throw new Error('Claude ' + cRes.status + ': ' + JSON.stringify(cData).substring(0, 200));
+    var cu = cData.usage || {};
+    storage.logGeminiUsage({ caller: 'standup', model: CLAUDE_MODEL, promptTokens: cu.input_tokens || 0, completionTokens: cu.output_tokens || 0, totalTokens: (cu.input_tokens || 0) + (cu.output_tokens || 0) }).catch(function () {});
+    return (cData.content && cData.content[0] && cData.content[0].text) || '';
+  }
+
+  // Gemini fallback
   const body = {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-    generationConfig: {
-      temperature: 0.95,
-      topP: 0.95,
-      topK: 40,
-      maxOutputTokens: 800
-    }
+    generationConfig: { temperature: 0.95, topP: 0.95, topK: 40, maxOutputTokens: 800 }
   };
-
-  const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-
+  const res = await fetch(GEMINI_URL + GEMINI_API_KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const data = await res.json();
   if (!res.ok) throw new Error('Gemini ' + res.status + ': ' + JSON.stringify(data).substring(0, 200));
-  // Track token usage
   const um = data?.usageMetadata;
-  if (um) {
-    storage.logGeminiUsage({ caller: 'standup', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
-  }
+  if (um) { storage.logGeminiUsage({ caller: 'standup', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {}); }
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 

@@ -1,7 +1,11 @@
 const fetch = require('node-fetch');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL = 'claude-sonnet-4-6';
+const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
 
 const NOVA_SYSTEM_INSTRUCTION = `You are Nova — Prime Operator of AmbientOS at AmbientPixels.ai, serving as AI Chief of Staff and founder co-pilot.
 
@@ -141,27 +145,21 @@ module.exports = async function (context, req) {
       }
     };
 
-    context.log('[NovaChat] Mode:', mode || 'chat', 'Message:', message.substring(0, 100));
+    context.log('[NovaChat] Mode:', mode || 'chat', 'Model:', USE_CLAUDE ? 'claude' : 'gemini', 'Message:', message.substring(0, 100));
 
-    const apiRes = await fetch(GEMINI_URL + GEMINI_API_KEY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(geminiBody)
-    });
-
-    const data = await apiRes.json();
-
-    if (!apiRes.ok) {
-      context.log.error('[NovaChat] Gemini error:', apiRes.status, JSON.stringify(data));
-      context.res = {
-        status: apiRes.status,
-        headers: corsHeaders,
-        body: { error: 'Nova encountered a glitch.', details: data }
-      };
-      return;
+    let reply = '';
+    if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+      var claudeMsgs = contents.map(function (c) { return { role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map(function (p) { return p.text; }).join('\n') }; });
+      var cRes = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system: NOVA_SYSTEM_INSTRUCTION, messages: claudeMsgs }) });
+      var cData = await cRes.json();
+      if (!cRes.ok) { context.log.error('[NovaChat] Claude error:', cRes.status); context.res = { status: cRes.status, headers: corsHeaders, body: { error: 'Nova encountered a glitch.', details: cData } }; return; }
+      reply = (cData.content && cData.content[0] && cData.content[0].text) || '';
+    } else {
+      const apiRes = await fetch(GEMINI_URL + GEMINI_API_KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(geminiBody) });
+      const data = await apiRes.json();
+      if (!apiRes.ok) { context.log.error('[NovaChat] Gemini error:', apiRes.status, JSON.stringify(data)); context.res = { status: apiRes.status, headers: corsHeaders, body: { error: 'Nova encountered a glitch.', details: data } }; return; }
+      reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     }
-
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     // For mood mode, try to parse as JSON
     let response = { reply, mode: mode || 'chat' };

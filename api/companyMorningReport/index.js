@@ -5,7 +5,30 @@ const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL = 'claude-sonnet-4-6';
+const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
+
+async function _callModel(prompt, maxTokens, caller) {
+  if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+    var res = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: maxTokens || 1500, messages: [{ role: 'user', content: prompt }] }) });
+    var data = await res.json();
+    if (!res.ok) throw new Error('Claude ' + res.status);
+    var cu = data.usage || {};
+    storage.logGeminiUsage({ caller: caller || 'morning-report', model: CLAUDE_MODEL, promptTokens: cu.input_tokens || 0, completionTokens: cu.output_tokens || 0, totalTokens: (cu.input_tokens || 0) + (cu.output_tokens || 0) }).catch(function () {});
+    return (data.content && data.content[0] && data.content[0].text) || '';
+  }
+  // Gemini fallback
+  var gBody = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, topP: 0.9, maxOutputTokens: maxTokens || 1500 } };
+  var gRes = await fetch(GEMINI_URL + GEMINI_API_KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(gBody) });
+  var gData = await gRes.json();
+  if (!gRes.ok) throw new Error('Gemini ' + gRes.status);
+  var um = gData && gData.usageMetadata;
+  if (um) storage.logGeminiUsage({ caller: caller || 'morning-report', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(function () {});
+  return (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '';
+}
 
 module.exports = async function (context) {
   const demoGuard = require('../_utils/demoGuard');
@@ -325,28 +348,13 @@ async function callGemini(prompt) {
     }
   };
 
-  const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-
-  if (!res.ok) {
-    throw new Error('Gemini returned ' + res.status);
-  }
-
-  const data = await res.json();
-  // Track token usage
-  const um = data?.usageMetadata;
-  if (um) {
-    storage.logGeminiUsage({ caller: 'morning-report', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
-  }
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  var fullPrompt = 'You are Nova, Prime Operator of AmbientPixels. You write concise, structured CEO executive summaries for Pixelpusher (Chad), the CEO. Strategic overview only — no granular noise.\n\n' + prompt;
+  return _callModel(fullPrompt, 400, 'morning-report');
 }
 
 // ── Generate public daily log draft ──
 async function generateDailyLogDraft(context, data) {
-  if (!GEMINI_API_KEY) return null;
+  if (!GEMINI_API_KEY && !ANTHROPIC_API_KEY) return null;
 
   // Build a sanitized activity summary (no task IDs, no internal names)
   let activityLines = '';
@@ -411,23 +419,8 @@ Rules:
     }
   };
 
-  const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-
-  if (!res.ok) {
-    throw new Error('Gemini daily log returned ' + res.status);
-  }
-
-  const geminiData = await res.json();
-  // Track token usage
-  const dlum = geminiData?.usageMetadata;
-  if (dlum) {
-    storage.logGeminiUsage({ caller: 'morning-report-dailylog', model: 'gemini-2.0-flash', promptTokens: dlum.promptTokenCount || 0, completionTokens: dlum.candidatesTokenCount || 0, totalTokens: dlum.totalTokenCount || 0 }).catch(() => {});
-  }
-  const raw = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  var dailyLogPrompt = 'You write engaging, public-facing daily activity summaries for an AI-operated company. Your tone is professional but personable — like a startup blog. Output valid JSON only.\n\n' + prompt;
+  const raw = await _callModel(dailyLogPrompt, 600, 'morning-report-dailylog');
 
   // Parse JSON from response (strip markdown fences if present)
   let parsed;
