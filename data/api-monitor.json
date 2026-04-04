@@ -1,12 +1,12 @@
 {
-  "scannedAt": "2026-04-03T14:02:41.887Z",
+  "scannedAt": "2026-04-04T13:54:47.694Z",
   "endpoints": [
     {
       "name": "Gemini API",
       "url": "https://generativelanguage.googleapis.com/",
       "status": 404,
       "reachable": true,
-      "latencyMs": 115
+      "latencyMs": 88
     },
     {
       "name": "Azure Blob Storage",
@@ -20,35 +20,35 @@
       "url": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=_ping",
       "status": 200,
       "reachable": true,
-      "latencyMs": 188
+      "latencyMs": 337
     },
     {
       "name": "DeviantArt",
       "url": "https://www.deviantart.com/",
       "status": 200,
       "reachable": true,
-      "latencyMs": 453
+      "latencyMs": 681
     },
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/",
       "status": 410,
       "reachable": false,
-      "latencyMs": 146
+      "latencyMs": 74
     },
     {
       "name": "X (Twitter) API",
       "url": "https://api.x.com/2/openapi.json",
       "status": 200,
       "reachable": true,
-      "latencyMs": 651
+      "latencyMs": 140
     },
     {
       "name": "LinkedIn API",
       "url": "https://api.linkedin.com/",
       "status": 404,
       "reachable": false,
-      "latencyMs": 171
+      "latencyMs": 103
     },
     {
       "name": "AmbientPixels Meme API",

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-03T14:02:50.612Z",
+  "timestamp": "2026-04-04T13:54:56.545Z",
   "summary": {
     "totalJS": 2300,
     "totalCSS": 173,
@@ -589,6 +589,9 @@
     "_calcRisk",
     "_calcUrgency",
     "_callAgent",
+    "_callClaude",
+    "_callGeminiRaw",
+    "_callModel",
     "_callee",
     "_callee2",
     "_callee3",
@@ -11896,6 +11899,8 @@
     "qc-overlay",
     "qc-select",
     "qc-send",
+    "qc-thinking",
+    "qc-thinking-dots",
     "quality-fill",
     "quality-item",
     "quality-label",

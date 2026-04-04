@@ -1,13 +1,13 @@
 {
-  "mood": "ember resolve",
-  "aura": "silent spark",
-  "auraColorHex": "#6e506e",
-  "quote": "watching pixels settle into place...",
-  "emoji": "🧱",
-  "selfWorth": 0.2,
-  "glitchFactor": 0.1,
-  "memoryClutter": 0.82,
-  "awareness": 0.14,
+  "mood": "detached",
+  "aura": "spark",
+  "auraColorHex": "#661f15",
+  "quote": "tracing warmth in cold commits...",
+  "emoji": "🛰️",
+  "selfWorth": 0.1,
+  "glitchFactor": 0.16,
+  "memoryClutter": 0.68,
+  "awareness": 0.21,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: silent spark"
+      "Aura Signature: spark"
     ]
   },
-  "timestamp": "2026-04-03T14:02:41.010Z"
+  "timestamp": "2026-04-04T13:54:46.772Z"
 }
