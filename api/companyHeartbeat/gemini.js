@@ -1,6 +1,7 @@
 // gemini.js — AI model wrapper for heartbeat agent calls
-// Supports Gemini (default) and Claude Sonnet (HEARTBEAT_MODEL=claude)
-// Same exports: callGemini(prompt, agentId), callGeminiExecute(prompt, agentId)
+// Supports Gemini Flash, Claude Sonnet, Claude Haiku
+// Model switchable at runtime via systemConfig state key (no redeploy needed)
+// Same exports: callGemini(prompt, agentId), callGeminiExecute(prompt, agentId), getActiveModel()
 
 var fetch = require('node-fetch');
 var storage = require('../_utils/companyStorage');
@@ -9,14 +10,53 @@ var GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 var CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
-var CLAUDE_MODEL = 'claude-sonnet-4-6';
 
-// Switch model: set HEARTBEAT_MODEL=claude in Azure Function App settings to use Claude
-var USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
+// Model IDs
+var MODELS = {
+  'claude': 'claude-sonnet-4-6',
+  'claude-sonnet': 'claude-sonnet-4-6',
+  'claude-haiku': 'claude-haiku-4-5-20251001',
+  'gemini': 'gemini-2.0-flash'
+};
+
+// Fallback from env var (used if systemConfig not set)
+var _envModel = (process.env.HEARTBEAT_MODEL || '').toLowerCase();
+
+// Runtime model cache (refreshed every 5 min from systemConfig)
+var _cachedModel = null;
+var _cacheExpiry = 0;
+var CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function _resolveModel() {
+  var now = Date.now();
+  if (_cachedModel && now < _cacheExpiry) return _cachedModel;
+
+  try {
+    var config = await storage.getState('systemConfig');
+    if (config && config.heartbeatModel) {
+      _cachedModel = config.heartbeatModel.toLowerCase();
+      _cacheExpiry = now + CACHE_TTL_MS;
+      return _cachedModel;
+    }
+  } catch (e) { /* systemConfig unavailable — use env var */ }
+
+  _cachedModel = _envModel || 'gemini';
+  _cacheExpiry = now + CACHE_TTL_MS;
+  return _cachedModel;
+}
+
+function _isClaudeModel(model) {
+  return model === 'claude' || model === 'claude-sonnet' || model === 'claude-haiku';
+}
+
+function _getClaudeModelId(model) {
+  return MODELS[model] || MODELS['claude-sonnet'];
+}
 
 // ── Claude API call ──
-async function _callClaude(prompt, agentId, maxTokens) {
+async function _callClaude(prompt, agentId, maxTokens, modelKey) {
   if (!ANTHROPIC_API_KEY) return null;
+  var claudeModelId = _getClaudeModelId(modelKey || 'claude-sonnet');
 
   try {
     var res = await fetch(CLAUDE_URL, {
@@ -27,7 +67,7 @@ async function _callClaude(prompt, agentId, maxTokens) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: CLAUDE_MODEL,
+        model: claudeModelId,
         max_tokens: maxTokens || 1500,
         messages: [{ role: 'user', content: prompt }]
       })
@@ -48,7 +88,7 @@ async function _callClaude(prompt, agentId, maxTokens) {
     var outputTokens = (data.usage && data.usage.output_tokens) || 0;
     storage.logGeminiUsage({
       caller: 'heartbeat',
-      model: CLAUDE_MODEL,
+      model: claudeModelId,
       agentId: agentId || null,
       promptTokens: inputTokens,
       completionTokens: outputTokens,
@@ -106,16 +146,24 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller) {
   }
 }
 
-// ── Exported functions (same interface, model selected by env var) ──
+// ── Exported functions (same interface, model resolved dynamically) ──
 
 async function callGemini(prompt, agentId) {
-  if (USE_CLAUDE) return _callClaude(prompt, agentId, 1500);
+  var model = await _resolveModel();
+  if (_isClaudeModel(model)) return _callClaude(prompt, agentId, 1500, model);
   return _callGeminiRaw(prompt, agentId, 1500, 0.7, 'heartbeat');
 }
 
 async function callGeminiExecute(prompt, agentId) {
-  if (USE_CLAUDE) return _callClaude(prompt, agentId, 1200);
+  var model = await _resolveModel();
+  if (_isClaudeModel(model)) return _callClaude(prompt, agentId, 1200, model);
   return _callGeminiRaw(prompt, agentId, 1200, 0.8, 'heartbeat-execute');
 }
 
-module.exports = { callGemini, callGeminiExecute };
+// Returns the currently active model key (for dashboard/API)
+async function getActiveModel() {
+  var model = await _resolveModel();
+  return { key: model, modelId: MODELS[model] || model, isClaude: _isClaudeModel(model) };
+}
+
+module.exports = { callGemini, callGeminiExecute, getActiveModel };

@@ -682,6 +682,11 @@
         <div class="dash-panel">
           <div class="dash-panel-header">
             <span class="dash-panel-title"><i class="fas fa-microchip dash-icon-purple co-icon-mr"></i> AI Model Fleet</span>
+            <select id="model-switcher" style="font-size:0.75rem;padding:2px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:var(--mood-surface, #1a1a2e);color:var(--aura-text, #e0e0e0);cursor:pointer;margin-left:auto;">
+              <option value="claude-sonnet">Claude Sonnet 4.6</option>
+              <option value="claude-haiku">Claude Haiku 4.5</option>
+              <option value="gemini">Gemini 2.0 Flash</option>
+            </select>
           </div>
           <div id="panel-fleet"></div>
         </div>
@@ -2473,6 +2478,50 @@
           panelFleet.appendChild(el);
         });
       }
+
+      // ── Model Switcher ──
+      (function initModelSwitcher() {
+        var sel = document.getElementById('model-switcher');
+        if (!sel) return;
+        var storeMode = AgentEngine.getStoreMode ? AgentEngine.getStoreMode() : 'local';
+        if (storeMode !== 'server') { sel.style.display = 'none'; return; }
+
+        // Load current model from systemConfig
+        fetch(getApiBase() + '/company-state?key=systemConfig', {
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}
+        }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (resp) {
+          var config = (resp && resp.value) || {};
+          var current = config.heartbeatModel || 'claude-sonnet';
+          sel.value = current;
+        }).catch(function () {});
+
+        sel.addEventListener('change', function () {
+          var newModel = sel.value;
+          // Read current config, merge, save
+          fetch(getApiBase() + '/company-state?key=systemConfig', {
+            headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}
+          }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (resp) {
+            var config = (resp && resp.value) || {};
+            config.heartbeatModel = newModel;
+            return fetch(getApiBase() + '/company-state', {
+              method: 'POST',
+              headers: Object.assign({ 'Content-Type': 'application/json' },
+                (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}),
+              body: JSON.stringify({ key: 'systemConfig', value: config })
+            });
+          }).then(function (r) {
+            if (r && r.ok) {
+              var labels = { 'claude-sonnet': 'Claude Sonnet', 'claude-haiku': 'Claude Haiku', 'gemini': 'Gemini Flash' };
+              var valModel = document.getElementById('ceo-strip-val-model');
+              if (valModel) valModel.textContent = labels[newModel] || newModel;
+              _detectedModel = newModel === 'gemini' ? 'gemini-2.0-flash' : newModel === 'claude-haiku' ? 'claude-haiku-4-5-20251001' : 'claude-sonnet-4-6';
+              renderFleet();
+            }
+          }).catch(function (e) { console.warn('[ModelSwitcher] Save failed:', e); });
+        });
+      })();
 
       // ── Agent Status ──
       function renderAgentStatus() {
