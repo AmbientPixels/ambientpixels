@@ -44,7 +44,7 @@
       var snippet = new Microsoft.ApplicationInsights.ApplicationInsights({
         config: {
           connectionString: CONNECTION_STRING,
-          enableAutoRouteTracking: true,
+          enableAutoRouteTracking: false, // disabled — we track manually with correct path below
           disableFetchTracking: false,
           enableCorsCorrelation: false,
           enableRequestHeaderTracking: false,
@@ -55,21 +55,28 @@
       });
       snippet.loadAppInsights();
 
-      // Set custom context
+      // Set custom context and ensure correct URL on all page views
       snippet.addTelemetryInitializer(function (envelope) {
         envelope.data = envelope.data || {};
         envelope.data.site = 'ambientpixels';
         envelope.data.module = _moduleName();
-        // Strip PII from page view URLs
+        // Override URL with real browser path (SWA fallback rewrites to / on server side)
         if (envelope.baseType === 'PageviewData' && envelope.baseData) {
-          envelope.baseData.uri = _stripPII(envelope.baseData.uri || location.href);
+          envelope.baseData.uri = location.origin + _stripPII(location.href);
         }
       });
 
-      // Track initial page view
+      // Track initial page view with correct client-side path
+      // (SWA navigation fallback rewrites all paths to / on the server — we override with the real browser URL)
+      var _cleanUri = _stripPII(location.href);
+      var _fullUrl = location.origin + _cleanUri;
       snippet.trackPageView({
         name: document.title,
-        uri: _stripPII(location.href)
+        uri: _fullUrl,
+        properties: {
+          clientPath: location.pathname,
+          module: _moduleName()
+        }
       });
 
       window.__aiClient = snippet;
