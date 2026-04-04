@@ -3008,6 +3008,8 @@ var AgentEngine = (function () {
         var wasCancelled = a.approval.status === 'approved';
         a.approval.status = wasCancelled ? 'cancelled' : 'rejected';
         a.approval.decision_note = note || null;
+        a.approval.approved_by = 'Pixelpusher'; // track who rejected
+        a.approval.approved_at = new Date().toISOString();
         a.updatedAt = new Date().toISOString();
         a.execution.status = 'failed';
         a.execution.finished_at = new Date().toISOString();

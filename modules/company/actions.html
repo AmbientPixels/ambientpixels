@@ -1901,7 +1901,7 @@
         _showExecNotice('warn', 'Action not found or already processed.');
       }
     }
-    function doReject(id) { AE.rejectAction(id); renderAll(); }
+    function doReject(id) { if (!confirm('Reject this action? This cannot be undone.')) return; AE.rejectAction(id); renderAll(); }
     function doRevision(id, note) {
       // Sync version updates localStorage instantly — render UI immediately
       var a = AE.requestActionRevision(id, note || '');
@@ -1953,6 +1953,7 @@
     function doRejectSelected() {
       var ids = Array.from(_selectedPending);
       if (!ids.length) return;
+      if (!confirm('Reject ' + ids.length + ' action(s)? This cannot be undone.')) return;
       ids.forEach(function(id) { AE.rejectAction(id); });
       _selectedPending.clear();
       renderAll();
