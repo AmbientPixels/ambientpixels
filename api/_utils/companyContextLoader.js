@@ -1,0 +1,98 @@
+// companyContextLoader.js — Shared company state loader for all AI-facing endpoints
+// Options-gated: callers specify which data they need, skipping expensive loads.
+// Used by: standup, novachat, mood engine, morning report, agent chat.
+// Does NOT replace prompt-builders.js (heartbeat stays untouched).
+
+const storage = require('./companyStorage');
+
+// Cached at module load — static file, no need to re-read per request
+let _productFacts = null;
+try { _productFacts = require('../_data/product-facts.json'); } catch (e) { _productFacts = null; }
+
+let _productBriefs = null;
+try { _productBriefs = require('../_data/product-briefs.json'); } catch (e) { _productBriefs = null; }
+
+/**
+ * loadCompanyState(options) — loads company state from Azure Blob storage.
+ *
+ * @param {Object} options
+ * @param {boolean} options.includeTasks       - tasks (default true)
+ * @param {boolean} options.includeCampaigns   - campaigns (default true)
+ * @param {boolean} options.includeObjectives  - objectives (default true)
+ * @param {boolean} options.includeDocuments   - documents (default false)
+ * @param {boolean} options.includeMemories    - workspace + agent + seed memories (default false)
+ * @param {boolean} options.includeIntelData   - social events, heartbeat runs, gemini usage, etc. (default false, EXPENSIVE)
+ * @param {boolean} options.includeProductFacts - product-facts.json + product-briefs.json (default false)
+ * @param {string}  options.agentId            - for agent-specific filtering (optional)
+ * @returns {Object} state object with all requested data
+ */
+async function loadCompanyState(options) {
+  var opts = options || {};
+  var includeTasks = opts.includeTasks !== false;
+  var includeCampaigns = opts.includeCampaigns !== false;
+  var includeObjectives = opts.includeObjectives !== false;
+  var includeDocuments = !!opts.includeDocuments;
+  var includeMemories = !!opts.includeMemories;
+  var includeIntelData = !!opts.includeIntelData;
+  var includeProductFacts = !!opts.includeProductFacts;
+  var agentId = opts.agentId || null;
+
+  // Build parallel load promises based on flags
+  var loads = {};
+
+  if (includeTasks) loads.tasks = storage.getState('tasks');
+  if (includeCampaigns) loads.campaigns = storage.getState('campaigns');
+  if (includeObjectives) loads.objectives = storage.getState('objectives');
+  if (includeDocuments) loads.documents = storage.getState('documents');
+
+  if (includeMemories) {
+    loads.workspaceMemory = storage.getState('workspaceMemory');
+    loads.dates = storage.getState('dates');
+    loads.agentMemories = storage.getState('agentMemories');
+    loads.agentSeedMemories = storage.getState('agentSeedMemories');
+  }
+
+  if (includeIntelData) {
+    loads.socialMetricsEvents = storage.getState('socialMetricsEvents');
+    loads.socialEngagementSnapshots = storage.getState('socialEngagementSnapshots');
+    loads.socialEngagementMeta = storage.getState('socialEngagementMeta');
+    loads.socialAccountStats = storage.getState('socialAccountStats');
+    loads.socialWeeklySnapshots = storage.getState('socialWeeklySnapshots');
+    loads.blogPostViews = storage.getState('blogPostViews');
+    loads.heartbeatRuns = storage.getState('heartbeatRuns');
+    loads.geminiUsage = storage.getState('geminiUsage');
+    loads.governanceLog = storage.getState('governanceLog');
+    loads.actions = storage.getState('actions');
+    loads.agentExperiments = storage.getState('agentExperiments');
+    loads.runtimeMemory = storage.getState('runtimeMemory');
+  }
+
+  // Resolve all in parallel
+  var keys = Object.keys(loads);
+  var values = await Promise.all(keys.map(function (k) {
+    return loads[k].catch(function () { return null; });
+  }));
+
+  var state = {};
+  for (var i = 0; i < keys.length; i++) {
+    state[keys[i]] = values[i] || (Array.isArray(values[i]) ? [] : null);
+  }
+
+  // Ensure arrays for core keys
+  if (includeTasks) state.tasks = Array.isArray(state.tasks) ? state.tasks : [];
+  if (includeCampaigns) state.campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
+  if (includeObjectives) state.objectives = Array.isArray(state.objectives) ? state.objectives : [];
+  if (includeDocuments) state.documents = Array.isArray(state.documents) ? state.documents : [];
+
+  // Attach static data
+  if (includeProductFacts) {
+    state.productFacts = _productFacts;
+    state.productBriefs = _productBriefs;
+  }
+
+  state.agentId = agentId;
+
+  return state;
+}
+
+module.exports = { loadCompanyState };

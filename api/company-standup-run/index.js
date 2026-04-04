@@ -194,59 +194,21 @@ const AGENT_INFO = {
 // ── Company context loader (matches agentchat pattern) ──
 async function loadCompanyContext(agentId) {
   try {
-    const tasks = (await storage.getState('tasks')) || [];
-    const campaigns = (await storage.getState('campaigns')) || [];
-    const objectives = (await storage.getState('objectives')) || [];
+    // Shared context modules — rich state grounded in real data
+    const { loadCompanyState } = require('../_utils/companyContextLoader');
+    const { formatRichContext } = require('../_utils/companyContextFormatters');
 
-    const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
-    const taskSummary = agentTasks.map(t => {
-      let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id;
-      if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
-      line += ')';
-      return line;
-    }).join('\n') || '(none)';
-
-    const activeTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog').slice(0, 25);
-    const allTasksSummary = activeTasks.map(t =>
-      '- [' + t.status + '] ' + t.title + ' → ' + (t.assignee || 'unassigned') + ' (due: ' + (t.dueDate ? t.dueDate.substring(0, 10) : '?') + ')'
-    ).join('\n') || '(none)';
-
-    const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt).slice(0, 5);
-    const campaignSummary = activeCampaigns.map(c =>
-      '- ' + c.title + ' (priority: ' + (c.priority || 'medium') + ')'
-    ).join('\n') || '(none)';
-
-    const activeObjectives = objectives.filter(o => o.status === 'active' || !o.status).slice(0, 5);
-    const objectivesSummary = activeObjectives.map(o =>
-      '- "' + o.title + '" (progress: ' + (o.progress || 0) + '%)'
-    ).join('\n') || '(none)';
-
-    let ctx = '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
-      '\n\nAll active tasks:\n' + allTasksSummary +
-      '\n\nActive campaigns:\n' + campaignSummary +
-      '\n\nActive objectives:\n' + objectivesSummary;
-
-    // Cipher-only: inject real cost intelligence for standup
-    if (agentId === 'cipher') {
-      try {
-        const geminiCosts = await storage.getGeminiCostSummary(30);
-        if (geminiCosts && geminiCosts.totalCalls > 0) {
-          const topCallers = Object.entries(geminiCosts.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 3);
-          const topAgents = Object.entries(geminiCosts.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 3);
-          const dayEntries = Object.entries(geminiCosts.byDay || {}).sort((a, b) => a[0].localeCompare(b[0]));
-          const avgDaily = geminiCosts.totalCost / Math.max(dayEntries.length, 1);
-
-          ctx += '\n\n💰 REAL COST DATA (use ONLY these numbers — never estimate or guess):' +
-            '\nGemini API (30d): $' + geminiCosts.totalCost.toFixed(4) + ' | ' + geminiCosts.totalCalls + ' calls | ' + geminiCosts.totalTokens.toLocaleString() + ' tokens' +
-            '\nAvg daily: $' + avgDaily.toFixed(4) + ' | Projected monthly: $' + (avgDaily * 30).toFixed(2) +
-            '\nTop services: ' + (topCallers.map(([n, d]) => n + ' $' + d.cost.toFixed(4)).join(', ') || 'none') +
-            '\nTop agents: ' + (topAgents.map(([n, d]) => n + ' $' + d.cost.toFixed(4)).join(', ') || 'none') +
-            '\nNEVER make up cost numbers. Only report what is shown above.';
-        }
-      } catch (e) { /* cost data unavailable */ }
-    }
-
-    return ctx;
+    const state = await loadCompanyState({
+      includeTasks: true,
+      includeCampaigns: true,
+      includeObjectives: true,
+      includeDocuments: true,
+      includeMemories: true,
+      includeProductFacts: true,
+      includeIntelData: agentId === 'cipher', // Cipher needs geminiUsage for cost block
+      agentId: agentId
+    });
+    return formatRichContext(state, agentId);
   } catch (err) {
     return '\n\n(Company context unavailable)';
   }
