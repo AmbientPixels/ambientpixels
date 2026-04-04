@@ -351,6 +351,8 @@ var AgentEngine = (function () {
       provider: 'Google',
       status: 'active',
       usage: 'Image generation, fallback model',
+      alwaysActive: true,
+      alwaysActiveRole: 'image gen',
       inputPrice: '$0.10 / 1M tokens',
       outputPrice: '$0.40 / 1M tokens'
     }];

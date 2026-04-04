@@ -2460,15 +2460,27 @@
 
         fleet.forEach(function (model) {
           var isPrimary = activeId === model.id;
-          var statusLabel = isPrimary ? 'PRIMARY' : model.status;
-          var statusClass = isPrimary ? 'active' : model.status;
+          var statusLabel, statusClass, roleTag;
+          if (isPrimary) {
+            statusLabel = 'PRIMARY';
+            statusClass = 'active';
+            roleTag = ' <span style="color:var(--glow-confirm);font-size:0.7em;font-weight:600;">● HEARTBEAT</span>';
+          } else if (model.alwaysActive) {
+            statusLabel = 'ACTIVE';
+            statusClass = 'active';
+            roleTag = ' <span style="color:var(--aura-text-muted,#888);font-size:0.7em;font-weight:400;">· ' + model.alwaysActiveRole + '</span>';
+          } else {
+            statusLabel = 'STANDBY';
+            statusClass = 'available';
+            roleTag = '';
+          }
 
           var el = document.createElement('div');
           el.className = 'fleet-item' + (isPrimary ? ' fleet-item--primary' : '');
           el.innerHTML =
             '<div class="fleet-icon"><i class="fas fa-brain"></i></div>' +
             '<div class="fleet-info">' +
-              '<div class="fleet-name">' + model.name + (isPrimary ? ' <span style="color:var(--glow-confirm);font-size:0.7em;font-weight:600;">● HEARTBEAT</span>' : '') + '</div>' +
+              '<div class="fleet-name">' + model.name + roleTag + '</div>' +
               '<div class="fleet-detail">' + model.provider + ' · ' + model.inputPrice + ' in / ' + model.outputPrice + ' out</div>' +
               '<div class="fleet-detail">' + model.usage + '</div>' +
             '</div>' +
