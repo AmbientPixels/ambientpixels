@@ -1542,9 +1542,10 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     MANUAL POSTING: Reddit posts are currently manual — the CEO copies the approved post from the dashboard outbox and posts it. The create-social-action flow still applies (it queues for CEO approval), but execution is manual, not automated
   - A/B EXPERIMENT SYSTEM:
     You can run experiments to test what works. The system tracks CEO approval rate and engagement per experiment tag.
-    HOW TO START: Save a memory with experiment_tag field to register a hypothesis. Example:
-      { "type": "remember", "text": "Testing question-format hooks on LinkedIn for higher engagement", "experiment_tag": "question-hooks-linkedin" }
-    HOW TO TAG POSTS: Include experiment_tag in your create-social-action to count it as a sample:
+    HOW TO START: You MUST include the "experiment_tag" field in your remember action. Without it, the system cannot track the experiment. Example:
+      { "type": "remember", "text": "Testing question hooks on LinkedIn", "experiment_tag": "question-hooks-linkedin" }
+      CRITICAL: The "experiment_tag" field is REQUIRED. A remember without experiment_tag is just a note — it does NOT register an experiment. The tag must be a short kebab-case string.
+    HOW TO TAG POSTS: Include the SAME experiment_tag in your create-social-action to count it as a sample:
       { "type": "create-social-action", "taskId": "...", "experiment_tag": "question-hooks-linkedin", "social": { ... } }
     RESULTS: After 3+ samples, the system auto-concludes: KEEP (approval rate improved 30%+), DISCARD (declined 30%+), or INCONCLUSIVE. Results appear in your EXPERIMENTS section each heartbeat.
     RULES:
