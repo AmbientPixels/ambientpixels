@@ -682,11 +682,11 @@
         <div class="dash-panel">
           <div class="dash-panel-header">
             <span class="dash-panel-title"><i class="fas fa-microchip dash-icon-purple co-icon-mr"></i> AI Model Fleet</span>
-            <select id="model-switcher" style="font-size:0.75rem;padding:3px 10px;border-radius:6px;border:1px solid var(--aura-border, #444);background:var(--mood-surface, #1a1a2e);color:var(--aura-text, #e0e0e0);cursor:pointer;float:right;margin-top:-2px;">
-              <option value="claude-sonnet">Claude Sonnet 4.6</option>
-              <option value="claude-haiku">Claude Haiku 4.5</option>
-              <option value="gemini">Gemini 2.0 Flash</option>
-            </select>
+          </div>
+          <div id="model-switcher" style="display:flex;gap:4px;padding:8px 12px 4px 12px;">
+            <button data-model="claude-sonnet" class="model-pill" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:transparent;color:var(--aura-text-muted, #888);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s;">Sonnet 4.6</button>
+            <button data-model="claude-haiku" class="model-pill" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:transparent;color:var(--aura-text-muted, #888);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s;">Haiku 4.5</button>
+            <button data-model="gemini" class="model-pill" style="flex:1;padding:6px 8px;border-radius:6px;border:1px solid var(--aura-border, #444);background:transparent;color:var(--aura-text-muted, #888);cursor:pointer;font-size:0.7rem;font-weight:600;transition:all 0.2s;">Gemini Flash</button>
           </div>
           <div id="panel-fleet"></div>
         </div>
@@ -2454,14 +2454,11 @@
       function renderFleet() {
         var fleet = AgentEngine.getModelFleet();
         panelFleet.innerHTML = '';
+        // Exact match: _detectedModel is the full model ID (e.g. "claude-sonnet-4-6")
+        var activeId = _detectedModel || '';
 
         fleet.forEach(function (model) {
-          // Detect which model is actually primary based on recent usage
-          var isPrimary = _detectedModel && model.id && _detectedModel.indexOf(model.id.split('-')[0]) !== -1;
-          // Smarter match: claude-sonnet-4-6 matches detected "claude-sonnet-4-6"
-          if (!isPrimary && _detectedModel) {
-            isPrimary = _detectedModel === model.id || _detectedModel.indexOf(model.id) !== -1;
-          }
+          var isPrimary = activeId === model.id;
           var statusLabel = isPrimary ? 'PRIMARY' : model.status;
           var statusClass = isPrimary ? 'active' : model.status;
 
@@ -2478,13 +2475,26 @@
           panelFleet.appendChild(el);
         });
       }
+      // ── Model Pill Toggle ──
+      var _activeModelKey = 'claude-sonnet'; // default
+      var _modelIdMap = { 'claude-sonnet': 'claude-sonnet-4-6', 'claude-haiku': 'claude-haiku-4-5-20251001', 'gemini': 'gemini-2.0-flash' };
+      var _modelLabelMap = { 'claude-sonnet': 'Claude Sonnet', 'claude-haiku': 'Claude Haiku', 'gemini': 'Gemini Flash' };
 
-      // ── Model Switcher ──
+      function _highlightActivePill() {
+        var pills = document.querySelectorAll('#model-switcher .model-pill');
+        pills.forEach(function (btn) {
+          var isActive = btn.getAttribute('data-model') === _activeModelKey;
+          btn.style.background = isActive ? 'var(--glow-confirm, #22c55e)' : 'transparent';
+          btn.style.color = isActive ? '#000' : 'var(--aura-text-muted, #888)';
+          btn.style.borderColor = isActive ? 'var(--glow-confirm, #22c55e)' : 'var(--aura-border, #444)';
+        });
+      }
+
       (function initModelSwitcher() {
-        var sel = document.getElementById('model-switcher');
-        if (!sel) return;
+        var container = document.getElementById('model-switcher');
+        if (!container) return;
         var storeMode = AgentEngine.getStoreMode ? AgentEngine.getStoreMode() : 'local';
-        if (storeMode !== 'server') { sel.style.display = 'none'; return; }
+        if (storeMode !== 'server') { container.style.display = 'none'; return; }
 
         // Load current model from systemConfig
         fetch(getApiBase() + '/company-state?key=systemConfig', {
@@ -2492,13 +2502,20 @@
         }).then(function (r) { return r.ok ? r.json() : null; })
         .then(function (resp) {
           var config = (resp && resp.value) || {};
-          var current = config.heartbeatModel || 'claude-sonnet';
-          sel.value = current;
-        }).catch(function () {});
+          _activeModelKey = config.heartbeatModel || 'claude-sonnet';
+          _detectedModel = _modelIdMap[_activeModelKey] || _activeModelKey;
+          _highlightActivePill();
+          renderFleet();
+        }).catch(function () { _highlightActivePill(); });
 
-        sel.addEventListener('change', function () {
-          var newModel = sel.value;
-          // Read current config, merge, save
+        // Pill click handler
+        container.addEventListener('click', function (e) {
+          var btn = e.target.closest('.model-pill');
+          if (!btn) return;
+          var newModel = btn.getAttribute('data-model');
+          if (newModel === _activeModelKey) return;
+
+          // Save to systemConfig
           fetch(getApiBase() + '/company-state?key=systemConfig', {
             headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}
           }).then(function (r) { return r.ok ? r.json() : null; })
@@ -2513,10 +2530,12 @@
             });
           }).then(function (r) {
             if (r && r.ok) {
-              var labels = { 'claude-sonnet': 'Claude Sonnet', 'claude-haiku': 'Claude Haiku', 'gemini': 'Gemini Flash' };
+              _activeModelKey = newModel;
+              _detectedModel = _modelIdMap[newModel] || newModel;
+              _highlightActivePill();
+              // Update CEO strip
               var valModel = document.getElementById('ceo-strip-val-model');
-              if (valModel) valModel.textContent = labels[newModel] || newModel;
-              _detectedModel = newModel === 'gemini' ? 'gemini-2.0-flash' : newModel === 'claude-haiku' ? 'claude-haiku-4-5-20251001' : 'claude-sonnet-4-6';
+              if (valModel) valModel.textContent = _modelLabelMap[newModel] || newModel;
               renderFleet();
             }
           }).catch(function (e) { console.warn('[ModelSwitcher] Save failed:', e); });
