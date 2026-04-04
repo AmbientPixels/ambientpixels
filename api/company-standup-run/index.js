@@ -309,8 +309,9 @@ function parseStandupReply(reply, agentId) {
     });
   }
 
-  // Risk lines: - Risk description — Severity (Low/Medium/High)
-  const riskRegex = /(?:^|\n)\s*[-•*]?\s*(?:Risk:?\s*)?(.+?)\s*[—–-]\s*(?:Severity:?\s*)?(Low|Medium|High)/gim;
+  // Risk lines: - Risk description — **Severity** (Low/Medium/High)
+  // Excludes [Task] and [Directive] lines which also contain severity words
+  const riskRegex = /(?:^|\n)\s*[-•*]\s+(?!.*?\[(?:Task|Directive)\])(.+?)\s*[—–-]\s*(?:Severity:?\s*)?\*{0,2}(Low|Medium|High)\*{0,2}/gim;
   while ((m = riskRegex.exec(reply)) !== null) {
     const rTitle = (m[1] || '').trim();
     if (rTitle.length > 3 && rTitle.length < 200) {
