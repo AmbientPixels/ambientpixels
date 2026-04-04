@@ -2687,9 +2687,38 @@ module.exports = async function (context) {
       }
     }
 
+    // ── Objective progress rollup ──
+    {
+      let _objChanged = false;
+      for (const obj of objectives) {
+        if (!obj || obj.deletedAt) continue;
+        const linked = Array.isArray(obj.linkedCampaigns) ? obj.linkedCampaigns : [];
+        const objCamps = campaigns.filter(function (c) {
+          return c && !c.deletedAt && (c.objective_id === obj.id || linked.indexOf(c.id) !== -1);
+        });
+        if (objCamps.length === 0) continue;
+        let doneTasks = 0, totalTasks = 0;
+        for (const c of objCamps) {
+          const cTasks = tasks.filter(function (t) { return t.campaign_id === c.id; });
+          totalTasks += cTasks.length;
+          doneTasks += cTasks.filter(function (t) { return t.status === 'done'; }).length;
+        }
+        const pct = totalTasks > 0 ? Math.min(99, Math.round((doneTasks / totalTasks) * 100)) : 0;
+        if (obj.progress !== pct) {
+          obj.progress = pct;
+          _objChanged = true;
+        }
+      }
+      if (_objChanged) {
+        objectivesChanged = true;
+        context.log('[Heartbeat] Objective progress rollup updated');
+      }
+    }
+
     // Persist updated state
     await storage.setState('tasks', tasks);
     if (campaignsChanged) await storage.setState('campaigns', campaigns);
+    if (objectivesChanged) await storage.setState('objectives', objectives);
     if (campaignGovEvents.length > 0) {
       const govLog = (await storage.getState('governanceLog')) || [];
       for (const evt of campaignGovEvents) govLog.push(evt);
