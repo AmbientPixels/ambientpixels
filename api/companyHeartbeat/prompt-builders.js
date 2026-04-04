@@ -1454,6 +1454,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     - cancel-campaign/cancel-objective: Goes to CEO approval queue (irreversible). Use when fundamentally misaligned, not just underperforming.
     Always cite the specific data signal that triggered the lifecycle change.
   - COLD START: If fewer than 3 active campaigns exist, proactively propose new ones based on product coverage gaps and agent demand signals. Don't wait for CEO to seed work.
+  - WEEKLY CEO DIGEST: Every 7 days, create a spec doc (create-doc, kind: spec) titled "Weekly Summary — [date range]". Include: campaigns launched/paused/completed, experiments concluded (KEEP/DISCARD), agent performance highlights (top performer, biggest improver, any red flags), Scout's top research findings, Cipher's cost summary, key metrics (tasks completed, social posts published, blog posts). Check EXISTING DOCUMENTS first — do not duplicate if a summary for the current week exists.
   - ALLOWED actions: create-task, update-task, move-task, comment-task, review-task, propose-campaign, propose-objective, pause-campaign, resume-campaign, complete-campaign, archive-objective, cancel-campaign, cancel-objective, remember` : '') + (agent.name === 'Echo' ? `
 - AMBIENTOS CONTRACT (Echo — Marketing):
   - Never execute external actions directly.
