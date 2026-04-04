@@ -334,7 +334,9 @@ var AgentEngine = (function () {
       name: 'Claude Sonnet 4.6',
       provider: 'Anthropic',
       status: 'active',
-      usage: 'Heartbeat agents, chat, standup, reports, Pixel Agents',
+      usage: 'Heartbeat toggle · Always: chat, standup, reports, Pixel Agents',
+      alwaysActive: true,
+      alwaysActiveRole: 'chat + standup',
       inputPrice: '$3.00 / 1M tokens',
       outputPrice: '$15.00 / 1M tokens'
     }, {
@@ -342,7 +344,7 @@ var AgentEngine = (function () {
       name: 'Claude Haiku 4.5',
       provider: 'Anthropic',
       status: 'available',
-      usage: 'Lightweight alternative — faster, ~4x cheaper than Sonnet',
+      usage: 'Heartbeat toggle · ~4x cheaper than Sonnet',
       inputPrice: '$0.80 / 1M tokens',
       outputPrice: '$4.00 / 1M tokens'
     }, {
@@ -350,7 +352,7 @@ var AgentEngine = (function () {
       name: 'Gemini 2.0 Flash',
       provider: 'Google',
       status: 'active',
-      usage: 'Image generation, fallback model',
+      usage: 'Heartbeat toggle · Always: image generation',
       alwaysActive: true,
       alwaysActiveRole: 'image gen',
       inputPrice: '$0.10 / 1M tokens',
