@@ -457,7 +457,13 @@ Write the full deliverable first, then the structured JSON block.`;
           }
           return true;
         })
-        .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
+        .sort((a, b) => {
+          // System directives always come first (highest urgency)
+          const aDir = (a.category || '') === 'system_directive' ? -1 : 0;
+          const bDir = (b.category || '') === 'system_directive' ? -1 : 0;
+          if (aDir !== bDir) return aDir - bDir;
+          return (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3);
+        });
       // Filter out convergence-blocked tasks (5+ deliverables — would just get blocked again)
       const _convergenceBlocked = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
@@ -908,16 +914,51 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // SERVER-SIDE GUARD: agent-created tasks must link to a goal or campaign
-      // Exempt operational categories (finance, ops, governance, maintenance) — these are reactive/proactive
-      // tasks that don't map to a strategic objective or campaign
+      // Exempt operational categories (finance, ops, governance, maintenance, system_directive)
       const _taskCategory = (action.task.category || action.task.taskType || '').toLowerCase();
-      const _operationalExempt = ['finance', 'ops', 'ops_breakfix', 'governance', 'maintenance'].indexOf(_taskCategory) !== -1;
+      const _operationalExempt = ['finance', 'ops', 'ops_breakfix', 'governance', 'maintenance', 'system_directive'].indexOf(_taskCategory) !== -1;
       const _hasObjective = _taskObjectiveId || (action.task.source && action.task.source.type === 'ceo');
       const _hasCampaign = _taskCampaignId;
       if (!_hasObjective && !_hasCampaign && !_operationalExempt) {
         result.guardrails.orphanBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or campaign_id');
         continue;
+      }
+
+      // ── System Directive Guards ──
+      if (_taskCategory === 'system_directive') {
+        // Only Forge and Nova can issue directives
+        if (agentId !== 'forge' && agentId !== 'nova') {
+          context.log('[Heartbeat]', agentId, 'BLOCKED system_directive: only forge and nova can issue directives');
+          continue;
+        }
+        // Must target a different agent
+        const _directiveTarget = (action.task.assignee || '').toLowerCase();
+        if (!_directiveTarget || _directiveTarget === agentId) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED system_directive: must target a different agent');
+          continue;
+        }
+        // Forge cannot directive Nova (must escalate to CEO)
+        if (agentId === 'forge' && _directiveTarget === 'nova') {
+          context.log('[Heartbeat] forge BLOCKED system_directive targeting nova — escalate to CEO instead');
+          continue;
+        }
+        // Anti-loop: max 1 active directive per target agent
+        const _existingDirective = tasks.find(t =>
+          (t.category || '') === 'system_directive' &&
+          (t.assignee || '').toLowerCase() === _directiveTarget &&
+          t.status !== 'done'
+        );
+        if (_existingDirective) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED system_directive: active directive already exists for', _directiveTarget, ':', _existingDirective.id);
+          continue;
+        }
+        // Force critical priority
+        action.task.priority = 'critical';
+        action.task.category = 'system_directive';
+        // Track who issued it
+        action.task.source_agent = agentId;
+        context.log('[Heartbeat]', agentId, 'SYSTEM DIRECTIVE created for', _directiveTarget, ':', action.task.title);
       }
 
       // SERVER-SIDE DEDUP: block if an active task with very similar title already exists

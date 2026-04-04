@@ -62,7 +62,9 @@ const L4_DEFAULT_TTL_DAYS = 14;
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
-const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance']);
+const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance', 'system_directive', 'finance']);
+// Agents authorized to create system_directive tasks (course-correct other agents)
+const DIRECTIVE_AUTHORIZED_AGENTS = new Set(['forge', 'nova']);
 const ALLOWED_UPDATE_KEYS = new Set([
   'status', 'assignee', 'dueDate', 'priority', 'classification', 'taskType',
   'tags', 'objective_id', 'directive_id', 'campaign_id', 'parent_task_id', 'child_task_ids'
@@ -166,6 +168,7 @@ module.exports = {
   L4_DEFAULT_TTL_DAYS,
   TIER4_SUB_AGENTS,
   OBJECTIVE_EXEMPT_CATEGORIES,
+  DIRECTIVE_AUTHORIZED_AGENTS,
   ALLOWED_UPDATE_KEYS,
   CAP_DEFAULTS,
   _MUTATION_BUCKET_MAP,

@@ -1135,10 +1135,27 @@ You must remain within your assigned authority tier. Doctrine influences your st
     productBriefsBlock = briefLines.join('\n');
   }
 
+  // System Directives: surface prominently above task list so agent acts on them first
+  const _directiveTasks = agentTasks.filter(t => (t.category || '') === 'system_directive' && t.status !== 'done');
+  let directiveBlock = '';
+  if (_directiveTasks.length > 0) {
+    directiveBlock = '\n--- SYSTEM DIRECTIVE (from operations — ACT ON THIS FIRST) ---\n';
+    _directiveTasks.forEach(t => {
+      directiveBlock += 'FROM: ' + (t.source_agent || 'ops') + ' | TASK: ' + t.id + '\n';
+      directiveBlock += t.title + '\n';
+      if (t.description) directiveBlock += t.description.substring(0, 500) + '\n';
+      const _recentComments = (t.comments || []).slice(-2);
+      _recentComments.forEach(c => {
+        directiveBlock += '  > ' + (c.author || 'system') + ': ' + (c.text || c.comment || '').substring(0, 200) + '\n';
+      });
+    });
+    directiveBlock += 'You MUST address this directive before any other work. Use execute-task on the directive task ID to deliver your response/fix, then the system will mark it done.\n---\n';
+  }
+
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
 ${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${productBriefsBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
-
+${directiveBlock}
 YOUR TASKS:
 ${taskList}
 ${heroImageNudge}
@@ -1455,7 +1472,13 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     Always cite the specific data signal that triggered the lifecycle change.
   - COLD START: If fewer than 3 active campaigns exist, proactively propose new ones based on product coverage gaps and agent demand signals. Don't wait for CEO to seed work.
   - WEEKLY CEO DIGEST: Every 7 days, create a spec doc (create-doc, kind: spec) titled "Weekly Summary — [date range]". Include: campaigns launched/paused/completed, experiments concluded (KEEP/DISCARD), agent performance highlights (top performer, biggest improver, any red flags), Scout's top research findings, Cipher's cost summary, key metrics (tasks completed, social posts published, blog posts). Check EXISTING DOCUMENTS first — do not duplicate if a summary for the current week exists.
-  - ALLOWED actions: create-task, update-task, move-task, comment-task, review-task, propose-campaign, propose-objective, pause-campaign, resume-campaign, complete-campaign, archive-objective, cancel-campaign, cancel-objective, remember` : '') + (agent.name === 'Echo' ? `
+  - SYSTEM DIRECTIVES (Nova — course correction):
+    When an agent is underperforming, stalled, or misaligned (Forge flags it, or you detect it during triage), you can issue a system directive:
+    { "type": "create-task", "task": { "title": "DIRECTIVE: [specific instruction]", "description": "Issue: [what's wrong]. Required: [what agent must do differently].", "category": "system_directive", "assignee": "[agent-id]", "taskType": "ops" } }
+    The target agent sees this prominently and must act on it before other work. Limit: 1 active directive per agent.
+    Use directives for: persistent stalls, repeated blocked patterns, role misalignment, failure to follow pipeline rules.
+    Do NOT use directives for: normal task assignment (use create-task), one-time corrections (use comment-task), or style feedback (let Quill handle).
+  - ALLOWED actions: create-task (including system_directive), update-task, move-task, comment-task, review-task, propose-campaign, propose-objective, pause-campaign, resume-campaign, complete-campaign, archive-objective, cancel-campaign, cancel-objective, remember` : '') + (agent.name === 'Echo' ? `
 - AMBIENTOS CONTRACT (Echo — Marketing):
   - Never execute external actions directly.
   - All social/publishing actions must be proposals routed through CEO approval.
@@ -1817,12 +1840,15 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   3. ACT — Prioritized:
      a. RED: Create ops_breakfix task with What/When/Impact/Severity
      b. YELLOW persisting 3+ cycles: propose investigation task
-     c. Agent reliability issues: comment on Nova's highest-priority task to flag
+     c. Agent stalled/broken (0 output 5+ runs, high block rate): create system_directive task assigned to that agent:
+        { "type": "create-task", "task": { "title": "DIRECTIVE: [what agent must do]", "description": "Diagnostic: [what you detected in dashboard]. Required action: [specific fix].", "category": "system_directive", "assignee": "[target-agent-id]", "taskType": "ops" } }
+        The target agent will see this prominently and must act on it before other work. Limit: 1 active directive per agent.
      d. Cost anomalies: create ops_breakfix for spikes
-     e. Proactive: flag stale tasks (todo 7+ days), agents repeatedly blocked, governance trends
+     e. Proactive: flag stale tasks (todo 7+ days), governance trends
+     f. If directive goes unaddressed after 2 cycles, escalate to Nova via comment on Nova's highest-priority task
   4. CONFLICT RESOLUTION:
      - Multiple REDs → prioritize by blast radius: heartbeat failure > errors > performance > cost
-     - Agent repeatedly blocked → flag to Nova for reassignment, don't create tasks for that agent
+     - Agent repeatedly blocked → issue system_directive to that agent with diagnostic data. If the agent can't self-correct, escalate to Nova
      - Cost spike + error spike → likely correlated (retry storms); address root cause (errors) first
   INCIDENT LEARNING:
   - After ops_breakfix is resolved, save a memory: what broke → root cause → fix → prevention
@@ -1842,7 +1868,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Cannot create social posts, write blog content, or do design work
   - You are an analyst and alerter. Your power is detection and actionable task creation.
   RESEARCH SUPPORT: If an error pattern needs root cause analysis beyond your infra scope, comment on a relevant task: "Research request for Scout: [specific technical question]"
-  ALLOWED actions: create-task (ops_breakfix exempt), update-task, move-task, comment-task, execute-task, review-task, remember, create-doc (runbook kind only)` : '') + `
+  ALLOWED actions: create-task (ops_breakfix + system_directive exempt from objective requirement), update-task, move-task, comment-task, execute-task, review-task, remember, create-doc (runbook kind only)` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.
   - TASK-TO-SOCIAL LINK: When creating a social post that fulfills an existing task, ALWAYS include "taskId" in the create-social-action so the system can auto-advance the task to review. Example: { "type": "create-social-action", "taskId": "task-123", "social": { ... } }
   - Echo CAN also use create-doc with kind "marketing_post" to draft blog posts for the public blog at /blog/. After creating a doc, use submit-for-publish to send it for CEO approval.
