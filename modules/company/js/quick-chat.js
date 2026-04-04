@@ -42,7 +42,7 @@
         '<button class="qc-send" id="qc-send" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>' +
       '</div>' +
       '<div class="qc-drawer-footer">' +
-        '<a href="/modules/company/agent-chat.html"><i class="fas fa-expand-alt" style="margin-right:3px;"></i> Open full Agent Chat</a>' +
+        '<a id="qc-fullchat-link" href="/modules/company/agent-chat.html?agent=nova"><i class="fas fa-expand-alt" style="margin-right:3px;"></i> Open full Agent Chat</a>' +
       '</div>' +
     '</div>';
 
@@ -115,6 +115,8 @@
   }
   agentSel.addEventListener('change', function () {
     try { localStorage.setItem('ap_quick_chat_agent', agentSel.value); } catch (e) {}
+    var fullLink = document.getElementById('qc-fullchat-link');
+    if (fullLink) fullLink.href = '/modules/company/agent-chat.html?agent=' + agentSel.value;
   });
 
   // ── Open / Close ──
