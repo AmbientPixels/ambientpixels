@@ -1375,7 +1375,7 @@
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderContentKPIs, renderGovernanceLog, renderGovernanceLogDev,
          renderTrendRadar, renderMeetingsWidget, updateActionBadge, renderOrgChart,
-         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderActiveModel, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget, renderAgentIntelWidget].forEach(function(fn) {
+         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderActiveModel, initModelSwitcher, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget, renderAgentIntelWidget].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
       }
@@ -2491,11 +2491,15 @@
         });
       }
 
-      (function initModelSwitcher() {
+      var _modelSwitcherBound = false;
+      function initModelSwitcher() {
         var container = document.getElementById('model-switcher');
         if (!container) return;
         var storeMode = AgentEngine.getStoreMode ? AgentEngine.getStoreMode() : 'local';
         if (storeMode !== 'server') { container.style.display = 'none'; return; }
+
+        // Show pills (may have been hidden by earlier call before store was ready)
+        container.style.display = 'flex';
 
         // Load current model from systemConfig
         fetch(getApiBase() + '/company-state?key=systemConfig', {
@@ -2509,7 +2513,9 @@
           renderFleet();
         }).catch(function () { _highlightActivePill(); });
 
-        // Pill click handler
+        // Pill click handler (attach once)
+        if (_modelSwitcherBound) return;
+        _modelSwitcherBound = true;
         container.addEventListener('click', function (e) {
           var btn = e.target.closest('.model-pill');
           if (!btn) return;
@@ -2541,7 +2547,7 @@
             }
           }).catch(function (e) { console.warn('[ModelSwitcher] Save failed:', e); });
         });
-      })();
+      }
 
       // ── Agent Status ──
       function renderAgentStatus() {
