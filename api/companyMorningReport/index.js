@@ -107,6 +107,20 @@ module.exports = async function (context) {
     const highRiskTasks = tasks.filter(t => t.risk_level === 'high' && t.status !== 'done');
     const escalations = logs.filter(l => l.type === 'escalation');
 
+    // ── Enrich context with shared modules (campaign descriptions, product facts, docs) ──
+    let enrichedContext = '';
+    try {
+      const { loadCompanyState } = require('../_utils/companyContextLoader');
+      const { formatMorningBrief } = require('../_utils/companyContextFormatters');
+      const state = await loadCompanyState({
+        includeTasks: true, includeCampaigns: true, includeObjectives: true,
+        includeDocuments: true, includeProductFacts: true
+      });
+      enrichedContext = formatMorningBrief(state);
+    } catch (e) {
+      context.log.warn('[MorningReport] Enriched context unavailable:', e.message);
+    }
+
     // ── Generate CEO summary via Gemini ──
     const summaryPrompt = buildSummaryPrompt({
       today,
@@ -122,7 +136,8 @@ module.exports = async function (context) {
       activeObjectives,
       pendingApprovals,
       highRiskTasks,
-      escalations: escalations.length
+      escalations: escalations.length,
+      enrichedContext
     });
 
     let ceoSummary = '';
@@ -321,6 +336,7 @@ ${overdue}
 
 AGENT ACTIVITY:
 ${agentActivity || '(none)'}
+${data.enrichedContext ? '\nENRICHED CONTEXT (campaign details, products, recent accomplishments):\n' + data.enrichedContext : ''}
 
 Write a concise CEO executive summary (4-6 sentences). Structure:
 1. Top-line status — are we on track?

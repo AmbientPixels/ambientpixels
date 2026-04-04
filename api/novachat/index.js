@@ -102,6 +102,22 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // Load real company state so Nova doesn't hallucinate
+    let companyContext = '';
+    try {
+      const { loadCompanyState } = require('../_utils/companyContextLoader');
+      const { formatCoreContext } = require('../_utils/companyContextFormatters');
+      const state = await loadCompanyState({
+        includeTasks: true, includeCampaigns: true, includeObjectives: true,
+        includeDocuments: true
+      });
+      companyContext = formatCoreContext(state, 'nova');
+    } catch (e) {
+      context.log.warn('[NovaChat] Company context unavailable:', e.message);
+    }
+
+    const systemPrompt = NOVA_SYSTEM_INSTRUCTION + companyContext;
+
     // Build conversation contents from history
     const contents = [];
 
@@ -134,7 +150,7 @@ module.exports = async function (context, req) {
 
     const geminiBody = {
       systemInstruction: {
-        parts: [{ text: NOVA_SYSTEM_INSTRUCTION }]
+        parts: [{ text: systemPrompt }]
       },
       contents,
       generationConfig: {
@@ -150,7 +166,7 @@ module.exports = async function (context, req) {
     let reply = '';
     if (USE_CLAUDE && ANTHROPIC_API_KEY) {
       var claudeMsgs = contents.map(function (c) { return { role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map(function (p) { return p.text; }).join('\n') }; });
-      var cRes = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system: NOVA_SYSTEM_INSTRUCTION, messages: claudeMsgs }) });
+      var cRes = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system: systemPrompt, messages: claudeMsgs }) });
       var cData = await cRes.json();
       if (!cRes.ok) { context.log.error('[NovaChat] Claude error:', cRes.status); context.res = { status: cRes.status, headers: corsHeaders, body: { error: 'Nova encountered a glitch.', details: cData } }; return; }
       reply = (cData.content && cData.content[0] && cData.content[0].text) || '';

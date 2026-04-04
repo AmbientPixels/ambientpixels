@@ -36,20 +36,17 @@ module.exports = async function (context, req) {
   const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
   const containerClient = blobServiceClient.getContainerClient(containerName);
 
-  const telemetry = {
-    githubStatus: "green",
-    apiHealth: "stable",
-    recentActivity: "commit and image generation",
-    timeOfDay: new Date().getHours()
-  };
-
-  const inputText = `
-    Nova's system status:
-    - GitHub: ${telemetry.githubStatus}
-    - API: ${telemetry.apiHealth}
-    - Recent Activity: ${telemetry.recentActivity}
-    - Time of Day: ${telemetry.timeOfDay}
-  `.trim();
+  // Load real system state instead of hardcoded telemetry
+  let inputText = '';
+  try {
+    const { loadCompanyState } = require('../_utils/companyContextLoader');
+    const { formatMoodTelemetry } = require('../_utils/companyContextFormatters');
+    const state = await loadCompanyState({ includeTasks: true, includeCampaigns: true });
+    inputText = await formatMoodTelemetry(state);
+  } catch (e) {
+    context.log.warn('[Nova Mood] Context unavailable, using fallback:', e.message);
+    inputText = 'Nova system pulse: context unavailable. Time: ' + new Date().getUTCHours() + ':00 UTC. Base mood on uncertainty.';
+  }
 
   try {
     const moodSummary = await callGemini(inputText);
