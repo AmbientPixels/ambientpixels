@@ -174,7 +174,7 @@
       nextHtml =
         '<a href="' + nextUrl + '" class="pa-spotlight-next">' +
           '<div class="pa-spotlight-next-avatar">' +
-            '<img src="/pixel-agents/img/' + escapeAttr(nextAgent.id) + '.webp" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+            '<img src="' + escapeAttr(nextAgent.portraitUrl || '/pixel-agents/img/' + nextAgent.id + '.webp') + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
             '<i class="' + escapeAttr(nextAgent.icon) + '"></i>' +
           '</div>' +
           '<div class="pa-spotlight-next-info">' +
@@ -281,7 +281,7 @@
 
       return '<a href="' + url + '" class="pa-carousel-card">' +
         '<div class="pa-agent-portrait" data-agent-id="' + escapeAttr(agent.id) + '">' +
-          '<img src="/pixel-agents/img/' + escapeAttr(agent.id) + '.webp" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+          '<img src="' + escapeAttr(agent.portraitUrl || '/pixel-agents/img/' + agent.id + '.webp') + '" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
           '<div class="pa-portrait-fallback"><i class="' + escapeAttr(agent.icon) + '"></i></div>' +
           '<span class="pa-carousel-category-badge pa-cat--' + escapeAttr(agent.category) + '">' + escapeHtml(categoryLabel) + '</span>' +
           '<button class="pa-carousel-add-btn" title="Quick deploy"><i class="fas fa-plus"></i></button>' +
@@ -468,9 +468,11 @@
       badgeHtml = '<span class="pa-agent-card-badge pa-badge--featured">Featured</span>';
     }
 
+    var imgSrc = agent.portraitUrl || '/pixel-agents/img/' + escapeAttr(agent.id) + '.webp';
+
     return '<a href="' + url + '" class="pa-agent-card" data-tier="' + escapeAttr(agent.tier) + '" data-agent-id="' + escapeAttr(agent.id) + '">' +
       '<div class="pa-agent-portrait" data-agent-id="' + escapeAttr(agent.id) + '">' +
-        '<img src="/pixel-agents/img/' + escapeAttr(agent.id) + '.webp" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+        '<img src="' + escapeAttr(imgSrc) + '" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
         '<div class="pa-portrait-fallback"><i class="' + escapeAttr(agent.icon) + '"></i></div>' +
         badgeHtml +
         '<span class="pa-agent-card-tier pa-tier--' + escapeAttr(agent.tier) + '">' + escapeHtml(tierLabel) + '</span>' +
