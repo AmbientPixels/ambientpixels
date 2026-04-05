@@ -240,5 +240,126 @@
     }
 
     main.innerHTML = html;
+
+    // Load creator payout status
+    loadCreatorStatus();
+  }
+
+  function loadCreatorStatus() {
+    fetch(getApiBase() + '/pixel-agent-creator-status', { headers: headers })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (status) {
+        if (!status) return;
+        renderCreatorPayoutSection(status);
+      })
+      .catch(function () { /* non-fatal */ });
+  }
+
+  function renderCreatorPayoutSection(status) {
+    var container = document.getElementById('pa-analytics-content');
+    if (!container) return;
+
+    // Find insertion point — after the earnings card, before live agents
+    var earningsCard = container.querySelector('.pa-analytics-earnings');
+    var insertAfter = earningsCard || container.querySelector('.pa-analytics-summary');
+    if (!insertAfter) return;
+
+    var section = document.createElement('div');
+    section.className = 'pa-analytics-payout-section';
+
+    if (!status.enrolled) {
+      // Not enrolled — show CTA
+      section.innerHTML =
+        '<div class="pa-payout-cta-card">' +
+          '<div class="pa-payout-cta-icon"><i class="fab fa-stripe-s"></i></div>' +
+          '<div class="pa-payout-cta-body">' +
+            '<h3>Connect Stripe to Get Paid</h3>' +
+            '<p>Link your bank account to receive your share of creator revenue each month. Takes 2 minutes.</p>' +
+            '<button class="pa-btn-primary" onclick="window._startCreatorOnboard()"><i class="fas fa-link"></i> Connect Stripe</button>' +
+          '</div>' +
+        '</div>';
+    } else if (!status.onboardingComplete) {
+      // Enrolled but onboarding incomplete
+      section.innerHTML =
+        '<div class="pa-payout-cta-card pa-payout-cta--pending">' +
+          '<div class="pa-payout-cta-icon"><i class="fas fa-clock"></i></div>' +
+          '<div class="pa-payout-cta-body">' +
+            '<h3>Finish Stripe Setup</h3>' +
+            '<p>Your Stripe account is created but setup isn\'t complete. Finish to start receiving payouts.</p>' +
+            '<button class="pa-btn-primary" onclick="window._startCreatorOnboard()"><i class="fas fa-arrow-right"></i> Continue Setup</button>' +
+          '</div>' +
+        '</div>';
+    } else {
+      // Fully onboarded
+      var payoutReady = status.payoutReady;
+      var statusBadge = payoutReady
+        ? '<span class="pa-payout-badge pa-payout-badge--active"><i class="fas fa-check-circle"></i> Payouts Active</span>'
+        : '<span class="pa-payout-badge pa-payout-badge--pending"><i class="fas fa-clock"></i> Verification Pending</span>';
+
+      section.innerHTML =
+        '<div class="pa-payout-status-card">' +
+          '<div class="pa-payout-status-header">' +
+            '<i class="fab fa-stripe-s" style="color:var(--pa-primary);font-size:1.2rem"></i>' +
+            '<span>Stripe Connect</span>' +
+            statusBadge +
+          '</div>' +
+          '<div class="pa-payout-status-stats">' +
+            '<div class="pa-payout-status-stat">' +
+              '<div class="pa-payout-status-value">$' + (status.pendingBalance || 0).toFixed(2) + '</div>' +
+              '<div class="pa-payout-status-label">Pending Balance</div>' +
+            '</div>' +
+            '<div class="pa-payout-status-stat">' +
+              '<div class="pa-payout-status-value">$' + (status.totalPaidOut || 0).toFixed(2) + '</div>' +
+              '<div class="pa-payout-status-label">Total Paid Out</div>' +
+            '</div>' +
+            '<div class="pa-payout-status-stat">' +
+              '<div class="pa-payout-status-value">' + (status.lastPayoutAt ? timeAgo(status.lastPayoutAt) : 'None yet') + '</div>' +
+              '<div class="pa-payout-status-label">Last Payout</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="pa-payout-status-note"><i class="fas fa-calendar"></i> Next payout: 1st of next month ($25 minimum)</div>' +
+        '</div>';
+    }
+
+    insertAfter.parentNode.insertBefore(section, insertAfter.nextSibling);
+  }
+
+  // Global onboard handler
+  window._startCreatorOnboard = function () {
+    var btn = document.querySelector('.pa-payout-cta-card .pa-btn-primary');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...'; }
+
+    fetch(getApiBase() + '/pixel-agent-creator-onboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' }
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.onboardingUrl) {
+          window.location.href = data.onboardingUrl;
+        } else if (data.alreadyOnboarded) {
+          window.location.reload();
+        } else {
+          alert('Failed to start onboarding: ' + (data.error || 'Unknown error'));
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-link"></i> Connect Stripe'; }
+        }
+      })
+      .catch(function (err) {
+        alert('Network error: ' + err.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-link"></i> Connect Stripe'; }
+      });
+  };
+
+  // Handle ?stripe=return param (after onboarding redirect)
+  if (window.location.search.includes('stripe=return')) {
+    // Clean URL and show toast
+    history.replaceState(null, '', window.location.pathname);
+    setTimeout(function () {
+      var toast = document.createElement('div');
+      toast.className = 'pa-toast show';
+      toast.textContent = 'Stripe setup complete! Checking status...';
+      document.body.appendChild(toast);
+      setTimeout(function () { toast.classList.remove('show'); }, 3000);
+    }, 500);
   }
 })();
