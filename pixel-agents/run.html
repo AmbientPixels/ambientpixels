@@ -310,9 +310,12 @@
   (function() {
     var _cached = sessionStorage.getItem("pa_tier");
     if (_cached) _applyTier(_cached);
-    // Fetch even without B2C auth (CEO uses x-company-secret)
+    // Only fetch tier if authenticated
+    var _authData = sessionStorage.getItem("pa_auth");
+    if (!_authData) return;
+    try { if (!JSON.parse(_authData).isAuthenticated) return; } catch(e) { return; }
     var _ab = window.location.hostname.includes("ambientpixels.ai") ? "https://ambientpixels-nova-api.azurewebsites.net/api" : "/api";
-    fetch(_ab + "/pixel-agent-entitlements", { headers: { "x-company-secret": "pixelpusher" } })
+    fetch(_ab + "/pixel-agent-entitlements")
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(d) { if (!d) return; var t = d.tier || "free"; sessionStorage.setItem("pa_tier", t); _applyTier(t); })
       .catch(function() {});

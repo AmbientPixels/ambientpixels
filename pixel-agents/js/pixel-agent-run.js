@@ -325,7 +325,7 @@ async function runAgent() {
 
   try {
     const hdrs = { 'Content-Type': 'application/json' };
-    if (isLoggedIn) hdrs['x-company-secret'] = 'pixelpusher';
+    // Auth handled by Azure SWA — no manual headers needed
     const res = await fetch(getApiBase() + '/pixel-agent-run', {
       method: 'POST',
       headers: hdrs,

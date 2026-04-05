@@ -31,9 +31,9 @@
   // Show loading
   main.innerHTML = '<div class="pa-analytics-loading"><div class="af-spinner" style="display:inline-block;margin-right:0.5rem"></div> Loading analytics...</div>';
 
-  // Check auth — try Azure SWA auth first, fall back to CEO secret
+  // Check auth via Azure SWA
   var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  var headers = { 'x-company-secret': 'pixelpusher' };
+  var headers = {};
 
   if (isLocal) {
     loadAnalytics();
@@ -397,7 +397,7 @@
 
     fetch(getApiBase() + '/pixel-agent-creator-onboard', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' }
+      headers: { 'Content-Type': 'application/json' }
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {
