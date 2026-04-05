@@ -5,7 +5,7 @@
     "private": true,
     "scripts": {
         "start": "func start",
-        "test": "echo \"No tests specified\" && exit 0"
+        "test": "node pixel-agent-run/smoke-test.js && node companyHeartbeat/smoke-test.js"
     },
 "dependencies": {
     "@azure/functions": "^3.5.1",

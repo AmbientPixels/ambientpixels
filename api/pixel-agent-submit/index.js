@@ -3,6 +3,7 @@
 
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
+const { extractUserInfo } = require('../_utils/cfAuth');
 
 const DAILY_SUBMISSION_LIMIT = 3;
 const MAX_LIVE_AGENTS = 3;
@@ -57,6 +58,12 @@ module.exports = async function (context, req) {
     }
 
     const { agentConfig, editMode, originalAgentId } = req.body || {};
+
+    // Attach creator identity
+    var { userId, isAuthenticated } = extractUserInfo(req, context);
+    if (isAuthenticated && !agentConfig.creatorId) {
+      agentConfig.creatorId = userId;
+    }
 
     if (!agentConfig || !agentConfig.name || !agentConfig.systemPrompt) {
       context.res = {

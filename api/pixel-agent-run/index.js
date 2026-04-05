@@ -7,10 +7,13 @@ const storage = require('../_utils/companyStorage');
 const path = require('path');
 const fs = require('fs');
 
+const { extractUserInfo } = require('../_utils/cfAuth');
+
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
-const RATE_LIMIT_PER_DAY = 3;
+const RATE_LIMIT_ANON = 3;
+const RATE_LIMIT_AUTH = 10; // IP and userId are separate rate limit buckets — logging in resets your allowance
 
 // Built-in scaffold agent for Agent Forge prompt generation
 const SCAFFOLD_AGENT = {
@@ -137,30 +140,34 @@ module.exports = async function (context, req) {
       }
     }
 
-    // Rate limiting (IP-based, per day) — skip for authenticated users
-    const isAuthed = req.headers['x-company-secret'] === 'pixelpusher';
+    // Rate limiting — per-user (authenticated) or per-IP (anonymous), skip for CEO
+    const isCEO = req.headers['x-company-secret'] === 'pixelpusher';
+    const { userId, isAuthenticated } = extractUserInfo(req, context);
+    const isAuthed = isCEO || isAuthenticated;
     const clientIP = getClientIP(req);
     const ipHash = hashIP(clientIP);
     const today = todayKey();
     let rateLimits = {};
     let userRuns = 0;
+    const dailyLimit = isAuthenticated ? RATE_LIMIT_AUTH : RATE_LIMIT_ANON;
 
-    if (!isAuthed) {
+    if (!isCEO) {
       try {
         rateLimits = (await storage.getState('pixelAgentRateLimits')) || {};
       } catch { rateLimits = {}; }
 
-      const userKey = ipHash + '_' + today;
+      // IP and userId are separate rate limit buckets — logging in resets your allowance
+      const userKey = isAuthenticated ? userId + '_' + today : ipHash + '_' + today;
       userRuns = rateLimits[userKey] || 0;
 
       const cost = agent.rateLimitCost || 1;
-      if (userRuns + cost > RATE_LIMIT_PER_DAY) {
+      if (userRuns + cost > dailyLimit) {
         context.res = {
           status: 429,
           headers: corsHeaders,
           body: {
             error: 'Daily limit reached',
-            message: `You've used all ${RATE_LIMIT_PER_DAY} free runs for today. Come back tomorrow!`,
+            message: 'You\'ve used all ' + dailyLimit + ' runs for today. Come back tomorrow!',
             remaining: 0
           }
         };
@@ -336,9 +343,9 @@ module.exports = async function (context, req) {
     // Generate run ID
     const runId = 'run-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex');
 
-    // Update rate limit (skip for authenticated users)
-    if (!isAuthed) {
-      const userKey = ipHash + '_' + today;
+    // Update rate limit (skip for CEO)
+    if (!isCEO) {
+      const userKey = isAuthenticated ? userId + '_' + today : ipHash + '_' + today;
       rateLimits[userKey] = userRuns + (agent.rateLimitCost || 1);
       // Clean old entries (keep only today's)
       for (const key of Object.keys(rateLimits)) {
@@ -354,6 +361,7 @@ module.exports = async function (context, req) {
       agentName: agent.name,
       agentIcon: agent.icon,
       agentTier: agent.tier,
+      userId: isAuthenticated ? userId : null,
       input: input.substring(0, 500),
       result,
       timestamp: new Date().toISOString()
@@ -401,7 +409,7 @@ module.exports = async function (context, req) {
         raw: rawText,
         runId,
         timestamp: runRecord.timestamp,
-        remaining: Math.max(0, RATE_LIMIT_PER_DAY - userRuns - (agent.rateLimitCost || 1)),
+        remaining: isCEO ? 999 : Math.max(0, dailyLimit - userRuns - (agent.rateLimitCost || 1)),
         shareUrl: '/pixel-agents/share.html?run=' + runId
       }
     };
