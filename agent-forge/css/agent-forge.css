@@ -864,10 +864,6 @@ body[data-theme="light"] .af-live-delete:hover { color: #ef4444; }
   border-radius: var(--pa-radius-lg);
   padding: 1rem;
 }
-.af-preview-action {
-  opacity: 0.4;
-  pointer-events: none;
-}
 
 /* Test panel */
 .af-test-panel {
@@ -1266,11 +1262,13 @@ body[data-theme="light"] .af-live-delete:hover { color: #ef4444; }
   position: absolute;
   top: 4px;
   right: 4px;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.6);
   border: none;
+  padding: 0;
   color: var(--pa-text-muted);
   font-size: 0.6rem;
   cursor: pointer;

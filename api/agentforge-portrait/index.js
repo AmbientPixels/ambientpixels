@@ -43,10 +43,17 @@ var EXPRESSIONS_NONHUMAN = {
 };
 
 var APPEARANCES = {
-  masculine:   'man in his 30s',
-  feminine:    'woman in her 30s',
-  androgynous: 'androgynous figure in their 30s',
+  masculine:   'man',
+  feminine:    'woman',
+  androgynous: 'androgynous figure',
   nonhuman:    'masked helmeted figure, no visible face, visor or featureless mask'
+};
+
+var AGES = {
+  young:  'in their early 20s',
+  mid:    'in their 30s',
+  mature: 'in their 40s',
+  elder:  'in their 50s, weathered features, grey streaks in hair'
 };
 
 var POSES = {
@@ -149,7 +156,14 @@ function streamToString(readable) {
 function buildPortraitPrompt(opts) {
   var parts = [];
 
-  parts.push(APPEARANCES[opts.appearance] || APPEARANCES.androgynous);
+  var appearance = APPEARANCES[opts.appearance] || APPEARANCES.androgynous;
+  var age = AGES[opts.age] || AGES.mid;
+  // Non-human skips age (masked figures are ageless)
+  if (opts.appearance === 'nonhuman') {
+    parts.push(appearance);
+  } else {
+    parts.push(appearance + ' ' + age);
+  }
   parts.push(ARCHETYPES[opts.archetype] || ARCHETYPES.scholar);
   parts.push(POSES[opts.pose] || POSES.front);
 
@@ -186,6 +200,7 @@ module.exports = async function (context, req) {
   var archetype = body.archetype;
   var expression = body.expression;
   var appearance = body.appearance;
+  var age = body.age || 'mid';
   var pose = body.pose;
   var accent = body.accent || 'none';
 
@@ -199,6 +214,10 @@ module.exports = async function (context, req) {
   }
   if (!APPEARANCES[appearance]) {
     context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid appearance. Valid: ' + Object.keys(APPEARANCES).join(', ') } };
+    return;
+  }
+  if (!AGES[age]) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid age. Valid: ' + Object.keys(AGES).join(', ') } };
     return;
   }
   if (!POSES[pose]) {
@@ -218,8 +237,8 @@ module.exports = async function (context, req) {
   }
 
   // Build prompt and generate
-  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, pose: pose, accent: accent });
-  console.log('[agentforge-portrait] Generating for user=' + userId + ' archetype=' + archetype + ' appearance=' + appearance + ' pose=' + pose);
+  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, age: age, pose: pose, accent: accent });
+  console.log('[agentforge-portrait] Generating for user=' + userId + ' archetype=' + archetype + ' appearance=' + appearance + ' age=' + age + ' pose=' + pose);
 
   try {
     var result = await callImageGeneration(prompt);

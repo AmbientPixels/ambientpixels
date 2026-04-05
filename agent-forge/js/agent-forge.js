@@ -545,10 +545,6 @@ function updatePreview() {
             caps.map(function(sec) { return '<li>' + escapeHtml(sec.label) + '</li>'; }).join('') +
           '</ul>' +
         '</div>' +
-        '<div class="pa-card-footer">' +
-          '<span class="pa-card-usage"></span>' +
-          '<span class="pa-card-action af-preview-action"><i class="fas fa-play"></i> Deploy Agent</span>' +
-        '</div>' +
       '</div>';
     // Set portrait src after innerHTML to avoid huge base64 in attribute
     var previewPortraitImg = document.getElementById('af-preview-portrait-img');
@@ -657,7 +653,7 @@ function openIconPicker() {
 }
 
 // ── Portrait Generator Modal ──
-var _portraitChoices = { archetype: 'scholar', expression: 'confident', appearance: 'masculine', pose: 'front', accent: 'none' };
+var _portraitChoices = { archetype: 'scholar', expression: 'confident', appearance: 'masculine', age: 'mid', pose: 'front', accent: 'none' };
 
 function openPortraitModal() {
   var modal = document.getElementById('af-portrait-modal');
