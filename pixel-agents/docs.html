@@ -32,6 +32,8 @@
     .pa-docs-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.82rem; }
     .pa-docs-table th { font-family: var(--pa-font-display); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep-strong); color: var(--pa-text-muted); }
     .pa-docs-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep); color: var(--pa-text); }
+    .pa-docs-code { font-family: var(--pa-font-mono); font-size: 0.78rem; line-height: 1.6; padding: 1rem 1.25rem; background: #0a0a0f; border: 1px solid var(--pa-sep-strong); border-radius: var(--pa-radius-md); color: var(--pa-text-muted); overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 0.75rem 0; }
+    .pa-docs-section h4 { margin: 0; }
   </style>
 </head>
 <body class="pa-shell" data-theme="dark">
@@ -156,6 +158,88 @@
           <li><strong>Test</strong> — run your agent with sample input to verify the output before publishing.</li>
           <li><strong>Submit</strong> — send your agent for review and approval.</li>
         </ul>
+      </div>
+
+      <!-- Writing Prompts -->
+      <div class="pa-docs-section">
+        <h3>Writing Prompts (JSON Output)</h3>
+        <p>
+          Your agent's system prompt must instruct the AI to respond with <strong>valid JSON</strong>.
+          The JSON keys must match the <code>key</code> values in your output sections. This is how the
+          structured result cards are generated.
+        </p>
+
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Step 1: Define your output sections</h4>
+        <p>In Agent Forge, add the sections you want. Each section has a <strong>key</strong> (the JSON field name) and a <strong>type</strong> (how it renders). For example:</p>
+        <table class="pa-docs-table">
+          <thead><tr><th>Key</th><th>Type</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td><code>score</code></td><td>score</td><td>0-100 with progress bar</td></tr>
+            <tr><td><code>verdict</code></td><td>verdict</td><td>Italic summary quote</td></tr>
+            <tr><td><code>roast_points</code></td><td>list</td><td>Bullet point list</td></tr>
+            <tr><td><code>improvements</code></td><td>text</td><td>Paragraph of text</td></tr>
+            <tr><td><code>pro_tip</code></td><td>highlight</td><td>Bold callout box</td></tr>
+          </tbody>
+        </table>
+
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Step 2: Write your system prompt</h4>
+        <p>End your system prompt with a JSON template that matches your output section keys exactly. Here's a complete example:</p>
+        <pre class="pa-docs-code">You are a brutally honest website critic. Analyze the site and provide a detailed roast.
+
+You MUST respond with valid JSON:
+{
+  "score": &lt;0-100&gt;,
+  "verdict": "&lt;one-line summary&gt;",
+  "roast_points": ["&lt;point 1&gt;", "&lt;point 2&gt;", "&lt;point 3&gt;"],
+  "improvements": "&lt;paragraph of suggestions&gt;",
+  "pro_tip": "&lt;one actionable tip&gt;"
+}
+
+Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
+
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Key Rules</h4>
+        <ul>
+          <li><strong>Keys must match exactly</strong> — if your output section key is <code>roast_points</code>, the JSON must use <code>"roast_points"</code>, not <code>"roastPoints"</code> or <code>"points"</code>.</li>
+          <li><strong>Always say "Do NOT wrap in code fences"</strong> — AI models sometimes wrap JSON in <code>```json</code> blocks. This line prevents that.</li>
+          <li><strong>Always say "Return ONLY raw JSON"</strong> — prevents the AI from adding explanation text before or after the JSON.</li>
+          <li><strong>Use the right data types</strong> — scores should be numbers (not strings), lists should be arrays, text should be strings.</li>
+        </ul>
+
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Data Types by Section Type</h4>
+        <table class="pa-docs-table">
+          <thead><tr><th>Section Type</th><th>Expected JSON Value</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>score</code></td><td>Number (0-100)</td><td><code>"score": 72</code></td></tr>
+            <tr><td><code>verdict</code></td><td>String</td><td><code>"verdict": "Solid but needs work"</code></td></tr>
+            <tr><td><code>text</code></td><td>String</td><td><code>"analysis": "The site has..."</code></td></tr>
+            <tr><td><code>list</code></td><td>Array of strings</td><td><code>"tips": ["Tip 1", "Tip 2"]</code></td></tr>
+            <tr><td><code>tags</code></td><td>Array of strings</td><td><code>"keywords": ["fast", "modern"]</code></td></tr>
+            <tr><td><code>highlight</code></td><td>String</td><td><code>"key_takeaway": "Fix your CTA"</code></td></tr>
+            <tr><td><code>name_list</code></td><td>Array of objects</td><td><code>"names": [{"name": "Acme", "why": "Simple"}]</code></td></tr>
+            <tr><td><code>color_palette</code></td><td>Array of objects</td><td><code>"colors": [{"name": "Sky", "hex": "#87CEEB"}]</code></td></tr>
+          </tbody>
+        </table>
+
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Common Mistakes</h4>
+        <ul>
+          <li><strong>Key mismatch</strong> — your prompt says <code>"suggestions"</code> but your output section key is <code>"improvements"</code>. The section won't render.</li>
+          <li><strong>Missing "Return ONLY raw JSON"</strong> — the AI adds conversational text around the JSON, causing a parse error.</li>
+          <li><strong>Score as string</strong> — writing <code>"score": "85"</code> instead of <code>"score": 85</code>. Use a number.</li>
+          <li><strong>Nested objects where strings expected</strong> — the <code>text</code> type expects a plain string, not an object. Keep it simple.</li>
+        </ul>
+
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">User Prompt Template</h4>
+        <p>
+          The user prompt template is what gets sent with the user's input. Use <code>{{input}}</code> as the placeholder.
+          Keep it short — one line is usually enough:
+        </p>
+        <pre class="pa-docs-code">Roast this:
+
+{{input}}</pre>
+        <p>For URL-based agents:</p>
+        <pre class="pa-docs-code">Analyze this website:
+
+{{input}}</pre>
       </div>
 
       <!-- Output Section Types -->
