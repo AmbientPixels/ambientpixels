@@ -613,9 +613,14 @@ function renderRelatedAgents(agent) {
   var grid = document.getElementById('pa-related-grid');
   if (!container || !grid) return;
 
-  var related = _allAgents.filter(function (a) {
+  // Same category first, then fill with other agents
+  var sameCategory = _allAgents.filter(function (a) {
     return a.category === agent.category && a.id !== agent.id && a.active !== false;
-  }).slice(0, 3);
+  });
+  var others = _allAgents.filter(function (a) {
+    return a.category !== agent.category && a.id !== agent.id && a.active !== false;
+  });
+  var related = sameCategory.concat(others).slice(0, 3);
 
   if (related.length === 0) return;
 
