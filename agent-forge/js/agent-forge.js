@@ -12,6 +12,8 @@ var agentState = {
 
 var pipelineOrder = []; // which components are in the pipeline
 var isLoggedIn = false;
+var _authPrincipalHeader = null;
+var _currentUserId = null;
 var currentDraftId = null;
 var agentStatus = 'draft'; // draft, reviewing, returned, submitted, approved, rejected
 var lastReview = null; // last AI review result
@@ -21,7 +23,11 @@ var _liveAgentsCache = []; // cache of live agent configs for edit loading
 
 // Check auth
 fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
-  if (d && d.clientPrincipal) isLoggedIn = true;
+  if (d && d.clientPrincipal) {
+    isLoggedIn = true;
+    _authPrincipalHeader = btoa(JSON.stringify(d.clientPrincipal));
+    _currentUserId = d.clientPrincipal.userId;
+  }
 }).catch(function() {});
 
 function getApiBase() {
@@ -732,7 +738,7 @@ async function generatePortrait() {
   }, 30000);
 
   try {
-    var hdrs = { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' };
+    var hdrs = { 'Content-Type': 'application/json' };
     var detail = (document.getElementById('af-portrait-detail') || {}).value || '';
     var payload = Object.assign({}, _portraitChoices, { detail: detail.trim() });
 
@@ -806,7 +812,7 @@ async function runScaffold() {
 
   try {
     var hdrs = { 'Content-Type': 'application/json' };
-    if (isLoggedIn) hdrs['x-company-secret'] = 'pixelpusher';
+    if (_authPrincipalHeader) hdrs['x-cf-auth-principal'] = _authPrincipalHeader;
 
     var res = await fetch(getApiBase() + '/pixel-agent-run', {
       method: 'POST',
@@ -863,7 +869,7 @@ async function runTest() {
   try {
     var agentConfig = buildAgentConfig();
     var hdrs = { 'Content-Type': 'application/json' };
-    if (isLoggedIn) hdrs['x-company-secret'] = 'pixelpusher';
+    if (_authPrincipalHeader) hdrs['x-cf-auth-principal'] = _authPrincipalHeader;
 
     var res = await fetch(getApiBase() + '/pixel-agent-run', {
       method: 'POST',
@@ -902,7 +908,7 @@ async function submitForReview() {
   try {
     var agentConfig = buildAgentConfig();
     var hdrs = { 'Content-Type': 'application/json' };
-    if (isLoggedIn) hdrs['x-company-secret'] = 'pixelpusher';
+    if (_authPrincipalHeader) hdrs['x-cf-auth-principal'] = _authPrincipalHeader;
 
     var submitBody = { agentConfig: agentConfig };
     if (_editMode && _editAgentId) {
@@ -1217,7 +1223,8 @@ var _draftsCache = []; // local cache of loaded drafts
 
 // ── Load Full Sidebar (Drafts + Pending + Live) ──
 function loadSidebar() {
-  var hdrs = { 'x-company-secret': 'pixelpusher' };
+  var hdrs = {};
+  if (_authPrincipalHeader) hdrs['x-cf-auth-principal'] = _authPrincipalHeader;
   Promise.all([
     fetch(getApiBase() + '/agentforge-drafts', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return { drafts: [] }; }),
     fetch(getApiBase() + '/company-state?key=approvalQueue', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return {}; }),
@@ -1250,8 +1257,10 @@ function loadSidebar() {
     var pending = queue.filter(function(item) { return item.type === 'agent_forge_submission' && item.status === 'pending'; });
     renderPendingList(pending);
 
-    // Live: all community agents
-    var live = (communityData.agents || []).filter(function(a) { return a.active; });
+    // Live: only this user's community agents
+    var live = (communityData.agents || []).filter(function(a) {
+      return a.active && (!_currentUserId || a.creatorId === _currentUserId);
+    });
     renderLiveList(live);
   });
 }
@@ -1380,7 +1389,7 @@ async function deleteLiveAgent(agentId) {
 
   fetch(getApiBase() + '/pixel-agent-remove', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, _authPrincipalHeader ? { 'x-cf-auth-principal': _authPrincipalHeader } : {}),
     body: JSON.stringify({ agentId: agentId })
   })
   .then(function(r) { return r.json(); })
@@ -1408,7 +1417,7 @@ function saveDraft() {
 
   fetch(getApiBase() + '/agentforge-drafts', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, _authPrincipalHeader ? { 'x-cf-auth-principal': _authPrincipalHeader } : {}),
     body: JSON.stringify({ draft: draft })
   })
   .then(function(r) { return r.json(); })
@@ -1428,7 +1437,7 @@ function loadDrafts() {
   if (!list) return;
 
   fetch(getApiBase() + '/agentforge-drafts', {
-    headers: { 'x-company-secret': 'pixelpusher' }
+    headers: _authPrincipalHeader ? { 'x-cf-auth-principal': _authPrincipalHeader } : {}
   })
   .then(function(r) { return r.json(); })
   .then(function(data) {
@@ -1489,7 +1498,7 @@ function loadDraft(draftId) {
 function deleteDraft(draftId) {
   fetch(getApiBase() + '/agentforge-drafts', {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+    headers: Object.assign({ 'Content-Type': 'application/json' }, _authPrincipalHeader ? { 'x-cf-auth-principal': _authPrincipalHeader } : {}),
     body: JSON.stringify({ draftId: draftId })
   })
   .then(function(r) { return r.json(); })
