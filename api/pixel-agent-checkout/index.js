@@ -103,8 +103,8 @@ module.exports = async function (context, req) {
       await saveEntitlements(containerClient, userId, record);
     }
 
-    const successUrl = SITE_URL + '/pixel-agents/?checkout=success&session_id={CHECKOUT_SESSION_ID}';
-    const cancelUrl = SITE_URL + '/pixel-agents/?checkout=cancelled';
+    const successUrl = SITE_URL + '/pixel-agents/upgrade.html?success=true&session_id={CHECKOUT_SESSION_ID}';
+    const cancelUrl = SITE_URL + '/pixel-agents/upgrade.html?cancelled=true';
 
     const session = await createCheckoutSession({
       mode: product.mode || 'payment',

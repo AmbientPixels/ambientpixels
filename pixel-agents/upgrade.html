@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Upgrade to Pro Creator — unlock unlimited agents, higher revenue share, and priority queue on Pixel Agents." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Upgrade to Pro — Pixel Agents</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <!-- Shared site CSS -->
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+
+  <!-- Pixel Agents v2 design system + layout -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+
+  <style>
+    /* Hero */
+    .pa-upgrade-hero { text-align: center; padding: 2rem 0 1rem; }
+    .pa-upgrade-hero h1 { font-family: var(--pa-font-display); font-size: 2.2rem; font-weight: 800; color: var(--pa-text); margin: 0 0 0.5rem; }
+    .pa-upgrade-subtitle { font-size: 1rem; color: var(--pa-text-muted); margin: 0; }
+
+    /* Pricing */
+    .pa-upgrade-pricing { text-align: center; padding: 2rem 0; }
+    .pa-pricing-toggle { display: inline-flex; background: var(--pa-surface); border: 1px solid var(--pa-sep); border-radius: var(--pa-radius-pill); padding: 3px; margin-bottom: 2rem; }
+    .pa-pricing-option { font-family: var(--pa-font-display); font-size: 0.8rem; font-weight: 600; padding: 0.5rem 1.25rem; border: none; border-radius: var(--pa-radius-pill); background: transparent; color: var(--pa-text-muted); cursor: pointer; transition: all 0.2s; }
+    .pa-pricing-option.active { background: var(--pa-primary); color: #fff; }
+    .pa-pricing-save { font-size: 0.6rem; padding: 2px 6px; border-radius: var(--pa-radius-pill); background: rgba(74,222,128,0.15); color: var(--pa-success); margin-left: 0.35rem; }
+    .pa-pricing-card { display: inline-flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .pa-pricing-amount { display: flex; align-items: baseline; gap: 0.15rem; }
+    .pa-pricing-currency { font-family: var(--pa-font-display); font-size: 1.5rem; font-weight: 700; color: var(--pa-text-muted); }
+    .pa-pricing-number { font-family: var(--pa-font-display); font-size: 4rem; font-weight: 800; color: var(--pa-text); line-height: 1; }
+    .pa-pricing-period { font-family: var(--pa-font-display); font-size: 1rem; color: var(--pa-text-faint); }
+    .pa-pricing-detail { font-size: 0.75rem; color: var(--pa-text-faint); }
+    .pa-upgrade-cta { padding: 0.75rem 2.5rem; font-size: 1rem; }
+    .pa-upgrade-status { font-size: 0.8rem; color: var(--pa-text-muted); min-height: 1.5rem; }
+
+    /* Comparison */
+    .pa-upgrade-compare { max-width: 600px; margin: 0 auto; padding: 2rem 0; }
+    .pa-upgrade-compare h2 { font-family: var(--pa-font-display); font-size: 1.3rem; font-weight: 700; color: var(--pa-text); text-align: center; margin: 0 0 1.5rem; }
+    .pa-compare-table { width: 100%; border-collapse: collapse; }
+    .pa-compare-table th { font-family: var(--pa-font-display); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; padding: 0.6rem 1rem; border-bottom: 1px solid var(--pa-sep-strong); color: var(--pa-text-faint); }
+    .pa-compare-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--pa-sep); color: var(--pa-text); font-size: 0.85rem; }
+    .pa-compare-pro { color: var(--pa-primary); font-weight: 600; }
+    th.pa-compare-pro { color: var(--pa-primary); }
+
+    /* Value cards */
+    .pa-upgrade-values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; padding: 2rem 0; }
+    .pa-value-card { padding: 1.5rem; background: var(--pa-surface); border: 1px solid var(--pa-sep); border-radius: var(--pa-radius-lg); text-align: center; }
+    .pa-value-icon { font-size: 1.5rem; margin-bottom: 0.75rem; display: block; }
+    .pa-value-card h3 { font-family: var(--pa-font-display); font-size: 1rem; font-weight: 700; color: var(--pa-text); margin: 0 0 0.5rem; }
+    .pa-value-card p { font-size: 0.8rem; color: var(--pa-text-muted); line-height: 1.5; margin: 0; }
+
+    /* Social proof */
+    .pa-upgrade-proof { display: flex; justify-content: center; gap: 3rem; padding: 2rem 0; }
+    .pa-proof-stat { text-align: center; }
+    .pa-proof-number { font-family: var(--pa-font-display); font-size: 2rem; font-weight: 700; color: var(--pa-text); }
+    .pa-proof-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--pa-text-faint); }
+    .pa-proof-loading { animation: pa-pulse 1.5s ease-in-out infinite; }
+    @keyframes pa-pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+
+    /* FAQ */
+    .pa-upgrade-faq { max-width: 600px; margin: 0 auto; padding: 2rem 0; }
+    .pa-upgrade-faq h2 { font-family: var(--pa-font-display); font-size: 1.3rem; font-weight: 700; color: var(--pa-text); text-align: center; margin: 0 0 1.5rem; }
+    .pa-faq-list details { margin-bottom: 0.5rem; background: var(--pa-surface); border: 1px solid var(--pa-sep); border-radius: var(--pa-radius-md); overflow: hidden; }
+    .pa-faq-list details[open] { border-color: var(--pa-primary-border); }
+    .pa-faq-list summary { padding: 1rem 1.25rem; font-family: var(--pa-font-display); font-size: 0.9rem; font-weight: 600; color: var(--pa-text); cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .pa-faq-list summary::-webkit-details-marker { display: none; }
+    .pa-faq-list summary::after { content: '+'; font-size: 1.2rem; color: var(--pa-text-muted); }
+    .pa-faq-list details[open] summary::after { content: '\2212'; color: var(--pa-primary); }
+    .pa-faq-answer { padding: 0 1.25rem 1rem; font-size: 0.85rem; line-height: 1.6; color: var(--pa-text-muted); }
+    .pa-faq-answer a { color: var(--pa-primary); text-decoration: none; }
+
+    /* Final CTA */
+    .pa-upgrade-final { text-align: center; padding: 3rem 0 2rem; }
+    .pa-upgrade-final h2 { font-family: var(--pa-font-display); font-size: 1.3rem; font-weight: 700; color: var(--pa-text); margin: 0 0 1.5rem; }
+    .pa-upgrade-contact { font-size: 0.78rem; color: var(--pa-text-faint); margin-top: 1rem; }
+    .pa-upgrade-contact a { color: var(--pa-primary); text-decoration: none; }
+
+    /* Banners */
+    .pa-upgrade-banner { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; border-radius: var(--pa-radius-md); margin-bottom: 1.5rem; font-size: 0.85rem; }
+    .pa-upgrade-banner--success { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); color: var(--pa-success); }
+    .pa-upgrade-banner--cancel { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15); color: var(--pa-warning); }
+
+    /* Auth gate */
+    .pa-upgrade-auth-note { text-align: center; font-size: 0.82rem; color: var(--pa-text-muted); margin-top: 0.5rem; }
+    .pa-upgrade-auth-note a { color: var(--pa-primary); text-decoration: none; font-weight: 600; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .pa-upgrade-hero h1 { font-size: 1.6rem; }
+      .pa-pricing-number { font-size: 3rem; }
+      .pa-upgrade-values { grid-template-columns: 1fr; }
+      .pa-upgrade-proof { flex-direction: column; gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body class="pa-shell" data-theme="dark">
+
+  <!-- ═══════════════════════════════════
+       SIDEBAR (Desktop)
+       ═══════════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-sidebar-logo">
+      <span class="pa-logo-accent">Pixel</span><br>Agents
+    </div>
+
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot"></span>
+      <span>Operator</span>
+    </div>
+
+    <nav class="pa-sidebar-nav">
+      <a href="/pixel-agents/" data-nav="explore">
+        <i class="fas fa-compass"></i><span>Explore</span>
+      </a>
+      <a href="/pixel-agents/#agent-grid" data-nav="agents">
+        <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="/agent-forge/" data-nav="forge">
+        <i class="fas fa-hammer"></i><span>Forge</span>
+      </a>
+      <a href="#" aria-disabled="true" data-nav="vault">
+        <i class="fas fa-vault"></i><span>Vault</span>
+        <span class="pa-coming-soon">Soon</span>
+      </a>
+      <a href="/pixel-agents/analytics.html" data-nav="activity">
+        <i class="fas fa-chart-line"></i><span>Activity</span>
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-resources">
+      <a href="/pixel-agents/docs.html" data-nav="docs"><i class="fas fa-book"></i><span>Docs</span></a>
+      <a href="/pixel-agents/faq.html" data-nav="faq"><i class="fas fa-circle-question"></i><span>FAQ</span></a>
+      <a href="/pixel-agents/changelog.html" data-nav="changelog"><i class="fas fa-clock-rotate-left"></i><span>Changelog</span></a>
+      <a href="/pixel-agents/contact.html" data-nav="contact"><i class="fas fa-envelope"></i><span>Contact</span></a>
+    </div>
+
+    <div class="pa-sidebar-footer">
+      <a href="/agent-forge/" class="pa-sidebar-cta">
+        <i class="fas fa-plus"></i><span>New Agent</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════
+       TOP BAR
+       ═══════════════════════════════════ -->
+  <header class="pa-topbar-v2">
+    <span class="pa-wordmark">Upgrade</span>
+    <div class="pa-topbar-actions">
+      <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="pa-btn-icon" title="Notifications">
+        <i class="fas fa-bell"></i>
+      </button>
+      <div class="pa-avatar" id="pa-avatar" title="Account">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="pa-avatar-menu" id="pa-avatar-menu">
+        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/upgrade.html">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <div id="pa-user-status" style="display:none;">
+          <span class="pa-avatar-menu-text">
+            Signed in as <strong id="pa-user-name"></strong>
+          </span>
+          <button id="pa-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════ -->
+  <main class="pa-main">
+
+    <!-- Success banner (shown when ?success=true) -->
+    <div class="pa-upgrade-banner pa-upgrade-banner--success" id="pa-success-banner" style="display:none">
+      <i class="fas fa-check-circle"></i>
+      <div>
+        <strong>Welcome to Pro!</strong> Your account has been upgraded.
+        <a href="/pixel-agents/analytics.html" class="pa-btn-primary" style="margin-left:1rem;padding:0.4rem 1rem;font-size:0.8rem">Go to Analytics</a>
+      </div>
+    </div>
+    <!-- Cancel banner (shown when ?cancelled=true) -->
+    <div class="pa-upgrade-banner pa-upgrade-banner--cancel" id="pa-cancel-banner" style="display:none">
+      <i class="fas fa-info-circle"></i>
+      <span>Checkout cancelled. You can upgrade anytime.</span>
+    </div>
+
+    <!-- 1. Hero -->
+    <section class="pa-upgrade-hero">
+      <div class="pa-hero-protocol"><span>Creator Protocol :: Pro Tier</span><span class="pa-blink"></span></div>
+      <h1>Upgrade to Pro Creator</h1>
+      <p class="pa-upgrade-subtitle">Earn more. Build more. Grow faster.</p>
+    </section>
+
+    <!-- 2. Pricing Toggle + CTA -->
+    <section class="pa-upgrade-pricing">
+      <div class="pa-pricing-toggle">
+        <button class="pa-pricing-option active" data-plan="monthly">Monthly</button>
+        <button class="pa-pricing-option" data-plan="yearly">Yearly <span class="pa-pricing-save">Save 17%</span></button>
+      </div>
+      <div class="pa-pricing-card">
+        <div class="pa-pricing-amount" id="pa-price-display">
+          <span class="pa-pricing-currency">$</span>
+          <span class="pa-pricing-number" id="pa-price-number">12</span>
+          <span class="pa-pricing-period" id="pa-price-period">/mo</span>
+        </div>
+        <div class="pa-pricing-detail" id="pa-price-detail"></div>
+        <button class="pa-btn-primary pa-upgrade-cta" id="pa-upgrade-btn" onclick="handleUpgrade()">
+          <i class="fas fa-rocket"></i> Go Pro
+        </button>
+        <div class="pa-upgrade-status" id="pa-upgrade-status"></div>
+      </div>
+    </section>
+
+    <!-- 3. Comparison Table -->
+    <section class="pa-upgrade-compare">
+      <h2>Free vs Pro</h2>
+      <table class="pa-compare-table">
+        <thead>
+          <tr><th>Feature</th><th>Free</th><th class="pa-compare-pro">Pro</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Daily runs (signed in)</td><td>25</td><td class="pa-compare-pro">Unlimited</td></tr>
+          <tr><td>Live agents</td><td>5</td><td class="pa-compare-pro">Unlimited</td></tr>
+          <tr><td>Revenue share</td><td>50%</td><td class="pa-compare-pro">70%</td></tr>
+          <tr><td>Run weight</td><td>1x</td><td class="pa-compare-pro">1.5x</td></tr>
+          <tr><td>Priority queue</td><td><i class="fas fa-minus" style="color:var(--pa-text-faint)"></i></td><td class="pa-compare-pro"><i class="fas fa-check" style="color:var(--pa-success)"></i></td></tr>
+          <tr><td>Early access</td><td><i class="fas fa-minus" style="color:var(--pa-text-faint)"></i></td><td class="pa-compare-pro"><i class="fas fa-check" style="color:var(--pa-success)"></i></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 4. Value Highlights -->
+    <section class="pa-upgrade-values">
+      <div class="pa-value-card">
+        <i class="fas fa-coins pa-value-icon" style="color:var(--pa-success)"></i>
+        <h3>Earn More</h3>
+        <p>70% revenue share + 1.5x run weight. Your agents earn almost 2x what Free creators make per run.</p>
+      </div>
+      <div class="pa-value-card">
+        <i class="fas fa-infinity pa-value-icon" style="color:var(--pa-secondary)"></i>
+        <h3>Build More</h3>
+        <p>Unlimited live agents. No cap on how many tools you ship to the catalog.</p>
+      </div>
+      <div class="pa-value-card">
+        <i class="fas fa-bolt pa-value-icon" style="color:var(--pa-warning)"></i>
+        <h3>Grow Faster</h3>
+        <p>Priority queue + early access. Your agents run first and you get new features before everyone else.</p>
+      </div>
+    </section>
+
+    <!-- 5. Social Proof -->
+    <section class="pa-upgrade-proof">
+      <div class="pa-proof-stat">
+        <div class="pa-proof-number" id="pa-proof-agents">--</div>
+        <div class="pa-proof-label">Community Agents</div>
+      </div>
+      <div class="pa-proof-stat">
+        <div class="pa-proof-number" id="pa-proof-runs">--</div>
+        <div class="pa-proof-label">Total Deployments</div>
+      </div>
+      <div class="pa-proof-stat">
+        <div class="pa-proof-number" id="pa-proof-creators">--</div>
+        <div class="pa-proof-label">Active Creators</div>
+      </div>
+    </section>
+
+    <!-- 6. FAQ -->
+    <section class="pa-upgrade-faq">
+      <h2>Questions</h2>
+      <div class="pa-faq-list">
+        <details>
+          <summary>Can I cancel anytime?</summary>
+          <div class="pa-faq-answer">Yes. Cancel from your Stripe dashboard anytime. You keep Pro benefits until the end of your billing period.</div>
+        </details>
+        <details>
+          <summary>When do I start earning more?</summary>
+          <div class="pa-faq-answer">Immediately. Your run weight jumps to 1.5x and revenue share to 70% as soon as your subscription is active.</div>
+        </details>
+        <details>
+          <summary>Do I lose my agents if I cancel?</summary>
+          <div class="pa-faq-answer">No. Your agents stay live (up to 5). You just go back to Free tier rates — 50% share, 1x weight, 25 runs/day.</div>
+        </details>
+        <details>
+          <summary>Is there a free trial?</summary>
+          <div class="pa-faq-answer">No trial, but you can see your estimated earnings on the <a href="/pixel-agents/analytics.html">analytics page</a> before upgrading.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 7. Final CTA -->
+    <section class="pa-upgrade-final">
+      <h2>Ready to go Pro?</h2>
+      <button class="pa-btn-primary pa-upgrade-cta" onclick="handleUpgrade()">
+        <i class="fas fa-rocket"></i> Go Pro — <span id="pa-final-price">$12/mo</span>
+      </button>
+      <p class="pa-upgrade-contact">Still have questions? <a href="/pixel-agents/contact.html">Contact us</a></p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="pa-footer-v2">
+      <span>&copy; 2026 Pixel Agents</span>
+      <div class="pa-footer-links">
+        <a href="/pixel-agents/">Pixel Agents</a>
+        <a href="/agent-forge/">Agent Forge</a>
+        <a href="/storyforge/">StoryForge</a>
+        <a href="/cardforge/">CardForge</a>
+        <a href="/blindspot/">Blindspot</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ═══════════════════════════════════
+       BOTTOM NAV (Mobile)
+       ═══════════════════════════════════ -->
+  <nav class="pa-bottom-nav">
+    <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
+    <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
+    <a href="/pixel-agents/analytics.html"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+  </nav>
+
+  <!-- ═══════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════ -->
+  <script>
+  // Avatar menu + theme toggle (shared pattern)
+  (function() {
+    var avatar = document.getElementById('pa-avatar');
+    var menu = document.getElementById('pa-avatar-menu');
+    if (avatar && menu) {
+      avatar.addEventListener('click', function(e) { e.stopPropagation(); menu.classList.toggle('open'); });
+      document.addEventListener('click', function() { menu.classList.remove('open'); });
+    }
+
+    var savedTheme = localStorage.getItem('preferred-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+      var icon = document.querySelector('#pa-theme-toggle i');
+      if (icon) icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    var themeBtn = document.getElementById('pa-theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        var isDark = document.body.getAttribute('data-theme') === 'dark';
+        var next = isDark ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', next);
+        localStorage.setItem('preferred-theme', next);
+        this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+      });
+    }
+  })();
+
+  // Upgrade page logic
+  (function() {
+    var selectedPlan = 'monthly';
+    var isAuthenticated = false;
+
+    // Auth check
+    var cached = sessionStorage.getItem('pa_auth');
+    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) isAuthenticated = true; } catch(e) {} }
+
+    fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
+      if (d && d.clientPrincipal) isAuthenticated = true;
+      updateAuthState();
+    }).catch(function() { updateAuthState(); });
+
+    function updateAuthState() {
+      var btns = document.querySelectorAll('.pa-upgrade-cta');
+      if (!isAuthenticated) {
+        btns.forEach(function(btn) {
+          btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In to Go Pro';
+          btn.onclick = function() { window.location.href = '/pages/login.html?redirect=/pixel-agents/upgrade.html'; };
+        });
+      }
+    }
+
+    // Pricing toggle
+    var toggleBtns = document.querySelectorAll('.pa-pricing-option');
+    toggleBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        toggleBtns.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        selectedPlan = btn.dataset.plan;
+        updatePrice();
+      });
+    });
+
+    function updatePrice() {
+      var num = document.getElementById('pa-price-number');
+      var period = document.getElementById('pa-price-period');
+      var detail = document.getElementById('pa-price-detail');
+      var finalPrice = document.getElementById('pa-final-price');
+      if (selectedPlan === 'yearly') {
+        num.textContent = '10';
+        period.textContent = '/mo';
+        detail.textContent = 'Billed $120/year';
+        if (finalPrice) finalPrice.textContent = '$10/mo (billed yearly)';
+      } else {
+        num.textContent = '12';
+        period.textContent = '/mo';
+        detail.textContent = '';
+        if (finalPrice) finalPrice.textContent = '$12/mo';
+      }
+    }
+
+    // Checkout handler
+    window.handleUpgrade = function() {
+      if (!isAuthenticated) {
+        window.location.href = '/pages/login.html?redirect=/pixel-agents/upgrade.html';
+        return;
+      }
+      var productId = selectedPlan === 'yearly' ? 'pa-pro-yearly' : 'pa-pro-monthly';
+      var btn = document.getElementById('pa-upgrade-btn');
+      var status = document.getElementById('pa-upgrade-status');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Stripe...'; }
+
+      var apiBase = window.location.hostname.includes('ambientpixels.ai')
+        ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+
+      fetch(apiBase + '/pixel-agent-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        body: JSON.stringify({ productId: productId })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          if (status) status.textContent = data.error || 'Checkout failed. Please try again.';
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> Go Pro'; }
+        }
+      })
+      .catch(function(err) {
+        if (status) status.textContent = 'Network error. Please try again.';
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> Go Pro'; }
+      });
+    };
+
+    // Success/cancel URL handling
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      var banner = document.getElementById('pa-success-banner');
+      if (banner) banner.style.display = 'flex';
+      // Hide pricing sections
+      var sections = document.querySelectorAll('.pa-upgrade-pricing, .pa-upgrade-final');
+      sections.forEach(function(s) { s.style.display = 'none'; });
+      history.replaceState(null, '', window.location.pathname);
+    }
+    if (params.get('cancelled') === 'true') {
+      var cancelBanner = document.getElementById('pa-cancel-banner');
+      if (cancelBanner) cancelBanner.style.display = 'flex';
+      history.replaceState(null, '', window.location.pathname);
+    }
+
+    // Social proof data
+    var apiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+
+    var proofAgents = document.getElementById('pa-proof-agents');
+    var proofRuns = document.getElementById('pa-proof-runs');
+    var proofCreators = document.getElementById('pa-proof-creators');
+    if (proofAgents) proofAgents.classList.add('pa-proof-loading');
+    if (proofRuns) proofRuns.classList.add('pa-proof-loading');
+    if (proofCreators) proofCreators.classList.add('pa-proof-loading');
+
+    Promise.all([
+      fetch(apiBase + '/pixel-agent-community').then(function(r) { return r.json(); }).catch(function() { return null; }),
+      fetch(apiBase + '/pixel-agent-catalog').then(function(r) { return r.json(); }).catch(function() { return null; })
+    ]).then(function(results) {
+      var community = results[0];
+      var catalog = results[1];
+      if (proofAgents) {
+        proofAgents.classList.remove('pa-proof-loading');
+        var agentCount = (catalog && catalog.agents ? catalog.agents.length : 0) + (community && community.agents ? community.agents.length : 0);
+        proofAgents.textContent = agentCount || '--';
+      }
+      if (proofRuns) {
+        proofRuns.classList.remove('pa-proof-loading');
+        proofRuns.textContent = catalog && catalog.totalRuns ? formatNumber(catalog.totalRuns) : '--';
+      }
+      if (proofCreators) {
+        proofCreators.classList.remove('pa-proof-loading');
+        if (community && community.agents) {
+          var creators = {};
+          community.agents.forEach(function(a) { if (a.creatorId) creators[a.creatorId] = true; });
+          proofCreators.textContent = Object.keys(creators).length || '--';
+        }
+      }
+    });
+
+    function formatNumber(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return String(n);
+    }
+  })();
+  </script>
+</body>
+</html>

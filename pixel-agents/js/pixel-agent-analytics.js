@@ -271,7 +271,7 @@
             '<p>Earn 70% instead of 50%. Get 1.5x run weight. Unlimited live agents.</p>' +
           '</div>' +
         '</div>' +
-        '<a href="/pixel-agents/?upgrade=pro" class="pa-btn-primary"><i class="fas fa-rocket"></i> $12/mo</a>' +
+        '<a href="/pixel-agents/upgrade.html" class="pa-btn-primary"><i class="fas fa-rocket"></i> $12/mo</a>' +
       '</div>';
     }
 
