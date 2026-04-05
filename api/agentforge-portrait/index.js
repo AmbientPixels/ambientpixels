@@ -167,7 +167,12 @@ function buildPortraitPrompt(opts) {
   } else {
     parts.push(appearance + ' ' + age);
   }
-  parts.push(ARCHETYPES[opts.archetype] || ARCHETYPES.scholar);
+  // Avatar mode skips archetype (no suits/armor/goggles — just casual person)
+  if (opts.mode === 'avatar') {
+    parts.push('wearing casual everyday clothing');
+  } else {
+    parts.push(ARCHETYPES[opts.archetype] || ARCHETYPES.scholar);
+  }
   parts.push(POSES[opts.pose] || POSES.front);
 
   // Use body-language expressions for non-human
