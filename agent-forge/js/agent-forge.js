@@ -520,7 +520,14 @@ function updateStatus() {
   var submitBtn = document.getElementById('af-submit-btn');
   var ready = pipelineOrder.length === 5 && agentState.identity.name && agentState.prompt.systemPrompt;
   if (testBtn) testBtn.disabled = !ready;
-  if (submitBtn) submitBtn.disabled = !ready;
+  if (submitBtn) {
+    submitBtn.disabled = !ready;
+    if (_editMode) {
+      submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+    } else {
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review';
+    }
+  }
 }
 
 // ── Preview ──
@@ -879,10 +886,11 @@ async function runTest() {
 
 // ── Submit ──
 async function submitForReview() {
-  var confirmed = await showConfirmModal(
-    'Submit for Review',
-    'Submit "' + escapeHtml(agentState.identity.name || 'Untitled') + '" for AI review?\n\nThe AI reviewer will evaluate quality, uniqueness, and safety before forwarding to the CEO.'
-  );
+  var confirmTitle = _editMode ? 'Save Changes' : 'Submit for Review';
+  var confirmMsg = _editMode
+    ? 'Save changes to "' + escapeHtml(agentState.identity.name || 'Untitled') + '"?\n\nCosmetic changes will apply instantly.'
+    : 'Submit "' + escapeHtml(agentState.identity.name || 'Untitled') + '" for AI review?\n\nThe AI reviewer will evaluate quality, uniqueness, and safety.';
+  var confirmed = await showConfirmModal(confirmTitle, confirmMsg);
   if (!confirmed) return;
 
   setAgentStatus('reviewing');
