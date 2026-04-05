@@ -21,9 +21,8 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
 
-  <!-- Run page styles (old + v2 overrides) -->
+  <!-- Run page styles -->
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-run.css" />
-  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-run-v2.css" />
 </head>
 <body class="pa-shell" data-theme="dark">
 
@@ -35,12 +34,20 @@
       <span class="pa-logo-accent">Pixel</span><br>Agents
     </div>
 
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot"></span>
+      <span>Operator</span>
+    </div>
+
     <nav class="pa-sidebar-nav">
       <a href="/pixel-agents/" data-nav="explore">
         <i class="fas fa-compass"></i><span>Explore</span>
       </a>
       <a href="/pixel-agents/#agent-grid" data-nav="agents">
         <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="/agent-forge/" data-nav="forge">
+        <i class="fas fa-hammer"></i><span>Forge</span>
       </a>
       <a href="#" aria-disabled="true" data-nav="vault">
         <i class="fas fa-vault"></i><span>Vault</span>
@@ -53,8 +60,8 @@
     </nav>
 
     <div class="pa-sidebar-footer">
-      <a href="/agent-forge/" class="pa-sidebar-forge">
-        <i class="fas fa-hammer"></i><span>Agent Forge</span>
+      <a href="/agent-forge/" class="pa-sidebar-cta">
+        <i class="fas fa-plus"></i><span>New Agent</span>
       </a>
     </div>
   </aside>
@@ -79,8 +86,8 @@
           <i class="fas fa-sign-in-alt"></i> Sign In
         </a>
         <div id="pa-user-status" style="display:none;">
-          <span style="padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--pa-text-muted);display:block;">
-            Signed in as <strong id="pa-user-name" style="color:var(--pa-text);"></strong>
+          <span class="pa-avatar-menu-text">
+            Signed in as <strong id="pa-user-name"></strong>
           </span>
           <button id="pa-logout-btn">
             <i class="fas fa-sign-out-alt"></i> Sign Out
@@ -191,6 +198,7 @@
   <nav class="pa-bottom-nav">
     <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
     <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-chart-line"></i><span>Activity</span></a>
   </nav>

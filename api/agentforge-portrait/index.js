@@ -1,0 +1,243 @@
+// agentforge-portrait — Generate Arcane-style character portrait for custom agents
+// POST /api/agentforge-portrait { archetype, expression, appearance, pose, accent }
+
+const { callImageGeneration } = require('../_lib/contentEngine/imageEngine');
+
+const CORS_HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-ms-client-principal, x-cf-auth-principal, x-user-id, x-company-secret'
+};
+
+// ── Prompt Fragment Lookup Tables ──
+
+var ARCHETYPES = {
+  scholar:    'analytical figure with rectangular glasses, neat structured clothing, intellectual bearing',
+  operative:  'hooded operative with deep hood casting shadow, tactical dark clothing, barely visible earpiece',
+  executive:  'polished figure in immaculate dark suit with pocket square, commanding presence',
+  creative:   'expressive figure with wild artistic hair, paint-stained lapel on layered jacket',
+  technician: 'precise figure with mechanical goggles pushed up on forehead, utility jacket',
+  mystic:     'mysterious figure with dramatic high collar framing face, dark layered robes',
+  rebel:      'bold figure in streetwear jacket, confident casual posture, strong jaw',
+  guardian:   'sturdy figure with armored shoulder pauldron, protective stance, vigilant eyes'
+};
+
+var EXPRESSIONS = {
+  confident:  'relaxed posture, knowing half-smile, slight lean back',
+  intense:    'piercing focused stare, slight downward angle looking at camera, arms crossed',
+  friendly:   'warm open expression, slight forward lean, kind eyes',
+  mysterious: 'enigmatic half-smile, partially shadowed face',
+  fierce:     'combative grin, index finger raised mid-point, bold forward energy',
+  calm:       'composed neutral expression, serene gaze'
+};
+
+// Body-language-only variants for Non-human (no facial expressions)
+var EXPRESSIONS_NONHUMAN = {
+  confident:  'commanding upright posture, arms at sides',
+  intense:    'rigid alert stance, weight forward',
+  friendly:   'open relaxed posture, slight head tilt',
+  mysterious: 'head tilted, arms folded',
+  fierce:     'aggressive forward lean, fists clenched',
+  calm:       'perfectly still centered stance'
+};
+
+var APPEARANCES = {
+  masculine:   'man in his 30s',
+  feminine:    'woman in her 30s',
+  androgynous: 'androgynous figure in their 30s',
+  nonhuman:    'masked helmeted figure, no visible face, visor or featureless mask'
+};
+
+var POSES = {
+  front:         'facing camera directly',
+  three_quarter: 'slight 3/4 angle body turned, face toward camera',
+  side_profile:  'side profile with eyes cutting back toward camera',
+  low_angle:     'low angle shot looking up slightly commanding presence'
+};
+
+var ACCENTS = {
+  none:   '',
+  blue:   'with cold steel blue accents on clothing',
+  purple: 'with arcane violet accents on clothing',
+  gold:   'with warm amber-gold accents on clothing',
+  red:    'with deep crimson accents on clothing',
+  green:  'with dark emerald accents on clothing',
+  teal:   'with cyan-teal accents on clothing',
+  silver: 'with metallic silver accents on clothing'
+};
+
+// LOCKED — do not change, maintains catalog style consistency
+var STYLE_SUFFIX = 'dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm';
+
+// ── Auth ──
+
+function extractUserId(req) {
+  var principalHeader = req.headers['x-ms-client-principal'] || req.headers['x-cf-auth-principal'];
+  if (principalHeader) {
+    try {
+      var decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
+      var principal = JSON.parse(decoded);
+      if (principal.userId && principal.userId !== 'anonymous') return principal.userId;
+    } catch (e) { /* fall through */ }
+  }
+  var devId = req.headers['x-user-id'];
+  if (devId) return devId;
+  if (req.headers['x-company-secret'] === 'pixelpusher') return 'ceo';
+  return null;
+}
+
+// ── Rate Limiting (5/day/user) ──
+
+var MAX_PER_DAY = 5;
+
+async function checkRateLimit(userId) {
+  try {
+    var { BlobServiceClient } = require('@azure/storage-blob');
+    var connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    if (!connStr) return { allowed: true, remaining: MAX_PER_DAY };
+
+    var client = BlobServiceClient.fromConnectionString(connStr);
+    var container = client.getContainerClient('company-state');
+    var blobName = 'agentforge-portrait-limits/' + userId + '.json';
+    var blobClient = container.getBlockBlobClient(blobName);
+
+    var today = new Date().toISOString().slice(0, 10);
+    var data = { date: today, count: 0 };
+
+    try {
+      var dl = await blobClient.download(0);
+      var raw = await streamToString(dl.readableStreamBody);
+      data = JSON.parse(raw);
+    } catch (e) { /* blob doesn't exist yet */ }
+
+    // Reset if new day
+    if (data.date !== today) {
+      data = { date: today, count: 0 };
+    }
+
+    if (data.count >= MAX_PER_DAY) {
+      return { allowed: false, remaining: 0 };
+    }
+
+    // Increment
+    data.count++;
+    await blobClient.upload(JSON.stringify(data), JSON.stringify(data).length, {
+      blobHTTPHeaders: { blobContentType: 'application/json' },
+      overwrite: true
+    });
+
+    return { allowed: true, remaining: MAX_PER_DAY - data.count };
+  } catch (e) {
+    // Fail open — if rate limit check fails, allow the request
+    console.warn('[agentforge-portrait] Rate limit check failed:', e.message);
+    return { allowed: true, remaining: MAX_PER_DAY };
+  }
+}
+
+function streamToString(readable) {
+  return new Promise(function (resolve, reject) {
+    var chunks = [];
+    readable.on('data', function (c) { chunks.push(typeof c === 'string' ? Buffer.from(c) : c); });
+    readable.on('end', function () { resolve(Buffer.concat(chunks).toString('utf8')); });
+    readable.on('error', reject);
+  });
+}
+
+// ── Prompt Assembly ──
+
+function buildPortraitPrompt(opts) {
+  var parts = [];
+
+  parts.push(APPEARANCES[opts.appearance] || APPEARANCES.androgynous);
+  parts.push(ARCHETYPES[opts.archetype] || ARCHETYPES.scholar);
+  parts.push(POSES[opts.pose] || POSES.front);
+
+  // Use body-language expressions for non-human
+  var exprTable = opts.appearance === 'nonhuman' ? EXPRESSIONS_NONHUMAN : EXPRESSIONS;
+  parts.push(exprTable[opts.expression] || exprTable.confident);
+
+  var accent = ACCENTS[opts.accent || 'none'];
+  if (accent) parts.push(accent);
+
+  parts.push(STYLE_SUFFIX);
+
+  return 'Generate a portrait image: ' + parts.join(', ');
+}
+
+// ── Main Handler ──
+
+module.exports = async function (context, req) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    context.res = { status: 204, headers: CORS_HEADERS };
+    return;
+  }
+
+  // Auth check
+  var userId = extractUserId(req);
+  if (!userId) {
+    context.res = { status: 401, headers: CORS_HEADERS, body: { error: 'Authentication required' } };
+    return;
+  }
+
+  // Validate inputs
+  var body = req.body || {};
+  var archetype = body.archetype;
+  var expression = body.expression;
+  var appearance = body.appearance;
+  var pose = body.pose;
+  var accent = body.accent || 'none';
+
+  if (!ARCHETYPES[archetype]) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid archetype. Valid: ' + Object.keys(ARCHETYPES).join(', ') } };
+    return;
+  }
+  if (!EXPRESSIONS[expression]) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid expression. Valid: ' + Object.keys(EXPRESSIONS).join(', ') } };
+    return;
+  }
+  if (!APPEARANCES[appearance]) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid appearance. Valid: ' + Object.keys(APPEARANCES).join(', ') } };
+    return;
+  }
+  if (!POSES[pose]) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid pose. Valid: ' + Object.keys(POSES).join(', ') } };
+    return;
+  }
+  if (!ACCENTS.hasOwnProperty(accent)) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid accent. Valid: ' + Object.keys(ACCENTS).join(', ') } };
+    return;
+  }
+
+  // Rate limit
+  var rateResult = await checkRateLimit(userId);
+  if (!rateResult.allowed) {
+    context.res = { status: 429, headers: CORS_HEADERS, body: { error: 'Daily portrait limit reached (5/day). Try again tomorrow.', remaining: 0 } };
+    return;
+  }
+
+  // Build prompt and generate
+  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, pose: pose, accent: accent });
+  console.log('[agentforge-portrait] Generating for user=' + userId + ' archetype=' + archetype + ' appearance=' + appearance + ' pose=' + pose);
+
+  try {
+    var result = await callImageGeneration(prompt);
+    context.res = {
+      status: 200,
+      headers: CORS_HEADERS,
+      body: {
+        portraitBase64: result.base64,
+        portraitMimeType: result.mimeType || 'image/png',
+        remaining: rateResult.remaining
+      }
+    };
+  } catch (err) {
+    console.error('[agentforge-portrait] Generation failed:', err.message);
+    context.res = {
+      status: 500,
+      headers: CORS_HEADERS,
+      body: { error: 'Portrait generation failed. Please try again.', detail: err.message }
+    };
+  }
+};

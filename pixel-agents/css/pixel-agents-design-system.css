@@ -42,6 +42,12 @@
   --pa-tier-uncommon:    #34d399;
   --pa-tier-common:      #9ca3af;
 
+  /* ── Semantic ── */
+  --pa-success:          #4ade80;
+  --pa-warning:          #fbbf24;
+  --pa-danger:           #f87171;
+  --pa-primary-hover:    #7a00e0;
+
   /* ── Typography ── */
   --pa-font-display:     'Space Grotesk', sans-serif;
   --pa-font-body:        'Manrope', sans-serif;
@@ -63,6 +69,33 @@
   --pa-sidebar-collapsed: 64px;
   --pa-topbar-height:    56px;
   --pa-bottom-nav-height: 60px;
+}
+
+/* ══════════════════════════════════════
+   LIGHT THEME — Token Overrides
+   ══════════════════════════════════════ */
+body[data-theme="light"] {
+  --pa-neutral:          #f5f5f7;
+  --pa-surface:          #ffffff;
+  --pa-surface-raised:   #f0f0f5;
+  --pa-surface-hover:    #e8e8ef;
+
+  --pa-text:             #1a1a2e;
+  --pa-text-muted:       #6b6b80;
+  --pa-text-faint:       #a0a0b0;
+
+  --pa-sep:              rgba(0, 0, 0, 0.06);
+  --pa-sep-strong:       rgba(0, 0, 0, 0.12);
+
+  --pa-primary-dim:      rgba(143, 0, 255, 0.08);
+  --pa-primary-border:   rgba(143, 0, 255, 0.20);
+  --pa-primary-glow:     rgba(143, 0, 255, 0.15);
+
+  --pa-secondary-dim:    rgba(0, 200, 220, 0.08);
+  --pa-secondary-border: rgba(0, 200, 220, 0.20);
+
+  --pa-tertiary-dim:     rgba(255, 0, 212, 0.08);
+  --pa-tertiary-border:  rgba(255, 0, 212, 0.20);
 }
 
 /* ── Scoped Reset ──
@@ -107,9 +140,7 @@
   font-family: var(--pa-font-display);
   cursor: pointer;
   border: none;
-  background: none;
   color: inherit;
-  padding: 0;
 }
 
 .pa-shell ul {
@@ -163,6 +194,35 @@
 .pa-font-display { font-family: var(--pa-font-display); }
 .pa-font-body    { font-family: var(--pa-font-body); }
 .pa-font-mono    { font-family: var(--pa-font-mono); }
+
+/* ── Avatar Menu ── */
+.pa-avatar-menu-text {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  display: block;
+}
+
+.pa-avatar-menu-text strong {
+  color: var(--pa-text);
+}
+
+/* ── Spacing Utilities ── */
+.pa-mt-sm  { margin-top: 0.5rem; }
+.pa-mt-md  { margin-top: 1rem; }
+.pa-mt-lg  { margin-top: 1.5rem; }
+.pa-mt-xl  { margin-top: 2rem; }
+
+/* ── Icon Utilities ── */
+.pa-icon-faint {
+  opacity: 0.4;
+  margin-right: 8px;
+}
+
+.pa-icon-dot {
+  font-size: 0.45rem;
+  vertical-align: middle;
+}
 
 /* ── Scrollbar (thin, subtle) ── */
 .pa-shell ::-webkit-scrollbar { width: 6px; height: 6px; }

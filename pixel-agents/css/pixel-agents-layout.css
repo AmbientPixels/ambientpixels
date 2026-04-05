@@ -144,21 +144,55 @@
   margin-left: auto;
 }
 
-/* Sidebar footer */
-.pa-sidebar-footer {
-  padding: 1rem 0.5rem 0;
-  border-top: 1px solid var(--pa-sep);
-  margin-top: 0.5rem;
+/* New Agent CTA */
+.pa-sidebar-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0.75rem 0.75rem 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--pa-radius-md);
+  font-family: var(--pa-font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--pa-primary);
+  color: #fff;
+  transition: all var(--pa-transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.pa-sidebar-forge {
+.pa-sidebar-cta i {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.pa-sidebar-cta:hover {
+  background: var(--pa-primary-hover);
+  box-shadow: 0 4px 16px var(--pa-primary-glow);
+}
+
+/* Sidebar footer */
+.pa-sidebar-footer {
+  padding: 0.75rem 0.5rem 0;
+  border-top: 1px solid var(--pa-sep);
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pa-sidebar-link {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   border-radius: var(--pa-radius-md);
   font-family: var(--pa-font-display);
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--pa-text-muted);
   transition: all var(--pa-transition-fast);
@@ -166,16 +200,26 @@
   overflow: hidden;
 }
 
-.pa-sidebar-forge i {
-  font-size: 1rem;
+.pa-sidebar-link i {
+  font-size: 0.85rem;
   width: 20px;
   text-align: center;
   flex-shrink: 0;
 }
 
-.pa-sidebar-forge:hover {
-  color: var(--pa-tertiary);
-  background: var(--pa-tertiary-dim);
+.pa-sidebar-link:hover {
+  color: var(--pa-text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pa-sidebar-link.active {
+  color: var(--pa-primary);
+  background: var(--pa-primary-dim);
+}
+
+.pa-sidebar-link[aria-disabled="true"] {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 /* ══════════════════════════════════════
@@ -304,6 +348,54 @@
   text-transform: uppercase;
 }
 
+.pa-section-label {
+  display: block;
+  font-family: var(--pa-font-display);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--pa-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.pa-section-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--pa-radius-sm);
+  color: var(--pa-text-muted);
+  font-size: 0.8rem;
+  transition: all var(--pa-transition-fast);
+}
+
+.pa-section-link:hover {
+  color: var(--pa-text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.pa-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pa-section-view-all {
+  font-family: var(--pa-font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--pa-text-muted);
+  transition: color var(--pa-transition-fast);
+}
+
+.pa-section-view-all:hover {
+  color: var(--pa-text);
+}
+
 .pa-section-sub {
   font-size: 0.82rem;
   color: var(--pa-text-muted);
@@ -377,7 +469,8 @@
   }
 
   .pa-sidebar-nav a span,
-  .pa-sidebar-forge span,
+  .pa-sidebar-link span,
+  .pa-sidebar-cta span,
   .pa-coming-soon,
   .pa-sidebar-operator span:not(.pa-sidebar-operator-dot) {
     display: none;
@@ -393,9 +486,15 @@
     bottom: 8px;
   }
 
-  .pa-sidebar-forge {
+  .pa-sidebar-cta {
     justify-content: center;
-    padding: 0.7rem;
+    padding: 0.65rem;
+    margin: 0.5rem;
+  }
+
+  .pa-sidebar-link {
+    justify-content: center;
+    padding: 0.5rem;
   }
 
   .pa-sidebar-operator {
@@ -449,4 +548,21 @@
     font-size: 0.72rem;
     letter-spacing: 1.5px;
   }
+}
+
+/* ══════════════════════════════════════
+   LIGHT THEME — Layout Overrides
+   ══════════════════════════════════════ */
+
+body[data-theme="light"] .pa-sidebar-nav a:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+body[data-theme="light"] .pa-avatar-menu {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+body[data-theme="light"] .pa-avatar-menu a:hover,
+body[data-theme="light"] .pa-avatar-menu button:hover {
+  background: rgba(0, 0, 0, 0.04);
 }

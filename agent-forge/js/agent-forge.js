@@ -3,7 +3,7 @@
 
 // ── State ──
 var agentState = {
-  identity: { name: '', tagline: '', description: '', icon: 'fas fa-question', category: 'tools', tier: 'common' },
+  identity: { name: '', tagline: '', description: '', icon: 'fas fa-question', category: 'tools', tier: 'common', portrait: null },
   input: { type: 'textarea', label: '', placeholder: '', validation: 'text' },
   prompt: { systemPrompt: '', userPromptTemplate: '{{input}}', temperature: 0.8, maxTokens: 1500 },
   output: { sections: [] },
@@ -293,6 +293,10 @@ function renderComponentForm(component) {
         '<div class="af-field"><label class="af-field-label">Tagline</label><input type="text" data-bind="identity.tagline" value="' + escapeAttr(s.identity.tagline) + '" maxlength="60" placeholder="What does it do?"></div>' +
         '<div class="af-field"><label class="af-field-label">Description</label><textarea data-bind="identity.description" maxlength="200" placeholder="Describe your agent...">' + escapeHtml(s.identity.description) + '</textarea></div>' +
         '<div class="af-field"><label class="af-field-label">Icon</label><div class="af-icon-trigger" id="af-icon-trigger"><i class="' + escapeAttr(s.identity.icon) + '"></i> <span>Change icon</span></div></div>' +
+        '<div class="af-field"><label class="af-field-label">Portrait</label>' +
+          '<button type="button" class="af-portrait-trigger" id="af-portrait-trigger"><i class="fas fa-image"></i> ' + (s.identity.portrait ? 'Change Portrait' : 'Generate Portrait') + '</button>' +
+          (s.identity.portrait ? '<div class="af-portrait-thumb" id="af-portrait-thumb"><img id="af-portrait-thumb-img"><button type="button" class="af-portrait-thumb-remove" id="af-portrait-thumb-remove" title="Remove portrait"><i class="fas fa-times"></i></button></div>' : '') +
+        '</div>' +
         '<div class="af-field"><label class="af-field-label">Category</label><select data-bind="identity.category">' + CATEGORIES.map(function(c) { return '<option value="' + c + '"' + (s.identity.category === c ? ' selected' : '') + '>' + c.charAt(0).toUpperCase() + c.slice(1) + '</option>'; }).join('') + '</select></div>' +
         '<div class="af-field"><label class="af-field-label">Tier</label><div class="af-tier-selector">' + TIERS.map(function(t) { return '<button type="button" class="af-tier-btn' + (s.identity.tier === t ? ' af-tier-btn--active' : '') + '" data-tier="' + t + '">' + t.toUpperCase() + '</button>'; }).join('') + '</div></div>';
 
@@ -386,6 +390,27 @@ function bindComponentEvents(card, component) {
   var iconTrigger = card.querySelector('#af-icon-trigger');
   if (iconTrigger) {
     iconTrigger.addEventListener('click', function() { openIconPicker(); });
+  }
+
+  // Portrait trigger
+  var portraitTrigger = card.querySelector('#af-portrait-trigger');
+  if (portraitTrigger) {
+    portraitTrigger.addEventListener('click', function() { openPortraitModal(); });
+  }
+  // Set portrait thumbnail src (avoid huge base64 in HTML attribute)
+  var thumbImg = card.querySelector('#af-portrait-thumb-img');
+  if (thumbImg && agentState.identity.portrait) {
+    thumbImg.src = 'data:' + agentState.identity.portrait.mimeType + ';base64,' + agentState.identity.portrait.base64;
+  }
+  // Portrait remove button
+  var portraitRemove = card.querySelector('#af-portrait-thumb-remove');
+  if (portraitRemove) {
+    portraitRemove.addEventListener('click', function(e) {
+      e.stopPropagation();
+      agentState.identity.portrait = null;
+      renderPipeline();
+      updatePreview();
+    });
   }
 
   // Scaffold trigger
@@ -496,8 +521,17 @@ function updatePreview() {
 
   var wrap = document.getElementById('af-agent-card-wrap');
   if (wrap) {
+    var portraitHtml = '';
+    if (s.portrait && s.portrait.base64) {
+      portraitHtml =
+        '<div class="pa-agent-portrait">' +
+          '<img id="af-preview-portrait-img">' +
+          '<div class="pa-portrait-fallback"><i class="' + escapeAttr(icon) + '"></i></div>' +
+        '</div>';
+    }
     wrap.innerHTML =
       '<div class="pa-card" data-tier="' + escapeAttr(tier) + '">' +
+        portraitHtml +
         '<div class="pa-card-featured" style="' + (caps.length >= 3 ? '' : 'display:none') + '">Preview</div>' +
         '<div class="pa-card-avatar">' +
           '<div class="pa-card-icon"><i class="' + escapeAttr(icon) + '"></i></div>' +
@@ -513,9 +547,14 @@ function updatePreview() {
         '</div>' +
         '<div class="pa-card-footer">' +
           '<span class="pa-card-usage"></span>' +
-          '<span class="pa-card-action"><i class="fas fa-play"></i> Hire Agent</span>' +
+          '<span class="pa-card-action af-preview-action"><i class="fas fa-play"></i> Deploy Agent</span>' +
         '</div>' +
       '</div>';
+    // Set portrait src after innerHTML to avoid huge base64 in attribute
+    var previewPortraitImg = document.getElementById('af-preview-portrait-img');
+    if (previewPortraitImg && s.portrait) {
+      previewPortraitImg.src = 'data:' + s.portrait.mimeType + ';base64,' + s.portrait.base64;
+    }
   }
 
   updateStatus();
@@ -553,7 +592,7 @@ function initActions() {
     if (!ok) return;
     pipelineOrder = [];
     agentState = {
-      identity: { name: '', tagline: '', description: '', icon: 'fas fa-question', category: 'tools', tier: 'common' },
+      identity: { name: '', tagline: '', description: '', icon: 'fas fa-question', category: 'tools', tier: 'common', portrait: null },
       input: { type: 'textarea', label: '', placeholder: '', validation: 'text' },
       prompt: { systemPrompt: '', userPromptTemplate: '{{input}}', temperature: 0.8, maxTokens: 1500 },
       output: { sections: [] },
@@ -577,6 +616,13 @@ function initActions() {
 
   // Icon modal
   document.getElementById('af-icon-close').addEventListener('click', function() { document.getElementById('af-icon-modal').style.display = 'none'; });
+
+  // Portrait modal
+  document.getElementById('af-portrait-close').addEventListener('click', function() { document.getElementById('af-portrait-modal').style.display = 'none'; });
+  document.getElementById('af-portrait-cancel').addEventListener('click', function() { document.getElementById('af-portrait-modal').style.display = 'none'; });
+  document.getElementById('af-portrait-generate').addEventListener('click', generatePortrait);
+  document.getElementById('af-portrait-retry').addEventListener('click', generatePortrait);
+  document.getElementById('af-portrait-accept').addEventListener('click', acceptPortrait);
 }
 
 // ── Icon Picker ──
@@ -608,6 +654,113 @@ function openIconPicker() {
       });
     });
   }
+}
+
+// ── Portrait Generator Modal ──
+var _portraitChoices = { archetype: 'scholar', expression: 'confident', appearance: 'masculine', pose: 'front', accent: 'none' };
+
+function openPortraitModal() {
+  var modal = document.getElementById('af-portrait-modal');
+  modal.style.display = 'flex';
+
+  // Reset UI state
+  document.getElementById('af-portrait-preview').style.display = 'none';
+  document.getElementById('af-portrait-loading').style.display = 'none';
+  document.getElementById('af-portrait-error').style.display = 'none';
+  document.getElementById('af-portrait-generate').style.display = '';
+  document.getElementById('af-portrait-accept').style.display = 'none';
+  document.getElementById('af-portrait-retry').style.display = 'none';
+
+  // Init pill selectors
+  modal.querySelectorAll('.af-portrait-pills').forEach(function(group) {
+    var key = group.dataset.portrait;
+    group.querySelectorAll('.af-portrait-pill').forEach(function(pill) {
+      pill.classList.toggle('af-portrait-pill--active', pill.dataset.val === _portraitChoices[key]);
+      pill.onclick = function() {
+        _portraitChoices[key] = pill.dataset.val;
+        group.querySelectorAll('.af-portrait-pill').forEach(function(p) {
+          p.classList.toggle('af-portrait-pill--active', p.dataset.val === _portraitChoices[key]);
+        });
+      };
+    });
+  });
+}
+
+async function generatePortrait() {
+  var loading = document.getElementById('af-portrait-loading');
+  var preview = document.getElementById('af-portrait-preview');
+  var errorEl = document.getElementById('af-portrait-error');
+  var genBtn = document.getElementById('af-portrait-generate');
+  var acceptBtn = document.getElementById('af-portrait-accept');
+  var retryBtn = document.getElementById('af-portrait-retry');
+  var remainingEl = document.getElementById('af-portrait-remaining');
+
+  preview.style.display = 'none';
+  errorEl.style.display = 'none';
+  loading.style.display = 'flex';
+  genBtn.style.display = 'none';
+  acceptBtn.style.display = 'none';
+  retryBtn.style.display = 'none';
+
+  var timeoutId = setTimeout(function() {
+    loading.style.display = 'none';
+    errorEl.textContent = 'Generation timed out — try again';
+    errorEl.style.display = '';
+    retryBtn.style.display = '';
+  }, 30000);
+
+  try {
+    var hdrs = { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' };
+    var res = await fetch(getApiBase() + '/agentforge-portrait', {
+      method: 'POST',
+      headers: hdrs,
+      body: JSON.stringify(_portraitChoices)
+    });
+
+    clearTimeout(timeoutId);
+    var data = await res.json();
+
+    if (!res.ok) {
+      loading.style.display = 'none';
+      errorEl.textContent = data.error || 'Generation failed';
+      errorEl.style.display = '';
+      retryBtn.style.display = '';
+      return;
+    }
+
+    // Show preview
+    var img = document.getElementById('af-portrait-preview-img');
+    img.src = 'data:' + data.portraitMimeType + ';base64,' + data.portraitBase64;
+    // Store temporarily for accept
+    img.dataset.base64 = data.portraitBase64;
+    img.dataset.mimeType = data.portraitMimeType;
+
+    loading.style.display = 'none';
+    preview.style.display = '';
+    acceptBtn.style.display = '';
+    retryBtn.style.display = '';
+
+    if (data.remaining !== undefined) {
+      remainingEl.textContent = data.remaining + ' generation' + (data.remaining === 1 ? '' : 's') + ' remaining today';
+    }
+  } catch (err) {
+    clearTimeout(timeoutId);
+    loading.style.display = 'none';
+    errorEl.textContent = 'Network error — check your connection and try again';
+    errorEl.style.display = '';
+    retryBtn.style.display = '';
+  }
+}
+
+function acceptPortrait() {
+  var img = document.getElementById('af-portrait-preview-img');
+  agentState.identity.portrait = {
+    base64: img.dataset.base64,
+    mimeType: img.dataset.mimeType || 'image/png'
+  };
+  document.getElementById('af-portrait-modal').style.display = 'none';
+  renderPipeline();
+  updatePreview();
 }
 
 // ── Scaffold Modal ──
@@ -1020,7 +1173,8 @@ function buildAgentConfig() {
     },
     active: true,
     featured: false,
-    order: 99
+    order: 99,
+    portrait: s.identity.portrait || undefined
   };
 }
 
@@ -1076,7 +1230,7 @@ function renderPendingList(items) {
   if (countEl) countEl.textContent = items.length ? '(' + items.length + ')' : '';
 
   if (items.length === 0) {
-    list.innerHTML = '<p class="af-drafts-empty">None</p>';
+    list.innerHTML = '<p class="af-drafts-empty">No pending</p>';
     return;
   }
 
@@ -1094,7 +1248,7 @@ function renderLiveList(agents) {
   if (countEl) countEl.textContent = '(' + agents.length + '/3)';
 
   if (agents.length === 0) {
-    list.innerHTML = '<p class="af-drafts-empty">None</p>';
+    list.innerHTML = '<p class="af-drafts-empty">No live agents</p>';
     return;
   }
 
@@ -1188,7 +1342,7 @@ function renderDraftsList(drafts) {
   if (!list) return;
 
   if (drafts.length === 0) {
-    list.innerHTML = '<p class="af-drafts-empty">No saved drafts</p>';
+    list.innerHTML = '<p class="af-drafts-empty">No drafts</p>';
     return;
   }
 

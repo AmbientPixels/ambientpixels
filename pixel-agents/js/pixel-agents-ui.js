@@ -116,29 +116,87 @@
     var agent = spotlightAgents[spotlightIndex % spotlightAgents.length];
     var rating = generateRating(agent.id, agent.tier);
     var runs = usageStats[agent.id] || 0;
-    var runsLabel = runs > 0 ? formatNumber(runs) + ' runs' : 'New';
+    var successRate = Math.min(99, 90 + Math.abs(hashCode(agent.id)) % 10);
     var url = '/pixel-agents/run.html?agent=' + escapeAttr(agent.id);
+    var categoryLabel = CATEGORY_LABELS[agent.category] || agent.category;
+
+    // Build capability tags
+    var caps = (agent.capabilities || []).slice(0, 3);
+    var tagsHtml = caps.map(function (c) {
+      return '<span class="pa-spotlight-tag">' + escapeHtml(c) + '</span>';
+    }).join('');
+
+    // Next agent preview
+    var nextAgent = spotlightAgents.length > 1
+      ? spotlightAgents[(spotlightIndex + 1) % spotlightAgents.length]
+      : null;
+    var nextHtml = '';
+    if (nextAgent) {
+      var nextUrl = '/pixel-agents/run.html?agent=' + escapeAttr(nextAgent.id);
+      nextHtml =
+        '<a href="' + nextUrl + '" class="pa-spotlight-next">' +
+          '<div class="pa-spotlight-next-avatar">' +
+            '<img src="/pixel-agents/img/' + escapeAttr(nextAgent.id) + '.png" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+            '<i class="' + escapeAttr(nextAgent.icon) + '"></i>' +
+          '</div>' +
+          '<div class="pa-spotlight-next-info">' +
+            '<span class="pa-spotlight-next-name">' + escapeHtml(nextAgent.name) + '</span>' +
+            '<span class="pa-spotlight-next-tagline">' + escapeHtml(nextAgent.tagline) + '</span>' +
+          '</div>' +
+          '<i class="fas fa-plus pa-spotlight-next-action"></i>' +
+        '</a>';
+    }
 
     container.innerHTML =
       '<div class="pa-spotlight-main">' +
         '<div class="pa-spotlight-portrait">' +
           renderPortrait(agent, 'spotlight') +
-          '<span class="pa-spotlight-badge">Priority Agent</span>' +
+          '<span class="pa-spotlight-badge">Featured Prototype</span>' +
+          '<span class="pa-spotlight-online"><span class="pa-online-dot"></span> Online</span>' +
         '</div>' +
         '<div class="pa-spotlight-body">' +
-          '<h3 class="pa-spotlight-name">' + escapeHtml(agent.name) + '</h3>' +
+          '<div class="pa-spotlight-header-row">' +
+            '<h3 class="pa-spotlight-name">' + escapeHtml(agent.name) + '</h3>' +
+            '<div class="pa-spotlight-success">' +
+              '<span class="pa-spotlight-success-label">Success Rate</span>' +
+              '<span class="pa-spotlight-success-value">' + successRate + '%</span>' +
+            '</div>' +
+          '</div>' +
           '<p class="pa-spotlight-desc">' + escapeHtml(agent.tagline) + '</p>' +
-          '<div class="pa-spotlight-meta">' +
-            '<span class="pa-spotlight-status"><span class="pa-status-dot"></span> Active</span>' +
-            '<span class="pa-spotlight-rating">' + renderStars(rating) + ' ' + rating.toFixed(1) + '</span>' +
-            '<span>' + runsLabel + '</span>' +
-          '</div>' +
-          '<div class="pa-spotlight-actions">' +
-            '<a href="' + url + '" class="pa-btn-primary">Deploy Agent <i class="fas fa-arrow-right"></i></a>' +
-          '</div>' +
+          '<div class="pa-spotlight-tags">' + tagsHtml + '</div>' +
+          '<a href="' + url + '" class="pa-spotlight-cta">Deploy Agent</a>' +
         '</div>' +
+        nextHtml +
       '</div>' +
-      '';
+      '<div class="pa-spotlight-widgets">' +
+        '<div class="pa-spotlight-widget">' +
+          '<div class="pa-spotlight-widget-header">' +
+            '<i class="fas fa-satellite-dish pa-spotlight-widget-icon"></i>' +
+            '<span class="pa-spotlight-widget-label">0.03ms Latency</span>' +
+          '</div>' +
+          '<h3>Neural Bridge</h3>' +
+          '<p>Direct sync with external data-lakes for real-time inference.</p>' +
+          '<span class="pa-widget-status"><i class="fas fa-circle" style="font-size:0.4rem"></i> Connected</span>' +
+        '</div>' +
+        '<a href="/agent-forge/" class="pa-spotlight-widget pa-spotlight-widget--link">' +
+          '<div class="pa-spotlight-widget-header">' +
+            '<i class="fas fa-lock pa-spotlight-widget-icon"></i>' +
+            '<span class="pa-spotlight-widget-label">Level 5 Clearance</span>' +
+          '</div>' +
+          '<h3>Vault Access</h3>' +
+          '<p>Secure local-host environment for private agent processing.</p>' +
+          '<span class="pa-widget-status pa-widget-status--purple"><i class="fas fa-check" style="font-size:0.5rem"></i> Authorized</span>' +
+        '</a>' +
+      '</div>';
+  }
+
+  function hashCode(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return hash;
   }
 
   function startSpotlightRotation() {
@@ -162,18 +220,20 @@
 
     container.innerHTML = topAgents.map(function (agent) {
       var url = '/pixel-agents/run.html?agent=' + escapeAttr(agent.id);
-      var tierLabel = agent.tier.charAt(0).toUpperCase() + agent.tier.slice(1);
+      var categoryLabel = CATEGORY_LABELS[agent.category] || agent.category;
       var rating = generateRating(agent.id, agent.tier);
 
       return '<a href="' + url + '" class="pa-carousel-card">' +
         '<div class="pa-agent-portrait" data-agent-id="' + escapeAttr(agent.id) + '">' +
           '<img src="/pixel-agents/img/' + escapeAttr(agent.id) + '.png" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
           '<div class="pa-portrait-fallback"><i class="' + escapeAttr(agent.icon) + '"></i></div>' +
-          '<span class="pa-carousel-tier-badge pa-tier--' + escapeAttr(agent.tier) + '">' + escapeHtml(tierLabel) + '</span>' +
+          '<span class="pa-carousel-category-badge pa-cat--' + escapeAttr(agent.category) + '">' + escapeHtml(categoryLabel) + '</span>' +
+          '<button class="pa-carousel-add-btn" title="Quick deploy"><i class="fas fa-plus"></i></button>' +
         '</div>' +
         '<div class="pa-carousel-card-body">' +
           '<div class="pa-carousel-card-name">' + escapeHtml(agent.name) + '</div>' +
           '<div class="pa-carousel-card-desc">' + escapeHtml(agent.tagline) + '</div>' +
+          '<div class="pa-carousel-card-rating"><i class="fas fa-star"></i> ' + rating.toFixed(1) + '</div>' +
         '</div>' +
       '</a>';
     }).join('');
@@ -284,9 +344,9 @@
         '<div class="pa-portrait-fallback"><i class="' + escapeAttr(agent.icon) + '"></i></div>' +
         badgeHtml +
         '<span class="pa-agent-card-tier pa-tier--' + escapeAttr(agent.tier) + '">' + escapeHtml(tierLabel) + '</span>' +
+        '<span class="pa-agent-card-cat-badge pa-cat--' + escapeAttr(agent.category) + '">' + escapeHtml(categoryLabel) + '</span>' +
       '</div>' +
       '<div class="pa-agent-card-body">' +
-        '<div class="pa-agent-card-category">' + escapeHtml(categoryLabel) + '</div>' +
         '<div class="pa-agent-card-name">' + escapeHtml(agent.name) + '</div>' +
         '<div class="pa-agent-card-tagline">' + escapeHtml(agent.tagline) + '</div>' +
         '<div class="pa-agent-card-tags">' + tagsHtml + '</div>' +
@@ -302,9 +362,10 @@
   function renderPortrait(agent, context) {
     var cls = 'pa-agent-portrait';
     if (context === 'spotlight') cls += ' pa-spotlight-portrait-img';
+    var imgSrc = agent.portraitUrl || '/pixel-agents/img/' + escapeAttr(agent.id) + '.png';
 
     return '<div class="' + cls + '" data-agent-id="' + escapeAttr(agent.id) + '">' +
-      '<img src="/pixel-agents/img/' + escapeAttr(agent.id) + '.png" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+      '<img src="' + escapeAttr(imgSrc) + '" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
       '<div class="pa-portrait-fallback"><i class="' + escapeAttr(agent.icon) + '"></i></div>' +
     '</div>';
   }

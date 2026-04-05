@@ -20,10 +20,9 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
 
-  <!-- Agent Forge styles (old + v2 overrides) -->
+  <!-- Agent Forge styles -->
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-card.css" />
   <link rel="stylesheet" href="/agent-forge/css/agent-forge.css" />
-  <link rel="stylesheet" href="/agent-forge/css/agent-forge-v2.css" />
 </head>
 <body class="pa-shell" data-theme="dark">
 
@@ -35,12 +34,20 @@
       <span class="pa-logo-accent">Pixel</span><br>Agents
     </div>
 
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot"></span>
+      <span>Operator</span>
+    </div>
+
     <nav class="pa-sidebar-nav">
       <a href="/pixel-agents/" data-nav="explore">
         <i class="fas fa-compass"></i><span>Explore</span>
       </a>
       <a href="/pixel-agents/#agent-grid" data-nav="agents">
         <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="/agent-forge/" class="active" data-nav="forge">
+        <i class="fas fa-hammer"></i><span>Forge</span>
       </a>
       <a href="#" aria-disabled="true" data-nav="vault">
         <i class="fas fa-vault"></i><span>Vault</span>
@@ -53,8 +60,8 @@
     </nav>
 
     <div class="pa-sidebar-footer">
-      <a href="/agent-forge/" class="pa-sidebar-forge active">
-        <i class="fas fa-hammer"></i><span>Agent Forge</span>
+      <a href="/pixel-agents/" class="pa-sidebar-link">
+        <i class="fas fa-compass"></i><span>Browse Agents</span>
       </a>
     </div>
   </aside>
@@ -79,8 +86,8 @@
           <i class="fas fa-sign-in-alt"></i> Sign In
         </a>
         <div id="af-user-status" style="display:none;">
-          <span style="padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--pa-text-muted);display:block;">
-            Signed in as <strong id="af-user-name" style="color:var(--pa-text);"></strong>
+          <span class="pa-avatar-menu-text">
+            Signed in as <strong id="af-user-name"></strong>
           </span>
           <button id="af-logout-btn">
             <i class="fas fa-sign-out-alt"></i> Sign Out
@@ -97,7 +104,7 @@
 
     <!-- Page Header -->
     <div class="af-header-v2">
-      <h1><i class="fas fa-hammer" style="opacity:0.4;margin-right:8px;"></i>Agent Forge</h1>
+      <h1><i class="fas fa-hammer pa-icon-faint"></i>Agent Forge</h1>
       <p>Build your own AI agent. Drag components into the pipeline, configure each card, test live, and submit to the Pixel Agents library.</p>
     </div>
 
@@ -167,7 +174,7 @@
           <div class="af-lifecycle-group">
             <h4 class="af-lifecycle-label"><i class="fas fa-pencil-alt"></i> Drafts <span id="af-draft-count" class="af-lifecycle-count"></span></h4>
             <div id="af-drafts-list" class="af-drafts-list">
-              <p class="af-drafts-empty">No drafts yet</p>
+              <p class="af-drafts-empty">No drafts</p>
             </div>
           </div>
           <div class="af-lifecycle-group">
@@ -175,7 +182,7 @@
             <div id="af-pending-list" class="af-drafts-list"></div>
           </div>
           <div class="af-lifecycle-group">
-            <h4 class="af-lifecycle-label af-lifecycle-label--live"><i class="fas fa-circle" style="font-size:0.45rem;vertical-align:middle;"></i> Live <span id="af-live-count" class="af-lifecycle-count"></span></h4>
+            <h4 class="af-lifecycle-label af-lifecycle-label--live"><i class="fas fa-circle pa-icon-dot"></i> Live <span id="af-live-count" class="af-lifecycle-count"></span></h4>
             <div id="af-live-list" class="af-drafts-list"></div>
           </div>
         </div>
@@ -220,20 +227,23 @@
               <span>Running agent...</span>
             </div>
           </div>
-          <div class="af-actions">
-            <button class="af-btn af-btn-secondary" id="af-save-btn">
-              <i class="fas fa-save"></i> Save Draft
-            </button>
-            <button class="af-btn af-btn-primary" id="af-submit-btn" disabled>
-              <i class="fas fa-paper-plane"></i> Submit for Review
-            </button>
+          <div class="af-actions-panel">
+            <div class="af-preview-label">Actions</div>
+            <div class="af-actions">
+              <button class="af-btn af-btn-secondary" id="af-save-btn">
+                <i class="fas fa-save"></i> Save Draft
+              </button>
+              <button class="af-btn af-btn-primary" id="af-submit-btn" disabled>
+                <i class="fas fa-paper-plane"></i> Submit for Review
+              </button>
+            </div>
           </div>
         </div>
       </aside>
     </div>
 
     <!-- Footer -->
-    <footer class="pa-footer-v2" style="margin-top:2rem;">
+    <footer class="pa-footer-v2 pa-mt-xl">
       <span>&copy; 2026 Pixel Agents</span>
       <div class="pa-footer-links">
         <a href="/pixel-agents/">Pixel Agents</a>
@@ -250,6 +260,7 @@
   <nav class="pa-bottom-nav">
     <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
     <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/agent-forge/" class="active"><i class="fas fa-hammer"></i><span>Forge</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-chart-line"></i><span>Activity</span></a>
   </nav>
@@ -292,6 +303,104 @@
       <div class="af-modal-body">
         <input type="text" id="af-icon-search" class="af-icon-search" placeholder="Search icons..." />
         <div class="af-icon-grid" id="af-icon-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Portrait Generator Modal -->
+  <div class="af-modal-overlay" id="af-portrait-modal" style="display:none;">
+    <div class="af-modal af-modal-lg">
+      <div class="af-modal-header">
+        <h3><i class="fas fa-image"></i> Generate Agent Portrait</h3>
+        <button class="af-modal-close" id="af-portrait-close">&times;</button>
+      </div>
+      <div class="af-modal-body">
+        <div class="af-portrait-options">
+          <div class="af-portrait-group">
+            <label class="af-field-label">Archetype</label>
+            <div class="af-portrait-pills" data-portrait="archetype">
+              <button class="af-portrait-pill af-portrait-pill--active" data-val="scholar"><i class="fas fa-glasses"></i> Scholar</button>
+              <button class="af-portrait-pill" data-val="operative"><i class="fas fa-user-secret"></i> Operative</button>
+              <button class="af-portrait-pill" data-val="executive"><i class="fas fa-briefcase"></i> Executive</button>
+              <button class="af-portrait-pill" data-val="creative"><i class="fas fa-palette"></i> Creative</button>
+              <button class="af-portrait-pill" data-val="technician"><i class="fas fa-wrench"></i> Technician</button>
+              <button class="af-portrait-pill" data-val="mystic"><i class="fas fa-hat-wizard"></i> Mystic</button>
+              <button class="af-portrait-pill" data-val="rebel"><i class="fas fa-bolt"></i> Rebel</button>
+              <button class="af-portrait-pill" data-val="guardian"><i class="fas fa-shield-halved"></i> Guardian</button>
+            </div>
+          </div>
+          <div class="af-portrait-group">
+            <label class="af-field-label">Expression</label>
+            <div class="af-portrait-pills" data-portrait="expression">
+              <button class="af-portrait-pill af-portrait-pill--active" data-val="confident">Confident</button>
+              <button class="af-portrait-pill" data-val="intense">Intense</button>
+              <button class="af-portrait-pill" data-val="friendly">Friendly</button>
+              <button class="af-portrait-pill" data-val="mysterious">Mysterious</button>
+              <button class="af-portrait-pill" data-val="fierce">Fierce</button>
+              <button class="af-portrait-pill" data-val="calm">Calm</button>
+            </div>
+          </div>
+          <div class="af-portrait-group">
+            <label class="af-field-label">Appearance</label>
+            <div class="af-portrait-pills" data-portrait="appearance">
+              <button class="af-portrait-pill af-portrait-pill--active" data-val="masculine">Masculine</button>
+              <button class="af-portrait-pill" data-val="feminine">Feminine</button>
+              <button class="af-portrait-pill" data-val="androgynous">Androgynous</button>
+              <button class="af-portrait-pill" data-val="nonhuman"><i class="fas fa-mask"></i> Non-human</button>
+            </div>
+          </div>
+          <div class="af-portrait-group">
+            <label class="af-field-label">Pose</label>
+            <div class="af-portrait-pills" data-portrait="pose">
+              <button class="af-portrait-pill af-portrait-pill--active" data-val="front">Front Facing</button>
+              <button class="af-portrait-pill" data-val="three_quarter">3/4 Angle</button>
+              <button class="af-portrait-pill" data-val="side_profile">Side Profile</button>
+              <button class="af-portrait-pill" data-val="low_angle">Low Angle</button>
+            </div>
+          </div>
+          <div class="af-portrait-group">
+            <label class="af-field-label">Color Accent</label>
+            <div class="af-portrait-pills" data-portrait="accent">
+              <button class="af-portrait-pill af-portrait-pill--active" data-val="none">None</button>
+              <button class="af-portrait-pill" data-val="blue"><span class="af-accent-dot" data-accent="blue"></span> Blue</button>
+              <button class="af-portrait-pill" data-val="purple"><span class="af-accent-dot" data-accent="purple"></span> Purple</button>
+              <button class="af-portrait-pill" data-val="gold"><span class="af-accent-dot" data-accent="gold"></span> Gold</button>
+              <button class="af-portrait-pill" data-val="red"><span class="af-accent-dot" data-accent="red"></span> Red</button>
+              <button class="af-portrait-pill" data-val="green"><span class="af-accent-dot" data-accent="green"></span> Green</button>
+              <button class="af-portrait-pill" data-val="teal"><span class="af-accent-dot" data-accent="teal"></span> Teal</button>
+              <button class="af-portrait-pill" data-val="silver"><span class="af-accent-dot" data-accent="silver"></span> Silver</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview area (hidden until generated) -->
+        <div class="af-portrait-preview" id="af-portrait-preview" style="display:none;">
+          <img id="af-portrait-preview-img" alt="Generated portrait">
+        </div>
+
+        <!-- Loading state -->
+        <div class="af-portrait-loading" id="af-portrait-loading" style="display:none;">
+          <div class="af-spinner"></div>
+          <span>Generating portrait...</span>
+        </div>
+
+        <!-- Error state -->
+        <div class="af-portrait-error" id="af-portrait-error" style="display:none;"></div>
+      </div>
+      <div class="af-modal-footer">
+        <div id="af-portrait-remaining" class="af-portrait-remaining"></div>
+        <div class="af-portrait-footer-actions">
+          <button class="af-btn af-btn-ghost" id="af-portrait-cancel">Cancel</button>
+          <button class="af-btn af-btn-secondary" id="af-portrait-retry" style="display:none;">
+            <i class="fas fa-redo"></i> Try Again
+          </button>
+          <button class="af-btn af-btn-primary" id="af-portrait-generate">
+            <i class="fas fa-image"></i> Generate
+          </button>
+          <button class="af-btn af-btn-primary" id="af-portrait-accept" style="display:none;">
+            <i class="fas fa-check"></i> Use This Portrait
+          </button>
+        </div>
       </div>
     </div>
   </div>

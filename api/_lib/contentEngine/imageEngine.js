@@ -765,6 +765,7 @@ async function _removeIndexEntry(packageId) {
 // ── Exports ──
 module.exports = {
   generateImage: generateImage,
+  callImageGeneration: callImageGeneration,
   saveBrief: saveBrief,
   loadBrief: loadBrief,
   savePackage: savePackage,

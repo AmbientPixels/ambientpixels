@@ -797,5 +797,63 @@
     "featured": true,
     "order": 24,
     "createdAt": "2026-03-15"
+  },
+  {
+    "id": "dad-joke-judge",
+    "name": "Dad Joke Judge",
+    "tagline": "Rate any joke on the official Dad Scale",
+    "description": "Submit any joke and get it scored on the sacred Dad Joke Scale. Includes groan factor, pun quality, delivery rating, and whether it would make a real dad proud or ashamed.",
+    "category": "creative",
+    "tier": "uncommon",
+    "icon": "fas fa-gavel",
+    "capabilities": ["Groan Score", "Pun Analysis", "Dad Approval Rating"],
+    "inputType": "textarea",
+    "inputLabel": "Tell your joke",
+    "inputPlaceholder": "e.g. Why don't scientists trust atoms? Because they make up everything...",
+    "inputValidation": "text",
+    "systemPrompt": "You are Dad Joke Judge, the world's foremost authority on dad humor, created by Pixel Agents. You evaluate jokes on the sacred Dad Joke Scale with the expertise of someone who has told thousands of bad jokes at family dinners.\n\nYour job:\n1. Read the joke\n2. Score it on the Dad Scale (0-100, where 100 is peak dad energy)\n3. Rate the groan factor (how loud the collective groan would be)\n4. Analyze the pun quality (if applicable)\n5. Deliver your official verdict\n6. Suggest how a true dad would deliver it for maximum effect\n\nTone: Warm, proud, painfully enthusiastic about bad puns. You genuinely love terrible jokes.\n\nYou MUST respond with valid JSON:\n{\n  \"dad_score\": <number 0-100>,\n  \"verdict\": \"<one-line ruling, 10 words max>\",\n  \"groan_factor\": \"<description of the expected groan, 1-2 sentences>\",\n  \"pun_analysis\": \"<breakdown of the pun mechanics or humor technique>\",\n  \"delivery_tip\": \"<how a real dad would deliver this for maximum impact>\",\n  \"dad_approval\": \"<would a real dad be proud? 1-2 sentences>\"\n}\n\nDo NOT wrap in code fences. Return ONLY raw JSON.",
+    "userPromptTemplate": "Judge this joke on the Dad Scale:\n\n{{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "dad_score", "label": "Dad Score", "type": "score" },
+      { "key": "verdict", "label": "Verdict", "type": "verdict" },
+      { "key": "groan_factor", "label": "Groan Factor", "type": "text" },
+      { "key": "pun_analysis", "label": "Pun Analysis", "type": "text" },
+      { "key": "delivery_tip", "label": "Delivery Tip", "type": "highlight" },
+      { "key": "dad_approval", "label": "Dad Approval", "type": "text" }
+    ],
+    "generationConfig": { "temperature": 0.9, "maxOutputTokens": 1200 },
+    "active": true,
+    "featured": false,
+    "order": 25,
+    "createdAt": "2026-04-04"
+  },
+  {
+    "id": "excuse-engine",
+    "name": "Excuse Engine",
+    "tagline": "Generate a bulletproof excuse for any situation",
+    "description": "Tell us what you need to get out of and get three tailored excuses ranked by believability, risk, and creativity. From work meetings to family dinners.",
+    "category": "creative",
+    "tier": "uncommon",
+    "icon": "fas fa-mask",
+    "capabilities": ["Excuse Generation", "Believability Score", "Risk Rating"],
+    "inputType": "textarea",
+    "inputLabel": "What do you need to get out of?",
+    "inputPlaceholder": "e.g. My partner's coworker's birthday dinner this Friday...",
+    "inputValidation": "text",
+    "systemPrompt": "You are Excuse Engine, a master of plausible deniability, created by Pixel Agents. You generate creative, believable excuses for any situation — from skipping meetings to dodging social obligations.\n\nYour job:\n1. Understand the situation\n2. Generate 3 excuses at different risk levels (safe, moderate, bold)\n3. Score each for believability and creativity\n4. Provide delivery tips\n5. Include a warning if the excuse could backfire\n\nTone: Charmingly conspiratorial, like a smooth friend who always has your back. Never mean-spirited — these are for harmless situations.\n\nYou MUST respond with valid JSON:\n{\n  \"situation\": \"<summary of what they're dodging>\",\n  \"excuses\": [\n    { \"level\": \"Safe\", \"excuse\": \"<the excuse>\", \"believability\": <0-100>, \"delivery\": \"<how to sell it>\" },\n    { \"level\": \"Moderate\", \"excuse\": \"<the excuse>\", \"believability\": <0-100>, \"delivery\": \"<how to sell it>\" },\n    { \"level\": \"Bold\", \"excuse\": \"<the excuse>\", \"believability\": <0-100>, \"delivery\": \"<how to sell it>\" }\n  ],\n  \"warning\": \"<potential backfire risk, 1-2 sentences>\",\n  \"honesty_option\": \"<what to say if you just told the truth>\"\n}\n\nDo NOT wrap in code fences. Return ONLY raw JSON.",
+    "userPromptTemplate": "I need to get out of this:\n\n{{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "situation", "label": "Situation", "type": "text" },
+      { "key": "excuses", "label": "Excuses", "type": "list" },
+      { "key": "warning", "label": "Backfire Risk", "type": "highlight" },
+      { "key": "honesty_option", "label": "Honesty Option", "type": "text" }
+    ],
+    "generationConfig": { "temperature": 1.0, "maxOutputTokens": 1500 },
+    "active": true,
+    "featured": false,
+    "order": 26,
+    "createdAt": "2026-04-04"
   }
 ]

@@ -31,12 +31,20 @@
       <span class="pa-logo-accent">Pixel</span><br>Agents
     </div>
 
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot"></span>
+      <span>Operator</span>
+    </div>
+
     <nav class="pa-sidebar-nav">
       <a href="/pixel-agents/" class="active" data-nav="explore">
         <i class="fas fa-compass"></i><span>Explore</span>
       </a>
       <a href="#agent-grid" data-nav="agents">
         <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="/agent-forge/" data-nav="forge">
+        <i class="fas fa-hammer"></i><span>Forge</span>
       </a>
       <a href="#" aria-disabled="true" data-nav="vault">
         <i class="fas fa-vault"></i><span>Vault</span>
@@ -49,8 +57,8 @@
     </nav>
 
     <div class="pa-sidebar-footer">
-      <a href="/agent-forge/" class="pa-sidebar-forge">
-        <i class="fas fa-hammer"></i><span>Agent Forge</span>
+      <a href="/agent-forge/" class="pa-sidebar-cta">
+        <i class="fas fa-plus"></i><span>New Agent</span>
       </a>
     </div>
   </aside>
@@ -76,8 +84,8 @@
           <i class="fas fa-sign-in-alt"></i> Sign In
         </a>
         <div id="pa-user-status" style="display:none;">
-          <span style="padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--pa-text-muted);display:block;">
-            Signed in as <strong id="pa-user-name" style="color:var(--pa-text);"></strong>
+          <span class="pa-avatar-menu-text">
+            Signed in as <strong id="pa-user-name"></strong>
           </span>
           <button id="pa-logout-btn">
             <i class="fas fa-sign-out-alt"></i> Sign Out
@@ -104,7 +112,7 @@
           Deploy bespoke digital entities designed for the cyber-frontier.
           <strong>High-fidelity intelligence, luxury performance.</strong>
         </p>
-        <a href="#agent-grid" class="pa-btn-primary" style="margin-top:0.5rem;">
+        <a href="#agent-grid" class="pa-btn-primary pa-mt-sm">
           Initialize <i class="fas fa-arrow-right"></i>
         </a>
       </div>
@@ -127,6 +135,15 @@
     </section>
 
     <!-- ── Agent Spotlight ── -->
+    <section class="pa-section">
+      <div class="pa-section-header">
+        <div>
+          <span class="pa-section-label">Featured Prototype</span>
+          <h2>Agent Spotlight</h2>
+        </div>
+        <a href="#agent-grid" class="pa-section-link"><i class="fas fa-arrow-up-right-from-square"></i></a>
+      </div>
+    </section>
     <section class="pa-spotlight" id="pa-spotlight">
       <!-- Rendered by pixel-agents-ui.js -->
     </section>
@@ -138,13 +155,16 @@
           <h2>Top Rated Agents</h2>
           <p class="pa-section-sub">Most deployed entities this cycle across the Pixel network.</p>
         </div>
-        <div class="pa-carousel-nav">
-          <button class="pa-btn-icon" id="pa-carousel-prev" title="Previous">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <button class="pa-btn-icon" id="pa-carousel-next" title="Next">
-            <i class="fas fa-chevron-right"></i>
-          </button>
+        <div class="pa-section-actions">
+          <a href="#agent-grid" class="pa-section-view-all">View All</a>
+          <div class="pa-carousel-nav">
+            <button class="pa-btn-icon" id="pa-carousel-prev" title="Previous">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="pa-btn-icon" id="pa-carousel-next" title="Next">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </div>
       <div class="pa-carousel-wrap">
@@ -192,7 +212,7 @@
               Share with the community
             </div>
           </div>
-          <a href="/agent-forge/" class="pa-btn-primary" style="margin-top:1.5rem;">
+          <a href="/agent-forge/" class="pa-btn-primary pa-mt-lg">
             Open Agent Forge <i class="fas fa-arrow-right"></i>
           </a>
         </div>
@@ -230,6 +250,7 @@
   <nav class="pa-bottom-nav">
     <a href="/pixel-agents/" class="active"><i class="fas fa-compass"></i><span>Explore</span></a>
     <a href="#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-chart-line"></i><span>Activity</span></a>
   </nav>

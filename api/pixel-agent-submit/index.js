@@ -126,6 +126,33 @@ module.exports = async function (context, req) {
     if (submissions.length > 200) submissions = submissions.slice(-200);
     await storage.setState('pixelAgentSubmissions', submissions);
 
+    // Step 2b: Upload portrait to blob if present
+    if (agentConfig.portrait && agentConfig.portrait.base64) {
+      try {
+        var { BlobServiceClient } = require('@azure/storage-blob');
+        var connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
+        if (connStr) {
+          var blobClient = BlobServiceClient.fromConnectionString(connStr);
+          var container = blobClient.getContainerClient('generated-images');
+          await container.createIfNotExists({ access: 'blob' });
+          var agentId = agentConfig.id || submissionId;
+          var blobName = 'agent-portraits/' + agentId + '.png';
+          var imgBuffer = Buffer.from(agentConfig.portrait.base64, 'base64');
+          var blockBlob = container.getBlockBlobClient(blobName);
+          await blockBlob.upload(imgBuffer, imgBuffer.length, {
+            blobHTTPHeaders: { blobContentType: agentConfig.portrait.mimeType || 'image/png' },
+            overwrite: true
+          });
+          agentConfig.portraitUrl = 'https://cardforgeblobdata.blob.core.windows.net/generated-images/' + blobName;
+          delete agentConfig.portrait; // remove base64 from stored config
+          context.log('[AgentSubmit] Portrait uploaded:', blobName);
+        }
+      } catch (imgErr) {
+        context.log.warn('[AgentSubmit] Portrait upload failed:', imgErr.message);
+        // Non-fatal — agent still submits without portrait
+      }
+    }
+
     // Step 3: If approved, add to CEO approval queue
     if (reviewResult.decision === 'approved') {
       try {
