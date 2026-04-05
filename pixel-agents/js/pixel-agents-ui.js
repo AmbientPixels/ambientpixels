@@ -172,21 +172,21 @@
         '<div class="pa-spotlight-widget">' +
           '<div class="pa-spotlight-widget-header">' +
             '<i class="fas fa-satellite-dish pa-spotlight-widget-icon"></i>' +
-            '<span class="pa-spotlight-widget-label">0.03ms Latency</span>' +
+            '<span class="pa-spotlight-widget-label">Active Session</span>' +
           '</div>' +
           '<h3>Neural Bridge</h3>' +
-          '<p>Direct sync with external data-lakes for real-time inference.</p>' +
+          '<p>Live connection to Claude Sonnet 4.6 inference engine.</p>' +
           '<span class="pa-widget-status"><i class="fas fa-circle" style="font-size:0.4rem"></i> Connected</span>' +
         '</div>' +
-        '<a href="/agent-forge/" class="pa-spotlight-widget pa-spotlight-widget--link">' +
+        '<div class="pa-spotlight-widget">' +
           '<div class="pa-spotlight-widget-header">' +
-            '<i class="fas fa-lock pa-spotlight-widget-icon"></i>' +
-            '<span class="pa-spotlight-widget-label">Level 5 Clearance</span>' +
+            '<i class="fas fa-shield-halved pa-spotlight-widget-icon"></i>' +
+            '<span class="pa-spotlight-widget-label">AI Gatekeeper</span>' +
           '</div>' +
-          '<h3>Vault Access</h3>' +
-          '<p>Secure local-host environment for private agent processing.</p>' +
-          '<span class="pa-widget-status pa-widget-status--purple"><i class="fas fa-check" style="font-size:0.5rem"></i> Authorized</span>' +
-        '</a>' +
+          '<h3>Quality Gate</h3>' +
+          '<p>Every agent reviewed for safety, quality, and uniqueness before deployment.</p>' +
+          '<span class="pa-widget-status pa-widget-status--purple"><i class="fas fa-check" style="font-size:0.5rem"></i> Active</span>' +
+        '</div>' +
       '</div>';
   }
 
