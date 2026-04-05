@@ -1,0 +1,261 @@
+/* ═══════════════════════════════════════════════════════════
+   Pixel Agents — Creator Analytics
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Summary Cards ── */
+.pa-analytics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.pa-analytics-stat {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-md);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.pa-analytics-stat-value {
+  font-family: var(--pa-font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+
+.pa-analytics-stat-label {
+  font-family: var(--pa-font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--pa-text-muted);
+}
+
+.pa-analytics-stat--highlight .pa-analytics-stat-value {
+  color: var(--pa-secondary);
+}
+
+/* ── Agent Cards ── */
+.pa-analytics-section {
+  margin-bottom: 2.5rem;
+}
+
+.pa-analytics-section-title {
+  font-family: var(--pa-font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--pa-text-muted);
+  margin-bottom: 1rem;
+}
+
+.pa-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.pa-analytics-card {
+  display: flex;
+  gap: 1rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-lg);
+  padding: 1.25rem;
+  transition: border-color var(--pa-transition-fast);
+}
+
+.pa-analytics-card:hover {
+  border-color: var(--pa-sep-strong);
+}
+
+.pa-analytics-card-portrait {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--pa-radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--pa-neutral);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pa-analytics-card-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pa-analytics-card-portrait i {
+  font-size: 1.5rem;
+  color: var(--pa-primary);
+  opacity: 0.3;
+}
+
+.pa-analytics-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.pa-analytics-card-name {
+  font-family: var(--pa-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  margin-bottom: 0.15rem;
+}
+
+.pa-analytics-card-tagline {
+  font-size: 0.75rem;
+  color: var(--pa-text-muted);
+  margin-bottom: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pa-analytics-card-stats {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.pa-analytics-card-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.pa-analytics-card-stat-value {
+  font-family: var(--pa-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pa-text);
+}
+
+.pa-analytics-card-stat-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--pa-text-faint);
+}
+
+.pa-analytics-card-meta {
+  font-size: 0.65rem;
+  color: var(--pa-text-faint);
+  margin-top: 0.5rem;
+}
+
+/* ── Pending Cards ── */
+.pa-analytics-card--pending {
+  opacity: 0.7;
+}
+
+.pa-analytics-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--pa-radius-pill);
+  background: rgba(251, 191, 36, 0.12);
+  color: var(--pa-warning);
+  font-family: var(--pa-font-display);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Empty State ── */
+.pa-analytics-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.pa-analytics-empty i {
+  font-size: 3rem;
+  color: var(--pa-primary);
+  opacity: 0.2;
+  margin-bottom: 1rem;
+}
+
+.pa-analytics-empty h2 {
+  font-family: var(--pa-font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  margin-bottom: 0.5rem;
+}
+
+.pa-analytics-empty p {
+  font-size: 0.85rem;
+  color: var(--pa-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.pa-analytics-empty-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  background: var(--pa-primary);
+  color: #fff;
+  border-radius: var(--pa-radius-md);
+  font-family: var(--pa-font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background var(--pa-transition-fast);
+}
+
+.pa-analytics-empty-cta:hover {
+  background: var(--pa-primary-hover);
+}
+
+/* ── Auth Gate ── */
+.pa-analytics-auth {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.pa-analytics-auth i {
+  font-size: 2.5rem;
+  color: var(--pa-primary);
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+.pa-analytics-auth p {
+  font-size: 0.85rem;
+  color: var(--pa-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Loading ── */
+.pa-analytics-loading {
+  text-align: center;
+  padding: 4rem;
+  color: var(--pa-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .pa-analytics-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pa-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pa-analytics-card-stats {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Your Agent Analytics — see how your Pixel Agents perform." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Activity — Pixel Agents</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <!-- Shared site CSS -->
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+
+  <!-- Pixel Agents v2 design system + layout -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+
+  <!-- Analytics styles -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-analytics.css" />
+</head>
+<body class="pa-shell" data-theme="dark">
+
+  <!-- ═══════════════════════════════════
+       SIDEBAR (Desktop)
+       ═══════════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-sidebar-logo">
+      <span class="pa-logo-accent">Pixel</span><br>Agents
+    </div>
+
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot"></span>
+      <span>Operator</span>
+    </div>
+
+    <nav class="pa-sidebar-nav">
+      <a href="/pixel-agents/" data-nav="explore">
+        <i class="fas fa-compass"></i><span>Explore</span>
+      </a>
+      <a href="/pixel-agents/#agent-grid" data-nav="agents">
+        <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="/agent-forge/" data-nav="forge">
+        <i class="fas fa-hammer"></i><span>Forge</span>
+      </a>
+      <a href="#" aria-disabled="true" data-nav="vault">
+        <i class="fas fa-vault"></i><span>Vault</span>
+        <span class="pa-coming-soon">Soon</span>
+      </a>
+      <a href="/pixel-agents/analytics.html" class="active" data-nav="activity">
+        <i class="fas fa-chart-line"></i><span>Activity</span>
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-footer">
+      <a href="/agent-forge/" class="pa-sidebar-cta">
+        <i class="fas fa-plus"></i><span>New Agent</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════
+       TOP BAR
+       ═══════════════════════════════════ -->
+  <header class="pa-topbar-v2">
+    <span class="pa-wordmark">Activity</span>
+    <div class="pa-topbar-actions">
+      <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="pa-btn-icon" title="Notifications">
+        <i class="fas fa-bell"></i>
+      </button>
+      <div class="pa-avatar" id="pa-avatar" title="Account">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="pa-avatar-menu" id="pa-avatar-menu">
+        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/analytics.html">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <div id="pa-user-status" style="display:none;">
+          <span class="pa-avatar-menu-text">
+            Signed in as <strong id="pa-user-name"></strong>
+          </span>
+          <button id="pa-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════ -->
+  <main class="pa-main">
+
+    <div class="pa-section">
+      <div class="pa-section-header">
+        <div>
+          <span class="pa-section-label">Creator Dashboard</span>
+          <h2>Your Agents</h2>
+        </div>
+      </div>
+
+      <div id="pa-analytics-content">
+        <!-- Rendered by pixel-agent-analytics.js -->
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="pa-footer-v2">
+      <span>&copy; 2026 Pixel Agents</span>
+      <div class="pa-footer-links">
+        <a href="/pixel-agents/">Pixel Agents</a>
+        <a href="/agent-forge/">Agent Forge</a>
+        <a href="/storyforge/">StoryForge</a>
+        <a href="/cardforge/">CardForge</a>
+        <a href="/blindspot/">Blindspot</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ═══════════════════════════════════
+       BOTTOM NAV (Mobile)
+       ═══════════════════════════════════ -->
+  <nav class="pa-bottom-nav">
+    <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
+    <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
+    <a href="/pixel-agents/analytics.html" class="active"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+  </nav>
+
+  <!-- ═══════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════ -->
+  <script src="/pixel-agents/js/pixel-agent-analytics.js"></script>
+  <script>
+  // Avatar menu + theme toggle (shared pattern)
+  (function() {
+    var avatar = document.getElementById('pa-avatar');
+    var menu = document.getElementById('pa-avatar-menu');
+    if (avatar && menu) {
+      avatar.addEventListener('click', function(e) { e.stopPropagation(); menu.classList.toggle('open'); });
+      document.addEventListener('click', function() { menu.classList.remove('open'); });
+    }
+
+    var savedTheme = localStorage.getItem('preferred-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+      var icon = document.querySelector('#pa-theme-toggle i');
+      if (icon) icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    var themeBtn = document.getElementById('pa-theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        var isDark = document.body.getAttribute('data-theme') === 'dark';
+        var next = isDark ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', next);
+        localStorage.setItem('preferred-theme', next);
+        this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+      });
+    }
+  })();
+  </script>
+</body>
+</html>
