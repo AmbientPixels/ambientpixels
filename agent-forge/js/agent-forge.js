@@ -302,43 +302,50 @@ function renderComponentForm(component) {
           '<button type="button" class="af-portrait-trigger" id="af-portrait-trigger"><i class="fas fa-image"></i> ' + (s.identity.portrait || s.identity._portraitUrl ? 'Change Portrait' : 'Generate Portrait') + '</button>' +
           (s.identity.portrait || s.identity._portraitUrl ? '<div class="af-portrait-thumb" id="af-portrait-thumb"><img id="af-portrait-thumb-img"><button type="button" class="af-portrait-thumb-remove" id="af-portrait-thumb-remove" title="Remove portrait"><i class="fas fa-times"></i></button></div>' : '') +
         '</div>' +
-        '<div class="af-field"><label class="af-field-label">Category</label><select data-bind="identity.category">' + CATEGORIES.map(function(c) { return '<option value="' + c + '"' + (s.identity.category === c ? ' selected' : '') + '>' + c.charAt(0).toUpperCase() + c.slice(1) + '</option>'; }).join('') + '</select></div>' +
+        '<div class="af-field"><label class="af-field-label">Category' + (_editMode ? ' <span style="font-size:0.55rem;opacity:0.5;text-transform:none;letter-spacing:0">(locked)</span>' : '') + '</label><select data-bind="identity.category"' + (_editMode ? ' disabled' : '') + '>' + CATEGORIES.map(function(c) { return '<option value="' + c + '"' + (s.identity.category === c ? ' selected' : '') + '>' + c.charAt(0).toUpperCase() + c.slice(1) + '</option>'; }).join('') + '</select></div>' +
         '<div class="af-field"><label class="af-field-label">Tier</label><div class="af-tier-selector">' + TIERS.map(function(t) { return '<button type="button" class="af-tier-btn' + (s.identity.tier === t ? ' af-tier-btn--active' : '') + '" data-tier="' + t + '">' + t.toUpperCase() + '</button>'; }).join('') + '</div></div>';
 
     case 'input':
-      return '<div class="af-field"><label class="af-field-label">Input Type</label><select data-bind="input.type"><option value="textarea"' + (s.input.type === 'textarea' ? ' selected' : '') + '>Text Area</option><option value="url"' + (s.input.type === 'url' ? ' selected' : '') + '>URL</option></select></div>' +
+      return '<div class="af-field"><label class="af-field-label">Input Type' + (_editMode ? ' <span style="font-size:0.55rem;opacity:0.5;text-transform:none;letter-spacing:0">(locked)</span>' : '') + '</label><select data-bind="input.type"' + (_editMode ? ' disabled' : '') + '><option value="textarea"' + (s.input.type === 'textarea' ? ' selected' : '') + '>Text Area</option><option value="url"' + (s.input.type === 'url' ? ' selected' : '') + '>URL</option></select></div>' +
         '<div class="af-field"><label class="af-field-label">Label</label><input type="text" data-bind="input.label" value="' + escapeAttr(s.input.label) + '" placeholder="Enter your input..."></div>' +
         '<div class="af-field"><label class="af-field-label">Placeholder</label><input type="text" data-bind="input.placeholder" value="' + escapeAttr(s.input.placeholder) + '" placeholder="e.g. Paste your content here..."></div>';
 
     case 'prompt':
-      return '<button type="button" class="af-scaffold-btn" id="af-scaffold-trigger"><i class="fas fa-wand-magic-sparkles"></i> Help me write this prompt</button>' +
-        '<div class="af-field"><label class="af-field-label">System Prompt</label><textarea class="af-mono" data-bind="prompt.systemPrompt" placeholder="You are [Agent Name], a...">' + escapeHtml(s.prompt.systemPrompt) + '</textarea></div>' +
-        '<div class="af-field"><label class="af-field-label">User Prompt Template (must contain {{input}})</label><textarea data-bind="prompt.userPromptTemplate" rows="2" placeholder="Analyze this: {{input}}">' + escapeHtml(s.prompt.userPromptTemplate) + '</textarea></div>' +
+      var promptLocked = _editMode ? ' disabled' : '';
+      var lockedTag = _editMode ? ' <span style="font-size:0.55rem;opacity:0.5;text-transform:none;letter-spacing:0">(locked)</span>' : '';
+      return (_editMode ? '' : '<button type="button" class="af-scaffold-btn" id="af-scaffold-trigger"><i class="fas fa-wand-magic-sparkles"></i> Help me write this prompt</button>') +
+        '<div class="af-field"><label class="af-field-label">System Prompt' + lockedTag + '</label><textarea class="af-mono" data-bind="prompt.systemPrompt" placeholder="You are [Agent Name], a..."' + promptLocked + '>' + escapeHtml(s.prompt.systemPrompt) + '</textarea></div>' +
+        '<div class="af-field"><label class="af-field-label">User Prompt Template' + lockedTag + '</label><textarea data-bind="prompt.userPromptTemplate" rows="2" placeholder="Analyze this: {{input}}"' + promptLocked + '>' + escapeHtml(s.prompt.userPromptTemplate) + '</textarea></div>' +
         '<div class="af-field"><label class="af-field-label">Temperature</label><div class="af-range-row"><input type="range" min="0" max="1" step="0.05" value="' + s.prompt.temperature + '" data-bind="prompt.temperature"><span class="af-range-value" id="af-temp-val">' + s.prompt.temperature + '</span></div></div>' +
         '<div class="af-field"><label class="af-field-label">Max Tokens</label><div class="af-range-row"><input type="range" min="500" max="4000" step="100" value="' + s.prompt.maxTokens + '" data-bind="prompt.maxTokens"><span class="af-range-value" id="af-tokens-val">' + s.prompt.maxTokens + '</span></div></div>';
 
     case 'output':
-      return '<div class="af-output-sections" id="af-output-sections">' + renderOutputSections() + '</div>' +
+      if (_editMode) {
+        return '<div class="af-output-sections" id="af-output-sections">' + renderOutputSections(true) + '</div>';
+      }
+      return '<div class="af-output-sections" id="af-output-sections">' + renderOutputSections(false) + '</div>' +
         '<button type="button" class="af-add-output-btn" id="af-add-output"><i class="fas fa-plus"></i> Add Output Section</button>';
 
     case 'powers':
-      return '<div class="af-toggle-row"><label>Web Search</label><label class="af-toggle"><input type="checkbox" data-bind="powers.webSearch"' + (s.powers.webSearch ? ' checked' : '') + '><span class="af-toggle-slider"></span></label></div>' +
-        '<div class="af-toggle-row"><label>URL Fetch</label><label class="af-toggle"><input type="checkbox" data-bind="powers.fetchUrl"' + (s.powers.fetchUrl ? ' checked' : '') + '><span class="af-toggle-slider"></span></label></div>' +
-        '<div class="af-toggle-row"><label>Image Generation</label><label class="af-toggle"><input type="checkbox" data-bind="powers.imageGeneration"' + (s.powers.imageGeneration ? ' checked' : '') + '><span class="af-toggle-slider"></span></label></div>' +
-        '<div class="af-toggle-row"><label>Rate Limit Cost</label><select data-bind="powers.rateLimitCost" class="af-powers-select"><option value="1"' + (s.powers.rateLimitCost === 1 ? ' selected' : '') + '>1</option><option value="2"' + (s.powers.rateLimitCost === 2 ? ' selected' : '') + '>2</option></select></div>';
+      var powersLocked = _editMode ? ' disabled' : '';
+      return '<div class="af-toggle-row"><label>Web Search</label><label class="af-toggle"><input type="checkbox" data-bind="powers.webSearch"' + (s.powers.webSearch ? ' checked' : '') + powersLocked + '><span class="af-toggle-slider"></span></label></div>' +
+        '<div class="af-toggle-row"><label>URL Fetch</label><label class="af-toggle"><input type="checkbox" data-bind="powers.fetchUrl"' + (s.powers.fetchUrl ? ' checked' : '') + powersLocked + '><span class="af-toggle-slider"></span></label></div>' +
+        '<div class="af-toggle-row"><label>Image Generation</label><label class="af-toggle"><input type="checkbox" data-bind="powers.imageGeneration"' + (s.powers.imageGeneration ? ' checked' : '') + powersLocked + '><span class="af-toggle-slider"></span></label></div>' +
+        '<div class="af-toggle-row"><label>Rate Limit Cost</label><select data-bind="powers.rateLimitCost" class="af-powers-select"' + powersLocked + '><option value="1"' + (s.powers.rateLimitCost === 1 ? ' selected' : '') + '>1</option><option value="2"' + (s.powers.rateLimitCost === 2 ? ' selected' : '') + '>2</option></select></div>';
 
     default: return '';
   }
 }
 
-function renderOutputSections() {
+function renderOutputSections(locked) {
   return agentState.output.sections.map(function(sec, i) {
     var typePreview = getTypePreviewHTML(sec.type);
+    var dis = locked ? ' disabled' : '';
     return '<div class="af-output-row" data-index="' + i + '">' +
-      '<i class="fas fa-grip-vertical af-output-drag"></i>' +
-      '<input type="text" value="' + escapeAttr(sec.label) + '" placeholder="Label" data-output-label="' + i + '">' +
-      '<select data-output-type="' + i + '">' + OUTPUT_TYPES.map(function(t) { return '<option value="' + t + '"' + (sec.type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select>' +
-      '<button type="button" class="af-output-remove" data-output-remove="' + i + '"><i class="fas fa-times"></i></button>' +
+      (locked ? '' : '<i class="fas fa-grip-vertical af-output-drag"></i>') +
+      '<input type="text" value="' + escapeAttr(sec.label) + '" placeholder="Label" data-output-label="' + i + '"' + dis + '>' +
+      '<select data-output-type="' + i + '"' + dis + '>' + OUTPUT_TYPES.map(function(t) { return '<option value="' + t + '"' + (sec.type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select>' +
+      (locked ? '' : '<button type="button" class="af-output-remove" data-output-remove="' + i + '"><i class="fas fa-times"></i></button>') +
       '</div>' +
       (typePreview ? '<div class="af-type-preview">' + typePreview + '</div>' : '');
   }).join('');
