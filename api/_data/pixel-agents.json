@@ -8,7 +8,13 @@
     "tier": "legendary",
     "avatar": "/images/pixel-agents/roast-my-site.png",
     "icon": "fas fa-fire",
-    "capabilities": ["UX Analysis", "SEO Score", "Copy Critique", "Accessibility Check", "Performance Notes"],
+    "capabilities": [
+      "UX Analysis",
+      "SEO Score",
+      "Copy Critique",
+      "Accessibility Check",
+      "Performance Notes"
+    ],
     "inputType": "url",
     "inputLabel": "Enter your site URL",
     "inputPlaceholder": "https://example.com",
@@ -18,13 +24,41 @@
     "userPromptTemplate": "Roast this website: {{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "score", "label": "Roast Score", "type": "score" },
-      { "key": "verdict", "label": "Verdict", "type": "verdict" },
-      { "key": "ux", "label": "UX Verdict", "type": "text" },
-      { "key": "seo", "label": "SEO Verdict", "type": "text" },
-      { "key": "copy", "label": "Copy Verdict", "type": "text" },
-      { "key": "accessibility", "label": "Accessibility", "type": "text" },
-      { "key": "tldr", "label": "TL;DR", "type": "text" }
+      {
+        "key": "score",
+        "label": "Roast Score",
+        "type": "score"
+      },
+      {
+        "key": "verdict",
+        "label": "Verdict",
+        "type": "verdict"
+      },
+      {
+        "key": "ux",
+        "label": "UX Verdict",
+        "type": "text"
+      },
+      {
+        "key": "seo",
+        "label": "SEO Verdict",
+        "type": "text"
+      },
+      {
+        "key": "copy",
+        "label": "Copy Verdict",
+        "type": "text"
+      },
+      {
+        "key": "accessibility",
+        "label": "Accessibility",
+        "type": "text"
+      },
+      {
+        "key": "tldr",
+        "label": "TL;DR",
+        "type": "text"
+      }
     ],
     "generationConfig": {
       "temperature": 0.9,
@@ -44,7 +78,12 @@
     "tier": "epic",
     "avatar": "/images/pixel-agents/thread-it.png",
     "icon": "fas fa-share-nodes",
-    "capabilities": ["LinkedIn Posts", "X Threads", "Bluesky Posts", "Hashtag Strategy"],
+    "capabilities": [
+      "LinkedIn Posts",
+      "X Threads",
+      "Bluesky Posts",
+      "Hashtag Strategy"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste your content",
     "inputPlaceholder": "Paste a blog post, article, or notes here...",
@@ -53,12 +92,36 @@
     "userPromptTemplate": "Transform this content into social media posts:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "summary", "label": "Content Summary", "type": "text" },
-      { "key": "linkedin", "label": "LinkedIn", "type": "text" },
-      { "key": "x_thread", "label": "X Thread", "type": "list" },
-      { "key": "bluesky", "label": "Bluesky", "type": "text" },
-      { "key": "hashtags", "label": "Hashtags", "type": "tags" },
-      { "key": "tip", "label": "Posting Tip", "type": "text" }
+      {
+        "key": "summary",
+        "label": "Content Summary",
+        "type": "text"
+      },
+      {
+        "key": "linkedin",
+        "label": "LinkedIn",
+        "type": "text"
+      },
+      {
+        "key": "x_thread",
+        "label": "X Thread",
+        "type": "list"
+      },
+      {
+        "key": "bluesky",
+        "label": "Bluesky",
+        "type": "text"
+      },
+      {
+        "key": "hashtags",
+        "label": "Hashtags",
+        "type": "tags"
+      },
+      {
+        "key": "tip",
+        "label": "Posting Tip",
+        "type": "text"
+      }
     ],
     "generationConfig": {
       "temperature": 0.85,
@@ -78,7 +141,12 @@
     "tier": "rare",
     "avatar": "/images/pixel-agents/name-storm.png",
     "icon": "fas fa-bolt",
-    "capabilities": ["Brand Names", "Product Names", "Domain Hints", "Vibe Check"],
+    "capabilities": [
+      "Brand Names",
+      "Product Names",
+      "Domain Hints",
+      "Vibe Check"
+    ],
     "inputType": "textarea",
     "inputLabel": "Describe what you're naming",
     "inputPlaceholder": "e.g. A project management tool for creative teams that emphasizes visual workflows...",
@@ -87,13 +155,29 @@
     "userPromptTemplate": "Generate brand/product names for:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "context", "label": "Understood As", "type": "text" },
-      { "key": "names", "label": "Name Suggestions", "type": "name_list" },
-      { "key": "top_pick", "label": "Top Pick", "type": "highlight" },
-      { "key": "tip", "label": "Naming Tip", "type": "text" }
+      {
+        "key": "context",
+        "label": "Understood As",
+        "type": "text"
+      },
+      {
+        "key": "names",
+        "label": "Name Suggestions",
+        "type": "name_list"
+      },
+      {
+        "key": "top_pick",
+        "label": "Top Pick",
+        "type": "highlight"
+      },
+      {
+        "key": "tip",
+        "label": "Naming Tip",
+        "type": "text"
+      }
     ],
     "generationConfig": {
-      "temperature": 1.0,
+      "temperature": 1,
       "maxOutputTokens": 2000
     },
     "active": true,
@@ -110,7 +194,12 @@
     "tier": "epic",
     "avatar": "/images/pixel-agents/validate-this.png",
     "icon": "fas fa-microscope",
-    "capabilities": ["Market Analysis", "Competitor Scan", "Risk Assessment", "Viability Verdict"],
+    "capabilities": [
+      "Market Analysis",
+      "Competitor Scan",
+      "Risk Assessment",
+      "Viability Verdict"
+    ],
     "inputType": "textarea",
     "inputLabel": "Describe your startup idea",
     "inputPlaceholder": "e.g. An AI-powered tool that automatically generates personalized workout plans based on gym equipment photos...",
@@ -119,13 +208,41 @@
     "userPromptTemplate": "Validate this startup idea:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "idea_summary", "label": "Idea", "type": "text" },
-      { "key": "market", "label": "Market Analysis", "type": "text" },
-      { "key": "competitors", "label": "Competitors", "type": "list" },
-      { "key": "risks", "label": "Key Risks", "type": "list" },
-      { "key": "strengths", "label": "Strengths", "type": "list" },
-      { "key": "viability_score", "label": "Viability Score", "type": "score" },
-      { "key": "verdict", "label": "Verdict", "type": "text" }
+      {
+        "key": "idea_summary",
+        "label": "Idea",
+        "type": "text"
+      },
+      {
+        "key": "market",
+        "label": "Market Analysis",
+        "type": "text"
+      },
+      {
+        "key": "competitors",
+        "label": "Competitors",
+        "type": "list"
+      },
+      {
+        "key": "risks",
+        "label": "Key Risks",
+        "type": "list"
+      },
+      {
+        "key": "strengths",
+        "label": "Strengths",
+        "type": "list"
+      },
+      {
+        "key": "viability_score",
+        "label": "Viability Score",
+        "type": "score"
+      },
+      {
+        "key": "verdict",
+        "label": "Verdict",
+        "type": "text"
+      }
     ],
     "generationConfig": {
       "temperature": 0.8,
@@ -145,7 +262,12 @@
     "tier": "legendary",
     "avatar": "/images/pixel-agents/pitch-doctor.png",
     "icon": "fas fa-stethoscope",
-    "capabilities": ["Pitch Rewrite", "Objection Predictions", "Slide Feedback", "Persuasion Score"],
+    "capabilities": [
+      "Pitch Rewrite",
+      "Objection Predictions",
+      "Slide Feedback",
+      "Persuasion Score"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste your pitch deck text",
     "inputPlaceholder": "Paste the text content from your pitch deck slides here...",
@@ -154,14 +276,46 @@
     "userPromptTemplate": "Analyze and improve this pitch deck:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "persuasion_score", "label": "Persuasion Score", "type": "score" },
-      { "key": "diagnosis", "label": "Diagnosis", "type": "text" },
-      { "key": "objections", "label": "Investor Objections", "type": "list" },
-      { "key": "narrative_rewrite", "label": "Narrative Rewrite", "type": "text" },
-      { "key": "slide_feedback", "label": "Slide Feedback", "type": "list" },
-      { "key": "strongest", "label": "Strongest Element", "type": "text" },
-      { "key": "weakest", "label": "Weakest Element", "type": "text" },
-      { "key": "tip", "label": "Pro Tip", "type": "text" }
+      {
+        "key": "persuasion_score",
+        "label": "Persuasion Score",
+        "type": "score"
+      },
+      {
+        "key": "diagnosis",
+        "label": "Diagnosis",
+        "type": "text"
+      },
+      {
+        "key": "objections",
+        "label": "Investor Objections",
+        "type": "list"
+      },
+      {
+        "key": "narrative_rewrite",
+        "label": "Narrative Rewrite",
+        "type": "text"
+      },
+      {
+        "key": "slide_feedback",
+        "label": "Slide Feedback",
+        "type": "list"
+      },
+      {
+        "key": "strongest",
+        "label": "Strongest Element",
+        "type": "text"
+      },
+      {
+        "key": "weakest",
+        "label": "Weakest Element",
+        "type": "text"
+      },
+      {
+        "key": "tip",
+        "label": "Pro Tip",
+        "type": "text"
+      }
     ],
     "generationConfig": {
       "temperature": 0.85,
@@ -180,7 +334,12 @@
     "category": "design",
     "tier": "legendary",
     "icon": "fas fa-palette",
-    "capabilities": ["Vibe Analysis", "Color Palette", "Mood Keywords", "Visual Identity Image"],
+    "capabilities": [
+      "Vibe Analysis",
+      "Color Palette",
+      "Mood Keywords",
+      "Visual Identity Image"
+    ],
     "inputType": "textarea",
     "inputLabel": "Describe your brand or product",
     "inputPlaceholder": "e.g. A sustainable fashion brand for Gen Z that blends streetwear with eco-consciousness...",
@@ -195,10 +354,26 @@
     "userPromptTemplate": "Analyze the visual identity for this brand/product:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "vibe_summary", "label": "Vibe Analysis", "type": "text" },
-      { "key": "color_palette", "label": "Color Palette", "type": "color_palette" },
-      { "key": "mood_keywords", "label": "Mood", "type": "tags" },
-      { "key": "image_url", "label": "Visual Identity", "type": "image" }
+      {
+        "key": "vibe_summary",
+        "label": "Vibe Analysis",
+        "type": "text"
+      },
+      {
+        "key": "color_palette",
+        "label": "Color Palette",
+        "type": "color_palette"
+      },
+      {
+        "key": "mood_keywords",
+        "label": "Mood",
+        "type": "tags"
+      },
+      {
+        "key": "image_url",
+        "label": "Visual Identity",
+        "type": "image"
+      }
     ],
     "generationConfig": {
       "temperature": 0.85,
@@ -217,7 +392,12 @@
     "category": "lifestyle",
     "tier": "epic",
     "icon": "fas fa-utensils",
-    "capabilities": ["Recipe Generation", "Ingredient Matching", "Cooking Tips", "Dish Image"],
+    "capabilities": [
+      "Recipe Generation",
+      "Ingredient Matching",
+      "Cooking Tips",
+      "Dish Image"
+    ],
     "inputType": "textarea",
     "inputLabel": "What's in your fridge?",
     "inputPlaceholder": "e.g. chicken thighs, garlic, soy sauce, rice, broccoli, sesame oil, ginger...",
@@ -232,13 +412,41 @@
     "userPromptTemplate": "Create a recipe using these ingredients:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "recipe_name", "label": "Recipe", "type": "highlight" },
-      { "key": "cook_time", "label": "Cook Time", "type": "text" },
-      { "key": "difficulty", "label": "Difficulty", "type": "text" },
-      { "key": "ingredients_needed", "label": "Ingredients", "type": "list" },
-      { "key": "instructions", "label": "Instructions", "type": "list" },
-      { "key": "pro_tip", "label": "Pro Tip", "type": "highlight" },
-      { "key": "image_url", "label": "Your Dish", "type": "image" }
+      {
+        "key": "recipe_name",
+        "label": "Recipe",
+        "type": "highlight"
+      },
+      {
+        "key": "cook_time",
+        "label": "Cook Time",
+        "type": "text"
+      },
+      {
+        "key": "difficulty",
+        "label": "Difficulty",
+        "type": "text"
+      },
+      {
+        "key": "ingredients_needed",
+        "label": "Ingredients",
+        "type": "list"
+      },
+      {
+        "key": "instructions",
+        "label": "Instructions",
+        "type": "list"
+      },
+      {
+        "key": "pro_tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      },
+      {
+        "key": "image_url",
+        "label": "Your Dish",
+        "type": "image"
+      }
     ],
     "generationConfig": {
       "temperature": 0.9,
@@ -257,7 +465,12 @@
     "category": "tools",
     "tier": "rare",
     "icon": "fas fa-wand-magic-sparkles",
-    "capabilities": ["CREATE Method", "Prompt Structure", "Role Design", "Output Formatting"],
+    "capabilities": [
+      "CREATE Method",
+      "Prompt Structure",
+      "Role Design",
+      "Output Formatting"
+    ],
     "inputType": "textarea",
     "inputLabel": "What do you want to accomplish with AI?",
     "inputPlaceholder": "e.g. I want to write a LinkedIn post about our new product launch that sounds authentic, not salesy...",
@@ -266,15 +479,51 @@
     "userPromptTemplate": "Build an optimized AI prompt for this goal:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "goal_summary", "label": "Your Goal", "type": "verdict" },
-      { "key": "character", "label": "C — Character", "type": "text" },
-      { "key": "request", "label": "R — Request", "type": "text" },
-      { "key": "examples", "label": "E — Examples", "type": "text" },
-      { "key": "adjustments", "label": "A — Adjustments", "type": "text" },
-      { "key": "output_type", "label": "T — Types of Output", "type": "text" },
-      { "key": "extras", "label": "E — Extras", "type": "text" },
-      { "key": "full_prompt", "label": "Your Complete Prompt", "type": "highlight" },
-      { "key": "tip", "label": "Pro Tip", "type": "highlight" }
+      {
+        "key": "goal_summary",
+        "label": "Your Goal",
+        "type": "verdict"
+      },
+      {
+        "key": "character",
+        "label": "C — Character",
+        "type": "text"
+      },
+      {
+        "key": "request",
+        "label": "R — Request",
+        "type": "text"
+      },
+      {
+        "key": "examples",
+        "label": "E — Examples",
+        "type": "text"
+      },
+      {
+        "key": "adjustments",
+        "label": "A — Adjustments",
+        "type": "text"
+      },
+      {
+        "key": "output_type",
+        "label": "T — Types of Output",
+        "type": "text"
+      },
+      {
+        "key": "extras",
+        "label": "E — Extras",
+        "type": "text"
+      },
+      {
+        "key": "full_prompt",
+        "label": "Your Complete Prompt",
+        "type": "highlight"
+      },
+      {
+        "key": "tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      }
     ],
     "generationConfig": {
       "temperature": 0.7,
@@ -293,7 +542,12 @@
     "category": "career",
     "tier": "epic",
     "icon": "fas fa-file-alt",
-    "capabilities": ["ATS Score", "Section Roast", "Rewrite Tips", "Interview Readiness"],
+    "capabilities": [
+      "ATS Score",
+      "Section Roast",
+      "Rewrite Tips",
+      "Interview Readiness"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste your resume text",
     "inputPlaceholder": "Paste the full text of your resume here...",
@@ -302,12 +556,36 @@
     "userPromptTemplate": "Roast and score this resume:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "ats_score", "label": "ATS Score", "type": "score" },
-      { "key": "verdict", "label": "Verdict", "type": "verdict" },
-      { "key": "strengths", "label": "Strengths", "type": "list" },
-      { "key": "roast_points", "label": "The Roast", "type": "list" },
-      { "key": "rewrite_tips", "label": "Rewrite Tips", "type": "text" },
-      { "key": "pro_tip", "label": "Pro Tip", "type": "highlight" }
+      {
+        "key": "ats_score",
+        "label": "ATS Score",
+        "type": "score"
+      },
+      {
+        "key": "verdict",
+        "label": "Verdict",
+        "type": "verdict"
+      },
+      {
+        "key": "strengths",
+        "label": "Strengths",
+        "type": "list"
+      },
+      {
+        "key": "roast_points",
+        "label": "The Roast",
+        "type": "list"
+      },
+      {
+        "key": "rewrite_tips",
+        "label": "Rewrite Tips",
+        "type": "text"
+      },
+      {
+        "key": "pro_tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      }
     ],
     "generationConfig": {
       "temperature": 0.85,
@@ -326,24 +604,47 @@
     "category": "intel",
     "tier": "rare",
     "icon": "fas fa-satellite-dish",
-    "capabilities": ["Live News", "Topic Summary", "Key Takeaways", "Source Links"],
+    "capabilities": [
+      "Live News",
+      "Topic Summary",
+      "Key Takeaways",
+      "Source Links"
+    ],
     "inputType": "textarea",
     "inputLabel": "What topic do you want news on?",
     "inputPlaceholder": "e.g. AI regulation, crypto markets, climate tech, or just 'general news today'",
     "inputValidation": "text",
     "webSearch": true,
     "searchConfig": {
-      "queries": ["{{input}} latest news today 2026"],
+      "queries": [
+        "{{input}} latest news today 2026"
+      ],
       "maxResults": 8
     },
     "systemPrompt": "You are Signal, a sharp news analyst created by Pixel Agents. You receive live web search results and synthesize them into a clear, concise news briefing.\n\nYour job:\n1. Read the search results provided\n2. Write a 2-3 sentence executive summary of what's happening\n3. List 4-6 top stories with one-line summaries\n4. Identify the single most important takeaway\n5. List the source URLs you referenced\n\nBe factual, concise, and opinionated about what matters most. No fluff.\n\nYou MUST respond with valid JSON:\n{\n  \"summary\": \"<2-3 sentence executive summary>\",\n  \"top_stories\": [\"<story 1: headline — one line summary>\", \"<story 2>\"],\n  \"key_takeaway\": \"<the single most important thing to know>\",\n  \"sources\": [\"<url1>\", \"<url2>\"]\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
     "userPromptTemplate": "Give me a news briefing on: {{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "summary", "label": "Briefing", "type": "text" },
-      { "key": "top_stories", "label": "Top Stories", "type": "list" },
-      { "key": "key_takeaway", "label": "Key Takeaway", "type": "highlight" },
-      { "key": "sources", "label": "Sources", "type": "list" }
+      {
+        "key": "summary",
+        "label": "Briefing",
+        "type": "text"
+      },
+      {
+        "key": "top_stories",
+        "label": "Top Stories",
+        "type": "list"
+      },
+      {
+        "key": "key_takeaway",
+        "label": "Key Takeaway",
+        "type": "highlight"
+      },
+      {
+        "key": "sources",
+        "label": "Sources",
+        "type": "list"
+      }
     ],
     "generationConfig": {
       "temperature": 0.5,
@@ -362,24 +663,48 @@
     "category": "gaming",
     "tier": "epic",
     "icon": "fas fa-gamepad",
-    "capabilities": ["Trending Games", "Steam Charts", "Hidden Gems", "Genre Analysis"],
+    "capabilities": [
+      "Trending Games",
+      "Steam Charts",
+      "Hidden Gems",
+      "Genre Analysis"
+    ],
     "inputType": "textarea",
     "inputLabel": "What do you want to know?",
     "inputPlaceholder": "e.g. 'What's trending on Steam?', 'Best indie games this week', 'FPS games worth playing'",
     "inputValidation": "text",
     "webSearch": true,
     "searchConfig": {
-      "queries": ["{{input}} Steam trending games 2026", "{{input}} gaming news today"],
+      "queries": [
+        "{{input}} Steam trending games 2026",
+        "{{input}} gaming news today"
+      ],
       "maxResults": 5
     },
     "systemPrompt": "You are Hype Check, a gaming trend analyst created by Pixel Agents. You receive live web search results about gaming trends and deliver a sharp, opinionated gaming briefing.\n\nYour job:\n1. Identify 4-6 trending or noteworthy games from the search results\n2. Pick one hidden gem most people are sleeping on\n3. Break down what genres are hot right now (as tags)\n4. Give your verdict on the state of gaming right now\n\nBe opinionated, knowledgeable, and speak like a gamer — not a corporate analyst.\n\nYou MUST respond with valid JSON:\n{\n  \"trending_games\": [\"<game 1: name — why it's trending>\", \"<game 2>\"],\n  \"hidden_gem\": \"<one game people are sleeping on and why>\",\n  \"genre_breakdown\": [\"<genre1>\", \"<genre2>\"],\n  \"verdict\": \"<2-3 sentence take on the gaming landscape right now>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
     "userPromptTemplate": "Gaming hype check: {{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "trending_games", "label": "Trending Games", "type": "list" },
-      { "key": "hidden_gem", "label": "Hidden Gem", "type": "highlight" },
-      { "key": "genre_breakdown", "label": "Hot Genres", "type": "tags" },
-      { "key": "verdict", "label": "Verdict", "type": "verdict" }
+      {
+        "key": "trending_games",
+        "label": "Trending Games",
+        "type": "list"
+      },
+      {
+        "key": "hidden_gem",
+        "label": "Hidden Gem",
+        "type": "highlight"
+      },
+      {
+        "key": "genre_breakdown",
+        "label": "Hot Genres",
+        "type": "tags"
+      },
+      {
+        "key": "verdict",
+        "label": "Verdict",
+        "type": "verdict"
+      }
     ],
     "generationConfig": {
       "temperature": 0.8,
@@ -398,24 +723,48 @@
     "category": "intel",
     "tier": "rare",
     "icon": "fas fa-bolt",
-    "capabilities": ["Trend Detection", "Viral Topics", "Rising Stories", "Predictions"],
+    "capabilities": [
+      "Trend Detection",
+      "Viral Topics",
+      "Rising Stories",
+      "Predictions"
+    ],
     "inputType": "textarea",
     "inputLabel": "What do you want to check?",
     "inputPlaceholder": "e.g. 'What's trending today?', 'AI trends this week', 'What's viral on social media?'",
     "inputValidation": "text",
     "webSearch": true,
     "searchConfig": {
-      "queries": ["{{input}} trending viral today 2026", "{{input}} what's hot this week"],
+      "queries": [
+        "{{input}} trending viral today 2026",
+        "{{input}} what's hot this week"
+      ],
       "maxResults": 5
     },
     "systemPrompt": "You are Buzz Check, an internet culture analyst created by Pixel Agents. You receive live web search results and identify what's trending, what's viral, and what's about to blow up.\n\nYour job:\n1. Write a 2-3 sentence summary of what the internet is buzzing about\n2. List 4-6 hot topics with brief context\n3. Identify 3-5 rising keywords/trends as tags\n4. Make one bold prediction about what's coming next\n\nBe sharp, cultural, and slightly snarky. You know the internet.\n\nYou MUST respond with valid JSON:\n{\n  \"trending_summary\": \"<2-3 sentence overview of what's buzzing>\",\n  \"hot_topics\": [\"<topic 1: what + why it's trending>\", \"<topic 2>\"],\n  \"rising\": [\"<keyword1>\", \"<keyword2>\"],\n  \"prediction\": \"<one bold prediction about what's coming next>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
     "userPromptTemplate": "What's the internet buzzing about: {{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "trending_summary", "label": "The Buzz", "type": "text" },
-      { "key": "hot_topics", "label": "Hot Topics", "type": "list" },
-      { "key": "rising", "label": "Rising", "type": "tags" },
-      { "key": "prediction", "label": "Bold Prediction", "type": "highlight" }
+      {
+        "key": "trending_summary",
+        "label": "The Buzz",
+        "type": "text"
+      },
+      {
+        "key": "hot_topics",
+        "label": "Hot Topics",
+        "type": "list"
+      },
+      {
+        "key": "rising",
+        "label": "Rising",
+        "type": "tags"
+      },
+      {
+        "key": "prediction",
+        "label": "Bold Prediction",
+        "type": "highlight"
+      }
     ],
     "generationConfig": {
       "temperature": 0.85,
@@ -434,24 +783,48 @@
     "category": "intel",
     "tier": "epic",
     "icon": "fas fa-users",
-    "capabilities": ["Reddit Pulse", "Hot Posts", "Community Mood", "Spicy Takes"],
+    "capabilities": [
+      "Reddit Pulse",
+      "Hot Posts",
+      "Community Mood",
+      "Spicy Takes"
+    ],
     "inputType": "textarea",
     "inputLabel": "Which subreddit or topic?",
     "inputPlaceholder": "e.g. r/technology, r/gaming, 'AI on reddit', r/startups",
     "inputValidation": "text",
     "webSearch": true,
     "searchConfig": {
-      "queries": ["site:reddit.com {{input}} hot trending", "reddit {{input}} popular discussion today"],
+      "queries": [
+        "site:reddit.com {{input}} hot trending",
+        "reddit {{input}} popular discussion today"
+      ],
       "maxResults": 5
     },
     "systemPrompt": "You are Hivemind, a Reddit culture analyst created by Pixel Agents. You receive live web search results from Reddit and synthesize the community's collective consciousness.\n\nYour job:\n1. Write a 2-3 sentence pulse check on what the community is thinking/feeling\n2. List 4-6 hot posts or discussions with one-line summaries\n3. Identify the community's mood as 3-5 keyword tags\n4. Share the spiciest or most interesting take you found\n\nSpeak like someone who actually uses Reddit — casual, informed, slightly irreverent. Reference specific posts when possible.\n\nYou MUST respond with valid JSON:\n{\n  \"pulse_summary\": \"<2-3 sentence community pulse check>\",\n  \"hot_posts\": [\"<post/discussion 1: title — what people are saying>\", \"<post 2>\"],\n  \"mood\": [\"<mood keyword 1>\", \"<mood keyword 2>\"],\n  \"spicy_take\": \"<the most interesting or controversial take from the community>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
     "userPromptTemplate": "Give me the Reddit pulse on: {{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "pulse_summary", "label": "Community Pulse", "type": "text" },
-      { "key": "hot_posts", "label": "Hot Posts", "type": "list" },
-      { "key": "mood", "label": "Mood", "type": "tags" },
-      { "key": "spicy_take", "label": "Spicy Take", "type": "highlight" }
+      {
+        "key": "pulse_summary",
+        "label": "Community Pulse",
+        "type": "text"
+      },
+      {
+        "key": "hot_posts",
+        "label": "Hot Posts",
+        "type": "list"
+      },
+      {
+        "key": "mood",
+        "label": "Mood",
+        "type": "tags"
+      },
+      {
+        "key": "spicy_take",
+        "label": "Spicy Take",
+        "type": "highlight"
+      }
     ],
     "generationConfig": {
       "temperature": 0.85,
@@ -470,7 +843,12 @@
     "category": "design",
     "tier": "legendary",
     "icon": "fas fa-magic",
-    "capabilities": ["Design Score", "Layout Analysis", "Color Palette", "AI Mockup Image"],
+    "capabilities": [
+      "Design Score",
+      "Layout Analysis",
+      "Color Palette",
+      "AI Mockup Image"
+    ],
     "inputType": "url",
     "inputLabel": "Enter your site URL",
     "inputPlaceholder": "https://example.com",
@@ -486,11 +864,31 @@
     "userPromptTemplate": "Analyze and propose a redesign for this website: {{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "design_score", "label": "Design Score", "type": "score" },
-      { "key": "analysis", "label": "Design Analysis", "type": "text" },
-      { "key": "suggestions", "label": "Improvements", "type": "list" },
-      { "key": "color_palette", "label": "Recommended Palette", "type": "color_palette" },
-      { "key": "image_url", "label": "Redesign Concept", "type": "image" }
+      {
+        "key": "design_score",
+        "label": "Design Score",
+        "type": "score"
+      },
+      {
+        "key": "analysis",
+        "label": "Design Analysis",
+        "type": "text"
+      },
+      {
+        "key": "suggestions",
+        "label": "Improvements",
+        "type": "list"
+      },
+      {
+        "key": "color_palette",
+        "label": "Recommended Palette",
+        "type": "color_palette"
+      },
+      {
+        "key": "image_url",
+        "label": "Redesign Concept",
+        "type": "image"
+      }
     ],
     "generationConfig": {
       "temperature": 0.8,
@@ -509,7 +907,12 @@
     "category": "design",
     "tier": "epic",
     "icon": "fas fa-eye-dropper",
-    "capabilities": ["Palette Extraction", "Color Names", "Mood Analysis", "Pairing Tips"],
+    "capabilities": [
+      "Palette Extraction",
+      "Color Names",
+      "Mood Analysis",
+      "Pairing Tips"
+    ],
     "inputType": "url",
     "inputLabel": "Paste an image URL",
     "inputPlaceholder": "https://example.com/photo.jpg",
@@ -518,13 +921,36 @@
     "userPromptTemplate": "Extract the color palette from this image: {{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "palette_name", "label": "Palette", "type": "highlight" },
-      { "key": "color_palette", "label": "Colors", "type": "color_palette" },
-      { "key": "mood", "label": "Mood", "type": "tags" },
-      { "key": "best_for", "label": "Best For", "type": "list" },
-      { "key": "pro_tip", "label": "Pro Tip", "type": "highlight" }
+      {
+        "key": "palette_name",
+        "label": "Palette",
+        "type": "highlight"
+      },
+      {
+        "key": "color_palette",
+        "label": "Colors",
+        "type": "color_palette"
+      },
+      {
+        "key": "mood",
+        "label": "Mood",
+        "type": "tags"
+      },
+      {
+        "key": "best_for",
+        "label": "Best For",
+        "type": "list"
+      },
+      {
+        "key": "pro_tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.7, "maxOutputTokens": 1000 },
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1000
+    },
     "active": true,
     "featured": false,
     "order": 15,
@@ -538,7 +964,12 @@
     "category": "career",
     "tier": "legendary",
     "icon": "fab fa-linkedin",
-    "capabilities": ["Profile Roast", "Headline Rewrite", "About Rewrite", "Stand-Out Score"],
+    "capabilities": [
+      "Profile Roast",
+      "Headline Rewrite",
+      "About Rewrite",
+      "Stand-Out Score"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste your LinkedIn text",
     "inputPlaceholder": "Paste your headline, about section, or full profile text here...",
@@ -547,14 +978,41 @@
     "userPromptTemplate": "Roast and rewrite this LinkedIn profile:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "standout_score", "label": "Stand-Out Score", "type": "score" },
-      { "key": "verdict", "label": "Verdict", "type": "verdict" },
-      { "key": "roast_points", "label": "The Roast", "type": "list" },
-      { "key": "rewritten_headline", "label": "New Headline", "type": "highlight" },
-      { "key": "rewritten_about", "label": "New About Opening", "type": "text" },
-      { "key": "pro_tip", "label": "Pro Tip", "type": "highlight" }
+      {
+        "key": "standout_score",
+        "label": "Stand-Out Score",
+        "type": "score"
+      },
+      {
+        "key": "verdict",
+        "label": "Verdict",
+        "type": "verdict"
+      },
+      {
+        "key": "roast_points",
+        "label": "The Roast",
+        "type": "list"
+      },
+      {
+        "key": "rewritten_headline",
+        "label": "New Headline",
+        "type": "highlight"
+      },
+      {
+        "key": "rewritten_about",
+        "label": "New About Opening",
+        "type": "text"
+      },
+      {
+        "key": "pro_tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.9, "maxOutputTokens": 1500 },
+    "generationConfig": {
+      "temperature": 0.9,
+      "maxOutputTokens": 1500
+    },
     "active": true,
     "featured": true,
     "order": 16,
@@ -568,7 +1026,12 @@
     "category": "tools",
     "tier": "rare",
     "icon": "fas fa-child",
-    "capabilities": ["Kid-Level", "Teen-Level", "Expert Summary", "Key Concept"],
+    "capabilities": [
+      "Kid-Level",
+      "Teen-Level",
+      "Expert Summary",
+      "Key Concept"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste something complex",
     "inputPlaceholder": "Paste any complex text — legal docs, scientific papers, technical specs, corporate jargon...",
@@ -577,13 +1040,36 @@
     "userPromptTemplate": "Explain this at multiple levels:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "topic", "label": "Topic", "type": "highlight" },
-      { "key": "eli5", "label": "Age 5", "type": "text" },
-      { "key": "eli15", "label": "Age 15", "type": "text" },
-      { "key": "expert", "label": "Expert", "type": "text" },
-      { "key": "key_concept", "label": "Key Concept", "type": "highlight" }
+      {
+        "key": "topic",
+        "label": "Topic",
+        "type": "highlight"
+      },
+      {
+        "key": "eli5",
+        "label": "Age 5",
+        "type": "text"
+      },
+      {
+        "key": "eli15",
+        "label": "Age 15",
+        "type": "text"
+      },
+      {
+        "key": "expert",
+        "label": "Expert",
+        "type": "text"
+      },
+      {
+        "key": "key_concept",
+        "label": "Key Concept",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.7, "maxOutputTokens": 1200 },
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1200
+    },
     "active": true,
     "featured": false,
     "order": 17,
@@ -597,7 +1083,12 @@
     "category": "strategy",
     "tier": "rare",
     "icon": "fas fa-skull-crossbones",
-    "capabilities": ["Death Prediction", "Failure Timeline", "Cause of Death", "Lessons Learned"],
+    "capabilities": [
+      "Death Prediction",
+      "Failure Timeline",
+      "Cause of Death",
+      "Lessons Learned"
+    ],
     "inputType": "textarea",
     "inputLabel": "Describe the startup idea",
     "inputPlaceholder": "e.g. An AI-powered dating app for pets that matches dogs based on personality tests...",
@@ -606,14 +1097,41 @@
     "userPromptTemplate": "Write a startup obituary for this idea:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "startup_name", "label": "Startup Name", "type": "highlight" },
-      { "key": "obituary", "label": "Obituary", "type": "text" },
-      { "key": "cause_of_death", "label": "Cause of Death", "type": "verdict" },
-      { "key": "timeline", "label": "Failure Timeline", "type": "list" },
-      { "key": "shouldve_done", "label": "Should've Done Instead", "type": "text" },
-      { "key": "epitaph", "label": "Epitaph", "type": "highlight" }
+      {
+        "key": "startup_name",
+        "label": "Startup Name",
+        "type": "highlight"
+      },
+      {
+        "key": "obituary",
+        "label": "Obituary",
+        "type": "text"
+      },
+      {
+        "key": "cause_of_death",
+        "label": "Cause of Death",
+        "type": "verdict"
+      },
+      {
+        "key": "timeline",
+        "label": "Failure Timeline",
+        "type": "list"
+      },
+      {
+        "key": "shouldve_done",
+        "label": "Should've Done Instead",
+        "type": "text"
+      },
+      {
+        "key": "epitaph",
+        "label": "Epitaph",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.95, "maxOutputTokens": 1500 },
+    "generationConfig": {
+      "temperature": 0.95,
+      "maxOutputTokens": 1500
+    },
     "active": true,
     "featured": false,
     "order": 18,
@@ -627,7 +1145,12 @@
     "category": "tools",
     "tier": "epic",
     "icon": "fas fa-gavel",
-    "capabilities": ["Plain English", "Red Flags", "Standard vs Sketchy", "Key Terms"],
+    "capabilities": [
+      "Plain English",
+      "Red Flags",
+      "Standard vs Sketchy",
+      "Key Terms"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste legal text",
     "inputPlaceholder": "Paste a contract clause, terms of service section, NDA paragraph, or any legal text...",
@@ -636,14 +1159,41 @@
     "userPromptTemplate": "Translate this legal text to plain English:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "plain_english", "label": "In Plain English", "type": "text" },
-      { "key": "rating", "label": "Rating", "type": "verdict" },
-      { "key": "red_flags", "label": "Red Flags", "type": "list" },
-      { "key": "key_terms", "label": "Key Terms", "type": "list" },
-      { "key": "ask_lawyer", "label": "Ask Your Lawyer", "type": "highlight" },
-      { "key": "disclaimer", "label": "Disclaimer", "type": "text" }
+      {
+        "key": "plain_english",
+        "label": "In Plain English",
+        "type": "text"
+      },
+      {
+        "key": "rating",
+        "label": "Rating",
+        "type": "verdict"
+      },
+      {
+        "key": "red_flags",
+        "label": "Red Flags",
+        "type": "list"
+      },
+      {
+        "key": "key_terms",
+        "label": "Key Terms",
+        "type": "list"
+      },
+      {
+        "key": "ask_lawyer",
+        "label": "Ask Your Lawyer",
+        "type": "highlight"
+      },
+      {
+        "key": "disclaimer",
+        "label": "Disclaimer",
+        "type": "text"
+      }
     ],
-    "generationConfig": { "temperature": 0.5, "maxOutputTokens": 1500 },
+    "generationConfig": {
+      "temperature": 0.5,
+      "maxOutputTokens": 1500
+    },
     "active": true,
     "featured": true,
     "order": 19,
@@ -657,7 +1207,12 @@
     "category": "tools",
     "tier": "rare",
     "icon": "fas fa-envelope-open-text",
-    "capabilities": ["Tone Adjustment", "Clarity Rewrite", "Subject Line", "Send Confidence"],
+    "capabilities": [
+      "Tone Adjustment",
+      "Clarity Rewrite",
+      "Subject Line",
+      "Send Confidence"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste your draft email",
     "inputPlaceholder": "Paste your email draft here. Include context like: 'This is to my boss about a raise' or 'Replying to an angry client'...",
@@ -666,14 +1221,41 @@
     "userPromptTemplate": "Fix this email:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "original_score", "label": "Original Score", "type": "score" },
-      { "key": "issues", "label": "Issues Found", "type": "list" },
-      { "key": "subject_line", "label": "Better Subject Line", "type": "highlight" },
-      { "key": "rewritten_email", "label": "Rewritten Email", "type": "text" },
-      { "key": "send_confidence", "label": "Send Confidence", "type": "verdict" },
-      { "key": "tip", "label": "Pro Tip", "type": "highlight" }
+      {
+        "key": "original_score",
+        "label": "Original Score",
+        "type": "score"
+      },
+      {
+        "key": "issues",
+        "label": "Issues Found",
+        "type": "list"
+      },
+      {
+        "key": "subject_line",
+        "label": "Better Subject Line",
+        "type": "highlight"
+      },
+      {
+        "key": "rewritten_email",
+        "label": "Rewritten Email",
+        "type": "text"
+      },
+      {
+        "key": "send_confidence",
+        "label": "Send Confidence",
+        "type": "verdict"
+      },
+      {
+        "key": "tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.7, "maxOutputTokens": 1500 },
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1500
+    },
     "active": true,
     "featured": false,
     "order": 20,
@@ -687,7 +1269,12 @@
     "category": "tools",
     "tier": "legendary",
     "icon": "fas fa-code",
-    "capabilities": ["Bug Detection", "Style Roast", "Efficiency Score", "Fix Suggestions"],
+    "capabilities": [
+      "Bug Detection",
+      "Style Roast",
+      "Efficiency Score",
+      "Fix Suggestions"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste your code",
     "inputPlaceholder": "Paste any code snippet — JavaScript, Python, CSS, SQL, whatever you've got...",
@@ -696,14 +1283,41 @@
     "userPromptTemplate": "Roast this code:\n\n```\n{{input}}\n```",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "quality_score", "label": "Code Quality", "type": "score" },
-      { "key": "verdict", "label": "Verdict", "type": "verdict" },
-      { "key": "language", "label": "Language", "type": "text" },
-      { "key": "roast_points", "label": "The Roast", "type": "list" },
-      { "key": "fixes", "label": "Fix Suggestions", "type": "text" },
-      { "key": "pro_tip", "label": "Pro Tip", "type": "highlight" }
+      {
+        "key": "quality_score",
+        "label": "Code Quality",
+        "type": "score"
+      },
+      {
+        "key": "verdict",
+        "label": "Verdict",
+        "type": "verdict"
+      },
+      {
+        "key": "language",
+        "label": "Language",
+        "type": "text"
+      },
+      {
+        "key": "roast_points",
+        "label": "The Roast",
+        "type": "list"
+      },
+      {
+        "key": "fixes",
+        "label": "Fix Suggestions",
+        "type": "text"
+      },
+      {
+        "key": "pro_tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.85, "maxOutputTokens": 2000 },
+    "generationConfig": {
+      "temperature": 0.85,
+      "maxOutputTokens": 2000
+    },
     "active": true,
     "featured": true,
     "order": 21,
@@ -717,7 +1331,12 @@
     "category": "tools",
     "tier": "rare",
     "icon": "fas fa-calendar-xmark",
-    "capabilities": ["Action Items", "Productivity Score", "Email Verdict", "Time Saved"],
+    "capabilities": [
+      "Action Items",
+      "Productivity Score",
+      "Email Verdict",
+      "Time Saved"
+    ],
     "inputType": "textarea",
     "inputLabel": "Paste meeting notes or agenda",
     "inputPlaceholder": "Paste your meeting notes, agenda, or transcript here...",
@@ -726,14 +1345,41 @@
     "userPromptTemplate": "Analyze this meeting:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "productivity_score", "label": "Productivity Score", "type": "score" },
-      { "key": "summary", "label": "Summary", "type": "text" },
-      { "key": "action_items", "label": "Action Items", "type": "list" },
-      { "key": "email_verdict", "label": "Could This Be an Email?", "type": "verdict" },
-      { "key": "time_saved", "label": "Time You Could Save", "type": "highlight" },
-      { "key": "tip", "label": "Pro Tip", "type": "highlight" }
+      {
+        "key": "productivity_score",
+        "label": "Productivity Score",
+        "type": "score"
+      },
+      {
+        "key": "summary",
+        "label": "Summary",
+        "type": "text"
+      },
+      {
+        "key": "action_items",
+        "label": "Action Items",
+        "type": "list"
+      },
+      {
+        "key": "email_verdict",
+        "label": "Could This Be an Email?",
+        "type": "verdict"
+      },
+      {
+        "key": "time_saved",
+        "label": "Time You Could Save",
+        "type": "highlight"
+      },
+      {
+        "key": "tip",
+        "label": "Pro Tip",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.7, "maxOutputTokens": 1500 },
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 1500
+    },
     "active": true,
     "featured": false,
     "order": 22,
@@ -747,7 +1393,12 @@
     "category": "creative",
     "tier": "rare",
     "icon": "fas fa-masks-theater",
-    "capabilities": ["Plot Twist", "Setup Guide", "Impact Analysis", "Alternative Twists"],
+    "capabilities": [
+      "Plot Twist",
+      "Setup Guide",
+      "Impact Analysis",
+      "Alternative Twists"
+    ],
     "inputType": "textarea",
     "inputLabel": "Describe your story or scenario",
     "inputPlaceholder": "e.g. A detective investigating a murder discovers that the victim is still alive...",
@@ -756,13 +1407,36 @@
     "userPromptTemplate": "Generate a plot twist for this story:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "twist", "label": "The Twist", "type": "highlight" },
-      { "key": "shock_factor", "label": "Shock Factor", "type": "verdict" },
-      { "key": "why_it_works", "label": "Why It Works", "type": "text" },
-      { "key": "setup_hints", "label": "Foreshadowing Hints", "type": "list" },
-      { "key": "alt_twists", "label": "Alternative Twists", "type": "list" }
+      {
+        "key": "twist",
+        "label": "The Twist",
+        "type": "highlight"
+      },
+      {
+        "key": "shock_factor",
+        "label": "Shock Factor",
+        "type": "verdict"
+      },
+      {
+        "key": "why_it_works",
+        "label": "Why It Works",
+        "type": "text"
+      },
+      {
+        "key": "setup_hints",
+        "label": "Foreshadowing Hints",
+        "type": "list"
+      },
+      {
+        "key": "alt_twists",
+        "label": "Alternative Twists",
+        "type": "list"
+      }
     ],
-    "generationConfig": { "temperature": 0.95, "maxOutputTokens": 1200 },
+    "generationConfig": {
+      "temperature": 0.95,
+      "maxOutputTokens": 1200
+    },
     "active": true,
     "featured": false,
     "order": 23,
@@ -776,7 +1450,12 @@
     "category": "creative",
     "tier": "epic",
     "icon": "fas fa-scale-balanced",
-    "capabilities": ["Counter-Argument", "Evidence", "Logic Framework", "Debate Score"],
+    "capabilities": [
+      "Counter-Argument",
+      "Evidence",
+      "Logic Framework",
+      "Debate Score"
+    ],
     "inputType": "textarea",
     "inputLabel": "State your opinion",
     "inputPlaceholder": "e.g. Remote work is better than office work for productivity...",
@@ -785,75 +1464,44 @@
     "userPromptTemplate": "Debate this opinion:\n\n{{input}}",
     "outputFormat": "structured",
     "outputSections": [
-      { "key": "their_position", "label": "Your Position", "type": "text" },
-      { "key": "counter_points", "label": "Counter-Arguments", "type": "list" },
-      { "key": "their_score", "label": "Your Argument Strength", "type": "score" },
-      { "key": "counter_score", "label": "Counter Strength", "type": "score" },
-      { "key": "verdict", "label": "Verdict", "type": "verdict" },
-      { "key": "common_ground", "label": "Common Ground", "type": "highlight" }
+      {
+        "key": "their_position",
+        "label": "Your Position",
+        "type": "text"
+      },
+      {
+        "key": "counter_points",
+        "label": "Counter-Arguments",
+        "type": "list"
+      },
+      {
+        "key": "their_score",
+        "label": "Your Argument Strength",
+        "type": "score"
+      },
+      {
+        "key": "counter_score",
+        "label": "Counter Strength",
+        "type": "score"
+      },
+      {
+        "key": "verdict",
+        "label": "Verdict",
+        "type": "verdict"
+      },
+      {
+        "key": "common_ground",
+        "label": "Common Ground",
+        "type": "highlight"
+      }
     ],
-    "generationConfig": { "temperature": 0.8, "maxOutputTokens": 1800 },
+    "generationConfig": {
+      "temperature": 0.8,
+      "maxOutputTokens": 1800
+    },
     "active": true,
     "featured": true,
     "order": 24,
     "createdAt": "2026-03-15"
-  },
-  {
-    "id": "dad-joke-judge",
-    "name": "Dad Joke Judge",
-    "tagline": "Rate any joke on the official Dad Scale",
-    "description": "Submit any joke and get it scored on the sacred Dad Joke Scale. Includes groan factor, pun quality, delivery rating, and whether it would make a real dad proud or ashamed.",
-    "category": "creative",
-    "tier": "uncommon",
-    "icon": "fas fa-gavel",
-    "capabilities": ["Groan Score", "Pun Analysis", "Dad Approval Rating"],
-    "inputType": "textarea",
-    "inputLabel": "Tell your joke",
-    "inputPlaceholder": "e.g. Why don't scientists trust atoms? Because they make up everything...",
-    "inputValidation": "text",
-    "systemPrompt": "You are Dad Joke Judge, the world's foremost authority on dad humor, created by Pixel Agents. You evaluate jokes on the sacred Dad Joke Scale with the expertise of someone who has told thousands of bad jokes at family dinners.\n\nYour job:\n1. Read the joke\n2. Score it on the Dad Scale (0-100, where 100 is peak dad energy)\n3. Rate the groan factor (how loud the collective groan would be)\n4. Analyze the pun quality (if applicable)\n5. Deliver your official verdict\n6. Suggest how a true dad would deliver it for maximum effect\n\nTone: Warm, proud, painfully enthusiastic about bad puns. You genuinely love terrible jokes.\n\nYou MUST respond with valid JSON:\n{\n  \"dad_score\": <number 0-100>,\n  \"verdict\": \"<one-line ruling, 10 words max>\",\n  \"groan_factor\": \"<description of the expected groan, 1-2 sentences>\",\n  \"pun_analysis\": \"<breakdown of the pun mechanics or humor technique>\",\n  \"delivery_tip\": \"<how a real dad would deliver this for maximum impact>\",\n  \"dad_approval\": \"<would a real dad be proud? 1-2 sentences>\"\n}\n\nDo NOT wrap in code fences. Return ONLY raw JSON.",
-    "userPromptTemplate": "Judge this joke on the Dad Scale:\n\n{{input}}",
-    "outputFormat": "structured",
-    "outputSections": [
-      { "key": "dad_score", "label": "Dad Score", "type": "score" },
-      { "key": "verdict", "label": "Verdict", "type": "verdict" },
-      { "key": "groan_factor", "label": "Groan Factor", "type": "text" },
-      { "key": "pun_analysis", "label": "Pun Analysis", "type": "text" },
-      { "key": "delivery_tip", "label": "Delivery Tip", "type": "highlight" },
-      { "key": "dad_approval", "label": "Dad Approval", "type": "text" }
-    ],
-    "generationConfig": { "temperature": 0.9, "maxOutputTokens": 1200 },
-    "active": true,
-    "featured": false,
-    "order": 25,
-    "createdAt": "2026-04-04"
-  },
-  {
-    "id": "excuse-engine",
-    "name": "Excuse Engine",
-    "tagline": "Generate a bulletproof excuse for any situation",
-    "description": "Tell us what you need to get out of and get three tailored excuses ranked by believability, risk, and creativity. From work meetings to family dinners.",
-    "category": "creative",
-    "tier": "uncommon",
-    "icon": "fas fa-mask",
-    "capabilities": ["Excuse Generation", "Believability Score", "Risk Rating"],
-    "inputType": "textarea",
-    "inputLabel": "What do you need to get out of?",
-    "inputPlaceholder": "e.g. My partner's coworker's birthday dinner this Friday...",
-    "inputValidation": "text",
-    "systemPrompt": "You are Excuse Engine, a master of plausible deniability, created by Pixel Agents. You generate creative, believable excuses for any situation — from skipping meetings to dodging social obligations.\n\nYour job:\n1. Understand the situation\n2. Generate 3 excuses at different risk levels (safe, moderate, bold)\n3. Score each for believability and creativity\n4. Provide delivery tips\n5. Include a warning if the excuse could backfire\n\nTone: Charmingly conspiratorial, like a smooth friend who always has your back. Never mean-spirited — these are for harmless situations.\n\nYou MUST respond with valid JSON:\n{\n  \"situation\": \"<summary of what they're dodging>\",\n  \"excuses\": [\n    { \"level\": \"Safe\", \"excuse\": \"<the excuse>\", \"believability\": <0-100>, \"delivery\": \"<how to sell it>\" },\n    { \"level\": \"Moderate\", \"excuse\": \"<the excuse>\", \"believability\": <0-100>, \"delivery\": \"<how to sell it>\" },\n    { \"level\": \"Bold\", \"excuse\": \"<the excuse>\", \"believability\": <0-100>, \"delivery\": \"<how to sell it>\" }\n  ],\n  \"warning\": \"<potential backfire risk, 1-2 sentences>\",\n  \"honesty_option\": \"<what to say if you just told the truth>\"\n}\n\nDo NOT wrap in code fences. Return ONLY raw JSON.",
-    "userPromptTemplate": "I need to get out of this:\n\n{{input}}",
-    "outputFormat": "structured",
-    "outputSections": [
-      { "key": "situation", "label": "Situation", "type": "text" },
-      { "key": "excuses", "label": "Excuses", "type": "list" },
-      { "key": "warning", "label": "Backfire Risk", "type": "highlight" },
-      { "key": "honesty_option", "label": "Honesty Option", "type": "text" }
-    ],
-    "generationConfig": { "temperature": 1.0, "maxOutputTokens": 1500 },
-    "active": true,
-    "featured": false,
-    "order": 26,
-    "createdAt": "2026-04-04"
   }
 ]
