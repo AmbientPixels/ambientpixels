@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
 const { extractUserInfo } = require('../_utils/cfAuth');
 
-const DAILY_SUBMISSION_LIMIT = 3;
+const DAILY_SUBMISSION_LIMIT = 5;
 const MAX_LIVE_AGENTS = 3;
 const AUTO_APPROVE_THRESHOLD = 70; // all scores must be >= this to skip CEO queue
 

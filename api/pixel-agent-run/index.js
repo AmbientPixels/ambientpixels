@@ -12,8 +12,8 @@ const { extractUserInfo } = require('../_utils/cfAuth');
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
-const RATE_LIMIT_ANON = 3;
-const RATE_LIMIT_AUTH = 10; // IP and userId are separate rate limit buckets — logging in resets your allowance
+const RATE_LIMIT_ANON = 5;
+const RATE_LIMIT_AUTH = 25; // IP and userId are separate rate limit buckets — logging in resets your allowance
 
 // Built-in scaffold agent for Agent Forge prompt generation
 const SCAFFOLD_AGENT = {

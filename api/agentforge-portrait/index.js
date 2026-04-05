@@ -96,7 +96,7 @@ function extractUserId(req) {
 
 // ── Rate Limiting (5/day/user) ──
 
-var MAX_PER_DAY = 5;
+var MAX_PER_DAY = 10;
 
 async function checkRateLimit(userId) {
   try {

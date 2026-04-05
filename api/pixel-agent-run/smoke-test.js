@@ -263,16 +263,16 @@ async function runSmokeTests() {
   });
 
   // ── Rate Limiting ──
-  await asyncTest('Anonymous: first 3 runs succeed', async function() {
+  await asyncTest('Anonymous: first 5 runs succeed', async function() {
     resetMocks();
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 5; i++) {
       var ctx = mockContext();
       await handler(ctx, mockReq());
       assert.strictEqual(ctx.res.status, 200, 'Run ' + (i + 1) + ' should succeed');
     }
   });
 
-  await asyncTest('Anonymous: 4th run returns 429', async function() {
+  await asyncTest('Anonymous: 6th run returns 429', async function() {
     // Storage already has 3 runs from previous test
     var ctx = mockContext();
     await handler(ctx, mockReq());
