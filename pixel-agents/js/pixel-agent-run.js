@@ -3,6 +3,7 @@
 let currentAgent = null;
 let currentResult = null;
 let currentRunId = null;
+let _allAgents = []; // all agents for related agent rendering
 
 const LOADING_MESSAGES = {
   'roast-my-site': [
@@ -193,15 +194,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     ]);
 
     const builtInAgents = await builtInRes.json();
-    currentAgent = builtInAgents.find(a => a.id === agentId && a.active);
+    _allAgents = builtInAgents.filter(a => a.active);
+    currentAgent = _allAgents.find(a => a.id === agentId);
 
     // Fallback: check community agents
-    if (!currentAgent && communityRes && communityRes.ok) {
+    if (communityRes && communityRes.ok) {
       try {
         const commData = await communityRes.json();
-        const communityAgents = commData.agents || [];
-        currentAgent = communityAgents.find(a => a.id === agentId && a.active);
-        if (currentAgent) currentAgent.community = true;
+        const communityAgents = (commData.agents || []).filter(a => a.active);
+        communityAgents.forEach(a => { a.community = true; });
+        _allAgents = _allAgents.concat(communityAgents);
+        if (!currentAgent) {
+          currentAgent = communityAgents.find(a => a.id === agentId);
+        }
       } catch (e) { /* non-fatal */ }
     }
 
@@ -211,6 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     renderAgentUI(currentAgent);
+    renderRelatedAgents(currentAgent);
   } catch (err) {
     console.error('Failed to load agent:', err);
     showError('Failed to load agent configuration.');
@@ -218,10 +224,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function renderAgentUI(agent) {
-  // Hero
+  // Hero + tier gradient
   document.getElementById('pa-agent-name').textContent = agent.name;
   document.getElementById('pa-agent-tagline').textContent = agent.tagline;
   document.title = agent.name + ' — Pixel Agents';
+
+  var header = document.getElementById('pa-run-header');
+  if (header) header.setAttribute('data-tier', agent.tier || 'common');
+
+  // Portrait in header
+  var portrait = document.getElementById('pa-run-portrait');
+  if (portrait) {
+    var imgSrc = agent.portraitUrl || '/pixel-agents/img/' + agent.id + '.png';
+    portrait.innerHTML =
+      '<img src="' + escapeHtml(imgSrc) + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+      '<div class="pa-portrait-fallback" style="display:none"><i class="' + escapeHtml(agent.icon) + '"></i></div>';
+  }
 
   // Identity card
   document.getElementById('pa-identity-icon').innerHTML =
@@ -280,11 +298,17 @@ async function runAgent() {
     }
   }
 
-  // Show loading
+  // Show loading with agent portrait
   document.getElementById('pa-input-section').style.display = 'none';
   document.getElementById('pa-error').style.display = 'none';
   document.getElementById('pa-result').style.display = 'none';
   document.getElementById('pa-loading').style.display = '';
+
+  var loadPortrait = document.getElementById('pa-loading-portrait');
+  if (loadPortrait && currentAgent) {
+    var imgSrc = currentAgent.portraitUrl || '/pixel-agents/img/' + currentAgent.id + '.png';
+    loadPortrait.innerHTML = '<img src="' + escapeHtml(imgSrc) + '" alt="" onerror="this.parentElement.style.display=\'none\'">';
+  }
 
   // Cycle loading messages
   const messages = LOADING_MESSAGES[currentAgent.id] || LOADING_MESSAGES._default;
@@ -581,6 +605,35 @@ function escapeHtml(str) {
 
 function escapeAttr(str) {
   return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ── Related Agents ──
+function renderRelatedAgents(agent) {
+  var container = document.getElementById('pa-related');
+  var grid = document.getElementById('pa-related-grid');
+  if (!container || !grid) return;
+
+  var related = _allAgents.filter(function (a) {
+    return a.category === agent.category && a.id !== agent.id && a.active !== false;
+  }).slice(0, 3);
+
+  if (related.length === 0) return;
+
+  grid.innerHTML = related.map(function (a) {
+    var imgSrc = a.portraitUrl || '/pixel-agents/img/' + escapeAttr(a.id) + '.png';
+    return '<a href="/pixel-agents/run.html?agent=' + escapeAttr(a.id) + '" class="pa-related-card">' +
+      '<div class="pa-related-card-portrait">' +
+        '<img src="' + escapeAttr(imgSrc) + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+        '<i class="' + escapeHtml(a.icon || 'fas fa-robot') + '" style="display:none"></i>' +
+      '</div>' +
+      '<div class="pa-related-card-info">' +
+        '<div class="pa-related-card-name">' + escapeHtml(a.name) + '</div>' +
+        '<div class="pa-related-card-tagline">' + escapeHtml(a.tagline) + '</div>' +
+      '</div>' +
+    '</a>';
+  }).join('');
+
+  container.style.display = '';
 }
 
 function showToast(msg) {
