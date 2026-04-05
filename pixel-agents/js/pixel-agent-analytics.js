@@ -232,7 +232,7 @@
         html += '<div class="' + rowClass + '">' +
           rankHtml +
           '<div class="pa-lb-info">' +
-            '<span class="pa-lb-creator">' + escapeHtml(entry.creatorId) + '</span>' +
+            '<span class="pa-lb-creator">' + escapeHtml(entry.creatorName || entry.creatorId) + '</span>' +
             tierBadge +
           '</div>' +
           '<span class="pa-lb-agents">' + entry.agentCount + ' agent' + (entry.agentCount !== 1 ? 's' : '') + '</span>' +

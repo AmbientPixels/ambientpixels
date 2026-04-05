@@ -130,9 +130,10 @@ module.exports = async function (context, req) {
     var creatorMap = {};
     community.filter(function (a) { return a.active && a.creatorId; }).forEach(function (agent) {
       var cid = agent.creatorId;
-      if (!creatorMap[cid]) creatorMap[cid] = { creatorId: cid, agentCount: 0, totalRuns: 0, creatorTier: 'free', runWeight: FREE_RUN_WEIGHT };
+      if (!creatorMap[cid]) creatorMap[cid] = { creatorId: cid, creatorName: null, agentCount: 0, totalRuns: 0, creatorTier: 'free', runWeight: FREE_RUN_WEIGHT };
       creatorMap[cid].agentCount++;
       creatorMap[cid].totalRuns += (stats[agent.id] || 0);
+      if (agent.creatorName && !creatorMap[cid].creatorName) creatorMap[cid].creatorName = agent.creatorName;
     });
 
     Object.keys(creatorMap).forEach(function (cid) {

@@ -60,9 +60,19 @@ module.exports = async function (context, req) {
     const { agentConfig, editMode, originalAgentId } = req.body || {};
 
     // Attach creator identity
-    var { userId, isAuthenticated } = extractUserInfo(req, context);
+    var { userId, email, isAuthenticated, principal } = extractUserInfo(req, context);
     if (isAuthenticated && !agentConfig.creatorId) {
       agentConfig.creatorId = userId;
+    }
+    if (isAuthenticated) {
+      if (!agentConfig.creatorEmail && email) agentConfig.creatorEmail = email;
+      if (!agentConfig.creatorName && principal && principal.claims) {
+        var nameClaim = principal.claims.find(function(c) { return c.typ === 'name'; });
+        if (nameClaim) agentConfig.creatorName = nameClaim.val;
+      }
+      if (!agentConfig.creatorName && email) {
+        agentConfig.creatorName = email.split('@')[0];
+      }
     }
 
     if (!agentConfig || !agentConfig.name || !agentConfig.systemPrompt) {

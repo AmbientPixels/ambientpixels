@@ -384,20 +384,20 @@
 
 .pa-lb-tier {
   font-family: var(--pa-font-display);
-  font-size: 0.55rem;
-  font-weight: 600;
+  font-size: 0.6rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: var(--pa-radius-pill);
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--pa-sep);
-  color: var(--pa-text-faint);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--pa-sep-strong);
+  color: var(--pa-text-muted);
   flex-shrink: 0;
 }
 
 .pa-lb-tier--pro {
-  background: rgba(143,0,255,0.12);
+  background: rgba(143,0,255,0.2);
   border-color: var(--pa-primary-border);
   color: var(--pa-primary);
 }
