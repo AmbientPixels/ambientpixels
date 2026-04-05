@@ -299,8 +299,8 @@ function renderComponentForm(component) {
         '<div class="af-field"><label class="af-field-label">Description</label><textarea data-bind="identity.description" maxlength="200" placeholder="Describe your agent...">' + escapeHtml(s.identity.description) + '</textarea></div>' +
         '<div class="af-field"><label class="af-field-label">Icon</label><div class="af-icon-trigger" id="af-icon-trigger"><i class="' + escapeAttr(s.identity.icon) + '"></i> <span>Change icon</span></div></div>' +
         '<div class="af-field"><label class="af-field-label">Portrait</label>' +
-          '<button type="button" class="af-portrait-trigger" id="af-portrait-trigger"><i class="fas fa-image"></i> ' + (s.identity.portrait ? 'Change Portrait' : 'Generate Portrait') + '</button>' +
-          (s.identity.portrait ? '<div class="af-portrait-thumb" id="af-portrait-thumb"><img id="af-portrait-thumb-img"><button type="button" class="af-portrait-thumb-remove" id="af-portrait-thumb-remove" title="Remove portrait"><i class="fas fa-times"></i></button></div>' : '') +
+          '<button type="button" class="af-portrait-trigger" id="af-portrait-trigger"><i class="fas fa-image"></i> ' + (s.identity.portrait || s.identity._portraitUrl ? 'Change Portrait' : 'Generate Portrait') + '</button>' +
+          (s.identity.portrait || s.identity._portraitUrl ? '<div class="af-portrait-thumb" id="af-portrait-thumb"><img id="af-portrait-thumb-img"><button type="button" class="af-portrait-thumb-remove" id="af-portrait-thumb-remove" title="Remove portrait"><i class="fas fa-times"></i></button></div>' : '') +
         '</div>' +
         '<div class="af-field"><label class="af-field-label">Category</label><select data-bind="identity.category">' + CATEGORIES.map(function(c) { return '<option value="' + c + '"' + (s.identity.category === c ? ' selected' : '') + '>' + c.charAt(0).toUpperCase() + c.slice(1) + '</option>'; }).join('') + '</select></div>' +
         '<div class="af-field"><label class="af-field-label">Tier</label><div class="af-tier-selector">' + TIERS.map(function(t) { return '<button type="button" class="af-tier-btn' + (s.identity.tier === t ? ' af-tier-btn--active' : '') + '" data-tier="' + t + '">' + t.toUpperCase() + '</button>'; }).join('') + '</div></div>';
@@ -402,10 +402,14 @@ function bindComponentEvents(card, component) {
   if (portraitTrigger) {
     portraitTrigger.addEventListener('click', function() { openPortraitModal(); });
   }
-  // Set portrait thumbnail src (avoid huge base64 in HTML attribute)
+  // Set portrait thumbnail src
   var thumbImg = card.querySelector('#af-portrait-thumb-img');
-  if (thumbImg && agentState.identity.portrait) {
-    thumbImg.src = 'data:' + agentState.identity.portrait.mimeType + ';base64,' + agentState.identity.portrait.base64;
+  if (thumbImg) {
+    if (agentState.identity.portrait) {
+      thumbImg.src = 'data:' + agentState.identity.portrait.mimeType + ';base64,' + agentState.identity.portrait.base64;
+    } else if (agentState.identity._portraitUrl) {
+      thumbImg.src = agentState.identity._portraitUrl;
+    }
   }
   // Portrait remove button
   var portraitRemove = card.querySelector('#af-portrait-thumb-remove');
