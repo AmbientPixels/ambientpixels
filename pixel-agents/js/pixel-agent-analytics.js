@@ -39,14 +39,19 @@
     loadAnalytics();
   } else {
     fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (d) {
+      console.log('[PA Analytics] /.auth/me response:', JSON.stringify(d));
       if (d && d.clientPrincipal) {
         // Forward the B2C principal to the Function App
-        headers['x-ms-client-principal'] = btoa(JSON.stringify(d.clientPrincipal));
+        var encoded = btoa(JSON.stringify(d.clientPrincipal));
+        console.log('[PA Analytics] Forwarding principal, userId:', d.clientPrincipal.userId);
+        headers['x-ms-client-principal'] = encoded;
         loadAnalytics();
       } else {
+        console.log('[PA Analytics] No clientPrincipal — showing auth gate');
         showAuthGate();
       }
-    }).catch(function () {
+    }).catch(function (err) {
+      console.error('[PA Analytics] /.auth/me failed:', err);
       showAuthGate();
     });
   }
