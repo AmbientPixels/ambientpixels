@@ -235,6 +235,38 @@
     if (avatar && menu) {
       avatar.addEventListener('click', function(e) { e.stopPropagation(); menu.classList.toggle('open'); });
       document.addEventListener('click', function() { menu.classList.remove('open'); });
+
+
+    // Auth check
+    var cached = sessionStorage.getItem('pa_auth');
+    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) showUser(d.name); } catch(e) {} }
+
+    fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
+      if (d && d.clientPrincipal) {
+        var name = d.clientPrincipal.userDetails || 'User';
+        sessionStorage.setItem('pa_auth', JSON.stringify({ isAuthenticated: true, name: name }));
+        showUser(name);
+      }
+    }).catch(function() {});
+
+    function showUser(name) {
+      var loginBtn = document.getElementById('pa-login-btn');
+      var userStatus = document.getElementById('pa-user-status');
+      var userName = document.getElementById('pa-user-name');
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (userStatus) userStatus.style.display = '';
+      if (userName) userName.textContent = name;
+    }
+
+    var logoutBtn = document.getElementById('pa-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        sessionStorage.removeItem('pa_auth'); sessionStorage.removeItem('pa_tier');
+        window.location.href = '/.auth/logout?post_logout_redirect_uri=/pixel-agents/';
+      });
+    }
+
     }
 
     var savedTheme = localStorage.getItem('preferred-theme');
