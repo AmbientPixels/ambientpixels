@@ -529,6 +529,8 @@
             '<select id="pa-avatar-expression"><option value="confident">Confident</option><option value="friendly">Friendly</option><option value="calm">Calm</option><option value="intense">Intense</option><option value="mysterious">Mysterious</option></select></div>' +
           '<div class="pa-profile-form-row"><label>Age</label>' +
             '<select id="pa-avatar-age"><option value="young">Young (20s)</option><option value="mid" selected>Mid (30s)</option><option value="mature">Mature (40s)</option><option value="elder">Elder (50s+)</option></select></div>' +
+          '<div class="pa-profile-form-row"><label>Style</label>' +
+            '<select id="pa-avatar-style"><option value="casual">Casual</option><option value="professional">Professional</option><option value="creative">Creative</option><option value="techy">Techy</option><option value="formal">Formal</option></select></div>' +
           '<div class="pa-profile-form-row"><label>Color Accent</label>' +
             '<select id="pa-avatar-accent"><option value="none">None</option><option value="blue">Blue</option><option value="purple">Purple</option><option value="gold">Gold</option><option value="teal">Teal</option><option value="silver">Silver</option></select></div>' +
           '<button class="pa-btn-primary" id="pa-avatar-gen-btn" onclick="window._doGenerateAvatar()" style="width:100%;margin-top:1rem"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>' +
@@ -549,7 +551,8 @@
       headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
       body: JSON.stringify({
         mode: 'avatar',
-        archetype: 'executive',
+        archetype: 'scholar',
+        avatarStyle: document.getElementById('pa-avatar-style').value,
         appearance: document.getElementById('pa-avatar-appearance').value,
         expression: document.getElementById('pa-avatar-expression').value,
         age: document.getElementById('pa-avatar-age').value,

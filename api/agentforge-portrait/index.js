@@ -167,9 +167,16 @@ function buildPortraitPrompt(opts) {
   } else {
     parts.push(appearance + ' ' + age);
   }
-  // Avatar mode skips archetype (no suits/armor/goggles — just casual person)
+  // Avatar mode uses simple clothing styles instead of character archetypes
+  var AVATAR_STYLES = {
+    casual: 'wearing casual everyday clothing, relaxed',
+    professional: 'wearing a clean professional outfit, polished',
+    creative: 'wearing artistic layered clothing, expressive style',
+    techy: 'wearing a hoodie or tech-casual outfit, modern',
+    formal: 'wearing a sharp suit and tie, elegant'
+  };
   if (opts.mode === 'avatar') {
-    parts.push('wearing casual everyday clothing');
+    parts.push(AVATAR_STYLES[opts.avatarStyle] || AVATAR_STYLES.casual);
   } else {
     parts.push(ARCHETYPES[opts.archetype] || ARCHETYPES.scholar);
   }
@@ -253,7 +260,8 @@ module.exports = async function (context, req) {
   }
 
   // Build prompt and generate
-  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, age: age, pose: pose, accent: accent, detail: detail, mode: mode });
+  var avatarStyle = body.avatarStyle || 'casual';
+  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, age: age, pose: pose, accent: accent, detail: detail, mode: mode, avatarStyle: avatarStyle });
   console.log('[agentforge-portrait] Generating for user=' + userId + ' archetype=' + archetype + ' appearance=' + appearance + ' age=' + age + ' pose=' + pose);
 
   try {
