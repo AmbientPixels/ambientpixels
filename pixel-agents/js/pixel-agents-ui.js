@@ -88,9 +88,18 @@
     });
   }
 
-  // ── Sidebar Nav — update active state on hash link clicks ──
+  // ── Sidebar Nav — update active state on hash link clicks + page load ──
   function initSidebarNav() {
     var navLinks = document.querySelectorAll('.pa-sidebar-nav a[data-nav]');
+
+    // On page load: if URL has #agent-grid, activate Agents instead of Explore
+    if (window.location.hash === '#agent-grid') {
+      navLinks.forEach(function (l) { l.classList.remove('active'); });
+      var agentsLink = document.querySelector('.pa-sidebar-nav a[data-nav="agents"]');
+      if (agentsLink) agentsLink.classList.add('active');
+    }
+
+    // On click: swap active state
     navLinks.forEach(function (link) {
       link.addEventListener('click', function () {
         navLinks.forEach(function (l) { l.classList.remove('active'); });
