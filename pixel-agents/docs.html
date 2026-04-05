@@ -117,8 +117,8 @@
     </div>
 
     <div class="pa-sidebar-operator">
-      <span class="pa-sidebar-operator-dot"></span>
-      <span>Operator</span>
+      <span class="pa-sidebar-operator-dot" id="pa-operator-dot"></span>
+      <span id="pa-operator-label">Operator</span>
     </div>
 
     <nav class="pa-sidebar-nav">
@@ -612,6 +612,27 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
         setTimeout(function() { isScrolling = false; }, 800);
       });
     });
+  })();
+  
+  // Update operator badge with subscription tier
+  (function() {
+    var _cached = sessionStorage.getItem("pa_tier");
+    if (_cached) _applyTier(_cached);
+    var _authData = sessionStorage.getItem("pa_auth");
+    if (!_authData) return;
+    try { if (!JSON.parse(_authData).isAuthenticated) return; } catch(e) { return; }
+    var _ab = window.location.hostname.includes("ambientpixels.ai") ? "https://ambientpixels-nova-api.azurewebsites.net/api" : "/api";
+    fetch(_ab + "/pixel-agent-entitlements", { headers: { "x-company-secret": "pixelpusher" } })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(d) { if (!d) return; var t = d.tier || "free"; sessionStorage.setItem("pa_tier", t); _applyTier(t); })
+      .catch(function() {});
+    function _applyTier(t) {
+      var c = document.querySelector(".pa-sidebar-operator");
+      var l = document.getElementById("pa-operator-label");
+      if (!l) return;
+      if (t === "pro") { l.textContent = "Pro Creator"; if (c) c.classList.add("pa-sidebar-operator--pro"); }
+      else { l.textContent = "Free Creator"; if (c) c.classList.remove("pa-sidebar-operator--pro"); }
+    }
   })();
   </script>
 </body>

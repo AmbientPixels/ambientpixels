@@ -72,6 +72,16 @@
   flex-shrink: 0;
 }
 
+/* Pro creator badge state */
+.pa-sidebar-operator--pro {
+  color: var(--pa-primary);
+}
+
+.pa-sidebar-operator--pro .pa-sidebar-operator-dot {
+  background: var(--pa-primary);
+  box-shadow: 0 0 8px var(--pa-primary-glow);
+}
+
 /* Navigation */
 .pa-sidebar-nav {
   flex: 1;
