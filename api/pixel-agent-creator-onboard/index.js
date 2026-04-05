@@ -75,11 +75,13 @@ module.exports = async function (context, req) {
     };
 
   } catch (err) {
-    context.log.error('[CreatorOnboard] Error:', err.message, err.stack);
+    var stripeError = err.response && err.response.data && err.response.data.error;
+    var detail = stripeError ? (stripeError.message || JSON.stringify(stripeError)) : err.message;
+    context.log.error('[CreatorOnboard] Error:', detail, err.stack);
     context.res = {
       status: 500,
       headers: CORS_HEADERS,
-      body: { error: 'Failed to start onboarding: ' + err.message }
+      body: { error: 'Failed to start onboarding: ' + detail }
     };
   }
 };
