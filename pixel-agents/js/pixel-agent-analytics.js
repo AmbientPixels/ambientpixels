@@ -3,8 +3,10 @@
   'use strict';
 
   function getApiBase() {
-    return '/api';
-  }
+  return window.location.hostname.includes('ambientpixels.ai')
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+}
 
   function escapeHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -29,7 +31,7 @@
   // Show loading
   main.innerHTML = '<div class="pa-analytics-loading"><div class="af-spinner" style="display:inline-block;margin-right:0.5rem"></div> Loading analytics...</div>';
 
-  // Check auth via Azure SWA
+  // Check auth via Azure SWA — forward principal to Function App
   var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   var headers = {};
 
@@ -38,14 +40,14 @@
   } else {
     fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (d) {
       if (d && d.clientPrincipal) {
+        // Forward the B2C principal to the Function App
+        headers['x-ms-client-principal'] = btoa(JSON.stringify(d.clientPrincipal));
         loadAnalytics();
       } else {
-        // Not logged into B2C — try loading with CEO header anyway
-        loadAnalytics();
+        showAuthGate();
       }
     }).catch(function () {
-      // Auth check failed — try loading with CEO header
-      loadAnalytics();
+      showAuthGate();
     });
   }
 
@@ -395,7 +397,7 @@
 
     fetch(getApiBase() + '/pixel-agent-creator-onboard', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      headers: Object.assign({ 'Content-Type': 'application/json' }, headers)
     })
       .then(function (r) { return r.json(); })
       .then(function (data) {

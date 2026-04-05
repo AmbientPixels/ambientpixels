@@ -574,8 +574,10 @@
 
   // ── Helpers ──
   function getApiBase() {
-    return '/api';
-  }
+  return window.location.hostname.includes('ambientpixels.ai')
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+}
 
   function escapeHtml(str) {
     var div = document.createElement('div');

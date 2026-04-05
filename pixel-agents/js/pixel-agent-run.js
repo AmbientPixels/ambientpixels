@@ -166,12 +166,18 @@ const LOADING_MESSAGES = {
 let isLoggedIn = false;
 
 function getApiBase() {
-  return '/api';
+  return window.location.hostname.includes('ambientpixels.ai')
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
 }
 
-// Check auth status
+// Check auth status + capture principal for forwarding
+var authPrincipalHeader = null;
 fetch('/.auth/me').then(r => r.json()).then(d => {
-  if (d && d.clientPrincipal) isLoggedIn = true;
+  if (d && d.clientPrincipal) {
+    isLoggedIn = true;
+    authPrincipalHeader = btoa(JSON.stringify(d.clientPrincipal));
+  }
 }).catch(() => {});
 
 // ── Init ──
@@ -323,7 +329,7 @@ async function runAgent() {
 
   try {
     const hdrs = { 'Content-Type': 'application/json' };
-    // Auth handled by Azure SWA — no manual headers needed
+    if (authPrincipalHeader) hdrs['x-ms-client-principal'] = authPrincipalHeader;
     const res = await fetch(getApiBase() + '/pixel-agent-run', {
       method: 'POST',
       headers: hdrs,

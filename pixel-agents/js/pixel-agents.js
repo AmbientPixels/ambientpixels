@@ -5,7 +5,9 @@ let currentCategory = 'all';
 let usageStats = {};
 
 function getApiBase() {
-  return '/api';
+  return window.location.hostname.includes('ambientpixels.ai')
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
 }
 
 const CATEGORY_LABELS = {
