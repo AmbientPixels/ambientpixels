@@ -77,8 +77,8 @@ var ACCENTS = {
 // LOCKED — do not change, maintains catalog style consistency
 var STYLE_SUFFIX = 'dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm';
 
-// Avatar style — semi-realistic, professional, distinct from agent portraits
-var AVATAR_STYLE_SUFFIX = 'clean soft studio lighting, minimal dark gradient background, semi-realistic digital portrait, professional headshot style, subtle and elegant, suitable for a profile picture --ar 1:1 --stylize 150 --no anime, cartoon, game character, action pose, weapons';
+// Avatar style — simple cartoon, minimal, distinct from agent portraits
+var AVATAR_STYLE_SUFFIX = 'simple flat cartoon illustration style, minimal clean vector-like, solid color background, head and shoulders only, centered face filling the frame, friendly and approachable, thick clean outlines, flat shading, suitable for a small circular profile avatar --ar 1:1 --stylize 100 --no photorealistic, detailed background, full body, action pose, weapons, Arcane, anime';
 
 // ── Auth ──
 
