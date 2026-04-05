@@ -77,6 +77,7 @@
       renderFilters();
       renderGrid(allAgents);
       startSpotlightRotation();
+      initSidebarNav();
 
     }).catch(function (err) {
       console.error('Failed to load agents:', err);
@@ -84,6 +85,17 @@
       if (grid) {
         grid.innerHTML = '<p style="text-align:center;padding:3rem;color:var(--pa-text-muted);">Failed to load agents. Please refresh.</p>';
       }
+    });
+  }
+
+  // ── Sidebar Nav — update active state on hash link clicks ──
+  function initSidebarNav() {
+    var navLinks = document.querySelectorAll('.pa-sidebar-nav a[data-nav]');
+    navLinks.forEach(function (link) {
+      link.addEventListener('click', function () {
+        navLinks.forEach(function (l) { l.classList.remove('active'); });
+        link.classList.add('active');
+      });
     });
   }
 
