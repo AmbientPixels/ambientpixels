@@ -182,9 +182,7 @@
   (function() {
     var _cached = sessionStorage.getItem("pa_tier");
     if (_cached) _applyTier(_cached);
-    var _authData = sessionStorage.getItem("pa_auth");
-    if (!_authData) return;
-    try { if (!JSON.parse(_authData).isAuthenticated) return; } catch(e) { return; }
+    // Fetch even without B2C auth (CEO uses x-company-secret)
     var _ab = window.location.hostname.includes("ambientpixels.ai") ? "https://ambientpixels-nova-api.azurewebsites.net/api" : "/api";
     fetch(_ab + "/pixel-agent-entitlements", { headers: { "x-company-secret": "pixelpusher" } })
       .then(function(r) { return r.ok ? r.json() : null; })
