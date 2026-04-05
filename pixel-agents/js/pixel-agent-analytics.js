@@ -44,7 +44,7 @@
         // Forward the B2C principal to the Function App
         var encoded = btoa(JSON.stringify(d.clientPrincipal));
         console.log('[PA Analytics] Forwarding principal, userId:', d.clientPrincipal.userId);
-        headers['x-ms-client-principal'] = encoded;
+        headers['x-cf-auth-principal'] = encoded;
         loadAnalytics();
       } else {
         console.log('[PA Analytics] No clientPrincipal — showing auth gate');

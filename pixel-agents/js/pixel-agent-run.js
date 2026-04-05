@@ -329,7 +329,7 @@ async function runAgent() {
 
   try {
     const hdrs = { 'Content-Type': 'application/json' };
-    if (authPrincipalHeader) hdrs['x-ms-client-principal'] = authPrincipalHeader;
+    if (authPrincipalHeader) hdrs['x-cf-auth-principal'] = authPrincipalHeader;
     const res = await fetch(getApiBase() + '/pixel-agent-run', {
       method: 'POST',
       headers: hdrs,
