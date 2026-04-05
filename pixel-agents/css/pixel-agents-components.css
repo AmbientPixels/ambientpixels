@@ -1000,18 +1000,24 @@
 }
 
 /* ── Category Color Map ── */
-.pa-cat--audit       { background: rgba(96, 165, 250, 0.25);  color: #60a5fa; }
-.pa-cat--content     { background: rgba(52, 211, 153, 0.25);  color: #34d399; }
-.pa-cat--strategy    { background: rgba(251, 191, 36, 0.25);  color: #fbbf24; }
-.pa-cat--naming      { background: rgba(167, 139, 250, 0.25); color: #a78bfa; }
-.pa-cat--pitch       { background: rgba(248, 113, 113, 0.25); color: #f87171; }
-.pa-cat--design      { background: rgba(255, 0, 212, 0.25);   color: var(--pa-tertiary); }
-.pa-cat--lifestyle   { background: rgba(244, 114, 182, 0.25); color: #f472b6; }
-.pa-cat--tools       { background: rgba(0, 240, 255, 0.25);   color: var(--pa-secondary); }
-.pa-cat--career      { background: rgba(251, 146, 60, 0.25);  color: #fb923c; }
-.pa-cat--intel       { background: rgba(129, 140, 248, 0.25); color: #818cf8; }
-.pa-cat--gaming      { background: rgba(245, 158, 11, 0.25);  color: #f59e0b; }
-.pa-cat--creative    { background: rgba(192, 64, 255, 0.25);  color: #c040ff; }
+.pa-agent-card-cat-badge {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.pa-cat--audit       { background: rgba(96, 165, 250, 0.75);  color: #fff; }
+.pa-cat--content     { background: rgba(52, 211, 153, 0.75);  color: #fff; }
+.pa-cat--strategy    { background: rgba(251, 191, 36, 0.75);  color: #000; }
+.pa-cat--naming      { background: rgba(167, 139, 250, 0.75); color: #fff; }
+.pa-cat--pitch       { background: rgba(248, 113, 113, 0.75); color: #fff; }
+.pa-cat--design      { background: rgba(255, 0, 212, 0.75);   color: #fff; }
+.pa-cat--lifestyle   { background: rgba(244, 114, 182, 0.75); color: #fff; }
+.pa-cat--tools       { background: rgba(0, 240, 255, 0.75);   color: #000; }
+.pa-cat--career      { background: rgba(251, 146, 60, 0.75);  color: #fff; }
+.pa-cat--intel       { background: rgba(129, 140, 248, 0.75); color: #fff; }
+.pa-cat--gaming      { background: rgba(245, 158, 11, 0.75);  color: #000; }
+.pa-cat--creative    { background: rgba(192, 64, 255, 0.75);  color: #fff; }
 
 /* Card body */
 .pa-agent-card-body {
