@@ -559,12 +559,12 @@
     })
     .then(function (r) { return r.json(); })
     .then(function (data) {
-      if (data.image) {
-        _pendingAvatarBase64 = data.image;
-        if (preview) preview.innerHTML = '<img src="data:image/png;base64,' + data.image + '" class="pa-profile-avatar-preview"><button class="pa-btn-primary" onclick="document.querySelector(\'.pa-share-overlay\').remove();document.getElementById(\'pa-avatar-preview\').innerHTML=\'<img src=&quot;data:image/png;base64,' + data.image.substring(0, 50) + '...&quot; class=&quot;pa-profile-avatar-preview&quot;>\'" style="margin-top:0.5rem">Use This Avatar</button>';
+      if (data.portraitBase64) {
+        _pendingAvatarBase64 = data.portraitBase64;
+        if (preview) preview.innerHTML = '<img src="data:image/png;base64,' + data.portraitBase64 + '" class="pa-profile-avatar-preview"><button class="pa-btn-primary" onclick="document.querySelector(\'.pa-share-overlay\').remove();document.getElementById(\'pa-avatar-preview\').innerHTML=\'<img src=&quot;data:image/png;base64,' + data.portraitBase64.substring(0, 50) + '...&quot; class=&quot;pa-profile-avatar-preview&quot;>\'" style="margin-top:0.5rem">Use This Avatar</button>';
         // Simpler: just set the preview and close
         var mainPreview = document.getElementById('pa-avatar-preview');
-        if (mainPreview) mainPreview.innerHTML = '<img src="data:image/png;base64,' + data.image + '" class="pa-profile-avatar-preview">';
+        if (mainPreview) mainPreview.innerHTML = '<img src="data:image/png;base64,' + data.portraitBase64 + '" class="pa-profile-avatar-preview">';
         var overlay = document.querySelector('.pa-share-overlay');
         if (overlay) overlay.remove();
       } else {
