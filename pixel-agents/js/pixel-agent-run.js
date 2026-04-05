@@ -166,9 +166,7 @@ const LOADING_MESSAGES = {
 let isLoggedIn = false;
 
 function getApiBase() {
-  return window.location.hostname.includes('ambientpixels.ai')
-    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-    : '/api';
+  return '/api';
 }
 
 // Check auth status
@@ -545,10 +543,7 @@ async function shareResult() {
   if (!currentResult) return;
 
   // Use the OG-enabled share URL for proper social unfurling
-  var shareBase = window.location.hostname.includes('ambientpixels.ai')
-    ? 'https://ambientpixels-nova-api.azurewebsites.net'
-    : window.location.origin;
-  var shareUrl = shareBase + '/api/pixel-agent-share?run=' + currentRunId;
+  var shareUrl = window.location.origin + '/api/pixel-agent-share?run=' + currentRunId;
 
   const shareData = {
     title: currentAgent.name + ' Result — Pixel Agents',

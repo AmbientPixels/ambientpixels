@@ -3,9 +3,7 @@
   'use strict';
 
   function getApiBase() {
-    return window.location.hostname.includes('ambientpixels.ai')
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
+    return '/api';
   }
 
   function escapeHtml(str) {
