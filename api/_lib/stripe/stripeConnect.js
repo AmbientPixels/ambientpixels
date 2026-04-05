@@ -11,9 +11,7 @@ async function createConnectAccount({ email, userId }) {
     email: email,
     'metadata[userId]': userId,
     'metadata[platform]': 'pixel-agents',
-    'capabilities[transfers][requested]': 'true',
-    'business_type': 'individual',
-    'settings[payouts][schedule][interval]': 'manual'
+    'capabilities[transfers][requested]': 'true'
   });
 }
 
