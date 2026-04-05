@@ -123,26 +123,29 @@ module.exports = async function (context, req) {
       }
     }
 
-    // ── Upload portrait to blob if present ──
+    // ── Upload portrait to blob if present (convert to WebP) ──
     if (agentConfig.portrait && agentConfig.portrait.base64) {
       try {
         var { BlobServiceClient } = require('@azure/storage-blob');
+        var sharp = require('sharp');
         var connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
         if (connStr) {
           var blobClient = BlobServiceClient.fromConnectionString(connStr);
           var container = blobClient.getContainerClient('generated-images');
           await container.createIfNotExists({ access: 'blob' });
           var agentId = agentConfig.id || submissionId;
-          var blobName = 'agent-portraits/' + agentId + '.png';
-          var imgBuffer = Buffer.from(agentConfig.portrait.base64, 'base64');
+          var blobName = 'agent-portraits/' + agentId + '.webp';
+          var rawBuffer = Buffer.from(agentConfig.portrait.base64, 'base64');
+          // Convert PNG to WebP (quality 80, ~97% size reduction)
+          var imgBuffer = await sharp(rawBuffer).webp({ quality: 80 }).toBuffer();
           var blockBlob = container.getBlockBlobClient(blobName);
           await blockBlob.upload(imgBuffer, imgBuffer.length, {
-            blobHTTPHeaders: { blobContentType: agentConfig.portrait.mimeType || 'image/png' },
+            blobHTTPHeaders: { blobContentType: 'image/webp' },
             overwrite: true
           });
           agentConfig.portraitUrl = 'https://cardforgeblobdata.blob.core.windows.net/generated-images/' + blobName;
           delete agentConfig.portrait;
-          context.log('[AgentSubmit] Portrait uploaded:', blobName);
+          context.log('[AgentSubmit] Portrait uploaded as WebP:', blobName, '(' + imgBuffer.length + ' bytes)');
         }
       } catch (imgErr) {
         context.log.warn('[AgentSubmit] Portrait upload failed:', imgErr.message);
