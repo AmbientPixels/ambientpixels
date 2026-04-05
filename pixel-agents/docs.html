@@ -230,16 +230,36 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
 
         <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">User Prompt Template</h4>
         <p>
-          The user prompt template is what gets sent with the user's input. Use <code>{{input}}</code> as the placeholder.
-          Keep it short — one line is usually enough:
+          The user prompt template is the message sent to the AI alongside the user's input.
+          Use <code>{{input}}</code> as the placeholder — it gets replaced with whatever the user types or pastes.
         </p>
+        <p>
+          Think of it as: <strong>system prompt = who the agent is</strong>, <strong>user prompt = what it's being asked to do right now</strong>.
+        </p>
+
+        <p style="margin-top:1rem"><strong>For text-input agents</strong> (user pastes text, a name, a description):</p>
         <pre class="pa-docs-code">Roast this:
 
 {{input}}</pre>
-        <p>For URL-based agents:</p>
-        <pre class="pa-docs-code">Analyze this website:
+
+        <p><strong>For URL-input agents</strong> (user pastes a URL, agent fetches the page):</p>
+        <pre class="pa-docs-code">Analyze this website and provide your assessment:
 
 {{input}}</pre>
+
+        <p><strong>For multi-purpose agents</strong> (add context around the input):</p>
+        <pre class="pa-docs-code">Here is the user's resume text. Score it, roast it, and suggest improvements:
+
+{{input}}</pre>
+
+        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Tips</h4>
+        <ul>
+          <li><strong>Keep it short</strong> — 1-2 lines is ideal. The system prompt handles the detailed instructions.</li>
+          <li><strong>Always include <code>{{input}}</code></strong> — without it, the agent won't receive the user's input.</li>
+          <li><strong>Don't repeat the system prompt</strong> — the user prompt shouldn't restate the agent's role or JSON format. That's already in the system prompt.</li>
+          <li><strong>Label the input</strong> — tell the AI what it's looking at: "Here is the website:", "Here is the startup idea:", "Here is the code:". This helps the AI parse the input correctly.</li>
+          <li><strong>Don't add instructions like "respond in JSON"</strong> — that belongs in the system prompt, not here.</li>
+        </ul>
       </div>
 
       <!-- Output Section Types -->
