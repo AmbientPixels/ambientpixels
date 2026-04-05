@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-04-04T13:54:43.986Z",
+  "updated": "2026-04-05T13:56:00.202Z",
   "root": [
     {
       "type": "folder",
@@ -104,6 +104,12 @@
       "name": "ambientos",
       "path": "ambientos",
       "children": [
+        {
+          "type": "folder",
+          "name": "img",
+          "path": "ambientos/img",
+          "children": []
+        },
         {
           "type": "page",
           "name": "index.html",
@@ -283,6 +289,12 @@
           "type": "folder",
           "name": "agentforge-drafts",
           "path": "api/agentforge-drafts",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "agentforge-portrait",
+          "path": "api/agentforge-portrait",
           "children": []
         },
         {
@@ -733,6 +745,12 @@
           "type": "folder",
           "name": "novavision",
           "path": "api/novavision",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-analytics",
+          "path": "api/pixel-agent-analytics",
           "children": []
         },
         {
@@ -1991,9 +2009,20 @@
       "path": "pixel-agents",
       "children": [
         {
+          "type": "page",
+          "name": "analytics.html",
+          "path": "pixel-agents/analytics.html"
+        },
+        {
           "type": "folder",
           "name": "css",
           "path": "pixel-agents/css",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "img",
+          "path": "pixel-agents/img",
           "children": []
         },
         {

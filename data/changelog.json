@@ -1,10 +1,10 @@
 {
-  "updated": "2026-04-04T13:54:44.121Z",
+  "updated": "2026-04-05T13:56:00.330Z",
   "entries": [
     {
-      "hash": "f1dca8f",
-      "date": "2026-04-03 22:25:58 -0700",
-      "message": "Fix: prevent accidental action rejections + track who rejected"
+      "hash": "0204dbe",
+      "date": "2026-04-04 23:17:45 -0700",
+      "message": "Fix sidebar: Agents highlights when navigating from other pages"
     }
   ]
 }

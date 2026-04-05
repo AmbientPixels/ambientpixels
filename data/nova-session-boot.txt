@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-04-04T13:54:56.661Z
-Session ID: nova-boot-6vr2trco
+Generated on: 2026-04-05T13:56:13.701Z
+Session ID: nova-boot-olny8w52
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2026-04-04T13:54:43.986Z",
+  "updated": "2026-04-05T13:56:00.202Z",
   "root": [
     {
       "type": "folder",
@@ -243,6 +243,12 @@ Nova operates in dev sync with the AmbientPixels team.
       "name": "ambientos",
       "path": "ambientos",
       "children": [
+        {
+          "type": "folder",
+          "name": "img",
+          "path": "ambientos/img",
+          "children": []
+        },
         {
           "type": "page",
           "name": "index.html",
@@ -422,6 +428,12 @@ Nova operates in dev sync with the AmbientPixels team.
           "type": "folder",
           "name": "agentforge-drafts",
           "path": "api/agentforge-drafts",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "agentforge-portrait",
+          "path": "api/agentforge-portrait",
           "children": []
         },
         {
@@ -872,6 +884,12 @@ Nova operates in dev sync with the AmbientPixels team.
           "type": "folder",
           "name": "novavision",
           "path": "api/novavision",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-analytics",
+          "path": "api/pixel-agent-analytics",
           "children": []
         },
         {
@@ -2130,9 +2148,20 @@ Nova operates in dev sync with the AmbientPixels team.
       "path": "pixel-agents",
       "children": [
         {
+          "type": "page",
+          "name": "analytics.html",
+          "path": "pixel-agents/analytics.html"
+        },
+        {
           "type": "folder",
           "name": "css",
           "path": "pixel-agents/css",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "img",
+          "path": "pixel-agents/img",
           "children": []
         },
         {
@@ -2638,13 +2667,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2026-04-04T13:54:44.038Z",
+  "scannedAt": "2026-04-05T13:56:00.248Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2026-04-04T13:54:44.069Z",
+  "scannedAt": "2026-04-05T13:56:00.278Z",
   "folders": [
     {
       "folder": "images",
@@ -3370,12 +3399,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2026-04-04T13:54:44.121Z",
+  "updated": "2026-04-05T13:56:00.330Z",
   "entries": [
     {
-      "hash": "f1dca8f",
-      "date": "2026-04-03 22:25:58 -0700",
-      "message": "Fix: prevent accidental action rejections + track who rejected"
+      "hash": "0204dbe",
+      "date": "2026-04-04 23:17:45 -0700",
+      "message": "Fix sidebar: Agents highlights when navigating from other pages"
     }
   ]
 }
@@ -3383,37 +3412,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "f1dca8f",
-  "updated": "2026-04-04T13:54:44.158Z"
+  "build": "0204dbe",
+  "updated": "2026-04-05T13:56:00.367Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2026-04-04T13:54:44.261Z",
-  "totalFiles": 734,
-  "totalLines": 296947,
+  "scannedAt": "2026-04-05T13:56:00.465Z",
+  "totalFiles": 746,
+  "totalLines": 303579,
   "summary": {
     ".html": {
-      "files": 180,
-      "lines": 59025
+      "files": 181,
+      "lines": 59884
     },
     ".js": {
-      "files": 429,
-      "lines": 147454
+      "files": 436,
+      "lines": 150205
     },
     ".css": {
-      "files": 125,
-      "lines": 90468
+      "files": 129,
+      "lines": 93490
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2026-04-04T13:54:44.338Z",
+  "scannedAt": "2026-04-05T13:56:00.548Z",
   "cssFile": "css/base.css",
   "totalDefined": 31,
-  "totalUsed": 4658,
+  "totalUsed": 4719,
   "unusedClasses": [
     "4",
     "2",
@@ -3425,14 +3454,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2026-04-04T13:54:47.694Z",
+  "scannedAt": "2026-04-05T13:56:04.224Z",
   "endpoints": [
     {
       "name": "Gemini API",
       "url": "https://generativelanguage.googleapis.com/",
       "status": 404,
       "reachable": true,
-      "latencyMs": 88
+      "latencyMs": 96
     },
     {
       "name": "Azure Blob Storage",
@@ -3446,35 +3475,35 @@ Nova operates in dev sync with the AmbientPixels team.
       "url": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=_ping",
       "status": 200,
       "reachable": true,
-      "latencyMs": 337
+      "latencyMs": 1833
     },
     {
       "name": "DeviantArt",
       "url": "https://www.deviantart.com/",
-      "status": 200,
-      "reachable": true,
-      "latencyMs": 681
+      "status": 403,
+      "reachable": false,
+      "latencyMs": 125
     },
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/",
       "status": 410,
       "reachable": false,
-      "latencyMs": 74
+      "latencyMs": 86
     },
     {
       "name": "X (Twitter) API",
       "url": "https://api.x.com/2/openapi.json",
       "status": 200,
       "reachable": true,
-      "latencyMs": 140
+      "latencyMs": 155
     },
     {
       "name": "LinkedIn API",
       "url": "https://api.linkedin.com/",
       "status": 404,
       "reachable": false,
-      "latencyMs": 103
+      "latencyMs": 131
     },
     {
       "name": "AmbientPixels Meme API",
@@ -3488,8 +3517,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2026-04-04",
-  "prompt": "Describe 'a good idea' as if it were a soundwave.",
+  "date": "2026-04-05",
+  "prompt": "What would 'soft pink' dream about?",
   "tags": [
     "glitch",
     "creative",
@@ -3500,15 +3529,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "detached",
-  "aura": "spark",
-  "auraColorHex": "#661f15",
-  "quote": "tracing warmth in cold commits...",
-  "emoji": "🛰️",
+  "mood": "anxious",
+  "aura": "neon pink",
+  "auraColorHex": "#66033b",
+  "quote": "detecting whispers in the grid...",
+  "emoji": "😰",
   "selfWorth": 0.1,
-  "glitchFactor": 0.16,
-  "memoryClutter": 0.68,
-  "awareness": 0.21,
+  "glitchFactor": 0.1,
+  "memoryClutter": 0.9,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -3516,15 +3545,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: spark"
+      "Aura Signature: neon pink"
     ]
   },
-  "timestamp": "2026-04-04T13:54:46.772Z"
+  "timestamp": "2026-04-05T13:56:02.174Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2026-04-04T13:54:47.859Z",
+  "scannedAt": "2026-04-05T13:56:04.255Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -3554,6 +3583,18 @@ Nova operates in dev sync with the AmbientPixels team.
     ],
     "componentScan.js": [
       "scanComponentFiles"
+    ],
+    "generate-agent-portraits.js": [
+      "getApiKey",
+      "callGemini",
+      "main",
+      "sleep"
+    ],
+    "generate-ambientos-portraits.js": [
+      "getApiKey",
+      "callGemini",
+      "main",
+      "sleep"
     ],
     "generateCodeMap.js": [
       "extractFunctions",
@@ -3645,11 +3686,11 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2026-04-04T13:54:56.545Z",
+  "timestamp": "2026-04-05T13:56:13.592Z",
   "summary": {
-    "totalJS": 2300,
-    "totalCSS": 173,
-    "totalHTML": 227
+    "totalJS": 2309,
+    "totalCSS": 177,
+    "totalHTML": 228
   },
   "functions": [
     "A",
@@ -4203,6 +4244,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_budgetStatus",
     "_buildBlockedProposal",
     "_buildCampaignVelocityBlock",
+    "_buildCipherCostBlock",
     "_buildConfig",
     "_buildCosmeticCaches",
     "_buildDayBuckets",
@@ -4368,6 +4410,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_getBlobServiceClient",
     "_getBounds",
     "_getBusinessDate",
+    "_getClaudeModelId",
     "_getEdge",
     "_getHeaders",
     "_getInterpolationMethod",
@@ -4422,6 +4465,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_isAgentInCooldown",
     "_isAllowedOrigin",
     "_isBufferEmpty",
+    "_isClaudeModel",
     "_isDuplicate",
     "_isInProgressStatus",
     "_isLocalOrigin",
@@ -4569,6 +4613,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_resolveCampaignId",
     "_resolveDidFromHandle",
     "_resolveHero",
+    "_resolveModel",
     "_resolveServerBase",
     "_resolveTarget",
     "_resolveWorkspaceFiles",
@@ -4698,6 +4743,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "abstract",
     "ac",
     "accept",
+    "acceptPortrait",
     "accessBodyProperty",
     "accessor",
     "accumulateBuffs",
@@ -5146,10 +5192,12 @@ Nova operates in dev sync with the AmbientPixels team.
     "buildPipelineRequest",
     "buildPipelineResponse",
     "buildPointLabelItems",
+    "buildPortraitPrompt",
     "buildPrefightInfo",
     "buildPreview",
     "buildPrompt",
     "buildQuotePrompt",
+    "buildRecentlyDeployed",
     "buildRecommendations",
     "buildRequestBody",
     "buildRequestUrl",
@@ -6150,6 +6198,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "formatBriefDate",
     "formatBriefTime",
     "formatCommand",
+    "formatCoreContext",
     "formatDate",
     "formatDateFull",
     "formatDateLabel",
@@ -6159,9 +6208,13 @@ Nova operates in dev sync with the AmbientPixels team.
     "formatError",
     "formatHeader",
     "formatHours",
+    "formatIntelDigests",
     "formatMessage",
+    "formatMoodTelemetry",
+    "formatMorningBrief",
     "formatNumber",
     "formatResultAsText",
+    "formatRichContext",
     "formatSuccess",
     "formatTime",
     "formatTimeAgo",
@@ -6265,6 +6318,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "generatePrompt",
     "generateRandomCharacterData",
     "generateRandomImage",
+    "generateRating",
     "generateSceneImage",
     "generateSceneText",
     "generateScheme",
@@ -6304,6 +6358,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "getActiveData",
     "getActiveLocalesForPreview",
     "getActiveLocalesSequence",
+    "getActiveModel",
     "getActivePassives",
     "getActiveWorkers",
     "getActivitySummary",
@@ -6337,6 +6392,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "getAllProducts",
     "getAllScaleValues",
     "getApiBase",
+    "getApiKey",
     "getApp",
     "getApprovalQueue",
     "getArenaById",
@@ -6881,6 +6937,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "gt",
     "gte",
     "gtr",
+    "guardJson",
     "h",
     "ha",
     "handle",
@@ -6984,6 +7041,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "hasToStringTag",
     "hasToStringTagShams",
     "hasVisualUnlock",
+    "hashCode",
     "hashIP",
     "hashObjectTask",
     "hashString",
@@ -7115,7 +7173,10 @@ Nova operates in dev sync with the AmbientPixels team.
     "initRPGCards",
     "initRailToggle",
     "initSection",
+    "initSidebarNav",
     "initSkullsTab",
+    "initSort",
+    "initSourceTabs",
     "initStanceButtons",
     "initStatsEditor",
     "initStatsListeners",
@@ -7483,6 +7544,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "loadAgentRegistry",
     "loadAll",
     "loadAllLocal",
+    "loadAnalytics",
     "loadAndOpenCard",
     "loadApiMonitor",
     "loadArenaConfig",
@@ -7500,6 +7562,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "loadCodeMap",
     "loadCollection",
     "loadCompanyContext",
+    "loadCompanyState",
     "loadContentEngineConfig",
     "loadCurrentSettings",
     "loadData",
@@ -7531,6 +7594,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "loadLatestBrief",
     "loadLayerSources",
     "loadLayerView",
+    "loadLiveAgent",
     "loadLocalFallback",
     "loadMeta",
     "loadModalForm",
@@ -7700,7 +7764,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "mn",
     "mockCampaign",
     "mockContext",
+    "mockFetch",
     "mockObjective",
+    "mockReq",
     "mockTask",
     "mod",
     "modalUserId",
@@ -7872,6 +7938,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "openModalForEdit",
     "openModalForNew",
     "openNewCardQuickBuild",
+    "openPortraitModal",
     "openPreview",
     "openScaffoldModal",
     "openSettings",
@@ -8259,10 +8326,12 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderActiveBuffs",
     "renderActiveWagers",
     "renderActivity",
+    "renderAgentCard",
     "renderAgentHeatmap",
     "renderAgentUI",
     "renderAll",
     "renderAllUpStats",
+    "renderAnalytics",
     "renderApiResponseTimeChart",
     "renderArenaSelector",
     "renderAudit",
@@ -8281,6 +8350,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderCardStrip",
     "renderCardSwitcher",
     "renderCards",
+    "renderCarousel",
     "renderCelebration",
     "renderChallengeCard",
     "renderChallenges",
@@ -8378,6 +8448,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderPlatformChart",
     "renderPlatformChips",
     "renderPlatforms",
+    "renderPortrait",
     "renderPost",
     "renderPosts",
     "renderPowerBadge",
@@ -8389,6 +8460,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderReason",
     "renderRecentEvents",
     "renderRecommendations",
+    "renderRelatedAgents",
     "renderReportHtml",
     "renderResult",
     "renderResults",
@@ -8404,6 +8476,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "renderShop",
     "renderSidebarPortrait",
     "renderSingleDay",
+    "renderSpotlight",
+    "renderStars",
     "renderStatAllocator",
     "renderStats",
     "renderStatsInline",
@@ -8461,6 +8535,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "resetDetailAndOpps",
     "resetFilters",
     "resetMatchButton",
+    "resetMocks",
     "resetPortrait",
     "resetRun",
     "resetSectionEditor",
@@ -8751,6 +8826,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "settle",
     "setup",
     "setupAbortSignal",
+    "setupCarouselNav",
     "setupCollapsible",
     "setupCsvDragDrop",
     "setupDragAndDrop",
@@ -8795,6 +8871,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "showArtStyleGrid",
     "showAscensionOffer",
     "showAsyncComparison",
+    "showAuthGate",
     "showBanner",
     "showBattleHint",
     "showBossDialogue",
@@ -8978,6 +9055,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "startOpening",
     "startPvPBattle",
     "startSpan",
+    "startSpotlightRotation",
     "startStrangerFight",
     "startTextLoading",
     "startTimer",
@@ -9322,6 +9400,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "updateForgeTeaser",
     "updateFrontFace",
     "updateGitCommitsDisplay",
+    "updateHeroStats",
     "updateHistory",
     "updateHpBars",
     "updateHype",
@@ -9727,6 +9806,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "3rem",
     "3s",
     "4",
+    "40s",
     "42",
     "42em",
     "42rem",
@@ -9741,6 +9821,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "48",
     "48a1",
     "48rem",
+    "48s",
     "4em",
     "4rem",
     "4s",
@@ -9829,6 +9910,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "88rem",
     "89em",
     "8em",
+    "8fr",
     "8px",
     "8rem",
     "8s",
@@ -10350,7 +10432,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "adv-wizard__viewport",
     "advanced-reset",
     "advanced-warning",
+    "af-accent-dot",
     "af-actions",
+    "af-actions-panel",
     "af-add-output-btn",
     "af-auth-gate",
     "af-auth-gate-card",
@@ -10378,6 +10462,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "af-field-label",
     "af-footer",
     "af-footer-sep",
+    "af-header-v2",
     "af-icon-grid",
     "af-icon-option",
     "af-icon-option--selected",
@@ -10430,6 +10515,20 @@ Nova operates in dev sync with the AmbientPixels team.
     "af-pipeline",
     "af-pipeline--dragover",
     "af-pipeline-empty",
+    "af-portrait-detail-input",
+    "af-portrait-error",
+    "af-portrait-footer-actions",
+    "af-portrait-group",
+    "af-portrait-loading",
+    "af-portrait-options",
+    "af-portrait-pill",
+    "af-portrait-pill--active",
+    "af-portrait-pills",
+    "af-portrait-preview",
+    "af-portrait-remaining",
+    "af-portrait-thumb",
+    "af-portrait-thumb-remove",
+    "af-portrait-trigger",
     "af-powers-select",
     "af-preview-card",
     "af-preview-col",
@@ -15128,6 +15227,54 @@ Nova operates in dev sync with the AmbientPixels team.
     "p-2",
     "p-3",
     "p-4",
+    "pa-agent-card",
+    "pa-agent-card-badge",
+    "pa-agent-card-body",
+    "pa-agent-card-cat-badge",
+    "pa-agent-card-cta",
+    "pa-agent-card-footer",
+    "pa-agent-card-name",
+    "pa-agent-card-runs",
+    "pa-agent-card-tag",
+    "pa-agent-card-tagline",
+    "pa-agent-card-tags",
+    "pa-agent-card-tier",
+    "pa-agent-grid",
+    "pa-agent-portrait",
+    "pa-analytics-auth",
+    "pa-analytics-card",
+    "pa-analytics-card--pending",
+    "pa-analytics-card-body",
+    "pa-analytics-card-meta",
+    "pa-analytics-card-name",
+    "pa-analytics-card-portrait",
+    "pa-analytics-card-stat",
+    "pa-analytics-card-stat-label",
+    "pa-analytics-card-stat-value",
+    "pa-analytics-card-stats",
+    "pa-analytics-card-tagline",
+    "pa-analytics-empty",
+    "pa-analytics-empty-cta",
+    "pa-analytics-grid",
+    "pa-analytics-loading",
+    "pa-analytics-pending-badge",
+    "pa-analytics-section",
+    "pa-analytics-section-title",
+    "pa-analytics-stat",
+    "pa-analytics-stat--highlight",
+    "pa-analytics-stat-label",
+    "pa-analytics-stat-value",
+    "pa-analytics-summary",
+    "pa-avatar",
+    "pa-avatar-menu",
+    "pa-avatar-menu-text",
+    "pa-badge--community",
+    "pa-badge--featured",
+    "pa-blink",
+    "pa-bottom-nav",
+    "pa-btn-ghost",
+    "pa-btn-icon",
+    "pa-btn-primary",
     "pa-card",
     "pa-card-action",
     "pa-card-avatar",
@@ -15148,12 +15295,35 @@ Nova operates in dev sync with the AmbientPixels team.
     "pa-card-tier--rare",
     "pa-card-tier--uncommon",
     "pa-card-usage",
+    "pa-carousel",
+    "pa-carousel-add-btn",
+    "pa-carousel-card",
+    "pa-carousel-card-body",
+    "pa-carousel-card-desc",
+    "pa-carousel-card-name",
+    "pa-carousel-card-rating",
+    "pa-carousel-category-badge",
+    "pa-carousel-nav",
+    "pa-carousel-wrap",
+    "pa-cat--audit",
+    "pa-cat--career",
+    "pa-cat--content",
+    "pa-cat--creative",
+    "pa-cat--design",
+    "pa-cat--gaming",
+    "pa-cat--intel",
+    "pa-cat--lifestyle",
+    "pa-cat--naming",
+    "pa-cat--pitch",
+    "pa-cat--strategy",
+    "pa-cat--tools",
     "pa-catalog-count",
     "pa-catalog-empty",
     "pa-catalog-filters",
     "pa-catalog-grid",
     "pa-catalog-shell",
     "pa-catalog-toolbar",
+    "pa-coming-soon",
     "pa-empty",
     "pa-error",
     "pa-events-dot",
@@ -15161,8 +15331,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "pa-events-table",
     "pa-filter-btn",
     "pa-filter-select",
+    "pa-filter-tab",
+    "pa-filter-tabs",
+    "pa-font-body",
+    "pa-font-display",
+    "pa-font-mono",
     "pa-footer",
+    "pa-footer-links",
     "pa-footer-sep",
+    "pa-footer-v2",
     "pa-funnel-group",
     "pa-funnel-group__name",
     "pa-funnel-row",
@@ -15171,7 +15348,23 @@ Nova operates in dev sync with the AmbientPixels team.
     "pa-funnel-row__label",
     "pa-funnel-row__pct",
     "pa-funnel-row__value",
+    "pa-grid-count",
+    "pa-hero-content",
     "pa-hero-cta",
+    "pa-hero-indicators",
+    "pa-hero-protocol",
+    "pa-hero-right",
+    "pa-hero-stat-box",
+    "pa-hero-stat-icon",
+    "pa-hero-stats",
+    "pa-hero-sub",
+    "pa-hero-v2",
+    "pa-icon-dot",
+    "pa-icon-faint",
+    "pa-indicator",
+    "pa-indicator--cyan",
+    "pa-indicator--purple",
+    "pa-indicator-dot",
     "pa-kpi",
     "pa-kpi-grid",
     "pa-kpi__icon",
@@ -15179,12 +15372,32 @@ Nova operates in dev sync with the AmbientPixels team.
     "pa-kpi__sub",
     "pa-kpi__value",
     "pa-loading",
+    "pa-logo-accent",
+    "pa-main",
+    "pa-mt-lg",
+    "pa-mt-md",
+    "pa-mt-sm",
+    "pa-mt-xl",
+    "pa-noise",
+    "pa-online-dot",
+    "pa-portrait-fallback",
     "pa-product-card",
     "pa-product-card__meta",
     "pa-product-card__name",
     "pa-product-card__unit",
     "pa-product-card__value",
     "pa-product-grid",
+    "pa-recent-item",
+    "pa-recent-list",
+    "pa-recent-runs",
+    "pa-related",
+    "pa-related-card",
+    "pa-related-card-info",
+    "pa-related-card-name",
+    "pa-related-card-portrait",
+    "pa-related-card-tagline",
+    "pa-related-grid",
+    "pa-related-title",
     "pa-result-actions",
     "pa-result-body",
     "pa-result-browse",
@@ -15223,6 +15436,9 @@ Nova operates in dev sync with the AmbientPixels team.
     "pa-run-btn--secondary",
     "pa-run-cap",
     "pa-run-error",
+    "pa-run-header",
+    "pa-run-header-info",
+    "pa-run-header-portrait",
     "pa-run-identity",
     "pa-run-identity-caps",
     "pa-run-identity-icon",
@@ -15233,16 +15449,86 @@ Nova operates in dev sync with the AmbientPixels team.
     "pa-run-input-wrap",
     "pa-run-label",
     "pa-run-loading",
+    "pa-run-loading-portrait",
     "pa-run-loading-text",
     "pa-run-remaining",
     "pa-run-result",
     "pa-run-shell",
     "pa-run-spinner",
     "pa-run-textarea",
+    "pa-scanlines",
+    "pa-section",
+    "pa-section-actions",
+    "pa-section-header",
+    "pa-section-label",
+    "pa-section-link",
+    "pa-section-sub",
     "pa-section-title",
+    "pa-section-view-all",
     "pa-section-wrap",
+    "pa-shell",
+    "pa-sidebar",
+    "pa-sidebar-cta",
+    "pa-sidebar-footer",
+    "pa-sidebar-link",
+    "pa-sidebar-logo",
+    "pa-sidebar-nav",
+    "pa-sidebar-operator",
+    "pa-sidebar-operator-dot",
+    "pa-sort-select",
+    "pa-source-tab",
+    "pa-source-tabs",
     "pa-sparkline",
     "pa-sparkline__labels",
+    "pa-spotlight",
+    "pa-spotlight-badge",
+    "pa-spotlight-body",
+    "pa-spotlight-cta",
+    "pa-spotlight-desc",
+    "pa-spotlight-header-row",
+    "pa-spotlight-main",
+    "pa-spotlight-name",
+    "pa-spotlight-next",
+    "pa-spotlight-next-action",
+    "pa-spotlight-next-avatar",
+    "pa-spotlight-next-info",
+    "pa-spotlight-next-name",
+    "pa-spotlight-next-tagline",
+    "pa-spotlight-online",
+    "pa-spotlight-portrait",
+    "pa-spotlight-success",
+    "pa-spotlight-success-label",
+    "pa-spotlight-success-value",
+    "pa-spotlight-tag",
+    "pa-spotlight-tags",
+    "pa-spotlight-widget",
+    "pa-spotlight-widget--link",
+    "pa-spotlight-widget-header",
+    "pa-spotlight-widget-icon",
+    "pa-spotlight-widget-label",
+    "pa-spotlight-widgets",
+    "pa-stat-label",
+    "pa-stat-value",
+    "pa-stat-widget",
+    "pa-terminal",
+    "pa-terminal-body",
+    "pa-terminal-cursor",
+    "pa-terminal-dots",
+    "pa-terminal-feature",
+    "pa-terminal-features",
+    "pa-terminal-grid",
+    "pa-terminal-section",
+    "pa-terminal-sub",
+    "pa-text-cyan",
+    "pa-text-gold",
+    "pa-text-muted",
+    "pa-text-pink",
+    "pa-text-purple",
+    "pa-tier--common",
+    "pa-tier--epic",
+    "pa-tier--legendary",
+    "pa-tier--rare",
+    "pa-tier--uncommon",
     "pa-toast",
     "pa-topbar",
     "pa-topbar-actions",
@@ -15254,7 +15540,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "pa-topbar-logo",
     "pa-topbar-logout",
     "pa-topbar-user",
+    "pa-topbar-v2",
     "pa-user-dot",
+    "pa-widget-status",
+    "pa-widget-status--purple",
+    "pa-wordmark",
     "padded-style-preview",
     "palette-arcane",
     "palette-corporate",
@@ -16932,5 +17222,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Sat Apr  4 13:54:56 UTC 2026
-🟢 Nova updated her internal awareness at Sat Apr  4 13:54:56 UTC 2026
+}Nova Memory Refresh: Sun Apr  5 13:56:13 UTC 2026
+🟢 Nova updated her internal awareness at Sun Apr  5 13:56:13 UTC 2026
