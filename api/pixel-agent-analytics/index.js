@@ -3,6 +3,9 @@
 
 const storage = require('../_utils/companyStorage');
 const { extractUserInfo } = require('../_utils/cfAuth');
+const { BlobServiceClient } = require('@azure/storage-blob');
+const { DefaultAzureCredential } = require('@azure/identity');
+const { loadEntitlements, isProActive } = require('../_lib/stripe/entitlements');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -150,7 +153,16 @@ module.exports = async function (context, req) {
 
     // Next payout estimate (current month runs × weight × share %)
     var currentMonthRuns = totalRecent; // approximate with 7-day as proxy
-    var creatorIsPro = false; // TODO: derive from entitlements when available
+    // Check creator's Pro status from entitlements
+    var creatorIsPro = false;
+    try {
+      var blobSvc = process.env.AZURE_STORAGE_CONNECTION_STRING
+        ? BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING)
+        : new BlobServiceClient('https://cardforgeblobdata.blob.core.windows.net', new DefaultAzureCredential());
+      var entContainer = blobSvc.getContainerClient('cardforge');
+      var entRecord = await loadEntitlements(entContainer, userId);
+      creatorIsPro = isProActive(entRecord);
+    } catch (e) { /* non-fatal — default to free */ }
     var nextPayoutEstimate = currentMonthRuns * (creatorIsPro ? PRO_RUN_WEIGHT : FREE_RUN_WEIGHT) *
       REVENUE_PER_RUN * (creatorIsPro ? 0.70 : 0.50);
 
