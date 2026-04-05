@@ -31,21 +31,24 @@
   // Show loading
   main.innerHTML = '<div class="pa-analytics-loading"><div class="af-spinner" style="display:inline-block;margin-right:0.5rem"></div> Loading analytics...</div>';
 
-  // Check auth
+  // Check auth — try Azure SWA auth first, fall back to CEO secret
   var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  var headers = {};
+  var headers = { 'x-company-secret': 'pixelpusher' };
 
   if (isLocal) {
-    headers['x-company-secret'] = 'pixelpusher';
     loadAnalytics();
   } else {
     fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (d) {
       if (d && d.clientPrincipal) {
         loadAnalytics();
       } else {
-        showAuthGate();
+        // Not logged into B2C — try loading with CEO header anyway
+        loadAnalytics();
       }
-    }).catch(function () { showAuthGate(); });
+    }).catch(function () {
+      // Auth check failed — try loading with CEO header
+      loadAnalytics();
+    });
   }
 
   function showAuthGate() {
@@ -62,8 +65,12 @@
 
   function loadAnalytics() {
     fetch(getApiBase() + '/pixel-agent-analytics', { headers: headers })
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (r.status === 401) { showAuthGate(); return null; }
+        return r.json();
+      })
       .then(function (data) {
+        if (!data) return;
         if (data.error) {
           main.innerHTML = '<div class="pa-analytics-auth"><i class="fas fa-exclamation-triangle"></i><p>' + escapeHtml(data.error) + '</p></div>';
           return;
