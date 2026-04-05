@@ -542,6 +542,187 @@
 
 .pa-payout-status-note i { font-size: 0.6rem; }
 
+/* ── Creator Profile Card ── */
+.pa-profile-card {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.pa-profile-card-loading {
+  font-size: 0.8rem;
+  color: var(--pa-text-faint);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pa-profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.pa-profile-label {
+  font-family: var(--pa-font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--pa-text-faint);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pa-profile-edit-btn {
+  font-family: var(--pa-font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--pa-radius-pill);
+  border: 1px solid var(--pa-sep-strong);
+  background: transparent;
+  color: var(--pa-text-muted);
+  cursor: pointer;
+  transition: all var(--pa-transition-fast);
+}
+
+.pa-profile-edit-btn:hover {
+  background: var(--pa-surface-raised);
+  color: var(--pa-text);
+}
+
+.pa-profile-body {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pa-profile-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.pa-profile-avatar-placeholder {
+  font-size: 3rem;
+  color: var(--pa-text-faint);
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+
+.pa-profile-name {
+  font-family: var(--pa-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  margin-bottom: 0.15rem;
+}
+
+.pa-profile-bio {
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.pa-profile-links {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.pa-profile-link {
+  font-size: 0.72rem;
+  color: var(--pa-text-faint);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.pa-profile-link:hover { color: var(--pa-primary); }
+
+.pa-profile-setup {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.pa-profile-setup p {
+  font-size: 0.82rem;
+  color: var(--pa-text-muted);
+  margin: 0 0 0.75rem;
+}
+
+/* Profile edit form */
+.pa-profile-form-row {
+  margin-bottom: 0.75rem;
+}
+
+.pa-profile-form-row label {
+  display: block;
+  font-family: var(--pa-font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--pa-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.pa-profile-form-row input,
+.pa-profile-form-row select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: var(--pa-font-body);
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-md);
+  background: var(--pa-surface);
+  color: var(--pa-text);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.pa-profile-form-row input:focus,
+.pa-profile-form-row select:focus {
+  border-color: var(--pa-primary-border);
+}
+
+.pa-profile-avatar-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pa-btn-sm { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+
+.pa-btn-secondary-style {
+  background: transparent;
+  border: 1px solid var(--pa-sep-strong);
+  color: var(--pa-text-muted);
+  cursor: pointer;
+}
+
+.pa-profile-avatar-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 0.5rem;
+  border: 2px solid var(--pa-primary-border);
+}
+
+.pa-profile-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
 /* ── Next Payout Estimate ── */
 .pa-next-payout {
   padding: 1.25rem;

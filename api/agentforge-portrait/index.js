@@ -77,6 +77,9 @@ var ACCENTS = {
 // LOCKED — do not change, maintains catalog style consistency
 var STYLE_SUFFIX = 'dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm';
 
+// Avatar style — semi-realistic, professional, distinct from agent portraits
+var AVATAR_STYLE_SUFFIX = 'clean soft studio lighting, minimal dark gradient background, semi-realistic digital portrait, professional headshot style, subtle and elegant, suitable for a profile picture --ar 1:1 --stylize 150 --no anime, cartoon, game character, action pose, weapons';
+
 // ── Auth ──
 
 function extractUserId(req) {
@@ -177,7 +180,8 @@ function buildPortraitPrompt(opts) {
   // User-provided character detail (sanitized, max 80 chars)
   if (opts.detail) parts.push(opts.detail);
 
-  parts.push(STYLE_SUFFIX);
+  // Use avatar style for profile avatars, agent style for agent portraits
+  parts.push(opts.mode === 'avatar' ? AVATAR_STYLE_SUFFIX : STYLE_SUFFIX);
 
   return 'Generate a portrait image: ' + parts.join(', ');
 }
@@ -206,6 +210,7 @@ module.exports = async function (context, req) {
   var age = body.age || 'mid';
   var pose = body.pose;
   var accent = body.accent || 'none';
+  var mode = body.mode === 'avatar' ? 'avatar' : 'agent';
   var detail = String(body.detail || '').trim().substring(0, 80);
   // Sanitize: strip anything that looks like prompt injection
   detail = detail.replace(/ignore|forget|disregard|override|system|prompt|instruction/gi, '').trim();
@@ -243,7 +248,7 @@ module.exports = async function (context, req) {
   }
 
   // Build prompt and generate
-  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, age: age, pose: pose, accent: accent, detail: detail });
+  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, age: age, pose: pose, accent: accent, detail: detail, mode: mode });
   console.log('[agentforge-portrait] Generating for user=' + userId + ' archetype=' + archetype + ' appearance=' + appearance + ' age=' + age + ' pose=' + pose);
 
   try {

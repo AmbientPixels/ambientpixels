@@ -6,6 +6,7 @@ const { extractUserInfo } = require('../_utils/cfAuth');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { loadEntitlements, isProActive } = require('../_lib/stripe/entitlements');
+const { loadCreatorProfile } = require('../_lib/stripe/creatorProfiles');
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -141,6 +142,18 @@ module.exports = async function (context, req) {
       entry.estimatedEarnings = (entry.totalRuns * entry.runWeight * REVENUE_PER_RUN).toFixed(2);
       leaderboard.push(entry);
     });
+
+    // Enrich leaderboard with profile displayName + avatarUrl
+    for (var li = 0; li < Object.keys(creatorMap).length; li++) {
+      var lcid = Object.keys(creatorMap)[li];
+      try {
+        var lProfile = await loadCreatorProfile(lcid);
+        if (lProfile) {
+          if (lProfile.displayName) creatorMap[lcid].creatorName = lProfile.displayName;
+          if (lProfile.avatarUrl) creatorMap[lcid].avatarUrl = lProfile.avatarUrl;
+        }
+      } catch (e) { /* skip */ }
+    }
 
     leaderboard.sort(function (a, b) { return b.totalRuns - a.totalRuns; });
     leaderboard.forEach(function (entry, i) { entry.rank = i + 1; });

@@ -103,6 +103,11 @@
 
     var html = '';
 
+    // Profile card
+    html += '<div class="pa-profile-card" id="pa-profile-card">' +
+      '<div class="pa-profile-card-loading"><i class="fas fa-user-circle" style="font-size:1.5rem;opacity:0.3"></i> Loading profile...</div>' +
+    '</div>';
+
     // Summary stats
     html += '<div class="pa-analytics-summary">' +
       '<div class="pa-analytics-stat">' +
@@ -312,8 +317,9 @@
 
     main.innerHTML = html;
 
-    // Load creator payout status
+    // Load creator payout status + profile
     loadCreatorStatus();
+    loadCreatorProfile();
   }
 
   function loadCreatorStatus() {
@@ -394,6 +400,219 @@
 
     insertAfter.parentNode.insertBefore(section, insertAfter.nextSibling);
   }
+
+  // ── Creator Profile ──
+  function loadCreatorProfile() {
+    fetch(getApiBase() + '/pixel-agent-creator-status', { headers: headers })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        renderProfileCard(data);
+      })
+      .catch(function () { renderProfileCard(null); });
+  }
+
+  function renderProfileCard(data) {
+    var card = document.getElementById('pa-profile-card');
+    if (!card) return;
+
+    var hasProfile = data && data.displayName;
+
+    if (hasProfile) {
+      var avatarHtml = data.avatarUrl
+        ? '<img src="' + escapeHtml(data.avatarUrl) + '" alt="" class="pa-profile-avatar">'
+        : '<i class="fas fa-user-circle pa-profile-avatar-placeholder"></i>';
+
+      var linksHtml = '';
+      if (data.website) linksHtml += '<a href="' + escapeHtml(data.website) + '" target="_blank" rel="noopener" class="pa-profile-link"><i class="fas fa-globe"></i> ' + escapeHtml(data.website.replace(/^https?:\/\//, '')) + '</a>';
+      if (data.twitter) linksHtml += '<a href="https://x.com/' + escapeHtml(data.twitter.replace('@', '')) + '" target="_blank" rel="noopener" class="pa-profile-link"><i class="fab fa-x-twitter"></i> ' + escapeHtml(data.twitter) + '</a>';
+
+      card.innerHTML =
+        '<div class="pa-profile-header">' +
+          '<span class="pa-profile-label"><i class="fas fa-user"></i> Your Profile</span>' +
+          '<button class="pa-profile-edit-btn" onclick="window._editProfile()">Edit</button>' +
+        '</div>' +
+        '<div class="pa-profile-body">' +
+          avatarHtml +
+          '<div class="pa-profile-info">' +
+            '<div class="pa-profile-name">' + escapeHtml(data.displayName) + '</div>' +
+            (data.bio ? '<div class="pa-profile-bio">' + escapeHtml(data.bio) + '</div>' : '') +
+            (linksHtml ? '<div class="pa-profile-links">' + linksHtml + '</div>' : '') +
+          '</div>' +
+        '</div>';
+    } else {
+      card.innerHTML =
+        '<div class="pa-profile-header">' +
+          '<span class="pa-profile-label"><i class="fas fa-user"></i> Your Profile</span>' +
+        '</div>' +
+        '<div class="pa-profile-setup">' +
+          '<p>Set up your creator profile — add your name, bio, and avatar.</p>' +
+          '<button class="pa-btn-primary" onclick="window._editProfile()"><i class="fas fa-pen"></i> Set Up Profile</button>' +
+        '</div>';
+    }
+  }
+
+  window._editProfile = function () {
+    var card = document.getElementById('pa-profile-card');
+    if (!card) return;
+
+    // Get current values from the card
+    var nameEl = card.querySelector('.pa-profile-name');
+    var bioEl = card.querySelector('.pa-profile-bio');
+    var currentName = nameEl ? nameEl.textContent : '';
+    var currentBio = bioEl ? bioEl.textContent : '';
+
+    card.innerHTML =
+      '<div class="pa-profile-header">' +
+        '<span class="pa-profile-label"><i class="fas fa-pen"></i> Edit Profile</span>' +
+      '</div>' +
+      '<div class="pa-profile-form">' +
+        '<div class="pa-profile-form-row">' +
+          '<label>Display Name</label>' +
+          '<input type="text" id="pa-profile-name-input" maxlength="50" placeholder="Your name" value="' + escapeHtml(currentName) + '">' +
+        '</div>' +
+        '<div class="pa-profile-form-row">' +
+          '<label>Bio</label>' +
+          '<input type="text" id="pa-profile-bio-input" maxlength="200" placeholder="Short bio (200 chars)" value="' + escapeHtml(currentBio) + '">' +
+        '</div>' +
+        '<div class="pa-profile-form-row">' +
+          '<label>Website</label>' +
+          '<input type="url" id="pa-profile-website-input" placeholder="https://yoursite.com">' +
+        '</div>' +
+        '<div class="pa-profile-form-row">' +
+          '<label>Twitter / X</label>' +
+          '<input type="text" id="pa-profile-twitter-input" maxlength="30" placeholder="@handle">' +
+        '</div>' +
+        '<div class="pa-profile-form-row">' +
+          '<label>Avatar</label>' +
+          '<div class="pa-profile-avatar-options">' +
+            '<button class="pa-btn-primary pa-btn-sm" onclick="window._generateAvatar()"><i class="fas fa-wand-magic-sparkles"></i> Generate AI Avatar</button>' +
+            '<label class="pa-btn-primary pa-btn-sm pa-btn-secondary-style"><i class="fas fa-upload"></i> Upload Image<input type="file" id="pa-profile-avatar-upload" accept="image/*" style="display:none" onchange="window._handleAvatarUpload(this)"></label>' +
+          '</div>' +
+          '<div id="pa-avatar-preview"></div>' +
+        '</div>' +
+        '<div class="pa-profile-form-actions">' +
+          '<button class="pa-btn-primary" id="pa-profile-save-btn" onclick="window._saveProfile()"><i class="fas fa-check"></i> Save Profile</button>' +
+          '<button class="pa-run-btn pa-run-btn--secondary" onclick="loadCreatorProfile()">Cancel</button>' +
+        '</div>' +
+      '</div>';
+  };
+
+  var _pendingAvatarBase64 = null;
+
+  window._handleAvatarUpload = function (input) {
+    var file = input.files && input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('Image must be 2MB or less'); return; }
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      _pendingAvatarBase64 = e.target.result.split(',')[1];
+      var preview = document.getElementById('pa-avatar-preview');
+      if (preview) preview.innerHTML = '<img src="' + e.target.result + '" class="pa-profile-avatar-preview">';
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window._generateAvatar = function () {
+    // Open a simple modal with the portrait generator options
+    var overlay = document.createElement('div');
+    overlay.className = 'pa-share-overlay';
+    overlay.innerHTML =
+      '<div class="pa-share-modal" style="max-width:500px">' +
+        '<div class="pa-share-modal-header">' +
+          '<h3>Generate AI Avatar</h3>' +
+          '<button class="pa-share-modal-close" onclick="this.closest(\'.pa-share-overlay\').remove()"><i class="fas fa-times"></i></button>' +
+        '</div>' +
+        '<div class="pa-avatar-gen-form">' +
+          '<div class="pa-profile-form-row"><label>Appearance</label>' +
+            '<select id="pa-avatar-appearance"><option value="masculine">Masculine</option><option value="feminine">Feminine</option><option value="androgynous">Androgynous</option></select></div>' +
+          '<div class="pa-profile-form-row"><label>Expression</label>' +
+            '<select id="pa-avatar-expression"><option value="confident">Confident</option><option value="friendly">Friendly</option><option value="calm">Calm</option><option value="intense">Intense</option><option value="mysterious">Mysterious</option></select></div>' +
+          '<div class="pa-profile-form-row"><label>Age</label>' +
+            '<select id="pa-avatar-age"><option value="young">Young (20s)</option><option value="mid" selected>Mid (30s)</option><option value="mature">Mature (40s)</option><option value="elder">Elder (50s+)</option></select></div>' +
+          '<div class="pa-profile-form-row"><label>Color Accent</label>' +
+            '<select id="pa-avatar-accent"><option value="none">None</option><option value="blue">Blue</option><option value="purple">Purple</option><option value="gold">Gold</option><option value="teal">Teal</option><option value="silver">Silver</option></select></div>' +
+          '<button class="pa-btn-primary" id="pa-avatar-gen-btn" onclick="window._doGenerateAvatar()" style="width:100%;margin-top:1rem"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>' +
+          '<div id="pa-avatar-gen-preview" style="margin-top:1rem;text-align:center"></div>' +
+        '</div>' +
+      '</div>';
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  };
+
+  window._doGenerateAvatar = function () {
+    var btn = document.getElementById('pa-avatar-gen-btn');
+    var preview = document.getElementById('pa-avatar-gen-preview');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...'; }
+
+    fetch(getApiBase() + '/agentforge-portrait', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+      body: JSON.stringify({
+        mode: 'avatar',
+        archetype: 'executive',
+        appearance: document.getElementById('pa-avatar-appearance').value,
+        expression: document.getElementById('pa-avatar-expression').value,
+        age: document.getElementById('pa-avatar-age').value,
+        accent: document.getElementById('pa-avatar-accent').value,
+        pose: 'front'
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.image) {
+        _pendingAvatarBase64 = data.image;
+        if (preview) preview.innerHTML = '<img src="data:image/png;base64,' + data.image + '" class="pa-profile-avatar-preview"><button class="pa-btn-primary" onclick="document.querySelector(\'.pa-share-overlay\').remove();document.getElementById(\'pa-avatar-preview\').innerHTML=\'<img src=&quot;data:image/png;base64,' + data.image.substring(0, 50) + '...&quot; class=&quot;pa-profile-avatar-preview&quot;>\'" style="margin-top:0.5rem">Use This Avatar</button>';
+        // Simpler: just set the preview and close
+        var mainPreview = document.getElementById('pa-avatar-preview');
+        if (mainPreview) mainPreview.innerHTML = '<img src="data:image/png;base64,' + data.image + '" class="pa-profile-avatar-preview">';
+        var overlay = document.querySelector('.pa-share-overlay');
+        if (overlay) overlay.remove();
+      } else {
+        if (preview) preview.innerHTML = '<p style="color:var(--pa-danger)">' + (data.error || 'Generation failed') + '</p>';
+      }
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate'; }
+    })
+    .catch(function (err) {
+      if (preview) preview.innerHTML = '<p style="color:var(--pa-danger)">Error: ' + err.message + '</p>';
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate'; }
+    });
+  };
+
+  window._saveProfile = function () {
+    var btn = document.getElementById('pa-profile-save-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; }
+
+    var payload = {
+      displayName: document.getElementById('pa-profile-name-input').value.trim(),
+      bio: document.getElementById('pa-profile-bio-input').value.trim(),
+      website: document.getElementById('pa-profile-website-input').value.trim(),
+      twitter: document.getElementById('pa-profile-twitter-input').value.trim()
+    };
+
+    if (_pendingAvatarBase64) {
+      payload.avatar = { base64: _pendingAvatarBase64, mimeType: 'image/png' };
+    }
+
+    fetch(getApiBase() + '/pixel-agent-creator-profile', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
+      body: JSON.stringify(payload)
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.success) {
+        _pendingAvatarBase64 = null;
+        loadCreatorProfile(); // reload card
+      } else {
+        alert(data.error || 'Save failed');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Save Profile'; }
+      }
+    })
+    .catch(function (err) {
+      alert('Error: ' + err.message);
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Save Profile'; }
+    });
+  };
 
   // Global onboard handler
   window._startCreatorOnboard = function () {

@@ -11,6 +11,11 @@ function defaultProfile(creatorId, email) {
   return {
     creatorId: creatorId,
     email: email || null,
+    displayName: null,
+    bio: null,
+    avatarUrl: null,
+    website: null,
+    twitter: null,
     stripeConnectAccountId: null,
     onboardingComplete: false,
     chargesEnabled: false,
@@ -60,6 +65,11 @@ function toClientSafe(profile) {
   }
   return {
     enrolled: true,
+    displayName: profile.displayName || null,
+    bio: profile.bio || null,
+    avatarUrl: profile.avatarUrl || null,
+    website: profile.website || null,
+    twitter: profile.twitter || null,
     onboardingComplete: profile.onboardingComplete,
     chargesEnabled: profile.chargesEnabled,
     payoutsEnabled: profile.payoutsEnabled,
@@ -72,10 +82,23 @@ function toClientSafe(profile) {
   };
 }
 
+// Public view — no email, no Stripe data, no earnings
+function toPublicSafe(profile) {
+  if (!profile) return null;
+  return {
+    displayName: profile.displayName || null,
+    bio: profile.bio || null,
+    avatarUrl: profile.avatarUrl || null,
+    website: profile.website || null,
+    twitter: profile.twitter || null
+  };
+}
+
 module.exports = {
   defaultProfile,
   loadCreatorProfile,
   saveCreatorProfile,
   isPayoutReady,
-  toClientSafe
+  toClientSafe,
+  toPublicSafe
 };
