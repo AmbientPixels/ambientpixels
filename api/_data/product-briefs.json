@@ -1,46 +1,46 @@
 {
-  "generatedAt": "2026-04-05T05:32:06.623Z",
+  "generatedAt": "2026-04-05T05:35:08.087Z",
   "products": [
     {
       "product": "AmbientOS",
       "url": "https://ambientpixels.ai/ambientos/",
       "brief": "AmbientOS is an AI-powered company orchestration platform where 8 autonomous agents run departments under human (CEO) governance. The system operates on a **propose -> approve -> execute -> audit** cycle, with a heartbeat that fires every hour (configurable in , was 30 min before Claude Sonnet switch).\n\nQuick Orientation: **Brand hierarchy:** AmbientPixels (company) -> AmbientOS (platform) -> AmbientScore (product)\r\n\r\n**All code lives under ** — not at the repo root. This is the #1 mistake new sessions make.\n\nThe 8 Agents: **Processing order per heartbeat:** nova -> cipher -> pixel -> forge -> scribe -> quill -> echo -> scout\r\n\r\nEcho runs AFTER Scribe/Quill so peer reviews complete before social posting.\r\n\r\n\r\n\r\n---\n\nSocial Pipeline: Echo briefs -> Scribe writes copy -> Quill reviews brand voice -> CEO approves -> platform post\r\n\r\nPlatforms: LinkedIn, X, Bluesky, Facebook (manual), Reddit (manual — CEO copies from outbox)\r\n\r\nKey rule: **Echo NEVER writes post copy.** Echo strategizes, Scribe writes, Quill polishes.\n\nBlog Pipeline: Scribe drafts (kind=) -> Pixel generates hero image -> Scribe submits for publish -> CEO approves -> optional social promo auto-spawns\n",
-      "extractedAt": "2026-04-05T05:32:06.617Z",
+      "extractedAt": "2026-04-05T05:35:08.080Z",
       "sourceChars": 44388
     },
     {
       "product": "AmbientScore",
       "url": "https://ambientpixels.ai/ambientscore/",
       "brief": "AmbientScore is AmbientPixels' standalone AI website conversion audit product. Users enter a URL, get an instant 0-100 score with a letter grade, see 3 teaser findings for free, and can unlock the full report ($49 single / $149 3-pack). The product lives at and is self-contained — its own CSS, JS, and API layer.\n\nThe 8-Dimension Scoring Model: The scoring model is the intellectual core of the product. It lives in and drives everything from prompt construction to report rendering.\n\nAdding a new dimension: 1. Define in : name, description, sub-criteria, weight in ALL site-type profiles\n2. Add evaluation prompt in (assign to Group A or B)\n3. Update to display the new dimension\n4. Verify picks it up (it reads from dynamically)\n\nChanging pricing: - Stripe prices are configured in (price IDs)\n- Display prices in (landing page CTAs) and (paywall section)\n- Credit pack size in",
-      "extractedAt": "2026-04-05T05:32:06.620Z",
+      "extractedAt": "2026-04-05T05:35:08.083Z",
       "sourceChars": 10914
     },
     {
       "product": "Blindspot",
       "url": "https://ambientpixels.ai/blindspot/",
       "brief": "Use this skill when working on the Blindspot game — a standalone arena combat game at . Blindspot is fully independent from CardForge as of Mar 21, 2026 — zero shared CSS, JS, images, or audio. APIs forked but card save remains shared (product-agnostic).\n\nCombat System (Server-Side): - **Moves:** Strike, Guard, Ability, Heal, Counter (rock-paper-scissors interactions)\n- **Stat-threshold passives** :\n - STR 60+: Heavy Hitter (guard pierce 20%) | STR 80+: Brutal (+25% crit damage)\n - AGI 60+: Quick Draw (speed priority) | AGI 80+: Elusive (15% dodge)...\n\nAsync PvP System (Phase 21 — implemented Mar 24, 2026): - Defense queue: global blob , 1 card per user, max 500 entries, auto-prune 7 days\n- Async battle: attacker plays real-time vs AI-controlled defender card. Battle IDs prefixed \n- Results inbox: per-user blob , max 50 entries, dismiss/dismissAll/clear\n\n**Defender AI :**...\n\nCard Sharing: - — canvas→PNG renderer (400×560px), no external dependencies\n- Renders: avatar (cover fit), name, class, rarity, stat bars, power, border tier badge, title badge, battle history line, watermark\n- API: — opens modal with preview + Download PNG + Copy to Clipboard...\n",
-      "extractedAt": "2026-04-05T05:32:06.621Z",
+      "extractedAt": "2026-04-05T05:35:08.085Z",
       "sourceChars": 62253
     },
     {
       "product": "CardForge",
       "url": "https://ambientpixels.ai/cardforge/",
       "brief": "Quick Orientation: **Frontend:** — ~24 JS modules, ~17 CSS files\n\n**Entry point:** — editor page\n**Decks:** — deck builder\n\nProduct Identity: CardForge is positioned as **\"Design, Customize & Share\"** — a pure RPG card creator.\n- Title: \"CardForge — RPG Card Creator | Design, Customize & Share\"\n- No arena/battle language in any public copy\n- All visual effects unlocked for all users (no rank gating)\n- Stats are freeform (no budget cap)",
-      "extractedAt": "2026-04-05T05:32:06.622Z",
+      "extractedAt": "2026-04-05T05:35:08.085Z",
       "sourceChars": 11540
     },
     {
       "product": "Pixel Agents",
       "url": "https://ambientpixels.ai/pixel-agents/",
       "brief": "Quick Orientation: **Pixel Agents Frontend:** — catalog + run pages\r\n**Agent Forge Frontend:** — visual card pipeline builder\r\n\r\n**Agent Registry:** + (MUST stay in sync)\r\n**AI Models:** Claude Sonnet 4.6 (text analysis) + Gemini 2.5 Flash (image generation)\n\nAgent Registry (24 agents): Agents are defined in JSON with this structure:\n\nKey Features: - Output section type preview mockups\r\n- Icon picker (FontAwesome grid, searchable)\r\n- Tier selector with visual badges\r\n- \"Help me write this prompt\" — Prompt Scaffolding AI\r\n- localStorage draft save/load/delete with auto-save\r\n- Templates auto-populate full pipeline\n\nSubmission Pipeline: 1. User builds agent → clicks Submit\r\n2. AI Gatekeeper (Claude) reviews for quality/uniqueness/safety (0-100 each)\r\n3. Decision: approved → CEO queue, needs_work → feedback, rejected → reason\r\n4. CEO approves → agent added to blob → appears in catalog with \"Community\" badge",
-      "extractedAt": "2026-04-05T05:32:06.622Z",
+      "extractedAt": "2026-04-05T05:35:08.086Z",
       "sourceChars": 15430
     },
     {
       "product": "StoryForge",
       "url": "https://ambientpixels.ai/storyforge/",
       "brief": "StoryForge is an AI-powered interactive fiction game at . Players pick a genre, create a character via a 3-step wizard, then play through branching narratives with skill checks, inventory, companions, and AI-generated scene art + narration.",
-      "extractedAt": "2026-04-05T05:32:06.623Z",
+      "extractedAt": "2026-04-05T05:35:08.087Z",
       "sourceChars": 7445
     }
   ]

@@ -101,6 +101,11 @@
     var agentsEl = document.getElementById('pa-stat-agents');
     if (agentsEl) agentsEl.textContent = allAgents.length;
 
+    // Community count
+    var communityCount = allAgents.filter(function (a) { return a.community; }).length;
+    var communityEl = document.getElementById('pa-stat-community');
+    if (communityEl) communityEl.textContent = communityCount;
+
     // Total runs
     var totalRuns = 0;
     Object.keys(usageStats).forEach(function (k) { totalRuns += usageStats[k] || 0; });
@@ -258,7 +263,58 @@
     });
   }
 
-  // ── Filters ──
+  // ── Filter State ──
+  var currentSource = 'all';
+  var currentSort = 'featured';
+
+  // ── Combined Filter + Sort ──
+  function applyFilters() {
+    var filtered = allAgents;
+
+    // Source filter
+    if (currentSource === 'built-in') filtered = filtered.filter(function (a) { return !a.community; });
+    if (currentSource === 'community') filtered = filtered.filter(function (a) { return a.community; });
+
+    // Category filter
+    if (currentCategory !== 'all') filtered = filtered.filter(function (a) { return a.category === currentCategory; });
+
+    renderGrid(filtered);
+  }
+
+  // ── Source Tabs ──
+  function initSourceTabs() {
+    var container = document.getElementById('pa-source-tabs');
+    if (!container) return;
+    var tabs = container.querySelectorAll('.pa-source-tab');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        currentSource = tab.dataset.source;
+
+        // Auto-switch sort for community (featured doesn't apply)
+        var sortEl = document.getElementById('pa-sort');
+        if (currentSource === 'community' && currentSort === 'featured') {
+          currentSort = 'newest';
+          if (sortEl) sortEl.value = 'newest';
+        }
+
+        applyFilters();
+      });
+    });
+  }
+
+  // ── Sort Dropdown ──
+  function initSort() {
+    var sortEl = document.getElementById('pa-sort');
+    if (!sortEl) return;
+    sortEl.addEventListener('change', function () {
+      currentSort = sortEl.value;
+      applyFilters();
+    });
+  }
+
+  // ── Category Filters ──
   function renderFilters() {
     var container = document.getElementById('pa-filters');
     if (!container) return;
@@ -270,27 +326,26 @@
     });
     container.innerHTML = html;
 
-    // Bind filter clicks
     var tabs = container.querySelectorAll('.pa-filter-tab');
     tabs.forEach(function (tab) {
       tab.addEventListener('click', function () {
         tabs.forEach(function (t) { t.classList.remove('active'); });
         tab.classList.add('active');
-
         currentCategory = tab.dataset.category;
-        var filtered = currentCategory === 'all'
-          ? allAgents
-          : allAgents.filter(function (a) { return a.category === currentCategory; });
-
-        renderGrid(filtered);
+        applyFilters();
       });
     });
+
+    // Init source tabs and sort
+    initSourceTabs();
+    initSort();
   }
 
   // ── Grid ──
   function renderGrid(agents) {
     var grid = document.getElementById('pa-grid');
     var empty = document.getElementById('pa-empty');
+    var emptyText = document.getElementById('pa-empty-text');
     var count = document.getElementById('pa-count');
 
     if (!grid) return;
@@ -299,6 +354,13 @@
       grid.innerHTML = '';
       grid.style.display = 'none';
       if (empty) empty.style.display = '';
+      if (emptyText) {
+        if (currentSource === 'community') {
+          emptyText.innerHTML = 'No community agents yet. <a href="/agent-forge/" style="color:var(--pa-primary)">Build one in Agent Forge!</a>';
+        } else {
+          emptyText.textContent = 'No agents found in this category.';
+        }
+      }
       if (count) count.textContent = '0 agents';
       return;
     }
@@ -307,11 +369,20 @@
     if (empty) empty.style.display = 'none';
     if (count) count.textContent = agents.length + ' agent' + (agents.length !== 1 ? 's' : '');
 
-    // Sort: featured first, then by order
+    // Sort
     var sorted = agents.slice().sort(function (a, b) {
-      if (a.featured && !b.featured) return -1;
-      if (!a.featured && b.featured) return 1;
-      return (a.order || 99) - (b.order || 99);
+      switch (currentSort) {
+        case 'most-runs':
+          return (usageStats[b.id] || 0) - (usageStats[a.id] || 0);
+        case 'newest':
+          return (b.createdAt || b.approvedAt || '').localeCompare(a.createdAt || a.approvedAt || '');
+        case 'name-az':
+          return (a.name || '').localeCompare(b.name || '');
+        default: // featured
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return (a.order || 99) - (b.order || 99);
+      }
     });
 
     grid.innerHTML = sorted.map(function (agent) { return renderAgentCard(agent); }).join('');

@@ -728,6 +728,64 @@
 /* ══════════════════════════════════════
    CATEGORY FILTER TABS
    ══════════════════════════════════════ */
+/* ── Source Tabs (All / Built-in / Community) ── */
+.pa-source-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.pa-source-tab {
+  padding: 0.45rem 1rem;
+  font-family: var(--pa-font-display);
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-pill);
+  color: var(--pa-text-muted);
+  background: transparent;
+  transition: all var(--pa-transition-fast);
+  cursor: pointer;
+}
+
+.pa-source-tab:hover {
+  border-color: var(--pa-secondary-border);
+  color: var(--pa-text);
+}
+
+.pa-source-tab.active {
+  background: var(--pa-secondary-dim);
+  border-color: var(--pa-secondary-border);
+  color: var(--pa-secondary);
+}
+
+/* ── Sort Dropdown ── */
+.pa-sort-select {
+  font-family: var(--pa-font-display);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--pa-text-muted);
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-sm);
+  padding: 0.4rem 2rem 0.4rem 0.75rem;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.3)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+}
+
+.pa-sort-select:focus {
+  outline: none;
+  border-color: var(--pa-primary-border);
+}
+
+/* ── Category Filter Tabs ── */
 .pa-filter-tabs {
   display: flex;
   gap: 0.6rem;

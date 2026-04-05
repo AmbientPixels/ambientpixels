@@ -125,6 +125,13 @@
           </div>
         </div>
         <div class="pa-hero-stat-box">
+          <i class="fas fa-users pa-hero-stat-icon"></i>
+          <div>
+            <div class="pa-stat-value" id="pa-stat-community">0</div>
+            <div class="pa-stat-label">Community Agents</div>
+          </div>
+        </div>
+        <div class="pa-hero-stat-box">
           <i class="fas fa-play pa-hero-stat-icon"></i>
           <div>
             <div class="pa-stat-value" id="pa-stat-runs">0</div>
@@ -177,6 +184,17 @@
     <section class="pa-section" id="agent-grid">
       <div class="pa-section-header">
         <h2>All Agents</h2>
+        <select class="pa-sort-select" id="pa-sort">
+          <option value="featured">Featured</option>
+          <option value="most-runs">Most Runs</option>
+          <option value="newest">Newest</option>
+          <option value="name-az">Name A-Z</option>
+        </select>
+      </div>
+      <div class="pa-source-tabs" id="pa-source-tabs">
+        <button class="pa-source-tab active" data-source="all">All</button>
+        <button class="pa-source-tab" data-source="built-in">Built-in</button>
+        <button class="pa-source-tab" data-source="community">Community</button>
       </div>
       <div class="pa-filter-tabs" id="pa-filters">
         <!-- Rendered by pixel-agents-ui.js -->
@@ -187,7 +205,7 @@
       </div>
       <div class="pa-empty" id="pa-empty" style="display:none">
         <i class="fas fa-robot"></i>
-        <p>No agents found in this category.</p>
+        <p id="pa-empty-text">No agents found in this category.</p>
       </div>
     </section>
 
