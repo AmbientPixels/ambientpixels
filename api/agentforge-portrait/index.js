@@ -174,6 +174,9 @@ function buildPortraitPrompt(opts) {
   var accent = ACCENTS[opts.accent || 'none'];
   if (accent) parts.push(accent);
 
+  // User-provided character detail (sanitized, max 80 chars)
+  if (opts.detail) parts.push(opts.detail);
+
   parts.push(STYLE_SUFFIX);
 
   return 'Generate a portrait image: ' + parts.join(', ');
@@ -203,6 +206,9 @@ module.exports = async function (context, req) {
   var age = body.age || 'mid';
   var pose = body.pose;
   var accent = body.accent || 'none';
+  var detail = String(body.detail || '').trim().substring(0, 80);
+  // Sanitize: strip anything that looks like prompt injection
+  detail = detail.replace(/ignore|forget|disregard|override|system|prompt|instruction/gi, '').trim();
 
   if (!ARCHETYPES[archetype]) {
     context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid archetype. Valid: ' + Object.keys(ARCHETYPES).join(', ') } };
@@ -237,7 +243,7 @@ module.exports = async function (context, req) {
   }
 
   // Build prompt and generate
-  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, age: age, pose: pose, accent: accent });
+  var prompt = buildPortraitPrompt({ archetype: archetype, expression: expression, appearance: appearance, age: age, pose: pose, accent: accent, detail: detail });
   console.log('[agentforge-portrait] Generating for user=' + userId + ' archetype=' + archetype + ' appearance=' + appearance + ' age=' + age + ' pose=' + pose);
 
   try {

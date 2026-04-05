@@ -733,10 +733,13 @@ async function generatePortrait() {
 
   try {
     var hdrs = { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' };
+    var detail = (document.getElementById('af-portrait-detail') || {}).value || '';
+    var payload = Object.assign({}, _portraitChoices, { detail: detail.trim() });
+
     var res = await fetch(getApiBase() + '/agentforge-portrait', {
       method: 'POST',
       headers: hdrs,
-      body: JSON.stringify(_portraitChoices)
+      body: JSON.stringify(payload)
     });
 
     clearTimeout(timeoutId);

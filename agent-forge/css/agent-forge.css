@@ -1111,6 +1111,24 @@ body[data-theme="light"] .af-live-delete:hover { color: #ef4444; }
   gap: 0.5rem;
 }
 
+.af-portrait-detail-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  background: var(--pa-neutral);
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-sm);
+  color: var(--pa-text);
+  font-size: 0.82rem;
+  font-family: var(--pa-font-body);
+  transition: border-color var(--pa-transition-fast);
+}
+
+.af-portrait-detail-input:focus {
+  outline: none;
+  border-color: var(--pa-primary-border);
+  box-shadow: 0 0 0 3px var(--pa-primary-dim);
+}
+
 .af-portrait-pills {
   display: flex;
   flex-wrap: wrap;
