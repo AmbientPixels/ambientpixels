@@ -23,73 +23,86 @@
 
   <!-- Docs-specific styles -->
   <style>
-    .pa-docs-section { margin-bottom: 2.5rem; }
-    .pa-docs-section h3 { font-family: var(--pa-font-display); font-size: 1.1rem; font-weight: 700; color: var(--pa-text); margin: 0 0 0.75rem; }
-    .pa-docs-section p { font-size: 0.85rem; line-height: 1.6; color: var(--pa-text-muted); margin: 0 0 0.75rem; }
-    .pa-docs-section ul { padding-left: 1.5rem; margin: 0 0 0.75rem; }
-    .pa-docs-section li { font-size: 0.85rem; line-height: 1.6; color: var(--pa-text-muted); margin-bottom: 0.35rem; }
-    .pa-docs-section code { font-family: var(--pa-font-mono); font-size: 0.8rem; padding: 2px 6px; background: var(--pa-surface-raised); border-radius: var(--pa-radius-sm); color: var(--pa-secondary); }
-    .pa-docs-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.82rem; }
-    .pa-docs-table th { font-family: var(--pa-font-display); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep-strong); color: var(--pa-text-muted); }
-    .pa-docs-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep); color: var(--pa-text); }
-    .pa-docs-code { font-family: var(--pa-font-mono); font-size: 0.78rem; line-height: 1.6; padding: 1rem 1.25rem; background: #0a0a0f; border: 1px solid var(--pa-sep-strong); border-radius: var(--pa-radius-md); color: var(--pa-text-muted); overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 0.75rem 0; }
-    .pa-docs-section h4 { margin: 0; }
-    /* Table of Contents */
-    .pa-docs-toc {
+    /* Docs two-column layout */
+    .pa-docs-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    /* Docs sidebar nav */
+    .pa-docs-nav {
       position: sticky;
       top: 1rem;
-      float: right;
-      width: 200px;
-      margin-left: 2rem;
-      margin-bottom: 2rem;
-      padding: 1rem;
-      background: var(--pa-surface);
-      border: 1px solid var(--pa-sep);
-      border-radius: var(--pa-radius-lg);
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
+      max-height: calc(100vh - 6rem);
+      overflow-y: auto;
+      padding-right: 1rem;
+      border-right: 1px solid var(--pa-sep);
     }
-    .pa-docs-toc-title {
+    .pa-docs-nav-group { margin-bottom: 1.25rem; }
+    .pa-docs-nav-label {
       font-family: var(--pa-font-display);
       font-size: 0.6rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.2px;
       color: var(--pa-text-faint);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
+      padding-left: 0.75rem;
     }
-    .pa-docs-toc-link {
-      font-size: 0.72rem;
+    .pa-docs-nav-link {
+      display: block;
+      font-size: 0.78rem;
       color: var(--pa-text-muted);
       text-decoration: none;
-      padding: 0.3rem 0.5rem;
+      padding: 0.35rem 0.75rem;
       border-radius: var(--pa-radius-sm);
       border-left: 2px solid transparent;
       transition: all 0.15s;
     }
-    .pa-docs-toc-link:hover {
+    .pa-docs-nav-link:hover {
       color: var(--pa-text);
       background: rgba(255,255,255,0.03);
     }
-    .pa-docs-toc-link.active {
+    .pa-docs-nav-link.active {
       color: var(--pa-primary);
       border-left-color: var(--pa-primary);
       background: var(--pa-primary-dim);
     }
+
+    /* Docs content */
+    .pa-docs-content { max-width: 720px; }
+    .pa-docs-section { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--pa-sep); }
+    .pa-docs-section:last-child { border-bottom: none; }
+    .pa-docs-section h3 { font-family: var(--pa-font-display); font-size: 1.2rem; font-weight: 700; color: var(--pa-text); margin: 0 0 1rem; }
+    .pa-docs-section h4 { font-family: var(--pa-font-display); font-size: 0.9rem; font-weight: 600; color: var(--pa-text); margin: 1.5rem 0 0.5rem; }
+    .pa-docs-section p { font-size: 0.85rem; line-height: 1.7; color: var(--pa-text-muted); margin: 0 0 0.75rem; }
+    .pa-docs-section ul { padding-left: 1.5rem; margin: 0 0 0.75rem; }
+    .pa-docs-section li { font-size: 0.85rem; line-height: 1.7; color: var(--pa-text-muted); margin-bottom: 0.4rem; }
+    .pa-docs-section code { font-family: var(--pa-font-mono); font-size: 0.78rem; padding: 2px 6px; background: var(--pa-surface-raised); border-radius: var(--pa-radius-sm); color: var(--pa-secondary); }
+    .pa-docs-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.82rem; }
+    .pa-docs-table th { font-family: var(--pa-font-display); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep-strong); color: var(--pa-text-muted); }
+    .pa-docs-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep); color: var(--pa-text); }
+    .pa-docs-code { font-family: var(--pa-font-mono); font-size: 0.78rem; line-height: 1.6; padding: 1rem 1.25rem; background: #0a0a0f; border: 1px solid var(--pa-sep-strong); border-radius: var(--pa-radius-md); color: var(--pa-text-muted); overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 0.75rem 0 1rem; }
+
+    /* Responsive */
     @media (max-width: 900px) {
-      .pa-docs-toc {
+      .pa-docs-layout { grid-template-columns: 1fr; gap: 0; }
+      .pa-docs-nav {
         position: static;
-        float: none;
-        width: 100%;
-        margin: 0 0 2rem;
-        flex-direction: row;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--pa-sep);
+        padding: 0 0 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
         flex-wrap: wrap;
         gap: 0.25rem;
       }
-      .pa-docs-toc-title { width: 100%; }
-      .pa-docs-toc-link { border-left: none; border-bottom: 2px solid transparent; }
-      .pa-docs-toc-link.active { border-left: none; border-bottom-color: var(--pa-primary); }
+      .pa-docs-nav-group { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem; }
+      .pa-docs-nav-label { width: 100%; }
+      .pa-docs-nav-link { border-left: none; font-size: 0.72rem; padding: 0.3rem 0.6rem; }
     }
   </style>
 </head>
@@ -185,77 +198,106 @@
         </div>
       </div>
 
-      <!-- Table of Contents -->
-      <nav class="pa-docs-toc">
-        <div class="pa-docs-toc-title">On This Page</div>
-        <a href="#getting-started" class="pa-docs-toc-link active">Getting Started</a>
-        <a href="#building-an-agent" class="pa-docs-toc-link">Building an Agent</a>
-        <a href="#writing-prompts" class="pa-docs-toc-link">Writing Prompts</a>
-        <a href="#output-types" class="pa-docs-toc-link">Output Section Types</a>
-        <a href="#agent-powers" class="pa-docs-toc-link">Agent Powers</a>
-        <a href="#testing" class="pa-docs-toc-link">Testing &amp; Submission</a>
-        <a href="#editing" class="pa-docs-toc-link">Editing Live Agents</a>
-        <a href="#rate-limits" class="pa-docs-toc-link">Rate Limits</a>
-        <a href="#revenue-share" class="pa-docs-toc-link">Revenue Share</a>
-      </nav>
+      <div class="pa-docs-layout">
+        <nav class="pa-docs-nav">
+          <div class="pa-docs-nav-group">
+            <div class="pa-docs-nav-label">Basics</div>
+            <a href="#getting-started" class="pa-docs-nav-link active">Getting Started</a>
+            <a href="#running-an-agent" class="pa-docs-nav-link">Running an Agent</a>
+          </div>
+          <div class="pa-docs-nav-group">
+            <div class="pa-docs-nav-label">Building</div>
+            <a href="#building-an-agent" class="pa-docs-nav-link">Building an Agent</a>
+            <a href="#writing-prompts" class="pa-docs-nav-link">Writing Prompts</a>
+            <a href="#output-types" class="pa-docs-nav-link">Output Section Types</a>
+            <a href="#agent-powers" class="pa-docs-nav-link">Agent Powers</a>
+          </div>
+          <div class="pa-docs-nav-group">
+            <div class="pa-docs-nav-label">Publishing</div>
+            <a href="#testing" class="pa-docs-nav-link">Testing &amp; Submission</a>
+            <a href="#editing" class="pa-docs-nav-link">Editing Live Agents</a>
+          </div>
+          <div class="pa-docs-nav-group">
+            <div class="pa-docs-nav-label">Platform</div>
+            <a href="#rate-limits" class="pa-docs-nav-link">Rate Limits</a>
+            <a href="#revenue-share" class="pa-docs-nav-link">Revenue Share</a>
+            <a href="#billing" class="pa-docs-nav-link">Billing &amp; Pro</a>
+          </div>
+        </nav>
 
-      <!-- Getting Started -->
-      <div class="pa-docs-section" id="getting-started">
-        <h3>Getting Started</h3>
-        <p>
-          Pixel Agents is an AI agent marketplace where anyone can discover, run, and build specialized AI agents.
-          Each agent is purpose-built for a specific task — from brand audits and name generation to color palette creation and SEO analysis.
-        </p>
-        <p>
-          Running an agent is simple: pick one from the catalog, paste your input (a URL, a name, a description — whatever the agent asks for), and get a structured result in seconds.
-          Every agent returns clean, organized output sections like scores, verdicts, lists, and tags.
-        </p>
-        <p>
-          Anonymous users get <strong>5 free runs per day</strong>. Sign in to unlock <strong>25 runs per day</strong>.
-        </p>
-      </div>
+        <div class="pa-docs-content">
 
-      <!-- Building an Agent -->
-      <div class="pa-docs-section" id="building-an-agent">
-        <h3>Building an Agent</h3>
-        <p>
-          <a href="/agent-forge/">Agent Forge</a> is the builder tool for creating and publishing your own Pixel Agents. No coding required — just fill in the fields and test.
-        </p>
-        <ul>
-          <li><strong>Name your agent</strong> — pick a unique name and write a short tagline.</li>
-          <li><strong>Write a system prompt</strong> — tell the AI what role it plays and how it should behave.</li>
-          <li><strong>Define output sections</strong> — choose the structured sections your agent returns (score, verdict, list, etc.).</li>
-          <li><strong>Add powers</strong> — optionally enable web search, URL fetching, or image generation.</li>
-          <li><strong>Test</strong> — run your agent with sample input to verify the output before publishing.</li>
-          <li><strong>Submit</strong> — send your agent for review and approval.</li>
-        </ul>
-      </div>
+          <!-- Getting Started -->
+          <div class="pa-docs-section" id="getting-started">
+            <h3>Getting Started</h3>
+            <p>
+              Pixel Agents is an AI agent marketplace where anyone can discover, run, and build specialized AI agents.
+              Each agent is purpose-built for a specific task — from brand audits and name generation to color palette creation and SEO analysis.
+            </p>
+            <p>
+              Running an agent is simple: pick one from the catalog, paste your input (a URL, a name, a description — whatever the agent asks for), and get a structured result in seconds.
+              Every agent returns clean, organized output sections like scores, verdicts, lists, and tags.
+            </p>
+            <p>
+              Anonymous users get <strong>5 free runs per day</strong>. Sign in to unlock <strong>25 runs per day</strong>.
+            </p>
+          </div>
 
-      <!-- Writing Prompts -->
-      <div class="pa-docs-section" id="writing-prompts">
-        <h3>Writing Prompts (JSON Output)</h3>
-        <p>
-          Your agent's system prompt must instruct the AI to respond with <strong>valid JSON</strong>.
-          The JSON keys must match the <code>key</code> values in your output sections. This is how the
-          structured result cards are generated.
-        </p>
+          <!-- Running an Agent -->
+          <div class="pa-docs-section" id="running-an-agent">
+            <h3>Running an Agent</h3>
+            <p>Here's how to use any agent on the platform:</p>
+            <ul>
+              <li><strong>Step 1: Browse</strong> — explore the catalog at <a href="/pixel-agents/">Pixel Agents</a>. Filter by category, sort by trending or most runs, or search for a specific tool.</li>
+              <li><strong>Step 2: Select</strong> — click an agent card to open its run page. Read the tagline and capabilities to make sure it fits your need.</li>
+              <li><strong>Step 3: Input</strong> — paste your input. Some agents take a URL (for site analysis), others take free text (for name generation, roasts, etc.). The input field label tells you what's expected.</li>
+              <li><strong>Step 4: Deploy</strong> — click "Deploy Agent" and wait 5-15 seconds. You'll see loading messages specific to that agent while it works.</li>
+              <li><strong>Step 5: Results</strong> — your result appears as structured cards: scores with progress bars, verdicts, bullet lists, tags, and more. Each card type is designed for easy scanning.</li>
+              <li><strong>Step 6: Share</strong> — click "Share Card" to get a branded result image with OG tags. Paste the link on LinkedIn, X, or Bluesky — the preview card unfurls automatically with your score and verdict.</li>
+            </ul>
+          </div>
 
-        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Step 1: Define your output sections</h4>
-        <p>In Agent Forge, add the sections you want. Each section has a <strong>key</strong> (the JSON field name) and a <strong>type</strong> (how it renders). For example:</p>
-        <table class="pa-docs-table">
-          <thead><tr><th>Key</th><th>Type</th><th>What it shows</th></tr></thead>
-          <tbody>
-            <tr><td><code>score</code></td><td>score</td><td>0-100 with progress bar</td></tr>
-            <tr><td><code>verdict</code></td><td>verdict</td><td>Italic summary quote</td></tr>
-            <tr><td><code>roast_points</code></td><td>list</td><td>Bullet point list</td></tr>
-            <tr><td><code>improvements</code></td><td>text</td><td>Paragraph of text</td></tr>
-            <tr><td><code>pro_tip</code></td><td>highlight</td><td>Bold callout box</td></tr>
-          </tbody>
-        </table>
+          <!-- Building an Agent -->
+          <div class="pa-docs-section" id="building-an-agent">
+            <h3>Building an Agent</h3>
+            <p>
+              <a href="/agent-forge/">Agent Forge</a> is the builder tool for creating and publishing your own Pixel Agents. No coding required — just fill in the fields and test.
+            </p>
+            <ul>
+              <li><strong>Name your agent</strong> — pick a unique name and write a short tagline.</li>
+              <li><strong>Write a system prompt</strong> — tell the AI what role it plays and how it should behave.</li>
+              <li><strong>Define output sections</strong> — choose the structured sections your agent returns (score, verdict, list, etc.).</li>
+              <li><strong>Add powers</strong> — optionally enable web search, URL fetching, or image generation.</li>
+              <li><strong>Test</strong> — run your agent with sample input to verify the output before publishing.</li>
+              <li><strong>Submit</strong> — send your agent for review and approval.</li>
+            </ul>
+          </div>
 
-        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Step 2: Write your system prompt</h4>
-        <p>End your system prompt with a JSON template that matches your output section keys exactly. Here's a complete example:</p>
-        <pre class="pa-docs-code">You are a brutally honest website critic. Analyze the site and provide a detailed roast.
+          <!-- Writing Prompts -->
+          <div class="pa-docs-section" id="writing-prompts">
+            <h3>Writing Prompts (JSON Output)</h3>
+            <p>
+              Your agent's system prompt must instruct the AI to respond with <strong>valid JSON</strong>.
+              The JSON keys must match the <code>key</code> values in your output sections. This is how the
+              structured result cards are generated.
+            </p>
+
+            <h4>Step 1: Define your output sections</h4>
+            <p>In Agent Forge, add the sections you want. Each section has a <strong>key</strong> (the JSON field name) and a <strong>type</strong> (how it renders). For example:</p>
+            <table class="pa-docs-table">
+              <thead><tr><th>Key</th><th>Type</th><th>What it shows</th></tr></thead>
+              <tbody>
+                <tr><td><code>score</code></td><td>score</td><td>0-100 with progress bar</td></tr>
+                <tr><td><code>verdict</code></td><td>verdict</td><td>Italic summary quote</td></tr>
+                <tr><td><code>roast_points</code></td><td>list</td><td>Bullet point list</td></tr>
+                <tr><td><code>improvements</code></td><td>text</td><td>Paragraph of text</td></tr>
+                <tr><td><code>pro_tip</code></td><td>highlight</td><td>Bold callout box</td></tr>
+              </tbody>
+            </table>
+
+            <h4>Step 2: Write your system prompt</h4>
+            <p>End your system prompt with a JSON template that matches your output section keys exactly. Here's a complete example:</p>
+            <pre class="pa-docs-code">You are a brutally honest website critic. Analyze the site and provide a detailed roast.
 
 You MUST respond with valid JSON:
 {
@@ -268,179 +310,211 @@ You MUST respond with valid JSON:
 
 Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
 
-        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Key Rules</h4>
-        <ul>
-          <li><strong>Keys must match exactly</strong> — if your output section key is <code>roast_points</code>, the JSON must use <code>"roast_points"</code>, not <code>"roastPoints"</code> or <code>"points"</code>.</li>
-          <li><strong>Always say "Do NOT wrap in code fences"</strong> — AI models sometimes wrap JSON in <code>```json</code> blocks. This line prevents that.</li>
-          <li><strong>Always say "Return ONLY raw JSON"</strong> — prevents the AI from adding explanation text before or after the JSON.</li>
-          <li><strong>Use the right data types</strong> — scores should be numbers (not strings), lists should be arrays, text should be strings.</li>
-        </ul>
+            <h4>Key Rules</h4>
+            <ul>
+              <li><strong>Keys must match exactly</strong> — if your output section key is <code>roast_points</code>, the JSON must use <code>"roast_points"</code>, not <code>"roastPoints"</code> or <code>"points"</code>.</li>
+              <li><strong>Always say "Do NOT wrap in code fences"</strong> — AI models sometimes wrap JSON in <code>```json</code> blocks. This line prevents that.</li>
+              <li><strong>Always say "Return ONLY raw JSON"</strong> — prevents the AI from adding explanation text before or after the JSON.</li>
+              <li><strong>Use the right data types</strong> — scores should be numbers (not strings), lists should be arrays, text should be strings.</li>
+            </ul>
 
-        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Data Types by Section Type</h4>
-        <table class="pa-docs-table">
-          <thead><tr><th>Section Type</th><th>Expected JSON Value</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td><code>score</code></td><td>Number (0-100)</td><td><code>"score": 72</code></td></tr>
-            <tr><td><code>verdict</code></td><td>String</td><td><code>"verdict": "Solid but needs work"</code></td></tr>
-            <tr><td><code>text</code></td><td>String</td><td><code>"analysis": "The site has..."</code></td></tr>
-            <tr><td><code>list</code></td><td>Array of strings</td><td><code>"tips": ["Tip 1", "Tip 2"]</code></td></tr>
-            <tr><td><code>tags</code></td><td>Array of strings</td><td><code>"keywords": ["fast", "modern"]</code></td></tr>
-            <tr><td><code>highlight</code></td><td>String</td><td><code>"key_takeaway": "Fix your CTA"</code></td></tr>
-            <tr><td><code>name_list</code></td><td>Array of objects</td><td><code>"names": [{"name": "Acme", "why": "Simple"}]</code></td></tr>
-            <tr><td><code>color_palette</code></td><td>Array of objects</td><td><code>"colors": [{"name": "Sky", "hex": "#87CEEB"}]</code></td></tr>
-          </tbody>
-        </table>
+            <h4>Data Types by Section Type</h4>
+            <table class="pa-docs-table">
+              <thead><tr><th>Section Type</th><th>Expected JSON Value</th><th>Example</th></tr></thead>
+              <tbody>
+                <tr><td><code>score</code></td><td>Number (0-100)</td><td><code>"score": 72</code></td></tr>
+                <tr><td><code>verdict</code></td><td>String</td><td><code>"verdict": "Solid but needs work"</code></td></tr>
+                <tr><td><code>text</code></td><td>String</td><td><code>"analysis": "The site has..."</code></td></tr>
+                <tr><td><code>list</code></td><td>Array of strings</td><td><code>"tips": ["Tip 1", "Tip 2"]</code></td></tr>
+                <tr><td><code>tags</code></td><td>Array of strings</td><td><code>"keywords": ["fast", "modern"]</code></td></tr>
+                <tr><td><code>highlight</code></td><td>String</td><td><code>"key_takeaway": "Fix your CTA"</code></td></tr>
+                <tr><td><code>name_list</code></td><td>Array of objects</td><td><code>"names": [{"name": "Acme", "why": "Simple"}]</code></td></tr>
+                <tr><td><code>color_palette</code></td><td>Array of objects</td><td><code>"colors": [{"name": "Sky", "hex": "#87CEEB"}]</code></td></tr>
+              </tbody>
+            </table>
 
-        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Common Mistakes</h4>
-        <ul>
-          <li><strong>Key mismatch</strong> — your prompt says <code>"suggestions"</code> but your output section key is <code>"improvements"</code>. The section won't render.</li>
-          <li><strong>Missing "Return ONLY raw JSON"</strong> — the AI adds conversational text around the JSON, causing a parse error.</li>
-          <li><strong>Score as string</strong> — writing <code>"score": "85"</code> instead of <code>"score": 85</code>. Use a number.</li>
-          <li><strong>Nested objects where strings expected</strong> — the <code>text</code> type expects a plain string, not an object. Keep it simple.</li>
-        </ul>
+            <h4>Common Mistakes</h4>
+            <ul>
+              <li><strong>Key mismatch</strong> — your prompt says <code>"suggestions"</code> but your output section key is <code>"improvements"</code>. The section won't render.</li>
+              <li><strong>Missing "Return ONLY raw JSON"</strong> — the AI adds conversational text around the JSON, causing a parse error.</li>
+              <li><strong>Score as string</strong> — writing <code>"score": "85"</code> instead of <code>"score": 85</code>. Use a number.</li>
+              <li><strong>Nested objects where strings expected</strong> — the <code>text</code> type expects a plain string, not an object. Keep it simple.</li>
+            </ul>
 
-        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">User Prompt Template</h4>
-        <p>
-          The user prompt template is the message sent to the AI alongside the user's input.
-          Use <code>{{input}}</code> as the placeholder — it gets replaced with whatever the user types or pastes.
-        </p>
-        <p>
-          Think of it as: <strong>system prompt = who the agent is</strong>, <strong>user prompt = what it's being asked to do right now</strong>.
-        </p>
+            <h4>User Prompt Template</h4>
+            <p>
+              The user prompt template is the message sent to the AI alongside the user's input.
+              Use <code>{{input}}</code> as the placeholder — it gets replaced with whatever the user types or pastes.
+            </p>
+            <p>
+              Think of it as: <strong>system prompt = who the agent is</strong>, <strong>user prompt = what it's being asked to do right now</strong>.
+            </p>
 
-        <p style="margin-top:1rem"><strong>For text-input agents</strong> (user pastes text, a name, a description):</p>
-        <pre class="pa-docs-code">Roast this:
-
-{{input}}</pre>
-
-        <p><strong>For URL-input agents</strong> (user pastes a URL, agent fetches the page):</p>
-        <pre class="pa-docs-code">Analyze this website and provide your assessment:
+            <p style="margin-top:1rem"><strong>For text-input agents</strong> (user pastes text, a name, a description):</p>
+            <pre class="pa-docs-code">Roast this:
 
 {{input}}</pre>
 
-        <p><strong>For multi-purpose agents</strong> (add context around the input):</p>
-        <pre class="pa-docs-code">Here is the user's resume text. Score it, roast it, and suggest improvements:
+            <p><strong>For URL-input agents</strong> (user pastes a URL, agent fetches the page):</p>
+            <pre class="pa-docs-code">Analyze this website and provide your assessment:
 
 {{input}}</pre>
 
-        <h4 style="font-size:0.9rem;font-weight:600;color:var(--pa-text);margin:1.25rem 0 0.5rem;">Tips</h4>
-        <ul>
-          <li><strong>Keep it short</strong> — 1-2 lines is ideal. The system prompt handles the detailed instructions.</li>
-          <li><strong>Always include <code>{{input}}</code></strong> — without it, the agent won't receive the user's input.</li>
-          <li><strong>Don't repeat the system prompt</strong> — the user prompt shouldn't restate the agent's role or JSON format. That's already in the system prompt.</li>
-          <li><strong>Label the input</strong> — tell the AI what it's looking at: "Here is the website:", "Here is the startup idea:", "Here is the code:". This helps the AI parse the input correctly.</li>
-          <li><strong>Don't add instructions like "respond in JSON"</strong> — that belongs in the system prompt, not here.</li>
-        </ul>
-      </div>
+            <p><strong>For multi-purpose agents</strong> (add context around the input):</p>
+            <pre class="pa-docs-code">Here is the user's resume text. Score it, roast it, and suggest improvements:
 
-      <!-- Output Section Types -->
-      <div class="pa-docs-section" id="output-types">
-        <h3>Output Section Types</h3>
-        <p>Each agent defines one or more output sections. These are the available types:</p>
-        <ul>
-          <li><code>score</code> — a 0-100 number displayed with a progress bar.</li>
-          <li><code>verdict</code> — a short italic quote summarizing the result.</li>
-          <li><code>text</code> — a paragraph of analysis or explanation.</li>
-          <li><code>list</code> — bullet points for itemized results.</li>
-          <li><code>tags</code> — pill badges for categories, keywords, or labels.</li>
-          <li><code>highlight</code> — a bold callout for key takeaways.</li>
-          <li><code>name_list</code> — structured names with accompanying reasons or descriptions.</li>
-          <li><code>image</code> — a generated image via AI.</li>
-          <li><code>color_palette</code> — color swatches with hex values.</li>
-        </ul>
-      </div>
+{{input}}</pre>
 
-      <!-- Agent Powers -->
-      <div class="pa-docs-section" id="agent-powers">
-        <h3>Agent Powers</h3>
-        <p>Powers are special capabilities you can enable on your agent:</p>
-        <ul>
-          <li><code>webSearch</code> — the agent searches the web for real-time information before generating its analysis.</li>
-          <li><code>fetchUrl</code> — the agent reads the actual page content from a URL the user provides.</li>
-          <li><code>imageGeneration</code> — the agent generates an image via Gemini as part of its output.</li>
-        </ul>
-      </div>
+            <h4>Tips</h4>
+            <ul>
+              <li><strong>Keep it short</strong> — 1-2 lines is ideal. The system prompt handles the detailed instructions.</li>
+              <li><strong>Always include <code>{{input}}</code></strong> — without it, the agent won't receive the user's input.</li>
+              <li><strong>Don't repeat the system prompt</strong> — the user prompt shouldn't restate the agent's role or JSON format. That's already in the system prompt.</li>
+              <li><strong>Label the input</strong> — tell the AI what it's looking at: "Here is the website:", "Here is the startup idea:", "Here is the code:". This helps the AI parse the input correctly.</li>
+              <li><strong>Don't add instructions like "respond in JSON"</strong> — that belongs in the system prompt, not here.</li>
+            </ul>
+          </div>
 
-      <!-- Testing & Submission -->
-      <div class="pa-docs-section" id="testing">
-        <h3>Testing &amp; Submission</h3>
-        <p>
-          When you submit an agent, an AI gatekeeper evaluates it on three dimensions — <strong>quality</strong>, <strong>uniqueness</strong>, and <strong>safety</strong> — each scored 0-100.
-        </p>
-        <ul>
-          <li><strong>70+ on all three</strong> — auto-approved and published immediately.</li>
-          <li><strong>Below 70 on any</strong> — queued for CEO review.</li>
-          <li><strong>Below 40 on any</strong> — rejected outright.</li>
-        </ul>
-      </div>
+          <!-- Output Section Types -->
+          <div class="pa-docs-section" id="output-types">
+            <h3>Output Section Types</h3>
+            <p>Each agent defines one or more output sections. These are the available types:</p>
+            <ul>
+              <li><code>score</code> — a 0-100 number displayed with a progress bar.</li>
+              <li><code>verdict</code> — a short italic quote summarizing the result.</li>
+              <li><code>text</code> — a paragraph of analysis or explanation.</li>
+              <li><code>list</code> — bullet points for itemized results.</li>
+              <li><code>tags</code> — pill badges for categories, keywords, or labels.</li>
+              <li><code>highlight</code> — a bold callout for key takeaways.</li>
+              <li><code>name_list</code> — structured names with accompanying reasons or descriptions.</li>
+              <li><code>image</code> — a generated image via AI.</li>
+              <li><code>color_palette</code> — color swatches with hex values.</li>
+            </ul>
+          </div>
 
-      <!-- Editing Live Agents -->
-      <div class="pa-docs-section" id="editing">
-        <h3>Editing Live Agents</h3>
-        <p>
-          Once your agent is live, some fields can be changed freely without re-review:
-        </p>
-        <ul>
-          <li>Tagline, icon, portrait, tier, and temperature — cosmetic changes, updated instantly.</li>
-        </ul>
-        <p>
-          Other fields are locked behind re-review because they change the agent's behavior:
-        </p>
-        <ul>
-          <li>Name, category, system prompt, user prompt, input type, output sections, and powers — editing any of these triggers a new review cycle.</li>
-        </ul>
-      </div>
+          <!-- Agent Powers -->
+          <div class="pa-docs-section" id="agent-powers">
+            <h3>Agent Powers</h3>
+            <p>Powers are special capabilities you can enable on your agent:</p>
+            <ul>
+              <li><code>webSearch</code> — the agent searches the web for real-time information before generating its analysis.</li>
+              <li><code>fetchUrl</code> — the agent reads the actual page content from a URL the user provides.</li>
+              <li><code>imageGeneration</code> — the agent generates an image via Gemini as part of its output.</li>
+            </ul>
+          </div>
 
-      <!-- Rate Limits -->
-      <div class="pa-docs-section" id="rate-limits">
-        <h3>Rate Limits</h3>
-        <table class="pa-docs-table">
-          <thead>
-            <tr>
-              <th>Action</th>
-              <th>Limit</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Anonymous runs</td><td>5 / day</td></tr>
-            <tr><td>Authenticated runs</td><td>25 / day</td></tr>
-            <tr><td>Submissions</td><td>5 / day</td></tr>
-            <tr><td>Portrait generation</td><td>10 / day</td></tr>
-            <tr><td>Live agents per creator</td><td>5 max</td></tr>
-          </tbody>
-        </table>
-      </div>
+          <!-- Testing & Submission -->
+          <div class="pa-docs-section" id="testing">
+            <h3>Testing &amp; Submission</h3>
+            <p>
+              When you submit an agent, an AI gatekeeper evaluates it on three dimensions — <strong>quality</strong>, <strong>uniqueness</strong>, and <strong>safety</strong> — each scored 0-100.
+            </p>
+            <ul>
+              <li><strong>70+ on all three</strong> — auto-approved and published immediately.</li>
+              <li><strong>Below 70 on any</strong> — queued for CEO review.</li>
+              <li><strong>Below 40 on any</strong> — rejected outright.</li>
+            </ul>
+          </div>
 
-      <!-- Revenue Share -->
-      <div class="pa-docs-section" id="revenue-share">
-        <h3>Revenue Share</h3>
-        <table class="pa-docs-table">
-          <thead>
-            <tr>
-              <th>Tier</th>
-              <th>Monthly</th>
-              <th>Revenue Share</th>
-              <th>Live Agents</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Free Creator</td>
-              <td>$0</td>
-              <td>50% of your agent's monthly share</td>
-              <td>5</td>
-            </tr>
-            <tr>
-              <td>Pro Creator</td>
-              <td>$12/mo</td>
-              <td>70% of your agent's monthly share</td>
-              <td>Unlimited</td>
-            </tr>
-          </tbody>
-        </table>
-        <p>
-          Every Pro subscription powers the creator pool. 40% of Pro revenue is distributed monthly based on how many runs your agents generated. Free creators keep 50%, Pro creators keep 70%. Pool grows as the platform grows — early creators benefit most. Payouts via Stripe when you hit $25.
-        </p>
+          <!-- Editing Live Agents -->
+          <div class="pa-docs-section" id="editing">
+            <h3>Editing Live Agents</h3>
+            <p>
+              Once your agent is live, some fields can be changed freely without re-review:
+            </p>
+            <ul>
+              <li>Tagline, icon, portrait, tier, and temperature — cosmetic changes, updated instantly.</li>
+            </ul>
+            <p>
+              Other fields are locked behind re-review because they change the agent's behavior:
+            </p>
+            <ul>
+              <li>Name, category, system prompt, user prompt, input type, output sections, and powers — editing any of these triggers a new review cycle.</li>
+            </ul>
+          </div>
+
+          <!-- Rate Limits -->
+          <div class="pa-docs-section" id="rate-limits">
+            <h3>Rate Limits</h3>
+            <table class="pa-docs-table">
+              <thead>
+                <tr>
+                  <th>Action</th>
+                  <th>Limit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Anonymous runs</td><td>5 / day</td></tr>
+                <tr><td>Authenticated runs</td><td>25 / day</td></tr>
+                <tr><td>Submissions</td><td>5 / day</td></tr>
+                <tr><td>Portrait generation</td><td>10 / day</td></tr>
+                <tr><td>Live agents per creator</td><td>5 max</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Revenue Share -->
+          <div class="pa-docs-section" id="revenue-share">
+            <h3>Revenue Share</h3>
+            <table class="pa-docs-table">
+              <thead>
+                <tr>
+                  <th>Tier</th>
+                  <th>Monthly</th>
+                  <th>Revenue Share</th>
+                  <th>Live Agents</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Free Creator</td>
+                  <td>$0</td>
+                  <td>50% of your agent's monthly share</td>
+                  <td>5</td>
+                </tr>
+                <tr>
+                  <td>Pro Creator</td>
+                  <td>$12/mo</td>
+                  <td>70% of your agent's monthly share</td>
+                  <td>Unlimited</td>
+                </tr>
+              </tbody>
+            </table>
+            <p>
+              Every Pro subscription powers the creator pool. 40% of Pro revenue is distributed monthly based on how many runs your agents generated. Free creators keep 50%, Pro creators keep 70%. Pool grows as the platform grows — early creators benefit most. Payouts via Stripe when you hit $25.
+            </p>
+          </div>
+
+          <!-- API Reference section coming soon — add when API is public -->
+
+          <!-- Billing & Pro -->
+          <div class="pa-docs-section" id="billing">
+            <h3>Billing &amp; Pro</h3>
+            <p>Pixel Agents has two tiers for creators:</p>
+            <table class="pa-docs-table">
+              <thead>
+                <tr><th>Feature</th><th>Free</th><th>Pro ($12/mo)</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Daily runs (anonymous)</td><td>5</td><td>5</td></tr>
+                <tr><td>Daily runs (signed in)</td><td>25</td><td>Unlimited</td></tr>
+                <tr><td>Live agents</td><td>5</td><td>Unlimited</td></tr>
+                <tr><td>Revenue share</td><td>50% of your share</td><td>70% of your share</td></tr>
+                <tr><td>Run weight (payout multiplier)</td><td>1x</td><td>1.5x</td></tr>
+                <tr><td>Priority queue</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Early access to new features</td><td>No</td><td>Yes</td></tr>
+              </tbody>
+            </table>
+            <p>
+              Pro unlocks three entitlement flags: <code>paUnlimitedRuns</code>, <code>paPriorityQueue</code>, and <code>paEarlyAccess</code>.
+              These are checked on every agent run and reflected in your analytics dashboard.
+            </p>
+            <p>
+              To upgrade, visit the <a href="/pixel-agents/?upgrade=pro">upgrade page</a> or click the Pro CTA on your analytics dashboard.
+            </p>
+          </div>
+
+        </div>
       </div>
 
     </div>
@@ -501,14 +575,19 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
     }
   })();
 
-  // Scroll spy for docs TOC
+  // Scroll spy for docs nav
   (function() {
     var sections = document.querySelectorAll('.pa-docs-section[id]');
-    var links = document.querySelectorAll('.pa-docs-toc-link');
+    var links = document.querySelectorAll('.pa-docs-nav-link');
     if (!sections.length || !links.length) return;
 
+    var isScrolling = false;
+    var contentEl = document.querySelector('.pa-main');
+
     function updateActive() {
-      var scrollY = window.scrollY + 120;
+      if (isScrolling) return;
+      var scrollEl = contentEl || window;
+      var scrollY = (contentEl ? contentEl.scrollTop : window.scrollY) + 150;
       var active = sections[0].id;
       for (var i = 0; i < sections.length; i++) {
         if (sections[i].offsetTop <= scrollY) active = sections[i].id;
@@ -518,15 +597,19 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       });
     }
 
-    window.addEventListener('scroll', updateActive, { passive: true });
+    var scrollTarget = contentEl || window;
+    scrollTarget.addEventListener('scroll', updateActive, { passive: true });
     updateActive();
 
-    // Smooth scroll on click
     links.forEach(function(link) {
       link.addEventListener('click', function(e) {
         e.preventDefault();
+        isScrolling = true;
+        links.forEach(function(l) { l.classList.remove('active'); });
+        link.classList.add('active');
         var target = document.querySelector(link.getAttribute('href'));
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(function() { isScrolling = false; }, 800);
       });
     });
   })();
