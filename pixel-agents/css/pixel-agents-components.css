@@ -76,7 +76,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .pa-hero-pill {
@@ -967,11 +968,13 @@
 .pa-badge--featured {
   background: var(--pa-primary);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(143, 0, 255, 0.4);
 }
 
 .pa-badge--community {
   background: var(--pa-tertiary);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 0, 212, 0.4);
 }
 
 /* Tier badge colors */

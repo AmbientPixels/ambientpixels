@@ -235,7 +235,7 @@ function renderAgentUI(agent) {
   // Portrait in header
   var portrait = document.getElementById('pa-run-portrait');
   if (portrait) {
-    var imgSrc = agent.portraitUrl || '/pixel-agents/img/' + agent.id + '.png';
+    var imgSrc = agent.portraitUrl || '/pixel-agents/img/' + agent.id + '.webp';
     portrait.innerHTML =
       '<img src="' + escapeHtml(imgSrc) + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
       '<div class="pa-portrait-fallback" style="display:none"><i class="' + escapeHtml(agent.icon) + '"></i></div>';
@@ -306,7 +306,7 @@ async function runAgent() {
 
   var loadPortrait = document.getElementById('pa-loading-portrait');
   if (loadPortrait && currentAgent) {
-    var imgSrc = currentAgent.portraitUrl || '/pixel-agents/img/' + currentAgent.id + '.png';
+    var imgSrc = currentAgent.portraitUrl || '/pixel-agents/img/' + currentAgent.id + '.webp';
     loadPortrait.innerHTML = '<img src="' + escapeHtml(imgSrc) + '" alt="" onerror="this.parentElement.style.display=\'none\'">';
   }
 
@@ -631,7 +631,7 @@ function renderRelatedAgents(agent) {
   if (related.length === 0) return;
 
   grid.innerHTML = related.map(function (a) {
-    var imgSrc = a.portraitUrl || '/pixel-agents/img/' + escapeAttr(a.id) + '.png';
+    var imgSrc = a.portraitUrl || '/pixel-agents/img/' + escapeAttr(a.id) + '.webp';
     return '<a href="/pixel-agents/run.html?agent=' + escapeAttr(a.id) + '" class="pa-related-card">' +
       '<div class="pa-related-card-portrait">' +
         '<img src="' + escapeAttr(imgSrc) + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +

@@ -234,7 +234,7 @@
         var portrait = document.getElementById('pa-run-portrait');
         if (portrait && agent) {
           portrait.innerHTML =
-            '<img src="/pixel-agents/img/' + agent.id + '.png" alt="' + (agent.name||'') + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+            '<img src="/pixel-agents/img/' + agent.id + '.webp" alt="' + (agent.name||'') + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
             '<div class="pa-portrait-fallback" style="display:none"><i class="' + (agent.icon||'fas fa-robot') + '"></i></div>';
         }
       };
