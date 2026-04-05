@@ -34,6 +34,63 @@
     .pa-docs-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep); color: var(--pa-text); }
     .pa-docs-code { font-family: var(--pa-font-mono); font-size: 0.78rem; line-height: 1.6; padding: 1rem 1.25rem; background: #0a0a0f; border: 1px solid var(--pa-sep-strong); border-radius: var(--pa-radius-md); color: var(--pa-text-muted); overflow-x: auto; white-space: pre-wrap; word-break: break-word; margin: 0.75rem 0; }
     .pa-docs-section h4 { margin: 0; }
+    /* Table of Contents */
+    .pa-docs-toc {
+      position: sticky;
+      top: 1rem;
+      float: right;
+      width: 200px;
+      margin-left: 2rem;
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: var(--pa-surface);
+      border: 1px solid var(--pa-sep);
+      border-radius: var(--pa-radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .pa-docs-toc-title {
+      font-family: var(--pa-font-display);
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--pa-text-faint);
+      margin-bottom: 0.5rem;
+    }
+    .pa-docs-toc-link {
+      font-size: 0.72rem;
+      color: var(--pa-text-muted);
+      text-decoration: none;
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--pa-radius-sm);
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .pa-docs-toc-link:hover {
+      color: var(--pa-text);
+      background: rgba(255,255,255,0.03);
+    }
+    .pa-docs-toc-link.active {
+      color: var(--pa-primary);
+      border-left-color: var(--pa-primary);
+      background: var(--pa-primary-dim);
+    }
+    @media (max-width: 900px) {
+      .pa-docs-toc {
+        position: static;
+        float: none;
+        width: 100%;
+        margin: 0 0 2rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+      }
+      .pa-docs-toc-title { width: 100%; }
+      .pa-docs-toc-link { border-left: none; border-bottom: 2px solid transparent; }
+      .pa-docs-toc-link.active { border-left: none; border-bottom-color: var(--pa-primary); }
+    }
   </style>
 </head>
 <body class="pa-shell" data-theme="dark">
@@ -128,8 +185,22 @@
         </div>
       </div>
 
+      <!-- Table of Contents -->
+      <nav class="pa-docs-toc">
+        <div class="pa-docs-toc-title">On This Page</div>
+        <a href="#getting-started" class="pa-docs-toc-link active">Getting Started</a>
+        <a href="#building-an-agent" class="pa-docs-toc-link">Building an Agent</a>
+        <a href="#writing-prompts" class="pa-docs-toc-link">Writing Prompts</a>
+        <a href="#output-types" class="pa-docs-toc-link">Output Section Types</a>
+        <a href="#agent-powers" class="pa-docs-toc-link">Agent Powers</a>
+        <a href="#testing" class="pa-docs-toc-link">Testing &amp; Submission</a>
+        <a href="#editing" class="pa-docs-toc-link">Editing Live Agents</a>
+        <a href="#rate-limits" class="pa-docs-toc-link">Rate Limits</a>
+        <a href="#revenue-share" class="pa-docs-toc-link">Revenue Share</a>
+      </nav>
+
       <!-- Getting Started -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="getting-started">
         <h3>Getting Started</h3>
         <p>
           Pixel Agents is an AI agent marketplace where anyone can discover, run, and build specialized AI agents.
@@ -145,7 +216,7 @@
       </div>
 
       <!-- Building an Agent -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="building-an-agent">
         <h3>Building an Agent</h3>
         <p>
           <a href="/agent-forge/">Agent Forge</a> is the builder tool for creating and publishing your own Pixel Agents. No coding required — just fill in the fields and test.
@@ -161,7 +232,7 @@
       </div>
 
       <!-- Writing Prompts -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="writing-prompts">
         <h3>Writing Prompts (JSON Output)</h3>
         <p>
           Your agent's system prompt must instruct the AI to respond with <strong>valid JSON</strong>.
@@ -263,7 +334,7 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       </div>
 
       <!-- Output Section Types -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="output-types">
         <h3>Output Section Types</h3>
         <p>Each agent defines one or more output sections. These are the available types:</p>
         <ul>
@@ -280,7 +351,7 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       </div>
 
       <!-- Agent Powers -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="agent-powers">
         <h3>Agent Powers</h3>
         <p>Powers are special capabilities you can enable on your agent:</p>
         <ul>
@@ -291,7 +362,7 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       </div>
 
       <!-- Testing & Submission -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="testing">
         <h3>Testing &amp; Submission</h3>
         <p>
           When you submit an agent, an AI gatekeeper evaluates it on three dimensions — <strong>quality</strong>, <strong>uniqueness</strong>, and <strong>safety</strong> — each scored 0-100.
@@ -304,7 +375,7 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       </div>
 
       <!-- Editing Live Agents -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="editing">
         <h3>Editing Live Agents</h3>
         <p>
           Once your agent is live, some fields can be changed freely without re-review:
@@ -321,7 +392,7 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       </div>
 
       <!-- Rate Limits -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="rate-limits">
         <h3>Rate Limits</h3>
         <table class="pa-docs-table">
           <thead>
@@ -341,7 +412,7 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       </div>
 
       <!-- Revenue Share -->
-      <div class="pa-docs-section">
+      <div class="pa-docs-section" id="revenue-share">
         <h3>Revenue Share</h3>
         <table class="pa-docs-table">
           <thead>
@@ -428,6 +499,36 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
         this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
       });
     }
+  })();
+
+  // Scroll spy for docs TOC
+  (function() {
+    var sections = document.querySelectorAll('.pa-docs-section[id]');
+    var links = document.querySelectorAll('.pa-docs-toc-link');
+    if (!sections.length || !links.length) return;
+
+    function updateActive() {
+      var scrollY = window.scrollY + 120;
+      var active = sections[0].id;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].offsetTop <= scrollY) active = sections[i].id;
+      }
+      links.forEach(function(link) {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + active);
+      });
+    }
+
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+
+    // Smooth scroll on click
+    links.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   })();
   </script>
 </body>
