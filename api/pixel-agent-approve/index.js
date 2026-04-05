@@ -47,40 +47,61 @@ module.exports = async function (context, req) {
     if (action === 'approve') {
       // Move agent config to community catalog
       let community = (await storage.getState('pixelAgentCommunity')) || [];
+      var isEdit = submission.editMode && submission.originalAgentId;
 
-      // Check live agent cap (3 max)
-      const MAX_LIVE = 3;
-      const liveCount = community.filter(a => a.active).length;
-      if (liveCount >= MAX_LIVE) {
-        context.res = {
-          status: 409,
-          headers: CORS_HEADERS,
-          body: { error: 'Max ' + MAX_LIVE + ' live agents. Delete one from the catalog to publish a new one.', liveCount: liveCount, limit: MAX_LIVE }
-        };
-        return;
+      if (isEdit) {
+        // Edit: update existing agent in place
+        var editIdx = community.findIndex(a => a.id === submission.originalAgentId);
+        if (editIdx === -1) {
+          context.res = {
+            status: 404,
+            headers: CORS_HEADERS,
+            body: { error: 'Original agent not found for edit — may have been deleted' }
+          };
+          return;
+        }
+        community[editIdx] = Object.assign({}, submission.agentConfig, {
+          active: true,
+          community: true,
+          submissionId: submissionId,
+          approvedAt: new Date().toISOString(),
+          lastEditedAt: new Date().toISOString(),
+          order: community[editIdx].order
+        });
+        context.log('[AgentApprove] Updated existing agent:', submission.originalAgentId);
+      } else {
+        // New agent: check cap and duplicate
+        const MAX_LIVE = 3;
+        const liveCount = community.filter(a => a.active).length;
+        if (liveCount >= MAX_LIVE) {
+          context.res = {
+            status: 409,
+            headers: CORS_HEADERS,
+            body: { error: 'Max ' + MAX_LIVE + ' live agents. Delete one from the catalog to publish a new one.', liveCount: liveCount, limit: MAX_LIVE }
+          };
+          return;
+        }
+
+        if (community.some(a => a.id === submission.agentConfig.id)) {
+          context.res = {
+            status: 409,
+            headers: CORS_HEADERS,
+            body: { error: 'Agent with this ID already exists in community catalog' }
+          };
+          return;
+        }
+
+        community.push(Object.assign({}, submission.agentConfig, {
+          active: true,
+          community: true,
+          submissionId: submissionId,
+          approvedAt: new Date().toISOString(),
+          order: 100 + community.length
+        }));
       }
 
-      // Check for duplicate
-      if (community.some(a => a.id === submission.agentConfig.id)) {
-        context.res = {
-          status: 409,
-          headers: CORS_HEADERS,
-          body: { error: 'Agent with this ID already exists in community catalog' }
-        };
-        return;
-      }
-
-      // Build the community agent entry
-      const communityAgent = Object.assign({}, submission.agentConfig, {
-        active: true,
-        community: true,
-        submissionId: submissionId,
-        approvedAt: new Date().toISOString(),
-        order: 100 + community.length
-      });
-
-      community.push(communityAgent);
       await storage.setState('pixelAgentCommunity', community);
+      const communityAgent = submission.agentConfig;
 
       // Update submission status
       submission.status = 'approved';

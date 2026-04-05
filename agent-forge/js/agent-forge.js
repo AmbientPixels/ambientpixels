@@ -15,6 +15,9 @@ var isLoggedIn = false;
 var currentDraftId = null;
 var agentStatus = 'draft'; // draft, reviewing, returned, submitted, approved, rejected
 var lastReview = null; // last AI review result
+var _editMode = false; // true when editing an existing live agent
+var _editAgentId = null; // original agent ID being edited
+var _liveAgentsCache = []; // cache of live agent configs for edit loading
 
 // Check auth
 fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
@@ -289,7 +292,9 @@ function renderComponentForm(component) {
   var s = agentState;
   switch (component) {
     case 'identity':
-      return '<div class="af-field"><label class="af-field-label">Name</label><input type="text" data-bind="identity.name" value="' + escapeAttr(s.identity.name) + '" maxlength="30" placeholder="My Agent"></div>' +
+      var nameLocked = _editMode ? ' disabled title="Name cannot be changed on live agents"' : '';
+      var nameLabel = _editMode ? 'Name <span style="font-size:0.55rem;opacity:0.5;text-transform:none;letter-spacing:0">(locked)</span>' : 'Name';
+      return '<div class="af-field"><label class="af-field-label">' + nameLabel + '</label><input type="text" data-bind="identity.name" value="' + escapeAttr(s.identity.name) + '" maxlength="30" placeholder="My Agent"' + nameLocked + '></div>' +
         '<div class="af-field"><label class="af-field-label">Tagline</label><input type="text" data-bind="identity.tagline" value="' + escapeAttr(s.identity.tagline) + '" maxlength="60" placeholder="What does it do?"></div>' +
         '<div class="af-field"><label class="af-field-label">Description</label><textarea data-bind="identity.description" maxlength="200" placeholder="Describe your agent...">' + escapeHtml(s.identity.description) + '</textarea></div>' +
         '<div class="af-field"><label class="af-field-label">Icon</label><div class="af-icon-trigger" id="af-icon-trigger"><i class="' + escapeAttr(s.identity.icon) + '"></i> <span>Change icon</span></div></div>' +
@@ -522,10 +527,11 @@ function updatePreview() {
   var wrap = document.getElementById('af-agent-card-wrap');
   if (wrap) {
     var portraitHtml = '';
-    if (s.portrait && s.portrait.base64) {
+    var hasPortrait = (s.portrait && s.portrait.base64) || s._portraitUrl;
+    if (hasPortrait) {
       portraitHtml =
         '<div class="pa-agent-portrait">' +
-          '<img id="af-preview-portrait-img">' +
+          '<img id="af-preview-portrait-img"' + (s._portraitUrl ? ' src="' + escapeAttr(s._portraitUrl) + '"' : '') + '>' +
           '<div class="pa-portrait-fallback"><i class="' + escapeAttr(icon) + '"></i></div>' +
         '</div>';
     }
@@ -595,6 +601,8 @@ function initActions() {
       powers: { webSearch: false, fetchUrl: false, imageGeneration: false, rateLimitCost: 1, imageConfig: { outputType: 'square_image', topicPrefix: '' } }
     };
     currentDraftId = null;
+    _editMode = false;
+    _editAgentId = null;
     renderPipeline();
     updateTrayState();
     updatePreview();
@@ -874,10 +882,16 @@ async function submitForReview() {
     var hdrs = { 'Content-Type': 'application/json' };
     if (isLoggedIn) hdrs['x-company-secret'] = 'pixelpusher';
 
+    var submitBody = { agentConfig: agentConfig };
+    if (_editMode && _editAgentId) {
+      submitBody.editMode = true;
+      submitBody.originalAgentId = _editAgentId;
+    }
+
     var res = await fetch(getApiBase() + '/pixel-agent-submit', {
       method: 'POST',
       headers: hdrs,
-      body: JSON.stringify({ agentConfig: agentConfig })
+      body: JSON.stringify(submitBody)
     });
 
     var data = await res.json();
@@ -899,7 +913,8 @@ async function submitForReview() {
 function showReviewResult(decision, feedback, data) {
   lastReview = data;
   var meta = {
-    approved: { color: '#4ade80', bg: 'rgba(74,222,128,0.08)', icon: 'fa-check-circle', title: 'Approved!', status: 'Forwarded to CEO for final approval' },
+    cosmetic_update: { color: '#4ade80', bg: 'rgba(74,222,128,0.08)', icon: 'fa-check-circle', title: 'Updated!', status: 'Changes applied instantly' },
+    approved: { color: '#4ade80', bg: 'rgba(74,222,128,0.08)', icon: 'fa-check-circle', title: 'Approved!', status: data && data.autoApproved ? 'Auto-approved — now live!' : 'Forwarded to CEO for final approval' },
     needs_work: { color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', icon: 'fa-exclamation-triangle', title: 'Needs Work', status: 'Returned for edits' },
     rejected: { color: '#f87171', bg: 'rgba(248,113,113,0.08)', icon: 'fa-times-circle', title: 'Rejected', status: 'Not approved' },
     error: { color: '#f87171', bg: 'rgba(248,113,113,0.08)', icon: 'fa-exclamation-circle', title: 'Error', status: '' }
@@ -1242,6 +1257,7 @@ function renderLiveList(agents) {
   var countEl = document.getElementById('af-live-count');
   if (!list) return;
   if (countEl) countEl.textContent = '(' + agents.length + '/3)';
+  _liveAgentsCache = agents;
 
   if (agents.length === 0) {
     list.innerHTML = '<p class="af-drafts-empty">No live agents</p>';
@@ -1251,9 +1267,19 @@ function renderLiveList(agents) {
   list.innerHTML = agents.map(function(a) {
     return '<div class="af-draft-item af-live-item" data-agent-id="' + escapeAttr(a.id) + '">' +
       '<span><span class="af-live-dot"></span> ' + escapeHtml(a.name || 'Unnamed') + '</span>' +
-      '<button class="af-draft-delete af-live-delete" data-live-delete="' + escapeAttr(a.id) + '" title="Remove from catalog"><i class="fas fa-trash-alt"></i></button>' +
+      '<div>' +
+        '<button class="af-draft-delete af-live-edit" data-live-edit="' + escapeAttr(a.id) + '" title="Edit agent"><i class="fas fa-pen"></i></button>' +
+        '<button class="af-draft-delete af-live-delete" data-live-delete="' + escapeAttr(a.id) + '" title="Remove from catalog"><i class="fas fa-trash-alt"></i></button>' +
+      '</div>' +
     '</div>';
   }).join('');
+
+  list.querySelectorAll('[data-live-edit]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      loadLiveAgent(btn.dataset.liveEdit);
+    });
+  });
 
   list.querySelectorAll('[data-live-delete]').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
@@ -1261,6 +1287,66 @@ function renderLiveList(agents) {
       deleteLiveAgent(btn.dataset.liveDelete);
     });
   });
+}
+
+function loadLiveAgent(agentId) {
+  var agent = _liveAgentsCache.find(function(a) { return a.id === agentId; });
+  if (!agent) { showNotification('Error', 'Agent not found', 'error'); return; }
+
+  // Set edit mode
+  _editMode = true;
+  _editAgentId = agent.id;
+  currentDraftId = null;
+
+  // Map agent config back to agentState
+  agentState = {
+    identity: {
+      name: agent.name || '',
+      tagline: agent.tagline || '',
+      description: agent.description || '',
+      icon: agent.icon || 'fas fa-question',
+      category: agent.category || 'tools',
+      tier: agent.tier || 'common',
+      portrait: null // portrait is a URL on live agents, not base64
+    },
+    input: {
+      type: agent.inputType || 'textarea',
+      label: agent.inputLabel || '',
+      placeholder: agent.inputPlaceholder || '',
+      validation: agent.inputValidation || 'text'
+    },
+    prompt: {
+      systemPrompt: agent.systemPrompt || '',
+      userPromptTemplate: agent.userPromptTemplate || '{{input}}',
+      temperature: (agent.generationConfig && agent.generationConfig.temperature) || 0.8,
+      maxTokens: (agent.generationConfig && agent.generationConfig.maxOutputTokens) || 1500
+    },
+    output: {
+      sections: (agent.outputSections || []).map(function(s) {
+        return { key: s.key, label: s.label, type: s.type };
+      })
+    },
+    powers: {
+      webSearch: agent.webSearch || false,
+      fetchUrl: agent.fetchUrl || false,
+      imageGeneration: agent.imageGeneration || false,
+      rateLimitCost: agent.rateLimitCost || 1,
+      imageConfig: agent.imageConfig || { outputType: 'square_image', topicPrefix: '' }
+    }
+  };
+
+  // If agent has a portraitUrl, store reference so preview shows it
+  if (agent.portraitUrl) {
+    agentState.identity._portraitUrl = agent.portraitUrl;
+  }
+
+  pipelineOrder = ['identity', 'input', 'prompt', 'output', 'powers'];
+  agentStatus = 'draft';
+  renderPipeline();
+  updateTrayState();
+  updatePreview();
+  updateStatus();
+  showNotification('Editing Live Agent', agent.name + ' — name is locked', 'info');
 }
 
 async function deleteLiveAgent(agentId) {
