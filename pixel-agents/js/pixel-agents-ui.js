@@ -30,6 +30,7 @@
   var allAgents = [];
   var currentCategory = 'all';
   var usageStats = {};
+  var recentStats = {};
   var spotlightIndex = 0;
   var spotlightTimer = null;
   var spotlightAgents = [];
@@ -60,6 +61,9 @@
       if (stats && stats.stats) {
         usageStats = stats.stats;
       }
+      if (stats && stats.recentStats) {
+        recentStats = stats.recentStats;
+      }
 
       // Update hero stats if API returned data
       updateHeroStats();
@@ -70,6 +74,14 @@
       });
       if (spotlightAgents.length === 0) {
         spotlightAgents = allAgents.filter(function (a) { return a.tier === 'legendary'; });
+      }
+
+      // Agent of the Day: deterministic daily rotation
+      if (spotlightAgents.length > 0) {
+        var now = new Date();
+        var startOfYear = new Date(now.getFullYear(), 0, 0);
+        var dayOfYear = Math.floor((now - startOfYear) / 86400000);
+        spotlightIndex = dayOfYear % spotlightAgents.length;
       }
 
       renderSpotlight();
@@ -177,7 +189,7 @@
       '<div class="pa-spotlight-main">' +
         '<div class="pa-spotlight-portrait">' +
           renderPortrait(agent, 'spotlight') +
-          '<span class="pa-spotlight-badge">Featured Prototype</span>' +
+          '<span class="pa-spotlight-badge"><i class="fas fa-star" style="margin-right:4px"></i>Agent of the Day</span>' +
           '<span class="pa-spotlight-online"><span class="pa-online-dot"></span> Online</span>' +
         '</div>' +
         '<div class="pa-spotlight-body">' +
@@ -197,12 +209,12 @@
       '<div class="pa-spotlight-widgets">' +
         '<div class="pa-spotlight-widget">' +
           '<div class="pa-spotlight-widget-header">' +
-            '<i class="fas fa-satellite-dish pa-spotlight-widget-icon"></i>' +
-            '<span class="pa-spotlight-widget-label">Active Session</span>' +
+            '<i class="fas fa-coins pa-spotlight-widget-icon" style="color:var(--pa-success)"></i>' +
+            '<span class="pa-spotlight-widget-label">Creator Earnings</span>' +
           '</div>' +
-          '<h3>Neural Bridge</h3>' +
-          '<p>Live connection to Claude Sonnet 4.6 inference engine.</p>' +
-          '<span class="pa-widget-status"><i class="fas fa-circle" style="font-size:0.4rem"></i> Connected</span>' +
+          '<h3>Earn on Every Run</h3>' +
+          '<p>Build agents, earn a share of Pro revenue each month.</p>' +
+          '<span class="pa-widget-status" style="color:var(--pa-success)"><i class="fas fa-dollar-sign" style="font-size:0.4rem"></i> Active</span>' +
         '</div>' +
         '<div class="pa-spotlight-widget">' +
           '<div class="pa-spotlight-widget-header">' +
@@ -212,6 +224,24 @@
           '<h3>Quality Gate</h3>' +
           '<p>Every agent reviewed for safety, quality, and uniqueness before deployment.</p>' +
           '<span class="pa-widget-status pa-widget-status--purple"><i class="fas fa-check" style="font-size:0.5rem"></i> Active</span>' +
+        '</div>' +
+        '<div class="pa-spotlight-widget">' +
+          '<div class="pa-spotlight-widget-header">' +
+            '<i class="fas fa-share-nodes pa-spotlight-widget-icon" style="color:var(--pa-secondary)"></i>' +
+            '<span class="pa-spotlight-widget-label">Social Cards</span>' +
+          '</div>' +
+          '<h3>Shareable Results</h3>' +
+          '<p>Branded result cards for LinkedIn, X, and Bluesky.</p>' +
+          '<span class="pa-widget-status"><i class="fas fa-sparkles" style="font-size:0.4rem"></i> NEW</span>' +
+        '</div>' +
+        '<div class="pa-spotlight-widget">' +
+          '<div class="pa-spotlight-widget-header">' +
+            '<i class="fas fa-fire pa-spotlight-widget-icon" style="color:var(--pa-warning)"></i>' +
+            '<span class="pa-spotlight-widget-label">This Week</span>' +
+          '</div>' +
+          '<h3>Trending Agents</h3>' +
+          buildTrendingWidgetContent() +
+          '<span class="pa-widget-status" style="color:var(--pa-warning)"><i class="fas fa-chart-line" style="font-size:0.4rem"></i> LIVE</span>' +
         '</div>' +
       '</div>';
   }
@@ -393,6 +423,8 @@
     // Sort
     var sorted = agents.slice().sort(function (a, b) {
       switch (currentSort) {
+        case 'trending':
+          return (recentStats[b.id] || 0) - (recentStats[a.id] || 0);
         case 'most-runs':
           return (usageStats[b.id] || 0) - (usageStats[a.id] || 0);
         case 'newest':
@@ -411,10 +443,16 @@
 
   function renderAgentCard(agent) {
     var runs = usageStats[agent.id] || 0;
+    var recent = recentStats[agent.id] || 0;
     var runsLabel = runs > 0 ? formatNumber(runs) + ' runs' : 'New';
     var tierLabel = agent.tier.charAt(0).toUpperCase() + agent.tier.slice(1);
     var categoryLabel = CATEGORY_LABELS[agent.category] || agent.category;
     var url = '/pixel-agents/run.html?agent=' + escapeAttr(agent.id);
+
+    // Trending badge: 5+ runs in last 7 days
+    var trendingHtml = recent >= 5
+      ? '<span class="pa-agent-card-trending"><i class="fas fa-fire"></i> Trending</span>'
+      : '';
 
     // Limit capabilities to first 3
     var caps = (agent.capabilities || []).slice(0, 3);
@@ -444,8 +482,8 @@
         '<div class="pa-agent-card-tags">' + tagsHtml + '</div>' +
       '</div>' +
       '<div class="pa-agent-card-footer">' +
-        '<span class="pa-agent-card-runs">' + runsLabel + '</span>' +
-        '<span class="pa-agent-card-cta">Deploy Agent <i class="fas fa-arrow-right"></i></span>' +
+        '<span class="pa-agent-card-runs">' + trendingHtml + runsLabel + '</span>' +
+        '<span class="pa-agent-card-cta">Deploy <i class="fas fa-arrow-right"></i></span>' +
       '</div>' +
     '</a>';
   }
@@ -460,6 +498,29 @@
       '<img src="' + escapeAttr(imgSrc) + '" alt="' + escapeAttr(agent.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
       '<div class="pa-portrait-fallback"><i class="' + escapeAttr(agent.icon) + '"></i></div>' +
     '</div>';
+  }
+
+  // ── Trending Widget Content (top 3 by 7-day runs) ──
+  function buildTrendingWidgetContent() {
+    var sorted = allAgents.slice().filter(function (a) {
+      return recentStats[a.id] && recentStats[a.id] > 0;
+    }).sort(function (a, b) {
+      return (recentStats[b.id] || 0) - (recentStats[a.id] || 0);
+    }).slice(0, 3);
+
+    if (sorted.length === 0) {
+      return '<p>No trending agents this week.</p>';
+    }
+
+    var html = '<div class="pa-trending-list">';
+    sorted.forEach(function (a) {
+      html += '<div class="pa-trending-item">' +
+        '<span class="pa-trending-name">' + escapeHtml(a.name) + '</span>' +
+        '<span class="pa-trending-count">' + recentStats[a.id] + ' runs</span>' +
+      '</div>';
+    });
+    html += '</div>';
+    return html;
   }
 
   // ── Recently Deployed (top 3 by usage) ──

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Pixel Agents documentation — how to use, build, and publish AI agents." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Docs — Pixel Agents</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <!-- Shared site CSS -->
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+
+  <!-- Pixel Agents v2 design system + layout -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+
+  <!-- Docs-specific styles -->
+  <style>
+    .pa-docs-section { margin-bottom: 2.5rem; }
+    .pa-docs-section h3 { font-family: var(--pa-font-display); font-size: 1.1rem; font-weight: 700; color: var(--pa-text); margin: 0 0 0.75rem; }
+    .pa-docs-section p { font-size: 0.85rem; line-height: 1.6; color: var(--pa-text-muted); margin: 0 0 0.75rem; }
+    .pa-docs-section ul { padding-left: 1.5rem; margin: 0 0 0.75rem; }
+    .pa-docs-section li { font-size: 0.85rem; line-height: 1.6; color: var(--pa-text-muted); margin-bottom: 0.35rem; }
+    .pa-docs-section code { font-family: var(--pa-font-mono); font-size: 0.8rem; padding: 2px 6px; background: var(--pa-surface-raised); border-radius: var(--pa-radius-sm); color: var(--pa-secondary); }
+    .pa-docs-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.82rem; }
+    .pa-docs-table th { font-family: var(--pa-font-display); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep-strong); color: var(--pa-text-muted); }
+    .pa-docs-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep); color: var(--pa-text); }
+  </style>
+</head>
+<body class="pa-shell" data-theme="dark">
+
+  <!-- ═══════════════════════════════════
+       SIDEBAR (Desktop)
+       ═══════════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-sidebar-logo">
+      <span class="pa-logo-accent">Pixel</span><br>Agents
+    </div>
+
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot"></span>
+      <span>Operator</span>
+    </div>
+
+    <nav class="pa-sidebar-nav">
+      <a href="/pixel-agents/" data-nav="explore">
+        <i class="fas fa-compass"></i><span>Explore</span>
+      </a>
+      <a href="/pixel-agents/#agent-grid" data-nav="agents">
+        <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="/agent-forge/" data-nav="forge">
+        <i class="fas fa-hammer"></i><span>Forge</span>
+      </a>
+      <a href="#" aria-disabled="true" data-nav="vault">
+        <i class="fas fa-vault"></i><span>Vault</span>
+        <span class="pa-coming-soon">Soon</span>
+      </a>
+      <a href="/pixel-agents/analytics.html" data-nav="activity">
+        <i class="fas fa-chart-line"></i><span>Activity</span>
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-resources">
+      <a href="/pixel-agents/docs.html" class="active" data-nav="docs"><i class="fas fa-book"></i><span>Docs</span></a>
+      <a href="/pixel-agents/faq.html" data-nav="faq"><i class="fas fa-circle-question"></i><span>FAQ</span></a>
+      <a href="/pixel-agents/changelog.html" data-nav="changelog"><i class="fas fa-clock-rotate-left"></i><span>Changelog</span></a>
+      <a href="/pixel-agents/contact.html" data-nav="contact"><i class="fas fa-envelope"></i><span>Contact</span></a>
+    </div>
+
+    <div class="pa-sidebar-footer">
+      <a href="/agent-forge/" class="pa-sidebar-cta">
+        <i class="fas fa-plus"></i><span>New Agent</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════
+       TOP BAR
+       ═══════════════════════════════════ -->
+  <header class="pa-topbar-v2">
+    <span class="pa-wordmark">Docs</span>
+    <div class="pa-topbar-actions">
+      <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="pa-btn-icon" title="Notifications">
+        <i class="fas fa-bell"></i>
+      </button>
+      <div class="pa-avatar" id="pa-avatar" title="Account">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="pa-avatar-menu" id="pa-avatar-menu">
+        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/docs.html">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <div id="pa-user-status" style="display:none;">
+          <span class="pa-avatar-menu-text">
+            Signed in as <strong id="pa-user-name"></strong>
+          </span>
+          <button id="pa-logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════ -->
+  <main class="pa-main">
+
+    <div class="pa-section">
+      <div class="pa-section-header">
+        <div>
+          <span class="pa-section-label">Pixel Agents v2</span>
+          <h2>Documentation</h2>
+        </div>
+      </div>
+
+      <!-- Getting Started -->
+      <div class="pa-docs-section">
+        <h3>Getting Started</h3>
+        <p>
+          Pixel Agents is an AI agent marketplace where anyone can discover, run, and build specialized AI agents.
+          Each agent is purpose-built for a specific task — from brand audits and name generation to color palette creation and SEO analysis.
+        </p>
+        <p>
+          Running an agent is simple: pick one from the catalog, paste your input (a URL, a name, a description — whatever the agent asks for), and get a structured result in seconds.
+          Every agent returns clean, organized output sections like scores, verdicts, lists, and tags.
+        </p>
+        <p>
+          Anonymous users get <strong>5 free runs per day</strong>. Sign in to unlock <strong>25 runs per day</strong>.
+        </p>
+      </div>
+
+      <!-- Building an Agent -->
+      <div class="pa-docs-section">
+        <h3>Building an Agent</h3>
+        <p>
+          <a href="/agent-forge/">Agent Forge</a> is the builder tool for creating and publishing your own Pixel Agents. No coding required — just fill in the fields and test.
+        </p>
+        <ul>
+          <li><strong>Name your agent</strong> — pick a unique name and write a short tagline.</li>
+          <li><strong>Write a system prompt</strong> — tell the AI what role it plays and how it should behave.</li>
+          <li><strong>Define output sections</strong> — choose the structured sections your agent returns (score, verdict, list, etc.).</li>
+          <li><strong>Add powers</strong> — optionally enable web search, URL fetching, or image generation.</li>
+          <li><strong>Test</strong> — run your agent with sample input to verify the output before publishing.</li>
+          <li><strong>Submit</strong> — send your agent for review and approval.</li>
+        </ul>
+      </div>
+
+      <!-- Output Section Types -->
+      <div class="pa-docs-section">
+        <h3>Output Section Types</h3>
+        <p>Each agent defines one or more output sections. These are the available types:</p>
+        <ul>
+          <li><code>score</code> — a 0-100 number displayed with a progress bar.</li>
+          <li><code>verdict</code> — a short italic quote summarizing the result.</li>
+          <li><code>text</code> — a paragraph of analysis or explanation.</li>
+          <li><code>list</code> — bullet points for itemized results.</li>
+          <li><code>tags</code> — pill badges for categories, keywords, or labels.</li>
+          <li><code>highlight</code> — a bold callout for key takeaways.</li>
+          <li><code>name_list</code> — structured names with accompanying reasons or descriptions.</li>
+          <li><code>image</code> — a generated image via AI.</li>
+          <li><code>color_palette</code> — color swatches with hex values.</li>
+        </ul>
+      </div>
+
+      <!-- Agent Powers -->
+      <div class="pa-docs-section">
+        <h3>Agent Powers</h3>
+        <p>Powers are special capabilities you can enable on your agent:</p>
+        <ul>
+          <li><code>webSearch</code> — the agent searches the web for real-time information before generating its analysis.</li>
+          <li><code>fetchUrl</code> — the agent reads the actual page content from a URL the user provides.</li>
+          <li><code>imageGeneration</code> — the agent generates an image via Gemini as part of its output.</li>
+        </ul>
+      </div>
+
+      <!-- Testing & Submission -->
+      <div class="pa-docs-section">
+        <h3>Testing &amp; Submission</h3>
+        <p>
+          When you submit an agent, an AI gatekeeper evaluates it on three dimensions — <strong>quality</strong>, <strong>uniqueness</strong>, and <strong>safety</strong> — each scored 0-100.
+        </p>
+        <ul>
+          <li><strong>70+ on all three</strong> — auto-approved and published immediately.</li>
+          <li><strong>Below 70 on any</strong> — queued for CEO review.</li>
+          <li><strong>Below 40 on any</strong> — rejected outright.</li>
+        </ul>
+      </div>
+
+      <!-- Editing Live Agents -->
+      <div class="pa-docs-section">
+        <h3>Editing Live Agents</h3>
+        <p>
+          Once your agent is live, some fields can be changed freely without re-review:
+        </p>
+        <ul>
+          <li>Tagline, icon, portrait, tier, and temperature — cosmetic changes, updated instantly.</li>
+        </ul>
+        <p>
+          Other fields are locked behind re-review because they change the agent's behavior:
+        </p>
+        <ul>
+          <li>Name, category, system prompt, user prompt, input type, output sections, and powers — editing any of these triggers a new review cycle.</li>
+        </ul>
+      </div>
+
+      <!-- Rate Limits -->
+      <div class="pa-docs-section">
+        <h3>Rate Limits</h3>
+        <table class="pa-docs-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Limit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Anonymous runs</td><td>5 / day</td></tr>
+            <tr><td>Authenticated runs</td><td>25 / day</td></tr>
+            <tr><td>Submissions</td><td>5 / day</td></tr>
+            <tr><td>Portrait generation</td><td>10 / day</td></tr>
+            <tr><td>Live agents per creator</td><td>5 max</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Revenue Share -->
+      <div class="pa-docs-section">
+        <h3>Revenue Share</h3>
+        <table class="pa-docs-table">
+          <thead>
+            <tr>
+              <th>Tier</th>
+              <th>Monthly</th>
+              <th>Revenue Share</th>
+              <th>Live Agents</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Free Creator</td>
+              <td>$0</td>
+              <td>50% of your agent's monthly share</td>
+              <td>5</td>
+            </tr>
+            <tr>
+              <td>Pro Creator</td>
+              <td>$12/mo</td>
+              <td>70% of your agent's monthly share</td>
+              <td>Unlimited</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Every Pro subscription powers the creator pool. 40% of Pro revenue is distributed monthly based on how many runs your agents generated. Free creators keep 50%, Pro creators keep 70%. Pool grows as the platform grows — early creators benefit most. Payouts via Stripe when you hit $25.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="pa-footer-v2">
+      <span>&copy; 2026 Pixel Agents</span>
+      <div class="pa-footer-links">
+        <a href="/pixel-agents/">Pixel Agents</a>
+        <a href="/agent-forge/">Agent Forge</a>
+        <a href="/storyforge/">StoryForge</a>
+        <a href="/cardforge/">CardForge</a>
+        <a href="/blindspot/">Blindspot</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ═══════════════════════════════════
+       BOTTOM NAV (Mobile)
+       ═══════════════════════════════════ -->
+  <nav class="pa-bottom-nav">
+    <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
+    <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
+    <a href="/pixel-agents/analytics.html"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+  </nav>
+
+  <!-- ═══════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════ -->
+  <script>
+  // Avatar menu + theme toggle (shared pattern)
+  (function() {
+    var avatar = document.getElementById('pa-avatar');
+    var menu = document.getElementById('pa-avatar-menu');
+    if (avatar && menu) {
+      avatar.addEventListener('click', function(e) { e.stopPropagation(); menu.classList.toggle('open'); });
+      document.addEventListener('click', function() { menu.classList.remove('open'); });
+    }
+
+    var savedTheme = localStorage.getItem('preferred-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+      var icon = document.querySelector('#pa-theme-toggle i');
+      if (icon) icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    var themeBtn = document.getElementById('pa-theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        var isDark = document.body.getAttribute('data-theme') === 'dark';
+        var next = isDark ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', next);
+        localStorage.setItem('preferred-theme', next);
+        this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+      });
+    }
+  })();
+  </script>
+</body>
+</html>

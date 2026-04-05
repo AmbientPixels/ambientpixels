@@ -37,13 +37,20 @@ module.exports = async function (context, req) {
       storage.getState('pixelAgentCommunity').catch(function () { return []; }),
       storage.getState('pixelAgentStats').catch(function () { return {}; }),
       storage.getState('pixelAgentRuns').catch(function () { return []; }),
-      storage.getState('pixelAgentSubmissions').catch(function () { return []; })
+      storage.getState('pixelAgentSubmissions').catch(function () { return []; }),
+      storage.getState('pixelAgentCreatorStats').catch(function () { return {}; })
     ]);
 
     var community = results[0] || [];
     var stats = results[1] || {};
     var runs = results[2] || [];
     var submissions = results[3] || [];
+    var creatorStats = results[4] || {};
+
+    // Revenue share constants
+    var REVENUE_PER_RUN = 0.02;
+    var PRO_RUN_WEIGHT = 1.5;
+    var FREE_RUN_WEIGHT = 1.0;
 
     // Find this creator's live agents
     var isCEO = req.headers['x-company-secret'] === 'pixelpusher';
@@ -65,6 +72,9 @@ module.exports = async function (context, req) {
       });
       var lastRun = agentRuns.length > 0 ? agentRuns[agentRuns.length - 1] : null;
 
+      var agentTotalRuns = stats[agent.id] || 0;
+      var runWeight = FREE_RUN_WEIGHT; // TODO: look up creator tier for weighted earnings
+
       return {
         id: agent.id,
         name: agent.name,
@@ -73,10 +83,12 @@ module.exports = async function (context, req) {
         tier: agent.tier,
         icon: agent.icon,
         portraitUrl: agent.portraitUrl || null,
-        totalRuns: stats[agent.id] || 0,
+        totalRuns: agentTotalRuns,
         runsLast7d: recentRuns.length,
         lastRunAt: lastRun ? lastRun.timestamp : null,
         approvedAt: agent.approvedAt || null,
+        estimatedEarnings: (agentTotalRuns * runWeight * REVENUE_PER_RUN).toFixed(2),
+        earningsLast7d: (recentRuns.length * runWeight * REVENUE_PER_RUN).toFixed(2),
         status: 'live'
       };
     });
@@ -103,6 +115,34 @@ module.exports = async function (context, req) {
     // Summary stats
     var totalRuns = agentAnalytics.reduce(function (sum, a) { return sum + a.totalRuns; }, 0);
     var totalRecent = agentAnalytics.reduce(function (sum, a) { return sum + a.runsLast7d; }, 0);
+    var totalEarnings = agentAnalytics.reduce(function (sum, a) { return sum + parseFloat(a.estimatedEarnings || 0); }, 0);
+    var recentEarnings = agentAnalytics.reduce(function (sum, a) { return sum + parseFloat(a.earningsLast7d || 0); }, 0);
+
+    // Creator leaderboard
+    var leaderboard = [];
+    var creatorMap = {};
+    community.filter(function (a) { return a.active && a.creatorId; }).forEach(function (agent) {
+      var cid = agent.creatorId;
+      if (!creatorMap[cid]) creatorMap[cid] = { creatorId: cid, agentCount: 0, totalRuns: 0, creatorTier: 'free', runWeight: FREE_RUN_WEIGHT };
+      creatorMap[cid].agentCount++;
+      creatorMap[cid].totalRuns += (stats[agent.id] || 0);
+    });
+
+    Object.keys(creatorMap).forEach(function (cid) {
+      var entry = creatorMap[cid];
+      entry.estimatedEarnings = (entry.totalRuns * entry.runWeight * REVENUE_PER_RUN).toFixed(2);
+      leaderboard.push(entry);
+    });
+
+    leaderboard.sort(function (a, b) { return b.totalRuns - a.totalRuns; });
+    leaderboard.forEach(function (entry, i) { entry.rank = i + 1; });
+
+    // Non-CEO: show top 10 + own rank if outside
+    if (!isCEO) {
+      var myRank = leaderboard.find(function (e) { return e.creatorId === userId; });
+      leaderboard = leaderboard.slice(0, 10);
+      if (myRank && myRank.rank > 10) leaderboard.push(myRank);
+    }
 
     context.res = {
       status: 200,
@@ -115,8 +155,12 @@ module.exports = async function (context, req) {
           totalAgents: agentAnalytics.length,
           pendingCount: pending.length,
           totalRuns: totalRuns,
-          runsLast7d: totalRecent
-        }
+          runsLast7d: totalRecent,
+          estimatedEarnings: totalEarnings.toFixed(2),
+          earningsLast7d: recentEarnings.toFixed(2),
+          revenuePerRun: REVENUE_PER_RUN
+        },
+        leaderboard: leaderboard
       }
     };
 

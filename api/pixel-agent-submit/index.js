@@ -6,7 +6,7 @@ const storage = require('../_utils/companyStorage');
 const { extractUserInfo } = require('../_utils/cfAuth');
 
 const DAILY_SUBMISSION_LIMIT = 5;
-const MAX_LIVE_AGENTS = 3;
+const MAX_LIVE_AGENTS = 5;
 const AUTO_APPROVE_THRESHOLD = 70; // all scores must be >= this to skip CEO queue
 
 // Fields that can change without re-review

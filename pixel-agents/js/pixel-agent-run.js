@@ -544,10 +544,16 @@ async function copyResult() {
 async function shareResult() {
   if (!currentResult) return;
 
+  // Use the OG-enabled share URL for proper social unfurling
+  var shareBase = window.location.hostname.includes('ambientpixels.ai')
+    ? 'https://ambientpixels-nova-api.azurewebsites.net'
+    : window.location.origin;
+  var shareUrl = shareBase + '/api/pixel-agent-share?run=' + currentRunId;
+
   const shareData = {
-    title: currentAgent.name + ' — Pixel Agents',
-    text: 'Check out my ' + currentAgent.name + ' result!',
-    url: window.location.origin + (currentResult.shareUrl || window.location.pathname)
+    title: currentAgent.name + ' Result — Pixel Agents',
+    text: 'Check out my ' + currentAgent.name + ' result on Pixel Agents!',
+    url: shareUrl
   };
 
   if (navigator.share) {
@@ -555,8 +561,8 @@ async function shareResult() {
   } else {
     // Fallback: copy URL
     try {
-      await navigator.clipboard.writeText(shareData.url);
-      showToast('Share link copied!');
+      await navigator.clipboard.writeText(shareUrl);
+      showToast('Share link copied! Paste on LinkedIn, X, or Bluesky for a branded preview.');
     } catch {
       showToast('Copy the URL from the address bar to share.');
     }

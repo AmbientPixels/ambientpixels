@@ -119,6 +119,30 @@
         '</div>' : '') +
     '</div>';
 
+    // Revenue share earnings card
+    if (data.summary.estimatedEarnings !== undefined) {
+      html += '<div class="pa-analytics-earnings">' +
+        '<div class="pa-analytics-earnings-header">' +
+          '<i class="fas fa-coins"></i>' +
+          '<span>Revenue Share Estimate</span>' +
+          '<span class="pa-analytics-earnings-badge">Preview</span>' +
+        '</div>' +
+        '<div class="pa-analytics-earnings-body">' +
+          '<div class="pa-analytics-earnings-total">' +
+            '<div class="pa-analytics-earnings-amount">$' + parseFloat(data.summary.estimatedEarnings).toFixed(2) + '</div>' +
+            '<div class="pa-analytics-earnings-label">Total Attributed Earnings</div>' +
+          '</div>' +
+          '<div class="pa-analytics-earnings-recent">' +
+            '<div class="pa-analytics-earnings-amount">$' + parseFloat(data.summary.earningsLast7d || 0).toFixed(2) + '</div>' +
+            '<div class="pa-analytics-earnings-label">Last 7 Days</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="pa-analytics-earnings-note">' +
+          '<i class="fas fa-info-circle"></i> 40% of Pro revenue distributed to creators monthly. Payouts via Stripe coming soon.' +
+        '</div>' +
+      '</div>';
+    }
+
     // Live agents
     if (data.agents.length > 0) {
       html += '<div class="pa-analytics-section">' +
@@ -149,6 +173,10 @@
                 '<span class="pa-analytics-card-stat-value">' + timeAgo(agent.lastRunAt) + '</span>' +
                 '<span class="pa-analytics-card-stat-label">Last Run</span>' +
               '</div>' +
+              (agent.estimatedEarnings ? '<div class="pa-analytics-card-stat">' +
+                '<span class="pa-analytics-card-stat-value pa-text-success">$' + agent.estimatedEarnings + '</span>' +
+                '<span class="pa-analytics-card-stat-label">Est. Earnings</span>' +
+              '</div>' : '') +
             '</div>' +
             '<div class="pa-analytics-card-meta">Approved ' + timeAgo(agent.approvedAt) + '</div>' +
           '</div>' +
@@ -173,6 +201,38 @@
             '<span class="pa-analytics-pending-badge"><i class="fas fa-clock"></i> Pending Review</span>' +
             '<div class="pa-analytics-card-meta">Submitted ' + timeAgo(agent.submittedAt) + '</div>' +
           '</div>' +
+        '</div>';
+      });
+
+      html += '</div></div>';
+    }
+
+    // Creator leaderboard
+    if (data.leaderboard && data.leaderboard.length > 0) {
+      html += '<div class="pa-analytics-section">' +
+        '<div class="pa-analytics-section-title"><i class="fas fa-trophy" style="color:var(--pa-warning);margin-right:6px"></i>Creator Leaderboard</div>' +
+        '<div class="pa-leaderboard">';
+
+      data.leaderboard.forEach(function (entry) {
+        var rankHtml = entry.rank === 1 ? '<span class="pa-lb-medal pa-lb-gold">1</span>' :
+                       entry.rank === 2 ? '<span class="pa-lb-medal pa-lb-silver">2</span>' :
+                       entry.rank === 3 ? '<span class="pa-lb-medal pa-lb-bronze">3</span>' :
+                       '<span class="pa-lb-rank">#' + entry.rank + '</span>';
+        var isMe = entry.creatorId === data.userId;
+        var rowClass = 'pa-leaderboard-row' + (isMe ? ' pa-leaderboard-row--me' : '');
+        var tierBadge = entry.creatorTier === 'pro'
+          ? '<span class="pa-lb-tier pa-lb-tier--pro">Pro 1.5x</span>'
+          : '<span class="pa-lb-tier">Free 1x</span>';
+
+        html += '<div class="' + rowClass + '">' +
+          rankHtml +
+          '<div class="pa-lb-info">' +
+            '<span class="pa-lb-creator">' + escapeHtml(entry.creatorId) + '</span>' +
+            tierBadge +
+          '</div>' +
+          '<span class="pa-lb-agents">' + entry.agentCount + ' agent' + (entry.agentCount !== 1 ? 's' : '') + '</span>' +
+          '<span class="pa-lb-runs">' + entry.totalRuns + ' <small>runs</small></span>' +
+          '<span class="pa-lb-earnings">$' + entry.estimatedEarnings + '</span>' +
         '</div>';
       });
 

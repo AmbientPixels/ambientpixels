@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Your Agent Analytics — see how your Pixel Agents perform." />
+  <meta name="description" content="Frequently Asked Questions about Pixel Agents — the AI agent marketplace." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Activity — Pixel Agents</title>
+  <title>FAQ — Pixel Agents</title>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
@@ -21,8 +21,16 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
 
-  <!-- Analytics styles -->
-  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-analytics.css" />
+  <style>
+    .pa-faq-list { max-width: 720px; }
+    .pa-faq-list details { margin-bottom: 0.5rem; background: var(--pa-surface); border: 1px solid var(--pa-sep); border-radius: var(--pa-radius-md); overflow: hidden; }
+    .pa-faq-list details[open] { border-color: var(--pa-primary-border); }
+    .pa-faq-list summary { padding: 1rem 1.25rem; font-family: var(--pa-font-display); font-size: 0.9rem; font-weight: 600; color: var(--pa-text); cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .pa-faq-list summary::-webkit-details-marker { display: none; }
+    .pa-faq-list summary::after { content: '+'; font-size: 1.2rem; color: var(--pa-text-muted); transition: transform 0.2s; }
+    .pa-faq-list details[open] summary::after { content: '\2212'; color: var(--pa-primary); }
+    .pa-faq-list .pa-faq-answer { padding: 0 1.25rem 1rem; font-size: 0.85rem; line-height: 1.6; color: var(--pa-text-muted); }
+  </style>
 </head>
 <body class="pa-shell" data-theme="dark">
 
@@ -53,14 +61,14 @@
         <i class="fas fa-vault"></i><span>Vault</span>
         <span class="pa-coming-soon">Soon</span>
       </a>
-      <a href="/pixel-agents/analytics.html" class="active" data-nav="activity">
+      <a href="/pixel-agents/analytics.html" data-nav="activity">
         <i class="fas fa-chart-line"></i><span>Activity</span>
       </a>
     </nav>
 
     <div class="pa-sidebar-resources">
       <a href="/pixel-agents/docs.html" data-nav="docs"><i class="fas fa-book"></i><span>Docs</span></a>
-      <a href="/pixel-agents/faq.html" data-nav="faq"><i class="fas fa-circle-question"></i><span>FAQ</span></a>
+      <a href="/pixel-agents/faq.html" class="active" data-nav="faq"><i class="fas fa-circle-question"></i><span>FAQ</span></a>
       <a href="/pixel-agents/changelog.html" data-nav="changelog"><i class="fas fa-clock-rotate-left"></i><span>Changelog</span></a>
       <a href="/pixel-agents/contact.html" data-nav="contact"><i class="fas fa-envelope"></i><span>Contact</span></a>
     </div>
@@ -76,7 +84,7 @@
        TOP BAR
        ═══════════════════════════════════ -->
   <header class="pa-topbar-v2">
-    <span class="pa-wordmark">Activity</span>
+    <span class="pa-wordmark">FAQ</span>
     <div class="pa-topbar-actions">
       <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
         <i class="fas fa-moon"></i>
@@ -88,7 +96,7 @@
         <i class="fas fa-user"></i>
       </div>
       <div class="pa-avatar-menu" id="pa-avatar-menu">
-        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/analytics.html">
+        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/faq.html">
           <i class="fas fa-sign-in-alt"></i> Sign In
         </a>
         <div id="pa-user-status" style="display:none;">
@@ -111,13 +119,83 @@
     <div class="pa-section">
       <div class="pa-section-header">
         <div>
-          <span class="pa-section-label">Creator Dashboard</span>
-          <h2>Your Agents</h2>
+          <span class="pa-section-label">Help Center</span>
+          <h2>Frequently Asked Questions</h2>
         </div>
       </div>
 
-      <div id="pa-analytics-content">
-        <!-- Rendered by pixel-agent-analytics.js -->
+      <div class="pa-faq-list">
+
+        <details>
+          <summary>What are Pixel Agents?</summary>
+          <div class="pa-faq-answer">
+            Pixel Agents is an AI agent marketplace. Each agent is a specialized tool built for one task — analyzing websites, generating names, roasting resumes, checking trends, and more. Pick an agent, paste your input, get structured results in seconds.
+          </div>
+        </details>
+
+        <details>
+          <summary>How is this different from ChatGPT?</summary>
+          <div class="pa-faq-answer">
+            ChatGPT is a general-purpose chatbot. Pixel Agents are purpose-built — each one has a tuned prompt, structured output sections, and optional powers like web search or image generation. No prompt engineering needed. One click, real answers.
+          </div>
+        </details>
+
+        <details>
+          <summary>How many agents can I run per day?</summary>
+          <div class="pa-faq-answer">
+            Anonymous: 5 runs/day. Signed in: 25 runs/day. Pro subscribers: unlimited. Image-generation agents cost 2 runs.
+          </div>
+        </details>
+
+        <details>
+          <summary>How do I build my own agent?</summary>
+          <div class="pa-faq-answer">
+            Open Agent Forge (/agent-forge/). Name your agent, write a system prompt, define output sections (score, verdict, text, list, etc.), add powers, test it, and submit. The AI gatekeeper reviews quality, uniqueness, and safety automatically.
+          </div>
+        </details>
+
+        <details>
+          <summary>What happens during AI review?</summary>
+          <div class="pa-faq-answer">
+            Every submitted agent is scored 0-100 on quality, uniqueness, and safety by an AI gatekeeper. Score 70+ on all three = auto-approved and goes live immediately. Below 70 = forwarded to CEO review. Below 40 = rejected.
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I edit my agent after it's live?</summary>
+          <div class="pa-faq-answer">
+            Yes. Cosmetic fields (tagline, icon, portrait, tier, temperature) can be changed freely. Core fields (name, category, prompts, output sections, powers) are locked and require re-review to change.
+          </div>
+        </details>
+
+        <details>
+          <summary>How does revenue share work?</summary>
+          <div class="pa-faq-answer">
+            40% of all Pro subscription revenue is split between creators each month based on how many runs your agents generated. Free creators keep 50% of their share, Pro creators keep 70%. Payouts via Stripe when you hit $25. Early creators benefit most as the pool grows.
+          </div>
+        </details>
+
+        <details>
+          <summary>What are agent tiers?</summary>
+          <div class="pa-faq-answer">
+            Tiers (Common, Uncommon, Rare, Epic, Legendary) are cosmetic labels that affect the card's visual style and glow effect. They don't change functionality — they're a way to brand your agent's rarity.
+          </div>
+        </details>
+
+        <details>
+          <summary>What powers can my agent have?</summary>
+          <div class="pa-faq-answer">
+            Three special capabilities: Web Search (searches the web before analysis), Fetch URL (reads actual page content for URL inputs), and Image Generation (generates an image via Gemini after analysis, costs 2x runs).
+          </div>
+        </details>
+
+        <details>
+          <summary>How do I contact support?</summary>
+          <div class="pa-faq-answer">
+            Visit the Contact page or email support through the contact form. We read every message.
+          </div>
+        </details>
+
       </div>
     </div>
 
@@ -143,13 +221,12 @@
     <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
     <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
-    <a href="/pixel-agents/analytics.html" class="active"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+    <a href="/pixel-agents/analytics.html"><i class="fas fa-chart-line"></i><span>Activity</span></a>
   </nav>
 
   <!-- ═══════════════════════════════════
        SCRIPTS
        ═══════════════════════════════════ -->
-  <script src="/pixel-agents/js/pixel-agent-analytics.js"></script>
   <script>
   // Avatar menu + theme toggle (shared pattern)
   (function() {

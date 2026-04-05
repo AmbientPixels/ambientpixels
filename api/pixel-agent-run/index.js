@@ -355,12 +355,14 @@ module.exports = async function (context, req) {
     }
 
     // Store run result for share URLs
+    const creatorId = agent.creatorId || null;
     const runRecord = {
       runId,
       agentId: agent.id,
       agentName: agent.name,
       agentIcon: agent.icon,
       agentTier: agent.tier,
+      creatorId,
       userId: isAuthenticated ? userId : null,
       input: input.substring(0, 500),
       result,
@@ -382,6 +384,17 @@ module.exports = async function (context, req) {
       stats._totalRuns = (stats._totalRuns || 0) + 1;
       await storage.setState('pixelAgentStats', stats);
     } catch { /* non-fatal */ }
+
+    // Update per-creator run attribution (revenue share tracking)
+    if (creatorId) {
+      try {
+        let creatorStats = (await storage.getState('pixelAgentCreatorStats')) || {};
+        if (!creatorStats[creatorId]) creatorStats[creatorId] = {};
+        creatorStats[creatorId][agentId] = (creatorStats[creatorId][agentId] || 0) + 1;
+        creatorStats[creatorId]._total = (creatorStats[creatorId]._total || 0) + 1;
+        await storage.setState('pixelAgentCreatorStats', creatorStats);
+      } catch { /* non-fatal */ }
+    }
 
     // Log token usage to Claude cost tracking
     const usage = data?.usage;
@@ -410,7 +423,7 @@ module.exports = async function (context, req) {
         runId,
         timestamp: runRecord.timestamp,
         remaining: isCEO ? 999 : Math.max(0, dailyLimit - userRuns - (agent.rateLimitCost || 1)),
-        shareUrl: '/pixel-agents/share.html?run=' + runId
+        shareUrl: '/api/pixel-agent-share?run=' + runId
       }
     };
 

@@ -71,6 +71,34 @@
   font-weight: 600;
 }
 
+/* Hero value prop pills */
+.pa-hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pa-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-family: var(--pa-font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--pa-text-muted);
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-pill);
+  letter-spacing: 0.3px;
+}
+
+.pa-hero-pill i {
+  color: var(--pa-secondary);
+  font-size: 0.6rem;
+}
+
 /* Hero stats row */
 .pa-hero-stats {
   display: flex;
@@ -481,6 +509,33 @@
 }
 
 .pa-widget-status--purple { color: var(--pa-primary); }
+
+/* Trending widget list */
+.pa-trending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.pa-trending-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.pa-trending-name {
+  color: var(--pa-text);
+  font-weight: 500;
+}
+
+.pa-trending-count {
+  font-family: var(--pa-font-display);
+  font-size: 0.62rem;
+  color: var(--pa-warning);
+  font-weight: 600;
+}
 
 /* Agent Forge link widget */
 .pa-spotlight-widget--link {
@@ -1012,6 +1067,23 @@
 .pa-agent-card-runs {
   font-size: 0.7rem;
   color: var(--pa-text-faint);
+  display: inline-flex;
+  align-items: center;
+}
+
+.pa-agent-card-trending {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--pa-font-display);
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--pa-warning);
+  margin-right: 0.5rem;
+}
+
+.pa-agent-card-trending i {
+  font-size: 0.55rem;
 }
 
 .pa-agent-card-cta {

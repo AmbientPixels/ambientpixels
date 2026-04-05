@@ -71,7 +71,7 @@ module.exports = async function (context, req) {
         context.log('[AgentApprove] Updated existing agent:', submission.originalAgentId);
       } else {
         // New agent: check cap and duplicate
-        const MAX_LIVE = 3;
+        const MAX_LIVE = 5;
         const liveCount = community.filter(a => a.active).length;
         if (liveCount >= MAX_LIVE) {
           context.res = {

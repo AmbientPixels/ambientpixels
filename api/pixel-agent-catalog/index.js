@@ -29,10 +29,25 @@ module.exports = async function (context, req) {
   try {
     const agents = loadAgentRegistry().filter(a => a.active);
     let stats = {};
+    let runs = [];
 
     try {
-      stats = (await storage.getState('pixelAgentStats')) || {};
+      const [s, r] = await Promise.all([
+        storage.getState('pixelAgentStats').catch(() => ({})),
+        storage.getState('pixelAgentRuns').catch(() => [])
+      ]);
+      stats = s || {};
+      runs = r || [];
     } catch { stats = {}; }
+
+    // Compute 7-day run counts per agent
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recentByAgent = {};
+    for (const run of runs) {
+      if (new Date(run.timestamp).getTime() > sevenDaysAgo) {
+        recentByAgent[run.agentId] = (recentByAgent[run.agentId] || 0) + 1;
+      }
+    }
 
     // Build category list from active agents
     const categories = [...new Set(agents.map(a => a.category))].sort();
@@ -55,6 +70,7 @@ module.exports = async function (context, req) {
         })),
         categories,
         stats,
+        recentStats: recentByAgent,
         totalRuns: stats._totalRuns || 0
       }
     };

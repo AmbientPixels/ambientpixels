@@ -7,13 +7,15 @@
         "start": "func start",
         "test": "node pixel-agent-run/smoke-test.js && node companyHeartbeat/smoke-test.js"
     },
-"dependencies": {
-    "@azure/functions": "^3.5.1",
-    "@azure/storage-blob": "^12.27.0",
-    "@azure/identity": "^4.0.0",
-    "@azure/communication-email": "^1.0.0",
-    "cheerio": "^1.0.0",
-    "node-fetch": "^2.6.7",
-    "axios": "^1.6.8"
-}
+    "dependencies": {
+        "@azure/communication-email": "^1.0.0",
+        "@azure/functions": "^3.5.1",
+        "@azure/identity": "^4.0.0",
+        "@azure/storage-blob": "^12.27.0",
+        "@resvg/resvg-js": "^2.6.2",
+        "axios": "^1.6.8",
+        "cheerio": "^1.0.0",
+        "node-fetch": "^2.6.7",
+        "satori": "^0.10.14"
+    }
 }

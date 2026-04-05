@@ -244,6 +244,186 @@
   font-size: 0.85rem;
 }
 
+/* ── Revenue Share Earnings Card ── */
+.pa-analytics-earnings {
+  background: linear-gradient(135deg, rgba(143, 0, 255, 0.06), rgba(0, 240, 255, 0.04));
+  border: 1px solid var(--pa-primary-border);
+  border-radius: var(--pa-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.pa-analytics-earnings-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--pa-font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--pa-text-muted);
+}
+
+.pa-analytics-earnings-header i { color: var(--pa-tier-legendary); }
+
+.pa-analytics-earnings-badge {
+  font-size: 0.55rem;
+  padding: 2px 6px;
+  border-radius: var(--pa-radius-pill);
+  background: rgba(143, 0, 255, 0.15);
+  border: 1px solid var(--pa-primary-border);
+  color: var(--pa-primary);
+  letter-spacing: 0.5px;
+}
+
+.pa-analytics-earnings-body {
+  display: flex;
+  gap: 3rem;
+  margin-bottom: 0.75rem;
+}
+
+.pa-analytics-earnings-amount {
+  font-family: var(--pa-font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.pa-analytics-earnings-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--pa-text-faint);
+}
+
+.pa-analytics-earnings-note {
+  font-size: 0.7rem;
+  color: var(--pa-text-faint);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pa-analytics-earnings-note i { font-size: 0.65rem; }
+
+/* ── Success text color ── */
+.pa-text-success { color: var(--pa-success); }
+
+/* ── Creator Leaderboard ── */
+.pa-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pa-leaderboard-row {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-md);
+}
+
+.pa-leaderboard-row--me {
+  border-color: var(--pa-primary-border);
+  background: var(--pa-primary-dim);
+}
+
+.pa-lb-medal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-family: var(--pa-font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pa-lb-gold { background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.4); color: #f59e0b; }
+.pa-lb-silver { background: rgba(156,163,175,0.2); border: 1px solid rgba(156,163,175,0.4); color: #9ca3af; }
+.pa-lb-bronze { background: rgba(180,120,60,0.2); border: 1px solid rgba(180,120,60,0.4); color: #cd7f32; }
+
+.pa-lb-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  font-family: var(--pa-font-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--pa-text-faint);
+}
+
+.pa-lb-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.pa-lb-creator {
+  font-family: var(--pa-font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--pa-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pa-lb-tier {
+  font-family: var(--pa-font-display);
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: var(--pa-radius-pill);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--pa-sep);
+  color: var(--pa-text-faint);
+  flex-shrink: 0;
+}
+
+.pa-lb-tier--pro {
+  background: rgba(143,0,255,0.12);
+  border-color: var(--pa-primary-border);
+  color: var(--pa-primary);
+}
+
+.pa-lb-agents, .pa-lb-runs {
+  font-family: var(--pa-font-display);
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  white-space: nowrap;
+}
+
+.pa-lb-runs small {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--pa-text-faint);
+}
+
+.pa-lb-earnings {
+  font-family: var(--pa-font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--pa-success);
+  white-space: nowrap;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .pa-analytics-summary {
@@ -257,5 +437,20 @@
   .pa-analytics-card-stats {
     flex-wrap: wrap;
     gap: 0.75rem;
+  }
+
+  .pa-analytics-earnings-body {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pa-leaderboard-row {
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.5rem;
+  }
+
+  .pa-lb-agents, .pa-lb-runs, .pa-lb-earnings {
+    grid-column: 2;
+    font-size: 0.72rem;
   }
 }

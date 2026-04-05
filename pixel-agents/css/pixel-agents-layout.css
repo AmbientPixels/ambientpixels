@@ -175,6 +175,46 @@
   box-shadow: 0 4px 16px var(--pa-primary-glow);
 }
 
+/* Sidebar resources (docs, faq, changelog, contact) */
+.pa-sidebar-resources {
+  padding: 0.5rem 0.5rem 0;
+  border-top: 1px solid var(--pa-sep);
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pa-sidebar-resources a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--pa-radius-md);
+  font-family: var(--pa-font-display);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--pa-text-faint);
+  text-decoration: none;
+  transition: all var(--pa-transition-fast);
+  white-space: nowrap;
+}
+
+.pa-sidebar-resources a i {
+  font-size: 0.65rem;
+  width: 1rem;
+  text-align: center;
+}
+
+.pa-sidebar-resources a:hover {
+  color: var(--pa-text-muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pa-sidebar-resources a.active {
+  color: var(--pa-text);
+}
+
 /* Sidebar footer */
 .pa-sidebar-footer {
   padding: 0.75rem 0.5rem 0;

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Your Agent Analytics — see how your Pixel Agents perform." />
+  <meta name="description" content="Pixel Agents changelog — version history and release notes." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Activity — Pixel Agents</title>
+  <title>Changelog — Pixel Agents</title>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
@@ -21,8 +21,13 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
 
-  <!-- Analytics styles -->
-  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-analytics.css" />
+  <style>
+    .pa-changelog-entry { margin-bottom: 2.5rem; padding-left: 1.5rem; border-left: 2px solid var(--pa-primary-border); }
+    .pa-changelog-version { font-family: var(--pa-font-display); font-size: 1.1rem; font-weight: 700; color: var(--pa-text); margin: 0 0 0.25rem; }
+    .pa-changelog-date { font-size: 0.75rem; color: var(--pa-text-faint); margin: 0 0 0.75rem; }
+    .pa-changelog-entry ul { padding-left: 1.25rem; margin: 0; }
+    .pa-changelog-entry li { font-size: 0.85rem; line-height: 1.6; color: var(--pa-text-muted); margin-bottom: 0.3rem; }
+  </style>
 </head>
 <body class="pa-shell" data-theme="dark">
 
@@ -53,7 +58,7 @@
         <i class="fas fa-vault"></i><span>Vault</span>
         <span class="pa-coming-soon">Soon</span>
       </a>
-      <a href="/pixel-agents/analytics.html" class="active" data-nav="activity">
+      <a href="/pixel-agents/analytics.html" data-nav="activity">
         <i class="fas fa-chart-line"></i><span>Activity</span>
       </a>
     </nav>
@@ -61,7 +66,7 @@
     <div class="pa-sidebar-resources">
       <a href="/pixel-agents/docs.html" data-nav="docs"><i class="fas fa-book"></i><span>Docs</span></a>
       <a href="/pixel-agents/faq.html" data-nav="faq"><i class="fas fa-circle-question"></i><span>FAQ</span></a>
-      <a href="/pixel-agents/changelog.html" data-nav="changelog"><i class="fas fa-clock-rotate-left"></i><span>Changelog</span></a>
+      <a href="/pixel-agents/changelog.html" class="active" data-nav="changelog"><i class="fas fa-clock-rotate-left"></i><span>Changelog</span></a>
       <a href="/pixel-agents/contact.html" data-nav="contact"><i class="fas fa-envelope"></i><span>Contact</span></a>
     </div>
 
@@ -76,7 +81,7 @@
        TOP BAR
        ═══════════════════════════════════ -->
   <header class="pa-topbar-v2">
-    <span class="pa-wordmark">Activity</span>
+    <span class="pa-wordmark">Changelog</span>
     <div class="pa-topbar-actions">
       <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
         <i class="fas fa-moon"></i>
@@ -88,7 +93,7 @@
         <i class="fas fa-user"></i>
       </div>
       <div class="pa-avatar-menu" id="pa-avatar-menu">
-        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/analytics.html">
+        <a id="pa-login-btn" href="/pages/login.html?redirect=/pixel-agents/changelog.html">
           <i class="fas fa-sign-in-alt"></i> Sign In
         </a>
         <div id="pa-user-status" style="display:none;">
@@ -111,13 +116,40 @@
     <div class="pa-section">
       <div class="pa-section-header">
         <div>
-          <span class="pa-section-label">Creator Dashboard</span>
-          <h2>Your Agents</h2>
+          <span class="pa-section-label">Version History</span>
+          <h2>Changelog</h2>
         </div>
       </div>
 
-      <div id="pa-analytics-content">
-        <!-- Rendered by pixel-agent-analytics.js -->
+      <div class="pa-changelog-entry">
+        <p class="pa-changelog-version">v2.0</p>
+        <p class="pa-changelog-date">April 2026</p>
+        <ul>
+          <li>Usage numbers + trending badges on agent cards</li>
+          <li>Shareable result cards with OG image previews for social platforms</li>
+          <li>Agent of the Day — daily spotlight rotation</li>
+          <li>Creator leaderboard with estimated earnings</li>
+          <li>Revenue share tracking (Preview — payouts coming soon)</li>
+          <li>Hero redesign: "Build once. Deploy forever. Earn on every run."</li>
+          <li>Live agent cap raised from 3 to 5</li>
+          <li>Documentation, FAQ, Changelog, and Contact pages</li>
+          <li>4 new spotlight widgets showcasing V2 features</li>
+        </ul>
+      </div>
+
+      <div class="pa-changelog-entry">
+        <p class="pa-changelog-version">v1.0</p>
+        <p class="pa-changelog-date">March 2026</p>
+        <ul>
+          <li>Initial launch with 24 built-in agents</li>
+          <li>Agent Forge visual builder</li>
+          <li>Community agent submissions with AI gatekeeper</li>
+          <li>Auto-approve system (quality/uniqueness/safety scoring)</li>
+          <li>Creator analytics dashboard</li>
+          <li>Arcane-style AI-generated portraits</li>
+          <li>5 agent tiers with tier-aware card styling</li>
+          <li>Rate limiting (5/day anonymous, 25/day authenticated)</li>
+        </ul>
       </div>
     </div>
 
@@ -143,13 +175,12 @@
     <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
     <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
     <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
-    <a href="/pixel-agents/analytics.html" class="active"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+    <a href="/pixel-agents/analytics.html"><i class="fas fa-chart-line"></i><span>Activity</span></a>
   </nav>
 
   <!-- ═══════════════════════════════════
        SCRIPTS
        ═══════════════════════════════════ -->
-  <script src="/pixel-agents/js/pixel-agent-analytics.js"></script>
   <script>
   // Avatar menu + theme toggle (shared pattern)
   (function() {
