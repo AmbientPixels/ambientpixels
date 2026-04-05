@@ -239,6 +239,72 @@
       html += '</div></div>';
     }
 
+    // Next payout estimate
+    if (data.summary.nextPayoutEstimate !== undefined) {
+      var nextDate = new Date();
+      nextDate.setMonth(nextDate.getMonth() + 1, 1);
+      var nextDateStr = nextDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      html += '<div class="pa-analytics-section">' +
+        '<div class="pa-analytics-section-title"><i class="fas fa-calendar-check" style="color:var(--pa-secondary);margin-right:6px"></i>Next Payout</div>' +
+        '<div class="pa-next-payout">' +
+          '<div class="pa-next-payout-amount">~$' + parseFloat(data.summary.nextPayoutEstimate).toFixed(2) + '</div>' +
+          '<div class="pa-next-payout-meta">' +
+            'Estimated for ' + nextDateStr + ' &middot; ' +
+            (data.revenueSharePercent || 50) + '% share &middot; ' +
+            (data.creatorTier === 'pro' ? '1.5x' : '1x') + ' weight' +
+          '</div>' +
+          (parseFloat(data.summary.nextPayoutEstimate) < 25
+            ? '<div class="pa-next-payout-note"><i class="fas fa-info-circle"></i> Below $25 minimum \u2014 earnings roll over to next month</div>'
+            : '') +
+        '</div>' +
+      '</div>';
+    }
+
+    // Pro upgrade CTA (only for free creators with agents)
+    if (data.creatorTier !== 'pro' && data.agents.length > 0) {
+      html += '<div class="pa-pro-cta">' +
+        '<div class="pa-pro-cta-content">' +
+          '<div class="pa-pro-cta-badge">PRO</div>' +
+          '<div>' +
+            '<h3>Upgrade to Pro Creator</h3>' +
+            '<p>Earn 70% instead of 50%. Get 1.5x run weight. Unlimited live agents.</p>' +
+          '</div>' +
+        '</div>' +
+        '<a href="/pixel-agents/?upgrade=pro" class="pa-btn-primary"><i class="fas fa-rocket"></i> $12/mo</a>' +
+      '</div>';
+    }
+
+    // Payout history table
+    if (data.payoutHistory && data.payoutHistory.length > 0) {
+      html += '<div class="pa-analytics-section">' +
+        '<div class="pa-analytics-section-title"><i class="fas fa-receipt" style="color:var(--pa-text-muted);margin-right:6px"></i>Payout History</div>' +
+        '<div class="pa-payout-history">' +
+          '<div class="pa-payout-history-header">' +
+            '<span>Month</span><span>Amount</span><span>Status</span><span>Transfer ID</span>' +
+          '</div>';
+
+      data.payoutHistory.slice().reverse().forEach(function (entry) {
+        var statusClass = entry.status === 'paid' ? 'pa-ph-paid' :
+                          entry.status === 'failed' ? 'pa-ph-failed' : 'pa-ph-pending';
+        var statusLabel = entry.status === 'paid' ? 'Paid' :
+                          entry.status === 'failed' ? 'Failed' : 'Rolled Over';
+        var transferDisplay = entry.transferId
+          ? '<span class="pa-ph-transfer-id">' + escapeHtml(entry.transferId) +
+            '<button class="pa-ph-copy" onclick="navigator.clipboard.writeText(\'' + escapeHtml(entry.transferId) + '\');this.textContent=\'Copied!\';setTimeout(function(){this.textContent=\'Copy\';}.bind(this),1500)" title="Copy transfer ID">Copy</button></span>'
+          : '\u2014';
+
+        html += '<div class="pa-payout-history-row">' +
+          '<span>' + escapeHtml(entry.month) + '</span>' +
+          '<span class="pa-ph-amount">$' + (entry.transferAmount || 0).toFixed(2) + '</span>' +
+          '<span class="' + statusClass + '">' + statusLabel + '</span>' +
+          '<span>' + transferDisplay + '</span>' +
+        '</div>';
+      });
+
+      html += '</div></div>';
+    }
+
     main.innerHTML = html;
 
     // Load creator payout status

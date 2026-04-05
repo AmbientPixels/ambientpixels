@@ -38,7 +38,9 @@ module.exports = async function (context, req) {
       storage.getState('pixelAgentStats').catch(function () { return {}; }),
       storage.getState('pixelAgentRuns').catch(function () { return []; }),
       storage.getState('pixelAgentSubmissions').catch(function () { return []; }),
-      storage.getState('pixelAgentCreatorStats').catch(function () { return {}; })
+      storage.getState('pixelAgentCreatorStats').catch(function () { return {}; }),
+      storage.getState('payout-history/' + userId).catch(function () { return []; }),
+      storage.getState('creatorProfiles/' + userId).catch(function () { return null; })
     ]);
 
     var community = results[0] || [];
@@ -46,6 +48,8 @@ module.exports = async function (context, req) {
     var runs = results[2] || [];
     var submissions = results[3] || [];
     var creatorStats = results[4] || {};
+    var payoutHistory = results[5] || [];
+    var creatorProfile = results[6] || null;
 
     // Revenue share constants
     var REVENUE_PER_RUN = 0.02;
@@ -144,6 +148,12 @@ module.exports = async function (context, req) {
       if (myRank && myRank.rank > 10) leaderboard.push(myRank);
     }
 
+    // Next payout estimate (current month runs × weight × share %)
+    var currentMonthRuns = totalRecent; // approximate with 7-day as proxy
+    var creatorIsPro = false; // TODO: derive from entitlements when available
+    var nextPayoutEstimate = currentMonthRuns * (creatorIsPro ? PRO_RUN_WEIGHT : FREE_RUN_WEIGHT) *
+      REVENUE_PER_RUN * (creatorIsPro ? 0.70 : 0.50);
+
     context.res = {
       status: 200,
       headers: CORS_HEADERS,
@@ -158,9 +168,13 @@ module.exports = async function (context, req) {
           runsLast7d: totalRecent,
           estimatedEarnings: totalEarnings.toFixed(2),
           earningsLast7d: recentEarnings.toFixed(2),
-          revenuePerRun: REVENUE_PER_RUN
+          revenuePerRun: REVENUE_PER_RUN,
+          nextPayoutEstimate: nextPayoutEstimate.toFixed(2)
         },
-        leaderboard: leaderboard
+        leaderboard: leaderboard,
+        payoutHistory: payoutHistory,
+        creatorTier: creatorIsPro ? 'pro' : 'free',
+        revenueSharePercent: creatorIsPro ? 70 : 50
       }
     };
 

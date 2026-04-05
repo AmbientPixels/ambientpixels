@@ -542,6 +542,156 @@
 
 .pa-payout-status-note i { font-size: 0.6rem; }
 
+/* ── Next Payout Estimate ── */
+.pa-next-payout {
+  padding: 1.25rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-lg);
+}
+
+.pa-next-payout-amount {
+  font-family: var(--pa-font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+
+.pa-next-payout-meta {
+  font-size: 0.72rem;
+  color: var(--pa-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.pa-next-payout-note {
+  font-size: 0.68rem;
+  color: var(--pa-warning);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ── Pro Upgrade CTA ── */
+.pa-pro-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(143, 0, 255, 0.08), rgba(99, 102, 241, 0.06));
+  border: 1px solid var(--pa-primary-border);
+  border-radius: var(--pa-radius-lg);
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.pa-pro-cta-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pa-pro-cta-badge {
+  font-family: var(--pa-font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--pa-radius-pill);
+  background: var(--pa-primary);
+  color: #fff;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.pa-pro-cta h3 {
+  font-family: var(--pa-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  margin: 0 0 0.2rem;
+}
+
+.pa-pro-cta p {
+  font-size: 0.78rem;
+  color: var(--pa-text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Payout History Table ── */
+.pa-payout-history {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-lg);
+  overflow: hidden;
+}
+
+.pa-payout-history-header,
+.pa-payout-history-row {
+  display: grid;
+  grid-template-columns: 5rem 5rem 6rem 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+.pa-payout-history-header {
+  font-family: var(--pa-font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--pa-text-faint);
+  border-bottom: 1px solid var(--pa-sep-strong);
+}
+
+.pa-payout-history-row {
+  border-bottom: 1px solid var(--pa-sep);
+  color: var(--pa-text);
+}
+
+.pa-payout-history-row:last-child { border-bottom: none; }
+
+.pa-ph-amount { font-weight: 600; color: var(--pa-text); }
+.pa-ph-paid { color: var(--pa-success); font-weight: 600; }
+.pa-ph-failed { color: var(--pa-danger); font-weight: 600; }
+.pa-ph-pending { color: var(--pa-text-faint); }
+
+.pa-ph-transfer-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--pa-font-mono);
+  font-size: 0.68rem;
+  color: var(--pa-text-faint);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pa-ph-copy {
+  font-family: var(--pa-font-display);
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: var(--pa-radius-sm);
+  border: 1px solid var(--pa-sep-strong);
+  background: transparent;
+  color: var(--pa-text-muted);
+  cursor: pointer;
+  transition: all var(--pa-transition-fast);
+  flex-shrink: 0;
+}
+
+.pa-ph-copy:hover {
+  background: var(--pa-surface-raised);
+  color: var(--pa-text);
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .pa-analytics-summary {
@@ -580,5 +730,22 @@
   .pa-payout-status-stats {
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .pa-pro-cta {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .pa-pro-cta-content {
+    flex-direction: column;
+  }
+
+  .pa-payout-history-header,
+  .pa-payout-history-row {
+    grid-template-columns: 4rem 4rem 5rem 1fr;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    padding: 0.6rem 0.75rem;
   }
 }
