@@ -9,6 +9,12 @@
   // Bail silently if no connection string configured
   if (!CONNECTION_STRING) return;
 
+  // Capture document.title at script-parse time. This script is defer-loaded, so it runs after
+  // <title> is parsed but before any other script can mutate document.title (e.g. SPA route
+  // handlers, third-party widgets). Locking the title here prevents stale-title bugs where
+  // pageviews on "/" got logged with a previous page's title (e.g. "StoryForge").
+  var __INITIAL_TITLE = document.title || '';
+
   var SDK_URL = 'https://js.monitor.azure.com/scripts/b/ai.3.gbl.min.js';
   var SDK_TIMEOUT_MS = 8000;
 
@@ -55,7 +61,7 @@
       });
       snippet.loadAppInsights();
 
-      // Set custom context and ensure correct URL on all page views
+      // Set custom context and ensure correct URL/name on all page views
       snippet.addTelemetryInitializer(function (envelope) {
         envelope.data = envelope.data || {};
         envelope.data.site = 'ambientpixels';
@@ -63,6 +69,8 @@
         // Override URL with real browser path (SWA fallback rewrites to / on server side)
         if (envelope.baseType === 'PageviewData' && envelope.baseData) {
           envelope.baseData.uri = location.origin + _stripPII(location.href);
+          // Lock name to the title captured at script-parse time, preventing stale-title bugs
+          envelope.baseData.name = __INITIAL_TITLE;
         }
       });
 
@@ -71,7 +79,7 @@
       var _cleanUri = _stripPII(location.href);
       var _fullUrl = location.origin + _cleanUri;
       snippet.trackPageView({
-        name: document.title,
+        name: __INITIAL_TITLE,
         uri: _fullUrl,
         properties: {
           clientPath: location.pathname,

@@ -113,13 +113,18 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // Top pages query — always keep real URL path for product matching, include page title for display
+    // Top pages query — group by path, then pick the MOST COMMON title for each path.
+    // Previous version used take_any(name) which is non-deterministic and could pick a stale
+    // SPA-navigation title (e.g. "/" labeled as "StoryForge" because one of N visits was logged
+    // with a stale document.title). Two-stage groupby fixes this by taking the dominant title.
     var topPagesQuery = [
       'pageViews',
       '| where isnotempty(url)',
       '| extend parsedPath = tostring(parse_url(url).Path)',
       '| extend cleanPath = iff(parsedPath == "", "/", parsedPath)',
-      '| summarize viewCount = count(), pageTitle = take_any(name) by path = cleanPath',
+      '| summarize titleCount = count() by path = cleanPath, name',
+      '| summarize viewCount = sum(titleCount), arg_max(titleCount, name) by path',
+      '| project path, viewCount, pageTitle = name',
       '| top 20 by viewCount desc'
     ].join('\n');
 
