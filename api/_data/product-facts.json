@@ -16,9 +16,9 @@
       "notThis": ["it is NOT a writing tool or word processor", "it does NOT generate novels or ebooks", "it does NOT export to PDF"]
     },
     "PixelAgents": {
-      "description": "AI agent marketplace with 24 built-in agents across 12 categories, plus community Agent Forge",
-      "features": ["text-only agents", "web search agents (Brave API)", "URL fetch agents", "image generation agents (Gemini)", "Agent Forge builder", "community submissions", "24 built-in agents: Roast My Site, Thread It, Name Storm, Validate This, Pitch Doctor, Vibe Check, Fridge Raid, Prompt Forge, Resume Roast, Signal, Hype Check, Buzz Check, Hivemind, Site Glow-Up, Color Thief, Roast My LinkedIn, Explain Like I'm 5, Startup Obituary, Legal Eagle, Email Fixer, Code Roast, Meeting Killer, Plot Twist, Debate Me"],
-      "notThis": ["it is NOT a web scraper", "it does NOT browse URLs interactively", "it does NOT fill forms", "it does NOT export CSV files", "agents do NOT have persistent memory between sessions"]
+      "description": "AI agent marketplace with 24 built-in agents, creator economy with Stripe Connect payouts, Pro tier ($12/mo), and visual Agent Forge builder",
+      "features": ["24 built-in agents across 12 categories: Roast My Site, Thread It, Name Storm, Validate This, Pitch Doctor, Vibe Check, Fridge Raid, Prompt Forge, Resume Roast, Signal, Hype Check, Buzz Check, Hivemind, Site Glow-Up, Color Thief, Roast My LinkedIn, Explain Like I'm 5, Startup Obituary, Legal Eagle, Email Fixer, Code Roast, Meeting Killer, Plot Twist, Debate Me", "text-only agents, web search agents (Brave API), URL fetch agents, image generation agents (Gemini)", "creator marketplace: publish agents, earn revenue from every run via Stripe Connect", "Pro tier ($12/mo): 70% revenue share, 1.5x catalog weight, unlimited agents", "Free tier: 50% revenue share, 1x weight, 5 agents max", "Agent Forge: visual no-code builder with AI-generated Arcane-style portraits", "auto-approve system (AI gatekeeper scores quality/uniqueness/safety)", "shareable result cards with server-generated OG images for social sharing", "creator analytics dashboard with leaderboard and payout history", "B2C authentication with entitlements", "docs center, FAQ, changelog, contact form"],
+      "notThis": ["it is NOT a web scraper", "it does NOT browse URLs interactively", "it does NOT fill forms", "it does NOT export CSV files", "agents do NOT have persistent memory between sessions", "it is NOT a ChatGPT alternative — agents are purpose-built specialists, not general chatbots", "Pro tier revenue share is NOT a salary — creators earn per agent run"]
     },
     "AmbientScore": {
       "description": "Website conversion scoring tool that analyzes landing pages for conversion optimization",
@@ -31,8 +31,8 @@
       "notThis": ["it is NOT a trading card game — no card marketplace or trading", "it is NOT CardForge — Blindspot is a standalone game, fully decoupled", "it does NOT require download or install — 100% browser-based", "it does NOT use real money for gameplay — Sparks are earned in-game", "cards are NOT randomly generated — players build them in Quick Build or Forge", "it is NOT turn-based strategy — it's real-time move selection with rock-paper-scissors combat"]
     },
     "AgentForge": {
-      "description": "Visual agent builder where users create custom AI agents with a card-based pipeline",
-      "features": ["drag-and-drop builder", "test before submit", "AI gatekeeper review", "CEO approval", "community catalog"],
+      "description": "Visual no-code agent builder where creators design, test, and publish custom AI agents to the Pixel Agents marketplace",
+      "features": ["drag-and-drop card pipeline builder", "test before submit with live preview", "AI gatekeeper auto-approve (scores quality, uniqueness, safety)", "AI-generated Arcane-style agent portraits", "Stripe Connect payout integration for creators", "community catalog with search and filtering", "edit gates for live agent cosmetic updates"],
       "notThis": ["it is NOT a coding tool", "it does NOT generate code", "it does NOT deploy agents to external platforms"]
     }
   },
