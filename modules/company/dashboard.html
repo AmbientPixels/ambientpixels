@@ -1802,13 +1802,15 @@
 
           // ── Product visitor counts (derived from topPages) ──
           var products = [
+            { key: 'pixelagents',     prefix: '/pixel-agents',     label: 'Pixel Agents',icon: 'robot',          color: '#8F00FF' },
+            { key: 'agentforge',      prefix: '/agent-forge',      label: 'Agent Forge', icon: 'hammer',         color: '#00F0FF' },
             { key: 'cardforge',       prefix: '/cardforge',        label: 'CardForge',   icon: 'layer-group',    color: '#38bdf8' },
             { key: 'storyforge',      prefix: '/storyforge',       label: 'StoryForge',  icon: 'book-open',      color: '#a78bfa' },
             { key: 'ambientscore',    prefix: '/ambientscore',     label: 'AmbientScore',icon: 'chart-line',     color: '#a3e635' },
+            { key: 'blindspot',       prefix: '/blindspot',        label: 'Blindspot',   icon: 'crosshairs',     color: '#EF9F27' },
             { key: 'tileforge',       prefix: '/hanson/tileforge', label: 'TileForge',   icon: 'th-large',       color: '#fbbf24' },
             { key: 'nova',            prefix: '/nova',             label: 'Nova',        icon: 'star',           color: '#7dd3fc' },
-            { key: 'blog',            prefix: '/blog',             label: 'Blog',        icon: 'rss',            color: '#34d399' },
-            { key: 'blindspot',       prefix: '/blindspot',        label: 'Blindspot',   icon: 'crosshairs',     color: '#EF9F27' }
+            { key: 'blog',            prefix: '/blog',             label: 'Blog',        icon: 'rss',            color: '#34d399' }
           ];
           products.forEach(function (p) {
             p.views = 0;

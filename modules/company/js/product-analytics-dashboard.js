@@ -17,6 +17,8 @@
   if (!kpisEl) return;
 
   var PRODUCT_COLORS = {
+    pixelagents: '#8F00FF',
+    agentforge: '#00F0FF',
     ambientscore: '#a3e635',
     blindspot: '#EF9F27',
     cardforge: '#38bdf8',
@@ -28,6 +30,8 @@
   };
 
   var PRODUCT_ICONS = {
+    pixelagents: 'fa-robot',
+    agentforge: 'fa-hammer',
     ambientscore: 'fa-chart-line',
     blindspot: 'fa-crosshairs',
     cardforge: 'fa-layer-group',

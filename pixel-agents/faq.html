@@ -129,6 +129,16 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
 
+  <!-- Telemetry -->
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.ProductAnalytics) ProductAnalytics.init('pixelagents');
+    });
+  </script>
+
   <style>
     .pa-faq-list { max-width: 720px; }
     .pa-faq-list details { margin-bottom: 0.5rem; background: var(--pa-surface); border: 1px solid var(--pa-sep); border-radius: var(--pa-radius-md); overflow: hidden; }

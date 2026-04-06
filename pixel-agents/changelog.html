@@ -39,6 +39,16 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
 
+  <!-- Telemetry -->
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.ProductAnalytics) ProductAnalytics.init('pixelagents');
+    });
+  </script>
+
   <style>
     .pa-changelog-entry { margin-bottom: 2.5rem; padding-left: 1.5rem; border-left: 2px solid var(--pa-primary-border); }
     .pa-changelog-version { font-family: var(--pa-font-display); font-size: 1.1rem; font-weight: 700; color: var(--pa-text); margin: 0 0 0.25rem; }

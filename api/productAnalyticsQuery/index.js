@@ -11,7 +11,7 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
-const VALID_PRODUCTS = ['all', 'ambientscore', 'blindspot', 'cardforge', 'storyforge', 'tileforge', 'blog', 'nova', 'dashboard'];
+const VALID_PRODUCTS = ['all', 'pixelagents', 'agentforge', 'ambientscore', 'blindspot', 'cardforge', 'storyforge', 'tileforge', 'blog', 'nova', 'dashboard'];
 const VALID_METRICS = ['overview', 'dau', 'funnels', 'events', 'products'];
 
 // In-memory cache: key → { data, ts }

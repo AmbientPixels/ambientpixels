@@ -83,6 +83,16 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+
+  <!-- Telemetry -->
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.ProductAnalytics) ProductAnalytics.init('pixelagents');
+    });
+  </script>
 </head>
 <body class="pa-shell" data-theme="dark">
 
