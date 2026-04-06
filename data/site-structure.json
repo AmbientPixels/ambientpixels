@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-04-05T13:56:00.202Z",
+  "updated": "2026-04-06T14:11:22.047Z",
   "root": [
     {
       "type": "folder",
@@ -785,8 +785,50 @@
         },
         {
           "type": "folder",
+          "name": "pixel-agent-connect-webhook",
+          "path": "api/pixel-agent-connect-webhook",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-creator-onboard",
+          "path": "api/pixel-agent-creator-onboard",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-creator-profile",
+          "path": "api/pixel-agent-creator-profile",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-creator-status",
+          "path": "api/pixel-agent-creator-status",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "pixel-agent-entitlements",
           "path": "api/pixel-agent-entitlements",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-payout-admin",
+          "path": "api/pixel-agent-payout-admin",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-payout-run",
+          "path": "api/pixel-agent-payout-run",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-payout-timer",
+          "path": "api/pixel-agent-payout-timer",
           "children": []
         },
         {
@@ -805,6 +847,18 @@
           "type": "folder",
           "name": "pixel-agent-run",
           "path": "api/pixel-agent-run",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-share",
+          "path": "api/pixel-agent-share",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-share-card",
+          "path": "api/pixel-agent-share-card",
           "children": []
         },
         {
@@ -2014,10 +2068,30 @@
           "path": "pixel-agents/analytics.html"
         },
         {
+          "type": "page",
+          "name": "changelog.html",
+          "path": "pixel-agents/changelog.html"
+        },
+        {
+          "type": "page",
+          "name": "contact.html",
+          "path": "pixel-agents/contact.html"
+        },
+        {
           "type": "folder",
           "name": "css",
           "path": "pixel-agents/css",
           "children": []
+        },
+        {
+          "type": "page",
+          "name": "docs.html",
+          "path": "pixel-agents/docs.html"
+        },
+        {
+          "type": "page",
+          "name": "faq.html",
+          "path": "pixel-agents/faq.html"
         },
         {
           "type": "folder",
@@ -2040,6 +2114,11 @@
           "type": "page",
           "name": "run.html",
           "path": "pixel-agents/run.html"
+        },
+        {
+          "type": "page",
+          "name": "upgrade.html",
+          "path": "pixel-agents/upgrade.html"
         }
       ]
     },

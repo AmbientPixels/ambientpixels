@@ -1,10 +1,10 @@
 {
-  "updated": "2026-04-05T13:56:00.330Z",
+  "updated": "2026-04-06T14:11:22.181Z",
   "entries": [
     {
-      "hash": "0204dbe",
-      "date": "2026-04-04 23:17:45 -0700",
-      "message": "Fix sidebar: Agents highlights when navigating from other pages"
+      "hash": "37a3a68",
+      "date": "2026-04-05 22:29:13 -0700",
+      "message": "Wire Pixel Agents into analytics dashboard and instrument PA pages"
     }
   ]
 }

@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "c7c5bd77-c92e-47ac-a8dc-b52bf463a356",
-      "hash": "0204dbe5470206728ae2c34a503a3572b8767887",
-      "message": "Fix sidebar: Agents highlights when navigating from other pages",
-      "timestamp": "2026-04-04 23:17:45 -0700",
+      "id": "fdfc5107-6518-48e2-88e8-feb2a3dde4f3",
+      "hash": "37a3a68a9c8cbb088ce40886c167494c2d5246c3",
+      "message": "Wire Pixel Agents into analytics dashboard and instrument PA pages",
+      "timestamp": "2026-04-05 22:29:13 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/0204dbe5470206728ae2c34a503a3572b8767887"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/37a3a68a9c8cbb088ce40886c167494c2d5246c3"
     }
   ],
-  "timestamp": "2026-04-05T13:56:02.247Z",
+  "timestamp": "2026-04-06T14:11:24.117Z",
   "count": 1,
-  "scanId": 1775397362247
+  "scanId": 1775484684117
 }
