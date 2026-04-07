@@ -44,7 +44,9 @@ var FUNNELS = {
   blindspot: ['page_view', 'card_created', 'battle_end', 'boss_defeated'],
   cardforge: ['page_view', 'quickbuild_completed', 'arena_battle_end'],
   storyforge: ['page_view', 'adventure_started'],
-  blog: ['page_view', 'post_viewed']
+  blog: ['page_view', 'post_viewed'],
+  pixelagents: ['page_view', 'agent_run_started', 'agent_run_completed', 'checkout_initiated'],
+  agentforge: ['page_view', 'agent_submitted']
 };
 
 // ── Metric Computers ──

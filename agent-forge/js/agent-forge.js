@@ -916,6 +916,9 @@ async function submitForReview() {
       submitBody.originalAgentId = _editAgentId;
     }
 
+    // Funnel: agent_submitted — feeds the agentforge funnel in productAnalyticsQuery
+    if (window.ProductAnalytics) try { ProductAnalytics.track('agent_submitted', { editMode: !!_editMode, agentName: agentState.identity && agentState.identity.name }); } catch (_) {}
+
     var res = await fetch(getApiBase() + '/pixel-agent-submit', {
       method: 'POST',
       headers: hdrs,

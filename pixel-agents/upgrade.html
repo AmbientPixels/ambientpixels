@@ -529,6 +529,9 @@
 
       var apiBase = window.location.hostname.includes('ambientpixels.ai') ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
 
+      // Funnel: checkout_initiated — feeds the pixelagents funnel in productAnalyticsQuery
+      if (window.ProductAnalytics) try { ProductAnalytics.track('checkout_initiated', { productId: productId, plan: selectedPlan }); } catch (_) {}
+
       var checkoutHeaders = { 'Content-Type': 'application/json' };
       if (_upgradePrincipal) checkoutHeaders['x-cf-auth-principal'] = _upgradePrincipal;
 

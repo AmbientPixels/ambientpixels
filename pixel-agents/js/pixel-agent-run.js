@@ -327,6 +327,9 @@ async function runAgent() {
   const btn = document.getElementById('pa-run-btn');
   btn.disabled = true;
 
+  // Funnel: agent_run_started — feeds the pixelagents funnel in productAnalyticsQuery
+  if (window.ProductAnalytics) try { ProductAnalytics.track('agent_run_started', { agentId: currentAgent.id }); } catch (_) {}
+
   try {
     const hdrs = { 'Content-Type': 'application/json' };
     if (authPrincipalHeader) hdrs['x-cf-auth-principal'] = authPrincipalHeader;
@@ -350,6 +353,9 @@ async function runAgent() {
 
     currentResult = data;
     currentRunId = data.runId;
+
+    // Funnel: agent_run_completed
+    if (window.ProductAnalytics) try { ProductAnalytics.track('agent_run_completed', { agentId: currentAgent.id, runId: data.runId }); } catch (_) {}
 
     // Update remaining
     const remainEl = document.getElementById('pa-remaining');
