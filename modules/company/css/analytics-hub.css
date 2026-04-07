@@ -821,3 +821,47 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
     font-size: 22px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Phase 2: zone wrappers
+   ═══════════════════════════════════════════════════════════════ */
+
+.ah-zone {
+  background: #1c1c1e;
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.ah-zone--compact {
+  padding: 12px 16px;
+}
+.ah-zone-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.ah-zone-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.ah-zone-title i {
+  font-size: 12px;
+  opacity: 0.6;
+  color: #5ac8fa;
+}
+.ah-zone-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
