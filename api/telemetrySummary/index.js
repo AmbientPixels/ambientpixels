@@ -122,6 +122,9 @@ module.exports = async function (context, req) {
       '| where isnotempty(url)',
       '| extend parsedPath = tostring(parse_url(url).Path)',
       '| extend cleanPath = iff(parsedPath == "", "/", parsedPath)',
+      '| extend cleanPath = replace_string(cleanPath, "/index.html", "/")',
+      '| extend cleanPath = iff(cleanPath != "/" and cleanPath endswith "/", substring(cleanPath, 0, strlen(cleanPath) - 1), cleanPath)',
+      '| extend cleanPath = iff(cleanPath == "", "/", cleanPath)',
       '| summarize titleCount = count() by path = cleanPath, name',
       '| summarize viewCount = sum(titleCount), arg_max(titleCount, name) by path',
       '| project path, viewCount, pageTitle = name',
@@ -139,14 +142,22 @@ module.exports = async function (context, req) {
       '| top 10 by sessions desc'
     ].join('\n');
 
-    // Top campaigns (utm params)
+    // Top campaigns (utm params) — use bracket access (safer than dot for dynamic dict keys)
     var topCampaignsQuery = [
       'pageViews',
-      '| extend qp = parse_url(url).["Query Parameters"]',
-      '| extend campaign = tostring(qp.utm_campaign), source = tostring(qp.utm_source), medium = tostring(qp.utm_medium)',
+      '| where isnotempty(url) and url contains "utm_"',
+      '| extend qp = parse_url(url)["Query Parameters"]',
+      '| extend campaign = tostring(qp["utm_campaign"]), source = tostring(qp["utm_source"]), medium = tostring(qp["utm_medium"])',
       '| where isnotempty(campaign)',
       '| summarize sessions = dcount(session_Id) by campaign, source, medium',
       '| top 10 by sessions desc'
+    ].join('\n');
+
+    // Diagnostic: how many pageViews even have utm_ in the URL? Helps distinguish "no UTMs in the wild" vs "query bug"
+    var utmDiagnosticQuery = [
+      'pageViews',
+      '| where isnotempty(url)',
+      '| summarize total = count(), withUtm = countif(url contains "utm_")'
     ].join('\n');
 
     // Performance
@@ -178,8 +189,17 @@ module.exports = async function (context, req) {
       _kustoQuery(topCampaignsQuery, timespan, _log),
       _kustoQuery(perfQuery, timespan, _log),
       _kustoQuery(errorsQuery, timespan, _log),
-      _kustoQuery(dailyViewsQuery, timespan, _log)
+      _kustoQuery(dailyViewsQuery, timespan, _log),
+      _kustoQuery(utmDiagnosticQuery, timespan, _log)
     ]);
+
+    // Log UTM diagnostic so we can see in Application Insights traces whether any
+    // pageViews in the window even contain utm_ params. This makes the empty-campaigns
+    // case unambiguous: 0 = no UTMs being posted, >0 = parse/query bug.
+    var utmDiag = _parseRows(results[6]);
+    if (utmDiag.length > 0) {
+      context.log('[telemetrySummary] UTM diagnostic range=' + range + ' total=' + (utmDiag[0].total || 0) + ' withUtm=' + (utmDiag[0].withUtm || 0));
+    }
 
     var pages = _parseRows(results[0]).map(function (r) { return { path: r.path || '/', pageTitle: r.pageTitle || '', views: r.viewCount || 0 }; });
     var referrers = _parseRows(results[1]).map(function (r) { return { referrer: r.referrer || '', sessions: r.sessions || 0 }; });
