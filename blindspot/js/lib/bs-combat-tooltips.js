@@ -10,6 +10,7 @@
 
   var BATTLE_HINTS = _Str.BATTLE_HINTS || {};
   var CLASS_SIGNATURE_MOVES = _C.CLASS_SIGNATURE_MOVES || {};
+  var CLASS_ABILITY_ART = _C.CLASS_ABILITY_ART || {};
   var MOVE_UPGRADES = _Str.MOVE_UPGRADES || {};
 
   var _cb = {};
@@ -37,6 +38,12 @@
         var abilIcon = document.getElementById('arena-ability-icon');
         if (abilLabel) abilLabel.textContent = sig.name;
         if (abilIcon) abilIcon.className = 'fas ' + sig.icon;
+      }
+      // Swap ability button thumbnail to class-specific art (falls back to generic ability.webp)
+      var artFile = CLASS_ABILITY_ART[cardClass];
+      if (artFile) {
+        var abilBtn = document.querySelector('.arena-move-btn--ability .arena-move-btn__art');
+        if (abilBtn) abilBtn.style.backgroundImage = "url('/blindspot/img/moves/" + artFile + "')";
       }
     }
     // Move upgrades — rename buttons based on stat thresholds

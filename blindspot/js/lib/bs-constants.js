@@ -62,6 +62,23 @@ window.BsConst = (function () {
     'Trickster': { name: 'Wild Card',     icon: 'fa-clover' }
   };
 
+  // Class-specific ability art filenames (served from /blindspot/img/moves/).
+  // Falls back to the generic ability.webp in HTML if class isn't listed.
+  var CLASS_ABILITY_ART = {
+    'Fighter':   'ability-fighter.webp',
+    'Enforcer':  'ability-enforcer.webp',
+    'Berserker': 'ability-berserker.webp',
+    'Guardian':  'ability-guardian.webp',
+    'Caster':    'ability-caster.webp',
+    'Scholar':   'ability-scholar.webp',
+    'Hacker':    'ability-hacker.webp',
+    'Scout':     'ability-scout.webp',
+    'Rogue':     'ability-rogue.webp',
+    'Trickster': 'ability-trickster.webp',
+    'Medic':     'ability-medic.webp',
+    'Pilot':     'ability-pilot.webp'
+  };
+
   // ── Combat ──
 
   var STAT_PASSIVES = {
@@ -311,7 +328,7 @@ window.BsConst = (function () {
   return {
     RANKS: RANKS, RANK_ORDER: RANK_ORDER,
     ELO_DEFAULT: ELO_DEFAULT, ELO_K: ELO_K, PVP_RANKS: PVP_RANKS,
-    BOSS_ICONS: BOSS_ICONS, CLASS_PATTERNS: CLASS_PATTERNS, CLASS_SIGNATURE_MOVES: CLASS_SIGNATURE_MOVES,
+    BOSS_ICONS: BOSS_ICONS, CLASS_PATTERNS: CLASS_PATTERNS, CLASS_SIGNATURE_MOVES: CLASS_SIGNATURE_MOVES, CLASS_ABILITY_ART: CLASS_ABILITY_ART,
     STAT_PASSIVES: STAT_PASSIVES, MOVE_UPGRADES: MOVE_UPGRADES, ARCHETYPES: ARCHETYPES,
     ELEMENT_DEFS: ELEMENT_DEFS, ELEMENT_CHART: ELEMENT_CHART, CLASS_DEFAULT_ELEMENT: CLASS_DEFAULT_ELEMENT,
     WEAKNESS_LABELS: WEAKNESS_LABELS, WEAKNESS_COLORS: WEAKNESS_COLORS,
