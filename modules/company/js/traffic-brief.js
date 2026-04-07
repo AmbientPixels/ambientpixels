@@ -19,13 +19,14 @@
   var _chartRendered = false;
 
   // ─── Bar chart row builder (uses .ah-tb-bar-* CSS classes) ───
+  // opts.trustDot = true → render a colored dot before each row label based
+  // on the views/sessions ratio (Phase 7 — Top Pages only).
   function _renderBarChart(title, icon, rows, keyField, valField, opts) {
     opts = opts || {};
     rows = (rows || []).slice(0, 5);
     var header = '<div class="ah-tb-bar-chart__title">'
       + '<i class="fas fa-' + AH.esc(icon) + '"></i>' + AH.esc(title) + '</div>';
     if (rows.length === 0) {
-      // Empty Campaigns gets an actionable hint instead of a dead "No data".
       if (opts.emptyHint) {
         return header + '<div class="ah-tb-bar-hint">' + opts.emptyHint + '</div>';
       }
@@ -37,8 +38,15 @@
       var val = r[valField] || 0;
       var pct = maxVal > 0 ? Math.round((val / maxVal) * 100) : 0;
       var label = r[keyField] || '—';
+      var dot = '';
+      var labelTitle = label;
+      if (opts.trustDot && r.uniqueSessions != null) {
+        var t = AH.trustDot(val, r.uniqueSessions);
+        dot = '<span class="ah-trust-dot ah-trust-dot--' + t.tone + '"></span>';
+        labelTitle = label + ' \u2014 ' + r.uniqueSessions + ' sessions, ' + (r.uniqueUsers || 0) + ' users (' + t.label + ')';
+      }
       html += '<div class="ah-tb-bar-row">'
-        + '<span class="ah-tb-bar-label" title="' + AH.esc(label) + '">' + AH.esc(label) + '</span>'
+        + '<span class="ah-tb-bar-label" title="' + AH.esc(labelTitle) + '">' + dot + AH.esc(label) + '</span>'
         + '<div class="ah-tb-bar-track"><div class="ah-tb-bar-fill" style="width:' + pct + '%"></div></div>'
         + '<span class="ah-tb-bar-value">' + val.toLocaleString() + '</span>'
         + '</div>';
@@ -102,9 +110,14 @@
 
     html += '<div class="ah-tb-grid">';
     var dispPages = (data.topPages || []).map(function (p) {
-      return { label: p.pageTitle || p.path || '/', views: p.views };
+      return {
+        label: p.pageTitle || p.path || '/',
+        views: p.views,
+        uniqueSessions: p.uniqueSessions || 0,
+        uniqueUsers: p.uniqueUsers || 0
+      };
     });
-    html += '<div>' + _renderBarChart('Top Pages', 'file-alt', dispPages, 'label', 'views') + '</div>';
+    html += '<div>' + _renderBarChart('Top Pages', 'file-alt', dispPages, 'label', 'views', { trustDot: true }) + '</div>';
     html += '<div>' + _renderBarChart('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions') + '</div>';
     html += '<div>' + _renderBarChart('Top Campaigns', 'bullhorn', data.topCampaigns, 'campaign', 'sessions', {
       emptyHint: 'No UTM-tagged traffic in window. Add <code>?utm_source=...&amp;utm_campaign=...</code> to social and email links to start tracking.'
@@ -113,6 +126,9 @@
 
     body.innerHTML = html;
     _tryRenderTimeline();
+
+    // Phase 7 hook: hero strip subscribers
+    AH.publish('traffic-brief.loaded', data);
   }
 
   function _fetch() {
