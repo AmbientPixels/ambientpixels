@@ -42,6 +42,7 @@ jobs:
             --exclude='.github' \
             --exclude='.windsurf' \
             --exclude='downloads' \
+            --exclude='video' \
             --exclude='images/deviant-source.png' \
             --exclude='images/artwork/hearts*.png' \
             ./ app_build/
