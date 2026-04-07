@@ -83,35 +83,48 @@
   }
 
   // ─── Loaders (one per tab) ────────────────────────────────────
+  // Each loader marks _loaded[tab] = true SYNCHRONOUSLY before kicking off
+  // the fetch, preventing a race where the IIFE eager-load and the
+  // tab-change handler both fire the same fetch in parallel. On error
+  // the flag is cleared so a refresh can retry.
   function loadOverview() {
+    if (_loaded.overview) return;
+    _loaded.overview = true;
     kpisEl.innerHTML = '<div class="ah-loading">Loading product analytics\u2026</div>';
     _fetch('overview').then(renderOverview).catch(function (err) {
+      _loaded.overview = false;
       _showError(kpisEl, err);
-    }).then(function () { _loaded.overview = true; });
+    });
   }
 
   function loadFunnels() {
-    if (!funnelEl) return;
+    if (!funnelEl || _loaded.funnels) return;
+    _loaded.funnels = true;
     funnelEl.innerHTML = '<div class="ah-loading">Loading funnels\u2026</div>';
     _fetch('funnels').then(renderFunnels).catch(function (err) {
+      _loaded.funnels = false;
       _showError(funnelEl, err);
-    }).then(function () { _loaded.funnels = true; });
+    });
   }
 
   function loadEvents() {
-    if (!eventsEl) return;
+    if (!eventsEl || _loaded.events) return;
+    _loaded.events = true;
     eventsEl.innerHTML = '<div class="ah-loading">Loading top events\u2026</div>';
     _fetch('events').then(renderEvents).catch(function (err) {
+      _loaded.events = false;
       _showError(eventsEl, err);
-    }).then(function () { _loaded.events = true; });
+    });
   }
 
   function loadBreakdown() {
-    if (!productsEl) return;
+    if (!productsEl || _loaded.breakdown) return;
+    _loaded.breakdown = true;
     productsEl.innerHTML = '<div class="ah-loading">Loading product breakdown\u2026</div>';
     _fetch('products').then(renderProducts).catch(function (err) {
+      _loaded.breakdown = false;
       _showError(productsEl, err);
-    }).then(function () { _loaded.breakdown = true; });
+    });
   }
 
   var _loaders = {
@@ -302,4 +315,11 @@
     if (evt.zoneId !== ZONE_ID) return;
     _loadTab(evt.tabName);
   });
+
+  // Always eager-load Overview on init so the hero strip's DAU subscriber
+  // gets fed regardless of which tab is currently active. The loader's
+  // synchronous _loaded.overview = true guard prevents a duplicate fetch
+  // when the tab-change handler also fires loadOverview() for an active
+  // Overview tab. Funnels / Events / Breakdown stay lazy.
+  loadOverview();
 })();
