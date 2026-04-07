@@ -168,8 +168,24 @@
       <div class="ah-zone-head">
         <div class="ah-zone-title"><i class="fas fa-satellite-dish"></i> Social Command Center</div>
       </div>
-      <div id="social-command-analytics">
-        <div style="opacity:0.3;padding:1rem;text-align:center;font-size:0.7rem;">Loading social data...</div>
+      <nav class="ah-tabs">
+        <button class="ah-tab" data-tab="overview" type="button"><i class="fas fa-chart-bar"></i>Overview</button>
+        <button class="ah-tab" data-tab="about" type="button"><i class="fas fa-info-circle"></i>About</button>
+      </nav>
+      <div class="ah-tab-panels">
+        <div class="ah-tab-panel" data-tab="overview">
+          <div id="social-command-analytics">
+            <div class="ah-loading">Loading social data&hellip;</div>
+          </div>
+        </div>
+        <div class="ah-tab-panel" data-tab="about">
+          <div class="ah-about">
+            <p><strong>What this shows.</strong> Live engagement and follower counts pulled from connected X, LinkedIn, and Bluesky accounts. The 14-day chart tracks posts, likes, comments, and reposts across all three platforms. Data is cached for 5 minutes between page loads.</p>
+            <p><strong>LIVE vs MOCK badge.</strong> When the LIVE badge is showing, the engagement numbers come from real platform APIs. MOCK means the engagement endpoint returned fallback data &mdash; usually because credentials expired or rate limits were hit. Check Account Overview at the bottom of the page for connection errors.</p>
+            <p><strong>Comment alert.</strong> The amber comment panel appears when any tracked post has new replies. Click through to respond before momentum dies.</p>
+            <p><strong>Top post.</strong> Selected from the highest-engagement post in the last 7 days where <code>likes + comments + reposts &gt; 0</code>.</p>
+          </div>
+        </div>
       </div>
     </section>
 

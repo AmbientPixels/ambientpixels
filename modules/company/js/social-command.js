@@ -1,12 +1,19 @@
 /**
  * Social Command Center — consolidated social panel for CEO Dashboard.
  * Replaces social-pulse.js + engagement-pulse.js + inline renderGrowthSocial.
- * Renders directly into #social-command-ceo and #social-command-dev (no mirror hack).
+ * Renders directly into #social-command-ceo, #social-command-dev,
+ * and #social-command-analytics (no mirror hack).
+ *
+ * Phase 5: helper functions (esc, fmtNum, relTime) delegate to AHShared
+ * when available, falling back to the local copies for the CEO/Dev
+ * dashboards which don't load AHShared.
  */
 (function () {
   'use strict';
 
-  // ── Helpers ──
+  var AH = window.AHShared || null;
+
+  // ── Helpers ── (kept local for CEO/Dev dashboard pages that don't load AHShared)
   function _apiBase() {
     return window.location.hostname.includes('ambientpixels.ai')
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
@@ -20,9 +27,16 @@
     return h;
   }
 
-  function _esc(s) { if (s == null) return ''; var d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+  function _esc(s) {
+    if (AH) return AH.esc(s);
+    if (s == null) return '';
+    var d = document.createElement('div');
+    d.textContent = String(s);
+    return d.innerHTML;
+  }
 
   function _fmtNum(n) {
+    if (AH) return AH.fmtNum(n);
     if (!Number.isFinite(n)) return '—';
     if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
@@ -30,6 +44,7 @@
   }
 
   function _relTime(iso) {
+    if (AH) return AH.relTime(iso);
     if (!iso) return '';
     var ts = Date.parse(iso);
     if (isNaN(ts)) return '';
@@ -403,11 +418,23 @@
 
     container.innerHTML = html;
 
-    // Populate stat cards if they exist
+    // Populate stat cards if they exist (CEO dashboard only)
     var fEl = document.getElementById('gstat-followers');
     var eEl = document.getElementById('gstat-engagements');
     if (fEl) fEl.textContent = totalFollowers > 0 ? totalFollowers.toLocaleString() : '—';
     if (eEl) eEl.textContent = totalEng > 0 ? totalEng.toLocaleString() : '—';
+
+    // Phase 7 hook: hero strip subscribers (only on Analytics Hub which loads AHShared)
+    if (AH) {
+      AH.publish('social.loaded', {
+        followers: totalFollowers,
+        postsWeek: postsWeek,
+        engagement: totalEng,
+        successRate: successRate,
+        platforms: platforms,
+        isLive: isLive
+      });
+    }
   }
 
   function _renderAll() {
