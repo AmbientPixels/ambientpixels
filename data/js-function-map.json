@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-04-06T14:11:24.630Z",
+  "scannedAt": "2026-04-07T14:45:04.243Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -37,6 +37,13 @@
       "sleep"
     ],
     "generate-ambientos-portraits.js": [
+      "getApiKey",
+      "callGemini",
+      "main",
+      "sleep"
+    ],
+    "generate-blindspot-move-icons.js": [
+      "postProcess",
       "getApiKey",
       "callGemini",
       "main",
