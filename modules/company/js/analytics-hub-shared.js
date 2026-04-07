@@ -159,15 +159,26 @@
     }
   }
 
-  function switchTab(zoneEl, tabName) {
+  function switchTab(zoneEl, tabName, source) {
     if (!zoneEl || !tabName) return;
     var tabs = zoneEl.querySelectorAll('.ah-tab');
     var panels = zoneEl.querySelectorAll('.ah-tab-panel');
+    var activatedPanel = null;
     tabs.forEach(function (t) {
       t.classList.toggle('is-active', t.getAttribute('data-tab') === tabName);
     });
     panels.forEach(function (p) {
-      p.classList.toggle('is-active', p.getAttribute('data-tab') === tabName);
+      var match = p.getAttribute('data-tab') === tabName;
+      p.classList.toggle('is-active', match);
+      if (match) activatedPanel = p;
+    });
+    // Publish a global tab-change event so any consumer (e.g. traffic-brief.js)
+    // can re-render charts that need a visible canvas to compute dimensions.
+    publish('tab-change', {
+      zoneId: zoneEl.id || null,
+      tabName: tabName,
+      panel: activatedPanel,
+      source: source || 'click'
     });
   }
 
@@ -186,7 +197,7 @@
     var saved = getActiveTab(zoneId);
     var available = Array.prototype.map.call(tabs, function (t) { return t.getAttribute('data-tab'); });
     var initial = (saved && available.indexOf(saved) !== -1) ? saved : available[0];
-    switchTab(zoneEl, initial);
+    switchTab(zoneEl, initial, 'init');
 
     // Wire click handlers
     tabs.forEach(function (tab) {
@@ -211,9 +222,94 @@
     });
   }
 
+  // ─── Chart.js wrapper: daily-views timeline ──────────────────
+  // Renders a smooth filled line chart of [{day, views}, ...] into a canvas.
+  // Returns the Chart instance (or null if Chart.js or canvas missing).
+  function makeTimeline(canvasEl, opts) {
+    opts = opts || {};
+    if (!canvasEl || typeof Chart === 'undefined') return null;
+    var data = opts.data || [];
+    if (data.length < 2) return null;
+
+    // Destroy any prior chart on this canvas
+    if (canvasEl._ahChart) {
+      try { canvasEl._ahChart.destroy(); } catch (e) {}
+      canvasEl._ahChart = null;
+    }
+
+    var ctx = canvasEl.getContext('2d');
+    var color = opts.color || '#5ac8fa';
+    var rgbaSoft = opts.rgbaSoft || 'rgba(90,200,250,0.2)';
+    var rgbaFaint = opts.rgbaFaint || 'rgba(90,200,250,0.02)';
+    var grad = ctx.createLinearGradient(0, 0, 0, canvasEl.parentElement.offsetHeight || 120);
+    grad.addColorStop(0, rgbaSoft);
+    grad.addColorStop(1, rgbaFaint);
+
+    var labels = data.map(function (d) { return d.day ? String(d.day).slice(5) : ''; });
+    var values = data.map(function (d) { return d.views || 0; });
+    var valueLabel = opts.valueLabel || 'views';
+
+    canvasEl._ahChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          borderColor: color,
+          backgroundColor: grad,
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true,
+          pointRadius: 2,
+          pointHoverRadius: 4,
+          pointBackgroundColor: color
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(20,20,30,0.95)',
+            titleColor: 'rgba(255,255,255,0.8)',
+            bodyColor: 'rgba(255,255,255,0.7)',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            padding: 8,
+            titleFont: { size: 10 },
+            bodyFont: { size: 10 },
+            callbacks: {
+              label: function (c) { return ' ' + c.parsed.y.toLocaleString() + ' ' + valueLabel; }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 }, maxRotation: 0 },
+            border: { color: 'rgba(255,255,255,0.06)' }
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 } },
+            border: { color: 'rgba(255,255,255,0.06)' }
+          }
+        }
+      }
+    });
+    return canvasEl._ahChart;
+  }
+
   // ─── Pub/sub bus ──────────────────────────────────────────────
   // Used by Phase 7 hero strip to subscribe to data-loaded events
-  // published by each zone's render module.
+  // published by each zone's render module. Also used by traffic-brief.js
+  // (Phase 4b) to listen for 'tab-change' events so it can re-render the
+  // Chart.js timeline when its panel becomes visible.
+  // Standard events:
+  //   'tab-change'   { zoneId, tabName, panel, source: 'click'|'init' }
+  //   'zone-data'    { zoneId, payload }   (Phase 7)
   var _subs = {};
   function publish(event, data) {
     var list = _subs[event];
@@ -242,8 +338,6 @@
   }
 
   // ─── Public API ───────────────────────────────────────────────
-  // Note: makeSparkline / makeTimeline (Chart.js wrappers) land in Phase 4b
-  // alongside the Traffic Brief refactor.
   window.AHShared = {
     SCHEMA_VERSION: SCHEMA_VERSION,
     apiBase: apiBase,
@@ -257,6 +351,7 @@
     trustDot: trustDot,
     kpiCard: kpiCard,
     emptyState: emptyState,
+    makeTimeline: makeTimeline,
     initTabs: initTabs,
     initAllTabs: initAllTabs,
     switchTab: switchTab,

@@ -915,6 +915,15 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
   display: block;
 }
 
+/* Loading state — used by all zone modules */
+.ah-loading {
+  font-size: 0.7rem;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  opacity: 0.35;
+  color: rgba(255,255,255,0.6);
+}
+
 /* Empty states (used by emptyState() helper in AHShared) */
 .ah-empty {
   padding: 1.5rem 1rem;
@@ -982,4 +991,190 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
   padding: 1px 5px;
   border-radius: 3px;
   color: #5ac8fa;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Phase 4b: KPI cards, Traffic Brief bar charts, timeline wrap
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Reusable KPI card (used by AHShared.kpiCard helper across zones) */
+.ah-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.ah-kpi-card {
+  background: #2c2c2e;
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.ah-kpi-card__label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ah-kpi-card__label i {
+  font-size: 9px;
+  opacity: 0.6;
+}
+.ah-kpi-card__value {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-top: 3px;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.1;
+}
+.ah-kpi-card__sub {
+  font-size: 10px;
+  opacity: 0.4;
+  margin-top: 2px;
+}
+.ah-kpi-card--good .ah-kpi-card__value { color: #34d399; }
+.ah-kpi-card--warn .ah-kpi-card__value { color: #fbbf24; }
+.ah-kpi-card--bad  .ah-kpi-card__value { color: #ef4444; }
+
+/* Traffic Brief — daily timeline canvas wrapper */
+.ah-tb-timeline {
+  position: relative;
+  height: 130px;
+  margin-bottom: 14px;
+}
+.ah-tb-timeline canvas {
+  display: block;
+}
+
+/* Traffic Brief — 3-column bar-chart grid (Top Pages / Referrers / Campaigns) */
+.ah-tb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.ah-tb-bar-chart__title {
+  font-size: 0.62rem;
+  font-weight: 600;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ah-tb-bar-chart__title i {
+  font-size: 9px;
+  opacity: 0.7;
+}
+.ah-tb-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.22rem 0;
+  font-size: 0.62rem;
+}
+.ah-tb-bar-label {
+  flex: 0 0 96px;
+  opacity: 0.65;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ah-tb-bar-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ah-tb-bar-fill {
+  height: 100%;
+  background: #5ac8fa;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.ah-tb-bar-value {
+  flex: 0 0 44px;
+  text-align: right;
+  font-weight: 600;
+  color: #5ac8fa;
+}
+.ah-tb-bar-empty {
+  font-size: 0.6rem;
+  opacity: 0.3;
+  font-style: italic;
+}
+
+/* Hint shown when Top Campaigns has no UTM-tagged traffic */
+.ah-tb-bar-hint {
+  font-size: 0.6rem;
+  opacity: 0.55;
+  line-height: 1.45;
+  padding: 0.3rem 0;
+}
+.ah-tb-bar-hint code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.92em;
+  background: rgba(255,255,255,0.05);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #5ac8fa;
+}
+
+/* Warning panel (e.g. telemetry_unavailable) */
+.ah-warning {
+  font-size: 0.65rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(251,191,36,0.22);
+  border-left: 3px solid #fbbf24;
+  border-radius: 6px;
+  background: rgba(251,191,36,0.04);
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ah-warning i { opacity: 0.85; }
+
+/* Range select + refresh button styled to match dark theme — replaces inline styles */
+.ah-tb-range {
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #2c2c2e;
+  color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.1);
+  font-family: inherit;
+  cursor: pointer;
+}
+.ah-tb-range:hover { background: #3a3a3c; }
+.ah-tb-refresh {
+  font-size: 0.6rem;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(90,200,250,0.3);
+  background: rgba(90,200,250,0.06);
+  color: #5ac8fa;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ah-tb-refresh:hover { background: rgba(90,200,250,0.12); }
+
+@media (max-width: 768px) {
+  .ah-tb-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .ah-tb-bar-label {
+    flex: 0 0 80px;
+  }
 }
