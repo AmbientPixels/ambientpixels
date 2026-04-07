@@ -223,7 +223,7 @@ window.ArenaBattleUI = (function () {
       var move = btn.getAttribute('data-move');
       var cost = costs[move] || 2;
       var costEl = btn.querySelector('.arena-move-btn__cost');
-      if (costEl) costEl.textContent = '\u26A1' + cost;
+      if (costEl) costEl.textContent = cost;
       // Hard-block Ability if can't afford
       if (move === 'ability') {
         btn.classList.toggle('arena-move-btn--no-stamina', playerStamina < cost);

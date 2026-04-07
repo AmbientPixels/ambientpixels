@@ -62,6 +62,52 @@ window.BsConst = (function () {
     'Trickster': { name: 'Wild Card',     icon: 'fa-clover' }
   };
 
+  // Move card display data — drives the card-style battle buttons.
+  // Keys match data-move values. Ability copy overridden per-class by
+  // CLASS_SIGNATURE_MOVES / CLASS_ABILITY_ART at battle start.
+  var MOVE_CARD_DATA = {
+    strike: {
+      typeLabel: 'OFFENSIVE ACTION',
+      typeBadge: 'ATTACK',
+      badgeIcon: 'fa-hand-fist',
+      flavor: 'Forged intent made kinetic. Hit first, hit hardest.',
+      art: 'strike.webp',
+      tags: ['STR SCALING', 'MELEE']
+    },
+    guard: {
+      typeLabel: 'DEFENSIVE STANCE',
+      typeBadge: 'DEFENSE',
+      badgeIcon: 'fa-shield-halved',
+      flavor: 'Brace against the incoming. Weather the storm.',
+      art: 'guard.webp',
+      tags: ['BLOCK 60%', 'REDUCE']
+    },
+    ability: {
+      typeLabel: 'SIGNATURE MOVE',
+      typeBadge: 'ULTIMATE',
+      badgeIcon: 'fa-bolt',
+      flavor: 'The move only you can pull off.',
+      art: 'ability.webp',
+      tags: ['CLASS POWER', 'CHARGED']
+    },
+    heal: {
+      typeLabel: 'RECOVERY PROTOCOL',
+      typeBadge: 'SUPPORT',
+      badgeIcon: 'fa-heart-pulse',
+      flavor: 'Mend what the battle broke. Buy another round.',
+      art: 'heal.webp',
+      tags: ['END SCALING', 'RESTORE']
+    },
+    counter: {
+      typeLabel: 'TACTICAL RESPONSE',
+      typeBadge: 'REACTION',
+      badgeIcon: 'fa-shield',
+      flavor: 'Wait for the precise moment. Redirect the incoming momentum.',
+      art: 'counter.webp',
+      tags: ['REFLECT', 'DEFLECT STRIKE']
+    }
+  };
+
   // Class-specific ability art filenames (served from /blindspot/img/moves/).
   // Falls back to the generic ability.webp in HTML if class isn't listed.
   var CLASS_ABILITY_ART = {
@@ -328,7 +374,7 @@ window.BsConst = (function () {
   return {
     RANKS: RANKS, RANK_ORDER: RANK_ORDER,
     ELO_DEFAULT: ELO_DEFAULT, ELO_K: ELO_K, PVP_RANKS: PVP_RANKS,
-    BOSS_ICONS: BOSS_ICONS, CLASS_PATTERNS: CLASS_PATTERNS, CLASS_SIGNATURE_MOVES: CLASS_SIGNATURE_MOVES, CLASS_ABILITY_ART: CLASS_ABILITY_ART,
+    BOSS_ICONS: BOSS_ICONS, CLASS_PATTERNS: CLASS_PATTERNS, CLASS_SIGNATURE_MOVES: CLASS_SIGNATURE_MOVES, CLASS_ABILITY_ART: CLASS_ABILITY_ART, MOVE_CARD_DATA: MOVE_CARD_DATA,
     STAT_PASSIVES: STAT_PASSIVES, MOVE_UPGRADES: MOVE_UPGRADES, ARCHETYPES: ARCHETYPES,
     ELEMENT_DEFS: ELEMENT_DEFS, ELEMENT_CHART: ELEMENT_CHART, CLASS_DEFAULT_ELEMENT: CLASS_DEFAULT_ELEMENT,
     WEAKNESS_LABELS: WEAKNESS_LABELS, WEAKNESS_COLORS: WEAKNESS_COLORS,

@@ -264,11 +264,72 @@
       <div class="arena-items-row" id="arena-items-row" role="group" aria-label="Items and charms"></div>
       <div class="bs-move-select-prompt" id="bs-move-select-prompt" style="display:none;" role="status">Pick second move</div>
       <div class="arena-battle__moves" id="arena-moves" role="group" aria-label="Combat moves">
-        <button class="arena-move-btn arena-move-btn--strike" data-move="strike" aria-label="Strike — physical attack"><div class="arena-move-btn__glow" aria-hidden="true"></div><span class="arena-move-btn__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/strike.webp')"></span><span class="arena-move-btn__label">Strike</span><span class="arena-move-btn__stat" id="arena-move-str">STR</span><span class="arena-move-btn__desc">Physical attack</span><span class="arena-move-btn__cost"></span></button>
-        <button class="arena-move-btn arena-move-btn--guard" data-move="guard" aria-label="Guard — reduce damage"><div class="arena-move-btn__glow" aria-hidden="true"></div><span class="arena-move-btn__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/guard.webp')"></span><span class="arena-move-btn__label">Guard</span><span class="arena-move-btn__stat">Block</span><span class="arena-move-btn__desc">Reduce damage</span><span class="arena-move-btn__cost"></span></button>
-        <button class="arena-move-btn arena-move-btn--ability" data-move="ability" aria-label="Ability — class power"><div class="arena-move-btn__glow" aria-hidden="true"></div><span class="arena-move-btn__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/ability.webp')"></span><span class="arena-move-btn__label" id="arena-ability-label">Ability</span><span class="arena-move-btn__stat" id="arena-move-int">INT</span><span class="arena-move-btn__desc" id="arena-ability-desc">Class ability</span><span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span><span class="arena-move-btn__cost"></span></button>
-        <button class="arena-move-btn arena-move-btn--heal" data-move="heal" aria-label="Heal — recover HP"><div class="arena-move-btn__glow" aria-hidden="true"></div><span class="arena-move-btn__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/heal.webp')"></span><span class="arena-move-btn__label">Heal</span><span class="arena-move-btn__stat" id="arena-move-end">END</span><span class="arena-move-btn__desc">END recovery</span><span class="arena-move-btn__cost"></span></button>
-        <button class="arena-move-btn arena-move-btn--counter" data-move="counter" aria-label="Counter — deflect strike"><div class="arena-move-btn__glow" aria-hidden="true"></div><span class="arena-move-btn__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/counter.webp')"></span><span class="arena-move-btn__label">Counter</span><span class="arena-move-btn__stat">Reflect</span><span class="arena-move-btn__desc">Deflect strike</span><span class="arena-move-btn__cost"></span></button>
+        <button class="arena-move-btn arena-move-btn--strike bs-move-card" data-move="strike" aria-label="Strike — physical attack">
+          <div class="bs-move-card__header">
+            <div class="bs-move-card__titles">
+              <div class="bs-move-card__type-label">OFFENSIVE ACTION</div>
+              <div class="bs-move-card__name arena-move-btn__label">Strike</div>
+            </div>
+            <div class="bs-move-card__energy"><div class="bs-move-card__energy-num arena-move-btn__cost">4</div><div class="bs-move-card__energy-label">ENERGY</div></div>
+          </div>
+          <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/strike.webp')"></div>
+          <div class="bs-move-card__tags"><span class="bs-move-card__tag" id="arena-move-str">STR SCALING</span><span class="bs-move-card__tag bs-move-card__tag--active">MELEE</span></div>
+          <p class="bs-move-card__desc arena-move-btn__desc">Forged intent made kinetic. Hit first, hit hardest.</p>
+          <div class="bs-move-card__footer"><div class="bs-move-card__badge"><i class="fas fa-hand-fist" aria-hidden="true"></i> TYPE: ATTACK</div><div class="bs-move-card__dots"><span class="bs-move-card__dot bs-move-card__dot--active"></span><span class="bs-move-card__dot"></span><span class="bs-move-card__dot"></span></div></div>
+        </button>
+        <button class="arena-move-btn arena-move-btn--guard bs-move-card" data-move="guard" aria-label="Guard — reduce damage">
+          <div class="bs-move-card__header">
+            <div class="bs-move-card__titles">
+              <div class="bs-move-card__type-label">DEFENSIVE STANCE</div>
+              <div class="bs-move-card__name arena-move-btn__label">Guard</div>
+            </div>
+            <div class="bs-move-card__energy"><div class="bs-move-card__energy-num arena-move-btn__cost">1</div><div class="bs-move-card__energy-label">ENERGY</div></div>
+          </div>
+          <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/guard.webp')"></div>
+          <div class="bs-move-card__tags"><span class="bs-move-card__tag">BLOCK 60%</span><span class="bs-move-card__tag bs-move-card__tag--active">REDUCE</span></div>
+          <p class="bs-move-card__desc arena-move-btn__desc">Brace against the incoming. Weather the storm.</p>
+          <div class="bs-move-card__footer"><div class="bs-move-card__badge"><i class="fas fa-shield-halved" aria-hidden="true"></i> TYPE: DEFENSE</div><div class="bs-move-card__dots"><span class="bs-move-card__dot bs-move-card__dot--active"></span><span class="bs-move-card__dot"></span><span class="bs-move-card__dot"></span></div></div>
+        </button>
+        <button class="arena-move-btn arena-move-btn--ability bs-move-card" data-move="ability" aria-label="Ability — class power">
+          <div class="bs-move-card__header">
+            <div class="bs-move-card__titles">
+              <div class="bs-move-card__type-label">SIGNATURE MOVE</div>
+              <div class="bs-move-card__name arena-move-btn__label" id="arena-ability-label">Ability</div>
+            </div>
+            <div class="bs-move-card__energy"><div class="bs-move-card__energy-num arena-move-btn__cost">5</div><div class="bs-move-card__energy-label">ENERGY</div></div>
+          </div>
+          <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/ability.webp')"></div>
+          <div class="bs-move-card__tags"><span class="bs-move-card__tag" id="arena-move-int">INT SCALING</span><span class="bs-move-card__tag bs-move-card__tag--active">CLASS POWER</span></div>
+          <p class="bs-move-card__desc arena-move-btn__desc" id="arena-ability-desc">The move only you can pull off.</p>
+          <div class="bs-move-card__footer"><div class="bs-move-card__badge"><i class="fas fa-bolt" aria-hidden="true"></i> TYPE: ULTIMATE</div><div class="bs-move-card__dots"><span class="bs-move-card__dot bs-move-card__dot--active"></span><span class="bs-move-card__dot"></span><span class="bs-move-card__dot"></span></div></div>
+          <span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span>
+        </button>
+        <button class="arena-move-btn arena-move-btn--heal bs-move-card" data-move="heal" aria-label="Heal — recover HP">
+          <div class="bs-move-card__header">
+            <div class="bs-move-card__titles">
+              <div class="bs-move-card__type-label">RECOVERY PROTOCOL</div>
+              <div class="bs-move-card__name arena-move-btn__label">Heal</div>
+            </div>
+            <div class="bs-move-card__energy"><div class="bs-move-card__energy-num arena-move-btn__cost">2</div><div class="bs-move-card__energy-label">ENERGY</div></div>
+          </div>
+          <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/heal.webp')"></div>
+          <div class="bs-move-card__tags"><span class="bs-move-card__tag" id="arena-move-end">END SCALING</span><span class="bs-move-card__tag bs-move-card__tag--active">RESTORE</span></div>
+          <p class="bs-move-card__desc arena-move-btn__desc">Mend what the battle broke. Buy another round.</p>
+          <div class="bs-move-card__footer"><div class="bs-move-card__badge"><i class="fas fa-heart-pulse" aria-hidden="true"></i> TYPE: SUPPORT</div><div class="bs-move-card__dots"><span class="bs-move-card__dot bs-move-card__dot--active"></span><span class="bs-move-card__dot"></span><span class="bs-move-card__dot"></span></div></div>
+        </button>
+        <button class="arena-move-btn arena-move-btn--counter bs-move-card" data-move="counter" aria-label="Counter — deflect strike">
+          <div class="bs-move-card__header">
+            <div class="bs-move-card__titles">
+              <div class="bs-move-card__type-label">TACTICAL RESPONSE</div>
+              <div class="bs-move-card__name arena-move-btn__label">Counter</div>
+            </div>
+            <div class="bs-move-card__energy"><div class="bs-move-card__energy-num arena-move-btn__cost">4</div><div class="bs-move-card__energy-label">ENERGY</div></div>
+          </div>
+          <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/counter.webp')"></div>
+          <div class="bs-move-card__tags"><span class="bs-move-card__tag">REFLECT</span><span class="bs-move-card__tag bs-move-card__tag--active">DEFLECT STRIKE</span></div>
+          <p class="bs-move-card__desc arena-move-btn__desc">Wait for the precise moment. Redirect the incoming momentum.</p>
+          <div class="bs-move-card__footer"><div class="bs-move-card__badge"><i class="fas fa-shield" aria-hidden="true"></i> TYPE: REACTION</div><div class="bs-move-card__dots"><span class="bs-move-card__dot bs-move-card__dot--active"></span><span class="bs-move-card__dot"></span><span class="bs-move-card__dot"></span></div></div>
+        </button>
       </div>
     </div>
   </div>

@@ -2382,6 +2382,345 @@
   .bs-page .arena-move-btn__art { width: 40px; height: 40px; border-radius: 8px; }
 }
 
+/* ══════════════════════════════════════════════════════════
+   Move Card Component — full card-style battle buttons
+   Replaces the old compact arena-move-btn layout.
+   Shares the root element with .arena-move-btn so all existing
+   JS state modifiers (--on-cooldown, --no-stamina, --combo-hint,
+   --selected-first, --disabled, --locked, --exhausted) still work.
+   ══════════════════════════════════════════════════════════ */
+
+.bs-page .arena-battle__moves:has(.bs-move-card) {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+  padding: 0 0.25rem;
+}
+
+.bs-page .bs-move-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 0.5rem;
+  padding: 0.75rem 0.75rem 0.65rem;
+  background: linear-gradient(180deg, #1a1612 0%, #0f0c08 100%);
+  border: 1px solid var(--bs-border);
+  border-radius: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 290px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(239, 159, 39, 0.05);
+}
+.bs-page .bs-move-card:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: rgba(239, 159, 39, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(239, 159, 39, 0.12);
+}
+.bs-page .bs-move-card:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Header row: type label + name on left, energy badge on right ── */
+.bs-page .bs-move-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.bs-page .bs-move-card__titles {
+  flex: 1;
+  min-width: 0;
+}
+.bs-page .bs-move-card__type-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.1rem;
+  line-height: 1.2;
+}
+.bs-page .bs-move-card__name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bs-text);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+.bs-page .bs-move-card__energy {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  padding: 0.25rem 0;
+  background: #0a0806;
+  border: 1px solid var(--bs-border);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(239, 159, 39, 0.08);
+}
+.bs-page .bs-move-card__energy-num {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--bs-text);
+  line-height: 1;
+}
+.bs-page .bs-move-card__energy-label {
+  font-size: 0.42rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  margin-top: 0.15rem;
+}
+
+/* ── Art slot: dominant full-width image ── */
+.bs-page .bs-move-card__art {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
+  background-color: #000;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 1px rgba(239, 159, 39, 0.15), 0 2px 10px rgba(0, 0, 0, 0.5);
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+.bs-page .bs-move-card:hover:not(:disabled) .bs-move-card__art {
+  filter: brightness(1.08) saturate(1.1);
+}
+
+/* ── Tag chips row ── */
+.bs-page .bs-move-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-height: 1.5rem;
+}
+.bs-page .bs-move-card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--bs-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--bs-border);
+  border-radius: 999px;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+.bs-page .bs-move-card__tag--active {
+  color: #c9a6ff;
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+.bs-page .bs-move-card__tag--combo {
+  color: var(--bs-accent);
+  background: rgba(239, 159, 39, 0.12);
+  border-color: rgba(239, 159, 39, 0.45);
+  animation: bs-move-card-tag-pulse 1.5s ease-in-out infinite;
+}
+@keyframes bs-move-card-tag-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 159, 39, 0.3); }
+  50%      { box-shadow: 0 0 0 4px rgba(239, 159, 39, 0); }
+}
+
+/* ── Flavor text ── */
+.bs-page .bs-move-card__desc {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  font-style: italic;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--bs-text-muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* ── Footer: type badge + tier dots ── */
+.bs-page .bs-move-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.bs-page .bs-move-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+}
+.bs-page .bs-move-card__badge i {
+  font-size: 0.72rem;
+  color: #6ec9e7;
+}
+.bs-page .bs-move-card__dots {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+.bs-page .bs-move-card__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+}
+.bs-page .bs-move-card__dot--active {
+  background: var(--bs-accent);
+  box-shadow: 0 0 6px rgba(239, 159, 39, 0.6);
+}
+
+/* ── Charge counter (ability only) — overlays top of art ── */
+.bs-page .bs-move-card .arena-move-btn__charge {
+  position: absolute;
+  top: 0.65rem;
+  right: 3.5rem;
+  z-index: 3;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(239, 159, 39, 0.4);
+  border-radius: 4px;
+  color: var(--bs-accent);
+  letter-spacing: 0.04em;
+}
+
+/* ── Per-move accent (left border + corner glow) ── */
+.bs-page .bs-move-card.arena-move-btn--strike   { border-left: 3px solid rgba(239, 159, 39, 0.55); }
+.bs-page .bs-move-card.arena-move-btn--guard    { border-left: 3px solid rgba(160, 152, 136, 0.55); }
+.bs-page .bs-move-card.arena-move-btn--ability  { border-left: 3px solid rgba(167, 139, 250, 0.55); }
+.bs-page .bs-move-card.arena-move-btn--heal     { border-left: 3px solid rgba(29, 158, 117, 0.55); }
+.bs-page .bs-move-card.arena-move-btn--counter  { border-left: 3px solid rgba(139, 184, 208, 0.55); }
+.bs-page .bs-move-card.arena-move-btn--ability .bs-move-card__badge i { color: #c9a6ff; }
+.bs-page .bs-move-card.arena-move-btn--heal .bs-move-card__badge i { color: #4ade80; }
+.bs-page .bs-move-card.arena-move-btn--strike .bs-move-card__badge i { color: var(--bs-accent); }
+
+/* ── State: cooldown (art greyscale + existing ::before clock still works) ── */
+.bs-page .bs-move-card.arena-move-btn--on-cooldown .bs-move-card__art {
+  filter: grayscale(0.85) brightness(0.4);
+}
+.bs-page .bs-move-card.arena-move-btn--on-cooldown { pointer-events: none; }
+.bs-page .bs-move-card.arena-move-btn--on-cooldown::before {
+  content: attr(data-cd);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--bs-accent);
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.9), 0 0 24px rgba(239, 159, 39, 0.4);
+  background: none;
+  border-radius: 0;
+  pointer-events: none;
+}
+
+/* ── State: combo hint (border glow + tag pulse) ── */
+.bs-page .bs-move-card.arena-move-btn--combo-hint {
+  border-color: var(--bs-accent);
+  box-shadow: 0 0 0 1px var(--bs-accent), 0 0 24px rgba(239, 159, 39, 0.35), 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+.bs-page .bs-move-card.arena-move-btn--combo-hint::after {
+  content: 'COMBO';
+  position: absolute;
+  top: 0.65rem;
+  left: 0.75rem;
+  z-index: 3;
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--bs-bg);
+  background: var(--bs-accent);
+  padding: 0.18rem 0.4rem;
+  border-radius: 3px;
+  pointer-events: none;
+  animation: bs-move-card-tag-pulse 1.2s ease-in-out infinite;
+}
+
+/* ── State: no stamina / disabled / locked ── */
+.bs-page .bs-move-card.arena-move-btn--no-stamina .bs-move-card__energy,
+.bs-page .bs-move-card.arena-move-btn--no-stamina .bs-move-card__energy-num {
+  color: var(--bs-danger);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+.bs-page .bs-move-card.arena-move-btn--no-stamina .bs-move-card__art { filter: grayscale(0.6) brightness(0.55); }
+.bs-page .bs-move-card.arena-move-btn--disabled,
+.bs-page .bs-move-card.arena-move-btn--locked { opacity: 0.4; pointer-events: none; }
+.bs-page .bs-move-card.arena-move-btn--used { opacity: 0.55; }
+.bs-page .bs-move-card.arena-move-btn--exhausted .bs-move-card__energy { border-color: rgba(239, 159, 39, 0.55); animation: bs-move-card-tag-pulse 1s ease-in-out infinite; }
+
+/* ── State: selected-first (combo setup) ── */
+.bs-page .bs-move-card.arena-move-btn--selected-first {
+  border-color: var(--bs-accent);
+  box-shadow: 0 0 0 2px var(--bs-accent), 0 0 32px rgba(239, 159, 39, 0.4);
+  transform: translateY(-4px);
+}
+
+/* ── Tablet (1024-768): tighter cards ── */
+@media (max-width: 1024px) {
+  .bs-page .arena-battle__moves:has(.bs-move-card) { gap: 0.5rem; }
+  .bs-page .bs-move-card { padding: 0.6rem 0.55rem 0.55rem; min-height: 260px; gap: 0.4rem; }
+  .bs-page .bs-move-card__name { font-size: 0.95rem; }
+  .bs-page .bs-move-card__type-label { font-size: 0.5rem; }
+  .bs-page .bs-move-card__desc { font-size: 0.62rem; -webkit-line-clamp: 2; }
+  .bs-page .bs-move-card__energy { width: 38px; min-height: 38px; }
+  .bs-page .bs-move-card__energy-num { font-size: 1rem; }
+}
+
+/* ── Mobile (≤768): horizontal scroll rail with snap ── */
+@media (max-width: 768px) {
+  .bs-page .arena-battle__moves:has(.bs-move-card) {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0.6rem;
+    padding: 0.25rem 0.5rem 0.75rem;
+    margin: 0 -0.5rem;
+  }
+  .bs-page .arena-battle__moves:has(.bs-move-card)::-webkit-scrollbar { display: none; }
+  .bs-page .bs-move-card {
+    flex: 0 0 160px;
+    scroll-snap-align: center;
+    min-height: 240px;
+    grid-column: auto !important;
+  }
+  .bs-page .arena-battle__moves .bs-move-card:nth-child(4),
+  .bs-page .arena-battle__moves .bs-move-card:nth-child(5) {
+    grid-column: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .bs-page .bs-move-card { flex-basis: 150px; min-height: 230px; padding: 0.55rem 0.5rem 0.5rem; }
+  .bs-page .bs-move-card__name { font-size: 0.9rem; }
+  .bs-page .bs-move-card__desc { -webkit-line-clamp: 2; font-size: 0.6rem; }
+  .bs-page .bs-move-card__energy { width: 36px; min-height: 36px; }
+}
+
 /* --- Buff & Status Chips --- */
 .bs-page .arena-player-items { display: flex; gap: 0.35rem; justify-content: center; margin-top: 0.25rem; }
 .bs-page .arena-player-items:empty { display: none; }
