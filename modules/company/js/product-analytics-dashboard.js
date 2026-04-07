@@ -1,18 +1,29 @@
-// product-analytics-dashboard.js — Product Analytics section for Analytics Hub
-// Fetches from /api/productAnalyticsQuery and renders KPIs, product breakdown, funnels, top events.
+// product-analytics-dashboard.js — Product Analytics zone of the Analytics Hub.
+// Phase 4c: refactored to use AHShared helpers and the .ah-zone tab system.
+// Each of the four sub-views (Overview / Funnels / Events / Breakdown) maps
+// to one productAnalyticsQuery metric and is lazy-loaded on first tab click.
+// Refresh / filter change invalidates all loaded flags and re-fetches the
+// currently active tab. See plan: iridescent-wiggling-tide.
 (function () {
   'use strict';
 
+  if (!window.AHShared) {
+    console.warn('[product-analytics] AHShared not loaded — aborting');
+    return;
+  }
+  var AH = window.AHShared;
+
   var API = 'https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsQuery';
   var SECRET = 'pixelpusher';
+  var ZONE_ID = 'ah-zone-product';
 
-  var kpisEl = document.getElementById('pa-kpis');
-  var productsEl = document.getElementById('pa-products');
-  var funnelEl = document.getElementById('pa-funnel');
-  var eventsEl = document.getElementById('pa-events');
+  var kpisEl       = document.getElementById('pa-kpis');
+  var productsEl   = document.getElementById('pa-products');
+  var funnelEl     = document.getElementById('pa-funnel');
+  var eventsEl     = document.getElementById('pa-events');
   var productFilter = document.getElementById('pa-product-filter');
-  var rangeFilter = document.getElementById('pa-range-filter');
-  var refreshBtn = document.getElementById('pa-refresh');
+  var rangeFilter   = document.getElementById('pa-range-filter');
+  var refreshBtn    = document.getElementById('pa-refresh');
 
   if (!kpisEl) return;
 
@@ -42,79 +53,146 @@
     dashboard: 'fa-gauge'
   };
 
-  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  // ─── Lazy-load state ──────────────────────────────────────────
+  var _loaded = { overview: false, funnels: false, events: false, breakdown: false };
 
-  function kpiCard(label, value, sub, icon) {
-    return '<div class="pa-kpi">' +
-      '<div class="pa-kpi__value">' + (icon ? '<i class="fas ' + icon + ' pa-kpi__icon"></i> ' : '') + esc(String(value)) + '</div>' +
-      '<div class="pa-kpi__label">' + esc(label) + '</div>' +
-      (sub ? '<div class="pa-kpi__sub">' + esc(sub) + '</div>' : '') +
+  function _params() {
+    return {
+      product: productFilter ? productFilter.value : 'all',
+      range:   rangeFilter   ? rangeFilter.value   : '7d'
+    };
+  }
+
+  function _fetch(metric) {
+    var p = _params();
+    var url = API + '?range=' + encodeURIComponent(p.range) +
+              '&product=' + encodeURIComponent(p.product) +
+              '&metric=' + encodeURIComponent(metric);
+    return fetch(url, { headers: { 'x-company-secret': SECRET } })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      });
+  }
+
+  function _showError(el, err) {
+    if (!el) return;
+    el.innerHTML = '<div class="ah-warning">' +
+      '<i class="fas fa-exclamation-triangle"></i>' + AH.esc(err && err.message ? err.message : 'fetch error') +
       '</div>';
   }
 
-  function loadAll() {
-    var product = productFilter ? productFilter.value : 'all';
-    var range = rangeFilter ? rangeFilter.value : '7d';
-
-    kpisEl.innerHTML = '<div class="pa-loading">Loading analytics...</div>';
-    if (productsEl) productsEl.innerHTML = '';
-    if (funnelEl) funnelEl.innerHTML = '';
-    if (eventsEl) eventsEl.innerHTML = '';
-
-    var headers = { 'x-company-secret': SECRET };
-
-    Promise.all([
-      fetch(API + '?range=' + range + '&product=' + product + '&metric=overview', { headers: headers }).then(function (r) { return r.json(); }),
-      fetch(API + '?range=' + range + '&metric=products', { headers: headers }).then(function (r) { return r.json(); }),
-      fetch(API + '?range=' + range + '&product=' + product + '&metric=funnels', { headers: headers }).then(function (r) { return r.json(); }),
-      fetch(API + '?range=' + range + '&product=' + product + '&metric=events', { headers: headers }).then(function (r) { return r.json(); })
-    ]).then(function (results) {
-      renderOverview(results[0]);
-      renderProducts(results[1]);
-      renderFunnels(results[2]);
-      renderEvents(results[3]);
-    }).catch(function (err) {
-      kpisEl.innerHTML = '<div class="pa-error">Failed to load analytics: ' + esc(err.message) + '</div>';
-    });
+  // ─── Loaders (one per tab) ────────────────────────────────────
+  function loadOverview() {
+    kpisEl.innerHTML = '<div class="ah-loading">Loading product analytics\u2026</div>';
+    _fetch('overview').then(renderOverview).catch(function (err) {
+      _showError(kpisEl, err);
+    }).then(function () { _loaded.overview = true; });
   }
 
+  function loadFunnels() {
+    if (!funnelEl) return;
+    funnelEl.innerHTML = '<div class="ah-loading">Loading funnels\u2026</div>';
+    _fetch('funnels').then(renderFunnels).catch(function (err) {
+      _showError(funnelEl, err);
+    }).then(function () { _loaded.funnels = true; });
+  }
+
+  function loadEvents() {
+    if (!eventsEl) return;
+    eventsEl.innerHTML = '<div class="ah-loading">Loading top events\u2026</div>';
+    _fetch('events').then(renderEvents).catch(function (err) {
+      _showError(eventsEl, err);
+    }).then(function () { _loaded.events = true; });
+  }
+
+  function loadBreakdown() {
+    if (!productsEl) return;
+    productsEl.innerHTML = '<div class="ah-loading">Loading product breakdown\u2026</div>';
+    _fetch('products').then(renderProducts).catch(function (err) {
+      _showError(productsEl, err);
+    }).then(function () { _loaded.breakdown = true; });
+  }
+
+  var _loaders = {
+    overview:  loadOverview,
+    funnels:   loadFunnels,
+    events:    loadEvents,
+    breakdown: loadBreakdown
+  };
+
+  function _loadTab(tabName) {
+    if (_loaded[tabName]) return;
+    var loader = _loaders[tabName];
+    if (loader) loader();
+  }
+
+  function _onFilterChange() {
+    // Invalidate everything and re-fetch only the currently active tab.
+    Object.keys(_loaded).forEach(function (k) { _loaded[k] = false; });
+    var activeTab = AH.getActiveTab(ZONE_ID) || 'overview';
+    _loadTab(activeTab);
+  }
+
+  // ─── Renderers ────────────────────────────────────────────────
   function renderOverview(resp) {
     if (!resp || !resp.data) {
-      kpisEl.innerHTML = '<div class="pa-empty">No data yet. Events will appear after users visit instrumented pages.</div>';
+      kpisEl.innerHTML = AH.emptyState({
+        icon: 'chart-line',
+        title: 'No product analytics yet',
+        hint: 'Events will appear after users visit instrumented pages.'
+      });
       return;
     }
     var d = resp.data;
     var dailyArr = d.daily || [];
     var todayDau = dailyArr.length > 0 ? dailyArr[dailyArr.length - 1].dau : 0;
-    var avgDau = dailyArr.length > 0 ? Math.round(dailyArr.reduce(function (s, x) { return s + x.dau; }, 0) / dailyArr.length) : 0;
+    var avgDau = dailyArr.length > 0
+      ? Math.round(dailyArr.reduce(function (s, x) { return s + (x.dau || 0); }, 0) / dailyArr.length)
+      : 0;
 
-    kpisEl.innerHTML =
-      kpiCard('Total Events', d.totalEvents || 0, resp.range, 'fa-bolt') +
-      kpiCard('Unique Users', d.uniqueUsers || 0, resp.range, 'fa-users') +
-      kpiCard('Today DAU', todayDau, '', 'fa-calendar-day') +
-      kpiCard('Avg DAU', avgDau, resp.range, 'fa-chart-simple');
+    var html = '';
+    html += AH.kpiCard({ icon: 'bolt',          label: 'Total Events', value: AH.fmtNum(d.totalEvents || 0), sub: resp.range });
+    html += AH.kpiCard({ icon: 'users',         label: 'Unique Users', value: AH.fmtNum(d.uniqueUsers || 0), sub: resp.range });
+    html += AH.kpiCard({ icon: 'calendar-day', label: 'Today DAU',    value: AH.fmtNum(todayDau) });
+    html += AH.kpiCard({ icon: 'chart-simple', label: 'Avg DAU',      value: AH.fmtNum(avgDau), sub: resp.range });
 
-    // Sparkline
+    // Sparkline (SVG, full-width inside the grid)
     if (dailyArr.length > 1) {
-      var maxDau = Math.max.apply(null, dailyArr.map(function (x) { return x.dau; })) || 1;
+      var maxDau = Math.max.apply(null, dailyArr.map(function (x) { return x.dau || 0; })) || 1;
       var width = 300;
       var height = 50;
       var step = width / (dailyArr.length - 1);
       var points = dailyArr.map(function (x, i) {
-        return (i * step).toFixed(1) + ',' + (height - 4 - (x.dau / maxDau) * (height - 8)).toFixed(1);
+        return (i * step).toFixed(1) + ',' + (height - 4 - ((x.dau || 0) / maxDau) * (height - 8)).toFixed(1);
       }).join(' ');
 
-      kpisEl.innerHTML += '<div class="pa-sparkline">' +
+      html += '<div class="pa-sparkline">' +
         '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none">' +
         '<polyline points="' + points + '" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
         '</svg>' +
         '<div class="pa-sparkline__labels">' +
-        '<span>' + esc(dailyArr[0].day) + '</span><span>' + esc(dailyArr[dailyArr.length - 1].day) + '</span></div></div>';
+        '<span>' + AH.esc(dailyArr[0].day) + '</span>' +
+        '<span>' + AH.esc(dailyArr[dailyArr.length - 1].day) + '</span>' +
+        '</div></div>';
     }
+
+    kpisEl.innerHTML = html;
+
+    // Phase 7 hook: hero strip subscribers
+    AH.publish('product-analytics.overview', { data: d, range: resp.range });
   }
 
   function renderProducts(resp) {
-    if (!productsEl || !resp || !resp.data || !Array.isArray(resp.data) || resp.data.length === 0) return;
+    if (!productsEl) return;
+    if (!resp || !resp.data || !Array.isArray(resp.data) || resp.data.length === 0) {
+      productsEl.innerHTML = AH.emptyState({
+        icon: 'cubes',
+        title: 'No product breakdown yet',
+        hint: 'Per-product user counts appear once events are ingested.'
+      });
+      return;
+    }
 
     var html = '<div class="pa-section-title">Product Breakdown</div>';
     html += '<div class="pa-product-grid">';
@@ -123,9 +201,9 @@
       var color = PRODUCT_COLORS[p.product] || '#94a3b8';
       var icon = PRODUCT_ICONS[p.product] || 'fa-cube';
       html += '<div class="pa-product-card" style="border-left-color:' + color + ';">' +
-        '<div class="pa-product-card__name"><i class="fas ' + icon + '" style="color:' + color + ';"></i> ' + esc(p.product) + '</div>' +
-        '<div class="pa-product-card__value">' + p.users + ' <span class="pa-product-card__unit">users</span></div>' +
-        '<div class="pa-product-card__meta">' + p.events + ' events &middot; ' + p.sessions + ' sessions</div>' +
+        '<div class="pa-product-card__name"><i class="fas ' + icon + '" style="color:' + color + ';"></i> ' + AH.esc(p.product) + '</div>' +
+        '<div class="pa-product-card__value">' + AH.fmtNum(p.users) + ' <span class="pa-product-card__unit">users</span></div>' +
+        '<div class="pa-product-card__meta">' + AH.fmtNum(p.events) + ' events &middot; ' + AH.fmtNum(p.sessions) + ' sessions</div>' +
         '</div>';
     });
 
@@ -134,10 +212,25 @@
   }
 
   function renderFunnels(resp) {
-    if (!funnelEl || !resp || !resp.data) return;
+    if (!funnelEl) return;
+    if (!resp || !resp.data) {
+      funnelEl.innerHTML = AH.emptyState({
+        icon: 'filter',
+        title: 'No funnel data yet',
+        hint: 'Funnels appear once instrumented products record sequential events.'
+      });
+      return;
+    }
     var funnels = resp.data;
     var keys = Object.keys(funnels);
-    if (keys.length === 0) return;
+    if (keys.length === 0) {
+      funnelEl.innerHTML = AH.emptyState({
+        icon: 'filter',
+        title: 'No funnel data yet',
+        hint: 'Funnels appear once instrumented products record sequential events.'
+      });
+      return;
+    }
 
     var html = '<div class="pa-section-title">Funnel Analysis</div>';
 
@@ -148,7 +241,7 @@
       var color = PRODUCT_COLORS[product] || '#60a5fa';
 
       html += '<div class="pa-funnel-group">';
-      html += '<div class="pa-funnel-group__name">' + esc(product) + '</div>';
+      html += '<div class="pa-funnel-group__name">' + AH.esc(product) + '</div>';
 
       steps.forEach(function (step, idx) {
         var pct = maxUsers > 0 ? Math.round((step.users / maxUsers) * 100) : 0;
@@ -157,10 +250,10 @@
           : '';
 
         html += '<div class="pa-funnel-row">' +
-          '<div class="pa-funnel-row__label">' + esc(step.step.replace(/_/g, ' ')) + '</div>' +
+          '<div class="pa-funnel-row__label">' + AH.esc(step.step.replace(/_/g, ' ')) + '</div>' +
           '<div class="pa-funnel-row__bar-wrap">' +
           '<div class="pa-funnel-row__bar" style="width:' + Math.max(pct, 2) + '%;background:' + color + ';"></div></div>' +
-          '<div class="pa-funnel-row__value">' + step.users + '<span class="pa-funnel-row__pct"> ' + pct + '%' + dropoff + '</span></div>' +
+          '<div class="pa-funnel-row__value">' + AH.fmtNum(step.users) + '<span class="pa-funnel-row__pct"> ' + pct + '%' + dropoff + '</span></div>' +
           '</div>';
       });
 
@@ -171,7 +264,15 @@
   }
 
   function renderEvents(resp) {
-    if (!eventsEl || !resp || !resp.data || !Array.isArray(resp.data) || resp.data.length === 0) return;
+    if (!eventsEl) return;
+    if (!resp || !resp.data || !Array.isArray(resp.data) || resp.data.length === 0) {
+      eventsEl.innerHTML = AH.emptyState({
+        icon: 'list',
+        title: 'No events yet',
+        hint: 'Top events appear once telemetry is flowing.'
+      });
+      return;
+    }
 
     var html = '<div class="pa-section-title">Top Events</div>';
     html += '<table class="pa-events-table">';
@@ -180,9 +281,9 @@
     resp.data.slice(0, 20).forEach(function (e) {
       var color = PRODUCT_COLORS[e.product] || '#94a3b8';
       html += '<tr>' +
-        '<td><span class="pa-events-dot" style="background:' + color + ';"></span>' + esc(e.product) + '</td>' +
-        '<td class="pa-events-name">' + esc(e.event.replace(/_/g, ' ')) + '</td>' +
-        '<td style="text-align:right;font-weight:600;">' + e.count + '</td>' +
+        '<td><span class="pa-events-dot" style="background:' + color + ';"></span>' + AH.esc(e.product) + '</td>' +
+        '<td class="pa-events-name">' + AH.esc(e.event.replace(/_/g, ' ')) + '</td>' +
+        '<td style="text-align:right;font-weight:600;">' + AH.fmtNum(e.count) + '</td>' +
         '</tr>';
     });
 
@@ -190,11 +291,15 @@
     eventsEl.innerHTML = html;
   }
 
-  // Wire up controls
-  if (productFilter) productFilter.addEventListener('change', loadAll);
-  if (rangeFilter) rangeFilter.addEventListener('change', loadAll);
-  if (refreshBtn) refreshBtn.addEventListener('click', loadAll);
+  // ─── Wiring ───────────────────────────────────────────────────
+  if (productFilter) productFilter.addEventListener('change', _onFilterChange);
+  if (rangeFilter)   rangeFilter.addEventListener('change',   _onFilterChange);
+  if (refreshBtn)    refreshBtn.addEventListener('click',     _onFilterChange);
 
-  // Initial load
-  loadAll();
+  // Lazy-load tabs on activation. Initial activation also fires this
+  // (AHShared switchTab publishes 'tab-change' with source: 'init').
+  AH.subscribe('tab-change', function (evt) {
+    if (evt.zoneId !== ZONE_ID) return;
+    _loadTab(evt.tabName);
+  });
 })();

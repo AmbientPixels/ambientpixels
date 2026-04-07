@@ -173,7 +173,7 @@
       </div>
     </section>
 
-    <!-- ═══ Zone 3: Product Analytics (DEMOTED — sparse data) ═══ -->
+    <!-- ═══ Zone 3: Product Analytics (DEMOTED — sparse data, lazy tabs) ═══ -->
     <section class="ah-zone" id="ah-zone-product">
       <div class="ah-zone-head">
         <div class="ah-zone-title"><i class="fas fa-cube"></i> Product Analytics</div>
@@ -198,12 +198,28 @@
           <button class="sa-btn sa-btn--ghost sa-btn--xs" id="pa-refresh" title="Refresh"><i class="fas fa-rotate"></i></button>
         </div>
       </div>
-      <div id="pa-kpis" class="pa-kpi-grid">
-        <div class="pa-loading">Loading product analytics...</div>
+      <nav class="ah-tabs">
+        <button class="ah-tab" data-tab="overview"  type="button"><i class="fas fa-chart-bar"></i>Overview</button>
+        <button class="ah-tab" data-tab="funnels"   type="button"><i class="fas fa-filter"></i>Funnels</button>
+        <button class="ah-tab" data-tab="events"    type="button"><i class="fas fa-list"></i>Events</button>
+        <button class="ah-tab" data-tab="breakdown" type="button"><i class="fas fa-cubes"></i>Breakdown</button>
+      </nav>
+      <div class="ah-tab-panels">
+        <div class="ah-tab-panel" data-tab="overview">
+          <div id="pa-kpis" class="pa-kpi-grid">
+            <div class="ah-loading">Loading product analytics&hellip;</div>
+          </div>
+        </div>
+        <div class="ah-tab-panel" data-tab="funnels">
+          <div id="pa-funnel" class="pa-section-wrap"></div>
+        </div>
+        <div class="ah-tab-panel" data-tab="events">
+          <div id="pa-events" class="pa-section-wrap"></div>
+        </div>
+        <div class="ah-tab-panel" data-tab="breakdown">
+          <div id="pa-products" class="pa-section-wrap"></div>
+        </div>
       </div>
-      <div id="pa-products" class="pa-section-wrap"></div>
-      <div id="pa-funnel" class="pa-section-wrap"></div>
-      <div id="pa-events" class="pa-section-wrap"></div>
     </section>
 
     <!-- ═══ Zone 4: Account Overview (compact, bottom) ═══ -->
