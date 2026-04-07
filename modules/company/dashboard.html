@@ -1749,6 +1749,12 @@
       }
 
       // ── Growth Section: Traffic Brief (CEO) ──
+      // TODO(2026-04-20): replace with the AHShared/.ah-tb-* refactor shipped in
+      // analytics-hub.html (Phase 4b of plan iridescent-wiggling-tide). This
+      // copy is now visually divergent from analytics-hub: no trust dots, no
+      // .ah-kpi-card style, no shared helpers. Replace with a single
+      // <script src="js/traffic-brief.js"> include and an .ah-zone wrapper
+      // around #ceo-tb-body once analytics-hub has been verified in production.
       var _growthTrafficCache = null;
       function renderGrowthTraffic() {
         var body = document.getElementById('ceo-tb-body');
@@ -5156,6 +5162,13 @@
   </script>
 
   <!-- Traffic Brief Logic -->
+  <!-- TODO(2026-04-20): replace this inline IIFE with a single
+       <script src="js/traffic-brief.js"> include — analytics-hub.html
+       already does this as of Phase 4a/4b of plan iridescent-wiggling-tide.
+       Dev view's #tb-body diverged visually from analytics-hub: no trust
+       dots, no .ah-tb-* classes, no AHShared helpers, no tab-change race
+       fix. Wait until analytics-hub has been verified in production, then
+       point this DOM at the shared module. -->
   <script>
   (function () {
     'use strict';
