@@ -865,3 +865,121 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
   gap: 6px;
   flex-shrink: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Phase 3: tab system, empty states, trust pills, about block
+   ═══════════════════════════════════════════════════════════════ */
+
+.ah-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-top: -2px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.ah-tab {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 7px 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.ah-tab:hover {
+  color: rgba(255,255,255,0.7);
+}
+.ah-tab.is-active {
+  color: #5ac8fa;
+  border-bottom-color: #5ac8fa;
+}
+.ah-tab i {
+  font-size: 10px;
+  opacity: 0.7;
+}
+.ah-tab-panels {
+  position: relative;
+}
+.ah-tab-panel {
+  display: none;
+}
+.ah-tab-panel.is-active {
+  display: block;
+}
+
+/* Empty states (used by emptyState() helper in AHShared) */
+.ah-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  opacity: 0.5;
+}
+.ah-empty__icon {
+  font-size: 24px;
+  opacity: 0.3;
+  margin-bottom: 8px;
+}
+.ah-empty__title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.ah-empty__hint {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* Trust signal pills (inline in About copy + Phase 4b Top Pages rows) */
+.ah-trust-pill {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+.ah-trust-pill--high { background: rgba(52,211,153,0.14); color: #34d399; }
+.ah-trust-pill--med  { background: rgba(251,191,36,0.14); color: #fbbf24; }
+.ah-trust-pill--low  { background: rgba(239,68,68,0.14);  color: #f87171; }
+
+/* Trust dot (Phase 4b — leading indicator on Top Pages rows) */
+.ah-trust-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.ah-trust-dot--high { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,0.5); }
+.ah-trust-dot--med  { background: #fbbf24; box-shadow: 0 0 4px rgba(251,191,36,0.5); }
+.ah-trust-dot--low  { background: #f87171; box-shadow: 0 0 4px rgba(239,68,68,0.5); }
+
+/* About panel typography */
+.ah-about {
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.65);
+  max-width: 720px;
+}
+.ah-about p { margin: 0 0 0.7rem 0; }
+.ah-about p:last-child { margin-bottom: 0; }
+.ah-about strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+.ah-about code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.92em;
+  background: rgba(255,255,255,0.05);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #5ac8fa;
+}
