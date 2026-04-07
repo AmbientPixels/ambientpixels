@@ -2402,8 +2402,8 @@
   position: relative;
   display: grid;
   grid-template-rows: auto auto auto 1fr auto;
-  gap: 0.5rem;
-  padding: 0.75rem 0.75rem 0.65rem;
+  gap: 0.45rem;
+  padding: 0.7rem 0.65rem 0.6rem;
   background: linear-gradient(180deg, #1a1612 0%, #0f0c08 100%);
   border: 1px solid var(--bs-border);
   border-radius: 14px;
@@ -2413,7 +2413,7 @@
   color: var(--bs-text);
   font-family: 'Share Tech Mono', monospace;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  min-height: 290px;
+  min-height: 340px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(239, 159, 39, 0.05);
 }
 .bs-page .bs-move-card:hover:not(:disabled) {
@@ -2435,13 +2435,16 @@
   min-width: 0;
 }
 .bs-page .bs-move-card__type-label {
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--bs-text-muted);
   text-transform: uppercase;
   margin-bottom: 0.1rem;
-  line-height: 1.2;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 .bs-page .bs-move-card__name {
   font-family: 'Cinzel', serif;
@@ -2483,8 +2486,9 @@
 
 /* ── Art slot: dominant full-width image ── */
 .bs-page .bs-move-card__art {
+  position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border-radius: 8px;
   background-color: #000;
   background-size: cover;
@@ -2586,21 +2590,23 @@
   box-shadow: 0 0 6px rgba(239, 159, 39, 0.6);
 }
 
-/* ── Charge counter (ability only) — overlays top of art ── */
+/* ── Charge counter (ability only) — overlays top-left corner of art slot ── */
 .bs-page .bs-move-card .arena-move-btn__charge {
   position: absolute;
-  top: 0.65rem;
-  right: 3.5rem;
+  top: 4.65rem;
+  left: 0.95rem;
   z-index: 3;
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.58rem;
   font-weight: 700;
-  padding: 0.15rem 0.4rem;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(239, 159, 39, 0.4);
+  padding: 0.18rem 0.45rem;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(239, 159, 39, 0.5);
   border-radius: 4px;
   color: var(--bs-accent);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
 }
 
 /* ── Per-move accent (left border + corner glow) ── */
@@ -2679,12 +2685,13 @@
 /* ── Tablet (1024-768): tighter cards ── */
 @media (max-width: 1024px) {
   .bs-page .arena-battle__moves:has(.bs-move-card) { gap: 0.5rem; }
-  .bs-page .bs-move-card { padding: 0.6rem 0.55rem 0.55rem; min-height: 260px; gap: 0.4rem; }
-  .bs-page .bs-move-card__name { font-size: 0.95rem; }
-  .bs-page .bs-move-card__type-label { font-size: 0.5rem; }
-  .bs-page .bs-move-card__desc { font-size: 0.62rem; -webkit-line-clamp: 2; }
+  .bs-page .bs-move-card { padding: 0.55rem 0.5rem; min-height: 305px; gap: 0.35rem; }
+  .bs-page .bs-move-card__name { font-size: 0.92rem; }
+  .bs-page .bs-move-card__type-label { font-size: 0.48rem; letter-spacing: 0.08em; }
+  .bs-page .bs-move-card__desc { font-size: 0.62rem; -webkit-line-clamp: 3; }
   .bs-page .bs-move-card__energy { width: 38px; min-height: 38px; }
   .bs-page .bs-move-card__energy-num { font-size: 1rem; }
+  .bs-page .bs-move-card .arena-move-btn__charge { top: 4.05rem; left: 0.75rem; font-size: 0.54rem; }
 }
 
 /* ── Mobile (≤768): horizontal scroll rail with snap ── */
@@ -2714,8 +2721,11 @@
   }
 }
 
+@media (max-width: 768px) {
+  .bs-page .bs-move-card { min-height: 290px; }
+}
 @media (max-width: 480px) {
-  .bs-page .bs-move-card { flex-basis: 150px; min-height: 230px; padding: 0.55rem 0.5rem 0.5rem; }
+  .bs-page .bs-move-card { flex-basis: 150px; min-height: 280px; padding: 0.55rem 0.5rem 0.5rem; }
   .bs-page .bs-move-card__name { font-size: 0.9rem; }
   .bs-page .bs-move-card__desc { -webkit-line-clamp: 2; font-size: 0.6rem; }
   .bs-page .bs-move-card__energy { width: 36px; min-height: 36px; }
