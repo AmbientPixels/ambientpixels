@@ -2400,10 +2400,11 @@
 
 .bs-page .bs-move-card {
   position: relative;
-  display: grid;
+  display: grid !important;
   grid-template-rows: auto auto auto 1fr auto;
+  align-items: stretch !important;
   gap: 0.45rem;
-  padding: 0.7rem 0.65rem 0.6rem;
+  padding: 0.7rem 0.65rem 0.6rem !important;
   background: linear-gradient(180deg, #1a1612 0%, #0f0c08 100%);
   border: 1px solid var(--bs-border);
   border-radius: 14px;
@@ -2413,7 +2414,7 @@
   color: var(--bs-text);
   font-family: 'Share Tech Mono', monospace;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  min-height: 340px;
+  min-height: 360px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(239, 159, 39, 0.05);
 }
 .bs-page .bs-move-card:hover:not(:disabled) {
@@ -2538,18 +2539,19 @@
   50%      { box-shadow: 0 0 0 4px rgba(239, 159, 39, 0); }
 }
 
-/* ── Flavor text ── */
+/* ── Flavor text — plain wrapping, explicit min-height for 3 lines ── */
 .bs-page .bs-move-card__desc {
   margin: 0;
   font-family: 'Cinzel', serif;
   font-style: italic;
-  font-size: 0.68rem;
-  line-height: 1.35;
+  font-size: 0.7rem;
+  line-height: 1.4;
   color: var(--bs-text-muted);
+  min-height: calc(0.7rem * 1.4 * 3); /* room for 3 lines */
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  word-wrap: break-word;
+  hyphens: auto;
+  align-self: start;
 }
 
 /* ── Footer: type badge + tier dots ── */
