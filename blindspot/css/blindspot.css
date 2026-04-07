@@ -1887,10 +1887,19 @@
 
 /* --- Stance Selector Row --- */
 .bs-page .arena-stance-row {
+  position: absolute;
+  left: 0.35rem;
+  top: 25%;
   display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0;
+  z-index: 8;
+  padding: 0.5rem 0.4rem;
+  background: rgba(10, 8, 6, 0.85);
+  border: 1px solid var(--bs-border);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
 }
 .bs-page .arena-stance-btn {
   width: 36px;
@@ -2414,7 +2423,7 @@
   color: var(--bs-text);
   font-family: 'Share Tech Mono', monospace;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  min-height: 360px;
+  min-height: 280px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(239, 159, 39, 0.05);
 }
 .bs-page .bs-move-card:hover:not(:disabled) {
@@ -2539,19 +2548,25 @@
   50%      { box-shadow: 0 0 0 4px rgba(239, 159, 39, 0); }
 }
 
-/* ── Flavor text — plain wrapping, explicit min-height for 3 lines ── */
+/* ── Flavor text — plain wrapping, explicit min-height for 3 lines ──
+   Note: !important needed to defeat .arena-move-btn__desc which has
+   white-space:nowrap + text-overflow:ellipsis from the old button styles.
+*/
 .bs-page .bs-move-card__desc {
   margin: 0;
   font-family: 'Cinzel', serif;
   font-style: italic;
-  font-size: 0.7rem;
+  font-size: 0.7rem !important;
   line-height: 1.4;
   color: var(--bs-text-muted);
-  min-height: calc(0.7rem * 1.4 * 3); /* room for 3 lines */
+  min-height: calc(0.7rem * 1.4 * 3);
   overflow: hidden;
   word-wrap: break-word;
   hyphens: auto;
   align-self: start;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  display: block !important;
 }
 
 /* ── Footer: type badge + tier dots ── */
@@ -2687,7 +2702,7 @@
 /* ── Tablet (1024-768): tighter cards ── */
 @media (max-width: 1024px) {
   .bs-page .arena-battle__moves:has(.bs-move-card) { gap: 0.5rem; }
-  .bs-page .bs-move-card { padding: 0.55rem 0.5rem; min-height: 305px; gap: 0.35rem; }
+  .bs-page .bs-move-card { padding: 0.55rem 0.5rem; min-height: 260px; gap: 0.35rem; }
   .bs-page .bs-move-card__name { font-size: 0.92rem; }
   .bs-page .bs-move-card__type-label { font-size: 0.48rem; letter-spacing: 0.08em; }
   .bs-page .bs-move-card__desc { font-size: 0.62rem; -webkit-line-clamp: 3; }
