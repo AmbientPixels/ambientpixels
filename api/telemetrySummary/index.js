@@ -164,9 +164,17 @@ module.exports = async function (context, req) {
       '| summarize total = count(), withUtm = countif(url contains "utm_")'
     ].join('\n');
 
-    // Performance
+    // Performance — exclude bot user agents from latency percentiles.
+    // Without this filter, Applebot/Googlebot/bingbot crawls (which take
+    // 15-30s on JS-heavy pages) drag the dashboard P95 from ~4s to ~6s,
+    // making it look worse than real-user experience actually is. Counts
+    // and other queries are intentionally NOT bot-filtered so the page-view
+    // numbers on the dashboard stay consistent with what users have been
+    // tracking. Verified 2026-04-07 against last-7d data: 257 → 236 views,
+    // p95 5977ms → 4053ms.
     var perfQuery = [
       'pageViews',
+      '| where isnull(client_Browser) or not(client_Browser matches regex "(?i)bot|crawl|spider")',
       '| summarize p50 = percentile(duration, 50), p95 = percentile(duration, 95)'
     ].join('\n');
 
