@@ -371,6 +371,28 @@ module.exports = async function (context, req) {
           headers: CORS_HEADERS,
           body: { success: true, profile: merged }
         };
+      } else if (action === 'selectCard') {
+        const { cardId } = body;
+        if (!cardId) {
+          context.res = {
+            status: 400,
+            headers: CORS_HEADERS,
+            body: { error: 'cardId is required for selectCard' }
+          };
+          return;
+        }
+        let serverProfile = await downloadJsonBlob(containerClient, profilePath, context);
+        if (!serverProfile) {
+          serverProfile = createDefaultProfile(userId);
+        }
+        serverProfile.selectedCardId = cardId;
+        serverProfile.userId = userId;
+        await uploadJsonBlob(containerClient, profilePath, serverProfile);
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: { success: true, profile: serverProfile }
+        };
       } else if (action === 'reset') {
         const fresh = createDefaultProfile(userId);
         await uploadJsonBlob(containerClient, profilePath, fresh);

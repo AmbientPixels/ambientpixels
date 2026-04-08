@@ -14,7 +14,7 @@ window._config.apiEndpoints = {
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',
-  arenaProfile: 'cardforgearenaprofile',
+  arenaProfile: 'blindspotprofile',
   arenaHistory: 'cardforgearenahistory',
   arenaLeaderboard: 'cardforgearenaleaderboard',
   blindspotProfile: 'blindspotprofile',
