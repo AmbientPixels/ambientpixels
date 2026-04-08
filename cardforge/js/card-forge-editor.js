@@ -3996,6 +3996,16 @@
     if (!banner || !window.EffectTiers) return;
 
     var ET = window.EffectTiers;
+    // Defensive: the EffectTiers shim (see commit c686cc5f) may not export
+    // all constants. Bail if RANK_ORDER / EFFECT_TIERS / RANK_CONFIG are
+    // missing — was producing a production TypeError on cardforge/index.html
+    // (2026-04-02) when ET.RANK_ORDER was undefined and the loop below tried
+    // to read .length on it.
+    if (!ET.RANK_ORDER || !ET.EFFECT_TIERS || !ET.RANK_CONFIG) {
+      banner.style.display = 'none';
+      return;
+    }
+
     var profile = window._arenaProfile;
     var rank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
     var rankLabel = ET.RANK_CONFIG && ET.RANK_CONFIG[rank] ? ET.RANK_CONFIG[rank].label : 'Bronze';
