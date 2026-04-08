@@ -1,5 +1,6 @@
 {
   "version": "2.0",
+  "functionTimeout": "00:10:00",
   "FUNCTIONS_WORKER_RUNTIME": "node",
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle",
