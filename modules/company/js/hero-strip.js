@@ -32,6 +32,13 @@
     return 'red';
   }
 
+  function _errorTone(count) {
+    if (count == null || isNaN(count)) return null;
+    if (count === 0) return 'green';
+    if (count <= 10) return 'amber';
+    return 'red';
+  }
+
   // ─── Traffic Brief subscriber ─────────────────────────────────
   AH.subscribe('traffic-brief.loaded', function (data) {
     if (!data) return;
@@ -67,6 +74,16 @@
     }
     if (totalErrors != null) {
       _setCard('errors', AH.fmtNum(totalErrors), data.rangeLabel || 'exceptions');
+      // Re-color the card based on error tone (mirrors p95 logic above).
+      // Without this, the card is hardcoded red in analytics-hub.html and
+      // looks alarming even when the count is 0 or near-zero.
+      var errCard = document.querySelector('.ah-hero-card[data-metric="errors"]');
+      if (errCard) {
+        errCard.classList.remove('ah-hero-card--green', 'ah-hero-card--amber', 'ah-hero-card--red');
+        var errTone = _errorTone(totalErrors);
+        if (errTone) errCard.classList.add('ah-hero-card--' + errTone);
+        else errCard.classList.add('ah-hero-card--red'); // default if tone unknown
+      }
     }
   });
 
