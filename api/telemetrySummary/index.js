@@ -12,6 +12,36 @@ const RANGE_MAP = { '1d': 'P1D', '7d': 'P7D', '30d': 'P30D' };
 const VALID_RANGES = ['1d', '7d', '30d'];
 const UTM_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
 
+// Override App Insights' recorded page titles for known paths.
+// Why: pageView events are recorded with whatever document.title was set
+// at the moment, and several pages set document.title via JS in a way that
+// leaks across navigations. Clicking the AmbientPixels logo back to "/"
+// after visiting /blog records the homepage URL with the blog's title,
+// so the dashboard ends up labeling 124 home views as "Blog — AmbientPixels".
+// This map overrides the recorded title for known stable paths. Unmapped
+// paths fall through to whatever App Insights recorded.
+// Add new entries as paths get added — keys are post-cleaning paths
+// (no trailing slash, no /index.html, lowercase).
+const PAGE_TITLE_OVERRIDES = {
+  '/': 'Home',
+  '/blog': 'Blog',
+  '/pixel-agents': 'Pixel Agents',
+  '/blindspot': 'Blindspot',
+  '/cardforge': 'CardForge',
+  '/storyforge': 'StoryForge',
+  '/agent-forge': 'Agent Forge',
+  '/ambientscore': 'AmbientScore',
+  '/projects': 'Projects',
+  '/support': 'Support',
+  '/nova': 'Nova',
+  '/pixel-agents/analytics.html': 'Pixel Agents — Activity',
+  '/pixel-agents/contact.html': 'Pixel Agents — Contact',
+  '/pixel-agents/docs.html': 'Pixel Agents — Docs',
+  '/pixel-agents/faq.html': 'Pixel Agents — FAQ',
+  '/pixel-agents/run.html': 'Pixel Agents — Run',
+  '/pixel-agents/changelog.html': 'Pixel Agents — Changelog'
+};
+
 // 10-minute in-memory cache per range
 var _cache = { '1d': { ts: 0, data: null }, '7d': { ts: 0, data: null }, '30d': { ts: 0, data: null } };
 var CACHE_TTL_MS = 10 * 60 * 1000;
@@ -222,9 +252,13 @@ module.exports = async function (context, req) {
     }
 
     var pages = _parseRows(results[0]).map(function (r) {
+      var path = r.path || '/';
       return {
-        path: r.path || '/',
-        pageTitle: r.pageTitle || '',
+        path: path,
+        // Use override for known stable paths (see PAGE_TITLE_OVERRIDES at
+        // the top of the file for why); fall through to whatever title
+        // App Insights recorded for unmapped paths.
+        pageTitle: PAGE_TITLE_OVERRIDES[path] || r.pageTitle || '',
         views: r.viewCount || 0,
         uniqueSessions: r.uniqueSessions || 0,
         uniqueUsers: r.uniqueUsers || 0
