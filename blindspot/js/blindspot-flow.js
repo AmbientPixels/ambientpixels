@@ -258,8 +258,21 @@
   function isNewPlayer(profile) {
     // localStorage flag is fastest check
     if (localStorage.getItem('blindspot-onboarded')) return false;
-    // Server profile fallback — cache clear shouldn't reset a real player
-    if (profile && (profile.selectedCardId || profile.xp > 0 || (profile.record && profile.record.wins > 0))) {
+    // Server profile fallback — cache clear shouldn't reset a real player.
+    // Check actual schema fields (see api/blindspotprofile createDefaultProfile).
+    if (profile && (
+      profile.selectedCardId ||
+      (profile.totalWins || 0) > 0 ||
+      (profile.pvpRecord && (profile.pvpRecord.w || 0) > 0) ||
+      (profile.highestBoss || 0) > 0 ||
+      (profile.forgeVisits || 0) > 0 ||
+      (profile.sparks || 0) > 0
+    )) {
+      safeLSSet('blindspot-onboarded', 'true');
+      return false;
+    }
+    // Trust server's authoritative isNew flag (false = profile blob already existed)
+    if (_profileData && _profileData.isNew === false) {
       safeLSSet('blindspot-onboarded', 'true');
       return false;
     }
