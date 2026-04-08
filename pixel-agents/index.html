@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Pixel Agents — deploy specialized AI agents for any task. Analyze, create, validate, and more." />
+
+  <!-- Preconnect to external origins so DNS+TCP+TLS happen in parallel with HTML parse -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://ambientpixels-nova-api.azurewebsites.net" crossorigin />
+
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Pixel Agents — AI Agents for Hire</title>
 
@@ -84,8 +89,10 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
 
-  <!-- Telemetry -->
-  <script src="/js/telemetry-config.js"></script>
+  <!-- Telemetry — all deferred so they don't block the HTML parser. Deferred
+       scripts execute in source order, so telemetry-config.js still runs
+       before telemetry-appinsights.js as required. -->
+  <script src="/js/telemetry-config.js" defer></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
   <script>
@@ -361,7 +368,9 @@
   <!-- ═══════════════════════════════════
        SCRIPTS
        ═══════════════════════════════════ -->
-  <script src="/pixel-agents/js/pixel-agents-ui.js"></script>
+  <!-- defer: this script's only entry point is a DOMContentLoaded handler,
+       so blocking the parser to download/parse it is pure waste. -->
+  <script src="/pixel-agents/js/pixel-agents-ui.js" defer></script>
   <script>
   // Auth + theme toggle
   (function() {
