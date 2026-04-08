@@ -178,9 +178,17 @@ module.exports = async function (context, req) {
       '| summarize p50 = percentile(duration, 50), p95 = percentile(duration, 95)'
     ].join('\n');
 
-    // Errors
+    // Errors — exclude TaskCanceledException from the count.
+    // 80%+ of these events are HTTP 499 client cancellations from
+    // user-facing endpoints (company-state, novachat, pixel-agent-catalog,
+    // etc.) when a browser navigates away or refreshes while parallel
+    // fetches are still in flight. They're not failures from the user's
+    // perspective — the user just left the page. Real errors
+    // (SyntaxError, TypeError, FunctionTimeoutException, etc.) are still
+    // counted. Verified 2026-04-08: 90 events → 6 events shown.
     var errorsQuery = [
       'exceptions',
+      '| where type != "System.Threading.Tasks.TaskCanceledException"',
       '| summarize count_ = count() by name = type',
       '| top 10 by count_ desc'
     ].join('\n');
