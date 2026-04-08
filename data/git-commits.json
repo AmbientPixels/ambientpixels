@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ca31ad13-f1aa-4d10-b771-4ff381082145",
-      "hash": "2a6c9857b0f6a023fc97b580def42775ef6f3470",
-      "message": "Fix flavor clipping (real cause) + reposition stance row vertically",
-      "timestamp": "2026-04-06 22:23:18 -0700",
+      "id": "ea56e78e-6233-429c-8118-c6925b7d2731",
+      "hash": "7c3db4da16109c827243673b246b65448d1a7c11",
+      "message": "fix(blindspot): repoint arenaProfile to blindspotprofile API",
+      "timestamp": "2026-04-07 21:02:38 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/2a6c9857b0f6a023fc97b580def42775ef6f3470"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7c3db4da16109c827243673b246b65448d1a7c11"
     }
   ],
-  "timestamp": "2026-04-07T14:45:03.523Z",
+  "timestamp": "2026-04-08T14:46:05.209Z",
   "count": 1,
-  "scanId": 1775573103523
+  "scanId": 1775659565209
 }

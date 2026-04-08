@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-07T14:45:12.546Z",
+  "timestamp": "2026-04-08T14:46:16.472Z",
   "summary": {
     "totalJS": 2326,
     "totalCSS": 177,
@@ -675,6 +675,7 @@
     "_ensureCampaignForTask",
     "_ensureContainer",
     "_ensureLocalDir",
+    "_errorTone",
     "_esc",
     "_escHtml",
     "_estimateCost",
