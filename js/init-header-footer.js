@@ -33,7 +33,14 @@ fetch('/modules/footer.html')
     // This adds the structure without executing scripts
     footerContainer.append(...doc.body.childNodes);
 
-    // Now, append the scripts to the document's body to trigger execution
+    // Now, append the scripts to the document's body to trigger execution.
+    // Wrapped in try/catch because the act of appending a <script> causes the
+    // browser to parse and execute its inline content — if that content has a
+    // syntax error, the SyntaxError bubbles up here. This was producing 39
+    // localhost-only errors/month from VSCode Live Server's injected reload
+    // script. Production was unaffected, but the noise polluted App Insights
+    // and the dashboard's error count. The catch makes future occurrences a
+    // local console warning instead of a global window.onerror event.
     scripts.forEach(script => {
       const newScript = document.createElement('script');
       // Copy attributes (src, defer, etc.)
@@ -44,7 +51,11 @@ fetch('/modules/footer.html')
       if (script.innerHTML) {
         newScript.innerHTML = script.innerHTML;
       }
-      document.body.appendChild(newScript);
+      try {
+        document.body.appendChild(newScript);
+      } catch (e) {
+        console.warn('[init-header-footer] Failed to inject footer script:', e.message);
+      }
     });
   })
   .then(() => {
