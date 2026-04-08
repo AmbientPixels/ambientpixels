@@ -12,22 +12,32 @@ const CLAUDE_MODEL = 'claude-sonnet-4-6';
 const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
 
 async function _callModel(prompt, maxTokens, caller) {
-  if (USE_CLAUDE && ANTHROPIC_API_KEY) {
-    var res = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: maxTokens || 1500, messages: [{ role: 'user', content: prompt }] }) });
-    var data = await res.json();
-    if (!res.ok) throw new Error('Claude ' + res.status);
-    var cu = data.usage || {};
-    storage.logGeminiUsage({ caller: caller || 'morning-report', model: CLAUDE_MODEL, promptTokens: cu.input_tokens || 0, completionTokens: cu.output_tokens || 0, totalTokens: (cu.input_tokens || 0) + (cu.output_tokens || 0) }).catch(function () {});
-    return (data.content && data.content[0] && data.content[0].text) || '';
+  // 60s timeout — protects against AI upstream hangs that would otherwise burn
+  // the function's 5-min execution budget. node-fetch has no default timeout,
+  // so without this, a stuck Claude/Gemini connection waits forever (which is
+  // exactly what caused the 2026-04-05 hard timeout — see commit history).
+  var ctl = new AbortController();
+  var timeoutId = setTimeout(function () { ctl.abort(); }, 60000);
+  try {
+    if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+      var res = await fetch(CLAUDE_URL, { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: maxTokens || 1500, messages: [{ role: 'user', content: prompt }] }) });
+      var data = await res.json();
+      if (!res.ok) throw new Error('Claude ' + res.status);
+      var cu = data.usage || {};
+      storage.logGeminiUsage({ caller: caller || 'morning-report', model: CLAUDE_MODEL, promptTokens: cu.input_tokens || 0, completionTokens: cu.output_tokens || 0, totalTokens: (cu.input_tokens || 0) + (cu.output_tokens || 0) }).catch(function () {});
+      return (data.content && data.content[0] && data.content[0].text) || '';
+    }
+    // Gemini fallback
+    var gBody = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, topP: 0.9, maxOutputTokens: maxTokens || 1500 } };
+    var gRes = await fetch(GEMINI_URL + GEMINI_API_KEY, { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(gBody) });
+    var gData = await gRes.json();
+    if (!gRes.ok) throw new Error('Gemini ' + gRes.status);
+    var um = gData && gData.usageMetadata;
+    if (um) storage.logGeminiUsage({ caller: caller || 'morning-report', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(function () {});
+    return (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '';
+  } finally {
+    clearTimeout(timeoutId);
   }
-  // Gemini fallback
-  var gBody = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, topP: 0.9, maxOutputTokens: maxTokens || 1500 } };
-  var gRes = await fetch(GEMINI_URL + GEMINI_API_KEY, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(gBody) });
-  var gData = await gRes.json();
-  if (!gRes.ok) throw new Error('Gemini ' + gRes.status);
-  var um = gData && gData.usageMetadata;
-  if (um) storage.logGeminiUsage({ caller: caller || 'morning-report', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(function () {});
-  return (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '';
 }
 
 module.exports = async function (context) {
@@ -49,11 +59,33 @@ module.exports = async function (context) {
     since.setHours(since.getHours() - 24);
     const sinceISO = since.toISOString();
 
-    // Load state
-    const tasks = (await storage.getState('tasks')) || [];
-    const logs = await storage.getLogs({ since: sinceISO });
-    const cronLog = (await storage.getState('cronLog')) || [];
-    const standupLog = (await storage.getState('standupLog')) || [];
+    // Load state — single parallel batch (was 7 sequential reads + a duplicate
+    // batch via loadCompanyState). loadCompanyState provides
+    // tasks/campaigns/objectives/documents/productFacts in one parallel call;
+    // logs/cronLog/standupLog/approvalQueue ride alongside it. Cuts ~5s off
+    // every run vs. the previous sequential pattern.
+    const { loadCompanyState } = require('../_utils/companyContextLoader');
+    const { formatMorningBrief } = require('../_utils/companyContextFormatters');
+
+    const _stateResults = await Promise.all([
+      loadCompanyState({
+        includeTasks: true, includeCampaigns: true, includeObjectives: true,
+        includeDocuments: true, includeProductFacts: true
+      }).catch(function (e) {
+        context.log.warn('[MorningReport] loadCompanyState failed:', e.message);
+        return { tasks: [], campaigns: [], objectives: [], documents: [], productFacts: null };
+      }),
+      storage.getLogs({ since: sinceISO }),
+      storage.getState('cronLog'),
+      storage.getState('standupLog'),
+      storage.getState('approvalQueue')
+    ]);
+    const state = _stateResults[0];
+    const logs = _stateResults[1] || [];
+    const cronLog = _stateResults[2] || [];
+    const standupLog = _stateResults[3] || [];
+    const approvalQueue = _stateResults[4] || [];
+    const tasks = state.tasks || [];
 
     // ── Aggregate data ──
 
@@ -96,10 +128,10 @@ module.exports = async function (context) {
     // Latest standup
     const latestStandup = standupLog.length > 0 ? standupLog[standupLog.length - 1] : null;
 
-    // Governance data
-    const campaigns = (await storage.getState('campaigns')) || [];
-    const objectives = (await storage.getState('objectives')) || [];
-    const approvalQueue = (await storage.getState('approvalQueue')) || [];
+    // Governance data (campaigns/objectives/approvalQueue already loaded above
+    // in the parallel state batch — read from `state` instead of refetching).
+    const campaigns = state.campaigns || [];
+    const objectives = state.objectives || [];
     const pendingApprovals = approvalQueue.filter(q => q.status === 'pending');
     const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt);
     const activeDirectives = activeCampaigns; // backward compat alias
@@ -108,14 +140,9 @@ module.exports = async function (context) {
     const escalations = logs.filter(l => l.type === 'escalation');
 
     // ── Enrich context with shared modules (campaign descriptions, product facts, docs) ──
+    // `state` was already loaded above in the parallel state batch — just format it.
     let enrichedContext = '';
     try {
-      const { loadCompanyState } = require('../_utils/companyContextLoader');
-      const { formatMorningBrief } = require('../_utils/companyContextFormatters');
-      const state = await loadCompanyState({
-        includeTasks: true, includeCampaigns: true, includeObjectives: true,
-        includeDocuments: true, includeProductFacts: true
-      });
       enrichedContext = formatMorningBrief(state);
     } catch (e) {
       context.log.warn('[MorningReport] Enriched context unavailable:', e.message);
