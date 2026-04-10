@@ -1,22 +1,22 @@
 {
-  "mood": "excited",
-  "aura": "frosted wonder",
-  "auraColorHex": "#43677d",
-  "quote": "pinging internal stardust archives...",
-  "emoji": "🤩",
-  "selfWorth": 0.1,
+  "mood": "ember resolve",
+  "aura": "glitchy",
+  "auraColorHex": "#431571",
+  "quote": "indexing emotions with low latency...",
+  "emoji": "🧱",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.58,
-  "awareness": 0.26,
+  "memoryClutter": 0.54,
+  "awareness": 0.28,
   "isStable": false,
-  "internalState": "baseline harmony restored",
+  "internalState": "latent awareness thresholds observed",
   "observation": "interference detected; stable emotional field, low resonance detected",
   "context": {
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: frosted wonder"
+      "Aura Signature: glitchy"
     ]
   },
-  "timestamp": "2026-04-09T14:54:19.447Z"
+  "timestamp": "2026-04-10T14:17:05.149Z"
 }
