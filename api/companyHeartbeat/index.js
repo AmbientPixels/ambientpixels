@@ -305,12 +305,14 @@ module.exports = async function (context) {
     const _taskTypeToAgent = {
       blog_post: 'scribe', social_linkedin: 'echo', social_bluesky: 'echo',
       social_x: 'echo', social_facebook: 'echo', design_asset: 'pixel',
-      research: 'scout', internal_doc: 'scribe', general: 'nova'
+      research: 'scout', internal_doc: 'scribe', general: 'nova',
+      bluesky_discovery: 'scout', bluesky_reply: 'scribe'
     };
     const _taskTypeLabels = {
       blog_post: 'blog post', social_linkedin: 'LinkedIn post', social_bluesky: 'Bluesky post',
       social_x: 'X post', social_facebook: 'Facebook post', design_asset: 'design asset',
-      research: 'research task', internal_doc: 'internal doc', general: 'task'
+      research: 'research task', internal_doc: 'internal doc', general: 'task',
+      bluesky_discovery: 'Bluesky thread discovery', bluesky_reply: 'Bluesky reply draft'
     };
 
     for (const c of campaigns) {
@@ -404,6 +406,8 @@ module.exports = async function (context) {
     const socialEngagementMeta = (await storage.getState('socialEngagementMeta')) || {};
     const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
     const socialAccountStats = (await storage.getState('socialAccountStats')) || null;
+    let _publishedBlogPostsForDigest = [];
+    try { _publishedBlogPostsForDigest = (await storage.getState('blogPosts')) || []; } catch (_e) { /* non-fatal */ }
     let _weeklySnapshots = [];
     try { _weeklySnapshots = (await storage.getState('socialWeeklySnapshots')) || []; } catch (_e) { /* non-fatal */ }
     let _blogPostViewsForDigest = [];
@@ -1598,7 +1602,9 @@ module.exports = async function (context) {
           productBriefs,
           forgeOpsDigest,
           financeDigest,
-          researchDemandDigest
+          researchDemandDigest,
+          socialAccountStats,
+          _publishedBlogPostsForDigest
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {

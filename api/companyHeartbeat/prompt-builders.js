@@ -73,7 +73,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -1111,6 +1111,81 @@ You must remain within your assigned authority tier. Doctrine influences your st
     productBriefsBlock = briefLines.join('\n');
   }
 
+  // Recent Activity Digest — only for content/strategy agents (Scribe, Echo, Nova)
+  // Gives them awareness of what actually happened in the last 48h as raw material
+  var recentActivityBlock = '';
+  if (['scribe', 'echo', 'nova'].indexOf(agent.id) !== -1) {
+    var activityLines = [];
+    // 1. Recent completed tasks (last 48h) — primary source of "what happened"
+    if (recentActivityDigest && recentActivityDigest.length > 0) {
+      activityLines.push(recentActivityDigest);
+    }
+    // 2. Platform health from socialAccountStats
+    if (socialAccountStats && typeof socialAccountStats === 'object') {
+      var platformParts = [];
+      ['bluesky', 'linkedin', 'x', 'twitter'].forEach(function(p) {
+        var s = socialAccountStats[p];
+        if (s && (s.followers != null || s.follower_count != null)) {
+          var count = s.followers != null ? s.followers : s.follower_count;
+          var delta = s.followersDelta7d || s.delta_followers_7d || 0;
+          var deltaStr = delta > 0 ? ' (+' + delta + ' this week)' : delta < 0 ? ' (' + delta + ' this week)' : '';
+          platformParts.push(p + ': ' + count + ' followers' + deltaStr);
+        }
+      });
+      if (platformParts.length > 0) {
+        activityLines.push('\nPlatform health: ' + platformParts.join(', '));
+      }
+    }
+    // 3. Recently published blog posts (last 48h)
+    if (Array.isArray(publishedBlogPosts) && publishedBlogPosts.length > 0) {
+      var _cutoff = Date.now() - 48 * 60 * 60 * 1000;
+      var recentBlogs = publishedBlogPosts.filter(function(b) {
+        var pubAt = b.publishedAt || b.published_at || b.createdAt;
+        return pubAt && new Date(pubAt).getTime() > _cutoff;
+      });
+      if (recentBlogs.length > 0) {
+        activityLines.push('\nShipped in last 48h: ' + recentBlogs.map(function(b) {
+          return '"' + (b.title || 'untitled') + '"';
+        }).join(', '));
+      }
+    }
+    if (activityLines.length > 0) {
+      recentActivityBlock = '\n\n🔥 RECENT ACTIVITY (last 48h — real things that happened, use as raw material for posts):\n' + activityLines.join('\n') + '\n\nWhen drafting social or short-form content, pull from this real activity. Specifics beat generic product descriptions. "We shipped X today" beats "introducing our platform".';
+    }
+  }
+
+  // Founder Voice Corpus — injected only for Scribe (she writes copy; Echo briefs)
+  var founderVoiceBlock = '';
+  try {
+    var _founderVoice = require('../_data/founder-voice-examples.json');
+    if (agent.id === 'scribe' && _founderVoice && _founderVoice.examples && _founderVoice.examples.length > 0) {
+      var fvLines = ['\n🎤 FOUNDER VOICE (write social/short-form content in THIS voice — not corporate marketing):'];
+      if (Array.isArray(_founderVoice.principles) && _founderVoice.principles.length > 0) {
+        fvLines.push('\nPRINCIPLES:');
+        _founderVoice.principles.forEach(function(p) { fvLines.push('- ' + p); });
+      }
+      // Rotate 2 random examples per heartbeat
+      var examples = _founderVoice.examples.slice();
+      var picked = [];
+      while (picked.length < 2 && examples.length > 0) {
+        var idx = Math.floor(Math.random() * examples.length);
+        picked.push(examples.splice(idx, 1)[0]);
+      }
+      fvLines.push('\nSTUDY THESE EXAMPLES (the CEO would actually publish these):');
+      picked.forEach(function(ex, i) {
+        fvLines.push('\nExample ' + (i + 1) + ' (' + (ex.platform || 'social') + ' — ' + (ex.context || '') + '):');
+        fvLines.push('"' + (ex.text || '') + '"');
+        if (ex.why_it_works) fvLines.push('Why this works: ' + ex.why_it_works);
+      });
+      if (Array.isArray(_founderVoice.anti_examples) && _founderVoice.anti_examples.length > 0) {
+        fvLines.push('\nDO NOT write like this:');
+        _founderVoice.anti_examples.forEach(function(a) { fvLines.push('- "' + a + '"'); });
+      }
+      fvLines.push('\nWhen writing for bluesky/X/LinkedIn: match the rhythm, specificity, and vulnerability of the examples above. If your draft sounds like a press release, start over.');
+      founderVoiceBlock = fvLines.join('\n');
+    }
+  } catch (_fvErr) { /* no corpus file — non-fatal */ }
+
   // System Directives: surface prominently above task list so agent acts on them first
   const _directiveTasks = agentTasks.filter(t => (t.category || '') === 'system_directive' && t.status !== 'done');
   let directiveBlock = '';
@@ -1129,7 +1204,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${productBriefsBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${productBriefsBlock}${recentActivityBlock}${founderVoiceBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
@@ -1608,17 +1683,22 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Use objective_suggestion if objective missing.
   - Do not mutate titles/descriptions directly.
 - CONTENT DIRECTOR (Scribe):
-  You OWN the content strategy. You don't just write what you're told — you decide WHAT to write based on data, and HOW to write it based on what resonates.
-  VOICE AND TONE (your most important job — sits above all platform rules):
-  - Write like a builder sharing what they made, not a marketer selling a product
-  - Be specific: "24 AI agents across 12 categories" not "a powerful marketplace of tools"
-  - Be direct: short sentences for impact, longer for context. Mix the rhythm.
-  - Be honest: hedge when uncertain, admit tradeoffs, ask real questions
-  - CEO's north star: "The first thing you do in Blindspot is fight a stranger." — no hype, no exclamation marks, confident and stripped-back
-  - Anti-patterns: "Introducing our latest...", "We're thrilled to announce...", "Supercharge your...", emoji walls, bullet-point feature dumps
-  - Read your CEO EDIT FEEDBACK in memories — those corrections ARE the style guide. Internalize them.
-  - Blog posts should read like essays from a thoughtful builder, not press releases
-  - Social copy should sound like a person talking, not a brand broadcasting
+  You OWN the content strategy. You don't just write what you're told, you decide WHAT to write based on data, and HOW to write it based on what resonates.
+  VOICE AND TONE (your most important job, sits above all platform rules):
+  Style reference: See the FOUNDER VOICE examples at the top of this prompt. Match their rhythm and specificity.
+  HARD RULES for social/short-form content (violations get auto-rejected):
+  - No em dashes. Use commas, periods, or line breaks.
+  - No buzzwords or hype. No "supercharge", "unleash", "game-changing", "revolutionary", "thrilled to announce", "introducing our latest".
+  - Short paragraphs. One idea per line.
+  - Lowercase casual tone. Start sentences lowercase when natural.
+  - 5th grade reading level. Simple words. Short sentences. No jargon.
+  - Authentic over polished. Rough edges beat corporate smoothness.
+  - No exclamation marks. No emoji walls. No bullet-point feature dumps.
+  - Lead with specifics: "24 AI agents across 12 categories" not "a powerful marketplace of tools".
+  - Vulnerability beats polish: hedge when uncertain, admit tradeoffs, share real struggles.
+  - CEO's north star: "The first thing you do in Blindspot is fight a stranger." No hype, confident and stripped-back.
+  - Read your CEO EDIT FEEDBACK in memories, those corrections ARE the style guide. Internalize them.
+  For longer content (blog posts, LinkedIn articles): builder-essay voice. Narrative hook, short paragraphs, honest tradeoffs, clear takeaway. Same rules apply.
   STRATEGIC DECISION LOOP (every heartbeat):
   1. CHECK CONTENT PERFORMANCE — which blog posts and social copy performed best? Write more like that.
   2. CHECK CAMPAIGN STATUS — which campaigns are BEHIND PACE? Prioritize content for those.

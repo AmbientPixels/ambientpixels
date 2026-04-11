@@ -1,0 +1,17 @@
+{
+  "keywords": [
+    "AI agents",
+    "indie hacker",
+    "solo founder",
+    "vibe coding",
+    "build in public",
+    "AI orchestration",
+    "agent framework"
+  ],
+  "description": "Keywords Scout queries via /api/blueskySearch to discover active threads for Scribe reply drafting. Edit this file to tune discovery targeting — no code deploy needed.",
+  "filters": {
+    "maxAgeMinutes": 120,
+    "minReplies": 1,
+    "maxDraftsPerRun": 3
+  }
+}

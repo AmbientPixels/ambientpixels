@@ -63,7 +63,7 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
 
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts) {
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -129,7 +129,155 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   // Attach siteIntel to productBriefs for Echo's social traffic section (avoids adding another param)
   if (productBriefs && siteIntel) productBriefs._siteIntel = siteIntel;
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest);
+
+  // ── Scout Bluesky Discovery: deterministic server-side handler ──
+  // When Scout has a bluesky_discovery task, run the discovery inline and spawn Scribe reply tasks.
+  // This runs before Gemini to avoid the model wasting tokens on something we can handle deterministically.
+  if (agentId === 'scout') {
+    const _discoveryTasks = agentTasks.filter(function(t) {
+      return t.taskType === 'bluesky_discovery' && (t.status === 'todo' || t.status === 'in-progress');
+    });
+    if (_discoveryTasks.length > 0) {
+      try {
+        const _blueskyDiscovery = require('../_utils/blueskyDiscovery');
+        let _kwConfig = { keywords: ['AI agents', 'indie hacker', 'solo founder', 'build in public'], filters: { maxAgeMinutes: 120, minReplies: 1, maxDraftsPerRun: 3 } };
+        try { _kwConfig = require('../_data/bluesky-discovery-keywords.json'); } catch (_kwErr) { /* use defaults */ }
+        const _filters = _kwConfig.filters || {};
+        const _maxDrafts = _filters.maxDraftsPerRun || 3;
+
+        for (const _discTask of _discoveryTasks) {
+          try {
+            const _candidates = await _blueskyDiscovery.discoverAcrossKeywords(_kwConfig.keywords, {
+              maxAgeMinutes: _filters.maxAgeMinutes || 120,
+              minReplies: _filters.minReplies || 1,
+              limitPerKeyword: 25
+            });
+            context.log('[Heartbeat] scout: bluesky discovery found', _candidates.length, 'candidates');
+
+            // Dedup against existing reply tasks (active OR completed within 7 days)
+            const _seven_days_ago = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const _existingReplyTasks = tasks.filter(function(t) {
+              return t.tags && t.tags.indexOf('bluesky-reply') !== -1;
+            });
+            const _uriAlreadyHandled = function(uri) {
+              return _existingReplyTasks.some(function(t) {
+                if (!t.threadContext || t.threadContext.uri !== uri) return false;
+                if (t.status === 'todo' || t.status === 'in-progress' || t.status === 'review') return true;
+                if (t.status === 'done') {
+                  const _completedAt = t.completedAt || t.updatedAt;
+                  return _completedAt && new Date(_completedAt).getTime() > _seven_days_ago;
+                }
+                return false;
+              });
+            };
+
+            let _draftsCreated = 0;
+            for (const _candidate of _candidates) {
+              if (_draftsCreated >= _maxDrafts) break;
+              if (_uriAlreadyHandled(_candidate.uri)) continue;
+              // Create a bluesky_reply task assigned to Scribe
+              const _replyTaskId = 'task_' + Date.now() + '_blsreply_' + Math.random().toString(36).substr(2, 4);
+              const _replyTask = {
+                id: _replyTaskId,
+                title: 'Draft Bluesky reply to @' + _candidate.author,
+                description: 'Draft a reply to this Bluesky thread:\n\n'
+                  + 'Author: @' + _candidate.author + '\n'
+                  + 'Thread URI: ' + _candidate.uri + '\n'
+                  + 'Matched keyword: ' + (_candidate._matchedKeyword || '?') + '\n'
+                  + 'Engagement: ' + _candidate.replyCount + ' replies, ' + _candidate.likeCount + ' likes\n\n'
+                  + 'ORIGINAL POST:\n"' + (_candidate.text || '').substring(0, 500) + '"\n\n'
+                  + 'Write a genuine reply following Founder Voice rules. Under 280 chars. No em dashes. No hype. If you have nothing genuine to add, return an empty deliverable with a comment explaining why.',
+                taskType: 'bluesky_reply',
+                status: 'todo',
+                priority: 'medium',
+                assignee: 'scribe',
+                source: 'heartbeat',
+                created_by: 'scout',
+                parent_task_id: _discTask.id,
+                objective_id: _discTask.objective_id || null,
+                campaign_id: _discTask.campaign_id || null,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                tags: ['bluesky-reply', 'auto-created'],
+                threadContext: {
+                  uri: _candidate.uri,
+                  cid: _candidate.cid, // REQUIRED for reply payload — do not drop
+                  author: _candidate.author,
+                  authorDid: _candidate.authorDid,
+                  originalText: _candidate.text,
+                  replyCount: _candidate.replyCount,
+                  likeCount: _candidate.likeCount,
+                  indexedAt: _candidate.indexedAt
+                },
+                comments: [{
+                  id: 'cmt-bsdisc-' + Date.now() + '-' + _draftsCreated,
+                  author: 'scout',
+                  text: 'Discovered via Bluesky search (keyword: "' + (_candidate._matchedKeyword || '?') + '"). Scribe: draft a reply following founder voice.',
+                  type: 'system',
+                  createdAt: new Date().toISOString()
+                }]
+              };
+              tasks.push(_replyTask);
+              _draftsCreated++;
+              context.log('[Heartbeat] scout: created bluesky-reply task', _replyTaskId, 'for thread by @' + _candidate.author);
+            }
+
+            // Mark the discovery task done with a summary deliverable
+            _discTask.status = 'done';
+            _discTask.completedAt = new Date().toISOString();
+            _discTask.updatedAt = new Date().toISOString();
+            if (!_discTask.comments) _discTask.comments = [];
+            _discTask.comments.push({
+              id: 'cmt-bsdisc-done-' + Date.now(),
+              author: 'scout',
+              text: 'Bluesky discovery complete. Searched ' + _kwConfig.keywords.length + ' keywords, found ' + _candidates.length + ' active threads, created ' + _draftsCreated + ' reply drafts for Scribe.',
+              type: 'deliverable',
+              createdAt: new Date().toISOString()
+            });
+          } catch (_discInnerErr) {
+            context.log('[Heartbeat] scout: bluesky discovery failed for task', _discTask.id, ':', String(_discInnerErr).substring(0, 200));
+          }
+        }
+        // Save tasks after discovery changes
+        await storage.setState('tasks', tasks);
+      } catch (_discOuterErr) {
+        context.log('[Heartbeat] scout: bluesky discovery module load failed:', String(_discOuterErr).substring(0, 200));
+      }
+    }
+  }
+
+  // Compute recent activity digest for content/strategy agents (Scribe, Echo, Nova)
+  // Gated by agent.id in prompt-builders, so only computed if the agent needs it.
+  var recentActivityDigest = '';
+  if (['scribe', 'echo', 'nova'].indexOf(agentId) !== -1) {
+    var _cutoff48h = Date.now() - 48 * 60 * 60 * 1000;
+    var recentDone = tasks.filter(function(t) {
+      if (t.status !== 'done' || t._archived) return false;
+      var doneAt = t.completedAt || t.updatedAt;
+      return doneAt && new Date(doneAt).getTime() > _cutoff48h;
+    });
+    if (recentDone.length > 0) {
+      // Group by assignee for readability
+      var byAgent = {};
+      recentDone.forEach(function(t) {
+        var a = t.assignee || 'unassigned';
+        if (!byAgent[a]) byAgent[a] = [];
+        byAgent[a].push(t.title || 'untitled');
+      });
+      var digestLines = [recentDone.length + ' tasks completed in the last 48h:'];
+      Object.keys(byAgent).forEach(function(a) {
+        var titles = byAgent[a].slice(0, 5); // cap at 5 per agent to keep prompt size reasonable
+        titles.forEach(function(title) {
+          digestLines.push('  ✓ ' + a + ': ' + title.substring(0, 100));
+        });
+        if (byAgent[a].length > 5) digestLines.push('  ✓ ' + a + ': ...and ' + (byAgent[a].length - 5) + ' more');
+      });
+      recentActivityDigest = digestLines.join('\n');
+    }
+  }
+
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts);
 
   // Call Gemini
   let response = await callGemini(prompt, agentId);
@@ -1306,6 +1454,117 @@ Write the full deliverable first, then the structured JSON block.`;
               agentId: agentId
             });
             result.executes = (result.executes || 0) + 1;
+
+            // BLUESKY REPLY: task tagged bluesky-reply — route directly to approval queue as social_post.reply action
+            // Skip Quill (the draft IS the final copy). Scribe's deliverable is the reply text itself.
+            if (task.tags && task.tags.indexOf('bluesky-reply') !== -1 && task.threadContext) {
+              const _replyText = (deliverable || '').trim();
+              // Empty deliverable = Scribe explicitly chose not to reply (spam, nothing to add)
+              if (!_replyText || _replyText.length < 5) {
+                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+                result.taskUpdates.push({
+                  action: 'comment', taskId: action.taskId,
+                  comment: 'Scribe declined to draft a reply for this thread (empty deliverable — likely spam or nothing genuine to add).',
+                  agentId: 'system'
+                });
+                context.log('[Heartbeat] scribe: bluesky-reply declined for task', action.taskId);
+                continue;
+              }
+              // Truncate to 280 chars max (bluesky cap is 300, leave headroom)
+              let _finalReply = _replyText.substring(0, 280);
+              const _tc = task.threadContext;
+              // Create a social_post.reply action
+              const _replyActionId = 'act_' + Date.now() + '_bsreply_' + Math.random().toString(36).substr(2, 5);
+              const _replyAction = {
+                id: _replyActionId,
+                created_at: new Date().toISOString(),
+                created_by: 'scribe',
+                type: 'social_post.reply',
+                platform: 'bluesky',
+                payload: {
+                  text: _finalReply,
+                  reply: {
+                    // Top-level reply: root and parent point to the same post
+                    root: { uri: _tc.uri, cid: _tc.cid },
+                    parent: { uri: _tc.uri, cid: _tc.cid }
+                  }
+                },
+                classification: 'advisory',
+                risk_level: 'low',
+                _parentTaskId: action.taskId,
+                approval: { status: 'pending' }
+              };
+              const _actionsStoreForReply = (await storage.getState('actions')) || [];
+              _actionsStoreForReply.push(_replyAction);
+              await storage.setState('actions', _actionsStoreForReply);
+
+              // Quality gate runs on the reply text too — catches hallucinations + voice violations
+              let _qgReplyResult = null;
+              try {
+                _qgReplyResult = await _validateContentQuality(_finalReply, 'bluesky', context);
+              } catch (_qgErr) { /* fail-open */ }
+
+              if (_qgReplyResult && !_qgReplyResult.pass && (_qgReplyResult.confidence || 0) >= 70) {
+                // Rejected — remove action, reset task for Scribe rewrite
+                const _idx = _actionsStoreForReply.findIndex(function(a) { return a.id === _replyActionId; });
+                if (_idx !== -1) _actionsStoreForReply.splice(_idx, 1);
+                await storage.setState('actions', _actionsStoreForReply);
+                task.status = 'in-progress';
+                task.updatedAt = new Date().toISOString();
+                task.comments = task.comments || [];
+                task.comments.push({
+                  id: 'cmt-bsqgfail-' + Date.now(),
+                  author: 'system',
+                  text: 'QUALITY GATE FAILED on bluesky reply — Issues:\n- ' + (_qgReplyResult.issues || []).join('\n- ') + '\n\nRewrite following Founder Voice rules. No em dashes, no hype, 5th grade reading level.',
+                  type: 'system',
+                  createdAt: new Date().toISOString()
+                });
+                context.log('[Heartbeat] scribe: bluesky-reply quality gate REJECTED for task', action.taskId);
+                continue;
+              }
+
+              // Add to approval queue as bluesky_reply kind
+              const _aqQueue = (await storage.getState('approvalQueue')) || [];
+              const _aqReplyEntry = {
+                id: 'aq-reply-' + _replyActionId,
+                kind: 'bluesky_reply',
+                action_id: _replyActionId,
+                taskId: action.taskId,
+                taskTitle: 'Bluesky reply to @' + (_tc.author || 'unknown'),
+                originAgent: 'scribe',
+                classification: 'advisory',
+                riskLevel: 'low',
+                budgetImpact: 0,
+                brandImpact: 'low',
+                status: 'pending',
+                submittedAt: new Date().toISOString(),
+                preview: _finalReply.substring(0, 200),
+                threadContext: {
+                  uri: _tc.uri,
+                  cid: _tc.cid,
+                  author: _tc.author,
+                  originalText: (_tc.originalText || '').substring(0, 300)
+                },
+                replyText: _finalReply
+              };
+              if (_qgReplyResult) {
+                _aqReplyEntry.qualityGate = {
+                  pass: !!_qgReplyResult.pass,
+                  confidence: _qgReplyResult.confidence || 0,
+                  issues: _qgReplyResult.issues || [],
+                  model: 'claude-haiku-4-5-20251001',
+                  checkedAt: new Date().toISOString()
+                };
+              }
+              _aqQueue.push(_aqReplyEntry);
+              if (_aqQueue.length > 100) _aqQueue.splice(0, _aqQueue.length - 100);
+              await storage.setState('approvalQueue', _aqQueue);
+
+              // Mark reply task done
+              result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+              context.log('[Heartbeat] scribe: bluesky-reply drafted and queued for CEO approval:', action.taskId, '→ action', _replyActionId);
+              continue; // skip the social-copy branch
+            }
 
             // SOCIAL COPY: route to Quill for brand voice review, EXCEPT promo copy (low-risk blog summaries)
             if (task.tags && task.tags.indexOf('social-copy') !== -1) {

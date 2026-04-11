@@ -28,7 +28,7 @@ const EXECUTORS = {
   'social_post.reply': {
     'x': null, // v3
     'linkedin': null,
-    'bluesky': null
+    'bluesky': blueskyAdapter.publishToBluesky // reply handled via payload.reply field
   },
   'social_post.draft': {
     'x': null, // drafts don't execute externally
@@ -41,7 +41,7 @@ const EXECUTORS = {
 };
 
 // Supported action types for execution
-const EXECUTABLE_TYPES = ['social_post.publish', 'social_post.schedule', 'publish_document'];
+const EXECUTABLE_TYPES = ['social_post.publish', 'social_post.schedule', 'social_post.reply', 'publish_document'];
 
 /**
  * Execute an action by routing to the correct platform adapter

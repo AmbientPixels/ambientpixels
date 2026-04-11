@@ -170,6 +170,26 @@ async function publishToBluesky(action) {
     record.facets = facets;
   }
 
+  // Reply: if payload.reply is present with root+parent uri/cid, this becomes a reply post.
+  // AT Protocol requires both uri AND cid for root and parent references.
+  // For top-level replies, root and parent can point to the same post.
+  if (action.payload && action.payload.reply && action.payload.reply.parent) {
+    const _reply = action.payload.reply;
+    const _parent = _reply.parent;
+    const _root = _reply.root || _parent; // top-level reply: root === parent
+    if (_parent.uri && _parent.cid && _root.uri && _root.cid) {
+      record.reply = {
+        root: { uri: _root.uri, cid: _root.cid },
+        parent: { uri: _parent.uri, cid: _parent.cid }
+      };
+    } else {
+      throw {
+        code: 'INVALID_REPLY_REFS',
+        message: 'Reply requires both uri AND cid for root and parent. Got: root=' + JSON.stringify(_root) + ', parent=' + JSON.stringify(_parent)
+      };
+    }
+  }
+
   // Upload images from media[] if present — uses shared media module for host allowlist + download
   const mediaItems = media.extractMediaItems(action.payload && action.payload.media, MAX_MEDIA);
   const uploadedBlobs = [];

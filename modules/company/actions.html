@@ -455,6 +455,13 @@
             </div>
             <div class="act-panel-body" id="content-pkg-list"></div>
           </div>
+          <div class="act-panel" id="bluesky-reply-panel" style="display:none;">
+            <div class="act-panel-head">
+              <span><i class="fas fa-cloud" style="color:#60a5fa;"></i> Bluesky Reply Drafts</span>
+              <span id="bluesky-reply-count" class="act-count-badge"></span>
+            </div>
+            <div class="act-panel-body" id="bluesky-reply-list"></div>
+          </div>
         </div>
       </div>
 
@@ -667,6 +674,7 @@
       renderObjectiveProposals();
       renderPending();
       renderContentPackages();
+      renderBlueskyReplies();
       renderRevisions();
       renderScheduled();
       renderExecLog();
@@ -812,6 +820,77 @@
         html += '<button class="act-btn act-btn--reject" onclick="doContentReject(\'' + esc(item.id) + '\')"><i class="fas fa-times" style="margin-right:0.2rem;"></i>Reject</button>';
         html += '<a href="/modules/company/content-gallery.html" style="font-size:0.55rem;color:rgba(255,255,255,0.5);text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(255,255,255,0.1);border-radius:4px;"><i class="fas fa-images" style="margin-right:3px;"></i>View in Gallery</a>';
         if (item.links && item.links.packageUrl) html += '<a href="' + esc(item.links.packageUrl) + '" target="_blank" style="font-size:0.55rem;color:#60a5fa;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(96,165,250,0.2);border-radius:4px;background:rgba(96,165,250,0.05);"><i class="fas fa-box" style="margin-right:3px;"></i>Package JSON</a>';
+        html += '</div>';
+        html += '</div>';
+      });
+      el.innerHTML = html;
+    }
+
+    // ── Bluesky Reply Drafts (from approval queue) ──
+    function renderBlueskyReplies() {
+      var queue = AE.getApprovalQueue();
+      var replies = queue.filter(function (q) { return q.kind === 'bluesky_reply' && q.status === 'pending'; });
+      var panel = document.getElementById('bluesky-reply-panel');
+      var el = document.getElementById('bluesky-reply-list');
+      var countEl = document.getElementById('bluesky-reply-count');
+      if (!panel || !el || !countEl) return;
+      if (replies.length === 0) { panel.style.display = 'none'; el.innerHTML = ''; return; }
+      panel.style.display = '';
+      countEl.textContent = replies.length + ' pending';
+
+      var html = '';
+      replies.forEach(function (item) {
+        var tc = item.threadContext || {};
+        var qg = item.qualityGate || null;
+        var age = item.submittedAt ? timeAgo(item.submittedAt) : '';
+        var qgBadge = '';
+        if (qg) {
+          qgBadge = qg.pass
+            ? '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(52,211,153,0.1);color:#34d399;"><i class="fas fa-check" style="font-size:0.4rem;"></i> Verified</span>'
+            : '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(248,113,113,0.1);color:#f87171;"><i class="fas fa-exclamation-triangle" style="font-size:0.4rem;"></i> Quality Flag</span>';
+        }
+
+        html += '<div class="act-row" style="flex-direction:column;align-items:stretch;gap:0.4rem;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">';
+        html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
+        html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(96,165,250,0.12);color:#60a5fa;font-weight:600;"><i class="fas fa-reply" style="font-size:0.4rem;"></i> REPLY</span>';
+        html += '<span style="font-size:0.75rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Reply to @' + esc(tc.author || 'unknown') + '</span>';
+        if (qgBadge) html += qgBadge;
+        html += '<span style="font-size:0.55rem;opacity:0.4;flex-shrink:0;">' + esc(age) + '</span>';
+        html += '</div>';
+
+        // Original thread context
+        if (tc.originalText) {
+          html += '<div style="font-size:0.65rem;color:rgba(255,255,255,0.4);padding:0.4rem 0.5rem;border-left:2px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.03);line-height:1.4;">';
+          html += '<div style="font-size:0.5rem;opacity:0.5;margin-bottom:0.2rem;text-transform:uppercase;letter-spacing:0.04em;">Original thread · @' + esc(tc.author || '?') + '</div>';
+          html += esc(tc.originalText).substring(0, 300);
+          html += '</div>';
+        }
+
+        // Draft reply
+        html += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.85);padding:0.5rem 0.6rem;background:rgba(255,255,255,0.03);border-radius:6px;line-height:1.45;white-space:pre-wrap;">';
+        html += esc(item.replyText || item.preview || '');
+        html += '</div>';
+
+        // Quality gate issues if failed
+        if (qg && !qg.pass && qg.issues && qg.issues.length > 0) {
+          html += '<div style="font-size:0.6rem;color:#f87171;padding:0.3rem 0.5rem;background:rgba(248,113,113,0.05);border-radius:4px;">';
+          html += '<div style="font-weight:600;margin-bottom:0.2rem;"><i class="fas fa-exclamation-triangle"></i> Quality Gate Issues:</div>';
+          qg.issues.slice(0, 5).forEach(function(i) {
+            html += '<div>• ' + esc(i) + '</div>';
+          });
+          html += '</div>';
+        }
+
+        // Actions
+        html += '<div style="display:flex;gap:0.3rem;margin-top:0.1rem;align-items:center;flex-wrap:wrap;">';
+        html += '<button class="act-btn act-btn--approve" onclick="doApprove(\'' + esc(item.action_id) + '\')"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Approve &amp; Post</button>';
+        html += '<button class="act-btn act-btn--reject" onclick="doReject(\'' + esc(item.action_id) + '\')"><i class="fas fa-times" style="margin-right:0.2rem;"></i>Reject</button>';
+        if (tc.uri) {
+          // Build bsky.app URL from at:// URI
+          var _rkey = (tc.uri || '').split('/').pop();
+          var _linkUrl = tc.author ? 'https://bsky.app/profile/' + tc.author + '/post/' + _rkey : '';
+          if (_linkUrl) html += '<a href="' + esc(_linkUrl) + '" target="_blank" rel="noopener" style="font-size:0.55rem;color:#60a5fa;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(96,165,250,0.2);border-radius:4px;"><i class="fas fa-external-link-alt" style="margin-right:3px;"></i>View Thread</a>';
+        }
         html += '</div>';
         html += '</div>';
       });

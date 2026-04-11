@@ -1,0 +1,32 @@
+{
+  "principles": [
+    "No em dashes. Use commas, periods, or line breaks instead.",
+    "No buzzwords or hype language. No 'supercharge', 'unleash', 'game-changing', 'revolutionary', 'thrilled to announce'.",
+    "Short paragraphs. One idea per line.",
+    "Lowercase casual tone. Start sentences lowercase when natural, not forced.",
+    "5th grade reading level. Simple words. Short sentences. No jargon.",
+    "Authentic over polished. Rough edges beat corporate smoothness.",
+    "Lead with specifics, not adjectives. Numbers, names, concrete details.",
+    "Vulnerability beats polish. Admit uncertainty. Share struggles.",
+    "No exclamation marks. No emoji walls."
+  ],
+  "examples": [
+    {
+      "platform": "bluesky",
+      "context": "restart after months of heads-down building",
+      "text": "Been heads down building for months. 24 followers on bluesky. starting over today.\n\nI'm a solo founder running a company where 8 AI agents manage the departments. I'm the only human.\n\nBuilding in public from here.",
+      "why_it_works": "vulnerable opener (24 followers, starting over), specific reveal (8 AI agents, only human), confident close (building in public). No hype. No em dashes. Short lines."
+    },
+    {
+      "platform": "bluesky",
+      "context": "the agent-policing-agents system",
+      "text": "my AI agents police each other without asking me.\n\nif an agent breaks for 5+ cycles, Forge (the ops watchdog) fires a system directive at it. screaming red banner. drop everything, fix this first.\n\nonly 2 agents have the authority to issue directives. max 1 active directive per agent. Forge can't even directive Nova, has to escalate to me.\n\nit's a 3-tier AI middle management hierarchy with actual checks and balances.\n\nI didn't plan this. it evolved from trying to stop everything from breaking.",
+      "why_it_works": "specific mechanism (5+ cycles, red banner), concrete constraints (max 1, can't directive Nova), self-aware close (evolved from trying to stop breakage). No marketing language. Short paragraphs. One idea per line."
+    }
+  ],
+  "anti_examples": [
+    "🚀 Introducing our game-changing AI orchestration platform! Supercharge your workflow with 8 autonomous agents working 24/7 to unlock unprecedented productivity! #AI #Innovation #FutureOfWork",
+    "We're thrilled to announce the launch of AmbientOS — a revolutionary new way to manage your company with AI.",
+    "Ever wish you had a digital clone to handle the grind? 🤖 Meet AmbientOS — the AI sidekick that's changing everything!"
+  ]
+}
