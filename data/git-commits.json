@@ -1,23 +1,23 @@
 {
   "commits": [
     {
-      "id": "61f55ac5-fc7b-446c-80f8-3a0c5ca780a2",
-      "hash": "5869c285f603b845f0b3adb697da7c45886d7303",
-      "message": "Daily refresh: site memory update for Nova",
-      "timestamp": "2026-04-09 14:54:32 +0000",
+      "id": "8f22e47e-8d3b-4933-9949-6a57263e1004",
+      "hash": "0c34648e00291d914dceb47a4162c83039ec723e",
+      "message": "docs: update system architecture — remove deleted systems, add current state",
+      "timestamp": "2026-04-10 21:13:31 -0700",
       "author": {
-        "name": "NovaBot",
-        "email": "nova@ambientpixels.ai"
+        "name": "AmbientPixels",
+        "email": "ambientpixels2022@gmail.com"
       },
       "branches": [
         "grafted",
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/5869c285f603b845f0b3adb697da7c45886d7303"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/0c34648e00291d914dceb47a4162c83039ec723e"
     }
   ],
-  "timestamp": "2026-04-10T14:17:05.222Z",
+  "timestamp": "2026-04-11T13:56:55.217Z",
   "count": 1,
-  "scanId": 1775830625222
+  "scanId": 1775915815217
 }
