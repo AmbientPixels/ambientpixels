@@ -2306,7 +2306,7 @@
         var tasks = allTasks;
         var today = _localToday();
         var overdue = tasks.filter(function (t) {
-          return t.dueDate && t.dueDate < today && t.status !== 'done';
+          return t.dueDate && t.dueDate < today && t.status !== 'done' && !t._archived;
         }).sort(function (a, b) { return a.dueDate.localeCompare(b.dueDate); });
         totalItems += overdue.length;
 
