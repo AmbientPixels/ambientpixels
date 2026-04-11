@@ -242,6 +242,49 @@ async function publishDocument(action) {
         };
         tasks.push(promoTask);
         tasksCreated++;
+
+        // Pre-create Scribe copy task so the pipeline doesn't wait for Echo to fail first
+        var _copyTag = 'social-copy-for-' + promoTask.id;
+        var _maxLen = plat === 'x' ? '280 chars' : plat === 'bluesky' ? '300 chars' : '800-1500 chars for LinkedIn (article-style)';
+        var copyTask = {
+          id: 'task_' + Date.now() + '_copy_' + Math.random().toString(36).substr(2, 4),
+          title: 'Write social copy for: ' + (doc.title || slug),
+          description: 'Write ONE publish-ready social media post for the blog post "' + (doc.title || slug) + '".\n\n'
+            + 'Blog URL: ' + blogUrl + '\n'
+            + 'Platform: ' + plat + '\n'
+            + 'Max length: ' + _maxLen + '\n\n'
+            + 'Requirements:\n'
+            + '- Write exactly ONE post — not multiple variations, not a batch. One single post.\n'
+            + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes)\n'
+            + '- Professional and on-brand for AmbientPixels\n'
+            + '- MUST include the blog URL: ' + blogUrl + '\n'
+            + '- LinkedIn posts: aim for 800-1500 chars. Narrative hook, short paragraphs, personal voice.\n'
+            + '- After writing, this task goes to Quill for brand voice review. Once Quill approves, Echo uses the copy to create the social post.\n'
+            + '- Use execute-task to produce your deliverable.',
+          taskType: 'social_copy',
+          status: 'todo',
+          priority: 'medium',
+          assignee: 'scribe',
+          source: 'heartbeat',
+          created_by: 'system',
+          parent_task_id: promoTask.id,
+          createdAt: now,
+          updatedAt: now,
+          dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          campaign_id: _promoCampaignId,
+          objective_id: _promoObjectiveId,
+          tags: ['social-copy', 'auto-created', _copyTag],
+          comments: [{
+            id: 'cmt-precopy-' + Date.now() + '-' + plat,
+            author: 'system',
+            text: 'Pre-created: Scribe copy task spawned at publish time for "' + (doc.title || slug) + '" (' + plat + '). Skips the Echo-fail-first bottleneck.',
+            type: 'system',
+            createdAt: now
+          }]
+        };
+        tasks.push(copyTask);
+        // Mark the promo task as awaiting copy so Echo doesn't attempt prematurely
+        promoTask.awaiting_copy_review = true;
       }
 
       if (tasksCreated > 0) {

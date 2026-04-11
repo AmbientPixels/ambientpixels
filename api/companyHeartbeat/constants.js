@@ -42,7 +42,7 @@ const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
   maxGeminiCallsPerCycle: 15,
   maxNewTasksPerCycle: 6,
-  maxExecutesPerCyclePerAgent: 2,
+  maxExecutesPerCyclePerAgent: 3,
   maxContentGeneratesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
   maxActiveTasks: 50,
