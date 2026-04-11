@@ -1,6 +1,6 @@
 # AmbientPixels — Company Module System Architecture
 
-_Last updated: February 18, 2026_
+_Last updated: April 10, 2026_
 
 This document describes the full architecture of the AmbientPixels Company Module — an AI orchestration platform where autonomous agents run every department, governed by human approval workflows and audit trails.
 
@@ -38,9 +38,9 @@ Agents Propose → Queue for Approval → Human Approves → System Executes →
 | Component        | Stack                                                        |
 |------------------|--------------------------------------------------------------|
 | **Hosting**      | Azure Static Web Apps (`staticwebapp.config.json`)           |
-| **API**          | Azure Functions (Node.js, ~40 endpoints)                     |
-| **Storage**      | Azure Blob Storage + localStorage fallback                   |
-| **AI**           | Gemini API (via `geminiproxy`, `novachat`, `agentchat`)      |
+| **API**          | Azure Functions (Node.js, 88+ endpoints)                     |
+| **Storage**      | Azure Blob Storage (`cardforgeblobdata` account)             |
+| **AI**           | Claude Sonnet 4.6 (heartbeat, switchable) + Gemini 2.0 Flash (image gen, fallback) |
 | **Auth**         | Azure B2C + `x-company-secret` header for internal APIs      |
 | **CI/CD**        | GitHub Actions → Azure SWA deploy                            |
 
@@ -76,127 +76,30 @@ This is the heart of the system — a propose → approve → execute → audit 
 ### Data Flow
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                     PROPOSE (Read-Only Analysis)                  │
-│                                                                   │
-│  PlannerLoop           CalibrationLoop         WorkerManager      │
-│  (weekly planning)     (self-improvement)      (pressure-based)   │
-│       │                      │                       │            │
-│       ▼                      ▼                       ▼            │
-│  ┌───────────────────────────────────────────────────────────┐   │
-│  │               ActionQueue (localStorage-backed)            │   │
-│  │    pending_approval → approved_ready → executing            │   │
-│  │                         → executed | failed | blocked       │   │
-│  └─────────────────────────┬─────────────────────────────────┘   │
-│                             │                                     │
-│                   ┌─────────▼──────────┐                         │
-│                   │   HUMAN APPROVAL    │  ← CEO / Config UI      │
-│                   │  (approve / reject) │                         │
-│                   └─────────┬──────────┘                         │
-│                             │                                     │
-│                   ┌─────────▼──────────┐                         │
-│                   │   ActionRouter      │  Kill switches,         │
-│                   │                     │  registry, verification │
-│                   └─────────┬──────────┘                         │
-│                             │                                     │
-│                   ┌─────────▼──────────┐                         │
-│                   │  ActionExecutors    │  task, system,           │
-│                   │                     │  social, email           │
-│                   └─────────────────────┘                         │
-│                                                                   │
-│                          EXECUTE                                  │
-└──────────────────────────────────────────────────────────────────┘
+Heartbeat (server, hourly) → 8 agents propose actions → Approval Queue → CEO approves → Execute
 ```
+
+All governance runs server-side via the heartbeat engine. There is no client-side automation layer.
 
 ### Module Reference
 
-#### PriorityEngine (`js/priority-engine.js`)
-
-Deterministic task scoring (0–15+). Never uses LLM. Never mutates tasks. Fail-closed on errors.
-
-- **Factors:** impact, urgency, strategic alignment, aging, risk penalty
-- **Weights:** configurable (0–5 each), persisted to localStorage + server
-- **Buckets:** low (0–5), medium (6–10), high (11–17), critical (18+)
-- **Cache:** `ap_priority_cache` — recalculated on demand
-
-#### PlannerLoop (`js/planner-loop.js`)
-
-Deterministic weekly executive planning. Propose-only — never mutates tasks, never executes actions.
-
-- **Cadence:** configurable (default 7 days), auto-run check via `shouldAutoRun()`
-- **Outputs:** focus list (top N by score), stuck list, recommendations
-- **Thresholds:** `stuckInReviewDays`, `stuckInProgressDays`, `recommendationsMax`, etc.
-- **Enqueues** all recommendations as `pending_approval` into ActionQueue
-- **Audit:** logged via PlannerAudit
-
-#### CalibrationLoop (`js/calibration-loop.js`)
-
-Bounded self-improvement. Analyzes approval rates, success rates, and rejection patterns to propose weight/threshold adjustments.
-
-- **Metrics computed:** approval rate, rejection rate, success rate, critical resolution rate, avg time to approval
-- **Rules:** low approval rate → reduce planner aggressiveness, frequent "too early" rejections → increase aging weight, low critical resolution → increase urgency weight, low success rate per action type → flag for review
-- **Caps:** max ±0.5 weight adjustment, weight range 0–5, planner recommendations 2–12
-- **All proposals require human approval** — never auto-adjusts
-
-#### ActionRouter (`js/action-router.js`)
-
-Governed execution layer. Depends on: ActionAudit, ActionQueue, ActionExecutors, TaskVerifier.
-
-- **Kill switches:** global (`actionsEnabled`, default: **false**), per-tool (task, social, email, configChanges)
-- **Registry:** loaded from `/data/company-actions.json` — defines action types, risk levels, approval requirements
-- **Verification gates:** TaskVerifier checks task state before completion transitions
-- **Execution limits:** max 5 per cycle, max 2 retry attempts
-- **Priority sorting:** uses PriorityEngine scores to order execution queue
-
-#### ActionQueue (`js/action-queue.js`)
-
-localStorage-backed queue with 6 statuses: `pending_approval`, `approved_ready`, `executing`, `executed`, `failed`, `blocked`.
-
-- **Max items:** 200
-- **Dedup:** same actionType + targetId within 30s window
-- **Batch operations:** `approveMany()`, `rejectMany()`, `approveAllLowRisk()`
-- **Grouped pending:** groups by correlationId, targetId, source, or risk level
-- **Synced to server** via `CompanyStoreAdapter.markQueueDirty()`
-
-#### ActionExecutors (`js/action-executors.js`)
-
-Dispatches execution by type:
-
-- **Task executor:** move task status, update fields
-- **System adjustment executor:** `adjust_priority_weight`, `adjust_planner_threshold`, `flag_action_type`
-- **Social / email executors:** (wired but gated by kill switches)
-- All adjustments write backups before applying changes
-
-#### WorkerManager (`js/worker-manager.js`)
-
-Pressure-based worker spawning. Evaluates system load and dispatches specialized workers.
-
-- **Pressure thresholds:** reviewCount ≥ 20, overdueCount ≥ 5, pendingApprovals ≥ 10, oldestInReviewHours ≥ 48, criticalCount ≥ 3
-- **Worker types:** triage, scribe, research, QA
-- **Caps:** global max 6, per-owner max 3, budget-based rate limiting
-- **State machine:** spawning → active → reporting → terminated
-- **Timeout enforcement:** TTL per worker type
-- **Consecutive low-pressure cycles** → auto-terminate workers
-
 #### TaskVerifier (`js/task-verifier.js`)
 
-Verification gates for task transitions. Returns pass/fail/manual with reasons. Used by ActionRouter to block invalid transitions (e.g., incomplete tasks → done).
+Verification gates for task transitions. Returns pass/fail/manual with reasons.
 
-### Audit Trail (5 Parallel Logs)
+#### ActionAudit (`js/action-audit.js`)
 
-| Module             | Storage Key              | Tracks                                              |
-|--------------------|--------------------------|------------------------------------------------------|
-| **ActionAudit**    | `ap_action_audit`        | Enqueue, approve, reject, execute, fail, block        |
-| **WorkerAudit**    | `ap_worker_audit`        | Spawn, report, error, budget, terminate               |
-| **PlannerAudit**   | `ap_planner_audit`       | Plan runs, recommendations, enqueue                   |
-| **CalibrationAudit** | `ap_calibration_audit` | Calibration runs, proposals, metrics                  |
-| **PriorityAudit**  | `ap_priority_audit`      | Score changes, bucket transitions                     |
+Append-only client-side event log for CEO actions (approve, reject, batch operations). Stored in `ap_action_audit` localStorage key.
 
-All 5 logs:
-- Are append-only and immutable once written
-- Generate `eventId` for idempotent server sync (v1.0.1)
-- Are capped at 500 entries locally
-- Sync to server with 30-day / 5000-event retention
+### Removed Systems (Apr 2026)
+
+The following client-side browser systems were removed as dead weight — all were disabled by default, never auto-triggered, and redundant with the server-side heartbeat:
+
+- **PriorityEngine** — client-side task scoring (never called)
+- **PlannerLoop** — weekly planning proposals (never invoked)
+- **CalibrationLoop** — self-improvement proposals (never invoked)
+- **ActionRouter / ActionQueue / ActionExecutors** — client-side action execution pipeline (disabled by default)
+- **WorkerManager** — pressure-based browser workers (redundant with heartbeat)
 
 ---
 
@@ -450,48 +353,25 @@ _Added February 18, 2026_
 ├─────────────────────────────────────────────┤
 │  Agent Health Grid                           │  ← Per-agent status tiles
 ├─────────────────────────────────────────────┤
-│  Worker Automation                           │  ← Background job framework
 │  Verification Engine                         │  ← Output quality gate
-│  Autonomy Controls                           │  ← Per-channel trust dials
-│  Planner Automation                          │  ← Strategic planning loop
-│  Calibration Automation                      │  ← Self-improvement loop
+│  Agent Modes                                 │  ← Activation + Automation Mode
+│  Content Engine                              │  ← Image generation defaults
 ├─────────────────────────────────────────────┤
 │  System Storage                              │  ← localStorage health
 │  Server Persistence                          │  ← Azure sync layer
 ├─────────────────────────────────────────────┤
-│  System Tools                                │  ← Export, Sync, Kill switch
+│  System Tools                                │  ← Export, Sync
 │  Quick Access                                │  ← Navigation shortcuts
 │  Danger Zone                                 │  ← Destructive resets
 └─────────────────────────────────────────────┘
 ```
 
-### Autonomy Controls
+### Agent Modes
 
-The policy layer for agent freedom. Each channel can be independently toggled:
+Two server-side controls for agent behavior (stored via `company-state` API):
 
-- **OFF** = CEO Approval required (all actions enter approval queue)
-- **ON** = Autonomous (agents act freely, logged for visibility)
-
-| Group | Channel | Default | localStorage Key |
-|---|---|---|---|
-| Internal | Tasks | ON | `ap_actions_task_enabled` |
-| Internal | Config | OFF | `ap_config_changes_enabled` |
-| External | Social | OFF | `ap_actions_social_enabled` |
-| External | Content | OFF | `ap_actions_content_enabled` |
-| External | Email | OFF | `ap_actions_email_enabled` |
-| External | Git | OFF | `ap_actions_git_enabled` |
-
-Channel toggle overrides the registry's `requiresApproval` flag. When a channel is OFF, all actions are forced to CEO approval regardless of individual action settings.
-
-### Automation Loops
-
-| Loop | Purpose | Cadence Key | Default |
-|---|---|---|---|
-| **Planner** | Weekly strategic planning, recommendations, standup scheduling | `ap_planner_cadence_days` | 7 days |
-| **Calibration** | System health analysis, weight/threshold tuning proposals | `ap_calibration_cadence_days` | 7 days |
-| **Worker** | Pressure-based background job spawning | `ap_workers_enabled` | OFF |
-
-All loops are **propose-only** — they enqueue `pending_approval` items into the ActionQueue. They never execute directly.
+- **Activation Mode** (`activationMode` key): `manual` | `supervised_autonomous` | `experimental`
+- **Automation Mode** (`execution_mode` key): `active` (live) | `observe` (safe mode) | `frozen` (locked)
 
 ### Storage & Persistence
 
@@ -521,7 +401,7 @@ All destructive actions require typing "DELETE" to confirm. Organized by severit
 | Group | Actions |
 |---|---|
 | **Data Resets** | Tasks (+archive), Directives, Objectives, Action Queue (+rate counts) |
-| **Audit & Logs** | All audit logs (action, worker, planner, calibration, priority), Governance log |
+| **Audit & Logs** | Action audit logs, Governance log |
 | **Nuclear** | Clear All Company Data — removes all `ap_*` keys (preserves Nova/browser state) |
 
 ---
@@ -530,18 +410,16 @@ All destructive actions require typing "DELETE" to confirm. Organized by severit
 
 The system is **fail-closed** at every layer:
 
-1. **ActionRouter defaults to OFF** — `actionsEnabled: false`. Nothing executes until explicitly turned on.
-2. **Per-tool kill switches** — task, social, email, configChanges each independently togglable.
-3. **All automation is propose-only** — PlannerLoop, CalibrationLoop, and WorkerManager only enqueue `pending_approval` items. They never execute anything directly.
-4. **Calibration caps** — Weight adjustments bounded to ±0.5 per cycle, total range 0–5. Planner recommendations capped at 2–12.
-5. **Worker limits** — Global max 6 workers, per-owner max 3, budget-based rate limiting, TTL timeout enforcement.
+1. **Server-side governance** — all agent actions go through the heartbeat's guardrail system (8 blocking gates) before execution.
+2. **CEO approval for external actions** — social posts, blog publishes, campaign/objective proposals all require CEO sign-off.
+3. **Quality gate** — Claude Haiku validates social posts against product-facts.json. Failed posts auto-rejected with issues fed back to Scribe for rewrite.
+4. **Convergence detection** — tasks with 5+ failed deliverables escalate to CEO via Needs Attention.
+5. **Orphan auto-resolve** — approval queue items whose tasks no longer exist are auto-resolved by heartbeat.
 6. **Verification gates** — TaskVerifier blocks invalid transitions (e.g., incomplete task → done).
-7. **Audit trail** — Every action, approval, rejection, execution, and failure is logged with correlation IDs across 5 parallel logs.
-8. **Server persistence defaults OFF** — Requires explicit enable + secret key. Outbox prevents data loss. Idempotent retries via eventId dedup.
-9. **Registry validation** — Action types must exist in `company-actions.json` and be marked enabled. Unknown types are rejected and audited.
-10. **Retry limits** — Max 2 attempts per action. After that, permanently failed.
-11. **Danger Zone type-to-confirm** — All destructive config actions require typing "DELETE" before execution. Scoped to `ap_*` keys only — Nova and browser state are never touched.
-12. **Auto-prune** — StorageManager triggers automatic pruning at 80% localStorage capacity with 5-minute cooldown.
+7. **Audit trail** — every action logged via ActionAudit + server-side governance log.
+8. **Registry validation** — action types must exist in `company-actions.json` and be marked enabled.
+9. **Danger Zone type-to-confirm** — all destructive config actions require typing "DELETE" before execution.
+10. **Auto-prune** — StorageManager triggers automatic pruning at 80% localStorage capacity.
 
 ---
 
@@ -551,7 +429,7 @@ Added February 2026. Server-side storage for audits, queue, settings, and artifa
 
 ### Storage Model (Azure Blob Storage)
 
-- `store-audits-{type}.json` — per-type audit arrays (action, worker, planner, calibration, priority)
+- `store-audits-{type}.json` — per-type audit arrays (action)
 - `store-queue.json` — full action queue array
 - `store-settings.json` — settings object with allow-list validation
 - `store-artifacts-{type}.json` — per-type artifact arrays
