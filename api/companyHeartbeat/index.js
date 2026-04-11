@@ -514,33 +514,15 @@ module.exports = async function (context) {
       let _naChanged = false;
       const _naNow = Date.now();
 
-      // Overdue escalation: active tasks past dueDate
-      for (const _ot of tasks) {
-        if (_ot.status === 'done' || !_ot.dueDate) continue;
-        if (new Date(_ot.dueDate).getTime() >= _naNow) continue;
-        const _otAlready = _naAQ.some(function(q) { return q.type === 'overdue_escalation' && q.taskId === _ot.id; });
-        if (!_otAlready) {
-          _naAQ.push({
-            id: 'aq-overdue-' + _ot.id + '-' + _naNow,
-            type: 'overdue_escalation',
-            taskId: _ot.id,
-            taskTitle: _ot.title || _ot.id,
-            originAgent: _ot.assignee || 'unassigned',
-            dueDate: _ot.dueDate,
-            status: 'pending',
-            createdAt: new Date().toISOString()
-          });
-          _naChanged = true;
-          context.log('[Heartbeat] OVERDUE ESCALATION: task', _ot.id, 'due', _ot.dueDate);
-        }
-      }
+      // Overdue escalation removed from Needs Attention — overdue tasks are an agent execution
+      // concern, not a CEO action item. Stuck (convergence) and stale revision remain.
 
       // Stale revision escalation: CEO requested revision but agent hasn't responded in 60+ min
       for (const _sra of revisionActions) {
         const _srParentId = _sra._parentTaskId || _sra.taskId;
         if (!_srParentId) continue;
         const _srTask = tasks.find(function(t) { return t.id === _srParentId; });
-        if (!_srTask || _srTask.status === 'done') continue;
+        if (!_srTask || _srTask.status === 'done' || _srTask._archived) continue;
         // Find the CEO REVISION comment
         const _srRevComment = (_srTask.comments || []).find(function(c) {
           return c.text && c.text.indexOf('CEO REVISION') !== -1 && c.text.indexOf(_sra.id) !== -1;
@@ -555,7 +537,7 @@ module.exports = async function (context) {
           return c.type === 'deliverable' && c.createdAt && new Date(c.createdAt).getTime() > _srRevTs;
         });
         if (_srHasNewDeliverable) continue;
-        const _srAlready = _naAQ.some(function(q) { return q.type === 'stale_revision_escalation' && q.taskId === _srTask.id; });
+        const _srAlready = _naAQ.some(function(q) { return q.type === 'stale_revision_escalation' && q.taskId === _srTask.id && q.status === 'pending'; });
         if (!_srAlready) {
           _naAQ.push({
             id: 'aq-stalerev-' + _srTask.id + '-' + _naNow,
@@ -569,6 +551,20 @@ module.exports = async function (context) {
           });
           _naChanged = true;
           context.log('[Heartbeat] STALE REVISION ESCALATION: task', _srTask.id, 'revision unaddressed for', Math.round(_srAge / 60000), 'min');
+        }
+      }
+
+      // Auto-resolve escalations whose tasks are now done, archived, or backlog
+      var _naEscTypes = ['overdue_escalation', 'stale_revision_escalation', 'convergence_escalation'];
+      for (const _arEsc of _naAQ) {
+        if (_arEsc.status !== 'pending' || _naEscTypes.indexOf(_arEsc.type) === -1) continue;
+        var _arTask = _arEsc.taskId ? tasks.find(function(t) { return t.id === _arEsc.taskId; }) : null;
+        if (_arTask && (_arTask.status === 'done' || _arTask.status === 'backlog' || _arTask._archived)) {
+          _arEsc.status = 'resolved';
+          _arEsc.resolvedAt = new Date().toISOString();
+          _arEsc._autoResolved = 'task_' + (_arTask._archived ? 'archived' : _arTask.status);
+          _naChanged = true;
+          context.log('[Heartbeat] Auto-resolved escalation', _arEsc.id, 'for task', _arEsc.taskId, '(', _arEsc._autoResolved, ')');
         }
       }
 
