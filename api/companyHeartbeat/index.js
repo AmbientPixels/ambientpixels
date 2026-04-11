@@ -2626,12 +2626,21 @@ module.exports = async function (context) {
         for (const _ti of _highTrends) {
           const _trendName = String(_ti.trendName || '').toLowerCase();
           if (!_trendName) continue;
-          // Skip if a research task already exists for this trend
+          // Skip if a research task already exists for this trend (active OR completed within last 30 days)
+          const _briefCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
           const _alreadyExists = tasks.some(function (t) {
-            return t.status !== 'done' && t.status !== 'canceled'
-              && (t.taskType === 'research' || t.taskType === 'general')
-              && (String(t.title || '').toLowerCase().indexOf(_trendName) !== -1
-                  || (Array.isArray(t.tags) && t.tags.indexOf('trends-radar') !== -1 && String(t.description || '').toLowerCase().indexOf(_trendName) !== -1));
+            if (t.status === 'canceled') return false;
+            if ((t.taskType !== 'research' && t.taskType !== 'general')) return false;
+            // Active task with matching trend → block
+            if (t.status !== 'done') {
+              return String(t.title || '').toLowerCase().indexOf(_trendName) !== -1
+                || (Array.isArray(t.tags) && t.tags.indexOf('trends-radar') !== -1 && String(t.description || '').toLowerCase().indexOf(_trendName) !== -1);
+            }
+            // Done task: only block if completed within 30 days (prevents endless re-spawning of same trend)
+            const _completedAt = t.completedAt || t.updatedAt;
+            if (!_completedAt || new Date(_completedAt).getTime() < _briefCutoff) return false;
+            return String(t.title || '').toLowerCase().indexOf(_trendName) !== -1
+              || (Array.isArray(t.tags) && t.tags.indexOf('trends-radar') !== -1 && String(t.description || '').toLowerCase().indexOf(_trendName) !== -1);
           });
           if (_alreadyExists) continue;
           // Create a research task for Scout (todo so Scout can pick it up)
