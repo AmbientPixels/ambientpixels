@@ -13,7 +13,7 @@ var PRODUCT_COMPETITORS = {
   'AmbientOS':    'AI orchestration platforms, multi-agent frameworks, AI operations tools'
 };
 
-function buildResearchDemandDigest(socialIntel, forgeOpsDigest, financeDigest, performanceDigest, tasks, researchIntelStore, campaigns, productBriefs, nowMs) {
+function buildResearchDemandDigest(socialIntel, forgeOpsDigest, financeDigest, performanceDigest, tasks, researchIntelStore, campaigns, _skillsDataUnused, nowMs) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
   var allTasks = Array.isArray(tasks) ? tasks : [];
   var intel = Array.isArray(researchIntelStore) ? researchIntelStore : [];

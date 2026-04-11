@@ -1,224 +1,188 @@
-// syncProductBriefs.js
-// Reads .claude/skills/SKILL.md files and extracts product briefs
-// into api/_data/product-briefs.json for heartbeat prompt injection.
-// Runs automatically in CI/CD before deploy.
+// syncProductBriefs.js — rewritten to ship full skill content instead of regex-filtered fragments.
+// Reads .claude/skills/*/SKILL.md files and writes api/_data/skills.json.
+// Runs via pre-commit hook (ambientpixels/.git/hooks/pre-commit).
+//
+// Design notes:
+// - 6KB cap per skill — tuned for Gemini 2.0 Flash attention limits.
+// - Recent Changes section (if present) is pulled to the top of the written content
+//   so the most recent state gets the most reliable attention from Gemini.
+// - Frontmatter is stripped; excess blank lines collapsed.
+// - No regex filtering of sections, no dev-artifact scrubbing. Agents are trusted to
+//   ignore content that isn't relevant to their task.
 
 var fs = require('fs');
 var path = require('path');
 
 var PRODUCT_SKILLS = {
+  'ambientos-guide': { name: 'AmbientOS',    url: 'https://ambientpixels.ai/ambientos/' },
   'blindspot':       { name: 'Blindspot',    url: 'https://ambientpixels.ai/blindspot/' },
   'cardforge':       { name: 'CardForge',    url: 'https://ambientpixels.ai/cardforge/' },
   'storyforge':      { name: 'StoryForge',   url: 'https://ambientpixels.ai/storyforge/' },
   'pixel-agents':    { name: 'Pixel Agents', url: 'https://ambientpixels.ai/pixel-agents/' },
-  'ambientscore':    { name: 'AmbientScore', url: 'https://ambientpixels.ai/ambientscore/' },
-  'ambientos-guide': { name: 'AmbientOS',    url: 'https://ambientpixels.ai/ambientos/' }
+  'ambientscore':    { name: 'AmbientScore', url: 'https://ambientpixels.ai/ambientscore/' }
 };
 
-var MAX_BRIEF = 1200;
+// 6KB hard cap per skill. Gemini-tuned.
+var MAX_SKILL_BYTES = 6 * 1024;
 
 var scriptDir = __dirname;
-var repoRoot = path.resolve(scriptDir, '..', '..');
-var skillsDir = path.join(repoRoot, '.claude', 'skills');
-var outputPath = path.join(scriptDir, '..', 'api', '_data', 'product-briefs.json');
+var skillsDir = path.resolve(scriptDir, '..', '..', '.claude', 'skills');
+var outputPath = path.join(scriptDir, '..', 'api', '_data', 'skills.json');
 
-// Sections that contain product knowledge agents can use for content
-var GOOD_HEADINGS = [
-  /player.?flow|user.?flow|core.?loop/i,
-  /combat.?system|battle/i,
-  /econom|progression|sparks|pricing/i,
-  /feature|what.?it/i,
-  /product.?identity|positioning/i,
-  /pvp|async.?pvp|multiplayer/i,
-  /element.?system/i,
-  /crate|loot|cosmetic/i,
-  /dimension|scoring/i,
-  /the.?8.?agents/i,
-  /social.?pipeline|blog.?pipeline|wiki.?pipeline/i,
-  /quick.?orientation/i,
-  /submission.?pipeline/i,
-  /agent.?registry/i,
-  /key.?feature/i,
-  /card.?shar/i
-];
+/**
+ * Strip YAML frontmatter (---...---) if present.
+ */
+function stripFrontmatter(content) {
+  return content.replace(/^---[\s\S]*?---\s*/, '');
+}
 
-// Sections that are dev-only — skip entirely
-var BAD_HEADINGS = [
-  /css|stylesheet|theme.?token|breakpoint|responsive/i,
-  /file.?(?:structure|map)|directory/i,
-  /architecture.?overview|frontend.?arch|server.?file/i,
-  /debug|cheat|console/i,
-  /test|smoke|playwright/i,
-  /fixed.?bug|known.?issue/i,
-  /lesson.?learned|gotcha/i,
-  /mobile.?polish|desktop.?layout/i,
-  /phase.?completed|roadmap/i,
-  /decoupl/i,
-  /iteration.?cycle|mandatory/i,
-  /critical.?safety|do.?not.?touch|high.?blast/i,
-  /common.?command|azure.?cli|local.?dev|deploy/i,
-  /dashboard|ceo.?view|dev.?view|board.?view/i,
-  /convergence|escalation|needs.?attention/i,
-  /guardrail|blocking.?gate|guard.?rail/i,
-  /heartbeat.?system|heartbeat.?module/i,
-  /api.?layer|endpoint|route|rewrite/i,
-  /visual.?identity|sound.?effect|card.?renderer/i,
-  /auth.?system|b2c|login/i,
-  /common.?task|how.?to|modify|add.?a.?new|change/i,
-  /pipeline.?dev|cache.?bust/i,
-  /critical.?rule|blast.?radius/i,
-  /quick.?build.?class|card.?container/i,
-  /working.?with/i
-];
+/**
+ * Collapse 3+ consecutive blank lines into 2. Trim trailing whitespace on every line.
+ */
+function collapseWhitespace(content) {
+  return content
+    .split('\n')
+    .map(function (line) { return line.replace(/[ \t]+$/, ''); })
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
 
-function parseSections(content) {
-  var stripped = content.replace(/^---[\s\S]*?---\s*/, '');
-  var lines = stripped.split('\n');
-  var sections = [];
-  var cur = null;
-  var curDepth = 0;
-  var curLines = [];
+/**
+ * Pull a "## Recent Changes" section to the top of the content if present.
+ * This gives the freshest state the most reliable attention on Gemini.
+ */
+function hoistRecentChanges(content) {
+  var lines = content.split('\n');
+  var startIdx = -1;
+  var endIdx = -1;
 
   for (var i = 0; i < lines.length; i++) {
-    var m1 = lines[i].match(/^# (.+)/);
-    var m2 = lines[i].match(/^## (.+)/);
-    var m3 = lines[i].match(/^### (.+)/);
-    if (m1 || m2 || m3) {
-      if (cur) sections.push({ heading: cur, depth: curDepth, body: curLines.join('\n').trim() });
-      cur = (m1 || m2 || m3)[1];
-      curDepth = m1 ? 1 : m2 ? 2 : 3;
-      curLines = [];
-    } else {
-      curLines.push(lines[i]);
-    }
-  }
-  if (cur) sections.push({ heading: cur, depth: curDepth, body: curLines.join('\n').trim() });
-  return sections;
-}
-
-function scrubDevArtifacts(text) {
-  var s = text;
-  // Remove code blocks
-  s = s.replace(/```[\s\S]*?```/g, '');
-  // Remove backtick-wrapped content (file refs, code, selectors)
-  s = s.replace(/`[^`]+`/g, '');
-  // Remove (Phase N — ...) annotations
-  s = s.replace(/\(Phase \d+[^)]*\)/g, '');
-  // Remove (server-side...) / (client-side...) annotations
-  s = s.replace(/\((?:server|client)-side[^)]*\)/g, '');
-  // Remove (computed in/by...) refs
-  s = s.replace(/\(computed (?:in|by)[^)]+\)/g, '');
-  // Remove lines mentioning file paths or Azure infrastructure
-  s = s.replace(/^.*(?:ambientpixels\/|api\/|\.js\b|\.css\b|\.html\b|Azure (?:Blob|Function|Static)|blob storage|endpoint|route rewrite).*$/gim, '');
-  // Remove empty bullet points
-  s = s.replace(/^\s*[-*]\s*$/gm, '');
-  // Remove pipe table formatting
-  s = s.replace(/^\|.*\|$/gm, '');
-  // Remove "For full/deep..." reference lines
-  s = s.replace(/^For (?:full|deep) .*$/gm, '');
-  // Remove parenthetical refs that became empty after stripping: (in ), (from ), etc.
-  s = s.replace(/\([^)]*\bin\b\s*\)/g, '');
-  s = s.replace(/\([^)]*\bfrom\b\s*\)/g, '');
-  s = s.replace(/\(\s*\)/g, '');
-  // Remove "at " / "in " / "lives in " / "lives at " with empty trailing space
-  s = s.replace(/(?:lives? (?:at|in)|stored (?:at|in)|defined in|configured in|enforced in)\s+(?=[.\n,—]|$)/gim, '');
-  // Remove "Frontend: " and similar labels pointing to nothing
-  s = s.replace(/\*\*[^*]+:\*\*\s+(?=\n|$)/g, '');
-  // Remove lines that are just "— " or empty bold markers
-  s = s.replace(/^\s*—\s*$/gm, '');
-  // Remove double spaces from stripped content
-  s = s.replace(/  +/g, ' ');
-  // Collapse whitespace
-  s = s.replace(/\n{3,}/g, '\n\n');
-  return s.trim();
-}
-
-function isGoodSection(heading) {
-  for (var i = 0; i < BAD_HEADINGS.length; i++) {
-    if (BAD_HEADINGS[i].test(heading)) return false;
-  }
-  for (var j = 0; j < GOOD_HEADINGS.length; j++) {
-    if (GOOD_HEADINGS[j].test(heading)) return true;
-  }
-  return false;
-}
-
-function extractBrief(skillId, content) {
-  var meta = PRODUCT_SKILLS[skillId];
-  if (!meta) return null;
-
-  var sections = parseSections(content);
-  var parts = [];
-
-  // Always include intro paragraph
-  for (var i = 0; i < sections.length; i++) {
-    if (sections[i].depth === 1 && sections[i].body) {
-      var intro = scrubDevArtifacts(sections[i].body.split('\n\n')[0]);
-      if (intro.length > 20) parts.push(intro);
+    if (/^##\s+Recent Changes\b/i.test(lines[i])) {
+      startIdx = i;
+      // Find the next ## (same level) or end of file
+      for (var j = i + 1; j < lines.length; j++) {
+        if (/^##\s+/.test(lines[j])) {
+          endIdx = j;
+          break;
+        }
+      }
+      if (endIdx === -1) endIdx = lines.length;
       break;
     }
   }
 
-  // Collect good sections
-  var used = {};
-  for (var j = 0; j < sections.length; j++) {
-    var sec = sections[j];
-    if (!sec.body || used[sec.heading] || !isGoodSection(sec.heading)) continue;
-    used[sec.heading] = true;
+  if (startIdx === -1) return content; // no Recent Changes section
 
-    var body = scrubDevArtifacts(sec.body);
-    if (body.length < 30) continue;
+  // Extract the section
+  var recentSection = lines.slice(startIdx, endIdx).join('\n').trim();
 
-    // Keep first 300 chars per section
-    if (body.length > 300) {
-      body = body.substring(0, 300).replace(/\n[^\n]*$/, '') + '...';
+  // Remove it from its original location
+  var remaining = lines.slice(0, startIdx).concat(lines.slice(endIdx)).join('\n').trim();
+
+  // Find the intro: content from start up to the first ## heading (exclusive)
+  var remainingLines = remaining.split('\n');
+  var firstH2 = -1;
+  for (var k = 0; k < remainingLines.length; k++) {
+    if (/^##\s+/.test(remainingLines[k])) {
+      firstH2 = k;
+      break;
     }
-    parts.push(sec.heading + ': ' + body);
   }
 
-  var result = parts.join('\n\n');
-  if (result.length > MAX_BRIEF) {
-    result = result.substring(0, MAX_BRIEF).replace(/\n[^\n]*$/, '');
+  if (firstH2 === -1) {
+    // No other H2 — just prepend recent changes after the H1 intro
+    return remaining + '\n\n' + recentSection;
+  }
+
+  var intro = remainingLines.slice(0, firstH2).join('\n').trim();
+  var rest = remainingLines.slice(firstH2).join('\n').trim();
+  return intro + '\n\n' + recentSection + '\n\n' + rest;
+}
+
+/**
+ * Cap content at MAX_SKILL_BYTES, truncating at the last ## section boundary before the cap.
+ * Returns { content, truncated }.
+ */
+function capAtSectionBoundary(content, cap) {
+  var bytes = Buffer.byteLength(content, 'utf8');
+  if (bytes <= cap) return { content: content, truncated: false };
+
+  // Binary-walk by char count until under cap (UTF-8 safe)
+  var sliced = content;
+  while (Buffer.byteLength(sliced, 'utf8') > cap) {
+    sliced = sliced.substring(0, Math.floor(sliced.length * 0.95));
+  }
+
+  // Walk backward to the last "\n## " to truncate at a section boundary
+  var lastSectionIdx = sliced.lastIndexOf('\n## ');
+  if (lastSectionIdx > cap / 2) {
+    // Only trust the boundary if it's in the second half — otherwise the cap is too tight
+    sliced = sliced.substring(0, lastSectionIdx);
   }
 
   return {
-    product: meta.name,
+    content: sliced.trim() + '\n\n_[Skill content truncated at ' + cap + ' bytes. See source at .claude/skills/ for full text.]_',
+    truncated: true
+  };
+}
+
+function processSkill(skillId, rawContent) {
+  var meta = PRODUCT_SKILLS[skillId];
+  if (!meta) return null;
+
+  var stripped = stripFrontmatter(rawContent);
+  var collapsed = collapseWhitespace(stripped);
+  var hoisted = hoistRecentChanges(collapsed);
+  var capped = capAtSectionBoundary(hoisted, MAX_SKILL_BYTES);
+
+  return {
+    id: skillId,
+    name: meta.name,
     url: meta.url,
-    brief: result,
-    extractedAt: new Date().toISOString(),
-    sourceChars: content.length
+    content: capped.content,
+    sourceChars: rawContent.length,
+    contentChars: capped.content.length,
+    truncated: capped.truncated
   };
 }
 
 function main() {
-  var resolvedDir = skillsDir;
-  if (!fs.existsSync(resolvedDir)) {
-    resolvedDir = path.join(process.cwd(), '..', '.claude', 'skills');
-  }
-  if (!fs.existsSync(resolvedDir)) {
-    console.log('[syncProductBriefs] No skills directory found. Writing empty briefs.');
-    fs.writeFileSync(outputPath, JSON.stringify({ products: [], generatedAt: new Date().toISOString() }, null, 2));
+  if (!fs.existsSync(skillsDir)) {
+    console.log('[syncSkills] No skills directory found at', skillsDir, '— writing empty skills.json');
+    fs.writeFileSync(outputPath, JSON.stringify({ generatedAt: new Date().toISOString(), skills: [] }, null, 2));
     return;
   }
 
-  var entries = fs.readdirSync(resolvedDir, { withFileTypes: true });
-  var products = [];
+  var entries = fs.readdirSync(skillsDir, { withFileTypes: true });
+  var skills = [];
 
   for (var i = 0; i < entries.length; i++) {
     if (!entries[i].isDirectory() || !PRODUCT_SKILLS[entries[i].name]) continue;
-    var skillFile = path.join(resolvedDir, entries[i].name, 'SKILL.md');
+    var skillFile = path.join(skillsDir, entries[i].name, 'SKILL.md');
     if (!fs.existsSync(skillFile)) continue;
 
-    var content = fs.readFileSync(skillFile, 'utf8');
-    var brief = extractBrief(entries[i].name, content);
-    if (brief) {
-      products.push(brief);
-      console.log('[syncProductBriefs]', brief.product + ':', brief.brief.length, 'chars from', (content.length / 1024).toFixed(0) + 'KB');
+    var rawContent = fs.readFileSync(skillFile, 'utf8');
+    var processed = processSkill(entries[i].name, rawContent);
+    if (processed) {
+      skills.push(processed);
+      console.log(
+        '[syncSkills]',
+        processed.name + ':',
+        processed.contentChars + ' chars',
+        processed.truncated ? '(truncated from ' + processed.sourceChars + ')' : '(full)'
+      );
     }
   }
 
-  fs.writeFileSync(outputPath, JSON.stringify({ generatedAt: new Date().toISOString(), products: products }, null, 2));
-  console.log('[syncProductBriefs] Wrote', products.length, 'briefs to product-briefs.json');
+  fs.writeFileSync(outputPath, JSON.stringify({ generatedAt: new Date().toISOString(), skills: skills }, null, 2));
+  console.log('[syncSkills] Wrote', skills.length, 'skills to', path.basename(outputPath));
+
+  // Clean up the old product-briefs.json if it still exists
+  var oldBriefsPath = path.join(scriptDir, '..', 'api', '_data', 'product-briefs.json');
+  if (fs.existsSync(oldBriefsPath)) {
+    try { fs.unlinkSync(oldBriefsPath); console.log('[syncSkills] Removed legacy product-briefs.json'); } catch (e) { /* ignore */ }
+  }
 }
 
 main();

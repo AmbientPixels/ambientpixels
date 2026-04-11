@@ -73,7 +73,23 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, productBriefs, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts) {
+// Role-based skill routing. Content agents get all product skills + system; ops agents get system only.
+// See plan: Gemini attention limits → ops agents don't need flooding with product copy.
+var SKILL_ROUTING = {
+  echo:   ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
+  scribe: ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
+  quill:  ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
+  pixel:  ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
+  nova:   ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
+  cipher: ['ambientos-guide'],
+  forge:  ['ambientos-guide'],
+  scout:  ['ambientos-guide']
+};
+
+// Gemini safeguard: split skill block into system + products when total exceeds 20KB.
+var SKILL_BLOCK_SPLIT_THRESHOLD = 20 * 1024;
+
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -575,7 +591,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   if (agent.id === 'pixel') {
     // 1. Visual Performance — blog views + product page traffic
     var _pxTopBlogs = (socialIntel && socialIntel.topBlogPosts) || [];
-    var _pxTopPages = (productBriefs && productBriefs._siteIntel && productBriefs._siteIntel.telemetry && productBriefs._siteIntel.telemetry.topPages) || [];
+    var _pxTopPages = (siteIntel && siteIntel.telemetry && siteIntel.telemetry.topPages) || [];
     if (_pxTopBlogs.length > 0 || _pxTopPages.length > 0) {
       var _pvLines = ['\n\nVISUAL PERFORMANCE (how your content is performing):'];
       if (_pxTopBlogs.length > 0) {
@@ -895,8 +911,8 @@ Where relevant to your content tasks, weave in references to these trends to inc
 
   // Social → site traffic for Echo (requires siteIntel param)
   let socialTrafficSection = '';
-  if (agent.id === 'echo' && productBriefs && productBriefs._siteIntel) {
-    var _si = productBriefs._siteIntel;
+  if (agent.id === 'echo' && siteIntel) {
+    var _si = siteIntel;
     if (_si.telemetry && Array.isArray(_si.telemetry.topReferrers)) {
       var _referrers = _si.telemetry.topReferrers;
       var _socialRefs = _referrers.filter(function (r) {
@@ -1099,16 +1115,47 @@ You must remain within your assigned authority tier. Doctrine influences your st
     productFactsBlock = pfLines.join('\n');
   }
 
-  // Product briefs injection — deeper product knowledge extracted from skill files
-  // All agents get briefs (not just content producers) so they understand the product portfolio
-  var productBriefsBlock = '';
-  if (productBriefs && productBriefs.products && productBriefs.products.length > 0) {
-    var briefLines = ['\n📖 PRODUCT KNOWLEDGE (detailed product context for informed decisions):'];
-    productBriefs.products.forEach(function(p) {
-      briefLines.push('\n' + p.product + ' (' + p.url + '):');
-      briefLines.push(p.brief);
-    });
-    productBriefsBlock = briefLines.join('\n');
+  // Skill injection — role-based. Full skill content (up to 6KB per skill) from api/_data/skills.json.
+  // Replaces the old productBriefsBlock that shipped regex-filtered 1KB fragments.
+  var skillsBlock = '';
+  var skillsSystemBlock = ''; // separate block for Gemini safeguard when total is large
+  if (skillsData && Array.isArray(skillsData.skills) && skillsData.skills.length > 0) {
+    var _routedIds = SKILL_ROUTING[agent.id] || ['ambientos-guide'];
+    var _routedSkills = _routedIds
+      .map(function (id) {
+        return skillsData.skills.find(function (s) { return s.id === id; });
+      })
+      .filter(function (s) { return s && s.content; });
+
+    if (_routedSkills.length > 0) {
+      // Build concatenated block content (used when below the split threshold)
+      var _skillParts = _routedSkills.map(function (s) {
+        return '### ' + s.name + ' — ' + s.url + '\n' + s.content;
+      });
+      var _combined = _skillParts.join('\n\n---\n\n');
+      var _combinedBytes = Buffer.byteLength(_combined, 'utf8');
+
+      if (_combinedBytes > SKILL_BLOCK_SPLIT_THRESHOLD && _routedSkills.length > 1) {
+        // Gemini safeguard: split into two topically-coherent blocks.
+        // Block 1: ambientos-guide (system context, always first in the routing list)
+        var _systemSkill = _routedSkills[0]; // ambientos-guide by convention
+        skillsSystemBlock = '\n\n🧭 SYSTEM REFERENCE (canonical — read Recent Changes at top first):\n\n'
+          + '### ' + _systemSkill.name + ' — ' + _systemSkill.url + '\n' + _systemSkill.content;
+
+        // Block 2: product skills only
+        var _productSkills = _routedSkills.slice(1);
+        if (_productSkills.length > 0) {
+          var _productParts = _productSkills.map(function (s) {
+            return '### ' + s.name + ' — ' + s.url + '\n' + s.content;
+          });
+          skillsBlock = '\n\n📚 PRODUCT SKILLS (canonical source for product descriptions — use only these facts when writing external content):\n\n'
+            + _productParts.join('\n\n---\n\n');
+        }
+      } else {
+        // Below threshold: single combined block
+        skillsBlock = '\n\n📚 SKILL REFERENCES (canonical source — read Recent Changes in AmbientOS first):\n\n' + _combined;
+      }
+    }
   }
 
   // Recent Activity Digest — only for content/strategy agents (Scribe, Echo, Nova)
@@ -1204,7 +1251,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${productBriefsBlock}${recentActivityBlock}${founderVoiceBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
