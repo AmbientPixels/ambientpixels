@@ -1307,8 +1307,34 @@ Write the full deliverable first, then the structured JSON block.`;
             });
             result.executes = (result.executes || 0) + 1;
 
-            // SOCIAL COPY → QUILL REVIEW: route to Quill for brand voice review instead of auto-completing
+            // SOCIAL COPY: route to Quill for brand voice review, EXCEPT promo copy (low-risk blog summaries)
             if (task.tags && task.tags.indexOf('social-copy') !== -1) {
+              // Promo copy (blog promotion) skips Quill — auto-complete and propagate reviewed_copy immediately
+              var _isPromoCopy = task.parent_task_id && tasks.some(function(pt) {
+                return pt.id === task.parent_task_id && pt.tags && pt.tags.indexOf('promote-pipeline') !== -1;
+              });
+              if (_isPromoCopy) {
+                // Auto-complete: mark done, propagate copy to parent promo task
+                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+                var _promoParent = tasks.find(function(pt) { return pt.id === task.parent_task_id; });
+                if (_promoParent && deliverable) {
+                  _promoParent.reviewed_copy = deliverable;
+                  _promoParent.awaiting_copy_review = false;
+                  _promoParent._social_action_pending = true;
+                  _promoParent.updatedAt = new Date().toISOString();
+                  if (!_promoParent.comments) _promoParent.comments = [];
+                  _promoParent.comments.push({
+                    id: 'cmt-fastcopy-' + Date.now(),
+                    author: 'system',
+                    text: 'Promo copy auto-approved (blog promotion, low brand risk). Echo can now post.',
+                    type: 'system',
+                    createdAt: new Date().toISOString()
+                  });
+                  context.log('[Heartbeat] PROMO FAST-TRACK: social-copy auto-approved for promo task:', task.parent_task_id, '(' + deliverable.length + ' chars)');
+                }
+                continue;
+              }
+              // Non-promo copy → Quill review as normal
               result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'review' });
               result.taskUpdates.push({
                 action: 'comment', taskId: action.taskId,

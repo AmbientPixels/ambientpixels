@@ -389,32 +389,12 @@
   });
 })();
 
-// Autonomy Controls panel
+// Autonomy Controls panel — Activation Mode + Execution Mode (server-side)
 (function () {
-  var dot = document.getElementById('cfg-action-dot');
-  var stateEl = document.getElementById('cfg-action-state');
-  var helperEl = document.getElementById('cfg-action-helper');
-  var toggleBtn = document.getElementById('cfg-action-toggle');
-  var countsEl = document.getElementById('cfg-action-counts');
-  var auditFeed = document.getElementById('cfg-action-audit-feed');
-  var subTask = document.getElementById('cfg-action-sub-task');
-  var subSocial = document.getElementById('cfg-action-sub-social');
-  var subContent = document.getElementById('cfg-action-sub-content');
-  var subEmail = document.getElementById('cfg-action-sub-email');
-  var subGit = document.getElementById('cfg-action-sub-git');
-  var subConfigChg = document.getElementById('cfg-configchg-toggle');
-  var configChgInfo = document.getElementById('cfg-configchg-info');
-  var subAutoPromote = document.getElementById('cfg-autopromote-toggle');
   var activationModeSelect = document.getElementById('cfg-activation-mode');
   var activationModeStatus = document.getElementById('cfg-activation-mode-status');
-  var revertBackupInfo = document.getElementById('cfg-revert-backup-info');
-  var revertBtn = document.getElementById('cfg-revert-btn');
-  var revertStatus = document.getElementById('cfg-revert-status');
-  if (!dot || !stateEl || !toggleBtn) return;
+  if (!activationModeSelect) return;
 
-  var _debounceTimer = null;
-
-  ActionRouter.loadRegistry().then(function () { render(); });
   loadActivationMode();
 
   // Re-render after CompanyStore server sync
@@ -526,158 +506,6 @@
     });
   }
 
-  function render() {
-    var enabled = ActionRouter.isEnabled();
-    dot.className = 'cfg-action-dot ' + (enabled ? 'cfg-action-dot--on' : 'cfg-action-dot--off');
-    stateEl.textContent = enabled ? 'Enabled' : 'Disabled (safe default)';
-    stateEl.style.color = enabled ? '#34d399' : '#ef4444';
-    helperEl.textContent = enabled
-      ? 'Action pipeline active. Channel toggles control autonomy level.'
-      : 'Action pipeline paused. All actions queue for CEO approval.';
-    toggleBtn.textContent = enabled ? '\u23F8 Disable Actions' : '\u25B6 Enable Actions';
-    toggleBtn.className = 'cfg-action-toggle ' + (enabled ? 'cfg-action-toggle--disable' : 'cfg-action-toggle--enable');
-
-    // Channel toggles with mode labels
-    renderSub(subTask, ActionRouter.isTaskEnabled(), 'task', 'cfg-mode-task');
-    renderSub(subConfigChg, ActionRouter.isConfigChangesEnabled(), 'configChanges', 'cfg-mode-config');
-    renderSub(subSocial, ActionRouter.isSocialEnabled(), 'social', 'cfg-mode-social');
-    renderSub(subContent, ActionRouter.isContentEnabled(), 'content', 'cfg-mode-content');
-    renderSub(subEmail, ActionRouter.isEmailEnabled(), 'email', 'cfg-mode-email');
-    renderSub(subGit, ActionRouter.isGitEnabled(), 'git', 'cfg-mode-git');
-    renderSub(subAutoPromote, ActionRouter.isAutoPromoteEnabled(), 'autoPromote', 'cfg-mode-autopromote');
-    renderConfigChgInfo();
-    renderRevertPanel();
-
-    // Registry counts
-    var c = ActionRouter.getRegistryCounts();
-    countsEl.textContent = 'Registry: ' + c.enabled + ' enabled, ' + c.disabled + ' disabled (' + c.total + ' total)';
-
-    renderAudit();
-  }
-
-  function renderSub(btn, on, type, modeId) {
-    if (!btn) return;
-    btn.textContent = on ? 'ON' : 'OFF';
-    btn.className = 'cfg-action-sub-toggle ' + (on ? 'on' : 'off');
-    // Mode label
-    var modeEl = modeId ? document.getElementById(modeId) : null;
-    if (modeEl) modeEl.textContent = on ? 'Autonomous' : 'CEO Approval';
-    btn.onclick = function () {
-      if (type === 'task') ActionRouter.setTaskEnabled(!on);
-      else if (type === 'social') ActionRouter.setSocialEnabled(!on);
-      else if (type === 'content') ActionRouter.setContentEnabled(!on);
-      else if (type === 'email') ActionRouter.setEmailEnabled(!on);
-      else if (type === 'git') ActionRouter.setGitEnabled(!on);
-      else if (type === 'configChanges') ActionRouter.setConfigChangesEnabled(!on, 'CEO');
-      else if (type === 'autoPromote') ActionRouter.setAutoPromoteEnabled(!on, 'CEO');
-      render();
-    };
-  }
-
-  function renderConfigChgInfo() {
-    if (!configChgInfo) return;
-    var lines = [];
-    lines.push('Applies approved config changes. Default OFF.');
-    try {
-      var raw = localStorage.getItem('ap_system_adjustment_backup_latest');
-      if (raw) {
-        var backup = JSON.parse(raw);
-        if (backup && backup.createdAt) {
-          lines.push('Last applied: ' + new Date(backup.createdAt).toLocaleString());
-        }
-      }
-    } catch (e) { /* ignore */ }
-    try {
-      var q = JSON.parse(localStorage.getItem('ap_action_queue') || '[]');
-      var pending = 0;
-      for (var i = 0; i < q.length; i++) {
-        if (q[i].actionType === 'system_adjustment' && q[i].status === 'pending_approval') pending++;
-      }
-      if (pending > 0) lines.push(pending + ' pending system adjustment(s)');
-    } catch (e) { /* ignore */ }
-    configChgInfo.innerHTML = lines.join('<br>');
-  }
-
-  function renderRevertPanel() {
-    if (!revertBackupInfo) return;
-    var info = (typeof ActionExecutors !== 'undefined' && ActionExecutors.getBackupInfo) ? ActionExecutors.getBackupInfo() : null;
-    if (!info) {
-      revertBackupInfo.textContent = 'No backup snapshot available.';
-      if (revertBtn) revertBtn.disabled = true;
-    } else {
-      var parts = [];
-      if (info.createdAt) parts.push('Backup from: ' + new Date(info.createdAt).toLocaleString());
-      if (info.actionId) parts.push('Action: ' + info.actionId.substring(0, 12));
-      var includes = [];
-      if (info.hasWeights) includes.push('priority weights');
-      if (info.hasThresholds) includes.push('planner thresholds');
-      if (includes.length) parts.push('Includes: ' + includes.join(' + '));
-      revertBackupInfo.innerHTML = parts.join('<br>');
-      if (revertBtn) revertBtn.disabled = false;
-    }
-    if (revertStatus) {
-      var lr = (typeof ActionExecutors !== 'undefined' && ActionExecutors.getLastRevert) ? ActionExecutors.getLastRevert() : null;
-      if (lr && lr.timestamp) {
-        revertStatus.textContent = 'Last revert: ' + new Date(lr.timestamp).toLocaleString();
-      } else {
-        revertStatus.textContent = '';
-      }
-    }
-  }
-
-  if (revertBtn) {
-    var _revertDebounce = null;
-    revertBtn.addEventListener('click', function () {
-      if (_revertDebounce) return;
-      _revertDebounce = setTimeout(function () { _revertDebounce = null; }, 800);
-      if (!ActionRouter.isConfigChangesEnabled()) {
-        alert('Config Changes is disabled \u2014 enable to revert.');
-        return;
-      }
-      var info = (typeof ActionExecutors !== 'undefined' && ActionExecutors.getBackupInfo) ? ActionExecutors.getBackupInfo() : null;
-      if (!info) { alert('No backup snapshot available.'); return; }
-      var msg = 'Revert last system adjustment? This will restore prior weights/thresholds.';
-      if (info.createdAt) {
-        var ageMs = Date.now() - new Date(info.createdAt).getTime();
-        if (ageMs > 30 * 86400000) msg += '\n\n\u26A0 Backup is older than 30 days.';
-      }
-      if (!confirm(msg)) return;
-      var result = ActionExecutors.revertLastAdjustment('CEO');
-      if (result.ok) {
-        var rp = [];
-        if (result.reverted.weights) rp.push('priority weights');
-        if (result.reverted.thresholds) rp.push('planner thresholds');
-        alert('Reverted: ' + (rp.join(' + ') || 'unknown') + '.');
-      } else {
-        alert('Revert failed: ' + (result.reason || 'Unknown error'));
-      }
-      render();
-    });
-  }
-
-  function renderAudit() {
-    var events = ActionAudit.getRecent(10);
-    if (events.length === 0) { auditFeed.innerHTML = '<span style="opacity:0.25; font-size:0.6rem;">No activity yet.</span>'; return; }
-    auditFeed.innerHTML = events.reverse().map(function (ev) {
-      var ts = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString() : '?';
-      var label = ev.eventType.replace(/_/g, ' ');
-      if (ev.actionType) label += ' (' + ev.actionType + ')';
-      if (ev.reason) label += ' \u2014 ' + ev.reason;
-      return '<div class="cfg-action-audit-row"><span class="cfg-action-audit-ts">' + ts + '</span><span class="cfg-action-audit-ev">' + label + '</span></div>';
-    }).join('');
-  }
-
-  toggleBtn.addEventListener('click', function () {
-    if (_debounceTimer) return;
-    var current = ActionRouter.isEnabled();
-    var action = current ? 'Disable' : 'Enable';
-    if (!confirm(action + ' action automation?')) return;
-    ActionRouter.setEnabled(!current, 'CEO');
-    render();
-    _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
-  });
-
-  render();
 })();
 
 // System Storage panel
@@ -852,48 +680,6 @@
   });
 
   renderStorePanel();
-})();
-
-// Master Automation Toggle — kill switch for all 4 automation systems
-(function () {
-  var btn = document.getElementById('cfg-master-automation-toggle');
-  if (!btn) return;
-
-  function allEnabled() {
-    var a = typeof ActionRouter !== 'undefined' && ActionRouter.isEnabled();
-    return { action: a };
-  }
-
-  function anyEnabled(s) { return s.action; }
-
-  function updateLabel() {
-    var s = allEnabled();
-    if (anyEnabled(s)) {
-      btn.innerHTML = '<i class="fas fa-robot"></i> Kill All Automation';
-      btn.style.borderColor = 'rgba(239,68,68,0.3)';
-      btn.style.color = '#ef4444';
-    } else {
-      btn.innerHTML = '<i class="fas fa-robot"></i> Enable All Automation';
-      btn.style.borderColor = 'rgba(52,211,153,0.3)';
-      btn.style.color = '#34d399';
-    }
-  }
-
-  btn.addEventListener('click', function () {
-    var s = allEnabled();
-    var turning = anyEnabled(s) ? 'OFF' : 'ON';
-    var names = ['Action Router'];
-    if (!confirm('Turn ' + turning + ' all automation?\n\n' + names.join(', '))) return;
-
-    var enable = !anyEnabled(s);
-    if (typeof ActionRouter !== 'undefined') ActionRouter.setEnabled(enable, 'CEO');
-
-    updateLabel();
-    // Re-render individual panels so their dots/states update
-    setTimeout(function () { location.reload(); }, 300);
-  });
-
-  updateLabel();
 })();
 
 // Agent Memory Stack panel

@@ -360,6 +360,9 @@ module.exports = async function (context) {
 
       const label = _taskTypeLabels[chosenType] || chosenType.replace(/_/g, ' ');
       const assignee = _taskTypeToAgent[chosenType] || 'echo';
+      // Default due date: based on campaign cadence (daily=1d, weekly=3d, biweekly=5d, fallback=3d)
+      const _cadenceDays = { daily: 1, weekly: 3, biweekly: 5 };
+      const _dueDays = _cadenceDays[c.cadence] || 3;
       const newTask = {
         id: 'task-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
         title: 'Draft ' + label + ' for ' + (c.title || 'campaign'),
@@ -370,6 +373,7 @@ module.exports = async function (context) {
         campaign_id: c.id,
         objective_id: c.objective_id || null,
         priority: c.priority || 'medium',
+        dueDate: new Date(Date.now() + _dueDays * 24 * 60 * 60 * 1000).toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         source: { type: 'campaign_scheduler', campaignId: c.id, campaignTitle: c.title }

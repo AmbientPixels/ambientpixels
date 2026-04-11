@@ -206,14 +206,9 @@
 
     <!-- Autonomy Controls -->
     <div class="ov-section-title">Autonomy Controls</div>
-    <div class="cfg-helper">How much freedom agents have per channel. OFF = CEO approval required. ON = agents act autonomously.</div>
+    <div class="cfg-helper">Controls how agents operate in the heartbeat</div>
     <div class="cfg-action-panel" id="cfg-action-panel">
-      <div class="cfg-action-title"><i class="fas fa-bolt dash-icon-pink"></i> Action Router</div>
-      <div class="cfg-action-status">
-        <div class="cfg-action-dot" id="cfg-action-dot"></div>
-        <span class="cfg-action-state" id="cfg-action-state">—</span>
-      </div>
-      <div class="cfg-action-helper" id="cfg-action-helper"></div>
+      <div class="cfg-action-title"><i class="fas fa-bolt dash-icon-pink"></i> Agent Modes</div>
       <div class="cfg-form-row-bordered">
         <span class="cfg-form-label">Activation Mode</span>
         <select id="cfg-activation-mode" class="cfg-inline-select">
@@ -241,11 +236,6 @@
           <option value="frozen">🔴 Locked</option>
         </select>
         <span id="cfg-execution-mode-status" class="cfg-form-status"></span>
-      </div>
-      <div class="cfg-action-counts" id="cfg-action-counts"></div>
-      <div class="cfg-action-audit">
-        <div class="cfg-action-audit-title">Recent Action Activity</div>
-        <div id="cfg-action-audit-feed">No activity yet.</div>
       </div>
     </div>
 
@@ -549,9 +539,6 @@
   <script src="/js/storage-manager.js"></script>
   <script src="/js/task-verifier.js"></script>
   <script src="/js/action-audit.js"></script>
-  <script src="/js/action-queue.js"></script>
-  <script src="/js/action-executors.js"></script>
-  <script src="/js/action-router.js"></script>
   <script src="/modules/company/js/demo-toast.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
