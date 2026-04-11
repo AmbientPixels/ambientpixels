@@ -104,19 +104,21 @@ module.exports = async function (context, req) {
 
     // Load real company state so Nova doesn't hallucinate
     let companyContext = '';
+    let skillsBlock = '';
     try {
       const { loadCompanyState } = require('../_utils/companyContextLoader');
-      const { formatCoreContext } = require('../_utils/companyContextFormatters');
+      const { formatCoreContext, formatSkillsBlock } = require('../_utils/companyContextFormatters');
       const state = await loadCompanyState({
         includeTasks: true, includeCampaigns: true, includeObjectives: true,
-        includeDocuments: true
+        includeDocuments: true, includeProductFacts: true
       });
       companyContext = formatCoreContext(state, 'nova');
+      skillsBlock = formatSkillsBlock(state, 'nova');
     } catch (e) {
       context.log.warn('[NovaChat] Company context unavailable:', e.message);
     }
 
-    const systemPrompt = NOVA_SYSTEM_INSTRUCTION + companyContext;
+    const systemPrompt = NOVA_SYSTEM_INSTRUCTION + skillsBlock + companyContext;
 
     // Build conversation contents from history
     const contents = [];

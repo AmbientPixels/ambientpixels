@@ -873,6 +873,24 @@ module.exports = async function (context, req) {
     const actionModes = ['chat', 'task'];
     const enableActions = actionModes.includes(mode || 'chat');
 
+    // Load skills block for ALL agents in ALL modes — every agent needs product
+    // knowledge (Cipher tracks per-product costs, Forge writes product-aware incidents,
+    // Scout researches products, Nova/Echo/Scribe/Quill/Pixel all write about them).
+    let skillsBlock = '';
+    try {
+      const { loadCompanyState } = require('../_utils/companyContextLoader');
+      const { formatSkillsBlock } = require('../_utils/companyContextFormatters');
+      const skillsState = await loadCompanyState({
+        includeTasks: false,
+        includeCampaigns: false,
+        includeObjectives: false,
+        includeProductFacts: true
+      });
+      skillsBlock = formatSkillsBlock(skillsState, agentId);
+    } catch (e) {
+      context.log('[agentchat] skills block load failed (non-fatal):', String(e).substring(0, 200));
+    }
+
     // Load company context for actionable modes
     let companyContext = '';
     if (enableActions) {
@@ -894,8 +912,8 @@ module.exports = async function (context, req) {
     const agentCfg = agentConfigs[agentId] || {};
     const doctrineWeight = agentCfg.doctrineWeight != null ? agentCfg.doctrineWeight : 0.4;
 
-    // Build system instruction: agent prompt + doctrine + shared rules + (context + actions if enabled)
-    const systemInstruction = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId, doctrineWeight) + SHARED_RULES +
+    // Build system instruction: agent prompt + doctrine + shared rules + skills + (context + actions if enabled)
+    const systemInstruction = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId, doctrineWeight) + SHARED_RULES + skillsBlock +
       (enableActions ? companyContext + ACTION_INSTRUCTIONS : '');
 
     // Build conversation contents from history

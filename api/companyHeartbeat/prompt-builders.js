@@ -73,18 +73,24 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-// Role-based skill routing. Content agents get all product skills + system; ops agents get system only.
-// Each skill is injected as its own discrete prompt section (Gemini reads separated reference
-// docs fine — it only struggles with concatenated heterogeneous imperative blocks).
+// All agents get all skills. Every agent needs product knowledge:
+//   - Cipher tracks per-product costs and ROI
+//   - Forge writes incidents that reference specific products
+//   - Scout researches product-specific competitive landscapes
+//   - Content agents (Echo/Scribe/Quill/Pixel/Nova) write about products
+// The "ops agents don't need product copy" split was a premature optimization — the cost
+// delta was ~$0 on Gemini Flash and it left Cipher/Forge/Scout blind to product context.
+// Each skill is injected as its own discrete prompt section with hard visual boundaries.
+var ALL_SKILLS = ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'];
 var SKILL_ROUTING = {
-  echo:   ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
-  scribe: ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
-  quill:  ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
-  pixel:  ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
-  nova:   ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
-  cipher: ['ambientos-guide'],
-  forge:  ['ambientos-guide'],
-  scout:  ['ambientos-guide']
+  echo:   ALL_SKILLS,
+  scribe: ALL_SKILLS,
+  quill:  ALL_SKILLS,
+  pixel:  ALL_SKILLS,
+  nova:   ALL_SKILLS,
+  cipher: ALL_SKILLS,
+  forge:  ALL_SKILLS,
+  scout:  ALL_SKILLS
 };
 
 function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel) {

@@ -202,6 +202,10 @@ function formatRichContext(state, agentId) {
     }
   }
 
+  // Full skill content — every agent needs product knowledge (matches heartbeat behavior)
+  var skillsBlock = formatSkillsBlock(state, agentId);
+  if (skillsBlock) lines.push(skillsBlock);
+
   return lines.join('\n');
 }
 
@@ -350,6 +354,10 @@ function formatMorningBrief(state) {
     lines.push('\nDocuments: ' + docs.length + ' total (' + published + ' published, ' + drafts + ' drafts)');
   }
 
+  // Full skill content for the morning brief context as well
+  var mbSkillsBlock = formatSkillsBlock(state, 'nova');
+  if (mbSkillsBlock) lines.push(mbSkillsBlock);
+
   return lines.join('\n');
 }
 
@@ -386,10 +394,38 @@ function _buildCipherCostBlock(state) {
     '\nNEVER make up cost numbers. Only report what is shown above.';
 }
 
+// ────────────────────────────────────────────
+// formatSkillsBlock — injects full skill content for chat/standup/morning report endpoints
+// Matches the shape used by prompt-builders.js skillsBlock for the heartbeat.
+// Every agent gets every skill — agents need product knowledge to answer product questions.
+// Used by: agentchat, novachat, standup, morning report
+// ────────────────────────────────────────────
+function formatSkillsBlock(state, agentId) {
+  if (!state || !state.skillsData || !Array.isArray(state.skillsData.skills) || state.skillsData.skills.length === 0) {
+    return '';
+  }
+  var skills = state.skillsData.skills;
+  if (skills.length === 0) return '';
+
+  var skillParts = skills.map(function (s, idx) {
+    return '═══════════════════════════════════════════════════════════════\n' +
+      '📘 SKILL ' + (idx + 1) + '/' + skills.length + ': ' + s.name + ' (' + s.url + ')\n' +
+      '═══════════════════════════════════════════════════════════════\n\n' +
+      (s.content || '').trim();
+  });
+
+  return '\n\n🗂️  SKILL REFERENCES (canonical source — each skill below is its own reference doc. Read Recent Changes at the top of each skill first, then use the content below when you need product/system facts):\n\n' +
+    skillParts.join('\n\n') +
+    '\n\n═══════════════════════════════════════════════════════════════\n' +
+    '📘 END SKILL REFERENCES\n' +
+    '═══════════════════════════════════════════════════════════════\n';
+}
+
 module.exports = {
   formatCoreContext: formatCoreContext,
   formatRichContext: formatRichContext,
   formatIntelDigests: formatIntelDigests,
   formatMoodTelemetry: formatMoodTelemetry,
-  formatMorningBrief: formatMorningBrief
+  formatMorningBrief: formatMorningBrief,
+  formatSkillsBlock: formatSkillsBlock
 };
