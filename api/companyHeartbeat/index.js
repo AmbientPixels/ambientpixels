@@ -536,6 +536,20 @@ module.exports = async function (context) {
         }
       }
 
+      // Auto-resolve orphaned approval queue items whose tasks no longer exist
+      for (const _orphanItem of _naAQ) {
+        if (_orphanItem.status !== 'pending') continue;
+        if (!_orphanItem.taskId) continue;
+        var _orphanTask = tasks.find(function(t) { return t.id === _orphanItem.taskId; });
+        if (!_orphanTask) {
+          _orphanItem.status = 'resolved';
+          _orphanItem.resolvedAt = new Date().toISOString();
+          _orphanItem._autoResolved = 'task_not_found';
+          _naChanged = true;
+          context.log('[Heartbeat] Auto-resolved orphaned AQ item', _orphanItem.id, '— task', _orphanItem.taskId, 'no longer exists');
+        }
+      }
+
       // Prune resolved escalations older than 7 days to prevent unbounded growth
       const _pruneThreshold = _naNow - 7 * 24 * 60 * 60 * 1000;
       for (let _pi = _naAQ.length - 1; _pi >= 0; _pi--) {
