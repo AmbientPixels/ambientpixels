@@ -743,9 +743,7 @@
       // ── Render ──
       function renderAll() {
         _pausedProjectMap = null; // invalidate campaign cache each render
-        // Priority Engine v1 — recalculate before render
         var _allTasks = AgentEngine.getTasks();
-        try { PriorityEngine.recalculateAll(_allTasks); } catch (e) { /* fail closed */ }
         if (DEBUG_TASK_EXPOSE) {
           window.__AP_TASKS_ALL__ = _allTasks;
           window.__AP_TASKS_META__ = {
@@ -1094,11 +1092,9 @@
         return '<div class="tm-related-row">' + parts.join('') + '</div>';
       }
 
-      // Priority Engine v1 — pill helper
+      // Priority pill — uses task.priority directly (PriorityEngine removed)
       function _priorityPillHtml(task) {
-        var cached = PriorityEngine.getCached(task.id);
-        if (!cached) return '';
-        var b = cached.bucket;
+        var b = task.priority || 'medium';
         var icons = { low: 'fas fa-minus', medium: 'fas fa-equals', high: 'fas fa-arrow-up', critical: 'fas fa-fire' };
         var labels = { low: 'Low', medium: 'Med', high: 'High', critical: 'Crit' };
         return '<span class="priority-pill priority-pill--' + b + '" title="Priority: ' + b + '"><i class="' + (icons[b] || 'fas fa-minus') + '"></i> ' + (labels[b] || b) + '</span>';
