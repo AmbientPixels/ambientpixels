@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Bluesky Discovery — browse threads Scout found, reply or dismiss." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Bluesky Discovery — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .bsd-page { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
+    .bsd-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem; }
+    .bsd-header h1 { font-size: 1.3rem; font-weight: 600; margin: 0; }
+    .bsd-stats { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .bsd-stat { padding: 0.35rem 0.7rem; border-radius: 6px; font-size: 0.72rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+    .bsd-stat b { font-weight: 600; }
+
+    .bsd-toolbar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .bsd-toolbar button, .bsd-toolbar select { font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #e5e7eb; cursor: pointer; }
+    .bsd-toolbar button:hover { background: rgba(255,255,255,0.08); }
+    .bsd-toolbar button.active { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.3); color: #93c5fd; }
+
+    .bsd-card { border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: #1c1c1e; margin-bottom: 0.7rem; overflow: hidden; transition: opacity 0.3s; }
+    .bsd-card.dismissed { opacity: 0.3; }
+    .bsd-card-body { padding: 0.7rem 0.9rem; }
+    .bsd-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem; }
+    .bsd-author { font-weight: 600; font-size: 0.8rem; color: #93c5fd; }
+    .bsd-score { font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 10px; font-weight: 600; }
+    .bsd-score-high { background: rgba(52,211,153,0.15); color: #34d399; }
+    .bsd-score-med { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .bsd-score-low { background: rgba(156,163,175,0.15); color: #9ca3af; }
+    .bsd-text { font-size: 0.78rem; color: #d1d5db; line-height: 1.5; margin-bottom: 0.5rem; white-space: pre-wrap; word-break: break-word; }
+    .bsd-meta { font-size: 0.65rem; color: #6b7280; display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .bsd-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
+    .bsd-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .bsd-actions button { font-size: 0.68rem; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #d1d5db; cursor: pointer; transition: background 0.15s; }
+    .bsd-actions button:hover { background: rgba(255,255,255,0.08); }
+    .bsd-actions .bsd-btn-reply { border-color: rgba(96,165,250,0.3); color: #93c5fd; }
+    .bsd-actions .bsd-btn-reply:hover { background: rgba(96,165,250,0.12); }
+    .bsd-actions .bsd-btn-manual { border-color: rgba(52,211,153,0.3); color: #34d399; }
+    .bsd-actions .bsd-btn-manual:hover { background: rgba(52,211,153,0.12); }
+    .bsd-actions .bsd-btn-dismiss { border-color: rgba(156,163,175,0.15); color: #6b7280; }
+
+    .bsd-empty { text-align: center; padding: 3rem 1rem; color: #6b7280; font-size: 0.85rem; }
+
+    /* Modal */
+    .bsd-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+    .bsd-modal-overlay.open { display: flex; }
+    .bsd-modal { background: #1c1c1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.2rem; width: 90%; max-width: 520px; max-height: 80vh; overflow-y: auto; }
+    .bsd-modal h3 { font-size: 0.95rem; margin: 0 0 0.3rem 0; }
+    .bsd-modal p { font-size: 0.72rem; color: #9ca3af; margin: 0 0 0.8rem 0; }
+    .bsd-modal textarea, .bsd-modal input[type="text"] { width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e5e7eb; font-family: inherit; font-size: 0.78rem; resize: vertical; box-sizing: border-box; }
+    .bsd-modal textarea { min-height: 100px; }
+    .bsd-modal-btns { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.8rem; }
+    .bsd-modal-btns button { font-size: 0.72rem; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #d1d5db; cursor: pointer; }
+    .bsd-modal-btns .bsd-btn-primary { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.3); color: #93c5fd; }
+
+    /* Keyword editor */
+    .bsd-kw-panel { display: none; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: #1c1c1e; padding: 0.8rem; margin-bottom: 1rem; }
+    .bsd-kw-panel.open { display: block; }
+    .bsd-kw-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
+    .bsd-kw-chip { font-size: 0.68rem; padding: 0.25rem 0.5rem; border-radius: 12px; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #93c5fd; display: inline-flex; align-items: center; gap: 0.3rem; }
+    .bsd-kw-chip .bsd-kw-remove { cursor: pointer; opacity: 0.5; font-size: 0.6rem; }
+    .bsd-kw-chip .bsd-kw-remove:hover { opacity: 1; }
+    .bsd-kw-add { display: flex; gap: 0.4rem; }
+    .bsd-kw-add input { flex: 1; }
+  </style>
+</head>
+<body>
+  <div id="sidebar-root"></div>
+  <main class="bsd-page">
+    <div class="bsd-header">
+      <h1><i class="fab fa-bluesky" style="color:#0085ff;margin-right:0.4rem"></i>Bluesky Discovery</h1>
+      <div class="bsd-stats" id="bsd-stats">
+        <span class="bsd-stat"><b id="bsd-total">—</b> candidates</span>
+        <span class="bsd-stat"><b id="bsd-new">—</b> new</span>
+        <span class="bsd-stat">Last scan: <b id="bsd-last-scan">—</b></span>
+      </div>
+    </div>
+
+    <div class="bsd-toolbar">
+      <button id="bsd-filter-all" class="active">All</button>
+      <button id="bsd-filter-new">New</button>
+      <button id="bsd-filter-dismissed">Dismissed</button>
+      <select id="bsd-sort">
+        <option value="score">Sort: Score</option>
+        <option value="recent">Sort: Newest</option>
+        <option value="engagement">Sort: Engagement</option>
+      </select>
+      <button id="bsd-kw-toggle"><i class="fas fa-tags"></i> Keywords</button>
+      <button id="bsd-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+
+    <!-- Keyword editor panel -->
+    <div class="bsd-kw-panel" id="bsd-kw-panel">
+      <div style="font-size:0.75rem;font-weight:500;margin-bottom:0.4rem">Discovery Keywords</div>
+      <div class="bsd-kw-list" id="bsd-kw-list"></div>
+      <div class="bsd-kw-add">
+        <input type="text" id="bsd-kw-input" placeholder="Add keyword..." />
+        <button id="bsd-kw-add-btn">Add</button>
+      </div>
+    </div>
+
+    <div id="bsd-cards"></div>
+  </main>
+
+  <!-- Draft Reply modal -->
+  <div class="bsd-modal-overlay" id="bsd-reply-modal">
+    <div class="bsd-modal">
+      <h3><i class="fas fa-reply" style="color:#93c5fd;margin-right:0.3rem"></i> Draft Reply</h3>
+      <p>Scribe will draft a reply using Founder Voice. Give a direction:</p>
+      <input type="text" id="bsd-reply-angle" placeholder="e.g. share our experience running 8 agents for $0.50/day" />
+      <div style="margin-top:0.6rem;padding:0.5rem;border-radius:6px;background:rgba(255,255,255,0.03);font-size:0.7rem;color:#9ca3af">
+        <div style="font-weight:500;margin-bottom:0.2rem">Replying to:</div>
+        <div id="bsd-reply-preview"></div>
+      </div>
+      <div class="bsd-modal-btns">
+        <button id="bsd-reply-cancel">Cancel</button>
+        <button class="bsd-btn-primary" id="bsd-reply-confirm"><i class="fas fa-paper-plane"></i> Send to Scribe</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Manually modal -->
+  <div class="bsd-modal-overlay" id="bsd-manual-modal">
+    <div class="bsd-modal">
+      <h3><i class="fas fa-pen" style="color:#34d399;margin-right:0.3rem"></i> Post Manually</h3>
+      <p>Write your reply. It will go to the approval queue before posting.</p>
+      <textarea id="bsd-manual-text" placeholder="Write your reply..."></textarea>
+      <div style="margin-top:0.6rem;padding:0.5rem;border-radius:6px;background:rgba(255,255,255,0.03);font-size:0.7rem;color:#9ca3af">
+        <div style="font-weight:500;margin-bottom:0.2rem">Replying to:</div>
+        <div id="bsd-manual-preview"></div>
+      </div>
+      <div class="bsd-modal-btns">
+        <button id="bsd-manual-cancel">Cancel</button>
+        <button class="bsd-btn-primary" id="bsd-manual-confirm"><i class="fas fa-check"></i> Submit for Approval</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/company-schemas.js"></script>
+  <script src="/modules/company/js/demo-toast.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var API_BASE = window.location.hostname.includes('ambientpixels.ai')
+        ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+        : '/api';
+      var HEADERS = { 'x-company-secret': 'pixelpusher' };
+      var WRITE_HEADERS = { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' };
+
+      var _candidates = [];
+      var _filter = 'all';
+      var _sort = 'score';
+      var _activeCandidate = null;
+
+      function _esc(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function _ago(iso) {
+        if (!iso) return '?';
+        var ms = Date.now() - new Date(iso).getTime();
+        if (ms < 60000) return 'just now';
+        if (ms < 3600000) return Math.floor(ms / 60000) + 'm ago';
+        if (ms < 86400000) return Math.floor(ms / 3600000) + 'h ago';
+        return Math.floor(ms / 86400000) + 'd ago';
+      }
+
+      function _scoreClass(score) {
+        if (score >= 50) return 'bsd-score-high';
+        if (score >= 25) return 'bsd-score-med';
+        return 'bsd-score-low';
+      }
+
+      // ── Fetch candidates ──
+      function loadCandidates() {
+        fetch(API_BASE + '/company-state?key=blueskyCandidates', { headers: HEADERS })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            _candidates = Array.isArray(data.value) ? data.value : (Array.isArray(data) ? data : []);
+            render();
+          })
+          .catch(function () {
+            document.getElementById('bsd-cards').innerHTML = '<div class="bsd-empty">Failed to load candidates.</div>';
+          });
+      }
+
+      // ── Render ──
+      function render() {
+        var cardsEl = document.getElementById('bsd-cards');
+        var newCount = _candidates.filter(function (c) { return c.status === 'new'; }).length;
+        var totalActive = _candidates.filter(function (c) { return c.status !== 'dismissed'; }).length;
+
+        document.getElementById('bsd-total').textContent = totalActive;
+        document.getElementById('bsd-new').textContent = newCount;
+
+        var lastScan = '—';
+        for (var i = _candidates.length - 1; i >= 0; i--) {
+          if (_candidates[i].discoveredAt) { lastScan = _ago(_candidates[i].discoveredAt); break; }
+        }
+        document.getElementById('bsd-last-scan').textContent = lastScan;
+
+        // Filter
+        var filtered = _candidates.filter(function (c) {
+          if (_filter === 'new') return c.status === 'new';
+          if (_filter === 'dismissed') return c.status === 'dismissed';
+          return c.status !== 'dismissed';
+        });
+
+        // Sort
+        filtered.sort(function (a, b) {
+          if (_sort === 'score') return (b.score || 0) - (a.score || 0);
+          if (_sort === 'recent') return new Date(b.indexedAt || 0).getTime() - new Date(a.indexedAt || 0).getTime();
+          return ((b.replyCount || 0) + (b.likeCount || 0)) - ((a.replyCount || 0) + (a.likeCount || 0));
+        });
+
+        if (filtered.length === 0) {
+          cardsEl.innerHTML = '<div class="bsd-empty">' +
+            (_filter === 'dismissed' ? 'No dismissed candidates.' : 'No candidates yet. Scout will discover threads on her next heartbeat cycle.') +
+            '</div>';
+          return;
+        }
+
+        var html = '';
+        for (var j = 0; j < filtered.length; j++) {
+          var c = filtered[j];
+          var sc = _scoreClass(c.score || 0);
+          var isDismissed = c.status === 'dismissed';
+          html += '<div class="bsd-card' + (isDismissed ? ' dismissed' : '') + '" data-id="' + _esc(c.id) + '">'
+            + '<div class="bsd-card-body">'
+            + '<div class="bsd-card-top">'
+            + '<span class="bsd-author">@' + _esc(c.author) + '</span>'
+            + '<span class="bsd-score ' + sc + '">' + (c.score || 0) + '</span>'
+            + '</div>'
+            + '<div class="bsd-text">' + _esc((c.text || '').substring(0, 400)) + '</div>'
+            + '<div class="bsd-meta">'
+            + '<span><i class="fas fa-reply"></i> ' + (c.replyCount || 0) + '</span>'
+            + '<span><i class="fas fa-heart"></i> ' + (c.likeCount || 0) + '</span>'
+            + '<span><i class="fas fa-retweet"></i> ' + (c.repostCount || 0) + '</span>'
+            + '<span><i class="fas fa-clock"></i> ' + _ago(c.indexedAt) + '</span>'
+            + (c.matchedKeyword ? '<span><i class="fas fa-tag"></i> ' + _esc(c.matchedKeyword) + '</span>' : '')
+            + '</div>'
+            + '<div class="bsd-actions">'
+            + (isDismissed
+              ? '<button class="bsd-btn-restore" onclick="BSD.restore(\'' + _esc(c.id) + '\')"><i class="fas fa-undo"></i> Restore</button>'
+              : '<button class="bsd-btn-reply" onclick="BSD.openReply(\'' + _esc(c.id) + '\')"><i class="fas fa-reply"></i> Draft Reply</button>'
+                + '<button class="bsd-btn-manual" onclick="BSD.openManual(\'' + _esc(c.id) + '\')"><i class="fas fa-pen"></i> Post Manually</button>'
+                + '<button class="bsd-btn-dismiss" onclick="BSD.dismiss(\'' + _esc(c.id) + '\')"><i class="fas fa-times"></i> Dismiss</button>'
+            )
+            + '</div>'
+            + '</div></div>';
+        }
+        cardsEl.innerHTML = html;
+      }
+
+      // ── Find candidate by id ──
+      function _findById(id) {
+        for (var i = 0; i < _candidates.length; i++) {
+          if (_candidates[i].id === id) return _candidates[i];
+        }
+        return null;
+      }
+
+      // ── Save candidates back to state ──
+      function _saveCandidates(callback) {
+        fetch(API_BASE + '/company-state', {
+          method: 'POST',
+          headers: WRITE_HEADERS,
+          body: JSON.stringify({ key: 'blueskyCandidates', value: _candidates })
+        }).then(function () { if (callback) callback(); })
+          .catch(function () { alert('Failed to save. Try again.'); });
+      }
+
+      // ── Dismiss ──
+      function dismiss(id) {
+        var c = _findById(id);
+        if (!c) return;
+        c.status = 'dismissed';
+        _saveCandidates(render);
+      }
+
+      // ── Restore ──
+      function restore(id) {
+        var c = _findById(id);
+        if (!c) return;
+        c.status = 'new';
+        _saveCandidates(render);
+      }
+
+      // ── Open Draft Reply modal ──
+      function openReply(id) {
+        var c = _findById(id);
+        if (!c) return;
+        _activeCandidate = c;
+        document.getElementById('bsd-reply-angle').value = '';
+        document.getElementById('bsd-reply-preview').textContent = '@' + (c.author || '?') + ': ' + (c.text || '').substring(0, 200);
+        document.getElementById('bsd-reply-modal').classList.add('open');
+      }
+
+      // ── Confirm Draft Reply → create Scribe task ──
+      function confirmReply() {
+        var c = _activeCandidate;
+        if (!c) return;
+        var angle = (document.getElementById('bsd-reply-angle').value || '').trim();
+        var angleInstruction = angle ? '\n\nCEO DIRECTION: ' + angle : '';
+
+        // Load current tasks, append new Scribe task, save
+        fetch(API_BASE + '/company-state?key=tasks', { headers: HEADERS })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var tasks = Array.isArray(data.value) ? data.value : [];
+            var taskId = 'task_' + Date.now() + '_blsreply_' + Math.random().toString(36).substr(2, 4);
+            tasks.push({
+              id: taskId,
+              title: 'Draft Bluesky reply to @' + c.author,
+              description: 'Draft a reply to this Bluesky thread:\n\n'
+                + 'Author: @' + c.author + '\n'
+                + 'Thread URI: ' + c.uri + '\n'
+                + 'Engagement: ' + c.replyCount + ' replies, ' + c.likeCount + ' likes\n\n'
+                + 'ORIGINAL POST:\n"' + (c.text || '').substring(0, 500) + '"'
+                + angleInstruction
+                + '\n\nWrite a genuine reply following Founder Voice rules. Under 280 chars. No em dashes. No hype.',
+              taskType: 'bluesky_reply',
+              category: 'maintenance',
+              status: 'todo',
+              priority: 'medium',
+              assignee: 'scribe',
+              source: 'ceo-dashboard',
+              created_by: 'ceo',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+              tags: ['bluesky-reply'],
+              threadContext: {
+                uri: c.uri,
+                cid: c.cid,
+                author: c.author,
+                authorDid: c.authorDid,
+                originalText: c.text,
+                replyCount: c.replyCount,
+                likeCount: c.likeCount,
+                indexedAt: c.indexedAt
+              }
+            });
+            return fetch(API_BASE + '/company-state', {
+              method: 'POST',
+              headers: WRITE_HEADERS,
+              body: JSON.stringify({ key: 'tasks', value: tasks })
+            });
+          })
+          .then(function () {
+            c.status = 'replied';
+            _saveCandidates(function () {
+              closeModals();
+              render();
+            });
+          })
+          .catch(function () { alert('Failed to create task. Try again.'); });
+      }
+
+      // ── Open Post Manually modal ──
+      function openManual(id) {
+        var c = _findById(id);
+        if (!c) return;
+        _activeCandidate = c;
+        document.getElementById('bsd-manual-text').value = '';
+        document.getElementById('bsd-manual-preview').textContent = '@' + (c.author || '?') + ': ' + (c.text || '').substring(0, 200);
+        document.getElementById('bsd-manual-modal').classList.add('open');
+      }
+
+      // ── Confirm Manual Post → add to approval queue ──
+      function confirmManual() {
+        var c = _activeCandidate;
+        if (!c) return;
+        var text = (document.getElementById('bsd-manual-text').value || '').trim();
+        if (!text) { alert('Reply cannot be empty.'); return; }
+
+        fetch(API_BASE + '/company-state?key=approvalQueue', { headers: HEADERS })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var queue = Array.isArray(data.value) ? data.value : [];
+            var entryId = 'aq-reply-manual-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+            queue.push({
+              id: entryId,
+              kind: 'bluesky_reply',
+              taskTitle: 'Manual Bluesky reply to @' + c.author,
+              originAgent: 'ceo',
+              classification: 'advisory',
+              riskLevel: 'low',
+              budgetImpact: 0,
+              brandImpact: 'low',
+              status: 'pending',
+              submittedAt: new Date().toISOString(),
+              preview: text.substring(0, 200),
+              threadContext: {
+                uri: c.uri,
+                cid: c.cid,
+                author: c.author,
+                originalText: (c.text || '').substring(0, 300)
+              },
+              replyText: text
+            });
+            if (queue.length > 100) queue.splice(0, queue.length - 100);
+            return fetch(API_BASE + '/company-state', {
+              method: 'POST',
+              headers: WRITE_HEADERS,
+              body: JSON.stringify({ key: 'approvalQueue', value: queue })
+            });
+          })
+          .then(function () {
+            c.status = 'replied';
+            _saveCandidates(function () {
+              closeModals();
+              render();
+            });
+          })
+          .catch(function () { alert('Failed to submit. Try again.'); });
+      }
+
+      // ── Close modals ──
+      function closeModals() {
+        document.getElementById('bsd-reply-modal').classList.remove('open');
+        document.getElementById('bsd-manual-modal').classList.remove('open');
+        _activeCandidate = null;
+      }
+
+      // ── Keyword editor ──
+      var _keywords = [];
+
+      function loadKeywords() {
+        fetch(API_BASE + '/company-state?key=systemConfig', { headers: HEADERS })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var cfg = (data && data.value) || {};
+            if (cfg.blueskyKeywords && Array.isArray(cfg.blueskyKeywords.keywords)) {
+              _keywords = cfg.blueskyKeywords.keywords;
+            } else {
+              _keywords = ['AI agents', 'indie hacker', 'solo founder', 'build in public', 'vibe coding', 'AI orchestration', 'agent framework'];
+            }
+            renderKeywords();
+          })
+          .catch(function () { renderKeywords(); });
+      }
+
+      function renderKeywords() {
+        var el = document.getElementById('bsd-kw-list');
+        el.innerHTML = _keywords.map(function (kw, i) {
+          return '<span class="bsd-kw-chip">' + _esc(kw)
+            + ' <span class="bsd-kw-remove" onclick="BSD.removeKeyword(' + i + ')"><i class="fas fa-times"></i></span></span>';
+        }).join('');
+      }
+
+      function addKeyword() {
+        var input = document.getElementById('bsd-kw-input');
+        var kw = (input.value || '').trim();
+        if (!kw || _keywords.indexOf(kw) !== -1) return;
+        _keywords.push(kw);
+        input.value = '';
+        saveKeywords();
+      }
+
+      function removeKeyword(idx) {
+        _keywords.splice(idx, 1);
+        saveKeywords();
+      }
+
+      function saveKeywords() {
+        renderKeywords();
+        fetch(API_BASE + '/company-state?key=systemConfig', { headers: HEADERS })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var cfg = (data && data.value) || {};
+            cfg.blueskyKeywords = { keywords: _keywords, filters: (cfg.blueskyKeywords && cfg.blueskyKeywords.filters) || {} };
+            return fetch(API_BASE + '/company-state', {
+              method: 'POST',
+              headers: WRITE_HEADERS,
+              body: JSON.stringify({ key: 'systemConfig', value: cfg })
+            });
+          })
+          .catch(function () { alert('Failed to save keywords.'); });
+      }
+
+      // ── Wire up UI ──
+      document.getElementById('bsd-filter-all').onclick = function () { _filter = 'all'; setActiveFilter(this); render(); };
+      document.getElementById('bsd-filter-new').onclick = function () { _filter = 'new'; setActiveFilter(this); render(); };
+      document.getElementById('bsd-filter-dismissed').onclick = function () { _filter = 'dismissed'; setActiveFilter(this); render(); };
+      document.getElementById('bsd-sort').onchange = function () { _sort = this.value; render(); };
+      document.getElementById('bsd-refresh').onclick = loadCandidates;
+      document.getElementById('bsd-kw-toggle').onclick = function () {
+        document.getElementById('bsd-kw-panel').classList.toggle('open');
+      };
+      document.getElementById('bsd-kw-add-btn').onclick = addKeyword;
+      document.getElementById('bsd-kw-input').onkeydown = function (e) { if (e.key === 'Enter') addKeyword(); };
+      document.getElementById('bsd-reply-cancel').onclick = closeModals;
+      document.getElementById('bsd-reply-confirm').onclick = confirmReply;
+      document.getElementById('bsd-manual-cancel').onclick = closeModals;
+      document.getElementById('bsd-manual-confirm').onclick = confirmManual;
+
+      // Close modal on overlay click
+      document.querySelectorAll('.bsd-modal-overlay').forEach(function (el) {
+        el.onclick = function (e) { if (e.target === el) closeModals(); };
+      });
+
+      function setActiveFilter(btn) {
+        document.querySelectorAll('.bsd-toolbar button').forEach(function (b) {
+          if (b.id && b.id.startsWith('bsd-filter-')) b.classList.remove('active');
+        });
+        btn.classList.add('active');
+      }
+
+      // ── Public API for onclick handlers ──
+      window.BSD = {
+        dismiss: dismiss,
+        restore: restore,
+        openReply: openReply,
+        openManual: openManual,
+        removeKeyword: removeKeyword
+      };
+
+      // ── Init ──
+      loadCandidates();
+      loadKeywords();
+    })();
+  </script>
+</body>
+</html>
