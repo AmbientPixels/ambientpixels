@@ -577,7 +577,7 @@
   function renderConfigChgInfo() {
     if (!configChgInfo) return;
     var lines = [];
-    lines.push('Applies approved calibration tuning changes. Default OFF.');
+    lines.push('Applies approved config changes. Default OFF.');
     try {
       var raw = localStorage.getItem('ap_system_adjustment_backup_latest');
       if (raw) {
@@ -680,126 +680,6 @@
   render();
 })();
 
-// Planner Automation panel
-(function () {
-  var dot = document.getElementById('cfg-planner-dot');
-  var stateEl = document.getElementById('cfg-planner-state');
-  var helperEl = document.getElementById('cfg-planner-helper');
-  var toggleBtn = document.getElementById('cfg-planner-toggle');
-  var infoEl = document.getElementById('cfg-planner-info');
-  if (!dot || !stateEl || !toggleBtn) return;
-
-  var _debounceTimer = null;
-  var cadenceSelect = document.getElementById('cfg-planner-cadence');
-  var cadenceSaved = document.getElementById('cfg-cadence-saved');
-
-  function render() {
-    var enabled = PlannerLoop.isEnabled();
-    dot.className = 'cfg-planner-dot ' + (enabled ? 'cfg-planner-dot--on' : 'cfg-planner-dot--off');
-    stateEl.textContent = enabled ? 'Enabled' : 'Disabled (safe default)';
-    stateEl.style.color = enabled ? '#34d399' : '#ef4444';
-    helperEl.textContent = 'Planner generates proposals only; approvals required before execution.';
-    toggleBtn.textContent = enabled ? '\u23F8 Disable Planner' : '\u25B6 Enable Planner';
-    toggleBtn.className = 'cfg-planner-toggle ' + (enabled ? 'cfg-planner-toggle--disable' : 'cfg-planner-toggle--enable');
-
-    var cadence = PlannerLoop.getCadenceDays();
-    var lastRun = PlannerLoop.getLastRunTimestamp();
-    var infoParts = [];
-    if (lastRun) infoParts.push('Last run: ' + new Date(lastRun).toLocaleString());
-    else infoParts.push('Never run');
-    infoEl.textContent = infoParts.join(' \u2014 ');
-
-    // Sync cadence dropdown
-    if (cadenceSelect) cadenceSelect.value = String(cadence);
-  }
-
-  // Cadence selector
-  if (cadenceSelect) {
-    cadenceSelect.addEventListener('change', function () {
-      var days = parseInt(cadenceSelect.value, 10);
-      if (!isNaN(days) && days > 0) {
-        try { localStorage.setItem('ap_planner_cadence_days', String(days)); } catch (e) {}
-        if (cadenceSaved) {
-          cadenceSaved.style.display = 'inline';
-          setTimeout(function () { cadenceSaved.style.display = 'none'; }, 2000);
-        }
-        render();
-      }
-    });
-  }
-
-  toggleBtn.addEventListener('click', function () {
-    if (_debounceTimer) return;
-    var current = PlannerLoop.isEnabled();
-    var action = current ? 'Disable' : 'Enable';
-    if (!confirm(action + ' planner automation?')) return;
-    PlannerLoop.setEnabled(!current);
-    render();
-    _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
-  });
-
-  render();
-})();
-
-// Calibration Automation panel
-(function () {
-  var dot = document.getElementById('cfg-cal-dot');
-  var stateEl = document.getElementById('cfg-cal-state');
-  var helperEl = document.getElementById('cfg-cal-helper');
-  var toggleBtn = document.getElementById('cfg-cal-toggle');
-  var infoEl = document.getElementById('cfg-cal-info');
-  if (!dot || !stateEl || !toggleBtn) return;
-
-  var _debounceTimer = null;
-  var calCadenceSelect = document.getElementById('cfg-cal-cadence');
-  var calCadenceSaved = document.getElementById('cfg-cal-cadence-saved');
-
-  function render() {
-    var enabled = CalibrationLoop.isEnabled();
-    dot.className = 'cfg-cal-dot ' + (enabled ? 'cfg-cal-dot--on' : 'cfg-cal-dot--off');
-    stateEl.textContent = enabled ? 'Enabled' : 'Disabled (safe default)';
-    stateEl.style.color = enabled ? '#34d399' : '#ef4444';
-    helperEl.textContent = 'Calibration analyzes system health and proposes bounded tuning. All proposals require CEO approval.';
-    toggleBtn.textContent = enabled ? '\u23F8 Disable Calibration' : '\u25B6 Enable Calibration';
-    toggleBtn.className = 'cfg-cal-toggle ' + (enabled ? 'cfg-cal-toggle--disable' : 'cfg-cal-toggle--enable');
-
-    var cadence = CalibrationLoop.getCadenceDays();
-    var lastRun = CalibrationLoop.getLastRunTimestamp();
-    var infoParts = [];
-    if (lastRun) infoParts.push('Last run: ' + new Date(lastRun).toLocaleString());
-    else infoParts.push('Never run');
-    infoEl.textContent = infoParts.join(' \u2014 ');
-
-    if (calCadenceSelect) calCadenceSelect.value = String(cadence);
-  }
-
-  if (calCadenceSelect) {
-    calCadenceSelect.addEventListener('change', function () {
-      var days = parseInt(calCadenceSelect.value, 10);
-      if (!isNaN(days) && days > 0) {
-        try { localStorage.setItem('ap_calibration_cadence_days', String(days)); } catch (e) {}
-        if (calCadenceSaved) {
-          calCadenceSaved.style.display = 'inline';
-          setTimeout(function () { calCadenceSaved.style.display = 'none'; }, 2000);
-        }
-        render();
-      }
-    });
-  }
-
-  toggleBtn.addEventListener('click', function () {
-    if (_debounceTimer) return;
-    var current = CalibrationLoop.isEnabled();
-    var action = current ? 'Disable' : 'Enable';
-    if (!confirm(action + ' calibration automation?')) return;
-    CalibrationLoop.setEnabled(!current);
-    render();
-    _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
-  });
-
-  render();
-})();
-
 // System Storage panel
 (function () {
   var usageEl = document.getElementById('cfg-storage-usage');
@@ -831,13 +711,8 @@
     var c = StorageManager.getStoreCounts();
     var items = [
       { key: 'ap_action_audit', label: 'Action Audit', desc: 'Log of executed actions', limit: 1000 },
-      { key: 'ap_worker_audit', label: 'Worker Audit', desc: 'Background task history', limit: 1000 },
-      { key: 'ap_planner_audit', label: 'Planner Audit', desc: 'Planning cycle records', limit: 1000 },
-      { key: 'ap_calibration_audit', label: 'Calibration Audit', desc: 'Agent tuning history', limit: 1000 },
-      { key: 'ap_priority_audit', label: 'Priority Audit', desc: 'Priority scoring log', limit: 1000 },
       { key: 'ap_action_queue', label: 'Action Queue', desc: 'Pending + completed actions', limit: 300 },
-      { key: 'ap_action_queue_pending', label: 'Pending Approvals', desc: 'Awaiting your decision', limit: null },
-      { key: 'ap_priority_cache', label: 'Priority Cache', desc: 'Cached scoring data', limit: 500 }
+      { key: 'ap_action_queue_pending', label: 'Pending Approvals', desc: 'Awaiting your decision', limit: null }
     ];
     var rows = '';
     for (var i = 0; i < items.length; i++) {
@@ -877,7 +752,7 @@
 
   resetBtn.addEventListener('click', function () {
     if (_debounce) return;
-    if (!confirm('Reset non-critical caches? This clears priority cache, planner artifact, and calibration artifact. Queue and audits are preserved.')) return;
+    if (!confirm('Reset non-critical caches? Queue and audits are preserved.')) return;
     _debounce = setTimeout(function () { _debounce = null; }, 800);
     StorageManager.resetCaches();
     render();
@@ -985,14 +860,11 @@
   if (!btn) return;
 
   function allEnabled() {
-    var w = typeof WorkerManager !== 'undefined' && WorkerManager.isEnabled();
     var a = typeof ActionRouter !== 'undefined' && ActionRouter.isEnabled();
-    var p = typeof PlannerLoop !== 'undefined' && PlannerLoop.isEnabled();
-    var c = typeof CalibrationLoop !== 'undefined' && CalibrationLoop.isEnabled();
-    return { worker: w, action: a, planner: p, calibration: c };
+    return { action: a };
   }
 
-  function anyEnabled(s) { return s.worker || s.action || s.planner || s.calibration; }
+  function anyEnabled(s) { return s.action; }
 
   function updateLabel() {
     var s = allEnabled();
@@ -1010,14 +882,11 @@
   btn.addEventListener('click', function () {
     var s = allEnabled();
     var turning = anyEnabled(s) ? 'OFF' : 'ON';
-    var names = ['Worker', 'Action Router', 'Planner', 'Calibration'];
-    if (!confirm('Turn ' + turning + ' all automation?\n\n' + names.join(', ') + '\n\nThis affects all 4 systems at once.')) return;
+    var names = ['Action Router'];
+    if (!confirm('Turn ' + turning + ' all automation?\n\n' + names.join(', '))) return;
 
     var enable = !anyEnabled(s);
-    if (typeof WorkerManager !== 'undefined') WorkerManager.setEnabled(enable, 'CEO');
     if (typeof ActionRouter !== 'undefined') ActionRouter.setEnabled(enable, 'CEO');
-    if (typeof PlannerLoop !== 'undefined') PlannerLoop.setEnabled(enable);
-    if (typeof CalibrationLoop !== 'undefined') CalibrationLoop.setEnabled(enable);
 
     updateLabel();
     // Re-render individual panels so their dots/states update
@@ -1361,9 +1230,9 @@
     },
     'reset-audit-logs': {
       title: 'Reset All Audit Logs',
-      desc: 'This will clear action, worker, planner, calibration, and priority audit logs.',
+      desc: 'This will clear action audit logs.',
       exec: function () {
-        var keys = ['ap_action_audit', 'ap_action_audit_log', 'ap_worker_audit', 'ap_planner_audit', 'ap_calibration_audit', 'ap_priority_audit'];
+        var keys = ['ap_action_audit', 'ap_action_audit_log'];
         for (var i = 0; i < keys.length; i++) {
           try { localStorage.removeItem(keys[i]); } catch (e) {}
         }

@@ -298,11 +298,9 @@ var CompanyStoreAdapter = (function () {
       if (s.socialEnabled != null) localStorage.setItem('ap_actions_social_enabled', s.socialEnabled ? 'true' : 'false');
       if (s.emailEnabled != null) localStorage.setItem('ap_actions_email_enabled', s.emailEnabled ? 'true' : 'false');
       if (s.configChangesEnabled != null) localStorage.setItem('ap_config_changes_enabled', s.configChangesEnabled ? 'true' : 'false');
-      if (s.priorityWeights) localStorage.setItem('ap_priority_weights', JSON.stringify(s.priorityWeights));
-      if (s.plannerThresholds) localStorage.setItem('ap_planner_thresholds', JSON.stringify(s.plannerThresholds));
     }
     // Audits — delta: append new, dedup by eventId; full: replace
-    var auditMap = { action: 'ap_action_audit', planner: 'ap_planner_audit', calibration: 'ap_calibration_audit', priority: 'ap_priority_audit' };
+    var auditMap = { action: 'ap_action_audit' };
     if (snapshot.audits) {
       for (var type in auditMap) {
         if (!Array.isArray(snapshot.audits[type])) continue;
@@ -348,9 +346,6 @@ var CompanyStoreAdapter = (function () {
   function _collectLocalState() {
     var state = { audits: {}, actionQueue: [], settings: {}, artifacts: {} };
     try { state.audits.action = JSON.parse(localStorage.getItem('ap_action_audit') || '[]'); } catch (e) { state.audits.action = []; }
-    try { state.audits.planner = JSON.parse(localStorage.getItem('ap_planner_audit') || '[]'); } catch (e) { state.audits.planner = []; }
-    try { state.audits.calibration = JSON.parse(localStorage.getItem('ap_calibration_audit') || '[]'); } catch (e) { state.audits.calibration = []; }
-    try { state.audits.priority = JSON.parse(localStorage.getItem('ap_priority_audit') || '[]'); } catch (e) { state.audits.priority = []; }
     try { state.actionQueue = JSON.parse(localStorage.getItem('ap_action_queue') || '[]'); } catch (e) { state.actionQueue = []; }
     // Settings
     var s = state.settings;
@@ -359,10 +354,7 @@ var CompanyStoreAdapter = (function () {
     try { s.socialEnabled = localStorage.getItem('ap_actions_social_enabled') === 'true'; } catch (e) {}
     try { s.emailEnabled = localStorage.getItem('ap_actions_email_enabled') === 'true'; } catch (e) {}
     try { s.configChangesEnabled = localStorage.getItem('ap_config_changes_enabled') === 'true'; } catch (e) {}
-    try { var pw = localStorage.getItem('ap_priority_weights'); if (pw) s.priorityWeights = JSON.parse(pw); } catch (e) {}
-    try { var pt = localStorage.getItem('ap_planner_thresholds'); if (pt) s.plannerThresholds = JSON.parse(pt); } catch (e) {}
     // Artifacts
-    try { var pp = localStorage.getItem('ap_planner_latest_plan'); if (pp) { var plan = JSON.parse(pp); state.artifacts.plannerLatest = { id: plan.planId || 'plan_latest', type: 'planner', createdAt: plan.generatedAt || new Date().toISOString(), data: plan }; } } catch (e) {}
     return state;
   }
 
@@ -376,11 +368,9 @@ var CompanyStoreAdapter = (function () {
       if (s.socialEnabled != null) localStorage.setItem('ap_actions_social_enabled', s.socialEnabled ? 'true' : 'false');
       if (s.emailEnabled != null) localStorage.setItem('ap_actions_email_enabled', s.emailEnabled ? 'true' : 'false');
       if (s.configChangesEnabled != null) localStorage.setItem('ap_config_changes_enabled', s.configChangesEnabled ? 'true' : 'false');
-      if (s.priorityWeights) localStorage.setItem('ap_priority_weights', JSON.stringify(s.priorityWeights));
-      if (s.plannerThresholds) localStorage.setItem('ap_planner_thresholds', JSON.stringify(s.plannerThresholds));
     }
     // Audits — replace local with server (server is authoritative)
-    var auditMap = { action: 'ap_action_audit', planner: 'ap_planner_audit', calibration: 'ap_calibration_audit', priority: 'ap_priority_audit' };
+    var auditMap = { action: 'ap_action_audit' };
     if (snapshot.audits) {
       for (var type in auditMap) {
         if (Array.isArray(snapshot.audits[type])) {

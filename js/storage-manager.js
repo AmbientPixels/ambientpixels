@@ -15,17 +15,11 @@ var StorageManager = (function () {
 
   // ── Known store keys ──
   var LOG_KEYS = [
-    'ap_action_audit',
-    'ap_planner_audit',
-    'ap_calibration_audit',
-    'ap_priority_audit'
+    'ap_action_audit'
   ];
   var QUEUE_KEY = 'ap_action_queue';
-  var CACHE_KEY = 'ap_priority_cache';
-  var ARTIFACT_KEYS = [
-    'ap_planner_latest_plan',
-    'ap_calibration_latest'
-  ];
+  var CACHE_KEY = null;
+  var ARTIFACT_KEYS = [];
   var ARTIFACT_HISTORY_KEYS = [
     'ap_planner_artifact_history',
     'ap_calibration_artifact_history'

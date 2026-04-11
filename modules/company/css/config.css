@@ -257,8 +257,6 @@
 
 /* ── Automation Panels (Action, Planner, Cal) ── */
 .cfg-action-panel,
-.cfg-planner-panel,
-.cfg-cal-panel,
 .cfg-verify-panel,
 .cfg-ce-panel,
 .cfg-storage-panel,
@@ -271,8 +269,6 @@
 }
 
 .cfg-action-title,
-.cfg-planner-title,
-.cfg-cal-title,
 .cfg-verify-title,
 .cfg-ce-title,
 .cfg-storage-title,
@@ -289,8 +285,6 @@
 
 /* Status rows */
 .cfg-action-status,
-.cfg-planner-status,
-.cfg-cal-status,
 .cfg-store-status {
   display: flex;
   align-items: center;
@@ -298,23 +292,19 @@
   margin-bottom: 8px;
 }
 .cfg-action-dot,
-.cfg-planner-dot,
-.cfg-cal-dot,
 .cfg-store-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.cfg-action-dot--on, .cfg-planner-dot--on,
-.cfg-cal-dot--on, .cfg-store-dot--on   { background: #34d399; }
-.cfg-action-dot--off, .cfg-planner-dot--off,
-.cfg-cal-dot--off, .cfg-store-dot--off { background: #ef4444; }
+.cfg-action-dot--on,
+.cfg-store-dot--on   { background: #34d399; }
+.cfg-action-dot--off,
+.cfg-store-dot--off { background: #ef4444; }
 .cfg-store-dot--warn { background: #fbbf24; }
 
 .cfg-action-state,
-.cfg-planner-state,
-.cfg-cal-state,
 .cfg-store-state {
   font-size: 13px;
   font-weight: 500;
@@ -322,8 +312,6 @@
 }
 
 .cfg-action-helper,
-.cfg-planner-helper,
-.cfg-cal-helper,
 .cfg-store-info {
   font-size: 12px;
   color: rgba(255,255,255,0.3);
@@ -333,8 +321,8 @@
 
 /* Toggle buttons */
 .cfg-action-toggle,
-.cfg-planner-toggle,
-.cfg-cal-toggle {
+
+.cfg-action-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -348,28 +336,28 @@
   border: 1px solid;
 }
 .cfg-action-toggle--disable,
-.cfg-planner-toggle--disable,
-.cfg-cal-toggle--disable {
+
+.cfg-action-toggle--disable {
   border-color: rgba(239,68,68,0.25);
   background: rgba(239,68,68,0.06);
   color: #ef4444;
 }
 .cfg-action-toggle--disable:hover,
-.cfg-planner-toggle--disable:hover,
-.cfg-cal-toggle--disable:hover {
+
+.cfg-action-toggle--disable:hover {
   background: rgba(239,68,68,0.12);
   border-color: rgba(239,68,68,0.4);
 }
 .cfg-action-toggle--enable,
-.cfg-planner-toggle--enable,
-.cfg-cal-toggle--enable {
+
+.cfg-action-toggle--enable {
   border-color: rgba(52,211,153,0.25);
   background: rgba(52,211,153,0.06);
   color: #34d399;
 }
 .cfg-action-toggle--enable:hover,
-.cfg-planner-toggle--enable:hover,
-.cfg-cal-toggle--enable:hover {
+
+.cfg-action-toggle--enable:hover {
   background: rgba(52,211,153,0.12);
   border-color: rgba(52,211,153,0.4);
 }
@@ -437,8 +425,8 @@
 .cfg-action-counts { margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.3); }
 
 /* Planner/Cal info */
-.cfg-planner-info,
-.cfg-cal-info {
+
+.cfg-store-info {
   margin-top: 8px;
   font-size: 12px;
   color: rgba(255,255,255,0.3);
@@ -1004,28 +992,20 @@ body[data-theme="light"] .cfg-agent-role { color: rgba(0,0,0,0.2); }
 body[data-theme="light"] .cfg-tool-btn { background: #ffffff; color: rgba(0,0,0,0.7); }
 body[data-theme="light"] .cfg-tool-btn:hover { background: #f2f2f7; color: #1c1c1e; }
 body[data-theme="light"] .cfg-action-panel,
-body[data-theme="light"] .cfg-planner-panel,
-body[data-theme="light"] .cfg-cal-panel,
 body[data-theme="light"] .cfg-verify-panel,
 body[data-theme="light"] .cfg-ce-panel,
 body[data-theme="light"] .cfg-storage-panel,
 body[data-theme="light"] .cfg-store-panel,
 body[data-theme="light"] .cfg-memstack { background: #ffffff; }
 body[data-theme="light"] .cfg-action-title,
-body[data-theme="light"] .cfg-planner-title,
-body[data-theme="light"] .cfg-cal-title,
 body[data-theme="light"] .cfg-verify-title,
 body[data-theme="light"] .cfg-ce-title,
 body[data-theme="light"] .cfg-storage-title,
 body[data-theme="light"] .cfg-store-title,
 body[data-theme="light"] .cfg-memstack-title { color: rgba(0,0,0,0.75); }
 body[data-theme="light"] .cfg-action-state,
-body[data-theme="light"] .cfg-planner-state,
-body[data-theme="light"] .cfg-cal-state,
 body[data-theme="light"] .cfg-store-state { color: rgba(0,0,0,0.8); }
 body[data-theme="light"] .cfg-action-helper,
-body[data-theme="light"] .cfg-planner-helper,
-body[data-theme="light"] .cfg-cal-helper,
 body[data-theme="light"] .cfg-store-info { color: rgba(0,0,0,0.3); }
 body[data-theme="light"] .cfg-action-audit { border-top-color: rgba(0,0,0,0.05); }
 body[data-theme="light"] .cfg-action-audit-title { color: rgba(0,0,0,0.25); }
@@ -1037,8 +1017,6 @@ body[data-theme="light"] .cfg-action-sub-toggle { border-color: rgba(0,0,0,0.1);
 body[data-theme="light"] .cfg-autonomy-group-title { color: rgba(0,0,0,0.25); }
 body[data-theme="light"] .cfg-action-sub-mode { color: rgba(0,0,0,0.25); }
 body[data-theme="light"] .cfg-action-counts { color: rgba(0,0,0,0.3); }
-body[data-theme="light"] .cfg-planner-info,
-body[data-theme="light"] .cfg-cal-info { color: rgba(0,0,0,0.3); }
 body[data-theme="light"] .cfg-verify-row { color: rgba(0,0,0,0.7); }
 body[data-theme="light"] .cfg-verify-label { color: rgba(0,0,0,0.4); }
 body[data-theme="light"] .cfg-ce-row { border-bottom-color: rgba(0,0,0,0.05); }
@@ -1129,28 +1107,20 @@ body[data-theme="dim"] .cfg-agent-role { color: rgba(241,245,249,0.2); }
 body[data-theme="dim"] .cfg-tool-btn { background: #1e293b; color: rgba(241,245,249,0.7); }
 body[data-theme="dim"] .cfg-tool-btn:hover { background: #334155; color: #f1f5f9; }
 body[data-theme="dim"] .cfg-action-panel,
-body[data-theme="dim"] .cfg-planner-panel,
-body[data-theme="dim"] .cfg-cal-panel,
 body[data-theme="dim"] .cfg-verify-panel,
 body[data-theme="dim"] .cfg-ce-panel,
 body[data-theme="dim"] .cfg-storage-panel,
 body[data-theme="dim"] .cfg-store-panel,
 body[data-theme="dim"] .cfg-memstack { background: #1e293b; }
 body[data-theme="dim"] .cfg-action-title,
-body[data-theme="dim"] .cfg-planner-title,
-body[data-theme="dim"] .cfg-cal-title,
 body[data-theme="dim"] .cfg-verify-title,
 body[data-theme="dim"] .cfg-ce-title,
 body[data-theme="dim"] .cfg-storage-title,
 body[data-theme="dim"] .cfg-store-title,
 body[data-theme="dim"] .cfg-memstack-title { color: rgba(241,245,249,0.75); }
 body[data-theme="dim"] .cfg-action-state,
-body[data-theme="dim"] .cfg-planner-state,
-body[data-theme="dim"] .cfg-cal-state,
 body[data-theme="dim"] .cfg-store-state { color: rgba(241,245,249,0.8); }
 body[data-theme="dim"] .cfg-action-helper,
-body[data-theme="dim"] .cfg-planner-helper,
-body[data-theme="dim"] .cfg-cal-helper,
 body[data-theme="dim"] .cfg-store-info { color: rgba(241,245,249,0.3); }
 body[data-theme="dim"] .cfg-action-audit { border-top-color: rgba(148,163,184,0.08); }
 body[data-theme="dim"] .cfg-action-audit-title { color: rgba(241,245,249,0.25); }
@@ -1162,8 +1132,6 @@ body[data-theme="dim"] .cfg-action-sub-toggle { border-color: rgba(148,163,184,0
 body[data-theme="dim"] .cfg-autonomy-group-title { color: rgba(241,245,249,0.25); }
 body[data-theme="dim"] .cfg-action-sub-mode { color: rgba(241,245,249,0.25); }
 body[data-theme="dim"] .cfg-action-counts { color: rgba(241,245,249,0.3); }
-body[data-theme="dim"] .cfg-planner-info,
-body[data-theme="dim"] .cfg-cal-info { color: rgba(241,245,249,0.3); }
 body[data-theme="dim"] .cfg-verify-row { color: rgba(241,245,249,0.7); }
 body[data-theme="dim"] .cfg-verify-label { color: rgba(241,245,249,0.4); }
 body[data-theme="dim"] .cfg-ce-row { border-bottom-color: rgba(148,163,184,0.07); }
