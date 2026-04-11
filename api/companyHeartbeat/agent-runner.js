@@ -129,120 +129,111 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   // siteIntel is passed directly to buildHeartbeatPrompt below (used by Echo social traffic + Pixel visual perf sections)
 
-  // ── Scout Bluesky Discovery: deterministic server-side handler ──
-  // When Scout has a bluesky_discovery task, run the discovery inline and spawn Scribe reply tasks.
-  // This runs before Gemini to avoid the model wasting tokens on something we can handle deterministically.
+  // ── Scout Bluesky Discovery: autonomous system capability ──
+  // Runs on a cooldown (default 2h). No task required — Scout discovers threads
+  // as a built-in sensor, writes candidates to the blueskyCandidates state key.
+  // CEO picks which to engage with from the dashboard. No tasks are created here.
   if (agentId === 'scout') {
-    const _discoveryTasks = agentTasks.filter(function(t) {
-      return t.taskType === 'bluesky_discovery' && (t.status === 'todo' || t.status === 'in-progress');
-    });
-    if (_discoveryTasks.length > 0) {
-      try {
-        const _blueskyDiscovery = require('../_utils/blueskyDiscovery');
-        let _kwConfig = { keywords: ['AI agents', 'indie hacker', 'solo founder', 'build in public'], filters: { maxAgeMinutes: 120, minReplies: 1, maxDraftsPerRun: 3 } };
-        try { _kwConfig = require('../_data/bluesky-discovery-keywords.json'); } catch (_kwErr) { /* use defaults */ }
-        const _filters = _kwConfig.filters || {};
-        const _maxDrafts = _filters.maxDraftsPerRun || 3;
+    try {
+      var _bsDiscoveryCooldownMs = 2 * 60 * 60 * 1000; // 2 hours default
+      var _bsCandidates = (await storage.getState('blueskyCandidates')) || [];
+      if (!Array.isArray(_bsCandidates)) _bsCandidates = [];
 
-        for (const _discTask of _discoveryTasks) {
-          try {
-            const _candidates = await _blueskyDiscovery.discoverAcrossKeywords(_kwConfig.keywords, {
-              maxAgeMinutes: _filters.maxAgeMinutes || 120,
-              minReplies: _filters.minReplies || 1,
-              limitPerKeyword: 25
-            });
-            context.log('[Heartbeat] scout: bluesky discovery found', _candidates.length, 'candidates');
-
-            // Dedup against existing reply tasks (active OR completed within 7 days)
-            const _seven_days_ago = Date.now() - 7 * 24 * 60 * 60 * 1000;
-            const _existingReplyTasks = tasks.filter(function(t) {
-              return t.tags && t.tags.indexOf('bluesky-reply') !== -1;
-            });
-            const _uriAlreadyHandled = function(uri) {
-              return _existingReplyTasks.some(function(t) {
-                if (!t.threadContext || t.threadContext.uri !== uri) return false;
-                if (t.status === 'todo' || t.status === 'in-progress' || t.status === 'review') return true;
-                if (t.status === 'done') {
-                  const _completedAt = t.completedAt || t.updatedAt;
-                  return _completedAt && new Date(_completedAt).getTime() > _seven_days_ago;
-                }
-                return false;
-              });
-            };
-
-            let _draftsCreated = 0;
-            for (const _candidate of _candidates) {
-              if (_draftsCreated >= _maxDrafts) break;
-              if (_uriAlreadyHandled(_candidate.uri)) continue;
-              // Create a bluesky_reply task assigned to Scribe
-              const _replyTaskId = 'task_' + Date.now() + '_blsreply_' + Math.random().toString(36).substr(2, 4);
-              const _replyTask = {
-                id: _replyTaskId,
-                title: 'Draft Bluesky reply to @' + _candidate.author,
-                description: 'Draft a reply to this Bluesky thread:\n\n'
-                  + 'Author: @' + _candidate.author + '\n'
-                  + 'Thread URI: ' + _candidate.uri + '\n'
-                  + 'Matched keyword: ' + (_candidate._matchedKeyword || '?') + '\n'
-                  + 'Engagement: ' + _candidate.replyCount + ' replies, ' + _candidate.likeCount + ' likes\n\n'
-                  + 'ORIGINAL POST:\n"' + (_candidate.text || '').substring(0, 500) + '"\n\n'
-                  + 'Write a genuine reply following Founder Voice rules. Under 280 chars. No em dashes. No hype. If you have nothing genuine to add, return an empty deliverable with a comment explaining why.',
-                taskType: 'bluesky_reply',
-                status: 'todo',
-                priority: 'medium',
-                assignee: 'scribe',
-                source: 'heartbeat',
-                created_by: 'scout',
-                parent_task_id: _discTask.id,
-                objective_id: _discTask.objective_id || null,
-                campaign_id: _discTask.campaign_id || null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-                tags: ['bluesky-reply', 'auto-created'],
-                threadContext: {
-                  uri: _candidate.uri,
-                  cid: _candidate.cid, // REQUIRED for reply payload — do not drop
-                  author: _candidate.author,
-                  authorDid: _candidate.authorDid,
-                  originalText: _candidate.text,
-                  replyCount: _candidate.replyCount,
-                  likeCount: _candidate.likeCount,
-                  indexedAt: _candidate.indexedAt
-                },
-                comments: [{
-                  id: 'cmt-bsdisc-' + Date.now() + '-' + _draftsCreated,
-                  author: 'scout',
-                  text: 'Discovered via Bluesky search (keyword: "' + (_candidate._matchedKeyword || '?') + '"). Scribe: draft a reply following founder voice.',
-                  type: 'system',
-                  createdAt: new Date().toISOString()
-                }]
-              };
-              tasks.push(_replyTask);
-              _draftsCreated++;
-              context.log('[Heartbeat] scout: created bluesky-reply task', _replyTaskId, 'for thread by @' + _candidate.author);
-            }
-
-            // Mark the discovery task done with a summary deliverable
-            _discTask.status = 'done';
-            _discTask.completedAt = new Date().toISOString();
-            _discTask.updatedAt = new Date().toISOString();
-            if (!_discTask.comments) _discTask.comments = [];
-            _discTask.comments.push({
-              id: 'cmt-bsdisc-done-' + Date.now(),
-              author: 'scout',
-              text: 'Bluesky discovery complete. Searched ' + _kwConfig.keywords.length + ' keywords, found ' + _candidates.length + ' active threads, created ' + _draftsCreated + ' reply drafts for Scribe.',
-              type: 'deliverable',
-              createdAt: new Date().toISOString()
-            });
-          } catch (_discInnerErr) {
-            context.log('[Heartbeat] scout: bluesky discovery failed for task', _discTask.id, ':', String(_discInnerErr).substring(0, 200));
-          }
+      // Check cooldown — last scan timestamp stored in the candidates array metadata
+      var _bsLastScan = 0;
+      for (var _bsi = _bsCandidates.length - 1; _bsi >= 0; _bsi--) {
+        if (_bsCandidates[_bsi] && _bsCandidates[_bsi].discoveredAt) {
+          _bsLastScan = new Date(_bsCandidates[_bsi].discoveredAt).getTime();
+          break;
         }
-        // Save tasks after discovery changes
-        await storage.setState('tasks', tasks);
-      } catch (_discOuterErr) {
-        context.log('[Heartbeat] scout: bluesky discovery module load failed:', String(_discOuterErr).substring(0, 200));
       }
+      var _bsNow = Date.now();
+      if (_bsNow - _bsLastScan >= _bsDiscoveryCooldownMs) {
+        var _blueskyDiscovery = require('../_utils/blueskyDiscovery');
+
+        // Keywords: prefer systemConfig.blueskyKeywords (dashboard-editable), fall back to JSON file
+        var _bsKwConfig = null;
+        try {
+          var _bsSysConfig = (await storage.getState('systemConfig')) || {};
+          if (_bsSysConfig.blueskyKeywords && Array.isArray(_bsSysConfig.blueskyKeywords.keywords)) {
+            _bsKwConfig = _bsSysConfig.blueskyKeywords;
+          }
+        } catch (_e) { /* fall through */ }
+        if (!_bsKwConfig) {
+          try { _bsKwConfig = require('../_data/bluesky-discovery-keywords.json'); } catch (_e) { /* use defaults */ }
+        }
+        if (!_bsKwConfig) _bsKwConfig = { keywords: ['AI agents', 'indie hacker', 'solo founder', 'build in public'], filters: {} };
+        var _bsFilters = _bsKwConfig.filters || {};
+
+        var _bsRawCandidates = await _blueskyDiscovery.discoverAcrossKeywords(_bsKwConfig.keywords, {
+          maxAgeMinutes: _bsFilters.maxAgeMinutes || 120,
+          minReplies: _bsFilters.minReplies || 1,
+          limitPerKeyword: 25
+        });
+        context.log('[Heartbeat] scout: bluesky discovery found', _bsRawCandidates.length, 'raw candidates');
+
+        // Dedup against already-stored candidates (by URI)
+        var _bsExistingUris = {};
+        _bsCandidates.forEach(function (c) { if (c.uri) _bsExistingUris[c.uri] = true; });
+
+        // Also dedup against existing reply tasks (active or completed within 7 days)
+        var _bsSevenDaysAgo = _bsNow - 7 * 24 * 60 * 60 * 1000;
+        tasks.filter(function (t) { return t.tags && t.tags.indexOf('bluesky-reply') !== -1; })
+          .forEach(function (t) {
+            if (t.threadContext && t.threadContext.uri) _bsExistingUris[t.threadContext.uri] = true;
+          });
+
+        // Score and add new candidates
+        var _bsNewCount = 0;
+        for (var _bsci = 0; _bsci < _bsRawCandidates.length; _bsci++) {
+          var _c = _bsRawCandidates[_bsci];
+          if (_bsExistingUris[_c.uri]) continue;
+
+          // Relevance score (0-100)
+          var _ageMs = _bsNow - new Date(_c.indexedAt).getTime();
+          var _ageMinutes = _ageMs / 60000;
+          var _recencyScore = Math.max(0, 30 - Math.floor(_ageMinutes / 4)); // 30 at 0min, 0 at 2h
+          var _engagementScore = Math.min(30, (_c.replyCount * 3) + _c.likeCount);
+          var _velocityScore = Math.min(20, Math.floor((_c._velocity || 0) * 100));
+          var _keywordScore = _c._matchedKeyword ? 20 : 0;
+          var _score = _recencyScore + _engagementScore + _velocityScore + _keywordScore;
+
+          _bsCandidates.push({
+            id: 'bsc-' + _bsNow + '-' + Math.random().toString(36).substr(2, 6),
+            uri: _c.uri,
+            cid: _c.cid,
+            author: _c.author,
+            authorDid: _c.authorDid,
+            text: (_c.text || '').substring(0, 500),
+            indexedAt: _c.indexedAt,
+            replyCount: _c.replyCount,
+            repostCount: _c.repostCount,
+            likeCount: _c.likeCount,
+            matchedKeyword: _c._matchedKeyword || null,
+            score: _score,
+            status: 'new', // new | dismissed | replied
+            discoveredAt: new Date(_bsNow).toISOString()
+          });
+          _bsNewCount++;
+        }
+
+        // Prune: keep last 200 candidates, drop dismissed older than 7 days
+        _bsCandidates = _bsCandidates.filter(function (c) {
+          if (c.status === 'dismissed') {
+            var dAt = new Date(c.discoveredAt || 0).getTime();
+            return (_bsNow - dAt) < 7 * 24 * 60 * 60 * 1000;
+          }
+          return true;
+        });
+        if (_bsCandidates.length > 200) {
+          _bsCandidates = _bsCandidates.slice(_bsCandidates.length - 200);
+        }
+
+        await storage.setState('blueskyCandidates', _bsCandidates);
+        context.log('[Heartbeat] scout: bluesky discovery complete.', _bsNewCount, 'new candidates added,', _bsCandidates.length, 'total stored');
+      }
+    } catch (_bsOuterErr) {
+      context.log('[Heartbeat] scout: bluesky discovery failed:', String(_bsOuterErr).substring(0, 200));
     }
   }
 
