@@ -1654,6 +1654,12 @@ Write the full deliverable first, then the structured JSON block.`;
                 : null;
               const _cmpUrl = _cmpUrlMatch ? _cmpUrlMatch[0] : (_descUrlMatch ? _descUrlMatch[0] : 'https://ambientpixels.ai');
               const _cmpRules = _cmpContext ? '\n\nCAMPAIGN POSTING RULES:\n' + _cmpContext.substring(0, 600) : '';
+              // Check if parent task has quality gate feedback to include
+              var _qgFeedback = '';
+              var _qgComment = (socialTask.comments || []).filter(function(c) { return c.text && c.text.indexOf('QUALITY GATE FAILED') !== -1; });
+              if (_qgComment.length > 0) {
+                _qgFeedback = '\n\nPREVIOUS VERSION REJECTED BY QUALITY GATE:\n' + _qgComment[_qgComment.length - 1].text.substring(0, 800) + '\n\nFix ALL issues listed above. Do NOT repeat the same mistakes.\n';
+              }
               const copyTask = {
                 id: 'task_' + Date.now() + '_copy_' + Math.random().toString(36).substr(2, 4),
                 title: 'Write social copy for: ' + stripTaskPrefixes(socialTask.title || 'Untitled'),
@@ -1662,6 +1668,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   + 'Parent task ID: ' + action.taskId + '\n'
                   + 'Platform: ' + _platform + '\n'
                   + 'Max length: ' + _maxLen + '\n\n'
+                  + _qgFeedback
                   + 'Requirements:\n'
                   + '- Write exactly ONE post — not multiple variations, not a batch. One single post.\n'
                   + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes, no "Post 1/Post 2" labels)\n'
@@ -2099,7 +2106,36 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
-      // Add to approval queue
+      // Quality gate FAILED — auto-reject and send issues back to agent for revision
+      if (_qgResult && !_qgResult.pass && (_qgResult.confidence || 0) >= 70) {
+        // Remove the action we just pushed (it failed quality)
+        var _qgActionIdx = actionsStore.findIndex(function(a) { return a.id === newAction.id; });
+        if (_qgActionIdx !== -1) actionsStore.splice(_qgActionIdx, 1);
+        await storage.setState('actions', actionsStore);
+
+        // Reset the parent task so Scribe can rewrite
+        var _qgParentTask = action.taskId ? tasks.find(function(t) { return t.id === action.taskId; }) : null;
+        if (_qgParentTask) {
+          _qgParentTask.status = 'in-progress';
+          _qgParentTask.reviewed_copy = null;
+          _qgParentTask.awaiting_copy_review = false;
+          _qgParentTask._social_action_created = false;
+          _qgParentTask._social_action_pending = false;
+          _qgParentTask.updatedAt = new Date().toISOString();
+          if (!_qgParentTask.comments) _qgParentTask.comments = [];
+          _qgParentTask.comments.push({
+            id: 'cmt-qgfail-' + Date.now(),
+            author: 'system',
+            text: 'QUALITY GATE FAILED — Post rejected for factual issues (confidence: ' + (_qgResult.confidence || 0) + '%).\n\nIssues found:\n- ' + (_qgResult.issues || []).join('\n- ') + '\n\nScribe: rewrite the copy addressing ALL issues above. Check product-facts for accurate feature descriptions. Do NOT invent features, pricing tiers, or capabilities.',
+            type: 'system',
+            createdAt: new Date().toISOString()
+          });
+          context.log('[QualityGate] REJECTED:', newAction.platform, 'action for task:', action.taskId, '— issues:', (_qgResult.issues || []).length, '— task reset to in-progress for Scribe revision');
+        }
+        continue; // skip approval queue — action was rejected
+      }
+
+      // Add to approval queue (quality gate passed or no result)
       const approvalQueue = (await storage.getState('approvalQueue')) || [];
       var _aqEntry = {
         id: 'aq-' + newAction.id,
