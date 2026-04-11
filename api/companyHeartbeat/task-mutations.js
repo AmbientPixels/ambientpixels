@@ -144,7 +144,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
             tasks[i].status = 'done';
             tasks[i].completedAt = new Date().toISOString();
             const _parentTag = _tags.find(t => t.startsWith('social-copy-for-'));
-            const _parentSocialTaskId = _parentTag ? _parentTag.replace('social-copy-for-', '') : null;
+            const _parentSocialTaskId = _parentTag ? _parentTag.replace('social-copy-for-', '') : (tasks[i].parent_task_id || null);
             if (_parentSocialTaskId) {
               const _parentSocialTask = tasks.find(t => t.id === _parentSocialTaskId);
               if (_parentSocialTask) {

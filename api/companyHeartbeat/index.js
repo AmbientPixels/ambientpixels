@@ -2655,7 +2655,7 @@ module.exports = async function (context) {
                   || (Array.isArray(t.tags) && t.tags.indexOf('trends-radar') !== -1 && String(t.description || '').toLowerCase().indexOf(_trendName) !== -1));
           });
           if (_alreadyExists) continue;
-          // Create a backlog research task for Scout
+          // Create a research task for Scout (todo so Scout can pick it up)
           const _briefId = 'task-tr-brief-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
           const _briefTask = {
             id: _briefId,
@@ -2667,7 +2667,7 @@ module.exports = async function (context) {
               + 'Investigate competitive positioning, content angles, and strategic opportunities for AmbientPixels.',
             assignee: 'scout',
             taskType: 'research',
-            status: 'backlog',
+            status: 'todo',
             priority: 'medium',
             tags: ['trends-radar', 'auto-brief'],
             source: { type: 'trends_radar_auto_brief', trendName: _ti.trendName, insightId: _latestInsights.id || null },
