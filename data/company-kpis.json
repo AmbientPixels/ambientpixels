@@ -1,8 +1,0 @@
-[
-  { "id": "kpi_site_visits", "name": "Site Visits", "unit": "count", "target": null, "owner": "echo", "category": "Growth" },
-  { "id": "kpi_gallery_views", "name": "Gallery Views", "unit": "count", "target": null, "owner": "echo", "category": "Engagement" },
-  { "id": "kpi_cards_generated", "name": "Cards Generated", "unit": "count", "target": null, "owner": "pixel", "category": "Product" },
-  { "id": "kpi_cards_published", "name": "Cards Published", "unit": "count", "target": null, "owner": "pixel", "category": "Activation" },
-  { "id": "kpi_social_followers", "name": "Social Followers", "unit": "count", "target": null, "owner": "echo", "category": "Growth" },
-  { "id": "kpi_error_rate", "name": "Error Rate", "unit": "percent", "target": null, "owner": "forge", "category": "Reliability" }
-]
