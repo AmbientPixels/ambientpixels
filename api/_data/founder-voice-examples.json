@@ -19,14 +19,34 @@
     },
     {
       "platform": "bluesky",
-      "context": "the agent-policing-agents system",
+      "context": "the agent-policing-agents system, single post version",
       "text": "my AI agents police each other without asking me.\n\nif an agent breaks for 5+ cycles, Forge (the ops watchdog) fires a system directive at it. screaming red banner. drop everything, fix this first.\n\nonly 2 agents have the authority to issue directives. max 1 active directive per agent. Forge can't even directive Nova, has to escalate to me.\n\nit's a 3-tier AI middle management hierarchy with actual checks and balances.\n\nI didn't plan this. it evolved from trying to stop everything from breaking.",
       "why_it_works": "specific mechanism (5+ cycles, red banner), concrete constraints (max 1, can't directive Nova), self-aware close (evolved from trying to stop breakage). No marketing language. Short paragraphs. One idea per line."
+    },
+    {
+      "platform": "bluesky",
+      "context": "agent-policing thread, part 1 of 3 (hook)",
+      "text": "my AI agents police each other without asking me.\n\nif an agent breaks for 5+ heartbeat cycles, Forge (the ops watchdog) fires a system directive at it. screaming red banner. drop everything, fix this first.",
+      "why_it_works": "hook ends on a vivid image (the red banner). no setup, no buildup, just the specific thing that happens. lowercase casual. no em dashes."
+    },
+    {
+      "platform": "bluesky",
+      "context": "agent-policing thread, part 2 of 3 (constraints)",
+      "text": "only 2 agents have authority to issue directives. max 1 active directive per agent. Forge can't even directive Nova, has to escalate to me.\n\n3-tier AI middle management. with checks and balances.",
+      "why_it_works": "specific constraints (2 agents, max 1, can't directive Nova) build credibility. the 'with checks and balances' line is the surprising payoff — a bureaucratic concept applied to AI agents."
+    },
+    {
+      "platform": "bluesky",
+      "context": "agent-policing thread, part 3 of 3 (payoff)",
+      "text": "I didn't plan any of this. it evolved from trying to stop everything from breaking.\n\nturns out hierarchy with safety rails is what you build when you need the system to not eat itself.",
+      "why_it_works": "vulnerable admission (didn't plan this) followed by a genuine insight (hierarchy emerges from necessity, not design). this is the quotable line. no hype, no lesson-learned framing."
     }
   ],
   "anti_examples": [
     "🚀 Introducing our game-changing AI orchestration platform! Supercharge your workflow with 8 autonomous agents working 24/7 to unlock unprecedented productivity! #AI #Innovation #FutureOfWork",
     "We're thrilled to announce the launch of AmbientOS — a revolutionary new way to manage your company with AI.",
-    "Ever wish you had a digital clone to handle the grind? 🤖 Meet AmbientOS — the AI sidekick that's changing everything!"
+    "Ever wish you had a digital clone to handle the grind? 🤖 Meet AmbientOS — the AI sidekick that's changing everything!",
+    "🔥 Big news! Our latest release empowers creators with next-gen AI tools. Buckle up — the future is here!",
+    "Ready to level up your workflow? AmbientOS delivers enterprise-grade AI orchestration at startup speed. Join the waitlist today!"
   ]
 }
