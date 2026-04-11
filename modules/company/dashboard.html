@@ -1391,7 +1391,7 @@
         var cstatActionSub = document.getElementById('cstat-action-sub');
         if (cstatAction) {
           // Also count Needs Attention items from approvalQueue
-          var naTypes = ['convergence_escalation', 'stale_revision_escalation'];
+          var naTypes = ['convergence_escalation'];
           var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
           fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
             .then(function(r) { return r.json(); })

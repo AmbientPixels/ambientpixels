@@ -514,45 +514,9 @@ module.exports = async function (context) {
       let _naChanged = false;
       const _naNow = Date.now();
 
-      // Overdue escalation removed from Needs Attention — overdue tasks are an agent execution
-      // concern, not a CEO action item. Stuck (convergence) and stale revision remain.
-
-      // Stale revision escalation: CEO requested revision but agent hasn't responded in 60+ min
-      for (const _sra of revisionActions) {
-        const _srParentId = _sra._parentTaskId || _sra.taskId;
-        if (!_srParentId) continue;
-        const _srTask = tasks.find(function(t) { return t.id === _srParentId; });
-        if (!_srTask || _srTask.status === 'done' || _srTask._archived) continue;
-        // Find the CEO REVISION comment
-        const _srRevComment = (_srTask.comments || []).find(function(c) {
-          return c.text && c.text.indexOf('CEO REVISION') !== -1 && c.text.indexOf(_sra.id) !== -1;
-        });
-        if (!_srRevComment || !_srRevComment.createdAt) continue;
-        // Check if older than 60 min
-        var _srAge = _naNow - new Date(_srRevComment.createdAt).getTime();
-        if (_srAge < 60 * 60 * 1000) continue;
-        // Check if agent has responded with a deliverable AFTER the revision comment
-        const _srRevTs = new Date(_srRevComment.createdAt).getTime();
-        const _srHasNewDeliverable = (_srTask.comments || []).some(function(c) {
-          return c.type === 'deliverable' && c.createdAt && new Date(c.createdAt).getTime() > _srRevTs;
-        });
-        if (_srHasNewDeliverable) continue;
-        const _srAlready = _naAQ.some(function(q) { return q.type === 'stale_revision_escalation' && q.taskId === _srTask.id && q.status === 'pending'; });
-        if (!_srAlready) {
-          _naAQ.push({
-            id: 'aq-stalerev-' + _srTask.id + '-' + _naNow,
-            type: 'stale_revision_escalation',
-            taskId: _srTask.id,
-            taskTitle: _srTask.title || _srTask.id,
-            originAgent: _srTask.assignee || 'unassigned',
-            actionId: _sra.id,
-            status: 'pending',
-            createdAt: new Date().toISOString()
-          });
-          _naChanged = true;
-          context.log('[Heartbeat] STALE REVISION ESCALATION: task', _srTask.id, 'revision unaddressed for', Math.round(_srAge / 60000), 'min');
-        }
-      }
+      // Overdue + stale revision escalations removed from Needs Attention — both are agent
+      // execution concerns, not CEO action items. Only convergence (stuck) remains: tasks
+      // where the agent failed 5+ times and genuinely cannot proceed without CEO intervention.
 
       // Auto-resolve escalations whose tasks are now done, archived, or backlog
       var _naEscTypes = ['overdue_escalation', 'stale_revision_escalation', 'convergence_escalation'];
