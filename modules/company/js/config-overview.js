@@ -362,53 +362,6 @@
   }
 })();
 
-// Worker Automation panel — CEO Kill Switch
-(function () {
-  var dot = document.getElementById('cfg-worker-dot');
-  var stateEl = document.getElementById('cfg-worker-state');
-  var helperEl = document.getElementById('cfg-worker-helper');
-  var toggleBtn = document.getElementById('cfg-worker-toggle');
-  var auditFeed = document.getElementById('cfg-worker-audit-feed');
-  if (!dot || !stateEl || !toggleBtn) return;
-
-  var _debounceTimer = null;
-
-  function render() {
-    var enabled = WorkerManager.isEnabled();
-    dot.className = 'cfg-worker-dot ' + (enabled ? 'cfg-worker-dot--on' : 'cfg-worker-dot--off');
-    stateEl.textContent = enabled ? 'Enabled' : 'Disabled';
-    stateEl.style.color = enabled ? '#34d399' : '#ef4444';
-    helperEl.textContent = enabled ? 'Workers will spawn automatically during pressure spikes.' : 'Worker spawning and runs are paused. Existing workers will terminate safely.';
-    toggleBtn.textContent = enabled ? '\u23F8 Disable Workers' : '\u25B6 Enable Workers';
-    toggleBtn.className = 'cfg-worker-toggle ' + (enabled ? 'cfg-worker-toggle--disable' : 'cfg-worker-toggle--enable');
-    renderAudit();
-  }
-
-  function renderAudit() {
-    var events = WorkerAudit.getRecent(8);
-    if (events.length === 0) { auditFeed.innerHTML = '<span style="opacity:0.25; font-size:0.6rem;">No activity yet.</span>'; return; }
-    auditFeed.innerHTML = events.reverse().map(function (ev) {
-      var ts = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString() : '?';
-      var label = ev.eventType.replace(/_/g, ' ');
-      if (ev.workerType) label += ' (' + ev.workerType + ')';
-      if (ev.reason) label += ' \u2014 ' + ev.reason;
-      return '<div class="cfg-worker-audit-row"><span class="cfg-worker-audit-ts">' + ts + '</span><span class="cfg-worker-audit-ev">' + label + '</span></div>';
-    }).join('');
-  }
-
-  toggleBtn.addEventListener('click', function () {
-    if (_debounceTimer) return;
-    var current = WorkerManager.isEnabled();
-    var action = current ? 'Disable' : 'Enable';
-    if (!confirm(action + ' worker automation?')) return;
-    WorkerManager.setEnabled(!current, 'CEO');
-    render();
-    _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
-  });
-
-  render();
-})();
-
 // Verification Engine status panel
 (function () {
   var dot = document.getElementById('cfg-verify-dot');

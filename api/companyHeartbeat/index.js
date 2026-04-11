@@ -561,9 +561,6 @@ module.exports = async function (context) {
     // Load trend insights store for Nova campaign prompting + Scribe content context
     let trendInsightsStore = [];
     try { trendInsightsStore = (await storage.getState('trendInsights')) || []; } catch (_tiLoadErr) { /* non-fatal */ }
-    // Load worker reports (client-side workers sync intel here for Nova to read)
-    let workerReports = [];
-    try { workerReports = (await storage.getState('workerReports')) || []; } catch (_wrErr) { /* non-fatal */ }
     // Load systemConfig: runtime-tunable overrides for heartbeat constants (non-destructive — falls back to constants)
     let _systemConfig = {};
     try { _systemConfig = (await storage.getState('systemConfig')) || {}; } catch (_scErr) { /* non-fatal */ }
@@ -1571,7 +1568,7 @@ module.exports = async function (context) {
           _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel,
           normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate,
           _agentCampaignCtx, siteIntel,
-          agentId === 'nova' ? workerReports : null,
+          null, // workerReports removed
           _agentMemoryStore, trendRadarStore,
           (agentId === 'nova' || agentId === 'scribe' || agentId === 'echo') ? trendInsightsStore : null,
           performanceDigest, agentExperiments,

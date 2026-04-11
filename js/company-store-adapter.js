@@ -302,7 +302,7 @@ var CompanyStoreAdapter = (function () {
       if (s.plannerThresholds) localStorage.setItem('ap_planner_thresholds', JSON.stringify(s.plannerThresholds));
     }
     // Audits — delta: append new, dedup by eventId; full: replace
-    var auditMap = { action: 'ap_action_audit', worker: 'ap_worker_audit', planner: 'ap_planner_audit', calibration: 'ap_calibration_audit', priority: 'ap_priority_audit' };
+    var auditMap = { action: 'ap_action_audit', planner: 'ap_planner_audit', calibration: 'ap_calibration_audit', priority: 'ap_priority_audit' };
     if (snapshot.audits) {
       for (var type in auditMap) {
         if (!Array.isArray(snapshot.audits[type])) continue;
@@ -348,7 +348,6 @@ var CompanyStoreAdapter = (function () {
   function _collectLocalState() {
     var state = { audits: {}, actionQueue: [], settings: {}, artifacts: {} };
     try { state.audits.action = JSON.parse(localStorage.getItem('ap_action_audit') || '[]'); } catch (e) { state.audits.action = []; }
-    try { state.audits.worker = JSON.parse(localStorage.getItem('ap_worker_audit') || '[]'); } catch (e) { state.audits.worker = []; }
     try { state.audits.planner = JSON.parse(localStorage.getItem('ap_planner_audit') || '[]'); } catch (e) { state.audits.planner = []; }
     try { state.audits.calibration = JSON.parse(localStorage.getItem('ap_calibration_audit') || '[]'); } catch (e) { state.audits.calibration = []; }
     try { state.audits.priority = JSON.parse(localStorage.getItem('ap_priority_audit') || '[]'); } catch (e) { state.audits.priority = []; }
@@ -381,7 +380,7 @@ var CompanyStoreAdapter = (function () {
       if (s.plannerThresholds) localStorage.setItem('ap_planner_thresholds', JSON.stringify(s.plannerThresholds));
     }
     // Audits — replace local with server (server is authoritative)
-    var auditMap = { action: 'ap_action_audit', worker: 'ap_worker_audit', planner: 'ap_planner_audit', calibration: 'ap_calibration_audit', priority: 'ap_priority_audit' };
+    var auditMap = { action: 'ap_action_audit', planner: 'ap_planner_audit', calibration: 'ap_calibration_audit', priority: 'ap_priority_audit' };
     if (snapshot.audits) {
       for (var type in auditMap) {
         if (Array.isArray(snapshot.audits[type])) {

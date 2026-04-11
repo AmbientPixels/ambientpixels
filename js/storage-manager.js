@@ -16,7 +16,6 @@ var StorageManager = (function () {
   // ── Known store keys ──
   var LOG_KEYS = [
     'ap_action_audit',
-    'ap_worker_audit',
     'ap_planner_audit',
     'ap_calibration_audit',
     'ap_priority_audit'

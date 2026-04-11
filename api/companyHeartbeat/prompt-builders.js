@@ -250,38 +250,6 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
     }
   }
 
-  // Nova-only: Worker intel — surface recent worker reports so Nova can act on their findings
-  let workerIntelSection = '';
-  if (agent.name === 'Nova' && workerReports && workerReports.length > 0) {
-    // Only show reports from the last 2 hours
-    const _wrCutoff = Date.now() - 2 * 60 * 60 * 1000;
-    const recentReports = workerReports
-      .filter(r => r.finishedAt && new Date(r.finishedAt).getTime() > _wrCutoff)
-      .slice(-5); // max 5 most recent
-    if (recentReports.length > 0) {
-      const wrLines = recentReports.map(r => {
-        const age = Math.round((Date.now() - new Date(r.finishedAt).getTime()) / 60000);
-        let line = '- ' + (r.type || 'worker') + ' (' + age + 'min ago, ' + (r.itemsProcessed || 0) + ' items): ' + (r.summary || 'No summary');
-        if (r.findings && r.findings.length > 0) {
-          line += '\n  Findings: ' + r.findings.slice(0, 3).join('; ');
-        }
-        if (r.proposed_actions && r.proposed_actions.length > 0) {
-          const actions = r.proposed_actions.slice(0, 3).map(a =>
-            (a.actionType || 'action') + ' on ' + (a.itemId || '?') + ' (' + (a.priority || 'medium') + ' priority, ' + (a.riskLevel || 'low') + ' risk): ' + (a.rationale || '')
-          );
-          line += '\n  Recommended: ' + actions.join('; ');
-        }
-        if (r.risks && r.risks.length > 0) {
-          line += '\n  Risks: ' + r.risks.slice(0, 2).join('; ');
-        }
-        return line;
-      }).join('\n');
-      workerIntelSection = `\n\nWORKER INTEL (from pressure-triggered analysis — act on these findings):
-${wrLines}
-Workers are read-only analysts that spawn during pressure spikes. Use their findings and proposed_actions to prioritize your triage and delegation decisions. If a worker recommends assigning a reviewer or escalating a task, act on it.`;
-    }
-  }
-
   // Active Campaigns — strategic priorities that drive task creation
   let directivesSection = '';
   if (activeDirectives.length > 0) {
@@ -1164,7 +1132,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 

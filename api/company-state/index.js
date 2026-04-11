@@ -17,7 +17,7 @@ const VALID_KEYS = [
   'documents', 'publishedDocs', 'blogPosts', 'dailyLog', 'webSearchCache',
   'ap_artifacts', 'meetings', 'tasksArchive', 'agentMemories', 'agentSeedMemories', 'heartbeatRuns',
   'contentEngineConfig', 'imageAssets', 'runtimeMemory',
-  'execution_mode', 'workerReports', 'socialCredentials',
+  'execution_mode', 'socialCredentials',
   'demoChatCount', 'researchIntel',
   'trendRadar', 'trendInsights', 'trendActions', 'systemConfig',
   'agentPerformance', 'agentExperiments',

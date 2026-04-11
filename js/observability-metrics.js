@@ -55,7 +55,7 @@ var ObservabilityMetrics = (function () {
   // ── Data Quality detection ──
   // ═══════════════════════════════════════════════════
   var CORE_STORES = ['ActionAudit', 'ActionQueue'];
-  var ALL_STORES = ['ActionAudit', 'WorkerAudit', 'PlannerAudit', 'CalibrationAudit', 'PriorityAudit', 'ActionQueue'];
+  var ALL_STORES = ['ActionAudit', 'PlannerAudit', 'CalibrationAudit', 'PriorityAudit', 'ActionQueue'];
 
   function _checkDataQuality() {
     var missing = [];
@@ -117,7 +117,7 @@ var ObservabilityMetrics = (function () {
     try {
       // ── Read all data once ──
       var actionEvents = _clamp(_readAudit('ActionAudit', range), MAX_EVENTS);
-      var workerEvents = _clamp(_readAudit('WorkerAudit', range), MAX_EVENTS);
+      var workerEvents = [];
       var plannerEvents = _clamp(_readAudit('PlannerAudit', range), MAX_EVENTS);
       var calibrationEvents = _clamp(_readAudit('CalibrationAudit', range), MAX_EVENTS);
       var priorityEvents = _clamp(_readAudit('PriorityAudit', range), MAX_EVENTS);
@@ -133,7 +133,7 @@ var ObservabilityMetrics = (function () {
       try {
         var priorRange = _dayRangeExplicit(range.startMs - days * 86400000, range.startMs, days);
         var pAction = _clamp(_readAudit('ActionAudit', priorRange), MAX_EVENTS);
-        var pWorker = _clamp(_readAudit('WorkerAudit', priorRange), MAX_EVENTS);
+        var pWorker = [];
         var pPlanner = _clamp(_readAudit('PlannerAudit', priorRange), MAX_EVENTS);
         var pCal = _clamp(_readAudit('CalibrationAudit', priorRange), MAX_EVENTS);
         var pPrio = _clamp(_readAudit('PriorityAudit', priorRange), MAX_EVENTS);
@@ -186,7 +186,6 @@ var ObservabilityMetrics = (function () {
 
   function _getModule(name) {
     if (name === 'ActionAudit' && typeof ActionAudit !== 'undefined') return ActionAudit;
-    if (name === 'WorkerAudit' && typeof WorkerAudit !== 'undefined') return WorkerAudit;
     if (name === 'PlannerAudit' && typeof PlannerAudit !== 'undefined') return PlannerAudit;
     if (name === 'CalibrationAudit' && typeof CalibrationAudit !== 'undefined') return CalibrationAudit;
     if (name === 'PriorityAudit' && typeof PriorityAudit !== 'undefined') return PriorityAudit;
