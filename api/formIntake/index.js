@@ -554,7 +554,7 @@ async function _spawnTask(record) {
     title: 'Inbound: ' + typeLabel + ' — ' + nameOrEmail,
     description: descParts.join('\n'),
     assignee: assignee,
-    status: 'open',
+    status: 'todo',
     priority: priority,
     classification: 'advisory',
     risk_level: 'low',
@@ -711,7 +711,7 @@ async function _createReplyDraft(parentTaskId, parentTitle, record) {
         'Do NOT auto-send — this is a draft for CEO review.'
       ].join('\n'),
       assignee: 'echo',
-      status: 'open',
+      status: 'todo',
       priority: 'low',
       classification: 'autonomous',
       risk_level: 'low',

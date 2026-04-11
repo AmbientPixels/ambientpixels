@@ -479,8 +479,12 @@ module.exports = async function (context) {
       const _parentId = _ra._parentTaskId || _ra.taskId;
       if (!_parentId) continue;
       const _parentTask = tasks.find(t => t.id === _parentId);
-      if (!_parentTask || _parentTask.status === 'in-progress') continue;
-      if (_parentTask.status === 'done' || _parentTask.status === 'review') {
+      if (!_parentTask) continue;
+      // Check if revision feedback already addressed (look for system comment matching this action)
+      const _alreadyHandled = (_parentTask.comments || []).some(c => c.text && c.text.indexOf('CEO REVISION') !== -1 && c.text.indexOf(_ra.id) !== -1);
+      // Skip in-progress tasks UNLESS they still have stale _social_action_created flag (revision wasn't picked up)
+      if (_parentTask.status === 'in-progress' && !_parentTask._social_action_created) continue;
+      if (_parentTask.status === 'done' || _parentTask.status === 'review' || (_parentTask.status === 'in-progress' && _parentTask._social_action_created)) {
         _parentTask.status = 'in-progress';
         _parentTask.priority = 'critical';
         _parentTask._social_action_created = false;

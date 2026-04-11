@@ -306,7 +306,7 @@ async function _createDigestTask(digest) {
     title: 'Daily Intake Digest — ' + datePretty,
     description: descParts.join('\n'),
     assignee: 'nova',
-    status: 'open',
+    status: 'todo',
     priority: 'low',
     classification: 'autonomous',
     risk_level: 'low',
