@@ -40,6 +40,36 @@
       "context": "agent-policing thread, part 3 of 3 (payoff)",
       "text": "I didn't plan any of this. it evolved from trying to stop everything from breaking.\n\nturns out hierarchy with safety rails is what you build when you need the system to not eat itself.",
       "why_it_works": "vulnerable admission (didn't plan this) followed by a genuine insight (hierarchy emerges from necessity, not design). this is the quotable line. no hype, no lesson-learned framing."
+    },
+    {
+      "platform": "bluesky",
+      "context": "Haiku fact-checking Sonnet — smaller model policing the bigger one",
+      "text": "I have a cheaper, smaller AI model fact-checking the bigger smarter one.\n\nSonnet writes the content. Haiku validates it against a product facts file. if it fails, Haiku's notes get injected directly into Sonnet's next prompt.\n\nthe intern is reviewing the senior's work.\n\nand it's catching real mistakes.",
+      "why_it_works": "concrete role reversal (cheaper model policing expensive one), specific mechanism (notes injected into next prompt), punchy close. no hype. the 'intern reviewing senior' line is the quotable moment."
+    },
+    {
+      "platform": "bluesky",
+      "context": "solo founder reality check — too many products, not enough traction",
+      "text": "I'm building 5 products at once as a solo founder.\n\nPixel Agents. CardForge. AmbientScore. StoryForge. AmbientOS.\n\nnone of them are getting the attention they deserve because I keep splitting focus.\n\njust cancelled 4 campaigns and put everything on Pixel Agents.\n\ndiscipline is harder than building.",
+      "why_it_works": "specific list (names the products), honest admission (splitting focus), concrete action (cancelled 4 campaigns), insight close. no spin. the last line lands because it's true."
+    },
+    {
+      "platform": "bluesky",
+      "context": "what it actually feels like to run a company of AI agents",
+      "text": "running a company of AI agents is mostly reading logs and asking 'why did you do that'.\n\nthe agents don't explain themselves unless you build the explanation in.\n\nso I did. every task gets a comment trail. every decision gets a rationale field.\n\nnow I can actually audit what happened.\n\nit's less sci-fi than it sounds.",
+      "why_it_works": "deflates the hype upfront ('less sci-fi than it sounds'), specific details (comment trail, rationale field), honest admission about the unglamorous reality. builder voice, not founder pitch."
+    },
+    {
+      "platform": "bluesky",
+      "context": "Pixel Agents — what it actually is, no pitch",
+      "text": "Pixel Agents is an AI agent marketplace.\n\n24 agents. each one does a specific job. you run them, you pay per run, creators earn a cut.\n\nno subscription. no bloat. just pick an agent and go.\n\nstill early. but it's live.",
+      "why_it_works": "specific numbers (24 agents), clear mechanics (pay per run, creators earn), honest qualifier (still early). no 'excited to announce', no hype words. the 'but it's live' close is confident without being loud."
+    },
+    {
+      "platform": "x",
+      "context": "build in public intro for X audience",
+      "text": "solo founder. I built a company where 8 AI agents run the departments and I'm the only human.\n\nit's weird and it works.\n\nbuilding in public from here.",
+      "why_it_works": "three lines, three beats: setup, honest qualifier, commitment. 'weird and it works' is the hook. no bio, no backstory dump, no ask. leaves them wanting the next post."
     }
   ],
   "anti_examples": [
