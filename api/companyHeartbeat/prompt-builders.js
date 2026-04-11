@@ -74,7 +74,8 @@ function buildSiteContextBlock() {
 
 // ── Build heartbeat prompt ──
 // Role-based skill routing. Content agents get all product skills + system; ops agents get system only.
-// See plan: Gemini attention limits → ops agents don't need flooding with product copy.
+// Each skill is injected as its own discrete prompt section (Gemini reads separated reference
+// docs fine — it only struggles with concatenated heterogeneous imperative blocks).
 var SKILL_ROUTING = {
   echo:   ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
   scribe: ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'],
@@ -85,9 +86,6 @@ var SKILL_ROUTING = {
   forge:  ['ambientos-guide'],
   scout:  ['ambientos-guide']
 };
-
-// Gemini safeguard: split skill block into system + products when total exceeds 20KB.
-var SKILL_BLOCK_SPLIT_THRESHOLD = 20 * 1024;
 
 function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel) {
   activeDirectives = activeDirectives || [];
@@ -1115,10 +1113,12 @@ You must remain within your assigned authority tier. Doctrine influences your st
     productFactsBlock = pfLines.join('\n');
   }
 
-  // Skill injection — role-based. Full skill content (up to 6KB per skill) from api/_data/skills.json.
-  // Replaces the old productBriefsBlock that shipped regex-filtered 1KB fragments.
+  // Skill injection — role-based, full content, one discrete section per skill.
+  // Replaces the old productBriefsBlock. Full skill files ship via syncProductBriefs.js.
+  // Each skill gets its own clearly-bounded sub-section so Gemini reads them as separate
+  // reference docs rather than one monolithic concatenation.
   var skillsBlock = '';
-  var skillsSystemBlock = ''; // separate block for Gemini safeguard when total is large
+  var skillsSystemBlock = ''; // kept for backward compat; not used anymore
   if (skillsData && Array.isArray(skillsData.skills) && skillsData.skills.length > 0) {
     var _routedIds = SKILL_ROUTING[agent.id] || ['ambientos-guide'];
     var _routedSkills = _routedIds
@@ -1128,33 +1128,18 @@ You must remain within your assigned authority tier. Doctrine influences your st
       .filter(function (s) { return s && s.content; });
 
     if (_routedSkills.length > 0) {
-      // Build concatenated block content (used when below the split threshold)
-      var _skillParts = _routedSkills.map(function (s) {
-        return '### ' + s.name + ' — ' + s.url + '\n' + s.content;
+      var _skillParts = _routedSkills.map(function (s, idx) {
+        // Hard boundary between skills so Gemini treats each as its own reference doc.
+        return '═══════════════════════════════════════════════════════════════\n'
+          + '📘 SKILL ' + (idx + 1) + '/' + _routedSkills.length + ': ' + s.name + ' (' + s.url + ')\n'
+          + '═══════════════════════════════════════════════════════════════\n\n'
+          + s.content.trim();
       });
-      var _combined = _skillParts.join('\n\n---\n\n');
-      var _combinedBytes = Buffer.byteLength(_combined, 'utf8');
-
-      if (_combinedBytes > SKILL_BLOCK_SPLIT_THRESHOLD && _routedSkills.length > 1) {
-        // Gemini safeguard: split into two topically-coherent blocks.
-        // Block 1: ambientos-guide (system context, always first in the routing list)
-        var _systemSkill = _routedSkills[0]; // ambientos-guide by convention
-        skillsSystemBlock = '\n\n🧭 SYSTEM REFERENCE (canonical — read Recent Changes at top first):\n\n'
-          + '### ' + _systemSkill.name + ' — ' + _systemSkill.url + '\n' + _systemSkill.content;
-
-        // Block 2: product skills only
-        var _productSkills = _routedSkills.slice(1);
-        if (_productSkills.length > 0) {
-          var _productParts = _productSkills.map(function (s) {
-            return '### ' + s.name + ' — ' + s.url + '\n' + s.content;
-          });
-          skillsBlock = '\n\n📚 PRODUCT SKILLS (canonical source for product descriptions — use only these facts when writing external content):\n\n'
-            + _productParts.join('\n\n---\n\n');
-        }
-      } else {
-        // Below threshold: single combined block
-        skillsBlock = '\n\n📚 SKILL REFERENCES (canonical source — read Recent Changes in AmbientOS first):\n\n' + _combined;
-      }
+      skillsBlock = '\n\n🗂️  SKILL REFERENCES (canonical source — each skill below is its own reference doc. Read Recent Changes at the top of each skill first, then use the content below when you need product/system facts):\n\n'
+        + _skillParts.join('\n\n')
+        + '\n\n═══════════════════════════════════════════════════════════════\n'
+        + '📘 END SKILL REFERENCES\n'
+        + '═══════════════════════════════════════════════════════════════\n';
     }
   }
 

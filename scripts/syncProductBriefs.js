@@ -1,14 +1,16 @@
-// syncProductBriefs.js — rewritten to ship full skill content instead of regex-filtered fragments.
-// Reads .claude/skills/*/SKILL.md files and writes api/_data/skills.json.
-// Runs via pre-commit hook (ambientpixels/.git/hooks/pre-commit).
+// syncProductBriefs.js — ships FULL skill content to api/_data/skills.json.
+// Reads .claude/skills/*/SKILL.md files. Runs via pre-commit hook.
 //
 // Design notes:
-// - 6KB cap per skill — tuned for Gemini 2.0 Flash attention limits.
-// - Recent Changes section (if present) is pulled to the top of the written content
-//   so the most recent state gets the most reliable attention from Gemini.
-// - Frontmatter is stripped; excess blank lines collapsed.
-// - No regex filtering of sections, no dev-artifact scrubbing. Agents are trusted to
-//   ignore content that isn't relevant to their task.
+// - NO cap. Full skill content ships as-is. Gemini Flash has a 1M token context
+//   window — 6 skills totaling ~180KB is 0.2% of that budget.
+// - Recent Changes section (if present) is pulled to the top so the freshest
+//   state gets the most reliable attention.
+// - Frontmatter stripped. Excess blank lines collapsed. That's it.
+// - Agents are trusted to read what's relevant to their task.
+// - The per-skill injection in prompt-builders.js keeps each skill as its own
+//   discrete prompt section — Gemini handles separated reference docs fine,
+//   it just struggles with concatenated heterogeneous blocks.
 
 var fs = require('fs');
 var path = require('path');
@@ -21,9 +23,6 @@ var PRODUCT_SKILLS = {
   'pixel-agents':    { name: 'Pixel Agents', url: 'https://ambientpixels.ai/pixel-agents/' },
   'ambientscore':    { name: 'AmbientScore', url: 'https://ambientpixels.ai/ambientscore/' }
 };
-
-// 6KB hard cap per skill. Gemini-tuned.
-var MAX_SKILL_BYTES = 6 * 1024;
 
 var scriptDir = __dirname;
 var skillsDir = path.resolve(scriptDir, '..', '..', '.claude', 'skills');
@@ -100,33 +99,6 @@ function hoistRecentChanges(content) {
   return intro + '\n\n' + recentSection + '\n\n' + rest;
 }
 
-/**
- * Cap content at MAX_SKILL_BYTES, truncating at the last ## section boundary before the cap.
- * Returns { content, truncated }.
- */
-function capAtSectionBoundary(content, cap) {
-  var bytes = Buffer.byteLength(content, 'utf8');
-  if (bytes <= cap) return { content: content, truncated: false };
-
-  // Binary-walk by char count until under cap (UTF-8 safe)
-  var sliced = content;
-  while (Buffer.byteLength(sliced, 'utf8') > cap) {
-    sliced = sliced.substring(0, Math.floor(sliced.length * 0.95));
-  }
-
-  // Walk backward to the last "\n## " to truncate at a section boundary
-  var lastSectionIdx = sliced.lastIndexOf('\n## ');
-  if (lastSectionIdx > cap / 2) {
-    // Only trust the boundary if it's in the second half — otherwise the cap is too tight
-    sliced = sliced.substring(0, lastSectionIdx);
-  }
-
-  return {
-    content: sliced.trim() + '\n\n_[Skill content truncated at ' + cap + ' bytes. See source at .claude/skills/ for full text.]_',
-    truncated: true
-  };
-}
-
 function processSkill(skillId, rawContent) {
   var meta = PRODUCT_SKILLS[skillId];
   if (!meta) return null;
@@ -134,16 +106,15 @@ function processSkill(skillId, rawContent) {
   var stripped = stripFrontmatter(rawContent);
   var collapsed = collapseWhitespace(stripped);
   var hoisted = hoistRecentChanges(collapsed);
-  var capped = capAtSectionBoundary(hoisted, MAX_SKILL_BYTES);
 
   return {
     id: skillId,
     name: meta.name,
     url: meta.url,
-    content: capped.content,
+    content: hoisted,
     sourceChars: rawContent.length,
-    contentChars: capped.content.length,
-    truncated: capped.truncated
+    contentChars: hoisted.length,
+    truncated: false
   };
 }
 
@@ -169,8 +140,7 @@ function main() {
       console.log(
         '[syncSkills]',
         processed.name + ':',
-        processed.contentChars + ' chars',
-        processed.truncated ? '(truncated from ' + processed.sourceChars + ')' : '(full)'
+        processed.contentChars + ' chars (full, from ' + processed.sourceChars + ')'
       );
     }
   }
