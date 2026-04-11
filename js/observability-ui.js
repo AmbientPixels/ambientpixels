@@ -144,11 +144,7 @@ var ObservabilityUI = (function () {
       { label: 'Crit Resolution', value: _pct(kpis.priority.criticalResolutionRate), sub: kpis.priority.criticalResolved + ' resolved / ' + kpis.priority.criticalNow + ' current', cls: _kpiColorClass(kpis.priority.criticalResolutionRate, 0.5, 0.2), delta: _deltaHtml(d.criticalResolutionRatePP, 'pp') },
       { label: 'Avg Approval Time', value: _mins(kpis.timeToApprovalMin.avg), sub: 'p50: ' + _mins(kpis.timeToApprovalMin.p50) + ' \u00B7 p90: ' + _mins(kpis.timeToApprovalMin.p90), cls: 'obs-kpi-value--info', delta: _deltaHtml(d.avgTimeToApprovalMin, 'm', true) },
       { label: 'Queue Pending', value: _num(kpis.queue.pending), sub: kpis.queue.approvedReady + ' ready \u00B7 ' + kpis.queue.executing + ' exec \u00B7 ' + kpis.queue.blocked + ' blocked', cls: kpis.queue.pending > 10 ? 'obs-kpi-value--warn' : 'obs-kpi-value--good', delta: _deltaHtml(d.pendingCount, '', true) },
-      { label: 'Blocked Done', value: _num(kpis.verification.blockedDoneCount), sub: 'verification friction', cls: kpis.verification.blockedDoneCount > 5 ? 'obs-kpi-value--bad' : 'obs-kpi-value--good', delta: _deltaHtml(d.blockedDoneCount, '', true) },
-      { label: 'Critical / High', value: kpis.priority.criticalNow + ' / ' + kpis.priority.highNow, sub: 'current priority counts', cls: kpis.priority.criticalNow > 3 ? 'obs-kpi-value--bad' : 'obs-kpi-value--warn', delta: '' },
-      { label: 'Worker Activity', value: _num(kpis.workers.runs), sub: kpis.workers.spawned + ' spawned \u00B7 ' + kpis.workers.terminated + ' terminated', cls: 'obs-kpi-value--purple', delta: '' },
-      { label: 'Planner Runs', value: _num(kpis.planner.runs), sub: kpis.planner.recsEnqueued + ' recs enqueued', cls: 'obs-kpi-value--purple-light', delta: '' },
-      { label: 'Calibration', value: _num(kpis.calibration.runs), sub: kpis.calibration.proposalsEnqueued + ' proposals', cls: 'obs-kpi-value--good', delta: '' }
+      { label: 'Storage', value: kpis.storage ? Math.round((kpis.storage.estBytes || 0) / 1024) + ' KB' : '—', sub: 'localStorage usage', cls: 'obs-kpi-value--info', delta: '' }
     ];
 
     var h = '<div class="obs-kpi-grid">';
@@ -175,9 +171,7 @@ var ObservabilityUI = (function () {
     var charts = [
       { title: 'Approvals / day', series: [{ key: 'approved', cls: 'obs-spark-bar--s1' }, { key: 'rejected', cls: 'obs-spark-bar--s2' }] },
       { title: 'Execution / day', series: [{ key: 'succeeded', cls: 'obs-spark-bar--s3' }, { key: 'failed', cls: 'obs-spark-bar--s2' }] },
-      { title: 'Critical tasks / day', series: [{ key: 'criticalNow', cls: 'obs-spark-bar--s4' }] },
-      { title: 'Blocked Done / day', series: [{ key: 'blockedDone', cls: 'obs-spark-bar--s5' }] },
-      { title: 'Worker runs / day', series: [{ key: 'workerRuns', cls: 'obs-spark-bar--s6' }] }
+      { title: 'Queue pending / day', series: [{ key: 'pending', cls: 'obs-spark-bar--s4' }] }
     ];
 
     var h = '<div class="obs-trends-grid">';
@@ -288,51 +282,6 @@ var ObservabilityUI = (function () {
     h += '</div>';
 
     // Recent workers
-    h += '<div class="obs-recent-panel">';
-    h += '<div class="obs-recent-title"><i class="fas fa-hard-hat obs-icon--purple"></i> Recent Workers <span class="obs-recent-count">(' + recent.workers.length + ')</span></div>';
-    if (recent.workers.length === 0) {
-      h += '<div class="obs-empty">No worker events.</div>';
-    } else {
-      h += '<div class="obs-recent-table"><div class="obs-recent-table-head"><span>Time</span><span>Event</span><span>Worker</span></div>';
-      for (var j = 0; j < recent.workers.length; j++) {
-        var w = recent.workers[j];
-        h += '<div class="obs-recent-table-row"><span class="obs-recent-ts">' + _timeAgo(w.timestamp) + '</span>';
-        h += '<span>' + _esc((w.eventType || '').replace(/^worker_/, '')) + '</span>';
-        h += '<span>' + _esc(w.workerType || '') + '</span></div>';
-      }
-      h += '</div>';
-    }
-    h += '</div>';
-
-    // Planner + Calibration compact
-    h += '<div class="obs-recent-panel">';
-    h += '<div class="obs-recent-title"><i class="fas fa-brain obs-icon--purple-light"></i> Planner &amp; Calibration</div>';
-    var combined = [];
-    for (var k = 0; k < recent.planner.length; k++) { var pe = recent.planner[k]; pe._src = 'planner'; combined.push(pe); }
-    for (var m = 0; m < recent.calibration.length; m++) { var ce = recent.calibration[m]; ce._src = 'calibration'; combined.push(ce); }
-    combined.sort(function (a, b) { return (b.timestamp || '').localeCompare(a.timestamp || ''); });
-    if (combined.length === 0) {
-      h += '<div class="obs-empty">No planner or calibration events.</div>';
-    } else {
-      for (var n = 0; n < Math.min(combined.length, 15); n++) {
-        var ev = combined[n];
-        var srcPill = ev._src === 'planner' ? '<span class="obs-src-pill obs-src-pill--planner">planner</span>' : '<span class="obs-src-pill obs-src-pill--cal">calibration</span>';
-        var label = (ev.eventType || '').replace(/^(planner_|calibration_)/, '');
-        var extra = '';
-        if (ev.counts) {
-          var parts = [];
-          if (ev.counts.enqueued) parts.push(ev.counts.enqueued + ' enqueued');
-          if (ev.counts.recommendations) parts.push(ev.counts.recommendations + ' recs');
-          extra = parts.join(', ');
-        }
-        if (ev.reason) extra = ev.reason;
-        h += '<div class="obs-recent-compact">' + srcPill + ' <span class="obs-recent-ev">' + _esc(label) + '</span>';
-        if (extra) h += ' <span class="obs-recent-extra">' + _esc(extra) + '</span>';
-        h += '<span class="obs-recent-ts">' + _timeAgo(ev.timestamp) + '</span></div>';
-      }
-    }
-    h += '</div>';
-
     h += '</div>';
     return h;
   }

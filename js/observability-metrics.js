@@ -238,61 +238,6 @@ var ObservabilityMetrics = (function () {
       else if (s === 'blocked') qBlocked++;
     }
 
-    // Priority counts (current)
-    var criticalNow = 0, highNow = 0, criticalResolved = 0;
-    if (typeof PriorityEngine !== 'undefined' && PriorityEngine.getCounts) {
-      var counts = PriorityEngine.getCounts();
-      criticalNow = counts.critical || 0;
-      highNow = counts.high || 0;
-    }
-    // Critical resolution from priority changes
-    for (var n = 0; n < prioEv.length; n++) {
-      var pe = prioEv[n];
-      if (pe.eventType === 'priority_changed' && pe.previousBucket === 'critical' && pe.newBucket !== 'critical') {
-        criticalResolved++;
-      }
-    }
-    var criticalTotal = criticalNow + criticalResolved;
-    var criticalResolutionRate = criticalTotal > 0 ? criticalResolved / criticalTotal : null;
-
-    // Verification friction (blocked Done)
-    var blockedDoneCount = 0;
-    for (var p = 0; p < actionEv.length; p++) {
-      if (actionEv[p].eventType === 'action_blocked' && actionEv[p].actionType === 'move_task_to_done') {
-        blockedDoneCount++;
-      }
-    }
-
-    // Workers
-    var wSpawned = 0, wRuns = 0, wTerminated = 0;
-    for (var q = 0; q < workerEv.length; q++) {
-      var wet = workerEv[q].eventType;
-      if (wet === 'worker_spawned' || wet === 'spawned') wSpawned++;
-      if (wet === 'worker_run_started' || wet === 'worker_run_completed' || wet === 'started' || wet === 'reported') wRuns++;
-      if (wet === 'worker_terminated' || wet === 'terminated') wTerminated++;
-    }
-
-    // Planner
-    var plRuns = 0, plRecs = 0;
-    for (var r = 0; r < plannerEv.length; r++) {
-      if (plannerEv[r].eventType === 'planner_run_completed') {
-        plRuns++;
-        if (plannerEv[r].counts && plannerEv[r].counts.recommendations) plRecs += plannerEv[r].counts.recommendations;
-      }
-      if (plannerEv[r].eventType === 'planner_recommendations_enqueued' && plannerEv[r].counts) {
-        plRecs += plannerEv[r].counts.enqueued || 0;
-      }
-    }
-
-    // Calibration
-    var calRuns = 0, calProposals = 0;
-    for (var t = 0; t < calEv.length; t++) {
-      if (calEv[t].eventType === 'calibration_run_completed') calRuns++;
-      if (calEv[t].eventType === 'calibration_recommendations_enqueued' && calEv[t].counts) {
-        calProposals += calEv[t].counts.enqueued || 0;
-      }
-    }
-
     // Storage
     var estBytes = 0, storageFullEvents = 0;
     if (typeof StorageManager !== 'undefined' && StorageManager.estimateUsage) {
@@ -311,11 +256,11 @@ var ObservabilityMetrics = (function () {
         p90: ttaValues.length > 0 ? _percentile(ttaValues, 90) : null
       },
       queue: { pending: qPending, approvedReady: qApproved, executing: qExecuting, blocked: qBlocked },
-      priority: { criticalNow: criticalNow, highNow: highNow, criticalResolved: criticalResolved, criticalResolutionRate: criticalResolutionRate },
-      verification: { blockedDoneCount: blockedDoneCount },
-      workers: { spawned: wSpawned, runs: wRuns, terminated: wTerminated },
-      planner: { runs: plRuns, recsEnqueued: plRecs },
-      calibration: { runs: calRuns, proposalsEnqueued: calProposals },
+      priority: { criticalNow: 0, highNow: 0, criticalResolved: 0, criticalResolutionRate: null },
+      verification: { blockedDoneCount: 0 },
+      workers: { spawned: 0, runs: 0, terminated: 0 },
+      planner: { runs: 0, recsEnqueued: 0 },
+      calibration: { runs: 0, proposalsEnqueued: 0 },
       storage: { estBytes: estBytes, storageFullEvents: storageFullEvents }
     };
   }
@@ -358,34 +303,6 @@ var ObservabilityMetrics = (function () {
       if (et === 'action_failed') dayMap[d].failed++;
       if (et === 'action_enqueued') dayMap[d].pending++;
       if (et === 'action_blocked' && actionEv[i].actionType === 'move_task_to_done') dayMap[d].blockedDone++;
-    }
-
-    // Bucket worker events
-    for (var j = 0; j < workerEv.length; j++) {
-      var wd = _toDay(workerEv[j].timestamp);
-      if (!wd || !dayMap[wd]) continue;
-      if (workerEv[j].eventType === 'worker_run_completed' || workerEv[j].eventType === 'reported') dayMap[wd].workerRuns++;
-    }
-
-    // Bucket planner events
-    for (var k = 0; k < plannerEv.length; k++) {
-      var pd = _toDay(plannerEv[k].timestamp);
-      if (!pd || !dayMap[pd]) continue;
-      if (plannerEv[k].eventType === 'planner_run_completed') dayMap[pd].plannerRuns++;
-    }
-
-    // Bucket calibration events
-    for (var m = 0; m < calEv.length; m++) {
-      var cd = _toDay(calEv[m].timestamp);
-      if (!cd || !dayMap[cd]) continue;
-      if (calEv[m].eventType === 'calibration_run_completed') dayMap[cd].calibrationRuns++;
-    }
-
-    // Bucket priority (critical bucket evaluations per day)
-    for (var n = 0; n < prioEv.length; n++) {
-      var prd = _toDay(prioEv[n].timestamp);
-      if (!prd || !dayMap[prd]) continue;
-      if (prioEv[n].newBucket === 'critical') dayMap[prd].criticalNow++;
     }
 
     return days;
@@ -463,15 +380,9 @@ var ObservabilityMetrics = (function () {
       actions: actionEv.slice(-25).reverse().map(function (e) {
         return { timestamp: e.timestamp, eventType: e.eventType, actionType: e.actionType, source: e.source, reason: e.reason, riskLevel: e.riskLevel };
       }),
-      workers: workerEv.slice(-25).reverse().map(function (e) {
-        return { timestamp: e.timestamp, eventType: e.eventType, workerType: e.workerType, correlationId: e.correlationId };
-      }),
-      planner: plannerEv.slice(-10).reverse().map(function (e) {
-        return { timestamp: e.timestamp, eventType: e.eventType, counts: e.counts, reason: e.reason };
-      }),
-      calibration: calEv.slice(-10).reverse().map(function (e) {
-        return { timestamp: e.timestamp, eventType: e.eventType, counts: e.counts, reason: e.reason };
-      })
+      workers: [],
+      planner: [],
+      calibration: []
     };
   }
 

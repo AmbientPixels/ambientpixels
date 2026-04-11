@@ -1087,7 +1087,15 @@ You must remain within your assigned authority tier. Doctrine influences your st
       pfLines.push('\nCompany: ' + productFacts.company.name + ' (' + productFacts.company.url + ')');
       pfLines.push('Tone: ' + productFacts.company.tone);
     }
-    pfLines.push('\n⚠️ ACCURACY RULE: When writing external content (social posts, blog posts, marketing copy), you MUST only reference features listed above. If unsure about a product feature, say something general rather than inventing specifics. NEVER fabricate features, capabilities, or use cases that are not listed.');
+    pfLines.push('\n🚫 COMMON HALLUCINATIONS TO AVOID (these have been flagged by quality gate — do NOT repeat):');
+    pfLines.push('- Do NOT invent pricing, run limits, or tier names (e.g. "5 runs/day free", "legendary-tier agent")');
+    pfLines.push('- Do NOT claim agents "crawl URLs" or "browse websites" — URL fetch agents fetch a single page, they do not crawl');
+    pfLines.push('- Do NOT claim specific audit sections/scores unless listed in features (e.g. "7-section audit")');
+    pfLines.push('- Do NOT confuse products: Roast My Site ≠ AmbientScore, CardForge ≠ Blindspot, PixelAgents ≠ AgentForge');
+    pfLines.push('- Do NOT claim AmbientOS does edge computing, local LLM inference, or runs on devices');
+    pfLines.push('- Do NOT claim competitor monitoring or competitive analysis for any product');
+    pfLines.push('- Free tier = 50% revenue share + 5 agents max. Pro = $12/mo + 70% share + unlimited agents. No "daily run limits"');
+    pfLines.push('\n⚠️ ACCURACY RULE: When writing external content, ONLY reference features listed above. If unsure, say something general. Posts that fail the quality gate get auto-rejected and you must rewrite.');
     productFactsBlock = pfLines.join('\n');
   }
 
