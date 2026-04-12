@@ -155,12 +155,12 @@ async function runSmokeTests() {
   for (const agentId of ['nova', 'echo', 'scribe', 'quill', 'cipher', 'scout']) {
     test('buildHeartbeatPrompt works for ' + agentId, () => {
       const agent = AGENT_ROLES[agentId];
-      const prompt = buildHeartbeatPrompt(
-        agent, [], [], [], [mockObjective()], [],
-        [], [], [], null, new Set(), { _global: 'Test seed' },
-        [], null, null, { [agentId]: [] }, {},
-        null, null, null, null, productFacts
-      );
+      const prompt = buildHeartbeatPrompt({
+        agent, agentTasks: [], allActiveTasks: [], activeDirectives: [], activeObjectives: [mockObjective()], documents: [],
+        workspaceMemory: [], workspaceDates: [], agentRevisions: [], costIntel: null, reviewCooldownIds: new Set(), seedMemories: { _global: 'Test seed' },
+        researchIntelStore: [], socialIntel: null, _agentMemoryStore: { [agentId]: [] }, agentConfigs: {},
+        trendRadarStore: null, trendInsightsStore: null, performanceDigest: null, agentExperiments: null, productFacts
+      });
       assert.ok(typeof prompt === 'string', 'Prompt should be a string');
       assert.ok(prompt.length > 100, 'Prompt should have content (got ' + prompt.length + ')');
     });
@@ -168,23 +168,23 @@ async function runSmokeTests() {
 
   test('Product facts injected for Echo/Scribe/Quill', () => {
     const echoAgent = Object.assign({}, AGENT_ROLES.echo, { id: 'echo' });
-    const prompt = buildHeartbeatPrompt(
-      echoAgent, [], [], [], [mockObjective()], [],
-      [], [], [], null, new Set(), {},
-      [], null, null, { echo: [] }, {},
-      null, null, null, null, productFacts
-    );
+    const prompt = buildHeartbeatPrompt({
+      agent: echoAgent, agentTasks: [], allActiveTasks: [], activeDirectives: [], activeObjectives: [mockObjective()], documents: [],
+      workspaceMemory: [], workspaceDates: [], agentRevisions: [], costIntel: null, reviewCooldownIds: new Set(), seedMemories: {},
+      researchIntelStore: [], socialIntel: null, _agentMemoryStore: { echo: [] }, agentConfigs: {},
+      trendRadarStore: null, trendInsightsStore: null, performanceDigest: null, agentExperiments: null, productFacts
+    });
     assert.ok(prompt.indexOf('PRODUCT FACTS') !== -1, 'Should contain PRODUCT FACTS block');
     assert.ok(prompt.indexOf('AmbientScore') !== -1, 'Should mention AmbientScore');
   });
 
   test('Product facts NOT injected for Cipher', () => {
-    const prompt = buildHeartbeatPrompt(
-      AGENT_ROLES.cipher, [], [], [], [mockObjective()], [],
-      [], [], [], { gemini: { totalCost: 1.5 } }, new Set(), {},
-      [], null, null, { cipher: [] }, {},
-      null, null, null, null, productFacts
-    );
+    const prompt = buildHeartbeatPrompt({
+      agent: AGENT_ROLES.cipher, agentTasks: [], allActiveTasks: [], activeDirectives: [], activeObjectives: [mockObjective()], documents: [],
+      workspaceMemory: [], workspaceDates: [], agentRevisions: [], costIntel: { gemini: { totalCost: 1.5 } }, reviewCooldownIds: new Set(), seedMemories: {},
+      researchIntelStore: [], socialIntel: null, _agentMemoryStore: { cipher: [] }, agentConfigs: {},
+      trendRadarStore: null, trendInsightsStore: null, performanceDigest: null, agentExperiments: null, productFacts
+    });
     assert.ok(prompt.indexOf('PRODUCT FACTS') === -1, 'Cipher should NOT get product facts');
   });
 
@@ -252,23 +252,23 @@ async function runSmokeTests() {
     await asyncTest('runAgentHeartbeat completes for ' + agentId + ' without crash', async () => {
       _mockGeminiCalls = [];
       const tasks = agentId === 'echo' ? [mockTask({ assignee: 'echo', status: 'todo' })] : [];
-      const result = await runAgentHeartbeat(
-        mockContext(), agentId, tasks,
-        { [agentId]: { heartbeat: { enabled: true }, doctrineWeight: 0.4 } },
-        new Set(), 'cycle-smoke-test', null,
-        [mockCampaign()], [mockObjective()], [],
-        [], [], [],
-        agentId === 'cipher' ? { gemini: { totalCost: 1 } } : null,
-        new Set(), { _global: 'Test' },
-        [], null,
-        'supervised_autonomous',
-        () => false, () => {}, () => {},
-        { [agentId]: { context: '', maxTasks: 5 } },
-        null, null,
-        { [agentId]: [] },
-        null, null, null, null,
+      const result = await runAgentHeartbeat({
+        context: mockContext(), agentId, tasks,
+        configs: { [agentId]: { heartbeat: { enabled: true }, doctrineWeight: 0.4 } },
+        recentSummaries: new Set(), cycleId: 'cycle-smoke-test', novaSkipTaskIds: null,
+        activeDirectives: [mockCampaign()], activeObjectives: [mockObjective()], documents: [],
+        workspaceMemory: [], workspaceDates: [], revisionActions: [],
+        costIntel: agentId === 'cipher' ? { gemini: { totalCost: 1 } } : null,
+        reviewCooldownIds: new Set(), seedMemories: { _global: 'Test' },
+        researchIntelStore: [], socialIntel: null,
+        normalizedActivationMode: 'supervised_autonomous',
+        isAgentInCooldown: () => false, logAgentCooldownOnce: () => {}, incPolicyGate: () => {},
+        campaignCtx: { [agentId]: { context: '', maxTasks: 5 } },
+        siteIntel: null,
+        _agentMemoryStore: { [agentId]: [] },
+        trendRadarStore: null, trendInsightsStore: null, performanceDigest: null, agentExperiments: null,
         productFacts
-      );
+      });
       assert.ok(result, 'Should return result object');
       assert.ok(typeof result.geminiCalls === 'number', 'Should track gemini calls');
       assert.ok(typeof result.actions === 'number', 'Should track actions');

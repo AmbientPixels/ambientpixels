@@ -73,27 +73,21 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-// All agents get all skills. Every agent needs product knowledge:
-//   - Cipher tracks per-product costs and ROI
-//   - Forge writes incidents that reference specific products
-//   - Scout researches product-specific competitive landscapes
-//   - Content agents (Echo/Scribe/Quill/Pixel/Nova) write about products
-// The "ops agents don't need product copy" split was a premature optimization — the cost
-// delta was ~$0 on Gemini Flash and it left Cipher/Forge/Scout blind to product context.
-// Each skill is injected as its own discrete prompt section with hard visual boundaries.
-var ALL_SKILLS = ['ambientos-guide', 'blindspot', 'cardforge', 'storyforge', 'pixel-agents', 'ambientscore'];
+// Route only relevant skills per agent to cut prompt size (~3K-7K tokens saved).
+// ambientos-guide is universal; product skills go to agents that handle that product's content.
 var SKILL_ROUTING = {
-  echo:   ALL_SKILLS,
-  scribe: ALL_SKILLS,
-  quill:  ALL_SKILLS,
-  pixel:  ALL_SKILLS,
-  nova:   ALL_SKILLS,
-  cipher: ALL_SKILLS,
-  forge:  ALL_SKILLS,
-  scout:  ALL_SKILLS
+  nova:   ['ambientos-guide'],
+  echo:   ['ambientos-guide', 'pixel-agents'],
+  scribe: ['ambientos-guide', 'pixel-agents', 'cardforge', 'storyforge'],
+  quill:  ['ambientos-guide'],
+  pixel:  ['ambientos-guide', 'pixel-agents'],
+  cipher: ['ambientos-guide'],
+  forge:  ['ambientos-guide'],
+  scout:  ['ambientos-guide', 'pixel-agents']
 };
 
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel) {
+function buildHeartbeatPrompt(ctx) {
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel } = ctx;
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];

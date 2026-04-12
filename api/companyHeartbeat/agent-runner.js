@@ -63,7 +63,9 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
 
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts) {
+async function runAgentHeartbeat(ctx) {
+  if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
+  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts } = ctx;
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -267,7 +269,18 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     }
   }
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel);
+  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel });
+
+  // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
+  const _estimatedTokens = Math.ceil(prompt.length / 4);
+  if (_estimatedTokens > 30000) {
+    context.log.warn('[Heartbeat] ' + agentId + ': prompt exceeds 30K token ceiling (' + _estimatedTokens + ' est.) — skipping this cycle');
+    result.durationMs = Date.now() - _agentRunStartMs;
+    return result;
+  }
+  if (_estimatedTokens > 25000) {
+    context.log.warn('[Heartbeat] ' + agentId + ': prompt approaching ceiling (' + _estimatedTokens + ' est. tokens)');
+  }
 
   // Call Gemini
   let response = await callGemini(prompt, agentId);

@@ -2,8 +2,6 @@
 // Runs agent heartbeat cycles: reviews tasks, takes actions, logs activity
 
 const storage = require('../_utils/companyStorage');
-const { normalizeCampaignRef, ensureCampaign } = require('../_shared/campaignMatcher');
-
 // ── Extracted modules ──
 const C = require('./constants');
 const H = require('./helpers');
@@ -16,6 +14,7 @@ const { buildFinanceDigest } = require('./finance-intel');
 const { buildResearchDemandDigest } = require('./research-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
+const { processCampaignLifecycle } = require('./campaign-lifecycle');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
 const productFacts = require('../_data/product-facts.json');
@@ -116,36 +115,11 @@ module.exports = async function (context) {
     const _taskIdsArchived = new Set(); // populated by archive block
     const configs = (await storage.getState('agentConfigs')) || {};
     const recentLogs = await storage.getLogs({ limit: 50 });
-    const _rawDirectives = (await storage.getState('directives')) || [];
     const campaigns = (await storage.getState('campaigns')) || [];
-    // Server-side migration: merge directives into campaigns (one-time)
-    if (_rawDirectives.length > 0) {
-      const _existingCmpIds = new Set(campaigns.map(c => c && c.id).filter(Boolean));
-      let _migrated = 0;
-      for (const _rd of _rawDirectives) {
-        if (!_rd || !_rd.id || _existingCmpIds.has(_rd.id)) continue;
-        let _st = String(_rd.status || 'active').toLowerCase();
-        if (_st === 'completed') _st = 'complete';
-        if (_st === 'pending-approval') _st = 'active';
-        _rd.status = _st;
-        _rd._migratedFromDirective = true;
-        if (!_rd.createdAt) _rd.createdAt = _rd.createdDate || new Date().toISOString();
-        if (!_rd.updatedAt) _rd.updatedAt = _rd.createdAt;
-        campaigns.push(_rd);
-        _migrated++;
-      }
-      if (_migrated > 0) {
-        context.log('[Heartbeat] Migrated ' + _migrated + ' directives into campaigns');
-      }
-    }
     const directives = campaigns; // backward compat alias
     const objectives = (await storage.getState('objectives')) || [];
     const _documentsAtLoad = (await storage.getState('documents')) || [];
     const _documentIdsAtLoad = new Set(_documentsAtLoad.map(function (d) { return d && d.id; }).filter(Boolean));
-    let campaignsChanged = false;
-    let tasksCampaignChanged = false;
-    const campaignGovEvents = [];
-    let autoFixCount = 0;
     let createdCampaignAutoCount = 0;
     const _guardrailCounts = {
       orphanBlocked: 0,
@@ -169,235 +143,17 @@ module.exports = async function (context) {
       return generateConversationalEntityComment(kind, opts);
     }
 
-    for (const c of campaigns) {
-      if (!c || typeof c !== 'object') continue;
-      if (!c.id) { c.id = 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6); campaignsChanged = true; autoFixCount++; _campaignsTouched.add(c.id); }
-      if (!c.status) { c.status = 'active'; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
-      if (!c.createdAt) { c.createdAt = new Date().toISOString(); campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
-      if (!c.updatedAt) { c.updatedAt = c.createdAt; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
-      if (!c.title) { c.title = 'Untitled Campaign'; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
-      if (c.description === undefined || c.description === null) { c.description = ''; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
-      // Normalize campaign lifecycle fields (no-op if already set or intentionally absent)
-      var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_reddit', 'social_facebook', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
-      if (c.taskType && _validTaskTypes.indexOf(c.taskType) === -1) { c.taskType = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-      if (Array.isArray(c.allowedTaskTypes)) { c.allowedTaskTypes = c.allowedTaskTypes.filter(function (t) { return _validTaskTypes.indexOf(t) !== -1; }); if (c.allowedTaskTypes.length === 0) { c.allowedTaskTypes = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); } }
-      if (c.maxTasks !== undefined && c.maxTasks !== null && typeof c.maxTasks !== 'number') { c.maxTasks = parseInt(c.maxTasks, 10) || null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-      if (c.frequency !== undefined && c.frequency !== null && typeof c.frequency !== 'number') { c.frequency = parseInt(c.frequency, 10) || null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-      if (c.frequency && c.frequency < 1) { c.frequency = 1; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-      if (c.cadence && ['daily', 'weekly', 'biweekly'].indexOf(c.cadence) === -1) { c.cadence = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-      if (c.endDate && isNaN(new Date(c.endDate).getTime())) { c.endDate = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-      if (c.startDate && isNaN(new Date(c.startDate).getTime())) { c.startDate = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-      if (c.autoComplete !== undefined && typeof c.autoComplete !== 'boolean') { c.autoComplete = c.autoComplete !== false && c.autoComplete !== 'false'; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
-    }
-
-    // Normalize objective linking: linkedDirective/linkedDirectives → linkedCampaigns
-    for (const _normObj of objectives) {
-      if (!_normObj) continue;
-      if (!Array.isArray(_normObj.linkedCampaigns)) {
-        if (Array.isArray(_normObj.linkedDirectives)) {
-          _normObj.linkedCampaigns = _normObj.linkedDirectives;
-        } else if (_normObj.linkedDirective) {
-          _normObj.linkedCampaigns = [_normObj.linkedDirective];
-        } else {
-          _normObj.linkedCampaigns = [];
-        }
-      }
-      _normObj.linkedDirectives = _normObj.linkedCampaigns; // backward compat alias
-      autoFixCount++;
-    }
-
-    // ── Goal → auto-create Campaign — DISABLED (CEO-only campaign creation) ──
+    // ── Campaign lifecycle: normalize, auto-complete, auto-pause, reactivate, auto-replenish ──
+    const _clResult = processCampaignLifecycle({ campaigns, tasks, objectives, log: context.log.bind(context) });
+    let campaignsChanged = _clResult.campaignsChanged;
+    let autoFixCount = _clResult.autoFixCount;
+    const campaignGovEvents = _clResult.campaignGovEvents;
+    const _campaignsTouched = _clResult.campaignsTouched;
+    const campaignById = _clResult.campaignById;
     let objectivesChanged = false;
     context.log('[Heartbeat] Goal→Campaign auto-creation DISABLED (CEO-only)');
-
-    // Build campaignById map for O(1) lookups in freeze gates
-    const campaignById = {};
-    for (const _c of campaigns) { if (_c && _c.id) campaignById[_c.id] = _c; }
-
-    // Normalize directive_id → campaign_id on existing refs (no auto-creation — CEO-only)
-    for (const t of tasks) {
-      if (!t) continue;
-      normalizeCampaignRef(t);
-      if (!t.campaign_id) {
-        context.log('[Heartbeat] Task ' + (t.id || '?') + ' has no campaign_id — skipping auto-attach (CEO-only campaign creation)');
-      }
-    }
-
-    // Auto-complete campaigns where ALL linked tasks are done (skip if autoComplete === false)
-    for (const c of campaigns) {
-      if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
-      if (c.autoComplete === false) continue; // ongoing campaigns opt out
-      const cmpTasks = tasks.filter(function (t) { return t && t.campaign_id === c.id; });
-      if (cmpTasks.length === 0) continue;
-      // For campaigns with maxTasks or frequency, require that the cap is reached before auto-completing
-      var _acMaxTasks = (c.maxTasks && typeof c.maxTasks === 'number') ? c.maxTasks : null;
-      if (!_acMaxTasks && c.frequency && c.cadence) {
-        var _acCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
-        var _acPeriodDays = _acCadenceDays[c.cadence] || 7;
-        var _acSocialTypes = (Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
-        var _acPlatformCount = _acSocialTypes.length || 1;
-        var _acStartMs = c.startDate ? new Date(c.startDate).getTime() : new Date(c.createdAt || Date.now()).getTime();
-        var _acEndMs = c.endDate ? new Date(c.endDate).getTime() : (_acStartMs + 90 * 86400000);
-        var _acPeriods = Math.ceil(Math.max(1, Math.ceil((_acEndMs - _acStartMs) / 86400000)) / _acPeriodDays);
-        _acMaxTasks = c.frequency * _acPeriods * _acPlatformCount;
-      }
-      if (_acMaxTasks && cmpTasks.length < _acMaxTasks) continue;
-      // Don't auto-complete if the campaign's end date is still in the future —
-      // recurring campaigns should keep producing tasks until their end date
-      if (c.endDate && new Date(c.endDate).getTime() > Date.now()) continue;
-      const allDone = cmpTasks.every(function (t) {
-        const s = String(t.status || '').toLowerCase();
-        return s === 'done' || s === 'archived';
-      });
-      if (!allDone) continue;
-      c.status = 'complete';
-      c.updatedAt = new Date().toISOString();
-      campaignsChanged = true;
-      autoFixCount++;
-      if (c.id) _campaignsTouched.add(c.id);
-      campaignGovEvents.push({
-        id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-        type: 'campaign_auto_complete',
-        data: { campaignId: c.id, title: c.title, taskCount: cmpTasks.length },
-        timestamp: new Date().toISOString()
-      });
-    }
-    // Auto-pause campaigns past their endDate
-    for (const c of campaigns) {
-      if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
-      if (c.endDate && new Date(c.endDate).getTime() < Date.now()) {
-        c.status = 'complete';
-        c.updatedAt = new Date().toISOString();
-        campaignsChanged = true;
-        if (c.id) _campaignsTouched.add(c.id);
-        campaignGovEvents.push({
-          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-          type: 'campaign_enddate_complete',
-          data: { campaignId: c.id, title: c.title, endDate: c.endDate },
-          timestamp: new Date().toISOString()
-        });
-      }
-    }
-
-    // Reactivate prematurely completed campaigns whose end date is still in the future
-    for (const c of campaigns) {
-      if (!c || c.deletedAt) continue;
-      if (String(c.status || '').toLowerCase() !== 'complete') continue;
-      if (!c.endDate) continue;
-      if (new Date(c.endDate).getTime() > Date.now()) {
-        // Campaign was auto-completed but end date hasn't passed — reactivate it
-        c.status = 'active';
-        c.updatedAt = new Date().toISOString();
-        campaignsChanged = true;
-        if (c.id) _campaignsTouched.add(c.id);
-        context.log('[Heartbeat] Reactivated campaign "' + (c.title || c.id) + '" — end date ' + c.endDate.substring(0, 10) + ' not yet reached');
-        campaignGovEvents.push({
-          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-          type: 'campaign_reactivated',
-          data: { campaignId: c.id, title: c.title, endDate: c.endDate, reason: 'end_date_not_reached' },
-          timestamp: new Date().toISOString()
-        });
-      }
-    }
-
-    // ── Campaign auto-replenish: create tasks for active campaigns with 0 active tasks ──
-    let tasksChanged = false;
-    const _now = Date.now();
-    const _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
-    const _taskTypeToAgent = {
-      blog_post: 'scribe', social_linkedin: 'echo', social_bluesky: 'echo',
-      social_x: 'echo', social_facebook: 'echo', design_asset: 'pixel',
-      research: 'scout', internal_doc: 'scribe', general: 'nova',
-      bluesky_discovery: 'scout', bluesky_reply: 'scribe'
-    };
-    const _taskTypeLabels = {
-      blog_post: 'blog post', social_linkedin: 'LinkedIn post', social_bluesky: 'Bluesky post',
-      social_x: 'X post', social_facebook: 'Facebook post', design_asset: 'design asset',
-      research: 'research task', internal_doc: 'internal doc', general: 'task',
-      bluesky_discovery: 'Bluesky thread discovery', bluesky_reply: 'Bluesky reply draft'
-    };
-
-    for (const c of campaigns) {
-      if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
-      if (!c.cadence) {
-        context.log('[Heartbeat] Campaign "' + (c.title || c.id) + '" skipped auto-replenish: missing cadence field');
-        continue;
-      }
-      // Must be within start/end date window
-      if (c.startDate && new Date(c.startDate).getTime() > _now) continue;
-      if (c.endDate && new Date(c.endDate).getTime() < _now) continue;
-
-      const cmpTasks = tasks.filter(t => t && t.campaign_id === c.id && t.status !== 'archived');
-      const activeTasks = cmpTasks.filter(t => {
-        const s = String(t.status || '').toLowerCase();
-        return s !== 'done' && s !== 'archived';
-      });
-
-      // Only replenish if 0 active tasks
-      if (activeTasks.length > 0) continue;
-
-      // Check cadence throttle — count only primary tasks (matching allowedTaskTypes) created this period
-      const _window = _cadenceMs[c.cadence] || 604800000;
-      const _periodStart = _now - _window;
-      const _allowedTypes = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0 ? c.allowedTaskTypes : null;
-      const _primaryThisPeriod = cmpTasks.filter(t => {
-        if (!t.createdAt || new Date(t.createdAt).getTime() <= _periodStart) return false;
-        return !_allowedTypes || _allowedTypes.indexOf(t.taskType) !== -1;
-      }).length;
-      const _freq = c.frequency || 1;
-      if (_primaryThisPeriod >= _freq) continue;
-
-      // Determine which task type to create
-      const allowedTypes = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0
-        ? c.allowedTaskTypes
-        : (c.taskType ? [c.taskType] : ['general']);
-
-      // For multi-platform social campaigns, pick the platform that has fewest tasks
-      let chosenType = allowedTypes[0];
-      if (allowedTypes.length > 1) {
-        const typeCounts = {};
-        allowedTypes.forEach(tt => { typeCounts[tt] = 0; });
-        cmpTasks.forEach(t => {
-          const tt = t.taskType || '';
-          if (typeCounts[tt] !== undefined) typeCounts[tt]++;
-        });
-        // Pick the type with fewest existing tasks (round-robin effect)
-        chosenType = allowedTypes.reduce((best, tt) => (typeCounts[tt] || 0) < (typeCounts[best] || 0) ? tt : best, allowedTypes[0]);
-      }
-
-      const label = _taskTypeLabels[chosenType] || chosenType.replace(/_/g, ' ');
-      const assignee = _taskTypeToAgent[chosenType] || 'echo';
-      // Default due date: based on campaign cadence (daily=1d, weekly=3d, biweekly=5d, fallback=3d)
-      const _cadenceDays = { daily: 1, weekly: 3, biweekly: 5 };
-      const _dueDays = _cadenceDays[c.cadence] || 3;
-      const newTask = {
-        id: 'task-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-        title: 'Draft ' + label + ' for ' + (c.title || 'campaign'),
-        description: 'Auto-created by campaign scheduler. Campaign: ' + (c.title || c.id) + '. Create a ' + label + ' aligned with the campaign brief and objectives.',
-        status: 'todo',
-        taskType: chosenType,
-        assignee: assignee,
-        campaign_id: c.id,
-        objective_id: c.objective_id || null,
-        priority: c.priority || 'medium',
-        dueDate: new Date(Date.now() + _dueDays * 24 * 60 * 60 * 1000).toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        source: { type: 'campaign_scheduler', campaignId: c.id, campaignTitle: c.title }
-      };
-
-      tasks.push(newTask);
-      tasksChanged = true;
-      context.log('[Heartbeat] Auto-replenish: created task "' + newTask.title + '" for campaign "' + (c.title || c.id) + '" (type: ' + chosenType + ', assignee: ' + assignee + ')');
-      campaignGovEvents.push({
-        id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-        type: 'campaign_auto_replenish',
-        data: { campaignId: c.id, campaignTitle: c.title, taskId: newTask.id, taskTitle: newTask.title, taskType: chosenType },
-        timestamp: new Date().toISOString()
-      });
-    }
     // Persist auto-replenished tasks immediately so agents see them this cycle
-    if (tasksChanged) {
+    if (_clResult.tasksChanged) {
       await storage.setState('tasks', tasks);
       context.log('[Heartbeat] Saved ' + tasks.length + ' tasks (includes auto-replenished)');
     }
@@ -1590,27 +1346,29 @@ module.exports = async function (context) {
       agentActions[agentId] = 0;
 
       try {
-        const result = await runAgentHeartbeat(
+        const result = await runAgentHeartbeat({
           context, agentId, tasks, configs, recentSummaries, cycleId,
-          agentId === 'nova' ? novaSkipTaskIds : null,
+          novaSkipTaskIds: agentId === 'nova' ? novaSkipTaskIds : null,
           activeDirectives, activeObjectives, documents,
           workspaceMemory, workspaceDates, revisionActions,
-          agentId === 'cipher' ? costIntel : null,
-          _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel,
-          normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate,
-          _agentCampaignCtx, siteIntel,
-          null, // workerReports removed
+          costIntel: agentId === 'cipher' ? costIntel : null,
+          reviewCooldownIds: _reviewCooldownIds,
+          seedMemories: _seedMemories,
+          researchIntelStore, socialIntel,
+          normalizedActivationMode,
+          isAgentInCooldown: _isAgentInCooldown,
+          logAgentCooldownOnce: _logAgentCooldownOnce,
+          incPolicyGate: _incPolicyGate,
+          campaignCtx: _agentCampaignCtx,
+          siteIntel,
           _agentMemoryStore, trendRadarStore,
-          (agentId === 'nova' || agentId === 'scribe' || agentId === 'echo') ? trendInsightsStore : null,
+          trendInsightsStore: (agentId === 'nova' || agentId === 'scribe' || agentId === 'echo') ? trendInsightsStore : null,
           performanceDigest, agentExperiments,
-          productFacts,
-          skillsData,
-          forgeOpsDigest,
-          financeDigest,
-          researchDemandDigest,
+          productFacts, skillsData,
+          forgeOpsDigest, financeDigest, researchDemandDigest,
           socialAccountStats,
-          _publishedBlogPostsForDigest
-        );
+          publishedBlogPosts: _publishedBlogPostsForDigest
+        });
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
           researchIntelStore.push(result.newResearchIntel);
