@@ -51,6 +51,9 @@
     .bsd-actions .bsd-btn-manual { border-color: rgba(52,211,153,0.3); color: #34d399; }
     .bsd-actions .bsd-btn-manual:hover { background: rgba(52,211,153,0.12); }
     .bsd-actions .bsd-btn-dismiss { border-color: rgba(156,163,175,0.15); color: #6b7280; }
+    .bsd-actions .bsd-btn-view { border-color: rgba(0,133,255,0.25); color: #0085ff; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.68rem; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid; background: rgba(0,133,255,0.06); }
+    .bsd-actions .bsd-btn-view:hover { background: rgba(0,133,255,0.12); }
+    .bsd-replied-badge { font-size: 0.6rem; padding: 0.15rem 0.45rem; border-radius: 10px; background: rgba(52,211,153,0.12); color: #34d399; font-weight: 500; margin-left: 0.3rem; }
 
     .bsd-empty { text-align: center; padding: 3rem 1rem; color: #6b7280; font-size: 0.85rem; }
 
@@ -92,6 +95,7 @@
     <div class="bsd-toolbar">
       <button id="bsd-filter-all" class="active">All</button>
       <button id="bsd-filter-new">New</button>
+      <button id="bsd-filter-replied">Replied</button>
       <button id="bsd-filter-dismissed">Dismissed</button>
       <select id="bsd-sort">
         <option value="score">Sort: Score</option>
@@ -189,6 +193,16 @@
         return 'bsd-score-low';
       }
 
+      // Convert AT URI to Bluesky web URL
+      // at://did:plc:xxx/app.bsky.feed.post/rkey → https://bsky.app/profile/{handle}/post/{rkey}
+      function _postUrl(uri, author) {
+        if (!uri) return '';
+        var parts = uri.split('/');
+        var rkey = parts[parts.length - 1];
+        var handle = author || parts[2] || '';
+        return 'https://bsky.app/profile/' + handle + '/post/' + rkey;
+      }
+
       // ── Fetch candidates ──
       function loadCandidates() {
         fetch(API_BASE + '/company-state?key=blueskyCandidates', { headers: HEADERS })
@@ -220,6 +234,7 @@
         // Filter
         var filtered = _candidates.filter(function (c) {
           if (_filter === 'new') return c.status === 'new';
+          if (_filter === 'replied') return c.status === 'replied';
           if (_filter === 'dismissed') return c.status === 'dismissed';
           return c.status !== 'dismissed';
         });
@@ -243,10 +258,12 @@
           var c = filtered[j];
           var sc = _scoreClass(c.score || 0);
           var isDismissed = c.status === 'dismissed';
+          var threadUrl = _postUrl(c.uri, c.author);
+          var isReplied = c.status === 'replied';
           html += '<div class="bsd-card' + (isDismissed ? ' dismissed' : '') + '" data-id="' + _esc(c.id) + '">'
             + '<div class="bsd-card-body">'
             + '<div class="bsd-card-top">'
-            + '<span class="bsd-author">@' + _esc(c.author) + '</span>'
+            + '<span class="bsd-author">@' + _esc(c.author) + (isReplied ? '<span class="bsd-replied-badge">replied</span>' : '') + '</span>'
             + '<span class="bsd-score ' + sc + '">' + (c.score || 0) + '</span>'
             + '</div>'
             + '<div class="bsd-text">' + _esc((c.text || '').substring(0, 400)) + '</div>'
@@ -258,10 +275,12 @@
             + (c.matchedKeyword ? '<span><i class="fas fa-tag"></i> ' + _esc(c.matchedKeyword) + '</span>' : '')
             + '</div>'
             + '<div class="bsd-actions">'
+            + (threadUrl ? '<a class="bsd-btn-view" href="' + _esc(threadUrl) + '" target="_blank" rel="noopener"><i class="fab fa-bluesky"></i> View Thread</a>' : '')
+            + (c.replyUrl ? '<a class="bsd-btn-view" href="' + _esc(c.replyUrl) + '" target="_blank" rel="noopener" style="border-color:rgba(52,211,153,0.25);color:#34d399;background:rgba(52,211,153,0.06)"><i class="fas fa-check-circle"></i> View Reply</a>' : '')
             + (isDismissed
               ? '<button class="bsd-btn-restore" onclick="BSD.restore(\'' + _esc(c.id) + '\')"><i class="fas fa-undo"></i> Restore</button>'
-              : '<button class="bsd-btn-reply" onclick="BSD.openReply(\'' + _esc(c.id) + '\')"><i class="fas fa-reply"></i> Draft Reply</button>'
-                + '<button class="bsd-btn-manual" onclick="BSD.openManual(\'' + _esc(c.id) + '\')"><i class="fas fa-pen"></i> Post Manually</button>'
+              : (isReplied ? '' : '<button class="bsd-btn-reply" onclick="BSD.openReply(\'' + _esc(c.id) + '\')"><i class="fas fa-reply"></i> Draft Reply</button>'
+                + '<button class="bsd-btn-manual" onclick="BSD.openManual(\'' + _esc(c.id) + '\')"><i class="fas fa-pen"></i> Post Manually</button>')
                 + '<button class="bsd-btn-dismiss" onclick="BSD.dismiss(\'' + _esc(c.id) + '\')"><i class="fas fa-times"></i> Dismiss</button>'
             )
             + '</div>'
@@ -500,6 +519,7 @@
       // ── Wire up UI ──
       document.getElementById('bsd-filter-all').onclick = function () { _filter = 'all'; setActiveFilter(this); render(); };
       document.getElementById('bsd-filter-new').onclick = function () { _filter = 'new'; setActiveFilter(this); render(); };
+      document.getElementById('bsd-filter-replied').onclick = function () { _filter = 'replied'; setActiveFilter(this); render(); };
       document.getElementById('bsd-filter-dismissed').onclick = function () { _filter = 'dismissed'; setActiveFilter(this); render(); };
       document.getElementById('bsd-sort').onchange = function () { _sort = this.value; render(); };
       document.getElementById('bsd-refresh').onclick = loadCandidates;

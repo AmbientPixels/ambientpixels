@@ -431,6 +431,27 @@ module.exports = async function (context, req) {
       }
     }
 
+    // Store reply URL on bluesky candidate so Discovery Dashboard can link to it
+    if (actionType === 'social_post.reply' && platform === 'bluesky' && result.receipt && result.receipt.post_url) {
+      try {
+        const candidates = (await storage.getState('blueskyCandidates')) || [];
+        // Match candidate by thread URI from the action's reply payload
+        const replyRoot = action.payload && action.payload.reply && action.payload.reply.root;
+        if (replyRoot && replyRoot.uri) {
+          const candidate = candidates.find(c => c.uri === replyRoot.uri);
+          if (candidate) {
+            candidate.replyUrl = result.receipt.post_url;
+            candidate.repliedAt = new Date().toISOString();
+            candidate.status = 'replied';
+            await storage.setState('blueskyCandidates', candidates);
+            context.log('[actionsExecute] Updated bluesky candidate with reply URL:', result.receipt.post_url);
+          }
+        }
+      } catch (candErr) {
+        context.log.warn('[actionsExecute] Failed to update bluesky candidate:', candErr.message);
+      }
+    }
+
     // Log success to governance
     await _logGovernance(storage, 'action-success', {
       actionId: action.id,
