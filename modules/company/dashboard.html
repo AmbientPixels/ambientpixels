@@ -706,6 +706,18 @@
           <div class="dash-empty" id="heartbeat-health-empty">No heartbeat telemetry yet.</div>
         </div>
       </div>
+
+      <!-- System Health Monitor — surfaces silent failures -->
+      <div class="dash-panel dash-panel--full" id="panel-health-monitor">
+        <div class="dash-panel-header">
+          <span class="dash-panel-title"><i class="fas fa-stethoscope dash-icon-red-lt"></i> System Health Monitor</span>
+          <span class="dash-panel-badge" id="health-monitor-badge">Checking...</span>
+        </div>
+        <div id="health-monitor-body" style="padding:0.6rem 0.75rem;">
+          <div class="dash-empty" style="font-size:0.7rem;">Running diagnostics...</div>
+        </div>
+      </div>
+
       <!-- KPI Scoreboard (hidden — no real data feeding in) -->
       <div style="display:none;" id="panel-kpi-wrap">
         <div id="panel-kpi-list"></div>
@@ -1368,7 +1380,7 @@
         [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderGrowthTraffic, refreshSocialCommand,
          renderCeoObsHealth, renderStats, renderFleet, renderAgentStatus, renderSessions,
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
-         renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
+         renderHeartbeatHealth, renderHealthMonitor, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderContentKPIs, renderGovernanceLog, renderGovernanceLogDev,
@@ -2990,6 +3002,132 @@
           heartbeatHealthEmpty.style.display = '';
           _setBadge('red', 'Error');
         });
+      }
+
+      // ── System Health Monitor ──
+      function renderHealthMonitor() {
+        var body = document.getElementById('health-monitor-body');
+        var badge = document.getElementById('health-monitor-badge');
+        if (!body || !badge) return;
+
+        var issues = [];
+
+        // 1) Campaigns missing cadence or frequency
+        var campaigns = AgentEngine.getCampaigns ? AgentEngine.getCampaigns() : [];
+        campaigns.forEach(function (c) {
+          if (!c || c.deletedAt || c.status !== 'active') return;
+          if (!c.cadence) issues.push({ level: 'red', title: 'Campaign "' + (c.title || c.id) + '" missing cadence', detail: 'Auto-replenish will skip this campaign. No tasks will be created.' });
+          if (!c.frequency) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" missing frequency', detail: 'Defaults to 1 per period. Set explicitly to avoid confusion.' });
+          if (!c.allowedTaskTypes || c.allowedTaskTypes.length === 0) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" has no task types', detail: 'Will create generic tasks. Set allowedTaskTypes for proper routing.' });
+          if (c.endDate && new Date(c.endDate).getTime() < Date.now()) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" past end date but still active', detail: 'End date: ' + c.endDate.substring(0, 10) + '. Should be completed or extended.' });
+        });
+
+        // 2) Status mismatches — campaigns with deletedAt but still active
+        campaigns.forEach(function (c) {
+          if (c && c.status === 'active' && c.deletedAt) issues.push({ level: 'red', title: 'Campaign "' + (c.title || c.id) + '" is active but has deletedAt', detail: 'Something soft-deleted it without changing status. It will be hidden from UI.' });
+        });
+
+        // 3) Stuck tasks — todo for 3+ days
+        var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+        var threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+        tasks.forEach(function (t) {
+          if (!t || t.status === 'done' || t.status === 'archived') return;
+          if (t.status === 'todo' && t.createdAt && new Date(t.createdAt).getTime() < threeDaysAgo) {
+            issues.push({ level: 'yellow', title: 'Task stuck in todo: "' + (t.title || '').substring(0, 50) + '"', detail: 'Assigned to ' + (t.assignee || 'nobody') + '. Created ' + Math.floor((Date.now() - new Date(t.createdAt).getTime()) / 86400000) + ' days ago.' });
+          }
+          if (t.status === 'in-progress' && t.updatedAt && new Date(t.updatedAt).getTime() < threeDaysAgo) {
+            issues.push({ level: 'yellow', title: 'Task stale in-progress: "' + (t.title || '').substring(0, 50) + '"', detail: 'Assigned to ' + (t.assignee || 'nobody') + '. Last updated ' + Math.floor((Date.now() - new Date(t.updatedAt).getTime()) / 86400000) + ' days ago.' });
+          }
+        });
+
+        // 4) Objectives with bad status
+        var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
+        objectives.forEach(function (o) {
+          if (!o) return;
+          var validStatuses = ['active', 'on_track', 'at_risk', 'behind', 'complete', 'completed', 'canceled', 'archived'];
+          if (validStatuses.indexOf(o.status) === -1) issues.push({ level: 'red', title: 'Objective "' + (o.title || o.id) + '" has unknown status: ' + o.status, detail: 'May not display correctly on Goals page.' });
+          // Active objective with no active campaigns
+          if (o.status === 'active' || o.status === 'on_track') {
+            var linkedCmps = campaigns.filter(function (c) { return c && c.objective_id === o.id && c.status === 'active' && !c.deletedAt; });
+            if (linkedCmps.length === 0) issues.push({ level: 'yellow', title: 'Objective "' + (o.title || o.id) + '" has no active campaigns', detail: 'No work is being generated for this goal.' });
+          }
+        });
+
+        // 5) Heartbeat health — check last run
+        var _hbApiBase = (typeof getApiBase === 'function') ? getApiBase() : 'https://ambientpixels-nova-api.azurewebsites.net/api';
+        var _hbHeaders = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
+        fetch(_hbApiBase + '/company-state?key=heartbeatRuns', { headers: _hbHeaders })
+          .then(function (r) { return r.ok ? r.json() : {}; })
+          .then(function (resp) {
+            var runs = (resp && resp.value) || [];
+            if (Array.isArray(runs) && runs.length > 0) {
+              var last = runs[runs.length - 1];
+              var ageMin = Math.floor((Date.now() - new Date(last.finishedAt || last.startedAt || 0).getTime()) / 60000);
+              if (ageMin > 90) issues.push({ level: 'red', title: 'Heartbeat is stale (' + ageMin + 'm ago)', detail: 'Last run: ' + (last.finishedAt || 'unknown') + '. Timer may have stopped.' });
+              if (last.status === 'error') issues.push({ level: 'red', title: 'Last heartbeat had errors', detail: (last.errorSummary || 'Unknown error').substring(0, 100) });
+
+              // Check for stalled agents (0 actions over last 5 runs)
+              var recent5 = runs.slice(-5);
+              var agentTotals = {};
+              recent5.forEach(function (r) {
+                var pa = r.perAgent || {};
+                Object.keys(pa).forEach(function (aid) {
+                  if (!agentTotals[aid]) agentTotals[aid] = 0;
+                  agentTotals[aid] += (pa[aid].actionsExecuted || 0);
+                });
+              });
+              Object.keys(agentTotals).forEach(function (aid) {
+                if (aid === 'quill') return; // reviewer, expected low output
+                if (agentTotals[aid] === 0 && recent5.length >= 5) {
+                  issues.push({ level: 'yellow', title: 'Agent ' + aid + ' produced 0 actions over last 5 heartbeats', detail: 'May be stalled or have no assigned work.' });
+                }
+              });
+            } else {
+              issues.push({ level: 'red', title: 'No heartbeat runs found', detail: 'Heartbeat may not be configured or has never run.' });
+            }
+
+            _renderHealthMonitor(body, badge, issues);
+          })
+          .catch(function () {
+            issues.push({ level: 'yellow', title: 'Could not fetch heartbeat data', detail: 'Server may be unreachable.' });
+            _renderHealthMonitor(body, badge, issues);
+          });
+      }
+
+      function _renderHealthMonitor(body, badge, issues) {
+        var reds = issues.filter(function (i) { return i.level === 'red'; }).length;
+        var yellows = issues.filter(function (i) { return i.level === 'yellow'; }).length;
+
+        if (issues.length === 0) {
+          badge.textContent = 'All Clear';
+          badge.style.color = '#34d399';
+          body.innerHTML = '<div style="font-size:0.72rem;color:#34d399;padding:0.5rem 0;text-align:center;"><i class="fas fa-check-circle" style="margin-right:0.3rem;"></i>No issues detected</div>';
+          return;
+        }
+
+        badge.textContent = reds > 0 ? reds + ' Critical' : yellows + ' Warning' + (yellows !== 1 ? 's' : '');
+        badge.style.color = reds > 0 ? '#f87171' : '#fbbf24';
+
+        var html = '<div class="shm-summary">';
+        if (reds > 0) html += '<span class="shm-count shm-count--red"><i class="fas fa-times-circle"></i> ' + reds + ' critical</span>';
+        if (yellows > 0) html += '<span class="shm-count shm-count--yellow"><i class="fas fa-exclamation-triangle"></i> ' + yellows + ' warning' + (yellows !== 1 ? 's' : '') + '</span>';
+        var greens = 0; // future: count passing checks
+        html += '</div>';
+
+        // Sort: red first, then yellow
+        issues.sort(function (a, b) { return (a.level === 'red' ? 0 : 1) - (b.level === 'red' ? 0 : 1); });
+
+        issues.forEach(function (issue) {
+          var icon = issue.level === 'red' ? 'fa-times-circle' : 'fa-exclamation-triangle';
+          html += '<div class="shm-item">'
+            + '<div class="shm-icon shm-icon--' + issue.level + '"><i class="fas ' + icon + '"></i></div>'
+            + '<div class="shm-body">'
+            + '<div class="shm-title">' + escapeHtml(issue.title) + '</div>'
+            + '<div class="shm-detail">' + escapeHtml(issue.detail) + '</div>'
+            + '</div></div>';
+        });
+
+        body.innerHTML = html;
       }
 
       // ── Server Logs (merge into overnight/cron if available) ──

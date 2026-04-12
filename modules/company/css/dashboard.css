@@ -2271,6 +2271,21 @@ body[data-theme="dim"] .tb-stats-table td { border-bottom-color: rgba(148,163,18
 .hb-footer { display: flex; gap: 0.5rem; flex-wrap: wrap; padding-top: 0.45rem; margin-top: 0.45rem; border-top: 1px solid rgba(255,255,255,0.05); }
 .hb-footer-stat { font-size: 0.6rem; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 0.25rem; }
 .hb-footer-stat b { color: rgba(255,255,255,0.6); font-weight: 600; }
+/* ── System Health Monitor ── */
+.shm-item { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+.shm-item:last-child { border-bottom: none; }
+.shm-icon { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; flex-shrink: 0; margin-top: 1px; }
+.shm-icon--red { background: rgba(239,68,68,0.12); color: #f87171; }
+.shm-icon--yellow { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.shm-icon--green { background: rgba(52,211,153,0.12); color: #34d399; }
+.shm-body { flex: 1; min-width: 0; }
+.shm-title { font-size: 0.72rem; font-weight: 500; color: rgba(255,255,255,0.85); }
+.shm-detail { font-size: 0.62rem; color: rgba(255,255,255,0.4); margin-top: 1px; }
+.shm-summary { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.shm-count { font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: 6px; }
+.shm-count--red { background: rgba(239,68,68,0.1); color: #f87171; }
+.shm-count--yellow { background: rgba(251,191,36,0.1); color: #fbbf24; }
+.shm-count--green { background: rgba(52,211,153,0.1); color: #34d399; }
 #ceo-obs-root { padding: 0.3rem 0; }
 #panel-autonomy,
 #panel-autonomy-dev { padding: 0.5rem; text-align: center; }
