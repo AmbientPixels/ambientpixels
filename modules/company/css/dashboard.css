@@ -2228,27 +2228,35 @@ body[data-theme="dim"] .tb-stats-table td { border-bottom-color: rgba(148,163,18
 #ceo-tb-body,
 #ceo-cost-summary-mirror,
 #panel-cost-summary,
-#panel-heartbeat-health,
+#panel-heartbeat-health { padding: 0.65rem 0.75rem; }
 #traffic-brief-root { padding: 0.5rem 0.6rem; }
 
 /* ── Heartbeat Health ── */
-.hb-status-row  { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.55rem; flex-wrap: wrap; }
-.hb-dot         { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-.hb-last-run    { font-size: 0.72rem; }
-.hb-last-run strong { font-weight: 600; }
-.hb-last-run-age { opacity: 0.45; }
-.hb-exec-count  { font-size: 0.72rem; margin-left: auto; font-weight: 500; }
-.hb-exec-count span { color: #fbbf24; }
-.hb-alert-row   { display: flex; gap: 0.4rem; margin-bottom: 0.55rem; flex-wrap: wrap; }
-.hb-alert-pill  { padding: 0.3rem 0.55rem; border-radius: 6px; font-size: 0.68rem; display: flex; align-items: center; gap: 0.3rem; }
-.hb-alert-pill--red    { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: #f87171; }
-.hb-alert-pill--amber  { background: rgba(251,191,36,0.1);  border: 1px solid rgba(251,191,36,0.3);  color: #fbbf24; }
-.hb-agent-strip { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.55rem; }
-.hb-agent-chip  { padding: 0.25rem 0.5rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; font-size: 0.64rem; background: rgba(255,255,255,0.02); }
-.hb-agent-chip--dim { opacity: 0.4; }
+.hb-status-row  { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.hb-dot         { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
+.hb-dot--green  { background: #34d399; color: #34d399; }
+.hb-dot--yellow { background: #fbbf24; color: #fbbf24; }
+.hb-dot--red    { background: #f87171; color: #f87171; animation: hb-pulse 2s ease-in-out infinite; }
+@keyframes hb-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.hb-last-run    { font-size: 0.78rem; color: rgba(255,255,255,0.7); }
+.hb-last-run strong { font-weight: 600; color: #fff; }
+.hb-last-run-age { opacity: 0.4; font-size: 0.72rem; }
+.hb-exec-count  { font-size: 0.78rem; margin-left: auto; font-weight: 600; color: rgba(255,255,255,0.85); }
+.hb-exec-count span { color: #fbbf24; font-weight: 600; }
+.hb-alert-row   { display: flex; gap: 0.4rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.hb-alert-pill  { padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.7rem; display: flex; align-items: center; gap: 0.35rem; font-weight: 500; }
+.hb-alert-pill--red    { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.25); color: #f87171; }
+.hb-alert-pill--amber  { background: rgba(251,191,36,0.12);  border: 1px solid rgba(251,191,36,0.25);  color: #fbbf24; }
+.hb-agent-strip { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem; }
+.hb-agent-chip  { padding: 0.3rem 0.55rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-size: 0.7rem; background: rgba(255,255,255,0.03); transition: all 0.2s ease; display: flex; align-items: center; gap: 0.3rem; }
+.hb-agent-chip:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); }
+.hb-agent-chip--active { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.2); }
+.hb-agent-chip--dim { opacity: 0.35; }
 .hb-agent-name  { font-weight: 600; }
-.hb-agent-count { opacity: 0.6; margin-left: 3px; }
-.hb-trend       { font-size: 0.6rem; opacity: 0.45; display: flex; align-items: center; gap: 0.4rem; margin-top: 0.1rem; }
+.hb-agent-count { font-weight: 500; font-variant-numeric: tabular-nums; }
+.hb-agent-bar   { width: 3px; border-radius: 2px; display: inline-block; background: currentColor; opacity: 0.5; flex-shrink: 0; }
+.hb-trend       { font-size: 0.68rem; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 0.5rem; padding-top: 0.35rem; border-top: 1px solid rgba(255,255,255,0.05); }
+.hb-trend-label { font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; font-size: 0.6rem; }
 #ceo-obs-root { padding: 0.3rem 0; }
 #panel-autonomy,
 #panel-autonomy-dev { padding: 0.5rem; text-align: center; }

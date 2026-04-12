@@ -2849,10 +2849,14 @@
         function _spark(values, max, color) {
           if (!Array.isArray(values) || values.length === 0) return '<span style="opacity:0.35;">n/a</span>';
           var m = Math.max(max || 1, 1);
-          return '<span style="display:inline-flex; gap:2px; align-items:flex-end; height:12px;">' + values.map(function (v) {
+          var len = values.length;
+          return '<span style="display:inline-flex; gap:2px; align-items:flex-end; height:16px;">' + values.map(function (v, i) {
             var n = _safeNum(v);
-            var h = Math.max(2, Math.min(12, Math.round((n / m) * 12)));
-            return '<span style="display:inline-block; width:4px; height:' + h + 'px; border-radius:2px; background:' + color + '; opacity:0.9;"></span>';
+            var h = Math.max(2, Math.min(16, Math.round((n / m) * 16)));
+            // Fade in from left to right — older bars dimmer
+            var op = 0.3 + (0.7 * (i / Math.max(len - 1, 1)));
+            var bg = n > 0 ? '#34d399' : 'rgba(255,255,255,0.15)';
+            return '<span style="display:inline-block; width:5px; height:' + h + 'px; border-radius:2px; background:' + bg + '; opacity:' + op.toFixed(2) + ';"></span>';
           }).join('') + '</span>';
         }
 
@@ -2898,11 +2902,11 @@
           var html = '';
 
           // 1) Status row — last run + actions
-          var statusDot = uiStatus === 'green' ? '#34d399' : (uiStatus === 'yellow' ? '#fbbf24' : '#f87171');
+          var dotClass = 'hb-dot hb-dot--' + uiStatus;
           html += '<div class="hb-status-row">';
-          html += '<span class="hb-dot" style="background:' + statusDot + ';"></span>';
+          html += '<span class="' + dotClass + '"></span>';
           html += '<span class="hb-last-run">Last run <strong>' + (last.finishedAt ? formatTime(last.finishedAt) : 'N/A') + '</strong> <span class="hb-last-run-age">(' + ageMin + 'm ago)</span></span>';
-          html += '<span class="hb-exec-count"><strong>' + _safeNum(actions.executed) + '</strong> executed';
+          html += '<span class="hb-exec-count">' + _safeNum(actions.executed) + ' executed';
           if (_safeNum(actions.blocked) > 0) html += ' · <span>' + _safeNum(actions.blocked) + ' blocked</span>';
           html += '</span>';
           html += '</div>';
@@ -2917,7 +2921,7 @@
             html += '</div>';
           }
 
-          // 3) Compact agent strip — name + executed count
+          // 3) Agent strip — name + executed count with activity indicator
           var agentKeys = Object.keys(perAgent).sort();
           if (agentKeys.length > 0) {
             html += '<div class="hb-agent-strip">';
@@ -2926,15 +2930,20 @@
               var agent = AgentEngine.getAgent ? AgentEngine.getAgent(aid) : null;
               var color = (agent && agent.color) ? agent.color : '#94a3b8';
               var exe = _safeNum(a.actionsExecuted);
-              html += '<div class="hb-agent-chip' + (exe === 0 ? ' hb-agent-chip--dim' : '') + '">'
-                + '<span class="hb-agent-name" style="color:' + color + ';">' + escapeHtml(agent ? agent.name : aid) + '</span>'
+              var chipClass = 'hb-agent-chip' + (exe === 0 ? ' hb-agent-chip--dim' : ' hb-agent-chip--active');
+              html += '<div class="' + chipClass + '">';
+              if (exe > 0) {
+                var barH = Math.min(12, Math.max(4, exe * 4));
+                html += '<span class="hb-agent-bar" style="height:' + barH + 'px; color:' + color + '; background:' + color + ';"></span>';
+              }
+              html += '<span class="hb-agent-name" style="color:' + color + ';">' + escapeHtml(agent ? agent.name : aid) + '</span>'
                 + '<span class="hb-agent-count">' + exe + '</span></div>';
             });
             html += '</div>';
           }
 
           // 4) Action trend sparkline (last 10 heartbeats)
-          html += '<div class="hb-trend">Actions trend ' + _spark(execVals, maxExec, 'rgba(255,255,255,0.4)') + '</div>';
+          html += '<div class="hb-trend"><span class="hb-trend-label">Activity</span> ' + _spark(execVals, maxExec, '#34d399') + '</div>';
 
           panelHeartbeatHealth.innerHTML = html;
         }).catch(function (err) {
