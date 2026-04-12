@@ -1184,7 +1184,8 @@
       var _execModeMap = {
         active:  { label: '🟢 Live',      bg: 'rgba(52,211,153,0.1)',  color: '#34d399', tip: 'Automation enabled. Agents may create and update tasks.' },
         observe: { label: '🟡 Safe Mode',  bg: 'rgba(251,191,36,0.1)',  color: '#fbbf24', tip: 'Simulation mode. Agents may propose changes, but no task updates are applied.' },
-        frozen:  { label: '🔴 Locked',     bg: 'rgba(239,68,68,0.1)',   color: '#f87171', tip: 'Automation disabled. Only manual CEO edits are allowed.' }
+        frozen:  { label: '🔴 Locked',     bg: 'rgba(239,68,68,0.1)',   color: '#f87171', tip: 'Automation disabled. Only manual CEO edits are allowed.' },
+        unknown: { label: '⚠ Unknown',    bg: 'rgba(251,191,36,0.1)',  color: '#fbbf24', tip: 'Could not load execution mode from server. Check connection.' }
       };
       function updateExecModePill(mode) {
         var m = _execModeMap[mode] || _execModeMap.active;
@@ -1212,15 +1213,21 @@
           }
         }
       }
+      var _lastKnownExecMode = null;
       function loadExecMode() {
         fetch(getApiBase() + '/company-state?key=execution_mode', { method: 'GET' })
-          .then(function (res) { if (!res.ok) throw new Error('fail'); return res.json(); })
+          .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
           .then(function (data) {
             var v = String(data && data.value || '').trim().toLowerCase();
             if (v !== 'active' && v !== 'observe' && v !== 'frozen') v = 'active';
+            _lastKnownExecMode = v;
             updateExecModePill(v);
           })
-          .catch(function () { updateExecModePill('active'); });
+          .catch(function (err) {
+            console.warn('[Dashboard] Failed to load execution_mode:', err.message);
+            // Use last known value if available, otherwise show unknown state — never silently default to 'active'
+            updateExecModePill(_lastKnownExecMode || 'unknown');
+          });
       }
 
       // ── UI Mode indicator badge ──
