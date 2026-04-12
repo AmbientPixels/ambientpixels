@@ -10,13 +10,13 @@ const corsHeaders = {
 // Valid state keys that can be read/written
 const VALID_KEYS = [
   'tasks', 'workspaceMemory', 'agentConfigs', 'identity',
-  'tools', 'dates', 'cronLog',
+  'tools', 'dates', 'metrics', 'sessionLog', 'cronLog',
   'standupLog', 'morningReport', 'logs', '_ping',
-  'campaigns', 'objectives', 'approvalQueue', 'governanceLog',
-  'actionAuditLog', 'actions',
+  'directives', 'campaigns', 'objectives', 'approvalQueue', 'governanceLog',
+  'actionQueue', 'actionAuditLog', 'actionRateCounts', 'actions',
   'documents', 'publishedDocs', 'blogPosts', 'dailyLog', 'webSearchCache',
   'ap_artifacts', 'meetings', 'tasksArchive', 'agentMemories', 'agentSeedMemories', 'heartbeatRuns',
-  'imageAssets', 'runtimeMemory',
+  'contentEngineConfig', 'imageAssets', 'runtimeMemory',
   'execution_mode', 'socialCredentials',
   'demoChatCount', 'researchIntel',
   'trendRadar', 'trendInsights', 'trendActions', 'systemConfig',
