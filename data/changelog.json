@@ -1,10 +1,10 @@
 {
-  "updated": "2026-04-11T13:56:53.411Z",
+  "updated": "2026-04-12T14:00:09.229Z",
   "entries": [
     {
-      "hash": "0c34648",
-      "date": "2026-04-10 21:13:31 -0700",
-      "message": "docs: update system architecture — remove deleted systems, add current state"
+      "hash": "2838c8d",
+      "date": "2026-04-11 22:22:43 -0700",
+      "message": "Revert \"fix(pipeline): social tasks stay in review until copy pipeline completes\""
     }
   ]
 }

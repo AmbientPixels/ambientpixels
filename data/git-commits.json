@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "8f22e47e-8d3b-4933-9949-6a57263e1004",
-      "hash": "0c34648e00291d914dceb47a4162c83039ec723e",
-      "message": "docs: update system architecture — remove deleted systems, add current state",
-      "timestamp": "2026-04-10 21:13:31 -0700",
+      "id": "9f0e5e0b-63c0-4d13-a1d7-21b43aacf94b",
+      "hash": "2838c8d7e56839906eb4e99af8fc2ff363875507",
+      "message": "Revert \"fix(pipeline): social tasks stay in review until copy pipeline completes\"",
+      "timestamp": "2026-04-11 22:22:43 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/0c34648e00291d914dceb47a4162c83039ec723e"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/2838c8d7e56839906eb4e99af8fc2ff363875507"
     }
   ],
-  "timestamp": "2026-04-11T13:56:55.217Z",
+  "timestamp": "2026-04-12T14:00:09.982Z",
   "count": 1,
-  "scanId": 1775915815217
+  "scanId": 1776002409982
 }

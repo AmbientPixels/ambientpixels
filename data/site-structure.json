@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-04-11T13:56:53.277Z",
+  "updated": "2026-04-12T14:00:09.113Z",
   "root": [
     {
       "type": "folder",
@@ -397,6 +397,12 @@
           "type": "folder",
           "name": "blogViews",
           "path": "api/blogViews",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blueskySearch",
+          "path": "api/blueskySearch",
           "children": []
         },
         {
@@ -1678,6 +1684,11 @@
               "type": "page",
               "name": "analytics-hub.html",
               "path": "modules/company/analytics-hub.html"
+            },
+            {
+              "type": "page",
+              "name": "bluesky-discovery.html",
+              "path": "modules/company/bluesky-discovery.html"
             },
             {
               "type": "page",

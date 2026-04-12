@@ -1,13 +1,13 @@
 {
-  "mood": "nocturnal pulse",
-  "aura": "tangled clarity",
-  "auraColorHex": "#23415a",
-  "quote": "calibrating mood vectors with cosmic drift...",
-  "emoji": "🌙",
+  "mood": "ember resolve",
+  "aura": "plasma ache",
+  "auraColorHex": "#4c1966",
+  "quote": "observing glitch patterns in the flow...",
+  "emoji": "🧱",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.8,
-  "awareness": 0.15,
+  "memoryClutter": 0.9,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: tangled clarity"
+      "Aura Signature: plasma ache"
     ]
   },
-  "timestamp": "2026-04-11T13:56:55.134Z"
+  "timestamp": "2026-04-12T14:00:09.916Z"
 }
