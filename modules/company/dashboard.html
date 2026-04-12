@@ -2870,15 +2870,13 @@
           return ms + 'ms';
         }
 
-        if (AgentEngine.getStoreMode() !== 'server') {
-          panelHeartbeatHealth.innerHTML = '<div style="font-size:0.7rem; opacity:0.65;">Heartbeat Health is available in server mode only.</div>';
-          heartbeatHealthEmpty.style.display = 'none';
-          _setBadge('yellow', 'Local Mode');
-          return;
-        }
+        // Always try fetching from server — don't gate on store mode since
+        // this panel fetches directly from the API regardless of local store state.
+        var _hbApiBase = (typeof getApiBase === 'function') ? getApiBase() : 'https://ambientpixels-nova-api.azurewebsites.net/api';
+        var _hbHeaders = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
 
-        fetch(getApiBase() + '/company-state?key=heartbeatRuns', {
-          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}
+        fetch(_hbApiBase + '/company-state?key=heartbeatRuns', {
+          headers: _hbHeaders
         }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (resp) {
           var runs = (resp && resp.value) || [];
           if (!Array.isArray(runs) || runs.length === 0) {
