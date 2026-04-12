@@ -317,7 +317,7 @@
           return c && !c.deletedAt;
         });
         return all.filter(function (c) {
-          if (!showArchived && (c.status === 'archived' || c.status === 'complete')) return false;
+          if (!showArchived && (c.status === 'archived' || c.status === 'complete' || c.status === 'completed')) return false;
           if (!q) return true;
           var hay = ((c.title || '') + ' ' + (c.description || '') + ' ' + (c.id || '')).toLowerCase();
           return hay.indexOf(q) !== -1;
@@ -340,7 +340,7 @@
       function renderCounts() {
         var all = (typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : []).filter(function (c) { return c && !c.deletedAt; });
         var active = all.filter(function (c) { return c.status === 'active'; }).length;
-        var completed = all.filter(function (c) { return c.status === 'complete'; }).length;
+        var completed = all.filter(function (c) { return c.status === 'complete' || c.status === 'completed'; }).length;
         var archived = all.filter(function (c) { return c.status === 'archived'; }).length;
         document.getElementById('cmp-active-count').textContent = active + ' active';
         document.getElementById('cmp-archived-count').textContent = (completed + archived) + ' completed/archived';
