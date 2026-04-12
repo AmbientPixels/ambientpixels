@@ -203,36 +203,21 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
             const _isSocialTask = /^social_/.test(tasks[i].taskType || '') ||
               (tasks[i].campaign_id && /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky|tweet/.test(_socialText));
             if (_isSocialTask) {
-              // Social tasks: if reviewed_copy exists, auto-complete (post is ready).
-              // If NOT, keep in review so Echo can call create-social-action next cycle,
-              // which triggers the Scribe copy pipeline (Scribe writes → Quill reviews → reviewed_copy set).
-              // Previously auto-completed to done immediately, but that killed the pipeline —
-              // Echo never called create-social-action because the task was already done.
-              if (tasks[i].reviewed_copy) {
-                tasks[i].status = 'done';
-                tasks[i].completedAt = new Date().toISOString();
-                if (!tasks[i].comments) tasks[i].comments = [];
-                tasks[i].comments.push({
-                  id: 'cmt-socialauto-' + Date.now(),
-                  author: 'system',
-                  text: 'Social task auto-completed — reviewed copy exists, ready for posting.',
-                  type: 'system',
-                  createdAt: new Date().toISOString()
-                });
-                console.log('[Heartbeat] SOCIAL AUTO-COMPLETE: task', tasks[i].id, '— has reviewed_copy, done');
-              } else {
-                // Keep in review — Echo will call create-social-action next cycle, triggering Scribe copy pipeline
-                tasks[i].status = 'review';
-                if (!tasks[i].comments) tasks[i].comments = [];
-                tasks[i].comments.push({
-                  id: 'cmt-socialreview-' + Date.now(),
-                  author: 'system',
-                  text: 'Peer review approved. Waiting for Scribe copy pipeline — Echo will trigger create-social-action next cycle.',
-                  type: 'system',
-                  createdAt: new Date().toISOString()
-                });
-                console.log('[Heartbeat] SOCIAL REVIEW: task', tasks[i].id, '— no reviewed_copy yet, staying in review for copy pipeline');
-              }
+              // Social tasks auto-complete to done after peer review.
+              // Do NOT set reviewed_copy from Echo's deliverable — Echo writes strategy briefs, not copy.
+              // The copy review gate (in agent-runner.js) will trigger Scribe to write actual copy
+              // and Quill to review it. reviewed_copy is set from Scribe's approved copy.
+              tasks[i].status = 'done';
+              tasks[i].completedAt = new Date().toISOString();
+              if (!tasks[i].comments) tasks[i].comments = [];
+              tasks[i].comments.push({
+                id: 'cmt-socialauto-' + Date.now(),
+                author: 'system',
+                text: 'Social task peer-reviewed and auto-completed. Echo will now attempt to post — if no reviewed_copy exists, the Scribe copy pipeline activates (Scribe writes copy → Quill reviews → reviewed_copy set).',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              console.log('[Heartbeat] SOCIAL AUTO-COMPLETE: task', tasks[i].id, 'auto-completed — Scribe copy pipeline will activate if no reviewed_copy');
             } else {
             // Non-hero, non-social deliverable tasks stay in review — CEO must approve before done
             tasks[i].status = 'review';
