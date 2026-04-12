@@ -502,6 +502,8 @@ function _generateSlotToken(submissionId, slotIndex) {
 
 async function _spawnTask(record) {
   if (record.type === 'newsletter') return null;
+  // Contact form submissions are informational — CEO handles via Inbound page, not agent work
+  if (record.type === 'contact') return null;
 
   var nameOrEmail = (record.contact && record.contact.name) ? record.contact.name : (record.contact ? record.contact.email : 'Unknown');
   var typeLabel = record.type.charAt(0).toUpperCase() + record.type.slice(1);
