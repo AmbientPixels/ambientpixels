@@ -2181,6 +2181,12 @@
           _showExecNotice('error', errMsg + (detailMsg && detailMsg !== errMsg ? ' — ' + detailMsg : ''));
         }
         renderAll();
+        // Re-sync from server so localStorage reflects server-side state changes
+        // (actions created by heartbeat exist on server but not in localStorage —
+        // completeAction silently fails to find them, leaving stale UI)
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.syncFromServer) {
+          CompanyStore.syncFromServer().then(function () { renderAll(); });
+        }
       }).catch(function (err) {
         AE.failAction(id, { code: 'NETWORK_ERROR', message: err.message || 'Network request failed' });
         _showExecNotice('error', 'Network error: ' + (err.message || 'Request failed'));
