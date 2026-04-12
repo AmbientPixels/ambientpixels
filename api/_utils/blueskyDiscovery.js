@@ -1,8 +1,45 @@
-// blueskyDiscovery.js — shared library for querying the AT Protocol public search endpoint.
+// blueskyDiscovery.js — shared library for querying the AT Protocol search endpoint.
 // Used by both the /api/blueskySearch HTTP endpoint and the heartbeat's Scout discovery handler.
 // CID is required in every returned item — never strip it. AT Protocol reply payloads need it.
+//
+// As of mid-2026, public.api.bsky.app returns 403 for unauthenticated search.
+// This module now authenticates via BLUESKY_HANDLE + BLUESKY_APP_PASSWORD env vars
+// using com.atproto.server.createSession, then searches with the bearer token.
 
-const SEARCH_URL = 'https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts';
+var fetch = require('node-fetch');
+
+var AUTH_URL = 'https://bsky.social/xrpc/com.atproto.server.createSession';
+var SEARCH_URL = 'https://bsky.social/xrpc/app.bsky.feed.searchPosts';
+
+var _cachedToken = null;
+var _cachedTokenExp = 0;
+
+async function _getAuthToken() {
+  if (_cachedToken && Date.now() < _cachedTokenExp) return _cachedToken;
+
+  var handle = process.env.BLUESKY_HANDLE;
+  var password = process.env.BLUESKY_APP_PASSWORD;
+  if (!handle || !password) {
+    throw new Error('BLUESKY_HANDLE and BLUESKY_APP_PASSWORD required for search');
+  }
+
+  var resp = await fetch(AUTH_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier: handle, password: password })
+  });
+
+  if (!resp.ok) {
+    var body = '';
+    try { body = await resp.text(); } catch (_e) {}
+    throw new Error('Bluesky auth failed: ' + resp.status + ' ' + body.substring(0, 200));
+  }
+
+  var data = await resp.json();
+  _cachedToken = data.accessJwt;
+  _cachedTokenExp = Date.now() + 45 * 60 * 1000; // refresh after 45 min
+  return _cachedToken;
+}
 
 /**
  * Search Bluesky for posts matching a query, filtered by age and minimum replies.
@@ -12,29 +49,40 @@ const SEARCH_URL = 'https://public.api.bsky.app/xrpc/app.bsky.feed.searchPosts';
  */
 async function searchBluesky(q, opts) {
   opts = opts || {};
-  const maxAgeMinutes = opts.maxAgeMinutes || 120;
-  const minReplies = opts.minReplies || 0;
-  const limit = Math.min(opts.limit || 25, 100);
+  var maxAgeMinutes = opts.maxAgeMinutes || 120;
+  var minReplies = opts.minReplies || 0;
+  var limit = Math.min(opts.limit || 25, 100);
 
   if (!q || q.length < 2) return [];
 
-  const url = SEARCH_URL + '?q=' + encodeURIComponent(q) + '&limit=' + limit;
-  const resp = await fetch(url, {
+  var token = await _getAuthToken();
+  var url = SEARCH_URL + '?q=' + encodeURIComponent(q) + '&limit=' + limit;
+  var resp = await fetch(url, {
     method: 'GET',
-    headers: { 'Accept': 'application/json' }
+    headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + token }
   });
 
   if (!resp.ok) {
-    throw new Error('Bluesky search returned ' + resp.status);
+    // Token might be expired — retry once
+    if (resp.status === 401) {
+      _cachedToken = null;
+      _cachedTokenExp = 0;
+      token = await _getAuthToken();
+      resp = await fetch(url, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + token }
+      });
+    }
+    if (!resp.ok) throw new Error('Bluesky search returned ' + resp.status);
   }
 
-  const data = await resp.json();
-  const posts = Array.isArray(data.posts) ? data.posts : [];
-  const cutoffMs = Date.now() - maxAgeMinutes * 60 * 1000;
+  var data = await resp.json();
+  var posts = Array.isArray(data.posts) ? data.posts : [];
+  var cutoffMs = Date.now() - maxAgeMinutes * 60 * 1000;
 
   return posts
     .map(function (p) {
-      const indexedAt = p.indexedAt || (p.record && p.record.createdAt) || null;
+      var indexedAt = p.indexedAt || (p.record && p.record.createdAt) || null;
       return {
         uri: p.uri || '',
         cid: p.cid || '',
