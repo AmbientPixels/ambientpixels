@@ -21,12 +21,7 @@
   };
 
   /* ── Helpers ── */
-  function esc(s) {
-    if (!s) return '';
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
+  var esc = APUtils.esc;
 
   function stageColor(stage) {
     return stage ? stage.color : '#5ae4ff';
@@ -446,11 +441,7 @@
     var el = document.getElementById('tr-scout-content');
     if (!el) return;
 
-    var apiBase = window.location.hostname.indexOf('ambientpixels.ai') !== -1
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
-
-    fetch(apiBase + '/company-state?key=trendInsights')
+    fetch(APApi.base() + '/company-state?key=trendInsights')
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (data) {
         var arr = data && data.value ? data.value : data;
@@ -648,16 +639,10 @@
   }
 
   /* ── Automation Governance: trendActions ── */
-  function _trendActionsApiBase() {
-    return window.location.hostname.includes('ambientpixels.ai')
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
-  }
-
   function loadTrendActions() {
     var toggle = document.getElementById('tr-auto-campaign-toggle');
     if (!toggle) return;
-    fetch(_trendActionsApiBase() + '/company-state?key=trendActions')
+    fetch(APApi.base() + '/company-state?key=trendActions')
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (data) {
         var cfg = data && data.value ? data.value : data;
@@ -674,7 +659,7 @@
       var k = sessionStorage.getItem('ap_server_key');
       if (k) headers['x-company-secret'] = k;
     } catch (e) {}
-    return fetch(_trendActionsApiBase() + '/company-state', {
+    return fetch(APApi.base() + '/company-state', {
       method: 'POST',
       headers: headers,
       body: JSON.stringify({ key: 'trendActions', value: cfg })

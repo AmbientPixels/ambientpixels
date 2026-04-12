@@ -22,12 +22,7 @@
 (function () {
   'use strict';
 
-  var API_BASE = (window.AP_API_BASE || 'https://ambientpixels-nova-api.azurewebsites.net/api');
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    API_BASE = (window.AP_API_BASE || 'http://localhost:7071/api');
-  } else if (!window.location.hostname.includes('ambientpixels.ai')) {
-    API_BASE = '/api';
-  }
+  var API_BASE = APApi.base();
 
   var _items = [];
   var _activeFilter = 'all';
@@ -182,10 +177,7 @@
     } catch (e) { return url.substring(0, 30); }
   }
 
-  function escHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+  var escHtml = APUtils.esc;
 
   function showError(msg) {
     tbody.innerHTML = '<tr><td colspan="6" class="inb-empty" style="color:#f87171;">' + escHtml(msg) + '</td></tr>';

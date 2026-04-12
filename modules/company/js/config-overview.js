@@ -153,9 +153,7 @@
       localStorage.setItem('ap_company_timezone', tz);
 
       // Save to server blob (used by server-side standup cron)
-      var base = window.location.hostname.includes('ambientpixels.ai')
-        ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-        : '/api';
+      var base = APApi.base();
       var headers = CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json' };
       headers['Content-Type'] = 'application/json';
 
@@ -172,9 +170,7 @@
   })();
 
   // API connectivity check
-  var apiBase = window.location.hostname.includes('ambientpixels.ai')
-    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-    : '/api';
+  var apiBase = APApi.base();
   fetch(apiBase + '/company-state?key=_ping', { method: 'GET' })
     .then(function (r) {
       var el = document.getElementById('cfg-api-status');
@@ -289,7 +285,7 @@
 
     var _checking = false;
 
-    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    var esc = APUtils.esc;
 
     function renderEndpoints(data) {
       if (!data || !data.endpoints) {
@@ -325,8 +321,7 @@
       btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking\u2026';
       grid.innerHTML = '<div style="font-size:0.6rem;opacity:0.3;grid-column:1/-1;">Pinging external APIs\u2026</div>';
 
-      var base = window.location.hostname.includes('ambientpixels.ai')
-        ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+      var base = APApi.base();
 
       fetch(base + '/api-health-check')
         .then(function (r) { return r.json(); })
@@ -456,8 +451,7 @@
     return 'active';
   }
 
-  var _emLoadApiBase = window.location.hostname.includes('ambientpixels.ai')
-    ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+  var _emLoadApiBase = APApi.base();
   function loadExecutionMode() {
     if (!executionModeSelect) return;
     fetch(_emLoadApiBase + '/company-state?key=execution_mode', { method: 'GET' })
@@ -478,8 +472,7 @@
       var selected = normalizeExecMode(executionModeSelect.value);
       executionModeSelect.value = selected;
       if (executionModeStatus) executionModeStatus.textContent = 'Saving\u2026';
-      var _emApiBase = window.location.hostname.includes('ambientpixels.ai')
-        ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+      var _emApiBase = APApi.base();
       var _emHeaders = { 'Content-Type': 'application/json' };
       if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) {
         var _wh = CompanyStore.getWriteHeaders();
@@ -916,9 +909,7 @@
 
   var _pendingAction = null;
 
-  var _dangerApiBase = window.location.hostname.includes('ambientpixels.ai')
-    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-    : '/api';
+  var _dangerApiBase = APApi.base();
 
   function _dangerHeaders() {
     var h = { 'Content-Type': 'application/json' };
@@ -1119,8 +1110,7 @@
       if (pc) pc.textContent = dirs.length;
       if (tc) tc.textContent = tasks.length;
       if (em) {
-        var _mApiBase = window.location.hostname.includes('ambientpixels.ai')
-          ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+        var _mApiBase = APApi.base();
         fetch(_mApiBase + '/company-state?key=execution_mode', { method: 'GET' })
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (d) {
@@ -1141,8 +1131,7 @@
   var _snapStatus = document.getElementById('cfg-snapshot-status');
   var _lastSnapshotData = null;
   var _snapRunning = false;
-  var _snapApiBase = window.location.hostname.includes('ambientpixels.ai')
-    ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+  var _snapApiBase = APApi.base();
 
   if (_snapExportBtn) {
     _snapExportBtn.addEventListener('click', function () {
@@ -1267,9 +1256,7 @@
   var versionEl = document.getElementById('cfg-ce-version');
   if (!presetSel || !outputsWrap || !limitInput) return;
 
-  var _apiBase = window.location.hostname.includes('ambientpixels.ai')
-    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-    : '/api';
+  var _apiBase = APApi.base();
 
   function _getHeaders() {
     var h = { 'Content-Type': 'application/json' };
@@ -1377,8 +1364,7 @@
     var status = document.getElementById('cfg-trend-auto-campaign-status');
     if (!toggle) return;
 
-    var _taApiBase = window.location.hostname.includes('ambientpixels.ai')
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+    var _taApiBase = APApi.base();
 
     // Load current state
     fetch(_taApiBase + '/company-state?key=trendActions')
@@ -1416,8 +1402,7 @@
 
   // ── Runtime Tuning: systemConfig overrides ──
   (function () {
-    var _rtApiBase = window.location.hostname.includes('ambientpixels.ai')
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+    var _rtApiBase = APApi.base();
 
     var _defaults = { maxCreatesPerAgentPerRun: 2, maxMovesPerAgentPerRun: 5, maxUpdatesPerAgentPerRun: 8, maxProposalsPerAgentPerRun: 10 };
     var _fields = [

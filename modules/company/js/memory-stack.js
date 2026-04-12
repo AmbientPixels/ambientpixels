@@ -15,35 +15,7 @@
   };
 
   // ═══ Helpers ═══
-
-  function getApiBase() {
-    return window.location.hostname.includes('ambientpixels.ai')
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
-  }
-
-  function getAuthHeaders() {
-    var headers = {};
-    try {
-      if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) {
-        headers = CompanyStore.getWriteHeaders() || {};
-      }
-    } catch (e) { /* ignore */ }
-    try {
-      if (!headers['x-company-secret']) {
-        var key = sessionStorage.getItem('ap_server_key') || '';
-        if (key) headers['x-company-secret'] = key;
-      }
-    } catch (e2) { /* ignore */ }
-    return headers;
-  }
-
-  function esc(str) {
-    if (str === null || str === undefined) return '';
-    var div = document.createElement('div');
-    div.textContent = String(str);
-    return div.innerHTML;
-  }
+  var esc = APUtils.esc;
 
   function bytesToKb(bytes) {
     return (Math.max(0, Number(bytes) || 0) / 1024).toFixed(1) + ' KB';
@@ -60,14 +32,7 @@
   }
 
   function relTime(iso) {
-    if (!iso) return '—';
-    var ts = Date.parse(iso);
-    if (isNaN(ts)) return '—';
-    var mins = Math.max(0, Math.floor((Date.now() - ts) / 60000));
-    if (mins < 60) return mins + 'm ago';
-    var hrs = Math.floor(mins / 60);
-    if (hrs < 24) return hrs + 'h ago';
-    return Math.floor(hrs / 24) + 'd ago';
+    return APUtils.relTime(iso) || '\u2014';
   }
 
   function statusClass(status) {
@@ -501,8 +466,8 @@
   // ═══ Data Loading ═══
 
   function loadMeta() {
-    var url = getApiBase() + '/memory-stack?view=meta&redact=1';
-    return fetch(url, { headers: getAuthHeaders() })
+    var url = APApi.base() + '/memory-stack?view=meta&redact=1';
+    return fetch(url, { headers: APApi.secretHeaders() })
       .then(function (res) {
         return res.json().then(function (body) { return { ok: res.ok, status: res.status, body: body }; });
       })
@@ -532,8 +497,8 @@
     p.set('redact', state.redact ? '1' : '0');
     if (state.selectedAgent) p.set('agent_id', state.selectedAgent);
 
-    var url = getApiBase() + '/memory-stack?' + p.toString();
-    return fetch(url, { headers: getAuthHeaders() })
+    var url = APApi.base() + '/memory-stack?' + p.toString();
+    return fetch(url, { headers: APApi.secretHeaders() })
       .then(function (res) {
         return res.json().then(function (body) { return { ok: res.ok, status: res.status, body: body }; });
       })
@@ -565,7 +530,7 @@
     p.set('view', state.view || 'summary');
     p.set('redact', state.redact ? '1' : '0');
     if (state.selectedAgent) p.set('agent_id', state.selectedAgent);
-    return 'curl -s "' + getApiBase() + '/memory-stack?' + p.toString() + '" -H "x-company-secret: $SECRET"';
+    return 'curl -s "' + APApi.base() + '/memory-stack?' + p.toString() + '" -H "x-company-secret: $SECRET"';
   }
 
   function copyText(txt, btn, label) {
@@ -586,8 +551,8 @@
       p.set('layer', l.id);
       p.set('view', 'full');
       p.set('redact', '0');
-      var url = getApiBase() + '/memory-stack?' + p.toString();
-      return fetch(url, { headers: getAuthHeaders() }).then(function (r) { return r.json(); }).catch(function () { return null; });
+      var url = APApi.base() + '/memory-stack?' + p.toString();
+      return fetch(url, { headers: APApi.secretHeaders() }).then(function (r) { return r.json(); }).catch(function () { return null; });
     });
 
     Promise.all(promises).then(function (results) {
@@ -713,7 +678,7 @@
       p.set('view', 'full');
       p.set('redact', '0');
       if (agent) p.set('agent_id', agent);
-      return fetch(getApiBase() + '/memory-stack?' + p.toString(), { headers: getAuthHeaders() })
+      return fetch(APApi.base() + '/memory-stack?' + p.toString(), { headers: APApi.secretHeaders() })
         .then(function (r) { return r.json(); })
         .catch(function () { return null; });
     }

@@ -4,12 +4,6 @@
 (function () {
   'use strict';
 
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
   function initBoardView() {
     var yearSel = document.getElementById('board-year');
     var quarterSel = document.getElementById('board-quarter');
@@ -55,7 +49,7 @@
       var parts = summary.split(/\.\s+/).filter(function(p) { return p.trim().length > 0; });
       var html = '<ul class="board-exec-list">';
       parts.forEach(function(p) {
-        html += '<li>' + escapeHtml(p.replace(/\.$/, '')) + '</li>';
+        html += '<li>' + APUtils.esc(p.replace(/\.$/, '')) + '</li>';
       });
       html += '</ul>';
       el.innerHTML = html;
@@ -92,7 +86,7 @@
         var sColor=statusColors[o.status]||'#60a5fa';
         var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#60a5fa';
         var tasksMeta = progress ? (progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : progress.doneTasks) + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks' : '';
-        html+='<div class="board-goal-card"><div class="board-goal-title">'+escapeHtml(o.title||'Untitled')+'</div>';
+        html+='<div class="board-goal-card"><div class="board-goal-title">'+APUtils.esc(o.title||'Untitled')+'</div>';
         html+='<div class="board-goal-meta">';
         html+='<span style="color:'+sColor+';">'+(o.status||'active').replace(/_/g,' ')+'</span>';
         html+='<span>'+pct+'% complete</span>';
@@ -117,7 +111,7 @@
         var activeTasks=tasks.filter(function(t){return(t.assignee===aid||t.assignee===(a.name||'').toLowerCase())&&t.status!=='done'&&t.status!=='backlog';}).length;
         var stat=agentStats[aid]; var calls=stat?stat.calls:0;
         html+='<div class="board-agent-card"><div class="board-agent-dot" style="background:'+(a.color||'#8A2BE2')+';"></div>';
-        html+='<div><div class="board-agent-name">'+escapeHtml(a.name||aid)+'</div><div class="board-agent-role">'+escapeHtml(a.role||'')+'</div></div>';
+        html+='<div><div class="board-agent-name">'+APUtils.esc(a.name||aid)+'</div><div class="board-agent-role">'+APUtils.esc(a.role||'')+'</div></div>';
         html+='<div class="board-agent-stat">'+doneTasks+' done · '+activeTasks+' active · '+calls+' calls</div></div>';
       });
       el.innerHTML=html;
@@ -138,7 +132,7 @@
       html+='<div class="board-cost-item"><div class="board-cost-val" style="color:#fbbf24;">'+pending.length+'</div><div class="board-cost-label">Pending</div></div>';
       html+='<div class="board-cost-item"><div class="board-cost-val" style="color:#ef4444;">'+avgWaitH+'h</div><div class="board-cost-label">Avg Wait</div></div></div>';
       pending.slice(0,5).forEach(function(p){
-        html+='<div class="board-dir-card" style="font-size:0.7rem;"><div style="flex:1;min-width:0;"><span style="font-weight:600;">'+escapeHtml(p.taskTitle||p.title||p.taskId||'?')+'</span>';
+        html+='<div class="board-dir-card" style="font-size:0.7rem;"><div style="flex:1;min-width:0;"><span style="font-weight:600;">'+APUtils.esc(p.taskTitle||p.title||p.taskId||'?')+'</span>';
         if(p.submittedAt)html+='<span style="opacity:0.35;font-size:0.55rem;margin-left:0.4rem;">'+new Date(p.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span>';
         html+='</div><span style="font-size:0.5rem;color:#fbbf24;">pending</span></div>';
       });
@@ -163,7 +157,7 @@
         agentKeys.slice(0,6).forEach(function(aid){
           var agent=AgentEngine.getAgent?AgentEngine.getAgent(aid):null;var name=agent?agent.name:aid;var c=perAgent[aid];
           html+='<div style="display:flex;justify-content:space-between;font-size:0.65rem;padding:0.15rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
-          html+='<span>'+escapeHtml(name)+'</span><span style="opacity:0.5;">$'+c.cost.toFixed(3)+' · '+c.calls+' calls</span></div>';
+          html+='<span>'+APUtils.esc(name)+'</span><span style="opacity:0.5;">$'+c.cost.toFixed(3)+' · '+c.calls+' calls</span></div>';
         });
       }
       el.innerHTML=html||'<div class="board-empty">No cost data available.</div>';
@@ -188,7 +182,7 @@
         var barColor = p && p.signal === 'blocked' ? '#ef4444' : p && (p.signal === 'behind' || p.signal === 'at_risk' || p.signal === 'stale') ? '#fbbf24' : sColor;
         var taskInfo = p && p.total > 0 ? (p.primaryDone !== undefined ? p.primaryDone : p.done) + '/' + (p.expectedTotal || p.total) + ' done' : '';
         var div=document.createElement('div'); div.className='board-dir-card';
-        div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;">'+escapeHtml(d.title)+'</div><div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:3px;font-size:0.6rem;opacity:0.5;"><span style="color:'+sColor+';">'+d.status+'</span><span style="color:'+pColor+';">'+(d.priority||'medium')+'</span>'+(taskInfo?'<span>'+taskInfo+'</span>':'')+(d.owner?'<span>Owner: '+d.owner+'</span>':'')+'</div>'+(p&&p.total>0?'<div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);margin-top:0.3rem;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:2px;"></div></div>':'')+'</div>';
+        div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;">'+APUtils.esc(d.title)+'</div><div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:3px;font-size:0.6rem;opacity:0.5;"><span style="color:'+sColor+';">'+d.status+'</span><span style="color:'+pColor+';">'+(d.priority||'medium')+'</span>'+(taskInfo?'<span>'+taskInfo+'</span>':'')+(d.owner?'<span>Owner: '+d.owner+'</span>':'')+'</div>'+(p&&p.total>0?'<div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);margin-top:0.3rem;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:2px;"></div></div>':'')+'</div>';
         listEl.appendChild(div);
       });
     }
@@ -203,7 +197,7 @@
       _bPacket.decisions.forEach(function(d){
         var sColor=d.decisionStatus==='Approved'?'#34d399':d.decisionStatus==='Rejected'?'#f87171':d.decisionStatus==='Deferred'?'#fbbf24':'#60a5fa';
         var div=document.createElement('div'); div.className='board-dir-card';
-        div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;font-weight:600;">'+escapeHtml(d.title)+'</div><div style="font-size:0.6rem;opacity:0.5;margin-top:2px;">'+(d.topicKey?d.topicKey+' · ':'')+new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</div></div><span style="font-size:0.55rem;padding:2px 8px;border-radius:4px;background:'+sColor+'18;color:'+sColor+';font-weight:600;white-space:nowrap;">'+d.decisionStatus+'</span>';
+        div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;font-weight:600;">'+APUtils.esc(d.title)+'</div><div style="font-size:0.6rem;opacity:0.5;margin-top:2px;">'+(d.topicKey?d.topicKey+' · ':'')+new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</div></div><span style="font-size:0.55rem;padding:2px 8px;border-radius:4px;background:'+sColor+'18;color:'+sColor+';font-weight:600;white-space:nowrap;">'+d.decisionStatus+'</span>';
         listEl.appendChild(div);
       });
     }
@@ -241,7 +235,7 @@
         var sColor=sevColors[r.severity]||'#fbbf24';
         var sevClass = (r.severity === 'critical' || r.severity === 'high') ? ' board-risk-card--high' : r.severity === 'medium' ? ' board-risk-card--medium' : ' board-risk-card--low';
         html += '<div class="board-dir-card' + sevClass + '">';
-        html += '<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;">'+escapeHtml(r.description)+'</div><div style="font-size:0.6rem;opacity:0.4;margin-top:2px;">From: '+escapeHtml(r.standupTitle||'?')+'</div></div>';
+        html += '<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;">'+APUtils.esc(r.description)+'</div><div style="font-size:0.6rem;opacity:0.4;margin-top:2px;">From: '+APUtils.esc(r.standupTitle||'?')+'</div></div>';
         html += '<span style="font-size:0.55rem;padding:2px 8px;border-radius:4px;background:'+sColor+'18;color:'+sColor+';font-weight:600;white-space:nowrap;">'+r.severity+'</span>';
         html += '</div>';
       });

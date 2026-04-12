@@ -4,58 +4,16 @@
  * Renders directly into #social-command-ceo, #social-command-dev,
  * and #social-command-analytics (no mirror hack).
  *
- * Phase 5: helper functions (esc, fmtNum, relTime) delegate to AHShared
- * when available, falling back to the local copies for the CEO/Dev
- * dashboards which don't load AHShared.
  */
 (function () {
   'use strict';
 
-  var AH = window.AHShared || null;
-
-  // ── Helpers ── (kept local for CEO/Dev dashboard pages that don't load AHShared)
-  function _apiBase() {
-    return window.location.hostname.includes('ambientpixels.ai')
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
-  }
-
-  function _headers() {
-    var h = {};
-    try { if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) h = CompanyStore.getWriteHeaders() || {}; } catch (e) {}
-    try { if (!h['x-company-secret']) { var k = sessionStorage.getItem('ap_server_key') || ''; if (k) h['x-company-secret'] = k; } } catch (e2) {}
-    return h;
-  }
-
-  function _esc(s) {
-    if (AH) return AH.esc(s);
-    if (s == null) return '';
-    var d = document.createElement('div');
-    d.textContent = String(s);
-    return d.innerHTML;
-  }
-
-  function _fmtNum(n) {
-    if (AH) return AH.fmtNum(n);
-    if (!Number.isFinite(n)) return '—';
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-    return String(n);
-  }
-
-  function _relTime(iso) {
-    if (AH) return AH.relTime(iso);
-    if (!iso) return '';
-    var ts = Date.parse(iso);
-    if (isNaN(ts)) return '';
-    var diff = Math.max(0, Date.now() - ts);
-    var mins = Math.floor(diff / 60000);
-    if (mins < 60) return mins + 'm ago';
-    var hrs = Math.floor(mins / 60);
-    if (hrs < 24) return hrs + 'h ago';
-    var days = Math.floor(hrs / 24);
-    return days + 'd ago';
-  }
+  // ── Helpers ── (shared utilities loaded via ap-utils.js / ap-api.js)
+  var _apiBase = APApi.base;
+  var _headers = APApi.secretHeaders;
+  var _esc = APUtils.esc;
+  var _fmtNum = APUtils.fmtNum;
+  var _relTime = APUtils.relTime;
 
   function _postUrl(platform, postId) {
     if (!postId) return '';

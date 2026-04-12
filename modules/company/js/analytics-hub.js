@@ -18,30 +18,8 @@
 
   var state = { accountData: null };
 
-  // Custom auth — uses x-company-secret from CompanyStore or sessionStorage.
-  // Can't use AH.authHeaders because that's the X-AmbientOS-Key pattern, and
-  // /api/social-account-stats expects x-company-secret.
-  function getAuthHeaders() {
-    var headers = {};
-    try {
-      if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) {
-        headers = CompanyStore.getWriteHeaders() || {};
-      }
-    } catch (e) { /* ignore */ }
-    try {
-      if (!headers['x-company-secret']) {
-        var key = sessionStorage.getItem('ap_server_key') || '';
-        if (key) headers['x-company-secret'] = key;
-      }
-    } catch (e2) { /* ignore */ }
-    return headers;
-  }
-
-  function _apiBase() {
-    return window.location.hostname.indexOf('ambientpixels.ai') !== -1
-      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-      : '/api';
-  }
+  var getAuthHeaders = APApi.secretHeaders;
+  var _apiBase = APApi.base;
 
   // ─── Render: Account Overview totals + 3 platform cards ───
   function renderAccountOverview(data) {
