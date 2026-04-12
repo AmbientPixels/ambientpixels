@@ -24,7 +24,8 @@ const VALID_KEYS = [
   'geminiUsage', 'blogPostViews',
   'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats',
   'socialWeeklySnapshots',
-  'blueskyCandidates'
+  'blueskyCandidates',
+  'agentMessages'
 ];
 
 module.exports = async function (context, req) {

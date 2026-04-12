@@ -87,7 +87,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -1027,6 +1027,16 @@ ${editLines}
 Study these edits carefully. The CEO's version is the standard. Apply the same tone, length, structure, and corrections to all future posts. Do NOT repeat the mistakes shown above.`;
   }
 
+  // Inter-agent messages (Phase 4A)
+  var _pendingMsgs = Array.isArray(pendingMessages) ? pendingMessages.filter(function (m) { return m && !m.consumed; }) : [];
+  var messagesBlock = '';
+  if (_pendingMsgs.length > 0) {
+    var _msgLines = _pendingMsgs.map(function (m) {
+      return '- FROM ' + (m.from || '?') + (m.priority === 'critical' ? ' [CRITICAL]' : '') + ': ' + (m.message || '');
+    }).join('\n');
+    messagesBlock = '\n\n📨 MESSAGES FROM OTHER AGENTS:\n' + _msgLines + '\nConsider these messages when deciding your actions. You may respond by including a "messages" array in your JSON output: [{"to": "agentId", "message": "your reply (max 200 chars)", "priority": "normal|critical"}]. Max 2 messages per cycle.\n';
+  }
+
   // Build doctrine block if available and weight > 0
   const dWeight = agent._doctrineWeight != null ? agent._doctrineWeight : 0.4;
   const doctrineBlock = (agent.doctrine && dWeight > 0) ? `
@@ -1252,7 +1262,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:

@@ -15,6 +15,7 @@ const { buildResearchDemandDigest } = require('./research-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
+const { callGemini } = require('./gemini');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
 const productFacts = require('../_data/product-facts.json');
@@ -156,6 +157,19 @@ module.exports = async function (context) {
       await storage.setState('tasks', tasks);
       context.log('[Heartbeat] Saved ' + tasks.length + ' tasks (includes auto-replenished)');
     }
+
+    // ── Inter-agent messaging (Phase 4A) ──
+    const _agentMessagesRaw = (await storage.getState('agentMessages')) || {};
+    const _agentMsgPending = Array.isArray(_agentMessagesRaw.pending) ? _agentMessagesRaw.pending : [];
+    const _agentMsgArchive = Array.isArray(_agentMessagesRaw.archive) ? _agentMessagesRaw.archive : [];
+    // TTL cleanup: expire messages older than 2 cycles (60 min)
+    const _msgTtlMs = 60 * 60 * 1000;
+    const _msgNow = Date.now();
+    const _expiredMsgs = _agentMsgPending.filter(function (m) { return _msgNow - new Date(m.createdAt || 0).getTime() > _msgTtlMs; });
+    _expiredMsgs.forEach(function (m) { m.expired = true; _agentMsgArchive.push(m); });
+    const _activeMsgs = _agentMsgPending.filter(function (m) { return !m.expired; });
+    // Track messages sent this cycle per agent (rate limit: max 2 per agent per cycle)
+    const _msgSentThisCycle = {};
 
     const documents = (await storage.getState('documents')) || [];
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
@@ -1315,8 +1329,64 @@ module.exports = async function (context) {
       campaignsChanged: false
     };
 
-    // Process each agent
-    for (const agentId of AGENT_IDS) {
+    // Process agents in execution groups (Phase 4C)
+    // Group 1: Nova (triage) — sequential
+    // Group 2: Cipher, Pixel, Forge, Scout — parallel Gemini calls, sequential mutation processing
+    // Group 3: Scribe → Quill — sequential (content pipeline)
+    // Group 4: Echo — sequential (needs Scribe output)
+    const _EXEC_GROUPS = [['nova'], ['cipher', 'pixel', 'forge', 'scout'], ['scribe', 'quill'], ['echo']];
+    const _orderedAgents = _EXEC_GROUPS.flat();
+    // Pre-flight: run parallel groups' Gemini calls concurrently, cache results
+    const _prefetchedResults = {};
+    for (const _group of _EXEC_GROUPS) {
+      if (_group.length <= 1) continue; // sequential groups handled normally
+      var _parallelAgents = _group.filter(function (aid) {
+        if (geminiCalls >= GUARDRAILS.maxGeminiCallsPerCycle) return false;
+        var _cfg = configs[aid] || {};
+        if ((_cfg.heartbeat || { enabled: true }).enabled === false) return false;
+        if (TIER4_SUB_AGENTS.has(aid) && !shouldRunTier4Agent(tasks, aid).run) return false;
+        return true;
+      });
+      if (_parallelAgents.length > 1) {
+        context.log('[Heartbeat] Parallel group: ' + _parallelAgents.join(', '));
+        var _parallelPromises = _parallelAgents.map(function (aid) {
+          return runAgentHeartbeat({
+            context, agentId: aid, tasks, configs, recentSummaries, cycleId,
+            novaSkipTaskIds: null,
+            activeDirectives, activeObjectives, documents,
+            workspaceMemory, workspaceDates, revisionActions,
+            costIntel: aid === 'cipher' ? costIntel : null,
+            reviewCooldownIds: _reviewCooldownIds,
+            seedMemories: _seedMemories,
+            researchIntelStore, socialIntel,
+            normalizedActivationMode,
+            isAgentInCooldown: _isAgentInCooldown,
+            logAgentCooldownOnce: _logAgentCooldownOnce,
+            incPolicyGate: _incPolicyGate,
+            campaignCtx: _agentCampaignCtx,
+            siteIntel,
+            _agentMemoryStore, trendRadarStore,
+            trendInsightsStore: (aid === 'nova' || aid === 'scribe' || aid === 'echo') ? trendInsightsStore : null,
+            performanceDigest, agentExperiments,
+            productFacts, skillsData,
+            forgeOpsDigest, financeDigest, researchDemandDigest,
+            socialAccountStats,
+            publishedBlogPosts: _publishedBlogPostsForDigest,
+            pendingMessages: _activeMsgs.filter(function (m) { return m.to === aid && !m.consumed; })
+          }).catch(function (err) {
+            context.log.error('[Heartbeat] Parallel agent', aid, 'failed:', err.message);
+            return { _failed: true, _agentId: aid, _error: err.message, geminiCalls: 0, actions: 0, actionAttempts: 0, durationMs: 0, taskUpdates: [], proposals: [], guardrails: {} };
+          });
+        });
+        var _parallelResults = await Promise.all(_parallelPromises);
+        _parallelAgents.forEach(function (aid, idx) {
+          _prefetchedResults[aid] = _parallelResults[idx];
+          geminiCalls += (_parallelResults[idx].geminiCalls || 0);
+        });
+      }
+    }
+
+    for (const agentId of _orderedAgents) {
       if (geminiCalls >= GUARDRAILS.maxGeminiCallsPerCycle) {
         context.log('[Heartbeat] Max Gemini calls reached, stopping');
         break;
@@ -1345,7 +1415,8 @@ module.exports = async function (context) {
       agentActions[agentId] = 0;
 
       try {
-        const result = await runAgentHeartbeat({
+        // Use prefetched result from parallel group, or run sequentially
+        const result = _prefetchedResults[agentId] || await runAgentHeartbeat({
           context, agentId, tasks, configs, recentSummaries, cycleId,
           novaSkipTaskIds: agentId === 'nova' ? novaSkipTaskIds : null,
           activeDirectives, activeObjectives, documents,
@@ -1366,8 +1437,44 @@ module.exports = async function (context) {
           productFacts, skillsData,
           forgeOpsDigest, financeDigest, researchDemandDigest,
           socialAccountStats,
-          publishedBlogPosts: _publishedBlogPostsForDigest
+          publishedBlogPosts: _publishedBlogPostsForDigest,
+          pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; })
         });
+        if (result._failed) {
+          _agentRunStats[agentId] = { attempted: 0, executed: 0, blocked: 0, newTasksCreated: 0, avgLatencyMs: 0, error: result._error };
+          await logEvent('error', agentId, 'Heartbeat failed: ' + result._error, cycleId);
+          continue;
+        }
+        // Process outgoing messages from this agent (Phase 4A)
+        if (result.outgoingMessages && Array.isArray(result.outgoingMessages)) {
+          var _sentCount = _msgSentThisCycle[agentId] || 0;
+          result.outgoingMessages.forEach(function (msg) {
+            if (_sentCount >= 2) return; // rate limit
+            if (!msg.to || msg.to === agentId) return; // no self-messaging
+            if (AGENT_IDS.indexOf(msg.to) === -1) return; // invalid recipient
+            var _recipMsgs = _activeMsgs.filter(function (m) { return m.to === msg.to; });
+            if (_recipMsgs.length >= 5) {
+              // Drop oldest normal-priority message for this recipient
+              var _oldest = _recipMsgs.filter(function (m) { return m.priority !== 'critical'; }).sort(function (a, b) { return new Date(a.createdAt) - new Date(b.createdAt); })[0];
+              if (_oldest) { var _idx = _activeMsgs.indexOf(_oldest); if (_idx > -1) { _oldest.expired = true; _agentMsgArchive.push(_oldest); _activeMsgs.splice(_idx, 1); } }
+            }
+            _activeMsgs.push({
+              id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+              from: agentId,
+              to: msg.to,
+              message: String(msg.message || '').substring(0, 200),
+              priority: msg.priority === 'critical' ? 'critical' : 'normal',
+              createdAt: new Date().toISOString(),
+              cycleId: cycleId,
+              consumed: false
+            });
+            _sentCount++;
+          });
+          _msgSentThisCycle[agentId] = _sentCount;
+        }
+        // Mark consumed messages
+        _activeMsgs.forEach(function (m) { if (m.to === agentId && !m.consumed) { m.consumed = true; _agentMsgArchive.push(m); } });
+
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
           researchIntelStore.push(result.newResearchIntel);
@@ -2017,6 +2124,73 @@ module.exports = async function (context) {
       }
     }
 
+    // ── Nova Closing Pass (Phase 4B) — commentary-only debrief ──
+    try {
+      var _closingObservations = [];
+      Object.keys(_agentRunStats).forEach(function (aid) {
+        var rs = _agentRunStats[aid] || {};
+        if (rs.reasoning) _closingObservations.push(aid + ': ' + rs.reasoning);
+      });
+      var _closingMsgs = _activeMsgs.filter(function (m) { return !m.consumed && !m.expired; });
+      var _closingMsgLines = _closingMsgs.map(function (m) { return m.from + ' → ' + m.to + ': ' + m.message; });
+      var _closingPrompt = [
+        'You are Nova, Prime Operator. This is your CLOSING PASS — all agents have completed their cycle.',
+        'Your job: summarize what happened this cycle and flag anything the CEO should know.',
+        'RULES: You may ONLY produce observations and messages. You may NOT create, move, or update tasks. You may NOT modify campaigns or objectives. Commentary only.',
+        '',
+        'AGENT OBSERVATIONS THIS CYCLE:',
+        _closingObservations.length > 0 ? _closingObservations.join('\n') : '(no observations)',
+        '',
+        'PENDING INTER-AGENT MESSAGES:',
+        _closingMsgLines.length > 0 ? _closingMsgLines.join('\n') : '(none)',
+        '',
+        'CYCLE STATS: ' + Object.keys(agentActions).map(function (a) { return a + '=' + agentActions[a] + ' actions'; }).join(', '),
+        '',
+        'Respond with JSON: { "reasoning": "your 2-3 sentence assessment", "observations": ["key takeaways for CEO"], "messages": [{"to":"agentId","message":"text","priority":"normal"}] }'
+      ].join('\n');
+      var _closingResponse = await callGemini(_closingPrompt, 'nova');
+      geminiCalls++;
+      if (_closingResponse) {
+        try {
+          var _closingMatch = _closingResponse.match(/\{[\s\S]*\}/);
+          if (_closingMatch) {
+            var _closingParsed = JSON.parse(_closingMatch[0]);
+            _agentRunStats['nova_closing'] = {
+              attempted: 0, executed: 0, blocked: 0, newTasksCreated: 0,
+              avgLatencyMs: 0,
+              reasoning: _closingParsed.reasoning ? String(_closingParsed.reasoning).substring(0, 600) : null
+            };
+            // Store closing observations as agent events
+            if (Array.isArray(_closingParsed.observations)) {
+              for (var _coi = 0; _coi < _closingParsed.observations.length && _coi < 5; _coi++) {
+                await logEvent('agent-action', 'nova', '[Closing] ' + String(_closingParsed.observations[_coi]).substring(0, 200), cycleId);
+              }
+            }
+            // Process closing messages
+            if (Array.isArray(_closingParsed.messages)) {
+              var _closingSent = 0;
+              _closingParsed.messages.forEach(function (msg) {
+                if (_closingSent >= 2 || !msg.to || msg.to === 'nova' || AGENT_IDS.indexOf(msg.to) === -1) return;
+                _activeMsgs.push({
+                  id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                  from: 'nova', to: msg.to,
+                  message: String(msg.message || '').substring(0, 200),
+                  priority: msg.priority === 'critical' ? 'critical' : 'normal',
+                  createdAt: new Date().toISOString(), cycleId: cycleId, consumed: false
+                });
+                _closingSent++;
+              });
+            }
+          }
+        } catch (_closingParseErr) {
+          context.log.warn('[Heartbeat] Nova closing pass parse failed:', _closingParseErr.message);
+        }
+      }
+      context.log('[Heartbeat] Nova closing pass completed');
+    } catch (_closingErr) {
+      context.log.warn('[Heartbeat] Nova closing pass failed (non-fatal):', _closingErr.message);
+    }
+
     // TTL pruning of agent memories — tiered by memory type (Phase 3A)
     const _pruneNow = Date.now();
     const _ttlFallbackMs = L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000;
@@ -2487,6 +2661,11 @@ module.exports = async function (context) {
     }
     await storage.setState('agentConfigs', configs);
     await storage.setState('agentMemories', _agentMemoryStore);
+    // Persist agent messages (Phase 4A) — cap archive at 50, keep only unconsumed pending
+    var _finalPending = _activeMsgs.filter(function (m) { return !m.consumed && !m.expired; });
+    if (_finalPending.length > 40) _finalPending = _finalPending.slice(-40);
+    var _finalArchive = _agentMsgArchive.slice(-50);
+    await storage.setState('agentMessages', { pending: _finalPending, archive: _finalArchive });
 
     // ── Research Intel Approval: find CEO-approved research_intel actions and store to researchIntel ──
     {
