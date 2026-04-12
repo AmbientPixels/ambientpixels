@@ -370,10 +370,30 @@ module.exports = async function (context) {
       // Default due date: based on campaign cadence (daily=1d, weekly=3d, biweekly=5d, fallback=3d)
       const _cadenceDays = { daily: 1, weekly: 3, biweekly: 5 };
       const _dueDays = _cadenceDays[c.cadence] || 3;
+      // Build real data snapshot so agents don't hallucinate
+      var _48hAgo = Date.now() - 48 * 60 * 60 * 1000;
+      var _recentDone = tasks.filter(function (t) {
+        return t && t.status === 'done' && t.completedAt && new Date(t.completedAt).getTime() > _48hAgo;
+      });
+      var _recentByAgent = {};
+      _recentDone.forEach(function (t) {
+        var a = t.assignee || 'system';
+        if (!_recentByAgent[a]) _recentByAgent[a] = [];
+        if (_recentByAgent[a].length < 3) _recentByAgent[a].push(t.title || 'untitled');
+      });
+      var _activeTasks = tasks.filter(function (t) { return t && t.status !== 'done' && t.status !== 'archived'; });
+      var _dataSnippet = '\n\nREAL DATA (use ONLY these facts, do NOT invent numbers):\n'
+        + '- Active tasks: ' + _activeTasks.length + '\n'
+        + '- Tasks completed last 48h: ' + _recentDone.length + '\n';
+      if (Object.keys(_recentByAgent).length > 0) {
+        _dataSnippet += '- Recent work: ' + Object.entries(_recentByAgent).map(function (e) { return e[0] + ' completed "' + e[1].join('", "') + '"'; }).join('; ') + '\n';
+      }
+      if (c.description) _dataSnippet += '\nCAMPAIGN BRIEF: ' + c.description.substring(0, 400) + '\n';
+
       const newTask = {
         id: 'task-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
         title: 'Draft ' + label + ' for ' + (c.title || 'campaign'),
-        description: 'Auto-created by campaign scheduler. Campaign: ' + (c.title || c.id) + '. Create a ' + label + ' aligned with the campaign brief and objectives.',
+        description: 'Auto-created by campaign scheduler. Campaign: ' + (c.title || c.id) + '. Create a ' + label + ' aligned with the campaign brief and objectives.' + _dataSnippet,
         status: 'todo',
         taskType: chosenType,
         assignee: assignee,
