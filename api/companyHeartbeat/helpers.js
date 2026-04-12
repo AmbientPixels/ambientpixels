@@ -30,6 +30,12 @@ async function generateConversationalEntityComment(kind, options) {
       : 'I created this project from the goal so the team has a clear execution container to work from.'
   );
 
+  // Inject agent personality for voice differentiation
+  const _agentId = options.agentId || 'nova';
+  const _pData = (C._agentPersonalityData && C._agentPersonalityData[_agentId]) || {};
+  const _voiceHint = _pData.communicationStyle
+    ? '- Voice: ' + _pData.communicationStyle
+    : '';
   const prompt = [
     'Write exactly ONE conversational first-person sentence for a newly created ' + k + '.',
     'Rules:',
@@ -37,6 +43,7 @@ async function generateConversationalEntityComment(kind, options) {
     '- Plain human language',
     '- No lists, no labels, no metadata, no markdown',
     '- Return only the sentence',
+    _voiceHint,
     title ? ('Title: ' + title) : '',
     goal ? ('Goal: ' + goal) : '',
     seed ? ('Context: ' + seed.substring(0, 500)) : ''

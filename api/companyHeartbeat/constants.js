@@ -7,11 +7,15 @@ const path = require('path');
 // Agent processing order — Echo runs after Scribe/Quill so peer reviews complete before social injection
 const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout'];
 
-// Load agent personalities from company-agents.json
+// Load agent personalities and structured personality data from company-agents.json
 let _agentPersonalities = {};
+let _agentPersonalityData = {};
 try {
   const _agentsRaw = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../data/company-agents.json'), 'utf8'));
-  (_agentsRaw.agents || []).forEach(function (a) { if (a.id && a.systemPrompt) _agentPersonalities[a.id] = a.systemPrompt; });
+  (_agentsRaw.agents || []).forEach(function (a) {
+    if (a.id && a.systemPrompt) _agentPersonalities[a.id] = a.systemPrompt;
+    if (a.id && a.personality) _agentPersonalityData[a.id] = a.personality;
+  });
 } catch (_e) { /* fallback: heartbeat works without personality injection */ }
 
 // Agent system prompts (abbreviated for heartbeat context)
@@ -156,6 +160,7 @@ module.exports = {
   DOMAIN_LEAD_MAP,
   AGENT_IDS,
   _agentPersonalities,
+  _agentPersonalityData,
   AGENT_ROLES,
   CFO_THRESHOLD,
   GUARDRAILS,

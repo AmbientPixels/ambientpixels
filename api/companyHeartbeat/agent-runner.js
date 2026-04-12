@@ -368,6 +368,11 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
+  // Extract reasoning from agent response (Phase 2B)
+  if (parsed && typeof parsed === 'object' && parsed.reasoning) {
+    result.reasoning = String(parsed.reasoning).substring(0, 600);
+  }
+
   // ── Phase 2B + 4A: Normalize output then defensively normalize envelope ──
   const normalizedResult = normalizeAgentResult(parsed);
   const normalized = await _normalizeEnvelope(

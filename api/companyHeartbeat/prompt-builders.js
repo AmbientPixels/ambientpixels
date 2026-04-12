@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
+const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, _agentPersonalityData, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
 const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
@@ -1054,7 +1054,21 @@ You must remain within your assigned authority tier. Doctrine influences your st
   if (_cfgPersonality.verbosity) _traitParts.push('Verbosity: ' + _cfgPersonality.verbosity);
   if (_cfgPersonality.customTraits && String(_cfgPersonality.customTraits).trim()) _traitParts.push('Traits: ' + String(_cfgPersonality.customTraits).trim());
   const _traitSuffix = _traitParts.length > 0 ? '\nStyle modifiers (from CEO config): ' + _traitParts.join(' | ') : '';
-  const personalityBlock = personality ? '\nPERSONALITY: ' + personality + _traitSuffix + '\n' : (_traitSuffix ? '\nPERSONALITY:' + _traitSuffix + '\n' : '');
+  // Build structured personality block from company-agents.json personality data
+  const _pData = _agentPersonalityData[agent.id || agent.name.toLowerCase()] || {};
+  let _structuredPersonality = '';
+  if (_pData.communicationStyle || _pData.quirks || _pData.internalMonologue) {
+    var _pParts = [];
+    if (_pData.communicationStyle) _pParts.push('Communication style: ' + _pData.communicationStyle);
+    if (Array.isArray(_pData.quirks) && _pData.quirks.length) _pParts.push('Quirks: ' + _pData.quirks.join('; '));
+    if (_pData.internalMonologue) _pParts.push('Before acting, ask yourself: "' + _pData.internalMonologue + '"');
+    if (_pData.relationships && typeof _pData.relationships === 'object') {
+      var _relParts = Object.keys(_pData.relationships).map(function (k) { return k + ': ' + _pData.relationships[k]; });
+      if (_relParts.length) _pParts.push('Team dynamics: ' + _relParts.join('. '));
+    }
+    _structuredPersonality = '\n' + _pParts.join('\n');
+  }
+  const personalityBlock = personality ? '\nPERSONALITY: ' + personality + _structuredPersonality + _traitSuffix + '\n' : (_traitSuffix ? '\nPERSONALITY:' + _traitSuffix + '\n' : '');
 
   // Inject CEO-curated seed memories (global + per-agent)
   seedMemories = seedMemories || {};
@@ -1254,9 +1268,12 @@ CURRENT TIME: ${new Date().toISOString()}
 ${['Nova', 'Forge', 'Pixel', 'Cipher', 'Scout', 'Quill', 'Scribe', 'Echo'].includes(agent.name) ? `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 
+REASONING (REQUIRED): Before deciding your actions, reason through what matters most right now in 2-3 sentences maximum. This is not a lengthy analysis — just your quick read on the situation. Output in a "reasoning" field.
+
 AMBIENTOS OUTPUT ENVELOPE (REQUIRED for all agents):
 Response format MUST be exactly:
 {
+  "reasoning": "2-3 sentences: what matters most right now and why you're taking these actions",
   "taskUpdates": [],
   "proposals": [],
   "remember": [],
@@ -1424,7 +1441,20 @@ ANTI-HALLUCINATION — NEVER INVENT DATA:
 - If you don't have real data, write about what AmbientOS IS and DOES — not invented results.
 - Violation of this rule means your content will be rejected and you will rewrite it.
 
-ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
+${(function() {
+  var _stuckTasks = (agentTasks || []).filter(function(t) {
+    return t && (t.status === 'in-progress' || t.status === 'review') &&
+      (t.comments || []).filter(function(c) { return c.type === 'deliverable'; }).length >= 3;
+  });
+  if (_stuckTasks.length > 0) {
+    var _stuckList = _stuckTasks.map(function(t) {
+      var n = (t.comments || []).filter(function(c) { return c.type === 'deliverable'; }).length;
+      return '- "' + (t.title || t.id) + '" (' + n + ' attempts)';
+    }).join('\n');
+    return 'REVISION LOOP DETECTED — REFLECT BEFORE RE-EXECUTING:\nThe following tasks have been attempted 3+ times without approval:\n' + _stuckList + '\nFor these tasks: pause and reflect on the feedback pattern. What keeps getting rejected? What specific adjustment would break the loop? Include your diagnosis in your reasoning field, then produce a revised deliverable that addresses the root issue — not just surface changes.';
+  }
+  return 'ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:';
+})()}
 - CRITICAL RULE: If you have an ACTIONABLE task (has Nova comment OR is a CEO task with assignee+dueDate) assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
   - For content/analysis tasks: use execute-task to produce the deliverable.
   - For image/visual content tasks (marketing graphics, social media images, design assets): use create-content-package with the taskId. (Echo and Pixel only)
