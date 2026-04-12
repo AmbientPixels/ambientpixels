@@ -25,7 +25,6 @@ var CompanyStore = (function () {
     'ap_workspace_identity': 'identity',
     'ap_workspace_tools':    'tools',
     'ap_workspace_dates':    'dates',
-    'ap_metrics':            'metrics',
     'ap_session_log':        'sessionLog',
     'ap_cron_log':           'cronLog',
     'ap_standup_log':        'standupLog',

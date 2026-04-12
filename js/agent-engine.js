@@ -157,7 +157,7 @@ var AgentEngine = (function () {
       _persistAgentHistory(agentId);
 
       // Track metrics
-      _trackCall(agentId, mode || 'chat', message, reply);
+      _trackCall(agentId, mode || 'chat');
 
       emit('response', { agentId: agentId, reply: reply, actions: actions, mode: data.mode });
       emit('thinking', { agentId: agentId, thinking: false });
@@ -228,78 +228,25 @@ var AgentEngine = (function () {
     return summary;
   }
 
-  // ── Metrics & Session Tracking ──
-  var METRICS_KEY = 'ap_metrics';
+  // ── Session Tracking ──
   var SESSION_LOG_KEY = 'ap_session_log';
   var CRON_LOG_KEY = 'ap_cron_log';
   var MAX_SESSIONS = 100;
   var MAX_CRON = 50;
 
-  // Gemini 2.0 Flash pricing (per 1M tokens)
-  var PRICING = {
-    model: 'gemini-2.0-flash',
-    inputPer1M: 0.10,
-    outputPer1M: 0.40
-  };
-
-  function _loadMetrics() {
-    return _loadStorage(METRICS_KEY, {
-      totalSessions: 0,
-      totalMessages: 0,
-      totalInputTokens: 0,
-      totalOutputTokens: 0,
-      totalCost: 0,
-      firstUsed: null,
-      lastUsed: null
-    });
-  }
-
-  function _saveMetrics(m) {
-    _saveStorage(METRICS_KEY, m);
-  }
-
-  // Rough token estimate: ~4 chars per token for English
-  function _estimateTokens(text) {
-    if (!text) return 0;
-    return Math.ceil(text.length / 4);
-  }
-
-  function _estimateCost(inputTokens, outputTokens) {
-    return ((inputTokens / 1000000) * PRICING.inputPer1M) +
-           ((outputTokens / 1000000) * PRICING.outputPer1M);
-  }
-
-  // Track a completed API call
-  function _trackCall(agentId, mode, inputText, outputText) {
-    var metrics = _loadMetrics();
-    var inputTokens = _estimateTokens(inputText);
-    var outputTokens = _estimateTokens(outputText);
-    var cost = _estimateCost(inputTokens, outputTokens);
-
-    metrics.totalMessages += 1;
-    metrics.totalInputTokens += inputTokens;
-    metrics.totalOutputTokens += outputTokens;
-    metrics.totalCost += cost;
-    metrics.lastUsed = new Date().toISOString();
-    if (!metrics.firstUsed) metrics.firstUsed = metrics.lastUsed;
-
-    _saveMetrics(metrics);
-
-    // Log session entry
+  // Log a completed API call (session log only — real token/cost data lives server-side in geminiUsage)
+  function _trackCall(agentId, mode) {
     var sessions = _loadStorage(SESSION_LOG_KEY, []);
     sessions.push({
       id: 'call-' + Date.now(),
       agentId: agentId,
       mode: mode,
-      inputTokens: inputTokens,
-      outputTokens: outputTokens,
-      cost: cost,
       timestamp: new Date().toISOString()
     });
     if (sessions.length > MAX_SESSIONS) sessions = sessions.slice(-MAX_SESSIONS);
     _saveStorage(SESSION_LOG_KEY, sessions);
 
-    emit('metrics-update', { metrics: metrics, latest: sessions[sessions.length - 1] });
+    emit('metrics-update', { latest: sessions[sessions.length - 1] });
   }
 
   // Log a cron/automation event
@@ -317,7 +264,7 @@ var AgentEngine = (function () {
   }
 
   function getMetrics() {
-    return _loadMetrics();
+    return { totalSessions: 0, totalMessages: 0, totalInputTokens: 0, totalOutputTokens: 0, totalCost: 0, firstUsed: null, lastUsed: null };
   }
 
   function getSessionLog() {
@@ -707,7 +654,7 @@ var AgentEngine = (function () {
     return _doFetch(0)
     .then(function (data) {
       var reply = data.reply || '';
-      _trackCall(agentId, 'standup', contextMessage, reply);
+      _trackCall(agentId, 'standup');
       return reply;
     })
     .catch(function (err) {
