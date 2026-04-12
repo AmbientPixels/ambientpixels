@@ -8,7 +8,21 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
-const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
+// Resolved at runtime per-request — reads systemConfig.heartbeatModel (dashboard toggle)
+// with fallback to HEARTBEAT_MODEL env var. Cached for 5 min to avoid blob reads on every call.
+let _modelCache = { value: null, expires: 0 };
+async function _useClaude() {
+  const now = Date.now();
+  if (_modelCache.expires > now) return _modelCache.value;
+  try {
+    const cfg = await storage.getState('systemConfig');
+    const model = (cfg && cfg.heartbeatModel) || process.env.HEARTBEAT_MODEL || 'gemini';
+    _modelCache = { value: model.toLowerCase().indexOf('claude') !== -1, expires: now + 300000 };
+    return _modelCache.value;
+  } catch (e) {
+    return (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
+  }
+}
 
 // Agent system prompts — loaded at cold start, keyed by agent ID
 const AGENT_PROMPTS = {
@@ -990,20 +1004,32 @@ ${message}`;
       }
     };
 
-    context.log('[AgentChat] Agent:', agentId, 'Mode:', mode || 'chat', 'Actions:', enableActions, 'Model:', USE_CLAUDE ? 'claude' : 'gemini', 'Message:', message.substring(0, 100));
+    var _isClaude = await _useClaude();
+    context.log('[AgentChat] Agent:', agentId, 'Mode:', mode || 'chat', 'Actions:', enableActions, 'Model:', _isClaude ? 'claude' : 'gemini', 'Message:', message.substring(0, 100));
 
     let rawText = '';
-    if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+    if (_isClaude && ANTHROPIC_API_KEY) {
       // Claude Sonnet path
       var claudeMessages = contents.map(function (c) {
         return { role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map(function (p) { return p.text; }).join('\n') };
       });
-      var claudeRes = await fetch(CLAUDE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: mode === 'report' ? 1500 : 1500, system: systemInstruction, messages: claudeMessages })
-      });
-      var claudeData = await claudeRes.json();
+      var claudeBody = JSON.stringify({ model: CLAUDE_MODEL, max_tokens: mode === 'report' ? 1500 : 1500, system: systemInstruction, messages: claudeMessages });
+      var claudeHeaders = { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' };
+      var claudeRes, claudeData;
+      var _maxRetries = 3;
+      for (var _attempt = 0; _attempt <= _maxRetries; _attempt++) {
+        claudeRes = await fetch(CLAUDE_URL, { method: 'POST', headers: claudeHeaders, body: claudeBody });
+        if (claudeRes.status === 429 && _attempt < _maxRetries) {
+          // Rate limited — read retry-after header or use exponential backoff
+          var _retryAfter = claudeRes.headers.get('retry-after');
+          var _waitMs = _retryAfter ? Math.min(parseInt(_retryAfter, 10) * 1000, 30000) : ((_attempt + 1) * 5000);
+          context.log.warn('[AgentChat] Claude 429 for ' + agentId + ', retry in ' + _waitMs + 'ms (attempt ' + (_attempt + 1) + '/' + _maxRetries + ')');
+          await new Promise(function (r) { setTimeout(r, _waitMs); });
+          continue;
+        }
+        break;
+      }
+      claudeData = await claudeRes.json();
       if (!claudeRes.ok) {
         context.log.error('[AgentChat] Claude error:', claudeRes.status, JSON.stringify(claudeData).substring(0, 300));
         context.res = { status: claudeRes.status, headers: corsHeaders, body: { error: agentId + ' encountered a system fault.', details: claudeData } };
