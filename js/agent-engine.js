@@ -592,7 +592,9 @@ var AgentEngine = (function () {
 
         emit('standup-agent-thinking', { agentId: agentId, agent: agent });
 
-        return _standupCall(agentId, context).then(function (reply) {
+        // Small delay between agents to avoid upstream rate limits (429)
+        var pacing = index > 0 ? new Promise(function (r) { setTimeout(r, 1500); }) : Promise.resolve();
+        return pacing.then(function () { return _standupCall(agentId, context); }).then(function (reply) {
           var entry = {
             agentId: agentId,
             name: agent.name,
@@ -684,15 +686,25 @@ var AgentEngine = (function () {
       history: []
     };
 
-    return fetch(getEndpoint(), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    .then(function (res) {
-      if (!res.ok) throw new Error('Standup API returned ' + res.status);
-      return res.json();
-    })
+    function _doFetch(attempt) {
+      return fetch(getEndpoint(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function (res) {
+        if (res.status === 429 && attempt < 3) {
+          // Rate limited — wait and retry with exponential backoff
+          var wait = (attempt + 1) * 3000; // 3s, 6s, 9s
+          console.warn('[AgentEngine] Standup 429 for ' + agentId + ', retry in ' + wait + 'ms (attempt ' + (attempt + 1) + ')');
+          return new Promise(function (resolve) { setTimeout(resolve, wait); }).then(function () { return _doFetch(attempt + 1); });
+        }
+        if (!res.ok) throw new Error('Standup API returned ' + res.status);
+        return res.json();
+      });
+    }
+
+    return _doFetch(0)
     .then(function (data) {
       var reply = data.reply || '';
       _trackCall(agentId, 'standup', contextMessage, reply);
