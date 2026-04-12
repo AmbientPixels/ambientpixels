@@ -1437,17 +1437,23 @@ Write the full deliverable first, then the structured JSON block.`;
                 }
               }
             }
-            result.taskUpdates.push({
-              action: 'execute',
-              taskId: action.taskId,
-              deliverable: deliverable,
-              agentId: agentId
-            });
+            // BLUESKY REPLY: defer deliverable push until after QG — prevents peer review
+            // from completing the task when QG rejects (deliverable comment would stay on task,
+            // Cipher would see it and approve, bypassing the approval queue entirely).
+            var _isBsReply = task.tags && task.tags.indexOf('bluesky-reply') !== -1 && task.threadContext;
+            if (!_isBsReply) {
+              result.taskUpdates.push({
+                action: 'execute',
+                taskId: action.taskId,
+                deliverable: deliverable,
+                agentId: agentId
+              });
+            }
             result.executes = (result.executes || 0) + 1;
 
             // BLUESKY REPLY: task tagged bluesky-reply — route directly to approval queue as social_post.reply action
             // Skip Quill (the draft IS the final copy). Scribe's deliverable is the reply text itself.
-            if (task.tags && task.tags.indexOf('bluesky-reply') !== -1 && task.threadContext) {
+            if (_isBsReply) {
               const _replyText = (deliverable || '').trim();
               // Empty deliverable = Scribe explicitly chose not to reply (spam, nothing to add)
               if (!_replyText || _replyText.length < 5) {
@@ -1550,7 +1556,13 @@ Write the full deliverable first, then the structured JSON block.`;
               if (_aqQueue.length > 100) _aqQueue.splice(0, _aqQueue.length - 100);
               await storage.setState('approvalQueue', _aqQueue);
 
-              // Mark reply task done
+              // Now safe to add the deliverable (QG passed) and mark done
+              result.taskUpdates.push({
+                action: 'execute',
+                taskId: action.taskId,
+                deliverable: deliverable,
+                agentId: agentId
+              });
               result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
               context.log('[Heartbeat] scribe: bluesky-reply drafted and queued for CEO approval:', action.taskId, '→ action', _replyActionId);
               continue; // skip the social-copy branch
