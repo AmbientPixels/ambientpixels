@@ -4680,12 +4680,14 @@
 
       function renderAzureCosts() {
         var el = document.getElementById('panel-azure-cost');
-        // Serve from cache if we fetched within the last 5 minutes
-        if (_azureCostCache && (Date.now() - _azureCostCacheTs) < 5 * 60 * 1000) {
-          _costSummaryData.azure = _azureCostCache;
-          if (el) _renderAzureCostPanel(el, _azureCostCache);
-          renderCostSummary();
-          return;
+        // Serve from cache or respect cooldown (prevents 429 spam on repeated renderAll calls)
+        if ((Date.now() - _azureCostCacheTs) < 5 * 60 * 1000) {
+          if (_azureCostCache) {
+            _costSummaryData.azure = _azureCostCache;
+            if (el) _renderAzureCostPanel(el, _azureCostCache);
+            renderCostSummary();
+          }
+          return; // cached OR on cooldown after error — don't re-fetch
         }
         // Prevent concurrent fetches (dashboard calls renderAll 3x on load)
         if (_azureCostFetching) return;
@@ -4704,6 +4706,10 @@
           renderCostSummary();
         })
         .catch(function (err) {
+          // On 429, cache the failure for 5 min so we don't keep hammering the API
+          if (err.message && err.message.indexOf('429') !== -1) {
+            _azureCostCacheTs = Date.now(); // prevent retries for 5 min
+          }
           if (el) el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">' + escapeHtml(err.message || 'Could not load Azure cost data.') + '</div>';
         })
         .finally(function () { _azureCostFetching = false; });
