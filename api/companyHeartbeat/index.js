@@ -1395,6 +1395,7 @@ module.exports = async function (context) {
           blocked: 0,
           newTasksCreated: 0,
           avgLatencyMs: result.durationMs || 0,
+          reasoning: result.reasoning || null,
           guardrailBlocked: ((result.guardrails && result.guardrails.orphanBlocked) || 0)
             + ((result.guardrails && result.guardrails.exactDupBlocked) || 0)
             + ((result.guardrails && result.guardrails.fuzzyDupBlocked) || 0)
@@ -2805,7 +2806,8 @@ module.exports = async function (context) {
         actionsBlocked: (rc.blocked || 0) + (rs.guardrailBlocked || 0),
         newTasksCreated: rc.creates || 0,
         avgLatencyMs: rs.avgLatencyMs || 0,
-        error: rs.error || null
+        error: rs.error || null,
+        reasoning: rs.reasoning || null
       };
     });
 
