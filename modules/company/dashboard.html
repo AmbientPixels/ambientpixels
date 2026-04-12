@@ -4625,11 +4625,24 @@
         });
       }
 
-      // ── Azure Costs ──
+      // ── Azure Costs (cached — Azure Cost Management API rate-limits aggressively) ──
       var _azureCostDays = 30;
+      var _azureCostCache = null;
+      var _azureCostCacheTs = 0;
+      var _azureCostFetching = false;
 
       function renderAzureCosts() {
         var el = document.getElementById('panel-azure-cost');
+        // Serve from cache if we fetched within the last 5 minutes
+        if (_azureCostCache && (Date.now() - _azureCostCacheTs) < 5 * 60 * 1000) {
+          _costSummaryData.azure = _azureCostCache;
+          if (el) _renderAzureCostPanel(el, _azureCostCache);
+          renderCostSummary();
+          return;
+        }
+        // Prevent concurrent fetches (dashboard calls renderAll 3x on load)
+        if (_azureCostFetching) return;
+        _azureCostFetching = true;
         var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
         fetch(apiBase + '/azureCosts?days=' + _azureCostDays)
         .then(function (r) {
@@ -4637,13 +4650,16 @@
           return r.json();
         })
         .then(function (data) {
+          _azureCostCache = data;
+          _azureCostCacheTs = Date.now();
           _costSummaryData.azure = data;
           if (el) _renderAzureCostPanel(el, data);
           renderCostSummary();
         })
         .catch(function (err) {
           if (el) el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">' + escapeHtml(err.message || 'Could not load Azure cost data.') + '</div>';
-        });
+        })
+        .finally(function () { _azureCostFetching = false; });
       }
 
       function _renderAzureCostPanel(el, data) {
