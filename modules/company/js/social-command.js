@@ -383,8 +383,8 @@
     if (eEl) eEl.textContent = totalEng > 0 ? totalEng.toLocaleString() : '—';
 
     // Phase 7 hook: hero strip subscribers (only on Analytics Hub which loads AHShared)
-    if (AH) {
-      AH.publish('social.loaded', {
+    if (window.AHShared) {
+      window.AHShared.publish('social.loaded', {
         followers: totalFollowers,
         postsWeek: postsWeek,
         engagement: totalEng,
