@@ -474,7 +474,7 @@
         document.getElementById('obj-behind').textContent = behind;
         document.getElementById('obj-complete').textContent = complete;
         document.getElementById('obj-canceled').textContent = canceled;
-        var active = objectives.filter(function(o) { return o.status !== 'complete' && o.status !== 'canceled'; }).length;
+        var active = objectives.filter(function(o) { return o.status !== 'complete' && o.status !== 'completed' && o.status !== 'canceled' && o.status !== 'archived'; }).length;
         document.getElementById('obj-active-count').textContent = active + ' active';
         document.getElementById('obj-complete-count').textContent = complete + ' complete';
 
@@ -485,7 +485,7 @@
 
         var showCompleted = !!(document.getElementById('obj-show-completed') && document.getElementById('obj-show-completed').checked);
         var visible = objectives.filter(function (o) {
-          if (!showCompleted && (o.status === 'complete' || o.status === 'canceled')) return false;
+          if (!showCompleted && (o.status === 'complete' || o.status === 'completed' || o.status === 'canceled' || o.status === 'archived')) return false;
           return true;
         });
 
