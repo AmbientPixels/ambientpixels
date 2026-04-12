@@ -30,7 +30,7 @@ async function _validateContentQuality(text, platform, context) {
       var p = _productFacts.products[name];
       return name + ': ' + p.description + '. Features: ' + p.features.join(', ') + '. NOT: ' + p.notThis.join('; ');
     }).join('\n');
-    var prompt = 'You are a content quality checker for AmbientPixels. Check this ' + platform + ' post for factual accuracy against the product descriptions below. Flag any hallucinated features, inaccurate claims, or features that do not exist.\n\nPRODUCT FACTS:\n' + factsStr + '\n\nPOST TO CHECK:\n' + text + '\n\nReturn ONLY raw JSON with no markdown, no preamble, no explanation:\n{"pass": true_or_false, "confidence": 0_to_100, "issues": ["issue1", "issue2"]}';
+    var prompt = 'You are a content quality checker for AmbientPixels. Check this ' + platform + ' post for:\n1. Factual accuracy against the product descriptions below\n2. Hallucinated features or capabilities that do not exist\n3. FABRICATED STATISTICS — any specific numbers, percentages, user counts, ticket counts, accuracy rates, or metrics that are not from the product facts below. If the post cites a specific number (e.g. "37 tickets", "95% accuracy", "10,000 users"), it is almost certainly fabricated and MUST be flagged.\n\nPRODUCT FACTS:\n' + factsStr + '\n\nPOST TO CHECK:\n' + text + '\n\nReturn ONLY raw JSON with no markdown, no preamble, no explanation:\n{"pass": true_or_false, "confidence": 0_to_100, "issues": ["issue1", "issue2"]}';
     var controller = new AbortController();
     var timeout = setTimeout(function() { controller.abort(); }, 10000);
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
