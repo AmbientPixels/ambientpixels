@@ -319,7 +319,10 @@ module.exports = async function (context) {
 
     for (const c of campaigns) {
       if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
-      if (!c.cadence) continue; // frequency defaults to 1 below if missing
+      if (!c.cadence) {
+        context.log('[Heartbeat] Campaign "' + (c.title || c.id) + '" skipped auto-replenish: missing cadence field');
+        continue;
+      }
       // Must be within start/end date window
       if (c.startDate && new Date(c.startDate).getTime() > _now) continue;
       if (c.endDate && new Date(c.endDate).getTime() < _now) continue;

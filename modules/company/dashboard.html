@@ -3933,10 +3933,10 @@
 
         var apiBase = getApiBase();
         Promise.all([
-          fetch(apiBase + '/company-state?key=blogPosts', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return {}; }),
-          fetch('/pixel-agents/data/pixel-agents.json?v=1').then(function(r) { return r.json(); }).catch(function() { return []; }),
-          fetch(apiBase + '/pixel-agent-community').then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; }),
-          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return {}; })
+          fetch(apiBase + '/company-state?key=blogPosts', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return {}; }),
+          fetch('/pixel-agents/data/pixel-agents.json?v=1').then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return []; }),
+          fetch(apiBase + '/pixel-agent-community').then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return { agents: [] }; }),
+          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return {}; })
         ]).then(function(results) {
           var blogData = results[0].value || results[0] || [];
           var blogCount = Array.isArray(blogData) ? blogData.length : 0;

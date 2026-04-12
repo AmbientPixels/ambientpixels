@@ -2346,7 +2346,7 @@ var AgentEngine = (function () {
     // Directives
     var directives = getDirectives();
     var activeDir = directives.filter(function (d) { return d.status === 'active' && (inRange(d.createdDate) || !d.createdDate); });
-    var completedDir = directives.filter(function (d) { return d.status === 'completed' && inRange(d.createdDate); });
+    var completedDir = directives.filter(function (d) { return (d.status === 'completed' || d.status === 'complete') && inRange(d.createdDate); });
     var pendingDir = directives.filter(function (d) { return d.status === 'pending-approval'; });
 
     // Tasks throughput
