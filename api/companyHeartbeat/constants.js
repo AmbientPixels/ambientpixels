@@ -57,12 +57,19 @@ const GUARDRAILS = {
 const HEARTBEAT_LOCK_TIMEOUT_MS = 5 * 60 * 1000;
 
 // ── Persistent Agent Memory ──
-const MAX_MEMORIES_PER_AGENT = 20;
-const MAX_L4_WRITES_PER_AGENT_PER_DAY = 5;
+const MAX_MEMORIES_PER_AGENT = 50;
+const MAX_L4_WRITES_PER_AGENT_PER_DAY = 10;
 const L4_PREFERRED_TYPES = new Set(['decision', 'constraint', 'resolved_incident', 'verified_fact', 'preference']);
 const L4_LEGACY_TYPES = new Set(['learning', 'feedback', 'context', 'preference']);
 const L4_ALLOWED_TYPES = new Set([...L4_PREFERRED_TYPES, ...L4_LEGACY_TYPES]);
 const L4_DEFAULT_TTL_DAYS = 14;
+// Tiered TTLs by memory type (days). Types not listed fall back to L4_DEFAULT_TTL_DAYS.
+const L4_TTL_BY_TYPE = {
+  decision: 90, verified_fact: 90,
+  constraint: 60, preference: 60,
+  learning: 30, feedback: 30,
+  context: 14
+};
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
@@ -170,6 +177,7 @@ module.exports = {
   L4_PREFERRED_TYPES,
   L4_LEGACY_TYPES,
   L4_ALLOWED_TYPES,
+  L4_TTL_BY_TYPE,
   L4_DEFAULT_TTL_DAYS,
   TIER4_SUB_AGENTS,
   OBJECTIVE_EXEMPT_CATEGORIES,

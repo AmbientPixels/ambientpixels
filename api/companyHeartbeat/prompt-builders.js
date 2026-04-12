@@ -1009,7 +1009,9 @@ Where relevant to your content tasks, weave in references to these trends to inc
     }).join('\n');
     revisionSection = `\n\n⚠ CEO REVISION REQUESTS (HIGH PRIORITY — the CEO rejected these and wants changes):
 ${revList}
-You MUST address these revision requests using revise-action. Provide the action_id and the corrected content based on the CEO's feedback. This takes priority over creating new actions.`;
+You MUST address these revision requests using revise-action. Provide the action_id and the corrected content based on the CEO's feedback. This takes priority over creating new actions.
+
+REFLECTION (include in your response): Add a "reflectionMemory" field to your JSON response with a short memory entry about this rejection. Format: "My [task type] was rejected because [CEO feedback summary]. Pattern: [what I keep getting wrong]. Next time: [specific adjustment]." Keep it under 200 characters — this becomes a persistent memory for future cycles.`;
   }
 
   // CEO edit examples — show the agent recent corrections the CEO made to their posts
@@ -1451,7 +1453,13 @@ ${(function() {
       var n = (t.comments || []).filter(function(c) { return c.type === 'deliverable'; }).length;
       return '- "' + (t.title || t.id) + '" (' + n + ' attempts)';
     }).join('\n');
-    return 'REVISION LOOP DETECTED — REFLECT BEFORE RE-EXECUTING:\nThe following tasks have been attempted 3+ times without approval:\n' + _stuckList + '\nFor these tasks: pause and reflect on the feedback pattern. What keeps getting rejected? What specific adjustment would break the loop? Include your diagnosis in your reasoning field, then produce a revised deliverable that addresses the root issue — not just surface changes.';
+    var _hasConvergence = _stuckTasks.some(function(t) {
+      return (t.comments || []).filter(function(c) { return c.type === 'deliverable'; }).length >= 5;
+    });
+    var _convergenceNote = _hasConvergence
+      ? '\n\nCONVERGENCE DIAGNOSIS (REQUIRED for 5+ attempt tasks): Add a "convergenceDiagnosis" field to your JSON response: "I\'ve attempted this N times. The feedback pattern is [X]. Core issue: [Y]. Recommendation: [Z]." This becomes a persistent memory.'
+      : '';
+    return 'REVISION LOOP DETECTED — REFLECT BEFORE RE-EXECUTING:\nThe following tasks have been attempted 3+ times without approval:\n' + _stuckList + '\nFor these tasks: pause and reflect on the feedback pattern. What keeps getting rejected? What specific adjustment would break the loop? Include your diagnosis in your reasoning field, then produce a revised deliverable that addresses the root issue — not just surface changes.' + _convergenceNote;
   }
   return 'ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:';
 })()}

@@ -373,6 +373,37 @@ async function runAgentHeartbeat(ctx) {
     result.reasoning = String(parsed.reasoning).substring(0, 600);
   }
 
+  // Extract reflectionMemory from rejected revision (Phase 3B)
+  if (parsed && typeof parsed === 'object' && parsed.reflectionMemory) {
+    var _reflText = String(parsed.reflectionMemory).substring(0, 200);
+    if (_reflText && _agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
+      _agentMemoryStore[agentId].push({
+        id: 'mem-refl-' + Date.now(),
+        type: 'feedback',
+        text: _reflText,
+        source: 'auto:reflection',
+        timestamp: new Date().toISOString()
+      });
+      context.log('[Heartbeat]', agentId, 'stored reflection memory:', _reflText.substring(0, 80));
+    }
+  }
+
+  // Extract convergenceDiagnosis from stuck tasks (Phase 3C)
+  if (parsed && typeof parsed === 'object' && parsed.convergenceDiagnosis) {
+    var _diagText = String(parsed.convergenceDiagnosis).substring(0, 300);
+    result.convergenceDiagnosis = _diagText;
+    if (_diagText && _agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
+      _agentMemoryStore[agentId].push({
+        id: 'mem-conv-' + Date.now(),
+        type: 'learning',
+        text: _diagText,
+        source: 'auto:convergence',
+        timestamp: new Date().toISOString()
+      });
+      context.log('[Heartbeat]', agentId, 'stored convergence diagnosis:', _diagText.substring(0, 80));
+    }
+  }
+
   // ── Phase 2B + 4A: Normalize output then defensively normalize envelope ──
   const normalizedResult = normalizeAgentResult(parsed);
   const normalized = await _normalizeEnvelope(

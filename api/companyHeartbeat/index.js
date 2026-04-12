@@ -26,7 +26,7 @@ try { skillsData = require('../_data/skills.json'); } catch (_) { /* generated b
 // Destructure constants used by main orchestrator
 const {
   AGENT_IDS, GUARDRAILS, HEARTBEAT_LOCK_TIMEOUT_MS,
-  MAX_MEMORIES_PER_AGENT, L4_DEFAULT_TTL_DAYS,
+  MAX_MEMORIES_PER_AGENT, L4_DEFAULT_TTL_DAYS, L4_TTL_BY_TYPE,
   TIER4_SUB_AGENTS, ALLOWED_UPDATE_KEYS, CAP_DEFAULTS,
   _MUTATION_BUCKET_MAP, MAX_RESEARCH_STORE_ENTRIES,
   AGENT_COOLDOWN_VIOLATIONS_PER_RUN, MAX_ENTITY_COMMENT_CALLS_PER_RUN
@@ -2016,7 +2016,7 @@ module.exports = async function (context) {
       }
     }
 
-    // TTL pruning of agent memories (Phase 1E)
+    // TTL pruning of agent memories — tiered by memory type (Phase 3A)
     const _pruneNow = Date.now();
     const _ttlFallbackMs = L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000;
     for (const _pAid of Object.keys(_agentMemoryStore)) {
@@ -2028,7 +2028,9 @@ module.exports = async function (context) {
         if (m.expiresAt) {
           expiry = new Date(m.expiresAt).getTime();
         } else if (m.timestamp) {
-          expiry = new Date(m.timestamp).getTime() + _ttlFallbackMs;
+          // Use tiered TTL based on memory type, fallback to default 14 days
+          var _ttlDays = (m.type && L4_TTL_BY_TYPE[m.type]) || L4_DEFAULT_TTL_DAYS;
+          expiry = new Date(m.timestamp).getTime() + (_ttlDays * 24 * 60 * 60 * 1000);
         } else {
           return true; // no date info, keep
         }
