@@ -671,6 +671,22 @@
         </div>
       </details>
 
+      <!-- Dev: Agent Health (Phase 5A — replaces removed observability panel) -->
+      <div class="dash-section" id="section-agent-health-dev" data-section="agent-health-dev">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-heartbeat dash-icon-green"></i>
+          <h2>Agent Health</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full dash-panel--blue-subtle">
+            <div id="agent-health-root">
+              <div class="dash-empty">Loading agent health data...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Dev: Traffic Brief (moved from CEO) -->
       <div class="dash-section" id="section-traffic-dev" data-section="traffic-dev">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -1236,7 +1252,7 @@
         [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderGrowthTraffic, refreshSocialCommand,
          renderCeoObsHealth, renderStats, renderFleet, renderAgentStatus, renderSessions,
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
-         renderHeartbeatHealth, renderHealthMonitor, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
+         renderHeartbeatHealth, renderHealthMonitor, renderAgentHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderContentKPIs, renderGovernanceLog, renderGovernanceLogDev,
@@ -2706,6 +2722,71 @@
       }
 
       // ── Heartbeat Health ──
+      // ── Agent Health Panel (Phase 5A) ──
+      function renderAgentHealth() {
+        var root = document.getElementById('agent-health-root');
+        if (!root) return;
+        var storeMode = AgentEngine.getStoreMode ? AgentEngine.getStoreMode() : 'local';
+        if (storeMode !== 'server') {
+          root.innerHTML = '<div class="dash-empty">Server mode required for agent health data.</div>';
+          return;
+        }
+        var headers = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {};
+        fetch(getApiBase() + '/company-state?key=heartbeatRuns', { headers: headers })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (resp) {
+            var runs = ((resp && resp.value) || []);
+            if (!runs.length) { root.innerHTML = '<div class="dash-empty">No heartbeat data yet.</div>'; return; }
+            var last = runs[runs.length - 1] || {};
+            var perAgent = last.perAgent || {};
+            var agents = Object.keys(perAgent);
+            var ageMin = last.finishedAt ? Math.floor((Date.now() - new Date(last.finishedAt).getTime()) / 60000) : -1;
+            var ageText = ageMin < 0 ? '—' : (ageMin < 60 ? ageMin + 'm ago' : Math.floor(ageMin / 60) + 'h ago');
+            var statusColor = last.status === 'ok' ? '#34d399' : '#f87171';
+            var bp = last.backlogPressure || {};
+            var gr = last.guardrails || {};
+            var grTotal = (gr.orphanBlocked||0) + (gr.exactDupBlocked||0) + (gr.fuzzyDupBlocked||0) + (gr.taskCeilingBlocked||0) + (gr.socialPromoGateBlocked||0);
+            // Header row
+            var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.4rem;">'
+              + '<span style="font-size:0.65rem;opacity:0.4;">Last heartbeat: <span style="color:' + statusColor + ';">' + (last.status || '—') + '</span> · ' + ageText + ' · ' + (last.durationMs ? (last.durationMs / 1000).toFixed(1) + 's' : '—') + '</span>'
+              + '<span style="font-size:0.6rem;opacity:0.3;">Backlog: ' + (bp.activeTasks||0) + '/' + (bp.activeTasksCap||50) + ' tasks · ' + (bp.overdueTasks||0) + ' overdue</span>'
+              + '</div>';
+            // Agent grid
+            html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.4rem;">';
+            agents.forEach(function (aid) {
+              var a = perAgent[aid];
+              var blocked = a.actionsBlocked || 0;
+              var attempted = a.actionsAttempted || 0;
+              var blockRate = attempted > 0 ? Math.round(blocked / attempted * 100) : 0;
+              var latency = a.avgLatencyMs || 0;
+              var latText = latency < 1000 ? latency + 'ms' : (latency / 1000).toFixed(1) + 's';
+              var errStyle = a.error ? 'border-left:2px solid #f87171;' : '';
+              html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:6px;padding:0.4rem 0.5rem;font-size:0.6rem;' + errStyle + '">'
+                + '<div style="font-weight:600;margin-bottom:0.2rem;text-transform:capitalize;">' + escapeHtml(aid) + '</div>'
+                + '<div style="opacity:0.5;">Actions: ' + (a.actionsExecuted||0) + '/' + attempted + (blocked > 0 ? ' <span style="color:#f87171;">(' + blocked + ' blocked)</span>' : '') + '</div>'
+                + '<div style="opacity:0.4;">Tasks created: ' + (a.newTasksCreated||0) + ' · ' + latText + '</div>'
+                + (a.error ? '<div style="color:#f87171;font-size:0.55rem;margin-top:0.15rem;">' + escapeHtml(String(a.error).substring(0,60)) + '</div>' : '')
+                + '</div>';
+            });
+            html += '</div>';
+            // Guardrail heatmap
+            if (grTotal > 0) {
+              html += '<div style="margin-top:0.5rem;font-size:0.58rem;opacity:0.4;">Guardrails fired: ';
+              var grParts = [];
+              if (gr.orphanBlocked) grParts.push('orphan ' + gr.orphanBlocked);
+              if (gr.exactDupBlocked) grParts.push('exact-dup ' + gr.exactDupBlocked);
+              if (gr.fuzzyDupBlocked) grParts.push('fuzzy-dup ' + gr.fuzzyDupBlocked);
+              if (gr.taskCeilingBlocked) grParts.push('ceiling ' + gr.taskCeilingBlocked);
+              if (gr.socialPromoGateBlocked) grParts.push('promo-gate ' + gr.socialPromoGateBlocked);
+              html += grParts.join(' · ') + '</div>';
+            }
+            root.innerHTML = html;
+          })
+          .catch(function () {
+            root.innerHTML = '<div class="dash-empty">Failed to load agent health data.</div>';
+          });
+      }
+
       function renderHeartbeatHealth() {
         if (!panelHeartbeatHealth || !heartbeatHealthEmpty || !heartbeatHealthBadge) return;
 
