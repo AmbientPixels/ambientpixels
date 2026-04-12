@@ -130,7 +130,6 @@ module.exports = async function (context) {
       ceoApprovalsTriggered: 0,
       pausedCampaignAutomationBlocked: 0
     };
-    const _campaignsTouched = new Set();
     const _tasksTouched = new Set();
     const _agentRunStats = {};
     let _entityCommentCalls = 0;
