@@ -5,7 +5,18 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
-const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
+const storage = require('../_utils/companyStorage');
+// Runtime model resolution — reads dashboard toggle (systemConfig.heartbeatModel) with 5-min cache
+let _modelCache = { value: null, expires: 0 };
+async function _useClaude() {
+  if (_modelCache.expires > Date.now()) return _modelCache.value;
+  try {
+    const cfg = await storage.getState('systemConfig');
+    const model = (cfg && cfg.heartbeatModel) || process.env.HEARTBEAT_MODEL || 'gemini';
+    _modelCache = { value: model.toLowerCase().indexOf('claude') !== -1, expires: Date.now() + 300000 };
+    return _modelCache.value;
+  } catch (e) { return (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude'; }
+}
 
 const NOVA_SYSTEM_INSTRUCTION = `You are Nova — Prime Operator of AmbientOS at AmbientPixels.ai, serving as AI Chief of Staff and founder co-pilot.
 
@@ -163,10 +174,11 @@ module.exports = async function (context, req) {
       }
     };
 
-    context.log('[NovaChat] Mode:', mode || 'chat', 'Model:', USE_CLAUDE ? 'claude' : 'gemini', 'Message:', message.substring(0, 100));
+    var _isClaude = await _useClaude();
+    context.log('[NovaChat] Mode:', mode || 'chat', 'Model:', _isClaude ? 'claude' : 'gemini', 'Message:', message.substring(0, 100));
 
     let reply = '';
-    if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+    if (_isClaude && ANTHROPIC_API_KEY) {
       var claudeMsgs = contents.map(function (c) { return { role: c.role === 'model' ? 'assistant' : 'user', content: c.parts.map(function (p) { return p.text; }).join('\n') }; });
       var cRes = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system: systemPrompt, messages: claudeMsgs }) });
       var cData = await cRes.json();

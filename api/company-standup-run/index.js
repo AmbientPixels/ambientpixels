@@ -12,7 +12,17 @@ const STANDUP_API_KEY = process.env.STANDUP_API_KEY || '';
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
-const USE_CLAUDE = (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude';
+// Runtime model resolution — reads dashboard toggle with 5-min cache
+let _modelCache = { value: null, expires: 0 };
+async function _useClaude() {
+  if (_modelCache.expires > Date.now()) return _modelCache.value;
+  try {
+    const cfg = await storage.getState('systemConfig');
+    const model = (cfg && cfg.heartbeatModel) || process.env.HEARTBEAT_MODEL || 'gemini';
+    _modelCache = { value: model.toLowerCase().indexOf('claude') !== -1, expires: Date.now() + 300000 };
+    return _modelCache.value;
+  } catch (e) { return (process.env.HEARTBEAT_MODEL || '').toLowerCase() === 'claude'; }
+}
 
 // ── In-memory lock (per Function App instance) ──
 let _running = false;
@@ -252,7 +262,7 @@ ${contextMessage}`;
 async function callGemini(systemPrompt, userMessage) {
   var fullPrompt = systemPrompt + '\n\n' + userMessage;
 
-  if (USE_CLAUDE && ANTHROPIC_API_KEY) {
+  if ((await _useClaude()) && ANTHROPIC_API_KEY) {
     var cRes = await fetch(CLAUDE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }, body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 800, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] }) });
     var cData = await cRes.json();
     if (!cRes.ok) throw new Error('Claude ' + cRes.status + ': ' + JSON.stringify(cData).substring(0, 200));
