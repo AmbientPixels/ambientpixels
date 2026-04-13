@@ -1297,18 +1297,19 @@
             .catch(function() { cstatApi.textContent = '—'; });
         }
 
-        // Daily Burn
+        // Daily Burn — read from server-side geminiUsage (has real cost data)
         var cstatBurn = document.getElementById('cstat-burn');
         var cstatBurnSub = document.getElementById('cstat-burn-sub');
         if (cstatBurn) {
-          var burnSessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
-          var today = new Date().toISOString().split('T')[0];
-          var todayCost = 0;
-          burnSessions.forEach(function (s) {
-            if (s.timestamp && s.timestamp.startsWith(today) && s.cost) todayCost += s.cost;
-          });
-          cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
-          cstatBurnSub.textContent = 'est. cost today';
+          var burnApiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+          fetch(burnApiBase + '/geminiCosts?days=1', { headers: { 'x-company-secret': 'pixelpusher' } })
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(data) {
+              var todayCost = (data && data.totalCost) ? data.totalCost : 0;
+              cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
+              cstatBurnSub.textContent = 'est. cost today';
+            })
+            .catch(function() { cstatBurn.textContent = '$—'; });
         }
 
         // Task Pipeline
