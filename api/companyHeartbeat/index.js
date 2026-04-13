@@ -391,22 +391,7 @@ module.exports = async function (context) {
     let _trendIntel = _stateResults2[3] || {};
     let _systemConfig = _stateResults2[4] || {};
 
-    // ── Phase 5: One-time migration from separate trend keys to trendIntel ──
-    if (!_trendIntel.radar && !_trendIntel.insights && !_trendIntel.actions) {
-      // trendIntel doesn't exist yet — migrate from old keys
-      var _oldRadar = [], _oldInsights = [], _oldActions = {};
-      try { _oldRadar = (await storage.getState('trendRadar')) || []; } catch (_e) { /* non-fatal */ }
-      try { _oldInsights = (await storage.getState('trendInsights')) || []; } catch (_e) { /* non-fatal */ }
-      try { _oldActions = (await storage.getState('trendActions')) || {}; } catch (_e) { /* non-fatal */ }
-      if (_oldRadar.length > 0 || _oldInsights.length > 0 || Object.keys(_oldActions).length > 0) {
-        _trendIntel = { radar: _oldRadar, insights: _oldInsights, actions: _oldActions };
-        try {
-          await storage.setState('trendIntel', _trendIntel);
-          context.log('[Heartbeat] Phase 5 migration: merged trendRadar + trendInsights + trendActions → trendIntel');
-        } catch (_migErr) { context.log('[Heartbeat] Phase 5 migration failed (non-fatal):', _migErr.message); }
-      }
-    }
-    // Extract sub-stores for backward compat with existing code
+    // Extract sub-stores from trendIntel
     let trendRadarStore = _trendIntel.radar || [];
     let trendInsightsStore = _trendIntel.insights || [];
     const _runtimeCaps = {

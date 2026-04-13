@@ -82,7 +82,7 @@ function buildSocialTelemetryEvent(action, partial) {
 async function appendSocialMetricEvent(event) {
   // Phase 5: write to socialIntel.metricsEvents (fallback to old key for migration)
   var intel = (await storage.getState('socialIntel')) || {};
-  var current = Array.isArray(intel.metricsEvents) ? intel.metricsEvents : ((await storage.getState('socialMetricsEvents')) || []);
+  var current = Array.isArray(intel.metricsEvents) ? intel.metricsEvents : [];
   current.push(event);
   var trimmed = current.length > MAX_EVENTS ? current.slice(-MAX_EVENTS) : current;
   intel.metricsEvents = trimmed;

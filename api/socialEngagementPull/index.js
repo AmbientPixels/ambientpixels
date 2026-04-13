@@ -259,7 +259,7 @@ module.exports = async function (context) {
     if (snapshots.length) {
       // Phase 5: write to socialIntel.engagementSnapshots
       var _siSnap = (await storage.getState('socialIntel')) || {};
-      var existing = Array.isArray(_siSnap.engagementSnapshots) ? _siSnap.engagementSnapshots : ((await storage.getState('socialEngagementSnapshots')) || []);
+      var existing = Array.isArray(_siSnap.engagementSnapshots) ? _siSnap.engagementSnapshots : [];
       var merged = existing.concat(snapshots);
       var trimmed = merged.length > MAX_SNAPSHOTS ? merged.slice(-MAX_SNAPSHOTS) : merged;
       _siSnap.engagementSnapshots = trimmed;

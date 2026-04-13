@@ -460,9 +460,8 @@ async function runIngestion(log) {
   // Compute per-trend source coverage (keyword matching across all 4 sources)
   trends = computeSourceCoverage(trends, githubLines, hnLines, redditLines, devtoLines);
 
-  // Phase 5: read from trendIntel.radar (fallback to old trendRadar key for migration)
   var _trendIntel = (await storage.getState('trendIntel')) || {};
-  var existing = Array.isArray(_trendIntel.radar) ? _trendIntel.radar : ((await storage.getState('trendRadar')) || []);
+  var existing = Array.isArray(_trendIntel.radar) ? _trendIntel.radar : [];
   if (!Array.isArray(existing)) existing = [];
   var previousSnapshot = existing.length ? existing[existing.length - 1] : null;
 
