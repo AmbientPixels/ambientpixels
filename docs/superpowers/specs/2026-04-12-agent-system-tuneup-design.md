@@ -25,9 +25,11 @@ The 8-agent system runs reliably but produces low-leverage output. Root causes:
 **Fix in `api/companyHeartbeat/agent-runner.js`**, in the memory-save handler:
 
 Before writing a new memory, check existing memories for the same agent:
-- Normalize both strings (lowercase, trim, collapse whitespace)
-- If Levenshtein similarity > 85% with any memory from the last 24 hours → skip
-- Log the skip: `[Heartbeat] ${agentId}: skipped duplicate memory`
+- Normalize both strings: lowercase, trim, collapse whitespace, strip numbers/currency (so "$0.46/day" and "approximately 46 cents daily" both become "approximately cents daily")
+- Token-overlap check: split into word tokens, compute Jaccard similarity (intersection/union). If overlap > 70% with any memory from the last 24 hours → skip
+- This catches both exact dupes ("$0.46/day" x9) AND semantic dupes ("Cost is $0.46" vs "Daily spend approximately 46 cents") without needing embeddings
+- Log the skip: `[Heartbeat] ${agentId}: skipped duplicate memory (${Math.round(similarity*100)}% overlap with existing)`
+- **Known limitation:** Won't catch fully rephrased memories with different vocabulary. Acceptable — catches the 80% case (repeated stats, repeated learnings). Embedding-based dedup is a future option if this proves insufficient.
 
 **Also enforce the existing MAX_MEMORIES_PER_AGENT (20 per constants.js):**
 - If agent has 20+ memories, evict oldest before adding new
@@ -79,7 +81,14 @@ In `buildHeartbeatPrompt()`, only include sections that appear in the agent's li
 
 **Fix in `api/companyHeartbeat/agent-runner.js`:**
 
-When an action is blocked by any gate, collect the block reason:
+Instrument the **top 5 most-hit gates** first (not all 69). Based on the audit, these are:
+1. Orphan task gate (missing objective_id/campaign_id)
+2. Task ceiling (50 active tasks)
+3. Social promo gate (missing reviewed_copy)
+4. Exact/fuzzy duplicate
+5. Research ceiling (5 active research tasks)
+
+When an action is blocked by any instrumented gate, collect the block reason:
 ```javascript
 blockedActions.push({
   action: action.type,
@@ -112,15 +121,25 @@ Do not retry these actions unless the underlying constraint has changed.
 
 **Fix in `api/companyHeartbeat/index.js`**, in the campaign auto-replenish logic (~line 305):
 
+**Pre-implementation data audit required.** Before coding, verify:
+1. Do completed tasks have a link back to the social action that was created from them? (Check `_social_action_created` flag or `actions` store for task references)
+2. Do social actions in the `actions` store have engagement data populated? (Check `socialMetricsEvents` for action-level metrics)
+3. If engagement data lives in `socialEngagementSnapshots` or `socialWeeklySnapshots`, is it per-post or aggregate?
+
+If per-task engagement data does NOT exist in the current data model, the engagement gate can't be built as-is. Fallback: gate on **approval rate** instead (CEO approves/rejects/revises — that data IS in the approval queue).
+
+**Assuming data exists or using approval-rate fallback:**
+
 Before creating a new task for a campaign, check the last 3 completed tasks for that campaign:
 - If all 3 had CEO revisions requested → pause replenish, add system comment "Campaign paused: 3 consecutive revisions"
-- If 0 of last 3 got any social engagement (likes + comments + reposts = 0) → slow replenish to 2x cadence
+- If 0 of last 3 resulted in approved actions (all rejected or no action created) → slow replenish to 2x cadence
 - If campaign has produced 10+ tasks with 0 approved actions → auto-pause campaign with CEO notification
 
 This doesn't block manual task creation — it only gates the automatic replenish.
 
 **Files:**
 - `api/companyHeartbeat/index.js` — campaign auto-replenish section (~lines 305-400)
+- Data audit targets: `actions`, `approvalQueue`, `socialMetricsEvents`
 
 **Expected result:** Campaigns that aren't producing value slow down or pause. CEO attention directed to strategy, not treadmill maintenance.
 
@@ -156,17 +175,24 @@ This doesn't block manual task creation — it only gates the automatic replenis
 
 **Problem:** Pixel and Forge produce 0 actions for consecutive heartbeats.
 
-**Pixel fix:** Pixel's design director contract says to proactively create tasks for campaigns missing visual assets. Check if this is actually triggering. If Pixel has no tasks and no campaigns need design, Pixel should:
-- Audit existing hero images for staleness (older than 30 days)
-- Propose design refreshes for top-traffic product pages
+**This phase is investigation-first, then targeted fixes.**
 
-**Forge fix:** Forge's ops watchdog has stalled-agent detection but may not be triggering. Check `ops-intel.js` — is the stall detection actually running? Forge should be creating system directives for stalled agents (Pixel is stalled — Forge should notice and act).
+**Step 1 — Diagnose (read-only):**
+- Read `prompt-builders.js` Pixel contract section: what conditions trigger proactive design task creation?
+- Read `ops-intel.js` stalled agent detection: what's the threshold? Is `zeroActionRuns` being computed correctly from recent heartbeatRuns?
+- Fetch last 5 heartbeat runs and check: does Forge's ops digest show Pixel as stalled? If yes, why isn't Forge acting? If no, the detection is broken.
+
+**Step 2 — Fix based on diagnosis (one of these):**
+- If Pixel's contract conditions are never met (e.g., all campaigns have design tasks): lower the threshold or add "idle mode" behavior — when 0 tasks assigned, audit hero images >30 days old
+- If Forge's stall detection isn't firing: fix `ops-intel.js` `zeroActionRuns` computation (likely reading wrong data format — known issue from audit: `r.agentResults` vs `r.perAgent`)
+- If Forge detects stall but doesn't act: check if Forge's prompt includes the stall data and if the directive creation gate allows it
 
 **Files:**
-- `api/companyHeartbeat/ops-intel.js` — stalled agent detection
-- `api/companyHeartbeat/prompt-builders.js` — Pixel and Forge contracts
+- `api/companyHeartbeat/ops-intel.js` — stalled agent detection (~line 80-120)
+- `api/companyHeartbeat/prompt-builders.js` — Pixel contract, Forge contract
+- `api/companyHeartbeat/agent-runner.js` — system_directive creation gate
 
-**Expected result:** Pixel and Forge become proactive instead of idle.
+**Expected result:** Pixel and Forge produce at least 1 action within 3 heartbeats of this fix shipping.
 
 ---
 
@@ -206,10 +232,23 @@ if (AGENT_CAPABILITIES[agentId]?.canSocialAction) { ... }
 
 **Problem:** Memories never expire. A false assertion from Week 1 still consumes tokens in Week 3.
 
-**Fix:** Add TTL to agent memories:
-- Default TTL: 14 days (configurable per agent in constants.js)
-- On each heartbeat, prune memories older than TTL
-- When an agent re-records a similar memory, reset the TTL (memory is refreshed)
+**Fix:** Add tiered TTL to agent memories:
+
+```javascript
+// constants.js
+const MEMORY_TTL_DAYS = {
+  short: 3,    // Cost figures, daily metrics, transient stats
+  default: 14, // Task learnings, execution insights, campaign observations
+  long: 60     // Strategic learnings, platform insights, CEO feedback patterns
+};
+```
+
+- Each memory gets a TTL category based on content heuristics:
+  - Contains `$`, cost/spend/budget keywords → `short` (3 days)
+  - Contains strategic/learning/insight keywords → `long` (60 days)
+  - Everything else → `default` (14 days)
+- On each heartbeat, prune memories older than their TTL
+- When an agent re-records a similar memory (caught by Phase 1 dedup), reset the TTL instead of creating a duplicate
 - Seed memories have no TTL (permanent until CEO updates)
 
 **Files:**
@@ -232,6 +271,29 @@ if (AGENT_CAPABILITIES[agentId]?.canSocialAction) { ... }
 | 7. Simplify branches | High | Large | Medium | Plan separately |
 
 Phases 1-4 and 6, 8 can be done in 2-3 sessions. Phases 5 and 7 are multi-session refactors that need their own specs.
+
+---
+
+## Rollback Strategy
+
+Each phase ships as a **separate commit**. If a phase causes regressions:
+- `git revert <commit>` restores the previous behavior
+- Azure Blob state (agentMemories, heartbeatRuns, etc.) is NOT affected by git reverts — only code changes roll back
+- If Phase 2 (prompt routing) causes agents to miss context they actually needed, revert and add the missing section to that agent's routing list before re-shipping
+
+**Most likely rollback scenario:** Phase 2 removes a context section an agent silently depended on. Symptom: agent produces 0 actions or generic actions after the change. Fix: check heartbeatRuns perAgent for the affected agent, compare to pre-change run, add back the missing section.
+
+---
+
+## Baselines (measured 2026-04-12)
+
+These are from the live system audit, not estimates:
+- **Memory duplicates:** Cipher 9/9 identical, Scribe 8/8 identical, Echo 3/20 duplicates = ~40% system-wide duplicate rate
+- **Prompt tokens:** Estimated 25-30K per agent (based on `prompt.length / 4` in agent-runner.js logs — known to be ~40% inaccurate, real tokens likely 18-22K)
+- **Pixel actions/3 cycles:** 0. **Forge actions/3 cycles:** 0.
+- **Blocked actions:** 4 blocks across 3 cycles across all agents = ~9% of total attempted actions (4 blocked / ~45 attempted)
+- **Active campaigns:** 2. **Active tasks at time of audit:** ~8-10.
+- **Heartbeat cost:** ~$0.46/day (Cipher's own measurement, confirmed via geminiUsage)
 
 ---
 
