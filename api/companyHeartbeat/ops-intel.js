@@ -2,6 +2,7 @@
 // Mirrors social-intel.js pattern: builds digest from raw data, formats into prompt block
 
 var { OPS_INTEL_WINDOW_RUNS } = require('./constants');
+var { AGENT_CAPABILITIES } = require('./agent-capabilities');
 
 // Thresholds: YELLOW = monitor, RED = create ops_breakfix
 var THRESHOLDS = {
@@ -77,11 +78,12 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   });
 
   // Stalled agent detection: agents with 0 actions over 5+ consecutive recent runs
-  // Exclude quill (reactive editor) from stall detection
+  // Exclude reactive agents from stall detection (via capability flag)
   var stalledAgents = [];
   var STALL_THRESHOLD = 5;
   Object.keys(perAgent).forEach(function (aid) {
-    if (aid === 'quill') return;
+    var _aidCaps = AGENT_CAPABILITIES[aid];
+    if (_aidCaps && _aidCaps.excludeFromStallDetection) return;
     var a = perAgent[aid];
     if (a.ran >= STALL_THRESHOLD && a.zeroActionRuns >= STALL_THRESHOLD && a.executed === 0) {
       stalledAgents.push({ agent: aid, runs: a.ran, zeroRuns: a.zeroActionRuns });

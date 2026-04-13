@@ -16,6 +16,7 @@ const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
+const { AGENT_CAPABILITIES: _caps } = require('./agent-capabilities');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
 const productFacts = require('../_data/product-facts.json');
@@ -1401,7 +1402,7 @@ module.exports = async function (context) {
             novaSkipTaskIds: null,
             activeDirectives, activeObjectives, documents,
             workspaceMemory, workspaceDates, revisionActions,
-            costIntel: aid === 'cipher' ? costIntel : null,
+            costIntel: (_caps[aid] && _caps[aid].canFinanceReport) ? costIntel : null,
             reviewCooldownIds: _reviewCooldownIds,
             seedMemories: _seedMemories,
             researchIntelStore, socialIntel,
@@ -1412,7 +1413,7 @@ module.exports = async function (context) {
             campaignCtx: _agentCampaignCtx,
             siteIntel,
             _agentMemoryStore, trendRadarStore,
-            trendInsightsStore: (aid === 'nova' || aid === 'scribe' || aid === 'echo') ? trendInsightsStore : null,
+            trendInsightsStore: (_caps[aid] && (_caps[aid].canLifecycle || _caps[aid].canBlogPublish || _caps[aid].socialInjection)) ? trendInsightsStore : null,
             performanceDigest, agentExperiments,
             productFacts, skillsData,
             forgeOpsDigest, financeDigest, researchDemandDigest,
@@ -1464,10 +1465,10 @@ module.exports = async function (context) {
         // Use prefetched result from parallel group, or run sequentially
         const result = _prefetchedResults[agentId] || await runAgentHeartbeat({
           context, agentId, tasks, configs, recentSummaries, cycleId,
-          novaSkipTaskIds: agentId === 'nova' ? novaSkipTaskIds : null,
+          novaSkipTaskIds: (_caps[agentId] && _caps[agentId].taskFilterAll) ? novaSkipTaskIds : null,
           activeDirectives, activeObjectives, documents,
           workspaceMemory, workspaceDates, revisionActions,
-          costIntel: agentId === 'cipher' ? costIntel : null,
+          costIntel: (_caps[agentId] && _caps[agentId].canFinanceReport) ? costIntel : null,
           reviewCooldownIds: _reviewCooldownIds,
           seedMemories: _seedMemories,
           researchIntelStore, socialIntel,
@@ -1478,7 +1479,7 @@ module.exports = async function (context) {
           campaignCtx: _agentCampaignCtx,
           siteIntel,
           _agentMemoryStore, trendRadarStore,
-          trendInsightsStore: (agentId === 'nova' || agentId === 'scribe' || agentId === 'echo') ? trendInsightsStore : null,
+          trendInsightsStore: (_caps[agentId] && (_caps[agentId].canLifecycle || _caps[agentId].canBlogPublish || _caps[agentId].socialInjection)) ? trendInsightsStore : null,
           performanceDigest, agentExperiments,
           productFacts, skillsData,
           forgeOpsDigest, financeDigest, researchDemandDigest,
@@ -2124,8 +2125,8 @@ module.exports = async function (context) {
           }
         }
 
-        // Nova auto-assign fallback: if Nova commented on unassigned tasks, detect agent name and auto-assign
-        if (agentId === 'nova') {
+        // Auto-assign fallback: if triage agent commented on unassigned tasks, detect agent name and auto-assign
+        if (_caps[agentId] && _caps[agentId].taskFilterAll) {
           const _AGENT_NAMES = { scribe: 'scribe', pixel: 'pixel', echo: 'echo', forge: 'forge', cipher: 'cipher', scout: 'scout', quill: 'quill' };
           for (let _ti = 0; _ti < tasks.length; _ti++) {
             var _t = tasks[_ti];

@@ -33,7 +33,9 @@ const AGENT_CAPABILITIES = {
     skipSocialReviews: false,
     canParentTaskPassthrough: true, // Nova passes parent_task_id on create-task
     canResearchIntelExtract: false,
-    socialActionTaskLookup: false   // Echo-only: look up taskId from done social tasks
+    socialActionTaskLookup: false,
+    canFinanceReport: false,
+    excludeFromStallDetection: false
   },
   cipher: {
     tier: 3, canCreateTask: true, canPropose: [], canDirective: false, canLifecycle: false,
@@ -44,7 +46,8 @@ const AGENT_CAPABILITIES = {
     canExtractTrendInsights: false, canResearchRecursionGuard: false, canBlogPublish: false,
     canDelegationCheck: false, canBlueskyReply: false, canSocialCopyRoute: false,
     canAutoHeroImage: false, skipSocialReviews: true, canParentTaskPassthrough: false,
-    canResearchIntelExtract: false, socialActionTaskLookup: false
+    canResearchIntelExtract: false, socialActionTaskLookup: false,
+    canFinanceReport: true, excludeFromStallDetection: false
   },
   pixel: {
     tier: 3, canCreateTask: true, canPropose: [], canDirective: false, canLifecycle: false,
@@ -55,7 +58,8 @@ const AGENT_CAPABILITIES = {
     canExtractTrendInsights: false, canResearchRecursionGuard: false, canBlogPublish: false,
     canDelegationCheck: false, canBlueskyReply: false, canSocialCopyRoute: false,
     canAutoHeroImage: false, skipSocialReviews: true, canParentTaskPassthrough: false,
-    canResearchIntelExtract: false, socialActionTaskLookup: false
+    canResearchIntelExtract: false, socialActionTaskLookup: false,
+    canFinanceReport: false, excludeFromStallDetection: false
   },
   forge: {
     tier: 3, canCreateTask: true, canPropose: [], canDirective: true, canLifecycle: false,
@@ -66,7 +70,8 @@ const AGENT_CAPABILITIES = {
     canExtractTrendInsights: false, canResearchRecursionGuard: false, canBlogPublish: false,
     canDelegationCheck: false, canBlueskyReply: false, canSocialCopyRoute: false,
     canAutoHeroImage: false, skipSocialReviews: true, canParentTaskPassthrough: false,
-    canResearchIntelExtract: false, socialActionTaskLookup: false
+    canResearchIntelExtract: false, socialActionTaskLookup: false,
+    canFinanceReport: false, excludeFromStallDetection: false
   },
   echo: {
     tier: 3, canCreateTask: true, canPropose: ['campaign'], canDirective: false, canLifecycle: false,
@@ -77,7 +82,8 @@ const AGENT_CAPABILITIES = {
     canExtractTrendInsights: false, canResearchRecursionGuard: false, canBlogPublish: false,
     canDelegationCheck: false, canBlueskyReply: false, canSocialCopyRoute: false,
     canAutoHeroImage: false, skipSocialReviews: false, canParentTaskPassthrough: false,
-    canResearchIntelExtract: false, socialActionTaskLookup: true
+    canResearchIntelExtract: false, socialActionTaskLookup: true,
+    canFinanceReport: false, excludeFromStallDetection: false
   },
   scribe: {
     tier: 3, canCreateTask: true, canPropose: [], canDirective: false, canLifecycle: false,
@@ -88,7 +94,8 @@ const AGENT_CAPABILITIES = {
     canExtractTrendInsights: false, canResearchRecursionGuard: false, canBlogPublish: true,
     canDelegationCheck: false, canBlueskyReply: true, canSocialCopyRoute: true,
     canAutoHeroImage: true, skipSocialReviews: false, canParentTaskPassthrough: false,
-    canResearchIntelExtract: false, socialActionTaskLookup: false
+    canResearchIntelExtract: false, socialActionTaskLookup: false,
+    canFinanceReport: false, excludeFromStallDetection: false
   },
   quill: {
     tier: 4, canCreateTask: false, canPropose: [], canDirective: false, canLifecycle: false,
@@ -99,7 +106,8 @@ const AGENT_CAPABILITIES = {
     canExtractTrendInsights: false, canResearchRecursionGuard: false, canBlogPublish: false,
     canDelegationCheck: false, canBlueskyReply: false, canSocialCopyRoute: false,
     canAutoHeroImage: false, skipSocialReviews: false, canParentTaskPassthrough: false,
-    canResearchIntelExtract: false, socialActionTaskLookup: false
+    canResearchIntelExtract: false, socialActionTaskLookup: false,
+    canFinanceReport: false, excludeFromStallDetection: true
   },
   scout: {
     tier: 3, canCreateTask: true, canPropose: [], canDirective: false, canLifecycle: false,
@@ -110,7 +118,8 @@ const AGENT_CAPABILITIES = {
     canExtractTrendInsights: true, canResearchRecursionGuard: true, canBlogPublish: false,
     canDelegationCheck: false, canBlueskyReply: false, canSocialCopyRoute: false,
     canAutoHeroImage: false, skipSocialReviews: true, canParentTaskPassthrough: false,
-    canResearchIntelExtract: true, socialActionTaskLookup: false
+    canResearchIntelExtract: true, socialActionTaskLookup: false,
+    canFinanceReport: false, excludeFromStallDetection: false
   }
 };
 
