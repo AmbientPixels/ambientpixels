@@ -44,7 +44,7 @@ const CFO_THRESHOLD = 100;
 // ── Guardrails ──
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
-  maxGeminiCallsPerCycle: 15,
+  maxGeminiCallsPerCycle: 20,
   maxNewTasksPerCycle: 6,
   maxExecutesPerCyclePerAgent: 3,
   maxContentGeneratesPerCyclePerAgent: 1,
