@@ -75,6 +75,21 @@ function buildSiteContextBlock() {
 // ── Build heartbeat prompt ──
 // Route only relevant skills per agent to cut prompt size (~3K-7K tokens saved).
 // ambientos-guide is universal; product skills go to agents that handle that product's content.
+// ── Per-agent context routing ──
+// Sections not in an agent's list are suppressed to reduce prompt bloat.
+// Sections already internally gated (pixel*, scribe*, quill*, echo*, cost, forgeOps, researchDemand, socialIntel)
+// are included here for completeness but their builder functions also self-gate.
+var SECTION_ROUTING = {
+  nova:   ['triage', 'directives', 'objectives', 'docs', 'research', 'workspace', 'revision', 'ceoEdit', 'socialIntel', 'performance', 'experiment'],
+  cipher: ['directives', 'objectives', 'workspace', 'cost', 'revision', 'performance'],
+  pixel:  ['directives', 'docs', 'workspace', 'revision', 'ceoEdit'],
+  forge:  ['directives', 'workspace', 'forgeOps', 'performance'],
+  echo:   ['directives', 'objectives', 'docs', 'research', 'workspace', 'revision', 'ceoEdit', 'socialIntel', 'performance', 'experiment'],
+  scribe: ['directives', 'docs', 'research', 'workspace', 'revision', 'ceoEdit'],
+  quill:  ['docs', 'workspace', 'revision', 'ceoEdit'],
+  scout:  ['directives', 'objectives', 'research', 'workspace']
+};
+
 var SKILL_ROUTING = {
   nova:   ['ambientos-guide'],
   echo:   ['ambientos-guide', 'pixel-agents'],
@@ -1261,6 +1276,10 @@ You must remain within your assigned authority tier. Doctrine influences your st
     directiveBlock += 'You MUST address this directive before any other work. Use execute-task on the directive task ID to deliver your response/fix, then the system will mark it done.\n---\n';
   }
 
+  // Section routing: _s('key') returns true if this agent should see that section
+  var _agentSections = new Set(SECTION_ROUTING[agent.id] || []);
+  var _s = function (key) { return _agentSections.has(key); };
+
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
 ${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
@@ -1273,7 +1292,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${_s('triage') ? triageSection : ''}${_s('directives') ? directivesSection : ''}${_s('objectives') ? objectivesSection : ''}${_s('docs') ? docsSection : ''}${_s('research') ? researchSection : ''}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${_s('workspace') ? workspaceSection : ''}${_s('cost') ? costSection : ''}${_s('forgeOps') ? forgeOpsSection : ''}${researchDemandSection}${_s('revision') ? revisionSection : ''}${_s('ceoEdit') ? ceoEditSection : ''}${_s('socialIntel') ? socialIntelSection : ''}${_s('performance') ? performanceSection : ''}${_s('experiment') ? experimentSection : ''}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
