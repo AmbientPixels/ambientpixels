@@ -2504,7 +2504,7 @@
             '<td><span class="session-agent-badge"><span class="session-agent-dot" style="background:' + color + ';"></span> ' + name + '</span></td>' +
             '<td><span class="session-mode-tag">' + (s.mode || 'chat') + '</span></td>' +
             '<td class="session-tokens">' + s.inputTokens + ' / ' + s.outputTokens + '</td>' +
-            '<td class="session-cost">$' + s.cost.toFixed(6) + '</td>' +
+            '<td class="session-cost">$' + (s.cost != null ? s.cost.toFixed(6) : '0.000000') + '</td>' +
             '<td class="session-time">' + formatTime(s.timestamp) + '</td>' +
             '<td><button class="session-view-btn" data-agent="' + s.agentId + '"><i class="fas fa-eye"></i></button></td>';
 
