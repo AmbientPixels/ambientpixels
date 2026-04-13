@@ -1154,12 +1154,18 @@ You must remain within your assigned authority tier. Doctrine influences your st
       .filter(function (s) { return s && s.content; });
 
     if (_routedSkills.length > 0) {
+      // Cap total skill content to prevent prompt from exceeding 30K token ceiling.
+      // Budget: ~60K chars total for all skills (~15K tokens), split evenly per skill.
+      var _maxSkillCharsTotal = 60000;
+      var _maxPerSkill = Math.floor(_maxSkillCharsTotal / _routedSkills.length);
       var _skillParts = _routedSkills.map(function (s, idx) {
+        var content = s.content.trim();
+        if (content.length > _maxPerSkill) content = content.substring(0, _maxPerSkill) + '\n\n[... truncated at ' + _maxPerSkill + ' chars to fit prompt budget]';
         // Hard boundary between skills so Gemini treats each as its own reference doc.
         return '═══════════════════════════════════════════════════════════════\n'
           + '📘 SKILL ' + (idx + 1) + '/' + _routedSkills.length + ': ' + s.name + ' (' + s.url + ')\n'
           + '═══════════════════════════════════════════════════════════════\n\n'
-          + s.content.trim();
+          + content;
       });
       skillsBlock = '\n\n🗂️  SKILL REFERENCES (canonical source — each skill below is its own reference doc. Read Recent Changes at the top of each skill first, then use the content below when you need product/system facts):\n\n'
         + _skillParts.join('\n\n')
