@@ -177,9 +177,9 @@ async function runAgentHeartbeat(ctx) {
   // Pixel: exclude 'review' tasks — once Pixel delivers an image the task awaits review, not further Pixel action
   // Other agents: keep 'review' visible (e.g. Scribe needs to submit-for-publish after hero image attached)
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done'
-    && !(agentId === 'pixel' && t.status === 'review'));
+    && !(caps.excludeReviewFromFilter && t.status === 'review'));
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
-  const allActiveTasks = agentId === 'nova'
+  const allActiveTasks = caps.taskFilterAll
     ? tasks.filter(t => t.status !== 'done')
     : tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
   // Only show this agent their own revision-requested actions
@@ -345,8 +345,8 @@ async function runAgentHeartbeat(ctx) {
 
   if (!response) {
     context.log('[Heartbeat]', agentId, 'got no response');
-    // Even with no Gemini response, check done-task social injection for Echo
-    if (agentId === 'echo') {
+    // Even with no Gemini response, check done-task social injection
+    if (caps.socialInjection) {
       const _earlyDoneSocial = tasks.filter(function (t) {
         if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
         var age = Date.now() - new Date(t.createdAt || 0).getTime();
@@ -367,8 +367,8 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  // Extract TREND_INSIGHTS_JSON from Scout's response (before JSON parse to avoid interference)
-  if (agentId === 'scout' && response) {
+  // Extract TREND_INSIGHTS_JSON from response (before JSON parse to avoid interference)
+  if (caps.canExtractTrendInsights && response) {
     const trendMatch = response.match(/<!--TREND_INSIGHTS_JSON\s*([\s\S]*?)\s*TREND_INSIGHTS_JSON-->/);
     if (trendMatch) {
       // Strip the block from response so it doesn't break normal JSON parsing
@@ -529,7 +529,7 @@ async function runAgentHeartbeat(ctx) {
   // Scout recursion guard: skip search if task already has research_intel
   const scoutTargetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
   const hasExistingResearch = scoutTargetTask && scoutTargetTask.research_intel;
-  if (agentId === 'scout' && hasExistingResearch && toolActions.length > 0) {
+  if (caps.canResearchRecursionGuard && hasExistingResearch && toolActions.length > 0) {
     context.log('[Heartbeat] scout RECURSION BLOCKED: research_intel already exists on task', scoutTargetTask.id);
     await logEvent('tool-recursion-blocked', agentId, 'research_intel already attached to ' + scoutTargetTask.id, cycleId);
     toolActions.length = 0; // clear all tool calls
@@ -800,8 +800,8 @@ Write the full deliverable first, then the structured JSON block.`;
           }
         }
       }
-      // Fix 8: For Echo, filter out tasks that already have pending social actions (avoids dedup loop)
-      if (agentId === 'echo' && _executableIdle.length > 0) {
+      // Fix 8: For social-injection agents, filter out tasks that already have pending social actions (avoids dedup loop)
+      if (caps.socialInjection && _executableIdle.length > 0) {
         try {
           const _existingActions = (await storage.getState('actions')) || [];
           const _pendingSocialTaskIds = new Set();
@@ -1209,7 +1209,7 @@ Write the full deliverable first, then the structured JSON block.`;
           continue;
         }
         // Forge cannot directive Nova (must escalate to CEO)
-        if (agentId === 'forge' && _directiveTarget === 'nova') {
+        if (agentId === 'forge' && _directiveTarget === 'nova') { // already uses caps.canDirective above; this is a forge-specific sub-rule (forge cannot directive nova)
           context.log('[Heartbeat] forge BLOCKED system_directive targeting nova — escalate to CEO instead');
           continue;
         }
@@ -1309,7 +1309,7 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // Only Nova can set parent_task_id — strip from other agents to keep hierarchy clean
-      var _parentTaskId = (agentId === 'nova' && action.task.parent_task_id) ? action.task.parent_task_id : null;
+      var _parentTaskId = (caps.canParentTaskPassthrough && action.task.parent_task_id) ? action.task.parent_task_id : null;
       if (action.task.parent_task_id && agentId !== 'nova') {
         context.log('[Heartbeat]', agentId, 'STRIPPED parent_task_id from create-task — only Nova can set task hierarchy');
       }
@@ -1743,7 +1743,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
             // Echo social tasks move to review after execute — CEO approves via social action queue.
             // No auto-complete fast-path. Standard flow: execute → review → peer review → done.
-            if (agentId === 'echo') {
+            if (caps.socialInjection) { // Echo: social tasks move to review after execute
               const _esfText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
               const _esfIsSocial = /^social_/.test(task.taskType || '') || task.campaign_id ||
                 /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(_esfText);
@@ -1762,7 +1762,7 @@ Write the full deliverable first, then the structured JSON block.`;
             const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article|marketing.*brief|content.*brief|draft.*brief/.test(_etTaskText);
             const _isBlogByContent = /document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\/|submit.*ceo.*approv.*publish/.test(_etDeliverableLower);
             const _isSocialCopyTask = task.tags && task.tags.indexOf('social-copy') !== -1;
-            const _isBlogTask = agentId === 'scribe' && !_isSocialCopyTask && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
+            const _isBlogTask = caps.canBlogPublish && !_isSocialCopyTask && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
             if (_isBlogTask) context.log('[Heartbeat] BLOG DETECTED:', agentId, 'task:', action.taskId, 'byType:', _isBlogByType, 'byTitle:', _isBlogByTitle, 'byContent:', _isBlogByContent);
             if (_isBlogTask && deliverable.length > 200) {
               const _etDocsStore = (await storage.getState('documents')) || [];
@@ -1888,7 +1888,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
           // RESEARCH INTEL → AQ: when Scout completes a research task via execute-task,
           // submit findings to the CEO approval queue. On approval the heartbeat stores to researchIntel.
-          if (deliverable && agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200) {
+          if (deliverable && caps.canResearchIntelExtract && task.taskType === 'research' && deliverable.length > 200) {
             const _riNow = new Date().toISOString();
             const _riId = 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             try {
@@ -1916,8 +1916,8 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
     } else if (action.type === 'create-social-action' && action.social) {
-      // AUTO-LINK: If Gemini didn't include taskId, infer it from Echo's active/done social tasks
-      if (!action.taskId && agentId === 'echo') {
+      // AUTO-LINK: If Gemini didn't include taskId, infer it from active/done social tasks
+      if (!action.taskId && caps.socialActionTaskLookup) {
         var _alPlatform = (action.social.platform || '').toLowerCase();
         var _alMatch = tasks.find(function (t) {
           if (t.assignee !== 'echo' || t._archived) return false;
@@ -2120,9 +2120,9 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
-      // FALLBACK BLOCK: if Echo creates a social action without taskId, block it.
-      // All Echo social actions MUST be linked to a task with reviewed_copy.
-      if (!action.taskId && agentId === 'echo') {
+      // FALLBACK BLOCK: social actions without taskId are blocked.
+      // All social actions MUST be linked to a task with reviewed_copy.
+      if (!action.taskId && caps.socialActionTaskLookup) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — no taskId (action must be linked to a task)');
         continue;
       }
@@ -2823,7 +2823,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Guard 4: Block Nova re-delegation spam — if Nova already delegated this task (has a comment)
       // and the task is assigned to another agent with active status, no need to re-delegate
-      const isDelegationSpam = agentId === 'nova' && targetTask &&
+      const isDelegationSpam = caps.canDelegationCheck && targetTask &&
         targetTask.assignee && targetTask.assignee !== 'nova' &&
         (targetTask.status === 'todo' || targetTask.status === 'in-progress' || targetTask.status === 'review') &&
         recentComments.some(c => (c.user || c.author || '') === 'nova' && c.type !== 'system');
@@ -3061,7 +3061,7 @@ Write the full deliverable first, then the structured JSON block.`;
         // SPAWN GUARD: do not spawn hero tasks from auto-created source tasks (prevents auto→auto chains)
         const _cdSourceTask = action.taskId ? tasks.find(t => t.id === action.taskId) : null;
         const _cdSourceAutoCreated = _cdSourceTask && _cdSourceTask.tags && _cdSourceTask.tags.indexOf('auto-created') !== -1;
-        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe' && !_cdSourceAutoCreated) {
+        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && caps.canAutoHeroImage && !_cdSourceAutoCreated) {
           // Only Scribe-created visual docs trigger hero image tasks (prevents ops/engineering docs from spawning hero tasks)
           // FIX 5: Stronger dedup — check by title substring match, not just exact title or doc ID
           // Prevents multiple hero tasks when the same blog post has multiple doc records
