@@ -554,7 +554,7 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
   grid-column: 1 / -1;
   margin-top: 6px;
   position: relative;
-  height: 130px;
+  height: 180px;
   margin-bottom: 14px;
 }
 .pa-sparkline canvas {

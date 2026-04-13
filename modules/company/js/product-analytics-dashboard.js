@@ -325,25 +325,105 @@
     html += AH.kpiCard({ icon: 'calendar-day', label: 'Today DAU',    value: AH.fmtNum(todayDau) });
     html += AH.kpiCard({ icon: 'chart-simple', label: 'Avg DAU',      value: AH.fmtNum(avgDau), sub: resp.range });
 
-    // Product-specific timeline chart (only when a product is selected)
+    // Product chart — stacked bar (all products) or line (single product)
     var selectedProduct = resp._product || '';
     var dailyByProduct = resp._dailyByProduct || [];
-    if (selectedProduct && selectedProduct !== 'all' && dailyByProduct.length > 0) {
-      var productDaily = dailyByProduct.filter(function (r) { return r.product === selectedProduct; });
-      if (productDaily.length > 1) {
-        html += '<div class="pa-sparkline"><canvas id="pa-timeline" height="130"></canvas></div>';
-      }
+    if (dailyByProduct.length > 0) {
+      html += '<div class="pa-sparkline"><canvas id="pa-timeline" height="130"></canvas></div>';
     }
 
     kpisEl.innerHTML = html;
 
-    // Render Chart.js timeline after DOM insertion
-    if (selectedProduct && selectedProduct !== 'all') {
+    // Render chart after DOM insertion
+    if (dailyByProduct.length > 0) {
       var canvas = document.getElementById('pa-timeline');
-      if (canvas) {
-        var productDaily2 = dailyByProduct.filter(function (r) { return r.product === selectedProduct; });
-        var chartData = productDaily2.map(function (r) { return { day: r.day, views: r.views || 0 }; });
-        AH.makeTimeline(canvas, { data: chartData, valueLabel: 'views' });
+      if (canvas && typeof Chart !== 'undefined') {
+        if (canvas._ahChart) { try { canvas._ahChart.destroy(); } catch (e) {} }
+
+        if (selectedProduct && selectedProduct !== 'all') {
+          // Single product — line chart
+          var productDaily = dailyByProduct.filter(function (r) { return r.product === selectedProduct; });
+          var chartData = productDaily.map(function (r) { return { day: r.day, views: r.views || 0 }; });
+          AH.makeTimeline(canvas, { data: chartData, valueLabel: 'views' });
+        } else {
+          // All products — stacked bar chart
+          var days = [];
+          var byDay = {};
+          var productsInData = {};
+          dailyByProduct.forEach(function (r) {
+            if (days.indexOf(r.day) === -1) days.push(r.day);
+            if (!byDay[r.day]) byDay[r.day] = {};
+            byDay[r.day][r.product] = (byDay[r.day][r.product] || 0) + (r.views || 0);
+            productsInData[r.product] = true;
+          });
+          days.sort();
+          var productList = Object.keys(productsInData).sort(function (a, b) {
+            var totalA = 0, totalB = 0;
+            days.forEach(function (d) { totalA += (byDay[d][a] || 0); totalB += (byDay[d][b] || 0); });
+            return totalB - totalA;
+          });
+
+          var labels = days.map(function (d) { return d.slice(5); });
+          var datasets = productList.map(function (prod) {
+            return {
+              label: prod,
+              data: days.map(function (d) { return byDay[d][prod] || 0; }),
+              backgroundColor: PRODUCT_COLORS[prod] || '#94a3b8',
+              borderWidth: 0,
+              borderRadius: 2
+            };
+          });
+
+          var ctx = canvas.getContext('2d');
+          canvas._ahChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: labels, datasets: datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: 'bottom',
+                  labels: {
+                    color: 'rgba(255,255,255,0.5)',
+                    font: { size: 9 },
+                    boxWidth: 10,
+                    padding: 8
+                  }
+                },
+                tooltip: {
+                  backgroundColor: 'rgba(20,20,30,0.95)',
+                  titleColor: 'rgba(255,255,255,0.8)',
+                  bodyColor: 'rgba(255,255,255,0.7)',
+                  borderColor: 'rgba(255,255,255,0.1)',
+                  borderWidth: 1,
+                  padding: 8,
+                  titleFont: { size: 10 },
+                  bodyFont: { size: 10 },
+                  callbacks: {
+                    label: function (c) { return ' ' + c.dataset.label + ': ' + c.parsed.y.toLocaleString() + ' views'; }
+                  }
+                }
+              },
+              scales: {
+                x: {
+                  stacked: true,
+                  grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                  ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 }, maxRotation: 0 },
+                  border: { color: 'rgba(255,255,255,0.06)' }
+                },
+                y: {
+                  stacked: true,
+                  beginAtZero: true,
+                  grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                  ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 } },
+                  border: { color: 'rgba(255,255,255,0.06)' }
+                }
+              }
+            }
+          });
+        }
       }
     }
 
