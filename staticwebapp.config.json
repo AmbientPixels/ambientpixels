@@ -118,12 +118,6 @@
    ]
   },
   {
-   "route": "/modules/company/demo.html",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
    "route": "/modules/company/*",
    "allowedRoles": [
     "authenticated"
@@ -400,27 +394,6 @@
    ]
   },
   {
-   "route": "/api/linkedin-test",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/linkedin-test",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
-   "route": "/api/content-brief",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-brief",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
-   "route": "/api/content-generate",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-generate",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
    "route": "/api/content-quick-generate",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate",
    "allowedRoles": [
@@ -444,20 +417,6 @@
   {
    "route": "/api/content-package",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-package",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
-   "route": "/api/agent-create-content",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-create-content",
-   "allowedRoles": [
-    "anonymous"
-   ]
-  },
-  {
-   "route": "/api/agent-run-campaign",
-   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-run-campaign",
    "allowedRoles": [
     "anonymous"
    ]

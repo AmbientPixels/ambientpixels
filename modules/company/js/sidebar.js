@@ -274,12 +274,6 @@
       topbar.appendChild(a);
     });
 
-    var ambientos = document.createElement('a');
-    ambientos.href = '/ambientos/';
-    ambientos.className = 'sb-topbar-ambientos';
-    ambientos.setAttribute('aria-label', 'AmbientOS overview');
-    ambientos.innerHTML = '<i class="fas fa-server" aria-hidden="true"></i><span>AmbientOS v1.1</span>';
-    topbar.appendChild(ambientos);
   }
 
   function selectCategory(catId) {
