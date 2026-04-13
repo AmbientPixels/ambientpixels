@@ -21,6 +21,40 @@ const {
 } = require('./helpers');
 const _productFacts = require('../_data/product-facts.json');
 
+// ── Memory dedup: Jaccard token-overlap check ──
+// Normalizes text (lowercase, strip numbers/currency, collapse whitespace),
+// splits into word tokens, computes Jaccard similarity (intersection/union).
+// Returns { isDupe: bool, similarity: number, matchedMemory: object|null }
+function _checkMemoryDuplicate(newText, existingMemories, windowHours) {
+  if (!newText || !existingMemories || !existingMemories.length) return { isDupe: false, similarity: 0, matchedMemory: null };
+  var _normalize = function (s) {
+    return String(s).toLowerCase().replace(/[\$\d\.,]+/g, '').replace(/\s+/g, ' ').trim();
+  };
+  var _tokenize = function (s) {
+    return _normalize(s).split(' ').filter(function (w) { return w.length > 2; });
+  };
+  var newTokens = _tokenize(newText);
+  if (newTokens.length === 0) return { isDupe: false, similarity: 0, matchedMemory: null };
+  var newSet = new Set(newTokens);
+  var cutoff = Date.now() - (windowHours || 24) * 60 * 60 * 1000;
+  var bestSim = 0;
+  var bestMatch = null;
+  for (var i = 0; i < existingMemories.length; i++) {
+    var m = existingMemories[i];
+    var mTime = m.timestamp ? new Date(m.timestamp).getTime() : 0;
+    if (mTime < cutoff) continue;
+    var mTokens = _tokenize(m.text || '');
+    if (mTokens.length === 0) continue;
+    var mSet = new Set(mTokens);
+    var intersection = 0;
+    newSet.forEach(function (t) { if (mSet.has(t)) intersection++; });
+    var union = new Set([...newTokens, ...mTokens]).size;
+    var sim = union > 0 ? intersection / union : 0;
+    if (sim > bestSim) { bestSim = sim; bestMatch = m; }
+  }
+  return { isDupe: bestSim >= 0.7, similarity: bestSim, matchedMemory: bestMatch };
+}
+
 // Claude quality gate for external-facing content
 async function _validateContentQuality(text, platform, context) {
   var apiKey = process.env.ANTHROPIC_API_KEY;
@@ -273,6 +307,7 @@ async function runAgentHeartbeat(ctx) {
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
   const _estimatedTokens = Math.ceil(prompt.length / 4);
+  context.log('[Heartbeat] ' + agentId + ': prompt ' + prompt.length + ' chars (~' + _estimatedTokens + ' tokens)');
   if (_estimatedTokens > 30000) {
     context.log.warn('[Heartbeat] ' + agentId + ': prompt exceeds 30K token ceiling (' + _estimatedTokens + ' est.) — skipping this cycle');
     result.durationMs = Date.now() - _agentRunStartMs;
@@ -377,14 +412,23 @@ async function runAgentHeartbeat(ctx) {
   if (parsed && typeof parsed === 'object' && parsed.reflectionMemory) {
     var _reflText = String(parsed.reflectionMemory).substring(0, 200);
     if (_reflText && _agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
-      _agentMemoryStore[agentId].push({
-        id: 'mem-refl-' + Date.now(),
-        type: 'feedback',
-        text: _reflText,
-        source: 'auto:reflection',
-        timestamp: new Date().toISOString()
-      });
-      context.log('[Heartbeat]', agentId, 'stored reflection memory:', _reflText.substring(0, 80));
+      var _reflDup = _checkMemoryDuplicate(_reflText, _agentMemoryStore[agentId], 24);
+      if (_reflDup.isDupe) {
+        context.log('[Heartbeat]', agentId, 'skipped duplicate reflection memory (' + Math.round(_reflDup.similarity * 100) + '% overlap)');
+      } else {
+        _agentMemoryStore[agentId].push({
+          id: 'mem-refl-' + Date.now(),
+          type: 'feedback',
+          text: _reflText,
+          source: 'auto:reflection',
+          timestamp: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
+        });
+        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+        }
+        context.log('[Heartbeat]', agentId, 'stored reflection memory:', _reflText.substring(0, 80));
+      }
     }
   }
 
@@ -398,14 +442,23 @@ async function runAgentHeartbeat(ctx) {
     var _diagText = String(parsed.convergenceDiagnosis).substring(0, 300);
     result.convergenceDiagnosis = _diagText;
     if (_diagText && _agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
-      _agentMemoryStore[agentId].push({
-        id: 'mem-conv-' + Date.now(),
-        type: 'learning',
-        text: _diagText,
-        source: 'auto:convergence',
-        timestamp: new Date().toISOString()
-      });
-      context.log('[Heartbeat]', agentId, 'stored convergence diagnosis:', _diagText.substring(0, 80));
+      var _convDup = _checkMemoryDuplicate(_diagText, _agentMemoryStore[agentId], 24);
+      if (_convDup.isDupe) {
+        context.log('[Heartbeat]', agentId, 'skipped duplicate convergence diagnosis (' + Math.round(_convDup.similarity * 100) + '% overlap)');
+      } else {
+        _agentMemoryStore[agentId].push({
+          id: 'mem-conv-' + Date.now(),
+          type: 'learning',
+          text: _diagText,
+          source: 'auto:convergence',
+          timestamp: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
+        });
+        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+        }
+        context.log('[Heartbeat]', agentId, 'stored convergence diagnosis:', _diagText.substring(0, 80));
+      }
     }
   }
 
@@ -2623,17 +2676,21 @@ Write the full deliverable first, then the structured JSON block.`;
       const ceoFeedback = (orig.approval && orig.approval.decision_note) || '';
       if (ceoFeedback.length > 5) {
         if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
-        var _autoMemNow = new Date();
-        _agentMemoryStore[agentId].push({
-          id: 'mem_' + Date.now() + '_auto',
-          type: 'feedback',
-          text: 'CEO rejected my ' + (orig.platform || '') + ' post and said: "' + ceoFeedback.substring(0, 200) + '"',
-          source: 'auto:ceo-revision',
-          timestamp: _autoMemNow.toISOString(),
-          expiresAt: new Date(_autoMemNow.getTime() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
-        });
-        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
-          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+        var _ceoMemText = 'CEO rejected my ' + (orig.platform || '') + ' post and said: "' + ceoFeedback.substring(0, 200) + '"';
+        var _ceoMemDup = _checkMemoryDuplicate(_ceoMemText, _agentMemoryStore[agentId], 24);
+        if (!_ceoMemDup.isDupe) {
+          var _autoMemNow = new Date();
+          _agentMemoryStore[agentId].push({
+            id: 'mem_' + Date.now() + '_auto',
+            type: 'feedback',
+            text: _ceoMemText,
+            source: 'auto:ceo-revision',
+            timestamp: _autoMemNow.toISOString(),
+            expiresAt: new Date(_autoMemNow.getTime() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
+          });
+          if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+            _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+          }
         }
       }
 
@@ -3922,6 +3979,12 @@ Write the full deliverable first, then the structured JSON block.`;
             runId: cycleId, agentId: agentId, gate: 'memory_rate_cap', reason: 'daily_cap_exceeded',
             cap: MAX_L4_WRITES_PER_AGENT_PER_DAY, current: _getMemWriteCount(agentId)
           });
+        }
+        // Dedup: skip if >70% token overlap with existing memory from last 24h
+        else if (_agentMemoryStore[agentId] && _checkMemoryDuplicate(mem.text, _agentMemoryStore[agentId], 24).isDupe) {
+          var _dupResult = _checkMemoryDuplicate(mem.text, _agentMemoryStore[agentId], 24);
+          _memBlockedReason = 'duplicate';
+          context.log('[Heartbeat]', agentId, 'skipped duplicate memory (' + Math.round(_dupResult.similarity * 100) + '% overlap):', mem.text.substring(0, 60));
         }
         // All checks passed — store
         else {
