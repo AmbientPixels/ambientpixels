@@ -325,21 +325,7 @@
     html += AH.kpiCard({ icon: 'calendar-day', label: 'Today DAU',    value: AH.fmtNum(todayDau) });
     html += AH.kpiCard({ icon: 'chart-simple', label: 'Avg DAU',      value: AH.fmtNum(avgDau), sub: resp.range });
 
-    // Timeline chart (Chart.js, matches Traffic Brief style)
-    if (dailyArr.length > 1) {
-      html += '<div class="pa-sparkline"><canvas id="pa-timeline" height="130"></canvas></div>';
-    }
-
     kpisEl.innerHTML = html;
-
-    // Render Chart.js timeline after DOM insertion
-    if (dailyArr.length > 1) {
-      var canvas = document.getElementById('pa-timeline');
-      if (canvas) {
-        var chartData = dailyArr.map(function (x) { return { day: x.day, views: x.dau || 0 }; });
-        AH.makeTimeline(canvas, { data: chartData, valueLabel: 'views' });
-      }
-    }
 
     // Phase 7 hook: hero strip subscribers
     AH.publish('product-analytics.overview', { data: d, range: resp.range });
