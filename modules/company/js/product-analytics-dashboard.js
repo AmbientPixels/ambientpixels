@@ -13,7 +13,6 @@
   }
   var AH = window.AHShared;
 
-  var API = 'https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsQuery';
   var TELEMETRY_API = 'https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary';
   var SECRET = 'pixelpusher';
   var ZONE_ID = 'ah-zone-product';
@@ -43,34 +42,52 @@
     return 'other';
   }
 
+  // ─── Shared telemetry fetch with cache ─────────────────────────
+  var _telemetryCache = {};
+  function _fetchTelemetry(rangeVal) {
+    if (_telemetryCache[rangeVal] && (Date.now() - _telemetryCache[rangeVal].ts) < 60000) {
+      return Promise.resolve(_telemetryCache[rangeVal].data);
+    }
+    return fetch(TELEMETRY_API + '?range=' + encodeURIComponent(rangeVal), { headers: { 'x-company-secret': SECRET } })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (tData) {
+        _telemetryCache[rangeVal] = { data: tData, ts: Date.now() };
+        return tData;
+      });
+  }
+
+  // ─── Aggregate topPages into per-product buckets ──────────────
+  function _aggregateByProduct(topPages) {
+    var agg = {};
+    (topPages || []).forEach(function (p) {
+      var prod = _pathToProduct(p.path);
+      if (prod === 'other') return;
+      if (!agg[prod]) agg[prod] = { views: 0, users: new Set(), sessions: new Set() };
+      agg[prod].views += (p.views || 0);
+      if (p.uniqueUsers) for (var u = 0; u < p.uniqueUsers; u++) agg[prod].users.add(p.path + ':u' + u);
+      if (p.uniqueSessions) for (var s = 0; s < p.uniqueSessions; s++) agg[prod].sessions.add(p.path + ':s' + s);
+    });
+    return agg;
+  }
+
   function _mapTelemetryToOverview(tData, product) {
     var totals = tData.totals || {};
     var dailyViews = tData.dailyViews || [];
     var topPages = tData.topPages || [];
+    var agg = _aggregateByProduct(topPages);
 
-    // Aggregate topPages by product
     var byProduct = {};
-    var totalFiltered = 0;
-    topPages.forEach(function (p) {
-      var prod = _pathToProduct(p.path);
-      if (!byProduct[prod]) byProduct[prod] = 0;
-      byProduct[prod] += (p.views || 0);
-    });
+    Object.keys(agg).forEach(function (k) { byProduct[k] = agg[k].views; });
 
-    // Build daily array (telemetry gives views, not unique users — use as-is)
     var daily = dailyViews.map(function (d) {
       return { day: d.day, dau: d.views || 0 };
     });
 
-    // If filtering by product, filter topPages and recompute
     if (product && product !== 'all') {
-      var filteredViews = 0;
-      var filteredUsers = new Set();
-      topPages.forEach(function (p) {
-        if (_pathToProduct(p.path) === product) {
-          filteredViews += (p.views || 0);
-        }
-      });
+      var filteredViews = agg[product] ? agg[product].views : 0;
       return {
         totalEvents: filteredViews,
         uniqueUsers: totals.uniqueUsers || 0,
@@ -85,6 +102,63 @@
       daily: daily,
       byProduct: byProduct
     };
+  }
+
+  function _mapTelemetryToBreakdown(tData, product) {
+    var topPages = tData.topPages || [];
+    var agg = _aggregateByProduct(topPages);
+    var products = Object.keys(agg);
+    if (product && product !== 'all') {
+      products = products.filter(function (k) { return k === product; });
+    }
+    return products.map(function (k) {
+      return {
+        product: k,
+        events: agg[k].views,
+        users: agg[k].users.size,
+        sessions: agg[k].sessions.size
+      };
+    }).sort(function (a, b) { return b.users - a.users; });
+  }
+
+  function _mapTelemetryToEvents(tData, product) {
+    var topPages = tData.topPages || [];
+    return topPages
+      .map(function (p) {
+        var prod = _pathToProduct(p.path);
+        if (prod === 'other') return null;
+        if (product && product !== 'all' && prod !== product) return null;
+        var pageName = p.pageTitle || p.path;
+        return { product: prod, event: pageName, count: p.views || 0 };
+      })
+      .filter(function (e) { return e !== null; })
+      .sort(function (a, b) { return b.count - a.count; });
+  }
+
+  function _mapTelemetryToFunnels(tData, product) {
+    var topPages = tData.topPages || [];
+    var agg = _aggregateByProduct(topPages);
+    var products = Object.keys(agg);
+    if (product && product !== 'all') {
+      products = products.filter(function (k) { return k === product; });
+    }
+
+    var result = {};
+    products.forEach(function (prod) {
+      // Build page-level funnel from topPages for this product
+      var pages = topPages
+        .filter(function (p) { return _pathToProduct(p.path) === prod; })
+        .sort(function (a, b) { return (b.views || 0) - (a.views || 0); });
+      if (pages.length === 0) return;
+
+      result[prod] = pages.map(function (p) {
+        return {
+          step: p.pageTitle || p.path,
+          users: p.uniqueUsers || p.views || 0
+        };
+      });
+    });
+    return result;
   }
 
   var kpisEl       = document.getElementById('pa-kpis');
@@ -133,18 +207,6 @@
     };
   }
 
-  function _fetch(metric) {
-    var p = _params();
-    var url = API + '?range=' + encodeURIComponent(p.range) +
-              '&product=' + encodeURIComponent(p.product) +
-              '&metric=' + encodeURIComponent(metric);
-    return fetch(url, { headers: { 'x-company-secret': SECRET } })
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      });
-  }
-
   function _showError(el, err) {
     if (!el) return;
     el.innerHTML = '<div class="ah-warning">' +
@@ -163,11 +225,7 @@
     kpisEl.innerHTML = '<div class="ah-loading">Loading product analytics\u2026</div>';
     var p = _params();
     var rangeVal = p.range || '7d';
-    fetch(TELEMETRY_API + '?range=' + encodeURIComponent(rangeVal), { headers: { 'x-company-secret': SECRET } })
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
+    _fetchTelemetry(rangeVal)
       .then(function (tData) {
         var mapped = _mapTelemetryToOverview(tData, p.product);
         renderOverview({ data: mapped, range: rangeVal });
@@ -182,30 +240,45 @@
     if (!funnelEl || _loaded.funnels) return;
     _loaded.funnels = true;
     funnelEl.innerHTML = '<div class="ah-loading">Loading funnels\u2026</div>';
-    _fetch('funnels').then(renderFunnels).catch(function (err) {
-      _loaded.funnels = false;
-      _showError(funnelEl, err);
-    });
+    var p = _params();
+    _fetchTelemetry(p.range || '7d')
+      .then(function (tData) {
+        renderFunnels({ data: _mapTelemetryToFunnels(tData, p.product) });
+      })
+      .catch(function (err) {
+        _loaded.funnels = false;
+        _showError(funnelEl, err);
+      });
   }
 
   function loadEvents() {
     if (!eventsEl || _loaded.events) return;
     _loaded.events = true;
     eventsEl.innerHTML = '<div class="ah-loading">Loading top events\u2026</div>';
-    _fetch('events').then(renderEvents).catch(function (err) {
-      _loaded.events = false;
-      _showError(eventsEl, err);
-    });
+    var p = _params();
+    _fetchTelemetry(p.range || '7d')
+      .then(function (tData) {
+        renderEvents({ data: _mapTelemetryToEvents(tData, p.product) });
+      })
+      .catch(function (err) {
+        _loaded.events = false;
+        _showError(eventsEl, err);
+      });
   }
 
   function loadBreakdown() {
     if (!productsEl || _loaded.breakdown) return;
     _loaded.breakdown = true;
     productsEl.innerHTML = '<div class="ah-loading">Loading product breakdown\u2026</div>';
-    _fetch('products').then(renderProducts).catch(function (err) {
-      _loaded.breakdown = false;
-      _showError(productsEl, err);
-    });
+    var p = _params();
+    _fetchTelemetry(p.range || '7d')
+      .then(function (tData) {
+        renderProducts({ data: _mapTelemetryToBreakdown(tData, p.product) });
+      })
+      .catch(function (err) {
+        _loaded.breakdown = false;
+        _showError(productsEl, err);
+      });
   }
 
   var _loaders = {
@@ -224,6 +297,7 @@
   function _onFilterChange() {
     // Invalidate everything and re-fetch only the currently active tab.
     Object.keys(_loaded).forEach(function (k) { _loaded[k] = false; });
+    _telemetryCache = {};
     var activeTab = AH.getActiveTab(ZONE_ID) || 'overview';
     _loadTab(activeTab);
   }
