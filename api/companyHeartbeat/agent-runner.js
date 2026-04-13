@@ -40,7 +40,12 @@ async function _validateContentQuality(text, platform, context) {
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 500,
+        system: 'You are a JSON-only API. Return ONLY a single raw JSON object with no markdown, no code fences, no preamble, no explanation. The response must start with { and end with }.',
+        messages: [{ role: 'user', content: prompt }]
+      }),
       signal: controller.signal
     });
     clearTimeout(timeout);
@@ -49,10 +54,11 @@ async function _validateContentQuality(text, platform, context) {
     var responseText = (data.content && data.content[0] && data.content[0].text) || '';
     // Try direct JSON parse
     try { return JSON.parse(responseText); } catch (_) {}
-    // Regex fallback — extract JSON from response
+    // Regex fallback — extract JSON from response (handles markdown fences, preamble)
     var match = responseText.match(/\{[\s\S]*\}/);
     if (match) { try { return JSON.parse(match[0]); } catch (_) {} }
-    // Parse failed — flag for manual review
+    // Parse failed — log raw response for debugging, flag for manual review
+    context.log('[QualityGate] Parse failed. Raw response:', responseText.substring(0, 500));
     return { pass: true, confidence: 0, issues: ['Quality gate parse error — manual review recommended'] };
   } catch (err) {
     context.log('[QualityGate] Error (fail-open):', String(err).substring(0, 150));
