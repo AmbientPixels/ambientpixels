@@ -14,8 +14,78 @@
   var AH = window.AHShared;
 
   var API = 'https://ambientpixels-nova-api.azurewebsites.net/api/productAnalyticsQuery';
+  var TELEMETRY_API = '/api/telemetry/summary';
   var SECRET = 'pixelpusher';
   var ZONE_ID = 'ah-zone-product';
+
+  // Map URL path prefixes to product identifiers
+  var PATH_TO_PRODUCT = {
+    '/pixel-agents': 'pixelagents',
+    '/pixelagents': 'pixelagents',
+    '/agent-forge': 'agentforge',
+    '/blindspot': 'blindspot',
+    '/cardforge': 'cardforge',
+    '/storyforge': 'storyforge',
+    '/ambientscore': 'ambientscore',
+    '/blog': 'blog',
+    '/tileforge': 'tileforge',
+    '/nova': 'nova'
+  };
+
+  function _pathToProduct(path) {
+    path = (path || '').toLowerCase();
+    var prefixes = Object.keys(PATH_TO_PRODUCT);
+    for (var i = 0; i < prefixes.length; i++) {
+      if (path === prefixes[i] || path.indexOf(prefixes[i] + '/') === 0) {
+        return PATH_TO_PRODUCT[prefixes[i]];
+      }
+    }
+    return 'other';
+  }
+
+  function _mapTelemetryToOverview(tData, product) {
+    var totals = tData.totals || {};
+    var dailyViews = tData.dailyViews || [];
+    var topPages = tData.topPages || [];
+
+    // Aggregate topPages by product
+    var byProduct = {};
+    var totalFiltered = 0;
+    topPages.forEach(function (p) {
+      var prod = _pathToProduct(p.path);
+      if (!byProduct[prod]) byProduct[prod] = 0;
+      byProduct[prod] += (p.views || 0);
+    });
+
+    // Build daily array (telemetry gives views, not unique users — use as-is)
+    var daily = dailyViews.map(function (d) {
+      return { day: d.day, dau: d.views || 0 };
+    });
+
+    // If filtering by product, filter topPages and recompute
+    if (product && product !== 'all') {
+      var filteredViews = 0;
+      var filteredUsers = new Set();
+      topPages.forEach(function (p) {
+        if (_pathToProduct(p.path) === product) {
+          filteredViews += (p.views || 0);
+        }
+      });
+      return {
+        totalEvents: filteredViews,
+        uniqueUsers: totals.uniqueUsers || 0,
+        daily: daily,
+        byProduct: byProduct
+      };
+    }
+
+    return {
+      totalEvents: totals.pageViews || 0,
+      uniqueUsers: totals.uniqueUsers || 0,
+      daily: daily,
+      byProduct: byProduct
+    };
+  }
 
   var kpisEl       = document.getElementById('pa-kpis');
   var productsEl   = document.getElementById('pa-products');
@@ -91,10 +161,21 @@
     if (_loaded.overview) return;
     _loaded.overview = true;
     kpisEl.innerHTML = '<div class="ah-loading">Loading product analytics\u2026</div>';
-    _fetch('overview').then(renderOverview).catch(function (err) {
-      _loaded.overview = false;
-      _showError(kpisEl, err);
-    });
+    var p = _params();
+    var rangeVal = p.range || '7d';
+    fetch(TELEMETRY_API + '?range=' + encodeURIComponent(rangeVal), { headers: { 'x-company-secret': SECRET } })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (tData) {
+        var mapped = _mapTelemetryToOverview(tData, p.product);
+        renderOverview({ data: mapped, range: rangeVal });
+      })
+      .catch(function (err) {
+        _loaded.overview = false;
+        _showError(kpisEl, err);
+      });
   }
 
   function loadFunnels() {
