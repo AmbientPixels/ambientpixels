@@ -1775,6 +1775,11 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Pixel Agents: AI/tech forward — ap-neon-glass, ap-holographic
   - AmbientScore: professional/business — ap-corporate-tech, ap-gradient-mesh
   Do NOT cross product identities (no ap-retro-pixel for AmbientScore, no ap-corporate-tech for Blindspot).
+  IDLE MODE: If you have 0 assigned tasks AND the design queue/gaps sections are empty, you still have work:
+  - Audit existing hero images: any product blog posts missing hero images? Create a generate-image action.
+  - Refresh stale visuals: any hero images >30 days old for high-traffic products? Propose a refresh.
+  - Create design assets for upcoming campaigns that don't have visual coverage yet.
+  Do NOT sit idle. If there is genuinely nothing to do, save a memory noting what you checked and why no action was needed.
   PROACTIVE DESIGN: Don't wait for tasks. When DESIGN GAPS shows a campaign with no visual assets:
   - Create a design task with create-task (must include campaign_id or objective_id for orphan guard)
   - Or produce a content package directly with create-content-package

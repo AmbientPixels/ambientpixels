@@ -65,11 +65,15 @@ const L4_ALLOWED_TYPES = new Set([...L4_PREFERRED_TYPES, ...L4_LEGACY_TYPES]);
 const L4_DEFAULT_TTL_DAYS = 14;
 // Tiered TTLs by memory type (days). Types not listed fall back to L4_DEFAULT_TTL_DAYS.
 const L4_TTL_BY_TYPE = {
-  decision: 90, verified_fact: 90,
+  decision: 60, verified_fact: 60,
   constraint: 60, preference: 60,
-  learning: 30, feedback: 30,
+  learning: 14, feedback: 30,
   context: 14
 };
+// Content-based TTL overrides (applied after type-based TTL).
+// If memory text matches these patterns, use shorter TTL regardless of type.
+const L4_SHORT_TTL_DAYS = 3;
+const L4_SHORT_TTL_PATTERNS = /\$[\d.]+|cost|spend|budget|daily.*rate|monthly.*rate|per.*day/i;
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
@@ -179,6 +183,8 @@ module.exports = {
   L4_ALLOWED_TYPES,
   L4_TTL_BY_TYPE,
   L4_DEFAULT_TTL_DAYS,
+  L4_SHORT_TTL_DAYS,
+  L4_SHORT_TTL_PATTERNS,
   TIER4_SUB_AGENTS,
   OBJECTIVE_EXEMPT_CATEGORIES,
   DIRECTIVE_AUTHORIZED_AGENTS,

@@ -12,7 +12,7 @@ const { callGemini } = require('./gemini');
 const {
   AGENT_ROLES, GUARDRAILS, DOMAIN_LEAD_MAP,
   MAX_TOOL_CALLS_PER_AGENT, MAX_MEMORIES_PER_AGENT,
-  MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS,
+  MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS, L4_SHORT_TTL_DAYS, L4_SHORT_TTL_PATTERNS, L4_TTL_BY_TYPE,
   MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS,
   MAX_RESEARCH_INTEL_PER_DAY
 } = require('./constants');
@@ -132,6 +132,25 @@ async function runAgentHeartbeat(ctx) {
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
   agent.id = agentId;
+
+  // ── Phase 8: Prune expired memories before prompt assembly ──
+  if (_agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
+    var _pruneNow = Date.now();
+    var _beforeCount = _agentMemoryStore[agentId].length;
+    _agentMemoryStore[agentId] = _agentMemoryStore[agentId].filter(function (m) {
+      // If memory has explicit expiresAt, use it
+      if (m.expiresAt) return new Date(m.expiresAt).getTime() > _pruneNow;
+      // Otherwise compute TTL from type + content heuristics
+      if (!m.timestamp) return true; // keep memories without timestamps
+      var _memAge = _pruneNow - new Date(m.timestamp).getTime();
+      var _ttlDays = (L4_TTL_BY_TYPE && L4_TTL_BY_TYPE[m.type]) || L4_DEFAULT_TTL_DAYS;
+      // Content-based override: cost/budget keywords get short TTL
+      if (L4_SHORT_TTL_PATTERNS && L4_SHORT_TTL_PATTERNS.test(m.text || '')) _ttlDays = L4_SHORT_TTL_DAYS;
+      return _memAge < _ttlDays * 24 * 60 * 60 * 1000;
+    });
+    var _pruned = _beforeCount - _agentMemoryStore[agentId].length;
+    if (_pruned > 0) context.log('[Heartbeat]', agentId, 'pruned', _pruned, 'expired memories (' + _beforeCount + ' → ' + _agentMemoryStore[agentId].length + ')');
+  }
 
   // Read dynamic doctrine weight from workspace config (slider value), clamp 0.0–0.6
   const agentCfg = configs[agentId] || {};
@@ -3991,7 +4010,16 @@ Write the full deliverable first, then the structured JSON block.`;
         else if (_agentMemoryStore[agentId] && _checkMemoryDuplicate(mem.text, _agentMemoryStore[agentId], 24).isDupe) {
           var _dupResult = _checkMemoryDuplicate(mem.text, _agentMemoryStore[agentId], 24);
           _memBlockedReason = 'duplicate';
-          context.log('[Heartbeat]', agentId, 'skipped duplicate memory (' + Math.round(_dupResult.similarity * 100) + '% overlap):', mem.text.substring(0, 60));
+          // Phase 8: refresh TTL on the matched memory so it stays alive
+          if (_dupResult.matchedMemory) {
+            _dupResult.matchedMemory.timestamp = _memNowIso;
+            if (_dupResult.matchedMemory.expiresAt) {
+              var _matchTtl = (L4_TTL_BY_TYPE && L4_TTL_BY_TYPE[_dupResult.matchedMemory.type]) || L4_DEFAULT_TTL_DAYS;
+              if (L4_SHORT_TTL_PATTERNS && L4_SHORT_TTL_PATTERNS.test(_dupResult.matchedMemory.text || '')) _matchTtl = L4_SHORT_TTL_DAYS;
+              _dupResult.matchedMemory.expiresAt = new Date(_memNow.getTime() + _matchTtl * 24 * 60 * 60 * 1000).toISOString();
+            }
+          }
+          context.log('[Heartbeat]', agentId, 'skipped duplicate memory (' + Math.round(_dupResult.similarity * 100) + '% overlap, TTL refreshed):', mem.text.substring(0, 60));
         }
         // All checks passed — store
         else {

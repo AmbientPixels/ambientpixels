@@ -290,9 +290,11 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
   // Stalled agents (0 actions over multiple consecutive runs)
   var stalled = hb.stalledAgents || [];
   if (stalled.length > 0) {
-    lines.push('- STALLED AGENTS (0 output, ' + stalled[0].zeroRuns + '+ runs):');
+    lines.push('- ⚠️ STALLED AGENTS — ACTION REQUIRED (0 output, ' + stalled[0].zeroRuns + '+ consecutive runs):');
     stalled.forEach(function (s) {
-      lines.push('  - ' + s.agent + ': 0 actions across ' + s.zeroRuns + '/' + s.runs + ' runs — investigate: prompt issue? blocked by guardrail? no assigned work?');
+      lines.push('  - ' + s.agent.toUpperCase() + ': 0 actions across ' + s.zeroRuns + '/' + s.runs + ' runs');
+      lines.push('    → YOU MUST create a system_directive task for ' + s.agent + ' to diagnose and fix. Example:');
+      lines.push('    { "type": "create-task", "task": { "title": "DIRECTIVE: Diagnose ' + s.agent + ' inactivity", "description": "You produced 0 actions for ' + s.zeroRuns + ' consecutive heartbeats. Check: do you have assigned tasks? Are you blocked by a guardrail? Report what is preventing you from acting.", "category": "system_directive", "assignee": "' + s.agent + '", "taskType": "ops" } }');
     });
   }
 

@@ -189,6 +189,47 @@ function processCampaignLifecycle({ campaigns, tasks, objectives, log }) {
     const _freq = c.frequency || 1;
     if (_primaryThisPeriod >= _freq) continue;
 
+    // ── Outcome gate (Phase 4): pause/slow replenish for underperforming campaigns ──
+    var _doneTasks = cmpTasks.filter(function (t) { return t.status === 'done'; })
+      .sort(function (a, b) { return new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime(); });
+    if (_doneTasks.length >= 3) {
+      var _last3 = _doneTasks.slice(0, 3);
+      // Check: did last 3 tasks produce any approved social actions?
+      var _withAction = _last3.filter(function (t) { return t._social_action_created; }).length;
+      // Check: any tasks have revision comments from CEO?
+      var _withRevision = _last3.filter(function (t) {
+        return (t.comments || []).some(function (cm) { return cm.type === 'revision' || (cm.author === 'CEO' && /revise|reject|redo|wrong|fix/i.test(cm.text || '')); });
+      }).length;
+      // Gate 1: all 3 recent tasks had CEO revisions → pause
+      if (_withRevision >= 3) {
+        c._replenishPaused = true;
+        c._replenishPausedReason = '3 consecutive CEO revisions';
+        campaignsChanged = true;
+        log('[Heartbeat] Outcome gate: pausing replenish for "' + (c.title || c.id) + '" — 3 consecutive CEO revisions');
+        continue;
+      }
+      // Gate 2: 0 of last 3 produced a social action → slow to 2x cadence
+      if (_withAction === 0 && _doneTasks.length >= 5) {
+        var _timeSinceLastCreate = cmpTasks.length > 0 ? _now - new Date(cmpTasks[cmpTasks.length - 1].createdAt || 0).getTime() : Infinity;
+        if (_timeSinceLastCreate < _window * 2) {
+          log('[Heartbeat] Outcome gate: slowing replenish for "' + (c.title || c.id) + '" — 0 of last 3 tasks produced actions, waiting 2x cadence');
+          continue;
+        }
+      }
+    }
+    // Gate 3: 10+ done tasks, 0 with social actions → auto-pause
+    if (_doneTasks.length >= 10) {
+      var _anyActions = _doneTasks.filter(function (t) { return t._social_action_created; }).length;
+      if (_anyActions === 0) {
+        c._replenishPaused = true;
+        c._replenishPausedReason = '10+ tasks with 0 approved actions';
+        c.status = 'paused';
+        campaignsChanged = true;
+        log('[Heartbeat] Outcome gate: auto-pausing campaign "' + (c.title || c.id) + '" — 10+ completed tasks, 0 produced actions');
+        continue;
+      }
+    }
+
     const allowedTypes = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0
       ? c.allowedTaskTypes
       : (c.taskType ? [c.taskType] : ['general']);
