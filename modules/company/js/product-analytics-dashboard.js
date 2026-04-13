@@ -251,27 +251,21 @@
     html += AH.kpiCard({ icon: 'calendar-day', label: 'Today DAU',    value: AH.fmtNum(todayDau) });
     html += AH.kpiCard({ icon: 'chart-simple', label: 'Avg DAU',      value: AH.fmtNum(avgDau), sub: resp.range });
 
-    // Sparkline (SVG, full-width inside the grid)
+    // Timeline chart (Chart.js, matches Traffic Brief style)
     if (dailyArr.length > 1) {
-      var maxDau = Math.max.apply(null, dailyArr.map(function (x) { return x.dau || 0; })) || 1;
-      var width = 300;
-      var height = 50;
-      var step = width / (dailyArr.length - 1);
-      var points = dailyArr.map(function (x, i) {
-        return (i * step).toFixed(1) + ',' + (height - 4 - ((x.dau || 0) / maxDau) * (height - 8)).toFixed(1);
-      }).join(' ');
-
-      html += '<div class="pa-sparkline">' +
-        '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none">' +
-        '<polyline points="' + points + '" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-        '<div class="pa-sparkline__labels">' +
-        '<span>' + AH.esc(dailyArr[0].day) + '</span>' +
-        '<span>' + AH.esc(dailyArr[dailyArr.length - 1].day) + '</span>' +
-        '</div></div>';
+      html += '<div class="pa-sparkline"><canvas id="pa-timeline" height="130"></canvas></div>';
     }
 
     kpisEl.innerHTML = html;
+
+    // Render Chart.js timeline after DOM insertion
+    if (dailyArr.length > 1) {
+      var canvas = document.getElementById('pa-timeline');
+      if (canvas) {
+        var chartData = dailyArr.map(function (x) { return { day: x.day, views: x.dau || 0 }; });
+        AH.makeTimeline(canvas, { data: chartData, valueLabel: 'views' });
+      }
+    }
 
     // Phase 7 hook: hero strip subscribers
     AH.publish('product-analytics.overview', { data: d, range: resp.range });
