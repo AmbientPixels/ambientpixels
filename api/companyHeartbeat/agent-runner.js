@@ -12,7 +12,7 @@ const { callGemini } = require('./gemini');
 const {
   AGENT_ROLES, GUARDRAILS, DOMAIN_LEAD_MAP,
   MAX_TOOL_CALLS_PER_AGENT, MAX_MEMORIES_PER_AGENT,
-  MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS, L4_SHORT_TTL_DAYS, L4_SHORT_TTL_PATTERNS, L4_TTL_BY_TYPE,
+  MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS,
   MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS,
   MAX_RESEARCH_INTEL_PER_DAY
 } = require('./constants');
@@ -20,41 +20,6 @@ const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
 } = require('./helpers');
 const _productFacts = require('../_data/product-facts.json');
-const { AGENT_CAPABILITIES } = require('./agent-capabilities');
-
-// ── Memory dedup: Jaccard token-overlap check ──
-// Normalizes text (lowercase, strip numbers/currency, collapse whitespace),
-// splits into word tokens, computes Jaccard similarity (intersection/union).
-// Returns { isDupe: bool, similarity: number, matchedMemory: object|null }
-function _checkMemoryDuplicate(newText, existingMemories, windowHours) {
-  if (!newText || !existingMemories || !existingMemories.length) return { isDupe: false, similarity: 0, matchedMemory: null };
-  var _normalize = function (s) {
-    return String(s).toLowerCase().replace(/[\$\d\.,]+/g, '').replace(/\s+/g, ' ').trim();
-  };
-  var _tokenize = function (s) {
-    return _normalize(s).split(' ').filter(function (w) { return w.length > 2; });
-  };
-  var newTokens = _tokenize(newText);
-  if (newTokens.length === 0) return { isDupe: false, similarity: 0, matchedMemory: null };
-  var newSet = new Set(newTokens);
-  var cutoff = Date.now() - (windowHours || 24) * 60 * 60 * 1000;
-  var bestSim = 0;
-  var bestMatch = null;
-  for (var i = 0; i < existingMemories.length; i++) {
-    var m = existingMemories[i];
-    var mTime = m.timestamp ? new Date(m.timestamp).getTime() : 0;
-    if (mTime < cutoff) continue;
-    var mTokens = _tokenize(m.text || '');
-    if (mTokens.length === 0) continue;
-    var mSet = new Set(mTokens);
-    var intersection = 0;
-    newSet.forEach(function (t) { if (mSet.has(t)) intersection++; });
-    var union = new Set([...newTokens, ...mTokens]).size;
-    var sim = union > 0 ? intersection / union : 0;
-    if (sim > bestSim) { bestSim = sim; bestMatch = m; }
-  }
-  return { isDupe: bestSim >= 0.7, similarity: bestSim, matchedMemory: bestMatch };
-}
 
 // Claude quality gate for external-facing content
 async function _validateContentQuality(text, platform, context) {
@@ -100,7 +65,7 @@ const { executeTask, reviewTask } = require('./execution-engine');
 
 async function runAgentHeartbeat(ctx) {
   if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
-  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts, pendingMessages, lastRunBlockedActions } = ctx;
+  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts, pendingMessages } = ctx;
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -127,32 +92,11 @@ async function runAgentHeartbeat(ctx) {
       fuzzyDupBlocked: 0,
       taskCeilingBlocked: 0,
       socialPromoGateBlocked: 0
-    },
-    blockedActions: []
+    }
   };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
   agent.id = agentId;
-  const caps = AGENT_CAPABILITIES[agentId] || {};
-
-  // ── Phase 8: Prune expired memories before prompt assembly ──
-  if (_agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
-    var _pruneNow = Date.now();
-    var _beforeCount = _agentMemoryStore[agentId].length;
-    _agentMemoryStore[agentId] = _agentMemoryStore[agentId].filter(function (m) {
-      // If memory has explicit expiresAt, use it
-      if (m.expiresAt) return new Date(m.expiresAt).getTime() > _pruneNow;
-      // Otherwise compute TTL from type + content heuristics
-      if (!m.timestamp) return true; // keep memories without timestamps
-      var _memAge = _pruneNow - new Date(m.timestamp).getTime();
-      var _ttlDays = (L4_TTL_BY_TYPE && L4_TTL_BY_TYPE[m.type]) || L4_DEFAULT_TTL_DAYS;
-      // Content-based override: cost/budget keywords get short TTL
-      if (L4_SHORT_TTL_PATTERNS && L4_SHORT_TTL_PATTERNS.test(m.text || '')) _ttlDays = L4_SHORT_TTL_DAYS;
-      return _memAge < _ttlDays * 24 * 60 * 60 * 1000;
-    });
-    var _pruned = _beforeCount - _agentMemoryStore[agentId].length;
-    if (_pruned > 0) context.log('[Heartbeat]', agentId, 'pruned', _pruned, 'expired memories (' + _beforeCount + ' → ' + _agentMemoryStore[agentId].length + ')');
-  }
 
   // Read dynamic doctrine weight from workspace config (slider value), clamp 0.0–0.6
   const agentCfg = configs[agentId] || {};
@@ -177,9 +121,9 @@ async function runAgentHeartbeat(ctx) {
   // Pixel: exclude 'review' tasks — once Pixel delivers an image the task awaits review, not further Pixel action
   // Other agents: keep 'review' visible (e.g. Scribe needs to submit-for-publish after hero image attached)
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done'
-    && !(caps.excludeReviewFromFilter && t.status === 'review'));
+    && !(agentId === 'pixel' && t.status === 'review'));
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
-  const allActiveTasks = caps.taskFilterAll
+  const allActiveTasks = agentId === 'nova'
     ? tasks.filter(t => t.status !== 'done')
     : tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
   // Only show this agent their own revision-requested actions
@@ -191,7 +135,7 @@ async function runAgentHeartbeat(ctx) {
   // Runs on a cooldown (default 2h). No task required — Scout discovers threads
   // as a built-in sensor, writes candidates to the blueskyCandidates state key.
   // CEO picks which to engage with from the dashboard. No tasks are created here.
-  if (caps.scoutDiscovery) {
+  if (agentId === 'scout') {
     try {
       var _bsDiscoveryCooldownMs = 2 * 60 * 60 * 1000; // 2 hours default
       var _bsCandidates = (await storage.getState('blueskyCandidates')) || [];
@@ -325,11 +269,10 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages, lastRunBlockedActions });
+  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages });
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
   const _estimatedTokens = Math.ceil(prompt.length / 4);
-  context.log('[Heartbeat] ' + agentId + ': prompt ' + prompt.length + ' chars (~' + _estimatedTokens + ' tokens)');
   if (_estimatedTokens > 30000) {
     context.log.warn('[Heartbeat] ' + agentId + ': prompt exceeds 30K token ceiling (' + _estimatedTokens + ' est.) — skipping this cycle');
     result.durationMs = Date.now() - _agentRunStartMs;
@@ -345,8 +288,8 @@ async function runAgentHeartbeat(ctx) {
 
   if (!response) {
     context.log('[Heartbeat]', agentId, 'got no response');
-    // Even with no Gemini response, check done-task social injection
-    if (caps.socialInjection) {
+    // Even with no Gemini response, check done-task social injection for Echo
+    if (agentId === 'echo') {
       const _earlyDoneSocial = tasks.filter(function (t) {
         if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
         var age = Date.now() - new Date(t.createdAt || 0).getTime();
@@ -367,8 +310,8 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  // Extract TREND_INSIGHTS_JSON from response (before JSON parse to avoid interference)
-  if (caps.canExtractTrendInsights && response) {
+  // Extract TREND_INSIGHTS_JSON from Scout's response (before JSON parse to avoid interference)
+  if (agentId === 'scout' && response) {
     const trendMatch = response.match(/<!--TREND_INSIGHTS_JSON\s*([\s\S]*?)\s*TREND_INSIGHTS_JSON-->/);
     if (trendMatch) {
       // Strip the block from response so it doesn't break normal JSON parsing
@@ -434,23 +377,14 @@ async function runAgentHeartbeat(ctx) {
   if (parsed && typeof parsed === 'object' && parsed.reflectionMemory) {
     var _reflText = String(parsed.reflectionMemory).substring(0, 200);
     if (_reflText && _agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
-      var _reflDup = _checkMemoryDuplicate(_reflText, _agentMemoryStore[agentId], 24);
-      if (_reflDup.isDupe) {
-        context.log('[Heartbeat]', agentId, 'skipped duplicate reflection memory (' + Math.round(_reflDup.similarity * 100) + '% overlap)');
-      } else {
-        _agentMemoryStore[agentId].push({
-          id: 'mem-refl-' + Date.now(),
-          type: 'feedback',
-          text: _reflText,
-          source: 'auto:reflection',
-          timestamp: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
-        });
-        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
-          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
-        }
-        context.log('[Heartbeat]', agentId, 'stored reflection memory:', _reflText.substring(0, 80));
-      }
+      _agentMemoryStore[agentId].push({
+        id: 'mem-refl-' + Date.now(),
+        type: 'feedback',
+        text: _reflText,
+        source: 'auto:reflection',
+        timestamp: new Date().toISOString()
+      });
+      context.log('[Heartbeat]', agentId, 'stored reflection memory:', _reflText.substring(0, 80));
     }
   }
 
@@ -464,23 +398,14 @@ async function runAgentHeartbeat(ctx) {
     var _diagText = String(parsed.convergenceDiagnosis).substring(0, 300);
     result.convergenceDiagnosis = _diagText;
     if (_diagText && _agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
-      var _convDup = _checkMemoryDuplicate(_diagText, _agentMemoryStore[agentId], 24);
-      if (_convDup.isDupe) {
-        context.log('[Heartbeat]', agentId, 'skipped duplicate convergence diagnosis (' + Math.round(_convDup.similarity * 100) + '% overlap)');
-      } else {
-        _agentMemoryStore[agentId].push({
-          id: 'mem-conv-' + Date.now(),
-          type: 'learning',
-          text: _diagText,
-          source: 'auto:convergence',
-          timestamp: new Date().toISOString(),
-          expiresAt: new Date(Date.now() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
-        });
-        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
-          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
-        }
-        context.log('[Heartbeat]', agentId, 'stored convergence diagnosis:', _diagText.substring(0, 80));
-      }
+      _agentMemoryStore[agentId].push({
+        id: 'mem-conv-' + Date.now(),
+        type: 'learning',
+        text: _diagText,
+        source: 'auto:convergence',
+        timestamp: new Date().toISOString()
+      });
+      context.log('[Heartbeat]', agentId, 'stored convergence diagnosis:', _diagText.substring(0, 80));
     }
   }
 
@@ -529,7 +454,7 @@ async function runAgentHeartbeat(ctx) {
   // Scout recursion guard: skip search if task already has research_intel
   const scoutTargetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
   const hasExistingResearch = scoutTargetTask && scoutTargetTask.research_intel;
-  if (caps.canResearchRecursionGuard && hasExistingResearch && toolActions.length > 0) {
+  if (agentId === 'scout' && hasExistingResearch && toolActions.length > 0) {
     context.log('[Heartbeat] scout RECURSION BLOCKED: research_intel already exists on task', scoutTargetTask.id);
     await logEvent('tool-recursion-blocked', agentId, 'research_intel already attached to ' + scoutTargetTask.id, cycleId);
     toolActions.length = 0; // clear all tool calls
@@ -649,8 +574,8 @@ Write the full deliverable first, then the structured JSON block.`;
   result.actionAttempts = Array.isArray(actions) ? actions.length : 0;
   let actionCount = 0;
 
-  // SERVER-SIDE FORCED HERO IMAGE: If agent has heroImageNudge and a hero image task idle 10+ min, inject it
-  if (caps.heroImageNudge) {
+  // SERVER-SIDE FORCED HERO IMAGE: If Pixel has a hero image task idle 10+ min and didn't produce generate-image, inject it
+  if (agentId === 'pixel') {
     const _pixelHeroTask = agentTasks.find(t =>
       (t.status === 'todo' || t.status === 'in-progress') &&
       (t.title || '').indexOf('Generate hero image for:') === 0 &&
@@ -683,8 +608,8 @@ Write the full deliverable first, then the structured JSON block.`;
   // Echo social tasks in review stay in review — CEO reviews via the social action approval queue.
   // No auto-complete bypass. Tasks flow: todo → in-progress → review → done (after CEO approval).
 
-  // QUILL COPY REVIEW: when agent has copyReviewInjection, inject review-task for social-copy tasks awaiting brand voice review
-  if (caps.copyReviewInjection) {
+  // QUILL COPY REVIEW: when Quill runs, inject review-task for social-copy tasks awaiting brand voice review
+  if (agentId === 'quill') {
     const _quillReviewTasks = tasks.filter(function(t) {
       return t.status === 'review' &&
         t.tags && t.tags.indexOf('social-copy') !== -1 &&
@@ -800,8 +725,8 @@ Write the full deliverable first, then the structured JSON block.`;
           }
         }
       }
-      // Fix 8: For social-injection agents, filter out tasks that already have pending social actions (avoids dedup loop)
-      if (caps.socialInjection && _executableIdle.length > 0) {
+      // Fix 8: For Echo, filter out tasks that already have pending social actions (avoids dedup loop)
+      if (agentId === 'echo' && _executableIdle.length > 0) {
         try {
           const _existingActions = (await storage.getState('actions')) || [];
           const _pendingSocialTaskIds = new Set();
@@ -891,10 +816,11 @@ Write the full deliverable first, then the structured JSON block.`;
             }
             // Fallback: only inject if this agent is domain-relevant or no better reviewer exists
             if (!_prTarget) {
-              // Agents with skipSocialReviews skip social/content reviews
+              // Non-content agents (cipher, forge, pixel, scout) skip social/content reviews
+              var _prSkipDomains = ['cipher', 'forge', 'pixel', 'scout'];
               var _prFirstCandidate = _peerReviewCandidates[0];
               var _prCandType = (_prFirstCandidate.taskType || '').toLowerCase();
-              if (caps.skipSocialReviews && (/^social_/.test(_prCandType) || /^blog_|^content_blog|^content_|^article|^design_/.test(_prCandType))) {
+              if (_prSkipDomains.indexOf(agentId) !== -1 && (/^social_/.test(_prCandType) || /^blog_|^content_blog|^content_|^article|^design_/.test(_prCandType))) {
                 // Skip — let content agents handle this review
               } else {
                 _prTarget = _prFirstCandidate;
@@ -919,7 +845,7 @@ Write the full deliverable first, then the structured JSON block.`;
   // inject create-social-action so the post reaches CEO approval queue.
   // If no reviewed_copy exists, the copy review gate creates a Scribe task.
   // Runs outside the anti-stall guard — must always fire regardless of other work actions.
-  if (caps.socialInjection) {
+  if (agentId === 'echo') {
     const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
     const _doneSocialAll = tasks.filter(function (t) {
       if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
@@ -971,7 +897,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
   // Tier 4 sub-agent action restrictions (server-side enforcement)
   const TIER4_FORBIDDEN = ['create-social-action', 'create-doc', 'submit-for-publish', 'create-task', 'create-content-package'];
-  const isTier4 = caps.tier === 4;
+  const isTier4 = agent.tier === 4;
 
   // Work-producing actions bypass dedup entirely — deliverables are always unique
   const _DEDUP_EXEMPT = new Set(['execute-task', 'create-doc', 'create-social-action', 'generate-image', 'create-content-package', 'review-task']);
@@ -985,8 +911,8 @@ Write the full deliverable first, then the structured JSON block.`;
       continue;
     }
 
-    // Only agents with canSocialAction can create social posts (server-side enforcement)
-    if (action.type === 'create-social-action' && !caps.canSocialAction) {
+    // Only Echo can create social posts (server-side enforcement)
+    if (action.type === 'create-social-action' && agentId !== 'echo') {
       context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action (only Echo can post)');
       continue;
     }
@@ -1048,7 +974,6 @@ Write the full deliverable first, then the structured JSON block.`;
       const _activeTaskCount = tasks.filter(t => t.status !== 'done' && t.status !== 'archived').length;
       if (_activeTaskCount >= GUARDRAILS.maxActiveTasks) {
         result.guardrails.taskCeilingBlocked++;
-        result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ' active tasks)' });
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: active task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ')');
         continue;
       }
@@ -1057,7 +982,6 @@ Write the full deliverable first, then the structured JSON block.`;
       if ((action.task.taskType || '').toLowerCase() === 'research' || /^research\s*brief/i.test(action.task.title || '')) {
         const _activeResearch = tasks.filter(t => t.status !== 'done' && t.status !== 'archived' && t.status !== 'canceled' && t.taskType === 'research').length;
         if (_activeResearch >= 5) {
-          result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Research task ceiling reached (' + _activeResearch + '/5 active research tasks)' });
           context.log('[Heartbeat]', agentId, 'BLOCKED create-task: research task ceiling reached (' + _activeResearch + '/5). Title:', action.task.title);
           continue;
         }
@@ -1189,15 +1113,14 @@ Write the full deliverable first, then the structured JSON block.`;
       const _hasCampaign = _taskCampaignId;
       if (!_hasObjective && !_hasCampaign && !_operationalExempt) {
         result.guardrails.orphanBlocked++;
-        result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Missing objective_id or campaign_id (task must link to a goal or campaign)' });
         context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or campaign_id');
         continue;
       }
 
       // ── System Directive Guards ──
       if (_taskCategory === 'system_directive') {
-        // Only agents with canDirective can issue directives
-        if (!caps.canDirective) {
+        // Only Forge and Nova can issue directives
+        if (agentId !== 'forge' && agentId !== 'nova') {
           context.log('[Heartbeat]', agentId, 'BLOCKED system_directive: only forge and nova can issue directives');
           continue;
         }
@@ -1208,7 +1131,7 @@ Write the full deliverable first, then the structured JSON block.`;
           continue;
         }
         // Forge cannot directive Nova (must escalate to CEO)
-        if (agentId === 'forge' && _directiveTarget === 'nova') { // already uses caps.canDirective above; this is a forge-specific sub-rule (forge cannot directive nova)
+        if (agentId === 'forge' && _directiveTarget === 'nova') {
           context.log('[Heartbeat] forge BLOCKED system_directive targeting nova — escalate to CEO instead');
           continue;
         }
@@ -1238,7 +1161,6 @@ Write the full deliverable first, then the structured JSON block.`;
         const existingMatch = tasks.find(t => t.status !== 'done' && _normalize(t.title || '') === normalizedNew);
         if (existingMatch) {
           result.guardrails.exactDupBlocked++;
-          result.blockedActions.push({ action: 'create-task', target: proposedTitle.substring(0, 80), reason: 'Exact duplicate of existing task "' + (existingMatch.title || '').substring(0, 60) + '" (' + existingMatch.id + ')' });
           context.log('[Heartbeat]', agentId, 'BLOCKED duplicate task creation:', proposedTitle, '— matches existing:', existingMatch.id);
           continue;
         }
@@ -1254,7 +1176,6 @@ Write the full deliverable first, then the structured JSON block.`;
           });
           if (fuzzyMatch) {
             result.guardrails.fuzzyDupBlocked++;
-            result.blockedActions.push({ action: 'create-task', target: proposedTitle.substring(0, 80), reason: 'Fuzzy duplicate of existing task "' + (fuzzyMatch.title || '').substring(0, 60) + '" (' + fuzzyMatch.id + ')' });
             context.log('[Heartbeat]', agentId, 'BLOCKED fuzzy-duplicate task:', proposedTitle, '— similar to:', fuzzyMatch.title, '(', fuzzyMatch.id, ')');
             continue;
           }
@@ -1269,7 +1190,6 @@ Write the full deliverable first, then the structured JSON block.`;
       const _refsBlogPost = /blog\s*post|hello\s*world|marketing_post|first\s*post/.test(_taskText);
       if (_isSocialPromoTask && _refsBlogPost) {
         result.guardrails.socialPromoGateBlocked++;
-        result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Blog must be published + promoted first — social promo tasks are auto-created on publish' });
         context.log('[Heartbeat]', agentId, 'BLOCKED premature social promo task:', action.task.title, '— blog must be published + promoted first. Social tasks are auto-created on publish with promote=true.');
         continue;
       }
@@ -1308,7 +1228,7 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // Only Nova can set parent_task_id — strip from other agents to keep hierarchy clean
-      var _parentTaskId = (caps.canParentTaskPassthrough && action.task.parent_task_id) ? action.task.parent_task_id : null;
+      var _parentTaskId = (agentId === 'nova' && action.task.parent_task_id) ? action.task.parent_task_id : null;
       if (action.task.parent_task_id && agentId !== 'nova') {
         context.log('[Heartbeat]', agentId, 'STRIPPED parent_task_id from create-task — only Nova can set task hierarchy');
       }
@@ -1742,7 +1662,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
             // Echo social tasks move to review after execute — CEO approves via social action queue.
             // No auto-complete fast-path. Standard flow: execute → review → peer review → done.
-            if (caps.socialInjection) { // Echo: social tasks move to review after execute
+            if (agentId === 'echo') {
               const _esfText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
               const _esfIsSocial = /^social_/.test(task.taskType || '') || task.campaign_id ||
                 /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(_esfText);
@@ -1761,7 +1681,7 @@ Write the full deliverable first, then the structured JSON block.`;
             const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article|marketing.*brief|content.*brief|draft.*brief/.test(_etTaskText);
             const _isBlogByContent = /document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\/|submit.*ceo.*approv.*publish/.test(_etDeliverableLower);
             const _isSocialCopyTask = task.tags && task.tags.indexOf('social-copy') !== -1;
-            const _isBlogTask = caps.canBlogPublish && !_isSocialCopyTask && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
+            const _isBlogTask = agentId === 'scribe' && !_isSocialCopyTask && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
             if (_isBlogTask) context.log('[Heartbeat] BLOG DETECTED:', agentId, 'task:', action.taskId, 'byType:', _isBlogByType, 'byTitle:', _isBlogByTitle, 'byContent:', _isBlogByContent);
             if (_isBlogTask && deliverable.length > 200) {
               const _etDocsStore = (await storage.getState('documents')) || [];
@@ -1887,7 +1807,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
           // RESEARCH INTEL → AQ: when Scout completes a research task via execute-task,
           // submit findings to the CEO approval queue. On approval the heartbeat stores to researchIntel.
-          if (deliverable && caps.canResearchIntelExtract && task.taskType === 'research' && deliverable.length > 200) {
+          if (deliverable && agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200) {
             const _riNow = new Date().toISOString();
             const _riId = 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             try {
@@ -1915,8 +1835,8 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
     } else if (action.type === 'create-social-action' && action.social) {
-      // AUTO-LINK: If Gemini didn't include taskId, infer it from active/done social tasks
-      if (!action.taskId && caps.socialActionTaskLookup) {
+      // AUTO-LINK: If Gemini didn't include taskId, infer it from Echo's active/done social tasks
+      if (!action.taskId && agentId === 'echo') {
         var _alPlatform = (action.social.platform || '').toLowerCase();
         var _alMatch = tasks.find(function (t) {
           if (t.assignee !== 'echo' || t._archived) return false;
@@ -2119,9 +2039,9 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
-      // FALLBACK BLOCK: social actions without taskId are blocked.
-      // All social actions MUST be linked to a task with reviewed_copy.
-      if (!action.taskId && caps.socialActionTaskLookup) {
+      // FALLBACK BLOCK: if Echo creates a social action without taskId, block it.
+      // All Echo social actions MUST be linked to a task with reviewed_copy.
+      if (!action.taskId && agentId === 'echo') {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — no taskId (action must be linked to a task)');
         continue;
       }
@@ -2703,21 +2623,17 @@ Write the full deliverable first, then the structured JSON block.`;
       const ceoFeedback = (orig.approval && orig.approval.decision_note) || '';
       if (ceoFeedback.length > 5) {
         if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
-        var _ceoMemText = 'CEO rejected my ' + (orig.platform || '') + ' post and said: "' + ceoFeedback.substring(0, 200) + '"';
-        var _ceoMemDup = _checkMemoryDuplicate(_ceoMemText, _agentMemoryStore[agentId], 24);
-        if (!_ceoMemDup.isDupe) {
-          var _autoMemNow = new Date();
-          _agentMemoryStore[agentId].push({
-            id: 'mem_' + Date.now() + '_auto',
-            type: 'feedback',
-            text: _ceoMemText,
-            source: 'auto:ceo-revision',
-            timestamp: _autoMemNow.toISOString(),
-            expiresAt: new Date(_autoMemNow.getTime() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
-          });
-          if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
-            _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
-          }
+        var _autoMemNow = new Date();
+        _agentMemoryStore[agentId].push({
+          id: 'mem_' + Date.now() + '_auto',
+          type: 'feedback',
+          text: 'CEO rejected my ' + (orig.platform || '') + ' post and said: "' + ceoFeedback.substring(0, 200) + '"',
+          source: 'auto:ceo-revision',
+          timestamp: _autoMemNow.toISOString(),
+          expiresAt: new Date(_autoMemNow.getTime() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
+        });
+        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
         }
       }
 
@@ -2822,7 +2738,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Guard 4: Block Nova re-delegation spam — if Nova already delegated this task (has a comment)
       // and the task is assigned to another agent with active status, no need to re-delegate
-      const isDelegationSpam = caps.canDelegationCheck && targetTask &&
+      const isDelegationSpam = agentId === 'nova' && targetTask &&
         targetTask.assignee && targetTask.assignee !== 'nova' &&
         (targetTask.status === 'todo' || targetTask.status === 'in-progress' || targetTask.status === 'review') &&
         recentComments.some(c => (c.user || c.author || '') === 'nova' && c.type !== 'system');
@@ -3060,7 +2976,7 @@ Write the full deliverable first, then the structured JSON block.`;
         // SPAWN GUARD: do not spawn hero tasks from auto-created source tasks (prevents auto→auto chains)
         const _cdSourceTask = action.taskId ? tasks.find(t => t.id === action.taskId) : null;
         const _cdSourceAutoCreated = _cdSourceTask && _cdSourceTask.tags && _cdSourceTask.tags.indexOf('auto-created') !== -1;
-        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && caps.canAutoHeroImage && !_cdSourceAutoCreated) {
+        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe' && !_cdSourceAutoCreated) {
           // Only Scribe-created visual docs trigger hero image tasks (prevents ops/engineering docs from spawning hero tasks)
           // FIX 5: Stronger dedup — check by title substring match, not just exact title or doc ID
           // Prevents multiple hero tasks when the same blog post has multiple doc records
@@ -4006,21 +3922,6 @@ Write the full deliverable first, then the structured JSON block.`;
             runId: cycleId, agentId: agentId, gate: 'memory_rate_cap', reason: 'daily_cap_exceeded',
             cap: MAX_L4_WRITES_PER_AGENT_PER_DAY, current: _getMemWriteCount(agentId)
           });
-        }
-        // Dedup: skip if >70% token overlap with existing memory from last 24h
-        else if (_agentMemoryStore[agentId] && _checkMemoryDuplicate(mem.text, _agentMemoryStore[agentId], 24).isDupe) {
-          var _dupResult = _checkMemoryDuplicate(mem.text, _agentMemoryStore[agentId], 24);
-          _memBlockedReason = 'duplicate';
-          // Phase 8: refresh TTL on the matched memory so it stays alive
-          if (_dupResult.matchedMemory) {
-            _dupResult.matchedMemory.timestamp = _memNowIso;
-            if (_dupResult.matchedMemory.expiresAt) {
-              var _matchTtl = (L4_TTL_BY_TYPE && L4_TTL_BY_TYPE[_dupResult.matchedMemory.type]) || L4_DEFAULT_TTL_DAYS;
-              if (L4_SHORT_TTL_PATTERNS && L4_SHORT_TTL_PATTERNS.test(_dupResult.matchedMemory.text || '')) _matchTtl = L4_SHORT_TTL_DAYS;
-              _dupResult.matchedMemory.expiresAt = new Date(_memNow.getTime() + _matchTtl * 24 * 60 * 60 * 1000).toISOString();
-            }
-          }
-          context.log('[Heartbeat]', agentId, 'skipped duplicate memory (' + Math.round(_dupResult.similarity * 100) + '% overlap, TTL refreshed):', mem.text.substring(0, 60));
         }
         // All checks passed — store
         else {

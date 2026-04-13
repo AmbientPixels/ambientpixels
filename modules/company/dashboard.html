@@ -1297,19 +1297,18 @@
             .catch(function() { cstatApi.textContent = '—'; });
         }
 
-        // Daily Burn — read from server-side geminiUsage (has real cost data)
+        // Daily Burn
         var cstatBurn = document.getElementById('cstat-burn');
         var cstatBurnSub = document.getElementById('cstat-burn-sub');
         if (cstatBurn) {
-          var burnApiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
-          fetch(burnApiBase + '/geminiCosts?days=1', { headers: { 'x-company-secret': 'pixelpusher' } })
-            .then(function(r) { return r.ok ? r.json() : null; })
-            .then(function(data) {
-              var todayCost = (data && data.totalCost) ? data.totalCost : 0;
-              cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
-              cstatBurnSub.textContent = 'est. cost today';
-            })
-            .catch(function() { cstatBurn.textContent = '$—'; });
+          var burnSessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+          var today = new Date().toISOString().split('T')[0];
+          var todayCost = 0;
+          burnSessions.forEach(function (s) {
+            if (s.timestamp && s.timestamp.startsWith(today) && s.cost) todayCost += s.cost;
+          });
+          cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
+          cstatBurnSub.textContent = 'est. cost today';
         }
 
         // Task Pipeline
@@ -2505,7 +2504,7 @@
             '<td><span class="session-agent-badge"><span class="session-agent-dot" style="background:' + color + ';"></span> ' + name + '</span></td>' +
             '<td><span class="session-mode-tag">' + (s.mode || 'chat') + '</span></td>' +
             '<td class="session-tokens">' + s.inputTokens + ' / ' + s.outputTokens + '</td>' +
-            '<td class="session-cost">$' + (s.cost != null ? s.cost.toFixed(6) : '0.000000') + '</td>' +
+            '<td class="session-cost">$' + s.cost.toFixed(6) + '</td>' +
             '<td class="session-time">' + formatTime(s.timestamp) + '</td>' +
             '<td><button class="session-view-btn" data-agent="' + s.agentId + '"><i class="fas fa-eye"></i></button></td>';
 

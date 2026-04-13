@@ -3,7 +3,6 @@
 
 const { AGENT_ROLES } = require("./constants");
 const { callGeminiExecute } = require("./gemini");
-const { AGENT_CAPABILITIES } = require('./agent-capabilities');
 const { _resolveWorkspaceFiles } = require("./workspace-context");
 const { _buildSiteIntelSection, _buildSocialIntelExecSection } = require("./site-intelligence");
 const { buildSiteContextBlock } = require("./prompt-builders");
@@ -47,8 +46,7 @@ function _buildExecContextBlock(agent, task, ctx) {
   // 3) RESEARCH INTEL — Scout's findings, useful for content/strategy tasks
   if (Array.isArray(ctx.researchIntel) && ctx.researchIntel.length > 0) {
     const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
-    var _exCaps = AGENT_CAPABILITIES[agent && (agent.id || agent.name && agent.name.toLowerCase())] || {};
-    const wantsResearch = _exCaps.scoutDiscovery || _exCaps.canLifecycle || _exCaps.canBlogPublish ||
+    const wantsResearch = agent.name === 'Scout' || agent.name === 'Nova' || agent.name === 'Scribe' ||
       /research|market|competitor|trend|benchmark|strateg|analys|intel|brief/.test(combined);
     if (wantsResearch) {
       const cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
@@ -75,8 +73,7 @@ function _buildExecContextBlock(agent, task, ctx) {
   // 4) SITE CONTEXT — page inventory, recent changes, build info
   try {
     const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
-    if (!_exCaps) _exCaps = AGENT_CAPABILITIES[agent && (agent.id || agent.name && agent.name.toLowerCase())] || {};
-    const wantsSite = _exCaps.canBlogPublish || _exCaps.canGenerateImage || _exCaps.canDirective || _exCaps.scoutDiscovery ||
+    const wantsSite = agent.name === 'Scribe' || agent.name === 'Pixel' || agent.name === 'Forge' || agent.name === 'Scout' ||
       /site|page|content|blog|seo|design|audit|layout|navigation|url/.test(combined);
     if (wantsSite) {
       const siteBlock = buildSiteContextBlock();
@@ -90,8 +87,7 @@ function _buildExecContextBlock(agent, task, ctx) {
   // 5) EXISTING DOCUMENTS — prevent duplicate creation, know what's published
   if (Array.isArray(ctx.documents) && ctx.documents.length > 0) {
     const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
-    if (!_exCaps) _exCaps = AGENT_CAPABILITIES[agent && (agent.id || agent.name && agent.name.toLowerCase())] || {};
-    const wantsDocs = _exCaps.canBlogPublish || _exCaps.canLifecycle || _exCaps.copyReviewInjection ||
+    const wantsDocs = agent.name === 'Scribe' || agent.name === 'Nova' || agent.name === 'Quill' ||
       /doc|blog|article|publish|draft|content|write|brief|spec/.test(combined);
     if (wantsDocs) {
       const docList = ctx.documents.slice(-8).map(d =>
@@ -187,7 +183,7 @@ STATUS: ${task.status}
 EXISTING COMMENTS/HISTORY:
 ${existingComments}
 ${_revisionBlock}
-${workspaceFiles.length > 0 ? '\nWORKSPACE FILES (actual source code from the AmbientPixels repo — review these, do NOT roleplay):\n' + workspaceFiles.map(f => '--- ' + f.path + ' ---\n' + f.content).join('\n\n') + '\n' : ''}${costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0 && _exCaps.canFinanceReport ? '\n💰 REAL COST DATA (30-day window — use these numbers, do NOT fabricate financial data):\nGemini API — Total: $' + costIntel.gemini.totalCost.toFixed(4) + ' | Calls: ' + costIntel.gemini.totalCalls + ' | Tokens: ' + costIntel.gemini.totalTokens.toLocaleString() + '\nAvg daily: $' + (costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)).toFixed(4) + '/day | Projected monthly: $' + ((costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)) * 30).toFixed(2) + '\nBy Agent: ' + Object.entries(costIntel.gemini.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join(', ') + '\nBy Service: ' + Object.entries(costIntel.gemini.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4)).join(', ') + '\n' : ''}${_buildSiteIntelSection(agent, task, siteIntel)}${_buildSocialIntelExecSection(agent, task, socialIntel)}${_buildExecContextBlock(agent, task, execContext)}
+${workspaceFiles.length > 0 ? '\nWORKSPACE FILES (actual source code from the AmbientPixels repo — review these, do NOT roleplay):\n' + workspaceFiles.map(f => '--- ' + f.path + ' ---\n' + f.content).join('\n\n') + '\n' : ''}${costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0 && agent.name === 'Cipher' ? '\n💰 REAL COST DATA (30-day window — use these numbers, do NOT fabricate financial data):\nGemini API — Total: $' + costIntel.gemini.totalCost.toFixed(4) + ' | Calls: ' + costIntel.gemini.totalCalls + ' | Tokens: ' + costIntel.gemini.totalTokens.toLocaleString() + '\nAvg daily: $' + (costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)).toFixed(4) + '/day | Projected monthly: $' + ((costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)) * 30).toFixed(2) + '\nBy Agent: ' + Object.entries(costIntel.gemini.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join(', ') + '\nBy Service: ' + Object.entries(costIntel.gemini.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4)).join(', ') + '\n' : ''}${_buildSiteIntelSection(agent, task, siteIntel)}${_buildSocialIntelExecSection(agent, task, socialIntel)}${_buildExecContextBlock(agent, task, execContext)}
 Based on your role as ${agent.role}, produce the appropriate deliverable for this task. Examples of what you should produce:
 ${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}${agent.name === 'Scribe' ? '- Longform drafts, product briefs, blog posts, documentation, social threads' : ''}${agent.name === 'Quill' ? '- Editing feedback, tone corrections, brand voice enforcement, CTA improvements' : ''}${agent.name === 'Scout' ? '- Market research briefs, competitive intelligence reports, trend analyses, strategic research, business benchmarks. Always include a ## Sources section with cited URLs.' : ''}
 
@@ -283,7 +279,7 @@ PRIORITY: ${task.priority}
 DELIVERABLE(S):
 ${deliverables}
 ${previousReviews ? '\nPREVIOUS REVIEWS:\n' + previousReviews : ''}
-${workspaceFiles.length > 0 ? '\nWORKSPACE FILES (actual source code — compare the deliverable against these real files, do NOT roleplay):\n' + workspaceFiles.map(f => '--- ' + f.path + ' ---\n' + f.content).join('\n\n') + '\n' : ''}${costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0 && _exCaps.canFinanceReport ? '\n💰 REAL COST DATA for verification:\nGemini API Total: $' + costIntel.gemini.totalCost.toFixed(4) + ' | Calls: ' + costIntel.gemini.totalCalls + ' | Tokens: ' + costIntel.gemini.totalTokens.toLocaleString() + '\n' : ''}${_buildSiteIntelSection(agent, task, siteIntel)}${_buildSocialIntelExecSection(agent, task, socialIntel)}${_buildExecContextBlock(agent, task, execContext)}
+${workspaceFiles.length > 0 ? '\nWORKSPACE FILES (actual source code — compare the deliverable against these real files, do NOT roleplay):\n' + workspaceFiles.map(f => '--- ' + f.path + ' ---\n' + f.content).join('\n\n') + '\n' : ''}${costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0 && agent.name === 'Cipher' ? '\n💰 REAL COST DATA for verification:\nGemini API Total: $' + costIntel.gemini.totalCost.toFixed(4) + ' | Calls: ' + costIntel.gemini.totalCalls + ' | Tokens: ' + costIntel.gemini.totalTokens.toLocaleString() + '\n' : ''}${_buildSiteIntelSection(agent, task, siteIntel)}${_buildSocialIntelExecSection(agent, task, socialIntel)}${_buildExecContextBlock(agent, task, execContext)}
 Review this deliverable from your perspective as ${agent.role}. Then respond with ONLY valid JSON:
 {
   "verdict": "approved" or "changes-requested",

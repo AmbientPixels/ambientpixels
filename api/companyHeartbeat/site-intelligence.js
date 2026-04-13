@@ -3,7 +3,6 @@
 
 const fetch = require('node-fetch');
 const fs = require('fs');
-const { AGENT_CAPABILITIES } = require('./agent-capabilities');
 const path = require('path');
 const { WORKSPACE_ROOT } = require('./constants');
 
@@ -58,9 +57,7 @@ async function _fetchSiteIntel(context, storage) {
 
   // 2) Social metrics from storage
   try {
-    // Phase 5: read from socialIntel.metricsEvents
-    var _siSiteIntel = (await storage.getState('socialIntel')) || {};
-    const rawEvents = _siSiteIntel.metricsEvents || [];
+    const rawEvents = (await storage.getState('socialMetricsEvents')) || [];
     if (Array.isArray(rawEvents) && rawEvents.length > 0) {
       const now = Date.now();
       const weekAgo = now - 7 * 86400000;
@@ -108,9 +105,8 @@ function _buildSiteIntelSection(agent, task, siteIntel) {
   const sections = [];
 
   // Telemetry: inject for analytics/traffic/performance tasks, or for Forge/Scout/Echo/Nova
-  var _siCaps = AGENT_CAPABILITIES[agent && agent.id] || {};
   const _wantsTelemetry = siteIntel.telemetry && (
-    _siCaps.canLifecycle || _siCaps.scoutDiscovery || _siCaps.socialInjection || _siCaps.canDirective ||
+    agent.name === 'Forge' || agent.name === 'Scout' || agent.name === 'Echo' || agent.name === 'Nova' ||
     /traffic|analytics|performance|seo|page.?load|error|monitor|audit|metric/.test(combined)
   );
   if (_wantsTelemetry) {
@@ -133,7 +129,7 @@ function _buildSiteIntelSection(agent, task, siteIntel) {
 
   // Social metrics: inject for Echo (Marketing) or social-related tasks
   const _wantsSocial = siteIntel.socialMetrics && (
-    _siCaps.socialInjection ||
+    agent.name === 'Echo' ||
     /social|linkedin|twitter|bluesky|post|campaign|engagement/.test(combined)
   );
   if (_wantsSocial) {
@@ -148,7 +144,7 @@ function _buildSiteIntelSection(agent, task, siteIntel) {
 
   // Deploy config: inject for Forge or deployment/infrastructure tasks
   const _wantsDeploy = siteIntel.deployConfig && (
-    _siCaps.canDirective ||
+    agent.name === 'Forge' ||
     /deploy|infra|config|route|azure|hosting|security|header|auth/.test(combined)
   );
   if (_wantsDeploy) {
@@ -173,8 +169,7 @@ function _buildSocialIntelExecSection(agent, task, socialIntel) {
   const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
 
   // Determine if this agent/task needs social intel
-  var _exCaps = AGENT_CAPABILITIES[agent && agent.id] || {};
-  const alwaysShow = _exCaps.socialInjection || _exCaps.canLifecycle || _exCaps.scoutDiscovery;
+  const alwaysShow = agent.name === 'Echo' || agent.name === 'Nova' || agent.name === 'Scout';
   const taskWants = /social|linkedin|twitter|bluesky|post|campaign|engagement|audience|content|brand/.test(combined);
   if (!alwaysShow && !taskWants) return '';
 
@@ -216,7 +211,7 @@ function _buildSocialIntelExecSection(agent, task, socialIntel) {
 
   // Recommendations
   const recs = (socialIntel.recommendations || []).slice(0, 3);
-  if (recs.length > 0 && (_exCaps.socialInjection || _exCaps.canLifecycle)) {
+  if (recs.length > 0 && (agent.name === 'Echo' || agent.name === 'Nova')) {
     parts.push('Recommendations: ' + recs.join(' | '));
   }
 

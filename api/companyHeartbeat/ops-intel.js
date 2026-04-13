@@ -2,7 +2,6 @@
 // Mirrors social-intel.js pattern: builds digest from raw data, formats into prompt block
 
 var { OPS_INTEL_WINDOW_RUNS } = require('./constants');
-var { AGENT_CAPABILITIES } = require('./agent-capabilities');
 
 // Thresholds: YELLOW = monitor, RED = create ops_breakfix
 var THRESHOLDS = {
@@ -78,12 +77,11 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   });
 
   // Stalled agent detection: agents with 0 actions over 5+ consecutive recent runs
-  // Exclude reactive agents from stall detection (via capability flag)
+  // Exclude quill (reactive editor) from stall detection
   var stalledAgents = [];
   var STALL_THRESHOLD = 5;
   Object.keys(perAgent).forEach(function (aid) {
-    var _aidCaps = AGENT_CAPABILITIES[aid];
-    if (_aidCaps && _aidCaps.excludeFromStallDetection) return;
+    if (aid === 'quill') return;
     var a = perAgent[aid];
     if (a.ran >= STALL_THRESHOLD && a.zeroActionRuns >= STALL_THRESHOLD && a.executed === 0) {
       stalledAgents.push({ agent: aid, runs: a.ran, zeroRuns: a.zeroActionRuns });
@@ -292,11 +290,9 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
   // Stalled agents (0 actions over multiple consecutive runs)
   var stalled = hb.stalledAgents || [];
   if (stalled.length > 0) {
-    lines.push('- ⚠️ STALLED AGENTS — ACTION REQUIRED (0 output, ' + stalled[0].zeroRuns + '+ consecutive runs):');
+    lines.push('- STALLED AGENTS (0 output, ' + stalled[0].zeroRuns + '+ runs):');
     stalled.forEach(function (s) {
-      lines.push('  - ' + s.agent.toUpperCase() + ': 0 actions across ' + s.zeroRuns + '/' + s.runs + ' runs');
-      lines.push('    → YOU MUST create a system_directive task for ' + s.agent + ' to diagnose and fix. Example:');
-      lines.push('    { "type": "create-task", "task": { "title": "DIRECTIVE: Diagnose ' + s.agent + ' inactivity", "description": "You produced 0 actions for ' + s.zeroRuns + ' consecutive heartbeats. Check: do you have assigned tasks? Are you blocked by a guardrail? Report what is preventing you from acting.", "category": "system_directive", "assignee": "' + s.agent + '", "taskType": "ops" } }');
+      lines.push('  - ' + s.agent + ': 0 actions across ' + s.zeroRuns + '/' + s.runs + ' runs — investigate: prompt issue? blocked by guardrail? no assigned work?');
     });
   }
 

@@ -137,19 +137,18 @@
     });
   }
 
-  /* ── Load from trendIntel.radar state (latest snapshot) ── */
+  /* ── Load from trendRadar state (latest snapshot) ── */
   function loadFromState() {
-    return fetch(STATE_ENDPOINT + '?key=trendIntel')
+    return fetch(STATE_ENDPOINT + '?key=trendRadar')
     .then(function (res) {
       console.log('[TrendsData] state response:', res.status, res.headers.get('content-type'));
       if (!res.ok) return null;
       return res.json();
     })
     .then(function (data) {
-      console.log('[TrendsData] state data type:', typeof data, data && data.key ? 'has envelope' : 'raw');
-      // State endpoint returns { key, value } envelope — value is trendIntel object with .radar array
-      var envelope = data && data.value ? data.value : data;
-      var arr = envelope && Array.isArray(envelope.radar) ? envelope.radar : (Array.isArray(envelope) ? envelope : null);
+      console.log('[TrendsData] state data type:', typeof data, Array.isArray(data), data && data.key ? 'has envelope' : 'raw');
+      // State endpoint returns { key, value } envelope
+      var arr = data && data.value ? data.value : data;
       if (!Array.isArray(arr) || !arr.length) { console.log('[TrendsData] state empty or not array'); return null; }
       // Get latest snapshot
       var latest = arr[arr.length - 1];

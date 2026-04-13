@@ -1366,12 +1366,11 @@
 
     var _taApiBase = APApi.base();
 
-    // Phase 5: Load from trendIntel.actions
-    fetch(_taApiBase + '/company-state?key=trendIntel')
+    // Load current state
+    fetch(_taApiBase + '/company-state?key=trendActions')
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
-        var intel = data && data.value ? data.value : data;
-        var cfg = intel && intel.actions ? intel.actions : {};
+        var cfg = data && data.value ? data.value : data;
         toggle.checked = !!(cfg && cfg.auto_campaign_enabled === true);
         if (status) status.textContent = toggle.checked ? 'Status: Enabled' : 'Status: Disabled (default)';
       })
@@ -1382,18 +1381,11 @@
     toggle.addEventListener('change', function () {
       var enabled = this.checked;
       if (status) status.textContent = 'Saving\u2026';
-      // Phase 5: read-modify-write trendIntel
-      fetch(_taApiBase + '/company-state?key=trendIntel')
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (data) {
-          var intel = (data && data.value ? data.value : data) || {};
-          intel.actions = { auto_campaign_enabled: enabled };
-          return fetch(_taApiBase + '/company-state', {
-            method: 'POST',
-            headers: _getHeaders(),
-            body: JSON.stringify({ key: 'trendIntel', value: intel })
-          });
-        })
+      fetch(_taApiBase + '/company-state', {
+        method: 'POST',
+        headers: _getHeaders(),
+        body: JSON.stringify({ key: 'trendActions', value: { auto_campaign_enabled: enabled } })
+      })
       .then(function (r) { if (!r.ok) throw new Error('POST failed'); return r.json(); })
       .then(function () {
         if (status) status.textContent = enabled ? 'Status: Enabled — saved' : 'Status: Disabled — saved';

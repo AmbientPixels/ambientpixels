@@ -3,7 +3,6 @@
 
 const { SOCIAL_INTEL_FRESHNESS_MS, SOCIAL_INTEL_WINDOW_DAYS } = require('./constants');
 const { _socialIntelIsoDayUTC, _socialIntelEventTs, _socialIntelResolveMode } = require('./helpers');
-const { AGENT_CAPABILITIES } = require('./agent-capabilities');
 
 function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs, accountStats, weeklyHistory, blogPostViews) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
@@ -278,8 +277,7 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
 }
 
 function _buildSocialIntelPromptBlock(agent, socialIntel) {
-  var _siCaps = AGENT_CAPABILITIES[agent && agent.id] || {};
-  if (!socialIntel || !agent || (!_siCaps.socialInjection && !_siCaps.canLifecycle)) return '';
+  if (!socialIntel || !agent || (agent.name !== 'Echo' && agent.name !== 'Nova')) return '';
   var byPlatform = (socialIntel.engagement && socialIntel.engagement.byPlatform) || {};
   var px = byPlatform.x || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
   var pl = byPlatform.linkedin || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
@@ -304,7 +302,7 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
     });
   }
 
-  if (_siCaps.socialInjection) { // Echo: full social dashboard
+  if (agent.name === 'Echo') {
     var deltas = socialIntel.deltas || null;
 
     // Helper: trend arrow + % for a delta value
@@ -384,7 +382,7 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
   }
 
   // Quill: reviewed copy performance — editorial gatekeeping feedback
-  if (_siCaps.copyReviewInjection) { // Quill: copy performance
+  if (agent.name === 'Quill') {
     var quTop = (socialIntel.topPosts7d || []).slice(0, 3);
     if (quTop.length > 0) {
       var quLines = quTop.map(function (p) {
@@ -397,7 +395,7 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
   }
 
   // Scribe: concise social copy performance — which copy resonated
-  if (_siCaps.canBlogPublish) { // Scribe: copy performance
+  if (agent.name === 'Scribe') {
     var scTop = (socialIntel.topPosts7d || []).slice(0, 3);
     if (scTop.length > 0) {
       var scLines = scTop.map(function (p) {

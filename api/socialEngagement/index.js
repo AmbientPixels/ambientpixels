@@ -278,15 +278,12 @@ module.exports = async function (context, req) {
       rows = buildMockSnapshots(fromDate, toDate).map(normalizeSnapshot).filter(Boolean);
       mode = 'demo';
     } else {
-      // Phase 5: read from socialIntel
-      var _siEng = (await storage.getState('socialIntel')) || {};
-      const raw = _siEng.engagementSnapshots || [];
+      const raw = (await storage.getState('socialEngagementSnapshots')) || [];
       rows = Array.isArray(raw) ? raw.map(normalizeSnapshot).filter(Boolean) : [];
       mode = 'real';
     }
 
-    var _siMeta = (await storage.getState('socialIntel')) || {};
-    const engagementMeta = _siMeta.engagementMeta || {};
+    const engagementMeta = (await storage.getState('socialEngagementMeta')) || {};
     const lastPulledAt = (engagementMeta && typeof engagementMeta.lastPulledAt === 'string' && !Number.isNaN(Date.parse(engagementMeta.lastPulledAt)))
       ? engagementMeta.lastPulledAt
       : null;

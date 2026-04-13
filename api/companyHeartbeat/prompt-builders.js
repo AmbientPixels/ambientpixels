@@ -9,7 +9,6 @@ const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
-const { AGENT_CAPABILITIES } = require('./agent-capabilities');
 
 // ── Prompt Coverage Guard ──
 // Logs startup warnings if a valid taskType or social platform is missing from prompt definitions.
@@ -76,21 +75,6 @@ function buildSiteContextBlock() {
 // ── Build heartbeat prompt ──
 // Route only relevant skills per agent to cut prompt size (~3K-7K tokens saved).
 // ambientos-guide is universal; product skills go to agents that handle that product's content.
-// ── Per-agent context routing ──
-// Sections not in an agent's list are suppressed to reduce prompt bloat.
-// Sections already internally gated (pixel*, scribe*, quill*, echo*, cost, forgeOps, researchDemand, socialIntel)
-// are included here for completeness but their builder functions also self-gate.
-var SECTION_ROUTING = {
-  nova:   ['triage', 'directives', 'objectives', 'docs', 'research', 'workspace', 'revision', 'ceoEdit', 'socialIntel', 'performance', 'experiment'],
-  cipher: ['directives', 'objectives', 'workspace', 'cost', 'revision', 'performance'],
-  pixel:  ['directives', 'docs', 'workspace', 'revision', 'ceoEdit'],
-  forge:  ['directives', 'workspace', 'forgeOps', 'performance'],
-  echo:   ['directives', 'objectives', 'docs', 'research', 'workspace', 'revision', 'ceoEdit', 'socialIntel', 'performance', 'experiment'],
-  scribe: ['directives', 'docs', 'research', 'workspace', 'revision', 'ceoEdit'],
-  quill:  ['docs', 'workspace', 'revision', 'ceoEdit'],
-  scout:  ['directives', 'objectives', 'research', 'workspace']
-};
-
 var SKILL_ROUTING = {
   nova:   ['ambientos-guide'],
   echo:   ['ambientos-guide', 'pixel-agents'],
@@ -103,8 +87,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages, lastRunBlockedActions } = ctx;
-  var _pcaps = AGENT_CAPABILITIES[agent && agent.id] || {};
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -174,7 +157,7 @@ function buildHeartbeatPrompt(ctx) {
 
   // SERVER-SIDE HERO IMAGE NUDGE: If Pixel has a hero image task idle for 5+ min, inject urgent override
   let heroImageNudge = '';
-  if (_pcaps.heroImageNudge) {
+  if (agent.name === 'Pixel') {
     const _heroTask = agentTasks.find(t =>
       (t.status === 'todo' || t.status === 'in-progress') &&
       (t.title || '').indexOf('Generate hero image for:') === 0 &&
@@ -239,7 +222,7 @@ DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
   // Nova-only: surface untriaged tasks — ANY task without a Nova/system comment needs triage
   // CEO/manual tasks get a PRIORITY LANE — always shown first, never buried by agent-created noise
   let triageSection = '';
-  if (_pcaps.taskFilterAll) { // Nova triage section
+  if (agent.name === 'Nova') {
     const _hasNovaComment = (t) => t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system');
     const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     const allUntriaged = allActiveTasks.filter(t => t.status !== 'done' && (!_hasNovaComment(t) || !t.assignee));
@@ -603,7 +586,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   let pixelProductVisualSection = '';
   let pixelDesignGapsSection = '';
 
-  if (_pcaps.canGenerateImage) { // Pixel visual sections
+  if (agent.id === 'pixel') {
     // 1. Visual Performance — blog views + product page traffic
     var _pxTopBlogs = (socialIntel && socialIntel.topBlogPosts) || [];
     var _pxTopPages = (siteIntel && siteIntel.telemetry && siteIntel.telemetry.topPages) || [];
@@ -720,7 +703,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   let scribeRecentContentSection = '';
   let scribeContentGapSection = '';
 
-  if (_pcaps.canBlogPublish) { // Scribe content sections
+  if (agent.id === 'scribe') {
     // 1. Content Performance — top blog posts + top social copy
     var _scTopBlogs = (socialIntel && socialIntel.topBlogPosts) || [];
     var _scTopPosts = (socialIntel && socialIntel.topPosts7d) || [];
@@ -840,7 +823,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   let quillFeedbackPatternSection = '';
   let quillCeoCorrectionsSection = '';
 
-  if (_pcaps.copyReviewInjection) { // Quill copy review sections
+  if (agent.id === 'quill') {
     // 1. Copy Performance — social posts that went through Quill's review gate
     var _quTopPosts = (socialIntel && socialIntel.topPosts7d) || [];
     if (_quTopPosts.length > 0) {
@@ -897,7 +880,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
 
   // Trend Insights — Echo: trending topics as content angle inspiration
   let echoTrendSection = '';
-  if (_pcaps.socialInjection && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) { // Echo trend section
+  if (agent.id === 'echo' && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
     var _echoLatest = trendInsightsStore[trendInsightsStore.length - 1];
     var _echoAge = Date.now() - new Date(_echoLatest.timestamp || _echoLatest.analysisDate || 0).getTime();
     if (_echoAge < TREND_RADAR_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 && Array.isArray(_echoLatest.insights)) {
@@ -918,15 +901,15 @@ Where relevant to your content tasks, weave in references to these trends to inc
     }
   }
 
-  // Campaign velocity digest
+  // Campaign velocity digest for Echo
   let campaignVelocitySection = '';
-  if (_pcaps.socialInjection) { // Echo campaign velocity
+  if (agent.id === 'echo') {
     campaignVelocitySection = _buildCampaignVelocityBlock(activeDirectives, allActiveTasks);
   }
 
   // Social → site traffic for Echo (requires siteIntel param)
   let socialTrafficSection = '';
-  if (_pcaps.socialInjection && siteIntel) { // Echo social traffic
+  if (agent.id === 'echo' && siteIntel) {
     var _si = siteIntel;
     if (_si.telemetry && Array.isArray(_si.telemetry.topReferrers)) {
       var _referrers = _si.telemetry.topReferrers;
@@ -996,7 +979,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
 
   // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
-  if (_pcaps.canFinanceReport) { // Cipher cost section
+  if (agent.name === 'Cipher') {
     costSection = _buildFinancePromptBlock(agent, financeDigest);
     // Fallback: if finance digest failed but raw costIntel exists, show minimal summary
     if (!costSection && costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0) {
@@ -1045,16 +1028,6 @@ Study these edits carefully. The CEO's version is the standard. Apply the same t
   }
 
   // Inter-agent messages (Phase 4A)
-  // Phase 3: Blocked actions from last cycle — show agents what was blocked and why
-  var blockedActionsBlock = '';
-  var _blocked = Array.isArray(lastRunBlockedActions) ? lastRunBlockedActions : [];
-  if (_blocked.length > 0) {
-    var _blockLines = _blocked.map(function (b) {
-      return '- ' + (b.action || '?') + ' "' + (b.target || '?') + '" → BLOCKED: ' + (b.reason || 'unknown');
-    }).join('\n');
-    blockedActionsBlock = '\n\n── BLOCKED ACTIONS FROM LAST CYCLE ──\nYour previous actions were blocked by system rules:\n' + _blockLines + '\nDo not retry these actions unless the underlying constraint has changed.\n';
-  }
-
   var _pendingMsgs = Array.isArray(pendingMessages) ? pendingMessages.filter(function (m) { return m && !m.consumed; }) : [];
   var messagesBlock = '';
   if (_pendingMsgs.length > 0) {
@@ -1243,7 +1216,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   var founderVoiceBlock = '';
   try {
     var _founderVoice = require('../_data/founder-voice-examples.json');
-    if (_pcaps.canBlogPublish && _founderVoice && _founderVoice.examples && _founderVoice.examples.length > 0) { // Scribe founder voice
+    if (agent.id === 'scribe' && _founderVoice && _founderVoice.examples && _founderVoice.examples.length > 0) {
       var fvLines = ['\n🎤 FOUNDER VOICE (write social/short-form content in THIS voice — not corporate marketing):'];
       if (Array.isArray(_founderVoice.principles) && _founderVoice.principles.length > 0) {
         fvLines.push('\nPRINCIPLES:');
@@ -1288,12 +1261,8 @@ You must remain within your assigned authority tier. Doctrine influences your st
     directiveBlock += 'You MUST address this directive before any other work. Use execute-task on the directive task ID to deliver your response/fix, then the system will mark it done.\n---\n';
   }
 
-  // Section routing: _s('key') returns true if this agent should see that section
-  var _agentSections = new Set(SECTION_ROUTING[agent.id] || []);
-  var _s = function (key) { return _agentSections.has(key); };
-
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${blockedActionsBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
@@ -1304,7 +1273,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${_s('triage') ? triageSection : ''}${_s('directives') ? directivesSection : ''}${_s('objectives') ? objectivesSection : ''}${_s('docs') ? docsSection : ''}${_s('research') ? researchSection : ''}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${_s('workspace') ? workspaceSection : ''}${_s('cost') ? costSection : ''}${_s('forgeOps') ? forgeOpsSection : ''}${researchDemandSection}${_s('revision') ? revisionSection : ''}${_s('ceoEdit') ? ceoEditSection : ''}${_s('socialIntel') ? socialIntelSection : ''}${_s('performance') ? performanceSection : ''}${_s('experiment') ? experimentSection : ''}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
@@ -1758,11 +1727,9 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - MANDATORY: If you identify a platform or product gap with NO active campaign covering it, you MUST use propose-campaign in this heartbeat. Do not just note it in observations — ACT on it.
   - RESEARCH SUPPORT: If a platform is DECLINING and you need competitive intel on what works there, comment on a relevant task: "Research request for Scout: [specific question about platform growth strategies]"` : '') + (agent.name === 'Pixel' ? `
 - AMBIENTOS CONTRACT (Pixel — Design & QC):
-  - You CAN create design_asset tasks directly using create-task in taskUpdates (not proposals).
-  - Always include campaign_id or objective_id when creating tasks.
-  - Use generate-image for hero images and content packages.
-  - Prefer updating classification, tags, status, objective_id on existing tasks.
-  ALLOWED actions: create-task (design_asset type), update-task, move-task, comment-task, execute-task, generate-image, create-content-package, review-task, remember
+  - Create tasks only when acceptanceCriteria are defined.
+  - Prefer updating classification, tags, status, objective_id.
+  - Do not rewrite task descriptions.
 - DESIGN DIRECTOR (Pixel):
   You OWN visual identity across ALL 6 AmbientPixels products — not just blog hero images. Every product's visual presence is your responsibility.
   EVERY HEARTBEAT, execute this decision loop:
@@ -1779,11 +1746,6 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Pixel Agents: AI/tech forward — ap-neon-glass, ap-holographic
   - AmbientScore: professional/business — ap-corporate-tech, ap-gradient-mesh
   Do NOT cross product identities (no ap-retro-pixel for AmbientScore, no ap-corporate-tech for Blindspot).
-  IDLE MODE: If you have 0 assigned tasks AND the design queue/gaps sections are empty, you still have work:
-  - Audit existing hero images: any product blog posts missing hero images? Create a generate-image action.
-  - Refresh stale visuals: any hero images >30 days old for high-traffic products? Propose a refresh.
-  - Create design assets for upcoming campaigns that don't have visual coverage yet.
-  Do NOT sit idle. If there is genuinely nothing to do, save a memory noting what you checked and why no action was needed.
   PROACTIVE DESIGN: Don't wait for tasks. When DESIGN GAPS shows a campaign with no visual assets:
   - Create a design task with create-task (must include campaign_id or objective_id for orphan guard)
   - Or produce a content package directly with create-content-package

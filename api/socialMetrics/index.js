@@ -424,9 +424,7 @@ module.exports = async function (context, req) {
       events = buildDeterministicMockEvents(fromDate, toDate);
       mode = 'demo';
     } else {
-      // Phase 5: read from socialIntel.metricsEvents
-      var _siMetrics = (await storage.getState('socialIntel')) || {};
-      const rawEvents = _siMetrics.metricsEvents || [];
+      const rawEvents = (await storage.getState('socialMetricsEvents')) || [];
       events = Array.isArray(rawEvents) ? rawEvents.filter(validateEventShape) : [];
       mode = 'real';
     }

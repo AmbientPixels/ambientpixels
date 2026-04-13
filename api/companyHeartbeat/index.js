@@ -16,7 +16,6 @@ const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
-const { AGENT_CAPABILITIES: _caps } = require('./agent-capabilities');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
 const productFacts = require('../_data/product-facts.json');
@@ -172,33 +171,21 @@ module.exports = async function (context) {
     // Track messages sent this cycle per agent (rate limit: max 2 per agent per cycle)
     const _msgSentThisCycle = {};
 
-    // ── Phase 5: Parallel state loading (was 12 sequential getState calls) ──
-    var _safe = function (p) { return p.catch(function () { return null; }); };
-    var _stateResults = await Promise.all([
-      _safe(storage.getState('documents')),
-      _safe(storage.getState('workspaceMemory')),
-      _safe(storage.getState('dates')),
-      _safe(storage.getState('actions')),
-      _safe(storage.getState('socialIntel')),
-      _safe(storage.getState('runtimeMemory')),
-      _safe(storage.getState('blogPosts')),
-      _safe(storage.getState('blogPostViews'))
-    ]);
-    const documents = _stateResults[0] || [];
-    const workspaceMemory = _stateResults[1] || [];
-    const workspaceDates = _stateResults[2] || [];
-    const allActions = _stateResults[3] || [];
-    // Phase 5: social data now consolidated in socialIntel key
-    const _socialIntelStore = _stateResults[4] || {};
-    const socialMetricsEvents = _socialIntelStore.metricsEvents || [];
-    const socialEngagementSnapshots = _socialIntelStore.engagementSnapshots || [];
-    const socialEngagementMeta = _socialIntelStore.engagementMeta || {};
-    const socialAccountStats = _socialIntelStore.accountStats || null;
-    const runtimeMemory = _stateResults[5] || {};
-    let _publishedBlogPostsForDigest = _stateResults[6] || [];
-    let _blogPostViewsForDigest = _stateResults[7] || [];
-    // Phase 5: weekly snapshots now live in runtimeMemory.weeklySnapshots
-    let _weeklySnapshots = (runtimeMemory && Array.isArray(runtimeMemory.weeklySnapshots)) ? runtimeMemory.weeklySnapshots : [];
+    const documents = (await storage.getState('documents')) || [];
+    const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
+    const workspaceDates = (await storage.getState('dates')) || [];
+    const allActions = (await storage.getState('actions')) || [];
+    const socialMetricsEvents = (await storage.getState('socialMetricsEvents')) || [];
+    const socialEngagementSnapshots = (await storage.getState('socialEngagementSnapshots')) || [];
+    const socialEngagementMeta = (await storage.getState('socialEngagementMeta')) || {};
+    const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
+    const socialAccountStats = (await storage.getState('socialAccountStats')) || null;
+    let _publishedBlogPostsForDigest = [];
+    try { _publishedBlogPostsForDigest = (await storage.getState('blogPosts')) || []; } catch (_e) { /* non-fatal */ }
+    let _weeklySnapshots = [];
+    try { _weeklySnapshots = (await storage.getState('socialWeeklySnapshots')) || []; } catch (_e) { /* non-fatal */ }
+    let _blogPostViewsForDigest = [];
+    try { _blogPostViewsForDigest = (await storage.getState('blogPostViews')) || []; } catch (_e) { /* non-fatal */ }
     const socialIntel = _socialIntelBuildDigest(
       runtimeMemory && runtimeMemory.socialIntel,
       socialMetricsEvents,
@@ -218,28 +205,13 @@ module.exports = async function (context) {
       if (!_lastSnap || _lastSnap.week !== _newSnapshot.week) {
         _weeklySnapshots.push(_newSnapshot);
         if (_weeklySnapshots.length > 4) _weeklySnapshots = _weeklySnapshots.slice(-4);
-        // Phase 5: save into runtimeMemory.weeklySnapshots instead of separate key
-        runtimeMemory.weeklySnapshots = _weeklySnapshots;
-        // runtimeMemory gets saved later in the heartbeat cycle (line ~2761)
+        try { await storage.setState('socialWeeklySnapshots', _weeklySnapshots); } catch (_e) { context.log('[heartbeat] Failed to save weekly snapshot:', _e.message); }
       }
     }
     // Build agent performance digest (AutoResearch feedback loop)
     const _existingPerf = (runtimeMemory && runtimeMemory.agentPerformance) || null;
     let _perfHeartbeatRuns = [], _perfGeminiUsage = [], _perfGovernanceLog = [], _perfBlogPostViews = [];
     try { _perfHeartbeatRuns = (await storage.getState('heartbeatRuns')) || []; } catch (_e) { /* non-fatal */ }
-    // Extract per-agent blocked actions from last run for prompt injection (Phase 3)
-    var _lastRunBlocked = {};
-    if (_perfHeartbeatRuns.length > 0) {
-      var _lastRun = _perfHeartbeatRuns[_perfHeartbeatRuns.length - 1];
-      if (_lastRun && _lastRun.perAgent) {
-        Object.keys(_lastRun.perAgent).forEach(function (aid) {
-          var pa = _lastRun.perAgent[aid];
-          if (pa.blockedActions && pa.blockedActions.length > 0) {
-            _lastRunBlocked[aid] = pa.blockedActions;
-          }
-        });
-      }
-    }
     try { _perfGeminiUsage = (await storage.getState('geminiUsage')) || []; } catch (_e) { /* non-fatal */ }
     try { _perfGovernanceLog = (await storage.getState('governanceLog')) || []; } catch (_e) { /* non-fatal */ }
     try { _perfBlogPostViews = (await storage.getState('blogPostViews')) || []; } catch (_e) { /* non-fatal */ }
@@ -377,23 +349,21 @@ module.exports = async function (context) {
       context.log('[Heartbeat] Needs Attention escalation check failed (non-fatal):', String(_naErr).substring(0, 200));
     }
 
-    // ── Phase 5: Parallel state loading batch 2 (agent state + intel + config) ──
-    var _stateResults2 = await Promise.all([
-      _safe(storage.getState('agentMemories')),
-      _safe(storage.getState('agentSeedMemories')),
-      _safe(storage.getState('researchIntel')),
-      _safe(storage.getState('trendIntel')),
-      _safe(storage.getState('systemConfig'))
-    ]);
-    _agentMemoryStore = _stateResults2[0] || {};
-    const _seedMemories = _stateResults2[1] || {};
-    let researchIntelStore = _stateResults2[2] || [];
-    let _trendIntel = _stateResults2[3] || {};
-    let _systemConfig = _stateResults2[4] || {};
-
-    // Extract sub-stores from trendIntel
-    let trendRadarStore = _trendIntel.radar || [];
-    let trendInsightsStore = _trendIntel.insights || [];
+    // Load persistent agent memories
+    _agentMemoryStore = (await storage.getState('agentMemories')) || {};
+    // Load CEO-curated seed memories (markdown per agent + global)
+    const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
+    // Load persistent research intelligence store (survives beyond task completion)
+    let researchIntelStore = (await storage.getState('researchIntel')) || [];
+    // Load trend radar store for Scout analysis
+    let trendRadarStore = [];
+    try { trendRadarStore = (await storage.getState('trendRadar')) || []; } catch (_trErr) { /* non-fatal */ }
+    // Load trend insights store for Nova campaign prompting + Scribe content context
+    let trendInsightsStore = [];
+    try { trendInsightsStore = (await storage.getState('trendInsights')) || []; } catch (_tiLoadErr) { /* non-fatal */ }
+    // Load systemConfig: runtime-tunable overrides for heartbeat constants (non-destructive — falls back to constants)
+    let _systemConfig = {};
+    try { _systemConfig = (await storage.getState('systemConfig')) || {}; } catch (_scErr) { /* non-fatal */ }
     const _runtimeCaps = {
       maxCreatesPerAgentPerRun:  _systemConfig.maxCreatesPerAgentPerRun  != null ? Number(_systemConfig.maxCreatesPerAgentPerRun)  : CAP_DEFAULTS.maxCreatesPerAgentPerRun,
       maxMovesPerAgentPerRun:    _systemConfig.maxMovesPerAgentPerRun    != null ? Number(_systemConfig.maxMovesPerAgentPerRun)    : CAP_DEFAULTS.maxMovesPerAgentPerRun,
@@ -1385,7 +1355,7 @@ module.exports = async function (context) {
             novaSkipTaskIds: null,
             activeDirectives, activeObjectives, documents,
             workspaceMemory, workspaceDates, revisionActions,
-            costIntel: (_caps[aid] && _caps[aid].canFinanceReport) ? costIntel : null,
+            costIntel: aid === 'cipher' ? costIntel : null,
             reviewCooldownIds: _reviewCooldownIds,
             seedMemories: _seedMemories,
             researchIntelStore, socialIntel,
@@ -1396,7 +1366,7 @@ module.exports = async function (context) {
             campaignCtx: _agentCampaignCtx,
             siteIntel,
             _agentMemoryStore, trendRadarStore,
-            trendInsightsStore: (_caps[aid] && (_caps[aid].canLifecycle || _caps[aid].canBlogPublish || _caps[aid].socialInjection)) ? trendInsightsStore : null,
+            trendInsightsStore: (aid === 'nova' || aid === 'scribe' || aid === 'echo') ? trendInsightsStore : null,
             performanceDigest, agentExperiments,
             productFacts, skillsData,
             forgeOpsDigest, financeDigest, researchDemandDigest,
@@ -1448,10 +1418,10 @@ module.exports = async function (context) {
         // Use prefetched result from parallel group, or run sequentially
         const result = _prefetchedResults[agentId] || await runAgentHeartbeat({
           context, agentId, tasks, configs, recentSummaries, cycleId,
-          novaSkipTaskIds: (_caps[agentId] && _caps[agentId].taskFilterAll) ? novaSkipTaskIds : null,
+          novaSkipTaskIds: agentId === 'nova' ? novaSkipTaskIds : null,
           activeDirectives, activeObjectives, documents,
           workspaceMemory, workspaceDates, revisionActions,
-          costIntel: (_caps[agentId] && _caps[agentId].canFinanceReport) ? costIntel : null,
+          costIntel: agentId === 'cipher' ? costIntel : null,
           reviewCooldownIds: _reviewCooldownIds,
           seedMemories: _seedMemories,
           researchIntelStore, socialIntel,
@@ -1462,14 +1432,13 @@ module.exports = async function (context) {
           campaignCtx: _agentCampaignCtx,
           siteIntel,
           _agentMemoryStore, trendRadarStore,
-          trendInsightsStore: (_caps[agentId] && (_caps[agentId].canLifecycle || _caps[agentId].canBlogPublish || _caps[agentId].socialInjection)) ? trendInsightsStore : null,
+          trendInsightsStore: (agentId === 'nova' || agentId === 'scribe' || agentId === 'echo') ? trendInsightsStore : null,
           performanceDigest, agentExperiments,
           productFacts, skillsData,
           forgeOpsDigest, financeDigest, researchDemandDigest,
           socialAccountStats,
           publishedBlogPosts: _publishedBlogPostsForDigest,
-          pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; }),
-          lastRunBlockedActions: _lastRunBlocked[agentId] || []
+          pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; })
         });
         if (result._failed) {
           _agentRunStats[agentId] = { attempted: 0, executed: 0, blocked: 0, newTasksCreated: 0, avgLatencyMs: 0, error: result._error };
@@ -1513,14 +1482,14 @@ module.exports = async function (context) {
             researchIntelStore = researchIntelStore.slice(-MAX_RESEARCH_STORE_ENTRIES);
           }
         }
-        // Persist Scout's trend insights analysis → trendIntel.insights
+        // Persist Scout's trend insights analysis
         if (result.newTrendInsights) {
           try {
-            trendInsightsStore.push(result.newTrendInsights);
-            if (trendInsightsStore.length > 50) trendInsightsStore = trendInsightsStore.slice(-50);
-            _trendIntel.insights = trendInsightsStore;
-            await storage.setState('trendIntel', _trendIntel);
-            context.log('[Heartbeat] scout: trendInsights persisted to trendIntel, id:', result.newTrendInsights.id);
+            var _tiStore = (await storage.getState('trendInsights')) || [];
+            _tiStore.push(result.newTrendInsights);
+            if (_tiStore.length > 50) _tiStore = _tiStore.slice(-50);
+            await storage.setState('trendInsights', _tiStore);
+            context.log('[Heartbeat] scout: trendInsights persisted, id:', result.newTrendInsights.id);
           } catch (_tiErr) {
             context.log.warn('[Heartbeat] trendInsights persist failed (non-fatal):', _tiErr && _tiErr.message);
           }
@@ -1538,8 +1507,7 @@ module.exports = async function (context) {
             + ((result.guardrails && result.guardrails.exactDupBlocked) || 0)
             + ((result.guardrails && result.guardrails.fuzzyDupBlocked) || 0)
             + ((result.guardrails && result.guardrails.taskCeilingBlocked) || 0)
-            + ((result.guardrails && result.guardrails.socialPromoGateBlocked) || 0),
-          blockedActions: (result.blockedActions || []).slice(0, 5)
+            + ((result.guardrails && result.guardrails.socialPromoGateBlocked) || 0)
         };
         if (result.guardrails) {
           _guardrailCounts.orphanBlocked += result.guardrails.orphanBlocked || 0;
@@ -2108,8 +2076,8 @@ module.exports = async function (context) {
           }
         }
 
-        // Auto-assign fallback: if triage agent commented on unassigned tasks, detect agent name and auto-assign
-        if (_caps[agentId] && _caps[agentId].taskFilterAll) {
+        // Nova auto-assign fallback: if Nova commented on unassigned tasks, detect agent name and auto-assign
+        if (agentId === 'nova') {
           const _AGENT_NAMES = { scribe: 'scribe', pixel: 'pixel', echo: 'echo', forge: 'forge', cipher: 'cipher', scout: 'scout', quill: 'quill' };
           for (let _ti = 0; _ti < tasks.length; _ti++) {
             var _t = tasks[_ti];
@@ -3018,8 +2986,7 @@ module.exports = async function (context) {
         newTasksCreated: rc.creates || 0,
         avgLatencyMs: rs.avgLatencyMs || 0,
         error: rs.error || null,
-        reasoning: rs.reasoning || null,
-        blockedActions: rs.blockedActions || []
+        reasoning: rs.reasoning || null
       };
     });
 

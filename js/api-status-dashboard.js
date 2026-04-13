@@ -229,7 +229,14 @@ function initApiStatusDashboard() {
     'geminiproxy', // Updated by Cascade 2025-07-14: removed dash for consistency with folder name
     'cardforgeloadcards',
     'cardforgepublish',
-    'cardforgesavecards',
+    'fetchlatestmood',
+    'dreamLogWriter', // Updated by Cascade 2025-07-15: using correct camelCase name
+    'generatemoodinsights',
+    'synthesizenovamood',
+    'generatetext', // Updated by Cascade 2025-07-15: replaced fetchquoteoftheday with generatetext
+    'novavision', // Updated by Cascade 2025-07-15: replaced novamemoryrecall with novavision
+    'cardforgesavecards', // Updated by Cascade 2025-07-15: replaced novasentimentanalysis with cardforgesavecards
+    'novaopenai', // Updated by Cascade 2025-07-15: replaced novathoughtgeneration with novaopenai
     'cardforgetemplate', // Updated by Cascade 2025-07-15: replaced novaimagesynthesis with cardforgetemplate
     'getCardTemplate', // Added by Cascade 2025-07-15: new endpoint
     'huggingface' // Added by Cascade 2025-07-16: HuggingFace API
