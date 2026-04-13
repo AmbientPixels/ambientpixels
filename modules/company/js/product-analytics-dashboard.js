@@ -228,7 +228,7 @@
     _fetchTelemetry(rangeVal)
       .then(function (tData) {
         var mapped = _mapTelemetryToOverview(tData, p.product);
-        renderOverview({ data: mapped, range: rangeVal });
+        renderOverview({ data: mapped, range: rangeVal, _product: p.product, _dailyByProduct: tData.dailyByProduct || [] });
       })
       .catch(function (err) {
         _loaded.overview = false;
@@ -325,7 +325,27 @@
     html += AH.kpiCard({ icon: 'calendar-day', label: 'Today DAU',    value: AH.fmtNum(todayDau) });
     html += AH.kpiCard({ icon: 'chart-simple', label: 'Avg DAU',      value: AH.fmtNum(avgDau), sub: resp.range });
 
+    // Product-specific timeline chart (only when a product is selected)
+    var selectedProduct = resp._product || '';
+    var dailyByProduct = resp._dailyByProduct || [];
+    if (selectedProduct && selectedProduct !== 'all' && dailyByProduct.length > 0) {
+      var productDaily = dailyByProduct.filter(function (r) { return r.product === selectedProduct; });
+      if (productDaily.length > 1) {
+        html += '<div class="pa-sparkline"><canvas id="pa-timeline" height="130"></canvas></div>';
+      }
+    }
+
     kpisEl.innerHTML = html;
+
+    // Render Chart.js timeline after DOM insertion
+    if (selectedProduct && selectedProduct !== 'all') {
+      var canvas = document.getElementById('pa-timeline');
+      if (canvas) {
+        var productDaily2 = dailyByProduct.filter(function (r) { return r.product === selectedProduct; });
+        var chartData = productDaily2.map(function (r) { return { day: r.day, views: r.views || 0 }; });
+        AH.makeTimeline(canvas, { data: chartData, valueLabel: 'views' });
+      }
+    }
 
     // Phase 7 hook: hero strip subscribers
     AH.publish('product-analytics.overview', { data: d, range: resp.range });

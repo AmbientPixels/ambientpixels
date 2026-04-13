@@ -63,6 +63,7 @@ function _emptyResponse(range, warning) {
     topReferrers: [],
     topCampaigns: [],
     dailyViews: [],
+    dailyByProduct: [],
     events: { ctaClicks: 0, requestAccessClicks: 0 },
     performance: { pageLoadMs_p50: 0, pageLoadMs_p95: 0 },
     errors: []
@@ -231,6 +232,28 @@ module.exports = async function (context, req) {
       '| order by day asc'
     ].join('\n');
 
+    // Daily page views by product (path prefix)
+    var dailyByProductQuery = [
+      'pageViews',
+      '| where isnotempty(url)',
+      '| extend parsedPath = tolower(tostring(parse_url(url).Path))',
+      '| extend product = case(',
+      '    parsedPath startswith "/pixel-agents" or parsedPath startswith "/pixelagents", "pixelagents",',
+      '    parsedPath startswith "/agent-forge", "agentforge",',
+      '    parsedPath startswith "/blindspot", "blindspot",',
+      '    parsedPath startswith "/cardforge", "cardforge",',
+      '    parsedPath startswith "/storyforge", "storyforge",',
+      '    parsedPath startswith "/ambientscore", "ambientscore",',
+      '    parsedPath startswith "/blog", "blog",',
+      '    parsedPath startswith "/tileforge", "tileforge",',
+      '    parsedPath startswith "/nova", "nova",',
+      '    "other")',
+      '| where product != "other"',
+      '| extend day = format_datetime(timestamp, "yyyy-MM-dd")',
+      '| summarize viewCount = count() by day, product',
+      '| order by day asc, product asc'
+    ].join('\n');
+
     // Run queries in parallel
     var _log = context.log.bind(context);
     var results = await Promise.all([
@@ -240,7 +263,8 @@ module.exports = async function (context, req) {
       _kustoQuery(perfQuery, timespan, _log),
       _kustoQuery(errorsQuery, timespan, _log),
       _kustoQuery(dailyViewsQuery, timespan, _log),
-      _kustoQuery(utmDiagnosticQuery, timespan, _log)
+      _kustoQuery(utmDiagnosticQuery, timespan, _log),
+      _kustoQuery(dailyByProductQuery, timespan, _log)
     ]);
 
     // Log UTM diagnostic so we can see in Application Insights traces whether any
@@ -273,6 +297,10 @@ module.exports = async function (context, req) {
       var d = r.day ? new Date(r.day).toISOString().slice(0, 10) : '';
       return { day: d, views: r.viewCount || 0 };
     });
+    var dailyByProduct = _parseRows(results[7]).map(function (r) {
+      var d = r.day ? new Date(r.day).toISOString().slice(0, 10) : '';
+      return { day: d, product: r.product || '', views: r.viewCount || 0 };
+    });
 
     // Top-level totals — single source of truth for the hero strip + Phase 7
     // hero subscribers. Aggregated server-side from topPages so the browser
@@ -299,6 +327,7 @@ module.exports = async function (context, req) {
       topReferrers: referrers,
       topCampaigns: campaigns,
       dailyViews: dailyViews,
+      dailyByProduct: dailyByProduct,
       events: { ctaClicks: 0, requestAccessClicks: 0 },
       performance: perf,
       errors: errors
