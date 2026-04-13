@@ -68,7 +68,14 @@ In `buildHeartbeatPrompt()`, only include sections that appear in the agent's li
 
 **Target:** Reduce average prompt from ~27K tokens to ~15-18K tokens per agent.
 
+**Pre-step:** Before changing any routing logic, add a one-liner to `agent-runner.js` after line 275 that logs prompt.length for every agent on every run (not just threshold breaches):
+```javascript
+context.log('[Heartbeat] ' + agentId + ': prompt ' + prompt.length + ' chars (~' + _estimatedTokens + ' tokens)');
+```
+Ship this logging alone first, let 2-3 heartbeats run to capture baseline numbers, then ship the routing changes. This gives a clean before/after comparison.
+
 **Files:**
+- `api/companyHeartbeat/agent-runner.js` — add always-on prompt size logging (line ~275)
 - `api/companyHeartbeat/prompt-builders.js` — buildHeartbeatPrompt function
 
 **Expected result:** 40% smaller prompts, more room for agent reasoning, fewer irrelevant distractions, lower cost per cycle.
