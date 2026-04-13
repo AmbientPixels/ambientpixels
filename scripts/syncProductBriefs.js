@@ -99,6 +99,89 @@ function hoistRecentChanges(content) {
   return intro + '\n\n' + recentSection + '\n\n' + rest;
 }
 
+/**
+ * For large skills (>15K chars), extract only agent-relevant sections.
+ * Agents need: recent changes, product/agent facts, pipeline rules, guardrails.
+ * They don't need: full API docs, CSS architecture, common commands, code examples.
+ */
+var AGENT_RELEVANT_HEADINGS = [
+  'recent changes',
+  'quick orientation',
+  'the 8 agents',
+  'three pipelines',
+  'bluesky discovery',
+  'key guardrails',
+  'products',
+  'content quality',
+  'founder voice',
+  'trust-based governance',
+  'campaign scheduler',
+  'task lifecycle',
+  'convergence',
+  'needs attention',
+  'ceo revision',
+  'self-correcting',
+  'model configuration',
+  'removed systems',
+  'critical safety'
+];
+
+var MAX_SKILL_CHARS = 20000;
+
+function extractAgentRelevant(content) {
+  var lines = content.split('\n');
+  var sections = [];
+  var currentSection = { heading: '', lines: [], level: 0 };
+
+  for (var i = 0; i < lines.length; i++) {
+    var headingMatch = lines[i].match(/^(#{1,3})\s+(.+)/);
+    if (headingMatch) {
+      if (currentSection.lines.length > 0) {
+        sections.push(currentSection);
+      }
+      currentSection = {
+        heading: headingMatch[2].trim(),
+        lines: [lines[i]],
+        level: headingMatch[1].length
+      };
+    } else {
+      currentSection.lines.push(lines[i]);
+    }
+  }
+  if (currentSection.lines.length > 0) sections.push(currentSection);
+
+  // Keep intro (before first heading) + sections matching relevant headings
+  var kept = [];
+  var totalChars = 0;
+
+  for (var j = 0; j < sections.length; j++) {
+    var s = sections[j];
+    var headingLower = s.heading.toLowerCase();
+
+    // Always keep intro (no heading) and h1 title
+    var isIntro = !s.heading || s.level <= 1;
+    var isRelevant = AGENT_RELEVANT_HEADINGS.some(function (kw) {
+      return headingLower.indexOf(kw) !== -1;
+    });
+
+    if (isIntro || isRelevant) {
+      var sectionText = s.lines.join('\n');
+      if (totalChars + sectionText.length > MAX_SKILL_CHARS) {
+        // Truncate this section to fit
+        var remaining = MAX_SKILL_CHARS - totalChars;
+        if (remaining > 200) {
+          kept.push(sectionText.substring(0, remaining) + '\n[... section truncated]');
+        }
+        break;
+      }
+      kept.push(sectionText);
+      totalChars += sectionText.length;
+    }
+  }
+
+  return kept.join('\n\n');
+}
+
 function processSkill(skillId, rawContent) {
   var meta = PRODUCT_SKILLS[skillId];
   if (!meta) return null;
@@ -107,14 +190,27 @@ function processSkill(skillId, rawContent) {
   var collapsed = collapseWhitespace(stripped);
   var hoisted = hoistRecentChanges(collapsed);
 
+  // For ambientos-guide (system reference doc), extract only agent-relevant sections.
+  // Other product skills are kept in full — they're product-specific and agents need them.
+  // If any other skill exceeds MAX_SKILL_CHARS, simple truncation with notice.
+  var content = hoisted;
+  var truncated = false;
+  if (skillId === 'ambientos-guide' && hoisted.length > MAX_SKILL_CHARS) {
+    content = extractAgentRelevant(hoisted);
+    truncated = true;
+  } else if (hoisted.length > MAX_SKILL_CHARS) {
+    content = hoisted.substring(0, MAX_SKILL_CHARS) + '\n\n[... truncated at ' + MAX_SKILL_CHARS + ' chars]';
+    truncated = true;
+  }
+
   return {
     id: skillId,
     name: meta.name,
     url: meta.url,
-    content: hoisted,
+    content: content,
     sourceChars: rawContent.length,
-    contentChars: hoisted.length,
-    truncated: false
+    contentChars: content.length,
+    truncated: truncated
   };
 }
 
