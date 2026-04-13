@@ -19,11 +19,10 @@ const VALID_KEYS = [
   'contentEngineConfig', 'imageAssets', 'runtimeMemory',
   'execution_mode', 'socialCredentials',
   'demoChatCount', 'researchIntel',
-  'trendRadar', 'trendInsights', 'trendActions', 'trendIntel', 'systemConfig',
+  'trendIntel', 'systemConfig',
   'agentPerformance', 'agentExperiments',
   'geminiUsage', 'blogPostViews',
-  'socialIntel', 'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats',
-  'socialWeeklySnapshots',
+  'socialIntel',
   'blueskyCandidates',
   'agentMessages'
 ];

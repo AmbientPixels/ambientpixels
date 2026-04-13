@@ -238,17 +238,19 @@ function buildLayerRecords(data) {
       scope: 'mixed',
       payload: {
         agentMemories: runMem,
-        runtimeMemory: runtimeMemory
+        runtimeMemory: runtimeMemory,
+        trendIntel: data.trendIntel || {},
+        socialIntel: data.socialIntel || {}
       },
       agentMap: runMem,
       agentsCovered: Object.keys(runMem).filter((k) => Array.isArray(runMem[k]) && runMem[k].length > 0).length,
       lastUpdatedAt: toIsoOrNull(runtimeLatest),
-      sizeBytes: approxBytes({ agentMemories: runMem, runtimeMemory: runtimeMemory }),
+      sizeBytes: approxBytes({ agentMemories: runMem, runtimeMemory: runtimeMemory, trendIntel: data.trendIntel || {}, socialIntel: data.socialIntel || {} }),
       status: 'ok',
       staleThresholdMs: 2 * 60 * 60 * 1000,
-      description: 'Live runtime memory buffers (agentMemories + runtimeMemory)',
+      description: 'Live runtime memory buffers (agentMemories + runtimeMemory + trendIntel + socialIntel)',
       order: '4/8',
-      sourcePath: 'blob:agentMemories+runtimeMemory'
+      sourcePath: 'blob:agentMemories+runtimeMemory+trendIntel+socialIntel'
     },
     L5: {
       id: 'L5',
@@ -445,6 +447,8 @@ async function loadLayerSources() {
   const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
   const researchIntel = (await storage.getState('researchIntel')) || [];
   const agentConfigs = (await storage.getState('agentConfigs')) || {};
+  const trendIntel = (await storage.getState('trendIntel')) || {};
+  const socialIntel = (await storage.getState('socialIntel')) || {};
 
   return {
     agentDefs: companyAgents,
@@ -458,7 +462,9 @@ async function loadLayerSources() {
     workspaceMemory,
     runtimeMemory,
     researchIntel,
-    agentConfigs
+    agentConfigs,
+    trendIntel,
+    socialIntel
   };
 }
 
