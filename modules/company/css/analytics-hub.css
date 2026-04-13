@@ -553,10 +553,11 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
 .pa-sparkline {
   grid-column: 1 / -1;
   margin-top: 6px;
+  position: relative;
+  height: 130px;
+  margin-bottom: 14px;
 }
-.pa-sparkline svg {
-  width: 100%;
-  height: 50px;
+.pa-sparkline canvas {
   display: block;
 }
 .pa-sparkline__labels {
