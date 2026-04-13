@@ -20,6 +20,8 @@ const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
 } = require('./helpers');
 const _productFacts = require('../_data/product-facts.json');
+var _founderVoice = {};
+try { _founderVoice = require('../_data/founder-voice-examples.json'); } catch (_) {}
 
 // Claude quality gate for external-facing content
 async function _validateContentQuality(text, platform, context) {
@@ -30,7 +32,9 @@ async function _validateContentQuality(text, platform, context) {
       var p = _productFacts.products[name];
       return name + ': ' + p.description + '. Features: ' + p.features.join(', ') + '. NOT: ' + p.notThis.join('; ');
     }).join('\n');
-    var prompt = 'You are a content quality checker for AmbientPixels. Check this ' + platform + ' post for:\n1. Factual accuracy against the product descriptions below\n2. Hallucinated features or capabilities that do not exist\n3. FABRICATED STATISTICS — any specific numbers, percentages, user counts, ticket counts, accuracy rates, or metrics that are not from the product facts below. If the post cites a specific number (e.g. "37 tickets", "95% accuracy", "10,000 users"), it is almost certainly fabricated and MUST be flagged.\n\nPRODUCT FACTS:\n' + factsStr + '\n\nPOST TO CHECK:\n' + text + '\n\nReturn ONLY raw JSON with no markdown, no preamble, no explanation:\n{"pass": true_or_false, "confidence": 0_to_100, "issues": ["issue1", "issue2"]}';
+    var toneBlocklist = (_founderVoice.tone_blocklist || []).join(', ');
+    var toneGoodExamples = (_founderVoice.tone_good_examples || []).map(function(e) { return '"' + e + '"'; }).join('\n');
+    var prompt = 'You are a content quality checker for AmbientPixels. Check this ' + platform + ' post for:\n1. Factual accuracy against the product descriptions below\n2. Hallucinated features or capabilities that do not exist\n3. FABRICATED STATISTICS — any specific numbers, percentages, user counts, ticket counts, accuracy rates, or metrics that are not from the product facts below. If the post cites a specific number (e.g. "37 tickets", "95% accuracy", "10,000 users"), it is almost certainly fabricated and MUST be flagged.\n4. TONE VIOLATIONS — the post MUST match founder voice rules. Flag ANY of these:\n   - Buzzwords or hype from this blocklist: ' + toneBlocklist + '\n   - Rhetorical questions used as hooks ("Ever feel like...?", "Ready to...?", "What if you could...?")\n   - Emoji as opening hooks or emoji walls (single contextual emoji at end is fine)\n   - Em dashes anywhere in the text\n   - Excessive exclamation marks or exclamation marks in corporate-sounding sentences (casual single use like "Shipped it!" in a short line is OK)\n   - Generic AI filler or landscape-setting openers\n   - Reading level too high: long compound sentences, jargon, or SAT words when a simple word exists\n   Good tone examples:\n' + toneGoodExamples + '\n   A post with correct facts but AI-marketing tone MUST fail. Tone violations are as serious as factual errors.\n\nPRODUCT FACTS:\n' + factsStr + '\n\nPOST TO CHECK:\n' + text + '\n\nReturn ONLY raw JSON with no markdown, no preamble, no explanation:\n{"pass": true_or_false, "confidence": 0_to_100, "issues": ["issue1", "issue2"]}';
     var controller = new AbortController();
     var timeout = setTimeout(function() { controller.abort(); }, 10000);
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -2441,7 +2445,7 @@ Write the full deliverable first, then the structured JSON block.`;
           _qgParentTask.comments.push({
             id: 'cmt-qgfail-' + Date.now(),
             author: 'system',
-            text: 'QUALITY GATE FAILED — Post rejected for factual issues (confidence: ' + (_qgResult.confidence || 0) + '%).\n\nIssues found:\n- ' + (_qgResult.issues || []).join('\n- ') + '\n\nScribe: rewrite the copy addressing ALL issues above. Check product-facts for accurate feature descriptions. Do NOT invent features, pricing tiers, or capabilities.',
+            text: 'QUALITY GATE FAILED — Post rejected (confidence: ' + (_qgResult.confidence || 0) + '%).\n\nIssues found:\n- ' + (_qgResult.issues || []).join('\n- ') + '\n\nScribe: rewrite the copy addressing ALL issues above. Check product-facts for accurate feature descriptions. Do NOT invent features, pricing tiers, or capabilities. For tone issues: no buzzwords, no em dashes, no rhetorical question hooks, 5th grade reading level. Lead with specifics not adjectives. If it sounds like a press release, start over.',
             type: 'system',
             createdAt: new Date().toISOString()
           });

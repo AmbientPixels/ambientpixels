@@ -78,5 +78,18 @@
     "Ever wish you had a digital clone to handle the grind? 🤖 Meet AmbientOS — the AI sidekick that's changing everything!",
     "🔥 Big news! Our latest release empowers creators with next-gen AI tools. Buckle up — the future is here!",
     "Ready to level up your workflow? AmbientOS delivers enterprise-grade AI orchestration at startup speed. Join the waitlist today!"
+  ],
+  "tone_blocklist": [
+    "supercharge", "unleash", "game-changing", "revolutionary", "bringing the heat",
+    "next-gen", "unlock", "empower", "level up", "cutting-edge", "groundbreaking",
+    "We're thrilled to announce", "excited to share", "proud to present", "big news",
+    "Ever feel like", "Ready to", "What if you could", "Imagine a world",
+    "The world of AI is moving fast", "In today's rapidly evolving landscape",
+    "AI is transforming", "In today's digital landscape"
+  ],
+  "tone_good_examples": [
+    "Shipped a fix for cold starts today. P95 went from 8s to 2s.",
+    "24 agents. each one does a specific job. you run them, you pay per run.",
+    "solo founder. 8 AI agents run the departments. I'm the only human. it's weird and it works."
   ]
 }

@@ -1218,11 +1218,11 @@ You must remain within your assigned authority tier. Doctrine influences your st
     }
   }
 
-  // Founder Voice Corpus — injected only for Scribe (she writes copy; Echo briefs)
+  // Founder Voice Corpus — injected for content agents (Scribe writes copy, Echo briefs, Quill reviews)
   var founderVoiceBlock = '';
   try {
     var _founderVoice = require('../_data/founder-voice-examples.json');
-    if (agent.id === 'scribe' && _founderVoice && _founderVoice.examples && _founderVoice.examples.length > 0) {
+    if (['scribe', 'echo', 'quill'].indexOf(agent.id) !== -1 && _founderVoice && _founderVoice.examples && _founderVoice.examples.length > 0) {
       var fvLines = ['\n🎤 FOUNDER VOICE (write social/short-form content in THIS voice — not corporate marketing):'];
       if (Array.isArray(_founderVoice.principles) && _founderVoice.principles.length > 0) {
         fvLines.push('\nPRINCIPLES:');
@@ -1665,7 +1665,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     STEP 1 — BRIEF: Use execute-task on the social task to produce a STRATEGY BRIEF as your deliverable. You are the marketing director — you set direction, NOT write copy. Your brief should include:
       - Key message/angle (what story are we telling?)
       - Target audience and why they should care
-      - Tone direction (e.g., "founder voice, thought-leadership" or "casual, conversational")
+      - Tone direction — MUST align with FOUNDER VOICE principles above. Reference specific principles (e.g., "5th grade reading level, lead with specifics not adjectives, no em dashes"). Do NOT use vague labels like "thought-leadership" or "professional".
       - Key points to hit, CTA, URL to include
       - Platform-specific notes (LinkedIn = article-style 800-1500 chars; X = punchy 280 chars; Bluesky = casual 300 chars; Facebook = conversational 100-250 chars for engagement, supports links/hashtags/@mentions; Reddit = see REDDIT POSTING GUIDE below)
       Write ONE brief — not options, not variations. No markdown headers, no "## Draft:" labels.
