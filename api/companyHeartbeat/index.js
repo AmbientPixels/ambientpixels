@@ -212,6 +212,19 @@ module.exports = async function (context) {
     const _existingPerf = (runtimeMemory && runtimeMemory.agentPerformance) || null;
     let _perfHeartbeatRuns = [], _perfGeminiUsage = [], _perfGovernanceLog = [], _perfBlogPostViews = [];
     try { _perfHeartbeatRuns = (await storage.getState('heartbeatRuns')) || []; } catch (_e) { /* non-fatal */ }
+    // Extract per-agent blocked actions from last run for prompt injection (Phase 3)
+    var _lastRunBlocked = {};
+    if (_perfHeartbeatRuns.length > 0) {
+      var _lastRun = _perfHeartbeatRuns[_perfHeartbeatRuns.length - 1];
+      if (_lastRun && _lastRun.perAgent) {
+        Object.keys(_lastRun.perAgent).forEach(function (aid) {
+          var pa = _lastRun.perAgent[aid];
+          if (pa.blockedActions && pa.blockedActions.length > 0) {
+            _lastRunBlocked[aid] = pa.blockedActions;
+          }
+        });
+      }
+    }
     try { _perfGeminiUsage = (await storage.getState('geminiUsage')) || []; } catch (_e) { /* non-fatal */ }
     try { _perfGovernanceLog = (await storage.getState('governanceLog')) || []; } catch (_e) { /* non-fatal */ }
     try { _perfBlogPostViews = (await storage.getState('blogPostViews')) || []; } catch (_e) { /* non-fatal */ }
@@ -1438,7 +1451,8 @@ module.exports = async function (context) {
           forgeOpsDigest, financeDigest, researchDemandDigest,
           socialAccountStats,
           publishedBlogPosts: _publishedBlogPostsForDigest,
-          pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; })
+          pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; }),
+          lastRunBlockedActions: _lastRunBlocked[agentId] || []
         });
         if (result._failed) {
           _agentRunStats[agentId] = { attempted: 0, executed: 0, blocked: 0, newTasksCreated: 0, avgLatencyMs: 0, error: result._error };
@@ -1507,7 +1521,8 @@ module.exports = async function (context) {
             + ((result.guardrails && result.guardrails.exactDupBlocked) || 0)
             + ((result.guardrails && result.guardrails.fuzzyDupBlocked) || 0)
             + ((result.guardrails && result.guardrails.taskCeilingBlocked) || 0)
-            + ((result.guardrails && result.guardrails.socialPromoGateBlocked) || 0)
+            + ((result.guardrails && result.guardrails.socialPromoGateBlocked) || 0),
+          blockedActions: (result.blockedActions || []).slice(0, 5)
         };
         if (result.guardrails) {
           _guardrailCounts.orphanBlocked += result.guardrails.orphanBlocked || 0;
@@ -2986,7 +3001,8 @@ module.exports = async function (context) {
         newTasksCreated: rc.creates || 0,
         avgLatencyMs: rs.avgLatencyMs || 0,
         error: rs.error || null,
-        reasoning: rs.reasoning || null
+        reasoning: rs.reasoning || null,
+        blockedActions: rs.blockedActions || []
       };
     });
 

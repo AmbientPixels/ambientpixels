@@ -102,7 +102,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages, lastRunBlockedActions } = ctx;
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -1043,6 +1043,16 @@ Study these edits carefully. The CEO's version is the standard. Apply the same t
   }
 
   // Inter-agent messages (Phase 4A)
+  // Phase 3: Blocked actions from last cycle — show agents what was blocked and why
+  var blockedActionsBlock = '';
+  var _blocked = Array.isArray(lastRunBlockedActions) ? lastRunBlockedActions : [];
+  if (_blocked.length > 0) {
+    var _blockLines = _blocked.map(function (b) {
+      return '- ' + (b.action || '?') + ' "' + (b.target || '?') + '" → BLOCKED: ' + (b.reason || 'unknown');
+    }).join('\n');
+    blockedActionsBlock = '\n\n── BLOCKED ACTIONS FROM LAST CYCLE ──\nYour previous actions were blocked by system rules:\n' + _blockLines + '\nDo not retry these actions unless the underlying constraint has changed.\n';
+  }
+
   var _pendingMsgs = Array.isArray(pendingMessages) ? pendingMessages.filter(function (m) { return m && !m.consumed; }) : [];
   var messagesBlock = '';
   if (_pendingMsgs.length > 0) {
@@ -1281,7 +1291,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   var _s = function (key) { return _agentSections.has(key); };
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${blockedActionsBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:

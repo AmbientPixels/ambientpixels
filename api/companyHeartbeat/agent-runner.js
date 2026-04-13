@@ -99,7 +99,7 @@ const { executeTask, reviewTask } = require('./execution-engine');
 
 async function runAgentHeartbeat(ctx) {
   if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
-  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts, pendingMessages } = ctx;
+  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts, pendingMessages, lastRunBlockedActions } = ctx;
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -126,7 +126,8 @@ async function runAgentHeartbeat(ctx) {
       fuzzyDupBlocked: 0,
       taskCeilingBlocked: 0,
       socialPromoGateBlocked: 0
-    }
+    },
+    blockedActions: []
   };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -303,7 +304,7 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages });
+  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages, lastRunBlockedActions });
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
   const _estimatedTokens = Math.ceil(prompt.length / 4);
@@ -1027,6 +1028,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const _activeTaskCount = tasks.filter(t => t.status !== 'done' && t.status !== 'archived').length;
       if (_activeTaskCount >= GUARDRAILS.maxActiveTasks) {
         result.guardrails.taskCeilingBlocked++;
+        result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ' active tasks)' });
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: active task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ')');
         continue;
       }
@@ -1035,6 +1037,7 @@ Write the full deliverable first, then the structured JSON block.`;
       if ((action.task.taskType || '').toLowerCase() === 'research' || /^research\s*brief/i.test(action.task.title || '')) {
         const _activeResearch = tasks.filter(t => t.status !== 'done' && t.status !== 'archived' && t.status !== 'canceled' && t.taskType === 'research').length;
         if (_activeResearch >= 5) {
+          result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Research task ceiling reached (' + _activeResearch + '/5 active research tasks)' });
           context.log('[Heartbeat]', agentId, 'BLOCKED create-task: research task ceiling reached (' + _activeResearch + '/5). Title:', action.task.title);
           continue;
         }
@@ -1166,6 +1169,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const _hasCampaign = _taskCampaignId;
       if (!_hasObjective && !_hasCampaign && !_operationalExempt) {
         result.guardrails.orphanBlocked++;
+        result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Missing objective_id or campaign_id (task must link to a goal or campaign)' });
         context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or campaign_id');
         continue;
       }
@@ -1214,6 +1218,7 @@ Write the full deliverable first, then the structured JSON block.`;
         const existingMatch = tasks.find(t => t.status !== 'done' && _normalize(t.title || '') === normalizedNew);
         if (existingMatch) {
           result.guardrails.exactDupBlocked++;
+          result.blockedActions.push({ action: 'create-task', target: proposedTitle.substring(0, 80), reason: 'Exact duplicate of existing task "' + (existingMatch.title || '').substring(0, 60) + '" (' + existingMatch.id + ')' });
           context.log('[Heartbeat]', agentId, 'BLOCKED duplicate task creation:', proposedTitle, '— matches existing:', existingMatch.id);
           continue;
         }
@@ -1229,6 +1234,7 @@ Write the full deliverable first, then the structured JSON block.`;
           });
           if (fuzzyMatch) {
             result.guardrails.fuzzyDupBlocked++;
+            result.blockedActions.push({ action: 'create-task', target: proposedTitle.substring(0, 80), reason: 'Fuzzy duplicate of existing task "' + (fuzzyMatch.title || '').substring(0, 60) + '" (' + fuzzyMatch.id + ')' });
             context.log('[Heartbeat]', agentId, 'BLOCKED fuzzy-duplicate task:', proposedTitle, '— similar to:', fuzzyMatch.title, '(', fuzzyMatch.id, ')');
             continue;
           }
@@ -1243,6 +1249,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const _refsBlogPost = /blog\s*post|hello\s*world|marketing_post|first\s*post/.test(_taskText);
       if (_isSocialPromoTask && _refsBlogPost) {
         result.guardrails.socialPromoGateBlocked++;
+        result.blockedActions.push({ action: 'create-task', target: (action.task.title || '').substring(0, 80), reason: 'Blog must be published + promoted first — social promo tasks are auto-created on publish' });
         context.log('[Heartbeat]', agentId, 'BLOCKED premature social promo task:', action.task.title, '— blog must be published + promoted first. Social tasks are auto-created on publish with promote=true.');
         continue;
       }
