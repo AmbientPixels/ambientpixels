@@ -171,21 +171,34 @@ module.exports = async function (context) {
     // Track messages sent this cycle per agent (rate limit: max 2 per agent per cycle)
     const _msgSentThisCycle = {};
 
-    const documents = (await storage.getState('documents')) || [];
-    const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
-    const workspaceDates = (await storage.getState('dates')) || [];
-    const allActions = (await storage.getState('actions')) || [];
-    const socialMetricsEvents = (await storage.getState('socialMetricsEvents')) || [];
-    const socialEngagementSnapshots = (await storage.getState('socialEngagementSnapshots')) || [];
-    const socialEngagementMeta = (await storage.getState('socialEngagementMeta')) || {};
-    const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
-    const socialAccountStats = (await storage.getState('socialAccountStats')) || null;
-    let _publishedBlogPostsForDigest = [];
-    try { _publishedBlogPostsForDigest = (await storage.getState('blogPosts')) || []; } catch (_e) { /* non-fatal */ }
-    let _weeklySnapshots = [];
-    try { _weeklySnapshots = (await storage.getState('socialWeeklySnapshots')) || []; } catch (_e) { /* non-fatal */ }
-    let _blogPostViewsForDigest = [];
-    try { _blogPostViewsForDigest = (await storage.getState('blogPostViews')) || []; } catch (_e) { /* non-fatal */ }
+    // ── Phase 5: Parallel state loading (was 12 sequential getState calls) ──
+    var _safe = function (p) { return p.catch(function () { return null; }); };
+    var _stateResults = await Promise.all([
+      _safe(storage.getState('documents')),
+      _safe(storage.getState('workspaceMemory')),
+      _safe(storage.getState('dates')),
+      _safe(storage.getState('actions')),
+      _safe(storage.getState('socialMetricsEvents')),
+      _safe(storage.getState('socialEngagementSnapshots')),
+      _safe(storage.getState('socialEngagementMeta')),
+      _safe(storage.getState('runtimeMemory')),
+      _safe(storage.getState('socialAccountStats')),
+      _safe(storage.getState('blogPosts')),
+      _safe(storage.getState('socialWeeklySnapshots')),
+      _safe(storage.getState('blogPostViews'))
+    ]);
+    const documents = _stateResults[0] || [];
+    const workspaceMemory = _stateResults[1] || [];
+    const workspaceDates = _stateResults[2] || [];
+    const allActions = _stateResults[3] || [];
+    const socialMetricsEvents = _stateResults[4] || [];
+    const socialEngagementSnapshots = _stateResults[5] || [];
+    const socialEngagementMeta = _stateResults[6] || {};
+    const runtimeMemory = _stateResults[7] || {};
+    const socialAccountStats = _stateResults[8] || null;
+    let _publishedBlogPostsForDigest = _stateResults[9] || [];
+    let _weeklySnapshots = _stateResults[10] || [];
+    let _blogPostViewsForDigest = _stateResults[11] || [];
     const socialIntel = _socialIntelBuildDigest(
       runtimeMemory && runtimeMemory.socialIntel,
       socialMetricsEvents,
@@ -362,21 +375,21 @@ module.exports = async function (context) {
       context.log('[Heartbeat] Needs Attention escalation check failed (non-fatal):', String(_naErr).substring(0, 200));
     }
 
-    // Load persistent agent memories
-    _agentMemoryStore = (await storage.getState('agentMemories')) || {};
-    // Load CEO-curated seed memories (markdown per agent + global)
-    const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
-    // Load persistent research intelligence store (survives beyond task completion)
-    let researchIntelStore = (await storage.getState('researchIntel')) || [];
-    // Load trend radar store for Scout analysis
-    let trendRadarStore = [];
-    try { trendRadarStore = (await storage.getState('trendRadar')) || []; } catch (_trErr) { /* non-fatal */ }
-    // Load trend insights store for Nova campaign prompting + Scribe content context
-    let trendInsightsStore = [];
-    try { trendInsightsStore = (await storage.getState('trendInsights')) || []; } catch (_tiLoadErr) { /* non-fatal */ }
-    // Load systemConfig: runtime-tunable overrides for heartbeat constants (non-destructive — falls back to constants)
-    let _systemConfig = {};
-    try { _systemConfig = (await storage.getState('systemConfig')) || {}; } catch (_scErr) { /* non-fatal */ }
+    // ── Phase 5: Parallel state loading batch 2 (agent state + intel + config) ──
+    var _stateResults2 = await Promise.all([
+      _safe(storage.getState('agentMemories')),
+      _safe(storage.getState('agentSeedMemories')),
+      _safe(storage.getState('researchIntel')),
+      _safe(storage.getState('trendRadar')),
+      _safe(storage.getState('trendInsights')),
+      _safe(storage.getState('systemConfig'))
+    ]);
+    _agentMemoryStore = _stateResults2[0] || {};
+    const _seedMemories = _stateResults2[1] || {};
+    let researchIntelStore = _stateResults2[2] || [];
+    let trendRadarStore = _stateResults2[3] || [];
+    let trendInsightsStore = _stateResults2[4] || [];
+    let _systemConfig = _stateResults2[5] || {};
     const _runtimeCaps = {
       maxCreatesPerAgentPerRun:  _systemConfig.maxCreatesPerAgentPerRun  != null ? Number(_systemConfig.maxCreatesPerAgentPerRun)  : CAP_DEFAULTS.maxCreatesPerAgentPerRun,
       maxMovesPerAgentPerRun:    _systemConfig.maxMovesPerAgentPerRun    != null ? Number(_systemConfig.maxMovesPerAgentPerRun)    : CAP_DEFAULTS.maxMovesPerAgentPerRun,

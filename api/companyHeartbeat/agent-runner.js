@@ -20,6 +20,7 @@ const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
 } = require('./helpers');
 const _productFacts = require('../_data/product-facts.json');
+const { AGENT_CAPABILITIES } = require('./agent-capabilities');
 
 // ── Memory dedup: Jaccard token-overlap check ──
 // Normalizes text (lowercase, strip numbers/currency, collapse whitespace),
@@ -132,6 +133,7 @@ async function runAgentHeartbeat(ctx) {
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
   agent.id = agentId;
+  const caps = AGENT_CAPABILITIES[agentId] || {};
 
   // ── Phase 8: Prune expired memories before prompt assembly ──
   if (_agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
@@ -189,7 +191,7 @@ async function runAgentHeartbeat(ctx) {
   // Runs on a cooldown (default 2h). No task required — Scout discovers threads
   // as a built-in sensor, writes candidates to the blueskyCandidates state key.
   // CEO picks which to engage with from the dashboard. No tasks are created here.
-  if (agentId === 'scout') {
+  if (caps.scoutDiscovery) {
     try {
       var _bsDiscoveryCooldownMs = 2 * 60 * 60 * 1000; // 2 hours default
       var _bsCandidates = (await storage.getState('blueskyCandidates')) || [];
@@ -647,8 +649,8 @@ Write the full deliverable first, then the structured JSON block.`;
   result.actionAttempts = Array.isArray(actions) ? actions.length : 0;
   let actionCount = 0;
 
-  // SERVER-SIDE FORCED HERO IMAGE: If Pixel has a hero image task idle 10+ min and didn't produce generate-image, inject it
-  if (agentId === 'pixel') {
+  // SERVER-SIDE FORCED HERO IMAGE: If agent has heroImageNudge and a hero image task idle 10+ min, inject it
+  if (caps.heroImageNudge) {
     const _pixelHeroTask = agentTasks.find(t =>
       (t.status === 'todo' || t.status === 'in-progress') &&
       (t.title || '').indexOf('Generate hero image for:') === 0 &&
@@ -681,8 +683,8 @@ Write the full deliverable first, then the structured JSON block.`;
   // Echo social tasks in review stay in review — CEO reviews via the social action approval queue.
   // No auto-complete bypass. Tasks flow: todo → in-progress → review → done (after CEO approval).
 
-  // QUILL COPY REVIEW: when Quill runs, inject review-task for social-copy tasks awaiting brand voice review
-  if (agentId === 'quill') {
+  // QUILL COPY REVIEW: when agent has copyReviewInjection, inject review-task for social-copy tasks awaiting brand voice review
+  if (caps.copyReviewInjection) {
     const _quillReviewTasks = tasks.filter(function(t) {
       return t.status === 'review' &&
         t.tags && t.tags.indexOf('social-copy') !== -1 &&
@@ -918,7 +920,7 @@ Write the full deliverable first, then the structured JSON block.`;
   // inject create-social-action so the post reaches CEO approval queue.
   // If no reviewed_copy exists, the copy review gate creates a Scribe task.
   // Runs outside the anti-stall guard — must always fire regardless of other work actions.
-  if (agentId === 'echo') {
+  if (caps.socialInjection) {
     const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
     const _doneSocialAll = tasks.filter(function (t) {
       if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
@@ -970,7 +972,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
   // Tier 4 sub-agent action restrictions (server-side enforcement)
   const TIER4_FORBIDDEN = ['create-social-action', 'create-doc', 'submit-for-publish', 'create-task', 'create-content-package'];
-  const isTier4 = agent.tier === 4;
+  const isTier4 = caps.tier === 4;
 
   // Work-producing actions bypass dedup entirely — deliverables are always unique
   const _DEDUP_EXEMPT = new Set(['execute-task', 'create-doc', 'create-social-action', 'generate-image', 'create-content-package', 'review-task']);
@@ -984,8 +986,8 @@ Write the full deliverable first, then the structured JSON block.`;
       continue;
     }
 
-    // Only Echo can create social posts (server-side enforcement)
-    if (action.type === 'create-social-action' && agentId !== 'echo') {
+    // Only agents with canSocialAction can create social posts (server-side enforcement)
+    if (action.type === 'create-social-action' && !caps.canSocialAction) {
       context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action (only Echo can post)');
       continue;
     }
@@ -1195,8 +1197,8 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // ── System Directive Guards ──
       if (_taskCategory === 'system_directive') {
-        // Only Forge and Nova can issue directives
-        if (agentId !== 'forge' && agentId !== 'nova') {
+        // Only agents with canDirective can issue directives
+        if (!caps.canDirective) {
           context.log('[Heartbeat]', agentId, 'BLOCKED system_directive: only forge and nova can issue directives');
           continue;
         }
