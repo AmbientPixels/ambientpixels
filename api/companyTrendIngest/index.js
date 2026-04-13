@@ -460,8 +460,9 @@ async function runIngestion(log) {
   // Compute per-trend source coverage (keyword matching across all 4 sources)
   trends = computeSourceCoverage(trends, githubLines, hnLines, redditLines, devtoLines);
 
-  // Read existing radar early so we can compare against previous snapshot
-  var existing = (await storage.getState('trendRadar')) || [];
+  // Phase 5: read from trendIntel.radar (fallback to old trendRadar key for migration)
+  var _trendIntel = (await storage.getState('trendIntel')) || {};
+  var existing = Array.isArray(_trendIntel.radar) ? _trendIntel.radar : ((await storage.getState('trendRadar')) || []);
   if (!Array.isArray(existing)) existing = [];
   var previousSnapshot = existing.length ? existing[existing.length - 1] : null;
 
@@ -489,15 +490,18 @@ async function runIngestion(log) {
   if (existing.length > MAX_RADAR_SNAPSHOTS) {
     existing = existing.slice(-MAX_RADAR_SNAPSHOTS);
   }
-  await storage.setState('trendRadar', existing);
-  log('[TrendIngest] Stored ' + trends.length + ' trends (snapshot ' + existing.length + '/' + MAX_RADAR_SNAPSHOTS + ')');
+  // Phase 5: write to trendIntel.radar
+  _trendIntel.radar = existing;
+  await storage.setState('trendIntel', _trendIntel);
+  log('[TrendIngest] Stored ' + trends.length + ' trends to trendIntel.radar (snapshot ' + existing.length + '/' + MAX_RADAR_SNAPSHOTS + ')');
 
   // Trend alerts are now shown on the CEO Dashboard Trend Radar widget (read-only).
   // They are no longer pushed to the approvalQueue — that queue is reserved for actionable items.
 
   // ── Auto-Campaign Conversion (governance switch) ──
   try {
-    var trendActions = (await storage.getState('trendActions')) || {};
+    // Phase 5: read trendActions from trendIntel.actions
+    var trendActions = (_trendIntel && _trendIntel.actions) || {};
     if (trendActions.auto_campaign_enabled === true) {
       var topExploding = trends.filter(function (t) {
         return t.stage === 'exploding' && t.score >= 70;

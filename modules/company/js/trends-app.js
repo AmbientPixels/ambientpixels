@@ -638,14 +638,15 @@
     }
   }
 
-  /* ── Automation Governance: trendActions ── */
+  /* ── Automation Governance: trendIntel.actions (Phase 5) ── */
   function loadTrendActions() {
     var toggle = document.getElementById('tr-auto-campaign-toggle');
     if (!toggle) return;
-    fetch(APApi.base() + '/company-state?key=trendActions')
+    fetch(APApi.base() + '/company-state?key=trendIntel')
       .then(function (res) { return res.ok ? res.json() : null; })
       .then(function (data) {
-        var cfg = data && data.value ? data.value : data;
+        var intel = data && data.value ? data.value : data;
+        var cfg = intel && intel.actions ? intel.actions : {};
         if (cfg && cfg.auto_campaign_enabled === true) {
           toggle.checked = true;
         }
@@ -659,11 +660,18 @@
       var k = sessionStorage.getItem('ap_server_key');
       if (k) headers['x-company-secret'] = k;
     } catch (e) {}
-    return fetch(APApi.base() + '/company-state', {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({ key: 'trendActions', value: cfg })
-    });
+    // Phase 5: read trendIntel, update .actions, write back
+    return fetch(APApi.base() + '/company-state?key=trendIntel', { headers: headers })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        var intel = (data && data.value ? data.value : data) || {};
+        intel.actions = cfg;
+        return fetch(APApi.base() + '/company-state', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({ key: 'trendIntel', value: intel })
+        });
+      });
   }
 
   /* ── Init ── */

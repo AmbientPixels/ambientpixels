@@ -19,7 +19,7 @@ const VALID_KEYS = [
   'contentEngineConfig', 'imageAssets', 'runtimeMemory',
   'execution_mode', 'socialCredentials',
   'demoChatCount', 'researchIntel',
-  'trendRadar', 'trendInsights', 'trendActions', 'systemConfig',
+  'trendRadar', 'trendInsights', 'trendActions', 'trendIntel', 'systemConfig',
   'agentPerformance', 'agentExperiments',
   'geminiUsage', 'blogPostViews',
   'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats',

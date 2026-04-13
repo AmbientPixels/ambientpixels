@@ -197,7 +197,8 @@ module.exports = async function (context) {
     const runtimeMemory = _stateResults[7] || {};
     const socialAccountStats = _stateResults[8] || null;
     let _publishedBlogPostsForDigest = _stateResults[9] || [];
-    let _weeklySnapshots = _stateResults[10] || [];
+    // Phase 5: weekly snapshots now live in runtimeMemory.weeklySnapshots (fallback to old key)
+    let _weeklySnapshots = (runtimeMemory && Array.isArray(runtimeMemory.weeklySnapshots)) ? runtimeMemory.weeklySnapshots : (_stateResults[10] || []);
     let _blogPostViewsForDigest = _stateResults[11] || [];
     const socialIntel = _socialIntelBuildDigest(
       runtimeMemory && runtimeMemory.socialIntel,
@@ -218,7 +219,9 @@ module.exports = async function (context) {
       if (!_lastSnap || _lastSnap.week !== _newSnapshot.week) {
         _weeklySnapshots.push(_newSnapshot);
         if (_weeklySnapshots.length > 4) _weeklySnapshots = _weeklySnapshots.slice(-4);
-        try { await storage.setState('socialWeeklySnapshots', _weeklySnapshots); } catch (_e) { context.log('[heartbeat] Failed to save weekly snapshot:', _e.message); }
+        // Phase 5: save into runtimeMemory.weeklySnapshots instead of separate key
+        runtimeMemory.weeklySnapshots = _weeklySnapshots;
+        // runtimeMemory gets saved later in the heartbeat cycle (line ~2761)
       }
     }
     // Build agent performance digest (AutoResearch feedback loop)
@@ -380,16 +383,33 @@ module.exports = async function (context) {
       _safe(storage.getState('agentMemories')),
       _safe(storage.getState('agentSeedMemories')),
       _safe(storage.getState('researchIntel')),
-      _safe(storage.getState('trendRadar')),
-      _safe(storage.getState('trendInsights')),
+      _safe(storage.getState('trendIntel')),
       _safe(storage.getState('systemConfig'))
     ]);
     _agentMemoryStore = _stateResults2[0] || {};
     const _seedMemories = _stateResults2[1] || {};
     let researchIntelStore = _stateResults2[2] || [];
-    let trendRadarStore = _stateResults2[3] || [];
-    let trendInsightsStore = _stateResults2[4] || [];
-    let _systemConfig = _stateResults2[5] || {};
+    let _trendIntel = _stateResults2[3] || {};
+    let _systemConfig = _stateResults2[4] || {};
+
+    // ── Phase 5: One-time migration from separate trend keys to trendIntel ──
+    if (!_trendIntel.radar && !_trendIntel.insights && !_trendIntel.actions) {
+      // trendIntel doesn't exist yet — migrate from old keys
+      var _oldRadar = [], _oldInsights = [], _oldActions = {};
+      try { _oldRadar = (await storage.getState('trendRadar')) || []; } catch (_e) { /* non-fatal */ }
+      try { _oldInsights = (await storage.getState('trendInsights')) || []; } catch (_e) { /* non-fatal */ }
+      try { _oldActions = (await storage.getState('trendActions')) || {}; } catch (_e) { /* non-fatal */ }
+      if (_oldRadar.length > 0 || _oldInsights.length > 0 || Object.keys(_oldActions).length > 0) {
+        _trendIntel = { radar: _oldRadar, insights: _oldInsights, actions: _oldActions };
+        try {
+          await storage.setState('trendIntel', _trendIntel);
+          context.log('[Heartbeat] Phase 5 migration: merged trendRadar + trendInsights + trendActions → trendIntel');
+        } catch (_migErr) { context.log('[Heartbeat] Phase 5 migration failed (non-fatal):', _migErr.message); }
+      }
+    }
+    // Extract sub-stores for backward compat with existing code
+    let trendRadarStore = _trendIntel.radar || [];
+    let trendInsightsStore = _trendIntel.insights || [];
     const _runtimeCaps = {
       maxCreatesPerAgentPerRun:  _systemConfig.maxCreatesPerAgentPerRun  != null ? Number(_systemConfig.maxCreatesPerAgentPerRun)  : CAP_DEFAULTS.maxCreatesPerAgentPerRun,
       maxMovesPerAgentPerRun:    _systemConfig.maxMovesPerAgentPerRun    != null ? Number(_systemConfig.maxMovesPerAgentPerRun)    : CAP_DEFAULTS.maxMovesPerAgentPerRun,
@@ -1509,14 +1529,14 @@ module.exports = async function (context) {
             researchIntelStore = researchIntelStore.slice(-MAX_RESEARCH_STORE_ENTRIES);
           }
         }
-        // Persist Scout's trend insights analysis
+        // Persist Scout's trend insights analysis → trendIntel.insights
         if (result.newTrendInsights) {
           try {
-            var _tiStore = (await storage.getState('trendInsights')) || [];
-            _tiStore.push(result.newTrendInsights);
-            if (_tiStore.length > 50) _tiStore = _tiStore.slice(-50);
-            await storage.setState('trendInsights', _tiStore);
-            context.log('[Heartbeat] scout: trendInsights persisted, id:', result.newTrendInsights.id);
+            trendInsightsStore.push(result.newTrendInsights);
+            if (trendInsightsStore.length > 50) trendInsightsStore = trendInsightsStore.slice(-50);
+            _trendIntel.insights = trendInsightsStore;
+            await storage.setState('trendIntel', _trendIntel);
+            context.log('[Heartbeat] scout: trendInsights persisted to trendIntel, id:', result.newTrendInsights.id);
           } catch (_tiErr) {
             context.log.warn('[Heartbeat] trendInsights persist failed (non-fatal):', _tiErr && _tiErr.message);
           }
