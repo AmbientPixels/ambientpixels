@@ -9,6 +9,7 @@ const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
+const { AGENT_CAPABILITIES } = require('./agent-capabilities');
 
 // ── Prompt Coverage Guard ──
 // Logs startup warnings if a valid taskType or social platform is missing from prompt definitions.
@@ -103,6 +104,7 @@ var SKILL_ROUTING = {
 
 function buildHeartbeatPrompt(ctx) {
   var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages, lastRunBlockedActions } = ctx;
+  var _pcaps = AGENT_CAPABILITIES[agent && agent.id] || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -172,7 +174,7 @@ function buildHeartbeatPrompt(ctx) {
 
   // SERVER-SIDE HERO IMAGE NUDGE: If Pixel has a hero image task idle for 5+ min, inject urgent override
   let heroImageNudge = '';
-  if (agent.name === 'Pixel') {
+  if (_pcaps.heroImageNudge) {
     const _heroTask = agentTasks.find(t =>
       (t.status === 'todo' || t.status === 'in-progress') &&
       (t.title || '').indexOf('Generate hero image for:') === 0 &&
@@ -237,7 +239,7 @@ DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
   // Nova-only: surface untriaged tasks — ANY task without a Nova/system comment needs triage
   // CEO/manual tasks get a PRIORITY LANE — always shown first, never buried by agent-created noise
   let triageSection = '';
-  if (agent.name === 'Nova') {
+  if (_pcaps.taskFilterAll) { // Nova triage section
     const _hasNovaComment = (t) => t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system');
     const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     const allUntriaged = allActiveTasks.filter(t => t.status !== 'done' && (!_hasNovaComment(t) || !t.assignee));
@@ -601,7 +603,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   let pixelProductVisualSection = '';
   let pixelDesignGapsSection = '';
 
-  if (agent.id === 'pixel') {
+  if (_pcaps.canGenerateImage) { // Pixel visual sections
     // 1. Visual Performance — blog views + product page traffic
     var _pxTopBlogs = (socialIntel && socialIntel.topBlogPosts) || [];
     var _pxTopPages = (siteIntel && siteIntel.telemetry && siteIntel.telemetry.topPages) || [];
@@ -718,7 +720,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   let scribeRecentContentSection = '';
   let scribeContentGapSection = '';
 
-  if (agent.id === 'scribe') {
+  if (_pcaps.canBlogPublish) { // Scribe content sections
     // 1. Content Performance — top blog posts + top social copy
     var _scTopBlogs = (socialIntel && socialIntel.topBlogPosts) || [];
     var _scTopPosts = (socialIntel && socialIntel.topPosts7d) || [];
@@ -838,7 +840,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
   let quillFeedbackPatternSection = '';
   let quillCeoCorrectionsSection = '';
 
-  if (agent.id === 'quill') {
+  if (_pcaps.copyReviewInjection) { // Quill copy review sections
     // 1. Copy Performance — social posts that went through Quill's review gate
     var _quTopPosts = (socialIntel && socialIntel.topPosts7d) || [];
     if (_quTopPosts.length > 0) {
@@ -895,7 +897,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
 
   // Trend Insights — Echo: trending topics as content angle inspiration
   let echoTrendSection = '';
-  if (agent.id === 'echo' && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
+  if (_pcaps.socialInjection && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) { // Echo trend section
     var _echoLatest = trendInsightsStore[trendInsightsStore.length - 1];
     var _echoAge = Date.now() - new Date(_echoLatest.timestamp || _echoLatest.analysisDate || 0).getTime();
     if (_echoAge < TREND_RADAR_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 && Array.isArray(_echoLatest.insights)) {
@@ -916,15 +918,15 @@ Where relevant to your content tasks, weave in references to these trends to inc
     }
   }
 
-  // Campaign velocity digest for Echo
+  // Campaign velocity digest
   let campaignVelocitySection = '';
-  if (agent.id === 'echo') {
+  if (_pcaps.socialInjection) { // Echo campaign velocity
     campaignVelocitySection = _buildCampaignVelocityBlock(activeDirectives, allActiveTasks);
   }
 
   // Social → site traffic for Echo (requires siteIntel param)
   let socialTrafficSection = '';
-  if (agent.id === 'echo' && siteIntel) {
+  if (_pcaps.socialInjection && siteIntel) { // Echo social traffic
     var _si = siteIntel;
     if (_si.telemetry && Array.isArray(_si.telemetry.topReferrers)) {
       var _referrers = _si.telemetry.topReferrers;
@@ -994,7 +996,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
 
   // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
-  if (agent.name === 'Cipher') {
+  if (_pcaps.canFinanceReport) { // Cipher cost section
     costSection = _buildFinancePromptBlock(agent, financeDigest);
     // Fallback: if finance digest failed but raw costIntel exists, show minimal summary
     if (!costSection && costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0) {
@@ -1241,7 +1243,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   var founderVoiceBlock = '';
   try {
     var _founderVoice = require('../_data/founder-voice-examples.json');
-    if (agent.id === 'scribe' && _founderVoice && _founderVoice.examples && _founderVoice.examples.length > 0) {
+    if (_pcaps.canBlogPublish && _founderVoice && _founderVoice.examples && _founderVoice.examples.length > 0) { // Scribe founder voice
       var fvLines = ['\n🎤 FOUNDER VOICE (write social/short-form content in THIS voice — not corporate marketing):'];
       if (Array.isArray(_founderVoice.principles) && _founderVoice.principles.length > 0) {
         fvLines.push('\nPRINCIPLES:');
