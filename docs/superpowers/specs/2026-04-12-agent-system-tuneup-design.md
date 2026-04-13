@@ -81,7 +81,9 @@ In `buildHeartbeatPrompt()`, only include sections that appear in the agent's li
 
 **Fix in `api/companyHeartbeat/agent-runner.js`:**
 
-Instrument the **top 5 most-hit gates** first (not all 69). Based on the audit, these are:
+Instrument the **top 5 most-hit gates** first (not all 69). Ranking is from code review observation (gate density + known agent behavior patterns), not from measured block counts. Verify by checking `guardrails` counters in the last 5 heartbeatRuns before coding — if the actual top blockers differ, instrument those instead.
+
+Likely top 5 based on audit:
 1. Orphan task gate (missing objective_id/campaign_id)
 2. Task ceiling (50 active tasks)
 3. Social promo gate (missing reviewed_copy)
@@ -249,10 +251,11 @@ const MEMORY_TTL_DAYS = {
   - Everything else → `default` (14 days)
 - On each heartbeat, prune memories older than their TTL
 - When an agent re-records a similar memory (caught by Phase 1 dedup), reset the TTL instead of creating a duplicate
+- **Implementation note:** Phase 1 ships first without TTL. When implementing Phase 8, add a TTL reset hook to the Phase 1 skip path — when dedup catches a match, update the existing memory's `createdAt` timestamp (or add an `expiresAt` field) so it stays alive. The Phase 1 dedup function needs to return the matched memory reference, not just skip silently.
 - Seed memories have no TTL (permanent until CEO updates)
 
 **Files:**
-- `api/companyHeartbeat/agent-runner.js` — memory save + prune
+- `api/companyHeartbeat/agent-runner.js` — memory save + prune + back-reference Phase 1 skip path
 - `api/companyHeartbeat/constants.js` — MEMORY_TTL_DAYS
 
 ---
@@ -312,7 +315,7 @@ After each phase:
 ## Success Criteria
 
 - Agent memory signal-to-noise ratio: 30% → 80%+
-- Average prompt tokens: 27K → 15-18K
+- Average prompt size: **40% reduction from baseline** (measured by `prompt.length` in agent-runner.js logs — same metric as baseline, ~40% inaccurate for real tokens but consistent for relative comparison)
 - Pixel/Forge actions per day: 0 → 3+
 - Campaign tasks with 0 engagement: auto-slow instead of infinite replenish
 - Blocked actions repeated next cycle: current ~9% → <2%
