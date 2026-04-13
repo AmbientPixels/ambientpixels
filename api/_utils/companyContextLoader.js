@@ -55,11 +55,8 @@ async function loadCompanyState(options) {
   }
 
   if (includeIntelData) {
-    loads.socialMetricsEvents = storage.getState('socialMetricsEvents');
-    loads.socialEngagementSnapshots = storage.getState('socialEngagementSnapshots');
-    loads.socialEngagementMeta = storage.getState('socialEngagementMeta');
-    loads.socialAccountStats = storage.getState('socialAccountStats');
-    loads.socialWeeklySnapshots = storage.getState('socialWeeklySnapshots');
+    // Phase 5: consolidated social intel key
+    loads.socialIntel = storage.getState('socialIntel');
     loads.blogPostViews = storage.getState('blogPostViews');
     loads.heartbeatRuns = storage.getState('heartbeatRuns');
     loads.geminiUsage = storage.getState('geminiUsage');
@@ -88,6 +85,16 @@ async function loadCompanyState(options) {
   if (includeCampaigns) state.campaigns = Array.isArray(state.campaigns) ? state.campaigns : [];
   if (includeObjectives) state.objectives = Array.isArray(state.objectives) ? state.objectives : [];
   if (includeDocuments) state.documents = Array.isArray(state.documents) ? state.documents : [];
+
+  // Phase 5: unpack socialIntel into legacy field names for formatters
+  if (state.socialIntel) {
+    var _si = state.socialIntel;
+    state.socialMetricsEvents = _si.metricsEvents || [];
+    state.socialEngagementSnapshots = _si.engagementSnapshots || [];
+    state.socialEngagementMeta = _si.engagementMeta || {};
+    state.socialAccountStats = _si.accountStats || null;
+    state.socialWeeklySnapshots = (state.runtimeMemory && Array.isArray(state.runtimeMemory.weeklySnapshots)) ? state.runtimeMemory.weeklySnapshots : [];
+  }
 
   // Attach static data
   if (includeProductFacts) {

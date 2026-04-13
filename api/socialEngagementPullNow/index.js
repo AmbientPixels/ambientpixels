@@ -30,13 +30,16 @@ module.exports = async function (context, req) {
   }
 
   try {
-    const beforeSnapshots = (await storage.getState('socialEngagementSnapshots')) || [];
+    // Phase 5: read from socialIntel
+    var _siBeforeRaw = (await storage.getState('socialIntel')) || {};
+    const beforeSnapshots = _siBeforeRaw.engagementSnapshots || [];
     const beforeCount = Array.isArray(beforeSnapshots) ? beforeSnapshots.length : 0;
 
     await runSocialEngagementPull(context);
 
-    const meta = (await storage.getState('socialEngagementMeta')) || {};
-    const snapshots = (await storage.getState('socialEngagementSnapshots')) || [];
+    var _siAfterRaw = (await storage.getState('socialIntel')) || {};
+    const meta = _siAfterRaw.engagementMeta || {};
+    const snapshots = _siAfterRaw.engagementSnapshots || [];
     const totalCount = Array.isArray(snapshots) ? snapshots.length : 0;
     const added = Math.max(0, totalCount - beforeCount);
     const newRows = added > 0 ? snapshots.slice(totalCount - added) : [];

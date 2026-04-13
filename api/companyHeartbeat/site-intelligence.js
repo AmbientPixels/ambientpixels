@@ -57,7 +57,9 @@ async function _fetchSiteIntel(context, storage) {
 
   // 2) Social metrics from storage
   try {
-    const rawEvents = (await storage.getState('socialMetricsEvents')) || [];
+    // Phase 5: read from socialIntel.metricsEvents
+    var _siSiteIntel = (await storage.getState('socialIntel')) || {};
+    const rawEvents = _siSiteIntel.metricsEvents || [];
     if (Array.isArray(rawEvents) && rawEvents.length > 0) {
       const now = Date.now();
       const weekAgo = now - 7 * 86400000;

@@ -392,7 +392,9 @@ module.exports = async function (context, req) {
   try {
     // Check cache
     if (!forceRefresh) {
-      var cached = await storage.getState(CACHE_KEY);
+      // Phase 5: read from socialIntel.accountStats, fallback to old key
+      var _siCache = (await storage.getState('socialIntel')) || {};
+      var cached = _siCache.accountStats || (await storage.getState(CACHE_KEY));
       if (cached && cached._cachedAt) {
         var age = Date.now() - Date.parse(cached._cachedAt);
         if (age < CACHE_TTL_MS) {
@@ -458,8 +460,10 @@ module.exports = async function (context, req) {
       errors: errors
     };
 
-    // Persist cache
-    await storage.setState(CACHE_KEY, payload);
+    // Phase 5: persist to socialIntel.accountStats
+    var _siWrite = (await storage.getState('socialIntel')) || {};
+    _siWrite.accountStats = payload;
+    await storage.setState('socialIntel', _siWrite);
 
     context.res = {
       status: 200,

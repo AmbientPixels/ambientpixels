@@ -22,7 +22,7 @@ const VALID_KEYS = [
   'trendRadar', 'trendInsights', 'trendActions', 'trendIntel', 'systemConfig',
   'agentPerformance', 'agentExperiments',
   'geminiUsage', 'blogPostViews',
-  'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats',
+  'socialIntel', 'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats',
   'socialWeeklySnapshots',
   'blueskyCandidates',
   'agentMessages'

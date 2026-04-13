@@ -106,11 +106,12 @@ async function _pullXMetrics(postId) {
 }
 
 async function _persistLastPulledAt() {
-  const meta = (await storage.getState('socialEngagementMeta')) || {};
-  const next = Object.assign({}, meta, {
-    lastPulledAt: _iso()
-  });
-  await storage.setState('socialEngagementMeta', next);
+  // Phase 5: write to socialIntel.engagementMeta
+  var intel = (await storage.getState('socialIntel')) || {};
+  var meta = intel.engagementMeta || {};
+  var next = Object.assign({}, meta, { lastPulledAt: _iso() });
+  intel.engagementMeta = next;
+  await storage.setState('socialIntel', intel);
 }
 
 async function _pullLinkedInMetrics(postId) {
@@ -225,7 +226,9 @@ module.exports = async function (context) {
   const mode = 'real';
 
   try {
-    const events = (await storage.getState('socialMetricsEvents')) || [];
+    // Phase 5: read from socialIntel.metricsEvents
+    var _siPull = (await storage.getState('socialIntel')) || {};
+    const events = _siPull.metricsEvents || [];
     const targets = _extractRecentSuccessPosts(events);
     const snapshots = [];
     if (targets.length) {
@@ -254,10 +257,13 @@ module.exports = async function (context) {
     }
 
     if (snapshots.length) {
-      const existing = (await storage.getState('socialEngagementSnapshots')) || [];
-      const merged = existing.concat(snapshots);
-      const trimmed = merged.length > MAX_SNAPSHOTS ? merged.slice(-MAX_SNAPSHOTS) : merged;
-      await storage.setState('socialEngagementSnapshots', trimmed);
+      // Phase 5: write to socialIntel.engagementSnapshots
+      var _siSnap = (await storage.getState('socialIntel')) || {};
+      var existing = Array.isArray(_siSnap.engagementSnapshots) ? _siSnap.engagementSnapshots : ((await storage.getState('socialEngagementSnapshots')) || []);
+      var merged = existing.concat(snapshots);
+      var trimmed = merged.length > MAX_SNAPSHOTS ? merged.slice(-MAX_SNAPSHOTS) : merged;
+      _siSnap.engagementSnapshots = trimmed;
+      await storage.setState('socialIntel', _siSnap);
       context.log('[socialEngagementPull] Appended snapshots:', snapshots.length, 'mode=', mode);
     }
 

@@ -179,28 +179,26 @@ module.exports = async function (context) {
       _safe(storage.getState('workspaceMemory')),
       _safe(storage.getState('dates')),
       _safe(storage.getState('actions')),
-      _safe(storage.getState('socialMetricsEvents')),
-      _safe(storage.getState('socialEngagementSnapshots')),
-      _safe(storage.getState('socialEngagementMeta')),
+      _safe(storage.getState('socialIntel')),
       _safe(storage.getState('runtimeMemory')),
-      _safe(storage.getState('socialAccountStats')),
       _safe(storage.getState('blogPosts')),
-      _safe(storage.getState('socialWeeklySnapshots')),
       _safe(storage.getState('blogPostViews'))
     ]);
     const documents = _stateResults[0] || [];
     const workspaceMemory = _stateResults[1] || [];
     const workspaceDates = _stateResults[2] || [];
     const allActions = _stateResults[3] || [];
-    const socialMetricsEvents = _stateResults[4] || [];
-    const socialEngagementSnapshots = _stateResults[5] || [];
-    const socialEngagementMeta = _stateResults[6] || {};
-    const runtimeMemory = _stateResults[7] || {};
-    const socialAccountStats = _stateResults[8] || null;
-    let _publishedBlogPostsForDigest = _stateResults[9] || [];
-    // Phase 5: weekly snapshots now live in runtimeMemory.weeklySnapshots (fallback to old key)
-    let _weeklySnapshots = (runtimeMemory && Array.isArray(runtimeMemory.weeklySnapshots)) ? runtimeMemory.weeklySnapshots : (_stateResults[10] || []);
-    let _blogPostViewsForDigest = _stateResults[11] || [];
+    // Phase 5: social data now consolidated in socialIntel key
+    const _socialIntelStore = _stateResults[4] || {};
+    const socialMetricsEvents = _socialIntelStore.metricsEvents || [];
+    const socialEngagementSnapshots = _socialIntelStore.engagementSnapshots || [];
+    const socialEngagementMeta = _socialIntelStore.engagementMeta || {};
+    const socialAccountStats = _socialIntelStore.accountStats || null;
+    const runtimeMemory = _stateResults[5] || {};
+    let _publishedBlogPostsForDigest = _stateResults[6] || [];
+    let _blogPostViewsForDigest = _stateResults[7] || [];
+    // Phase 5: weekly snapshots now live in runtimeMemory.weeklySnapshots
+    let _weeklySnapshots = (runtimeMemory && Array.isArray(runtimeMemory.weeklySnapshots)) ? runtimeMemory.weeklySnapshots : [];
     const socialIntel = _socialIntelBuildDigest(
       runtimeMemory && runtimeMemory.socialIntel,
       socialMetricsEvents,
