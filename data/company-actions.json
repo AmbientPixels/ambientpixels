@@ -1,6 +1,15 @@
 {
-  "version": "1.0",
-  "description": "Action Router v1 — Action type registry with risk levels and governance rules",
+  "version": "1.1",
+  "description": "Action registry — risk levels and handler taxonomy. This file is documentation-only at runtime (no code reads it); the canonical list of agent-emitted action types lives in api/companyHeartbeat/constants.js KNOWN_ACTION_TYPES, and the canonical list of executable types lives in api/actionsExecute/executors/index.js EXECUTABLE_TYPES. This registry describes legacy v1 type names that the Heavy-tier audit surfaced as ambiguous, now annotated with their real handler path for future maintainability.",
+  "handlerTaxonomy": {
+    "actionsExecute": "Has an HTTP executor in api/actionsExecute/executors/ — runs when CEO approves the action in the dashboard. Currently: social_post.publish/schedule/reply, publish_document.",
+    "heartbeat": "Auto-executes during a heartbeat cycle in api/companyHeartbeat/agent-runner.js (Nova lifecycle branch or similar). No CEO approval needed; reversible operations.",
+    "heartbeat-mutation": "Handled by api/companyHeartbeat/task-mutations.js — pure state changes on tasks/docs. Agent emits via the hyphen-cased names in KNOWN_ACTION_TYPES (create-task, update-task, etc.).",
+    "approval-queue": "Agent emits → written to approvalQueue state key → CEO decides. No automated executor; CEO action drives next step.",
+    "heartbeat-approval-queue": "Agent proposes via heartbeat, lands in approvalQueue for CEO approval (irreversible operations like cancel_campaign).",
+    "legacy": "Registry entry predates current architecture. Real flow is documented in deprecation_note. Kept as historical documentation; no runtime impact.",
+    "dead": "No handler anywhere in the codebase. Safe to remove once all references (prompts, tests, docs) are scrubbed."
+  },
   "actions": [
     {
       "id": "add_task_comment",
@@ -9,7 +18,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "task",
-      "enabled": true
+      "handler": "dead",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Real flow: agents emit the hyphen-cased `comment-task` action which is handled by task-mutations.js in the heartbeat. No runtime handler for this v1 name exists."
     },
     {
       "id": "label_task",
@@ -18,7 +29,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "task",
-      "enabled": true
+      "handler": "dead",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Task tags are set directly via create-task / update-task actions handled in task-mutations.js. No handler for this specific type."
     },
     {
       "id": "move_task_lane",
@@ -27,7 +40,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "task",
-      "enabled": true
+      "handler": "dead",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Agents use `move-task` (hyphen-cased) handled by task-mutations.js. No handler for this specific type."
     },
     {
       "id": "request_info",
@@ -36,7 +51,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "task",
-      "enabled": true
+      "handler": "dead",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Agents add clarifying comments via comment-task or reassign via update-task. No dedicated handler for request_info."
     },
     {
       "id": "move_task_to_done",
@@ -45,7 +62,9 @@
       "requiresApproval": true,
       "requiresVerification": true,
       "executor": "task",
-      "enabled": true
+      "handler": "legacy",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Status transitions to 'done' are handled via the peer-review auto-complete path in task-mutations.js (social_copy + hero_image auto-complete) or explicit CEO status change. Agents do not emit this name."
     },
     {
       "id": "publish_social_draft",
@@ -54,7 +73,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "social",
-      "enabled": true
+      "handler": "legacy",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Real flow: agent emits `create-social-action` → approvalQueue → CEO approves → actionsExecute runs social_post.publish/schedule. See api/actionsExecute/executors/social/."
     },
     {
       "id": "create_task",
@@ -63,7 +84,9 @@
       "requiresApproval": true,
       "requiresVerification": false,
       "executor": "task",
-      "enabled": true
+      "handler": "heartbeat-mutation",
+      "enabled": true,
+      "handler_note": "Canonical name: `create-task` (hyphen-cased). Handled by api/companyHeartbeat/task-mutations.js. Passes through 8 blocking gates (orphan/dup/ceiling/etc.) — see Governance system. Policy-violation logged on any gate fire."
     },
     {
       "id": "delete_task",
@@ -72,7 +95,9 @@
       "requiresApproval": true,
       "requiresVerification": false,
       "executor": "task",
-      "enabled": false
+      "handler": "dead",
+      "enabled": false,
+      "deprecation_note": "Intentionally disabled. Tasks are moved to archived status rather than deleted, preserving audit trail."
     },
     {
       "id": "publish_social_live",
@@ -81,7 +106,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "social",
-      "enabled": true
+      "handler": "legacy",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Real flow: actionsExecute route social_post.publish (via bluesky/x/linkedin/facebook/reddit executors). See api/actionsExecute/executors/social/."
     },
     {
       "id": "publish_content",
@@ -90,7 +117,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "content",
-      "enabled": true
+      "handler": "legacy",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Real flow: agent emits `submit-for-publish` → approvalQueue → CEO approves → actionsExecute publish_document. See api/actionsExecute/executors/content/publishDocument.js."
     },
     {
       "id": "publish_blog_draft",
@@ -99,7 +128,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "content",
-      "enabled": true
+      "handler": "legacy",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. Blog drafts are created via `create-doc` (kind: marketing_post) handled by task-mutations.js, then submitted via submit-for-publish. See documents state key."
     },
     {
       "id": "git_open_pr",
@@ -108,7 +139,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "git",
-      "enabled": true
+      "handler": "dead",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. No git integration currently exists; CEO opens PRs manually from the dev environment."
     },
     {
       "id": "system_adjustment",
@@ -117,7 +150,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "system",
-      "enabled": true
+      "handler": "dead",
+      "enabled": false,
+      "deprecation_note": "v1 legacy. No handler. Forge can issue `system_directive` tasks (a distinct mechanism) to course-correct other agents — see DIRECTIVE_AUTHORIZED_AGENTS in constants.js."
     },
     {
       "id": "propose_campaign",
@@ -126,7 +161,9 @@
       "requiresApproval": true,
       "requiresVerification": false,
       "executor": "marketing",
-      "enabled": true
+      "handler": "approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `propose-campaign`. Echo/Nova emit → written to approvalQueue state via agentchat/index.js (or heartbeat agent-runner.js). CEO approval auto-creates the campaign."
     },
     {
       "id": "propose_objective",
@@ -135,7 +172,9 @@
       "requiresApproval": true,
       "requiresVerification": false,
       "executor": "strategy",
-      "enabled": true
+      "handler": "approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `propose-objective`. Nova-only (rate-limited 1/day). Written to approvalQueue; CEO approval auto-creates the objective. Required fields: title, description, rationale, successCriteria, timeHorizon."
     },
     {
       "id": "pause_campaign",
@@ -144,7 +183,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "strategy",
-      "enabled": true
+      "handler": "heartbeat",
+      "enabled": true,
+      "handler_note": "Canonical name: `pause-campaign`. Nova auto-executes reversibly in heartbeat. 48h cooldown before resume. Handled by agent-runner.js lifecycle branch."
     },
     {
       "id": "resume_campaign",
@@ -153,7 +194,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "strategy",
-      "enabled": true
+      "handler": "heartbeat",
+      "enabled": true,
+      "handler_note": "Canonical name: `resume-campaign`. Nova auto-executes in heartbeat after 48h cooldown expires. Handled by agent-runner.js lifecycle branch."
     },
     {
       "id": "complete_campaign",
@@ -162,7 +205,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "strategy",
-      "enabled": true
+      "handler": "heartbeat",
+      "enabled": true,
+      "handler_note": "Canonical name: `complete-campaign`. Nova auto-executes in heartbeat. Handled by agent-runner.js lifecycle branch."
     },
     {
       "id": "archive_objective",
@@ -171,7 +216,9 @@
       "requiresApproval": false,
       "requiresVerification": false,
       "executor": "strategy",
-      "enabled": true
+      "handler": "heartbeat",
+      "enabled": true,
+      "handler_note": "Canonical name: `archive-objective`. Nova auto-executes soft-archive after 14+ days of no activity. Handled by agent-runner.js lifecycle branch."
     },
     {
       "id": "cancel_campaign",
@@ -180,7 +227,9 @@
       "requiresApproval": true,
       "requiresVerification": false,
       "executor": "strategy",
-      "enabled": true
+      "handler": "heartbeat-approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `cancel-campaign`. Nova proposes via heartbeat → lands in approvalQueue as campaign_cancellation entry. Irreversible — requires CEO approval. Handled by agent-runner.js lifecycle branch."
     },
     {
       "id": "cancel_objective",
@@ -189,7 +238,9 @@
       "requiresApproval": true,
       "requiresVerification": false,
       "executor": "strategy",
-      "enabled": true
+      "handler": "heartbeat-approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `cancel-objective`. Nova proposes via heartbeat → lands in approvalQueue as objective_cancellation entry. Irreversible — requires CEO approval. Handled by agent-runner.js lifecycle branch."
     }
   ]
 }

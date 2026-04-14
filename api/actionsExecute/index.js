@@ -51,6 +51,18 @@ module.exports = async function (context, req) {
 
   const corsHeaders = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
 
+  // Auth gate (Q1). Production requires x-company-secret OR SWA auth principal. Demo-mode
+  // skips auth via DEMO_MODE=true. Without this, anyone with a leaked action_id could execute
+  // actions (e.g., post to social accounts). Matches governanceReport/actionAudit pattern.
+  if (process.env.DEMO_MODE !== 'true') {
+    const secret = (req.headers && req.headers['x-company-secret']) || '';
+    const principal = (req.headers && req.headers['x-ms-client-principal']) || '';
+    if (!storage.validateSecret(secret) && !principal) {
+      context.res = { status: 401, headers: corsHeaders, body: JSON.stringify({ error: 'Unauthorized' }) };
+      return;
+    }
+  }
+
   // Rate limit
   const clientIp = (req.headers['x-forwarded-for'] || '').split(',')[0] || 'unknown';
   if (!checkRateLimit(clientIp)) {
