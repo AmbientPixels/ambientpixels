@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Action Audit — execution outcomes, CEO decisions, platform latency, failure signals." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Action Audit — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .aud-stats { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .aud-stat {
+      flex: 1; min-width: 130px;
+      padding: 0.7rem 0.8rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      text-align: center;
+    }
+    .aud-stat-val { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+    .aud-stat-label { font-size: 0.55rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+    .aud-stat--alert .aud-stat-val { color: #f87171; }
+    .aud-stat--warn .aud-stat-val { color: #fbbf24; }
+    .aud-stat--ok .aud-stat-val { color: #34d399; }
+
+    .aud-filters { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .aud-filters label { font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.04em; }
+    .aud-filters select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: inherit; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.8rem;
+    }
+
+    .aud-panel {
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      background: #1c1c1e;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .aud-panel-head {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.8rem; font-weight: 500;
+    }
+    .aud-panel-body { padding: 0.7rem 0.9rem; font-size: 0.82rem; }
+
+    .aud-failure-warn {
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      color: #fecaca;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+    }
+    .aud-failure-warn code {
+      background: rgba(0,0,0,0.3); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.9em;
+    }
+
+    .aud-bucket-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.4rem 1rem;
+    }
+    .aud-bucket-row { display: flex; justify-content: space-between; padding: 0.25rem 0.4rem; border-radius: 4px; }
+    .aud-bucket-row:hover { background: rgba(255,255,255,0.03); }
+    .aud-bucket-key { opacity: 0.8; }
+    .aud-bucket-val { font-weight: 600; opacity: 0.95; }
+
+    .aud-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .aud-table th, .aud-table td {
+      text-align: left; padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: top;
+    }
+    .aud-table th { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; font-weight: 500; }
+    .aud-table td code { background: rgba(255,255,255,0.05); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+
+    .aud-row-fail td { background: rgba(248,113,113,0.05); }
+    .aud-row-success td { color: rgba(255,255,255,0.8); }
+    .aud-row-pending td { color: rgba(251,191,36,0.8); }
+
+    .aud-outcome-chip {
+      display: inline-block; padding: 0.1rem 0.4rem; border-radius: 4px;
+      font-size: 0.72em; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .aud-outcome-success { background: rgba(52,211,153,0.15); color: #6ee7b7; }
+    .aud-outcome-failed  { background: rgba(248,113,113,0.15); color: #fca5a5; }
+    .aud-outcome-rejected { background: rgba(107,114,128,0.2); color: #d1d5db; }
+    .aud-outcome-pending { background: rgba(251,191,36,0.12); color: #fde68a; }
+    .aud-outcome-running { background: rgba(129,140,248,0.15); color: #c7d2fe; }
+
+    .aud-receipt-link { color: #6ee7b7; text-decoration: none; font-size: 0.88em; }
+    .aud-receipt-link:hover { text-decoration: underline; }
+
+    .aud-meta-line { font-size: 0.7rem; opacity: 0.5; margin-bottom: 0.8rem; }
+
+    .aud-ceo-chip {
+      display: inline-block; padding: 0.05rem 0.3rem; margin-right: 0.2rem; border-radius: 3px;
+      background: rgba(129,140,248,0.15); color: #c7d2fe; font-size: 0.7em;
+    }
+  </style>
+</head>
+
+<body data-theme="dark">
+
+  <main class="content-section" id="aud-main">
+
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-receipt co-icon-mr-lg dash-icon-cyan"></i>Action Audit</h1>
+        <p class="act-header-sub">Full lifecycle view: proposed → CEO decided → executed → outcome. Pulls actions state and cross-references governanceLog CEO decisions.</p>
+      </div>
+    </div>
+
+    <div class="aud-meta-line" id="aud-meta">Loading…</div>
+
+    <div class="aud-stats" id="aud-stats"></div>
+
+    <div class="aud-filters">
+      <label>Window</label>
+      <select id="aud-window">
+        <option value="7d" selected>Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="all">All time</option>
+      </select>
+      <label>Agent</label>
+      <select id="aud-agent">
+        <option value="">All</option>
+        <option value="nova">Nova</option>
+        <option value="cipher">Cipher</option>
+        <option value="pixel">Pixel</option>
+        <option value="forge">Forge</option>
+        <option value="echo">Echo</option>
+        <option value="scribe">Scribe</option>
+        <option value="quill">Quill</option>
+        <option value="scout">Scout</option>
+      </select>
+      <label>Type</label>
+      <select id="aud-type">
+        <option value="">All</option>
+        <option value="social_post.publish">social_post.publish</option>
+        <option value="social_post.schedule">social_post.schedule</option>
+        <option value="social_post.reply">social_post.reply</option>
+        <option value="publish_document">publish_document</option>
+        <option value="research_intel.approve">research_intel.approve</option>
+        <option value="task_completion.approve">task_completion.approve</option>
+      </select>
+      <label>Platform</label>
+      <select id="aud-platform">
+        <option value="">All</option>
+        <option value="bluesky">Bluesky</option>
+        <option value="x">X</option>
+        <option value="linkedin">LinkedIn</option>
+        <option value="facebook">Facebook</option>
+        <option value="reddit">Reddit</option>
+      </select>
+      <label>Outcome</label>
+      <select id="aud-outcome">
+        <option value="">All</option>
+        <option value="success">Success</option>
+        <option value="failed">Failed</option>
+        <option value="pending">Pending</option>
+        <option value="running">Running</option>
+        <option value="rejected">Rejected</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <div class="aud-panel" id="aud-failure-panel" style="display:none">
+      <div class="aud-panel-head"><i class="fas fa-triangle-exclamation" style="color:#f87171"></i>Recurring failure patterns</div>
+      <div class="aud-panel-body">
+        <div class="aud-failure-warn" id="aud-failure-body"></div>
+      </div>
+    </div>
+
+    <div class="aud-panel">
+      <div class="aud-panel-head"><i class="fas fa-list-check"></i>By action type</div>
+      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-type"></div></div>
+    </div>
+
+    <div class="aud-panel">
+      <div class="aud-panel-head"><i class="fas fa-user"></i>By agent</div>
+      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-agent"></div></div>
+    </div>
+
+    <div class="aud-panel">
+      <div class="aud-panel-head"><i class="fas fa-bullhorn"></i>By platform</div>
+      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-platform"></div></div>
+    </div>
+
+    <div class="aud-panel">
+      <div class="aud-panel-head"><i class="fas fa-gauge"></i>By outcome</div>
+      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-outcome"></div></div>
+    </div>
+
+    <div class="aud-panel">
+      <div class="aud-panel-head"><i class="fas fa-clock-rotate-left"></i>Recent actions (last 50, newest first)</div>
+      <div class="aud-panel-body">
+        <table class="aud-table" id="aud-table">
+          <thead>
+            <tr>
+              <th>Time</th><th>Type</th><th>Platform</th><th>Agent</th><th>CEO</th><th>Outcome</th><th>Latency</th><th>Link / Error</th>
+            </tr>
+          </thead>
+          <tbody id="aud-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    (function () {
+      var API_BASE = (window.AP_API_BASE || 'https://ambientpixels-nova-api.azurewebsites.net/api');
+      var SECRET_HEADER = { 'x-company-secret': 'pixelpusher' };
+
+      var state = { window: '7d', agent: '', type: '', platform: '', outcome: '', data: null };
+
+      function fmtTs(iso) {
+        if (!iso) return '';
+        try { return new Date(iso).toISOString().substring(5, 16).replace('T', ' '); }
+        catch (_) { return iso; }
+      }
+      function fmtMs(ms) {
+        if (ms == null) return '';
+        if (ms < 1000) return ms + 'ms';
+        return (ms / 1000).toFixed(1) + 's';
+      }
+
+      function renderBuckets(targetId, obj) {
+        var el = document.getElementById(targetId);
+        var keys = Object.keys(obj || {}).sort(function (a, b) { return (obj[b] || 0) - (obj[a] || 0); });
+        if (keys.length === 0) {
+          el.innerHTML = '<div style="opacity:0.4; font-size:0.78rem">No entries in window.</div>';
+          return;
+        }
+        el.innerHTML = keys.map(function (k) {
+          return '<div class="aud-bucket-row"><span class="aud-bucket-key">' + k + '</span><span class="aud-bucket-val">' + obj[k] + '</span></div>';
+        }).join('');
+      }
+
+      function renderStats(data) {
+        var s = data.summary || {};
+        var total = (data.meta && data.meta.totalActionsInWindow) || 0;
+        var success = (s.byOutcome && s.byOutcome.success) || 0;
+        var failed = (s.byOutcome && s.byOutcome.failed) || 0;
+        var successRate = (success + failed) > 0 ? Math.round(success / (success + failed) * 100) : null;
+        var p95 = s.p95LatencyMs;
+        var failuresTotal = (data.failureSignals || []).reduce(function (sum, f) { return sum + f.count; }, 0);
+
+        var ceo = s.ceoDecisionCounts || {};
+        var stats = [
+          { label: 'Total actions', val: total, cls: '' },
+          { label: 'Success rate', val: successRate == null ? '—' : successRate + '%', cls: successRate == null ? '' : (successRate >= 90 ? 'aud-stat--ok' : (successRate >= 70 ? 'aud-stat--warn' : 'aud-stat--alert')) },
+          { label: 'P95 latency', val: p95 == null ? '—' : fmtMs(p95), cls: p95 == null ? '' : (p95 < 5000 ? 'aud-stat--ok' : (p95 < 15000 ? 'aud-stat--warn' : 'aud-stat--alert')) },
+          { label: 'Failure patterns', val: (data.failureSignals || []).length, cls: failuresTotal > 0 ? 'aud-stat--alert' : 'aud-stat--ok' },
+          { label: 'CEO approvals', val: ceo.approvals || 0, cls: '' },
+          { label: 'CEO rejects', val: ceo.rejects || 0, cls: '' }
+        ];
+        document.getElementById('aud-stats').innerHTML = stats.map(function (st) {
+          return '<div class="aud-stat ' + st.cls + '"><div class="aud-stat-val">' + st.val + '</div><div class="aud-stat-label">' + st.label + '</div></div>';
+        }).join('');
+      }
+
+      function renderFailures(data) {
+        var panel = document.getElementById('aud-failure-panel');
+        var body = document.getElementById('aud-failure-body');
+        var sigs = data.failureSignals || [];
+        if (!sigs.length) { panel.style.display = 'none'; return; }
+        panel.style.display = '';
+        body.innerHTML = sigs.map(function (f) {
+          return '<div style="margin-bottom:0.3rem"><code>' + (f.type || '') + '</code> · ' + (f.platform || '') + ' · error: <code>' + (f.error || '') + '</code> · <strong>' + f.count + '\u00d7</strong></div>';
+        }).join('');
+      }
+
+      function renderTable(data) {
+        var entries = data.recentEntries || [];
+        var tbody = document.getElementById('aud-table-body');
+        if (!entries.length) {
+          tbody.innerHTML = '<tr><td colspan="8" style="opacity:0.4">No entries in window.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = entries.map(function (e) {
+          var rowCls = e.outcome === 'failed' ? 'aud-row-fail'
+            : e.outcome === 'success' ? 'aud-row-success'
+            : (e.outcome === 'pending' || e.outcome === 'running') ? 'aud-row-pending' : '';
+          var outcomeClass = 'aud-outcome-' + (e.outcome || 'pending');
+          var ceoChips = (e.ceoDecisions || []).map(function (d) {
+            return '<span class="aud-ceo-chip">' + (d.type || '').replace('ceo-', '') + '</span>';
+          }).join('');
+          var linkOrErr = e.receiptUrl
+            ? '<a class="aud-receipt-link" href="' + e.receiptUrl + '" target="_blank" rel="noopener">View <i class="fas fa-arrow-up-right-from-square" style="font-size:0.85em"></i></a>'
+            : (e.error ? '<span style="color:#fca5a5">' + String(e.error).substring(0, 60) + '</span>' : '');
+          return '<tr class="' + rowCls + '">' +
+            '<td style="white-space:nowrap">' + fmtTs(e.created_at) + '</td>' +
+            '<td><code>' + (e.type || '') + '</code></td>' +
+            '<td>' + (e.platform || '') + '</td>' +
+            '<td>' + (e.agent || '') + '</td>' +
+            '<td>' + (ceoChips || '<span style="opacity:0.3">—</span>') + '</td>' +
+            '<td><span class="aud-outcome-chip ' + outcomeClass + '">' + (e.outcome || '') + '</span></td>' +
+            '<td style="white-space:nowrap">' + (e.latencyMs == null ? '' : fmtMs(e.latencyMs)) + '</td>' +
+            '<td>' + linkOrErr + '</td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      function renderMeta(data) {
+        var m = data.meta || {};
+        var s = data.summary || {};
+        var txt = 'As of ' + (m.asOfUtc || '—') +
+          ' · window: ' + (m.windowDays ? m.windowDays + 'd' : 'all time') +
+          ' · ' + (m.totalActionsInWindow || 0) + ' actions' +
+          (m.totalActionsAllTime ? ' (' + m.totalActionsAllTime + ' all-time)' : '') +
+          (s.latencySamples ? ' · ' + s.latencySamples + ' latency samples · avg ' + fmtMs(s.avgLatencyMs) + ' / p50 ' + fmtMs(s.p50LatencyMs) + ' / p95 ' + fmtMs(s.p95LatencyMs) : '');
+        document.getElementById('aud-meta').textContent = txt;
+      }
+
+      function renderAll(data) {
+        renderMeta(data);
+        renderStats(data);
+        renderFailures(data);
+        renderBuckets('aud-by-type', data.summary && data.summary.byType || {});
+        renderBuckets('aud-by-agent', data.summary && data.summary.byAgent || {});
+        renderBuckets('aud-by-platform', data.summary && data.summary.byPlatform || {});
+        renderBuckets('aud-by-outcome', data.summary && data.summary.byOutcome || {});
+        renderTable(data);
+      }
+
+      function load() {
+        var p = new URLSearchParams();
+        p.set('window', state.window);
+        if (state.agent) p.set('agent', state.agent);
+        if (state.type) p.set('type', state.type);
+        if (state.platform) p.set('platform', state.platform);
+        if (state.outcome) p.set('outcome', state.outcome);
+        document.getElementById('aud-meta').textContent = 'Loading…';
+        fetch(API_BASE + '/action-audit?' + p.toString(), { headers: SECRET_HEADER })
+          .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+          .then(function (resp) {
+            if (!resp.ok) throw new Error((resp.body && resp.body.error) || 'Request failed');
+            state.data = resp.body;
+            renderAll(resp.body);
+          })
+          .catch(function (err) {
+            document.getElementById('aud-meta').textContent = 'Failed to load: ' + (err.message || err);
+          });
+      }
+
+      ['aud-window', 'aud-agent', 'aud-type', 'aud-platform', 'aud-outcome'].forEach(function (id) {
+        document.getElementById(id).addEventListener('change', function (e) {
+          state[id.replace('aud-', '')] = e.target.value;
+          load();
+        });
+      });
+
+      load();
+    })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>

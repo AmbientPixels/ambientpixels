@@ -108,6 +108,7 @@
         { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
         { href: BASE + 'agent-intelligence.html', label: 'Agent Intel', icon: 'fa-lightbulb', match: ['agent-intelligence.html'] },
         { href: BASE + 'governance-report.html', label: 'Governance', icon: 'fa-shield-halved', match: ['governance-report.html'], minMode: 'admin' },
+        { href: BASE + 'action-audit.html', label: 'Action Audit', icon: 'fa-receipt', match: ['action-audit.html'], minMode: 'admin' },
         { href: BASE + 'memory-stack.html', label: 'Diagnostics', icon: 'fa-microscope', match: ['memory-stack.html'], minMode: 'admin' }
       ]
     }
