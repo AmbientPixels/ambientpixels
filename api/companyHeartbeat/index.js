@@ -12,6 +12,7 @@ const { _socialIntelBuildDigest, _buildWeeklySnapshot, _buildCampaignVelocityBlo
 const { buildForgeOpsDigest } = require('./ops-intel');
 const { buildFinanceDigest } = require('./finance-intel');
 const { buildResearchDemandDigest } = require('./research-intel');
+const { buildContentDigest } = require('./content-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
@@ -232,6 +233,19 @@ module.exports = async function (context) {
     // Scout research demand digest (aggregates signals from all other digests — Scout runs last)
     var researchDemandDigest = null;
     try { researchDemandDigest = buildResearchDemandDigest(socialIntel, forgeOpsDigest, financeDigest, performanceDigest, tasks, researchIntelStore, campaigns, skillsData, Date.now()); } catch (_e) { context.log('[heartbeat] Research demand digest failed (non-fatal):', _e.message); }
+    // Content intelligence digest (Scribe/Pixel/Quill — top posts, hero perf, pipeline stats, Quill themes)
+    var contentDigest = null;
+    try {
+      var _existingContent = runtimeMemory && runtimeMemory.contentDigest;
+      contentDigest = buildContentDigest({
+        blogPosts: _publishedBlogPostsForDigest,
+        blogPostViews: _blogPostViewsForDigest,
+        documents: documents,
+        actions: allActions,
+        tasks: tasks
+      }, _existingContent, Date.now());
+      if (contentDigest) runtimeMemory.contentDigest = contentDigest;
+    } catch (_e) { context.log('[heartbeat] Content digest failed (non-fatal):', _e.message); }
 
     // ── Quality History — rolling daily snapshots for trend sparkline ──
     var _qh = Array.isArray(runtimeMemory.qualityHistory) ? runtimeMemory.qualityHistory : [];
@@ -1422,7 +1436,7 @@ module.exports = async function (context) {
             trendInsightsStore: (aid === 'nova' || aid === 'scribe' || aid === 'echo') ? trendInsightsStore : null,
             performanceDigest, agentExperiments,
             productFacts, skillsData,
-            forgeOpsDigest, financeDigest, researchDemandDigest,
+            forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest,
             socialAccountStats,
             weeklyReportsStore,
             publishedBlogPosts: _publishedBlogPostsForDigest,
@@ -1489,7 +1503,7 @@ module.exports = async function (context) {
           trendInsightsStore: (agentId === 'nova' || agentId === 'scribe' || agentId === 'echo') ? trendInsightsStore : null,
           performanceDigest, agentExperiments,
           productFacts, skillsData,
-          forgeOpsDigest, financeDigest, researchDemandDigest,
+          forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest,
           socialAccountStats,
           weeklyReportsStore,
           publishedBlogPosts: _publishedBlogPostsForDigest,

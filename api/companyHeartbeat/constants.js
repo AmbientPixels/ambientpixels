@@ -139,6 +139,9 @@ const MAX_GOVERNANCE_LOG_ENTRIES = 500;
 // ── Weekly report archive (rolling quarter of cadence reports per agent) ──
 const MAX_WEEKLY_REPORTS_PER_AGENT = 12;
 
+// ── Content intelligence digest freshness (30 min — matches social/performance) ──
+const CONTENT_INTEL_FRESHNESS_MS = 30 * 60 * 1000;
+
 // Strip repeated auto-generated prefixes from task titles
 const _TASK_PREFIXES = [
   /^Write social copy for:\s*/i,
@@ -228,6 +231,7 @@ module.exports = {
   EXPERIMENT_IMPROVEMENT_THRESHOLD,
   MAX_GOVERNANCE_LOG_ENTRIES,
   MAX_WEEKLY_REPORTS_PER_AGENT,
+  CONTENT_INTEL_FRESHNESS_MS,
   OPS_INTEL_FRESHNESS_MS: 25 * 60 * 1000,
   OPS_INTEL_WINDOW_RUNS: 20,
   FINANCE_BUDGET_DAILY: 0.50,
