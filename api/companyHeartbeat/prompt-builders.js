@@ -1288,6 +1288,26 @@ You must remain within your assigned authority tier. Doctrine influences your st
     }
   }
 
+  // Self-Awareness Phase 2: 3-day reflection cadence nudge. Fires for ALL agents
+  // (not just weekly_report cohort). When overdue, forces the agent to write a
+  // type='reflection' memory referencing evidence from the YOUR SELF-REFLECTION
+  // block (Phase 3). Null lastReflectionAt (first deploy, any agent) is treated
+  // as 999 days overdue in reflection-intel.js so nudge fires immediately.
+  let reflectionCadenceSection = '';
+  if (reflectionDigest && reflectionDigest.perAgent && reflectionDigest.perAgent[agent.id] && reflectionDigest.perAgent[agent.id].reflectionOverdue) {
+    const _ra = reflectionDigest.perAgent[agent.id];
+    const _daysAgo = _ra.lastReflectionAt == null
+      ? 'never'
+      : (_ra.reflectionDueDays + 3) + ' days ago';
+    const _cq = _ra.coreQuestion || 'What is the highest-leverage thing I can do right now?';
+    reflectionCadenceSection = '\n\n⏰ REFLECTION DUE (last reflection: ' + _daysAgo + ', cadence: 3 days).\n\n'
+      + 'Your core question: "' + _cq + '"\n\n'
+      + 'Before your other work this cycle, write a memory with type="reflection" answering BOTH:\n'
+      + '  1. What have my recent outcomes shown? Reference specific decisionPatterns + strategyFatigue signals from YOUR SELF-REFLECTION block below.\n'
+      + '  2. What am I changing going forward as a result?\n\n'
+      + 'Keep it concrete (100-300 words). Reference specific actionIds or experiment tags. Do NOT repeat what\'s already in the reflection block — synthesize it into a conclusion. Memory must include evidence.runId.\n';
+  }
+
   const _agentRole = (_agentCfg.roleOverride && String(_agentCfg.roleOverride).trim()) || agent.role;
   const _agentTitle = (_agentCfg.titleOverride && String(_agentCfg.titleOverride).trim()) || '';
   const _titleSuffix = _agentTitle ? ' (' + _agentTitle + ')' : '';
@@ -1458,7 +1478,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
