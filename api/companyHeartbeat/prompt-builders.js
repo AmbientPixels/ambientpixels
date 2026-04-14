@@ -1114,7 +1114,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   // so the agent can't miss them on the next pass.
   let reflectionCalloutBlock = '';
   const _reflectionMems = _allAgentMems
-    .filter(function (m) { return m && (m.source === 'auto:reflection' || m.source === 'auto:ceo-edit'); })
+    .filter(function (m) { return m && typeof m.source === 'string' && m.source.indexOf('auto:') === 0; })
     .slice(-2);
   if (_reflectionMems.length > 0) {
     const _rLines = _reflectionMems.map(function (m) {

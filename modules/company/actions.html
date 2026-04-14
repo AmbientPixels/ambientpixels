@@ -993,7 +993,7 @@
           window._aqItemsByActionId = {};
           queue.forEach(function(item) { if (item.action_id) window._aqItemsByActionId[item.action_id] = item; });
 
-          var naTypes = ['convergence_escalation'];
+          var naTypes = ['convergence_escalation', 'campaign_pace_escalation'];
           var items = queue.filter(function(item) { return naTypes.indexOf(item.type) !== -1 && item.status === 'pending'; });
 
           if (items.length === 0) { panel.style.display = 'none'; return; }
@@ -1004,7 +1004,8 @@
           window._naItems = items;
 
           var _naTypeConfig = {
-            convergence_escalation: { icon: 'fa-exclamation-triangle', color: '#f87171', bg: 'rgba(248,113,113,0.08)', label: 'Stuck', meta: function(item) { return (item.deliverableCount || item.attempts || '5+') + ' attempts'; } }
+            convergence_escalation: { icon: 'fa-exclamation-triangle', color: '#f87171', bg: 'rgba(248,113,113,0.08)', label: 'Stuck', meta: function(item) { return (item.deliverableCount || item.attempts || '5+') + ' attempts'; } },
+            campaign_pace_escalation: { icon: 'fa-bullhorn', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', label: 'Campaign Pace', meta: function(item) { return (item.weeksBehind || 2) + 'wk behind pace · ' + (item.campaignTitle || 'campaign'); } }
           };
 
           var html = '';
@@ -1054,7 +1055,7 @@
           var agent = item.originAgent || item.assignee || '?';
           var agentLabel = agent.charAt(0).toUpperCase() + agent.slice(1);
           html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
-          var _badgeMap = { convergence_escalation: { label: 'Stuck', color: '#f87171' } };
+          var _badgeMap = { convergence_escalation: { label: 'Stuck', color: '#f87171' }, campaign_pace_escalation: { label: 'Campaign Pace', color: '#fbbf24' } };
           var _badge = _badgeMap[item.type] || _badgeMap.convergence_escalation;
           html += '<span class="act-drawer-badge" style="background:' + _badge.color + '20;color:' + _badge.color + ';">' + _badge.label + '</span>';
           html += '<span style="font-size:0.65rem;opacity:0.5;">Assigned to ' + esc(agentLabel) + '</span>';

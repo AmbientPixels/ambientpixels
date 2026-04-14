@@ -292,8 +292,15 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
   if (stalled.length > 0) {
     lines.push('- STALLED AGENTS (0 output, ' + stalled[0].zeroRuns + '+ runs):');
     stalled.forEach(function (s) {
-      lines.push('  - ' + s.agent + ': 0 actions across ' + s.zeroRuns + '/' + s.runs + ' runs — investigate: prompt issue? blocked by guardrail? no assigned work?');
+      lines.push('  - ' + s.agent + ': 0 actions across ' + s.zeroRuns + '/' + s.runs + ' runs');
     });
+    lines.push('');
+    lines.push('STALLED AGENT PROTOCOL — MANDATORY:');
+    lines.push('For EACH agent in STALLED AGENTS above, you MUST emit a create-task action with category="system_directive" this cycle UNLESS:');
+    lines.push('  (a) Your memory shows you already issued a directive to that agent in the last 3 heartbeats, OR');
+    lines.push('  (b) That agent is externally-blocked (e.g., awaiting CEO approval you can see in their blocked count).');
+    lines.push('Required format: { "type": "create-task", "task": { "title": "DIRECTIVE: <specific action>", "description": "Diagnostic: <why stalled — cite run/block counts>. Required: <exact fix>.", "category": "system_directive", "assignee": "<stalled agent id>", "taskType": "ops" }}');
+    lines.push('Anti-loop: max 1 active directive per target agent (enforced server-side). Do not wait for permission — course-correction IS your role.');
   }
 
   var blocked = (hb.topBlocked || []);

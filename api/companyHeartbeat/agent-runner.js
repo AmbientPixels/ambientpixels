@@ -1196,6 +1196,16 @@ Write the full deliverable first, then the structured JSON block.`;
         // Track who issued it
         action.task.source_agent = agentId;
         context.log('[Heartbeat]', agentId, 'SYSTEM DIRECTIVE created for', _directiveTarget, ':', action.task.title);
+        try {
+          await logEvent('system-directive-created', agentId, 'System directive issued to ' + _directiveTarget, cycleId, {
+            runId: cycleId,
+            authorAgent: agentId,
+            targetAgent: _directiveTarget,
+            directiveTitle: (action.task.title || '').substring(0, 120)
+          });
+        } catch (_sdLogErr) {
+          context.log('[Heartbeat]', agentId, 'system-directive-created logEvent failed (non-fatal):', String(_sdLogErr).substring(0, 200));
+        }
       }
 
       // SERVER-SIDE DEDUP: block if an active task with very similar title already exists
@@ -1625,6 +1635,44 @@ Write the full deliverable first, then the structured JSON block.`;
                   createdAt: new Date().toISOString()
                 });
                 context.log('[Heartbeat] scribe: bluesky-reply quality gate REJECTED for task', action.taskId);
+
+                // Quality-gate feedback memory (bluesky-reply path) — closes learning loop.
+                try {
+                  if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+                  const _qgrNow = new Date();
+                  const _qgrIssues = (_qgReplyResult.issues || []).slice(0, 5).join('; ');
+                  _agentMemoryStore[agentId].push({
+                    id: 'mem_' + Date.now() + '_qgr_' + Math.random().toString(36).substr(2, 4),
+                    type: 'feedback',
+                    text: 'Quality gate rejected my last bluesky reply. Issues: ' + (_qgrIssues || 'unspecified') +
+                      '. Apply these corrections on next draft — no em dashes, no hype, 5th grade reading level.',
+                    source: 'auto:quality-gate',
+                    timestamp: _qgrNow.toISOString(),
+                    expiresAt: new Date(_qgrNow.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    evidence: { runId: cycleId }
+                  });
+                  if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+                    _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+                  }
+                } catch (_qgrMemErr) {
+                  context.log('[Heartbeat]', agentId, 'Quality-gate (reply) memory write failed:', String(_qgrMemErr).substring(0, 200));
+                }
+
+                // Governance log entry for bluesky-reply rejection.
+                try {
+                  await logEvent('policy-violation', agentId, 'Quality gate rejected bluesky reply', cycleId, {
+                    runId: cycleId,
+                    gate: 'quality_gate',
+                    reason: 'haiku_rejection',
+                    platform: 'bluesky-reply',
+                    confidence: _qgReplyResult.confidence || null,
+                    issueCount: (_qgReplyResult.issues || []).length,
+                    issuesPreview: ((_qgReplyResult.issues || []).slice(0, 5).join('; ')).substring(0, 200)
+                  });
+                } catch (_qgrLogErr) {
+                  context.log('[Heartbeat]', agentId, 'Quality-gate (reply) logEvent failed:', String(_qgrLogErr).substring(0, 200));
+                }
+
                 continue;
               }
 
@@ -2519,6 +2567,47 @@ Write the full deliverable first, then the structured JSON block.`;
           });
           context.log('[QualityGate] REJECTED:', newAction.platform, 'action for task:', action.taskId, '— issues:', (_qgResult.issues || []).length, '— task reset to in-progress for Scribe revision');
         }
+
+        // Quality-gate feedback memory — closes the learning loop so the agent sees the specific
+        // issues in their next prompt (memory block + reflection callout). Matches rate-limit pattern.
+        try {
+          if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+          const _qgNow = new Date();
+          const _qgIssuesStr = (_qgResult.issues || []).slice(0, 5).join('; ');
+          _agentMemoryStore[agentId].push({
+            id: 'mem_' + Date.now() + '_qg_' + Math.random().toString(36).substr(2, 4),
+            type: 'feedback',
+            text: 'Quality gate rejected my last social post (' + (newAction.platform || 'social') + '). Issues: ' +
+              (_qgIssuesStr || 'unspecified') +
+              '. Apply these corrections on next draft — do not repeat the same mistakes.',
+            source: 'auto:quality-gate',
+            timestamp: _qgNow.toISOString(),
+            expiresAt: new Date(_qgNow.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            evidence: { runId: cycleId }
+          });
+          if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+            _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+          }
+          context.log('[Heartbeat]', agentId, 'Quality-gate feedback memory written');
+        } catch (_qgMemErr) {
+          context.log('[Heartbeat]', agentId, 'Quality-gate memory write failed (non-fatal):', String(_qgMemErr).substring(0, 200));
+        }
+
+        // Governance log entry — makes quality-gate rejections visible on the governance-report dashboard.
+        try {
+          await logEvent('policy-violation', agentId, 'Quality gate rejected social post', cycleId, {
+            runId: cycleId,
+            gate: 'quality_gate',
+            reason: 'haiku_rejection',
+            platform: newAction.platform || null,
+            confidence: _qgResult.confidence || null,
+            issueCount: (_qgResult.issues || []).length,
+            issuesPreview: ((_qgResult.issues || []).slice(0, 5).join('; ')).substring(0, 200)
+          });
+        } catch (_qgLogErr) {
+          context.log('[Heartbeat]', agentId, 'Quality-gate logEvent failed (non-fatal):', String(_qgLogErr).substring(0, 200));
+        }
+
         continue; // skip approval queue — action was rejected
       }
 

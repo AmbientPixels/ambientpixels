@@ -228,6 +228,36 @@ module.exports = async function (context) {
     // Forge ops intelligence digest (uses already-loaded data — no new storage calls)
     var forgeOpsDigest = null;
     try { forgeOpsDigest = buildForgeOpsDigest(_perfHeartbeatRuns, _perfGeminiUsage, _perfGovernanceLog, siteIntel, Date.now()); } catch (_e) { context.log('[heartbeat] Forge ops digest failed (non-fatal):', _e.message); }
+
+    // Stall alert observability — write a governanceLog entry per newly-stalled agent so CEO
+    // dashboards see stalls alongside other policy events. Dedup via recent log scan so we
+    // don't spam one entry per heartbeat for the same agent.
+    try {
+      var _stalled = (forgeOpsDigest && forgeOpsDigest.heartbeatHealth && forgeOpsDigest.heartbeatHealth.stalledAgents) || [];
+      if (_stalled.length > 0) {
+        var _recentGov = Array.isArray(_perfGovernanceLog) ? _perfGovernanceLog.slice(-200) : [];
+        var _alreadyLoggedSince = Date.now() - (6 * 60 * 60 * 1000); // 6h dedup window
+        for (var _si = 0; _si < _stalled.length; _si++) {
+          var _sAgent = _stalled[_si];
+          var _seen = _recentGov.some(function (_e) {
+            if (!_e || _e.type !== 'stall-alert') return false;
+            var _ts = Date.parse(_e.timestamp || _e.ts || 0);
+            if (!isFinite(_ts) || _ts < _alreadyLoggedSince) return false;
+            return _e.details && _e.details.agent === _sAgent.agent;
+          });
+          if (_seen) continue;
+          await logEvent('stall-alert', _sAgent.agent, 'Agent stalled: ' + _sAgent.agent + ' (' + _sAgent.zeroRuns + ' zero-action runs)', cycleId, {
+            runId: cycleId,
+            agent: _sAgent.agent,
+            runs: _sAgent.runs,
+            zeroRuns: _sAgent.zeroRuns,
+            gate: 'stall_detection'
+          });
+        }
+      }
+    } catch (_stallLogErr) {
+      context.log('[heartbeat] Stall-alert logging failed (non-fatal):', String(_stallLogErr).substring(0, 200));
+    }
     // Cipher financial intelligence digest (uses already-loaded data)
     var financeDigest = null;
     try { financeDigest = buildFinanceDigest(_perfGeminiUsage, _perfHeartbeatRuns, campaigns, tasks, performanceDigest, costIntel && costIntel.gemini, Date.now()); } catch (_e) { context.log('[heartbeat] Finance digest failed (non-fatal):', _e.message); }
@@ -2771,6 +2801,129 @@ module.exports = async function (context) {
         objectivesChanged = true;
         context.log('[Heartbeat] Objective progress rollup updated');
       }
+    }
+
+    // ── Campaign pace correction ──
+    // Tracks consecutive weeks each social campaign is BEHIND PACE. If >=2, escalates to CEO
+    // via approvalQueue + writes a context memory to Nova so she can propose pivot/pause on
+    // next heartbeat. Dedup: same campaign won't re-escalate within 7 days.
+    try {
+      var _paceNow = Date.now();
+      var _paceWeekMs = 7 * 24 * 60 * 60 * 1000;
+      var _paceSocialTypes = ['social_linkedin', 'social_x', 'social_bluesky', 'social_facebook', 'social_reddit'];
+      var _paceAQ = null;
+      var _paceEscalations = [];
+      var _paceGovEvents = [];
+
+      for (var _ci = 0; _ci < campaigns.length; _ci++) {
+        var _cp = campaigns[_ci];
+        if (!_cp || _cp.status !== 'active') continue;
+        var _types = _cp.allowedTaskTypes || (_cp.taskType ? [_cp.taskType] : []);
+        var _isSocial = _types.some(function (t) { return _paceSocialTypes.indexOf(t) !== -1; });
+        if (!_isSocial) continue;
+
+        var _linked = tasks.filter(function (t) { return t.campaign_id === _cp.id; });
+        var _done = _linked.filter(function (t) { return t.status === 'done'; }).length;
+        var _total = _linked.length;
+        var _max = _cp.maxTasks || 0;
+
+        var _paceIsBehind = false;
+        var _paceIsComplete = false;
+        if (_cp.endDate) {
+          var _daysLeft = Math.max(0, Math.ceil((Date.parse(_cp.endDate) - _paceNow) / (24 * 60 * 60 * 1000)));
+          var _tasksLeft = (_max || _total) - _done;
+          if (_tasksLeft <= 0) {
+            _paceIsComplete = true;
+          } else if (_daysLeft <= 0) {
+            _paceIsBehind = true; // overdue = behind
+          } else {
+            var _needed = Math.ceil(_tasksLeft / Math.max(1, Math.floor(_daysLeft / 3.5)));
+            if (_needed > (_cp.frequency || 2)) _paceIsBehind = true;
+          }
+        } else if (_max > 0 && _done >= _max) {
+          _paceIsComplete = true;
+        }
+
+        // Week-boundary bookkeeping
+        var _lastCheck = _cp.paceLastCheckAt ? Date.parse(_cp.paceLastCheckAt) : 0;
+        var _weekElapsed = !_lastCheck || (_paceNow - _lastCheck) >= _paceWeekMs;
+
+        if (_paceIsComplete) {
+          if (_cp.paceBehindWeeks) { _cp.paceBehindWeeks = 0; campaignsChanged = true; }
+        } else if (_paceIsBehind) {
+          if (_weekElapsed) {
+            _cp.paceBehindWeeks = (_cp.paceBehindWeeks || 0) + 1;
+            _cp.paceLastCheckAt = new Date(_paceNow).toISOString();
+            campaignsChanged = true;
+          }
+        } else {
+          // ON TRACK — reset streak
+          if (_cp.paceBehindWeeks) { _cp.paceBehindWeeks = 0; campaignsChanged = true; }
+          if (!_cp.paceLastCheckAt) { _cp.paceLastCheckAt = new Date(_paceNow).toISOString(); campaignsChanged = true; }
+        }
+
+        // Escalation trigger
+        if ((_cp.paceBehindWeeks || 0) >= 2) {
+          var _lastEsc = _cp.paceLastEscalatedAt ? Date.parse(_cp.paceLastEscalatedAt) : 0;
+          var _escWindowOpen = !_lastEsc || (_paceNow - _lastEsc) >= _paceWeekMs;
+          if (_escWindowOpen) {
+            _paceEscalations.push(_cp);
+            _cp.paceLastEscalatedAt = new Date(_paceNow).toISOString();
+            campaignsChanged = true;
+          }
+        }
+      }
+
+      if (_paceEscalations.length > 0) {
+        _paceAQ = (await storage.getState('approvalQueue')) || [];
+        for (var _ei = 0; _ei < _paceEscalations.length; _ei++) {
+          var _cpe = _paceEscalations[_ei];
+          _paceAQ.push({
+            id: 'aq-pace-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+            kind: 'campaign_pace_escalation',
+            type: 'campaign_pace_escalation',
+            campaignId: _cpe.id,
+            campaignTitle: _cpe.title || _cpe.id,
+            status: 'pending',
+            submittedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            weeksBehind: _cpe.paceBehindWeeks,
+            preview: 'Campaign "' + String(_cpe.title || _cpe.id).substring(0, 60) + '" behind pace ' + _cpe.paceBehindWeeks + ' weeks',
+            note: 'Campaign has been <50% of target pace for ' + _cpe.paceBehindWeeks + ' weeks. CEO action required: pivot, pause, or accept slower cadence.'
+          });
+
+          // Nova context memory — she sees this next heartbeat and can emit propose-campaign / pause-campaign.
+          if (!_agentMemoryStore.nova) _agentMemoryStore.nova = [];
+          _agentMemoryStore.nova.push({
+            id: 'mem_' + Date.now() + '_pace_' + Math.random().toString(36).substr(2, 4),
+            type: 'context',
+            text: 'Campaign "' + String(_cpe.title || _cpe.id).substring(0, 80) + '" has been behind pace for ' +
+              _cpe.paceBehindWeeks + ' weeks. CEO escalation created. Consider propose-campaign pivot, pause-campaign, or revise-campaign scope/cadence.',
+            source: 'auto:campaign-pace',
+            timestamp: new Date().toISOString(),
+            expiresAt: new Date(_paceNow + 14 * 24 * 60 * 60 * 1000).toISOString(),
+            evidence: { runId: cycleId }
+          });
+
+          _paceGovEvents.push({
+            type: 'campaign-pace-alert',
+            agentId: null,
+            summary: 'Campaign pace escalation created',
+            cycleId: cycleId,
+            timestamp: new Date().toISOString(),
+            details: { runId: cycleId, campaignId: _cpe.id, campaignTitle: _cpe.title || _cpe.id, weeksBehind: _cpe.paceBehindWeeks }
+          });
+
+          context.log('[Heartbeat] Campaign pace escalation created for:', _cpe.id, '- weeks behind:', _cpe.paceBehindWeeks);
+        }
+        if (_paceAQ.length > 200) _paceAQ.splice(0, _paceAQ.length - 200);
+        await storage.setState('approvalQueue', _paceAQ);
+        for (var _pgi = 0; _pgi < _paceGovEvents.length; _pgi++) {
+          campaignGovEvents.push(_paceGovEvents[_pgi]);
+        }
+      }
+    } catch (_paceErr) {
+      context.log('[Heartbeat] Campaign pace correction failed (non-fatal):', String(_paceErr).substring(0, 200));
     }
 
     // Persist updated state
