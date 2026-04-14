@@ -905,20 +905,21 @@ module.exports = async function (context, req) {
       context.log('[agentchat] skills block load failed (non-fatal):', String(e).substring(0, 200));
     }
 
-    // Load company context for actionable modes
-    let companyContext = '';
-    if (enableActions) {
-      companyContext = await loadCompanyContext(agentId);
+    // Load company context. Previously this was skipped entirely when enableActions=false —
+    // which meant read-only strategic queries (e.g. CEO asking Nova "summarize this week")
+    // got zero company state and hallucinated. Now always load context; only action
+    // instructions are gated behind enableActions.
+    let companyContext = await loadCompanyContext(agentId);
 
-      // Append intel digests for strategic agents (adds financial, ops, social, performance analysis)
-      if (['nova', 'cipher', 'forge', 'echo', 'scout'].includes(agentId)) {
-        try {
-          const { loadCompanyState } = require('../_utils/companyContextLoader');
-          const { formatIntelDigests } = require('../_utils/companyContextFormatters');
-          const intelState = await loadCompanyState({ includeIntelData: true, includeTasks: true, includeCampaigns: true });
-          companyContext += formatIntelDigests(intelState);
-        } catch (e) { /* intel digests unavailable — non-critical */ }
-      }
+    // Append intel digests for strategic agents (adds financial, ops, social, performance analysis).
+    // Also unconditional — analytical read-only queries benefit from these the most.
+    if (['nova', 'cipher', 'forge', 'echo', 'scout'].includes(agentId)) {
+      try {
+        const { loadCompanyState } = require('../_utils/companyContextLoader');
+        const { formatIntelDigests } = require('../_utils/companyContextFormatters');
+        const intelState = await loadCompanyState({ includeIntelData: true, includeTasks: true, includeCampaigns: true });
+        companyContext += formatIntelDigests(intelState);
+      } catch (e) { /* intel digests unavailable — non-critical */ }
     }
 
     // Load dynamic doctrine weight from agent config (workspace slider value)
@@ -926,9 +927,10 @@ module.exports = async function (context, req) {
     const agentCfg = agentConfigs[agentId] || {};
     const doctrineWeight = agentCfg.doctrineWeight != null ? agentCfg.doctrineWeight : 0.4;
 
-    // Build system instruction: agent prompt + doctrine + shared rules + skills + (context + actions if enabled)
+    // Build system instruction: agent prompt + doctrine + shared rules + skills + context + (actions if enabled)
+    // Context always ships; only action instructions depend on enableActions.
     const systemInstruction = AGENT_PROMPTS[agentId] + buildDoctrineBlock(agentId, doctrineWeight) + SHARED_RULES + skillsBlock +
-      (enableActions ? companyContext + ACTION_INSTRUCTIONS : '');
+      companyContext + (enableActions ? ACTION_INSTRUCTIONS : '');
 
     // Build conversation contents from history
     const contents = [];
