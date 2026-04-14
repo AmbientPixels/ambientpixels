@@ -107,6 +107,7 @@
         { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
         { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
         { href: BASE + 'agent-intelligence.html', label: 'Agent Intel', icon: 'fa-lightbulb', match: ['agent-intelligence.html'] },
+        { href: BASE + 'governance-report.html', label: 'Governance', icon: 'fa-shield-halved', match: ['governance-report.html'], minMode: 'admin' },
         { href: BASE + 'memory-stack.html', label: 'Diagnostics', icon: 'fa-microscope', match: ['memory-stack.html'], minMode: 'admin' }
       ]
     }

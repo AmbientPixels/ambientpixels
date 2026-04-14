@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Governance Report — policy violations, rate limits, and dead gates across the heartbeat audit trail." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Governance Report — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .gov-stats { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .gov-stat {
+      flex: 1; min-width: 120px;
+      padding: 0.7rem 0.8rem;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      text-align: center;
+    }
+    .gov-stat-val { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+    .gov-stat-label { font-size: 0.55rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+    .gov-stat--alert .gov-stat-val { color: #f87171; }
+    .gov-stat--warn .gov-stat-val { color: #fbbf24; }
+    .gov-stat--ok .gov-stat-val { color: #34d399; }
+
+    .gov-filters { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .gov-filters label { font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.04em; }
+    .gov-filters select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: inherit; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.8rem;
+    }
+
+    .gov-panel {
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      background: #1c1c1e;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    .gov-panel-head {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.8rem; font-weight: 500;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .gov-panel-body { padding: 0.7rem 0.9rem; font-size: 0.82rem; }
+
+    .gov-dead-gate-warn {
+      background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.25);
+      color: #fde68a;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+    }
+    .gov-dead-gate-warn code {
+      background: rgba(0,0,0,0.3); padding: 0.1rem 0.35rem; border-radius: 4px;
+      font-size: 0.78em;
+    }
+
+    .gov-bucket-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.4rem 1rem;
+    }
+    .gov-bucket-row {
+      display: flex; justify-content: space-between;
+      padding: 0.25rem 0.4rem;
+      border-radius: 4px;
+    }
+    .gov-bucket-row:hover { background: rgba(255,255,255,0.03); }
+    .gov-bucket-key { opacity: 0.8; }
+    .gov-bucket-val { font-weight: 600; opacity: 0.95; }
+
+    .gov-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .gov-table th, .gov-table td {
+      text-align: left; padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: top;
+    }
+    .gov-table th {
+      font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5;
+      font-weight: 500;
+    }
+    .gov-table td code {
+      background: rgba(255,255,255,0.05); padding: 0.1rem 0.3rem; border-radius: 3px;
+      font-size: 0.9em;
+    }
+    .gov-table .gov-row-violation td { background: rgba(248,113,113,0.04); }
+    .gov-table .gov-row-approval td { color: rgba(255,255,255,0.7); }
+
+    .gov-meta-line {
+      font-size: 0.7rem; opacity: 0.5; margin-bottom: 0.8rem;
+    }
+  </style>
+</head>
+
+<body data-theme="dark">
+
+  <main class="content-section" id="gov-main">
+
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-shield-halved co-icon-mr-lg dash-icon-amber"></i>Governance Report</h1>
+        <p class="act-header-sub">Policy violations, rate-limit drops, and dead-gate detection across the heartbeat audit trail.</p>
+      </div>
+    </div>
+
+    <div class="gov-meta-line" id="gov-meta">Loading…</div>
+
+    <div class="gov-stats" id="gov-stats"></div>
+
+    <div class="gov-filters">
+      <label>Window</label>
+      <select id="gov-window">
+        <option value="7d" selected>Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="all">All time</option>
+      </select>
+      <label>Agent</label>
+      <select id="gov-agent">
+        <option value="">All</option>
+        <option value="nova">Nova</option>
+        <option value="cipher">Cipher</option>
+        <option value="pixel">Pixel</option>
+        <option value="forge">Forge</option>
+        <option value="echo">Echo</option>
+        <option value="scribe">Scribe</option>
+        <option value="quill">Quill</option>
+        <option value="scout">Scout</option>
+      </select>
+      <label>Kind</label>
+      <select id="gov-kind">
+        <option value="">All</option>
+        <option value="policy-violation">Policy violations</option>
+        <option value="ceo-approval">CEO approvals</option>
+        <option value="ceo-reject">CEO rejects</option>
+        <option value="ceo-revision">CEO revisions</option>
+        <option value="ceo-cancel">CEO cancels</option>
+        <option value="run-health">Run health</option>
+      </select>
+      <label>Gate</label>
+      <select id="gov-gate">
+        <option value="">All</option>
+        <option value="orphan">orphan</option>
+        <option value="exact_dup">exact_dup</option>
+        <option value="fuzzy_dup">fuzzy_dup</option>
+        <option value="task_ceiling">task_ceiling</option>
+        <option value="research_ceiling">research_ceiling</option>
+        <option value="social_promo">social_promo</option>
+        <option value="campaign_freeze">campaign_freeze</option>
+        <option value="rate_limit">rate_limit</option>
+        <option value="memory_schema">memory_schema</option>
+        <option value="memory_rate_cap">memory_rate_cap</option>
+      </select>
+    </div>
+
+    <div class="gov-panel" id="gov-deadgate-panel" style="display:none">
+      <div class="gov-panel-head"><i class="fas fa-triangle-exclamation" style="color:#fbbf24"></i>Dead gates — no fires in window</div>
+      <div class="gov-panel-body">
+        <div class="gov-dead-gate-warn" id="gov-deadgate-body"></div>
+      </div>
+    </div>
+
+    <div class="gov-panel">
+      <div class="gov-panel-head"><i class="fas fa-chart-simple"></i>By event type</div>
+      <div class="gov-panel-body">
+        <div class="gov-bucket-grid" id="gov-by-type"></div>
+      </div>
+    </div>
+
+    <div class="gov-panel">
+      <div class="gov-panel-head"><i class="fas fa-user"></i>By agent</div>
+      <div class="gov-panel-body">
+        <div class="gov-bucket-grid" id="gov-by-agent"></div>
+      </div>
+    </div>
+
+    <div class="gov-panel">
+      <div class="gov-panel-head"><i class="fas fa-gavel"></i>Policy violations by gate</div>
+      <div class="gov-panel-body">
+        <div class="gov-bucket-grid" id="gov-by-gate"></div>
+      </div>
+    </div>
+
+    <div class="gov-panel">
+      <div class="gov-panel-head"><i class="fas fa-clock-rotate-left"></i>Recent entries (last 50)</div>
+      <div class="gov-panel-body">
+        <table class="gov-table" id="gov-table">
+          <thead>
+            <tr>
+              <th>Time</th><th>Kind</th><th>Agent</th><th>Gate / Reason</th><th>Summary</th>
+            </tr>
+          </thead>
+          <tbody id="gov-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    (function () {
+      var API_BASE = (window.AP_API_BASE || 'https://ambientpixels-nova-api.azurewebsites.net/api');
+      var SECRET_HEADER = { 'x-company-secret': 'pixelpusher' };
+
+      var state = { window: '7d', agent: '', kind: '', gate: '', data: null };
+
+      function fmtTs(iso) {
+        if (!iso) return '';
+        try {
+          var d = new Date(iso);
+          return d.toISOString().substring(5, 16).replace('T', ' ');
+        } catch (_) { return iso; }
+      }
+
+      function renderBuckets(targetId, obj) {
+        var el = document.getElementById(targetId);
+        var keys = Object.keys(obj || {}).sort(function (a, b) { return (obj[b] || 0) - (obj[a] || 0); });
+        if (keys.length === 0) {
+          el.innerHTML = '<div style="opacity:0.4; font-size:0.78rem">No entries in window.</div>';
+          return;
+        }
+        el.innerHTML = keys.map(function (k) {
+          return '<div class="gov-bucket-row"><span class="gov-bucket-key">' + k + '</span><span class="gov-bucket-val">' + obj[k] + '</span></div>';
+        }).join('');
+      }
+
+      function renderStats(data) {
+        var s = data.summary || {};
+        var totalViolations = (s.byType && s.byType['policy-violation']) || 0;
+        var totalDrops = s.rateLimitDropsTotal || 0;
+        var totalEntries = (data.meta && data.meta.totalEntriesInWindow) || 0;
+        var deadCount = (data.deadGates || []).length;
+
+        var stats = [
+          { label: 'Total events', val: totalEntries, cls: '' },
+          { label: 'Policy violations', val: totalViolations, cls: totalViolations > 0 ? 'gov-stat--alert' : 'gov-stat--ok' },
+          { label: 'Rate-limit drops', val: totalDrops, cls: totalDrops > 0 ? 'gov-stat--warn' : 'gov-stat--ok' },
+          { label: 'Dead gates', val: deadCount, cls: deadCount > 0 ? 'gov-stat--warn' : 'gov-stat--ok' }
+        ];
+        document.getElementById('gov-stats').innerHTML = stats.map(function (st) {
+          return '<div class="gov-stat ' + st.cls + '"><div class="gov-stat-val">' + st.val + '</div><div class="gov-stat-label">' + st.label + '</div></div>';
+        }).join('');
+      }
+
+      function renderDeadGates(data) {
+        var panel = document.getElementById('gov-deadgate-panel');
+        var body = document.getElementById('gov-deadgate-body');
+        var dead = data.deadGates || [];
+        if (!dead.length) {
+          panel.style.display = 'none';
+          return;
+        }
+        panel.style.display = '';
+        body.innerHTML = 'No fires in window for: ' + dead.map(function (g) { return '<code>' + g + '</code>'; }).join(', ') +
+          '. Either nothing tripped these gates (healthy) OR enforcement is silently broken (check the code). Investigate if a gate that should have fired is on this list.';
+      }
+
+      function renderTable(data) {
+        var entries = data.recentEntries || [];
+        var tbody = document.getElementById('gov-table-body');
+        if (!entries.length) {
+          tbody.innerHTML = '<tr><td colspan="5" style="opacity:0.4">No entries in window.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = entries.map(function (e) {
+          var rowCls = e.type === 'policy-violation' ? 'gov-row-violation'
+            : (e.type && e.type.indexOf('ceo-') === 0 ? 'gov-row-approval' : '');
+          var gateLabel = e.gate ? '<code>' + e.gate + '</code>' : '';
+          var reasonLabel = e.reason ? ' <span style="opacity:0.6; font-size:0.92em">' + e.reason + '</span>' : '';
+          var summary = (e.summary || '').replace(/</g, '&lt;');
+          return '<tr class="' + rowCls + '">' +
+            '<td style="white-space:nowrap">' + fmtTs(e.timestamp) + '</td>' +
+            '<td>' + (e.type || '') + '</td>' +
+            '<td>' + (e.agentId || 'system') + '</td>' +
+            '<td>' + gateLabel + reasonLabel + '</td>' +
+            '<td style="font-size:0.92em">' + summary + '</td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      function renderMeta(data) {
+        var m = data.meta || {};
+        var txt = 'As of ' + (m.asOfUtc || '—') +
+          ' · window: ' + (m.windowDays ? m.windowDays + 'd' : 'all time') +
+          ' · ' + (m.totalEntriesInWindow || 0) + ' events (of ' + (m.totalEntriesAllTime || 0) + ' total)';
+        document.getElementById('gov-meta').textContent = txt;
+      }
+
+      function renderAll(data) {
+        renderMeta(data);
+        renderStats(data);
+        renderDeadGates(data);
+        renderBuckets('gov-by-type', data.summary && data.summary.byType || {});
+        renderBuckets('gov-by-agent', data.summary && data.summary.byAgent || {});
+        renderBuckets('gov-by-gate', data.summary && data.summary.byGate || {});
+        renderTable(data);
+      }
+
+      function load() {
+        var p = new URLSearchParams();
+        p.set('window', state.window);
+        if (state.agent) p.set('agent', state.agent);
+        if (state.kind) p.set('kind', state.kind);
+        if (state.gate) p.set('gate', state.gate);
+        document.getElementById('gov-meta').textContent = 'Loading…';
+        fetch(API_BASE + '/governance-report?' + p.toString(), { headers: SECRET_HEADER })
+          .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+          .then(function (resp) {
+            if (!resp.ok) throw new Error((resp.body && resp.body.error) || 'Request failed');
+            state.data = resp.body;
+            renderAll(resp.body);
+          })
+          .catch(function (err) {
+            document.getElementById('gov-meta').textContent = 'Failed to load: ' + (err.message || err);
+          });
+      }
+
+      ['gov-window', 'gov-agent', 'gov-kind', 'gov-gate'].forEach(function (id) {
+        document.getElementById(id).addEventListener('change', function (e) {
+          state[id.replace('gov-', '')] = e.target.value;
+          load();
+        });
+      });
+
+      load();
+    })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
