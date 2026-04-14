@@ -10,7 +10,7 @@ var THRESHOLDS = {
   weeklyTrend:     { yellow: 15, red: 30 }
 };
 
-function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, performanceDigest, costSummary, nowMs) {
+function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, performanceDigest, costSummary, nowMs, outcomeDigest) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
   var usage = Array.isArray(geminiUsage) ? geminiUsage : [];
   var runs = Array.isArray(heartbeatRuns) ? heartbeatRuns : [];
@@ -102,17 +102,34 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
   var totalSpend7d = thisWeekSpend;
   var costPerCampaign = activeCamps.length > 0 ? totalSpend7d / activeCamps.length : 0;
 
+  // Phase 3 ROI upgrade: prefer outcomeDigest (actual engagement) when available.
+  // Falls back to task-count proxy if outcomeDigest is missing or has no data
+  // for the campaign (e.g., campaign is new, no posts reached t7 yet).
+  var outcomeByCamp = {};
+  if (outcomeDigest && Array.isArray(outcomeDigest.perCampaign)) {
+    outcomeDigest.perCampaign.forEach(function (oc) { outcomeByCamp[oc.campaignId] = oc; });
+  }
+
   var campaignROI = activeCamps.slice(0, 5).map(function (c) {
-    // Count engagement on tasks linked to this campaign
-    var campTasks = allTasks.filter(function (t) { return t.campaign_id === c.id; });
+    var oc = outcomeByCamp[c.id];
+    var usingActual = false;
     var engagement = 0;
-    // Use performance digest social engagement if available
-    campTasks.forEach(function (t) {
-      // Rough: count completed social tasks as engagement proxy (1 completed social task ~ some engagement)
-      if (t.status === 'done' && /social_/.test(t.taskType || '')) engagement += 10;
-      // If task has reviewed_copy, it went through the pipeline
-      if (t.reviewed_copy) engagement += 5;
-    });
+
+    if (oc && oc.postsComplete > 0) {
+      engagement = oc.totalEngagements;
+      // Add a downstream bonus so blog funnel contributes beyond raw engagement.
+      // 10 weight per attributed blog view, 50 per form submit (conversion value).
+      engagement += (oc.blogViewsAttributed || 0) * 10;
+      engagement += (oc.formSubmitsAttributed || 0) * 50;
+      usingActual = true;
+    } else {
+      // Fallback: task-count proxy (legacy).
+      var campTasks = allTasks.filter(function (t) { return t.campaign_id === c.id; });
+      campTasks.forEach(function (t) {
+        if (t.status === 'done' && /social_/.test(t.taskType || '')) engagement += 10;
+        if (t.reviewed_copy) engagement += 5;
+      });
+    }
 
     var roiSignal = 'NEUTRAL';
     if (costPerCampaign > 0) {
@@ -126,7 +143,11 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
       title: (c.title || c.id).substring(0, 40),
       estimatedCost: Math.round(costPerCampaign * 100) / 100,
       engagement: engagement,
-      signal: roiSignal
+      engagementPerDollar: costPerCampaign > 0 ? Math.round((engagement / costPerCampaign) * 100) / 100 : null,
+      blogViewsAttributed: oc ? (oc.blogViewsAttributed || 0) : null,
+      formSubmitsAttributed: oc ? (oc.formSubmitsAttributed || 0) : null,
+      signal: roiSignal,
+      source: usingActual ? 'actual-engagement' : 'task-proxy'
     };
   });
 

@@ -15,6 +15,7 @@ const { buildResearchDemandDigest } = require('./research-intel');
 const { buildContentDigest } = require('./content-intel');
 const { buildStrategicDigest } = require('./strategic-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
+const { buildOutcomeDigest } = require('./outcome-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
@@ -259,8 +260,17 @@ module.exports = async function (context) {
       context.log('[heartbeat] Stall-alert logging failed (non-fatal):', String(_stallLogErr).substring(0, 200));
     }
     // Cipher financial intelligence digest (uses already-loaded data)
+    // Outcome Attribution digest (Phase 3): per-agent / per-experiment / per-hook / per-campaign
+    // engagement rollups. Built before financeDigest so Cipher's campaignROI can consume it.
+    var outcomeDigest = null;
+    try {
+      const _outcomeSnaps = (await storage.getState('outcomeSnapshots')) || {};
+      outcomeDigest = buildOutcomeDigest(_outcomeSnaps, allActions, campaigns, agentExperiments, Date.now());
+      context.log('[heartbeat] Outcome digest: snapshots=', outcomeDigest.totals.snapshots, 'complete=', outcomeDigest.totals.complete, 'linkedinPending=', outcomeDigest.totals.linkedinPendingCount);
+    } catch (_e) { context.log('[heartbeat] Outcome digest failed (non-fatal):', _e.message); }
+
     var financeDigest = null;
-    try { financeDigest = buildFinanceDigest(_perfGeminiUsage, _perfHeartbeatRuns, campaigns, tasks, performanceDigest, costIntel && costIntel.gemini, Date.now()); } catch (_e) { context.log('[heartbeat] Finance digest failed (non-fatal):', _e.message); }
+    try { financeDigest = buildFinanceDigest(_perfGeminiUsage, _perfHeartbeatRuns, campaigns, tasks, performanceDigest, costIntel && costIntel.gemini, Date.now(), outcomeDigest); } catch (_e) { context.log('[heartbeat] Finance digest failed (non-fatal):', _e.message); }
     // Scout research demand digest (aggregates signals from all other digests — Scout runs last)
     var researchDemandDigest = null;
     try { researchDemandDigest = buildResearchDemandDigest(socialIntel, forgeOpsDigest, financeDigest, performanceDigest, tasks, researchIntelStore, campaigns, skillsData, Date.now()); } catch (_e) { context.log('[heartbeat] Research demand digest failed (non-fatal):', _e.message); }
@@ -1496,6 +1506,7 @@ module.exports = async function (context) {
             _agentMemoryStore, trendRadarStore,
             trendInsightsStore: (aid === 'nova' || aid === 'scribe' || aid === 'echo') ? trendInsightsStore : null,
             performanceDigest, agentExperiments,
+            outcomeDigest,
             productFacts, skillsData,
             forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest,
             socialAccountStats,
