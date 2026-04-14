@@ -87,7 +87,8 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
+  weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -1147,10 +1148,26 @@ You must remain within your assigned authority tier. Doctrine influences your st
   // otherwise dormant agents never trip the ≥7-day check and stay silent forever.
   let cadenceSection = '';
   if (['cipher', 'forge', 'nova'].includes(agent.id)) {
+    // Prefer the weeklyReports archive (rolling quarter, protected from FIFO memory eviction).
+    // Fall back to scanning agentMemories for type='weekly_report' for backwards compatibility
+    // with reports written before Phase 5 shipped.
+    const _archive = Array.isArray(weeklyReportsStore[agent.id]) ? weeklyReportsStore[agent.id] : [];
+    const _lastArchived = _archive.length ? _archive[_archive.length - 1] : null;
     const _wrMems = (_agentMemoryStore[agent.id] || []).filter(m => (m.type || '') === 'weekly_report');
-    const _lastWr = _wrMems.length ? _wrMems[_wrMems.length - 1] : null;
-    const _lastTs = _lastWr ? new Date(_lastWr.createdAt || _lastWr.ts || 0).getTime() : 0;
+    const _lastMemWr = _wrMems.length ? _wrMems[_wrMems.length - 1] : null;
+    const _lastTsSource = _lastArchived || _lastMemWr;
+    const _lastTs = _lastTsSource ? new Date(_lastTsSource.createdAt || _lastTsSource.timestamp || _lastTsSource.ts || 0).getTime() : 0;
     const _daysSince = _lastTs ? Math.floor((Date.now() - _lastTs) / 86400000) : 999;
+    // Prior-reports context — surfaced regardless of cadence so agents can reference trends when
+    // they DO write. Reports get stripped to headline+first-line so prompt stays under control.
+    let _priorReportsBlock = '';
+    if (_archive.length > 0) {
+      const _priorLines = _archive.slice(-3).map(function (r) {
+        const _snippet = (r.text || '').split('\n')[0].substring(0, 200);
+        return '- ' + (r.date || 'unknown') + ': ' + _snippet;
+      }).join('\n');
+      _priorReportsBlock = '\n\nPRIOR WEEKLY REPORTS (most recent first — build on these, track trends):\n' + _priorLines;
+    }
     if (_daysSince >= 7) {
       const _daysText = _daysSince >= 999 ? 'never written' : _daysSince + ' days ago';
       const _dateStr = new Date().toISOString().substring(0, 10);
@@ -1191,6 +1208,9 @@ You must remain within your assigned authority tier. Doctrine influences your st
           + '- ONE proactive maintenance recommendation for next week\n'
           + 'Incidents, not narratives. If everything is GREEN, say so in one line and move on.';
       }
+      // Append prior reports context if any exist — helps agents build on trends rather than
+      // repeating themselves across weeks.
+      if (_priorReportsBlock) cadenceSection += _priorReportsBlock;
     }
   }
 

@@ -14,7 +14,7 @@ const {
   MAX_TOOL_CALLS_PER_AGENT, MAX_MEMORIES_PER_AGENT,
   MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS,
   MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS,
-  MAX_RESEARCH_INTEL_PER_DAY
+  MAX_RESEARCH_INTEL_PER_DAY, MAX_WEEKLY_REPORTS_PER_AGENT
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
@@ -75,7 +75,7 @@ const { executeTask, reviewTask } = require('./execution-engine');
 
 async function runAgentHeartbeat(ctx) {
   if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
-  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, publishedBlogPosts, pendingMessages } = ctx;
+  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, pendingMessages } = ctx;
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -279,7 +279,7 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, publishedBlogPosts, siteIntel, pendingMessages });
+  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages });
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
   const _estimatedTokens = Math.ceil(prompt.length / 4);
@@ -3971,6 +3971,33 @@ Write the full deliverable first, then the structured JSON block.`;
           _memOk = true;
           context.log('[Heartbeat]', agentId, 'saved memory:', mem.text.substring(0, 80));
           result.taskUpdates.push({ action: 'memory-saved', agentId: agentId });
+
+          // ── Weekly report archival ──
+          // When a weekly_report memory is saved, also append to the weeklyReports archive so
+          // trends can be seen over time. Main agentMemories bucket is FIFO-capped at 50 with
+          // mixed types — prior reports would get pushed out. The archive keeps the last 12
+          // reports per agent (rolling quarter) intact for trend review.
+          if (_memType === 'weekly_report') {
+            try {
+              const _wrStore = (await storage.getState('weeklyReports')) || {};
+              if (!Array.isArray(_wrStore[agentId])) _wrStore[agentId] = [];
+              _wrStore[agentId].push({
+                id: 'wr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                agentId: agentId,
+                date: _memNowIso.substring(0, 10),
+                cycleId: cycleId,
+                text: mem.text.trim(),
+                createdAt: _memNowIso
+              });
+              if (_wrStore[agentId].length > MAX_WEEKLY_REPORTS_PER_AGENT) {
+                _wrStore[agentId] = _wrStore[agentId].slice(-MAX_WEEKLY_REPORTS_PER_AGENT);
+              }
+              await storage.setState('weeklyReports', _wrStore);
+              context.log('[Heartbeat]', agentId, 'archived weekly_report to weeklyReports (' + _wrStore[agentId].length + ' total for this agent)');
+            } catch (_wrErr) {
+              context.log('[Heartbeat]', agentId, 'weekly_report archive failed (non-fatal):', String(_wrErr).substring(0, 200));
+            }
+          }
 
           // ── Experiment tracking (AutoResearch loop) ──
           // If memory includes experiment_tag, create or update an active experiment

@@ -180,6 +180,7 @@ module.exports = async function (context) {
     const socialEngagementMeta = (await storage.getState('socialEngagementMeta')) || {};
     const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
     const socialAccountStats = (await storage.getState('socialAccountStats')) || null;
+    const weeklyReportsStore = (await storage.getState('weeklyReports')) || {};
     let _publishedBlogPostsForDigest = [];
     try { _publishedBlogPostsForDigest = (await storage.getState('blogPosts')) || []; } catch (_e) { /* non-fatal */ }
     let _weeklySnapshots = [];
@@ -1423,6 +1424,7 @@ module.exports = async function (context) {
             productFacts, skillsData,
             forgeOpsDigest, financeDigest, researchDemandDigest,
             socialAccountStats,
+            weeklyReportsStore,
             publishedBlogPosts: _publishedBlogPostsForDigest,
             pendingMessages: _activeMsgs.filter(function (m) { return m.to === aid && !m.consumed; })
           }).catch(function (err) {
@@ -1489,6 +1491,7 @@ module.exports = async function (context) {
           productFacts, skillsData,
           forgeOpsDigest, financeDigest, researchDemandDigest,
           socialAccountStats,
+          weeklyReportsStore,
           publishedBlogPosts: _publishedBlogPostsForDigest,
           pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; })
         });
