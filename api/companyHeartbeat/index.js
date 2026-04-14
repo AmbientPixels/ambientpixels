@@ -2508,6 +2508,31 @@ module.exports = async function (context) {
             _aqQualityGate = await _validateContentQuality(_rcText, _platform, context);
             if (_aqQualityGate) context.log('[QualityGate] AUTO-POST', _platform, 'pass:', _aqQualityGate.pass, 'confidence:', _aqQualityGate.confidence);
           } catch (_qgErr) { context.log('[QualityGate] AUTO-POST error (fail-open):', String(_qgErr).substring(0, 100)); }
+
+          // Quality gate FAILED — auto-reject, remove action, reset task for Scribe rewrite
+          if (_aqQualityGate && !_aqQualityGate.pass && (_aqQualityGate.confidence || 0) >= 70) {
+            // Remove the action we just pushed
+            var _qgActIdx = _actionsStore.findIndex(function (a) { return a.id === _newAction.id; });
+            if (_qgActIdx !== -1) _actionsStore.splice(_qgActIdx, 1);
+            // Reset parent task so Scribe rewrites
+            _pt.status = 'in-progress';
+            _pt.reviewed_copy = null;
+            _pt.awaiting_copy_review = false;
+            _pt._social_action_created = false;
+            _pt._social_action_pending = false;
+            _pt.updatedAt = new Date().toISOString();
+            if (!_pt.comments) _pt.comments = [];
+            _pt.comments.push({
+              id: 'cmt-qgfail-' + Date.now(),
+              author: 'system',
+              text: 'QUALITY GATE FAILED — Post rejected (confidence: ' + (_aqQualityGate.confidence || 0) + '%).\n\nIssues found:\n- ' + (_aqQualityGate.issues || []).join('\n- ') + '\n\nScribe: rewrite the copy addressing ALL issues above. Check product-facts for accurate feature descriptions. Do NOT invent features, pricing tiers, or capabilities. For tone issues: no buzzwords, no em dashes, no rhetorical question hooks, 5th grade reading level. Lead with specifics not adjectives. If it sounds like a press release, start over.',
+              type: 'system',
+              createdAt: new Date().toISOString()
+            });
+            context.log('[QualityGate] AUTO-POST REJECTED:', _platform, 'for task', _pt.id, '— issues:', (_aqQualityGate.issues || []).length, '— task reset for Scribe revision');
+            continue; // skip AQ push
+          }
+
           var _aqEntry = {
             id: 'aq-' + _newAction.id,
             kind: 'action',
