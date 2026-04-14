@@ -108,6 +108,7 @@ var AGENT_RELEVANT_HEADINGS = [
   'recent changes',
   'quick orientation',
   'the 8 agents',
+  'architecture',
   'three pipelines',
   'bluesky discovery',
   'key guardrails',
@@ -133,8 +134,11 @@ function extractAgentRelevant(content) {
   var sections = [];
   var currentSection = { heading: '', lines: [], level: 0 };
 
+  // Split on h1/h2 only — h3+ subsections belong to their parent h2 section.
+  // (Splitting on h3 was stripping changelog dated entries and architecture subsections
+  // because their heading text doesn't match the AGENT_RELEVANT_HEADINGS allowlist.)
   for (var i = 0; i < lines.length; i++) {
-    var headingMatch = lines[i].match(/^(#{1,3})\s+(.+)/);
+    var headingMatch = lines[i].match(/^(#{1,2})\s+(.+)/);
     if (headingMatch) {
       if (currentSection.lines.length > 0) {
         sections.push(currentSection);
