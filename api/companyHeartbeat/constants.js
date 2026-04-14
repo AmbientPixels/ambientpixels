@@ -19,23 +19,36 @@ try {
 } catch (_e) { /* fallback: heartbeat works without personality injection */ }
 
 // Agent system prompts (abbreviated for heartbeat context)
+// `expectedActionMix` is the declarative role-adherence baseline consumed by
+// reflection-intel.js. Values: 'high' | 'medium' | 'low' | 'none'. Action types
+// not listed default to 'low'. Deviations surface in the YOUR SELF-REFLECTION
+// prompt block as drift signals (observational, not punitive — drift may be
+// legitimate evolution, CEO reviews in awareness dashboard).
 const AGENT_ROLES = {
   nova: { name: 'Nova', role: 'Prime Operator & Strategic Orchestrator', tier: 2, focus: 'execution planning, delegation, lifecycle management (pause/resume/complete campaigns, archive objectives), proposing objectives + campaigns, progress monitoring, escalation to CEO',
-    doctrine: { strategicBias: 'Platform leverage, automation, 10x thinking', riskTolerance: 'High but calculated', timeHorizon: '3-10 years', coreQuestion: 'Does this increase AmbientPixels leverage?', escalationTriggers: ['Resource conflicts', 'Brand/platform pivots', 'Strategic misalignment'] } },
+    doctrine: { strategicBias: 'Platform leverage, automation, 10x thinking', riskTolerance: 'High but calculated', timeHorizon: '3-10 years', coreQuestion: 'Does this increase AmbientPixels leverage?', escalationTriggers: ['Resource conflicts', 'Brand/platform pivots', 'Strategic misalignment'] },
+    expectedActionMix: { 'create-task': 'high', 'update-task': 'high', 'move-task': 'medium', 'remember': 'medium', 'create-doc': 'medium', 'create-social-action': 'none' } },
   cipher: { name: 'Cipher', role: 'Strategic CFO', tier: 3, focus: 'Financial Intelligence Dashboard (budget, agent efficiency, campaign ROI), weekly financial reports, threshold-based alerts (daily >$0.75 RED, waste >50% RED), proactive ROI commentary on priority work',
-    doctrine: { strategicBias: 'Capital efficiency, measurable ROI', riskTolerance: 'Low-Medium', timeHorizon: '12-36 months', coreQuestion: 'What is the ROI and downside risk?', escalationTriggers: ['API cost spikes', 'Unclear monetization', 'Budget drift'] } },
+    doctrine: { strategicBias: 'Capital efficiency, measurable ROI', riskTolerance: 'Low-Medium', timeHorizon: '12-36 months', coreQuestion: 'What is the ROI and downside risk?', escalationTriggers: ['API cost spikes', 'Unclear monetization', 'Budget drift'] },
+    expectedActionMix: { 'remember': 'high', 'comment-task': 'medium', 'create-doc': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
   pixel: { name: 'Pixel', role: 'Design Director', tier: 3, focus: 'product visual ownership, hero image generation, per-product preset mapping (Blindspot, AmbientOS, CardForge, StoryForge, Pixel Agents, AmbientScore), visual performance tracking, proactive design gap detection on campaigns',
-    doctrine: { strategicBias: 'Design systems, clarity, consistency', riskTolerance: 'Low (quality risk)', timeHorizon: 'Product lifecycle', coreQuestion: 'Is this intentional design?', escalationTriggers: ['UI inconsistency', 'Accessibility regressions', 'Feature clutter'] } },
+    doctrine: { strategicBias: 'Design systems, clarity, consistency', riskTolerance: 'Low (quality risk)', timeHorizon: 'Product lifecycle', coreQuestion: 'Is this intentional design?', escalationTriggers: ['UI inconsistency', 'Accessibility regressions', 'Feature clutter'] },
+    expectedActionMix: { 'execute-task': 'high', 'generate-image': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
   forge: { name: 'Forge', role: 'DevOps Ops Director', tier: 3, focus: 'Ops Intelligence Dashboard (heartbeat health, cost monitor, errors, governance, stalled agents), two-tier threshold alerting (YELLOW monitor / RED ops_breakfix), incident learning, runbook creation, system_directive authorship',
-    doctrine: { strategicBias: 'Stability, automation, observability', riskTolerance: 'Low (infra risk)', timeHorizon: 'Immediate + continuous', coreQuestion: 'Will this break at scale?', escalationTriggers: ['Security exposure', 'Unmonitored automation', 'Recursion loops'] } },
+    doctrine: { strategicBias: 'Stability, automation, observability', riskTolerance: 'Low (infra risk)', timeHorizon: 'Immediate + continuous', coreQuestion: 'Will this break at scale?', escalationTriggers: ['Security exposure', 'Unmonitored automation', 'Recursion loops'] },
+    expectedActionMix: { 'remember': 'high', 'create-task': 'medium', 'create-doc': 'medium', 'comment-task': 'medium', 'create-social-action': 'none' } },
   echo: { name: 'Echo', role: 'Autonomous CMO', tier: 3, focus: 'strategic decision loop (analyze platform health / campaign velocity / trends / blog perf / CEO feedback themes → act), campaign proposals (1/day), experiment registration + conclusion (max 2 concurrent), WoW analytics. NEVER writes post copy — strategy briefs only',
-    doctrine: { strategicBias: 'Distribution, publishing cadence, narrative', riskTolerance: 'Medium', timeHorizon: 'Weekly-Quarterly', coreQuestion: 'Are we visible?', escalationTriggers: ['Dormant channels', 'Missed campaign cadence', 'Brand inconsistency'] } },
+    doctrine: { strategicBias: 'Distribution, publishing cadence, narrative', riskTolerance: 'Medium', timeHorizon: 'Weekly-Quarterly', coreQuestion: 'Are we visible?', escalationTriggers: ['Dormant channels', 'Missed campaign cadence', 'Brand inconsistency'] },
+    expectedActionMix: { 'create-task': 'high', 'remember': 'high', 'propose-campaign': 'medium', 'comment-task': 'medium', 'create-social-action': 'low' } },
   scribe: { name: 'Scribe', role: 'Content Director', tier: 3, focus: 'strategic content in founder voice (no em dashes, lowercase casual, 5th-grade reading, authentic), blog drafts, product briefs, social copy, documentation, content repurposing, performance-driven writing (blog views + social engagement)',
-    doctrine: { strategicBias: 'Clarity, documentation, repeatability', riskTolerance: 'Low', timeHorizon: 'Immediate + archival', coreQuestion: 'Is this unambiguous?', escalationTriggers: ['Vague directives', 'Missing documentation', 'Inconsistent voice'] } },
+    doctrine: { strategicBias: 'Clarity, documentation, repeatability', riskTolerance: 'Low', timeHorizon: 'Immediate + archival', coreQuestion: 'Is this unambiguous?', escalationTriggers: ['Vague directives', 'Missing documentation', 'Inconsistent voice'] },
+    expectedActionMix: { 'execute-task': 'high', 'create-doc': 'medium', 'remember': 'medium', 'create-social-action': 'low', 'create-task': 'low' } },
   quill: { name: 'Quill', role: 'Content — Editor & Brand Voice', tier: 4, reportsTo: 'scribe', focus: 'editing, compression, brand consistency, CTA polish',
-    doctrine: { strategicBias: 'Precision editing, clarity compression', riskTolerance: 'Low', timeHorizon: 'Immediate', coreQuestion: 'Can this be 20% clearer?', escalationTriggers: ['Redundant language', 'Message dilution'] } },
+    doctrine: { strategicBias: 'Precision editing, clarity compression', riskTolerance: 'Low', timeHorizon: 'Immediate', coreQuestion: 'Can this be 20% clearer?', escalationTriggers: ['Redundant language', 'Message dilution'] },
+    expectedActionMix: { 'review-task': 'high', 'comment-task': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
   scout: { name: 'Scout', role: 'Research Director', tier: 3, focus: 'demand-driven research loop (aggregates cross-agent intel requests from Echo/Cipher/Forge), autonomous Bluesky discovery (every heartbeat, 2h cooldown, scores threads 0-100), competitive tracking per product, live web search via Brave API',
-    doctrine: { strategicBias: 'Strategic advantage, signal detection', riskTolerance: 'Medium', timeHorizon: 'Quarterly-Annual', coreQuestion: 'Where is leverage hiding?', escalationTriggers: ['Competitor acceleration', 'Platform dependency risk', 'Market shifts'] } }
+    doctrine: { strategicBias: 'Strategic advantage, signal detection', riskTolerance: 'Medium', timeHorizon: 'Quarterly-Annual', coreQuestion: 'Where is leverage hiding?', escalationTriggers: ['Competitor acceleration', 'Platform dependency risk', 'Market shifts'] },
+    expectedActionMix: { 'web_search': 'high', 'remember': 'high', 'create-task': 'low', 'create-social-action': 'none' } }
 };
 
 // Decision classification thresholds
@@ -63,16 +76,30 @@ const L4_PREFERRED_TYPES = new Set(['decision', 'constraint', 'resolved_incident
 const L4_LEGACY_TYPES = new Set(['learning', 'feedback', 'context', 'preference']);
 // weekly_report is a structural memory type (Nova/Cipher/Forge cadence reports) — allowed but not
 // preferred (doesn't require evidence.runId), long-lived to survive the 7-day cadence check.
-const L4_STRUCTURAL_TYPES = new Set(['weekly_report']);
+// reflection: written by agents every 3 days via Self-Awareness cadence.
+// consolidated_belief: synthesized by memoryConsolidate cron from N>=5 similar
+// memories. Both structural (no evidence.runId required from agent output path;
+// the cron supplies evidence for consolidated_belief, and reflection memories
+// still include runId because agents write them).
+const L4_STRUCTURAL_TYPES = new Set(['weekly_report', 'reflection', 'consolidated_belief']);
 const L4_ALLOWED_TYPES = new Set([...L4_PREFERRED_TYPES, ...L4_LEGACY_TYPES, ...L4_STRUCTURAL_TYPES]);
 const L4_DEFAULT_TTL_DAYS = 14;
 // Tiered TTLs by memory type (days). Types not listed fall back to L4_DEFAULT_TTL_DAYS.
 const L4_TTL_BY_TYPE = {
   decision: 90, verified_fact: 90, weekly_report: 90,
+  consolidated_belief: 90,
   constraint: 60, preference: 60,
+  reflection: 30,
   learning: 30, feedback: 30,
   context: 14
 };
+
+// ── Self-Awareness / Reflection System ──
+const REFLECTION_CADENCE_DAYS = 3;
+const REFLECTION_INTEL_FRESHNESS_MS = 30 * 60 * 1000;
+const REFLECTION_DIGEST_HISTORY_SIZE = 5; // keep last 5 in runtimeMemory for drift-staleness detection
+const STRATEGY_FATIGUE_MIN_ATTEMPTS = 5;
+const STRATEGY_FATIGUE_MIN_VS_MEDIAN = 0.7; // cluster median must be <70% of agent median to flag
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
@@ -243,5 +270,10 @@ module.exports = {
   RESEARCH_DEMAND_WINDOW_DAYS: 7,
   RESEARCH_DEMAND_MAX_SIGNALS: 5,
   RESEARCH_STALE_THRESHOLD_DAYS: 14,
-  RESEARCH_COMPETITIVE_GAP_DAYS: 30
+  RESEARCH_COMPETITIVE_GAP_DAYS: 30,
+  REFLECTION_CADENCE_DAYS,
+  REFLECTION_INTEL_FRESHNESS_MS,
+  REFLECTION_DIGEST_HISTORY_SIZE,
+  STRATEGY_FATIGUE_MIN_ATTEMPTS,
+  STRATEGY_FATIGUE_MIN_VS_MEDIAN
 };

@@ -16,6 +16,7 @@ const { buildContentDigest } = require('./content-intel');
 const { buildStrategicDigest } = require('./strategic-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { buildOutcomeDigest } = require('./outcome-intel');
+const { buildReflectionDigest } = require('./reflection-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
@@ -269,6 +270,34 @@ module.exports = async function (context) {
       if (outcomeDigest) runtimeMemory.outcomeDigest = outcomeDigest;
       context.log('[heartbeat] Outcome digest: snapshots=', outcomeDigest.totals.snapshots, 'complete=', outcomeDigest.totals.complete, 'linkedinPending=', outcomeDigest.totals.linkedinPendingCount);
     } catch (_e) { context.log('[heartbeat] Outcome digest failed (non-fatal):', _e.message); }
+
+    // Self-Awareness reflection digest (Phase 1). Depends on outcomeDigest for
+    // strategy fatigue median comparisons, and on agentDecisions + outcomeSnapshots
+    // for decision-pattern + role-adherence signals.
+    var reflectionDigest = null;
+    try {
+      const _agentDecisions = (await storage.getState('agentDecisions')) || [];
+      const _outcomeSnapsForRefl = (await storage.getState('outcomeSnapshots')) || {};
+      reflectionDigest = buildReflectionDigest(_agentDecisions, _outcomeSnapsForRefl, allActions, _agentMemoryStore, tasks, outcomeDigest, Date.now());
+      if (reflectionDigest) {
+        runtimeMemory.reflectionDigest = reflectionDigest;
+        // Rolling history (last 5) for drift-staleness detection in the awareness dashboard.
+        const _histSize = require('./constants').REFLECTION_DIGEST_HISTORY_SIZE || 5;
+        if (!Array.isArray(runtimeMemory.reflectionDigestHistory)) runtimeMemory.reflectionDigestHistory = [];
+        runtimeMemory.reflectionDigestHistory.push({
+          generatedAt: reflectionDigest.generatedAt,
+          globals: reflectionDigest.globals,
+          driftByAgent: Object.keys(reflectionDigest.perAgent).reduce((o, aid) => {
+            o[aid] = reflectionDigest.perAgent[aid].roleAdherence && reflectionDigest.perAgent[aid].roleAdherence.drift;
+            return o;
+          }, {})
+        });
+        if (runtimeMemory.reflectionDigestHistory.length > _histSize) {
+          runtimeMemory.reflectionDigestHistory = runtimeMemory.reflectionDigestHistory.slice(-_histSize);
+        }
+      }
+      context.log('[heartbeat] Reflection digest: overdue=', reflectionDigest.globals.reflectionsOverdue, 'fatigue=', reflectionDigest.globals.fatigueSignalsCount, 'drift=', reflectionDigest.globals.roleDriftCount);
+    } catch (_e) { context.log('[heartbeat] Reflection digest failed (non-fatal):', _e.message); }
 
     var financeDigest = null;
     try { financeDigest = buildFinanceDigest(_perfGeminiUsage, _perfHeartbeatRuns, campaigns, tasks, performanceDigest, costIntel && costIntel.gemini, Date.now(), outcomeDigest); } catch (_e) { context.log('[heartbeat] Finance digest failed (non-fatal):', _e.message); }
@@ -1507,7 +1536,7 @@ module.exports = async function (context) {
             _agentMemoryStore, trendRadarStore,
             trendInsightsStore: (aid === 'nova' || aid === 'scribe' || aid === 'echo') ? trendInsightsStore : null,
             performanceDigest, agentExperiments,
-            outcomeDigest,
+            outcomeDigest, reflectionDigest,
             productFacts, skillsData,
             forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest,
             socialAccountStats,
