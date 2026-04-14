@@ -1796,9 +1796,10 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     HOW TO START: You MUST include the "experiment_tag" field in your remember action. Without it, the system cannot track the experiment. Example:
       { "type": "remember", "text": "Testing question hooks on LinkedIn", "experiment_tag": "question-hooks-linkedin" }
       CRITICAL: The "experiment_tag" field is REQUIRED. A remember without experiment_tag is just a note — it does NOT register an experiment. The tag must be a short kebab-case string.
-    HOW TO TAG POSTS: Include the SAME experiment_tag in your create-social-action to count it as a sample:
+    HOW TO TAG POSTS — REQUIRED FIELD: Every create-social-action you emit while an experiment is active MUST include the SAME experiment_tag in the top-level action object. This is what the sample-counter matches on — if the field is missing, the post does NOT count toward the experiment and auto-conclude never fires.
       { "type": "create-social-action", "taskId": "...", "experiment_tag": "question-hooks-linkedin", "social": { ... } }
-    RESULTS: After 3+ samples, the system auto-concludes: KEEP (approval rate improved 30%+), DISCARD (declined 30%+), or INCONCLUSIVE. Results appear in your EXPERIMENTS section each heartbeat.
+      The heartbeat will auto-inject the tag as a safety net when you forget, but you should emit it explicitly — that's how the system knows you're consciously testing.
+    RESULTS: After 3+ samples, the system auto-concludes: KEEP (approval rate improved 10%+), DISCARD (declined 10%+), or INCONCLUSIVE. Results appear in your EXPERIMENTS section each heartbeat.
     RULES:
       - Max 2 concurrent experiments. Wait for one to conclude before starting another.
       - Only change ONE variable per experiment (hook style, post length, CTA type, platform, etc.)

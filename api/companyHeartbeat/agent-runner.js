@@ -2370,6 +2370,23 @@ Write the full deliverable first, then the structured JSON block.`;
         var _redditSubMatch = _redditSearch.match(/\br\/([A-Za-z0-9_]{2,21})\b/);
         if (_redditSubMatch) _redditSubreddit = _redditSubMatch[1];
       }
+      // Auto-inject experiment_tag: if the agent has exactly 1 active experiment,
+      // auto-tag this social post with its hypothesis. If 2+ active, pick the most
+      // recently started (the agent should know which she's testing; newest is safer
+      // than picking randomly). Previously Echo's Gemini never emitted experiment_tag,
+      // so sample counting never fired — 3 active experiments, 0 concluded in 30 days.
+      let _autoTag = null;
+      if (!action.experiment_tag && Array.isArray(agentExperiments)) {
+        const _activeForAgent = agentExperiments
+          .filter(function (e) { return e && e.status === 'active' && e.agentId === agentId; })
+          .sort(function (a, b) {
+            return new Date(b.startedAt || 0).getTime() - new Date(a.startedAt || 0).getTime();
+          });
+        if (_activeForAgent.length > 0) {
+          _autoTag = _activeForAgent[0].hypothesis || null;
+          if (_autoTag) context.log('[Heartbeat]', agentId, 'AUTO-INJECTED experiment_tag:', _autoTag, '(active experiments:', _activeForAgent.length + ')');
+        }
+      }
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: _resolvedPlatform,
@@ -2381,7 +2398,7 @@ Write the full deliverable first, then the structured JSON block.`;
           subreddit: _redditSubreddit || socialPayload.subreddit || null
         },
         created_by: agentId,
-        experiment_tag: action.experiment_tag || null
+        experiment_tag: action.experiment_tag || _autoTag || null
       };
 
       // Save to actions store (requires CEO approval)
