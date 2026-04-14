@@ -32,15 +32,15 @@
     {
       "id": "nova",
       "name": "Nova",
-      "role": "Prime Operator",
+      "role": "Prime Operator & Strategic Orchestrator",
       "department": null,
-      "title": "Prime Operator",
+      "title": "Prime Operator & Strategic Orchestrator",
       "tier": 2,
       "avatar": "/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png",
       "color": "#818cf8",
       "icon": "fas fa-brain",
       "status": "active",
-      "description": "Prime Operator. Translates CEO directives into execution plans, delegates to department heads, monitors progress, and escalates when required. Reports directly to CEO.",
+      "description": "Prime Operator and Strategic Orchestrator. Translates CEO directives into execution plans, delegates to department heads, monitors progress, and escalates. Now has lifecycle authority: proposes objectives and campaigns (CEO approval required), auto-executes reversible lifecycle actions (pause/resume/complete campaigns, archive objectives) with 48h cooldown. Cold-start rule: when <3 active campaigns, proactively proposes new ones. Weekly strategic CEO digest. Authorized (with Forge) to create system_directive tasks.",
       "divisions": [
         { "id": "operations", "name": "Operations", "icon": "fas fa-cogs", "description": "Execution planning, task delegation, cross-team coordination" },
         { "id": "reporting", "name": "Reporting & Escalation", "icon": "fas fa-flag", "description": "CEO briefings, risk escalation, progress tracking" }
@@ -83,15 +83,15 @@
     {
       "id": "cipher",
       "name": "Cipher",
-      "role": "CFO",
+      "role": "Strategic CFO",
       "department": "Finance",
-      "title": "Chief Financial Officer",
+      "title": "Strategic Chief Financial Officer",
       "tier": 3,
       "avatar": null,
       "color": "#34d399",
       "icon": "fas fa-chart-line",
       "status": "active",
-      "description": "Tracks budgets, API costs, resource usage, and financial health of the operation.",
+      "description": "Strategic CFO with a live Financial Intelligence Dashboard. Tracks budgets, API costs, agent efficiency, and campaign ROI. Fires RED alerts above thresholds (daily >$0.75, waste >50%, cost/action >$0.05), writes weekly financial reports, and proactively comments on Nova's priority tasks with ROI implications.",
       "divisions": [
         { "id": "budget-ops", "name": "Budget & Operations", "icon": "fas fa-coins", "description": "Budget allocation, cost tracking, vendor management" },
         { "id": "compliance", "name": "Compliance & Risk", "icon": "fas fa-shield-alt", "description": "Financial compliance, risk assessment, audit trails" }
@@ -134,15 +134,15 @@
     {
       "id": "pixel",
       "name": "Pixel",
-      "role": "Head of Design & QC",
+      "role": "Design Director",
       "department": "Design",
-      "title": "Design & Quality Control Lead",
+      "title": "Design Director",
       "tier": 3,
       "avatar": null,
       "color": "#fb7185",
       "icon": "fas fa-palette",
       "status": "active",
-      "description": "Handles design reviews, accessibility audits, UI consistency, and visual quality.",
+      "description": "Design Director with product visual ownership. Generates hero images, maintains visual identity per product (preset mappings for Blindspot, AmbientOS, CardForge, StoryForge, Pixel Agents, AmbientScore), tracks visual performance via blog + product page traffic, and proactively flags campaigns missing design assets.",
       "divisions": [
         { "id": "frontend", "name": "Frontend", "icon": "fas fa-laptop-code", "description": "UI development, component systems, responsive design" },
         { "id": "qa", "name": "QA", "icon": "fas fa-vial", "description": "Quality assurance, testing, accessibility audits, bug triage" }
@@ -185,15 +185,15 @@
     {
       "id": "forge",
       "name": "Forge",
-      "role": "Head of DevOps",
+      "role": "DevOps Ops Director",
       "department": "Engineering",
-      "title": "DevOps & Infrastructure Lead",
+      "title": "DevOps & Ops Director",
       "tier": 3,
       "avatar": null,
       "color": "#fb923c",
       "icon": "fas fa-server",
       "status": "active",
-      "description": "Manages deployments, build pipelines, uptime monitoring, and infrastructure health.",
+      "description": "Proactive infrastructure watchdog with a live Ops Intelligence Dashboard. Two-tier threshold alerting (YELLOW monitor / RED auto-creates ops_breakfix). Detects stalled agents (5+ zero-action runs), learns from incidents via memories, creates runbooks for 3+ recurring issues, and issues system directives to course-correct broken peers. Authorized (with Nova) to create system_directive tasks.",
       "divisions": [
         { "id": "backend-security", "name": "Backend & Security", "icon": "fas fa-lock", "description": "API development, authentication, data security, server-side logic" },
         { "id": "devops", "name": "DevOps", "icon": "fas fa-cogs", "description": "CI/CD pipelines, deployments, infrastructure, uptime monitoring" }
@@ -242,15 +242,15 @@
     {
       "id": "echo",
       "name": "Echo",
-      "role": "Head of Marketing",
+      "role": "Autonomous CMO",
       "department": "Marketing",
-      "title": "Marketing & Content Lead",
+      "title": "Autonomous Chief Marketing Officer",
       "tier": 3,
       "avatar": null,
       "color": "#38bdf8",
       "icon": "fas fa-bullhorn",
       "status": "active",
-      "description": "Leads Marketing. Handles social media strategy, campaign planning, brand voice, and community outreach.",
+      "description": "Autonomous strategic marketing director. Runs the CMO decision loop every heartbeat (analyze platform health / campaign velocity / trends / blog perf / feedback themes → act). Proposes campaigns (rate-limited 1/day), registers and concludes experiments (max 2 concurrent), tracks KPIs via WoW snapshots. Strict rule: NEVER writes post copy — strategy briefs only; Scribe writes, Quill polishes.",
       "divisions": [
         { "id": "content-creative", "name": "Content Creative", "icon": "fas fa-pen-fancy", "description": "Copywriting, blog posts, visual content, brand storytelling" },
         { "id": "community", "name": "Community", "icon": "fas fa-people-arrows", "description": "Community engagement, social presence, user feedback, outreach" }
@@ -293,15 +293,15 @@
     {
       "id": "scribe",
       "name": "Scribe",
-      "role": "Head of Content",
+      "role": "Content Director",
       "department": "Content",
-      "title": "Content Lead",
+      "title": "Content Director",
       "tier": 3,
       "avatar": null,
       "color": "#a3e635",
       "icon": "fas fa-pen-nib",
       "status": "active",
-      "description": "Leads Content. Produces product briefs, blog drafts, documentation, and longform content. Manages Quill (editor). All published content requires CEO approval.",
+      "description": "Strategic Content Director. Writes in the founder's voice (no em dashes, no buzzwords, lowercase casual, 5th-grade reading level, authentic). Produces blog posts, product briefs, docs, social copy. Rotates founder voice examples and sees last-48h accomplishments. Performance-driven: tracks blog views + social engagement, repurposes before creating new, follows Quill editorial feedback. Manages Quill (editor). All published content requires CEO approval.",
       "divisions": [
         { "id": "drafting", "name": "Content Creation", "icon": "fas fa-file-pen", "description": "Longform drafts, product briefs, blog posts, documentation" },
         { "id": "publishing", "name": "Publishing Pipeline", "icon": "fas fa-paper-plane", "description": "Doc creation, review workflow, submit for publish" }
@@ -381,15 +381,15 @@
     {
       "id": "scout",
       "name": "Scout",
-      "role": "Head of Research & Intelligence",
+      "role": "Research Director",
       "department": "Research",
-      "title": "Research & Intelligence Lead",
+      "title": "Research & Intelligence Director",
       "tier": 3,
       "avatar": null,
       "color": "#facc15",
       "icon": "fas fa-magnifying-glass-chart",
       "status": "active",
-      "description": "Leads Research & Intelligence. Conducts market research, competitive intelligence, trend analysis, and strategic research to support business decisions and company growth. Uses live web search to gather and synthesize data.",
+      "description": "Strategic Research Director with demand-driven research loop. Aggregates cross-agent intel requests (Echo declining platforms, Cipher negative ROI, Forge RED alerts) into a prioritized backlog. Runs autonomous Bluesky discovery every heartbeat (2h cooldown, scores threads 0-100, deduplicates). Competitive tracking per product (30-day windows). Live web search via Brave API.",
       "divisions": [
         { "id": "market-intel", "name": "Market Intelligence", "icon": "fas fa-chart-line", "description": "Market research, competitive analysis, industry trends, growth opportunities" },
         { "id": "strategic-research", "name": "Strategic Research", "icon": "fas fa-microscope", "description": "Business strategy research, benchmarking, data-driven recommendations" }

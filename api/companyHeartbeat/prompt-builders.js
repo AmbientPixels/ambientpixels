@@ -1109,7 +1109,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const forgeOpsSection = _buildForgeOpsPromptBlock(agent, forgeOpsDigest);
   const researchDemandSection = _buildResearchDemandPromptBlock(agent, researchDemandDigest);
 
-  // Weekly report cadence nudge — Cipher, Forge, Nova do strategic weekly reports.
+  // Weekly report cadence nudge — Nova, Cipher, Forge do role-specific strategic weekly reports.
   // Bootstrap fallback: no prior `weekly_report` memory = treat as overdue immediately,
   // otherwise dormant agents never trip the ≥7-day check and stay silent forever.
   let cadenceSection = '';
@@ -1119,10 +1119,45 @@ You must remain within your assigned authority tier. Doctrine influences your st
     const _lastTs = _lastWr ? new Date(_lastWr.createdAt || _lastWr.ts || 0).getTime() : 0;
     const _daysSince = _lastTs ? Math.floor((Date.now() - _lastTs) / 86400000) : 999;
     if (_daysSince >= 7) {
-      const _roleLabel = agent.id === 'cipher' ? 'FINANCIAL' : agent.id === 'forge' ? 'OPS' : 'STRATEGIC';
       const _daysText = _daysSince >= 999 ? 'never written' : _daysSince + ' days ago';
-      cadenceSection = '\n\n⏰ WEEKLY ' + _roleLabel + ' REPORT DUE — last report: ' + _daysText + '.\n'
-        + 'Save a `remember` action with type="weekly_report" summarizing this week. Keep it under 500 chars, lead with the headline, include 2-3 concrete data points from your intelligence dashboard, and one decision or recommendation. Also create a `spec` doc (kind: spec) titled "Weekly ' + _roleLabel + ' Report — ' + new Date().toISOString().substring(0, 10) + '" capturing the same content in full detail. Both the memory and the doc count — don\'t skip either.';
+      const _dateStr = new Date().toISOString().substring(0, 10);
+      const _cadenceHeader = (label, headline) =>
+        '\n\n⏰ WEEKLY ' + label + ' REPORT DUE — last report: ' + _daysText + '.\n'
+        + 'Headline focus: ' + headline + '\n'
+        + 'Deliver BOTH: (a) a `remember` action with type="weekly_report" (under 500 chars, lead with headline, 2-3 data points, one decision/recommendation), AND (b) a `spec` doc (kind: spec) titled "Weekly ';
+
+      if (agent.id === 'nova') {
+        cadenceSection = _cadenceHeader('STRATEGIC', 'what shipped, what stalled, what needs CEO attention this week')
+          + 'Strategic Report — ' + _dateStr + '" covering:\n'
+          + '- Campaigns: launched / paused / completed / cancelled (with dates + rationale)\n'
+          + '- Experiments: concluded with KEEP/DISCARD verdicts from Echo\n'
+          + '- Agent performance: standout contributions + any stalled agents Forge flagged\n'
+          + '- Scout findings: top 2-3 research intel pieces worth CEO attention\n'
+          + '- Cipher signals: cost trend + any threshold breaches\n'
+          + '- Risk register: what should the CEO be watching next week\n'
+          + 'Skip what\'s noise. This is the CEO\'s weekly briefing — be discerning.';
+      } else if (agent.id === 'cipher') {
+        cadenceSection = _cadenceHeader('FINANCIAL', 'is the org spending capital efficiently and where is waste accumulating')
+          + 'Financial Report — ' + _dateStr + '" covering:\n'
+          + '- Spend: weekly total + trend vs prior week (% delta + direction)\n'
+          + '- Top-3 agent spenders with cost-per-approved-action deltas\n'
+          + '- Waste rate by agent (blocked/total ratio) — flag anyone >40%\n'
+          + '- Campaign ROI signals: POSITIVE / NEUTRAL / NEGATIVE per active campaign\n'
+          + '- Threshold breaches this week (even if temporary)\n'
+          + '- ONE concrete efficiency recommendation Nova should act on\n'
+          + 'Numbers only — no narrative filler. If data is missing, say so explicitly.';
+      } else if (agent.id === 'forge') {
+        cadenceSection = _cadenceHeader('OPS', 'is the platform reliable and where are the failure modes concentrating')
+          + 'Ops Report — ' + _dateStr + '" covering:\n'
+          + '- Heartbeat reliability: success rate + avg duration trend\n'
+          + '- Cost monitor: weekly Gemini spend + projected monthly\n'
+          + '- Errors & performance: p95 latency + error count by type\n'
+          + '- Governance: violation count + top violation type\n'
+          + '- Stalled agents: anyone with 5+ zero-action runs this week\n'
+          + '- Runbook candidates: any issue recurring 3+ times\n'
+          + '- ONE proactive maintenance recommendation for next week\n'
+          + 'Incidents, not narratives. If everything is GREEN, say so in one line and move on.';
+      }
     }
   }
 
