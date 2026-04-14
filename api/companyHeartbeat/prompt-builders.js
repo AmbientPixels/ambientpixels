@@ -1094,13 +1094,46 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   // Inject agent memory (persistent across heartbeat cycles)
-  const agentMem = (_agentMemoryStore[agent.name.toLowerCase()] || []).slice(-10);
+  const _agentNameLower = agent.name.toLowerCase();
+  const _allAgentMems = _agentMemoryStore[_agentNameLower] || [];
+  const agentMem = _allAgentMems.slice(-10);
   let memoryBlock = '';
   if (agentMem.length > 0) {
     const memLines = agentMem.map(function (m) {
       return '- [' + (m.type || 'note') + '] ' + (m.text || '').substring(0, 200) + (m.source ? ' (from: ' + m.source + ')' : '');
     }).join('\n');
     memoryBlock = '\nYOUR MEMORY (persistent notes from previous heartbeats — use these to avoid repeating yourself and to build on past work):\n' + memLines + '\n';
+  }
+
+  // Reflection callout — surface the most recent self-correcting feedback (reflection after CEO
+  // rejection, or CEO-edit learning) separately from the generic memory list. Previously these were
+  // written into memory but blended into the list and lost weight. Now they get a dedicated block
+  // so the agent can't miss them on the next pass.
+  let reflectionCalloutBlock = '';
+  const _reflectionMems = _allAgentMems
+    .filter(function (m) { return m && (m.source === 'auto:reflection' || m.source === 'auto:ceo-edit'); })
+    .slice(-2);
+  if (_reflectionMems.length > 0) {
+    const _rLines = _reflectionMems.map(function (m) {
+      return '- ' + (m.text || '').substring(0, 250);
+    }).join('\n');
+    reflectionCalloutBlock = '\nYOU PREVIOUSLY REFLECTED (apply these patterns — do not repeat the mistake):\n' + _rLines + '\nIf today\'s work resembles the context that triggered those reflections, internalize the correction.\n';
+  }
+
+  // Type-diversity hint — live state shows agents tend to pick ONE memory type and never vary
+  // (Cipher 100% verified_fact, Pixel 100% learning, Quill 100% feedback). The L4 type system has
+  // 8+ types for a reason. This is a soft hint, not a block — agents can ignore it if today's work
+  // genuinely warrants the same type as last time.
+  if (agentMem.length >= 5) {
+    const _typeCounts = {};
+    agentMem.forEach(function (m) { const t = m.type || 'note'; _typeCounts[t] = (_typeCounts[t] || 0) + 1; });
+    const _sortedTypes = Object.keys(_typeCounts).map(function (k) { return [k, _typeCounts[k]]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+    const _dominant = _sortedTypes[0];
+    if (_dominant && _dominant[1] / agentMem.length > 0.7) {
+      memoryBlock += '\n(Memory type note: your recent memories are ' + Math.round(_dominant[1] / agentMem.length * 100)
+        + '% "' + _dominant[0] + '". Other types: decision / constraint / verified_fact / resolved_incident / feedback / learning / context / preference. Pick the type that best describes today\'s work, not just your default.)\n';
+    }
   }
 
   const socialIntelSection = _buildSocialIntelPromptBlock(agent, socialIntel);
@@ -1320,7 +1353,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
