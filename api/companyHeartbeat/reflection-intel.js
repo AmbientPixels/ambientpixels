@@ -158,6 +158,28 @@ function detectRepeatedFailures(agentId, tasks) {
   return failures.slice(0, 5); // cap display
 }
 
+// Executor action type → heartbeat action type.
+// The `actions` store contains EXECUTOR-level types (social_post.schedule,
+// publish_document, image.generate) but expectedActionMix is declared in
+// HEARTBEAT-level types (create-social-action, create-doc, generate-image).
+// Normalize executor types back to their heartbeat origin so drift detection
+// compares apples to apples.
+const EXECUTOR_TO_HEARTBEAT_TYPE = {
+  'social_post.schedule': 'create-social-action',
+  'social_post.publish': 'create-social-action',
+  'social_post.reply': 'bluesky-reply',
+  'publish_document': 'create-doc',
+  'submit_for_publish': 'submit-for-publish',
+  'image.generate': 'generate-image',
+  'content_package.execute': 'execute-task',
+  'task_completion.approve': 'review-task',
+  'research_intel.approve': 'web_search'
+};
+function normalizeActionType(t) {
+  if (!t) return 'unknown';
+  return EXECUTOR_TO_HEARTBEAT_TYPE[t] || t;
+}
+
 function buildReflectionDigest(agentDecisions, outcomeSnapshots, actions, memories, tasks, outcomeDigest, nowMs) {
   const now = Number.isFinite(nowMs) ? nowMs : Date.now();
   const decisionCutoff = now - DECISION_LOOKBACK_MS;
@@ -195,13 +217,63 @@ function buildReflectionDigest(agentDecisions, outcomeSnapshots, actions, memori
       return Object.assign({ decisionType: t }, cls);
     });
 
-    // Action-type mix (last 7d)
+    // Action-type mix (last 7d) — pulled from MULTIPLE sources because most
+    // agent work never lands in the `actions` store (which only holds external
+    // approved actions). Nova/Cipher do most work via tasks + memories; those
+    // channels must be counted or drift detection false-positives under-
+    // producing for correctly-functioning agents.
+    //
+    // Sources:
+    //   - actions[] filtered by created_by (executor types → heartbeat types via map)
+    //   - tasks[] created by agent (counted as 'create-task')
+    //   - task comments authored by agent (counted as 'comment-task')
+    //   - memories written by agent in the window (counted as 'remember')
+    const actualMix = {};
+
+    // a) Actions — translate executor types back to heartbeat equivalents.
     const myActions = allActions.filter(a => {
       if (!a || a.created_by !== aid) return false;
       const ts = Date.parse(a.createdAt || a.created_at || 0);
       return Number.isFinite(ts) && ts >= actionCutoff;
     });
-    const actualMix = groupCount(myActions, a => a.type || 'unknown');
+    myActions.forEach(a => {
+      const t = normalizeActionType(a.type);
+      actualMix[t] = (actualMix[t] || 0) + 1;
+    });
+
+    // b) Tasks created by this agent.
+    if (Array.isArray(tasks)) {
+      const myCreates = tasks.filter(t => {
+        if (!t) return false;
+        const creator = t.createdBy || t.created_by || t.createdby;
+        if (creator !== aid) return false;
+        const ts = Date.parse(t.createdAt || t.created_at || 0);
+        return Number.isFinite(ts) && ts >= actionCutoff;
+      }).length;
+      if (myCreates > 0) actualMix['create-task'] = (actualMix['create-task'] || 0) + myCreates;
+
+      // c) Comments authored by agent across all tasks (proxy for comment-task + review activity).
+      let myComments = 0;
+      for (let ti = 0; ti < tasks.length; ti++) {
+        const tt = tasks[ti];
+        if (!tt || !Array.isArray(tt.comments)) continue;
+        for (let ci = 0; ci < tt.comments.length; ci++) {
+          const c = tt.comments[ci];
+          if (!c || c.author !== aid) continue;
+          const cts = Date.parse(c.createdAt || c.created_at || 0);
+          if (Number.isFinite(cts) && cts >= actionCutoff) myComments++;
+        }
+      }
+      if (myComments > 0) actualMix['comment-task'] = (actualMix['comment-task'] || 0) + myComments;
+    }
+
+    // d) Memory writes — 'remember' heartbeat action type.
+    const myMemsInWindow = (mems[aid] || []).filter(m => {
+      if (!m) return false;
+      const ts = Date.parse(m.timestamp || 0);
+      return Number.isFinite(ts) && ts >= actionCutoff;
+    }).length;
+    if (myMemsInWindow > 0) actualMix['remember'] = (actualMix['remember'] || 0) + myMemsInWindow;
     const expectedMix = roleDef.expectedActionMix || null;
     const drift = classifyDrift(actualMix, expectedMix);
     if (drift !== 'on-role' && drift !== 'unknown') roleDriftCount++;
