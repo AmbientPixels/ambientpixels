@@ -249,6 +249,14 @@
     var runtimePanel = document.getElementById('runtime-panel');
     var runtimeList = document.getElementById('runtime-list');
 
+    // Delegated click handler for memory delete buttons
+    runtimeList.addEventListener('click', function (e) {
+      var btn = e.target.closest('.mem-runtime-delete');
+      if (!btn) return;
+      e.preventDefault();
+      deleteRuntimeMemory(btn.dataset.memId);
+    });
+
     // Tabs
     document.getElementById('mem-tabs').addEventListener('click', function (e) {
       var tab = e.target.closest('.mem-tab');
@@ -328,13 +336,66 @@
       mems.slice().reverse().forEach(function (m) {
         var typeClass = 'mem-runtime-type--' + (m.type || 'context');
         var timeStr = (m.timestamp || m.ts) ? new Date(m.timestamp || m.ts).toLocaleString() : '';
-        html += '<div class="mem-runtime-item">' +
+        var memId = (m.id || '').replace(/"/g, '&quot;');
+        html += '<div class="mem-runtime-item" data-mem-id="' + memId + '">' +
           '<span class="mem-runtime-type ' + typeClass + '">' + (m.type || 'note') + '</span>' +
           '<span class="mem-runtime-text">' + (m.text || '').replace(/</g, '&lt;') + '</span>' +
           '<span class="mem-runtime-time">' + timeStr + '</span>' +
+          (memId ? '<button class="mem-runtime-delete" type="button" title="Delete this memory" data-mem-id="' + memId + '" style="margin-left:auto; background:transparent; border:1px solid rgba(255,100,100,0.3); color:#f87171; padding:2px 8px; font-size:0.75rem; border-radius:4px; cursor:pointer;"><i class="fas fa-trash-alt"></i></button>' : '') +
           '</div>';
       });
       runtimeList.innerHTML = html;
+    }
+
+    async function deleteRuntimeMemory(memId) {
+      if (!memId || !currentAgent || currentAgent === '_global') return;
+      var mems = runtimeData[currentAgent] || [];
+      var target = mems.find(function (m) { return m.id === memId; });
+      if (!target) return;
+      var preview = (target.text || '').substring(0, 120);
+      if (!confirm('Delete this memory?\n\n[' + (target.type || 'note') + '] ' + preview)) return;
+      runtimeData[currentAgent] = mems.filter(function (m) { return m.id !== memId; });
+      try {
+        var res = await fetch(API_BASE + '/company-state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'agentMemories', value: runtimeData })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        // Audit trail: append governanceLog entry so CEO deletions are traceable.
+        try {
+          var govRes = await fetch(API_BASE + '/company-state?key=governanceLog');
+          var govLog = [];
+          if (govRes.ok) {
+            var govJson = await govRes.json();
+            govLog = Array.isArray(govJson && govJson.value) ? govJson.value : [];
+          }
+          govLog.push({
+            timestamp: new Date().toISOString(),
+            kind: 'memory_deleted_by_ceo',
+            agentId: currentAgent,
+            memoryId: memId,
+            memoryType: target.type || 'note',
+            preview: preview
+          });
+          await fetch(API_BASE + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: 'governanceLog', value: govLog })
+          });
+        } catch (govErr) { console.warn('Audit log append failed (non-fatal):', govErr); }
+        renderRuntime();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+        // Reload on failure so UI matches server truth
+        var rtRes2 = await fetch(API_BASE + '/company-state?key=agentMemories');
+        if (rtRes2.ok) {
+          var rtJson2 = await rtRes2.json();
+          runtimeData = (rtJson2 && rtJson2.value) || {};
+          if (typeof runtimeData !== 'object' || Array.isArray(runtimeData)) runtimeData = {};
+        }
+        renderRuntime();
+      }
     }
 
     async function saveSeed() {
