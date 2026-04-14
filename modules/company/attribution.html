@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Outcome Attribution — engagement, experiments, hooks, and campaign funnel data from the attribution system." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Outcome Attribution — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .oa-section {
+      margin-bottom: 1.4rem;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .oa-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .oa-section .oa-empty {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid rgba(251,191,36,0.4);
+      border-radius: 4px;
+    }
+    .oa-totals { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .oa-chip {
+      padding: 0.4rem 0.7rem;
+      font-size: 0.65rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.75);
+    }
+    .oa-chip strong { color: #fff; }
+    .oa-chip.oa-warn { background: rgba(251,191,36,0.1); color: #fbbf24; }
+    table.oa-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+    table.oa-table th, table.oa-table td {
+      text-align: left;
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    table.oa-table th { color: rgba(255,255,255,0.5); font-weight: 500; }
+    .oa-verdict-promote { color: #34d399; font-weight: 600; }
+    .oa-verdict-discard { color: #f87171; font-weight: 600; }
+    .oa-verdict-inconclusive { color: rgba(255,255,255,0.5); }
+    .oa-agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.6rem; }
+    .oa-agent-card {
+      padding: 0.7rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+    }
+    .oa-agent-card h3 { font-size: 0.72rem; margin: 0 0 0.4rem 0; text-transform: capitalize; }
+    .oa-agent-card .oa-metric { font-size: 0.6rem; color: rgba(255,255,255,0.6); margin-bottom: 0.2rem; }
+    .oa-agent-card .oa-metric strong { color: #fff; font-size: 0.7rem; }
+    .oa-hook-matrix { display: table; width: 100%; }
+    .oa-hook-cell {
+      display: inline-block;
+      padding: 0.4rem 0.6rem;
+      margin: 0.1rem;
+      font-size: 0.6rem;
+      border-radius: 4px;
+      background: rgba(52,211,153,0.08);
+    }
+    .oa-hook-cell.oa-low { background: rgba(248,113,113,0.08); }
+    .oa-funnel-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.65rem;
+      padding: 0.4rem 0;
+    }
+    .oa-funnel-bar .oa-funnel-step {
+      flex: 1;
+      padding: 0.3rem 0.5rem;
+      background: rgba(96,165,250,0.08);
+      border-radius: 4px;
+      text-align: center;
+    }
+    .oa-source-badge {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.55rem;
+      border-radius: 3px;
+      margin-left: 0.3rem;
+    }
+    .oa-source-badge.actual { background: rgba(52,211,153,0.15); color: #34d399; }
+    .oa-source-badge.proxy { background: rgba(251,191,36,0.15); color: #fbbf24; }
+  </style>
+</head>
+<body>
+  <main class="company-main">
+    <div class="company-header">
+      <h1><i class="fas fa-chart-line"></i> Outcome Attribution</h1>
+      <p class="company-subtitle">Engagement, experiments, hooks, and campaign funnel — the feedback loop behind Self-Correction.</p>
+    </div>
+
+    <div id="oa-totals" class="oa-totals"></div>
+
+    <div class="oa-section" data-section="experiments">
+      <h2><i class="fas fa-flask"></i> EXPERIMENT RESULTS</h2>
+      <div id="oa-experiments"></div>
+    </div>
+
+    <div class="oa-section" data-section="agents">
+      <h2><i class="fas fa-users"></i> AGENT SCORECARDS</h2>
+      <div id="oa-agents"></div>
+    </div>
+
+    <div class="oa-section" data-section="hooks">
+      <h2><i class="fas fa-link"></i> HOOK PERFORMANCE MATRIX</h2>
+      <div id="oa-hooks"></div>
+    </div>
+
+    <div class="oa-section" data-section="campaigns">
+      <h2><i class="fas fa-bullhorn"></i> CAMPAIGN FUNNEL</h2>
+      <div id="oa-campaigns"></div>
+    </div>
+
+    <div class="oa-section" data-section="cost">
+      <h2><i class="fas fa-dollar-sign"></i> COST PER OUTCOME</h2>
+      <div id="oa-cost"></div>
+      <div style="margin-top: 0.6rem; font-size: 0.6rem; color: rgba(255,255,255,0.4);">
+        Cipher's campaign ROI panel on the CEO dashboard also shows this data — see the "actual-engagement" badge versus "task-proxy" fallback.
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function emptyState(id, msg) {
+      document.getElementById(id).innerHTML = '<div class="oa-empty">' + esc(msg) + '</div>';
+    }
+
+    function loadDigest() {
+      return fetch(API + '/outcomeDigest', { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); });
+    }
+
+    function renderTotals(d) {
+      var t = d.totals || {};
+      var chips = [];
+      chips.push('<div class="oa-chip">Snapshots: <strong>' + (t.snapshots || 0) + '</strong></div>');
+      chips.push('<div class="oa-chip">Complete (t7+): <strong>' + (t.complete || 0) + '</strong></div>');
+      chips.push('<div class="oa-chip">Pending: <strong>' + (t.pending || 0) + '</strong></div>');
+      if (t.linkedinPendingCount > 0) {
+        chips.push('<div class="oa-chip oa-warn">LinkedIn blind spot: <strong>' + t.linkedinPendingCount + '</strong> awaiting metrics API</div>');
+      }
+      if (d._builtOnDemand) {
+        chips.push('<div class="oa-chip oa-warn">Built on demand — heartbeat cache missing</div>');
+      }
+      document.getElementById('oa-totals').innerHTML = chips.join('');
+    }
+
+    function renderExperiments(d) {
+      var exps = d.perExperiment || [];
+      if (exps.length === 0) {
+        emptyState('oa-experiments', 'No experiments have reached 7-day maturity yet. First verdicts available after t7 completion on any active experiment.');
+        return;
+      }
+      var rows = exps.map(function (e) {
+        var vClass = 'oa-verdict-' + (e.verdict || 'inconclusive');
+        var pct = e.baselineMeanEngagement > 0 ? ((e.effectSize > 0 ? '+' : '') + Math.round((e.effectSize || 0) * 100) + '%') : '—';
+        return '<tr>'
+          + '<td>' + esc(e.hypothesis) + '</td>'
+          + '<td>' + esc(e.agentId) + '</td>'
+          + '<td>' + (e.treatmentSamples || 0) + '/' + (e.baselineSamples || 0) + '</td>'
+          + '<td>' + (e.treatmentMeanEngagement || 0) + '</td>'
+          + '<td>' + (e.baselineMeanEngagement || 0) + '</td>'
+          + '<td>' + pct + '</td>'
+          + '<td class="' + vClass + '">' + esc(e.verdict) + (e.shouldAutoConclude ? ' ▲' : '') + '</td>'
+          + '</tr>';
+      }).join('');
+      document.getElementById('oa-experiments').innerHTML =
+        '<table class="oa-table"><thead><tr><th>Hypothesis</th><th>Agent</th><th>Samples (T/B)</th><th>Treatment mean</th><th>Baseline mean</th><th>Effect</th><th>Verdict</th></tr></thead><tbody>'
+        + rows + '</tbody></table>'
+        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Auto-conclude gates: samples≥10, per-arm≥5, |effectSize|≥0.15, verdict in {promote, discard}. ▲ = ready to conclude.</div>';
+    }
+
+    function renderAgents(d) {
+      var agents = d.perAgent || {};
+      var ids = Object.keys(agents);
+      if (ids.length === 0) {
+        emptyState('oa-agents', 'Collecting data — first agent medians available after 7 days of outcome samples.');
+        return;
+      }
+      var html = '<div class="oa-agent-grid">' + ids.map(function (aid) {
+        var a = agents[aid];
+        return '<div class="oa-agent-card">'
+          + '<h3>' + esc(aid) + '</h3>'
+          + '<div class="oa-metric">Posts 7d: <strong>' + (a.posts7d || 0) + '</strong></div>'
+          + '<div class="oa-metric">Posts 30d: <strong>' + (a.posts30d || 0) + '</strong></div>'
+          + '<div class="oa-metric">Median engagement: <strong>' + (a.medianTotalEngagement || 0) + '</strong></div>'
+          + (a.topHook ? '<div class="oa-metric">Top hook: <strong>' + esc(a.topHook.hook) + '</strong> (' + a.topHook.median + ' median, ' + a.topHook.samples + ' samples)</div>' : '')
+          + (a.worstHook && a.worstHook.hook !== (a.topHook && a.topHook.hook) ? '<div class="oa-metric">Worst hook: ' + esc(a.worstHook.hook) + ' (' + a.worstHook.median + ')</div>' : '')
+          + '</div>';
+      }).join('') + '</div>';
+      document.getElementById('oa-agents').innerHTML = html;
+    }
+
+    function renderHooks(d) {
+      var hooks = d.perHook || [];
+      if (hooks.length === 0) {
+        emptyState('oa-hooks', 'Hook performance requires 3+ samples per platform×hook cell. Accumulating.');
+        return;
+      }
+      var html = '<div class="oa-hook-matrix">' + hooks.map(function (h) {
+        var lowClass = (h.percentileVsOverall !== null && h.percentileVsOverall < 80) ? ' oa-low' : '';
+        return '<div class="oa-hook-cell' + lowClass + '">'
+          + '<strong>' + esc(h.hookType) + '</strong> on ' + esc(h.platform)
+          + ': ' + h.medianEngagement + ' median'
+          + (h.percentileVsOverall !== null ? ' (' + h.percentileVsOverall + '% of overall)' : '')
+          + ' <span style="opacity:0.5;">[' + h.sampleCount + ' samples]</span>'
+          + '</div>';
+      }).join('') + '</div>';
+      document.getElementById('oa-hooks').innerHTML = html;
+    }
+
+    function renderCampaigns(d) {
+      var camps = (d.perCampaign || []).filter(function (c) { return c.postsPublished > 0; });
+      if (camps.length === 0) {
+        emptyState('oa-campaigns', 'No campaigns have published posts with outcome data yet. Funnel attribution requires UTM-tagged posts + blog views within the last 30 days.');
+        return;
+      }
+      var html = camps.map(function (c) {
+        return '<div style="padding:0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);">'
+          + '<div style="font-size:0.7rem; margin-bottom:0.3rem;"><strong>' + esc(c.title) + '</strong></div>'
+          + '<div class="oa-funnel-bar">'
+          + '<div class="oa-funnel-step">Posts: ' + c.postsPublished + ' (' + c.postsComplete + ' mature)</div>'
+          + '<div class="oa-funnel-step">Engagements: ' + c.totalEngagements + '</div>'
+          + '<div class="oa-funnel-step">Blog views: ' + c.blogViewsAttributed + '</div>'
+          + '<div class="oa-funnel-step">Form submits: ' + c.formSubmitsAttributed + '</div>'
+          + '</div></div>';
+      }).join('');
+      document.getElementById('oa-campaigns').innerHTML = html
+        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Blog views + form submits attributed via utm_content (action ID). Starts fresh at system deploy — no historical backfill.</div>';
+    }
+
+    function renderCost(d) {
+      var t = d.totals || {};
+      if ((t.complete || 0) === 0) {
+        emptyState('oa-cost', 'Cost-per-outcome available once posts reach t7. Until then, Cipher\'s ROI uses task-count proxy (see the "proxy" badge on the CEO dashboard).');
+        return;
+      }
+      var perAgent = d.perAgent || {};
+      var rows = Object.keys(perAgent).map(function (aid) {
+        var a = perAgent[aid];
+        return '<tr><td>' + esc(aid) + '</td><td>' + (a.posts30d || 0) + '</td><td>' + (a.medianTotalEngagement || 0) + '</td></tr>';
+      }).join('');
+      document.getElementById('oa-cost').innerHTML =
+        '<table class="oa-table"><thead><tr><th>Agent</th><th>Posts 30d</th><th>Median engagement per post</th></tr></thead><tbody>'
+        + rows + '</tbody></table>'
+        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Dollar cost not joined here — see Cipher\'s dashboard for $/engagement. Cross-reference against geminiUsage for per-agent cost.</div>';
+    }
+
+    loadDigest().then(function (d) {
+      renderTotals(d);
+      renderExperiments(d);
+      renderAgents(d);
+      renderHooks(d);
+      renderCampaigns(d);
+      renderCost(d);
+    }).catch(function (err) {
+      var m = 'Failed to load outcome digest.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('oa-totals').innerHTML = '<div class="oa-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+</body>
+</html>

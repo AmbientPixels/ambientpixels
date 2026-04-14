@@ -92,6 +92,7 @@
         { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] },
         { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] },
         { href: BASE + 'analytics-hub.html', label: 'Analytics Hub', icon: 'fa-chart-simple', match: ['analytics-hub.html'] },
+        { href: BASE + 'attribution.html', label: 'Attribution', icon: 'fa-chart-line', match: ['attribution.html'] },
         { href: BASE + 'bluesky-discovery.html', label: 'Bluesky', icon: 'fa-satellite-dish', match: ['bluesky-discovery.html'] }
       ]
     },

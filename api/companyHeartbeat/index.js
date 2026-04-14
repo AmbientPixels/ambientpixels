@@ -266,6 +266,7 @@ module.exports = async function (context) {
     try {
       const _outcomeSnaps = (await storage.getState('outcomeSnapshots')) || {};
       outcomeDigest = buildOutcomeDigest(_outcomeSnaps, allActions, campaigns, agentExperiments, Date.now());
+      if (outcomeDigest) runtimeMemory.outcomeDigest = outcomeDigest;
       context.log('[heartbeat] Outcome digest: snapshots=', outcomeDigest.totals.snapshots, 'complete=', outcomeDigest.totals.complete, 'linkedinPending=', outcomeDigest.totals.linkedinPendingCount);
     } catch (_e) { context.log('[heartbeat] Outcome digest failed (non-fatal):', _e.message); }
 
