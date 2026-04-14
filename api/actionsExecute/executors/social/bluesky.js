@@ -5,6 +5,7 @@
 const https = require('https');
 const crypto = require('crypto');
 const media = require('./media');
+const storage = require('../../../_utils/companyStorage');
 const { retryOn429 } = require('../../../_utils/platformRetry');
 
 const BLUESKY_PDS = 'https://bsky.social';
@@ -194,6 +195,7 @@ async function publishToBluesky(action) {
   // Upload images from media[] if present — uses shared media module for host allowlist + download
   const mediaItems = media.extractMediaItems(action.payload && action.payload.media, MAX_MEDIA);
   const uploadedBlobs = [];
+  const failedMedia = [];  // Q2: track partial failures — surfaced in receipt.media_failures
   for (const item of mediaItems) {
     try {
       const downloaded = await media.downloadMedia(item.url, { maxBytes: BSKY_MAX_IMAGE_BYTES });
@@ -203,8 +205,30 @@ async function publishToBluesky(action) {
         image: blobRef
       });
     } catch (blobErr) {
-      // Non-fatal: skip this image, continue with others or text-only
-      console.warn('[Bluesky] Image upload failed for', item.url, ':', blobErr.message || blobErr.code);
+      // Non-fatal: skip this image, continue with others or text-only.
+      // Q2: record the failure so the action-audit dashboard surfaces it + log as action-warning
+      // so the CEO sees visual-lossy posts rather than silent text-only publishes.
+      const errInfo = { url: item.url, error: (blobErr && (blobErr.message || blobErr.code)) || 'unknown' };
+      failedMedia.push(errInfo);
+      console.warn('[Bluesky] Image upload failed for', item.url, ':', errInfo.error);
+      try {
+        const log = (await storage.getState('governanceLog')) || [];
+        log.push({
+          id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+          type: 'action-warning',
+          agentId: null,
+          summary: 'Bluesky media upload failed — post will proceed without this image',
+          timestamp: new Date().toISOString(),
+          details: {
+            platform: 'bluesky',
+            actionId: (action && action.id) || null,
+            url: errInfo.url,
+            error: errInfo.error
+          }
+        });
+        if (log.length > 500) log.splice(0, log.length - 500);
+        await storage.setState('governanceLog', log);
+      } catch (_logErr) { /* non-fatal */ }
     }
   }
 
@@ -258,18 +282,23 @@ async function publishToBluesky(action) {
     const rkey = atUri.split('/').pop();
     const postUrl = 'https://bsky.app/profile/' + session.handle + '/post/' + rkey;
 
-    return {
-      receipt: {
-        platform: 'bluesky',
-        handle: '@' + session.handle,
-        post_id: rkey,
-        at_uri: atUri,
-        cid: res.data.cid || '',
-        post_url: postUrl,
-        timestamp: now,
-        content_hash: contentHash(text)
-      }
+    const receipt = {
+      platform: 'bluesky',
+      handle: '@' + session.handle,
+      post_id: rkey,
+      at_uri: atUri,
+      cid: res.data.cid || '',
+      post_url: postUrl,
+      timestamp: now,
+      content_hash: contentHash(text)
     };
+    // Q2: surface partial media failures in the receipt so the action-audit dashboard shows
+    // posts that went out text-only despite requesting images. Empty array not included.
+    if (failedMedia.length > 0) {
+      receipt.media_failures = failedMedia;
+      receipt.media_failure_count = failedMedia.length;
+    }
+    return { receipt: receipt };
   } else {
     const errMsg = (res.data && res.data.message) || (res.data && res.data.error) || (res.raw || '').substring(0, 300);
     throw {
