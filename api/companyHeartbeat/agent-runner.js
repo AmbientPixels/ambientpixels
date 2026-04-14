@@ -3980,10 +3980,14 @@ Write the full deliverable first, then the structured JSON block.`;
             runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
           });
         }
-        // Evidence requirement for preferred AmbientOS types
-        else if (L4_PREFERRED_TYPES.has(_memType) && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
+        // Evidence requirement for ALL L4 memory types except structural types (weekly_report).
+        // Previously only L4_PREFERRED_TYPES enforced this; legacy types (learning/feedback/
+        // context/preference) could be written with no provenance, which was the root cause of
+        // the stale-loop incidents ("Cipher spent $0.51" repeated 20×). Now every write needs
+        // evidence.runId unless it's a structural aggregation type.
+        else if (_memType !== 'weekly_report' && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
           _memBlockedReason = 'missing_evidence';
-          await logEvent('policy-violation', agentId, 'Memory write blocked: preferred type requires evidence', cycleId, {
+          await logEvent('policy-violation', agentId, 'Memory write blocked: evidence.runId required', cycleId, {
             runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'missing_evidence', type: _memType
           });
         }
@@ -4006,7 +4010,9 @@ Write the full deliverable first, then the structured JSON block.`;
             source: cycleId,
             timestamp: mem.ts || _memNowIso,
             expiresAt: _memExpiresAt,
-            evidence: L4_PREFERRED_TYPES.has(_memType) ? mem.evidence : undefined
+            // Evidence persisted for all types (validated upstream); only weekly_report is exempt
+            // and legitimately has no runId (it aggregates a week's worth of activity).
+            evidence: _memType !== 'weekly_report' ? mem.evidence : (mem.evidence || undefined)
           });
           // Cap per-agent memories
           if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
