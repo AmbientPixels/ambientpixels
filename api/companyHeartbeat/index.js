@@ -2642,6 +2642,25 @@ module.exports = async function (context) {
           const _newAction = H._createActionFromHeartbeat(_actionReq, 'echo');
           _newAction._parentTaskId = _pt.id;
           _newAction._autoPosted = true;
+
+          // Outcome Attribution Phase 2: inject UTM params into ambientpixels.ai URLs
+          // so blog views + form submits are attributable to this specific post.
+          // Only own-domain URLs get UTMs — external links stay untouched.
+          try {
+            const _utmSrc = _platform;
+            const _utmCnt = _newAction.id;
+            _newAction.payload.text = String(_newAction.payload.text || '').replace(
+              /https?:\/\/(?:www\.)?ambientpixels\.ai(?:\/[^\s)]*)?/gi,
+              function (_url) {
+                if (_url.indexOf('utm_') !== -1) return _url; // already tagged, skip
+                const _sep = _url.indexOf('?') !== -1 ? '&' : '?';
+                return _url + _sep + 'utm_source=' + encodeURIComponent(_utmSrc) + '&utm_content=' + encodeURIComponent(_utmCnt);
+              }
+            );
+          } catch (_utmErr) {
+            context.log('[Heartbeat] AUTO-POST UTM inject failed (non-fatal):', String(_utmErr).substring(0, 200));
+          }
+
           _actionsStore.push(_newAction);
           // Quality gate: validate content against product facts before queuing
           var _aqQualityGate = null;

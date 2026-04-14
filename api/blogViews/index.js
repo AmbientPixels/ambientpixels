@@ -44,11 +44,28 @@ module.exports = async function (context, req) {
         }
       }
 
+      // Phase 2 UTM attribution: capture utm_source / utm_content (action_id).
+      // Client may pass these from URL query params (window.location.search)
+      // OR we can parse them here from body.url / body.referrer as fallback.
+      var utmSource = (body.utm_source || '').toString().trim().slice(0, 50) || null;
+      var utmContent = (body.utm_content || '').toString().trim().slice(0, 100) || null;
+      if ((!utmSource || !utmContent) && body.url) {
+        try {
+          var _u = new URL(body.url);
+          if (!utmSource) utmSource = _u.searchParams.get('utm_source') || null;
+          if (!utmContent) utmContent = _u.searchParams.get('utm_content') || null;
+          if (utmSource) utmSource = utmSource.slice(0, 50);
+          if (utmContent) utmContent = utmContent.slice(0, 100);
+        } catch (_e) { /* ignore malformed url */ }
+      }
+
       views.push({
         slug: slug,
         timestamp: new Date(now).toISOString(),
         fp: fp || null,
-        referrer: (body.referrer || '').slice(0, 200) || null
+        referrer: (body.referrer || '').slice(0, 200) || null,
+        utmSource: utmSource,
+        utmContent: utmContent
       });
 
       // Rolling cap

@@ -43,10 +43,23 @@
         // Track view (fire-and-forget)
         try {
           var fp = (navigator.userAgent || '').slice(0, 64);
+          var _utmSource = null, _utmContent = null;
+          try {
+            var _sp = new URLSearchParams(window.location.search);
+            _utmSource = _sp.get('utm_source');
+            _utmContent = _sp.get('utm_content');
+          } catch (_e) { /* old browsers */ }
           fetch(API_BASE + '/blog-views', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ slug: slug, fp: fp, referrer: document.referrer || '' })
+            body: JSON.stringify({
+              slug: slug,
+              fp: fp,
+              referrer: document.referrer || '',
+              url: window.location.href,
+              utm_source: _utmSource,
+              utm_content: _utmContent
+            })
           }).catch(function () { /* silent */ });
         } catch (_e) { /* silent */ }
       })

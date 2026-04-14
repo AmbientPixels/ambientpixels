@@ -2505,6 +2505,23 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'social action linked to artifact:', socialPayload.artifact_id);
       }
 
+      // Outcome Attribution Phase 2: inject UTM params into ambientpixels.ai URLs
+      // so blog views + form submits are attributable to this specific post.
+      try {
+        const _utmS = _resolvedPlatform;
+        const _utmC = newAction.id;
+        newAction.payload.text = String(newAction.payload.text || '').replace(
+          /https?:\/\/(?:www\.)?ambientpixels\.ai(?:\/[^\s)]*)?/gi,
+          function (_url) {
+            if (_url.indexOf('utm_') !== -1) return _url;
+            const _sep = _url.indexOf('?') !== -1 ? '&' : '?';
+            return _url + _sep + 'utm_source=' + encodeURIComponent(_utmS) + '&utm_content=' + encodeURIComponent(_utmC);
+          }
+        );
+      } catch (_utmErr) {
+        context.log('[Heartbeat]', agentId, 'UTM inject failed (non-fatal):', String(_utmErr).substring(0, 200));
+      }
+
       // Link action to parent task if provided
       if (action.taskId) newAction._parentTaskId = action.taskId;
 
