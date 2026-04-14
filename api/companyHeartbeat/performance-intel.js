@@ -347,7 +347,10 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     }
   }
 
-  // Aggregate engagement per agent
+  // Aggregate engagement per agent + team-wide hook correlation
+  // Team-wide uses weighted engagement (likes + 2×comments + 3×reposts) so hooks that
+  // drive conversation are valued above hooks that just get passive likes.
+  var teamHookAgg = {}; // hook → { samples, totalWeighted, totalLikes, totalComments, totalReposts }
   Object.keys(agentPostEngagement).forEach(function (aid) {
     var posts = agentPostEngagement[aid];
     var keys = Object.keys(posts);
@@ -363,11 +366,19 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
         topPlatform = p.platform;
         topSnippet = p.snippet;
       }
-      // Hook engagement correlation
+      // Per-agent hook engagement (original — kept for personal benchmarking)
       if (p.hook) {
         if (!agents[aid].hookEngagement[p.hook]) agents[aid].hookEngagement[p.hook] = { posts: 0, totalLikes: 0 };
         agents[aid].hookEngagement[p.hook].posts += 1;
         agents[aid].hookEngagement[p.hook].totalLikes += p.likes;
+        // Team-wide correlation (Phase 9 — pooled across all agents for stronger signal)
+        var weighted = (p.likes || 0) + (p.comments || 0) * 2 + (p.reposts || 0) * 3;
+        if (!teamHookAgg[p.hook]) teamHookAgg[p.hook] = { samples: 0, totalWeighted: 0, totalLikes: 0, totalComments: 0, totalReposts: 0 };
+        teamHookAgg[p.hook].samples += 1;
+        teamHookAgg[p.hook].totalWeighted += weighted;
+        teamHookAgg[p.hook].totalLikes += (p.likes || 0);
+        teamHookAgg[p.hook].totalComments += (p.comments || 0);
+        teamHookAgg[p.hook].totalReposts += (p.reposts || 0);
       }
     });
     agents[aid].avgLikesPerPost = Math.round(totalLikes / keys.length);
@@ -376,6 +387,23 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     agents[aid].topPostPlatform = topPlatform;
     agents[aid].topPostSnippet = topSnippet;
   });
+
+  // Rank team-wide hook correlation — 3-sample minimum, sorted by avg weighted engagement.
+  // This is what surfaces to Echo/Scribe/Quill as "the team learned these hooks perform".
+  var teamHookCorrelation = Object.keys(teamHookAgg)
+    .filter(function (h) { return teamHookAgg[h].samples >= EXPERIMENT_MIN_SAMPLES; })
+    .map(function (h) {
+      var agg = teamHookAgg[h];
+      return {
+        hook: h,
+        samples: agg.samples,
+        avgWeighted: +(agg.totalWeighted / agg.samples).toFixed(1),
+        avgLikes: Math.round(agg.totalLikes / agg.samples),
+        avgComments: +(agg.totalComments / agg.samples).toFixed(1),
+        avgReposts: +(agg.totalReposts / agg.samples).toFixed(1)
+      };
+    })
+    .sort(function (a, b) { return b.avgWeighted - a.avgWeighted; });
 
   // ── Blog post views (Scribe) ──
   for (var bv = 0; bv < blogPostViews.length; bv++) {
@@ -607,7 +635,8 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
   return {
     asOfUtc: new Date(now).toISOString(),
     windowDays: PERFORMANCE_INTEL_WINDOW_DAYS,
-    agents: agents
+    agents: agents,
+    teamHookCorrelation: teamHookCorrelation
   };
 }
 
@@ -740,6 +769,27 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
       if (_fbThemes.length > 0) {
         lines.push('- CEO feedback themes: ' + _fbThemes.map(function (w) { return '"' + w + '" (' + _fbWordCounts[w] + 'x)'; }).join(', ') + ' — address these patterns');
       }
+    }
+  }
+
+  // Team-wide hook correlation — surfaced to Echo/Scribe/Quill (content agents).
+  // Uses pooled engagement across all agents for stronger statistical signal than per-agent alone.
+  // Requires ≥3 samples per hook type (EXPERIMENT_MIN_SAMPLES) before surfacing.
+  var teamHookRank = performanceDigest.teamHookCorrelation || [];
+  if (teamHookRank.length > 0 && ['echo', 'scribe', 'quill'].indexOf(agentId) !== -1) {
+    lines.push('');
+    lines.push('TEAM HOOK PERFORMANCE (' + performanceDigest.windowDays + 'd, pooled across all content agents, ≥3 samples):');
+    teamHookRank.slice(0, 6).forEach(function (h, idx) {
+      var marker = idx === 0 ? ' 🔥 TOP' : (idx === teamHookRank.length - 1 && teamHookRank.length > 1 ? ' ↓ weakest' : '');
+      lines.push('- ' + h.hook + ': ' + h.samples + ' samples, avg weighted engagement ' + h.avgWeighted +
+        ' (' + h.avgLikes + ' likes / ' + h.avgComments + ' comments / ' + h.avgReposts + ' reposts)' + marker);
+    });
+    if (agentId === 'echo') {
+      lines.push('Lean your strategy briefs toward the top-ranked hooks this cycle. Flag any KEEP/DISCARD patterns from experiments that reinforce or contradict this ranking.');
+    } else if (agentId === 'scribe') {
+      lines.push('When Echo\'s brief leaves the hook open, default to the top-ranked hook. If Echo specifies a hook that\'s ranked bottom, ask in the task comments before drafting.');
+    } else if (agentId === 'quill') {
+      lines.push('Use this when editing — if copy uses a bottom-ranked hook and could be rewritten with a top-ranked one without losing the brief, suggest the swap in your review.');
     }
   }
 
