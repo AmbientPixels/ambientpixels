@@ -25,7 +25,8 @@ const VALID_KEYS = [
   'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats',
   'socialWeeklySnapshots',
   'blueskyCandidates',
-  'agentMessages'
+  'agentMessages',
+  'outcomeSnapshots', 'agentDecisions'
 ];
 
 module.exports = async function (context, req) {

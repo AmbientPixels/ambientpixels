@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const storage = require('../_utils/companyStorage');
 const { executeAction, isExecutable } = require('./executors');
 const socialTelemetry = require('../socialMetrics/telemetry');
+const outcomeBaseline = require('./executors/_utils/outcomeBaseline');
 
 // Simple in-memory rate limiter (per minute)
 const _rateBucket = {};
@@ -441,6 +442,11 @@ module.exports = async function (context, req) {
         agent_id: action.created_by || ''
       });
       await socialTelemetry.appendSocialMetricEvent(successEvent);
+
+      // Outcome Attribution Phase 1: write t0 baseline snapshot. Non-fatal.
+      try {
+        await outcomeBaseline.writeBaseline(action, context);
+      } catch (_obErr) { /* helper handles its own errors; defensive belt */ }
     }
 
     actions[actionIndex] = action;
