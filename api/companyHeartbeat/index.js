@@ -27,7 +27,7 @@ try { skillsData = require('../_data/skills.json'); } catch (_) { /* generated b
 // Destructure constants used by main orchestrator
 const {
   AGENT_IDS, GUARDRAILS, HEARTBEAT_LOCK_TIMEOUT_MS,
-  MAX_MEMORIES_PER_AGENT, L4_DEFAULT_TTL_DAYS, L4_TTL_BY_TYPE,
+  MAX_MEMORIES_PER_AGENT, L4_DEFAULT_TTL_DAYS, L4_TTL_BY_TYPE, MAX_GOVERNANCE_LOG_ENTRIES,
   TIER4_SUB_AGENTS, ALLOWED_UPDATE_KEYS, CAP_DEFAULTS,
   _MUTATION_BUCKET_MAP, MAX_RESEARCH_STORE_ENTRIES,
   AGENT_COOLDOWN_VIOLATIONS_PER_RUN, MAX_ENTITY_COMMENT_CALLS_PER_RUN
@@ -2729,12 +2729,21 @@ module.exports = async function (context) {
     await storage.setState('tasks', tasks);
     if (campaignsChanged) await storage.setState('campaigns', campaigns);
     if (objectivesChanged) await storage.setState('objectives', objectives);
-    if (campaignGovEvents.length > 0) {
+    // Retention pass runs every heartbeat (not just when campaign events exist) so the log can't
+    // grow unbounded across quiet cycles. Append any new campaign events, sort, trim to cap.
+    {
       const govLog = (await storage.getState('governanceLog')) || [];
-      for (const evt of campaignGovEvents) govLog.push(evt);
-      govLog.sort(function (a, b) { return String(a.timestamp || '').localeCompare(String(b.timestamp || '')); });
-      if (govLog.length > 300) govLog.splice(0, govLog.length - 300);
-      await storage.setState('governanceLog', govLog);
+      let _govChanged = false;
+      if (campaignGovEvents.length > 0) {
+        for (const evt of campaignGovEvents) govLog.push(evt);
+        govLog.sort(function (a, b) { return String(a.timestamp || '').localeCompare(String(b.timestamp || '')); });
+        _govChanged = true;
+      }
+      if (govLog.length > MAX_GOVERNANCE_LOG_ENTRIES) {
+        govLog.splice(0, govLog.length - MAX_GOVERNANCE_LOG_ENTRIES);
+        _govChanged = true;
+      }
+      if (_govChanged) await storage.setState('governanceLog', govLog);
     }
     await storage.setState('agentConfigs', configs);
     await storage.setState('agentMemories', _agentMemoryStore);

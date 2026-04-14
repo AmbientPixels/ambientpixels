@@ -61,11 +61,14 @@ const MAX_MEMORIES_PER_AGENT = 50;
 const MAX_L4_WRITES_PER_AGENT_PER_DAY = 10;
 const L4_PREFERRED_TYPES = new Set(['decision', 'constraint', 'resolved_incident', 'verified_fact', 'preference']);
 const L4_LEGACY_TYPES = new Set(['learning', 'feedback', 'context', 'preference']);
-const L4_ALLOWED_TYPES = new Set([...L4_PREFERRED_TYPES, ...L4_LEGACY_TYPES]);
+// weekly_report is a structural memory type (Nova/Cipher/Forge cadence reports) — allowed but not
+// preferred (doesn't require evidence.runId), long-lived to survive the 7-day cadence check.
+const L4_STRUCTURAL_TYPES = new Set(['weekly_report']);
+const L4_ALLOWED_TYPES = new Set([...L4_PREFERRED_TYPES, ...L4_LEGACY_TYPES, ...L4_STRUCTURAL_TYPES]);
 const L4_DEFAULT_TTL_DAYS = 14;
 // Tiered TTLs by memory type (days). Types not listed fall back to L4_DEFAULT_TTL_DAYS.
 const L4_TTL_BY_TYPE = {
-  decision: 90, verified_fact: 90,
+  decision: 90, verified_fact: 90, weekly_report: 90,
   constraint: 60, preference: 60,
   learning: 30, feedback: 30,
   context: 14
@@ -129,6 +132,9 @@ const MAX_PERFORMANCE_INSIGHTS_PER_DAY = 1;
 const MAX_EXPERIMENTS_PER_AGENT = 3;
 const EXPERIMENT_MIN_SAMPLES = 3;
 const EXPERIMENT_IMPROVEMENT_THRESHOLD = 0.10;
+
+// ── Governance log retention (prevents unbounded growth) ──
+const MAX_GOVERNANCE_LOG_ENTRIES = 500;
 
 // Strip repeated auto-generated prefixes from task titles
 const _TASK_PREFIXES = [
@@ -217,6 +223,7 @@ module.exports = {
   MAX_EXPERIMENTS_PER_AGENT,
   EXPERIMENT_MIN_SAMPLES,
   EXPERIMENT_IMPROVEMENT_THRESHOLD,
+  MAX_GOVERNANCE_LOG_ENTRIES,
   OPS_INTEL_FRESHNESS_MS: 25 * 60 * 1000,
   OPS_INTEL_WINDOW_RUNS: 20,
   FINANCE_BUDGET_DAILY: 0.50,
