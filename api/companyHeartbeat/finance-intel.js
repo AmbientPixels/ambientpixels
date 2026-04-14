@@ -214,6 +214,10 @@ function _buildFinancePromptBlock(agent, digest) {
     });
   } else {
     lines.push('\nAll thresholds GREEN — no alerts.');
+    lines.push('\nGREEN-STATE RESPONSIBILITIES (don\'t go silent on green — this is when strategic finance work happens):');
+    lines.push('- Weekly financial report: save a `weekly_report` memory summarizing spend trend, top-cost agents, campaign ROI signals, efficiency deltas. Heartbeat tracks the last one and nudges when 7+ days elapse.');
+    lines.push('- Proactive ROI commentary: comment on Nova\'s highest-priority task with budget/ROI implications when relevant.');
+    lines.push('- Cost-efficiency memory: save insights (not raw numbers) about how agents compare on cost-per-approved-action.');
   }
 
   return lines.join('\n');

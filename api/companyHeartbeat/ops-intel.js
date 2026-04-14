@@ -330,10 +330,26 @@ function _buildForgeOpsPromptBlock(agent, opsDigest) {
   if (alerts.length > 0) {
     lines.push('\nTHRESHOLD ALERTS:');
     alerts.forEach(function (a) {
-      lines.push('- [' + a.level + '] ' + a.signal + (a.level === 'RED' ? ' — CREATE ops_breakfix task' : ' — monitor closely'));
+      var action;
+      if (a.level === 'RED') {
+        action = ' — CREATE ops_breakfix task';
+      } else if (a.level === 'YELLOW' && a.signal && a.signal.indexOf('produced 0 actions') !== -1) {
+        // Stalled-agent YELLOW: direct diagnostic action
+        var isSelf = a.signal.indexOf('forge') === 0;
+        action = isSelf
+          ? ' — you (Forge) are stalled. Diagnose self: prompt misconfiguration? orphan guard? no actionable intel? Save a diagnostic memory and comment on Nova\'s highest-priority task with your status.'
+          : ' — investigate: create a diagnostic comment on the stalled agent\'s highest-priority task OR a status comment on Nova listing suspected blockers (prompt issue, guardrail, no assigned work).';
+      } else {
+        action = ' — monitor closely';
+      }
+      lines.push('- [' + a.level + '] ' + a.signal + action);
     });
   } else {
     lines.push('\nAll thresholds GREEN — no alerts.');
+    lines.push('\nGREEN-STATE RESPONSIBILITIES (don\'t go silent on green — proactive ops is how you add value):');
+    lines.push('- Weekly ops report: save a `weekly_report` memory summarizing heartbeat reliability, cost trend, top blockers, governance health. Heartbeat tracks the last one and nudges when 7+ days elapse.');
+    lines.push('- Runbook creation: when 3+ identical incidents recurred in the last 7d, create a `runbook` doc via create-doc (kind: runbook).');
+    lines.push('- Maintenance status: comment on Nova\'s high-priority infra tasks with readiness status when relevant.');
   }
 
   return lines.join('\n');

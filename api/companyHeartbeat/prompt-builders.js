@@ -1109,6 +1109,23 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const forgeOpsSection = _buildForgeOpsPromptBlock(agent, forgeOpsDigest);
   const researchDemandSection = _buildResearchDemandPromptBlock(agent, researchDemandDigest);
 
+  // Weekly report cadence nudge — Cipher, Forge, Nova do strategic weekly reports.
+  // Bootstrap fallback: no prior `weekly_report` memory = treat as overdue immediately,
+  // otherwise dormant agents never trip the ≥7-day check and stay silent forever.
+  let cadenceSection = '';
+  if (['cipher', 'forge', 'nova'].includes(agent.id)) {
+    const _wrMems = (_agentMemoryStore[agent.id] || []).filter(m => (m.type || '') === 'weekly_report');
+    const _lastWr = _wrMems.length ? _wrMems[_wrMems.length - 1] : null;
+    const _lastTs = _lastWr ? new Date(_lastWr.createdAt || _lastWr.ts || 0).getTime() : 0;
+    const _daysSince = _lastTs ? Math.floor((Date.now() - _lastTs) / 86400000) : 999;
+    if (_daysSince >= 7) {
+      const _roleLabel = agent.id === 'cipher' ? 'FINANCIAL' : agent.id === 'forge' ? 'OPS' : 'STRATEGIC';
+      const _daysText = _daysSince >= 999 ? 'never written' : _daysSince + ' days ago';
+      cadenceSection = '\n\n⏰ WEEKLY ' + _roleLabel + ' REPORT DUE — last report: ' + _daysText + '.\n'
+        + 'Save a `remember` action with type="weekly_report" summarizing this week. Keep it under 500 chars, lead with the headline, include 2-3 concrete data points from your intelligence dashboard, and one decision or recommendation. Also create a `spec` doc (kind: spec) titled "Weekly ' + _roleLabel + ' Report — ' + new Date().toISOString().substring(0, 10) + '" capturing the same content in full detail. Both the memory and the doc count — don\'t skip either.';
+    }
+  }
+
   const _agentRole = (_agentCfg.roleOverride && String(_agentCfg.roleOverride).trim()) || agent.role;
   const _agentTitle = (_agentCfg.titleOverride && String(_agentCfg.titleOverride).trim()) || '';
   const _titleSuffix = _agentTitle ? ' (' + _agentTitle + ')' : '';
@@ -1279,7 +1296,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${cadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
