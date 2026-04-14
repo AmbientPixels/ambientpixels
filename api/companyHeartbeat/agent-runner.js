@@ -985,6 +985,9 @@ Write the full deliverable first, then the structured JSON block.`;
       if (_activeTaskCount >= GUARDRAILS.maxActiveTasks) {
         result.guardrails.taskCeilingBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: active task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ')');
+        await logEvent('policy-violation', agentId, 'Task ceiling blocked create-task', cycleId,
+          { runId: cycleId, gate: 'task_ceiling', reason: 'max_active_tasks_' + GUARDRAILS.maxActiveTasks,
+            activeCount: _activeTaskCount, cap: GUARDRAILS.maxActiveTasks, title: (action.task.title || '').substring(0, 120) });
         continue;
       }
 
@@ -993,6 +996,9 @@ Write the full deliverable first, then the structured JSON block.`;
         const _activeResearch = tasks.filter(t => t.status !== 'done' && t.status !== 'archived' && t.status !== 'canceled' && t.taskType === 'research').length;
         if (_activeResearch >= 5) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-task: research task ceiling reached (' + _activeResearch + '/5). Title:', action.task.title);
+          await logEvent('policy-violation', agentId, 'Research ceiling blocked create-task', cycleId,
+            { runId: cycleId, gate: 'research_ceiling', reason: 'max_research_5',
+              activeCount: _activeResearch, cap: 5, title: (action.task.title || '').substring(0, 120) });
           continue;
         }
       }
@@ -1042,6 +1048,9 @@ Write the full deliverable first, then the structured JSON block.`;
           }).length;
           if (_cmpTaskCount >= _effectiveMaxTasks) {
             context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" maxTasks reached (' + _cmpTaskCount + '/' + _effectiveMaxTasks + (_parentCmp.frequency ? ' derived from freq=' + _parentCmp.frequency : '') + ')');
+            await logEvent('policy-violation', agentId, 'Campaign maxTasks blocked create-task', cycleId,
+              { runId: cycleId, gate: 'campaign_freeze', reason: 'campaign_max_tasks_reached',
+                campaignId: _taskCampaignId, current: _cmpTaskCount, cap: _effectiveMaxTasks });
             continue;
           }
         }
@@ -1079,6 +1088,9 @@ Write the full deliverable first, then the structured JSON block.`;
             });
             if (_recentCmpTask) {
               context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" cadence=' + _parentCmp.cadence + ' — task "' + _recentCmpTask.title + '" created within window');
+              await logEvent('policy-violation', agentId, 'Campaign cadence blocked create-task', cycleId,
+                { runId: cycleId, gate: 'campaign_freeze', reason: 'cadence_window_active',
+                  campaignId: _taskCampaignId, cadence: _parentCmp.cadence });
               continue;
             }
             // Multi-platform social: block only when ALL platforms have recent tasks
@@ -1095,6 +1107,9 @@ Write the full deliverable first, then the structured JSON block.`;
                 });
                 if (_mpAllThrottled) {
                   context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" all social platforms throttled within cadence window');
+                  await logEvent('policy-violation', agentId, 'Campaign all-platforms throttled', cycleId,
+                    { runId: cycleId, gate: 'campaign_freeze', reason: 'multi_platform_throttled',
+                      campaignId: _taskCampaignId, platforms: _mpAllowed });
                   continue;
                 }
               }
@@ -1105,12 +1120,18 @@ Write the full deliverable first, then the structured JSON block.`;
         // SERVER-SIDE GUARD: campaign startDate — no tasks before campaign begins
         if (_parentCmp.startDate && new Date(_parentCmp.startDate).getTime() > Date.now()) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" startDate not reached (' + _parentCmp.startDate + ')');
+          await logEvent('policy-violation', agentId, 'Campaign startDate not reached', cycleId,
+            { runId: cycleId, gate: 'campaign_freeze', reason: 'startDate_not_reached',
+              campaignId: _taskCampaignId, startDate: _parentCmp.startDate });
           continue;
         }
 
         // SERVER-SIDE GUARD: campaign endDate — no new tasks after campaign deadline
         if (_parentCmp.endDate && new Date(_parentCmp.endDate).getTime() < Date.now()) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" endDate passed (' + _parentCmp.endDate + ')');
+          await logEvent('policy-violation', agentId, 'Campaign endDate passed', cycleId,
+            { runId: cycleId, gate: 'campaign_freeze', reason: 'endDate_passed',
+              campaignId: _taskCampaignId, endDate: _parentCmp.endDate });
           continue;
         }
       }
@@ -1124,6 +1145,9 @@ Write the full deliverable first, then the structured JSON block.`;
       if (!_hasObjective && !_hasCampaign && !_operationalExempt) {
         result.guardrails.orphanBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or campaign_id');
+        await logEvent('policy-violation', agentId, 'Orphan gate blocked task creation', cycleId,
+          { runId: cycleId, gate: 'orphan', reason: 'missing_objective_or_campaign',
+            category: _taskCategory, title: (action.task.title || '').substring(0, 120) });
         continue;
       }
 
@@ -1172,6 +1196,9 @@ Write the full deliverable first, then the structured JSON block.`;
         if (existingMatch) {
           result.guardrails.exactDupBlocked++;
           context.log('[Heartbeat]', agentId, 'BLOCKED duplicate task creation:', proposedTitle, '— matches existing:', existingMatch.id);
+          await logEvent('policy-violation', agentId, 'Exact duplicate task blocked', cycleId,
+            { runId: cycleId, gate: 'exact_dup', reason: 'title_collision',
+              proposedTitle: proposedTitle.substring(0, 120), existingTaskId: existingMatch.id });
           continue;
         }
         // Also check fuzzy: if 80%+ of words match
@@ -1187,6 +1214,10 @@ Write the full deliverable first, then the structured JSON block.`;
           if (fuzzyMatch) {
             result.guardrails.fuzzyDupBlocked++;
             context.log('[Heartbeat]', agentId, 'BLOCKED fuzzy-duplicate task:', proposedTitle, '— similar to:', fuzzyMatch.title, '(', fuzzyMatch.id, ')');
+            await logEvent('policy-violation', agentId, 'Fuzzy duplicate task blocked', cycleId,
+              { runId: cycleId, gate: 'fuzzy_dup', reason: 'title_similarity_80pct',
+                proposedTitle: proposedTitle.substring(0, 120), similarTaskId: fuzzyMatch.id,
+                similarTitle: (fuzzyMatch.title || '').substring(0, 120) });
             continue;
           }
         }
@@ -1201,6 +1232,9 @@ Write the full deliverable first, then the structured JSON block.`;
       if (_isSocialPromoTask && _refsBlogPost) {
         result.guardrails.socialPromoGateBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED premature social promo task:', action.task.title, '— blog must be published + promoted first. Social tasks are auto-created on publish with promote=true.');
+        await logEvent('policy-violation', agentId, 'Premature social promo task blocked', cycleId,
+          { runId: cycleId, gate: 'social_promo', reason: 'premature_promo_before_publish',
+            title: (action.task.title || '').substring(0, 120) });
         continue;
       }
 
