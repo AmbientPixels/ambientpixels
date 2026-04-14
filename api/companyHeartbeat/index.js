@@ -426,6 +426,19 @@ module.exports = async function (context) {
         }
       }
 
+      // Phase 1b: prune deprecated escalation types regardless of age.
+      // overdue_escalation + stale_revision_escalation were removed from writes in Apr 2026
+      // (per skill: "agent execution concerns, not CEO action items"). Any resolved entries
+      // of these types are cruft — prune them even if they lack resolvedAt or are <7d old.
+      const _deprecatedEscTypes = ['overdue_escalation', 'stale_revision_escalation'];
+      for (let _di = _naAQ.length - 1; _di >= 0; _di--) {
+        const _dEntry = _naAQ[_di];
+        if (_deprecatedEscTypes.indexOf(_dEntry.type) !== -1 && _dEntry.status === 'resolved') {
+          _naAQ.splice(_di, 1);
+          _naChanged = true;
+        }
+      }
+
       if (_naChanged) {
         if (_naAQ.length > 100) _naAQ.splice(0, _naAQ.length - 100);
         await storage.setState('approvalQueue', _naAQ);
