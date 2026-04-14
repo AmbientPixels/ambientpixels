@@ -73,17 +73,22 @@ function classifyDrift(actualMix, expectedMix) {
     return 'drifting-' + violations[0];
   }
 
-  // Check for 'high' types being under-produced.
-  let highExpectedTotal = 0;
-  let highActual = 0;
+  // Under-producing-core: agent has activity but NONE in any high-or-medium
+  // expected category. We widened to include medium because execute-task,
+  // update-task, review-task heartbeat types flow through task-mutations.js
+  // (not actions[]) so they're invisible to us. Comments + create-task +
+  // create-doc + remember cover most real activity — if an agent shows none
+  // of their expected medium+ categories, that IS a legit drift signal.
+  let expectedTypes = new Set();
   Object.keys(expectedMix).forEach(t => {
-    if (expectedMix[t] === 'high') {
-      highExpectedTotal++;
-      highActual += actualMix[t] || 0;
+    if (expectedMix[t] === 'high' || expectedMix[t] === 'medium') {
+      expectedTypes.add(t);
     }
   });
-  if (highExpectedTotal > 0 && highActual === 0 && totals > 2) {
-    return 'under-producing-core';
+  if (expectedTypes.size > 0 && totals > 2) {
+    let coreActual = 0;
+    expectedTypes.forEach(t => { coreActual += actualMix[t] || 0; });
+    if (coreActual === 0) return 'under-producing-core';
   }
 
   return 'on-role';
