@@ -320,4 +320,40 @@
   layout.appendChild(main);
   body.appendChild(layout);
 
+  // ── Awareness badge (Self-Awareness Phase 6b) ──
+  // Conservative thresholds: badge only shows when clearly actionable. Tune
+  // down after 30 days of live data if signals are being missed.
+  //   - reflectionsOverdue >= 3 (most of the fleet overdue, not just one straggler)
+  //   - roleDriftCount >= 2 (multiple agents drifting is pattern, not outlier)
+  // fatigueSignalsCount intentionally excluded — across 8 agents, 5+ signals is
+  // steady-state not alarm. Badge would permanently light and train CEO to
+  // ignore it.
+  function attachAwarenessBadge() {
+    try {
+      var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+        ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+        : '/api';
+      fetch(API + '/awarenessDigest', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); })
+        .then(function (data) {
+          var g = (data && data.digest && data.digest.globals) || {};
+          var overdueHit = (g.reflectionsOverdue || 0) >= 3;
+          var driftHit = (g.roleDriftCount || 0) >= 2;
+          if (!overdueHit && !driftHit) return;
+          var count = (overdueHit ? g.reflectionsOverdue : 0) + (driftHit ? g.roleDriftCount : 0);
+          var link = topbar.querySelector('a[href$="awareness.html"]');
+          if (!link) return;
+          var badge = document.createElement('span');
+          badge.textContent = String(count);
+          badge.title = (overdueHit ? g.reflectionsOverdue + ' reflections overdue. ' : '')
+            + (driftHit ? g.roleDriftCount + ' agents drifting off-role.' : '');
+          badge.style.cssText = 'display:inline-block;margin-left:0.3rem;padding:0.05rem 0.35rem;font-size:0.55rem;background:#f87171;color:#fff;border-radius:8px;font-weight:600;line-height:1;';
+          link.appendChild(badge);
+        })
+        .catch(function () { /* silent — badge is additive, never blocking */ });
+    } catch (_e) { /* silent */ }
+  }
+  // Fire once, ~500ms after initial render so the sub-links are in the DOM.
+  setTimeout(attachAwarenessBadge, 500);
+
 })();

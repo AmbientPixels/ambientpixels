@@ -279,6 +279,17 @@ function buildReflectionDigest(agentDecisions, outcomeSnapshots, actions, memori
   };
 }
 
+// ── Role-specific reflection focus ──
+// Agents that don't produce social posts or hit quality-gate-rewrite sites
+// have near-empty decisionPatterns + strategyFatigue. Instead of showing them
+// empty sections, we surface a role-specific focus prompt so their reflection
+// targets something meaningful. Keeps the prompt block lean AND useful.
+const ROLE_REFLECTION_FOCUS = {
+  scout: 'Focus on: research pipeline health. Are your web searches producing actionable intel that other agents cite? Is your research backlog resolving or accumulating? Have you surfaced a competitive signal the CEO hadn\'t seen this week?',
+  pixel: 'Focus on: design output. Are hero images landing within campaign pace? Any recurring CEO corrections on visual style? Which products have gone >30 days without new visual assets?',
+  quill: 'Focus on: editing throughput + voice consistency. Are you reviewing Scribe\'s output within 1 heartbeat? Are your feedback patterns consistent (or are you catching the same issues repeatedly — which suggests Scribe isn\'t internalizing)?'
+};
+
 // ── Prompt block builder (Phase 3) ──
 // Pure deterministic formatting. Does NOT generate LLM insights inline — that's
 // the agent's job in their reflection memory. We supply data; they interpret.
@@ -298,7 +309,16 @@ function _buildReflectionPromptBlock(agentId, reflectionDigest) {
     lines.push('');
   }
 
-  // Decision patterns
+  // Role focus (Scout/Quill/Pixel only — others get the data-heavy sections)
+  const roleFocus = ROLE_REFLECTION_FOCUS[agentId];
+  if (roleFocus) {
+    lines.push('REFLECTION FOCUS:');
+    lines.push('  ' + roleFocus);
+    lines.push('');
+  }
+
+  // Decision patterns — suppressed entirely for Scout/Quill/Pixel when empty
+  // (their decision hooks don't fire yet; showing "no decisions" is prompt noise).
   const patterns = agent.decisionPatterns || [];
   if (patterns.length > 0) {
     lines.push('RECENT DECISION OUTCOMES (last 14 days):');
@@ -308,7 +328,7 @@ function _buildReflectionPromptBlock(agentId, reflectionDigest) {
         p.pendingOutcome + ' pending.');
     });
     lines.push('');
-  } else {
+  } else if (!roleFocus) {
     lines.push('RECENT DECISION OUTCOMES: no structured decisions logged in last 14 days.');
     lines.push('');
   }
