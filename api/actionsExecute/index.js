@@ -11,6 +11,34 @@ const socialTelemetry = require('../socialMetrics/telemetry');
 const _rateBucket = {};
 const RATE_LIMIT_PER_MIN = 5;
 
+// M2: actions state retention. Live state keeps 90 days. The weekly archiver
+// (api/actionsArchiver/) captures entries 30d+ into company-archive so the live
+// trim is safe — there's a 60-day buffer between archive capture and live trim.
+// Safety cap prevents a retention-bug-driven runaway.
+const LIVE_ACTIONS_RETENTION_DAYS = 90;
+const LIVE_ACTIONS_MAX_COUNT = 2000;
+
+async function persistActionsWithTrim(actions) {
+  if (!Array.isArray(actions)) {
+    // Defensive fallback: preserve whatever was passed (shouldn't happen in practice,
+    // but avoids accidental data loss if a caller passes something unexpected)
+    await storage.setState('actions', actions);
+    return;
+  }
+  const cutoff = Date.now() - (LIVE_ACTIONS_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  let trimmed = actions.filter(function (a) {
+    if (!a) return false;
+    const tsStr = (a.execution && a.execution.finished_at) || a.created_at || a.timestamp || a.createdAt || '';
+    const ts = Date.parse(tsStr);
+    // Preserve entries with no parseable timestamp (ambiguous — don't silently drop)
+    return !Number.isFinite(ts) || ts >= cutoff;
+  });
+  if (trimmed.length > LIVE_ACTIONS_MAX_COUNT) {
+    trimmed = trimmed.slice(-LIVE_ACTIONS_MAX_COUNT);
+  }
+  await storage.setState('actions', trimmed);
+}
+
 function checkRateLimit(ip) {
   const now = Date.now();
   const key = ip || 'global';
@@ -122,7 +150,7 @@ module.exports = async function (context, req) {
       action.execution.status = 'success';
       action.execution.finished_at = new Date().toISOString();
       action.execution.attempts = (action.execution.attempts || 0) + 1;
-      await storage.setState('actions', actions);
+      await persistActionsWithTrim(actions);
       context.res = {
         status: 200,
         headers: corsHeaders,
@@ -157,7 +185,7 @@ module.exports = async function (context, req) {
           context.log('[ActionsExecute] Research intel stored:', action.payload.id || actionId);
         }
       }
-      await storage.setState('actions', actions);
+      await persistActionsWithTrim(actions);
       context.res = {
         status: 200,
         headers: corsHeaders,
@@ -302,7 +330,7 @@ module.exports = async function (context, req) {
     // Sync legacy field
     action.execution_status = 'running';
     actions[actionIndex] = action;
-    await storage.setState('actions', actions);
+    await persistActionsWithTrim(actions);
 
     // ── EXECUTE ──
     let result;
@@ -341,7 +369,7 @@ module.exports = async function (context, req) {
       }
 
       actions[actionIndex] = action;
-      await storage.setState('actions', actions);
+      await persistActionsWithTrim(actions);
 
       // Add failure comment to parent task so CEO can see what went wrong
       if (action._parentTaskId && actionType.indexOf('social_post') === 0) {
@@ -416,7 +444,7 @@ module.exports = async function (context, req) {
     }
 
     actions[actionIndex] = action;
-    await storage.setState('actions', actions);
+    await persistActionsWithTrim(actions);
 
     // Auto-complete parent task when social post publishes successfully
     if (action._parentTaskId && actionType.indexOf('social_post') === 0) {
