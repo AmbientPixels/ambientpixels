@@ -2618,6 +2618,16 @@ module.exports = async function (context) {
             context.log('[Heartbeat] AUTO-POST: URL missing after trim — appended', _fallbackUrl);
           }
           const _scheduledFor = _getOptimalPostTime(_platform, researchIntelStore);
+          // Auto-inject experiment_tag — this auto-post path bypasses agent-runner.js:2466,
+          // so we mirror its logic here. Picks newest active experiment for Echo.
+          let _autoPostTag = null;
+          if (Array.isArray(agentExperiments)) {
+            const _echoActive = agentExperiments
+              .filter(function (e) { return e && e.status === 'active' && e.agentId === 'echo'; })
+              .sort(function (a, b) { return new Date(b.startedAt || 0).getTime() - new Date(a.startedAt || 0).getTime(); });
+            if (_echoActive.length > 0) _autoPostTag = _echoActive[0].hypothesis || null;
+            if (_autoPostTag) context.log('[Heartbeat] AUTO-POST: injected experiment_tag:', _autoPostTag, 'for task', _pt.id);
+          }
           const _actionReq = {
             type: _scheduledFor ? 'social_post.schedule' : 'social_post.publish',
             platform: _platform,
@@ -2626,7 +2636,8 @@ module.exports = async function (context) {
               media: [],
               scheduled_for: _scheduledFor
             },
-            created_by: 'echo'
+            created_by: 'echo',
+            experiment_tag: _autoPostTag
           };
           const _newAction = H._createActionFromHeartbeat(_actionReq, 'echo');
           _newAction._parentTaskId = _pt.id;
