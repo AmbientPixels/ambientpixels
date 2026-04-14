@@ -19,6 +19,7 @@ const {
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
 } = require('./helpers');
+const { appendDecision } = require('./_utils/decisionLog');
 const _productFacts = require('../_data/product-facts.json');
 var _founderVoice = {};
 try { _founderVoice = require('../_data/founder-voice-examples.json'); } catch (_) {}
@@ -2625,6 +2626,25 @@ Write the full deliverable first, then the structured JSON block.`;
           context.log('[Heartbeat]', agentId, 'Quality-gate logEvent failed (non-fatal):', String(_qgLogErr).substring(0, 200));
         }
 
+        // Outcome Attribution Phase 5: log structured decision so we can later
+        // measure whether rewrites outperform first drafts.
+        try {
+          await appendDecision(storage, {
+            cycleId: cycleId,
+            agentId: agentId,
+            decisionType: 'quality-gate-rewrite',
+            contextActionId: newAction.id,
+            contextTaskId: action.taskId || null,
+            before: {
+              platform: newAction.platform || null,
+              textPreview: ((newAction.payload && newAction.payload.text) || '').substring(0, 200),
+              issues: (_qgResult.issues || []).slice(0, 3)
+            },
+            after: null,
+            reasoning: 'Quality gate rejected at confidence ' + (_qgResult.confidence || 0) + '%; awaiting Scribe rewrite.'
+          });
+        } catch (_decErr) { /* non-fatal */ }
+
         continue; // skip approval queue — action was rejected
       }
 
@@ -4184,6 +4204,18 @@ Write the full deliverable first, then the structured JSON block.`;
                     concludedAt: null
                   });
                   context.log('[Heartbeat]', agentId, 'created experiment:', _expTag);
+                  // Outcome Attribution Phase 5: log experiment start as a decision.
+                  try {
+                    await appendDecision(storage, {
+                      cycleId: cycleId,
+                      agentId: agentId,
+                      decisionType: 'experiment-start',
+                      contextActionId: null,
+                      before: { activeExperiments: _activeCount },
+                      after: { hypothesis: _expTag, baseline: _agentPerf ? { ceoApprovalRate: _agentPerf.ceoApprovalRate } : null },
+                      reasoning: mem.text.trim().substring(0, 300)
+                    });
+                  } catch (_decErr) { /* non-fatal */ }
                 } else {
                   context.log('[Heartbeat]', agentId, 'BLOCKED experiment creation: max active experiments reached (' + _activeCount + '/' + _MAX_EXP + ')');
                 }

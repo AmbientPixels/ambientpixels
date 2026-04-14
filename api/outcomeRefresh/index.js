@@ -321,4 +321,56 @@ module.exports = async function (context) {
   } catch (err) {
     context.log.error('[outcomeRefresh] state save failed:', (err && err.message) || String(err));
   }
+
+  // Outcome Attribution Phase 5: backfill outcome data into agentDecisions
+  // for any decision whose contextActionId now has a complete snapshot.
+  try {
+    const decisions = (await storage.getState('agentDecisions')) || [];
+    if (Array.isArray(decisions) && decisions.length > 0) {
+      // Build a perAgent engagement median lookup for deltaVsAgentMedian
+      const medianByAgent = {};
+      const totalsByAgent = {};
+      const completeNow = Object.values(store).filter(s => s && s.complete);
+      completeNow.forEach(s => {
+        const aid = s.createdBy || 'unknown';
+        const t7 = (s.samples || []).find(x => x.lag === 't7');
+        if (!t7) return;
+        const total = (Number(t7.likes || 0) + Number(t7.comments || 0) + Number(t7.reposts || 0));
+        if (!totalsByAgent[aid]) totalsByAgent[aid] = [];
+        totalsByAgent[aid].push(total);
+      });
+      Object.keys(totalsByAgent).forEach(aid => {
+        const list = totalsByAgent[aid].slice().sort((a, b) => a - b);
+        const mid = Math.floor(list.length / 2);
+        medianByAgent[aid] = list.length % 2 === 0 ? (list[mid - 1] + list[mid]) / 2 : list[mid];
+      });
+
+      let backfilled = 0;
+      for (let di = 0; di < decisions.length; di++) {
+        const d = decisions[di];
+        if (!d || d.outcome !== null) continue;
+        if (!d.contextActionId) continue;
+        const snap = store[d.contextActionId];
+        if (!snap || !snap.complete) continue;
+        const t7 = (snap.samples || []).find(x => x.lag === 't7');
+        if (!t7) continue;
+        const total = (Number(t7.likes || 0) + Number(t7.comments || 0) + Number(t7.reposts || 0));
+        const agentMed = medianByAgent[d.agentId] || 0;
+        const delta = agentMed > 0 ? (total - agentMed) / agentMed : null;
+        d.outcome = {
+          engagement: total,
+          engagementRate: snap.engagementRate,
+          deltaVsAgentMedian: delta,
+          backfilledAt: new Date().toISOString()
+        };
+        backfilled++;
+      }
+      if (backfilled > 0) {
+        await storage.setState('agentDecisions', decisions);
+        context.log('[outcomeRefresh] decisions outcome-backfilled:', backfilled);
+      }
+    }
+  } catch (err) {
+    context.log.warn('[outcomeRefresh] decision backfill failed (non-fatal):', (err && err.message) || String(err));
+  }
 };
