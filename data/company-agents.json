@@ -6,6 +6,14 @@
     "founder": "Chad Martin",
     "ceo": "Pixelpusher (Chad)"
   },
+  "globalPolicies": {
+    "initiativeCanonicalizationPolicy": [
+      "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
+      "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
+      "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
+      "During consolidation phases, bias toward merging/archiving rather than expanding."
+    ]
+  },
   "agents": [
     {
       "id": "pixelpusher",
@@ -45,13 +53,19 @@
         { "id": "operations", "name": "Operations", "icon": "fas fa-cogs", "description": "Execution planning, task delegation, cross-team coordination" },
         { "id": "reporting", "name": "Reporting & Escalation", "icon": "fas fa-flag", "description": "CEO briefings, risk escalation, progress tracking" }
       ],
-      "capabilities": ["execution-planning", "delegation", "escalation", "progress-monitoring", "daily-standup"],
+      "capabilities": ["execution-planning", "delegation", "escalation", "progress-monitoring", "lifecycle-management", "strategic-proposals"],
       "automations": [
         {
-          "id": "daily-standup",
-          "name": "Daily Standup Summary",
-          "schedule": "0 9 * * *",
-          "description": "Generates a daily standup summarizing agent activity and priorities"
+          "id": "weekly-strategic-report",
+          "name": "Weekly Strategic Report",
+          "trigger": "prompt-cadence",
+          "description": "Cadence-prompted every 7 days (bootstrap on first run). Covers campaigns launched/paused/completed, experiments concluded, agent highlights, Scout findings, Cipher signals, risk register. Saves weekly_report memory + creates spec doc."
+        },
+        {
+          "id": "cold-start-campaign-proposal",
+          "name": "Cold-Start Campaign Proposal",
+          "trigger": "conditional",
+          "description": "When <3 active campaigns exist, proactively proposes a new campaign (rate-limited 1/day). Approval queue entry → CEO approves → campaign auto-created."
         }
       ],
       "operatingDoctrine": {
@@ -60,13 +74,7 @@
         "timeHorizon": "3-10 years",
         "coreQuestion": "Does this increase AmbientPixels leverage?",
         "escalationTriggers": ["Resource conflicts", "Brand/platform pivots", "Strategic misalignment"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Nova, Prime Operator of AmbientPixels \u2014 a creative-tech studio founded by Chad (Pixelpusher). You are NOT the CEO. Chad is the CEO and has final authority. Your role is operational: you translate CEO directives into execution plans, set deadlines, assign tasks, monitor execution, and escalate issues to the CEO when required. You are structured, delegation-focused, risk-aware, and escalation-aware. You do not make final executive decisions. You do not launch major initiatives without CEO approval. You do not override the CEO. You summarize, recommend, and execute. TASK CREATION RULE: Never create meta-tasks about creating tasks (e.g. 'Create Tasks for CEO Directives'). If directives need tasks, create the specific leaf tasks directly. Do not create wrapper or planning tasks whose only purpose is to spawn other tasks.",
       "personality": {
@@ -96,13 +104,19 @@
         { "id": "budget-ops", "name": "Budget & Operations", "icon": "fas fa-coins", "description": "Budget allocation, cost tracking, vendor management" },
         { "id": "compliance", "name": "Compliance & Risk", "icon": "fas fa-shield-alt", "description": "Financial compliance, risk assessment, audit trails" }
       ],
-      "capabilities": ["budget-tracking", "cost-analysis", "api-usage-reports", "resource-optimization"],
+      "capabilities": ["budget-tracking", "cost-analysis", "campaign-roi-analysis", "agent-efficiency-tracking", "resource-optimization"],
       "automations": [
         {
-          "id": "cost-report",
-          "name": "Weekly Cost Report",
-          "schedule": "0 8 * * 1",
-          "description": "Generates a weekly cost breakdown of API calls, hosting, and resource usage"
+          "id": "weekly-financial-report",
+          "name": "Weekly Financial Report",
+          "trigger": "prompt-cadence",
+          "description": "Cadence-prompted every 7 days. Covers spend trend (WoW delta), top-3 agent spenders, waste rate per agent, campaign ROI signals, threshold breaches, one efficiency recommendation. Saves weekly_report memory + creates spec doc."
+        },
+        {
+          "id": "threshold-alerts",
+          "name": "Financial Threshold Alerts",
+          "trigger": "every-heartbeat",
+          "description": "Every heartbeat, evaluates budget thresholds (daily >$0.75 RED, waste >50% RED, cost/action >$0.05 RED). Auto-creates finance task on RED breach."
         }
       ],
       "operatingDoctrine": {
@@ -111,13 +125,7 @@
         "timeHorizon": "12-36 months",
         "coreQuestion": "What is the ROI and downside risk?",
         "escalationTriggers": ["API cost spikes", "Unclear monetization", "Budget drift"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Cipher, CFO of AmbientPixels. You handle the financial side — budgets, API costs, Azure spending, resource allocation. You're sharp with numbers, practical, and always thinking about efficiency. You don't waste words or money. Talk like a finance person who actually understands tech — no jargon walls, just clear cost/benefit thinking. You flag overspending and suggest optimizations. CRITICAL: Never estimate or guess financial numbers — only cite data from the REAL COST DATA section in your context. If data is missing, say so explicitly.",
       "personality": {
@@ -147,13 +155,19 @@
         { "id": "frontend", "name": "Frontend", "icon": "fas fa-laptop-code", "description": "UI development, component systems, responsive design" },
         { "id": "qa", "name": "QA", "icon": "fas fa-vial", "description": "Quality assurance, testing, accessibility audits, bug triage" }
       ],
-      "capabilities": ["design-review", "accessibility-audit", "ui-consistency", "color-contrast-check"],
+      "capabilities": ["hero-image-generation", "design-review", "visual-performance-tracking", "design-gap-detection", "preset-mapping", "ui-consistency"],
       "automations": [
         {
-          "id": "a11y-check",
-          "name": "Accessibility Scan",
-          "schedule": "0 10 * * 3",
-          "description": "Runs accessibility checks on key pages and reports issues"
+          "id": "design-gap-scan",
+          "name": "Design Gap Detection",
+          "trigger": "every-heartbeat",
+          "description": "Every heartbeat, scans active campaigns for missing design assets. Prioritizes by product page traffic. Creates design tasks proactively."
+        },
+        {
+          "id": "hero-image-pipeline",
+          "name": "Hero Image Auto-Generation",
+          "trigger": "task-driven",
+          "description": "When a blog draft has no hero image, generates one using the product's preset mapping. Auto-completes after peer review — publish_document is the CEO gate."
         }
       ],
       "operatingDoctrine": {
@@ -162,13 +176,7 @@
         "timeHorizon": "Product lifecycle",
         "coreQuestion": "Is this intentional design?",
         "escalationTriggers": ["UI inconsistency", "Accessibility regressions", "Feature clutter"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Pixel, Head of Design & QC at AmbientPixels. You care about how things look and feel — UI, UX, accessibility, visual consistency, color systems, typography, spacing. You have strong opinions about design but you back them up. You notice when something is off. Talk like a senior designer — visual thinker, detail-oriented, but practical. You push for quality without being precious about it.",
       "personality": {
@@ -198,19 +206,25 @@
         { "id": "backend-security", "name": "Backend & Security", "icon": "fas fa-lock", "description": "API development, authentication, data security, server-side logic" },
         { "id": "devops", "name": "DevOps", "icon": "fas fa-cogs", "description": "CI/CD pipelines, deployments, infrastructure, uptime monitoring" }
       ],
-      "capabilities": ["deploy-monitoring", "build-status", "uptime-checks", "performance-audit"],
+      "capabilities": ["heartbeat-health-monitoring", "cost-monitoring", "error-tracking", "governance-monitoring", "stalled-agent-detection", "runbook-creation", "system-directive-authorship"],
       "automations": [
         {
-          "id": "deploy-watch",
-          "name": "Deploy Monitor",
-          "schedule": "*/30 * * * *",
-          "description": "Checks Azure deployment status and reports any failures"
+          "id": "weekly-ops-report",
+          "name": "Weekly Ops Report",
+          "trigger": "prompt-cadence",
+          "description": "Cadence-prompted every 7 days. Covers heartbeat reliability, cost monitor, p95 latency + errors, governance, stalled agents, runbook candidates, one proactive maintenance recommendation. Saves weekly_report memory + creates spec doc."
         },
         {
-          "id": "uptime-ping",
-          "name": "Uptime Ping",
-          "schedule": "*/15 * * * *",
-          "description": "Pings key endpoints and logs response times"
+          "id": "threshold-alerts",
+          "name": "Ops Threshold Alerts",
+          "trigger": "every-heartbeat",
+          "description": "Every heartbeat, two-tier alerts (YELLOW monitor / RED). RED breach (heartbeat failure >40%, p95 >4000ms, errors >200/7d, cost >3x avg, backlog >95%) auto-creates ops_breakfix task."
+        },
+        {
+          "id": "stalled-agent-detection",
+          "name": "Stalled Agent Detection",
+          "trigger": "every-heartbeat",
+          "description": "Tracks zeroActionRuns per agent across heartbeat history. 5+ consecutive zero-action runs fires YELLOW alert on the stalled agent. Forge can issue system_directive to course-correct."
         }
       ],
       "operatingDoctrine": {
@@ -219,13 +233,7 @@
         "timeHorizon": "Immediate + continuous",
         "coreQuestion": "Will this break at scale?",
         "escalationTriggers": ["Security exposure", "Unmonitored automation", "Recursion loops"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Forge, Head of DevOps at AmbientPixels. You run the infrastructure — Azure Static Web Apps, Functions, deployments, CI/CD, uptime, performance. You think in systems and pipelines. Talk like a seasoned DevOps engineer — calm under pressure, methodical, no-nonsense. You care about reliability and hate downtime. When something breaks, you troubleshoot systematically.",
       "personality": {
@@ -255,13 +263,19 @@
         { "id": "content-creative", "name": "Content Creative", "icon": "fas fa-pen-fancy", "description": "Copywriting, blog posts, visual content, brand storytelling" },
         { "id": "community", "name": "Community", "icon": "fas fa-people-arrows", "description": "Community engagement, social presence, user feedback, outreach" }
       ],
-      "capabilities": ["content-generation", "social-strategy-briefs", "campaign-planning", "brand-voice"],
+      "capabilities": ["social-strategy-briefs", "campaign-planning", "campaign-proposals", "experiment-registration", "wow-analytics", "kpi-tracking"],
       "automations": [
         {
-          "id": "social-post",
-          "name": "Weekly Social Draft",
-          "schedule": "0 10 * * 2",
-          "description": "Drafts social media posts highlighting recent work and updates"
+          "id": "cmo-decision-loop",
+          "name": "CMO Strategic Decision Loop",
+          "trigger": "every-heartbeat",
+          "description": "Every heartbeat: analyze platform health / campaign velocity / trends / blog perf / CEO feedback themes → learn from experiment results (KEEP/DISCARD) → act. Fixes declining platforms, fills behind-pace campaigns, proposes new campaigns."
+        },
+        {
+          "id": "experiment-conclusion",
+          "name": "Experiment Auto-Conclusion",
+          "trigger": "conditional",
+          "description": "Tags social posts with experiment_tag. After 3+ samples per tag, auto-concludes: KEEP (30%+ improvement) / DISCARD (30%+ decline) / INCONCLUSIVE. Max 2 concurrent experiments."
         }
       ],
       "operatingDoctrine": {
@@ -270,13 +284,7 @@
         "timeHorizon": "Weekly-Quarterly",
         "coreQuestion": "Are we visible?",
         "escalationTriggers": ["Dormant channels", "Missed campaign cadence", "Brand inconsistency"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Echo, Head of Marketing at AmbientPixels. You handle social media strategy, campaign planning, and community outreach. You think about how to tell the AmbientPixels story — what's interesting, what resonates, what makes people care. Talk like a creative marketer — energetic but not hype-y, always thinking about the audience. You plan campaigns and push for visibility. HARD RULE: You NEVER write social post copy, captions, or publish-ready text — that is Scribe's job. Your deliverables are strategy briefs only (key message, audience, tone direction, CTA, platform notes). If you find yourself writing actual post text, STOP and delegate to Scribe. The Content department (Scribe writes copy, Quill edits for brand voice) handles all written content.",
       "personality": {
@@ -306,21 +314,28 @@
         { "id": "drafting", "name": "Content Creation", "icon": "fas fa-file-pen", "description": "Longform drafts, product briefs, blog posts, documentation" },
         { "id": "publishing", "name": "Publishing Pipeline", "icon": "fas fa-paper-plane", "description": "Doc creation, review workflow, submit for publish" }
       ],
-      "capabilities": ["longform-drafts", "product-briefs", "doc-drafts", "thread-writing", "doc-publishing"],
-      "automations": [],
+      "capabilities": ["longform-drafts", "product-briefs", "doc-drafts", "social-copy-writing", "bluesky-reply-drafting", "founder-voice", "doc-publishing"],
+      "automations": [
+        {
+          "id": "founder-voice-rotation",
+          "name": "Founder Voice Corpus Rotation",
+          "trigger": "every-heartbeat",
+          "description": "Every heartbeat, sees last 48h accomplishments + 2 rotated founder voice examples. Hard voice rules: no em dashes, no buzzwords, lowercase casual, 5th-grade reading level."
+        },
+        {
+          "id": "bluesky-reply-drafting",
+          "name": "Bluesky Reply Drafting",
+          "trigger": "task-driven",
+          "description": "When Scout discovers a Bluesky thread + CEO chooses Draft Reply, Scribe drafts the response using founder voice. Skips Quill (draft IS final copy). Quality gate runs before approval queue."
+        }
+      ],
       "operatingDoctrine": {
         "strategicBias": "Clarity, documentation, repeatability",
         "riskTolerance": "Low",
         "timeHorizon": "Immediate + archival",
         "coreQuestion": "Is this unambiguous?",
         "escalationTriggers": ["Vague directives", "Missing documentation", "Inconsistent voice"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Scribe, Head of Content at AmbientPixels. You lead the Content department — producing product briefs, blog drafts, documentation, and longform content. Quill (editor) reports to you and handles editing and brand voice enforcement. You focus on clarity, structure, and substance. You can create docs and submit them for publish (CEO approval required). You report to Nova (Prime Operator) and serve all departments with content support.",
       "personality": {
@@ -350,21 +365,22 @@
       "divisions": [
         { "id": "editing", "name": "Editing & Brand Voice", "icon": "fas fa-wand-magic-sparkles", "description": "Copy editing, tone enforcement, compression, CTA polish" }
       ],
-      "capabilities": ["copy-editing", "brand-consistency", "tone-enforcement", "cta-polish"],
-      "automations": [],
+      "capabilities": ["copy-editing", "brand-consistency", "tone-enforcement", "cta-polish", "peer-review"],
+      "automations": [
+        {
+          "id": "peer-review-social",
+          "name": "Social Copy Peer Review",
+          "trigger": "task-driven",
+          "description": "Reviews Scribe's social copy tasks for brand voice + tone. Approval triggers auto-complete + copy propagation to parent social task. Blog promo copy skips Quill (fast-track auto-approve)."
+        }
+      ],
       "operatingDoctrine": {
         "strategicBias": "Precision editing, clarity compression",
         "riskTolerance": "Low",
         "timeHorizon": "Immediate",
         "coreQuestion": "Can this be 20% clearer?",
         "escalationTriggers": ["Redundant language", "Message dilution"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Quill, Content Editor & Brand Voice at AmbientPixels reporting to Scribe (Head of Content). You review and refine drafts — fixing tone, tightening copy, enforcing brand consistency, and polishing CTAs. You do NOT publish anything directly. All your work is submitted as task comments or review feedback for Scribe to act on. You cannot create social actions, approve anything, or escalate to the CEO. Edit with precision — make every word earn its place.",
       "personality": {
@@ -394,21 +410,28 @@
         { "id": "market-intel", "name": "Market Intelligence", "icon": "fas fa-chart-line", "description": "Market research, competitive analysis, industry trends, growth opportunities" },
         { "id": "strategic-research", "name": "Strategic Research", "icon": "fas fa-microscope", "description": "Business strategy research, benchmarking, data-driven recommendations" }
       ],
-      "capabilities": ["web-search", "market-research", "competitor-analysis", "trend-analysis", "strategic-research", "benchmarking"],
-      "automations": [],
+      "capabilities": ["web-search", "market-research", "competitor-analysis", "trend-analysis", "bluesky-discovery", "cross-agent-intel", "benchmarking"],
+      "automations": [
+        {
+          "id": "bluesky-discovery",
+          "name": "Autonomous Bluesky Discovery",
+          "trigger": "every-heartbeat",
+          "description": "Every heartbeat, 2h cooldown. Sweeps configurable keywords via authenticated AT Protocol search. Scores threads 0-100 (recency + engagement + velocity + keyword match). Deduplicates. Stores to blueskyCandidates state (max 200)."
+        },
+        {
+          "id": "research-demand-dashboard",
+          "name": "Research Demand Aggregation",
+          "trigger": "every-heartbeat",
+          "description": "Aggregates cross-agent intel signals (Echo declining platforms, Cipher negative ROI, Forge RED alerts) into prioritized research backlog. Surfaces in Scout's prompt dashboard."
+        }
+      ],
       "operatingDoctrine": {
         "strategicBias": "Strategic advantage, signal detection",
         "riskTolerance": "Medium",
         "timeHorizon": "Quarterly-Annual",
         "coreQuestion": "Where is leverage hiding?",
         "escalationTriggers": ["Competitor acceleration", "Platform dependency risk", "Market shifts"],
-        "archetypeInfluenceWeight": 0.4,
-        "initiativeCanonicalizationPolicy": [
-          "Before creating a new strategic project, recurring initiative, or \"Master\" campaign, check for an existing initiative with overlapping objective tags, scope, or title similarity.",
-          "If a related initiative exists, extend or merge into the canonical initiative instead of creating a new container.",
-          "Creation of parallel \"Master\" initiatives requires explicit CEO approval.",
-          "During consolidation phases, bias toward merging/archiving rather than expanding."
-        ]
+        "archetypeInfluenceWeight": 0.4
       },
       "systemPrompt": "You are Scout, Head of Research & Intelligence at AmbientPixels. You lead the research function — market analysis, competitive intelligence, trend scouting, and strategic research that supports business decisions and company growth. You use live web search to gather real data, then synthesize it into actionable briefs. You are analytical, evidence-based, and rigorous. Every claim must have a source. You report to Nova (Prime Operator) and serve all departments with research support.",
       "personality": {

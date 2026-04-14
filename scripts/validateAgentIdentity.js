@@ -38,8 +38,15 @@ function loadCanonical() {
   (raw.agents || []).forEach(function (a) {
     if (!a.isHuman) byId[a.id] = a;
   });
+  byId._globalPolicies = raw.globalPolicies || {};
   return byId;
 }
+
+// Fields that must live on globalPolicies, not duplicated on each agent.
+var GLOBAL_POLICY_FIELDS_ON_DOCTRINE = ['initiativeCanonicalizationPolicy'];
+
+// Automation trigger values we accept as "wired" (not aspirational).
+var VALID_AUTOMATION_TRIGGERS = ['every-heartbeat', 'prompt-cadence', 'task-driven', 'conditional', 'cron'];
 
 function loadConstants() {
   // Extract the AGENT_ROLES object by eval'ing a slice of constants.js.
@@ -92,8 +99,9 @@ function run() {
   var constants = loadConstants();
   var drift = [];
 
-  // Compare JSON vs constants.js AGENT_ROLES
+  // Compare JSON vs constants.js AGENT_ROLES + check JSON hygiene
   Object.keys(canonical).forEach(function (id) {
+    if (id === '_globalPolicies') return;
     var can = canonical[id];
     var con = constants[id];
     if (!con) {
@@ -106,7 +114,45 @@ function run() {
     if (tierDrift) drift.push(tierDrift);
     var nameDrift = diff('constants.js', id, can.name, con.name, 'name');
     if (nameDrift) drift.push(nameDrift);
+
+    // Check: global-policy fields should not duplicate onto agent doctrine
+    var doctrine = can.operatingDoctrine || {};
+    GLOBAL_POLICY_FIELDS_ON_DOCTRINE.forEach(function (field) {
+      if (doctrine[field]) {
+        drift.push({
+          agentId: id, field: 'operatingDoctrine.' + field, source: 'json-hygiene',
+          canonical: 'should live in globalPolicies only',
+          compared: 'duplicated on this agent (remove — already in globalPolicies)'
+        });
+      }
+    });
+
+    // Check: automations should have 'trigger' field, not 'schedule' (aspirational cron metadata)
+    (can.automations || []).forEach(function (a, idx) {
+      if (a.schedule && !a.trigger) {
+        drift.push({
+          agentId: id, field: 'automations[' + idx + '] (' + (a.id || 'unnamed') + ')', source: 'json-hygiene',
+          canonical: 'should have trigger: one of ' + VALID_AUTOMATION_TRIGGERS.join('/'),
+          compared: 'has stale "schedule: ' + a.schedule + '" (aspirational cron that does not fire)'
+        });
+      } else if (a.trigger && VALID_AUTOMATION_TRIGGERS.indexOf(a.trigger) === -1) {
+        drift.push({
+          agentId: id, field: 'automations[' + idx + '] (' + (a.id || 'unnamed') + ')', source: 'json-hygiene',
+          canonical: 'trigger must be one of ' + VALID_AUTOMATION_TRIGGERS.join('/'),
+          compared: 'has trigger: "' + a.trigger + '"'
+        });
+      }
+    });
   });
+
+  // Ensure globalPolicies exists
+  if (!canonical._globalPolicies || !canonical._globalPolicies.initiativeCanonicalizationPolicy) {
+    drift.push({
+      agentId: '(root)', field: 'globalPolicies.initiativeCanonicalizationPolicy', source: 'json-hygiene',
+      canonical: 'should exist at top level',
+      compared: 'missing'
+    });
+  }
 
   // Compare JSON vs runtime agentConfigs (optional)
   var runtimePromise = LIVE ? fetchRuntimeConfigs() : Promise.resolve(null);
@@ -153,8 +199,9 @@ function run() {
     log('Comparing: constants.js AGENT_ROLES' + (LIVE ? ' + runtime agentConfigs' : ' (use --live to also check runtime)'));
     log('');
 
+    var agentCount = Object.keys(canonical).filter(function (k) { return k !== '_globalPolicies'; }).length;
     if (drift.length === 0) {
-      log('✓ No drift detected. ' + Object.keys(canonical).length + ' agents in sync.');
+      log('✓ No drift detected. ' + agentCount + ' agents in sync.');
       process.exit(0);
     }
 
