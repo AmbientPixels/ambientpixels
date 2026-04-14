@@ -3068,6 +3068,53 @@ module.exports = async function (context) {
           _exp._memoryLogged = true;
         }
       }
+      // Outcome Attribution Phase 4b: engagement-based auto-conclude. Supersedes
+      // the legacy approval-rate evaluator above when outcomeDigest has data.
+      // 4-gate check: samples>=10, per-arm>=5, |effectSize|>=0.15, verdict in {promote,discard}.
+      // Below threshold → stays 'active' with verdict 'inconclusive'.
+      if (outcomeDigest && Array.isArray(outcomeDigest.perExperiment)) {
+        const _readyToConclude = outcomeDigest.perExperiment.filter(e => e && e.shouldAutoConclude);
+        for (let _oi = 0; _oi < _readyToConclude.length; _oi++) {
+          const _v = _readyToConclude[_oi];
+          const _exp = agentExperiments.find(e => e && e.hypothesis === _v.hypothesis && e.agentId === _v.agentId && e.status === 'active');
+          if (!_exp) continue;
+          _exp.status = 'concluded';
+          _exp.result = _v.verdict === 'promote' ? 'keep' : 'discard';
+          _exp.concludedAt = new Date().toISOString();
+          _exp.engagementMetric = {
+            treatmentMean: _v.treatmentMeanEngagement,
+            baselineMean: _v.baselineMeanEngagement,
+            effectSize: _v.effectSize,
+            samples: _v.samples
+          };
+
+          if (!_agentMemoryStore[_v.agentId]) _agentMemoryStore[_v.agentId] = [];
+          const _verdictLabel = _v.verdict === 'promote' ? 'PROMOTED' : 'DISCARDED';
+          const _pctLabel = _v.effectSize > 0 ? '+' + Math.round(_v.effectSize * 100) + '%' : Math.round(_v.effectSize * 100) + '%';
+          _agentMemoryStore[_v.agentId].push({
+            id: 'mem-expv-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+            type: 'learning',
+            text: 'Experiment "' + _v.hypothesis + '" ' + _verdictLabel + ': ' + _pctLabel + ' engagement vs baseline (' + _v.treatmentSamples + ' treatment, ' + _v.baselineSamples + ' baseline, effectSize ' + _v.effectSize + '). ' + (_v.verdict === 'promote' ? 'Apply this approach going forward.' : 'Stop using this approach.'),
+            source: 'auto:experiment-verdict',
+            timestamp: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+            evidence: { runId: cycleId, experimentTag: _v.hypothesis, samples: _v.samples }
+          });
+          try {
+            await logEvent('experiment-auto-concluded', _v.agentId, 'Experiment ' + _verdictLabel + ': ' + _v.hypothesis, cycleId, {
+              runId: cycleId,
+              hypothesis: _v.hypothesis,
+              agentId: _v.agentId,
+              verdict: _v.verdict,
+              effectSize: _v.effectSize,
+              treatmentSamples: _v.treatmentSamples,
+              baselineSamples: _v.baselineSamples
+            });
+          } catch (_logErr) { /* non-fatal */ }
+          context.log('[Heartbeat] experiment auto-concluded:', _v.hypothesis, '(' + _v.agentId + ')', _v.verdict, 'effectSize:', _v.effectSize);
+        }
+      }
+
       try { await storage.setState('agentExperiments', agentExperiments); } catch (_expSaveErr) { context.log('[Heartbeat] WARN: failed to save agentExperiments:', _expSaveErr.message); }
     }
 

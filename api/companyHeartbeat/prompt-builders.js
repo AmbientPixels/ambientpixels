@@ -89,7 +89,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1123,6 +1123,76 @@ You must remain within your assigned authority tier. Doctrine influences your st
     reflectionCalloutBlock = '\nYOU PREVIOUSLY REFLECTED (apply these patterns — do not repeat the mistake):\n' + _rLines + '\nIf today\'s work resembles the context that triggered those reflections, internalize the correction.\n';
   }
 
+  // Outcome Attribution Phase 4: per-agent outcome data block — agents see
+  // their real engagement performance, per-experiment verdicts, top/worst
+  // hooks, campaign funnel counts. This is the closed-loop feedback that
+  // makes Self-Correction evidence-based instead of assumption-based.
+  let outcomesBlock = '';
+  if (outcomeDigest && outcomeDigest.totals && outcomeDigest.totals.complete > 0) {
+    const _ag = agent && agent.id;
+    const _pa = (outcomeDigest.perAgent && outcomeDigest.perAgent[_ag]) || null;
+    const _lines = [];
+
+    // Role-specific headline
+    if (_ag === 'echo') {
+      // Echo: experiments + campaign outcomes
+      const _myExps = (outcomeDigest.perExperiment || []).filter(e => e.agentId === 'echo');
+      if (_myExps.length > 0) {
+        _lines.push('YOUR EXPERIMENTS:');
+        _myExps.forEach(e => {
+          const _pct = e.baselineMeanEngagement > 0
+            ? '(' + (e.effectSize > 0 ? '+' : '') + Math.round(e.effectSize * 100) + '%)'
+            : '';
+          _lines.push('- ' + e.hypothesis + ': treatment ' + e.treatmentMeanEngagement + ' vs baseline ' + e.baselineMeanEngagement + ' ' + _pct + ', ' + e.treatmentSamples + '/' + e.baselineSamples + ' samples — VERDICT: ' + e.verdict.toUpperCase());
+        });
+      }
+      if (outcomeDigest.totals.linkedinPendingCount > 0) {
+        _lines.push('- LinkedIn blind spot: ' + outcomeDigest.totals.linkedinPendingCount + ' posts awaiting metrics (LinkedIn API integration pending). LinkedIn experiments cannot verdict yet.');
+      }
+      const _myCamps = (outcomeDigest.perCampaign || []).filter(c => c.postsPublished > 0).slice(0, 4);
+      if (_myCamps.length > 0) {
+        _lines.push('CAMPAIGN OUTCOMES:');
+        _myCamps.forEach(c => {
+          _lines.push('- "' + c.title + '": ' + c.postsPublished + ' posts, ' + c.totalEngagements + ' engagements, ' + c.blogViewsAttributed + ' blog views, ' + c.formSubmitsAttributed + ' form submits');
+        });
+      }
+    } else if (_ag === 'scribe' || _ag === 'quill') {
+      // Content agents: hook performance
+      const _topHooks = (outcomeDigest.perHook || []).slice(0, 5);
+      if (_topHooks.length > 0) {
+        _lines.push('HOOK PERFORMANCE (median engagement, min 3 samples):');
+        _topHooks.forEach(h => {
+          _lines.push('- ' + h.hookType + ' on ' + h.platform + ': ' + h.medianEngagement + ' engagement' + (h.percentileVsOverall ? ' (' + h.percentileVsOverall + '% of overall median)' : '') + ' (' + h.sampleCount + ' samples)');
+        });
+      }
+      if (_pa && _pa.topHook) {
+        _lines.push('Your top hook type: ' + _pa.topHook.hook + ' (median ' + _pa.topHook.median + ' engagement, ' + _pa.topHook.samples + ' samples).');
+      }
+    } else if (_ag === 'nova') {
+      // Nova: campaign outcomes + experiment headline
+      const _camps = (outcomeDigest.perCampaign || []).slice(0, 5);
+      if (_camps.length > 0) {
+        _lines.push('CAMPAIGN OUTCOMES:');
+        _camps.forEach(c => {
+          _lines.push('- "' + c.title + '": ' + c.postsPublished + ' posts, ' + c.totalEngagements + ' total engagements, ' + c.blogViewsAttributed + ' blog views, ' + c.formSubmitsAttributed + ' form submits');
+        });
+      }
+      const _concluded = (outcomeDigest.perExperiment || []).filter(e => e.shouldAutoConclude);
+      if (_concluded.length > 0) {
+        _lines.push('EXPERIMENTS READY TO CONCLUDE: ' + _concluded.map(e => e.hypothesis + ' (' + e.verdict + ')').join(', '));
+      }
+    } else if (_ag === 'cipher') {
+      // Cipher: cost-per-outcome summary from financeDigest, not here
+      // (finance-intel already consumes outcomeDigest). Brief note for context.
+      const _totals = outcomeDigest.totals;
+      _lines.push('OUTCOME COVERAGE: ' + _totals.complete + '/' + _totals.snapshots + ' posts have matured engagement data (t7+). Use actual-engagement campaign ROI in your FINANCIAL INTELLIGENCE DASHBOARD rather than task-count proxy.');
+    }
+
+    if (_lines.length > 0) {
+      outcomesBlock = '\n\nYOUR RECENT OUTCOMES (engagement data from the Outcome Attribution system):\n' + _lines.join('\n') + '\n';
+    }
+  }
+
   // Type-diversity hint — live state shows agents tend to pick ONE memory type and never vary
   // (Cipher 100% verified_fact, Pixel 100% learning, Quill 100% feedback). The L4 type system has
   // 8+ types for a reason. This is a soft hint, not a block — agents can ignore it if today's work
@@ -1377,7 +1447,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
