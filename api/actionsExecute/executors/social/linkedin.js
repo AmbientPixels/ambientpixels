@@ -9,6 +9,7 @@ const https = require('https');
 const querystring = require('querystring');
 const crypto = require('crypto');
 const storage = require('../../../_utils/companyStorage');
+const { retryOn429 } = require('../../../_utils/platformRetry');
 
 const LINKEDIN_API_URL = 'https://api.linkedin.com/v2/ugcPosts';
 const MAX_CHARS = 3000;
@@ -429,7 +430,9 @@ async function _tryAllApis(creds, authorUrn, text, media) {
  * @returns {Promise<{receipt: Object}>}
  */
 function _linkedInPost(attempt, creds, text) {
-  return new Promise((resolve, reject) => {
+  // Wrap the POST in retryOn429. Errors carry statusCode for the helper's status detection.
+  // Only retries 429 + 5xx — 401/403 (token issues) and 4xx other errors throw immediately.
+  const _doPost = () => new Promise((resolve, reject) => {
     const url = new URL(attempt.url);
     const headers = Object.assign({
       'Authorization': 'Bearer ' + creds.accessToken,
@@ -494,6 +497,8 @@ function _linkedInPost(attempt, creds, text) {
     req.write(attempt.body);
     req.end();
   });
+
+  return retryOn429(_doPost, { platform: 'linkedin', actionId: null });
 }
 
 module.exports = {

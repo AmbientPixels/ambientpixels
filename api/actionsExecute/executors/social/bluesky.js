@@ -5,6 +5,7 @@
 const https = require('https');
 const crypto = require('crypto');
 const media = require('./media');
+const { retryOn429 } = require('../../../_utils/platformRetry');
 
 const BLUESKY_PDS = 'https://bsky.social';
 const MAX_CHARS = 300; // Bluesky grapheme limit
@@ -231,16 +232,24 @@ async function publishToBluesky(action) {
     record: record
   });
 
-  const res = await httpRequest(
-    BLUESKY_PDS + '/xrpc/com.atproto.repo.createRecord',
-    'POST',
-    {
-      'Authorization': 'Bearer ' + session.accessJwt,
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body)
-    },
-    body
-  );
+  // Wrap the createRecord POST in retryOn429 — survives transient 429 + 5xx without burning
+  // the router's 3-attempt/5-min cooldown. Normalizes res.status → statusCode for the helper.
+  const res = await retryOn429(async () => {
+    const r = await httpRequest(
+      BLUESKY_PDS + '/xrpc/com.atproto.repo.createRecord',
+      'POST',
+      {
+        'Authorization': 'Bearer ' + session.accessJwt,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      },
+      body
+    );
+    return { statusCode: r.status, headers: r.headers || {}, body: r.data, raw: r.raw, _original: r };
+  }, { platform: 'bluesky', actionId: action && action.id }).then(function (wrapped) {
+    // Unwrap back to the shape the rest of this function expects (res.status, res.data, res.raw)
+    return wrapped._original || { status: wrapped.statusCode, data: wrapped.body, raw: wrapped.raw };
+  });
 
   if (res.status === 200 && res.data && res.data.uri) {
     // Parse AT URI → post URL

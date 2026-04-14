@@ -5,6 +5,7 @@
 const crypto = require('crypto');
 const https = require('https');
 const media = require('./media');
+const { retryOn429 } = require('../../../_utils/platformRetry');
 
 const X_API_URL = 'https://api.x.com/2/tweets';
 const X_UPLOAD_URL = 'https://upload.twitter.com/1.1/media/upload.json';
@@ -369,7 +370,10 @@ async function publishToX(action) {
   }
   const body = JSON.stringify(tweetBody);
 
-  return new Promise((resolve, reject) => {
+  // Tweet POST wrapped in retryOn429 — retries 429 + 5xx up to 3x with exponential backoff.
+  // Each invocation creates a fresh Promise. Errors throw via reject(...) which retryOn429
+  // inspects via err.code (parses _XXX suffix) to decide whether to retry.
+  const _doTweet = () => new Promise((resolve, reject) => {
     const url = new URL(X_API_URL);
     const options = {
       hostname: url.hostname,
@@ -410,6 +414,8 @@ async function publishToX(action) {
           reject({
             code: 'X_API_ERROR_' + errCode,
             message: errMsg,
+            statusCode: res.statusCode,
+            headers: res.headers || {},
             raw: data.substring(0, 500)
           });
         }
@@ -431,6 +437,8 @@ async function publishToX(action) {
     req.write(body);
     req.end();
   });
+
+  return retryOn429(_doTweet, { platform: 'x', actionId: action && action.id });
 }
 
 module.exports = {
