@@ -9,7 +9,7 @@ const https = require('https');
 const querystring = require('querystring');
 const crypto = require('crypto');
 const storage = require('../../../_utils/companyStorage');
-const { retryOn429 } = require('../../../_utils/platformRetry');
+const { retryOn429, shouldSkipDueToExistingReceipt } = require('../../../_utils/platformRetry');
 
 const LINKEDIN_API_URL = 'https://api.linkedin.com/v2/ugcPosts';
 const MAX_CHARS = 3000;
@@ -274,6 +274,16 @@ async function publishToLinkedIn(action) {
   if (!text || text.trim().length === 0) {
     throw { code: 'EMPTY_CONTENT', message: 'Post text is empty' };
   }
+
+  // M1 idempotency guard — skip re-post if an existing receipt has the same content_hash.
+  // Check is done pre-truncation so the hash matches what was stored on the original success.
+  var _currentHash = contentHash(text);
+  var _existingReceipt = shouldSkipDueToExistingReceipt(action, _currentHash);
+  if (_existingReceipt) {
+    _log('skip-repost-content-hash-match', { post_id: _existingReceipt.post_id, post_urn: _existingReceipt.post_urn });
+    return { receipt: _existingReceipt };
+  }
+
   if (text.length > MAX_CHARS) {
     _log('truncating', { original: text.length, limit: MAX_CHARS });
     text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';

@@ -5,7 +5,7 @@
 const crypto = require('crypto');
 const https = require('https');
 const media = require('./media');
-const { retryOn429 } = require('../../../_utils/platformRetry');
+const { retryOn429, shouldSkipDueToExistingReceipt } = require('../../../_utils/platformRetry');
 
 const X_API_URL = 'https://api.x.com/2/tweets';
 const X_UPLOAD_URL = 'https://upload.twitter.com/1.1/media/upload.json';
@@ -322,6 +322,18 @@ async function publishToX(action) {
   if (!text || text.trim().length === 0) {
     throw { code: 'EMPTY_CONTENT', message: 'Tweet text is empty' };
   }
+
+  // M1 idempotency guard: if an existing receipt matches the current content hash, return
+  // it instead of re-posting. Truncation is applied AFTER this check so hashes match across
+  // retries even for long tweets (the stored receipt's hash reflects the pre-truncation text
+  // from the original successful post).
+  const _currentHash = contentHash(text);
+  const _existingReceipt = shouldSkipDueToExistingReceipt(action, _currentHash);
+  if (_existingReceipt) {
+    console.log('[X] Skipping repost — content_hash matches existing receipt (post_id:', _existingReceipt.post_id + ')');
+    return { receipt: _existingReceipt };
+  }
+
   if (text.length > MAX_CHARS) {
     _log('truncating', { original: text.length, limit: MAX_CHARS });
     text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';

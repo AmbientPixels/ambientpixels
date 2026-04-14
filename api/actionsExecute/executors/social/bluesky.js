@@ -6,7 +6,7 @@ const https = require('https');
 const crypto = require('crypto');
 const media = require('./media');
 const storage = require('../../../_utils/companyStorage');
-const { retryOn429 } = require('../../../_utils/platformRetry');
+const { retryOn429, shouldSkipDueToExistingReceipt } = require('../../../_utils/platformRetry');
 
 const BLUESKY_PDS = 'https://bsky.social';
 const MAX_CHARS = 300; // Bluesky grapheme limit
@@ -149,6 +149,17 @@ async function publishToBluesky(action) {
   if (!text || text.trim().length === 0) {
     throw { code: 'EMPTY_CONTENT', message: 'Post text is empty' };
   }
+
+  // M1 idempotency guard: if this action already has a receipt with matching content_hash,
+  // return it instead of posting again. Prevents double-posts on retry after a network
+  // timeout between API success and state persistence.
+  const _currentHash = contentHash(text);
+  const _existingReceipt = shouldSkipDueToExistingReceipt(action, _currentHash);
+  if (_existingReceipt) {
+    console.log('[Bluesky] Skipping repost — content_hash matches existing receipt (post_id:', _existingReceipt.post_id + ')');
+    return { receipt: _existingReceipt };
+  }
+
   if (text.length > MAX_CHARS) {
     _log('truncating', { original: text.length, limit: MAX_CHARS });
     text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';

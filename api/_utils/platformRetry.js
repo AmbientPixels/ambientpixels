@@ -168,8 +168,35 @@ async function retryOn429(httpCallFn, opts) {
   throw new Error('retryOn429 exhausted without a final result (should not happen)');
 }
 
+/**
+ * Idempotency guard — returns an existing receipt if this action has already published
+ * the same content. Prevents double-posts when a retry fires after a successful API call
+ * but before the receipt was persisted (network timeout between POST → setState).
+ *
+ * Returns the existing receipt (signaling caller should skip the API call) when:
+ *   - action.execution.receipt exists AND
+ *   - receipt.content_hash matches the currentContentHash passed in
+ *
+ * Returns null (signaling caller should proceed with the API call) when:
+ *   - no existing receipt, OR
+ *   - receipt exists but content_hash diverges (CEO edited the text → new attempt)
+ *
+ * @param {Object} action — the full action object
+ * @param {string} currentContentHash — sha256 of the current post text (whatever the
+ *                                      executor is about to send to the platform)
+ * @returns {Object|null} existing receipt to return immediately, or null to proceed
+ */
+function shouldSkipDueToExistingReceipt(action, currentContentHash) {
+  if (!action || !action.execution || !action.execution.receipt) return null;
+  const receipt = action.execution.receipt;
+  if (!receipt.content_hash) return null;  // no hash to compare against — safer to re-post
+  if (receipt.content_hash === currentContentHash) return receipt;
+  return null;
+}
+
 module.exports = {
   retryOn429: retryOn429,
+  shouldSkipDueToExistingReceipt: shouldSkipDueToExistingReceipt,
   _parseRetryAfter: _parseRetryAfter,
   _shouldRetry: _shouldRetry,
   _getStatus: _getStatus
