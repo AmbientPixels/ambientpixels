@@ -84,7 +84,17 @@ function classifyHookLocal(text) {
   console.log('[seed] loaded', actions.length, 'actions');
 
   const existingWrap = await apiGet('outcomeSnapshots');
-  const existing = existingWrap.value || existingWrap || {};
+  // Defensive unwrap: company-state GET returns {key, value} envelope.
+  // Never fall back to `existingWrap` directly (would merge the envelope
+  // into snapshots as polluting top-level keys).
+  let existing = (existingWrap && existingWrap.value) || {};
+  if (typeof existing !== 'object' || Array.isArray(existing)) existing = {};
+  // Scrub any polluted envelope keys that might already be in state from a
+  // prior bad seed run. Only keep entries shaped like real snapshots.
+  Object.keys(existing).forEach(k => {
+    const v = existing[k];
+    if (!v || typeof v !== 'object' || (!v.platform && !v.actionId)) delete existing[k];
+  });
   console.log('[seed] existing outcomeSnapshots:', Object.keys(existing).length);
 
   const snapshots = Object.assign({}, existing);
