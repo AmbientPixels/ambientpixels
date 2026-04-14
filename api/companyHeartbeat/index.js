@@ -290,6 +290,58 @@ module.exports = async function (context) {
           _oct.tags = (_oct.tags || []).filter(tag => tag.indexOf('social-copy-for-') !== 0);
           context.log('[Heartbeat] Revision: marked old copy task', _oct.id, 'as superseded for parent', _parentId);
         }
+        // Spawn replacement Scribe copy task with CEO feedback embedded — don't rely on Echo to re-propose.
+        // Without this, the parent sits in 'in-progress' forever with reviewed_copy='' and Echo's prompt
+        // rarely re-proposes create-social-action on stale revised tasks.
+        const _existingReplacement = tasks.find(t =>
+          t.assignee === 'scribe' && t.parent_task_id === _parentId &&
+          t.status !== 'done' && !t._revision_superseded &&
+          (t.title || '').indexOf('Write social copy') === 0
+        );
+        if (!_existingReplacement) {
+          const _platform = ((_ra.social && _ra.social.platform) || 'linkedin').toLowerCase();
+          const _maxLen = _platform === 'x' ? '280 chars'
+            : _platform === 'bluesky' ? '300 chars'
+            : _platform === 'reddit' ? 'TITLE (max 300 chars) + body (200-800 words, markdown)'
+            : _platform === 'facebook' ? '100-250 chars'
+            : '800-1500 chars for LinkedIn (article-style)';
+          const _cleanTitle = (_parentTask.title || 'Untitled').replace(/^(?:DELIVERABLE: Blog Post —\s*|Promote blog post on [^:]+:\s*)/i, '');
+          const _newCopyTaskId = 'task_' + Date.now() + '_revcopy_' + Math.random().toString(36).substr(2, 4);
+          tasks.push({
+            id: _newCopyTaskId,
+            title: 'Write social copy for: ' + _cleanTitle,
+            description: 'REVISION REQUESTED by CEO. Rewrite the ' + _platform + ' post for "' + _cleanTitle + '".\n\n'
+              + 'CEO feedback: ' + _feedback + '\n\n'
+              + 'Platform: ' + _platform + '\n'
+              + 'Max length: ' + _maxLen + '\n\n'
+              + 'Requirements:\n'
+              + '- Address the CEO feedback specifically. Do NOT repeat the framing that was rejected.\n'
+              + '- Write exactly ONE post — one single post, no variations.\n'
+              + '- Clean platform-ready copy (no markdown, no headers, no internal notes).\n'
+              + '- Use execute-task to produce your deliverable.',
+            taskType: 'social_copy',
+            status: 'todo',
+            priority: 'critical',
+            assignee: 'scribe',
+            source: 'heartbeat',
+            created_by: 'system',
+            parent_task_id: _parentId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            campaign_id: _parentTask.campaign_id || null,
+            objective_id: _parentTask.objective_id || null,
+            tags: ['social-copy', 'auto-created', 'revision-respawn', 'social-copy-for-' + _parentId],
+            comments: [{
+              id: 'cmt-revresp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+              author: 'system',
+              text: 'Auto-spawned after CEO revision on action ' + _ra.id + '. Rewrite addressing the feedback above.',
+              type: 'system',
+              createdAt: new Date().toISOString()
+            }]
+          });
+          context.log('[Heartbeat] Revision: spawned replacement copy task', _newCopyTaskId, 'for parent', _parentId);
+        }
         context.log('[Heartbeat] Revision reopened task', _parentId, 'for action', _ra.id);
       }
     }

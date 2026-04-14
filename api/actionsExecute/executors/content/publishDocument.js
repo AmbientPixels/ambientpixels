@@ -290,7 +290,9 @@ async function publishDocument(action) {
       if (tasksCreated > 0) {
         await storage.setState('tasks', tasks);
       }
-    } catch (e) { /* non-fatal — social task auto-creation failed */ }
+    } catch (e) {
+      try { console.log('[publishDocument] social task auto-creation failed:', e && (e.stack || e.message || e)); } catch (_logErr) {}
+    }
   }
 
   return {
