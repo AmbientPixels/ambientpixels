@@ -913,7 +913,18 @@ Write the full deliverable first, then the structured JSON block.`;
   const _DEDUP_EXEMPT = new Set(['execute-task', 'create-doc', 'create-social-action', 'generate-image', 'create-content-package', 'review-task']);
 
   for (const action of actions) {
-    if (actionCount >= GUARDRAILS.maxActionsPerCyclePerAgent) break;
+    // Rate limit: previously silent `break` dropped remaining actions without logging.
+    // Now: log each dropped action as a policy-violation + continue the loop so we catch
+    // the full scale. End-of-agent block writes an auto-memory so the agent sees the drop
+    // next cycle (closes the learning loop via the existing memory injection path).
+    if (actionCount >= GUARDRAILS.maxActionsPerCyclePerAgent) {
+      await logEvent('policy-violation', agentId,
+        'Rate limit exceeded: action dropped (cap ' + GUARDRAILS.maxActionsPerCyclePerAgent + ')', cycleId,
+        { runId: cycleId, gate: 'rate_limit', reason: 'max_actions_per_cycle_exceeded',
+          cap: GUARDRAILS.maxActionsPerCyclePerAgent, droppedActionType: action.type });
+      result.rateLimitDropped = (result.rateLimitDropped || 0) + 1;
+      continue;
+    }
 
     // Block forbidden actions for Tier 4 sub-agents
     if (isTier4 && TIER4_FORBIDDEN.indexOf(action.type) !== -1) {
@@ -4384,6 +4395,33 @@ Write the full deliverable first, then the structured JSON block.`;
     var _obs = _observationItems[_obsIdx];
     if (_obs && !recentSummaries.has(_obs)) {
       await logEvent('agent-action', agentId, agent.name + ': ' + _obs, cycleId);
+    }
+  }
+
+  // Rate-limit feedback memory — if actions were dropped this cycle, write an auto-memory
+  // so the agent sees it next heartbeat (via the memory block in their prompt). This closes
+  // the learning loop without a separate channel. Uses `type: 'feedback'` + source tag so
+  // the reflection-callout path in prompt-builders.js also surfaces it prominently.
+  if (result.rateLimitDropped && result.rateLimitDropped > 0) {
+    try {
+      if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+      const _rlNow = new Date();
+      _agentMemoryStore[agentId].push({
+        id: 'mem_' + Date.now() + '_rl_' + Math.random().toString(36).substr(2, 4),
+        type: 'feedback',
+        text: 'I emitted more than ' + GUARDRAILS.maxActionsPerCyclePerAgent + ' actions last cycle; ' +
+          result.rateLimitDropped + ' were dropped by the rate limit. Prioritize and batch next time — the cap is '
+          + GUARDRAILS.maxActionsPerCyclePerAgent + ' actions per heartbeat.',
+        source: 'auto:rate-limit',
+        timestamp: _rlNow.toISOString(),
+        expiresAt: new Date(_rlNow.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      });
+      if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+        _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+      }
+      context.log('[Heartbeat]', agentId, 'Rate-limit feedback memory written (' + result.rateLimitDropped + ' drops)');
+    } catch (_rlErr) {
+      context.log('[Heartbeat]', agentId, 'Rate-limit auto-memory failed (non-fatal):', String(_rlErr).substring(0, 200));
     }
   }
 
