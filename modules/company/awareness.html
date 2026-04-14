@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Self-Awareness — reflection cadence, role adherence, strategy fatigue, and memory consolidation across the agent fleet." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Self-Awareness — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .sa-section {
+      margin-bottom: 1.4rem;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .sa-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .sa-empty {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid rgba(251,191,36,0.4);
+      border-radius: 4px;
+    }
+    .sa-totals { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .sa-chip {
+      padding: 0.4rem 0.7rem;
+      font-size: 0.65rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.75);
+    }
+    .sa-chip strong { color: #fff; }
+    .sa-chip.sa-warn { background: rgba(251,191,36,0.1); color: #fbbf24; }
+    .sa-chip.sa-bad { background: rgba(248,113,113,0.1); color: #f87171; }
+    .sa-agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.6rem; }
+    .sa-agent-card {
+      padding: 0.7rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+    }
+    .sa-agent-card h3 { font-size: 0.75rem; margin: 0 0 0.4rem 0; text-transform: capitalize; display: flex; justify-content: space-between; align-items: center; }
+    .sa-agent-card .sa-metric { font-size: 0.62rem; color: rgba(255,255,255,0.6); margin-bottom: 0.2rem; }
+    .sa-agent-card .sa-metric strong { color: #fff; }
+    .sa-status-dot {
+      display: inline-block;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      margin-left: 0.4rem;
+    }
+    .sa-status-green { background: #34d399; }
+    .sa-status-amber { background: #fbbf24; }
+    .sa-status-red { background: #f87171; }
+    .sa-drift-chip {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.55rem;
+      border-radius: 3px;
+      margin-top: 0.3rem;
+    }
+    .sa-drift-on { background: rgba(52,211,153,0.12); color: #34d399; }
+    .sa-drift-off { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .sa-drift-bad { background: rgba(248,113,113,0.12); color: #f87171; }
+    .sa-expectation-review {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.55rem;
+      border-radius: 3px;
+      margin-top: 0.3rem;
+      background: rgba(251,191,36,0.2);
+      color: #fde68a;
+      margin-left: 0.3rem;
+    }
+    table.sa-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+    table.sa-table th, table.sa-table td {
+      text-align: left;
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    table.sa-table th { color: rgba(255,255,255,0.5); font-weight: 500; }
+    .sa-fatigue-row {
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      margin-bottom: 0.4rem;
+      font-size: 0.7rem;
+    }
+    .sa-fatigue-row strong { color: #fbbf24; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="sa-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-brain co-icon-mr-lg dash-icon-amber"></i>Self-Awareness</h1>
+        <p class="act-header-sub">Reflection cadence, role adherence, strategy fatigue, memory consolidation.</p>
+      </div>
+    </div>
+
+    <div id="sa-totals" class="sa-totals"></div>
+
+    <div class="sa-section" data-section="cadence">
+      <h2><i class="fas fa-clock"></i> REFLECTION CADENCE (3-day target)</h2>
+      <div id="sa-cadence"></div>
+    </div>
+
+    <div class="sa-section" data-section="roles">
+      <h2><i class="fas fa-user-check"></i> ROLE ADHERENCE</h2>
+      <div id="sa-roles"></div>
+    </div>
+
+    <div class="sa-section" data-section="fatigue">
+      <h2><i class="fas fa-exclamation-triangle"></i> STRATEGY FATIGUE SIGNALS</h2>
+      <div id="sa-fatigue"></div>
+    </div>
+
+    <div class="sa-section" data-section="decisions">
+      <h2><i class="fas fa-chart-line"></i> DECISION OUTCOME LEADERBOARD</h2>
+      <div id="sa-decisions"></div>
+    </div>
+
+    <div class="sa-section" data-section="consolidation">
+      <h2><i class="fas fa-layer-group"></i> MEMORY CONSOLIDATION (last 30 days)</h2>
+      <div id="sa-consolidation"></div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function emptyState(id, msg) {
+      document.getElementById(id).innerHTML = '<div class="sa-empty">' + esc(msg) + '</div>';
+    }
+
+    function load() {
+      return fetch(API + '/awarenessDigest', { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); });
+    }
+
+    // Expectation-review staleness: if roleAdherence.drift has been non-on-role
+    // across the last 3+ history entries for an agent, flag for CEO review.
+    function driftPersistenceByAgent(history) {
+      var out = {};
+      if (!Array.isArray(history) || history.length < 3) return out;
+      var agents = {};
+      history.forEach(function (h) {
+        if (!h || !h.driftByAgent) return;
+        Object.keys(h.driftByAgent).forEach(function (aid) {
+          if (!agents[aid]) agents[aid] = [];
+          agents[aid].push(h.driftByAgent[aid]);
+        });
+      });
+      Object.keys(agents).forEach(function (aid) {
+        var recent = agents[aid].slice(-3);
+        if (recent.length >= 3 && recent.every(function (d) { return d && d !== 'on-role' && d !== 'unknown'; })) {
+          out[aid] = true;
+        }
+      });
+      return out;
+    }
+
+    function renderTotals(d, reviewMap) {
+      var g = (d && d.digest && d.digest.globals) || {};
+      var chips = [];
+      chips.push('<div class="sa-chip">Agents: <strong>' + (g.totalAgents || 0) + '</strong></div>');
+      var overdueClass = (g.reflectionsOverdue || 0) >= 3 ? 'sa-bad' : ((g.reflectionsOverdue || 0) > 0 ? 'sa-warn' : '');
+      chips.push('<div class="sa-chip ' + overdueClass + '">Reflections overdue: <strong>' + (g.reflectionsOverdue || 0) + '</strong></div>');
+      chips.push('<div class="sa-chip' + ((g.fatigueSignalsCount || 0) > 0 ? ' sa-warn' : '') + '">Fatigue signals: <strong>' + (g.fatigueSignalsCount || 0) + '</strong></div>');
+      chips.push('<div class="sa-chip' + ((g.roleDriftCount || 0) >= 2 ? ' sa-bad' : ((g.roleDriftCount || 0) > 0 ? ' sa-warn' : '')) + '">Role drift: <strong>' + (g.roleDriftCount || 0) + '</strong></div>');
+      var reviewCount = Object.keys(reviewMap || {}).length;
+      if (reviewCount > 0) chips.push('<div class="sa-chip sa-warn">Expectation review pending: <strong>' + reviewCount + '</strong></div>');
+      if (d && d.digest && d.digest._builtOnDemand) chips.push('<div class="sa-chip sa-warn">Built on demand — heartbeat cache missing</div>');
+      document.getElementById('sa-totals').innerHTML = chips.join('');
+    }
+
+    function renderCadence(d, reviewMap) {
+      var pa = (d && d.digest && d.digest.perAgent) || {};
+      var ids = Object.keys(pa);
+      if (ids.length === 0) {
+        emptyState('sa-cadence', 'Reflection digest not yet populated. First cycle should populate all 8 agents.');
+        return;
+      }
+      var html = '<div class="sa-agent-grid">' + ids.map(function (aid) {
+        var a = pa[aid];
+        var days = a.reflectionDueDays != null ? a.reflectionDueDays + 3 : null;  // days since last reflection
+        var status = !a.reflectionOverdue ? 'green' : (days && days < 6 ? 'amber' : 'red');
+        var last = a.lastReflectionAt
+          ? 'last: ' + String(a.lastReflectionAt).substring(0, 10)
+          : 'never reflected';
+        return '<div class="sa-agent-card">'
+          + '<h3>' + esc(aid) + '<span class="sa-status-dot sa-status-' + status + '" title="' + status + '"></span></h3>'
+          + '<div class="sa-metric">' + esc(last) + '</div>'
+          + '<div class="sa-metric">days overdue: <strong>' + (a.reflectionDueDays != null ? a.reflectionDueDays : '—') + '</strong></div>'
+          + (a.coreQuestion ? '<div class="sa-metric" style="margin-top:0.4rem; font-style:italic; opacity:0.55;">"' + esc(a.coreQuestion) + '"</div>' : '')
+          + (reviewMap && reviewMap[aid] ? '<div class="sa-expectation-review">expectation review</div>' : '')
+          + '</div>';
+      }).join('') + '</div>';
+      document.getElementById('sa-cadence').innerHTML = html;
+    }
+
+    function renderRoles(d) {
+      var pa = (d && d.digest && d.digest.perAgent) || {};
+      var ids = Object.keys(pa);
+      if (ids.length === 0) {
+        emptyState('sa-roles', 'No agents in digest.');
+        return;
+      }
+      var rows = ids.map(function (aid) {
+        var a = pa[aid];
+        var rh = a.roleAdherence || {};
+        var drift = rh.drift || 'unknown';
+        var cls = drift === 'on-role' ? 'sa-drift-on' : (drift === 'unknown' ? 'sa-drift-off' : 'sa-drift-bad');
+        var actualMix = rh.actual && Object.keys(rh.actual).length > 0
+          ? Object.keys(rh.actual).map(function (k) { return esc(k) + ':' + rh.actual[k]; }).join(', ')
+          : '(no actions 7d)';
+        return '<tr><td>' + esc(aid) + '</td><td><span class="sa-drift-chip ' + cls + '">' + esc(drift) + '</span></td><td style="font-size:0.6rem;opacity:0.75;">' + actualMix + '</td></tr>';
+      }).join('');
+      document.getElementById('sa-roles').innerHTML =
+        '<table class="sa-table"><thead><tr><th>Agent</th><th>Drift</th><th>Actual action mix (7d)</th></tr></thead><tbody>'
+        + rows + '</tbody></table>'
+        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Drift is observational, not punitive. Agents evolve — if drift persists 3+ digest cycles, the "expectation review" flag surfaces on the agent card so you can decide whether to update the baseline.</div>';
+    }
+
+    function renderFatigue(d) {
+      var pa = (d && d.digest && d.digest.perAgent) || {};
+      var signals = [];
+      Object.keys(pa).forEach(function (aid) {
+        (pa[aid].strategyFatigue || []).forEach(function (f) {
+          signals.push({ agent: aid, signal: f.signal, attempts: f.attempts, vsAgentMedian: f.vsAgentMedian, recommendation: f.recommendation });
+        });
+      });
+      if (signals.length === 0) {
+        emptyState('sa-fatigue', 'No strategy-fatigue clusters detected. Fatigue requires 5+ attempts of the same (hook, platform) AND median engagement <70% of agent median. Needs 2+ weeks of outcome data to detect reliably.');
+        return;
+      }
+      var html = signals.map(function (s) {
+        return '<div class="sa-fatigue-row">'
+          + '<strong>' + esc(s.agent) + '</strong>: ' + esc(s.signal) + ' — '
+          + s.attempts + ' attempts, ' + Math.abs(s.vsAgentMedian) + '% below median. '
+          + '<span style="opacity:0.7;">' + esc(s.recommendation) + '</span>'
+          + '</div>';
+      }).join('');
+      document.getElementById('sa-fatigue').innerHTML = html;
+    }
+
+    function renderDecisions(d) {
+      var pa = (d && d.digest && d.digest.perAgent) || {};
+      var rows = [];
+      Object.keys(pa).forEach(function (aid) {
+        var patterns = pa[aid].decisionPatterns || [];
+        var totalDecisions = 0;
+        var totalImproved = 0;
+        var totalRegressed = 0;
+        var totalPending = 0;
+        patterns.forEach(function (p) {
+          totalDecisions += p.total;
+          totalImproved += p.improved;
+          totalRegressed += p.regressed;
+          totalPending += p.pendingOutcome;
+        });
+        rows.push({ aid: aid, total: totalDecisions, improved: totalImproved, regressed: totalRegressed, pending: totalPending });
+      });
+      rows.sort(function (a, b) { return (b.improved - b.regressed) - (a.improved - a.regressed); });
+      if (rows.every(function (r) { return r.total === 0; })) {
+        emptyState('sa-decisions', 'No structured decisions logged in last 14 days. agentDecisions fills as agents hit quality-gate-rewrite or experiment-start pathways.');
+        return;
+      }
+      var html = '<table class="sa-table"><thead><tr><th>Agent</th><th>Decisions 14d</th><th>Improved</th><th>Regressed</th><th>Pending</th><th>Net</th></tr></thead><tbody>'
+        + rows.map(function (r) {
+          var net = r.improved - r.regressed;
+          var netClass = net > 0 ? 'sa-drift-on' : (net < 0 ? 'sa-drift-bad' : 'sa-drift-off');
+          return '<tr><td>' + esc(r.aid) + '</td><td>' + r.total + '</td><td>' + r.improved + '</td><td>' + r.regressed + '</td><td>' + r.pending + '</td><td><span class="sa-drift-chip ' + netClass + '">' + (net > 0 ? '+' : '') + net + '</span></td></tr>';
+        }).join('') + '</tbody></table>';
+      document.getElementById('sa-decisions').innerHTML = html;
+    }
+
+    function renderConsolidation(d) {
+      var list = (d && d.consolidationHistory) || [];
+      if (list.length === 0) {
+        emptyState('sa-consolidation', 'No memory consolidations yet. Requires 5+ similar memories per agent older than 7 days. First consolidations expected 2-4 weeks post-deploy.');
+        return;
+      }
+      var rows = list.map(function (c) {
+        return '<tr><td>' + esc(c.agentId) + '</td><td>' + esc(String(c.timestamp).substring(0,16).replace('T', ' ')) + '</td><td>' + (c.clusterSize || '?') + '</td><td style="font-size:0.6rem;opacity:0.75;">' + esc(c.textPreview) + '</td></tr>';
+      }).join('');
+      document.getElementById('sa-consolidation').innerHTML =
+        '<table class="sa-table"><thead><tr><th>Agent</th><th>Timestamp</th><th>Cluster size</th><th>Belief</th></tr></thead><tbody>'
+        + rows + '</tbody></table>'
+        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Clusters of 5+ similar memories collapsed into a single belief (90-day TTL). Evidence chain preserved via consolidatedFromIds.</div>';
+    }
+
+    load().then(function (d) {
+      var reviewMap = driftPersistenceByAgent(d.history);
+      renderTotals(d, reviewMap);
+      renderCadence(d, reviewMap);
+      renderRoles(d);
+      renderFatigue(d);
+      renderDecisions(d);
+      renderConsolidation(d);
+    }).catch(function (err) {
+      var m = 'Failed to load awareness digest.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('sa-totals').innerHTML = '<div class="sa-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
