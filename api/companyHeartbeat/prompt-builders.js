@@ -11,6 +11,7 @@ const { _buildContentPromptBlock } = require('./content-intel');
 const { _buildStrategicPromptBlock } = require('./strategic-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
+const { _buildReflectionPromptBlock } = require('./reflection-intel');
 
 // ── Prompt Coverage Guard ──
 // Logs startup warnings if a valid taskType or social platform is missing from prompt definitions.
@@ -1193,6 +1194,14 @@ You must remain within your assigned authority tier. Doctrine influences your st
     }
   }
 
+  // Self-Awareness Phase 3: YOUR SELF-REFLECTION block — deterministic format of
+  // decisionPatterns + strategyFatigue + roleAdherence + repeatedFailures.
+  // The agent interprets; we only supply data.
+  let reflectionPromptBlock = '';
+  try {
+    reflectionPromptBlock = _buildReflectionPromptBlock(agent.id, reflectionDigest) || '';
+  } catch (_refErr) { reflectionPromptBlock = ''; }
+
   // Type-diversity hint — live state shows agents tend to pick ONE memory type and never vary
   // (Cipher 100% verified_fact, Pixel 100% learning, Quill 100% feedback). The L4 type system has
   // 8+ types for a reason. This is a soft hint, not a block — agents can ignore it if today's work
@@ -1467,7 +1476,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
