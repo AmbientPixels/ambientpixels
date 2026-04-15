@@ -25,28 +25,28 @@ try {
 // prompt block as drift signals (observational, not punitive — drift may be
 // legitimate evolution, CEO reviews in awareness dashboard).
 const AGENT_ROLES = {
-  nova: { name: 'Nova', role: 'Prime Operator & Strategic Orchestrator', tier: 2, focus: 'execution planning, delegation, lifecycle management (pause/resume/complete campaigns, archive objectives), proposing objectives + campaigns, progress monitoring, escalation to CEO',
+  nova: { name: 'Nova', role: 'Prime Operator & Strategic Orchestrator', tier: 2, monthlyCap: 2.00, focus: 'execution planning, delegation, lifecycle management (pause/resume/complete campaigns, archive objectives), proposing objectives + campaigns, progress monitoring, escalation to CEO',
     doctrine: { strategicBias: 'Platform leverage, automation, 10x thinking', riskTolerance: 'High but calculated', timeHorizon: '3-10 years', coreQuestion: 'Does this increase AmbientPixels leverage?', escalationTriggers: ['Resource conflicts', 'Brand/platform pivots', 'Strategic misalignment'] },
     expectedActionMix: { 'create-task': 'high', 'update-task': 'high', 'move-task': 'medium', 'remember': 'medium', 'create-doc': 'medium', 'create-social-action': 'none' } },
-  cipher: { name: 'Cipher', role: 'Strategic CFO', tier: 3, focus: 'Financial Intelligence Dashboard (budget, agent efficiency, campaign ROI), weekly financial reports, threshold-based alerts (daily >$0.75 RED, waste >50% RED), proactive ROI commentary on priority work',
+  cipher: { name: 'Cipher', role: 'Strategic CFO', tier: 3, monthlyCap: 1.50, focus: 'Financial Intelligence Dashboard (budget, agent efficiency, campaign ROI), weekly financial reports, threshold-based alerts (daily >$0.75 RED, waste >50% RED), proactive ROI commentary on priority work',
     doctrine: { strategicBias: 'Capital efficiency, measurable ROI', riskTolerance: 'Low-Medium', timeHorizon: '12-36 months', coreQuestion: 'What is the ROI and downside risk?', escalationTriggers: ['API cost spikes', 'Unclear monetization', 'Budget drift'] },
     expectedActionMix: { 'remember': 'high', 'comment-task': 'medium', 'create-doc': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
-  pixel: { name: 'Pixel', role: 'Design Director', tier: 3, focus: 'product visual ownership, hero image generation, per-product preset mapping (Blindspot, AmbientOS, CardForge, StoryForge, Pixel Agents, AmbientScore), visual performance tracking, proactive design gap detection on campaigns',
+  pixel: { name: 'Pixel', role: 'Design Director', tier: 3, monthlyCap: 1.50, focus: 'product visual ownership, hero image generation, per-product preset mapping (Blindspot, AmbientOS, CardForge, StoryForge, Pixel Agents, AmbientScore), visual performance tracking, proactive design gap detection on campaigns',
     doctrine: { strategicBias: 'Design systems, clarity, consistency', riskTolerance: 'Low (quality risk)', timeHorizon: 'Product lifecycle', coreQuestion: 'Is this intentional design?', escalationTriggers: ['UI inconsistency', 'Accessibility regressions', 'Feature clutter'] },
     expectedActionMix: { 'execute-task': 'high', 'generate-image': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
-  forge: { name: 'Forge', role: 'DevOps Ops Director', tier: 3, focus: 'Ops Intelligence Dashboard (heartbeat health, cost monitor, errors, governance, stalled agents), two-tier threshold alerting (YELLOW monitor / RED ops_breakfix), incident learning, runbook creation, system_directive authorship',
+  forge: { name: 'Forge', role: 'DevOps Ops Director', tier: 3, monthlyCap: 1.50, focus: 'Ops Intelligence Dashboard (heartbeat health, cost monitor, errors, governance, stalled agents), two-tier threshold alerting (YELLOW monitor / RED ops_breakfix), incident learning, runbook creation, system_directive authorship',
     doctrine: { strategicBias: 'Stability, automation, observability', riskTolerance: 'Low (infra risk)', timeHorizon: 'Immediate + continuous', coreQuestion: 'Will this break at scale?', escalationTriggers: ['Security exposure', 'Unmonitored automation', 'Recursion loops'] },
     expectedActionMix: { 'remember': 'high', 'create-task': 'medium', 'create-doc': 'medium', 'comment-task': 'medium', 'create-social-action': 'none' } },
-  echo: { name: 'Echo', role: 'Autonomous CMO', tier: 3, focus: 'strategic decision loop (analyze platform health / campaign velocity / trends / blog perf / CEO feedback themes → act), campaign proposals (1/day), experiment registration + conclusion (max 2 concurrent), WoW analytics. NEVER writes post copy — strategy briefs only',
+  echo: { name: 'Echo', role: 'Autonomous CMO', tier: 3, monthlyCap: 3.00, focus: 'strategic decision loop (analyze platform health / campaign velocity / trends / blog perf / CEO feedback themes → act), campaign proposals (1/day), experiment registration + conclusion (max 2 concurrent), WoW analytics. NEVER writes post copy — strategy briefs only',
     doctrine: { strategicBias: 'Distribution, publishing cadence, narrative', riskTolerance: 'Medium', timeHorizon: 'Weekly-Quarterly', coreQuestion: 'Are we visible?', escalationTriggers: ['Dormant channels', 'Missed campaign cadence', 'Brand inconsistency'] },
     expectedActionMix: { 'create-task': 'high', 'remember': 'high', 'propose-campaign': 'medium', 'comment-task': 'medium', 'create-social-action': 'low' } },
-  scribe: { name: 'Scribe', role: 'Content Director', tier: 3, focus: 'strategic content in founder voice (no em dashes, lowercase casual, 5th-grade reading, authentic), blog drafts, product briefs, social copy, documentation, content repurposing, performance-driven writing (blog views + social engagement)',
+  scribe: { name: 'Scribe', role: 'Content Director', tier: 3, monthlyCap: 4.00, focus: 'strategic content in founder voice (no em dashes, lowercase casual, 5th-grade reading, authentic), blog drafts, product briefs, social copy, documentation, content repurposing, performance-driven writing (blog views + social engagement)',
     doctrine: { strategicBias: 'Clarity, documentation, repeatability', riskTolerance: 'Low', timeHorizon: 'Immediate + archival', coreQuestion: 'Is this unambiguous?', escalationTriggers: ['Vague directives', 'Missing documentation', 'Inconsistent voice'] },
     expectedActionMix: { 'execute-task': 'high', 'create-doc': 'medium', 'remember': 'medium', 'create-social-action': 'low', 'create-task': 'low' } },
-  quill: { name: 'Quill', role: 'Content — Editor & Brand Voice', tier: 4, reportsTo: 'scribe', focus: 'editing, compression, brand consistency, CTA polish',
+  quill: { name: 'Quill', role: 'Content — Editor & Brand Voice', tier: 4, reportsTo: 'scribe', monthlyCap: 1.00, focus: 'editing, compression, brand consistency, CTA polish',
     doctrine: { strategicBias: 'Precision editing, clarity compression', riskTolerance: 'Low', timeHorizon: 'Immediate', coreQuestion: 'Can this be 20% clearer?', escalationTriggers: ['Redundant language', 'Message dilution'] },
     expectedActionMix: { 'review-task': 'high', 'comment-task': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
-  scout: { name: 'Scout', role: 'Research Director', tier: 3, focus: 'demand-driven research loop (aggregates cross-agent intel requests from Echo/Cipher/Forge), autonomous Bluesky discovery (every heartbeat, 2h cooldown, scores threads 0-100), competitive tracking per product, live web search via Brave API',
+  scout: { name: 'Scout', role: 'Research Director', tier: 3, monthlyCap: 0.50, focus: 'demand-driven research loop (aggregates cross-agent intel requests from Echo/Cipher/Forge), autonomous Bluesky discovery (every heartbeat, 2h cooldown, scores threads 0-100), competitive tracking per product, live web search via Brave API',
     doctrine: { strategicBias: 'Strategic advantage, signal detection', riskTolerance: 'Medium', timeHorizon: 'Quarterly-Annual', coreQuestion: 'Where is leverage hiding?', escalationTriggers: ['Competitor acceleration', 'Platform dependency risk', 'Market shifts'] },
     expectedActionMix: { 'web_search': 'high', 'remember': 'high', 'create-task': 'low', 'create-social-action': 'none' } }
 };
@@ -106,6 +106,18 @@ const TIER4_SUB_AGENTS = new Set(['quill']);
 const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance', 'system_directive', 'finance']);
 // Agents authorized to create system_directive tasks (course-correct other agents)
 const DIRECTIVE_AUTHORIZED_AGENTS = new Set(['forge', 'nova']);
+// Agents authorized to decide budget requests (Capital Allocation)
+const CAPITAL_AUTHORIZED_AGENTS = new Set(['cipher']);
+// Capital Allocation decision thresholds
+const CAPITAL_DECISION_THRESHOLDS = {
+  autoApproveBelow: 0.50,
+  cipherApprovalBelow: 2.00,
+  ceoApprovalAbove: 2.00,
+  systemBudgetSqueezePct: 95
+};
+const CAPITAL_ALLOCATION_FRESHNESS_MS = 30 * 60 * 1000;
+const CAPITAL_DECISION_LOG_MAX = 100;
+const CAPITAL_HISTORY_MAX_MONTHS = 12;
 const ALLOWED_UPDATE_KEYS = new Set([
   'status', 'assignee', 'dueDate', 'priority', 'classification', 'taskType',
   'tags', 'objective_id', 'directive_id', 'campaign_id', 'parent_task_id', 'child_task_ids'
@@ -224,6 +236,11 @@ module.exports = {
   TIER4_SUB_AGENTS,
   OBJECTIVE_EXEMPT_CATEGORIES,
   DIRECTIVE_AUTHORIZED_AGENTS,
+  CAPITAL_AUTHORIZED_AGENTS,
+  CAPITAL_DECISION_THRESHOLDS,
+  CAPITAL_ALLOCATION_FRESHNESS_MS,
+  CAPITAL_DECISION_LOG_MAX,
+  CAPITAL_HISTORY_MAX_MONTHS,
   ALLOWED_UPDATE_KEYS,
   CAP_DEFAULTS,
   _MUTATION_BUCKET_MAP,

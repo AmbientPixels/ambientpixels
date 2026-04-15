@@ -18,6 +18,7 @@ const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments
 const { buildOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
+const { buildAllocationDigest } = require('./allocation-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
@@ -382,6 +383,58 @@ module.exports = async function (context) {
       context.log('[heartbeat] World state: runway=', worldState.company.runwayDays, 'stalled=', worldState.fleet.stalledCount, 'recentEvents=', worldState.recentEvents.length);
     } catch (_e) {
       context.log('[heartbeat] World state failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : '');
+    }
+
+    // ── Capital Allocation (System 12) ──
+    // Per-agent monthly spend caps + proposal queue. Reads geminiUsage for
+    // month-to-date spend, composes with outcomeDigest for ROI retro. Persists
+    // updated perAgent.spent + systemStatus to `capitalAllocation` state key;
+    // preserves pendingRequests + decisionLog (agent/CEO managed). Month rolls
+    // over automatically (archive to history, reset counters).
+    var allocationDigest = null;
+    try {
+      const _allocPrev = (await storage.getState('capitalAllocation')) || {};
+      allocationDigest = buildAllocationDigest(_perfGeminiUsage, financeDigest, outcomeDigest, _allocPrev, Date.now());
+      if (allocationDigest) runtimeMemory.allocationDigest = allocationDigest;
+
+      // Persist state: merge computed spend + systemStatus into capitalAllocation,
+      // preserving pendingRequests/decisionLog/history. Handle month rollover.
+      const _allocMonth = allocationDigest.month;
+      const _prevMonth = _allocPrev.month || null;
+      let _history = Array.isArray(_allocPrev.history) ? _allocPrev.history.slice() : [];
+      let _pending = Array.isArray(_allocPrev.pendingRequests) ? _allocPrev.pendingRequests : [];
+      let _log = Array.isArray(_allocPrev.decisionLog) ? _allocPrev.decisionLog : [];
+
+      if (_prevMonth && _prevMonth !== _allocMonth) {
+        // Archive the previous month snapshot before resetting counters.
+        _history.push({
+          month: _prevMonth,
+          systemBudget: _allocPrev.systemBudget || C.FINANCE_BUDGET_MONTHLY,
+          systemSpent: _allocPrev.systemSpent || 0,
+          topSpenders: (_allocPrev.perAgent ? Object.keys(_allocPrev.perAgent)
+            .map(function (k) { return { agent: k, spent: _allocPrev.perAgent[k].spent || 0 }; })
+            .sort(function (a, b) { return b.spent - a.spent; }).slice(0, 3) : []),
+          overBudget: (_allocPrev.systemSpent || 0) > (_allocPrev.systemBudget || C.FINANCE_BUDGET_MONTHLY)
+        });
+        if (_history.length > C.CAPITAL_HISTORY_MAX_MONTHS) _history = _history.slice(-C.CAPITAL_HISTORY_MAX_MONTHS);
+        // Pending requests carry over (still awaiting decision); decisionLog trims to current month-ish.
+      }
+
+      const _newAlloc = {
+        month: _allocMonth,
+        systemBudget: allocationDigest.system.budget,
+        systemSpent: allocationDigest.system.spent,
+        systemStatus: allocationDigest.system.status,
+        perAgent: allocationDigest.perAgent,
+        pendingRequests: _pending,
+        decisionLog: _log.slice(-C.CAPITAL_DECISION_LOG_MAX),
+        history: _history,
+        updatedAt: new Date().toISOString()
+      };
+      await storage.setState('capitalAllocation', _newAlloc);
+      context.log('[heartbeat] Capital allocation: month=', _allocMonth, 'spent=$' + allocationDigest.system.spent, '/$' + allocationDigest.system.budget, 'status=' + allocationDigest.system.status, 'pending=' + _pending.length);
+    } catch (_e) {
+      context.log('[heartbeat] Allocation digest failed (non-fatal):', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : '');
     }
 
     // ── Quality History — rolling daily snapshots for trend sparkline ──
@@ -3506,7 +3559,8 @@ module.exports = async function (context) {
         financeDigest: !!financeDigest,
         contentDigest: !!contentDigest,
         strategicDigest: !!strategicDigest,
-        worldState: !!worldState
+        worldState: !!worldState,
+        allocationDigest: !!allocationDigest
       }
     };
 
