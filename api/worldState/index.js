@@ -42,9 +42,14 @@ module.exports = async function (context, req) {
     const isStale = !snapshot || age > staleMs;
 
     if (isStale) {
+      // socialAccountStats + outcomeSnapshots live as top-level state keys
+      // (not inside runtimeMemory) — fetch directly. Specialist digests
+      // (financeDigest, forgeOpsDigest, outcomeDigest, etc.) live in
+      // runtimeMemory and we use cached if present.
       const [
         campaigns, objectives, tasks, approvalQueue, governanceLog,
-        agentExperiments, executionMode
+        agentExperiments, executionMode,
+        socialAccountStats, outcomeSnapshots
       ] = await Promise.all([
         storage.getState('campaigns').then(v => v || []),
         storage.getState('objectives').then(v => v || []),
@@ -52,18 +57,33 @@ module.exports = async function (context, req) {
         storage.getState('approvalQueue').then(v => v || []),
         storage.getState('governanceLog').then(v => v || []),
         storage.getState('agentExperiments').then(v => v || []),
-        storage.getState('execution_mode').then(v => v || 'supervised_autonomous')
+        storage.getState('execution_mode').then(v => v || 'supervised_autonomous'),
+        storage.getState('socialAccountStats').then(v => v || null),
+        storage.getState('outcomeSnapshots').then(v => v || {})
       ]);
       let productFacts = null;
       try { productFacts = require('../_data/product-facts.json'); } catch (_e) { /* missing */ }
 
-      // Specialist digests live in runtimeMemory; use cached if present
+      // Minimal outcomeDigest fallback — just enough for worldState's
+      // coverage + LinkedIn-pending fields when runtime cache is empty.
+      let fallbackOutcomeDigest = runtime.outcomeDigest || null;
+      if (!fallbackOutcomeDigest && outcomeSnapshots && typeof outcomeSnapshots === 'object') {
+        const snaps = Object.values(outcomeSnapshots).filter(Boolean);
+        const complete = snaps.filter(s => s && s.complete === true).length;
+        const pending = snaps.filter(s => s && s.complete !== true);
+        const linkedinPending = pending.filter(s => (s.platform || '').toLowerCase() === 'linkedin').length;
+        fallbackOutcomeDigest = {
+          totals: { snapshots: snaps.length, complete: complete, pending: pending.length, linkedinPendingCount: linkedinPending },
+          perExperiment: []
+        };
+      }
+
       snapshot = buildWorldState({
         financeDigest: runtime.financeDigest || null,
         forgeOpsDigest: runtime.forgeOpsDigest || null,
-        outcomeDigest: runtime.outcomeDigest || null,
+        outcomeDigest: fallbackOutcomeDigest,
         strategicDigest: runtime.strategicDigest || null,
-        socialAccountStats: runtime.socialAccountStats || null,
+        socialAccountStats: socialAccountStats,
         contentDigest: runtime.contentDigest || null,
         campaigns: campaigns,
         objectives: objectives,
