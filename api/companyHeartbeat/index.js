@@ -270,7 +270,7 @@ module.exports = async function (context) {
       outcomeDigest = buildOutcomeDigest(_outcomeSnaps, allActions, campaigns, agentExperiments, Date.now());
       if (outcomeDigest) runtimeMemory.outcomeDigest = outcomeDigest;
       context.log('[heartbeat] Outcome digest: snapshots=', outcomeDigest.totals.snapshots, 'complete=', outcomeDigest.totals.complete, 'linkedinPending=', outcomeDigest.totals.linkedinPendingCount);
-    } catch (_e) { context.log('[heartbeat] Outcome digest failed (non-fatal):', _e.message); }
+    } catch (_e) { context.log('[heartbeat] Outcome digest failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : ''); }
 
     // Self-Awareness reflection digest (Phase 1). Depends on outcomeDigest for
     // strategy fatigue median comparisons, and on agentDecisions + outcomeSnapshots
@@ -334,7 +334,7 @@ module.exports = async function (context) {
         costIntel: costIntel
       }, _existingStrategic, Date.now());
       if (strategicDigest) runtimeMemory.strategicDigest = strategicDigest;
-    } catch (_e) { context.log('[heartbeat] Strategic digest failed (non-fatal):', _e.message); }
+    } catch (_e) { context.log('[heartbeat] Strategic digest failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : ''); }
 
     // ── Shared World Model (System 11) ──
     // Aggregator digest that composes a canonical "state of the business"
@@ -343,6 +343,9 @@ module.exports = async function (context) {
     var worldState = null;
     try {
       const _worldApprovalQueue = (await storage.getState('approvalQueue')) || [];
+      // `executionMode` (const, line 627) is in TDZ at this point. Fetch
+      // raw mode directly; worldState builder normalizes unknown values.
+      const _worldExecMode = (await storage.getState('execution_mode')) || 'supervised_autonomous';
       worldState = buildWorldState({
         financeDigest: financeDigest,
         forgeOpsDigest: forgeOpsDigest,
@@ -356,12 +359,14 @@ module.exports = async function (context) {
         approvalQueue: _worldApprovalQueue,
         governanceLog: _perfGovernanceLog,
         agentExperiments: agentExperiments,
-        executionMode: executionMode,
+        executionMode: _worldExecMode,
         productFacts: productFacts
       }, Date.now());
       if (worldState) runtimeMemory.worldState = worldState;
       context.log('[heartbeat] World state: runway=', worldState.company.runwayDays, 'stalled=', worldState.fleet.stalledCount, 'recentEvents=', worldState.recentEvents.length);
-    } catch (_e) { context.log('[heartbeat] World state failed (non-fatal):', _e.message); }
+    } catch (_e) {
+      context.log('[heartbeat] World state failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : '');
+    }
 
     // ── Quality History — rolling daily snapshots for trend sparkline ──
     var _qh = Array.isArray(runtimeMemory.qualityHistory) ? runtimeMemory.qualityHistory : [];
@@ -3485,7 +3490,15 @@ module.exports = async function (context) {
           const { _buildWorldStatePromptBlock: _b } = require('./world-state-intel');
           return _b(worldState).length;
         } catch (_e) { return -1; }
-      })()
+      })(),
+      digestsBuilt: {
+        outcomeDigest: !!outcomeDigest,
+        reflectionDigest: !!reflectionDigest,
+        financeDigest: !!financeDigest,
+        contentDigest: !!contentDigest,
+        strategicDigest: !!strategicDigest,
+        worldState: !!worldState
+      }
     };
 
     const heartbeatRuns = (await storage.getState('heartbeatRuns')) || [];
