@@ -17,6 +17,7 @@ const { buildStrategicDigest } = require('./strategic-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { buildOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
+const { buildWorldState } = require('./world-state-intel');
 const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
@@ -334,6 +335,33 @@ module.exports = async function (context) {
       }, _existingStrategic, Date.now());
       if (strategicDigest) runtimeMemory.strategicDigest = strategicDigest;
     } catch (_e) { context.log('[heartbeat] Strategic digest failed (non-fatal):', _e.message); }
+
+    // ── Shared World Model (System 11) ──
+    // Aggregator digest that composes a canonical "state of the business"
+    // snapshot from ALL other digests + raw state. Fed into every agent's
+    // prompt at the TOP for shared ground truth. Never recomputes — reads only.
+    var worldState = null;
+    try {
+      const _worldApprovalQueue = (await storage.getState('approvalQueue')) || [];
+      worldState = buildWorldState({
+        financeDigest: financeDigest,
+        forgeOpsDigest: forgeOpsDigest,
+        outcomeDigest: outcomeDigest,
+        strategicDigest: strategicDigest,
+        socialAccountStats: socialAccountStats,
+        contentDigest: contentDigest,
+        campaigns: campaigns,
+        objectives: objectives,
+        tasks: tasks,
+        approvalQueue: _worldApprovalQueue,
+        governanceLog: _perfGovernanceLog,
+        agentExperiments: agentExperiments,
+        executionMode: executionMode,
+        productFacts: productFacts
+      }, Date.now());
+      if (worldState) runtimeMemory.worldState = worldState;
+      context.log('[heartbeat] World state: runway=', worldState.company.runwayDays, 'stalled=', worldState.fleet.stalledCount, 'recentEvents=', worldState.recentEvents.length);
+    } catch (_e) { context.log('[heartbeat] World state failed (non-fatal):', _e.message); }
 
     // ── Quality History — rolling daily snapshots for trend sparkline ──
     var _qh = Array.isArray(runtimeMemory.qualityHistory) ? runtimeMemory.qualityHistory : [];

@@ -441,6 +441,39 @@ function _buildWeeklySnapshot(digest) {
   return snapshot;
 }
 
+// Pure pace computation for a single campaign. Extracted so world-state-intel
+// can reuse without pulling in a formatter. Returns { done, total, max, pct,
+// daysLeft, tasksLeft, needed, pace }.
+function _computeCampaignPace(campaign, allTasks, nowMs) {
+  var now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  var linked = (allTasks || []).filter(function (t) { return t && t.campaign_id === campaign.id; });
+  var done = linked.filter(function (t) { return t.status === 'done'; }).length;
+  var total = linked.length;
+  var max = campaign.maxTasks || 0;
+  var pct = max > 0 ? Math.round((done / max) * 100) : (total > 0 ? Math.round((done / total) * 100) : 0);
+
+  var pace = 'ON TRACK';
+  var daysLeft = null;
+  var tasksLeft = null;
+  var needed = null;
+
+  if (campaign.endDate) {
+    daysLeft = Math.max(0, Math.ceil((Date.parse(campaign.endDate) - now) / (24 * 60 * 60 * 1000)));
+    tasksLeft = (max || total) - done;
+    if (daysLeft <= 0 && tasksLeft > 0) {
+      pace = 'OVERDUE';
+    } else if (daysLeft > 0 && tasksLeft > 0) {
+      needed = Math.ceil(tasksLeft / Math.max(1, Math.floor(daysLeft / 3.5))); // posts per ~half-week
+      if (needed > (campaign.frequency || 2)) pace = 'BEHIND PACE';
+    }
+    if (tasksLeft <= 0) pace = 'COMPLETE';
+  } else if (max > 0 && done >= max) {
+    pace = 'COMPLETE';
+  }
+
+  return { done: done, total: total, max: max, pct: pct, daysLeft: daysLeft, tasksLeft: tasksLeft, needed: needed, pace: pace };
+}
+
 // Campaign velocity digest for Echo — which campaigns are behind/on-track/ahead
 function _buildCampaignVelocityBlock(campaigns, allTasks) {
   if (!Array.isArray(campaigns) || campaigns.length === 0) return '';
@@ -454,27 +487,13 @@ function _buildCampaignVelocityBlock(campaigns, allTasks) {
     var isSocial = types.some(function (t) { return socialTypes.indexOf(t) !== -1; });
     if (!isSocial) return;
 
-    var linked = (allTasks || []).filter(function (t) { return t.campaign_id === c.id; });
-    var done = linked.filter(function (t) { return t.status === 'done'; }).length;
-    var total = linked.length;
-    var max = c.maxTasks || 0;
-    var pct = max > 0 ? Math.round((done / max) * 100) : (total > 0 ? Math.round((done / total) * 100) : 0);
+    var p = _computeCampaignPace(c, allTasks, now);
+    var paceLabel = p.pace === 'BEHIND PACE' && p.needed ? 'BEHIND PACE (need ~' + p.needed + '/week)' : p.pace;
 
-    var pace = 'ON TRACK';
     if (c.endDate) {
-      var daysLeft = Math.max(0, Math.ceil((Date.parse(c.endDate) - now) / (24 * 60 * 60 * 1000)));
-      var tasksLeft = (max || total) - done;
-      if (daysLeft <= 0 && tasksLeft > 0) {
-        pace = 'OVERDUE';
-      } else if (daysLeft > 0 && tasksLeft > 0) {
-        var needed = Math.ceil(tasksLeft / Math.max(1, Math.floor(daysLeft / 3.5))); // posts per ~half-week
-        if (needed > (c.frequency || 2)) pace = 'BEHIND PACE (need ~' + needed + '/week)';
-      }
-      if (tasksLeft <= 0) pace = 'COMPLETE';
-      lines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + done + '/' + (max || total) + ' done, ' + pct + '%] ' + (daysLeft > 0 ? daysLeft + 'd left' : '') + ' — ' + pace);
+      lines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + p.done + '/' + (p.max || p.total) + ' done, ' + p.pct + '%] ' + (p.daysLeft > 0 ? p.daysLeft + 'd left' : '') + ' — ' + paceLabel);
     } else {
-      if (max > 0 && done >= max) pace = 'COMPLETE';
-      lines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + done + '/' + (max || total) + ' done, ' + pct + '%] — ' + pace);
+      lines.push('- "' + (c.title || c.id).substring(0, 40) + '" [' + p.done + '/' + (p.max || p.total) + ' done, ' + p.pct + '%] — ' + paceLabel);
     }
   });
 
@@ -488,5 +507,6 @@ module.exports = {
   _socialIntelBuildDigest,
   _buildSocialIntelPromptBlock,
   _buildWeeklySnapshot,
-  _buildCampaignVelocityBlock
+  _buildCampaignVelocityBlock,
+  _computeCampaignPace
 };

@@ -1,36 +1,50 @@
 {
   "products": {
     "AmbientOS": {
+      "launchedAt": "2026-03-07",
+      "status": "active",
       "description": "AI-powered company orchestration platform where 8 autonomous agents run departments under human governance",
       "features": ["heartbeat system (30-min cycles)", "8 AI agents", "task/campaign/goal management", "social pipeline", "blog pipeline", "CEO approval queue"],
       "notThis": ["it is NOT a traditional operating system", "it does NOT run on desktop/mobile devices", "it does NOT have a CLI or terminal"]
     },
     "CardForge": {
+      "launchedAt": "2026-03-07",
+      "status": "active",
       "description": "AI-powered RPG card creator with visual editor, arena battles, deck builder, and public gallery",
       "features": ["6-tier modular card editor", "AI art generation via Gemini", "arena PvE battles", "deck builder (30 cards)", "public gallery", "Quick Build wizard", "10 presets"],
       "notThis": ["it is NOT a trading card marketplace", "it does NOT support card trading or selling", "it does NOT integrate with MTG/Pokemon/Yu-Gi-Oh"]
     },
     "StoryForge": {
+      "launchedAt": "2026-03-07",
+      "status": "active",
       "description": "AI interactive fiction game with RPG mechanics, multiple genres, and branching narratives",
       "features": ["genre selection (fantasy, sci-fi, horror, etc.)", "character wizard", "dice rolls and skill checks", "inventory system", "companion system", "audio/music", "Gemini AI narration"],
       "notThis": ["it is NOT a writing tool or word processor", "it does NOT generate novels or ebooks", "it does NOT export to PDF"]
     },
     "PixelAgents": {
+      "launchedAt": "2026-03-07",
+      "status": "active",
       "description": "AI agent marketplace with 24 built-in agents, creator economy with Stripe Connect payouts, Pro tier ($12/mo), and visual Agent Forge builder",
       "features": ["24 built-in agents across 12 categories: Roast My Site, Thread It, Name Storm, Validate This, Pitch Doctor, Vibe Check, Fridge Raid, Prompt Forge, Resume Roast, Signal, Hype Check, Buzz Check, Hivemind, Site Glow-Up, Color Thief, Roast My LinkedIn, Explain Like I'm 5, Startup Obituary, Legal Eagle, Email Fixer, Code Roast, Meeting Killer, Plot Twist, Debate Me", "text-only agents, web search agents (Brave API), URL fetch agents, image generation agents (Gemini)", "creator marketplace: publish agents, earn revenue from every run via Stripe Connect", "Pro tier ($12/mo): 70% revenue share, 1.5x catalog weight, unlimited agents", "Free tier: 50% revenue share, 1x weight, 5 agents max", "Agent Forge: visual no-code builder with AI-generated Arcane-style portraits", "auto-approve system (AI gatekeeper scores quality/uniqueness/safety)", "shareable result cards with server-generated OG images for social sharing", "creator analytics dashboard with leaderboard and payout history", "B2C authentication with entitlements", "docs center, FAQ, changelog, contact form"],
       "notThis": ["it is NOT a web scraper", "it does NOT browse URLs interactively", "it does NOT fill forms", "it does NOT export CSV files", "agents do NOT have persistent memory between sessions", "it is NOT a ChatGPT alternative — agents are purpose-built specialists, not general chatbots", "Pro tier revenue share is NOT a salary — creators earn per agent run"]
     },
     "AmbientScore": {
+      "launchedAt": "2026-03-07",
+      "status": "active",
       "description": "Website conversion scoring tool that analyzes landing pages for conversion optimization",
       "features": ["URL-based scanning", "conversion score rating", "AI-generated recommendations", "scan history"],
       "notThis": ["it is NOT an SEO tool", "it does NOT track rankings", "it does NOT monitor competitors", "it is NOT an accessibility or WCAG compliance tool"]
     },
     "Blindspot": {
+      "launchedAt": "2026-03-21",
+      "status": "active",
       "description": "Browser-based arena combat card RPG — no download, no install. Players build a fighter card, battle through a 10-boss campaign, then enter async PvP",
       "features": ["10-boss campaign with CYOA pre-boss adventures", "async PvP with Elo ranking and defense queue", "5-element type system (Fire/Earth/Arcane/Shadow/Chaos)", "stamina, cooldowns, stances, move combos", "card progression with border evolution and title milestones", "loot crates, cosmetics, battle charms, consumable items", "Quick Build card creator (5 steps)", "Forge for card customization (stats, look, details)", "Sparks economy (earn from battles, spend in shop)", "per-card battle history with nemesis tracking", "card sharing (canvas-to-PNG export)", "ascension system for replayability"],
       "notThis": ["it is NOT a trading card game — no card marketplace or trading", "it is NOT CardForge — Blindspot is a standalone game, fully decoupled", "it does NOT require download or install — 100% browser-based", "it does NOT use real money for gameplay — Sparks are earned in-game", "cards are NOT randomly generated — players build them in Quick Build or Forge", "it is NOT turn-based strategy — it's real-time move selection with rock-paper-scissors combat"]
     },
     "AgentForge": {
+      "launchedAt": "2026-03-07",
+      "status": "active",
       "description": "Visual no-code agent builder where creators design, test, and publish custom AI agents to the Pixel Agents marketplace",
       "features": ["drag-and-drop card pipeline builder", "test before submit with live preview", "AI gatekeeper auto-approve (scores quality, uniqueness, safety)", "AI-generated Arcane-style agent portraits", "Stripe Connect payout integration for creators", "community catalog with search and filtering", "edit gates for live agent cosmetic updates"],
       "notThis": ["it is NOT a coding tool", "it does NOT generate code", "it does NOT deploy agents to external platforms"]
