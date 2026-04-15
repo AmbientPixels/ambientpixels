@@ -17,7 +17,10 @@ const {
   MAX_RESEARCH_INTEL_PER_DAY, MAX_WEEKLY_REPORTS_PER_AGENT,
   CAPITAL_AUTHORIZED_AGENTS, CAPITAL_DECISION_THRESHOLDS, FINANCE_BUDGET_MONTHLY,
   PRODUCT_PROPOSAL_AUTHORIZED_AGENTS, PRODUCT_PROPOSAL_MAX_PER_DAY,
-  PRODUCT_PROPOSAL_COST_CEILINGS, PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS
+  PRODUCT_PROPOSAL_COST_CEILINGS, PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS,
+  FLEET_MUTATION_AUTHORIZED_AGENTS, PROTECTED_AGENTS,
+  FLEET_MIN_SIZE, FLEET_MAX_SIZE, FLEET_PROPOSAL_MAX_PER_DAY,
+  FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
@@ -140,6 +143,46 @@ async function _productCapitalGate(agentId, estimatedCost, storage) {
   } catch (_e) {
     return { blocked: false };  // fail-open
   }
+}
+
+// ── Agent Identity Evolution (System 14) helpers ──
+function _fleetProposalTargetKey(q) {
+  if (!q) return '';
+  if (q.hire && q.hire.id) return 'hire:' + String(q.hire.id).toLowerCase();
+  if (q.retire && q.retire.targetAgent) return 'retire:' + String(q.retire.targetAgent).toLowerCase();
+  if (q.evolution && q.evolution.targetAgent) return 'evolve:' + String(q.evolution.targetAgent).toLowerCase();
+  return '';
+}
+
+// Shared gate: auth / rate / dedup / cooldown. Protected-agent + min/max fleet
+// + self-proposal checks live in each handler (type-specific), NOT here.
+function _fleetProposalGate(agentId, type, targetKey, approvalQueue) {
+  if (!FLEET_MUTATION_AUTHORIZED_AGENTS.has(agentId)) {
+    return { blocked: true, reason: 'only Forge can emit (CEO proposes via direct POST)' };
+  }
+  var today = new Date().toISOString().substring(0, 10);
+  var todayCount = approvalQueue.filter(function (q) {
+    return q.type === type && q.proposedBy === agentId &&
+      q.createdAt && q.createdAt.substring(0, 10) === today;
+  }).length;
+  if (todayCount >= FLEET_PROPOSAL_MAX_PER_DAY) {
+    return { blocked: true, reason: 'daily limit reached (' + FLEET_PROPOSAL_MAX_PER_DAY + '/day)' };
+  }
+  var pendingDupe = approvalQueue.some(function (q) {
+    return q.type === type && q.status === 'pending' &&
+      _fleetProposalTargetKey(q) === targetKey;
+  });
+  if (pendingDupe) return { blocked: true, reason: 'duplicate pending proposal for target' };
+  var cutoff = Date.now() - FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+  var recentReject = approvalQueue.some(function (q) {
+    return q.type === type && q.status === 'rejected' &&
+      _fleetProposalTargetKey(q) === targetKey &&
+      Date.parse(q.resolvedAt || q.createdAt || '') > cutoff;
+  });
+  if (recentReject) {
+    return { blocked: true, reason: 'target rejected within ' + FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS + 'd cooldown' };
+  }
+  return { blocked: false };
 }
 
 async function runAgentHeartbeat(ctx) {
@@ -4837,6 +4880,236 @@ Write the full deliverable first, then the structured JSON block.`;
       await storage.setState('approvalQueue', _retAQ);
       context.log('[Heartbeat]', agentId, 'propose-retire:', _retEntry.id, _retMatch, '$' + _retEntry.estimatedCost);
       result.taskUpdates.push({ action: 'retire-proposed', proposalId: _retEntry.id, agentId: agentId });
+
+    } else if (action.type === 'propose-hire-agent' && action.hire) {
+      // Agent Identity Evolution (System 14) — Forge proposes hiring a new agent.
+      const _hr = action.hire;
+      const _hrId = String(_hr.id || '').trim().toLowerCase();
+      const _hrName = String(_hr.name || '').trim().substring(0, 20);
+      const _hrRole = String(_hr.role || '').trim();
+      const _hrTier = Number(_hr.tier);
+      const _hrFocus = String(_hr.focus || '').trim();
+      const _hrReportsTo = _hr.reportsTo === null ? null : String(_hr.reportsTo || '').trim().toLowerCase();
+      const _hrCap = Number(_hr.monthlyCap);
+      const _hrDoc = _hr.doctrine || null;
+      const _hrMix = _hr.expectedActionMix || null;
+      const _hrTpl = String(_hr.systemPromptTemplate || '').trim();
+      const _hrRat = String(_hr.rationale || '').trim();
+
+      if (!_hrId || !/^[a-z][a-z0-9]{1,11}$/.test(_hrId)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — id must be lowercase alphanumeric, 2-12 chars, start with letter');
+        continue;
+      }
+      if (!_hrName || !_hrRole || !_hrFocus || !_hrRat || !_hrTpl) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — missing required string fields');
+        continue;
+      }
+      if (![2, 3, 4].includes(_hrTier)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — tier must be 2, 3, or 4');
+        continue;
+      }
+      if (!_hrDoc || !_hrMix || typeof _hrDoc !== 'object' || typeof _hrMix !== 'object') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — doctrine and expectedActionMix required');
+        continue;
+      }
+      const _hrCeiling = FLEET_PROPOSAL_COST_CEILINGS['propose-hire-agent'];
+      if (!Number.isFinite(_hrCap) || _hrCap <= 0 || _hrCap > _hrCeiling) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — monthlyCap $' + _hrCap + ' out of range (0-$' + _hrCeiling + ')');
+        continue;
+      }
+      // Registry lookup: id must not exist (active or archived — no reuse)
+      const _hrRegistry = (await storage.getState('agentRegistry')) || { agents: [] };
+      if (_hrRegistry.agents.some(function (a) { return a.id === _hrId; })) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — id already exists in registry:', _hrId);
+        continue;
+      }
+      if (_hrReportsTo !== null && !_hrRegistry.agents.some(function (a) { return a.id === _hrReportsTo && a.status === 'active'; })) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — reportsTo must be an existing active agent or null:', _hrReportsTo);
+        continue;
+      }
+      const _hrActiveCount = _hrRegistry.agents.filter(function (a) { return a.status === 'active'; }).length;
+      if (_hrActiveCount + 1 > FLEET_MAX_SIZE) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent — fleet at max size (' + FLEET_MAX_SIZE + ')');
+        continue;
+      }
+      const _hrAQ = (await storage.getState('approvalQueue')) || [];
+      const _hrGate = _fleetProposalGate(agentId, 'agent_hire_proposal', 'hire:' + _hrId, _hrAQ);
+      if (_hrGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent —', _hrGate.reason);
+        continue;
+      }
+      // Capital gate (reuse product capital gate — same 24h-bypass pattern)
+      const _hrCapGate = await _productCapitalGate(agentId, _hrCap, storage);
+      if (_hrCapGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent (Capital) —', _hrCapGate.reason);
+        continue;
+      }
+
+      const _hrEntry = {
+        id: 'hirepr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'agent_hire_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        hire: {
+          id: _hrId, name: _hrName, role: _hrRole.substring(0, 100),
+          tier: _hrTier, focus: _hrFocus.substring(0, 500),
+          reportsTo: _hrReportsTo, monthlyCap: Math.round(_hrCap * 100) / 100,
+          doctrine: _hrDoc, expectedActionMix: _hrMix,
+          systemPromptTemplate: _hrTpl.substring(0, 1000),
+          rationale: _hrRat.substring(0, 500),
+          estimatedMonthlySpend: Math.round((Number(_hr.estimatedMonthlySpend) || _hrCap) * 100) / 100
+        },
+        estimatedCost: Math.round(_hrCap * 100) / 100,
+        evidence: { runId: cycleId },
+        createdAt: new Date().toISOString()
+      };
+      _hrAQ.push(_hrEntry);
+      await storage.setState('approvalQueue', _hrAQ);
+      context.log('[Heartbeat]', agentId, 'propose-hire-agent:', _hrEntry.id, _hrId, '$' + _hrCap);
+      result.taskUpdates.push({ action: 'agent-hire-proposed', proposalId: _hrEntry.id, agentId: agentId });
+
+    } else if (action.type === 'propose-retire-agent' && action.retire) {
+      // Agent Identity Evolution (System 14) — Forge proposes retiring an agent.
+      const _ra = action.retire;
+      const _raTarget = String(_ra.targetAgent || '').trim().toLowerCase();
+      const _raRat = String(_ra.rationale || '').trim();
+      const _raPlan = String(_ra.reassignmentPlan || '').trim();
+      const _raCost = Number.isFinite(Number(_ra.estimatedWinddownCost)) ? Number(_ra.estimatedWinddownCost) : 0;
+
+      if (!_raTarget || !_raRat || !_raPlan) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire-agent — missing required fields');
+        continue;
+      }
+      // PROTECTED_AGENTS hard block
+      if (PROTECTED_AGENTS.has(_raTarget)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire-agent — target in PROTECTED_AGENTS:', _raTarget);
+        continue;
+      }
+      // Self-proposal hard block
+      if (agentId === _raTarget) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire-agent — cannot propose own retirement');
+        continue;
+      }
+      const _raRegistry = (await storage.getState('agentRegistry')) || { agents: [] };
+      const _raTargetEntry = _raRegistry.agents.find(function (a) { return a.id === _raTarget; });
+      if (!_raTargetEntry || _raTargetEntry.status !== 'active') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire-agent — target not found or not active:', _raTarget);
+        continue;
+      }
+      const _raActiveCount = _raRegistry.agents.filter(function (a) { return a.status === 'active'; }).length;
+      if (_raActiveCount - 1 < FLEET_MIN_SIZE) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire-agent — retiring would drop fleet below FLEET_MIN_SIZE (' + FLEET_MIN_SIZE + ')');
+        continue;
+      }
+      // Dependency warning (non-blocking)
+      const _raOrphans = _raRegistry.agents.filter(function (a) {
+        return a.status === 'active' && a.reportsTo === _raTarget;
+      }).map(function (a) { return a.id; });
+      if (_raOrphans.length > 0) {
+        context.log('[Heartbeat]', agentId, 'WARN propose-retire-agent — retiring ' + _raTarget + ' orphans: ' + _raOrphans.join(','));
+      }
+      const _raAQ = (await storage.getState('approvalQueue')) || [];
+      const _raGate = _fleetProposalGate(agentId, 'agent_retire_proposal', 'retire:' + _raTarget, _raAQ);
+      if (_raGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire-agent —', _raGate.reason);
+        continue;
+      }
+
+      const _raEntry = {
+        id: 'retpr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'agent_retire_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        retire: {
+          targetAgent: _raTarget,
+          rationale: _raRat.substring(0, 500),
+          reassignmentPlan: _raPlan.substring(0, 500),
+          estimatedWinddownCost: Math.round(_raCost * 100) / 100,
+          orphans: _raOrphans
+        },
+        estimatedCost: Math.round(_raCost * 100) / 100,
+        evidence: { runId: cycleId },
+        createdAt: new Date().toISOString()
+      };
+      _raAQ.push(_raEntry);
+      await storage.setState('approvalQueue', _raAQ);
+      context.log('[Heartbeat]', agentId, 'propose-retire-agent:', _raEntry.id, _raTarget, 'orphans:', _raOrphans.length);
+      result.taskUpdates.push({ action: 'agent-retire-proposed', proposalId: _raEntry.id, agentId: agentId });
+
+    } else if (action.type === 'propose-role-evolution' && action.evolution) {
+      // Agent Identity Evolution (System 14) — Forge proposes evolving an agent's role.
+      const _ev = action.evolution;
+      const _evTarget = String(_ev.targetAgent || '').trim().toLowerCase();
+      const _evChanges = _ev.changes;
+      const _evRat = String(_ev.rationale || '').trim();
+
+      if (!_evTarget || !_evChanges || typeof _evChanges !== 'object' || !_evRat) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution — missing required fields');
+        continue;
+      }
+      // Self-proposal hard block
+      if (agentId === _evTarget) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution — cannot propose own evolution');
+        continue;
+      }
+      // Protected fields: cannot change id/name/tier/status/hiredAt/retiredAt/reportsTo
+      const _evProtected = ['id', 'name', 'tier', 'status', 'hiredAt', 'retiredAt', 'reportsTo'];
+      const _evHasProtected = Object.keys(_evChanges).some(function (k) { return _evProtected.includes(k); });
+      if (_evHasProtected) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution — changes includes protected field (' + _evProtected.filter(function (k) { return k in _evChanges; }).join(',') + ')');
+        continue;
+      }
+      const _evAllowed = ['focus', 'monthlyCap', 'doctrine', 'expectedActionMix'];
+      const _evHasAllowed = Object.keys(_evChanges).some(function (k) { return _evAllowed.includes(k); });
+      if (!_evHasAllowed) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution — changes must include at least one of:', _evAllowed.join(','));
+        continue;
+      }
+      // monthlyCap ceiling check
+      if ('monthlyCap' in _evChanges) {
+        const _evCeiling = FLEET_PROPOSAL_COST_CEILINGS['propose-role-evolution'];
+        const _evCap = Number(_evChanges.monthlyCap);
+        if (!Number.isFinite(_evCap) || _evCap <= 0 || _evCap > _evCeiling) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution — monthlyCap $' + _evCap + ' out of range (0-$' + _evCeiling + ')');
+          continue;
+        }
+      }
+      const _evRegistry = (await storage.getState('agentRegistry')) || { agents: [] };
+      const _evTargetEntry = _evRegistry.agents.find(function (a) { return a.id === _evTarget; });
+      if (!_evTargetEntry || _evTargetEntry.status !== 'active') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution — target not found or not active:', _evTarget);
+        continue;
+      }
+      const _evAQ = (await storage.getState('approvalQueue')) || [];
+      const _evGate = _fleetProposalGate(agentId, 'agent_evolution_proposal', 'evolve:' + _evTarget, _evAQ);
+      if (_evGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution —', _evGate.reason);
+        continue;
+      }
+      // Snapshot current values for fields that would change (for doctrineHistory on approve)
+      const _evSnapshot = {};
+      Object.keys(_evChanges).forEach(function (k) { _evSnapshot[k] = _evTargetEntry[k]; });
+
+      const _evEntry = {
+        id: 'evolpr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'agent_evolution_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        evolution: {
+          targetAgent: _evTarget,
+          changes: _evChanges,
+          rationale: _evRat.substring(0, 500),
+          estimatedCostDelta: Math.round((Number(_ev.estimatedCostDelta) || 0) * 100) / 100,
+          snapshot: _evSnapshot
+        },
+        estimatedCost: Math.round((Number(_ev.estimatedCostDelta) || 0) * 100) / 100,
+        evidence: { runId: cycleId },
+        createdAt: new Date().toISOString()
+      };
+      _evAQ.push(_evEntry);
+      await storage.setState('approvalQueue', _evAQ);
+      context.log('[Heartbeat]', agentId, 'propose-role-evolution:', _evEntry.id, _evTarget, 'fields:', Object.keys(_evChanges).join(','));
+      result.taskUpdates.push({ action: 'agent-evolution-proposed', proposalId: _evEntry.id, agentId: agentId });
 
     } else if (action.type === 'pause-campaign' && action.campaignId) {
       // Nova can pause an active campaign (reversible, auto-execute)

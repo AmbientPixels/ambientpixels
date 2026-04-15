@@ -9,6 +9,74 @@ const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
 const { _buildAllocationPromptBlock } = require('./allocation-intel');
 
+// Agent Identity Evolution (System 14) — Forge-only FLEET HEALTH block.
+// Surfaces: stale agents (low 30d actions + high CEO reject rate), drift
+// candidates (7d+ role drift), cap-exceeding agents (MTD > cap), and pending
+// fleet proposals. CTA: propose-retire / propose-role-evolution / propose-hire.
+function _buildFleetHealthPromptBlock(agent, reflectionDigest, financeDigest, allocationDigest, approvalQueue) {
+  if (!agent || agent.name !== 'Forge') return '';
+
+  const aq = Array.isArray(approvalQueue) ? approvalQueue : [];
+  const pendingFleet = aq.filter(function (q) { return q.type && q.type.indexOf('agent_') === 0 && q.status === 'pending'; });
+  const pendingRetireTargets = new Set(pendingFleet.filter(function (q) { return q.type === 'agent_retire_proposal' && q.retire; }).map(function (q) { return String(q.retire.targetAgent).toLowerCase(); }));
+  const pendingEvolveTargets = new Set(pendingFleet.filter(function (q) { return q.type === 'agent_evolution_proposal' && q.evolution; }).map(function (q) { return String(q.evolution.targetAgent).toLowerCase(); }));
+  const pendingHireCount = pendingFleet.filter(function (q) { return q.type === 'agent_hire_proposal'; }).length;
+
+  const lines = ['\n\nFLEET HEALTH (your lane — Forge, propose fleet mutations with evidence):'];
+
+  // Drift candidates from reflectionDigest
+  const rdAgents = (reflectionDigest && reflectionDigest.perAgent) || {};
+  const driftCandidates = Object.keys(rdAgents).filter(function (aid) {
+    const ra = rdAgents[aid].roleAdherence;
+    return ra && ra.drift && ra.drift !== 'on-role' && !pendingEvolveTargets.has(aid);
+  });
+  if (driftCandidates.length > 0) {
+    lines.push('\nDRIFT candidates (role adherence diverging from baseline — consider propose-role-evolution):');
+    driftCandidates.slice(0, 5).forEach(function (aid) {
+      const ra = rdAgents[aid].roleAdherence;
+      lines.push('- ' + aid + ': ' + ra.drift + ' (actual mix differs from expected baseline)');
+    });
+  }
+
+  // Cap-exceeding candidates from allocationDigest
+  const allocPA = (allocationDigest && allocationDigest.perAgent) || {};
+  const overCap = Object.keys(allocPA).filter(function (aid) {
+    return allocPA[aid].status === 'RED' && !pendingEvolveTargets.has(aid);
+  });
+  if (overCap.length > 0) {
+    lines.push('\nCAP-EXCEEDING agents (monthly spend over cap — consider propose-role-evolution to raise cap):');
+    overCap.slice(0, 3).forEach(function (aid) {
+      const a = allocPA[aid];
+      lines.push('- ' + aid + ': $' + a.spent + '/$' + a.cap + ' (' + a.pct + '% — ' + a.status + ')');
+    });
+  }
+
+  // Stale agents from financeDigest (zero or near-zero actions + any waste)
+  const effAgents = (financeDigest && financeDigest.agentEfficiency) || {};
+  const staleCandidates = Object.keys(effAgents).filter(function (aid) {
+    const e = effAgents[aid];
+    return e.executed === 0 && !pendingRetireTargets.has(aid);
+  });
+  if (staleCandidates.length > 0) {
+    lines.push('\nSTALE candidates (zero actions in 7d — consider propose-retire-agent if pattern persists):');
+    staleCandidates.slice(0, 3).forEach(function (aid) {
+      lines.push('- ' + aid + ': 0 actions executed, ' + (effAgents[aid].blocked || 0) + ' blocked');
+    });
+  }
+
+  if (pendingRetireTargets.size > 0 || pendingEvolveTargets.size > 0 || pendingHireCount > 0) {
+    lines.push('\nPENDING FLEET PROPOSALS (awaiting CEO — do NOT re-propose):');
+    if (pendingHireCount > 0) lines.push('- hires: ' + pendingHireCount);
+    if (pendingEvolveTargets.size > 0) lines.push('- evolutions on: ' + Array.from(pendingEvolveTargets).join(','));
+    if (pendingRetireTargets.size > 0) lines.push('- retires on: ' + Array.from(pendingRetireTargets).join(','));
+  }
+
+  lines.push('\nGuidance: retire requires rationale + reassignmentPlan. Evolution can change focus/monthlyCap/doctrine/expectedActionMix (NOT id/name/tier/reportsTo — those require deploy). Hire needs full agent schema. PROTECTED_AGENTS (nova, cipher) cannot be retired. FLEET_MIN_SIZE = 5, FLEET_MAX_SIZE = 12.');
+
+  if (lines.length === 1) return '';
+  return lines.join('\n');
+}
+
 // Goal Generation (System 13) — Nova-only PRODUCT LIFECYCLE block.
 function _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDigest, productFacts, approvalQueue) {
   if (!agent || agent.name !== 'Nova') return '';
@@ -1315,6 +1383,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const performanceSection = _buildPerformancePromptBlock(agent, performanceDigest);
   const experimentSection = _buildExperimentPromptBlock((agent.name || '').toLowerCase(), agentExperiments);
   const forgeOpsSection = _buildForgeOpsPromptBlock(agent, forgeOpsDigest);
+  const fleetHealthSection = _buildFleetHealthPromptBlock(agent, reflectionDigest, financeDigest, allocationDigest, approvalQueue);
   const researchDemandSection = _buildResearchDemandPromptBlock(agent, researchDemandDigest);
   const contentSection = _buildContentPromptBlock(agent, contentDigest);
   const strategicSection = _buildStrategicPromptBlock(agent, strategicDigest);
@@ -1581,7 +1650,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${productLifecycleSection}${costSection}${forgeOpsSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${productLifecycleSection}${costSection}${forgeOpsSection}${fleetHealthSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
