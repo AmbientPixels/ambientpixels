@@ -1817,6 +1817,8 @@ module.exports = async function (context) {
           newTasksCreated: 0,
           avgLatencyMs: result.durationMs || 0,
           reasoning: result.reasoning || null,
+          preflightSkipped: result.preflightSkipped === true,
+          preflightEstimatedTokens: result.preflightEstimatedTokens || null,
           guardrailBlocked: ((result.guardrails && result.guardrails.orphanBlocked) || 0)
             + ((result.guardrails && result.guardrails.exactDupBlocked) || 0)
             + ((result.guardrails && result.guardrails.fuzzyDupBlocked) || 0)

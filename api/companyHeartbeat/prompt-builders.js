@@ -1650,7 +1650,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
     directiveBlock += 'You MUST address this directive before any other work. Use execute-task on the directive task ID to deliver your response/fix, then the system will mark it done.\n---\n';
   }
 
-  return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
+  const _assembledPrompt = `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
 ${worldStateBlock}${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
@@ -2427,5 +2427,32 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     * Reddit: No hard char limit — aim for 200-800 words. MUST start with "TITLE: [your post title, max 300 chars]" on the first line, followed by a blank line, then the body in markdown. Both title and body are required. Tone: authentic builder voice, conversational, specific — never corporate. No hashtags. Lead with value, link at the end. Include a discussion prompt to invite engagement.
     Count your characters carefully. Include the URL in your count. If over the limit, cut words — do NOT submit over-limit posts.
   - DELIVERABLE FORMAT: Your execute-task deliverable for social tasks must contain ONLY the post text — nothing else. Do NOT include reasoning, rationale, strategy notes, character counts, next steps, or any meta-commentary. The deliverable text IS the post. Any text beyond the post itself will leak into the published version.`;
+
+  if (ctx && typeof ctx === 'object') {
+    ctx._sizeStats = {
+      total: _assembledPrompt.length,
+      estimatedTokens: Math.ceil(_assembledPrompt.length / 4),
+      sections: {
+        worldState: (worldStateBlock || '').length,
+        personality: (personalityBlock || '').length,
+        doctrine: (doctrineBlock || '').length,
+        seedMemories: (seedBlock || '').length,
+        runtimeMemories: (memoryBlock || '').length,
+        reflectionCallout: (reflectionCalloutBlock || '').length,
+        outcomes: (outcomesBlock || '').length,
+        reflectionPrompt: (reflectionPromptBlock || '').length,
+        productFacts: (productFactsBlock || '').length,
+        skills: (skillsBlock || '').length,
+        recentActivity: (recentActivityBlock || '').length,
+        founderVoice: (founderVoiceBlock || '').length,
+        messages: (messagesBlock || '').length,
+        directive: (directiveBlock || '').length,
+        workspace: (typeof workspaceSection === 'string' ? workspaceSection : '').length,
+        tasks: ((taskList || '').length + (otherTasks || '').length + (reviewableTasks || '').length)
+      }
+    };
+  }
+
+  return _assembledPrompt;
 }
 module.exports = { buildSiteContextBlock, buildHeartbeatPrompt };

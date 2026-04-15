@@ -139,8 +139,8 @@ async function resolveActivationMode(storage, runId) {
   var raw = await storage.getState('activationMode');
   var provided = String(raw || '').trim().toLowerCase();
   if (C.ALLOWED_MODES.has(provided)) return provided;
-  await logEvent('policy-violation', null, 'Invalid or missing activationMode, defaulting to supervised_autonomous', runId, {
-    runId: runId, gate: 'activation_mode', reason: 'invalid_or_missing_mode', provided: raw || null
+  await logEvent('run-health', null, 'Invalid or missing activationMode, defaulting to supervised_autonomous', runId, {
+    runId: runId, reason: 'invalid_or_missing_mode', provided: raw || null
   });
   return 'supervised_autonomous';
 }

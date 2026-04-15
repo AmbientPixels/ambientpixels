@@ -391,12 +391,20 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  const prompt = buildHeartbeatPrompt({ agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest });
+  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest };
+  const prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
   const _estimatedTokens = Math.ceil(prompt.length / 4);
+  const _sizeStats = _promptCtx._sizeStats || { total: prompt.length, estimatedTokens: _estimatedTokens, sections: {} };
+  try {
+    await logEvent('prompt-size', agentId, 'Prompt assembled', cycleId, _sizeStats);
+  } catch (_pse) { /* non-fatal */ }
+
   if (_estimatedTokens > 30000) {
     context.log.warn('[Heartbeat] ' + agentId + ': prompt exceeds 30K token ceiling (' + _estimatedTokens + ' est.) — skipping this cycle');
+    result.preflightSkipped = true;
+    result.preflightEstimatedTokens = _estimatedTokens;
     result.durationMs = Date.now() - _agentRunStartMs;
     return result;
   }
