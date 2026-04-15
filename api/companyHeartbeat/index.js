@@ -1564,7 +1564,7 @@ module.exports = async function (context) {
             _agentMemoryStore, trendRadarStore,
             trendInsightsStore: (aid === 'nova' || aid === 'scribe' || aid === 'echo') ? trendInsightsStore : null,
             performanceDigest, agentExperiments,
-            outcomeDigest, reflectionDigest,
+            outcomeDigest, reflectionDigest, worldState,
             productFacts, skillsData,
             forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest,
             socialAccountStats,
@@ -3477,7 +3477,15 @@ module.exports = async function (context) {
         oldestActiveTaskAgeHours: Math.round(oldestActiveTaskAgeHours)
       },
       perAgent: perAgent,
-      skippedAgents: skippedAgents
+      skippedAgents: skippedAgents,
+      worldStateInjected: !!worldState,
+      worldStateBlockLength: (function () {
+        if (!worldState) return 0;
+        try {
+          const { _buildWorldStatePromptBlock: _b } = require('./world-state-intel');
+          return _b(worldState).length;
+        } catch (_e) { return -1; }
+      })()
     };
 
     const heartbeatRuns = (await storage.getState('heartbeatRuns')) || [];

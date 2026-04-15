@@ -12,6 +12,7 @@ const { _buildStrategicPromptBlock } = require('./strategic-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
 const { _buildReflectionPromptBlock } = require('./reflection-intel');
+const { _buildWorldStatePromptBlock } = require('./world-state-intel');
 
 // ── Prompt Coverage Guard ──
 // Logs startup warnings if a valid taskType or social platform is missing from prompt definitions.
@@ -90,7 +91,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1202,6 +1203,17 @@ You must remain within your assigned authority tier. Doctrine influences your st
     reflectionPromptBlock = _buildReflectionPromptBlock(agent.id, reflectionDigest) || '';
   } catch (_refErr) { reflectionPromptBlock = ''; }
 
+  // Shared World Model (System 11): injected at the TOP of the prompt.
+  // Same text for every agent. Builds a 1-1.5KB block from worldState digest.
+  // If worldState is null (first deploy or digest build failed), a placeholder
+  // is emitted so downstream template doesn't choke on undefined.
+  let worldStateBlock = '';
+  try {
+    worldStateBlock = _buildWorldStatePromptBlock(worldState) || '';
+  } catch (_wsErr) {
+    worldStateBlock = '\n═══ WORLD STATE — build error, see logs ═══\n';
+  }
+
   // Type-diversity hint — live state shows agents tend to pick ONE memory type and never vary
   // (Cipher 100% verified_fact, Pixel 100% learning, Quill 100% feedback). The L4 type system has
   // 8+ types for a reason. This is a soft hint, not a block — agents can ignore it if today's work
@@ -1476,7 +1488,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${worldStateBlock}${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
