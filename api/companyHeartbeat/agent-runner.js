@@ -15,7 +15,9 @@ const {
   MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS,
   MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS,
   MAX_RESEARCH_INTEL_PER_DAY, MAX_WEEKLY_REPORTS_PER_AGENT,
-  CAPITAL_AUTHORIZED_AGENTS, CAPITAL_DECISION_THRESHOLDS, FINANCE_BUDGET_MONTHLY
+  CAPITAL_AUTHORIZED_AGENTS, CAPITAL_DECISION_THRESHOLDS, FINANCE_BUDGET_MONTHLY,
+  PRODUCT_PROPOSAL_AUTHORIZED_AGENTS, PRODUCT_PROPOSAL_MAX_PER_DAY,
+  PRODUCT_PROPOSAL_COST_CEILINGS, PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
@@ -74,6 +76,71 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 // Phase 3 modules
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
+
+// ── Goal Generation (System 13) helpers ──
+// Extracts normalized lowercase target name from any product proposal AQ entry.
+function _proposalTargetKey(q) {
+  if (!q) return '';
+  if (q.product && q.product.name) return String(q.product.name).toLowerCase().trim();
+  if (q.pivot && q.pivot.targetProduct) return String(q.pivot.targetProduct).toLowerCase().trim();
+  if (q.retire && q.retire.targetProduct) return String(q.retire.targetProduct).toLowerCase().trim();
+  return '';
+}
+
+// Shared gate: auth / rate / dedup / cooldown. Capital Allocation gate is
+// handler-level, NOT here — do not move capital logic into this function.
+function _productProposalGate(agentId, productProposalType, targetKey, approvalQueue) {
+  if (!PRODUCT_PROPOSAL_AUTHORIZED_AGENTS.has(agentId)) {
+    return { blocked: true, reason: 'only Nova authorized for product lifecycle proposals' };
+  }
+  const today = new Date().toISOString().substring(0, 10);
+  const todayCount = approvalQueue.filter(function (q) {
+    return q.type === productProposalType && q.proposedBy === agentId &&
+      q.createdAt && q.createdAt.substring(0, 10) === today;
+  }).length;
+  if (todayCount >= PRODUCT_PROPOSAL_MAX_PER_DAY) {
+    return { blocked: true, reason: 'daily limit reached (' + PRODUCT_PROPOSAL_MAX_PER_DAY + '/day)' };
+  }
+  const pendingDupe = approvalQueue.some(function (q) {
+    return q.type === productProposalType && q.status === 'pending' &&
+      _proposalTargetKey(q) === targetKey;
+  });
+  if (pendingDupe) return { blocked: true, reason: 'duplicate pending proposal for target' };
+  const cooldownMs = PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+  const cutoff = Date.now() - cooldownMs;
+  const recentReject = approvalQueue.some(function (q) {
+    return q.type === productProposalType && q.status === 'rejected' &&
+      _proposalTargetKey(q) === targetKey &&
+      Date.parse(q.resolvedAt || q.createdAt || '') > cutoff;
+  });
+  if (recentReject) {
+    return { blocked: true, reason: 'target rejected within ' + PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS + 'd cooldown' };
+  }
+  return { blocked: false };
+}
+
+// Capital Allocation gate for product proposals: same 24h-bypass logic as
+// propose-campaign. Returns { blocked, reason }. Fail-open on state errors.
+async function _productCapitalGate(agentId, estimatedCost, storage) {
+  try {
+    const alloc = (await storage.getState('capitalAllocation')) || {};
+    const pct = (alloc.systemBudget > 0) ? ((alloc.systemSpent || 0) / alloc.systemBudget) * 100 : 0;
+    const squeeze = pct >= CAPITAL_DECISION_THRESHOLDS.systemBudgetSqueezePct;
+    const systemRed = alloc.systemStatus === 'RED';
+    if (!(squeeze || systemRed)) return { blocked: false };
+    // 24h bypass: recent auto/cipher-approved decision for this agent
+    const log = Array.isArray(alloc.decisionLog) ? alloc.decisionLog : [];
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    const hasApproval = log.some(function (l) {
+      return l.agentId === agentId && l.action === 'approved' &&
+        Date.parse(l.at || '') > cutoff;
+    });
+    if (hasApproval) return { blocked: false };
+    return { blocked: true, reason: 'system budget ' + (systemRed ? 'RED' : 'squeezed at ' + Math.round(pct) + '%') + ' — emit request-budget first or wait' };
+  } catch (_e) {
+    return { blocked: false };  // fail-open
+  }
+}
 
 async function runAgentHeartbeat(ctx) {
   if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
@@ -4568,6 +4635,208 @@ Write the full deliverable first, then the structured JSON block.`;
 
       context.log('[Heartbeat]', agentId, 'budget decision:', _abTarget.id, _abDecision, '→', _abTarget.agentId);
       result.taskUpdates.push({ action: 'budget-decided', requestId: _abTarget.id, decision: _abDecision });
+
+    } else if (action.type === 'propose-product' && action.product) {
+      // Goal Generation (System 13) — Nova proposes a new product.
+      const _pp = action.product;
+      const _ppName = (_pp.name || '').trim().substring(0, 60);
+      const _ppDesc = (_pp.description || '').trim();
+      const _ppRat = (_pp.rationale || '').trim();
+      const _ppMkt = (_pp.market || '').trim();
+      const _ppStrat = (_pp.launchStrategy || '').trim();
+      const _ppSucc = (_pp.successCriteria || '').trim();
+      const _ppCost = Number(_pp.estimatedCost);
+
+      if (!_ppName || !_ppDesc || !_ppRat || !_ppMkt || !_ppStrat || !_ppSucc) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-product — missing required fields (name, description, rationale, market, launchStrategy, successCriteria)');
+        continue;
+      }
+      if (!Number.isFinite(_ppCost) || _ppCost <= 0) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-product — estimatedCost required and must be > 0');
+        continue;
+      }
+      const _ppCeiling = PRODUCT_PROPOSAL_COST_CEILINGS['propose-product'];
+      if (_ppCost > _ppCeiling) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-product — estimatedCost $' + _ppCost + ' exceeds ceiling $' + _ppCeiling);
+        continue;
+      }
+      // Must not already be a known product
+      const _ppExisting = Object.keys(_productFacts.products || {}).map(function (k) { return k.toLowerCase(); });
+      if (_ppExisting.indexOf(_ppName.toLowerCase()) !== -1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-product — product already exists in product-facts.json:', _ppName);
+        continue;
+      }
+      const _ppAQ = (await storage.getState('approvalQueue')) || [];
+      const _ppGate = _productProposalGate(agentId, 'product_proposal', _ppName.toLowerCase(), _ppAQ);
+      if (_ppGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-product —', _ppGate.reason);
+        continue;
+      }
+      const _ppCapGate = await _productCapitalGate(agentId, _ppCost, storage);
+      if (_ppCapGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-product (Capital) —', _ppCapGate.reason);
+        continue;
+      }
+
+      const _ppEntry = {
+        id: 'pprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'product_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        product: {
+          name: _ppName,
+          description: _ppDesc.substring(0, 1000),
+          rationale: _ppRat.substring(0, 500),
+          market: _ppMkt.substring(0, 300),
+          launchStrategy: _ppStrat.substring(0, 500),
+          successCriteria: _ppSucc.substring(0, 300),
+          estimatedTimeline: (_pp.estimatedTimeline || '').substring(0, 100)
+        },
+        estimatedCost: Math.round(_ppCost * 100) / 100,
+        evidence: { runId: cycleId },
+        createdAt: new Date().toISOString()
+      };
+      _ppAQ.push(_ppEntry);
+      await storage.setState('approvalQueue', _ppAQ);
+      context.log('[Heartbeat]', agentId, 'propose-product:', _ppEntry.id, _ppName, '$' + _ppEntry.estimatedCost);
+      result.taskUpdates.push({ action: 'product-proposed', proposalId: _ppEntry.id, agentId: agentId });
+
+    } else if (action.type === 'propose-pivot' && action.pivot) {
+      // Goal Generation (System 13) — Nova proposes a strategic pivot on an existing product.
+      const _piv = action.pivot;
+      const _pivTarget = (_piv.targetProduct || '').trim();
+      const _pivDir = (_piv.newDirection || '').trim();
+      const _pivRat = (_piv.rationale || '').trim();
+      const _pivSucc = (_piv.successCriteria || '').trim();
+      const _pivPlan = (_piv.transitionPlan || '').trim();
+      const _pivCost = Number(_piv.estimatedCost);
+
+      if (!_pivTarget || !_pivDir || !_pivRat || !_pivSucc || !_pivPlan) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot — missing required fields');
+        continue;
+      }
+      if (!Number.isFinite(_pivCost) || _pivCost <= 0) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot — estimatedCost required');
+        continue;
+      }
+      const _pivCeiling = PRODUCT_PROPOSAL_COST_CEILINGS['propose-pivot'];
+      if (_pivCost > _pivCeiling) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot — estimatedCost $' + _pivCost + ' exceeds ceiling $' + _pivCeiling);
+        continue;
+      }
+      // Target must exist as active product (case-insensitive)
+      const _pivProducts = _productFacts.products || {};
+      const _pivMatch = Object.keys(_pivProducts).find(function (k) { return k.toLowerCase() === _pivTarget.toLowerCase(); });
+      if (!_pivMatch) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot — target product not found:', _pivTarget);
+        continue;
+      }
+      if (_pivProducts[_pivMatch].status && _pivProducts[_pivMatch].status !== 'active') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot — target product not active:', _pivMatch);
+        continue;
+      }
+      const _pivAQ = (await storage.getState('approvalQueue')) || [];
+      const _pivGate = _productProposalGate(agentId, 'product_pivot_proposal', _pivMatch.toLowerCase(), _pivAQ);
+      if (_pivGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot —', _pivGate.reason);
+        continue;
+      }
+      const _pivCapGate = await _productCapitalGate(agentId, _pivCost, storage);
+      if (_pivCapGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot (Capital) —', _pivCapGate.reason);
+        continue;
+      }
+
+      const _pivEntry = {
+        id: 'pivprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'product_pivot_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        pivot: {
+          targetProduct: _pivMatch,
+          newDirection: _pivDir.substring(0, 500),
+          rationale: _pivRat.substring(0, 500),
+          successCriteria: _pivSucc.substring(0, 300),
+          transitionPlan: _pivPlan.substring(0, 500)
+        },
+        estimatedCost: Math.round(_pivCost * 100) / 100,
+        evidence: { runId: cycleId },
+        createdAt: new Date().toISOString()
+      };
+      _pivAQ.push(_pivEntry);
+      await storage.setState('approvalQueue', _pivAQ);
+      context.log('[Heartbeat]', agentId, 'propose-pivot:', _pivEntry.id, _pivMatch, '$' + _pivEntry.estimatedCost);
+      result.taskUpdates.push({ action: 'pivot-proposed', proposalId: _pivEntry.id, agentId: agentId });
+
+    } else if (action.type === 'propose-retire' && action.retire) {
+      // Goal Generation (System 13) — Nova proposes retiring a product.
+      const _ret = action.retire;
+      const _retTarget = (_ret.targetProduct || '').trim();
+      const _retRat = (_ret.rationale || '').trim();
+      const _retPlan = (_ret.migrationPlan || '').trim();
+      const _retCost = Number.isFinite(Number(_ret.estimatedCost)) ? Number(_ret.estimatedCost) : 0;
+
+      if (!_retTarget || !_retRat || !_retPlan) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire — missing required fields (targetProduct, rationale, migrationPlan)');
+        continue;
+      }
+      const _retCeiling = PRODUCT_PROPOSAL_COST_CEILINGS['propose-retire'];
+      if (_retCost < 0 || _retCost > _retCeiling) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire — estimatedCost $' + _retCost + ' out of range (0-$' + _retCeiling + ')');
+        continue;
+      }
+      const _retProducts = _productFacts.products || {};
+      const _retMatch = Object.keys(_retProducts).find(function (k) { return k.toLowerCase() === _retTarget.toLowerCase(); });
+      if (!_retMatch) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire — target product not found:', _retTarget);
+        continue;
+      }
+      if (_retProducts[_retMatch].status && _retProducts[_retMatch].status !== 'active') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire — target not active (already retired?):', _retMatch);
+        continue;
+      }
+      // Extra guard: warn if target has significant live signal — require rationale to acknowledge.
+      try {
+        const _retBlogViews = (await storage.getState('blogPostViews')) || [];
+        const _retSevenDayAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        const _retViews = _retBlogViews.filter(function (v) {
+          const tsv = Date.parse(v.timestamp || v.at || '');
+          return Number.isFinite(tsv) && tsv >= _retSevenDayAgo &&
+            String(v.slug || v.title || '').toLowerCase().indexOf(_retMatch.toLowerCase()) !== -1;
+        }).length;
+        const _retCamps = ((await storage.getState('campaigns')) || []).filter(function (c) {
+          return c.status === 'active' && String(c.product || '').toLowerCase() === _retMatch.toLowerCase();
+        });
+        if ((_retViews > 100 || _retCamps.length > 0) && !/live|traffic|active|aware/i.test(_retRat)) {
+          context.log('[Heartbeat]', agentId, 'WARN propose-retire — target has live signal (' + _retViews + ' blog views 7d, ' + _retCamps.length + ' active campaigns) and rationale does not acknowledge. Proceeding but flagging.');
+        }
+      } catch (_retGuardErr) { /* non-fatal guard */ }
+
+      const _retAQ = (await storage.getState('approvalQueue')) || [];
+      const _retGate = _productProposalGate(agentId, 'product_retire_proposal', _retMatch.toLowerCase(), _retAQ);
+      if (_retGate.blocked) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire —', _retGate.reason);
+        continue;
+      }
+
+      const _retEntry = {
+        id: 'retprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        type: 'product_retire_proposal',
+        status: 'pending',
+        proposedBy: agentId,
+        retire: {
+          targetProduct: _retMatch,
+          rationale: _retRat.substring(0, 500),
+          migrationPlan: _retPlan.substring(0, 500)
+        },
+        estimatedCost: Math.round(_retCost * 100) / 100,
+        evidence: { runId: cycleId },
+        createdAt: new Date().toISOString()
+      };
+      _retAQ.push(_retEntry);
+      await storage.setState('approvalQueue', _retAQ);
+      context.log('[Heartbeat]', agentId, 'propose-retire:', _retEntry.id, _retMatch, '$' + _retEntry.estimatedCost);
+      result.taskUpdates.push({ action: 'retire-proposed', proposalId: _retEntry.id, agentId: agentId });
 
     } else if (action.type === 'pause-campaign' && action.campaignId) {
       // Nova can pause an active campaign (reversible, auto-execute)
