@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels World State — canonical state-of-the-business snapshot every agent sees." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>World State — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .ws-section {
+      margin-bottom: 1.4rem;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .ws-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .ws-empty {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid rgba(251,191,36,0.4);
+      border-radius: 4px;
+    }
+    .ws-hero {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.7rem;
+      margin-bottom: 1.2rem;
+    }
+    .ws-hero-card {
+      padding: 0.8rem;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .ws-hero-card .ws-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .ws-hero-card .ws-value { font-size: 1.1rem; font-weight: 600; color: #fff; }
+    .ws-hero-card .ws-sub { font-size: 0.6rem; opacity: 0.6; margin-top: 0.2rem; }
+    .ws-status-green { color: #34d399; }
+    .ws-status-yellow { color: #fbbf24; }
+    .ws-status-red { color: #f87171; }
+    .ws-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; }
+    .ws-fleet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 0.4rem; }
+    .ws-agent-chip {
+      padding: 0.4rem 0.5rem;
+      font-size: 0.65rem;
+      border-radius: 6px;
+      text-align: center;
+      background: rgba(52,211,153,0.08);
+      color: #34d399;
+      text-transform: capitalize;
+    }
+    .ws-agent-chip.stalled {
+      background: rgba(248,113,113,0.12);
+      color: #f87171;
+    }
+    .ws-follower-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .ws-follower-chip {
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      background: rgba(96,165,250,0.08);
+      font-size: 0.65rem;
+    }
+    .ws-follower-chip strong { color: #fff; font-size: 0.8rem; display: block; }
+    .ws-product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.5rem; }
+    .ws-product-card {
+      padding: 0.6rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.65rem;
+    }
+    .ws-product-card strong { font-size: 0.72rem; color: #fff; display: block; margin-bottom: 0.2rem; }
+    .ws-product-card .ws-launch { opacity: 0.6; }
+    .ws-product-card.growing { border-left: 3px solid #34d399; }
+    .ws-product-card.declining { border-left: 3px solid #f87171; }
+    table.ws-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+    table.ws-table th, table.ws-table td {
+      text-align: left;
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    table.ws-table th { color: rgba(255,255,255,0.5); font-weight: 500; }
+    .ws-progress-bar {
+      width: 100px;
+      height: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 3px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 0.4rem;
+    }
+    .ws-progress-fill { height: 100%; background: #60a5fa; }
+    .ws-pace-chip {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      font-size: 0.55rem;
+      border-radius: 3px;
+    }
+    .ws-pace-on { background: rgba(52,211,153,0.15); color: #34d399; }
+    .ws-pace-behind { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .ws-pace-overdue { background: rgba(248,113,113,0.15); color: #f87171; }
+    .ws-pace-complete { background: rgba(168,168,168,0.15); color: #aaa; }
+    .ws-event-row {
+      padding: 0.4rem 0.7rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      margin-bottom: 0.3rem;
+      font-size: 0.65rem;
+    }
+    .ws-event-row .ws-event-ts { opacity: 0.5; font-size: 0.55rem; }
+    .ws-event-row .ws-event-type {
+      display: inline-block;
+      padding: 0.05rem 0.35rem;
+      background: rgba(96,165,250,0.12);
+      color: #60a5fa;
+      border-radius: 3px;
+      font-size: 0.55rem;
+      margin-right: 0.3rem;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="ws-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-globe co-icon-mr-lg dash-icon-amber"></i>World State</h1>
+        <p class="act-header-sub">The canonical "state of the business" snapshot every agent sees at the top of their prompt.</p>
+      </div>
+    </div>
+
+    <div id="ws-hero" class="ws-hero"></div>
+
+    <div class="ws-grid-2">
+      <div class="ws-section" data-section="fleet">
+        <h2><i class="fas fa-users"></i> FLEET</h2>
+        <div id="ws-fleet"></div>
+      </div>
+
+      <div class="ws-section" data-section="followers">
+        <h2><i class="fas fa-hashtag"></i> FOLLOWERS</h2>
+        <div id="ws-followers"></div>
+      </div>
+    </div>
+
+    <div class="ws-section" data-section="products">
+      <h2><i class="fas fa-cube"></i> PRODUCTS</h2>
+      <div id="ws-products"></div>
+    </div>
+
+    <div class="ws-grid-2">
+      <div class="ws-section" data-section="objectives">
+        <h2><i class="fas fa-bullseye"></i> ACTIVE OBJECTIVES</h2>
+        <div id="ws-objectives"></div>
+      </div>
+
+      <div class="ws-section" data-section="campaigns">
+        <h2><i class="fas fa-bullhorn"></i> ACTIVE CAMPAIGNS</h2>
+        <div id="ws-campaigns"></div>
+      </div>
+    </div>
+
+    <div class="ws-grid-2">
+      <div class="ws-section" data-section="experiments">
+        <h2><i class="fas fa-flask"></i> EXPERIMENTS + APPROVALS</h2>
+        <div id="ws-experiments"></div>
+      </div>
+
+      <div class="ws-section" data-section="events">
+        <h2><i class="fas fa-clock"></i> RECENT EVENTS (7d)</h2>
+        <div id="ws-events"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function emptyState(id, msg) {
+      document.getElementById(id).innerHTML = '<div class="ws-empty">' + esc(msg) + '</div>';
+    }
+
+    function load() {
+      return fetch(API + '/worldState', { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); });
+    }
+
+    function renderHero(d) {
+      var co = d.company || {};
+      var fin = d.finance || {};
+      var runway = co.runwayDays != null ? co.runwayDays + 'd' : '—';
+      var statusClass = 'ws-status-' + String(fin.status || 'green').toLowerCase();
+      var html = '';
+      html += '<div class="ws-hero-card"><div class="ws-label">Company</div><div class="ws-value">' + esc(co.hero || '—') + '</div><div class="ws-sub">Launched ' + esc(co.launched || '—') + ' · Mode: ' + esc(co.activeMode || '—') + '</div></div>';
+      html += '<div class="ws-hero-card"><div class="ws-label">Runway</div><div class="ws-value">' + esc(runway) + '</div><div class="ws-sub">at current daily burn</div></div>';
+      html += '<div class="ws-hero-card"><div class="ws-label">Finance</div><div class="ws-value ' + statusClass + '">' + esc(fin.status || '—') + '</div><div class="ws-sub">$' + Number(fin.monthlyActual || 0).toFixed(2) + ' / $' + Number(fin.monthlyBudget || 0).toFixed(0) + ' · ' + esc(fin.burnTrend || 'stable') + '</div></div>';
+      html += '<div class="ws-hero-card"><div class="ws-label">Outcome coverage</div><div class="ws-value">' + esc((d.metrics && d.metrics.outcomeCoverage) || '—') + '</div><div class="ws-sub">blog views 30d: ' + ((d.metrics && d.metrics.blogViews30d) || 0) + '</div></div>';
+      document.getElementById('ws-hero').innerHTML = html;
+    }
+
+    function renderFleet(d) {
+      var agents = ['nova','cipher','pixel','forge','scribe','quill','echo','scout'];
+      var stalled = new Set(((d.fleet || {}).stalled) || []);
+      var html = '<div class="ws-fleet-grid">' + agents.map(function (a) {
+        var cls = stalled.has(a) ? 'ws-agent-chip stalled' : 'ws-agent-chip';
+        return '<div class="' + cls + '">' + esc(a) + (stalled.has(a) ? ' ⚠' : '') + '</div>';
+      }).join('') + '</div>';
+      html += '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.5rem;">Stalled agents have 5+ consecutive zero-action heartbeats.</div>';
+      document.getElementById('ws-fleet').innerHTML = html;
+    }
+
+    function renderFollowers(d) {
+      var fol = (d.metrics && d.metrics.followers) || {};
+      var chips = ['bluesky','linkedin','x','facebook'].map(function (p) {
+        var count = fol[p] || 0;
+        if (!count && p === 'facebook') return '';
+        return '<div class="ws-follower-chip"><strong>' + count + '</strong>' + esc(p) + '</div>';
+      }).filter(Boolean).join('');
+      chips += '<div class="ws-follower-chip" style="background:rgba(52,211,153,0.1);"><strong>' + (fol.total || 0) + '</strong>total</div>';
+      document.getElementById('ws-followers').innerHTML = '<div class="ws-follower-chips">' + chips + '</div>';
+    }
+
+    function renderProducts(d) {
+      var prods = d.products || [];
+      if (prods.length === 0) { emptyState('ws-products', 'No products defined. Check product-facts.json.'); return; }
+      var html = '<div class="ws-product-grid">' + prods.map(function (p) {
+        var cls = 'ws-product-card' + (p.signal === 'growing' ? ' growing' : (p.signal === 'declining' ? ' declining' : ''));
+        return '<div class="' + cls + '"><strong>' + esc(p.name) + '</strong>' +
+          (p.status ? '<div>' + esc(p.status) + '</div>' : '') +
+          (p.launchedAt ? '<div class="ws-launch">launched ' + esc(p.launchedAt) + '</div>' : '') +
+          (p.signal ? '<div class="ws-launch">signal: ' + esc(p.signal) + '</div>' : '') +
+          '</div>';
+      }).join('') + '</div>';
+      document.getElementById('ws-products').innerHTML = html;
+    }
+
+    function progressBar(pct) {
+      var p = Math.max(0, Math.min(100, Number(pct) || 0));
+      return '<div class="ws-progress-bar"><div class="ws-progress-fill" style="width:' + p + '%;"></div></div>';
+    }
+
+    function renderObjectives(d) {
+      var objs = d.objectives || [];
+      if (objs.length === 0) { emptyState('ws-objectives', 'No active objectives.'); return; }
+      var rows = objs.map(function (o) {
+        return '<tr><td>' + esc(o.title) + '</td><td>' + o.progress + '% ' + progressBar(o.progress) + '</td><td>' + esc(o.endDate || '—') + '</td></tr>';
+      }).join('');
+      document.getElementById('ws-objectives').innerHTML =
+        '<table class="ws-table"><thead><tr><th>Title</th><th>Progress</th><th>End</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    function renderCampaigns(d) {
+      var camps = d.campaigns || [];
+      if (camps.length === 0) { emptyState('ws-campaigns', 'No active campaigns.'); return; }
+      var rows = camps.map(function (c) {
+        var paceKey = String(c.pace || '').toLowerCase().split(' ')[0];
+        var paceCls = 'ws-pace-' + (paceKey === 'on' ? 'on' : (paceKey === 'behind' ? 'behind' : (paceKey === 'overdue' ? 'overdue' : 'complete')));
+        return '<tr><td>' + esc(c.title) + '</td><td><span class="ws-pace-chip ' + paceCls + '">' + esc(c.pace) + '</span></td><td>' + c.progress + '% ' + progressBar(c.progress) + '</td><td>' + (c.daysLeft != null ? c.daysLeft + 'd' : '—') + '</td></tr>';
+      }).join('');
+      document.getElementById('ws-campaigns').innerHTML =
+        '<table class="ws-table"><thead><tr><th>Title</th><th>Pace</th><th>Progress</th><th>Left</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }
+
+    function renderExperiments(d) {
+      var exp = d.experiments || {};
+      var aq = d.openApprovals || {};
+      var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">';
+      html += '<div style="padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-size:0.55rem;opacity:0.5;">Active experiments</div><div style="font-size:1.2rem;font-weight:600;">' + (exp.active || 0) + '</div><div style="font-size:0.6rem;opacity:0.6;">' + (exp.readyToConclude || 0) + ' ready to conclude · ' + (exp.linkedinPending || 0) + ' LinkedIn pending</div></div>';
+      html += '<div style="padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-size:0.55rem;opacity:0.5;">Open approvals</div><div style="font-size:1.2rem;font-weight:600;">' + (aq.count || 0) + '</div><div style="font-size:0.6rem;opacity:0.6;">oldest ' + (aq.oldestDays || 0) + 'd</div></div>';
+      html += '</div>';
+      document.getElementById('ws-experiments').innerHTML = html;
+    }
+
+    function renderEvents(d) {
+      var events = d.recentEvents || [];
+      if (events.length === 0) {
+        emptyState('ws-events', 'No material events in last 7 days. Dashboard surfaces ceo-reject, stall-alert, system-directive, experiment-concluded, campaign_complete.');
+        return;
+      }
+      var html = events.map(function (e) {
+        var ts = String(e.timestamp || '').substring(0, 16).replace('T', ' ');
+        return '<div class="ws-event-row"><span class="ws-event-ts">' + esc(ts) + '</span> <span class="ws-event-type">' + esc(e.type) + '</span>' + esc(e.summary || '') + (e.agent ? ' <span style="opacity:0.5;">(' + esc(e.agent) + ')</span>' : '') + '</div>';
+      }).join('');
+      document.getElementById('ws-events').innerHTML = html;
+    }
+
+    load().then(function (d) {
+      if (d._builtOnDemand) {
+        console.log('[worldState] built on-demand (heartbeat cache missing or stale)');
+      }
+      renderHero(d);
+      renderFleet(d);
+      renderFollowers(d);
+      renderProducts(d);
+      renderObjectives(d);
+      renderCampaigns(d);
+      renderExperiments(d);
+      renderEvents(d);
+    }).catch(function (err) {
+      var m = 'Failed to load world state.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('ws-hero').innerHTML = '<div class="ws-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
