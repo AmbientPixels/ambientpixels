@@ -96,22 +96,37 @@ function buildAllocationDigest(geminiUsage, financeDigest, outcomeDigest, capita
     .filter(function (a) { return a.spent > 0; })
     .sort(function (a, b) { return b.spent - a.spent; });
 
-  // ROI by campaign (join outcomeDigest.perCampaign with spend/engagement)
+  // ROI by campaign: outcomeDigest.perCampaign exposes engagement but not spend
+  // (geminiUsage has no campaign_id). Attribute spend proportionally across
+  // campaigns with non-zero engagement — matches the finance-intel approach of
+  // averaging system spend across active campaigns. Shows only campaigns with
+  // engagement > 0 so the dashboard doesn't bury signal in dozens of $0/0 rows.
   var roiByCampaign = [];
   if (outcomeDigest && Array.isArray(outcomeDigest.perCampaign)) {
-    roiByCampaign = outcomeDigest.perCampaign.slice(0, 10).map(function (c) {
+    var _withEng = outcomeDigest.perCampaign.map(function (c) {
       var engagement = (c.totalEngagements || 0)
         + (c.blogViewsAttributed || 0) * 10
         + (c.formSubmitsAttributed || 0) * 50;
-      var spent = _round2(c.estimatedCost || 0);
-      return {
-        campaignId: c.campaignId,
-        title: (c.title || c.campaignId || '').substring(0, 60),
-        spent: spent,
-        engagement: engagement,
-        costPerEngagement: engagement > 0 ? _round2(spent / engagement) : null
-      };
-    });
+      return { c: c, engagement: engagement };
+    }).filter(function (x) { return x.engagement > 0; });
+    // Proportional spend attribution: share of this month's system spend split
+    // evenly across engagement-producing campaigns. Not true per-campaign cost
+    // (we don't track that yet), but surfaces relative ROI signal.
+    var _perCampSpend = _withEng.length > 0 ? systemSpent / _withEng.length : 0;
+    roiByCampaign = _withEng
+      .sort(function (a, b) { return b.engagement - a.engagement; })
+      .slice(0, 10)
+      .map(function (x) {
+        var spent = _round2(_perCampSpend);
+        return {
+          campaignId: x.c.campaignId,
+          title: (x.c.title || x.c.campaignId || '').substring(0, 60),
+          spent: spent,
+          engagement: x.engagement,
+          costPerEngagement: x.engagement > 0 ? Math.round((spent / x.engagement) * 1000) / 1000 : null,
+          spendAttribution: 'proportional'
+        };
+      });
   }
 
   // ROI by experiment
