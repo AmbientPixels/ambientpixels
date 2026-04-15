@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Emergence Monitor — compound-pattern signals across all 14 systems." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Emergence — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .em-section { margin-bottom: 1.4rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .em-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .em-empty { font-size: 0.7rem; color: rgba(255,255,255,0.5); padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+    .em-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin-bottom: 0.8rem; }
+    .em-hero-card { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .em-hero-card .em-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .em-hero-card .em-value { font-size: 1.3rem; font-weight: 600; color: #fff; }
+    .em-hero-card .em-sub { font-size: 0.6rem; opacity: 0.6; margin-top: 0.2rem; }
+    .em-hero-card.red { border-left: 3px solid #f87171; }
+    .em-hero-card.yellow { border-left: 3px solid #fbbf24; }
+    .em-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.9rem; }
+    .em-status-red { color: #f87171; }
+    .em-status-yellow { color: #fbbf24; }
+    .em-status-green { color: #34d399; }
+
+    .em-banner { padding: 0.7rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.72rem; }
+    .em-banner.amber { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; }
+    .em-banner.warming { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.3); color: #60a5fa; }
+
+    .em-signal { padding: 0.7rem 0.9rem; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.72rem; border-left: 3px solid rgba(96,165,250,0.5); }
+    .em-signal.red { border-left-color: #f87171; }
+    .em-signal.yellow { border-left-color: #fbbf24; }
+    .em-signal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.3rem; }
+    .em-signal-type { font-weight: 600; color: #fff; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.6rem; }
+    .em-signal-level { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .em-signal-subject { font-size: 0.55rem; opacity: 0.55; }
+    .em-signal-text { font-size: 0.75rem; color: rgba(255,255,255,0.9); margin-bottom: 0.3rem; }
+    .em-signal-rec { font-size: 0.65rem; opacity: 0.8; font-style: italic; }
+    .em-signal-meta { font-size: 0.55rem; opacity: 0.5; margin-top: 0.3rem; }
+
+    .em-aq-row { display: grid; grid-template-columns: 70px 120px 1fr 90px 90px; gap: 0.5rem; padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.7rem; align-items: center; }
+    .em-tier { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.1rem 0.4rem; border-radius: 3px; text-align: center; font-weight: 600; }
+    .em-tier-critical { background: rgba(248,113,113,0.18); color: #f87171; }
+    .em-tier-high { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .em-tier-medium { background: rgba(96,165,250,0.12); color: #60a5fa; }
+    .em-tier-low { background: rgba(156,163,175,0.15); color: #9ca3af; }
+
+    .em-velocity-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.4rem; }
+    .em-velocity-cell { padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-radius: 6px; font-size: 0.65rem; }
+    .em-velocity-cell.hot { background: rgba(248,113,113,0.1); }
+    .em-velocity-cell strong { display: block; color: #fff; font-size: 0.72rem; margin-bottom: 0.15rem; }
+
+    .em-reject-row { display: grid; grid-template-columns: 110px 80px 80px 80px 1fr; gap: 0.5rem; padding: 0.35rem 0.6rem; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 0.2rem; font-size: 0.66rem; align-items: center; }
+    .em-reject-agent { text-transform: capitalize; color: #fff; font-weight: 500; }
+    .em-reject-rate-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+    .em-reject-rate-fill { height: 100%; background: linear-gradient(90deg, #34d399, #fbbf24, #f87171); }
+
+    .em-churn { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.5rem; }
+    .em-churn-stat { padding: 0.6rem; background: rgba(255,255,255,0.03); border-radius: 6px; text-align: center; }
+    .em-churn-stat strong { display: block; font-size: 1.2rem; color: #fff; margin-bottom: 0.2rem; }
+    .em-churn-stat .em-churn-label { font-size: 0.55rem; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .em-streak-big { font-size: 2.5rem; font-weight: 600; }
+    .em-streak-context { font-size: 0.7rem; opacity: 0.7; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="em-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-wave-square co-icon-mr-lg dash-icon-amber"></i>Emergence</h1>
+        <p class="act-header-sub">Compound-pattern signals across 14 systems. Observational only — does not mutate state.</p>
+      </div>
+    </div>
+
+    <div id="em-banner"></div>
+    <div id="em-hero" class="em-hero"></div>
+
+    <div class="em-section" data-section="signals">
+      <h2><i class="fas fa-satellite-dish"></i> ACTIVE SIGNALS</h2>
+      <div id="em-signals"></div>
+    </div>
+
+    <div class="em-section" data-section="approval">
+      <h2><i class="fas fa-inbox"></i> APPROVAL QUEUE (sorted by blast-radius)</h2>
+      <div id="em-approval"></div>
+    </div>
+
+    <div class="em-grid-2">
+      <div class="em-section" data-section="velocity">
+        <h2><i class="fas fa-gauge-high"></i> PROPOSAL VELOCITY (30d)</h2>
+        <div id="em-velocity"></div>
+      </div>
+
+      <div class="em-section" data-section="reject">
+        <h2><i class="fas fa-circle-xmark"></i> REJECT-RATE LEADERBOARD (30d)</h2>
+        <div id="em-reject"></div>
+      </div>
+    </div>
+
+    <div class="em-grid-2">
+      <div class="em-section" data-section="churn">
+        <h2><i class="fas fa-arrows-rotate"></i> FLEET CHURN (30d)</h2>
+        <div id="em-churn"></div>
+      </div>
+
+      <div class="em-section" data-section="streak">
+        <h2><i class="fas fa-fire"></i> CAPITAL RED STREAK</h2>
+        <div id="em-streak"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    // MIRROR of EMERGENCE_BLAST_RADIUS in constants.js. If adding proposal types,
+    // update both places. Documented in SKILL.md Section 15.
+    var BLAST_RADIUS = {
+      agent_retire_proposal:    'critical',
+      product_retire_proposal:  'critical',
+      agent_hire_proposal:      'critical',
+      product_pivot_proposal:   'high',
+      agent_evolution_proposal: 'high',
+      product_proposal:         'medium',
+      budget_request:           'medium',
+      campaign_proposal:        'low',
+      objective_proposal:       'low'
+    };
+    var TIER_ORDER = { critical: 0, high: 1, medium: 2, low: 3 };
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function emptyState(id, msg) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="em-empty">' + esc(msg) + '</div>'; }
+    function hours(iso, nowMs) { if (!iso) return 0; var t = Date.parse(iso); if (!isFinite(t)) return 0; return Math.round((nowMs - t) / (60*60*1000)); }
+
+    function load() {
+      return Promise.all([
+        fetch(API + '/emergenceMonitor', { headers: { 'x-company-secret': SECRET } }).then(function(r){ return r.json(); }),
+        fetch(API + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': SECRET } }).then(function(r){ return r.json(); })
+      ]).then(function (arr) {
+        return {
+          digest: arr[0] || null,
+          approvalQueue: (arr[1] && arr[1].value) || []
+        };
+      });
+    }
+
+    function renderBanner(d) {
+      var banner = document.getElementById('em-banner');
+      if (!d.digest) { banner.innerHTML = '<div class="em-banner warming">Emergence monitoring is warming up. First daily digest computes at 16:00 UTC.</div>'; return; }
+      if (d.digest._builtOnDemand === true) {
+        banner.innerHTML = '<div class="em-banner amber"><strong>Live snapshot:</strong> daily cron hasn\'t run yet (or last run >26h ago). Capital RED streak may read low; other signals accurate.</div>';
+      } else {
+        banner.innerHTML = '';
+      }
+    }
+
+    function renderHero(d) {
+      var digest = d.digest || {};
+      var signals = Array.isArray(digest.signals) ? digest.signals : [];
+      var redCount = signals.filter(function(s){ return s.level === 'RED'; }).length;
+      var yellowCount = signals.filter(function(s){ return s.level === 'YELLOW'; }).length;
+      var lastRunAge = digest.generatedAt ? hours(digest.generatedAt, Date.now()) + 'h ago' : 'never';
+
+      var html = '';
+      html += '<div class="em-hero-card ' + (redCount > 0 ? 'red' : '') + '"><div class="em-label">RED Signals</div><div class="em-value ' + (redCount > 0 ? 'em-status-red' : '') + '">' + redCount + '</div><div class="em-sub">action warranted</div></div>';
+      html += '<div class="em-hero-card ' + (yellowCount > 0 ? 'yellow' : '') + '"><div class="em-label">YELLOW Signals</div><div class="em-value ' + (yellowCount > 0 ? 'em-status-yellow' : '') + '">' + yellowCount + '</div><div class="em-sub">monitor</div></div>';
+      html += '<div class="em-hero-card"><div class="em-label">Total Signals</div><div class="em-value">' + signals.length + '</div><div class="em-sub">across all 5 metrics</div></div>';
+      html += '<div class="em-hero-card"><div class="em-label">Last Cron Run</div><div class="em-value">' + esc(lastRunAge) + '</div><div class="em-sub">daily 16:00 UTC</div></div>';
+      document.getElementById('em-hero').innerHTML = html;
+    }
+
+    function renderSignals(d) {
+      var signals = (d.digest && d.digest.signals) || [];
+      if (signals.length === 0) {
+        var nextCron = 'next run: 16:00 UTC';
+        emptyState('em-signals', 'No emergence signals — all 5 metrics within thresholds. ' + nextCron + '.');
+        return;
+      }
+      // Sort RED first, then YELLOW
+      var order = { RED: 0, YELLOW: 1, ESCALATING: 0 };
+      var sorted = signals.slice().sort(function(a,b){ return (order[a.level]||9) - (order[b.level]||9); });
+      var html = sorted.map(function (s) {
+        return '<div class="em-signal ' + esc(String(s.level||'').toLowerCase()) + '">' +
+          '<div class="em-signal-head"><span class="em-signal-type">[' + esc(s.signalType) + ']</span><span class="em-signal-level em-status-' + esc(String(s.level||'').toLowerCase()) + '">' + esc(s.level) + '</span></div>' +
+          '<div class="em-signal-text">' + esc(s.signal) + '</div>' +
+          '<div class="em-signal-rec">→ ' + esc(s.recommendation) + '</div>' +
+          '<div class="em-signal-meta">Subject: ' + esc(s.subject) + ' · ' + esc((s.at||'').substring(0,16).replace('T',' ')) + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('em-signals').innerHTML = html;
+    }
+
+    function renderApprovalQueue(d) {
+      var aq = d.approvalQueue || [];
+      var pending = aq.filter(function(q){ return q && q.status === 'pending'; });
+      if (pending.length === 0) { emptyState('em-approval', 'No pending proposals.'); return; }
+
+      // Sort by blast radius: critical first, then high, medium, low. Within tier, oldest first.
+      var sorted = pending.slice().sort(function(a,b){
+        var ta = TIER_ORDER[BLAST_RADIUS[a.type] || 'low'];
+        var tb = TIER_ORDER[BLAST_RADIUS[b.type] || 'low'];
+        if (ta !== tb) return ta - tb;
+        return (a.createdAt || '').localeCompare(b.createdAt || '');
+      });
+      var nowMs = Date.now();
+      var html = sorted.map(function (q) {
+        var tier = BLAST_RADIUS[q.type] || 'low';
+        var target = (q.hire && q.hire.id) || (q.retire && q.retire.targetAgent) || (q.retire && q.retire.targetProduct) || (q.product && q.product.name) || (q.pivot && q.pivot.targetProduct) || (q.evolution && q.evolution.targetAgent) || q.id;
+        var typeShort = (q.type || '').replace(/_proposal$/,'').replace(/^agent_/,'').replace(/^product_/,'');
+        var link = '';
+        if (q.type && q.type.indexOf('agent_') === 0) link = 'fleet.html';
+        else if (q.type && q.type.indexOf('product_') === 0) link = 'goals.html';
+        else if (q.type === 'budget_request') link = 'allocation.html';
+        return '<div class="em-aq-row">' +
+          '<div class="em-tier em-tier-' + tier + '">' + tier + '</div>' +
+          '<div>' + esc(typeShort) + '</div>' +
+          '<div>' + esc(target) + '</div>' +
+          '<div style="opacity:0.6;font-size:0.6rem;">' + hours(q.createdAt, nowMs) + 'h old</div>' +
+          '<div>' + (link ? '<a href="' + link + '" style="color:#60a5fa;font-size:0.62rem;">Review →</a>' : '') + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('em-approval').innerHTML = html;
+    }
+
+    function renderVelocity(d) {
+      var pr = (d.digest && d.digest.metrics && d.digest.metrics.proposalRate && d.digest.metrics.proposalRate.byType) || {};
+      var types = Object.keys(pr);
+      if (types.length === 0) { emptyState('em-velocity', 'No proposals in the last 30 days.'); return; }
+      var threshold7d = 4; // yellow tier from constants
+      types.sort(function(a,b){ return (pr[b].total30d || 0) - (pr[a].total30d || 0); });
+      var html = '<div class="em-velocity-grid">' + types.map(function (t) {
+        var m = pr[t];
+        var hot = m.total7d >= threshold7d;
+        return '<div class="em-velocity-cell' + (hot ? ' hot' : '') + '"><strong>' + esc(t) + '</strong>' +
+          '<span>' + m.total7d + ' in 7d · ' + m.total30d + ' in 30d</span></div>';
+      }).join('') + '</div>';
+      document.getElementById('em-velocity').innerHTML = html;
+    }
+
+    function renderReject(d) {
+      var br = (d.digest && d.digest.metrics && d.digest.metrics.rejectRate && d.digest.metrics.rejectRate.byEmitter) || {};
+      var emitters = Object.keys(br).filter(function(k){ return br[k].total >= 5; });
+      if (emitters.length === 0) { emptyState('em-reject', 'No emitters have ≥5 resolved proposals yet — signal populates as CEO makes decisions.'); return; }
+      emitters.sort(function(a,b){ return br[b].rate - br[a].rate; });
+      var html = emitters.map(function (a) {
+        var e = br[a];
+        return '<div class="em-reject-row">' +
+          '<div class="em-reject-agent">' + esc(a) + '</div>' +
+          '<div>' + e.total + ' total</div>' +
+          '<div>' + e.rejected + ' rej</div>' +
+          '<div><strong>' + Math.round(e.rate * 100) + '%</strong></div>' +
+          '<div class="em-reject-rate-bar"><div class="em-reject-rate-fill" style="width:' + Math.round(e.rate * 100) + '%"></div></div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('em-reject').innerHTML = html;
+    }
+
+    function renderChurn(d) {
+      var c = (d.digest && d.digest.metrics && d.digest.metrics.fleetChurn) || null;
+      if (!c || (c.hires30d === 0 && c.retires30d === 0 && c.evolutions30d === 0)) {
+        emptyState('em-churn', 'Fleet stable — no hires or retires in last 30 days.');
+        return;
+      }
+      var html = '<div class="em-churn">' +
+        '<div class="em-churn-stat"><strong>' + c.hires30d + '</strong><div class="em-churn-label">Hires</div></div>' +
+        '<div class="em-churn-stat"><strong>' + c.retires30d + '</strong><div class="em-churn-label">Retires</div></div>' +
+        '<div class="em-churn-stat"><strong>' + c.evolutions30d + '</strong><div class="em-churn-label">Evolutions</div></div>' +
+        '<div class="em-churn-stat"><strong>' + (c.netChange30d >= 0 ? '+' : '') + c.netChange30d + '</strong><div class="em-churn-label">Net change</div></div>' +
+        '</div>' +
+        '<div style="margin-top:0.6rem;text-align:center;font-size:0.7rem;opacity:0.8;">Trend: <strong style="color:#fff;text-transform:uppercase;letter-spacing:0.04em;">' + esc(c.trend) + '</strong></div>';
+      document.getElementById('em-churn').innerHTML = html;
+    }
+
+    function renderStreak(d) {
+      var s = (d.digest && d.digest.metrics && d.digest.metrics.capitalRedStreak) || null;
+      if (!s || s.currentStreakDays === 0) {
+        emptyState('em-streak', 'Capital has been within budget every day.');
+        return;
+      }
+      var cls = s.currentStreakDays >= 7 ? 'em-status-red' : (s.currentStreakDays >= 3 ? 'em-status-yellow' : '');
+      var html = '<div style="text-align:center;padding:0.5rem 0;">' +
+        '<div class="em-streak-big ' + cls + '">' + s.currentStreakDays + 'd</div>' +
+        '<div class="em-streak-context">consecutive days RED · longest in last 30d: ' + s.longestStreak30d + 'd</div>' +
+        '</div>';
+      document.getElementById('em-streak').innerHTML = html;
+    }
+
+    load().then(function (d) {
+      renderBanner(d);
+      renderHero(d);
+      renderSignals(d);
+      renderApprovalQueue(d);
+      renderVelocity(d);
+      renderReject(d);
+      renderChurn(d);
+      renderStreak(d);
+    }).catch(function (err) {
+      var m = 'Failed to load emergence monitor.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('em-hero').innerHTML = '<div class="em-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
