@@ -346,15 +346,13 @@ async function _createDigestTask(digest) {
  */
 async function _appendRuntimeMemory(digest) {
   try {
-    var runtimeMemory = (await storage.getState('runtimeMemory')) || {};
-
     var memKey = 'intake_digest_' + digest.date;
 
     var notableSummaries = digest.notables.map(function (n) {
       return n.type + ' from ' + (n.name || 'anon') + ' ' + n.emailDomain + ': ' + n.intent;
     });
 
-    runtimeMemory[memKey] = {
+    var entry = {
       date: digest.date,
       createdAt: new Date().toISOString(),
       totalSubmissions: digest.stats.total,
@@ -368,6 +366,12 @@ async function _appendRuntimeMemory(digest) {
       _source: 'form_intake_digest'
     };
 
+    // Re-read runtimeMemory right before the write to minimize the race
+    // window with the heartbeat's runtimeMemory save. If we loaded at the top
+    // of the function and save here, we'd clobber any digests the heartbeat
+    // wrote in between (outcomeDigest, financeDigest, worldState, etc.).
+    var runtimeMemory = (await storage.getState('runtimeMemory')) || {};
+    runtimeMemory[memKey] = entry;
     await storage.setState('runtimeMemory', runtimeMemory);
     return memKey;
   } catch (err) {
