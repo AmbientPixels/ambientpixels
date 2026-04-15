@@ -247,8 +247,11 @@
       var pendingRetireTargets = new Set(aq.filter(function(q){return q.type==='product_retire_proposal' && q.status==='pending' && q.retire;}).map(function(q){return String(q.retire.targetProduct).toLowerCase();}));
       var pendingPivotTargets = new Set(aq.filter(function(q){return q.type==='product_pivot_proposal' && q.status==='pending' && q.pivot;}).map(function(q){return String(q.pivot.targetProduct).toLowerCase();}));
 
+      // Min 60d age guard — a newly-launched product will show DECLINING
+      // verdict from lack of baseline, not real decline. ageInDays is now
+      // populated by strategic-intel.js from product-facts.json launchedAt.
       var retire = pp.filter(function(p){
-        return p.verdict === 'DECLINING' && p.engagement && p.engagement.posts7d < 2 && p.traffic && p.traffic.deltaPct <= 0 && !pendingRetireTargets.has(String(p.product).toLowerCase());
+        return p.verdict === 'DECLINING' && p.ageInDays != null && p.ageInDays >= 60 && p.engagement && p.engagement.posts7d < 2 && p.traffic && p.traffic.deltaPct <= 0 && !pendingRetireTargets.has(String(p.product).toLowerCase());
       });
       if (retire.length === 0) emptyState('gg-retire', 'No retire candidates. All products either producing signal or already proposed.');
       else document.getElementById('gg-retire').innerHTML = retire.map(function (p) {
@@ -257,8 +260,9 @@
           '<div class="gg-verdict ' + verdictClass(p.verdict) + '">' + esc(p.verdict) + '</div></div>';
       }).join('');
 
+      // Min 90d age guard — premature to pivot a just-launched product.
       var pivot = pp.filter(function(p){
-        return p.verdict === 'STABLE' && p.engagement && p.engagement.score < 30 && p.research && p.research.activeCount >= 2 && !pendingPivotTargets.has(String(p.product).toLowerCase());
+        return p.verdict === 'STABLE' && p.ageInDays != null && p.ageInDays >= 90 && p.engagement && p.engagement.score < 30 && p.research && p.research.activeCount >= 2 && !pendingPivotTargets.has(String(p.product).toLowerCase());
       });
       if (pivot.length === 0) emptyState('gg-pivot', 'No pivot candidates. Need STABLE verdict + low engagement + active research demand.');
       else document.getElementById('gg-pivot').innerHTML = pivot.map(function (p) {

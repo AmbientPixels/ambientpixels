@@ -58,6 +58,12 @@ function buildStrategicDigest(state, existingDigest, nowMs) {
   var engagementSnapshots = Array.isArray(state.engagementSnapshots) ? state.engagementSnapshots : [];
   var productUsage = (state.costIntel && state.costIntel.productUsage) || {};
   var costByAgent = (state.costIntel && state.costIntel.gemini && state.costIntel.gemini.byAgent) || {};
+  // productFacts passed through from heartbeat for age-aware retire/pivot filtering.
+  // Fallback: try loading from disk if not passed (backward compat for callers).
+  var productFacts = state.productFacts || null;
+  if (!productFacts) {
+    try { productFacts = require('../_data/product-facts.json'); } catch (_e) { productFacts = { products: {} }; }
+  }
 
   var sevenDayMs = 7 * 24 * 60 * 60 * 1000;
   var sevenCutoff = now - sevenDayMs;
@@ -219,8 +225,25 @@ function buildStrategicDigest(state, existingDigest, nowMs) {
     var usageDelta = 0; // TODO: could track usage WoW if historical productUsage snapshots existed
     var verdict = _verdict(traf.deltaPct, usageDelta, hasTraffic, hasUsage);
 
+    // Product age — load launchedAt from productFacts. Used by downstream
+    // consumers (Nova's PRODUCT LIFECYCLE prompt + goals.html dashboard) to
+    // gate retire/pivot candidates. A 3-week-old product may show DECLINING
+    // verdict purely from lack of baseline — that's noise, not signal.
+    var launchedAt = null;
+    var ageInDays = null;
+    var pf = productFacts && productFacts.products && productFacts.products[prod];
+    if (pf && pf.launchedAt) {
+      launchedAt = pf.launchedAt;
+      var launchMs = Date.parse(launchedAt);
+      if (Number.isFinite(launchMs)) {
+        ageInDays = Math.floor((now - launchMs) / (24 * 60 * 60 * 1000));
+      }
+    }
+
     return {
       product: prod,
+      launchedAt: launchedAt,
+      ageInDays: ageInDays,
       usage: { signal: usageSignal, label: usageLabel, hasData: hasUsage },
       cost: { attributedWeekly: attribCost, approximate: true },
       engagement: { posts7d: eng.posts7d, score: engScore, label: engLabel },

@@ -103,8 +103,12 @@ function _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDig
 
   const lines = ['\n\nPRODUCT LIFECYCLE (your strategic lane — propose with evidence):'];
 
+  // Retire candidates require min 60d age — a product launched 3 weeks ago
+  // will show DECLINING verdict purely from lack of baseline, not real decline.
+  // ageInDays null → treat as NEW and skip (product-facts missing launchedAt).
   const retireCandidates = strategicDigest.perProduct.filter(function (p) {
     return p.verdict === 'DECLINING' &&
+      (p.ageInDays != null && p.ageInDays >= 60) &&
       (p.engagement && p.engagement.posts7d < 2) &&
       (p.traffic && p.traffic.deltaPct <= 0) &&
       !pendingRetireTargets.has(String(p.product).toLowerCase());
@@ -117,8 +121,11 @@ function _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDig
     lines.push('Emit propose-retire when confident. Include rationale + migrationPlan.');
   }
 
+  // Pivot candidates require min 90d age — pivoting a just-launched product
+  // is premature; give it time to find audience before repositioning.
   const pivotCandidates = strategicDigest.perProduct.filter(function (p) {
     return p.verdict === 'STABLE' &&
+      (p.ageInDays != null && p.ageInDays >= 90) &&
       (p.engagement && p.engagement.score < 30) &&
       (p.research && p.research.activeCount >= 2) &&
       !pendingPivotTargets.has(String(p.product).toLowerCase());

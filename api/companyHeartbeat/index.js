@@ -354,7 +354,8 @@ module.exports = async function (context) {
         blogPostViews: _blogPostViewsForDigest,
         blogPosts: _publishedBlogPostsForDigest,
         engagementSnapshots: socialEngagementSnapshots,
-        costIntel: costIntel
+        costIntel: costIntel,
+        productFacts: productFacts
       }, _existingStrategic, Date.now());
       if (strategicDigest) runtimeMemory.strategicDigest = strategicDigest;
     } catch (_e) { context.log('[heartbeat] Strategic digest failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : ''); }
