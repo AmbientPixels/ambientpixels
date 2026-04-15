@@ -232,7 +232,7 @@ function buildSiteContextBlock() {
 var SKILL_ROUTING = {
   nova:   ['ambientos-guide'],
   echo:   ['ambientos-guide', 'pixel-agents'],
-  scribe: ['ambientos-guide', 'pixel-agents', 'cardforge', 'storyforge'],
+  scribe: ['ambientos-guide', 'pixel-agents', 'cardforge'],
   quill:  ['ambientos-guide'],
   pixel:  ['ambientos-guide', 'pixel-agents'],
   cipher: ['ambientos-guide'],
@@ -1540,7 +1540,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
       // Cap total skill content to prevent prompt from exceeding 30K token ceiling.
       // Budget: ~60K chars total for all skills (~15K tokens), split evenly per skill.
       var _maxSkillCharsTotal = 60000;
-      var _maxPerSkill = Math.floor(_maxSkillCharsTotal / _routedSkills.length);
+      var _maxPerSkill = Math.min(12000, Math.floor(_maxSkillCharsTotal / _routedSkills.length));
       var _skillParts = _routedSkills.map(function (s, idx) {
         var content = s.content.trim();
         if (content.length > _maxPerSkill) content = content.substring(0, _maxPerSkill) + '\n\n[... truncated at ' + _maxPerSkill + ' chars to fit prompt budget]';
