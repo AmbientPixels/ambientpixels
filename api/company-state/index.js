@@ -27,7 +27,8 @@ const VALID_KEYS = [
   'blueskyCandidates',
   'agentMessages',
   'outcomeSnapshots', 'agentDecisions',
-  'capitalAllocation'
+  'capitalAllocation',
+  'agentRegistry'
 ];
 
 module.exports = async function (context, req) {

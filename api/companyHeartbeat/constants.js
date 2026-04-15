@@ -168,7 +168,8 @@ const KNOWN_ACTION_TYPES = [
   'update-doc', 'submit-for-publish', 'create-content-package', 'generate-image',
   'create-reminder', 'web_search', 'remember',
   'request-budget', 'approve-budget-request',
-  'propose-product', 'propose-pivot', 'propose-retire'
+  'propose-product', 'propose-pivot', 'propose-retire',
+  'propose-hire-agent', 'propose-retire-agent', 'propose-role-evolution'
 ];
 const RESEARCH_MAX_AGE_DAYS = 30;
 const MAX_RESEARCH_INTEL_PER_DAY = 2;
@@ -231,6 +232,87 @@ const MAX_WORKSPACE_INJECT_CHARS = 6000;
 const WORKSPACE_SCAN_EXTENSIONS = new Set(['.html', '.css', '.js', '.md', '.json']);
 const WORKSPACE_SKIP_DIRS = new Set(['node_modules', '.git', 'build', 'package-lock.json']);
 
+// ── Agent Identity Evolution (System 14) ──
+// Fleet mutation authorization + proposal constants. Only Forge emits via the
+// heartbeat handler; CEO creates proposals via direct POST.
+const FLEET_MUTATION_AUTHORIZED_AGENTS = new Set(['forge']);
+const PROTECTED_AGENTS = new Set(['nova', 'cipher']);
+const FLEET_MIN_SIZE = 5;
+const FLEET_MAX_SIZE = 12;
+const FLEET_PROPOSAL_MAX_PER_DAY = 1;
+const FLEET_PROPOSAL_COST_CEILINGS = {
+  'propose-hire-agent': 10.00,
+  'propose-retire-agent': 0.00,
+  'propose-role-evolution': 5.00
+};
+const FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS = 14;
+
+// Bootstrap snapshot of the original 8-agent fleet. Captured AFTER AGENT_ROLES
+// is fully populated above; loader falls back to this if agentRegistry state
+// is empty or malformed. Deep-cloned to prevent mutation bleed.
+const _BOOTSTRAP_AGENT_REGISTRY = {
+  agents: AGENT_IDS.map(function (id) {
+    var r = AGENT_ROLES[id] || {};
+    return {
+      id: id,
+      name: r.name || id,
+      status: 'active',
+      tier: r.tier || 3,
+      role: r.role || '',
+      focus: r.focus || '',
+      reportsTo: r.reportsTo || DOMAIN_LEAD_MAP[id] || null,
+      monthlyCap: r.monthlyCap || 1.00,
+      doctrine: r.doctrine ? JSON.parse(JSON.stringify(r.doctrine)) : {},
+      expectedActionMix: r.expectedActionMix ? JSON.parse(JSON.stringify(r.expectedActionMix)) : {},
+      systemPromptTemplate: null,
+      hiredAt: '2026-03-07T00:00:00Z',
+      retiredAt: null,
+      retiredReason: null,
+      doctrineHistory: []
+    };
+  }),
+  updatedAt: null
+};
+
+// Mutates AGENT_IDS + AGENT_ROLES in-place to match the registry's active agents.
+// CRITICAL: must mutate, not reassign — callers that did `const { AGENT_IDS }
+// = require('./constants')` captured the reference at require-time. Reassigning
+// would break those bindings.
+function _applyRegistry(reg) {
+  if (!reg || !Array.isArray(reg.agents)) return;
+  var active = reg.agents.filter(function (a) { return a && a.status === 'active'; });
+  AGENT_IDS.length = 0;
+  Object.keys(AGENT_ROLES).forEach(function (k) { delete AGENT_ROLES[k]; });
+  active.forEach(function (a) {
+    AGENT_IDS.push(a.id);
+    AGENT_ROLES[a.id] = a;
+  });
+}
+
+// Async loader — called ONCE at heartbeat start. Reads agentRegistry state,
+// falls back to bootstrap on first run or malformed state. Writes bootstrap to
+// state on first run so subsequent reads find the registry.
+async function loadAgentRegistry(storage) {
+  try {
+    var persisted = await storage.getState('agentRegistry');
+    if (persisted && Array.isArray(persisted.agents) && persisted.agents.length >= FLEET_MIN_SIZE) {
+      _applyRegistry(persisted);
+      return persisted;
+    }
+    // Bootstrap on first run — write defaults so state is source-of-truth thereafter
+    var bootstrap = {
+      agents: JSON.parse(JSON.stringify(_BOOTSTRAP_AGENT_REGISTRY.agents)),
+      updatedAt: new Date().toISOString()
+    };
+    await storage.setState('agentRegistry', bootstrap);
+    _applyRegistry(bootstrap);
+    return bootstrap;
+  } catch (_e) {
+    // Fail-open: leave AGENT_IDS/AGENT_ROLES at their bootstrap values (already populated)
+    return _BOOTSTRAP_AGENT_REGISTRY;
+  }
+}
+
 module.exports = {
   DOMAIN_LEAD_MAP,
   AGENT_IDS,
@@ -259,6 +341,14 @@ module.exports = {
   PRODUCT_PROPOSAL_MAX_PER_DAY,
   PRODUCT_PROPOSAL_COST_CEILINGS,
   PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS,
+  FLEET_MUTATION_AUTHORIZED_AGENTS,
+  PROTECTED_AGENTS,
+  FLEET_MIN_SIZE,
+  FLEET_MAX_SIZE,
+  FLEET_PROPOSAL_MAX_PER_DAY,
+  FLEET_PROPOSAL_COST_CEILINGS,
+  FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
+  loadAgentRegistry,
   ALLOWED_UPDATE_KEYS,
   CAP_DEFAULTS,
   _MUTATION_BUCKET_MAP,

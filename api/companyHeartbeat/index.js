@@ -116,6 +116,12 @@ module.exports = async function (context) {
       return { skipped: true, reason: 'no_api_key' };
     }
 
+    // ── Agent Identity Evolution (System 14) ──
+    // Load agentRegistry state → mutate AGENT_IDS + AGENT_ROLES in-place. Fallback
+    // to bootstrap if state is empty/malformed. MUST run before any agent iteration.
+    try { await C.loadAgentRegistry(storage); } catch (_regErr) { context.log('[Heartbeat] agentRegistry load failed, using bootstrap:', _regErr.message); }
+    context.log('[Heartbeat] Agent registry loaded:', C.AGENT_IDS.join(','));
+
     // Load current state
     const tasks = (await storage.getState('tasks')) || [];
     const _taskIdsAtLoad = new Set(tasks.map(function (t) { return t && t.id; }).filter(Boolean));
@@ -1598,6 +1604,18 @@ module.exports = async function (context) {
     // Group 3: Scribe → Quill — sequential (content pipeline)
     // Group 4: Echo — sequential (needs Scribe output)
     const _EXEC_GROUPS = [['nova'], ['cipher', 'pixel', 'forge', 'scout'], ['scribe', 'quill'], ['echo']];
+    // ── Agent Identity Evolution (System 14) ──
+    // _EXEC_GROUPS hardcodes the 8 bootstrap agents. After a hire, AGENT_IDS can
+    // include agents not in any group — they'd silently never run. Append any
+    // unassigned active agents as a final sequential group so they execute.
+    // Order: after Echo (last bootstrap group) so hired agents see the full fleet
+    // output on their first cycle. `.push()` mutates the const array reference.
+    const _execGroupsFlat = new Set(_EXEC_GROUPS.flat());
+    const _unassignedAgents = C.AGENT_IDS.filter(function (aid) { return !_execGroupsFlat.has(aid); });
+    if (_unassignedAgents.length > 0) {
+      _EXEC_GROUPS.push(_unassignedAgents);
+      context.log('[Heartbeat] Unassigned agents appended to EXEC_GROUPS:', _unassignedAgents.join(','));
+    }
     const _orderedAgents = _EXEC_GROUPS.flat();
     // Snapshot approvalQueue once for prompt threading (Goal Generation System 13
     // surfaces pending product proposals in Nova's prompt block). Individual
