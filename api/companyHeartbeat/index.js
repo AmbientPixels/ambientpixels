@@ -261,6 +261,22 @@ module.exports = async function (context) {
     } catch (_stallLogErr) {
       context.log('[heartbeat] Stall-alert logging failed (non-fatal):', String(_stallLogErr).substring(0, 200));
     }
+    // ── Early loads for digest dependencies (moved up from their original
+    // positions lower in the heartbeat to avoid TDZ ReferenceError when
+    // digest builders try to read them). These were declared as `let` at
+    // lines ~385, ~558, ~575 — digest builds at lines 267-362 need them
+    // but hit TDZ before they were initialized, causing silent "non-fatal"
+    // catches that left outcomeDigest/financeDigest/strategicDigest/worldState
+    // permanently null.
+    let agentExperiments = [];
+    try { agentExperiments = (await storage.getState('agentExperiments')) || []; } catch (_expErrEarly) { /* non-fatal */ }
+    let researchIntelStore = (await storage.getState('researchIntel')) || [];
+    let costIntel = null;
+    try {
+      const _geminiCostsEarly = await storage.getGeminiCostSummary(30);
+      costIntel = { gemini: _geminiCostsEarly };
+    } catch (_costErrEarly) { context.log('[Heartbeat] Early cost load failed (non-fatal):', _costErrEarly.message); }
+
     // Cipher financial intelligence digest (uses already-loaded data)
     // Outcome Attribution digest (Phase 3): per-agent / per-experiment / per-hook / per-campaign
     // engagement rollups. Built before financeDigest so Cipher's campaignROI can consume it.
@@ -382,8 +398,7 @@ module.exports = async function (context) {
     if (_qh.length > 30) _qh = _qh.slice(-30);
     runtimeMemory.qualityHistory = _qh;
 
-    let agentExperiments = [];
-    try { agentExperiments = (await storage.getState('agentExperiments')) || []; } catch (_expErr) { /* non-fatal */ }
+    // agentExperiments already loaded early (above digest block) to avoid TDZ.
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
 
     // ── Revision safety net: reopen parent tasks for revision_requested social actions ──
@@ -554,8 +569,7 @@ module.exports = async function (context) {
     _agentMemoryStore = (await storage.getState('agentMemories')) || {};
     // Load CEO-curated seed memories (markdown per agent + global)
     const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
-    // Load persistent research intelligence store (survives beyond task completion)
-    let researchIntelStore = (await storage.getState('researchIntel')) || [];
+    // researchIntelStore already loaded early (above digest block) to avoid TDZ.
     // Load trend radar store for Scout analysis
     let trendRadarStore = [];
     try { trendRadarStore = (await storage.getState('trendRadar')) || []; } catch (_trErr) { /* non-fatal */ }
@@ -571,12 +585,7 @@ module.exports = async function (context) {
       maxUpdatesPerAgentPerRun:  _systemConfig.maxUpdatesPerAgentPerRun  != null ? Number(_systemConfig.maxUpdatesPerAgentPerRun)  : CAP_DEFAULTS.maxUpdatesPerAgentPerRun,
       maxProposalsPerAgentPerRun:_systemConfig.maxProposalsPerAgentPerRun!= null ? Number(_systemConfig.maxProposalsPerAgentPerRun): CAP_DEFAULTS.maxProposalsPerAgentPerRun
     };
-    // Fetch cost data for Cipher (CFO) awareness
-    let costIntel = null;
-    try {
-      const geminiCosts = await storage.getGeminiCostSummary(30);
-      costIntel = { gemini: geminiCosts };
-    } catch (e) { context.log('[Heartbeat] Cost data fetch failed:', e.message); }
+    // costIntel already loaded early (above digest block) to avoid TDZ.
 
     // Fetch site intelligence: real telemetry, social metrics, deployment config
     let siteIntel = null;
