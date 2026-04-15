@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Goal Generation — product lifecycle proposals, retire/pivot candidates, pending approvals." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Goals — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .gg-section { margin-bottom: 1.4rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .gg-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .gg-empty { font-size: 0.7rem; color: rgba(255,255,255,0.5); padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+    .gg-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
+    .gg-hero-card { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .gg-hero-card .gg-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .gg-hero-card .gg-value { font-size: 1.3rem; font-weight: 600; color: #fff; }
+    .gg-hero-card .gg-sub { font-size: 0.6rem; opacity: 0.6; margin-top: 0.2rem; }
+    .gg-status-green { color: #34d399; }
+    .gg-status-yellow { color: #fbbf24; }
+    .gg-status-red { color: #f87171; }
+    .gg-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.9rem; }
+
+    .gg-proposal { padding: 0.7rem 0.9rem; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid rgba(96,165,250,0.5); font-size: 0.72rem; }
+    .gg-proposal.type-product { border-left-color: #34d399; }
+    .gg-proposal.type-pivot { border-left-color: #fbbf24; }
+    .gg-proposal.type-retire { border-left-color: #f87171; }
+    .gg-proposal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.3rem; }
+    .gg-proposal-title { font-weight: 600; color: #fff; }
+    .gg-proposal-cost { font-weight: 600; color: #fbbf24; font-size: 0.75rem; }
+    .gg-proposal-body { opacity: 0.85; line-height: 1.45; margin-bottom: 0.4rem; }
+    .gg-proposal-body strong { color: rgba(255,255,255,0.9); }
+    .gg-proposal-meta { font-size: 0.58rem; opacity: 0.55; margin-top: 0.3rem; }
+    .gg-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+    .gg-btn { padding: 0.3rem 0.7rem; font-size: 0.65rem; border-radius: 4px; border: 1px solid transparent; cursor: pointer; font-weight: 500; font-family: inherit; }
+    .gg-btn-approve { background: rgba(52,211,153,0.18); color: #34d399; border-color: rgba(52,211,153,0.3); }
+    .gg-btn-approve:hover { background: rgba(52,211,153,0.3); }
+    .gg-btn-reject { background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3); }
+    .gg-btn-reject:hover { background: rgba(248,113,113,0.25); }
+    .gg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .gg-candidate { padding: 0.45rem 0.7rem; background: rgba(255,255,255,0.02); border-radius: 6px; margin-bottom: 0.3rem; font-size: 0.68rem; display: grid; grid-template-columns: 120px 1fr 90px; gap: 0.4rem; align-items: center; }
+    .gg-candidate-name { color: #fff; font-weight: 500; }
+    .gg-candidate-sig { opacity: 0.75; font-size: 0.62rem; }
+    .gg-verdict { font-size: 0.55rem; text-transform: uppercase; text-align: right; letter-spacing: 0.04em; }
+    .gg-verdict-declining { color: #f87171; }
+    .gg-verdict-stable { color: #fbbf24; }
+    .gg-verdict-growing { color: #34d399; }
+    .gg-verdict-nodata { opacity: 0.4; }
+
+    .gg-decision { padding: 0.35rem 0.6rem; font-size: 0.62rem; border-radius: 4px; margin-bottom: 0.25rem; background: rgba(255,255,255,0.02); display: grid; grid-template-columns: 80px 110px 1fr 90px; gap: 0.4rem; align-items: center; }
+    .gg-decision-action { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .gg-decision-action.approved { color: #34d399; }
+    .gg-decision-action.rejected { color: #f87171; }
+
+    .gg-product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; }
+    .gg-product-card { padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-radius: 6px; font-size: 0.65rem; }
+    .gg-product-card strong { display: block; color: #fff; font-size: 0.75rem; margin-bottom: 0.2rem; }
+    .gg-product-card .gg-prod-meta { opacity: 0.6; font-size: 0.55rem; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="gg-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-bullseye co-icon-mr-lg dash-icon-amber"></i>Goals</h1>
+        <p class="act-header-sub">Product lifecycle proposals — Nova's strategic lane. Approve or reject new-product launches, pivots, and retires.</p>
+      </div>
+    </div>
+
+    <div id="gg-hero" class="gg-hero"></div>
+
+    <div class="gg-section" data-section="proposals">
+      <h2><i class="fas fa-inbox"></i> PENDING PROPOSALS</h2>
+      <div id="gg-proposals"></div>
+    </div>
+
+    <div class="gg-grid-2">
+      <div class="gg-section" data-section="retire">
+        <h2><i class="fas fa-arrow-down"></i> RETIRE CANDIDATES</h2>
+        <div id="gg-retire"></div>
+      </div>
+
+      <div class="gg-section" data-section="pivot">
+        <h2><i class="fas fa-sync"></i> PIVOT CANDIDATES</h2>
+        <div id="gg-pivot"></div>
+      </div>
+    </div>
+
+    <div class="gg-grid-2">
+      <div class="gg-section" data-section="decisions">
+        <h2><i class="fas fa-gavel"></i> RECENT DECISIONS</h2>
+        <div id="gg-decisions"></div>
+      </div>
+
+      <div class="gg-section" data-section="roster">
+        <h2><i class="fas fa-cube"></i> PRODUCT ROSTER</h2>
+        <div id="gg-roster"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function emptyState(id, msg) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="gg-empty">' + esc(msg) + '</div>'; }
+    function verdictClass(v) { return 'gg-verdict-' + String(v || 'nodata').toLowerCase().replace(/\s+/g,''); }
+    function ageDays(iso) {
+      if (!iso) return '?';
+      var ms = Date.now() - Date.parse(iso);
+      if (!isFinite(ms) || ms < 0) return '?';
+      return Math.floor(ms / (24*60*60*1000));
+    }
+
+    function loadAll() {
+      return Promise.all([
+        fetch(API + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
+        fetch(API + '/company-state?key=runtimeMemory', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
+        fetch(API + '/allocationDigest', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();})
+      ]).then(function (arr) {
+        return {
+          approvalQueue: (arr[0] && arr[0].value) || [],
+          strategicDigest: (arr[1] && arr[1].value && arr[1].value.strategicDigest) || null,
+          allocation: arr[2] || null
+        };
+      });
+    }
+
+    function renderHero(d) {
+      var aq = d.approvalQueue || [];
+      var productProps = aq.filter(function(q){ return q.type && q.type.indexOf('product_') === 0; });
+      var pending = productProps.filter(function(q){ return q.status === 'pending'; });
+      var oldest = pending.sort(function(a,b){ return (a.createdAt || '').localeCompare(b.createdAt || ''); })[0];
+      var oldestAge = oldest ? ageDays(oldest.createdAt) + 'd' : '—';
+
+      var sys = (d.allocation && d.allocation.system) || {};
+      var activeProducts = (d.strategicDigest && Array.isArray(d.strategicDigest.perProduct)) ? d.strategicDigest.perProduct.length : 0;
+
+      var html = '';
+      html += '<div class="gg-hero-card"><div class="gg-label">Active Products</div><div class="gg-value">' + activeProducts + '</div><div class="gg-sub">tracked in strategicDigest</div></div>';
+      html += '<div class="gg-hero-card"><div class="gg-label">Pending Proposals</div><div class="gg-value ' + (pending.length >= 3 ? 'gg-status-yellow' : '') + '">' + pending.length + '</div><div class="gg-sub">awaiting CEO decision</div></div>';
+      html += '<div class="gg-hero-card"><div class="gg-label">Budget Status</div><div class="gg-value gg-status-' + String(sys.status || 'green').toLowerCase() + '">' + esc(sys.status || '—') + '</div><div class="gg-sub">' + (sys.pct != null ? sys.pct + '% of cap' : '—') + (sys.squeezeMode ? ' · SQUEEZE' : '') + '</div></div>';
+      html += '<div class="gg-hero-card"><div class="gg-label">Oldest Pending</div><div class="gg-value">' + oldestAge + '</div><div class="gg-sub">' + (oldest ? esc(oldest.type).replace('product_','').replace('_proposal','') : 'nothing pending') + '</div></div>';
+      document.getElementById('gg-hero').innerHTML = html;
+    }
+
+    function typeShort(t) {
+      if (t === 'product_proposal') return 'NEW';
+      if (t === 'product_pivot_proposal') return 'PIVOT';
+      if (t === 'product_retire_proposal') return 'RETIRE';
+      return t || '';
+    }
+    function typeSlug(t) {
+      if (t === 'product_proposal') return 'type-product';
+      if (t === 'product_pivot_proposal') return 'type-pivot';
+      if (t === 'product_retire_proposal') return 'type-retire';
+      return '';
+    }
+    function proposalBody(q) {
+      var lines = [];
+      if (q.product) {
+        lines.push('<strong>Name:</strong> ' + esc(q.product.name));
+        lines.push('<strong>Description:</strong> ' + esc(q.product.description));
+        lines.push('<strong>Rationale:</strong> ' + esc(q.product.rationale));
+        lines.push('<strong>Market:</strong> ' + esc(q.product.market));
+        lines.push('<strong>Launch strategy:</strong> ' + esc(q.product.launchStrategy));
+        lines.push('<strong>Success criteria:</strong> ' + esc(q.product.successCriteria));
+      } else if (q.pivot) {
+        lines.push('<strong>Target:</strong> ' + esc(q.pivot.targetProduct));
+        lines.push('<strong>New direction:</strong> ' + esc(q.pivot.newDirection));
+        lines.push('<strong>Rationale:</strong> ' + esc(q.pivot.rationale));
+        lines.push('<strong>Success criteria:</strong> ' + esc(q.pivot.successCriteria));
+        lines.push('<strong>Transition plan:</strong> ' + esc(q.pivot.transitionPlan));
+      } else if (q.retire) {
+        lines.push('<strong>Target:</strong> ' + esc(q.retire.targetProduct));
+        lines.push('<strong>Rationale:</strong> ' + esc(q.retire.rationale));
+        lines.push('<strong>Migration plan:</strong> ' + esc(q.retire.migrationPlan));
+      }
+      return lines.join('<br>');
+    }
+
+    function renderProposals(d) {
+      var aq = d.approvalQueue || [];
+      var pending = aq.filter(function(q){
+        return q.type && q.type.indexOf('product_') === 0 && q.status === 'pending';
+      });
+      if (pending.length === 0) { emptyState('gg-proposals', 'No pending product proposals. Nova will surface candidates below once she sees signal.'); return; }
+      var html = pending.map(function (q) {
+        return '<div class="gg-proposal ' + typeSlug(q.type) + '">' +
+          '<div class="gg-proposal-head"><span class="gg-proposal-title">' + typeShort(q.type) + ' · ' + esc((q.product && q.product.name) || (q.pivot && q.pivot.targetProduct) || (q.retire && q.retire.targetProduct) || q.id) + '</span><span class="gg-proposal-cost">$' + Number(q.estimatedCost || 0).toFixed(2) + '</span></div>' +
+          '<div class="gg-proposal-body">' + proposalBody(q) + '</div>' +
+          '<div class="gg-proposal-meta">' + esc(q.id) + ' · ' + esc(q.proposedBy || '—') + ' · ' + esc((q.createdAt || '').substring(0, 16).replace('T',' ')) + ' · age ' + ageDays(q.createdAt) + 'd</div>' +
+          '<div class="gg-actions"><button class="gg-btn gg-btn-approve" data-id="' + esc(q.id) + '" data-decision="approved">Approve</button>' +
+          '<button class="gg-btn gg-btn-reject" data-id="' + esc(q.id) + '" data-decision="rejected">Reject</button></div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('gg-proposals').innerHTML = html;
+
+      // Wire approve/reject
+      document.querySelectorAll('#gg-proposals .gg-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.getAttribute('data-id');
+          var decision = btn.getAttribute('data-decision');
+          var ceoNote = '';
+          if (decision === 'rejected') {
+            ceoNote = window.prompt('Reason for reject (required, shown to Nova):') || '';
+            if (!ceoNote.trim()) { alert('Reject requires a reason.'); return; }
+          } else {
+            ceoNote = window.prompt('Optional note for approve:') || '';
+          }
+          var payload = { id: id, decision: decision, ceoNote: ceoNote };
+          btn.disabled = true;
+          fetch(API + '/approveProposal', {
+            method: 'POST',
+            headers: { 'x-company-secret': SECRET, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          }).then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          }).then(function () { window.location.reload(); })
+            .catch(function (e) { alert('Failed: ' + e.message); btn.disabled = false; });
+        });
+      });
+    }
+
+    function renderCandidates(d) {
+      var pp = (d.strategicDigest && d.strategicDigest.perProduct) || [];
+      var aq = d.approvalQueue || [];
+      var pendingRetireTargets = new Set(aq.filter(function(q){return q.type==='product_retire_proposal' && q.status==='pending' && q.retire;}).map(function(q){return String(q.retire.targetProduct).toLowerCase();}));
+      var pendingPivotTargets = new Set(aq.filter(function(q){return q.type==='product_pivot_proposal' && q.status==='pending' && q.pivot;}).map(function(q){return String(q.pivot.targetProduct).toLowerCase();}));
+
+      var retire = pp.filter(function(p){
+        return p.verdict === 'DECLINING' && p.engagement && p.engagement.posts7d < 2 && p.traffic && p.traffic.deltaPct <= 0 && !pendingRetireTargets.has(String(p.product).toLowerCase());
+      });
+      if (retire.length === 0) emptyState('gg-retire', 'No retire candidates. All products either producing signal or already proposed.');
+      else document.getElementById('gg-retire').innerHTML = retire.map(function (p) {
+        return '<div class="gg-candidate"><div class="gg-candidate-name">' + esc(p.product) + '</div>' +
+          '<div class="gg-candidate-sig">' + esc(p.engagement && p.engagement.label) + ' · traffic ' + (p.traffic && p.traffic.deltaPct) + '% · research ' + (p.research && p.research.activeCount) + '</div>' +
+          '<div class="gg-verdict ' + verdictClass(p.verdict) + '">' + esc(p.verdict) + '</div></div>';
+      }).join('');
+
+      var pivot = pp.filter(function(p){
+        return p.verdict === 'STABLE' && p.engagement && p.engagement.score < 30 && p.research && p.research.activeCount >= 2 && !pendingPivotTargets.has(String(p.product).toLowerCase());
+      });
+      if (pivot.length === 0) emptyState('gg-pivot', 'No pivot candidates. Need STABLE verdict + low engagement + active research demand.');
+      else document.getElementById('gg-pivot').innerHTML = pivot.map(function (p) {
+        return '<div class="gg-candidate"><div class="gg-candidate-name">' + esc(p.product) + '</div>' +
+          '<div class="gg-candidate-sig">score ' + (p.engagement && p.engagement.score) + ' · research ' + (p.research && p.research.activeCount) + ' active</div>' +
+          '<div class="gg-verdict ' + verdictClass(p.verdict) + '">' + esc(p.verdict) + '</div></div>';
+      }).join('');
+    }
+
+    function renderDecisions(d) {
+      var aq = d.approvalQueue || [];
+      var resolved = aq.filter(function(q){ return q.type && q.type.indexOf('product_') === 0 && q.status !== 'pending'; })
+        .sort(function(a,b){ return (b.resolvedAt || b.createdAt || '').localeCompare(a.resolvedAt || a.createdAt || ''); })
+        .slice(0, 20);
+      if (resolved.length === 0) { emptyState('gg-decisions', 'No decisions yet. Approve/reject a pending proposal above.'); return; }
+      document.getElementById('gg-decisions').innerHTML = resolved.map(function (q) {
+        return '<div class="gg-decision">' +
+          '<div class="gg-decision-action ' + esc(q.status) + '">' + esc(q.status) + '</div>' +
+          '<div>' + typeShort(q.type) + ' · ' + esc((q.product && q.product.name) || (q.pivot && q.pivot.targetProduct) || (q.retire && q.retire.targetProduct) || '—') + '</div>' +
+          '<div style="opacity:0.7;">' + esc((q.ceoNote || '').substring(0, 80)) + '</div>' +
+          '<div style="opacity:0.5;font-size:0.55rem;">' + esc((q.resolvedAt || q.createdAt || '').substring(0, 16).replace('T',' ')) + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function renderRoster(d) {
+      var pp = (d.strategicDigest && d.strategicDigest.perProduct) || [];
+      if (pp.length === 0) { emptyState('gg-roster', 'No products tracked in strategicDigest.'); return; }
+      document.getElementById('gg-roster').innerHTML = '<div class="gg-product-grid">' + pp.map(function (p) {
+        return '<div class="gg-product-card"><strong>' + esc(p.product) + '</strong>' +
+          '<div class="gg-prod-meta">' + esc(p.verdict || '—') + ' · ' + (p.engagement && p.engagement.label || '—') + '</div></div>';
+      }).join('') + '</div>';
+    }
+
+    loadAll().then(function (d) {
+      renderHero(d);
+      renderProposals(d);
+      renderCandidates(d);
+      renderDecisions(d);
+      renderRoster(d);
+    }).catch(function (err) {
+      var m = 'Failed to load goals.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('gg-hero').innerHTML = '<div class="gg-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
