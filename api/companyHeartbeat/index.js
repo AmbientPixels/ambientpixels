@@ -3213,6 +3213,51 @@ module.exports = async function (context) {
             samples: _v.samples
           };
 
+          // Capital Allocation (System 12) Phase 4: stamp actual cost + variance.
+          // Sums geminiUsage for this agent between startedAt and concludedAt.
+          try {
+            const _expStart = Date.parse(_exp.startedAt || _exp.createdAt || _exp.concludedAt);
+            const _expEnd = Date.parse(_exp.concludedAt);
+            if (Number.isFinite(_expStart) && Number.isFinite(_expEnd) && _expEnd >= _expStart) {
+              let _actualCost = 0;
+              for (let _gi = 0; _gi < _perfGeminiUsage.length; _gi++) {
+                const _ge = _perfGeminiUsage[_gi];
+                if (!_ge || _ge.agentId !== _v.agentId) continue;
+                const _gts = Date.parse(_ge.timestamp || '');
+                if (!Number.isFinite(_gts)) continue;
+                if (_gts >= _expStart && _gts <= _expEnd) {
+                  _actualCost += Number(_ge.totalCost) || 0;
+                }
+              }
+              _exp.actualCost = Math.round(_actualCost * 100) / 100;
+              if (Number.isFinite(_exp.estimatedCost) && _exp.estimatedCost > 0) {
+                _exp.costVariance = Math.round((_exp.actualCost - _exp.estimatedCost) * 100) / 100;
+              }
+              // Append a decisionLog entry on capitalAllocation for the dashboard retro.
+              try {
+                const _capAllocROI = (await storage.getState('capitalAllocation')) || {};
+                const _capLogROI = Array.isArray(_capAllocROI.decisionLog) ? _capAllocROI.decisionLog : [];
+                _capLogROI.push({
+                  id: 'dlog_' + Date.now() + '_roi_' + Math.random().toString(36).substr(2, 4),
+                  agentId: _v.agentId,
+                  decisionBy: 'system',
+                  action: 'experiment-concluded',
+                  experimentId: _exp.id || null,
+                  hypothesis: _v.hypothesis,
+                  estimatedCost: Number.isFinite(_exp.estimatedCost) ? _exp.estimatedCost : null,
+                  actualCost: _exp.actualCost,
+                  costVariance: _exp.costVariance != null ? _exp.costVariance : null,
+                  verdict: _v.verdict,
+                  reason: 'experiment auto-concluded, ROI stamped',
+                  at: new Date().toISOString()
+                });
+                _capAllocROI.decisionLog = _capLogROI.slice(-C.CAPITAL_DECISION_LOG_MAX);
+                _capAllocROI.updatedAt = new Date().toISOString();
+                await storage.setState('capitalAllocation', _capAllocROI);
+              } catch (_roiLogErr) { context.log('[Heartbeat] ROI log append failed (non-fatal):', String(_roiLogErr).substring(0, 200)); }
+            }
+          } catch (_roiErr) { context.log('[Heartbeat] Experiment actual-cost stamp failed (non-fatal):', String(_roiErr).substring(0, 200)); }
+
           if (!_agentMemoryStore[_v.agentId]) _agentMemoryStore[_v.agentId] = [];
           const _verdictLabel = _v.verdict === 'promote' ? 'PROMOTED' : 'DISCARDED';
           const _pctLabel = _v.effectSize > 0 ? '+' + Math.round(_v.effectSize * 100) + '%' : Math.round(_v.effectSize * 100) + '%';
