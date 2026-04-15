@@ -8,6 +8,79 @@ const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('.
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
 const { _buildAllocationPromptBlock } = require('./allocation-intel');
+
+// Goal Generation (System 13) — Nova-only PRODUCT LIFECYCLE block.
+function _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDigest, productFacts, approvalQueue) {
+  if (!agent || agent.name !== 'Nova') return '';
+  if (!strategicDigest || !Array.isArray(strategicDigest.perProduct)) return '';
+
+  // Shape sanity check — log once and bail if expected fields are missing.
+  const sample = strategicDigest.perProduct[0];
+  if (sample && !(sample.engagement && 'posts7d' in sample.engagement)) {
+    console.warn('[productLifecycle] strategicDigest.perProduct shape unexpected — expected engagement.posts7d. Sample keys:', Object.keys(sample));
+    return '';
+  }
+
+  const aq = Array.isArray(approvalQueue) ? approvalQueue : [];
+  const pendingRetireTargets = new Set(aq.filter(function (q) {
+    return q.type === 'product_retire_proposal' && q.status === 'pending' && q.retire;
+  }).map(function (q) { return String(q.retire.targetProduct).toLowerCase(); }));
+  const pendingPivotTargets = new Set(aq.filter(function (q) {
+    return q.type === 'product_pivot_proposal' && q.status === 'pending' && q.pivot;
+  }).map(function (q) { return String(q.pivot.targetProduct).toLowerCase(); }));
+  const pendingNewProposalCount = aq.filter(function (q) {
+    return q.type === 'product_proposal' && q.status === 'pending';
+  }).length;
+
+  const lines = ['\n\nPRODUCT LIFECYCLE (your strategic lane — propose with evidence):'];
+
+  const retireCandidates = strategicDigest.perProduct.filter(function (p) {
+    return p.verdict === 'DECLINING' &&
+      (p.engagement && p.engagement.posts7d < 2) &&
+      (p.traffic && p.traffic.deltaPct <= 0) &&
+      !pendingRetireTargets.has(String(p.product).toLowerCase());
+  });
+  if (retireCandidates.length > 0) {
+    lines.push('\nRETIRE candidates (DECLINING + low engagement + flat/negative traffic):');
+    retireCandidates.slice(0, 3).forEach(function (p) {
+      lines.push('- ' + p.product + ': ' + (p.engagement && p.engagement.label) + ' engagement, ' + (p.traffic && p.traffic.deltaPct) + '% traffic WoW, ' + (p.research && p.research.activeCount) + ' research entries');
+    });
+    lines.push('Emit propose-retire when confident. Include rationale + migrationPlan.');
+  }
+
+  const pivotCandidates = strategicDigest.perProduct.filter(function (p) {
+    return p.verdict === 'STABLE' &&
+      (p.engagement && p.engagement.score < 30) &&
+      (p.research && p.research.activeCount >= 2) &&
+      !pendingPivotTargets.has(String(p.product).toLowerCase());
+  });
+  if (pivotCandidates.length > 0) {
+    lines.push('\nPIVOT candidates (STABLE + low engagement + active research demand):');
+    pivotCandidates.slice(0, 3).forEach(function (p) {
+      lines.push('- ' + p.product + ': score ' + (p.engagement && p.engagement.score) + ', research ' + (p.research && p.research.activeCount) + ' active');
+    });
+    lines.push('Emit propose-pivot when a clearer positioning is evident from research.');
+  }
+
+  if (pendingRetireTargets.size > 0 || pendingPivotTargets.size > 0 || pendingNewProposalCount > 0) {
+    lines.push('\nPENDING (awaiting CEO — do NOT re-propose):');
+    if (pendingNewProposalCount > 0) lines.push('- new products: ' + pendingNewProposalCount);
+    if (pendingPivotTargets.size > 0) lines.push('- pivots on: ' + Array.from(pendingPivotTargets).join(', '));
+    if (pendingRetireTargets.size > 0) lines.push('- retires on: ' + Array.from(pendingRetireTargets).join(', '));
+  }
+
+  const sys = allocationDigest && allocationDigest.system;
+  const canAffordNew = sys && sys.status !== 'RED' && !sys.squeezeMode;
+  if (canAffordNew && pendingNewProposalCount === 0) {
+    lines.push('\nNEW PRODUCT: system budget is healthy (' + sys.pct + '% of cap, ' + sys.status + '). If Scout/Echo research surfaces a clear unmet need, propose-product with estimatedCost + successCriteria.');
+  } else if (sys && !canAffordNew) {
+    lines.push('\nNEW PRODUCT: deferred — system at ' + sys.pct + '% of budget (' + sys.status + '). Focus on retire/pivot until next month or request-budget approval.');
+  }
+
+  // If nothing material to say, return empty so the block doesn't appear as a header only.
+  if (lines.length === 1) return '';
+  return lines.join('\n');
+}
 const { _buildContentPromptBlock } = require('./content-intel');
 const { _buildStrategicPromptBlock } = require('./strategic-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
@@ -92,7 +165,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1245,6 +1318,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const researchDemandSection = _buildResearchDemandPromptBlock(agent, researchDemandDigest);
   const contentSection = _buildContentPromptBlock(agent, contentDigest);
   const strategicSection = _buildStrategicPromptBlock(agent, strategicDigest);
+  const productLifecycleSection = _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDigest, productFacts, approvalQueue);
 
   // Weekly report cadence nudge — Nova, Cipher, Forge do role-specific strategic weekly reports.
   // Bootstrap fallback: no prior `weekly_report` memory = treat as overdue immediately,
@@ -1507,7 +1581,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${costSection}${forgeOpsSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${productLifecycleSection}${costSection}${forgeOpsSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 

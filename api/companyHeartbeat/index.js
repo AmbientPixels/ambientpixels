@@ -1599,6 +1599,10 @@ module.exports = async function (context) {
     // Group 4: Echo — sequential (needs Scribe output)
     const _EXEC_GROUPS = [['nova'], ['cipher', 'pixel', 'forge', 'scout'], ['scribe', 'quill'], ['echo']];
     const _orderedAgents = _EXEC_GROUPS.flat();
+    // Snapshot approvalQueue once for prompt threading (Goal Generation System 13
+    // surfaces pending product proposals in Nova's prompt block). Individual
+    // handlers still re-read fresh state when mutating.
+    const _promptApprovalQueueSnapshot = (await storage.getState('approvalQueue')) || [];
     // Pre-flight: run parallel groups' Gemini calls concurrently, cache results
     const _prefetchedResults = {};
     for (const _group of _EXEC_GROUPS) {
@@ -1637,6 +1641,7 @@ module.exports = async function (context) {
             socialAccountStats,
             weeklyReportsStore,
             publishedBlogPosts: _publishedBlogPostsForDigest,
+            approvalQueue: _promptApprovalQueueSnapshot,
             pendingMessages: _activeMsgs.filter(function (m) { return m.to === aid && !m.consumed; })
           }).catch(function (err) {
             context.log.error('[Heartbeat] Parallel agent', aid, 'failed:', err.message);
@@ -1704,6 +1709,7 @@ module.exports = async function (context) {
           socialAccountStats,
           weeklyReportsStore,
           publishedBlogPosts: _publishedBlogPostsForDigest,
+          approvalQueue: _promptApprovalQueueSnapshot,
           pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; })
         });
         if (result._failed) {
