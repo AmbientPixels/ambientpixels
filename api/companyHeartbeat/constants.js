@@ -16,15 +16,20 @@ const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo'
 // are optional extensions parsed in agent-runner.js.
 // Lives in constants.js (not normalization.js) to avoid a gemini→normalization→
 // helpers→gemini require cycle.
+// maxItems caps mirror existing guardrails (maxActionsPerCyclePerAgent=3,
+// "max 2-3 variants" prompt guidance, memory rate cap). Without caps, Gemini
+// structured-output mode interprets a required array with open items as
+// "emit one item per data point seen" — confirmed at ~170 items/agent on
+// the first deploy. Claude is unaffected (no schema on its path).
 const AGENT_ENVELOPE_SCHEMA = {
   type: 'OBJECT',
   properties: {
     reasoning:        { type: 'STRING' },
-    taskUpdates:      { type: 'ARRAY', items: { type: 'OBJECT' } },
-    proposals:        { type: 'ARRAY', items: { type: 'OBJECT' } },
-    remember:         { type: 'ARRAY', items: { type: 'OBJECT' } },
-    observations:     { type: 'ARRAY', items: { type: 'STRING' } },
-    messages:         { type: 'ARRAY', items: { type: 'OBJECT' } },
+    taskUpdates:      { type: 'ARRAY', maxItems: 3, items: { type: 'OBJECT' } },
+    proposals:        { type: 'ARRAY', maxItems: 5, items: { type: 'OBJECT' } },
+    remember:         { type: 'ARRAY', maxItems: 3, items: { type: 'OBJECT' } },
+    observations:     { type: 'ARRAY', maxItems: 5, items: { type: 'STRING' } },
+    messages:         { type: 'ARRAY', maxItems: 3, items: { type: 'OBJECT' } },
     reflectionMemory: { type: 'STRING' }
   },
   required: ['reasoning', 'taskUpdates', 'proposals', 'remember', 'observations']
