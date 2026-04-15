@@ -166,6 +166,28 @@
       "handler_note": "Canonical name: `propose-campaign`. Echo/Nova emit → written to approvalQueue state via agentchat/index.js (or heartbeat agent-runner.js). CEO approval auto-creates the campaign."
     },
     {
+      "id": "request_budget",
+      "name": "Request budget for experiment / campaign / high-cost action",
+      "riskLevel": "medium",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "finance",
+      "handler": "heartbeat-approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `request-budget`. Any agent emits with { request: { type: 'experiment'|'campaign'|'high-cost-action', estimatedCost, justification, contextActionId?, contextCampaignId? } }. Handler routes by cost tier: <$0.50 auto-approved (unless squeeze mode), $0.50-$2 → pendingRequests.pending_cipher, >$2 → pendingRequests.pending_ceo + approvalQueue entry (kind: budget_request). System 12 — Capital Allocation."
+    },
+    {
+      "id": "approve_budget_request",
+      "name": "Approve or reject a pending budget request",
+      "riskLevel": "medium",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "finance",
+      "handler": "heartbeat",
+      "enabled": true,
+      "handler_note": "Canonical name: `approve-budget-request`. Cipher-only (CAPITAL_AUTHORIZED_AGENTS gate). Emits with { requestId, decision: 'approved'|'rejected', note }. Updates capitalAllocation.pendingRequests + decisionLog; rejection writes auto:budget-rejected memory to the requesting agent."
+    },
+    {
       "id": "propose_objective",
       "name": "Propose a strategic objective",
       "riskLevel": "medium",

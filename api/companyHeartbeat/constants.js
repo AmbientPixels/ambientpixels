@@ -154,7 +154,8 @@ const KNOWN_ACTION_TYPES = [
   'create-task', 'update-task', 'move-task', 'execute-task', 'review-task',
   'comment-task', 'create-social-action', 'revise-action', 'create-doc',
   'update-doc', 'submit-for-publish', 'create-content-package', 'generate-image',
-  'create-reminder', 'web_search', 'remember'
+  'create-reminder', 'web_search', 'remember',
+  'request-budget', 'approve-budget-request'
 ];
 const RESEARCH_MAX_AGE_DAYS = 30;
 const MAX_RESEARCH_INTEL_PER_DAY = 2;

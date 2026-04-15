@@ -14,7 +14,8 @@ const {
   MAX_TOOL_CALLS_PER_AGENT, MAX_MEMORIES_PER_AGENT,
   MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS,
   MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS,
-  MAX_RESEARCH_INTEL_PER_DAY, MAX_WEEKLY_REPORTS_PER_AGENT
+  MAX_RESEARCH_INTEL_PER_DAY, MAX_WEEKLY_REPORTS_PER_AGENT,
+  CAPITAL_AUTHORIZED_AGENTS, CAPITAL_DECISION_THRESHOLDS, FINANCE_BUDGET_MONTHLY
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
@@ -4272,6 +4273,35 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // Capital Allocation gate: block new campaign proposals when the agent is
+      // already over their monthly cap, OR when the system is in squeeze mode.
+      // Agent must emit request-budget first to unlock.
+      try {
+        var _pcAlloc = (await storage.getState('capitalAllocation')) || {};
+        var _pcAgentAlloc = (_pcAlloc.perAgent && _pcAlloc.perAgent[agentId]) || null;
+        var _pcSqueezePct = (_pcAlloc.systemBudget > 0)
+          ? ((_pcAlloc.systemSpent || 0) / _pcAlloc.systemBudget) * 100
+          : 0;
+        var _pcSqueeze = _pcSqueezePct >= CAPITAL_DECISION_THRESHOLDS.systemBudgetSqueezePct;
+        var _pcOverCap = _pcAgentAlloc && _pcAgentAlloc.status === 'RED';
+        if (_pcOverCap || _pcSqueeze) {
+          // Check for an approved request-budget in the last 24h from this agent to allow bypass.
+          var _pcLog = Array.isArray(_pcAlloc.decisionLog) ? _pcAlloc.decisionLog : [];
+          var _pc24hAgo = Date.now() - 24 * 60 * 60 * 1000;
+          var _pcHasApproval = _pcLog.some(function (l) {
+            return l.agentId === agentId && l.action === 'approved' &&
+              Date.parse(l.at || '') > _pc24hAgo;
+          });
+          if (!_pcHasApproval) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — Capital Allocation gate (' + (_pcSqueeze ? 'squeeze' : 'over-cap') + '). Emit request-budget first.');
+            continue;
+          }
+        }
+      } catch (_pcGateErr) {
+        // Fail-open on gate errors so campaign pipeline never silently blocks.
+        context.log('[Heartbeat]', agentId, 'Capital gate check failed (fail-open):', String(_pcGateErr).substring(0, 200));
+      }
+
       // Rate limit: max 1 proposal per day per agent
       var _pcAQ = (await storage.getState('approvalQueue')) || [];
       var _pcToday = new Date().toISOString().substring(0, 10);
@@ -4369,6 +4399,175 @@ Write the full deliverable first, then the structured JSON block.`;
       await storage.setState('approvalQueue', _poAQ);
       context.log('[Heartbeat]', agentId, 'created objective proposal:', _poEntry.id, _poTitle);
       result.taskUpdates.push({ action: 'objective-proposed', proposalId: _poEntry.id, agentId: agentId });
+
+    } else if (action.type === 'request-budget' && action.request) {
+      // Capital Allocation (System 12): agent proposes spend on experiment/campaign/
+      // high-cost-action. Tiered routing by estimatedCost + system squeeze mode.
+      var _rb = action.request;
+      var _rbType = ['experiment', 'campaign', 'high-cost-action'].indexOf(_rb.type) !== -1 ? _rb.type : null;
+      var _rbCost = Number(_rb.estimatedCost);
+      var _rbJust = (_rb.justification || '').trim();
+      if (!_rbType || !Number.isFinite(_rbCost) || _rbCost <= 0 || !_rbJust) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED request-budget — missing type / estimatedCost / justification');
+        continue;
+      }
+      if (_rbCost > 25) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED request-budget — estimatedCost $' + _rbCost + ' exceeds sanity ceiling ($25)');
+        continue;
+      }
+
+      var _rbAlloc = (await storage.getState('capitalAllocation')) || {};
+      var _rbPending = Array.isArray(_rbAlloc.pendingRequests) ? _rbAlloc.pendingRequests : [];
+      var _rbLog = Array.isArray(_rbAlloc.decisionLog) ? _rbAlloc.decisionLog : [];
+      var _rbSqueeze = (_rbAlloc.systemBudget > 0)
+        ? ((_rbAlloc.systemSpent || 0) / _rbAlloc.systemBudget) * 100 >= CAPITAL_DECISION_THRESHOLDS.systemBudgetSqueezePct
+        : false;
+      var _rbSystemRed = (_rbAlloc.systemStatus === 'RED');
+
+      // Dedup: identical pending request from same agent in last 24h
+      var _rbDupe = _rbPending.some(function (r) {
+        return r.agentId === agentId && r.type === _rbType &&
+          Math.abs((r.estimatedCost || 0) - _rbCost) < 0.01 &&
+          (r.justification || '').trim() === _rbJust &&
+          (r.status === 'pending_cipher' || r.status === 'pending_ceo');
+      });
+      if (_rbDupe) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED request-budget — duplicate pending request');
+        continue;
+      }
+
+      var _rbId = 'breq_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+      var _rbStatus;
+      var _rbAutoDecision = null;
+      if (_rbCost < CAPITAL_DECISION_THRESHOLDS.autoApproveBelow && !_rbSqueeze && !_rbSystemRed) {
+        _rbStatus = 'approved';
+        _rbAutoDecision = { decision: 'approved', note: 'auto-approved (under $' + CAPITAL_DECISION_THRESHOLDS.autoApproveBelow + ' threshold)', at: new Date().toISOString() };
+      } else if (_rbCost < CAPITAL_DECISION_THRESHOLDS.cipherApprovalBelow) {
+        _rbStatus = 'pending_cipher';
+      } else {
+        _rbStatus = 'pending_ceo';
+      }
+
+      var _rbEntry = {
+        id: _rbId,
+        agentId: agentId,
+        type: _rbType,
+        requestedAt: new Date().toISOString(),
+        estimatedCost: Math.round(_rbCost * 100) / 100,
+        justification: _rbJust.substring(0, 500),
+        contextActionId: _rb.contextActionId || null,
+        contextCampaignId: _rb.contextCampaignId || null,
+        status: _rbStatus,
+        cipherDecision: _rbAutoDecision ? { decision: 'approved', note: _rbAutoDecision.note, at: _rbAutoDecision.at, autoApproved: true } : null,
+        ceoDecision: null
+      };
+      _rbPending.push(_rbEntry);
+
+      if (_rbAutoDecision) {
+        _rbLog.push({
+          id: 'dlog_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          requestId: _rbId, agentId: agentId, decisionBy: 'auto',
+          action: 'approved', estimatedCost: _rbEntry.estimatedCost,
+          reason: _rbAutoDecision.note, at: _rbAutoDecision.at
+        });
+      }
+
+      // CEO-escalated tier also lands in approvalQueue
+      if (_rbStatus === 'pending_ceo') {
+        var _rbAQ = (await storage.getState('approvalQueue')) || [];
+        _rbAQ.push({
+          id: 'aq_' + _rbId,
+          type: 'budget_request',
+          kind: 'budget_request',
+          status: 'pending',
+          proposedBy: agentId,
+          requestId: _rbId,
+          estimatedCost: _rbEntry.estimatedCost,
+          requestType: _rbType,
+          justification: _rbEntry.justification,
+          createdAt: new Date().toISOString()
+        });
+        await storage.setState('approvalQueue', _rbAQ);
+      }
+
+      _rbAlloc.pendingRequests = _rbPending;
+      _rbAlloc.decisionLog = _rbLog.slice(-100);
+      _rbAlloc.updatedAt = new Date().toISOString();
+      await storage.setState('capitalAllocation', _rbAlloc);
+
+      context.log('[Heartbeat]', agentId, 'budget request:', _rbId, '$' + _rbEntry.estimatedCost, _rbType, '→', _rbStatus);
+      result.taskUpdates.push({ action: 'budget-requested', requestId: _rbId, agentId: agentId, status: _rbStatus });
+
+    } else if (action.type === 'approve-budget-request' && action.requestId) {
+      // Cipher-only gate: decide on a pending budget request
+      if (!CAPITAL_AUTHORIZED_AGENTS.has(agentId)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED approve-budget-request — only Cipher authorized');
+        continue;
+      }
+      var _abDecision = action.decision === 'approved' ? 'approved' : (action.decision === 'rejected' ? 'rejected' : null);
+      if (!_abDecision) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED approve-budget-request — decision must be approved or rejected');
+        continue;
+      }
+      var _abNote = (action.note || '').trim().substring(0, 500);
+      if (!_abNote) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED approve-budget-request — note required (cite reasoning)');
+        continue;
+      }
+
+      var _abAlloc = (await storage.getState('capitalAllocation')) || {};
+      var _abPending = Array.isArray(_abAlloc.pendingRequests) ? _abAlloc.pendingRequests : [];
+      var _abLog = Array.isArray(_abAlloc.decisionLog) ? _abAlloc.decisionLog : [];
+      var _abTarget = _abPending.find(function (r) { return r.id === action.requestId && r.status === 'pending_cipher'; });
+      if (!_abTarget) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED approve-budget-request — request not found or not pending_cipher:', action.requestId);
+        continue;
+      }
+
+      _abTarget.status = _abDecision;
+      _abTarget.cipherDecision = { decision: _abDecision, note: _abNote, at: new Date().toISOString() };
+      _abLog.push({
+        id: 'dlog_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        requestId: _abTarget.id,
+        agentId: _abTarget.agentId,
+        decisionBy: 'cipher',
+        action: _abDecision,
+        estimatedCost: _abTarget.estimatedCost,
+        reason: _abNote,
+        at: new Date().toISOString()
+      });
+
+      _abAlloc.pendingRequests = _abPending;
+      _abAlloc.decisionLog = _abLog.slice(-100);
+      _abAlloc.updatedAt = new Date().toISOString();
+      await storage.setState('capitalAllocation', _abAlloc);
+
+      // 2d. Auto-memory feedback to requesting agent on reject (also on approve — confirms pattern works).
+      try {
+        var _abReqAgent = _abTarget.agentId;
+        if (!_agentMemoryStore[_abReqAgent]) _agentMemoryStore[_abReqAgent] = [];
+        var _abNow = new Date();
+        var _abMemText = _abDecision === 'rejected'
+          ? 'Cipher rejected my budget request ' + _abTarget.id + ' ($' + _abTarget.estimatedCost + ' for ' + _abTarget.type + '): ' + _abNote.substring(0, 200) + ' — adjust future proposals accordingly.'
+          : 'Cipher approved my budget request ' + _abTarget.id + ' ($' + _abTarget.estimatedCost + ' for ' + _abTarget.type + '): ' + _abNote.substring(0, 200);
+        _agentMemoryStore[_abReqAgent].push({
+          id: 'mem_' + Date.now() + '_br_' + Math.random().toString(36).substr(2, 4),
+          type: 'feedback',
+          text: _abMemText,
+          source: _abDecision === 'rejected' ? 'auto:budget-rejected' : 'auto:budget-approved',
+          evidence: { runId: cycleId, requestId: _abTarget.id },
+          timestamp: _abNow.toISOString(),
+          expiresAt: new Date(_abNow.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        });
+        if (_agentMemoryStore[_abReqAgent].length > MAX_MEMORIES_PER_AGENT) {
+          _agentMemoryStore[_abReqAgent] = _agentMemoryStore[_abReqAgent].slice(-MAX_MEMORIES_PER_AGENT);
+        }
+      } catch (_abMemErr) {
+        context.log('[Heartbeat]', agentId, 'Budget-decision auto-memory failed (non-fatal):', String(_abMemErr).substring(0, 200));
+      }
+
+      context.log('[Heartbeat]', agentId, 'budget decision:', _abTarget.id, _abDecision, '→', _abTarget.agentId);
+      result.taskUpdates.push({ action: 'budget-decided', requestId: _abTarget.id, decision: _abDecision });
 
     } else if (action.type === 'pause-campaign' && action.campaignId) {
       // Nova can pause an active campaign (reversible, auto-execute)
