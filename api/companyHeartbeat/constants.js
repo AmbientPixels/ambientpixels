@@ -130,6 +130,36 @@ const PRODUCT_PROPOSAL_COST_CEILINGS = {
   'propose-retire':   10.00
 };
 const PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS = 7;
+
+// ── Emergence Monitoring (System 15) ──
+// Thresholds for the 5 Core signals. Pure observation layer — no action taken
+// based on these; surfaced to Forge's prompt + emergence.html dashboard only.
+const EMERGENCE_THRESHOLDS = {
+  proposalRatePerAgent7d: { yellow: 3, red: 5 },
+  proposalRatePerType7d:  { yellow: 4, red: 7 },
+  rejectRatePerEmitter:   { yellow: 0.50, red: 0.80 },
+  rejectRateMinSamples:   5,
+  fleetChurn30d:          { yellow: 3, red: 5 },
+  capitalRedStreak:       { yellow: 3, red: 7 },
+  approvalCriticalAgeH:   { yellow: 24, red: 72 },
+  approvalDepthTotal:     { yellow: 10, red: 20 }
+};
+
+// Maps approvalQueue entry type → blast-radius tier for CEO dashboard sort.
+// Static reference — dashboard JS MUST mirror this map (document the pairing).
+const EMERGENCE_BLAST_RADIUS = {
+  agent_retire_proposal:    'critical',
+  product_retire_proposal:  'critical',
+  agent_hire_proposal:      'critical',
+  product_pivot_proposal:   'high',
+  agent_evolution_proposal: 'high',
+  product_proposal:         'medium',
+  budget_request:           'medium',
+  campaign_proposal:        'low',
+  objective_proposal:       'low'
+};
+const EMERGENCE_DIGEST_FRESHNESS_MS = 26 * 60 * 60 * 1000;
+const EMERGENCE_SIGNALS_MAX = 50;
 const ALLOWED_UPDATE_KEYS = new Set([
   'status', 'assignee', 'dueDate', 'priority', 'classification', 'taskType',
   'tags', 'objective_id', 'directive_id', 'campaign_id', 'parent_task_id', 'child_task_ids'
@@ -348,6 +378,10 @@ module.exports = {
   FLEET_PROPOSAL_MAX_PER_DAY,
   FLEET_PROPOSAL_COST_CEILINGS,
   FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
+  EMERGENCE_THRESHOLDS,
+  EMERGENCE_BLAST_RADIUS,
+  EMERGENCE_DIGEST_FRESHNESS_MS,
+  EMERGENCE_SIGNALS_MAX,
   loadAgentRegistry,
   ALLOWED_UPDATE_KEYS,
   CAP_DEFAULTS,

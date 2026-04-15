@@ -443,6 +443,20 @@ module.exports = async function (context) {
       context.log('[heartbeat] Allocation digest failed (non-fatal):', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : '');
     }
 
+    // ── Emergence Monitoring (System 15) ──
+    // Read-only cache of daily cron's digest into runtimeMemory. Stale (>26h)
+    // digest is gracefully ignored — Forge's prompt block just renders nothing.
+    // Heartbeat NEVER writes emergenceDigest (cron owns that write path).
+    try {
+      const _emergPrev = (await storage.getState('emergenceDigest')) || null;
+      if (_emergPrev && _emergPrev.generatedAt) {
+        const _emergAge = Date.now() - Date.parse(_emergPrev.generatedAt);
+        if (_emergAge < C.EMERGENCE_DIGEST_FRESHNESS_MS) {
+          runtimeMemory.emergenceDigest = _emergPrev;
+        }
+      }
+    } catch (_emergCacheErr) { /* non-fatal */ }
+
     // ── Quality History — rolling daily snapshots for trend sparkline ──
     var _qh = Array.isArray(runtimeMemory.qualityHistory) ? runtimeMemory.qualityHistory : [];
     var _qhToday = new Date().toISOString().slice(0, 10);
@@ -1660,6 +1674,7 @@ module.exports = async function (context) {
             weeklyReportsStore,
             publishedBlogPosts: _publishedBlogPostsForDigest,
             approvalQueue: _promptApprovalQueueSnapshot,
+            emergenceDigest: runtimeMemory.emergenceDigest || null,
             pendingMessages: _activeMsgs.filter(function (m) { return m.to === aid && !m.consumed; })
           }).catch(function (err) {
             context.log.error('[Heartbeat] Parallel agent', aid, 'failed:', err.message);
@@ -1728,6 +1743,7 @@ module.exports = async function (context) {
           weeklyReportsStore,
           publishedBlogPosts: _publishedBlogPostsForDigest,
           approvalQueue: _promptApprovalQueueSnapshot,
+          emergenceDigest: runtimeMemory.emergenceDigest || null,
           pendingMessages: _activeMsgs.filter(function (m) { return m.to === agentId && !m.consumed; })
         });
         if (result._failed) {
