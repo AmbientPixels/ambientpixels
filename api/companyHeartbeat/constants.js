@@ -25,7 +25,7 @@ try {
 // prompt block as drift signals (observational, not punitive — drift may be
 // legitimate evolution, CEO reviews in awareness dashboard).
 const AGENT_ROLES = {
-  nova: { name: 'Nova', role: 'Prime Operator & Strategic Orchestrator', tier: 2, monthlyCap: 2.00, focus: 'execution planning, delegation, lifecycle management (pause/resume/complete campaigns, archive objectives), proposing objectives + campaigns, progress monitoring, escalation to CEO',
+  nova: { name: 'Nova', role: 'Prime Operator & Strategic Orchestrator', tier: 2, monthlyCap: 2.00, focus: 'execution planning, delegation, lifecycle management (pause/resume/complete campaigns, archive objectives), proposing objectives + campaigns, product lifecycle proposals (propose-product, propose-pivot, propose-retire), progress monitoring, escalation to CEO',
     doctrine: { strategicBias: 'Platform leverage, automation, 10x thinking', riskTolerance: 'High but calculated', timeHorizon: '3-10 years', coreQuestion: 'Does this increase AmbientPixels leverage?', escalationTriggers: ['Resource conflicts', 'Brand/platform pivots', 'Strategic misalignment'] },
     expectedActionMix: { 'create-task': 'high', 'update-task': 'high', 'move-task': 'medium', 'remember': 'medium', 'create-doc': 'medium', 'create-social-action': 'none' } },
   cipher: { name: 'Cipher', role: 'Strategic CFO', tier: 3, monthlyCap: 1.50, focus: 'Financial Intelligence Dashboard (budget, agent efficiency, campaign ROI), weekly financial reports, threshold-based alerts (daily >$0.75 RED, waste >50% RED), proactive ROI commentary on priority work',
@@ -118,6 +118,18 @@ const CAPITAL_DECISION_THRESHOLDS = {
 const CAPITAL_ALLOCATION_FRESHNESS_MS = 30 * 60 * 1000;
 const CAPITAL_DECISION_LOG_MAX = 100;
 const CAPITAL_HISTORY_MAX_MONTHS = 12;
+// ── Goal Generation (System 13) ──
+const PRODUCT_PROPOSAL_AUTHORIZED_AGENTS = new Set(['nova']);
+const PRODUCT_PROPOSAL_MAX_PER_DAY = 1;
+// Per-type cost ceilings (PER-PROPOSAL, not per-day). Product launches can
+// legitimately run $30-60 over 4-week MVPs; pivots are transitions not new
+// builds; retires are near-zero winddown.
+const PRODUCT_PROPOSAL_COST_CEILINGS = {
+  'propose-product': 100.00,
+  'propose-pivot':    50.00,
+  'propose-retire':   10.00
+};
+const PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS = 7;
 const ALLOWED_UPDATE_KEYS = new Set([
   'status', 'assignee', 'dueDate', 'priority', 'classification', 'taskType',
   'tags', 'objective_id', 'directive_id', 'campaign_id', 'parent_task_id', 'child_task_ids'
@@ -155,7 +167,8 @@ const KNOWN_ACTION_TYPES = [
   'comment-task', 'create-social-action', 'revise-action', 'create-doc',
   'update-doc', 'submit-for-publish', 'create-content-package', 'generate-image',
   'create-reminder', 'web_search', 'remember',
-  'request-budget', 'approve-budget-request'
+  'request-budget', 'approve-budget-request',
+  'propose-product', 'propose-pivot', 'propose-retire'
 ];
 const RESEARCH_MAX_AGE_DAYS = 30;
 const MAX_RESEARCH_INTEL_PER_DAY = 2;
@@ -242,6 +255,10 @@ module.exports = {
   CAPITAL_ALLOCATION_FRESHNESS_MS,
   CAPITAL_DECISION_LOG_MAX,
   CAPITAL_HISTORY_MAX_MONTHS,
+  PRODUCT_PROPOSAL_AUTHORIZED_AGENTS,
+  PRODUCT_PROPOSAL_MAX_PER_DAY,
+  PRODUCT_PROPOSAL_COST_CEILINGS,
+  PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS,
   ALLOWED_UPDATE_KEYS,
   CAP_DEFAULTS,
   _MUTATION_BUCKET_MAP,

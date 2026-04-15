@@ -188,6 +188,39 @@
       "handler_note": "Canonical name: `approve-budget-request`. Cipher-only (CAPITAL_AUTHORIZED_AGENTS gate). Emits with { requestId, decision: 'approved'|'rejected', note }. Updates capitalAllocation.pendingRequests + decisionLog; rejection writes auto:budget-rejected memory to the requesting agent."
     },
     {
+      "id": "propose_product",
+      "name": "Propose a new product",
+      "riskLevel": "high",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "handler": "approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `propose-product`. Nova-only (PRODUCT_PROPOSAL_AUTHORIZED_AGENTS). Rate-limited 1/day. Required: product.name, description, rationale, market, launchStrategy, estimatedCost (Capital Allocation carries directly), successCriteria. Lands in approvalQueue as product_proposal. CEO manually updates product-facts.json on approve. System 13 — Goal Generation."
+    },
+    {
+      "id": "propose_pivot",
+      "name": "Propose a strategic pivot on an existing product",
+      "riskLevel": "high",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "handler": "approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `propose-pivot`. Nova-only. Rate-limited 1/day. Required: targetProduct (must exist in product-facts.json), newDirection, rationale, successCriteria, estimatedCost (transition cost). Lands in approvalQueue as product_pivot_proposal. System 13."
+    },
+    {
+      "id": "propose_retire",
+      "name": "Propose retiring a product",
+      "riskLevel": "high",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "handler": "approval-queue",
+      "enabled": true,
+      "handler_note": "Canonical name: `propose-retire`. Nova-only. Rate-limited 1/day. Required: targetProduct (must exist + status='active'), rationale, migrationPlan. Optional: estimatedCost (winddown cost, default 0). Lands in approvalQueue as product_retire_proposal. System 13."
+    },
+    {
       "id": "propose_objective",
       "name": "Propose a strategic objective",
       "riskLevel": "medium",
