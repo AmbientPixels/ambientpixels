@@ -7,6 +7,7 @@ const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, _agentPersonalityData, CFO_
 const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
+const { _buildAllocationPromptBlock } = require('./allocation-intel');
 const { _buildContentPromptBlock } = require('./content-intel');
 const { _buildStrategicPromptBlock } = require('./strategic-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
@@ -91,7 +92,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -982,6 +983,13 @@ Where relevant to your content tasks, weave in references to these trends to inc
     workspaceSection = '\n\nCEO NOTES (pinned context from the CEO — factor into your decisions):\n' + wsParts.join('\n');
   }
 
+  // Capital Allocation block (System 12) — every agent sees their cap + system
+  // status. Cipher also sees pending budget requests + recent budget outcomes.
+  let allocationSection = '';
+  try {
+    allocationSection = _buildAllocationPromptBlock(agent, allocationDigest) || '';
+  } catch (_allocPromptErr) { allocationSection = ''; }
+
   // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
   if (agent.name === 'Cipher') {
@@ -1499,7 +1507,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${costSection}${forgeOpsSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${costSection}${forgeOpsSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
