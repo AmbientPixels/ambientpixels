@@ -242,6 +242,42 @@ function _createActionFromHeartbeat(data, agentId) {
 }
 
 // ── Log helper ──
+//
+// Two bugs fixed here as of 2026-04-15:
+//
+// 1) Wrong destination. Prior code routed every event to `logs` via
+//    storage.appendLog. The CEO-facing audit trail is `governanceLog` — that's
+//    where policy-violation, stall-alert, campaign-pace-alert, and fleet
+//    events should land (per skill changelog). Routine telemetry (heartbeat,
+//    run-*, mode-resolved) stays in `logs`.
+//
+// 2) Read-modify-write race. appendLog did GET→push→SET with no lock. When
+//    rate-limit gates fired 500+ times in one cycle (Gemini over-production),
+//    concurrent R-M-W overwrote each other — only ~1 of ~500 landed. Fix:
+//    buffer events during a heartbeat run, flush once at end as a single
+//    bulk append per destination.
+//
+// Non-heartbeat callers (crons, standup) still work unchanged — if no run
+// is active, logEvent falls back to direct appendLog.
+
+// Types that land in governanceLog (CEO-facing audit trail).
+// Anything not listed goes to `logs` (routine telemetry).
+const _GOVERNANCE_TYPES = new Set([
+  'policy-violation',
+  'stall-alert',
+  'campaign-pace-alert',
+  'system-directive-created',
+  'experiment-auto-concluded',
+  'emergence-signal',
+  'agent-retired', 'agent-hired', 'agent-evolved'
+]);
+
+let _runBuffer = null;     // { cycleId, events: [] } when a heartbeat is active
+const RUN_BUFFER_MAX = 2000; // defensive cap per run — shouldn't be hit in practice
+
+function beginRunLogging(cycleId) {
+  _runBuffer = { cycleId: cycleId, events: [] };
+}
 
 async function logEvent(type, agentId, summary, cycleId, details) {
   const event = {
@@ -253,7 +289,64 @@ async function logEvent(type, agentId, summary, cycleId, details) {
     timestamp: new Date().toISOString()
   };
   if (details && typeof details === 'object') event.details = details;
-  await storage.appendLog(event);
+
+  // Active heartbeat buffer → push in-memory (O(1), no race).
+  if (_runBuffer && _runBuffer.cycleId === cycleId && _runBuffer.events.length < RUN_BUFFER_MAX) {
+    _runBuffer.events.push(event);
+    return;
+  }
+
+  // Fallback: non-heartbeat caller or buffer full. Route to correct destination
+  // directly. Uses the same state keys as flushRunLog to keep reads consistent.
+  await _appendToDestination(event);
+}
+
+async function _appendToDestination(event) {
+  const stateKey = _GOVERNANCE_TYPES.has(event.type) ? 'governanceLog' : 'logs';
+  // Direct-write path retains existing cap semantics (governanceLog has no
+  // hard cap today; logs is capped at 1000 via storage.appendLog). For
+  // governanceLog we manage the write inline.
+  if (stateKey === 'logs') {
+    await storage.appendLog(event);
+    return;
+  }
+  const current = (await storage.getState('governanceLog')) || [];
+  current.push(event);
+  // Keep governanceLog forensic window wide — cap at 5000 (CEO-facing trail).
+  const trimmed = current.length > 5000 ? current.slice(-5000) : current;
+  await storage.setState('governanceLog', trimmed);
+}
+
+async function flushRunLog() {
+  if (!_runBuffer || _runBuffer.events.length === 0) {
+    _runBuffer = null;
+    return { logsAdded: 0, governanceAdded: 0 };
+  }
+  const events = _runBuffer.events;
+  _runBuffer = null; // close window before IO so re-entrance is safe
+
+  const toGovernance = events.filter(e => _GOVERNANCE_TYPES.has(e.type));
+  const toLogs = events.filter(e => !_GOVERNANCE_TYPES.has(e.type));
+
+  // Single R-M-W per destination. Sequenced (not parallel) to avoid two
+  // concurrent writes against storage if it ever shares transport.
+  if (toLogs.length > 0) {
+    try {
+      const current = (await storage.getState('logs')) || [];
+      const combined = current.concat(toLogs);
+      const trimmed = combined.length > 1000 ? combined.slice(-1000) : combined;
+      await storage.setState('logs', trimmed);
+    } catch (_e) { /* non-fatal */ }
+  }
+  if (toGovernance.length > 0) {
+    try {
+      const current = (await storage.getState('governanceLog')) || [];
+      const combined = current.concat(toGovernance);
+      const trimmed = combined.length > 5000 ? combined.slice(-5000) : combined;
+      await storage.setState('governanceLog', trimmed);
+    } catch (_e) { /* non-fatal */ }
+  }
+  return { logsAdded: toLogs.length, governanceAdded: toGovernance.length };
 }
 
 module.exports = {
@@ -278,5 +371,7 @@ module.exports = {
   _socialIntelEventTs,
   _socialIntelResolveMode,
   _createActionFromHeartbeat,
-  logEvent
+  logEvent,
+  beginRunLogging,
+  flushRunLog
 };

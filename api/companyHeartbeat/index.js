@@ -69,6 +69,13 @@ module.exports = async function (context) {
 
   context.log('[Heartbeat] Starting cycle:', cycleId, '| trigger:', trigger);
 
+  // ── Begin per-run log buffering ──
+  // logEvent() calls during this heartbeat accumulate in-memory; flushRunLog()
+  // in the finally block writes them as a single bulk append per destination.
+  // Prevents the read-modify-write race that dropped ~500 rate-limit events
+  // on the 2026-04-15 16:52 run.
+  H.beginRunLogging(cycleId);
+
   // ── Concurrency lock: prevent overlapping heartbeat runs ──
   const existingLock = await storage.getState('heartbeatLock');
   if (existingLock && existingLock.locked) {
@@ -3713,6 +3720,16 @@ module.exports = async function (context) {
       context.log.warn('[Heartbeat] Failed to persist fatal heartbeat summary:', _persistErr.message || _persistErr);
     }
   } finally {
+    // ── Flush buffered log events (bulk write, race-free) ──
+    try {
+      const _flushed = await H.flushRunLog();
+      if (_flushed && (_flushed.logsAdded || _flushed.governanceAdded)) {
+        context.log('[Heartbeat] Logs flushed:', _flushed.logsAdded, 'telemetry,', _flushed.governanceAdded, 'governance');
+      }
+    } catch (_flushErr) {
+      context.log.warn('[Heartbeat] Log flush failed:', _flushErr.message || _flushErr);
+    }
+
     // ── Release concurrency lock ──
     try {
       await storage.setState('heartbeatLock', {
