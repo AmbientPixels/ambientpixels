@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Capital Allocation — per-agent monthly spend caps, pending budget requests, ROI." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Capital Allocation — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .ca-section { margin-bottom: 1.4rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .ca-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .ca-empty { font-size: 0.7rem; color: rgba(255,255,255,0.5); padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+    .ca-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
+    .ca-hero-card { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .ca-hero-card .ca-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .ca-hero-card .ca-value { font-size: 1.3rem; font-weight: 600; color: #fff; }
+    .ca-hero-card .ca-sub { font-size: 0.6rem; opacity: 0.6; margin-top: 0.2rem; }
+    .ca-status-green { color: #34d399; }
+    .ca-status-yellow { color: #fbbf24; }
+    .ca-status-red { color: #f87171; }
+    .ca-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; }
+
+    .ca-agent-row { display: grid; grid-template-columns: 90px 1fr 140px 90px; gap: 0.6rem; align-items: center; padding: 0.4rem 0.6rem; border-radius: 6px; margin-bottom: 0.3rem; font-size: 0.7rem; background: rgba(255,255,255,0.02); }
+    .ca-agent-name { text-transform: capitalize; font-weight: 500; color: #fff; }
+    .ca-bar-track { height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; position: relative; }
+    .ca-bar-fill { height: 100%; background: linear-gradient(90deg, #34d399, #34d399); border-radius: 5px; transition: width 0.3s; }
+    .ca-bar-fill.yellow { background: linear-gradient(90deg, #fbbf24, #fbbf24); }
+    .ca-bar-fill.red { background: linear-gradient(90deg, #f87171, #f87171); }
+    .ca-agent-detail { font-size: 0.65rem; opacity: 0.75; }
+    .ca-agent-status { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; text-align: right; }
+
+    .ca-request-row { padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.03); border-radius: 6px; margin-bottom: 0.4rem; font-size: 0.7rem; border-left: 2px solid rgba(251,191,36,0.6); }
+    .ca-request-row.pending-ceo { border-left-color: #f87171; }
+    .ca-request-row.pending-cipher { border-left-color: #fbbf24; }
+    .ca-request-head { display: flex; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.3rem; }
+    .ca-request-head strong { text-transform: capitalize; color: #fff; }
+    .ca-request-cost { font-weight: 600; color: #fbbf24; }
+    .ca-request-just { font-size: 0.65rem; opacity: 0.8; line-height: 1.4; }
+    .ca-request-meta { font-size: 0.55rem; opacity: 0.5; margin-top: 0.2rem; }
+
+    .ca-decision-row { padding: 0.35rem 0.6rem; font-size: 0.65rem; border-radius: 4px; margin-bottom: 0.25rem; background: rgba(255,255,255,0.02); display: grid; grid-template-columns: 70px 70px 70px 1fr 90px; gap: 0.4rem; align-items: center; }
+    .ca-decision-action { text-transform: uppercase; font-size: 0.55rem; letter-spacing: 0.04em; }
+    .ca-decision-action.approved { color: #34d399; }
+    .ca-decision-action.rejected { color: #f87171; }
+    .ca-decision-action.experiment-concluded { color: #60a5fa; }
+    .ca-decision-ts { opacity: 0.5; font-size: 0.55rem; }
+
+    .ca-roi-row { display: grid; grid-template-columns: 1fr 80px 90px 110px; gap: 0.5rem; padding: 0.35rem 0.6rem; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.65rem; align-items: center; }
+    .ca-roi-row.variance-red { border-left: 2px solid #f87171; }
+    .ca-roi-row.variance-green { border-left: 2px solid #34d399; }
+    .ca-variance-pos { color: #f87171; }
+    .ca-variance-neg { color: #34d399; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="ca-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-coins co-icon-mr-lg dash-icon-amber"></i>Capital Allocation</h1>
+        <p class="act-header-sub">Per-agent monthly caps, pending budget requests, and ROI retro. Cipher's spending governance surface.</p>
+      </div>
+    </div>
+
+    <div id="ca-hero" class="ca-hero"></div>
+
+    <div class="ca-section" data-section="agents">
+      <h2><i class="fas fa-users"></i> PER-AGENT SPEND</h2>
+      <div id="ca-agents"></div>
+    </div>
+
+    <div class="ca-grid-2">
+      <div class="ca-section" data-section="pending">
+        <h2><i class="fas fa-hourglass-half"></i> PENDING REQUESTS</h2>
+        <div id="ca-pending"></div>
+      </div>
+
+      <div class="ca-section" data-section="decisions">
+        <h2><i class="fas fa-gavel"></i> RECENT DECISIONS</h2>
+        <div id="ca-decisions"></div>
+      </div>
+    </div>
+
+    <div class="ca-grid-2">
+      <div class="ca-section" data-section="roi-campaigns">
+        <h2><i class="fas fa-bullhorn"></i> CAMPAIGN ROI</h2>
+        <div id="ca-roi-campaigns"></div>
+      </div>
+
+      <div class="ca-section" data-section="roi-experiments">
+        <h2><i class="fas fa-flask"></i> EXPERIMENT ROI (variance)</h2>
+        <div id="ca-roi-experiments"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function emptyState(id, msg) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="ca-empty">' + esc(msg) + '</div>'; }
+    function statusClass(s) { return 'ca-status-' + String(s || 'green').toLowerCase(); }
+
+    function load() {
+      return fetch(API + '/allocationDigest', { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); });
+    }
+
+    function renderHero(d) {
+      var s = d.system || {};
+      var html = '';
+      html += '<div class="ca-hero-card"><div class="ca-label">Month</div><div class="ca-value">' + esc(d.month || '—') + '</div><div class="ca-sub">Allocation period</div></div>';
+      html += '<div class="ca-hero-card"><div class="ca-label">System Budget</div><div class="ca-value ' + statusClass(s.status) + '">$' + Number(s.spent || 0).toFixed(2) + ' / $' + Number(s.budget || 0).toFixed(0) + '</div><div class="ca-sub">' + (s.pct || 0) + '% · ' + esc(s.status || '—') + (s.squeezeMode ? ' · SQUEEZE' : '') + '</div></div>';
+      html += '<div class="ca-hero-card"><div class="ca-label">Remaining</div><div class="ca-value">$' + Number(s.remaining || 0).toFixed(2) + '</div><div class="ca-sub">this month</div></div>';
+      var pending = Array.isArray(d.openRequests) ? d.openRequests.length : 0;
+      html += '<div class="ca-hero-card"><div class="ca-label">Pending Requests</div><div class="ca-value ' + (pending >= 3 ? 'ca-status-yellow' : '') + '">' + pending + '</div><div class="ca-sub">awaiting Cipher or CEO</div></div>';
+      document.getElementById('ca-hero').innerHTML = html;
+    }
+
+    function renderAgents(d) {
+      var pa = d.perAgent || {};
+      var agents = ['nova','cipher','pixel','forge','scribe','quill','echo','scout'];
+      var html = agents.map(function (aid) {
+        var a = pa[aid] || { cap: 0, spent: 0, remaining: 0, pct: 0, status: 'GREEN' };
+        var pct = Math.min(a.pct || 0, 100);
+        var barCls = a.status === 'RED' ? 'red' : (a.status === 'YELLOW' ? 'yellow' : '');
+        var overBar = (a.pct || 0) > 100 ? ' · <span class="ca-variance-pos">' + (a.pct - 100) + '% over</span>' : '';
+        return '<div class="ca-agent-row">' +
+          '<div class="ca-agent-name">' + esc(aid) + '</div>' +
+          '<div class="ca-bar-track"><div class="ca-bar-fill ' + barCls + '" style="width:' + pct + '%;"></div></div>' +
+          '<div class="ca-agent-detail">$' + Number(a.spent).toFixed(2) + ' / $' + Number(a.cap).toFixed(2) + overBar + '</div>' +
+          '<div class="ca-agent-status ' + statusClass(a.status) + '">' + esc(a.status || '—') + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('ca-agents').innerHTML = html;
+    }
+
+    function renderPending(d) {
+      var req = Array.isArray(d.openRequests) ? d.openRequests : [];
+      if (req.length === 0) { emptyState('ca-pending', 'No pending budget requests. Agents haven\'t emitted request-budget actions this cycle.'); return; }
+      var html = req.slice(0, 20).map(function (r) {
+        var cls = r.status === 'pending_ceo' ? 'pending-ceo' : 'pending-cipher';
+        return '<div class="ca-request-row ' + cls + '">' +
+          '<div class="ca-request-head"><strong>' + esc(r.agentId) + ' · ' + esc(r.type) + '</strong><span class="ca-request-cost">$' + Number(r.estimatedCost || 0).toFixed(2) + '</span></div>' +
+          '<div class="ca-request-just">' + esc(r.justification || '') + '</div>' +
+          '<div class="ca-request-meta">' + esc(r.id) + ' · ' + esc(r.status) + ' · ' + esc((r.requestedAt || '').substring(0, 16).replace('T', ' ')) + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('ca-pending').innerHTML = html;
+    }
+
+    function renderDecisions(d) {
+      var log = Array.isArray(d.recentDecisions) ? d.recentDecisions.slice().reverse() : [];
+      if (log.length === 0) { emptyState('ca-decisions', 'No decisions yet. Cipher\'s approvals + experiment-concluded events appear here.'); return; }
+      var html = log.slice(0, 20).map(function (l) {
+        var cls = l.action || '';
+        return '<div class="ca-decision-row">' +
+          '<div class="ca-decision-action ' + esc(cls) + '">' + esc(l.action || '') + '</div>' +
+          '<div>' + esc(l.agentId || '—') + '</div>' +
+          '<div>' + (l.estimatedCost != null ? '$' + Number(l.estimatedCost).toFixed(2) : '—') + '</div>' +
+          '<div style="opacity:0.7;">' + esc((l.reason || '').substring(0, 80)) + '</div>' +
+          '<div class="ca-decision-ts">' + esc((l.at || '').substring(0, 16).replace('T', ' ')) + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('ca-decisions').innerHTML = html;
+    }
+
+    function renderROICampaigns(d) {
+      var rows = Array.isArray(d.roiByCampaign) ? d.roiByCampaign : [];
+      if (rows.length === 0) { emptyState('ca-roi-campaigns', 'No campaign ROI data yet — needs outcomeDigest.perCampaign populated.'); return; }
+      var html = rows.slice(0, 10).map(function (c) {
+        return '<div class="ca-roi-row">' +
+          '<div style="color:#fff;">' + esc(c.title || c.campaignId) + '</div>' +
+          '<div>$' + Number(c.spent || 0).toFixed(2) + '</div>' +
+          '<div>' + (c.engagement || 0) + ' eng</div>' +
+          '<div>' + (c.costPerEngagement != null ? '$' + Number(c.costPerEngagement).toFixed(3) + '/eng' : '—') + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('ca-roi-campaigns').innerHTML = html;
+    }
+
+    function renderROIExperiments(d) {
+      var rows = (Array.isArray(d.roiByExperiment) ? d.roiByExperiment : []).filter(function (e) { return e.actualCost > 0; });
+      if (rows.length === 0) { emptyState('ca-roi-experiments', 'No experiments have been auto-concluded yet (need 10+ samples with effect-size gate).'); return; }
+      var html = rows.slice(0, 10).map(function (e) {
+        var variance = (e.estimatedCost > 0 && e.actualCost > 0) ? ((e.actualCost - e.estimatedCost) / e.estimatedCost) * 100 : null;
+        var vCls = variance == null ? '' : (variance > 0 ? 'variance-red' : 'variance-green');
+        var vStr = variance == null ? '—' : ((variance >= 0 ? '+' : '') + Math.round(variance) + '%');
+        var vClass = variance == null ? '' : (variance > 0 ? 'ca-variance-pos' : 'ca-variance-neg');
+        return '<div class="ca-roi-row ' + vCls + '">' +
+          '<div style="color:#fff;">' + esc(e.agent || '') + ' · ' + esc((e.hypothesis || '').substring(0, 50)) + '</div>' +
+          '<div>est $' + Number(e.estimatedCost || 0).toFixed(2) + '</div>' +
+          '<div>act $' + Number(e.actualCost || 0).toFixed(2) + '</div>' +
+          '<div class="' + vClass + '">' + vStr + ' · ' + esc(e.verdict || '—') + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('ca-roi-experiments').innerHTML = html;
+    }
+
+    load().then(function (d) {
+      if (d._builtOnDemand) { console.log('[allocationDigest] built on-demand (heartbeat cache missing or stale)'); }
+      renderHero(d);
+      renderAgents(d);
+      renderPending(d);
+      renderDecisions(d);
+      renderROICampaigns(d);
+      renderROIExperiments(d);
+    }).catch(function (err) {
+      var m = 'Failed to load capital allocation.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('ca-hero').innerHTML = '<div class="ca-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>

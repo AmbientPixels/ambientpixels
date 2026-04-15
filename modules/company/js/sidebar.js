@@ -106,6 +106,7 @@
         { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
         { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] },
         { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
+        { href: BASE + 'allocation.html', label: 'Allocation', icon: 'fa-coins', match: ['allocation.html'] },
         { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
         { href: BASE + 'agent-intelligence.html', label: 'Agent Intel', icon: 'fa-lightbulb', match: ['agent-intelligence.html'] },
         { href: BASE + 'world-state.html', label: 'World State', icon: 'fa-globe', match: ['world-state.html'], minMode: 'admin' },
