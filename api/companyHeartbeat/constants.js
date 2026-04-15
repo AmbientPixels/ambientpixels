@@ -7,6 +7,29 @@ const path = require('path');
 // Agent processing order — Echo runs after Scribe/Quill so peer reviews complete before social injection
 const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout'];
 
+// Shared envelope contract for the heartbeat agent output. Used by Gemini
+// structured output (responseSchema) so the model is forced to emit all
+// required arrays instead of narrating intent with empty arrays under
+// multi-section prompts. Claude path ignores this; it complies from the
+// prompt alone. Items are loose OBJECT to allow the full shape variety of
+// actions/proposals without being stripped. reasoning/messages/reflectionMemory
+// are optional extensions parsed in agent-runner.js.
+// Lives in constants.js (not normalization.js) to avoid a gemini→normalization→
+// helpers→gemini require cycle.
+const AGENT_ENVELOPE_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    reasoning:        { type: 'STRING' },
+    taskUpdates:      { type: 'ARRAY', items: { type: 'OBJECT' } },
+    proposals:        { type: 'ARRAY', items: { type: 'OBJECT' } },
+    remember:         { type: 'ARRAY', items: { type: 'OBJECT' } },
+    observations:     { type: 'ARRAY', items: { type: 'STRING' } },
+    messages:         { type: 'ARRAY', items: { type: 'OBJECT' } },
+    reflectionMemory: { type: 'STRING' }
+  },
+  required: ['reasoning', 'taskUpdates', 'proposals', 'remember', 'observations']
+};
+
 // Load agent personalities and structured personality data from company-agents.json
 let _agentPersonalities = {};
 let _agentPersonalityData = {};
@@ -346,6 +369,7 @@ async function loadAgentRegistry(storage) {
 module.exports = {
   DOMAIN_LEAD_MAP,
   AGENT_IDS,
+  AGENT_ENVELOPE_SCHEMA,
   _agentPersonalities,
   _agentPersonalityData,
   AGENT_ROLES,

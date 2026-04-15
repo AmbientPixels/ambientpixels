@@ -1712,6 +1712,8 @@ Example payload:
   "remember": [],
   "observations": ["Triage complete for 3 tasks"]
 }
+
+REASONING/ACTION CONSISTENCY (REQUIRED): If your reasoning field describes a concrete action you intend to take this cycle (creating/updating/moving a task, making a proposal, saving a memory, posting social), that action MUST appear in the matching array (taskUpdates / proposals / remember). Empty arrays are valid ONLY when you genuinely have no action to take. Narrating intent without populating the arrays is a policy violation.
 ` : `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 

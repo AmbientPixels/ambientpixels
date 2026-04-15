@@ -5,6 +5,7 @@
 
 var fetch = require('node-fetch');
 var storage = require('../_utils/companyStorage');
+var { AGENT_ENVELOPE_SCHEMA } = require('./constants');
 
 var GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -103,16 +104,27 @@ async function _callClaude(prompt, agentId, maxTokens, modelKey) {
 }
 
 // ── Gemini API call ──
-async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller) {
+// structured=true applies the envelope schema (heartbeat agent calls only).
+// Execute/review calls return free-form deliverables and must NOT be schema-gated.
+async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, structured) {
   if (!GEMINI_API_KEY) return null;
 
+  var generationConfig = {
+    temperature: temperature || 0.7,
+    topP: 0.9,
+    maxOutputTokens: maxTokens || 1500
+  };
+  if (structured) {
+    // Force valid JSON envelope. Without this, Gemini 2.0 Flash narrates
+    // intent in `reasoning` but ships empty taskUpdates/proposals arrays
+    // under multi-section prompts (world-state + intel + reflection + etc).
+    // Schema is shared with the prompt contract in normalization.js.
+    generationConfig.responseMimeType = 'application/json';
+    generationConfig.responseSchema = AGENT_ENVELOPE_SCHEMA;
+  }
   var body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: temperature || 0.7,
-      topP: 0.9,
-      maxOutputTokens: maxTokens || 1500
-    }
+    generationConfig: generationConfig
   };
 
   try {
@@ -151,13 +163,13 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller) {
 async function callGemini(prompt, agentId) {
   var model = await _resolveModel();
   if (_isClaudeModel(model)) return _callClaude(prompt, agentId, 1500, model);
-  return _callGeminiRaw(prompt, agentId, 1500, 0.7, 'heartbeat');
+  return _callGeminiRaw(prompt, agentId, 1500, 0.7, 'heartbeat', true);
 }
 
 async function callGeminiExecute(prompt, agentId) {
   var model = await _resolveModel();
   if (_isClaudeModel(model)) return _callClaude(prompt, agentId, 1200, model);
-  return _callGeminiRaw(prompt, agentId, 1200, 0.8, 'heartbeat-execute');
+  return _callGeminiRaw(prompt, agentId, 1200, 0.8, 'heartbeat-execute', false);
 }
 
 // Returns the currently active model key (for dashboard/API)
