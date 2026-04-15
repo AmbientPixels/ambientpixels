@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Fleet — agent roster, lifecycle proposals, identity evolution." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Fleet — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .fl-section { margin-bottom: 1.4rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .fl-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .fl-empty { font-size: 0.7rem; color: rgba(255,255,255,0.5); padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+    .fl-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
+    .fl-hero-card { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .fl-hero-card .fl-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .fl-hero-card .fl-value { font-size: 1.3rem; font-weight: 600; color: #fff; }
+    .fl-hero-card .fl-sub { font-size: 0.6rem; opacity: 0.6; margin-top: 0.2rem; }
+    .fl-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.9rem; }
+
+    .fl-roster { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.7rem; }
+    .fl-agent-card { padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); font-size: 0.72rem; }
+    .fl-agent-card.protected { border-left: 3px solid #34d399; }
+    .fl-agent-card.archived { opacity: 0.55; border-left: 3px solid rgba(156,163,175,0.5); }
+    .fl-agent-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; }
+    .fl-agent-name { font-size: 0.95rem; font-weight: 600; color: #fff; text-transform: capitalize; }
+    .fl-agent-tier { font-size: 0.55rem; opacity: 0.55; letter-spacing: 0.04em; }
+    .fl-agent-role { font-size: 0.65rem; opacity: 0.8; margin-bottom: 0.3rem; }
+    .fl-agent-meta { font-size: 0.6rem; opacity: 0.65; line-height: 1.4; }
+    .fl-agent-meta strong { color: rgba(255,255,255,0.85); }
+    .fl-agent-actions { display: flex; gap: 0.3rem; margin-top: 0.5rem; }
+    .fl-btn { padding: 0.25rem 0.6rem; font-size: 0.6rem; border-radius: 4px; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
+    .fl-btn-primary { background: rgba(96,165,250,0.15); color: #60a5fa; border-color: rgba(96,165,250,0.3); }
+    .fl-btn-warn { background: rgba(248,113,113,0.12); color: #f87171; border-color: rgba(248,113,113,0.3); }
+    .fl-btn-approve { background: rgba(52,211,153,0.18); color: #34d399; border-color: rgba(52,211,153,0.3); }
+    .fl-btn-reject { background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3); }
+    .fl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .fl-btn:hover:not(:disabled) { filter: brightness(1.2); }
+
+    .fl-drift { font-size: 0.55rem; padding: 0.1rem 0.35rem; border-radius: 3px; background: rgba(251,191,36,0.15); color: #fbbf24; display: inline-block; margin-left: 0.3rem; }
+    .fl-cap-red { color: #f87171; }
+    .fl-cap-yellow { color: #fbbf24; }
+    .fl-cap-green { color: #34d399; }
+
+    .fl-proposal { padding: 0.7rem 0.9rem; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid rgba(96,165,250,0.5); font-size: 0.72rem; }
+    .fl-proposal.type-hire { border-left-color: #34d399; }
+    .fl-proposal.type-retire { border-left-color: #f87171; }
+    .fl-proposal.type-evolve { border-left-color: #fbbf24; }
+    .fl-proposal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.3rem; }
+    .fl-proposal-title { font-weight: 600; color: #fff; }
+    .fl-proposal-cost { font-weight: 600; color: #fbbf24; font-size: 0.75rem; }
+    .fl-proposal-body { opacity: 0.85; line-height: 1.45; margin-bottom: 0.4rem; }
+    .fl-proposal-body strong { color: rgba(255,255,255,0.9); }
+    .fl-proposal-meta { font-size: 0.58rem; opacity: 0.55; margin-top: 0.3rem; }
+    .fl-actions { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+
+    .fl-decision { padding: 0.35rem 0.6rem; font-size: 0.62rem; border-radius: 4px; margin-bottom: 0.25rem; background: rgba(255,255,255,0.02); display: grid; grid-template-columns: 80px 100px 1fr 90px; gap: 0.4rem; align-items: center; }
+    .fl-decision-action { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .fl-decision-action.approved { color: #34d399; }
+    .fl-decision-action.rejected { color: #f87171; }
+
+    .fl-intel-row { padding: 0.4rem 0.6rem; font-size: 0.65rem; border-radius: 4px; margin-bottom: 0.25rem; background: rgba(255,255,255,0.02); }
+    .fl-intel-label { font-weight: 600; color: #fff; text-transform: capitalize; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="fl-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-users-gear co-icon-mr-lg dash-icon-amber"></i>Fleet</h1>
+        <p class="act-header-sub">Agent roster, lifecycle proposals, identity evolution. Forge proposes; CEO approves.</p>
+      </div>
+    </div>
+
+    <div id="fl-hero" class="fl-hero"></div>
+
+    <div class="fl-section" data-section="roster">
+      <h2><i class="fas fa-users"></i> ACTIVE ROSTER</h2>
+      <div id="fl-roster"></div>
+    </div>
+
+    <div class="fl-section" data-section="proposals">
+      <h2><i class="fas fa-inbox"></i> PENDING FLEET PROPOSALS</h2>
+      <div id="fl-proposals"></div>
+    </div>
+
+    <div class="fl-grid-2">
+      <div class="fl-section" data-section="intel">
+        <h2><i class="fas fa-stethoscope"></i> FORGE'S FLEET INTELLIGENCE</h2>
+        <div id="fl-intel"></div>
+      </div>
+
+      <div class="fl-section" data-section="archive">
+        <h2><i class="fas fa-box-archive"></i> ARCHIVED AGENTS</h2>
+        <div id="fl-archive"></div>
+      </div>
+    </div>
+
+    <div class="fl-section" data-section="decisions">
+      <h2><i class="fas fa-gavel"></i> RECENT FLEET DECISIONS</h2>
+      <div id="fl-decisions"></div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+    var PROTECTED = new Set(['nova', 'cipher']);
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function emptyState(id, msg) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="fl-empty">' + esc(msg) + '</div>'; }
+    function ageDays(iso) {
+      if (!iso) return '?';
+      var ms = Date.now() - Date.parse(iso);
+      if (!isFinite(ms) || ms < 0) return '?';
+      return Math.floor(ms / (24*60*60*1000));
+    }
+
+    function loadAll() {
+      return Promise.all([
+        fetch(API + '/company-state?key=agentRegistry', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
+        fetch(API + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
+        fetch(API + '/company-state?key=runtimeMemory', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
+        fetch(API + '/allocationDigest', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();})
+      ]).then(function (arr) {
+        return {
+          registry: (arr[0] && arr[0].value) || { agents: [] },
+          approvalQueue: (arr[1] && arr[1].value) || [],
+          reflectionDigest: (arr[2] && arr[2].value && arr[2].value.reflectionDigest) || null,
+          financeDigest: (arr[2] && arr[2].value && arr[2].value.financeDigest) || null,
+          allocationDigest: arr[3] || null
+        };
+      });
+    }
+
+    function renderHero(d) {
+      var active = (d.registry.agents || []).filter(function(a){return a.status==='active';});
+      var archived = (d.registry.agents || []).filter(function(a){return a.status==='archived';});
+      var pending = (d.approvalQueue || []).filter(function(q){return q.type && q.type.indexOf('agent_')===0 && q.status==='pending';});
+      var oldest = pending.slice().sort(function(a,b){return (a.createdAt||'').localeCompare(b.createdAt||'');})[0];
+      var oldestAge = oldest ? ageDays(oldest.createdAt) + 'd' : '—';
+
+      var html = '';
+      html += '<div class="fl-hero-card"><div class="fl-label">Active Fleet</div><div class="fl-value">' + active.length + '</div><div class="fl-sub">min ' + 5 + ' · max ' + 12 + '</div></div>';
+      html += '<div class="fl-hero-card"><div class="fl-label">Pending Proposals</div><div class="fl-value">' + pending.length + '</div><div class="fl-sub">hire / retire / evolve</div></div>';
+      html += '<div class="fl-hero-card"><div class="fl-label">Archived</div><div class="fl-value">' + archived.length + '</div><div class="fl-sub">retired, memories preserved</div></div>';
+      html += '<div class="fl-hero-card"><div class="fl-label">Oldest Pending</div><div class="fl-value">' + oldestAge + '</div><div class="fl-sub">' + (oldest ? esc((oldest.type||'').replace('agent_','').replace('_proposal','')) : 'nothing pending') + '</div></div>';
+      document.getElementById('fl-hero').innerHTML = html;
+    }
+
+    function renderRoster(d) {
+      var active = (d.registry.agents || []).filter(function(a){return a.status==='active';});
+      if (active.length === 0) { emptyState('fl-roster', 'No active agents. Agent registry may be uninitialized.'); return; }
+
+      var allocPA = (d.allocationDigest && d.allocationDigest.perAgent) || {};
+      var rdPA = (d.reflectionDigest && d.reflectionDigest.perAgent) || {};
+
+      var html = '<div class="fl-roster">' + active.map(function (a) {
+        var isProtected = PROTECTED.has(a.id);
+        var alloc = allocPA[a.id] || null;
+        var drift = rdPA[a.id] && rdPA[a.id].roleAdherence && rdPA[a.id].roleAdherence.drift;
+        var driftBadge = (drift && drift !== 'on-role') ? '<span class="fl-drift">' + esc(drift) + '</span>' : '';
+        var capClass = alloc ? ('fl-cap-' + String(alloc.status||'green').toLowerCase()) : '';
+        var capText = alloc ? ('$' + Number(alloc.spent).toFixed(2) + '/$' + Number(a.monthlyCap).toFixed(2) + ' (' + alloc.pct + '%)') : ('cap $' + Number(a.monthlyCap||0).toFixed(2));
+
+        return '<div class="fl-agent-card' + (isProtected ? ' protected' : '') + '">' +
+          '<div class="fl-agent-head"><span class="fl-agent-name">' + esc(a.name || a.id) + driftBadge + '</span><span class="fl-agent-tier">T' + (a.tier||'?') + '</span></div>' +
+          '<div class="fl-agent-role">' + esc(a.role || '') + '</div>' +
+          '<div class="fl-agent-meta"><strong>Cap:</strong> <span class="' + capClass + '">' + esc(capText) + '</span><br>' +
+          '<strong>Focus:</strong> ' + esc(String(a.focus||'').substring(0,140)) + (String(a.focus||'').length > 140 ? '…' : '') + '<br>' +
+          '<strong>Reports to:</strong> ' + esc(a.reportsTo || '—') + (isProtected ? ' · <span style="color:#34d399;">PROTECTED</span>' : '') + '</div>' +
+          '<div class="fl-agent-actions">' +
+            '<button class="fl-btn fl-btn-primary" data-action="evolve" data-agent="' + esc(a.id) + '">Evolve</button>' +
+            '<button class="fl-btn fl-btn-warn" data-action="retire" data-agent="' + esc(a.id) + '"' + (isProtected ? ' disabled title="PROTECTED"' : '') + '>Retire</button>' +
+          '</div></div>';
+      }).join('') + '</div>';
+      document.getElementById('fl-roster').innerHTML = html;
+
+      // Wire action buttons — open lightweight prompt flow for CEO
+      document.querySelectorAll('#fl-roster .fl-btn[data-action]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var action = btn.getAttribute('data-action');
+          var agentId = btn.getAttribute('data-agent');
+          if (action === 'retire') return openRetireFlow(agentId);
+          if (action === 'evolve') return openEvolveFlow(agentId);
+        });
+      });
+    }
+
+    function openRetireFlow(agentId) {
+      var rationale = window.prompt('Rationale for retiring ' + agentId + ' (required, min 20 chars):');
+      if (!rationale || rationale.trim().length < 20) { alert('Rationale required, min 20 chars.'); return; }
+      var plan = window.prompt('Reassignment plan (what happens to open tasks / campaigns):');
+      if (!plan || plan.trim().length < 10) { alert('Reassignment plan required.'); return; }
+      var payload = {
+        type: 'agent_retire_proposal',
+        proposedBy: 'ceo',
+        retire: { targetAgent: agentId, rationale: rationale.trim(), reassignmentPlan: plan.trim(), estimatedWinddownCost: 0 }
+      };
+      submitProposal(payload);
+    }
+
+    function openEvolveFlow(agentId) {
+      var field = window.prompt('Which field to evolve? Options: focus, monthlyCap, doctrine, expectedActionMix');
+      if (!field) return;
+      field = field.trim();
+      var allowed = ['focus', 'monthlyCap', 'doctrine', 'expectedActionMix'];
+      if (allowed.indexOf(field) === -1) { alert('Field must be one of: ' + allowed.join(', ')); return; }
+      var newValue;
+      if (field === 'monthlyCap') {
+        var v = window.prompt('New monthlyCap (number, 0 < cap ≤ $5):');
+        newValue = Number(v);
+        if (!(newValue > 0 && newValue <= 5)) { alert('Invalid cap.'); return; }
+      } else if (field === 'focus') {
+        newValue = window.prompt('New focus statement:');
+        if (!newValue || newValue.length < 10) { alert('Focus required, min 10 chars.'); return; }
+      } else {
+        var json = window.prompt('New ' + field + ' as JSON:');
+        try { newValue = JSON.parse(json); } catch (e) { alert('Invalid JSON.'); return; }
+      }
+      var rationale = window.prompt('Rationale for this evolution:');
+      if (!rationale || rationale.trim().length < 20) { alert('Rationale required, min 20 chars.'); return; }
+      var changes = {}; changes[field] = newValue;
+      var payload = {
+        type: 'agent_evolution_proposal',
+        proposedBy: 'ceo',
+        evolution: { targetAgent: agentId, changes: changes, rationale: rationale.trim(), estimatedCostDelta: field === 'monthlyCap' ? (newValue - 0) : 0 }
+      };
+      submitProposal(payload);
+    }
+
+    function submitProposal(payload) {
+      fetch(API + '/fleetProposalCreate', {
+        method: 'POST',
+        headers: { 'x-company-secret': SECRET, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (r) {
+        if (!r.ok) return r.json().then(function(j){throw new Error(j.error || 'HTTP ' + r.status);});
+        return r.json();
+      }).then(function (res) {
+        alert('Proposal created: ' + res.id + '\nApprove it below in PENDING FLEET PROPOSALS.');
+        window.location.reload();
+      }).catch(function (e) { alert('Failed: ' + e.message); });
+    }
+
+    function typeShort(t) {
+      if (t === 'agent_hire_proposal') return 'HIRE';
+      if (t === 'agent_retire_proposal') return 'RETIRE';
+      if (t === 'agent_evolution_proposal') return 'EVOLVE';
+      return t || '';
+    }
+    function typeSlug(t) {
+      if (t === 'agent_hire_proposal') return 'type-hire';
+      if (t === 'agent_retire_proposal') return 'type-retire';
+      if (t === 'agent_evolution_proposal') return 'type-evolve';
+      return '';
+    }
+    function proposalBody(q) {
+      var lines = [];
+      if (q.hire) {
+        lines.push('<strong>ID:</strong> ' + esc(q.hire.id) + ' · <strong>Name:</strong> ' + esc(q.hire.name) + ' · <strong>Tier:</strong> ' + q.hire.tier);
+        lines.push('<strong>Role:</strong> ' + esc(q.hire.role));
+        lines.push('<strong>Focus:</strong> ' + esc(q.hire.focus));
+        lines.push('<strong>Reports to:</strong> ' + esc(q.hire.reportsTo || '—') + ' · <strong>Cap:</strong> $' + Number(q.hire.monthlyCap).toFixed(2));
+        lines.push('<strong>Rationale:</strong> ' + esc(q.hire.rationale));
+      } else if (q.retire) {
+        lines.push('<strong>Target:</strong> ' + esc(q.retire.targetAgent));
+        lines.push('<strong>Rationale:</strong> ' + esc(q.retire.rationale));
+        lines.push('<strong>Reassignment plan:</strong> ' + esc(q.retire.reassignmentPlan));
+        if (q.retire.orphans && q.retire.orphans.length) lines.push('<strong style="color:#fbbf24;">Orphans:</strong> ' + esc(q.retire.orphans.join(', ')));
+      } else if (q.evolution) {
+        lines.push('<strong>Target:</strong> ' + esc(q.evolution.targetAgent));
+        lines.push('<strong>Changes:</strong> <code>' + esc(JSON.stringify(q.evolution.changes)).substring(0,300) + '</code>');
+        lines.push('<strong>Rationale:</strong> ' + esc(q.evolution.rationale));
+      }
+      return lines.join('<br>');
+    }
+
+    function renderProposals(d) {
+      var aq = d.approvalQueue || [];
+      var pending = aq.filter(function(q){return q.type && q.type.indexOf('agent_')===0 && q.status==='pending';});
+      if (pending.length === 0) { emptyState('fl-proposals', 'No pending fleet proposals. Use the Evolve/Retire buttons on any agent card above to propose, or wait for Forge to surface candidates.'); return; }
+      var html = pending.map(function (q) {
+        return '<div class="fl-proposal ' + typeSlug(q.type) + '">' +
+          '<div class="fl-proposal-head"><span class="fl-proposal-title">' + typeShort(q.type) + ' · ' + esc((q.hire && q.hire.id) || (q.retire && q.retire.targetAgent) || (q.evolution && q.evolution.targetAgent) || q.id) + '</span><span class="fl-proposal-cost">$' + Number(q.estimatedCost||0).toFixed(2) + '</span></div>' +
+          '<div class="fl-proposal-body">' + proposalBody(q) + '</div>' +
+          '<div class="fl-proposal-meta">' + esc(q.id) + ' · ' + esc(q.proposedBy || '—') + ' · ' + esc((q.createdAt||'').substring(0,16).replace('T',' ')) + ' · age ' + ageDays(q.createdAt) + 'd</div>' +
+          '<div class="fl-actions"><button class="fl-btn fl-btn-approve" data-id="' + esc(q.id) + '" data-decision="approved">Approve</button>' +
+          '<button class="fl-btn fl-btn-reject" data-id="' + esc(q.id) + '" data-decision="rejected">Reject</button></div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('fl-proposals').innerHTML = html;
+
+      document.querySelectorAll('#fl-proposals .fl-btn[data-decision]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.getAttribute('data-id');
+          var decision = btn.getAttribute('data-decision');
+          var ceoNote = '';
+          if (decision === 'rejected') {
+            ceoNote = window.prompt('Reason for reject (required):') || '';
+            if (!ceoNote.trim()) { alert('Reject requires a reason.'); return; }
+          } else {
+            ceoNote = window.prompt('Optional note for approve:') || '';
+          }
+          btn.disabled = true;
+          fetch(API + '/approveProposal', {
+            method: 'POST',
+            headers: { 'x-company-secret': SECRET, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, decision: decision, ceoNote: ceoNote })
+          }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(function (res) {
+              var msg = 'Decision recorded.';
+              if (res.sideEffect) {
+                if (res.sideEffect.kind === 'agent-hired') msg = 'Agent ' + res.sideEffect.agentId + ' HIRED. Will run next heartbeat.';
+                else if (res.sideEffect.kind === 'agent-retired') msg = 'Agent ' + res.sideEffect.agentId + ' RETIRED. ' + res.sideEffect.reassignedCount + ' task(s) reassigned.';
+                else if (res.sideEffect.kind === 'agent-evolved') msg = 'Agent ' + res.sideEffect.agentId + ' EVOLVED. Fields: ' + (res.sideEffect.changedFields || []).join(', ');
+              }
+              if (res.warning) msg += '\n⚠ ' + res.warning;
+              alert(msg);
+              window.location.reload();
+            })
+            .catch(function (e) { alert('Failed: ' + e.message); btn.disabled = false; });
+        });
+      });
+    }
+
+    function renderArchive(d) {
+      var archived = (d.registry.agents || []).filter(function(a){return a.status==='archived';});
+      if (archived.length === 0) { emptyState('fl-archive', 'No archived agents. Retiring an active agent moves them here with memories preserved.'); return; }
+      var html = archived.map(function (a) {
+        return '<div class="fl-agent-card archived">' +
+          '<div class="fl-agent-head"><span class="fl-agent-name">' + esc(a.name || a.id) + '</span><span class="fl-agent-tier">T' + (a.tier||'?') + '</span></div>' +
+          '<div class="fl-agent-role">' + esc(a.role || '') + '</div>' +
+          '<div class="fl-agent-meta"><strong>Retired:</strong> ' + esc((a.retiredAt||'').substring(0,10)) + '<br>' +
+          '<strong>Reason:</strong> ' + esc(String(a.retiredReason||'').substring(0,200)) + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('fl-archive').innerHTML = '<div class="fl-roster">' + html + '</div>';
+    }
+
+    function renderIntel(d) {
+      var lines = [];
+      // Drift
+      var rdPA = (d.reflectionDigest && d.reflectionDigest.perAgent) || {};
+      var drifts = Object.keys(rdPA).filter(function(k){ var ra=rdPA[k].roleAdherence; return ra && ra.drift && ra.drift!=='on-role'; });
+      if (drifts.length) {
+        lines.push('<div class="fl-intel-row"><strong>Drift candidates:</strong> ' + drifts.map(function(k){return '<span class="fl-intel-label">'+esc(k)+'</span> <span class="fl-drift">'+esc(rdPA[k].roleAdherence.drift)+'</span>';}).join(' · ') + '</div>');
+      }
+      // Cap-exceeding
+      var allocPA = (d.allocationDigest && d.allocationDigest.perAgent) || {};
+      var over = Object.keys(allocPA).filter(function(k){return allocPA[k].status==='RED';});
+      if (over.length) {
+        lines.push('<div class="fl-intel-row"><strong>Cap-exceeding:</strong> ' + over.map(function(k){var a=allocPA[k];return '<span class="fl-intel-label">'+esc(k)+'</span> ('+a.pct+'%)';}).join(' · ') + '</div>');
+      }
+      // Stale
+      var eff = (d.financeDigest && d.financeDigest.agentEfficiency) || {};
+      var stale = Object.keys(eff).filter(function(k){return eff[k].executed===0;});
+      if (stale.length) {
+        lines.push('<div class="fl-intel-row"><strong>Stale (0 actions 7d):</strong> ' + stale.map(function(k){return '<span class="fl-intel-label">'+esc(k)+'</span>';}).join(' · ') + '</div>');
+      }
+      if (lines.length === 0) { emptyState('fl-intel', 'Fleet is healthy — no drift, no cap exceedance, no stale agents.'); return; }
+      document.getElementById('fl-intel').innerHTML = lines.join('');
+    }
+
+    function renderDecisions(d) {
+      var aq = d.approvalQueue || [];
+      var resolved = aq.filter(function(q){return q.type && q.type.indexOf('agent_')===0 && q.status!=='pending';})
+        .sort(function(a,b){return (b.resolvedAt||b.createdAt||'').localeCompare(a.resolvedAt||a.createdAt||'');})
+        .slice(0, 20);
+      if (resolved.length === 0) { emptyState('fl-decisions', 'No fleet decisions yet.'); return; }
+      document.getElementById('fl-decisions').innerHTML = resolved.map(function (q) {
+        return '<div class="fl-decision">' +
+          '<div class="fl-decision-action ' + esc(q.status) + '">' + esc(q.status) + '</div>' +
+          '<div>' + typeShort(q.type) + ' · ' + esc((q.hire && q.hire.id) || (q.retire && q.retire.targetAgent) || (q.evolution && q.evolution.targetAgent) || '—') + '</div>' +
+          '<div style="opacity:0.7;">' + esc((q.ceoNote||'').substring(0,80)) + '</div>' +
+          '<div style="opacity:0.5;font-size:0.55rem;">' + esc((q.resolvedAt||q.createdAt||'').substring(0,16).replace('T',' ')) + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    loadAll().then(function (d) {
+      renderHero(d);
+      renderRoster(d);
+      renderProposals(d);
+      renderIntel(d);
+      renderArchive(d);
+      renderDecisions(d);
+    }).catch(function (err) {
+      var m = 'Failed to load fleet.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('fl-hero').innerHTML = '<div class="fl-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
