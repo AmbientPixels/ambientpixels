@@ -129,22 +129,6 @@ function _isObjectiveExemptCategory(category) {
   return C.OBJECTIVE_EXEMPT_CATEGORIES.has(_normalizeCategory(category));
 }
 
-function _normalizeActivationMode(mode) {
-  const normalized = String(mode || '').trim().toLowerCase();
-  if (C.ALLOWED_MODES.has(normalized)) return normalized;
-  return 'supervised_autonomous';
-}
-
-async function resolveActivationMode(storage, runId) {
-  var raw = await storage.getState('activationMode');
-  var provided = String(raw || '').trim().toLowerCase();
-  if (C.ALLOWED_MODES.has(provided)) return provided;
-  await logEvent('run-health', null, 'Invalid or missing activationMode, defaulting to supervised_autonomous', runId, {
-    runId: runId, reason: 'invalid_or_missing_mode', provided: raw || null
-  });
-  return 'supervised_autonomous';
-}
-
 function normalizeExecutionMode(v) {
   var s = String(v || '').trim().toLowerCase();
   return C.ALLOWED_EXEC_MODES.has(s) ? s : 'active';
@@ -362,8 +346,6 @@ module.exports = {
   _isStartWorkStatus,
   _isTerminalTaskStatus,
   _isObjectiveExemptCategory,
-  _normalizeActivationMode,
-  resolveActivationMode,
   normalizeExecutionMode,
   evaluateEscalationPath,
   shouldRunTier4Agent,

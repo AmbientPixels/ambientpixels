@@ -261,7 +261,7 @@ async function runSmokeTests() {
         costIntel: agentId === 'cipher' ? { gemini: { totalCost: 1 } } : null,
         reviewCooldownIds: new Set(), seedMemories: { _global: 'Test' },
         researchIntelStore: [], socialIntel: null,
-        normalizedActivationMode: 'supervised_autonomous',
+        executionMode: 'active',
         isAgentInCooldown: () => false, logAgentCooldownOnce: () => {}, incPolicyGate: () => {},
         campaignCtx: { [agentId]: { context: '', maxTasks: 5 } },
         siteIntel: null,

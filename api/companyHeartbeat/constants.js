@@ -281,7 +281,6 @@ const DOMAIN_LEAD_MAP = {
   nova: null
 };
 
-const ALLOWED_MODES = new Set(['manual', 'supervised_autonomous', 'experimental']);
 const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'manual', 'frozen']);
 
 // ── Workspace context ──
@@ -435,7 +434,6 @@ module.exports = {
   SOCIAL_INTEL_WINDOW_DAYS,
   SOCIAL_INTEL_FRESHNESS_MS,
   _TASK_PREFIXES,
-  ALLOWED_MODES,
   ALLOWED_EXEC_MODES,
   WORKSPACE_ROOT,
   MAX_WORKSPACE_INJECT_CHARS,
