@@ -231,7 +231,7 @@ function buildSiteContextBlock() {
 // ambientos-guide is universal; product skills go to agents that handle that product's content.
 var SKILL_ROUTING = {
   nova:   ['ambientos-guide'],
-  echo:   ['ambientos-guide', 'pixel-agents'],
+  echo:   ['ambientos-guide'],
   scribe: ['ambientos-guide', 'pixel-agents', 'cardforge'],
   quill:  ['ambientos-guide'],
   pixel:  ['ambientos-guide', 'pixel-agents'],
@@ -586,9 +586,10 @@ Use this knowledge to inform your work. Do not re-create documents that already 
   }
 
   // Recent research intelligence — from persistent store + active tasks (token-bounded)
-  // Primary source: researchIntelStore (persists beyond task completion)
-  // Secondary source: active Scout tasks with research_intel (catches fresh research not yet persisted)
+  // Excluded for Echo — she gets curated trends via echoTrendSection; raw research is redundant
   let researchSection = '';
+  if (agent.id === 'echo') { /* skip — Echo sees trends, not raw research */ }
+  else {
   const _researchCutoff = Date.now() - (RESEARCH_MAX_AGE_DAYS * 24 * 60 * 60 * 1000);
   const persistedEntries = (researchIntelStore || [])
     .filter(e => !e.timestamp || new Date(e.timestamp).getTime() > _researchCutoff)
@@ -625,6 +626,7 @@ Use this knowledge to inform your work. Do not re-create documents that already 
         '\nUse these findings to inform your decisions and work when relevant.';
     }
   }
+  } // end else (non-Echo research gate)
 
   // Trend Radar injection — Scout-only: latest ingested trends for analysis
   let trendRadarSection = '';
