@@ -532,12 +532,12 @@
             var isInactive = obj.status === 'complete' || obj.status === 'canceled';
             html += '<tr' + (isInactive ? ' style="opacity:0.5;"' : '') + '>' +
               '<td><strong>' + escapeHtml(obj.title) + '</strong></td>' +
-              '<td><span style="color:' + sColor + ';font-size:0.62rem;font-weight:600;">' + (obj.status || 'on_track').replace(/_/g, ' ') + '</span></td>' +
-              '<td style="min-width:100px;"><div class="obj-tbl-bar"><div class="obj-tbl-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div><span style="font-size:0.58rem;color:' + barColor + ';font-weight:600;">' + pct + '%</span></td>' +
-              '<td style="font-size:0.62rem;">' + primaryDone + '/' + expected + '</td>' +
-              '<td style="font-size:0.62rem;">' + campCount + '</td>' +
-              '<td style="font-size:0.6rem;opacity:0.5;white-space:nowrap;">' + dateText + '</td>' +
-              '<td><button class="obj-edit-row-btn" data-id="' + obj.id + '" style="font-size:0.55rem;padding:0.15rem 0.35rem;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;"><i class="fas fa-pen"></i></button></td>' +
+              '<td><span style="color:' + sColor + ';font-size:var(--c-text-xs);font-weight:600;">' + (obj.status || 'on_track').replace(/_/g, ' ') + '</span></td>' +
+              '<td style="min-width:100px;"><div class="obj-tbl-bar"><div class="obj-tbl-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div><span style="font-size:var(--c-text-xs);color:' + barColor + ';font-weight:600;">' + pct + '%</span></td>' +
+              '<td style="font-size:var(--c-text-xs);">' + primaryDone + '/' + expected + '</td>' +
+              '<td style="font-size:var(--c-text-xs);">' + campCount + '</td>' +
+              '<td style="font-size:var(--c-text-xs);opacity:0.5;white-space:nowrap;">' + dateText + '</td>' +
+              '<td><button class="obj-edit-row-btn" data-id="' + obj.id + '" style="font-size:var(--c-text-xs);padding:0.15rem 0.35rem;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;"><i class="fas fa-pen"></i></button></td>' +
             '</tr>';
           });
           html += '</tbody></table>';
@@ -599,7 +599,7 @@
             var chipColor = _cc ? _cc.forStatus(cd.signal === 'complete' ? 'complete' : cd.signal) : '#64748b';
             if (cd.signal === 'complete') chipColor = _cc ? _cc.purple : '#8A2BE2';
             var pauseIcon = cd.status === 'paused' ? '<i class="fas fa-pause-circle" style="font-size:0.45rem; color:' + (_cc ? _cc.amber : '#fbbf24') + '; margin-right:2px;"></i>' : '';
-            return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.38rem;border-radius:4px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:' + chipColor + ';">' +
+            return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:var(--c-text-xs);padding:0.08rem 0.38rem;border-radius:4px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:' + chipColor + ';">' +
               pauseIcon + '<i class="fas fa-layer-group" style="font-size:0.42rem; opacity:0.6;"></i>' +
               escapeHtml(cd.title || cd.id) + ' <span style="opacity:0.6;">' + cd.pct + '%</span></span>';
           });
@@ -614,7 +614,7 @@
         var signalStatusMap = { on_track: 'on_track', at_risk: 'at_risk', behind: 'behind', blocked: 'behind', stale: 'at_risk', complete: 'complete', not_started: 'on_track', no_campaigns: 'on_track', no_tasks: 'on_track' };
         var suggestedStatus = signalStatusMap[autoSignal] || 'on_track';
         if (suggestedStatus !== effectiveStatus && !isCanceled && progress && progress.campaigns > 0) {
-          signalHintHtml = '<span style="font-size:0.52rem; opacity:0.45; margin-left:0.4rem;"><i class="fas fa-robot" style="margin-right:2px;"></i>Auto: ' + autoLabel + '</span>';
+          signalHintHtml = '<span style="font-size:var(--c-text-xs); opacity:0.45; margin-left:0.4rem;"><i class="fas fa-robot" style="margin-right:2px;"></i>Auto: ' + autoLabel + '</span>';
         }
 
         // Date range — derived from linked campaigns
@@ -660,7 +660,7 @@
               '<div style="position:absolute;top:-2px;left:' + tlPct + '%;width:7px;height:7px;border-radius:50%;background:' + rightColor + ';transform:translateX(-50%);"></div>' +
             '</div>';
           }
-          qDateHtml = '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.62rem;margin:0.1rem 0 0.3rem;opacity:0.7;">' +
+          qDateHtml = '<div style="display:flex;align-items:center;gap:0.5rem;font-size:var(--c-text-xs);margin:0.1rem 0 0.3rem;opacity:0.7;">' +
             '<span style="color:rgba(255,255,255,0.5);white-space:nowrap;"><i class="fas fa-calendar-alt" style="font-size:0.5rem;margin-right:3px;"></i>' + dateText + '</span>' +
             tlHtml +
             (rightText ? '<span style="color:' + rightColor + ';font-weight:600;white-space:nowrap;">' + rightText + '</span>' : '') +
@@ -702,7 +702,7 @@
           var btn = document.createElement('button');
           btn.textContent = statusLabels[s];
           var isActive = effectiveStatus === s;
-          btn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.4rem; border:1px solid ' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.08)') + '; background:' + (isActive ? 'rgba(255,255,255,0.05)' : 'transparent') + '; color:' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.4)') + '; border-radius:3px; cursor:pointer;';
+          btn.style.cssText = 'font-size:var(--c-text-xs); padding:0.2rem 0.4rem; border:1px solid ' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.08)') + '; background:' + (isActive ? 'rgba(255,255,255,0.05)' : 'transparent') + '; color:' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.4)') + '; border-radius:3px; cursor:pointer;';
           btn.disabled = isCanceled;
           if (isCanceled) {
             btn.style.opacity = '0.45';
@@ -718,7 +718,7 @@
 
         var cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Cancel';
-        cancelBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.4rem; border:1px solid rgba(156,163,175,0.5); background:' + (isCanceled ? 'rgba(156,163,175,0.12)' : 'transparent') + '; color:#9ca3af; border-radius:3px; cursor:' + (isCanceled ? 'not-allowed' : 'pointer') + ';';
+        cancelBtn.style.cssText = 'font-size:var(--c-text-xs); padding:0.2rem 0.4rem; border:1px solid rgba(156,163,175,0.5); background:' + (isCanceled ? 'rgba(156,163,175,0.12)' : 'transparent') + '; color:#9ca3af; border-radius:3px; cursor:' + (isCanceled ? 'not-allowed' : 'pointer') + ';';
         cancelBtn.disabled = isCanceled;
         cancelBtn.addEventListener('click', function () {
           if (obj.status === 'canceled') return;
@@ -734,7 +734,7 @@
         // Edit button
         var editBtn = document.createElement('button');
         editBtn.innerHTML = '<i class="fas fa-pen"></i> Edit';
-        editBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.5rem; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.6); border-radius:3px; cursor:pointer;';
+        editBtn.style.cssText = 'font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.6); border-radius:3px; cursor:pointer;';
         editBtn.addEventListener('click', function () { openEditModal(obj); });
         controls.appendChild(editBtn);
 
@@ -742,7 +742,7 @@
         if (obj.status !== 'archived') {
           var archiveBtn = document.createElement('button');
           archiveBtn.innerHTML = '<i class="fas fa-archive"></i> Archive';
-          archiveBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.5rem; border:1px solid rgba(156,163,175,0.3); background:rgba(156,163,175,0.05); color:#9ca3af; border-radius:3px; cursor:pointer;';
+          archiveBtn.style.cssText = 'font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border:1px solid rgba(156,163,175,0.3); background:rgba(156,163,175,0.05); color:#9ca3af; border-radius:3px; cursor:pointer;';
           archiveBtn.addEventListener('click', function () {
             if (!confirm('Archive this goal?')) return;
             AgentEngine.updateObjective(obj.id, { status: 'archived' });
@@ -758,7 +758,7 @@
         var deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
         deleteBtn.title = 'Delete goal permanently';
-        deleteBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.4rem; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; border-radius:3px; cursor:pointer; margin-left:auto;';
+        deleteBtn.style.cssText = 'font-size:var(--c-text-xs); padding:0.2rem 0.4rem; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; border-radius:3px; cursor:pointer; margin-left:auto;';
         deleteBtn.addEventListener('click', function () {
           if (!confirm('Permanently delete this goal? This cannot be undone.')) return;
           AgentEngine.deleteObjective(obj.id);

@@ -28,18 +28,18 @@
       background: rgba(255,255,255,0.02);
       text-align: center;
     }
-    .gov-stat-val { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
-    .gov-stat-label { font-size: 0.55rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+    .gov-stat-val { font-size: var(--c-text-2xl); font-weight: 600; line-height: 1.2; }
+    .gov-stat-label { font-size: var(--c-text-xs); opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
     .gov-stat--alert .gov-stat-val { color: #f87171; }
     .gov-stat--warn .gov-stat-val { color: #fbbf24; }
     .gov-stat--ok .gov-stat-val { color: #34d399; }
 
     .gov-filters { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
-    .gov-filters label { font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.04em; }
+    .gov-filters label { font-size: var(--c-text-xs); opacity: 0.6; text-transform: uppercase; letter-spacing: 0.04em; }
     .gov-filters select {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.08);
-      color: inherit; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: 0.8rem;
+      color: inherit; padding: 0.35rem 0.5rem; border-radius: 6px; font-size: var(--c-text-base);
     }
 
     .gov-panel {
@@ -52,10 +52,10 @@
     .gov-panel-head {
       padding: 0.6rem 0.9rem;
       border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 0.8rem; font-weight: 500;
+      font-size: var(--c-text-base); font-weight: 500;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .gov-panel-body { padding: 0.7rem 0.9rem; font-size: 0.82rem; }
+    .gov-panel-body { padding: 0.7rem 0.9rem; font-size: var(--c-text-base); }
 
     .gov-dead-gate-warn {
       background: rgba(251,191,36,0.08);
@@ -63,7 +63,7 @@
       color: #fde68a;
       padding: 0.65rem 0.85rem;
       border-radius: 8px;
-      font-size: 0.78rem;
+      font-size: var(--c-text-base);
     }
     .gov-dead-gate-warn code {
       background: rgba(0,0,0,0.3); padding: 0.1rem 0.35rem; border-radius: 4px;
@@ -83,14 +83,14 @@
     .gov-bucket-key { opacity: 0.8; }
     .gov-bucket-val { font-weight: 600; opacity: 0.95; }
 
-    .gov-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .gov-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-base); }
     .gov-table th, .gov-table td {
       text-align: left; padding: 0.4rem 0.5rem;
       border-bottom: 1px solid rgba(255,255,255,0.05);
       vertical-align: top;
     }
     .gov-table th {
-      font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5;
+      font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5;
       font-weight: 500;
     }
     .gov-table td code {
@@ -101,7 +101,7 @@
     .gov-table .gov-row-approval td { color: rgba(255,255,255,0.7); }
 
     .gov-meta-line {
-      font-size: 0.7rem; opacity: 0.5; margin-bottom: 0.8rem;
+      font-size: var(--c-text-xs); opacity: 0.5; margin-bottom: 0.8rem;
     }
   </style>
 </head>

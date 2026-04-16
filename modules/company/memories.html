@@ -21,7 +21,7 @@
   <style>
     .mem-tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:1rem; flex-wrap:wrap; }
     .mem-tab {
-      padding:0.5rem 1rem; font-size:0.75rem; font-weight:500; cursor:pointer;
+      padding:0.5rem 1rem; font-size:var(--c-text-xs); font-weight:500; cursor:pointer;
       color:rgba(255,255,255,0.4); border-bottom:2px solid transparent;
       background:none; border-top:none; border-left:none; border-right:none;
       font-family:inherit; transition:all 0.15s;
@@ -38,23 +38,23 @@
     .mem-textarea {
       width:100%; min-height:320px; padding:0.8rem; border-radius:8px;
       border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
-      color:#e2e8f0; font-size:0.8rem; font-family:'Inter',monospace;
+      color:#e2e8f0; font-size:var(--c-text-base); font-family:'Inter',monospace;
       line-height:1.6; resize:vertical;
     }
     .mem-textarea:focus { outline:none; border-color:rgba(138,43,226,0.4); }
     .mem-preview {
       padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.07);
-      background:#1c1c1e; font-size:0.8rem; color:rgba(255,255,255,0.7);
+      background:#1c1c1e; font-size:var(--c-text-base); color:rgba(255,255,255,0.7);
       overflow-y:auto; max-height:500px; line-height:1.6;
     }
     .mem-preview h1,.mem-preview h2,.mem-preview h3 { color:rgba(255,255,255,0.75); margin:0.6rem 0 0.3rem; }
-    .mem-preview h1 { font-size:1rem; } .mem-preview h2 { font-size:0.9rem; } .mem-preview h3 { font-size:0.85rem; }
+    .mem-preview h1 { font-size:var(--c-text-md); } .mem-preview h2 { font-size:var(--c-text-md); } .mem-preview h3 { font-size:var(--c-text-base); }
     .mem-preview ul,.mem-preview ol { padding-left:1.2rem; margin:0.3rem 0; }
     .mem-preview li { margin-bottom:0.2rem; }
-    .mem-preview code { background:rgba(255,255,255,0.08); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.75rem; }
+    .mem-preview code { background:rgba(255,255,255,0.08); padding:0.1rem 0.3rem; border-radius:3px; font-size:var(--c-text-xs); }
     .mem-preview p { margin:0.3rem 0; }
     .mem-char-count {
-      font-size:0.65rem; opacity:0.4; margin-top:0.3rem; text-align:right;
+      font-size:var(--c-text-xs); opacity:0.4; margin-top:0.3rem; text-align:right;
     }
     .mem-char-count--warn { color:#fbbf24; opacity:1; }
     .mem-char-count--over { color:#f87171; opacity:1; }
@@ -62,25 +62,25 @@
       display:flex; align-items:center; gap:0.6rem; margin-top:0.8rem;
     }
     .mem-save-btn {
-      padding:0.4rem 1.2rem; border-radius:6px; font-size:0.75rem; font-weight:600;
+      padding:0.4rem 1.2rem; border-radius:6px; font-size:var(--c-text-xs); font-weight:600;
       border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85);
       cursor:pointer; font-family:inherit;
     }
     .mem-save-btn:hover { background:rgba(255,255,255,0.14); }
     .mem-save-btn:disabled { opacity:0.4; cursor:not-allowed; }
-    .mem-save-status { font-size:0.7rem; opacity:0.5; }
+    .mem-save-status { font-size:var(--c-text-xs); opacity:0.5; }
     .mem-runtime-panel {
       margin-top:1.5rem; padding:0.8rem; border-radius:12px;
       border:1px solid rgba(255,255,255,0.07); background:#1c1c1e;
     }
-    .mem-runtime-title { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:0.5rem; }
+    .mem-runtime-title { font-size:var(--c-text-xs); font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:0.5rem; }
     .mem-runtime-item {
-      font-size:0.7rem; padding:0.35rem 0.5rem; margin-bottom:0.25rem;
+      font-size:var(--c-text-xs); padding:0.35rem 0.5rem; margin-bottom:0.25rem;
       border-radius:4px; background:rgba(255,255,255,0.02);
       display:flex; gap:0.4rem; align-items:flex-start;
     }
     .mem-runtime-type {
-      font-size:0.55rem; padding:0.1rem 0.35rem; border-radius:3px; font-weight:600;
+      font-size:var(--c-text-xs); padding:0.1rem 0.35rem; border-radius:3px; font-weight:600;
       flex-shrink:0; margin-top:0.1rem;
     }
     .mem-runtime-type--learning { background:rgba(52,211,153,0.12); color:#34d399; }
@@ -88,8 +88,8 @@
     .mem-runtime-type--preference { background:rgba(96,165,250,0.12); color:#60a5fa; }
     .mem-runtime-type--context { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.5); }
     .mem-runtime-text { color:rgba(255,255,255,0.6); }
-    .mem-runtime-time { font-size:0.55rem; opacity:0.3; margin-left:auto; flex-shrink:0; }
-    .mem-runtime-empty { font-size:0.7rem; opacity:0.3; padding:0.5rem; text-align:center; }
+    .mem-runtime-time { font-size:var(--c-text-xs); opacity:0.3; margin-left:auto; flex-shrink:0; }
+    .mem-runtime-empty { font-size:var(--c-text-xs); opacity:0.3; padding:0.5rem; text-align:center; }
 
     /* ── Light Theme ── */
     body[data-theme="light"] .mem-tabs { border-bottom-color: rgba(0,0,0,0.08); }

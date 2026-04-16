@@ -273,7 +273,7 @@
           '<div class="agent-description">' + agent.description + '</div>' +
           buildDivisionsHtml(agent) +
           (capsHtml ? '<div class="agent-capabilities">' + capsHtml + '</div>' : '') +
-          (autoHtml ? '<h4 style="font-size:0.75rem; opacity:0.5; margin:0 0 0.5rem; text-transform:uppercase; letter-spacing:1px;">Automations</h4><ul class="agent-automations">' + autoHtml + '</ul>' : '') +
+          (autoHtml ? '<h4 style="font-size:var(--c-text-xs); opacity:0.5; margin:0 0 0.5rem; text-transform:uppercase; letter-spacing:1px;">Automations</h4><ul class="agent-automations">' + autoHtml + '</ul>' : '') +
           '<div class="agent-actions">' +
             '<a href="/modules/company/agent-chat.html?agent=' + agent.id + '" class="agent-action-btn agent-action-btn--primary"><i class="fas fa-comment"></i> Chat with ' + agent.name + '</a>' +
             '<button class="agent-action-btn" id="btn-request-report"><i class="fas fa-file-alt"></i> Request Report</button>' +
@@ -403,7 +403,7 @@
             var declining = ids.filter(function (id) { return digest.agents[id].qualityTrend === 'declining'; });
             var warnHtml = '';
             if (declining.length > 0) {
-              warnHtml = '<div style="padding:4px 8px;margin-bottom:8px;border-radius:6px;background:rgba(248,113,113,0.1);font-size:0.7rem;color:#f87171">'
+              warnHtml = '<div style="padding:4px 8px;margin-bottom:8px;border-radius:6px;background:rgba(248,113,113,0.1);font-size:var(--c-text-xs);color:#f87171">'
                 + '<i class="fas fa-triangle-exclamation" style="margin-right:4px"></i>'
                 + declining.map(function (d) { return d.charAt(0).toUpperCase() + d.slice(1); }).join(', ')
                 + ' declining</div>';
@@ -421,7 +421,7 @@
                 +   '<div class="hq-trend-name">' + name + crown + '</div>'
                 +   '<div class="hq-trend-cat">' + (a.tasksCompleted || 0) + ' tasks, ' + Math.round((a.ceoApprovalRate || 0) * 100) + '% CEO approval</div>'
                 + '</div>'
-                + '<span style="font-size:0.65rem">' + trend + '</span>'
+                + '<span style="font-size:var(--c-text-xs)">' + trend + '</span>'
                 + '</a>';
             }).join('');
           })

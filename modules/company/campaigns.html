@@ -22,29 +22,29 @@
   <style>
     .cmp-grid { display:grid; grid-template-columns: 1fr; gap: 0.8rem; }
     .cmp-create, .cmp-panel { border:1px solid rgba(255,255,255,0.08); border-radius:10px; background:rgba(255,255,255,0.02); padding:0.75rem 1rem 1rem; }
-    .cmp-title { font-size:0.78rem; font-weight:600; opacity:0.82; margin-bottom:0.55rem; }
+    .cmp-title { font-size: var(--c-text-base); font-weight:600; opacity:0.82; margin-bottom:0.55rem; }
     .cmp-create input, .cmp-create textarea, .cmp-create select {
       width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:inherit; border-radius:6px;
-      padding:0.5rem 0.7rem; font-size:0.8rem; margin-bottom:0.5rem; font-family:inherit; box-sizing:border-box;
+      padding:0.5rem 0.7rem; font-size: var(--c-text-base); margin-bottom:0.5rem; font-family:inherit; box-sizing:border-box;
     }
     .cmp-create textarea { min-height:60px; resize:vertical; }
     .cmp-create input[type="date"] { -webkit-appearance:none; appearance:none; color-scheme:dark; }
-    .cmp-btn { border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border-radius:6px; padding:0.35rem 0.75rem; font-size:0.68rem; cursor:pointer; margin-top:0.5rem; }
+    .cmp-btn { border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border-radius:6px; padding:0.35rem 0.75rem; font-size: var(--c-text-xs); cursor:pointer; margin-top:0.5rem; }
     .cmp-list-row { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem; }
-    .cmp-list-row input { flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; padding:0.38rem 0.55rem; font-size:0.72rem; }
-    .cmp-pill { font-size:0.58rem; padding:0.12rem 0.38rem; border-radius:999px; border:1px solid rgba(255,255,255,0.1); opacity:0.85; }
+    .cmp-list-row input { flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; padding:0.38rem 0.55rem; font-size: var(--c-text-xs); }
+    .cmp-pill { font-size: var(--c-text-xs); padding:0.12rem 0.38rem; border-radius:999px; border:1px solid rgba(255,255,255,0.1); opacity:0.85; }
     .cmp-pill--active { color:#34d399; border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
     .cmp-pill--complete { color:rgba(255,255,255,0.45); border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.06); }
     .cmp-card--complete { border-color:rgba(255,255,255,0.08); opacity:0.7; }
     .cmp-pill--archived { color:#94a3b8; border-color:rgba(148,163,184,0.35); background:rgba(148,163,184,0.08); }
     .cmp-card { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:8px; padding:0.6rem; margin-bottom:0.45rem; }
     .cmp-card:hover { border-color:rgba(255,255,255,0.15); }
-    .cmp-card h4 { margin:0 0 0.25rem; font-size:0.76rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
-    .cmp-card p { margin:0 0 0.35rem; font-size:0.67rem; opacity:0.58; line-height:1.35; }
-    .cmp-meta { font-size:0.58rem; opacity:0.45; display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .cmp-card h4 { margin:0 0 0.25rem; font-size: var(--c-text-xs); display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
+    .cmp-card p { margin:0 0 0.35rem; font-size: var(--c-text-xs); opacity:0.58; line-height:1.35; }
+    .cmp-meta { font-size: var(--c-text-xs); opacity:0.45; display:flex; gap:0.4rem; flex-wrap:wrap; }
     .cmp-card-actions { display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.45rem; }
     .cmp-card-actions button, .cmp-card-actions a {
-      font-size:0.6rem; padding:0.22rem 0.5rem; border-radius:5px;
+      font-size: var(--c-text-xs); padding:0.22rem 0.5rem; border-radius:5px;
       border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05);
       color:#fff; cursor:pointer; text-decoration:none;
     }
@@ -54,19 +54,19 @@
     .cmp-card-actions .danger { border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.05); color:#f87171; }
     .cmp-progress-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); margin:0.35rem 0 0.25rem; overflow:hidden; }
     .cmp-progress-fill { height:100%; border-radius:2px; transition:width 0.3s; }
-    .cmp-task-breakdown { font-size:0.6rem; font-weight:500; margin-bottom:0.15rem; }
-    .cmp-empty { font-size:0.7rem; opacity:0.3; padding:0.8rem 0.25rem; }
+    .cmp-task-breakdown { font-size: var(--c-text-xs); font-weight:500; margin-bottom:0.15rem; }
+    .cmp-empty { font-size: var(--c-text-xs); opacity:0.3; padding:0.8rem 0.25rem; }
     .cmp-detail { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:10px; padding:0.75rem; }
     .cmp-detail-head { display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
-    .cmp-detail h3 { margin:0; font-size:0.82rem; }
+    .cmp-detail h3 { margin:0; font-size: var(--c-text-base); }
     .cmp-actions { display:flex; gap:0.3rem; flex-wrap:wrap; }
-    .cmp-actions button { font-size:0.6rem; padding:0.22rem 0.5rem; border-radius:5px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; cursor:pointer; }
+    .cmp-actions button { font-size: var(--c-text-xs); padding:0.22rem 0.5rem; border-radius:5px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; cursor:pointer; }
     .cmp-actions .danger { border-color:rgba(248,113,113,0.4); color:#f87171; }
-    .cmp-detail-list li { list-style:none; margin:0 0 0.25rem; padding:0.38rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:6px; font-size:0.66rem; display:flex; justify-content:space-between; gap:0.4rem; }
+    .cmp-detail-list li { list-style:none; margin:0 0 0.25rem; padding:0.38rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:6px; font-size: var(--c-text-xs); display:flex; justify-content:space-between; gap:0.4rem; }
     .cmp-mini-create { margin-top:0.6rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:0.6rem; }
     .cmp-mini-create input, .cmp-mini-create textarea, .cmp-mini-create select {
       width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:inherit; border-radius:6px;
-      padding:0.4rem 0.5rem; font-size:0.68rem; margin-bottom:0.35rem;
+      padding:0.4rem 0.5rem; font-size: var(--c-text-xs); margin-bottom:0.35rem;
     }
     .cmp-modal-backdrop {
       position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
@@ -82,15 +82,15 @@
       padding: 0.9rem;
       box-shadow: 0 18px 50px rgba(0,0,0,0.45);
     }
-    .cmp-modal h3 { margin: 0 0 0.65rem; font-size: 0.82rem; color:rgba(255,255,255,0.85); }
-    .cmp-modal label { display:block; font-size:0.66rem; opacity:0.72; margin-bottom:0.25rem; }
+    .cmp-modal h3 { margin: 0 0 0.65rem; font-size: var(--c-text-base); color:rgba(255,255,255,0.85); }
+    .cmp-modal label { display:block; font-size: var(--c-text-xs); opacity:0.72; margin-bottom:0.25rem; }
     .cmp-modal input, .cmp-modal textarea, .cmp-modal select {
       width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12);
-      color:inherit; border-radius:6px; padding:0.45rem 0.55rem; font-size:0.72rem; margin-bottom:0.45rem; box-sizing:border-box;
+      color:inherit; border-radius:6px; padding:0.45rem 0.55rem; font-size: var(--c-text-xs); margin-bottom:0.45rem; box-sizing:border-box;
     }
     .cmp-modal textarea { min-height:76px; resize:vertical; }
     .cmp-modal-actions { display:flex; justify-content:flex-end; gap:0.35rem; margin-top:0.35rem; }
-    .cmp-modal-actions button { font-size:0.62rem; padding:0.25rem 0.62rem; border-radius:5px; cursor:pointer; }
+    .cmp-modal-actions button { font-size: var(--c-text-xs); padding:0.25rem 0.62rem; border-radius:5px; cursor:pointer; }
     .cmp-modal-cancel { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; }
     .cmp-modal-save { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85); }
     .cmp-pill--paused { background:rgba(251,191,36,0.12); color:#fbbf24; border-color:rgba(251,191,36,0.3); }
@@ -98,11 +98,11 @@
     .cmp-card--paused .cmp-progress-fill { opacity:0.4; }
     .cmp-pause-btn { background:rgba(251,191,36,0.1) !important; border-color:rgba(251,191,36,0.3) !important; color:#fbbf24 !important; }
     .cmp-resume-btn { background:rgba(52,211,153,0.1) !important; border-color:rgba(52,211,153,0.3) !important; color:#34d399 !important; }
-    .cmp-view-btn { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); border-radius:5px; padding:0.25rem 0.4rem; font-size:0.65rem; cursor:pointer; }
+    .cmp-view-btn { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); border-radius:5px; padding:0.25rem 0.4rem; font-size: var(--c-text-xs); cursor:pointer; }
     .cmp-view-btn:hover { border-color:rgba(255,255,255,0.25); color:rgba(255,255,255,0.7); }
     .cmp-view-btn--active { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.25); color:rgba(255,255,255,0.9); }
-    .cmp-list-table { width:100%; border-collapse:collapse; font-size:0.68rem; }
-    .cmp-list-table th { text-align:left; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.5px; opacity:0.4; padding:0.4rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; }
+    .cmp-list-table { width:100%; border-collapse:collapse; font-size: var(--c-text-xs); }
+    .cmp-list-table th { text-align:left; font-size: var(--c-text-xs); text-transform:uppercase; letter-spacing:0.5px; opacity:0.4; padding:0.4rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; }
     .cmp-list-table td { padding:0.45rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
     .cmp-list-table tr:hover { background:rgba(255,255,255,0.03); }
     .cmp-list-table .cmp-tbl-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); min-width:60px; overflow:hidden; }
@@ -110,12 +110,12 @@
 
     /* ── Inline Style Replacements ── */
     #cmp-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
-    .cmp-header-sub { font-size: 0.8rem; opacity: 0.45; margin-top: 0.3rem; margin-bottom: 0.75rem; }
+    .cmp-header-sub { font-size: var(--c-text-base); opacity: 0.45; margin-top: 0.3rem; margin-bottom: 0.75rem; }
     .cmp-types-outer { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
     .cmp-field-col--full { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; }
     .cmp-field-col { display: flex; flex-direction: column; gap: 0.15rem; }
-    .cmp-field-label { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px; }
-    #cmp-task-types, #cmp-edit-task-types { display: flex; gap: 0.4rem 0.6rem; flex-wrap: wrap; font-size: 0.65rem; }
+    .cmp-field-label { font-size: var(--c-text-xs); opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px; }
+    #cmp-task-types, #cmp-edit-task-types { display: flex; gap: 0.4rem 0.6rem; flex-wrap: wrap; font-size: var(--c-text-xs); }
     .cmp-check-label { display: flex; align-items: center; gap: 3px; cursor: pointer; }
     .cmp-settings-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.3rem; }
     .cmp-settings-row--edit { margin-top: 0.4rem; }
@@ -124,10 +124,10 @@
     #cmp-start-date, #cmp-end-date, #cmp-edit-start-date, #cmp-edit-end-date { width: 8rem; margin-bottom: 0; }
     #cmp-search { min-width: 140px; }
     .cmp-view-btns { display: flex; align-items: center; gap: 0.35rem; }
-    .cmp-archive-toggle { font-size: 0.66rem; opacity: 0.6; display: flex; align-items: center; gap: 0.25rem; }
+    .cmp-archive-toggle { font-size: var(--c-text-xs); opacity: 0.6; display: flex; align-items: center; gap: 0.25rem; }
     .cmp-edit-types-wrap { margin-top: 0.5rem; }
     .cmp-autocomplete-row { display: flex; align-items: center; gap: 0.25rem; margin-top: 1.1rem; }
-    .cmp-autocomplete-label { font-size: 0.65rem; opacity: 0.7; }
+    .cmp-autocomplete-label { font-size: var(--c-text-xs); opacity: 0.7; }
   </style>
 </head>
 <body data-theme="dark">
@@ -383,7 +383,7 @@
           '</div>';
         }
 
-        return '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.62rem;margin:0.15rem 0 0.3rem;opacity:0.7;">' +
+        return '<div style="display:flex;align-items:center;gap:0.5rem;font-size:var(--c-text-xs);margin:0.15rem 0 0.3rem;opacity:0.7;">' +
           '<span style="color:rgba(255,255,255,0.5);"><i class="fas fa-calendar-alt" style="font-size:0.5rem;margin-right:3px;"></i>' + dateText + '</span>' +
           timelineHtml +
           (rightText ? '<span style="color:' + rightColor + ';font-weight:600;white-space:nowrap;">' + rightText + '</span>' : '') +
@@ -411,13 +411,13 @@
         var labels = { good: 'Healthy', warn: 'At Risk', bad: 'Critical', neutral: 'Empty' };
         var icons = { good: 'fa-check-circle', warn: 'fa-exclamation-triangle', bad: 'fa-times-circle', neutral: 'fa-minus-circle' };
         var c = colors[health] || colors.neutral;
-        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;' +
+        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:var(--c-text-xs);padding:0.08rem 0.35rem;border-radius:4px;' +
           'background:' + c + '1a;border:1px solid ' + c + '33;color:' + c + ';font-weight:500;"><i class="fas ' + icons[health] + '" style="font-size:0.48rem;"></i>' + labels[health] + '</span>';
       }
 
       function lifecycleBadges(c, m) {
         var badges = [];
-        var bStyle = 'display:inline-flex;align-items:center;gap:3px;font-size:0.52rem;padding:0.08rem 0.35rem;border-radius:4px;font-weight:500;';
+        var bStyle = 'display:inline-flex;align-items:center;gap:3px;font-size:var(--c-text-xs);padding:0.08rem 0.35rem;border-radius:4px;font-weight:500;';
         var dimStyle = bStyle + 'background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);color:#94a3b8;';
         if (c.frequency && c.cadence) {
           var _bSocialTypes = (Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
@@ -473,12 +473,12 @@
           }
           html += '<tr>' +
             '<td><strong>' + esc(c.title) + '</strong></td>' +
-            '<td><span style="color:' + statusColor + ';font-size:0.62rem;font-weight:600;">' + esc(c.status) + '</span></td>' +
-            '<td style="min-width:100px;"><div class="cmp-tbl-bar"><div class="cmp-tbl-fill" style="width:' + m.pctComplete + '%;background:' + barColor + ';"></div></div><span style="font-size:0.58rem;color:' + barColor + ';font-weight:600;">' + m.pctComplete + '%</span></td>' +
-            '<td style="font-size:0.62rem;">' + primaryDone + '/' + expected + '</td>' +
-            '<td style="font-size:0.6rem;opacity:0.5;white-space:nowrap;">' + fmt(c.startDate) + ' → ' + fmt(c.endDate) + (daysLeft ? '<br><span style="font-size:0.55rem;opacity:0.7;">' + daysLeft + '</span>' : '') + '</td>' +
-            '<td style="font-size:0.6rem;color:rgba(255,255,255,0.5);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (objTitle ? esc(objTitle) : '<span style="opacity:0.2;">—</span>') + '</td>' +
-            '<td><button class="cmp-edit-btn" data-id="' + esc(c.id) + '" style="font-size:0.55rem;padding:0.15rem 0.35rem;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;"><i class="fas fa-pen"></i></button></td>' +
+            '<td><span style="color:' + statusColor + ';font-size:var(--c-text-xs);font-weight:600;">' + esc(c.status) + '</span></td>' +
+            '<td style="min-width:100px;"><div class="cmp-tbl-bar"><div class="cmp-tbl-fill" style="width:' + m.pctComplete + '%;background:' + barColor + ';"></div></div><span style="font-size:var(--c-text-xs);color:' + barColor + ';font-weight:600;">' + m.pctComplete + '%</span></td>' +
+            '<td style="font-size:var(--c-text-xs);">' + primaryDone + '/' + expected + '</td>' +
+            '<td style="font-size:var(--c-text-xs);opacity:0.5;white-space:nowrap;">' + fmt(c.startDate) + ' → ' + fmt(c.endDate) + (daysLeft ? '<br><span style="font-size:var(--c-text-xs);opacity:0.7;">' + daysLeft + '</span>' : '') + '</td>' +
+            '<td style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (objTitle ? esc(objTitle) : '<span style="opacity:0.2;">—</span>') + '</td>' +
+            '<td><button class="cmp-edit-btn" data-id="' + esc(c.id) + '" style="font-size:var(--c-text-xs);padding:0.15rem 0.35rem;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;"><i class="fas fa-pen"></i></button></td>' +
           '</tr>';
         });
         html += '</tbody></table>';
@@ -531,7 +531,7 @@
             + '<div class="cmp-meta" style="gap:0.55rem;">'
             + '<span><i class="fas fa-tasks" style="margin-right:2px;"></i>' + m.taskCount + ' tasks</span>'
             + healthChip(m.health)
-            + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
+            + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:var(--c-text-xs);padding:0.08rem 0.35rem;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
             + '</div>'
             + lifecycleBadges(c, m)
             + '<div class="cmp-card-actions">'

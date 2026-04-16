@@ -19,14 +19,14 @@
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
     .ce-panel { background:#1c1c1e; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:1rem; margin-bottom:1rem; }
-    .ce-panel-title { font-size:0.8rem; font-weight:600; margin-bottom:0.7rem; display:flex; align-items:center; gap:0.4rem; }
+    .ce-panel-title { font-size:var(--c-text-base); font-weight:600; margin-bottom:0.7rem; display:flex; align-items:center; gap:0.4rem; }
     .ce-panel-title i { font-size:0.7rem; }
 
     .ce-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:0.6rem; }
     .ce-form-full { grid-column: 1 / -1; }
-    .ce-form label { font-size:0.62rem; opacity:0.5; display:block; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px; }
+    .ce-form label { font-size:var(--c-text-xs); opacity:0.5; display:block; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px; }
     .ce-form input, .ce-form select, .ce-form textarea {
-      width:100%; font-size:0.72rem; padding:7px 10px; background:rgba(255,255,255,0.04);
+      width:100%; font-size:var(--c-text-base); padding:7px 10px; background:rgba(255,255,255,0.04);
       border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#e0e0e0;
       font-family:inherit; box-sizing:border-box;
     }
@@ -35,18 +35,18 @@
     .ce-output-grid { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:4px; }
     .ce-output-chip {
       display:flex; align-items:center; gap:0.35rem; padding:6px 12px; border-radius:8px;
-      font-size:0.65rem; cursor:pointer; user-select:none; transition:all 0.15s;
+      font-size:var(--c-text-xs); cursor:pointer; user-select:none; transition:all 0.15s;
       background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#aaa;
     }
     .ce-output-chip:hover { border-color:rgba(255,255,255,0.2); }
     .ce-output-chip--active { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.3); color:#fff; }
     .ce-output-chip i { font-size:0.6rem; }
-    .ce-output-chip .ce-chip-size { font-size:0.55rem; opacity:0.5; }
+    .ce-output-chip .ce-chip-size { font-size:var(--c-text-xs); opacity:0.5; }
 
     .ce-var-row { display:flex; align-items:center; gap:0.5rem; margin-top:4px; }
     .ce-var-btn {
       width:30px; height:30px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.03); color:#aaa; font-size:0.72rem; font-weight:600;
+      background:rgba(255,255,255,0.03); color:#aaa; font-size:var(--c-text-base); font-weight:600;
       cursor:pointer; transition:all 0.15s;
     }
     .ce-var-btn:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
@@ -54,16 +54,16 @@
 
     .ce-prompt-preview {
       background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.06); border-radius:6px;
-      padding:0.6rem; font-size:0.6rem; font-family:'Courier New',monospace; line-height:1.5;
+      padding:0.6rem; font-size:var(--c-text-xs); font-family:'Courier New',monospace; line-height:1.5;
       max-height:120px; overflow-y:auto; color:#888; display:none; margin-top:0.5rem;
     }
-    .ce-prompt-toggle { font-size:0.6rem; color:rgba(255,255,255,0.45); cursor:pointer; margin-top:0.4rem; display:inline-block; }
+    .ce-prompt-toggle { font-size:var(--c-text-xs); color:rgba(255,255,255,0.45); cursor:pointer; margin-top:0.4rem; display:inline-block; }
     .ce-prompt-toggle:hover { opacity:1; }
-    .ce-est { font-size:0.6rem; opacity:0.4; }
+    .ce-est { font-size:var(--c-text-xs); opacity:0.4; }
 
     .ce-actions { display:flex; gap:0.5rem; margin-top:0.6rem; }
     .ce-btn {
-      padding:8px 16px; border:none; border-radius:6px; font-size:0.7rem; font-weight:600;
+      padding:8px 16px; border:none; border-radius:6px; font-size:var(--c-text-xs); font-weight:600;
       cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:0.3rem;
       transition: opacity 0.2s;
     }
@@ -73,7 +73,7 @@
     .ce-btn--generate { background:#2c2c2e; color:rgba(255,255,255,0.75); border:1px solid rgba(255,255,255,0.12); }
     .ce-btn--generate:hover:not(:disabled) { background:#3a3a3c; color:#fff; }
 
-    .ce-status { margin-top:0.6rem; font-size:0.68rem; padding:0.4rem 0.6rem; border-radius:6px; display:none; }
+    .ce-status { margin-top:0.6rem; font-size:var(--c-text-xs); padding:0.4rem 0.6rem; border-radius:6px; display:none; }
     .ce-status--info { background:rgba(96,165,250,0.1); color:#60a5fa; display:block; }
     .ce-status--success { background:rgba(34,197,94,0.1); color:#22c55e; display:block; }
     .ce-status--error { background:rgba(239,68,68,0.1); color:#ef4444; display:block; }
@@ -89,10 +89,10 @@
     .ce-result-img { width:100%; aspect-ratio:16/9; object-fit:cover; background:#111; display:block; }
     .ce-result-img--hero { aspect-ratio:3/2; }
     .ce-result-body { padding:0.6rem; }
-    .ce-result-label { font-size:0.6rem; opacity:0.4; text-transform:uppercase; margin-bottom:2px; }
-    .ce-result-size { font-size:0.68rem; font-weight:500; margin-bottom:0.3rem; }
+    .ce-result-label { font-size:var(--c-text-xs); opacity:0.4; text-transform:uppercase; margin-bottom:2px; }
+    .ce-result-size { font-size:var(--c-text-xs); font-weight:500; margin-bottom:0.3rem; }
     .ce-result-links { display:flex; gap:0.5rem; }
-    .ce-result-links a { font-size:0.62rem; color:#60a5fa; text-decoration:none; }
+    .ce-result-links a { font-size:var(--c-text-xs); color:#60a5fa; text-decoration:none; }
     .ce-result-links a:hover { text-decoration:underline; }
 
     /* Danger Zone — Hard Delete */
@@ -101,18 +101,18 @@
       padding:1rem; background:rgba(239,68,68,0.03);
     }
     .ce-danger-title {
-      font-size:0.75rem; font-weight:600; color:#ef4444; margin-bottom:0.5rem;
+      font-size:var(--c-text-xs); font-weight:600; color:#ef4444; margin-bottom:0.5rem;
       display:flex; align-items:center; gap:0.4rem;
     }
-    .ce-danger-desc { font-size:0.62rem; opacity:0.5; margin-bottom:0.7rem; line-height:1.5; }
+    .ce-danger-desc { font-size:var(--c-text-xs); opacity:0.5; margin-bottom:0.7rem; line-height:1.5; }
     .ce-danger-opts { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:0.7rem; }
-    .ce-danger-opt { display:flex; align-items:center; gap:0.4rem; font-size:0.62rem; }
+    .ce-danger-opt { display:flex; align-items:center; gap:0.4rem; font-size:var(--c-text-xs); }
     .ce-danger-opt input[type=checkbox] { accent-color:#ef4444; }
     .ce-danger-confirm {
       display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem;
     }
     .ce-danger-input {
-      font-size:0.65rem; padding:6px 10px; background:rgba(255,255,255,0.04);
+      font-size:var(--c-text-xs); padding:6px 10px; background:rgba(255,255,255,0.04);
       border:1px solid rgba(239,68,68,0.25); border-radius:6px; color:#e0e0e0;
       font-family:inherit; width:180px;
     }
@@ -120,7 +120,7 @@
     .ce-danger-input::placeholder { color:rgba(239,68,68,0.3); }
     .ce-btn--danger {
       padding:7px 14px; border:1px solid rgba(239,68,68,0.3); border-radius:6px;
-      background:rgba(239,68,68,0.1); color:#ef4444; font-size:0.65rem; font-weight:600;
+      background:rgba(239,68,68,0.1); color:#ef4444; font-size:var(--c-text-xs); font-weight:600;
       cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:0.3rem;
       transition:all 0.15s;
     }
@@ -128,13 +128,13 @@
     .ce-btn--danger:disabled { opacity:0.3; cursor:not-allowed; }
 
     .ce-approval-badge {
-      display:inline-flex; align-items:center; gap:0.3rem; font-size:0.65rem;
+      display:inline-flex; align-items:center; gap:0.3rem; font-size:var(--c-text-xs);
       padding:3px 10px; border-radius:12px; font-weight:600;
       background:rgba(251,191,36,0.12); color:#fbbf24; margin-top:0.5rem;
     }
 
     .ce-variant-badge {
-      display:inline-block; font-size:0.55rem; padding:2px 6px; border-radius:4px; font-weight:600; margin-left:0.3rem;
+      display:inline-block; font-size:var(--c-text-xs); padding:2px 6px; border-radius:4px; font-weight:600; margin-left:0.3rem;
     }
     .ce-variant-badge--success { background:rgba(34,197,94,0.15); color:#22c55e; }
     .ce-variant-badge--failed { background:rgba(239,68,68,0.15); color:#ef4444; }
@@ -142,30 +142,30 @@
     .ce-result-card--failed { border-color:rgba(239,68,68,0.3); opacity:0.7; }
     .ce-result-card--failed .ce-result-img { display:none; }
     .ce-failed-placeholder {
-      padding:2rem 1rem; text-align:center; font-size:0.65rem; color:#ef4444; opacity:0.6;
+      padding:2rem 1rem; text-align:center; font-size:var(--c-text-xs); color:#ef4444; opacity:0.6;
       background:rgba(239,68,68,0.05);
     }
     .ce-retry-btn {
       padding:6px 14px; border:1px solid rgba(251,191,36,0.3); border-radius:6px;
-      background:rgba(251,191,36,0.08); color:#fbbf24; font-size:0.65rem; font-weight:600;
+      background:rgba(251,191,36,0.08); color:#fbbf24; font-size:var(--c-text-xs); font-weight:600;
       cursor:pointer; margin-top:0.5rem; display:inline-flex; align-items:center; gap:0.3rem;
     }
     .ce-retry-btn:hover { background:rgba(251,191,36,0.15); }
     .ce-retry-btn:disabled { opacity:0.3; cursor:not-allowed; }
     .ce-partial-bar {
-      display:flex; gap:0.5rem; align-items:center; font-size:0.62rem; margin-top:0.4rem;
+      display:flex; gap:0.5rem; align-items:center; font-size:var(--c-text-xs); margin-top:0.4rem;
     }
     .ce-partial-bar span { opacity:0.5; }
 
-    .ce-log { margin-top:0.5rem; max-height:160px; overflow-y:auto; font-size:0.62rem; font-family:'Courier New',monospace; opacity:0.6; line-height:1.6; }
+    .ce-log { margin-top:0.5rem; max-height:160px; overflow-y:auto; font-size:var(--c-text-xs); font-family:'Courier New',monospace; opacity:0.6; line-height:1.6; }
     .ce-log-entry { padding:1px 0; }
 
-    .ce-preset-preview { font-size:0.6rem; opacity:0.4; margin-top:2px; font-style:italic; }
+    .ce-preset-preview { font-size:var(--c-text-xs); opacity:0.4; margin-top:2px; font-style:italic; }
     /* ── Inline Style Replacements ── */
     #ce-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
-    #ce-results-meta { font-size: 0.65rem; opacity: 0.5; margin-bottom: 0.4rem; }
+    #ce-results-meta { font-size: var(--c-text-xs); opacity: 0.5; margin-bottom: 0.4rem; }
     #ce-results-links { margin-top: 0.5rem; }
-    #ce-danger-status { font-size: 0.62rem; margin-top: 0.3rem; }
+    #ce-danger-status { font-size: var(--c-text-xs); margin-top: 0.3rem; }
   </style>
 </head>
 <body data-theme="dark">
@@ -520,7 +520,7 @@
             '<div class="ce-failed-placeholder"><i class="fas fa-exclamation-triangle"></i> Generation failed</div>' +
             '<div class="ce-result-body">' +
               '<div class="ce-result-label">' + info.label + varLabel + ' ' + statusBadge + '</div>' +
-              '<div class="ce-result-size" style="color:#ef4444; font-size:0.6rem;">' + (out.error || 'Unknown error').substring(0, 100) + '</div>' +
+              '<div class="ce-result-size" style="color:#ef4444; font-size:var(--c-text-xs);">' + (out.error || 'Unknown error').substring(0, 100) + '</div>' +
             '</div>';
         } else {
           card.innerHTML =
@@ -539,7 +539,7 @@
 
       // Links + retry
       var linksEl = document.getElementById('ce-results-links');
-      var linksHtml = '<a href="' + (data.packageUrl || '#') + '" target="_blank" style="font-size:0.65rem; color:#60a5fa;"><i class="fas fa-box"></i> Open Package JSON</a>';
+      var linksHtml = '<a href="' + (data.packageUrl || '#') + '" target="_blank" style="font-size:var(--c-text-xs); color:#60a5fa;"><i class="fas fa-box"></i> Open Package JSON</a>';
       if (fCount > 0) {
         linksHtml += ' <button class="ce-retry-btn" id="ce-retry-btn" onclick="ceRetryFailed()"><i class="fas fa-rotate-right"></i> Retry ' + fCount + ' Failed</button>';
       }
@@ -613,7 +613,7 @@
         var res = await fetch(API_BASE + '/api/content-package?id=' + encodeURIComponent(packageId), { headers: _getAuthHeaders() });
         var data = await _safeJson(res);
         if (!res.ok || !data.ok || !data.package) {
-          document.getElementById('ce-results-grid').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:0.7rem;">Failed to load package: ' + (data.error || 'Unknown error') + '</div>';
+          document.getElementById('ce-results-grid').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:var(--c-text-xs);">Failed to load package: ' + (data.error || 'Unknown error') + '</div>';
           return;
         }
         var pkg = data.package;
@@ -634,11 +634,11 @@
         if (pkg.engineVersion) info += ' \u00b7 v' + pkg.engineVersion;
         if (pkg.durationMs) info += ' \u00b7 ' + Math.round(pkg.durationMs / 1000) + 's';
         if (pkg.estimatedCost) info += ' \u00b7 $' + pkg.estimatedCost.toFixed(4);
-        metaEl.innerHTML = '<a href="/modules/company/content-engine.html" style="color:#8b5cf6;font-size:0.62rem;text-decoration:none;margin-right:0.5rem;"><i class="fas fa-arrow-left"></i> Back to Generator</a>' +
-          '<a href="/modules/company/content-gallery.html" style="color:#8b5cf6;font-size:0.62rem;text-decoration:none;margin-right:0.8rem;"><i class="fas fa-images"></i> Gallery</a>' +
-          '<span style="font-size:0.62rem;opacity:0.5;">' + pkg.id + ' \u00b7 ' + info + ' \u00b7 ' + new Date(pkg.createdAt).toLocaleString() + '</span>';
+        metaEl.innerHTML = '<a href="/modules/company/content-engine.html" style="color:#8b5cf6;font-size:var(--c-text-xs);text-decoration:none;margin-right:0.5rem;"><i class="fas fa-arrow-left"></i> Back to Generator</a>' +
+          '<a href="/modules/company/content-gallery.html" style="color:#8b5cf6;font-size:var(--c-text-xs);text-decoration:none;margin-right:0.8rem;"><i class="fas fa-images"></i> Gallery</a>' +
+          '<span style="font-size:var(--c-text-xs);opacity:0.5;">' + pkg.id + ' \u00b7 ' + info + ' \u00b7 ' + new Date(pkg.createdAt).toLocaleString() + '</span>';
       } catch (err) {
-        document.getElementById('ce-results-grid').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:0.7rem;">Error: ' + err.message + '</div>';
+        document.getElementById('ce-results-grid').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:var(--c-text-xs);">Error: ' + err.message + '</div>';
       }
     }
 

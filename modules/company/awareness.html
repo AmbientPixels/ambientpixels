@@ -26,9 +26,9 @@
       border-radius: 10px;
       background: rgba(255,255,255,0.02);
     }
-    .sa-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .sa-section h2 { font-size: var(--c-text-base); margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
     .sa-empty {
-      font-size: 0.7rem;
+      font-size: var(--c-text-xs);
       color: rgba(255,255,255,0.5);
       padding: 0.5rem 0.7rem;
       background: rgba(255,255,255,0.03);
@@ -38,7 +38,7 @@
     .sa-totals { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
     .sa-chip {
       padding: 0.4rem 0.7rem;
-      font-size: 0.65rem;
+      font-size: var(--c-text-xs);
       border-radius: 6px;
       background: rgba(255,255,255,0.04);
       color: rgba(255,255,255,0.75);
@@ -53,8 +53,8 @@
       border-radius: 8px;
       background: rgba(255,255,255,0.03);
     }
-    .sa-agent-card h3 { font-size: 0.75rem; margin: 0 0 0.4rem 0; text-transform: capitalize; display: flex; justify-content: space-between; align-items: center; }
-    .sa-agent-card .sa-metric { font-size: 0.62rem; color: rgba(255,255,255,0.6); margin-bottom: 0.2rem; }
+    .sa-agent-card h3 { font-size: var(--c-text-xs); margin: 0 0 0.4rem 0; text-transform: capitalize; display: flex; justify-content: space-between; align-items: center; }
+    .sa-agent-card .sa-metric { font-size: var(--c-text-xs); color: rgba(255,255,255,0.6); margin-bottom: 0.2rem; }
     .sa-agent-card .sa-metric strong { color: #fff; }
     .sa-status-dot {
       display: inline-block;
@@ -68,7 +68,7 @@
     .sa-drift-chip {
       display: inline-block;
       padding: 0.1rem 0.4rem;
-      font-size: 0.55rem;
+      font-size: var(--c-text-xs);
       border-radius: 3px;
       margin-top: 0.3rem;
     }
@@ -78,14 +78,14 @@
     .sa-expectation-review {
       display: inline-block;
       padding: 0.1rem 0.4rem;
-      font-size: 0.55rem;
+      font-size: var(--c-text-xs);
       border-radius: 3px;
       margin-top: 0.3rem;
       background: rgba(251,191,36,0.2);
       color: #fde68a;
       margin-left: 0.3rem;
     }
-    table.sa-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+    table.sa-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-xs); }
     table.sa-table th, table.sa-table td {
       text-align: left;
       padding: 0.35rem 0.5rem;
@@ -97,7 +97,7 @@
       background: rgba(255,255,255,0.03);
       border-radius: 6px;
       margin-bottom: 0.4rem;
-      font-size: 0.7rem;
+      font-size: var(--c-text-xs);
     }
     .sa-fatigue-row strong { color: #fbbf24; }
   </style>
@@ -282,12 +282,12 @@
         var actualMix = rh.actual && Object.keys(rh.actual).length > 0
           ? Object.keys(rh.actual).map(function (k) { return esc(k) + ':' + rh.actual[k]; }).join(', ')
           : '(no actions 7d)';
-        return '<tr><td>' + esc(aid) + '</td><td><span class="sa-drift-chip ' + cls + '">' + esc(drift) + '</span></td><td style="font-size:0.6rem;opacity:0.75;">' + actualMix + '</td></tr>';
+        return '<tr><td>' + esc(aid) + '</td><td><span class="sa-drift-chip ' + cls + '">' + esc(drift) + '</span></td><td style="font-size:var(--c-text-xs);opacity:0.75;">' + actualMix + '</td></tr>';
       }).join('');
       document.getElementById('sa-roles').innerHTML =
         '<table class="sa-table"><thead><tr><th>Agent</th><th>Drift</th><th>Actual action mix (7d)</th></tr></thead><tbody>'
         + rows + '</tbody></table>'
-        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Drift is observational, not punitive. Agents evolve — if drift persists 3+ digest cycles, the "expectation review" flag surfaces on the agent card so you can decide whether to update the baseline.</div>';
+        + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Drift is observational, not punitive. Agents evolve — if drift persists 3+ digest cycles, the "expectation review" flag surfaces on the agent card so you can decide whether to update the baseline.</div>';
     }
 
     function renderFatigue(d) {
@@ -350,12 +350,12 @@
         return;
       }
       var rows = list.map(function (c) {
-        return '<tr><td>' + esc(c.agentId) + '</td><td>' + esc(String(c.timestamp).substring(0,16).replace('T', ' ')) + '</td><td>' + (c.clusterSize || '?') + '</td><td style="font-size:0.6rem;opacity:0.75;">' + esc(c.textPreview) + '</td></tr>';
+        return '<tr><td>' + esc(c.agentId) + '</td><td>' + esc(String(c.timestamp).substring(0,16).replace('T', ' ')) + '</td><td>' + (c.clusterSize || '?') + '</td><td style="font-size:var(--c-text-xs);opacity:0.75;">' + esc(c.textPreview) + '</td></tr>';
       }).join('');
       document.getElementById('sa-consolidation').innerHTML =
         '<table class="sa-table"><thead><tr><th>Agent</th><th>Timestamp</th><th>Cluster size</th><th>Belief</th></tr></thead><tbody>'
         + rows + '</tbody></table>'
-        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Clusters of 5+ similar memories collapsed into a single belief (90-day TTL). Evidence chain preserved via consolidatedFromIds.</div>';
+        + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Clusters of 5+ similar memories collapsed into a single belief (90-day TTL). Evidence chain preserved via consolidatedFromIds.</div>';
     }
 
     load().then(function (d) {

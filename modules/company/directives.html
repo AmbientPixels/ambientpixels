@@ -344,9 +344,9 @@
         }
         var banner = document.createElement('div');
         banner.id = 'dir-campaign-filter-banner';
-        banner.style.cssText = 'margin-bottom:0.75rem;padding:0.45rem 0.7rem;border-radius:6px;font-size:0.7rem;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;display:flex;align-items:center;gap:0.5rem;';
+        banner.style.cssText = 'margin-bottom:0.75rem;padding:0.45rem 0.7rem;border-radius:6px;font-size:var(--c-text-xs);background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;display:flex;align-items:center;gap:0.5rem;';
         banner.innerHTML = '<i class="fas fa-filter"></i> Filtered by campaign: <strong>' + (cmpName.replace(/</g, '&lt;')) + '</strong>' +
-          '<a href="/modules/company/directives.html" style="margin-left:auto;font-size:0.6rem;color:#f87171;text-decoration:none;opacity:0.8;"><i class="fas fa-times"></i> Clear filter</a>';
+          '<a href="/modules/company/directives.html" style="margin-left:auto;font-size:var(--c-text-xs);color:#f87171;text-decoration:none;opacity:0.8;"><i class="fas fa-times"></i> Clear filter</a>';
         var main = document.querySelector('.content-section');
         if (main && main.children.length > 1) main.insertBefore(banner, main.children[1]);
       }
@@ -433,20 +433,20 @@
 
         // Header row: title + priority + signal
         var html = '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.3rem;">' +
-          '<strong style="font-size:0.85rem;">' + escapeHtml(dir.title) + '</strong>' +
+          '<strong style="font-size:var(--c-text-base);">' + escapeHtml(dir.title) + '</strong>' +
           '<div style="display:flex; gap:0.3rem; align-items:center;">' +
             '<span class="dir-signal dir-signal--' + p.signal + '"><i class="fas ' + sig.icon + '"></i> ' + sig.label + '</span>' +
-            '<span style="font-size:0.6rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(255,255,255,0.06); color:' + priorityColor + ';">' + dir.priority + '</span>' +
+            '<span style="font-size:var(--c-text-xs); padding:0.15rem 0.5rem; border-radius:3px; background:rgba(255,255,255,0.06); color:' + priorityColor + ';">' + dir.priority + '</span>' +
           '</div></div>';
 
-        if (dir.description) html += '<p style="font-size:0.75rem; opacity:0.6; margin:0 0 0.4rem;">' + escapeHtml(dir.description) + '</p>';
+        if (dir.description) html += '<p style="font-size:var(--c-text-xs); opacity:0.6; margin:0 0 0.4rem;">' + escapeHtml(dir.description) + '</p>';
 
         // Progress bar
         html += '<div class="dir-progress-bar"><div class="dir-progress-fill" style="width:' + p.pct + '%;background:' + barColor + ';"></div></div>';
 
         // Stats row
         html += '<div class="dir-stat-row">';
-        html += '<span style="font-size:0.7rem; font-weight:600; color:' + barColor + ';">' + p.pct + '%</span>';
+        html += '<span style="font-size:var(--c-text-xs); font-weight:600; color:' + barColor + ';">' + p.pct + '%</span>';
         if (p.total > 0) {
           html += '<span class="dir-stat"><strong>' + p.done + '</strong>/' + p.total + ' done</span>';
           if (p.inProgress) html += '<span class="dir-stat"><strong>' + p.inProgress + '</strong> active</span>';
@@ -461,18 +461,18 @@
         // v2.3: Classification, Impact/Effort, Source link, Approval state
         if (dir.classification) {
           html += '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin:0.3rem 0;">';
-          html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">' + escapeHtml(dir.classification) + '</span>';
-          if (dir.impact) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(251,191,36,0.1);color:#fbbf24;">Impact: ' + dir.impact + '</span>';
-          if (dir.effort) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + dir.effort + '</span>';
-          if (dir.owner) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Owner: ' + dir.owner + '</span>';
+          html += '<span style="font-size:var(--c-text-xs);padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">' + escapeHtml(dir.classification) + '</span>';
+          if (dir.impact) html += '<span style="font-size:var(--c-text-xs);padding:1px 6px;border-radius:4px;background:rgba(251,191,36,0.1);color:#fbbf24;">Impact: ' + dir.impact + '</span>';
+          if (dir.effort) html += '<span style="font-size:var(--c-text-xs);padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + dir.effort + '</span>';
+          if (dir.owner) html += '<span style="font-size:var(--c-text-xs);padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Owner: ' + dir.owner + '</span>';
           if (dir.approval && dir.approval.status && dir.approval.status !== 'none') {
             var apClr = dir.approval.status === 'approved' ? '#22c55e' : dir.approval.status === 'pending' ? '#fbbf24' : '#6b7280';
-            html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:' + apClr + '22;color:' + apClr + ';">' + dir.approval.status + '</span>';
+            html += '<span style="font-size:var(--c-text-xs);padding:1px 6px;border-radius:4px;background:' + apClr + '22;color:' + apClr + ';">' + dir.approval.status + '</span>';
           }
           html += '</div>';
         }
         if (dir.source && dir.source.type === 'standup') {
-          html += '<div style="font-size:0.55rem;opacity:0.4;margin-bottom:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(dir.source.title || 'Standup') + '</a></div>';
+          html += '<div style="font-size:var(--c-text-xs);opacity:0.4;margin-bottom:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(dir.source.title || 'Standup') + '</a></div>';
         }
 
         // v2.5: KPI chips
@@ -484,20 +484,20 @@
           dir.kpiLinks.forEach(function (kId) {
             var k = kpiMap[kId];
             if (!k) return;
-            html += '<a href="/modules/company/dashboard.html#kpi_' + k.id + '" style="font-size:0.55rem;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);text-decoration:none;border:1px solid rgba(255,255,255,0.08);"><i class="fas fa-chart-line" style="font-size:0.45rem;margin-right:2px;"></i>KPI: ' + escapeHtml(k.name) + '</a>';
+            html += '<a href="/modules/company/dashboard.html#kpi_' + k.id + '" style="font-size:var(--c-text-xs);padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);text-decoration:none;border:1px solid rgba(255,255,255,0.08);"><i class="fas fa-chart-line" style="font-size:0.45rem;margin-right:2px;"></i>KPI: ' + escapeHtml(k.name) + '</a>';
           });
           html += '</div>';
         }
 
         // Meta row
         html += '<div style="display:flex; gap:0.6rem; align-items:center; margin:0.3rem 0;">' +
-          '<span style="font-size:0.6rem; opacity:0.4;">Created: ' + new Date(dir.createdDate).toLocaleDateString() + '</span>';
+          '<span style="font-size:var(--c-text-xs); opacity:0.4;">Created: ' + new Date(dir.createdDate).toLocaleDateString() + '</span>';
         if (dir.campaign_id && typeof AgentEngine.getCampaigns === 'function') {
           var _c = AgentEngine.getCampaigns().find(function (x) { return x && x.id === dir.campaign_id && !x.deletedAt; });
-          if (_c) html += '<span style="font-size:0.58rem; padding:1px 6px; border-radius:999px; border:1px solid rgba(148,163,184,0.3); color:rgba(226,232,240,0.75); background:rgba(148,163,184,0.08);"><i class="fas fa-layer-group" style="margin-right:3px; opacity:0.7;"></i>' + escapeHtml(_c.title || _c.id) + '</span>';
+          if (_c) html += '<span style="font-size:var(--c-text-xs); padding:1px 6px; border-radius:999px; border:1px solid rgba(148,163,184,0.3); color:rgba(226,232,240,0.75); background:rgba(148,163,184,0.08);"><i class="fas fa-layer-group" style="margin-right:3px; opacity:0.7;"></i>' + escapeHtml(_c.title || _c.id) + '</span>';
         }
         if (p.staleDays > 0 && p.total > 0 && p.signal !== 'complete') {
-          html += '<span style="font-size:0.55rem; opacity:0.35;">Last activity: ' + p.staleDays + 'd ago</span>';
+          html += '<span style="font-size:var(--c-text-xs); opacity:0.35;">Last activity: ' + p.staleDays + 'd ago</span>';
         }
         // Reverse-lookup: find goals that link to this project via linkedDirectives
         var _allGoals = AgentEngine.getObjectives();
@@ -506,7 +506,7 @@
           return lds.indexOf(dir.id) !== -1;
         });
         if (_linkedGoals.length > 0) {
-          html += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-bullseye"></i> ' + _linkedGoals.map(function (g) { return escapeHtml(g.title); }).join(', ') + '</span>';
+          html += '<span style="font-size:var(--c-text-xs); opacity:0.5;"><i class="fas fa-bullseye"></i> ' + _linkedGoals.map(function (g) { return escapeHtml(g.title); }).join(', ') + '</span>';
         }
         html += '</div>';
 
@@ -537,8 +537,8 @@
             html += '<li class="dir-task-item">' +
               '<span class="dir-task-status dir-task-status--' + s + '">' + s + '</span>' +
               '<span style="flex:1;">' + escapeHtml(t.title) + '</span>' +
-              '<span style="font-size:0.55rem;opacity:0.4;">' + assignee + '</span>';
-            if (overdue) html += '<span style="font-size:0.5rem;color:#fbbf24;"><i class="fas fa-clock"></i></span>';
+              '<span style="font-size:var(--c-text-xs);opacity:0.4;">' + assignee + '</span>';
+            if (overdue) html += '<span style="font-size:var(--c-text-xs);color:#fbbf24;"><i class="fas fa-clock"></i></span>';
             html += '</li>';
           });
           html += '</ul>';
@@ -552,7 +552,7 @@
         var _btn = function (label, border, bg, color, onClick) {
           var b = document.createElement('button');
           b.textContent = label;
-          b.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid ' + border + '; background:' + bg + '; color:' + color + '; border-radius:4px; cursor:pointer;';
+          b.style.cssText = 'font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border:1px solid ' + border + '; background:' + bg + '; color:' + color + '; border-radius:4px; cursor:pointer;';
           b.addEventListener('click', onClick);
           return b;
         };
@@ -659,7 +659,7 @@
           if (!emptyLabel) {
             emptyLabel = document.createElement('span');
             emptyLabel.id = 'edit-goals-empty';
-            emptyLabel.style.cssText = 'font-size:0.65rem; opacity:0.3; display:block; margin-top:0.2rem;';
+            emptyLabel.style.cssText = 'font-size:var(--c-text-xs); opacity:0.3; display:block; margin-top:0.2rem;';
             emptyLabel.textContent = 'No goals yet';
             goalsSel.parentElement.insertBefore(emptyLabel, goalsSel.nextSibling);
           }

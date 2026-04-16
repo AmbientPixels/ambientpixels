@@ -467,11 +467,11 @@
             '</div>' +
             '<div class="ws-memory-item-header">' +
               '<span class="ws-memory-type ws-memory-type--' + m.type + '">' + m.type + '</span>' +
-              '<span style="font-size:0.6rem;padding:0.1rem 0.4rem;border-radius:4px;background:' + priColor + '22;color:' + priColor + ';font-weight:500;text-transform:uppercase;">' + pri + '</span>' +
-              '<span style="font-size:0.6rem;opacity:0.5;"><i class="fas ' + srcIcon + '" style="margin-right:2px;"></i>' + src + '</span>' +
+              '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.4rem;border-radius:4px;background:' + priColor + '22;color:' + priColor + ';font-weight:500;text-transform:uppercase;">' + pri + '</span>' +
+              '<span style="font-size:var(--c-text-xs);opacity:0.5;"><i class="fas ' + srcIcon + '" style="margin-right:2px;"></i>' + src + '</span>' +
               '<span class="ws-memory-title">' + escapeHtml(m.title) + '</span>' +
             '</div>' +
-            (m.description ? '<div style="font-size:0.72rem;opacity:0.6;margin:0.15rem 0 0.3rem;line-height:1.4;">' + escapeHtml(m.description) + '</div>' : '') +
+            (m.description ? '<div style="font-size:var(--c-text-xs);opacity:0.6;margin:0.15rem 0 0.3rem;line-height:1.4;">' + escapeHtml(m.description) + '</div>' : '') +
             (m.content ? '<div class="ws-memory-content">' + escapeHtml(m.content) + '</div>' : '') +
             '<div class="ws-memory-meta">' +
               '<span>' + timeStr + '</span>' +
@@ -579,7 +579,7 @@
                 '<div class="ws-heartbeat-label">' + (hbStatus === 'alive' ? 'Online' : 'Idle') + '</div>' +
                 '<div class="ws-heartbeat-time">Last beat: ' + hbTime + '</div>' +
               '</div>' +
-              '<button class="ws-nav-btn" data-agent="' + agent.id + '" data-action="ping-heartbeat" style="font-size:0.6rem;"><i class="fas fa-satellite-dish"></i> Ping</button>' +
+              '<button class="ws-nav-btn" data-agent="' + agent.id + '" data-action="ping-heartbeat" style="font-size:var(--c-text-xs);"><i class="fas fa-satellite-dish"></i> Ping</button>' +
             '</div>' +
           '</div>' +
 
@@ -632,20 +632,20 @@
           // Doctrine Influence Weight
           '<div class="ws-config-section">' +
             '<div class="ws-config-title"><i class="fas fa-book"></i> Doctrine Influence Weight' +
-              '<span style="font-size:0.55rem;opacity:0.4;margin-left:6px;" title="Controls how strongly strategic bias influences reasoning. Governance always overrides."><i class="fas fa-info-circle"></i></span>' +
+              '<span style="font-size:var(--c-text-xs);opacity:0.4;margin-left:6px;" title="Controls how strongly strategic bias influences reasoning. Governance always overrides."><i class="fas fa-info-circle"></i></span>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:0.8rem;">' +
               '<input type="range" class="agent-cfg-range" data-agent="' + agent.id + '" data-key="doctrineWeight" ' +
                 'min="0" max="0.6" step="0.05" value="' + (config.doctrineWeight != null ? config.doctrineWeight : 0.4) + '" ' +
                 'style="flex:1;accent-color:rgba(255,255,255,0.6);cursor:pointer;" />' +
-              '<span class="doctrine-weight-val" data-agent="' + agent.id + '" style="font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.7);min-width:2.5rem;text-align:center;">' +
+              '<span class="doctrine-weight-val" data-agent="' + agent.id + '" style="font-size:var(--c-text-base);font-weight:600;color:rgba(255,255,255,0.7);min-width:2.5rem;text-align:center;">' +
                 (config.doctrineWeight != null ? config.doctrineWeight : 0.4) +
               '</span>' +
             '</div>' +
-            '<div style="display:flex;justify-content:space-between;font-size:0.55rem;opacity:0.3;margin-top:2px;">' +
+            '<div style="display:flex;justify-content:space-between;font-size:var(--c-text-xs);opacity:0.3;margin-top:2px;">' +
               '<span>0.0 (off)</span><span>0.4 (default)</span><span>0.6 (max)</span>' +
             '</div>' +
-            '<div style="font-size:0.6rem;opacity:0.4;margin-top:0.4rem;">Controls how strongly this agent\'s strategic bias influences reasoning. Governance, CEO authority, and guardrails always override doctrine.</div>' +
+            '<div style="font-size:var(--c-text-xs);opacity:0.4;margin-top:0.4rem;">Controls how strongly this agent\'s strategic bias influences reasoning. Governance, CEO authority, and guardrails always override doctrine.</div>' +
           '</div>' +
 
           // Role Override
@@ -892,12 +892,12 @@
           var isToday = days === 0;
 
           var daysLabel = '';
-          if (isToday) daysLabel = '<span style="color:#22c55e;font-weight:600;font-size:0.65rem;">TODAY</span>';
-          else if (days === 1) daysLabel = '<span style="color:#60a5fa;font-size:0.65rem;">tomorrow</span>';
-          else if (days > 1 && days <= 7) daysLabel = '<span style="color:#60a5fa;font-size:0.65rem;">in ' + days + ' days</span>';
-          else if (days > 7) daysLabel = '<span style="opacity:0.4;font-size:0.65rem;">in ' + days + ' days</span>';
-          else if (days === -1) daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:0.65rem;">yesterday</span>';
-          else daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:0.65rem;">' + Math.abs(days) + ' days ago</span>';
+          if (isToday) daysLabel = '<span style="color:#22c55e;font-weight:600;font-size:var(--c-text-xs);">TODAY</span>';
+          else if (days === 1) daysLabel = '<span style="color:#60a5fa;font-size:var(--c-text-xs);">tomorrow</span>';
+          else if (days > 1 && days <= 7) daysLabel = '<span style="color:#60a5fa;font-size:var(--c-text-xs);">in ' + days + ' days</span>';
+          else if (days > 7) daysLabel = '<span style="opacity:0.4;font-size:var(--c-text-xs);">in ' + days + ' days</span>';
+          else if (days === -1) daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:var(--c-text-xs);">yesterday</span>';
+          else daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:var(--c-text-xs);">' + Math.abs(days) + ' days ago</span>';
 
           var typeColor = DATE_TYPE_COLORS[d.type] || '#60a5fa';
           var typeIcon = DATE_TYPE_ICONS[d.type] || 'fa-calendar';
@@ -910,10 +910,10 @@
           el.style.borderLeft = '3px solid ' + typeColor;
 
           var badgesHtml =
-            '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:' + typeColor + '22;color:' + typeColor + ';"><i class="fas ' + typeIcon + '" style="margin-right:2px;"></i>' + d.type + '</span>' +
-            '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:' + priColor + '22;color:' + priColor + ';text-transform:uppercase;">' + pri + '</span>' +
-            (isOverdue ? '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:#ef444422;color:#ef4444;font-weight:600;">OVERDUE</span>' : '') +
-            (d.recurring ? '<span style="font-size:0.6rem;padding:0.1rem 0.35rem;border-radius:4px;background:#8b5cf622;color:#8b5cf6;"><i class="fas fa-sync-alt" style="margin-right:2px;"></i>' + d.recurring + '</span>' : '');
+            '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.35rem;border-radius:4px;background:' + typeColor + '22;color:' + typeColor + ';"><i class="fas ' + typeIcon + '" style="margin-right:2px;"></i>' + d.type + '</span>' +
+            '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.35rem;border-radius:4px;background:' + priColor + '22;color:' + priColor + ';text-transform:uppercase;">' + pri + '</span>' +
+            (isOverdue ? '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.35rem;border-radius:4px;background:#ef444422;color:#ef4444;font-weight:600;">OVERDUE</span>' : '') +
+            (d.recurring ? '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.35rem;border-radius:4px;background:#8b5cf622;color:#8b5cf6;"><i class="fas fa-sync-alt" style="margin-right:2px;"></i>' + d.recurring + '</span>' : '');
 
           el.innerHTML =
             '<div class="ws-date-cal" style="border-color:' + typeColor + ';">' +
@@ -923,10 +923,10 @@
             '<div class="ws-date-info" style="flex:1;">' +
               '<div class="ws-date-title">' + escapeHtml(d.title) + '</div>' +
               '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin:0.2rem 0;">' + badgesHtml + '</div>' +
-              (d.notes ? '<div style="font-size:0.68rem;opacity:0.5;margin-top:0.15rem;">' + escapeHtml(d.notes) + '</div>' : '') +
+              (d.notes ? '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.15rem;">' + escapeHtml(d.notes) + '</div>' : '') +
               '<div style="display:flex;gap:0.5rem;align-items:center;margin-top:0.2rem;">' +
                 daysLabel +
-                (agent ? '<span style="font-size:0.6rem;color:' + agent.color + ';"><i class="fas fa-user" style="margin-right:2px;"></i>' + agent.name + '</span>' : '') +
+                (agent ? '<span style="font-size:var(--c-text-xs);color:' + agent.color + ';"><i class="fas fa-user" style="margin-right:2px;"></i>' + agent.name + '</span>' : '') +
               '</div>' +
             '</div>' +
             '<div style="display:flex;flex-direction:column;gap:0.3rem;">' +

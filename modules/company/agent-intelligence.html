@@ -60,7 +60,7 @@
     </div>
 
     <div style="margin-top:0.5rem;">
-      <a href="/modules/company/agent-performance.html" style="font-size:0.72rem;color:rgba(167,139,250,0.7);text-decoration:none;"><i class="fas fa-gauge-high" style="margin-right:0.3rem;"></i>Full Performance Breakdown →</a>
+      <a href="/modules/company/agent-performance.html" style="font-size:var(--c-text-xs);color:rgba(167,139,250,0.7);text-decoration:none;"><i class="fas fa-gauge-high" style="margin-right:0.3rem;"></i>Full Performance Breakdown →</a>
     </div>
   </main>
 
@@ -206,7 +206,7 @@
       var leftHtml = '<div class="aint-digest-stack">';
       leftHtml += '<div class="aint-digest-card"><div class="aint-digest-title">CEO Revisions</div><div class="aint-digest-value" style="color:' + revColor + ';">' + avgRevisions + '</div><div class="aint-digest-sub">avg revisions before approval</div></div>';
       leftHtml += '<div class="aint-digest-card"><div class="aint-digest-title">Learnings Absorbed (7d)</div><div class="aint-digest-value" style="color:#38bdf8;">' + ceoFeedbackCount + '</div><div class="aint-digest-sub">from CEO feedback &nbsp;·&nbsp; ' + selfReflectCount + ' self-reflections</div></div>';
-      leftHtml += '<div class="aint-digest-card"><div class="aint-digest-title">Experiments</div><div class="aint-digest-value" style="color:#a78bfa;">' + activeExp + ' <span style="font-size:0.7rem;opacity:0.4;font-weight:400;">active</span> &nbsp; ' + provenExp + ' <span style="font-size:0.7rem;opacity:0.4;font-weight:400;">proven</span></div><div class="aint-digest-sub">A/B tests</div></div>';
+      leftHtml += '<div class="aint-digest-card"><div class="aint-digest-title">Experiments</div><div class="aint-digest-value" style="color:#a78bfa;">' + activeExp + ' <span style="font-size:var(--c-text-xs);opacity:0.4;font-weight:400;">active</span> &nbsp; ' + provenExp + ' <span style="font-size:var(--c-text-xs);opacity:0.4;font-weight:400;">proven</span></div><div class="aint-digest-sub">A/B tests</div></div>';
       leftHtml += '</div>';
 
       // Right: CEO feedback notes

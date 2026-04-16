@@ -38,8 +38,8 @@
     }
     .cost-stat-card:hover { border-color: rgba(251,191,36,0.2); transform: translateY(-1px); }
     .cost-stat-value { font-size: 1.6rem; font-weight: 600; line-height: 1.2; }
-    .cost-stat-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.25rem; }
-    .cost-stat-sub { font-size: 0.5rem; opacity: 0.25; margin-top: 0.15rem; }
+    .cost-stat-label { font-size: var(--c-text-xs); opacity: 0.35; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.25rem; }
+    .cost-stat-sub { font-size: var(--c-text-xs); opacity: 0.25; margin-top: 0.15rem; }
 
     /* Breakdown bar */
     .cost-breakdown-bar {
@@ -48,7 +48,7 @@
     }
     .cost-breakdown-legend {
       display: flex; justify-content: center; gap: 1.2rem;
-      font-size: 0.55rem; opacity: 0.4; margin-bottom: 1.4rem;
+      font-size: var(--c-text-xs); opacity: 0.4; margin-bottom: 1.4rem;
     }
     .cost-breakdown-legend i { margin-right: 3px; }
 
@@ -64,7 +64,7 @@
     }
     .cost-budget-card-header {
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.65rem; margin-bottom: 0.5rem;
+      font-size: var(--c-text-xs); margin-bottom: 0.5rem;
     }
     .cost-budget-card-name { font-weight: 600; }
     .cost-budget-card-value { font-weight: 500; }
@@ -74,12 +74,12 @@
     .cost-budget-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
     .cost-budget-card-sub {
       display: flex; justify-content: space-between;
-      font-size: 0.5rem; opacity: 0.3; margin-top: 0.3rem;
+      font-size: var(--c-text-xs); opacity: 0.3; margin-top: 0.3rem;
     }
 
     /* Section titles */
     .cost-section-title {
-      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+      font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.08em;
       opacity: 0.3; font-weight: 500; margin-top: 1.8rem; margin-bottom: 0.6rem;
     }
 
@@ -96,7 +96,7 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
     }
-    .cost-panel-title { font-size: 0.72rem; font-weight: 600; }
+    .cost-panel-title { font-size: var(--c-text-xs); font-weight: 600; }
     .cost-panel-title i { margin-right: 6px; }
     .cost-panel-body { padding: 0.8rem 1rem; }
 
@@ -109,12 +109,12 @@
       border: 1px solid rgba(255,255,255,0.04);
       border-radius: 6px;
     }
-    .cost-kpi-value { font-size: 1rem; font-weight: 600; line-height: 1.2; }
-    .cost-kpi-label { font-size: 0.5rem; opacity: 0.35; }
+    .cost-kpi-value { font-size: var(--c-text-md); font-weight: 600; line-height: 1.2; }
+    .cost-kpi-label { font-size: var(--c-text-xs); opacity: 0.35; }
 
     /* Tag chips */
     .cost-chip {
-      display: inline-block; font-size: 0.55rem;
+      display: inline-block; font-size: var(--c-text-xs);
       padding: 0.12rem 0.4rem; border-radius: 3px;
       margin-right: 0.3rem; margin-bottom: 0.3rem;
     }
@@ -127,14 +127,14 @@
     }
     .cost-spark-labels {
       display: flex; justify-content: space-between;
-      font-size: 0.45rem; opacity: 0.2; margin-top: 0.15rem;
+      font-size: var(--c-text-xs); opacity: 0.2; margin-top: 0.15rem;
     }
 
     /* Bar rows for service/agent breakdown */
     .cost-bar-row { margin-bottom: 0.35rem; }
     .cost-bar-row-header {
       display: flex; justify-content: space-between;
-      font-size: 0.55rem; margin-bottom: 0.1rem;
+      font-size: var(--c-text-xs); margin-bottom: 0.1rem;
     }
     .cost-bar-row-name { opacity: 0.6; }
     .cost-bar-row-value { font-weight: 500; }
@@ -142,10 +142,10 @@
     .cost-bar-fill { height: 100%; border-radius: 2px; }
 
     /* Agent cost table */
-    .cost-agent-table { width: 100%; border-collapse: collapse; font-size: 0.62rem; }
+    .cost-agent-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-xs); }
     .cost-agent-table th {
       text-align: left; font-weight: 500; opacity: 0.35;
-      text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.5rem;
+      text-transform: uppercase; letter-spacing: 0.05em; font-size: var(--c-text-xs);
       padding: 0.4rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .cost-agent-table td {
@@ -167,11 +167,11 @@
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 8px;
     }
-    .cost-roi-value { font-size: 1.2rem; font-weight: 600; line-height: 1.2; }
-    .cost-roi-label { font-size: 0.5rem; opacity: 0.35; margin-top: 0.15rem; }
+    .cost-roi-value { font-size: var(--c-text-lg); font-weight: 600; line-height: 1.2; }
+    .cost-roi-label { font-size: var(--c-text-xs); opacity: 0.35; margin-top: 0.15rem; }
 
-    .cost-empty { opacity: 0.35; font-size: 0.68rem; padding: 0.5rem 0; }
-    .cost-sub-label { font-size: 0.58rem; opacity: 0.4; margin-bottom: 0.25rem; font-weight: 600; }
+    .cost-empty { opacity: 0.35; font-size: var(--c-text-xs); padding: 0.5rem 0; }
+    .cost-sub-label { font-size: var(--c-text-xs); opacity: 0.4; margin-bottom: 0.25rem; font-weight: 600; }
 
     @media (prefers-reduced-motion: reduce) {
       .cost-stat-card:hover { transform: none; }
@@ -179,7 +179,7 @@
 
     /* ── Inline Style Replacements ── */
     #cost-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
-    .cost-select { font-size: 0.6rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: inherit; padding: 0.15rem 0.3rem; }
+    .cost-select { font-size: var(--c-text-xs); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: inherit; padding: 0.15rem 0.3rem; }
     .cost-filter-row { display: flex; gap: 0.4rem; align-items: center; }
   </style>
 </head>
@@ -735,9 +735,9 @@
             var ts = a.execution.finished_at || a.created_at || '';
             var m = a.execution.receipt && a.execution.receipt.metrics;
             var eng = m ? (m.likes || 0) + (m.retweets || 0) + (m.replies || 0) : 0;
-            html += '<div style="padding:0.35rem 0.5rem; margin-bottom:0.3rem; background:rgba(29,161,242,0.03); border:1px solid rgba(29,161,242,0.08); border-radius:6px; font-size:0.58rem;">';
+            html += '<div style="padding:0.35rem 0.5rem; margin-bottom:0.3rem; background:rgba(29,161,242,0.03); border:1px solid rgba(29,161,242,0.08); border-radius:6px; font-size:var(--c-text-xs);">';
             html += '<div style="opacity:0.7; margin-bottom:0.2rem;">' + escapeHtml(text) + '</div>';
-            html += '<div style="display:flex; gap:0.6rem; opacity:0.35; font-size:0.5rem;">';
+            html += '<div style="display:flex; gap:0.6rem; opacity:0.35; font-size:var(--c-text-xs);">';
             if (ts) html += '<span>' + new Date(ts).toLocaleDateString() + '</span>';
             html += '<span>' + eng + ' engagements</span>';
             if (a.execution.receipt && a.execution.receipt.post_url) html += '<a href="' + escapeHtml(a.execution.receipt.post_url) + '" target="_blank" style="color:#1DA1F2;">View →</a>';
@@ -746,7 +746,7 @@
         }
 
         var planLabel = xMonthly === 0 ? 'Free tier' : (xMonthly === 100 ? 'Basic tier' : (xMonthly === 5000 ? 'Pro tier' : '$' + xMonthly + '/mo'));
-        html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.4rem;">X API ' + planLabel + ' · $' + xMonthly + '/mo · Engagement pulled every 15min</div>';
+        html += '<div style="font-size:var(--c-text-xs); opacity:0.25; margin-top:0.4rem;">X API ' + planLabel + ' · $' + xMonthly + '/mo · Engagement pulled every 15min</div>';
 
         if (xActions.length === 0) html = '<div class="cost-empty">No X.com posts in the last ' + days + ' days.' + (xMonthly > 0 ? ' Subscription: $' + xMonthly + '/mo.' : ' Free tier.') + '</div>';
         el.innerHTML = html;

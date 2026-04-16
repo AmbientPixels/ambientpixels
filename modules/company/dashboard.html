@@ -23,27 +23,27 @@
   <style>
     /* Approval Queue Tabs */
     .aq-tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:0.5rem; }
-    .aq-tab { background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.65rem; padding:0.4rem 0.7rem; cursor:pointer; border-bottom:2px solid transparent; display:flex; align-items:center; gap:0.3rem; transition:color 0.2s, border-color 0.2s; }
+    .aq-tab { background:none; border:none; color:rgba(255,255,255,0.4); font-size:var(--c-text-xs); padding:0.4rem 0.7rem; cursor:pointer; border-bottom:2px solid transparent; display:flex; align-items:center; gap:0.3rem; transition:color 0.2s, border-color 0.2s; }
     .aq-tab:hover { color:rgba(255,255,255,0.7); }
     .aq-tab--active { color:#e8e4df; border-bottom-color:#e8e4df; }
-    .aq-tab-count { font-size:0.5rem; padding:0.05rem 0.35rem; border-radius:999px; background:rgba(255,255,255,0.06); font-weight:600; min-width:14px; text-align:center; }
+    .aq-tab-count { font-size:var(--c-text-xs); padding:0.05rem 0.35rem; border-radius:999px; background:rgba(255,255,255,0.06); font-weight:600; min-width:14px; text-align:center; }
     .aq-tab--active .aq-tab-count { background:rgba(255,255,255,0.1); color:#e8e4df; }
     /* Trending cards */
     .trend-card { border:1px solid rgba(96,165,250,0.12); border-radius:8px; padding:0.5rem 0.6rem; margin-bottom:0.35rem; background:rgba(96,165,250,0.02); transition:border-color 0.2s; }
     .trend-card:hover { border-color:rgba(96,165,250,0.25); }
     .trend-card-header { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.25rem; flex-wrap:wrap; }
-    .trend-stage { font-size:0.48rem; font-weight:700; padding:0.1rem 0.4rem; border-radius:3px; text-transform:uppercase; letter-spacing:0.03em; }
+    .trend-stage { font-size:var(--c-text-xs); font-weight:700; padding:0.1rem 0.4rem; border-radius:3px; text-transform:uppercase; letter-spacing:0.03em; }
     .trend-stage--exploding { background:rgba(248,113,113,0.12); color:#f87171; }
     .trend-stage--rising { background:rgba(251,191,36,0.12); color:#fbbf24; }
     .trend-stage--emerging { background:rgba(52,211,153,0.12); color:#34d399; }
     .trend-stage--stable { background:rgba(148,163,184,0.12); color:#94a3b8; }
-    .trend-score { font-size:0.55rem; font-weight:700; color:#60a5fa; }
-    .trend-delta { font-size:0.5rem; font-weight:600; }
+    .trend-score { font-size:var(--c-text-xs); font-weight:700; color:#60a5fa; }
+    .trend-delta { font-size:var(--c-text-xs); font-weight:600; }
     .trend-delta--up { color:#34d399; }
     .trend-delta--down { color:#f87171; }
-    .trend-body { font-size:0.7rem; opacity:0.6; line-height:1.35; margin-bottom:0.35rem; }
+    .trend-body { font-size:var(--c-text-xs); opacity:0.6; line-height:1.35; margin-bottom:0.35rem; }
     .trend-actions { display:flex; gap:0.3rem; flex-wrap:wrap; }
-    .trend-btn { font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; cursor:pointer; border:1px solid; transition:opacity 0.2s; }
+    .trend-btn { font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; cursor:pointer; border:1px solid; transition:opacity 0.2s; }
     .trend-btn:hover { opacity:0.8; }
     .trend-btn--dismiss { border-color:rgba(148,163,184,0.2); background:rgba(148,163,184,0.06); color:#94a3b8; }
     .trend-btn--campaign { border-color:rgba(96,165,250,0.25); background:rgba(96,165,250,0.06); color:#60a5fa; }
@@ -52,56 +52,56 @@
     /* Social Command Center */
     .scc-chips { display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:0.4rem; margin-bottom:0.6rem; }
     .scc-chip { border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); border-radius:8px; padding:0.4rem 0.5rem; }
-    .scc-chip-value { font-size:0.95rem; font-weight:700; }
-    .scc-chip-label { font-size:0.5rem; opacity:0.35; margin-top:0.06rem; }
+    .scc-chip-value { font-size:var(--c-text-md); font-weight:700; }
+    .scc-chip-label { font-size:var(--c-text-xs); opacity:0.35; margin-top:0.06rem; }
     .scc-chip--badge { display:flex; align-items:center; justify-content:center; }
-    .scc-badge { font-size:0.48rem; font-weight:700; letter-spacing:0.03em; padding:0.08rem 0.36rem; border-radius:999px; text-transform:uppercase; }
+    .scc-badge { font-size:var(--c-text-xs); font-weight:700; letter-spacing:0.03em; padding:0.08rem 0.36rem; border-radius:999px; text-transform:uppercase; }
     .scc-badge--live { background:rgba(52,211,153,0.12); color:#34d399; }
     .scc-badge--mock { background:rgba(251,191,36,0.12); color:#fbbf24; }
     .scc-platforms { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.4rem; margin-bottom:0.6rem; }
     .scc-platform-card { border:1px solid rgba(255,255,255,0.06); border-left:3px solid #60a5fa; border-radius:8px; padding:0.4rem 0.5rem; background:rgba(255,255,255,0.012); }
-    .scc-platform-name { font-size:0.52rem; opacity:0.45; text-transform:uppercase; margin-bottom:0.2rem; letter-spacing:0.03em; display:block; }
+    .scc-platform-name { font-size:var(--c-text-xs); opacity:0.45; text-transform:uppercase; margin-bottom:0.2rem; letter-spacing:0.03em; display:block; }
     .scc-platform-link { color:inherit; text-decoration:none; }
     .scc-platform-link:hover { opacity:0.7; }
-    .scc-platform-stat { display:flex; align-items:baseline; gap:0.25rem; font-size:0.78rem; font-weight:700; padding:0.04rem 0; }
-    .scc-platform-stat-label { font-size:0.44rem; opacity:0.35; font-weight:400; }
-    .scc-platform-stat--off { font-size:0.5rem; opacity:0.3; font-weight:400; padding:0.3rem 0; }
+    .scc-platform-stat { display:flex; align-items:baseline; gap:0.25rem; font-size:var(--c-text-base); font-weight:700; padding:0.04rem 0; }
+    .scc-platform-stat-label { font-size:var(--c-text-xs); opacity:0.35; font-weight:400; }
+    .scc-platform-stat--off { font-size:var(--c-text-xs); opacity:0.3; font-weight:400; padding:0.3rem 0; }
     .scc-graph-wrap { margin-bottom:0.5rem; }
     .scc-svg { width:100%; height:auto; min-height:80px; max-height:140px; display:block; }
     .scc-graph-labels { display:flex; justify-content:space-between; padding:0 8px; }
-    .scc-graph-labels span { font-size:0.42rem; opacity:0.25; }
+    .scc-graph-labels span { font-size:var(--c-text-xs); opacity:0.25; }
     .scc-graph-legend { display:flex; gap:0.7rem; margin-bottom:0.3rem; }
-    .scc-legend-item { font-size:0.5rem; opacity:0.5; display:flex; align-items:center; gap:0.2rem; }
+    .scc-legend-item { font-size:var(--c-text-xs); opacity:0.5; display:flex; align-items:center; gap:0.2rem; }
     .scc-legend-swatch { width:10px; height:3px; border-radius:2px; display:inline-block; }
     .scc-graph-area { position:relative; }
     .scc-dot { position:absolute; width:7px; height:7px; border-radius:50%; transform:translate(-50%,-50%); opacity:0; cursor:pointer; z-index:2; }
     .scc-dot:hover { opacity:1; }
-    .scc-issue-row { display:flex; align-items:center; gap:0.35rem; font-size:0.58rem; padding:0.3rem 0; border-top:1px solid rgba(255,255,255,0.04); margin-top:0.2rem; }
-    .scc-issue-pill { font-size:0.5rem; background:rgba(239,68,68,0.12); color:#ef4444; border-radius:999px; padding:0.08rem 0.35rem; font-weight:600; }
-    .scc-issue-count { font-size:0.5rem; opacity:0.45; }
-    .scc-platform-eng { display:flex; gap:0.5rem; font-size:0.62rem; font-weight:600; margin-top:0.1rem; }
+    .scc-issue-row { display:flex; align-items:center; gap:0.35rem; font-size:var(--c-text-xs); padding:0.3rem 0; border-top:1px solid rgba(255,255,255,0.04); margin-top:0.2rem; }
+    .scc-issue-pill { font-size:var(--c-text-xs); background:rgba(239,68,68,0.12); color:#ef4444; border-radius:999px; padding:0.08rem 0.35rem; font-weight:600; }
+    .scc-issue-count { font-size:var(--c-text-xs); opacity:0.45; }
+    .scc-platform-eng { display:flex; gap:0.5rem; font-size:var(--c-text-xs); font-weight:600; margin-top:0.1rem; }
     .scc-comment-alert { border:1px solid rgba(251,191,36,0.15); border-left:3px solid #fbbf24; border-radius:8px; padding:0.45rem 0.55rem; margin-top:0.4rem; background:rgba(251,191,36,0.03); }
-    .scc-comment-alert-header { font-size:0.6rem; margin-bottom:0.3rem; }
-    .scc-comment-post { display:flex; align-items:center; gap:0.25rem; font-size:0.52rem; padding:0.2rem 0; border-top:1px solid rgba(255,255,255,0.03); }
+    .scc-comment-alert-header { font-size:var(--c-text-xs); margin-bottom:0.3rem; }
+    .scc-comment-post { display:flex; align-items:center; gap:0.25rem; font-size:var(--c-text-xs); padding:0.2rem 0; border-top:1px solid rgba(255,255,255,0.03); }
     .scc-comment-post-text { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:0.55; }
-    .scc-comment-count { font-size:0.5rem; font-weight:700; color:#fbbf24; background:rgba(251,191,36,0.12); border-radius:999px; padding:0.06rem 0.3rem; min-width:1.2rem; text-align:center; }
-    .scc-comment-link { color:#fbbf24; opacity:0.5; font-size:0.45rem; margin-left:0.2rem; text-decoration:none; }
+    .scc-comment-count { font-size:var(--c-text-xs); font-weight:700; color:#fbbf24; background:rgba(251,191,36,0.12); border-radius:999px; padding:0.06rem 0.3rem; min-width:1.2rem; text-align:center; }
+    .scc-comment-link { color:#fbbf24; opacity:0.5; font-size:var(--c-text-xs); margin-left:0.2rem; text-decoration:none; }
     .scc-comment-link:hover { opacity:1; }
     .scc-health-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:3px; vertical-align:middle; }
     .scc-health-dot--ok { background:#34d399; }
     .scc-health-dot--err { background:#ef4444; }
-    .scc-platform-last { font-size:0.44rem; opacity:0.4; margin-top:0.15rem; }
+    .scc-platform-last { font-size:var(--c-text-xs); opacity:0.4; margin-top:0.15rem; }
     .scc-top-post { border:1px solid rgba(251,191,36,0.1); border-radius:8px; padding:0.4rem 0.5rem; margin-top:0.4rem; background:rgba(251,191,36,0.02); }
-    .scc-top-post-header { font-size:0.52rem; opacity:0.55; margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.03em; }
-    .scc-top-post-body { display:flex; align-items:center; gap:0.2rem; font-size:0.55rem; margin-bottom:0.2rem; }
+    .scc-top-post-header { font-size:var(--c-text-xs); opacity:0.55; margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.03em; }
+    .scc-top-post-body { display:flex; align-items:center; gap:0.2rem; font-size:var(--c-text-xs); margin-bottom:0.2rem; }
     .scc-top-post-text { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:0.65; }
-    .scc-top-post-stats { display:flex; gap:0.6rem; font-size:0.52rem; font-weight:600; }
+    .scc-top-post-stats { display:flex; gap:0.6rem; font-size:var(--c-text-xs); font-weight:600; }
     .scc-top-post-stats i { font-size:0.42rem; margin-right:2px; }
     .scc-empty { padding:1rem 0.5rem; text-align:center; }
-    .scc-empty-title { font-size:0.7rem; opacity:0.4; margin-bottom:0.6rem; }
+    .scc-empty-title { font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.6rem; }
     .scc-empty-platforms { display:flex; justify-content:center; gap:1rem; margin-bottom:0.5rem; }
-    .scc-empty-pl { font-size:0.55rem; opacity:0.5; }
-    .scc-empty-hint { font-size:0.48rem; opacity:0.3; max-width:300px; margin:0 auto; }
+    .scc-empty-pl { font-size:var(--c-text-xs); opacity:0.5; }
+    .scc-empty-hint { font-size:var(--c-text-xs); opacity:0.3; max-width:300px; margin:0 auto; }
     @media (max-width: 768px) { .scc-platforms { grid-template-columns:1fr; } .scc-chips { grid-template-columns:repeat(3, 1fr); } .scc-empty-platforms { flex-direction:column; gap:0.3rem; } }
     @media (max-width: 480px) { .scc-chips { grid-template-columns:repeat(2, 1fr); } }
     .dev-log-split { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0.5rem; }
@@ -526,7 +526,7 @@
           <div class="dash-panel dash-panel--full">
             <div class="dash-panel-header dash-panel-header--tight">
               <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-sky"></i> Top Trends</span>
-              <span id="trend-radar-age" style="font-size:0.55rem;opacity:0.3;"></span>
+              <span id="trend-radar-age" style="font-size:var(--c-text-xs);opacity:0.3;"></span>
             </div>
             <div id="trend-radar-list" style="padding:0.4rem 0.6rem;">
               <div class="dash-empty">Loading trends...</div>
@@ -645,7 +645,7 @@
           <div class="dash-panel dash-panel--full">
             <div class="dash-panel-header" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
               <!-- TODO: update agent list if agents change -->
-              <select id="session-agent-filter" style="font-size:0.6rem;padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
+              <select id="session-agent-filter" style="font-size:var(--c-text-xs);padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
                 <option value="">All Agents</option>
                 <option value="nova">Nova</option>
                 <option value="cipher">Cipher</option>
@@ -676,7 +676,7 @@
               </table>
               <div class="dash-empty" id="session-empty">No sessions recorded yet.</div>
             </div>
-            <div id="session-pagination" style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;font-size:0.6rem;"></div>
+            <div id="session-pagination" style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;font-size:var(--c-text-xs);"></div>
           </div>
         </div>
       </details>
@@ -1585,7 +1585,7 @@
             if (agentAware && agentAware.roleAdherence) {
               var agentDrift = agentAware.roleAdherence.drift || 'unknown';
               if (agentDrift !== 'on-role' && agentDrift !== 'unknown') {
-                driftHtml = '<div style="font-size:0.55rem;color:#fbbf24;margin-top:2px;">'
+                driftHtml = '<div style="font-size:var(--c-text-xs);color:#fbbf24;margin-top:2px;">'
                   + '<i class="fas fa-shuffle" style="margin-right:2px;font-size:0.45rem;"></i>drifting</div>';
               }
             }
@@ -1644,7 +1644,7 @@
               var trendIcon = perf.qualityTrend === 'improving' ? ' <i class="fas fa-caret-up" style="color:#34d399;font-size:0.5rem;"></i>' : (perf.qualityTrend === 'declining' ? ' <i class="fas fa-caret-down" style="color:#f87171;font-size:0.5rem;"></i>' : '');
               var badge = document.createElement('div');
               badge.className = 'perf-score-badge';
-              badge.style.cssText = 'font-size:0.85rem;font-weight:700;color:' + color + ';margin-top:2px;line-height:1;';
+              badge.style.cssText = 'font-size:var(--c-text-base);font-weight:700;color:' + color + ';margin-top:2px;line-height:1;';
               badge.innerHTML = sc + trendIcon;
               // Insert after the status element
               var statusEl = card.querySelector('.agent-grid-status');
@@ -1703,8 +1703,8 @@
               var name = id.charAt(0).toUpperCase() + id.slice(1);
               var trend = a.qualityTrend === 'improving' ? '<i class="fas fa-caret-up" style="color:#34d399;font-size:0.55rem;margin-left:2px;"></i>' : (a.qualityTrend === 'declining' ? '<i class="fas fa-caret-down" style="color:#f87171;font-size:0.55rem;margin-left:2px;"></i>' : '');
               var rank = idx === 0 ? '<i class="fas fa-crown" style="color:#facc15;font-size:0.5rem;"></i>' : (idx + 1);
-              lbHtml += '<div style="display:flex;align-items:center;gap:0.4rem;padding:0.2rem 0.4rem;font-size:0.7rem;border-bottom:1px solid rgba(255,255,255,0.03);">';
-              lbHtml += '<span style="width:16px;text-align:center;opacity:0.4;font-size:0.6rem;">' + rank + '</span>';
+              lbHtml += '<div style="display:flex;align-items:center;gap:0.4rem;padding:0.2rem 0.4rem;font-size:var(--c-text-xs);border-bottom:1px solid rgba(255,255,255,0.03);">';
+              lbHtml += '<span style="width:16px;text-align:center;opacity:0.4;font-size:var(--c-text-xs);">' + rank + '</span>';
               lbHtml += '<span style="flex:1;font-weight:500;opacity:0.7;">' + name + '</span>';
               lbHtml += '<span style="font-weight:700;color:' + color + ';">' + sc + trend + '</span>';
               lbHtml += '</div>';
@@ -1750,7 +1750,7 @@
         var hbDot = document.getElementById('agent-health-hb-dot');
         if (hbDot) {
           hbDot.style.display = '';
-          hbDot.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.6rem;opacity:0.6;">'
+          hbDot.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:var(--c-text-xs);opacity:0.6;">'
             + '<span style="width:6px;height:6px;border-radius:50%;background:' + statusColor + ';display:inline-block;"></span>'
             + (run.startedAt ? new Date(run.startedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '') + '</span>';
         }
@@ -1777,7 +1777,7 @@
         }
 
         function _renderTable(title, icon, rows, keyField, valField, valClass) {
-          if (!rows || rows.length === 0) return '<div class="growth-table-title"><i class="fas fa-' + icon + '"></i>' + _esc(title) + '</div><div style="font-size:0.6rem;opacity:0.25;padding:0.2rem 0;">No data</div>';
+          if (!rows || rows.length === 0) return '<div class="growth-table-title"><i class="fas fa-' + icon + '"></i>' + _esc(title) + '</div><div style="font-size:var(--c-text-xs);opacity:0.25;padding:0.2rem 0;">No data</div>';
           var h = '<div class="growth-table-title"><i class="fas fa-' + icon + '"></i>' + _esc(title) + '</div>';
           rows.forEach(function (r) {
             h += '<div class="growth-table-row"><span class="growth-table-key">' + _esc(r[keyField] || '—') + '</span><span class="growth-table-val' + (valClass ? ' ' + valClass : '') + '">' + (r[valField] || 0).toLocaleString() + '</span></div>';
@@ -1789,12 +1789,12 @@
           _growthTrafficCache = data;
           var isRealError = data.warning && data.warning.indexOf('telemetry_unavailable') === 0;
           if (isRealError) {
-            body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(data.warning) + '</div>';
+            body.innerHTML = '<div style="font-size:var(--c-text-xs);padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(data.warning) + '</div>';
             return;
           }
           var hasAnyData = (data.topPages && data.topPages.length > 0) || (data.topReferrers && data.topReferrers.length > 0);
           if (!hasAnyData) {
-            body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>No traffic data yet — telemetry is connected and collecting. Check back in a few hours.</div>';
+            body.innerHTML = '<div style="font-size:var(--c-text-xs);padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>No traffic data yet — telemetry is connected and collecting. Check back in a few hours.</div>';
             return;
           }
 
@@ -1887,7 +1887,7 @@
                 }
               });
             } else {
-              donutCanvas.parentElement.innerHTML += '<div style="font-size:0.58rem;opacity:0.25;text-align:center;padding-top:0.5rem;">No product data yet</div>';
+              donutCanvas.parentElement.innerHTML += '<div style="font-size:var(--c-text-xs);opacity:0.25;text-align:center;padding-top:0.5rem;">No product data yet</div>';
             }
           }
         }
@@ -1905,7 +1905,7 @@
           .then(function (r) { return r.json(); })
           .then(function (data) { _render(data); })
           .catch(function (err) {
-            body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Telemetry unavailable: ' + _esc(err.message || 'fetch error') + '</div>';
+            body.innerHTML = '<div style="font-size:var(--c-text-xs);padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Telemetry unavailable: ' + _esc(err.message || 'fetch error') + '</div>';
           });
       }
 
@@ -2198,8 +2198,8 @@
         if (_allocDigest && _allocDigest.system && (_allocDigest.system.pct >= 90 || _allocDigest.system.squeezeMode)) {
           sysSignals.push('<div style="padding:0.5rem 0.6rem;border:1px solid rgba(239,68,68,0.2);border-radius:6px;margin-bottom:0.3rem;background:rgba(239,68,68,0.04);">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-            + '<span style="font-size:0.7rem;color:#f87171;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>System at ' + _allocDigest.system.pct + '% monthly budget</span>'
-            + '<a href="allocation.html" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;">View \u2192</a>'
+            + '<span style="font-size:var(--c-text-xs);color:#f87171;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>System at ' + _allocDigest.system.pct + '% monthly budget</span>'
+            + '<a href="allocation.html" style="font-size:var(--c-text-xs);color:#60a5fa;text-decoration:none;">View \u2192</a>'
             + '</div></div>');
         }
 
@@ -2209,8 +2209,8 @@
             if (pa.status === 'RED') {
               sysSignals.push('<div style="padding:0.5rem 0.6rem;border:1px solid rgba(251,191,36,0.15);border-radius:6px;margin-bottom:0.3rem;background:rgba(251,191,36,0.04);">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-                + '<span style="font-size:0.7rem;"><i class="fas fa-coins" style="margin-right:4px;color:#fbbf24;"></i>' + aid.charAt(0).toUpperCase() + aid.slice(1) + ' at ' + pa.pct + '% cap ($' + pa.spent + '/$' + pa.cap + ')</span>'
-                + '<a href="allocation.html" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;">View \u2192</a>'
+                + '<span style="font-size:var(--c-text-xs);"><i class="fas fa-coins" style="margin-right:4px;color:#fbbf24;"></i>' + aid.charAt(0).toUpperCase() + aid.slice(1) + ' at ' + pa.pct + '% cap ($' + pa.spent + '/$' + pa.cap + ')</span>'
+                + '<a href="allocation.html" style="font-size:var(--c-text-xs);color:#60a5fa;text-decoration:none;">View \u2192</a>'
                 + '</div></div>');
             }
           });
@@ -2224,8 +2224,8 @@
             if (drift !== 'on-role' && drift !== 'unknown') {
               sysSignals.push('<div style="padding:0.5rem 0.6rem;border:1px solid rgba(251,191,36,0.15);border-radius:6px;margin-bottom:0.3rem;background:rgba(251,191,36,0.04);">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-                + '<span style="font-size:0.7rem;"><i class="fas fa-shuffle" style="margin-right:4px;color:#fbbf24;"></i>' + aid.charAt(0).toUpperCase() + aid.slice(1) + ' is ' + escapeHtml(drift) + '</span>'
-                + '<a href="awareness.html" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;">View \u2192</a>'
+                + '<span style="font-size:var(--c-text-xs);"><i class="fas fa-shuffle" style="margin-right:4px;color:#fbbf24;"></i>' + aid.charAt(0).toUpperCase() + aid.slice(1) + ' is ' + escapeHtml(drift) + '</span>'
+                + '<a href="awareness.html" style="font-size:var(--c-text-xs);color:#60a5fa;text-decoration:none;">View \u2192</a>'
                 + '</div></div>');
             }
           });
@@ -2235,8 +2235,8 @@
           var sysHtml = '<div style="margin-bottom:0.8rem;">';
           sysHtml += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;">';
           sysHtml += '<i class="fas fa-heartbeat" style="color:#f87171;font-size:0.7rem;"></i>';
-          sysHtml += '<strong style="font-size:0.75rem;color:#f87171;">System Signals</strong>';
-          sysHtml += '<span style="font-size:0.6rem;opacity:0.4;">(' + sysSignals.length + ')</span>';
+          sysHtml += '<strong style="font-size:var(--c-text-xs);color:#f87171;">System Signals</strong>';
+          sysHtml += '<span style="font-size:var(--c-text-xs);opacity:0.4;">(' + sysSignals.length + ')</span>';
           sysHtml += '</div>';
           sysHtml += sysSignals.join('');
           sysHtml += '</div>';
@@ -2259,7 +2259,7 @@
 
         if (aqPending.length > 0) {
           var aqHtml = '<div style="margin-bottom:0.8rem;">';
-          aqHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-clipboard-check" style="color:#60a5fa; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#60a5fa;">Pending Approvals</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + aqPending.length + ')</span></div>';
+          aqHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-clipboard-check" style="color:#60a5fa; font-size:0.7rem;"></i> <strong style="font-size:var(--c-text-xs); color:#60a5fa;">Pending Approvals</strong> <span style="font-size:var(--c-text-xs); opacity:0.4;">(' + aqPending.length + ')</span></div>';
           aqPending.slice(0, 5).forEach(function (q) {
             var qTitle = q.title || q.taskTitle || 'Untitled action';
             var qAgent = q.originAgent || q.created_by || '?';
@@ -2270,16 +2270,16 @@
             aqHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(96,165,250,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(96,165,250,0.02);">';
             aqHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             aqHtml += '<div style="flex:1; min-width:0;">';
-            if (qKind) aqHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(96,165,250,0.1);color:#60a5fa;margin-right:0.3rem;">' + escapeHtml(qKind) + '</span>';
-            aqHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(qTitle) + '</div>';
-            aqHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            if (qKind) aqHtml += '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.3rem;border-radius:3px;background:rgba(96,165,250,0.1);color:#60a5fa;margin-right:0.3rem;">' + escapeHtml(qKind) + '</span>';
+            aqHtml += '<div style="font-size:var(--c-text-md); font-weight:600; margin-top:2px;">' + escapeHtml(qTitle) + '</div>';
+            aqHtml += '<div style="font-size:var(--c-text-xs); opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
             aqHtml += '<span>' + escapeHtml(qAgentLabel) + '</span>';
             if (qAgeLabel) aqHtml += '<span>' + qAgeLabel + '</span>';
             aqHtml += '</div></div>';
-            aqHtml += '<a href="/modules/company/actions.html" style="font-size:0.55rem; color:#60a5fa; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">Review →</a>';
+            aqHtml += '<a href="/modules/company/actions.html" style="font-size:var(--c-text-xs); color:#60a5fa; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">Review →</a>';
             aqHtml += '</div></div>';
           });
-          if (aqPending.length > 5) aqHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (aqPending.length - 5) + ' more pending</div>';
+          if (aqPending.length > 5) aqHtml += '<div style="font-size:var(--c-text-xs); opacity:0.3; padding-left:0.6rem;">+' + (aqPending.length - 5) + ' more pending</div>';
           aqHtml += '</div>';
           sections.push(aqHtml);
         }
@@ -2293,7 +2293,7 @@
 
         if (sdePendingTotal > 0) {
           var sdeHtml = '<div style="margin-bottom:0.8rem;">';
-          sdeHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-hourglass-half" style="color:#fbbf24; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#fbbf24;">Standup Pending Approval</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + sdePendingTotal + ')</span></div>';
+          sdeHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-hourglass-half" style="color:#fbbf24; font-size:0.7rem;"></i> <strong style="font-size:var(--c-text-xs); color:#fbbf24;">Standup Pending Approval</strong> <span style="font-size:var(--c-text-xs); opacity:0.4;">(' + sdePendingTotal + ')</span></div>';
           sdePendingTasks.slice(0, 3).forEach(function (t) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
             var tPreview = AgentEngine.buildPreview(t.description || '');
@@ -2301,17 +2301,17 @@
             sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(251,191,36,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(251,191,36,0.02);">';
             sdeHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             sdeHtml += '<div style="flex:1; min-width:0;">';
-            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);margin-right:0.3rem;">TASK</span>';
-            sdeHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(t.title) + '</div>';
-            if (tPreview) sdeHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(tPreview) + '</div>';
-            sdeHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            sdeHtml += '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);margin-right:0.3rem;">TASK</span>';
+            sdeHtml += '<div style="font-size:var(--c-text-md); font-weight:600; margin-top:2px;">' + escapeHtml(t.title) + '</div>';
+            if (tPreview) sdeHtml += '<div style="font-size:var(--c-text-xs); opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(tPreview) + '</div>';
+            sdeHtml += '<div style="font-size:var(--c-text-xs); opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
             sdeHtml += '<span>' + (agent ? agent.name : (t.assignee || 'unassigned')) + '</span>';
             sdeHtml += '<span style="color:' + prioColor + ';">' + (t.priority || 'medium') + '</span>';
             if (t.impact) sdeHtml += '<span>Impact: ' + t.impact + '</span>';
             if (t.effort) sdeHtml += '<span>Effort: ' + t.effort + '</span>';
             if (t.source && t.source.title) sdeHtml += '<span>From: ' + escapeHtml(t.source.title) + '</span>';
             sdeHtml += '</div></div>';
-            sdeHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#fbbf24; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
+            sdeHtml += '<a href="/modules/company/tasks.html" style="font-size:var(--c-text-xs); color:#fbbf24; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
             sdeHtml += '</div></div>';
           });
           sdePendingDirs.slice(0, 3).forEach(function (d) {
@@ -2319,20 +2319,20 @@
             sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(255,255,255,0.07); border-radius:6px; margin-bottom:0.3rem; background:rgba(255,255,255,0.02);">';
             sdeHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             sdeHtml += '<div style="flex:1; min-width:0;">';
-            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);margin-right:0.3rem;">CAMPAIGN</span>';
-            if (d.classification) sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);margin-left:0.2rem;">' + escapeHtml(d.classification) + '</span>';
-            sdeHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(d.title) + '</div>';
-            if (dPreview) sdeHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(dPreview) + '</div>';
-            sdeHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            sdeHtml += '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);margin-right:0.3rem;">CAMPAIGN</span>';
+            if (d.classification) sdeHtml += '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);margin-left:0.2rem;">' + escapeHtml(d.classification) + '</span>';
+            sdeHtml += '<div style="font-size:var(--c-text-md); font-weight:600; margin-top:2px;">' + escapeHtml(d.title) + '</div>';
+            if (dPreview) sdeHtml += '<div style="font-size:var(--c-text-xs); opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(dPreview) + '</div>';
+            sdeHtml += '<div style="font-size:var(--c-text-xs); opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
             if (d.owner) sdeHtml += '<span>' + escapeHtml(d.owner) + '</span>';
             if (d.impact) sdeHtml += '<span>Impact: ' + d.impact + '</span>';
             if (d.effort) sdeHtml += '<span>Effort: ' + d.effort + '</span>';
             if (d.source && d.source.title) sdeHtml += '<span>From: ' + escapeHtml(d.source.title) + '</span>';
             sdeHtml += '</div></div>';
-            sdeHtml += '<a href="/modules/company/campaigns.html" style="font-size:0.55rem; color:rgba(255,255,255,0.4); text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
+            sdeHtml += '<a href="/modules/company/campaigns.html" style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.4); text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
             sdeHtml += '</div></div>';
           });
-          if (sdePendingTotal > 6) sdeHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (sdePendingTotal - 6) + ' more pending</div>';
+          if (sdePendingTotal > 6) sdeHtml += '<div style="font-size:var(--c-text-xs); opacity:0.3; padding-left:0.6rem;">+' + (sdePendingTotal - 6) + ' more pending</div>';
           sdeHtml += '</div>';
           sections.push(sdeHtml);
         }
@@ -2381,7 +2381,7 @@
 
         if (overdue.length > 0) {
           var overdueHtml = '<div style="margin-bottom:0.8rem;">';
-          overdueHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-exclamation-triangle" style="color:#f87171; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#f87171;">Overdue Tasks</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + overdue.length + ')</span></div>';
+          overdueHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-exclamation-triangle" style="color:#f87171; font-size:0.7rem;"></i> <strong style="font-size:var(--c-text-xs); color:#f87171;">Overdue Tasks</strong> <span style="font-size:var(--c-text-xs); opacity:0.4;">(' + overdue.length + ')</span></div>';
           overdue.slice(0, 5).forEach(function (t) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
             var daysLate = Math.floor((new Date(today) - new Date(t.dueDate)) / 86400000);
@@ -2390,19 +2390,19 @@
             overdueHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(248,113,113,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(248,113,113,0.02);">';
             overdueHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             overdueHtml += '<div style="flex:1; min-width:0;">';
-            overdueHtml += '<div style="font-size:0.9rem; font-weight:600;">' + escapeHtml(t.title) + '</div>';
-            if (odPreview) overdueHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(odPreview) + '</div>';
-            overdueHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            overdueHtml += '<div style="font-size:var(--c-text-md); font-weight:600;">' + escapeHtml(t.title) + '</div>';
+            if (odPreview) overdueHtml += '<div style="font-size:var(--c-text-xs); opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(odPreview) + '</div>';
+            overdueHtml += '<div style="font-size:var(--c-text-xs); opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
             overdueHtml += '<span>' + (agent ? agent.name : 'unassigned') + '</span>';
             overdueHtml += '<span style="color:' + prioColor + ';">' + t.priority + '</span>';
             overdueHtml += '<span style="color:#f87171;">' + daysLate + 'd overdue</span>';
             if (t.source && t.source.title) overdueHtml += '<span>From: ' + escapeHtml(t.source.title) + '</span>';
             overdueHtml += '</div>';
             overdueHtml += '</div>';
-            overdueHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#f87171; text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
+            overdueHtml += '<a href="/modules/company/tasks.html" style="font-size:var(--c-text-xs); color:#f87171; text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
             overdueHtml += '</div></div>';
           });
-          if (overdue.length > 5) overdueHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (overdue.length - 5) + ' more overdue</div>';
+          if (overdue.length > 5) overdueHtml += '<div style="font-size:var(--c-text-xs); opacity:0.3; padding-left:0.6rem;">+' + (overdue.length - 5) + ' more overdue</div>';
           overdueHtml += '</div>';
           sections.push(overdueHtml);
         }
@@ -2416,22 +2416,22 @@
 
         if (blocked.length > 0) {
           var blockedHtml = '<div style="margin-bottom:0.8rem;">';
-          blockedHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-ban" style="color:#fbbf24; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#fbbf24;">Blocked / Escalated</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + blocked.length + ')</span></div>';
+          blockedHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-ban" style="color:#fbbf24; font-size:0.7rem;"></i> <strong style="font-size:var(--c-text-xs); color:#fbbf24;">Blocked / Escalated</strong> <span style="font-size:var(--c-text-xs); opacity:0.4;">(' + blocked.length + ')</span></div>';
           blocked.slice(0, 3).forEach(function (t) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
             var blkPreview = AgentEngine.buildPreview(t.description || '');
             blockedHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(255,255,255,0.07); border-radius:6px; margin-bottom:0.3rem;">';
             blockedHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             blockedHtml += '<div style="flex:1; min-width:0;">';
-            blockedHtml += '<div style="font-size:0.9rem; font-weight:600;">' + escapeHtml(t.title) + '</div>';
-            if (blkPreview) blockedHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(blkPreview) + '</div>';
-            blockedHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            blockedHtml += '<div style="font-size:var(--c-text-md); font-weight:600;">' + escapeHtml(t.title) + '</div>';
+            if (blkPreview) blockedHtml += '<div style="font-size:var(--c-text-xs); opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(blkPreview) + '</div>';
+            blockedHtml += '<div style="font-size:var(--c-text-xs); opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
             blockedHtml += '<span>' + (agent ? agent.name : 'unassigned') + '</span>';
             blockedHtml += '<span>' + t.status + '</span>';
             if (t.source && t.source.title) blockedHtml += '<span>From: ' + escapeHtml(t.source.title) + '</span>';
             blockedHtml += '</div>';
             blockedHtml += '</div>';
-            blockedHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:rgba(255,255,255,0.4); text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
+            blockedHtml += '<a href="/modules/company/tasks.html" style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.4); text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
             blockedHtml += '</div></div>';
           });
           blockedHtml += '</div>';
@@ -2450,17 +2450,17 @@
         if (upcoming.length > 0) {
           totalItems += upcoming.length;
           var dateHtml = '<div style="margin-bottom:0.8rem;">';
-          dateHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-calendar-day" style="color:#a78bfa; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#a78bfa;">Upcoming (7 days)</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + upcoming.length + ')</span></div>';
+          dateHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-calendar-day" style="color:#a78bfa; font-size:0.7rem;"></i> <strong style="font-size:var(--c-text-xs); color:#a78bfa;">Upcoming (7 days)</strong> <span style="font-size:var(--c-text-xs); opacity:0.4;">(' + upcoming.length + ')</span></div>';
           upcoming.slice(0, 5).forEach(function (d) {
             var diff = Math.ceil((new Date(d.date + 'T00:00:00') - nowMs) / 86400000);
             var dayLabel = diff === 0 ? 'today' : diff === 1 ? 'tomorrow' : diff + ' days';
             var typeColor = d.type === 'deadline' ? '#f87171' : d.type === 'meeting' ? '#60a5fa' : d.type === 'launch' ? '#34d399' : '#a78bfa';
             dateHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(167,139,250,0.08); border-radius:6px; margin-bottom:0.25rem; background:rgba(167,139,250,0.02); display:flex; justify-content:space-between; align-items:center;">';
             dateHtml += '<div style="flex:1; min-width:0;">';
-            dateHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(' + (d.type === 'deadline' ? '248,113,113' : d.type === 'meeting' ? '96,165,250' : d.type === 'launch' ? '52,211,153' : '167,139,250') + ',0.1); color:' + typeColor + '; margin-right:0.3rem;">' + (d.type || 'event') + '</span>';
-            dateHtml += '<span style="font-size:0.75rem;">' + escapeHtml(d.title) + '</span>';
+            dateHtml += '<span style="font-size:var(--c-text-xs); padding:0.1rem 0.3rem; border-radius:3px; background:rgba(' + (d.type === 'deadline' ? '248,113,113' : d.type === 'meeting' ? '96,165,250' : d.type === 'launch' ? '52,211,153' : '167,139,250') + ',0.1); color:' + typeColor + '; margin-right:0.3rem;">' + (d.type || 'event') + '</span>';
+            dateHtml += '<span style="font-size:var(--c-text-xs);">' + escapeHtml(d.title) + '</span>';
             dateHtml += '</div>';
-            dateHtml += '<span style="font-size:0.6rem; color:' + (diff === 0 ? '#f87171' : diff <= 2 ? '#fbbf24' : 'rgba(255,255,255,0.4)') + '; white-space:nowrap; margin-left:0.5rem;">' + dayLabel + '</span>';
+            dateHtml += '<span style="font-size:var(--c-text-xs); color:' + (diff === 0 ? '#f87171' : diff <= 2 ? '#fbbf24' : 'rgba(255,255,255,0.4)') + '; white-space:nowrap; margin-left:0.5rem;">' + dayLabel + '</span>';
             dateHtml += '</div>';
           });
           dateHtml += '</div>';
@@ -2472,8 +2472,8 @@
         var hasOvernight = overnight.sessions.length > 0 || overnight.standups.length > 0;
         if (hasOvernight) {
           var oHtml = '<div style="margin-bottom:0.4rem;">';
-          oHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-moon" style="color:#60a5fa; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#60a5fa;">Overnight Highlights</strong></div>';
-          oHtml += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; font-size:0.65rem; opacity:0.6;">';
+          oHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-moon" style="color:#60a5fa; font-size:0.7rem;"></i> <strong style="font-size:var(--c-text-xs); color:#60a5fa;">Overnight Highlights</strong></div>';
+          oHtml += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; font-size:var(--c-text-xs); opacity:0.6;">';
           if (overnight.standups.length > 0) oHtml += '<span><i class="fas fa-users" style="margin-right:0.2rem;"></i>' + overnight.standups.length + ' standup(s)</span>';
           if (overnight.sessions.length > 0) oHtml += '<span><i class="fas fa-comment" style="margin-right:0.2rem;"></i>' + overnight.sessions.length + ' sessions</span>';
           var totalOvernightTokens = 0;
@@ -2494,7 +2494,7 @@
         }
 
         if (sections.length === 0) {
-          body.innerHTML = '<div style="text-align:center; padding:1rem; opacity:0.4;"><i class="fas fa-check-circle" style="font-size:1.2rem; color:#34d399; margin-bottom:0.4rem; display:block;"></i><div style="font-size:0.75rem;">All clear! Nothing needs your attention.</div></div>';
+          body.innerHTML = '<div style="text-align:center; padding:1rem; opacity:0.4;"><i class="fas fa-check-circle" style="font-size:1.2rem; color:#34d399; margin-bottom:0.4rem; display:block;"></i><div style="font-size:var(--c-text-xs);">All clear! Nothing needs your attention.</div></div>';
         } else {
           body.innerHTML = sections.join('');
         }
@@ -2714,9 +2714,9 @@
         if (pagEl) {
           if (totalPages <= 1) { pagEl.innerHTML = ''; return; }
           pagEl.innerHTML =
-            '<button class="sa-btn sa-btn--ghost" style="font-size:0.55rem;padding:0.15rem 0.4rem;"' + (_sessionPage === 0 ? ' disabled' : '') + ' onclick="_sessionPage--;renderSessions()"><i class="fas fa-arrow-left"></i> Prev</button>' +
+            '<button class="sa-btn sa-btn--ghost" style="font-size:var(--c-text-xs);padding:0.15rem 0.4rem;"' + (_sessionPage === 0 ? ' disabled' : '') + ' onclick="_sessionPage--;renderSessions()"><i class="fas fa-arrow-left"></i> Prev</button>' +
             '<span style="opacity:0.4;">Page ' + (_sessionPage + 1) + ' of ' + totalPages + '</span>' +
-            '<button class="sa-btn sa-btn--ghost" style="font-size:0.55rem;padding:0.15rem 0.4rem;"' + (_sessionPage >= totalPages - 1 ? ' disabled' : '') + ' onclick="_sessionPage++;renderSessions()">Next <i class="fas fa-arrow-right"></i></button>';
+            '<button class="sa-btn sa-btn--ghost" style="font-size:var(--c-text-xs);padding:0.15rem 0.4rem;"' + (_sessionPage >= totalPages - 1 ? ' disabled' : '') + ' onclick="_sessionPage++;renderSessions()">Next <i class="fas fa-arrow-right"></i></button>';
         }
       }
 
@@ -2817,12 +2817,12 @@
 
           // CEO Summary (from heartbeat-generated report)
           if (report && report.ceoSummary) {
-            html += '<div style="padding:0.6rem; background:rgba(167,139,250,0.05); border:1px solid rgba(167,139,250,0.1); border-radius:8px; margin-bottom:0.6rem; font-size:0.8rem; line-height:1.5;">' + escapeHtml(report.ceoSummary).replace(/\n/g, '<br>') + '</div>';
+            html += '<div style="padding:0.6rem; background:rgba(167,139,250,0.05); border:1px solid rgba(167,139,250,0.1); border-radius:8px; margin-bottom:0.6rem; font-size:var(--c-text-base); line-height:1.5;">' + escapeHtml(report.ceoSummary).replace(/\n/g, '<br>') + '</div>';
           }
 
           // Stats bar
           if (report && report.stats) {
-            html += '<div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:0.65rem; opacity:0.5; margin-bottom:0.8rem;">';
+            html += '<div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:var(--c-text-xs); opacity:0.5; margin-bottom:0.8rem;">';
             html += '<span>' + (report.stats.completed24h || 0) + ' completed</span> · ';
             html += '<span>' + (report.stats.created24h || 0) + ' created</span> · ';
             html += '<span>' + (report.stats.active || 0) + ' active</span> · ';
@@ -2835,11 +2835,11 @@
           var pendingExec = queue.filter(function (q) { return q.status === 'pending' && q.classification === 'executive_required'; });
           if (pendingExec.length > 0) {
             html += '<div style="margin-bottom:0.7rem;">';
-            html += '<div style="font-size:0.7rem; font-weight:600; color:#f87171; margin-bottom:0.3rem;"><i class="fas fa-exclamation-circle"></i> Needs CEO Decision Now (' + pendingExec.length + ')</div>';
+            html += '<div style="font-size:var(--c-text-xs); font-weight:600; color:#f87171; margin-bottom:0.3rem;"><i class="fas fa-exclamation-circle"></i> Needs CEO Decision Now (' + pendingExec.length + ')</div>';
             pendingExec.slice(0, 3).forEach(function (item) {
-              html += '<div style="font-size:0.7rem; padding:0.2rem 0; display:flex; justify-content:space-between;">';
+              html += '<div style="font-size:var(--c-text-xs); padding:0.2rem 0; display:flex; justify-content:space-between;">';
               html += '<span>' + escapeHtml(item.taskTitle) + ' <span style="opacity:0.4;">(' + (item.originAgent || '?') + ')</span></span>';
-              html += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:rgba(255,255,255,0.55); text-decoration:none;">Review →</a>';
+              html += '<a href="#panel-approval-wrap" style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.55); text-decoration:none;">Review →</a>';
               html += '</div>';
             });
             html += '</div>';
@@ -2865,11 +2865,11 @@
           });
           if (risks.length > 0) {
             html += '<div style="margin-bottom:0.7rem;">';
-            html += '<div style="font-size:0.7rem; font-weight:600; color:#fbbf24; margin-bottom:0.3rem;"><i class="fas fa-fire"></i> Top Risks (' + Math.min(risks.length, 3) + ')</div>';
+            html += '<div style="font-size:var(--c-text-xs); font-weight:600; color:#fbbf24; margin-bottom:0.3rem;"><i class="fas fa-fire"></i> Top Risks (' + Math.min(risks.length, 3) + ')</div>';
             risks.slice(0, 3).forEach(function (r) {
-              html += '<div style="font-size:0.65rem; padding:0.15rem 0; opacity:0.7;">• ' + escapeHtml(r.title) + ' <span style="color:#fbbf24;">(' + r.reason + ')</span>' + (r.agent ? ' — ' + r.agent : '') + '</div>';
+              html += '<div style="font-size:var(--c-text-xs); padding:0.15rem 0; opacity:0.7;">• ' + escapeHtml(r.title) + ' <span style="color:#fbbf24;">(' + r.reason + ')</span>' + (r.agent ? ' — ' + r.agent : '') + '</div>';
             });
-            if (risks.length > 3) html += '<div style="font-size:0.55rem; opacity:0.3;">+' + (risks.length - 3) + ' more</div>';
+            if (risks.length > 3) html += '<div style="font-size:var(--c-text-xs); opacity:0.3;">+' + (risks.length - 3) + ' more</div>';
             html += '</div>';
           }
 
@@ -2886,11 +2886,11 @@
               winsByAgent[a].push(t.title);
             });
             html += '<div style="margin-bottom:0.7rem;">';
-            html += '<div style="font-size:0.7rem; font-weight:600; color:#34d399; margin-bottom:0.3rem;"><i class="fas fa-trophy"></i> Recent Wins (' + recentDone.length + ')</div>';
+            html += '<div style="font-size:var(--c-text-xs); font-weight:600; color:#34d399; margin-bottom:0.3rem;"><i class="fas fa-trophy"></i> Recent Wins (' + recentDone.length + ')</div>';
             Object.keys(winsByAgent).forEach(function (agentId) {
               var agent = AgentEngine.getAgent(agentId);
               var color = agent ? agent.color : '#34d399';
-              html += '<div style="font-size:0.65rem; padding:0.15rem 0;"><strong style="color:' + color + ';">' + (agent ? agent.name : agentId) + '</strong>: ' + winsByAgent[agentId].map(function (w) { return escapeHtml(w); }).join(', ') + '</div>';
+              html += '<div style="font-size:var(--c-text-xs); padding:0.15rem 0;"><strong style="color:' + color + ';">' + (agent ? agent.name : agentId) + '</strong>: ' + winsByAgent[agentId].map(function (w) { return escapeHtml(w); }).join(', ') + '</div>';
             });
             html += '</div>';
           }
@@ -2926,8 +2926,8 @@
             var grTotal = (gr.orphanBlocked||0) + (gr.exactDupBlocked||0) + (gr.fuzzyDupBlocked||0) + (gr.taskCeilingBlocked||0) + (gr.socialPromoGateBlocked||0);
             // Header row
             var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.4rem;">'
-              + '<span style="font-size:0.65rem;opacity:0.4;">Last heartbeat: <span style="color:' + statusColor + ';">' + (last.status || '—') + '</span> · ' + ageText + ' · ' + (last.durationMs ? (last.durationMs / 1000).toFixed(1) + 's' : '—') + '</span>'
-              + '<span style="font-size:0.6rem;opacity:0.3;">Backlog: ' + (bp.activeTasks||0) + '/' + (bp.activeTasksCap||50) + ' tasks · ' + (bp.overdueTasks||0) + ' overdue</span>'
+              + '<span style="font-size:var(--c-text-xs);opacity:0.4;">Last heartbeat: <span style="color:' + statusColor + ';">' + (last.status || '—') + '</span> · ' + ageText + ' · ' + (last.durationMs ? (last.durationMs / 1000).toFixed(1) + 's' : '—') + '</span>'
+              + '<span style="font-size:var(--c-text-xs);opacity:0.3;">Backlog: ' + (bp.activeTasks||0) + '/' + (bp.activeTasksCap||50) + ' tasks · ' + (bp.overdueTasks||0) + ' overdue</span>'
               + '</div>';
             // Agent grid
             html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.4rem;">';
@@ -2939,17 +2939,17 @@
               var latency = a.avgLatencyMs || 0;
               var latText = latency < 1000 ? latency + 'ms' : (latency / 1000).toFixed(1) + 's';
               var errStyle = a.error ? 'border-left:2px solid #f87171;' : '';
-              html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:6px;padding:0.4rem 0.5rem;font-size:0.6rem;' + errStyle + '">'
+              html += '<div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:6px;padding:0.4rem 0.5rem;font-size:var(--c-text-xs);' + errStyle + '">'
                 + '<div style="font-weight:600;margin-bottom:0.2rem;text-transform:capitalize;">' + escapeHtml(aid) + '</div>'
                 + '<div style="opacity:0.5;">Actions: ' + (a.actionsExecuted||0) + '/' + attempted + (blocked > 0 ? ' <span style="color:#f87171;">(' + blocked + ' blocked)</span>' : '') + '</div>'
                 + '<div style="opacity:0.4;">Tasks created: ' + (a.newTasksCreated||0) + ' · ' + latText + '</div>'
-                + (a.error ? '<div style="color:#f87171;font-size:0.55rem;margin-top:0.15rem;">' + escapeHtml(String(a.error).substring(0,60)) + '</div>' : '')
+                + (a.error ? '<div style="color:#f87171;font-size:var(--c-text-xs);margin-top:0.15rem;">' + escapeHtml(String(a.error).substring(0,60)) + '</div>' : '')
                 + '</div>';
             });
             html += '</div>';
             // Guardrail heatmap
             if (grTotal > 0) {
-              html += '<div style="margin-top:0.5rem;font-size:0.58rem;opacity:0.4;">Guardrails fired: ';
+              html += '<div style="margin-top:0.5rem;font-size:var(--c-text-xs);opacity:0.4;">Guardrails fired: ';
               var grParts = [];
               if (gr.orphanBlocked) grParts.push('orphan ' + gr.orphanBlocked);
               if (gr.exactDupBlocked) grParts.push('exact-dup ' + gr.exactDupBlocked);
@@ -3216,7 +3216,7 @@
         if (issues.length === 0) {
           badge.textContent = 'All Clear';
           badge.style.color = '#34d399';
-          body.innerHTML = '<div style="font-size:0.72rem;color:#34d399;padding:0.5rem 0;text-align:center;"><i class="fas fa-check-circle" style="margin-right:0.3rem;"></i>No issues detected</div>';
+          body.innerHTML = '<div style="font-size:var(--c-text-xs);color:#34d399;padding:0.5rem 0;text-align:center;"><i class="fas fa-check-circle" style="margin-right:0.3rem;"></i>No issues detected</div>';
           return;
         }
 
@@ -3345,8 +3345,8 @@
       }
       var _aqBucketStyles = {
         fresh: { border: '', bg: '', badge: '' },
-        stale: { border: 'border-left:3px solid rgba(251,191,36,0.5);', bg: '', badge: '<span style="font-size:0.45rem;padding:1px 4px;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;margin-left:0.3rem;">STALE</span>' },
-        overdue: { border: 'border-left:3px solid rgba(248,113,113,0.5);', bg: '', badge: '<span style="font-size:0.45rem;padding:1px 4px;border-radius:3px;background:rgba(248,113,113,0.12);color:#f87171;font-weight:600;margin-left:0.3rem;">OVERDUE REVIEW</span>' }
+        stale: { border: 'border-left:3px solid rgba(251,191,36,0.5);', bg: '', badge: '<span style="font-size:var(--c-text-xs);padding:1px 4px;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;margin-left:0.3rem;">STALE</span>' },
+        overdue: { border: 'border-left:3px solid rgba(248,113,113,0.5);', bg: '', badge: '<span style="font-size:var(--c-text-xs);padding:1px 4px;border-radius:3px;background:rgba(248,113,113,0.12);color:#f87171;font-weight:600;margin-left:0.3rem;">OVERDUE REVIEW</span>' }
       };
 
       // ── v2.4.1 batch state ──
@@ -3384,7 +3384,7 @@
         // Preview list — top 3 pending items
         if (previewEl) {
           if (total === 0) {
-            previewEl.innerHTML = '<div style="font-size:0.72rem; opacity:0.4;">Nothing pending. All clear.</div>';
+            previewEl.innerHTML = '<div style="font-size:var(--c-text-xs); opacity:0.4;">Nothing pending. All clear.</div>';
           } else {
             var platformIcon = { linkedin: 'fab fa-linkedin', facebook: 'fab fa-facebook', x: 'fab fa-x-twitter', bluesky: 'fab fa-bluesky', site: 'fas fa-globe' };
             var typeLabel = { 'social_post.schedule': 'Social Post', 'publish_document': 'Blog Post', 'trend_alert': 'Trend Alert', 'research.intel': 'Research Brief' };
@@ -3397,8 +3397,8 @@
               if (title.length > 55) title = title.substring(0, 55) + '…';
               return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
                 '<i class="' + icon + '" style="font-size:0.65rem;opacity:0.5;width:12px;text-align:center;flex-shrink:0;"></i>' +
-                '<span style="font-size:0.65rem;opacity:0.5;flex-shrink:0;">' + label + '</span>' +
-                '<span style="font-size:0.68rem;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + title + '</span>' +
+                '<span style="font-size:var(--c-text-xs);opacity:0.5;flex-shrink:0;">' + label + '</span>' +
+                '<span style="font-size:var(--c-text-xs);opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + title + '</span>' +
               '</div>';
             });
             // Fill remaining slots from aq non-action items if actions < 3
@@ -3410,14 +3410,14 @@
                 if (title.length > 55) title = title.substring(0, 55) + '…';
                 preview.push('<div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
                   '<i class="' + icon + '" style="font-size:0.65rem;opacity:0.5;width:12px;text-align:center;flex-shrink:0;"></i>' +
-                  '<span style="font-size:0.65rem;opacity:0.5;flex-shrink:0;">' + label + '</span>' +
-                  '<span style="font-size:0.68rem;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + title + '</span>' +
+                  '<span style="font-size:var(--c-text-xs);opacity:0.5;flex-shrink:0;">' + label + '</span>' +
+                  '<span style="font-size:var(--c-text-xs);opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + title + '</span>' +
                 '</div>');
               });
             }
             var remainder = total - preview.length;
             var html = preview.join('');
-            if (remainder > 0) html += '<div style="font-size:0.65rem;opacity:0.4;padding-top:0.35rem;">+ ' + remainder + ' more in Action Queue</div>';
+            if (remainder > 0) html += '<div style="font-size:var(--c-text-xs);opacity:0.4;padding-top:0.35rem;">+ ' + remainder + ' more in Action Queue</div>';
             previewEl.innerHTML = html;
           }
         }
@@ -3455,15 +3455,15 @@
           div.style.cssText = 'padding:0.6rem;margin-bottom:0.4rem;border:1px solid rgba(24,119,242,0.15);border-radius:6px;background:rgba(24,119,242,0.03);';
           div.innerHTML =
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">' +
-              '<span style="font-size:0.6rem;color:#1877F2;font-weight:600;"><i class="fab fa-facebook" style="margin-right:0.3rem;"></i>Facebook Post</span>' +
-              '<span style="font-size:0.5rem;opacity:0.4;">' + dateStr + '</span>' +
+              '<span style="font-size:var(--c-text-xs);color:#1877F2;font-weight:600;"><i class="fab fa-facebook" style="margin-right:0.3rem;"></i>Facebook Post</span>' +
+              '<span style="font-size:var(--c-text-xs);opacity:0.4;">' + dateStr + '</span>' +
             '</div>' +
-            '<pre style="white-space:pre-wrap;word-break:break-word;font-size:0.65rem;line-height:1.5;margin:0 0 0.5rem 0;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(255,255,255,0.06);font-family:inherit;max-height:200px;overflow-y:auto;">' +
+            '<pre style="white-space:pre-wrap;word-break:break-word;font-size:var(--c-text-xs);line-height:1.5;margin:0 0 0.5rem 0;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(255,255,255,0.06);font-family:inherit;max-height:200px;overflow-y:auto;">' +
               text.replace(/</g, '&lt;').replace(/>/g, '&gt;') +
             '</pre>' +
             '<div style="display:flex;gap:0.4rem;">' +
-              '<button class="fb-copy-btn" style="padding:0.25rem 0.6rem;font-size:0.55rem;border-radius:4px;cursor:pointer;border:1px solid rgba(24,119,242,0.3);background:rgba(24,119,242,0.08);color:#1877F2;"><i class="fas fa-copy" style="margin-right:0.2rem;"></i>Copy Text</button>' +
-              '<button class="fb-posted-btn" data-action-id="' + (action.id || '') + '" style="padding:0.25rem 0.6rem;font-size:0.55rem;border-radius:4px;cursor:pointer;border:1px solid rgba(52,211,153,0.3);background:rgba(52,211,153,0.06);color:#34d399;"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Mark as Posted</button>' +
+              '<button class="fb-copy-btn" style="padding:0.25rem 0.6rem;font-size:var(--c-text-xs);border-radius:4px;cursor:pointer;border:1px solid rgba(24,119,242,0.3);background:rgba(24,119,242,0.08);color:#1877F2;"><i class="fas fa-copy" style="margin-right:0.2rem;"></i>Copy Text</button>' +
+              '<button class="fb-posted-btn" data-action-id="' + (action.id || '') + '" style="padding:0.25rem 0.6rem;font-size:var(--c-text-xs);border-radius:4px;cursor:pointer;border:1px solid rgba(52,211,153,0.3);background:rgba(52,211,153,0.06);color:#34d399;"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Mark as Posted</button>' +
             '</div>';
 
           // Copy button
@@ -3538,7 +3538,7 @@
           if (agentIds.length > 0) {
             agentChips = agentIds.map(function (aid) {
               var ag = p.agents[aid];
-              return '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">' +
+              return '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">' +
                 aid.charAt(0).toUpperCase() + aid.slice(1) +
                 ' <span style="color:#34d399;">' + ag.done + '✓</span>' +
                 (ag.active > 0 ? ' <span style="opacity:0.5;">' + ag.active + '⟳</span>' : '') +
@@ -3547,8 +3547,8 @@
           }
 
           var warnings = '';
-          if (p.overdue) warnings += '<span style="font-size:0.5rem;color:#fbbf24;"><i class="fas fa-clock"></i> ' + p.overdue + ' overdue</span> ';
-          if (p.blocked) warnings += '<span style="font-size:0.5rem;color:#ef4444;"><i class="fas fa-ban"></i> ' + p.blocked + ' blocked</span>';
+          if (p.overdue) warnings += '<span style="font-size:var(--c-text-xs);color:#fbbf24;"><i class="fas fa-clock"></i> ' + p.overdue + ' overdue</span> ';
+          if (p.blocked) warnings += '<span style="font-size:var(--c-text-xs);color:#ef4444;"><i class="fas fa-ban"></i> ' + p.blocked + ' blocked</span>';
 
           var li = document.createElement('li');
           li.className = 'log-item';
@@ -3558,7 +3558,7 @@
             '<div class="log-body" style="flex:1;">' +
               '<div class="log-text" style="display:flex;justify-content:space-between;align-items:center;">' +
                 '<strong>' + escapeHtml(cmp.title) + '</strong>' +
-                '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:' + sig.color + '18;color:' + sig.color + ';font-weight:600;">' + sig.label + '</span>' +
+                '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.35rem;border-radius:3px;background:' + sig.color + '18;color:' + sig.color + ';font-weight:600;">' + sig.label + '</span>' +
               '</div>' +
               '<div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.15);margin:0.25rem 0;overflow:hidden;">' +
                 '<div style="height:100%;width:' + p.pct + '%;background:' + sig.color + ';border-radius:3px;min-width:' + (p.pct > 0 ? '2px' : '0') + ';"></div>' +
@@ -3576,7 +3576,7 @@
         // Completed campaigns
         if (completed.length > 0) {
           var divider = document.createElement('li');
-          divider.style.cssText = 'list-style:none;font-size:0.55rem;opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
+          divider.style.cssText = 'list-style:none;font-size:var(--c-text-xs);opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
           divider.innerHTML = '<i class="fas fa-trophy" style="opacity:0.4;margin-right:4px;"></i>Completed (' + completed.length + ')';
           listEl.appendChild(divider);
 
@@ -3699,35 +3699,35 @@
           card.style.cssText = 'flex:1 1 200px; min-width:180px; padding:0.5rem 0.6rem; border:1px solid ' + catColor + '18; border-radius:8px; background:' + catColor + '06;';
 
           var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">';
-          html += '<span style="font-size:0.7rem;font-weight:600;">' + escapeHtml(k.name) + '</span>';
-          html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:3px;background:' + catColor + '15;color:' + catColor + ';">' + k.category + '</span>';
+          html += '<span style="font-size:var(--c-text-xs);font-weight:600;">' + escapeHtml(k.name) + '</span>';
+          html += '<span style="font-size:var(--c-text-xs);padding:1px 5px;border-radius:3px;background:' + catColor + '15;color:' + catColor + ';">' + k.category + '</span>';
           html += '</div>';
 
           html += '<div style="display:flex;gap:0.5rem;align-items:baseline;margin-bottom:0.3rem;">';
-          html += '<span style="font-size:1.1rem;font-weight:700;color:' + catColor + ';">-' + unitLabel + '</span>';
-          if (k.target !== null) html += '<span style="font-size:0.6rem;opacity:0.4;">/ ' + unitLabel + k.target + '</span>';
+          html += '<span style="font-size:var(--c-text-lg);font-weight:700;color:' + catColor + ';">-' + unitLabel + '</span>';
+          if (k.target !== null) html += '<span style="font-size:var(--c-text-xs);opacity:0.4;">/ ' + unitLabel + k.target + '</span>';
           html += '</div>';
 
           if (linkedDirs.length > 0) {
-            html += '<div style="font-size:0.6rem;opacity:0.5;margin-bottom:0.2rem;"><i class="fas fa-flag" style="margin-right:2px;"></i>' + linkedDirs.length + ' linked campaign' + (linkedDirs.length > 1 ? 's' : '') + '</div>';
+            html += '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-bottom:0.2rem;"><i class="fas fa-flag" style="margin-right:2px;"></i>' + linkedDirs.length + ' linked campaign' + (linkedDirs.length > 1 ? 's' : '') + '</div>';
             var showDirs = linkedDirs.slice(0, 3);
             showDirs.forEach(function (d) {
               var sColor = d.status === 'active' ? '#34d399' : d.status === 'completed' ? '#c084fc' : d.status === 'pending-approval' ? '#fbbf24' : '#6b7280';
-              html += '<div style="font-size:0.6rem;padding:0.15rem 0;display:flex;gap:0.3rem;align-items:center;">';
+              html += '<div style="font-size:var(--c-text-xs);padding:0.15rem 0;display:flex;gap:0.3rem;align-items:center;">';
               html += '<span style="width:5px;height:5px;border-radius:50%;background:' + sColor + ';display:inline-block;flex-shrink:0;"></span>';
               html += '<span style="opacity:0.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(d.title) + '</span>';
               html += '</div>';
             });
             if (linkedDirs.length > 3) {
-              html += '<div style="font-size:0.55rem;opacity:0.3;">+' + (linkedDirs.length - 3) + ' more</div>';
+              html += '<div style="font-size:var(--c-text-xs);opacity:0.3;">+' + (linkedDirs.length - 3) + ' more</div>';
             }
           } else {
-            html += '<div style="font-size:0.6rem;opacity:0.3;">No linked campaigns</div>';
+            html += '<div style="font-size:var(--c-text-xs);opacity:0.3;">No linked campaigns</div>';
           }
 
           var owner = k.owner ? AgentEngine.getAgent(k.owner) : null;
           if (owner) {
-            html += '<div style="font-size:0.55rem;opacity:0.35;margin-top:0.2rem;">Owner: ' + owner.name + '</div>';
+            html += '<div style="font-size:var(--c-text-xs);opacity:0.35;margin-top:0.2rem;">Owner: ' + owner.name + '</div>';
           }
 
           card.innerHTML = html;
@@ -3761,7 +3761,7 @@
           var metaParts = [];
           if (progress && progress.campaigns > 0) metaParts.push(progress.campaigns + ' campaign' + (progress.campaigns !== 1 ? 's' : ''));
           if (progress && (progress.expectedTasks || progress.totalTasks) > 0) metaParts.push((progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : progress.doneTasks) + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks done');
-          var metaHtml = metaParts.length > 0 ? '<span style="font-size:0.55rem; opacity:0.35; margin-left:0.3rem;">' + metaParts.join(' · ') + '</span>' : '';
+          var metaHtml = metaParts.length > 0 ? '<span style="font-size:var(--c-text-xs); opacity:0.35; margin-left:0.3rem;">' + metaParts.join(' · ') + '</span>' : '';
 
           var li = document.createElement('li');
           li.className = 'log-item';
@@ -3780,7 +3780,7 @@
         // Completed goals
         if (completed.length > 0) {
           var divider = document.createElement('li');
-          divider.style.cssText = 'list-style:none;font-size:0.55rem;opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
+          divider.style.cssText = 'list-style:none;font-size:var(--c-text-xs);opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
           divider.innerHTML = '<i class="fas fa-trophy" style="opacity:0.4;margin-right:4px;"></i>Completed (' + completed.length + ')';
           listEl.appendChild(divider);
 
@@ -3842,7 +3842,7 @@
             var moodColors = { productive: '#34d399', steady: '#60a5fa', quiet: 'rgba(255,255,255,0.4)', busy: '#fbbf24', milestone: '#a78bfa' };
             var moodColor = moodColors[d.mood] || '#60a5fa';
             var highlights = (d.highlights || []).slice(0, 3).map(function (h) {
-              return '<div style="font-size:0.65rem; color:rgba(255,255,255,0.6); padding-left:0.8rem; margin-top:0.15rem;">⚡ ' + escapeHtml(h) + '</div>';
+              return '<div style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.6); padding-left:0.8rem; margin-top:0.15rem;">⚡ ' + escapeHtml(h) + '</div>';
             }).join('');
 
             var statsText = '';
@@ -3857,19 +3857,19 @@
             html +=
               '<div style="padding:0.6rem 0.75rem; border-bottom:1px solid rgba(255,255,255,0.05);" data-dlog-id="' + d.id + '" data-dlog-date="' + d.date + '">' +
                 '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">' +
-                  '<span style="font-size:0.65rem; color:rgba(255,255,255,0.4);">' + (d.date || '') + '</span>' +
-                  '<span style="font-size:0.6rem; padding:0.1rem 0.35rem; border-radius:3px; background:rgba(255,255,255,0.05); color:' + (d.status === 'draft' ? '#fbbf24' : moodColor) + ';">' + (d.status === 'draft' ? 'draft' : (d.mood || 'published')) + '</span>' +
+                  '<span style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.4);">' + (d.date || '') + '</span>' +
+                  '<span style="font-size:var(--c-text-xs); padding:0.1rem 0.35rem; border-radius:3px; background:rgba(255,255,255,0.05); color:' + (d.status === 'draft' ? '#fbbf24' : moodColor) + ';">' + (d.status === 'draft' ? 'draft' : (d.mood || 'published')) + '</span>' +
                 '</div>' +
-                '<div style="font-size:0.8rem; font-weight:600; color:#fff; margin-bottom:0.25rem;">' + escapeHtml(d.title || 'Untitled') + '</div>' +
-                '<div style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-bottom:0.3rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + escapeHtml((d.summary || '').substring(0, 200)) + '</div>' +
+                '<div style="font-size:var(--c-text-base); font-weight:600; color:#fff; margin-bottom:0.25rem;">' + escapeHtml(d.title || 'Untitled') + '</div>' +
+                '<div style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.6); margin-bottom:0.3rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + escapeHtml((d.summary || '').substring(0, 200)) + '</div>' +
                 highlights +
-                (statsText ? '<div style="font-size:0.6rem; color:rgba(255,255,255,0.35); margin-top:0.3rem;">' + statsText + '</div>' : '') +
+                (statsText ? '<div style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.35); margin-top:0.3rem;">' + statsText + '</div>' : '') +
                 '<div style="display:flex; gap:0.3rem; margin-top:0.5rem;">' +
                   (d.status === 'draft'
-                    ? '<button class="dlog-approve-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; cursor:pointer;">Publish</button>' +
-                      '<button class="dlog-reject-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;">Discard</button>' +
-                      '<a href="/log/' + d.date + '" target="_blank" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> Preview</a>'
-                    : '<a href="/log/' + d.date + '" target="_blank" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> View</a>') +
+                    ? '<button class="dlog-approve-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; cursor:pointer;">Publish</button>' +
+                      '<button class="dlog-reject-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;">Discard</button>' +
+                      '<a href="/log/' + d.date + '" target="_blank" style="font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> Preview</a>'
+                    : '<a href="/log/' + d.date + '" target="_blank" style="font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> View</a>') +
                 '</div>' +
               '</div>';
           });
@@ -3978,21 +3978,21 @@
             var excerpt = (post.excerpt || '').substring(0, 80);
             html += '<div class="blog-admin-row' + (postIdx >= 3 ? ' blog-admin-row--extra' : '') + '" style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.6rem; border:1px solid rgba(167,139,250,0.1); border-radius:6px; background:rgba(167,139,250,0.02);">' +
               '<div style="flex:1; min-width:0;">' +
-                '<div style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(post.title) + '</div>' +
-                '<div style="font-size:0.6rem; opacity:0.45; margin-top:0.15rem;">' +
+                '<div style="font-size:var(--c-text-xs); font-weight:600; color:rgba(255,255,255,0.9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(post.title) + '</div>' +
+                '<div style="font-size:var(--c-text-xs); opacity:0.45; margin-top:0.15rem;">' +
                   '<span>' + date + '</span> · <span>' + escapeHtml(author) + '</span> · <span>/blog/' + escapeHtml(post.slug) + '</span>' +
                   (excerpt ? ' · <span style="font-style:italic;">' + escapeHtml(excerpt) + '…</span>' : '') +
                 '</div>' +
               '</div>' +
               '<div style="display:flex; gap:0.3rem; flex-shrink:0; margin-left:0.5rem;">' +
-                '<a href="/blog/' + escapeHtml(post.slug) + '" target="_blank" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; cursor:pointer;"><i class="fas fa-external-link-alt"></i> View</a>' +
-                '<button class="blog-admin-edit" data-slug="' + escapeHtml(post.slug) + '" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24; cursor:pointer;"><i class="fas fa-edit"></i> Edit</button>' +
-                '<button class="blog-admin-delete" data-slug="' + escapeHtml(post.slug) + '" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>' +
+                '<a href="/blog/' + escapeHtml(post.slug) + '" target="_blank" style="font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; cursor:pointer;"><i class="fas fa-external-link-alt"></i> View</a>' +
+                '<button class="blog-admin-edit" data-slug="' + escapeHtml(post.slug) + '" style="font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24; cursor:pointer;"><i class="fas fa-edit"></i> Edit</button>' +
+                '<button class="blog-admin-delete" data-slug="' + escapeHtml(post.slug) + '" style="font-size:var(--c-text-xs); padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>' +
               '</div>' +
             '</div>';
           });
           if (posts.length > 3) {
-            html += '<div style="text-align:right; padding:0.3rem 0.2rem 0;"><a href="/blog/" target="_blank" style="font-size:0.6rem; color:#a78bfa; text-decoration:none;">View all ' + posts.length + ' blog posts →</a></div>';
+            html += '<div style="text-align:right; padding:0.3rem 0.2rem 0;"><a href="/blog/" target="_blank" style="font-size:var(--c-text-xs); color:#a78bfa; text-decoration:none;">View all ' + posts.length + ' blog posts →</a></div>';
           }
           html += '</div>';
           listEl.innerHTML = html;
@@ -4022,7 +4022,7 @@
         })
         .catch(function (err) {
           console.error('[Dashboard] Blog admin fetch error:', err);
-          listEl.innerHTML = '<div style="padding:0.5rem; font-size:0.7rem; color:#f87171;">Failed to load blog posts.</div>';
+          listEl.innerHTML = '<div style="padding:0.5rem; font-size:var(--c-text-xs); color:#f87171;">Failed to load blog posts.</div>';
         });
       }
 
@@ -4056,19 +4056,19 @@
         containerEl.innerHTML =
           '<div style="padding:0.6rem; display:flex; flex-direction:column; gap:0.5rem;">' +
             '<div style="display:flex; justify-content:space-between; align-items:center;">' +
-              '<span style="font-size:0.7rem; font-weight:600; color:#fbbf24;"><i class="fas fa-edit"></i> Editing: /blog/' + escapeHtml(post.slug) + '</span>' +
+              '<span style="font-size:var(--c-text-xs); font-weight:600; color:#fbbf24;"><i class="fas fa-edit"></i> Editing: /blog/' + escapeHtml(post.slug) + '</span>' +
               '<div style="display:flex; gap:0.3rem;">' +
-                '<button id="blog-edit-save" style="font-size:0.55rem; padding:0.25rem 0.6rem; border-radius:4px; border:1px solid rgba(52,211,153,0.4); background:rgba(52,211,153,0.1); color:#34d399; cursor:pointer; font-weight:600;"><i class="fas fa-save"></i> Save</button>' +
-                '<button id="blog-edit-cancel" style="font-size:0.55rem; padding:0.25rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); cursor:pointer;"><i class="fas fa-times"></i> Cancel</button>' +
+                '<button id="blog-edit-save" style="font-size:var(--c-text-xs); padding:0.25rem 0.6rem; border-radius:4px; border:1px solid rgba(52,211,153,0.4); background:rgba(52,211,153,0.1); color:#34d399; cursor:pointer; font-weight:600;"><i class="fas fa-save"></i> Save</button>' +
+                '<button id="blog-edit-cancel" style="font-size:var(--c-text-xs); padding:0.25rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); cursor:pointer;"><i class="fas fa-times"></i> Cancel</button>' +
               '</div>' +
             '</div>' +
             '<div style="display:flex; gap:0.4rem;">' +
-              '<div style="flex:1;"><label style="font-size:0.55rem; opacity:0.5; display:block; margin-bottom:0.15rem;">Title</label>' +
-                '<input type="text" id="blog-edit-title" value="' + escapeHtml(post.title).replace(/"/g, '&quot;') + '" style="width:100%; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.25); color:inherit; box-sizing:border-box;" />' +
+              '<div style="flex:1;"><label style="font-size:var(--c-text-xs); opacity:0.5; display:block; margin-bottom:0.15rem;">Title</label>' +
+                '<input type="text" id="blog-edit-title" value="' + escapeHtml(post.title).replace(/"/g, '&quot;') + '" style="width:100%; font-size:var(--c-text-xs); padding:0.3rem 0.5rem; border-radius:4px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.25); color:inherit; box-sizing:border-box;" />' +
               '</div>' +
             '</div>' +
-            '<div><label style="font-size:0.55rem; opacity:0.5; display:block; margin-bottom:0.15rem;">Content (Markdown)</label>' +
-              '<textarea id="blog-edit-content" style="width:100%; min-height:350px; font-family:Consolas,Monaco,monospace; font-size:0.65rem; line-height:1.5; padding:0.5rem; border-radius:4px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.25); color:inherit; resize:vertical; box-sizing:border-box;">' + escapeHtml(post.content_md || '') + '</textarea>' +
+            '<div><label style="font-size:var(--c-text-xs); opacity:0.5; display:block; margin-bottom:0.15rem;">Content (Markdown)</label>' +
+              '<textarea id="blog-edit-content" style="width:100%; min-height:350px; font-family:Consolas,Monaco,monospace; font-size:var(--c-text-xs); line-height:1.5; padding:0.5rem; border-radius:4px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.25); color:inherit; resize:vertical; box-sizing:border-box;">' + escapeHtml(post.content_md || '') + '</textarea>' +
             '</div>' +
           '</div>';
 
@@ -4162,13 +4162,13 @@
               var deltaColor = t.scoreDelta > 0 ? '#34d399' : t.scoreDelta < 0 ? '#ef4444' : 'rgba(255,255,255,0.3)';
               html += '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
               html += '<div style="flex:1;min-width:0;">';
-              html += '<div style="font-size:0.75rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(t.name || '') + '</div>';
-              html += '<div style="font-size:0.55rem;opacity:0.4;margin-top:1px;">' + escapeHtml(t.category || '') + '</div>';
+              html += '<div style="font-size:var(--c-text-xs);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(t.name || '') + '</div>';
+              html += '<div style="font-size:var(--c-text-xs);opacity:0.4;margin-top:1px;">' + escapeHtml(t.category || '') + '</div>';
               html += '</div>';
-              html += '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:' + color + '20;color:' + color + ';font-weight:600;white-space:nowrap;">' + label + '</span>';
-              html += '<span style="font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.5);width:28px;text-align:right;">' + (t.score || 0) + '</span>';
+              html += '<span style="font-size:var(--c-text-xs);padding:0.1rem 0.35rem;border-radius:3px;background:' + color + '20;color:' + color + ';font-weight:600;white-space:nowrap;">' + label + '</span>';
+              html += '<span style="font-size:var(--c-text-xs);font-weight:600;color:rgba(255,255,255,0.5);width:28px;text-align:right;">' + (t.score || 0) + '</span>';
               if (delta) {
-                html += '<span style="font-size:0.55rem;font-weight:600;color:' + deltaColor + ';width:30px;text-align:right;">' + delta + '</span>';
+                html += '<span style="font-size:var(--c-text-xs);font-weight:600;color:' + deltaColor + ';width:30px;text-align:right;">' + delta + '</span>';
               }
               html += '</div>';
             });
@@ -4242,43 +4242,43 @@
           }
           emptyEl.style.display = 'none';
 
-          var html = '<div style="font-size:0.65rem;color:rgba(255,255,255,0.4);padding:0.4rem 0.5rem;">' +
+          var html = '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.4);padding:0.4rem 0.5rem;">' +
             builtIn.length + ' built-in · ' + community.length + ' community</div>';
 
           // Community agents first (with delete)
           if (community.length > 0) {
-            html += '<div style="font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(168,85,247,0.6);padding:0.3rem 0.5rem;margin-top:0.3rem;">Community Agents</div>';
+            html += '<div style="font-size:var(--c-text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(168,85,247,0.6);padding:0.3rem 0.5rem;margin-top:0.3rem;">Community Agents</div>';
             community.forEach(function(a) {
               var runs = stats[a.id] || 0;
               html += '<div class="blog-admin-row" style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.5rem;border-bottom:1px solid rgba(255,255,255,0.04);">' +
                 '<div style="flex:1;min-width:0;">' +
-                  '<div style="font-size:0.75rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><i class="' + escapeHtml(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.5;font-size:0.65rem;"></i>' + escapeHtml(a.name) + ' <span style="font-size:0.5rem;padding:1px 5px;border-radius:3px;background:rgba(168,85,247,0.15);color:#a855f7;font-weight:600;vertical-align:middle;">COMMUNITY</span></div>' +
-                  '<div style="font-size:0.6rem;color:rgba(255,255,255,0.35);margin-top:1px;">' + escapeHtml(a.category || '') + ' · ' + escapeHtml(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
+                  '<div style="font-size:var(--c-text-xs);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><i class="' + escapeHtml(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.5;font-size:0.65rem;"></i>' + escapeHtml(a.name) + ' <span style="font-size:var(--c-text-xs);padding:1px 5px;border-radius:3px;background:rgba(168,85,247,0.15);color:#a855f7;font-weight:600;vertical-align:middle;">COMMUNITY</span></div>' +
+                  '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.35);margin-top:1px;">' + escapeHtml(a.category || '') + ' · ' + escapeHtml(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
                 '</div>' +
                 '<div style="display:flex;gap:0.3rem;flex-shrink:0;">' +
-                  '<a href="/pixel-agents/run.html?agent=' + escapeHtml(a.id) + '" target="_blank" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.08);color:#60a5fa;text-decoration:none;cursor:pointer;">View</a>' +
-                  '<button class="agent-admin-delete" data-agent-id="' + escapeHtml(a.id) + '" data-agent-name="' + escapeHtml(a.name) + '" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.08);color:#f87171;cursor:pointer;">Delete</button>' +
+                  '<a href="/pixel-agents/run.html?agent=' + escapeHtml(a.id) + '" target="_blank" style="font-size:var(--c-text-xs);padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.08);color:#60a5fa;text-decoration:none;cursor:pointer;">View</a>' +
+                  '<button class="agent-admin-delete" data-agent-id="' + escapeHtml(a.id) + '" data-agent-name="' + escapeHtml(a.name) + '" style="font-size:var(--c-text-xs);padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.08);color:#f87171;cursor:pointer;">Delete</button>' +
                 '</div>' +
               '</div>';
             });
           }
 
           // Built-in agents (view only)
-          html += '<div style="font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.3);padding:0.3rem 0.5rem;margin-top:0.3rem;">Built-in Agents</div>';
+          html += '<div style="font-size:var(--c-text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.3);padding:0.3rem 0.5rem;margin-top:0.3rem;">Built-in Agents</div>';
           var showCount = 5;
           builtIn.slice(0, showCount).forEach(function(a) {
             var runs = stats[a.id] || 0;
             html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;border-bottom:1px solid rgba(255,255,255,0.03);">' +
               '<div style="flex:1;min-width:0;">' +
-                '<div style="font-size:0.7rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><i class="' + escapeHtml(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.4;font-size:0.6rem;"></i>' + escapeHtml(a.name) + '</div>' +
-                '<div style="font-size:0.55rem;color:rgba(255,255,255,0.3);margin-top:1px;">' + escapeHtml(a.category || '') + ' · ' + escapeHtml(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
+                '<div style="font-size:var(--c-text-xs);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><i class="' + escapeHtml(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.4;font-size:0.6rem;"></i>' + escapeHtml(a.name) + '</div>' +
+                '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.3);margin-top:1px;">' + escapeHtml(a.category || '') + ' · ' + escapeHtml(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
               '</div>' +
-              '<a href="/pixel-agents/run.html?agent=' + escapeHtml(a.id) + '" target="_blank" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.05);color:rgba(96,165,250,0.7);text-decoration:none;cursor:pointer;flex-shrink:0;">View</a>' +
+              '<a href="/pixel-agents/run.html?agent=' + escapeHtml(a.id) + '" target="_blank" style="font-size:var(--c-text-xs);padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.05);color:rgba(96,165,250,0.7);text-decoration:none;cursor:pointer;flex-shrink:0;">View</a>' +
             '</div>';
           });
 
           if (builtIn.length > showCount) {
-            html += '<div style="text-align:right;padding:0.4rem 0.5rem;"><a href="/pixel-agents/" target="_blank" style="font-size:0.6rem;color:rgba(255,255,255,0.4);text-decoration:none;">View all ' + builtIn.length + ' agents →</a></div>';
+            html += '<div style="text-align:right;padding:0.4rem 0.5rem;"><a href="/pixel-agents/" target="_blank" style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.4);text-decoration:none;">View all ' + builtIn.length + ' agents →</a></div>';
           }
 
           listEl.innerHTML = html;
@@ -4377,7 +4377,7 @@
           if (b.escalation) lines.push(_autoBar('Escalation', b.escalation.score, b.escalation.count, b.escalation.total, b.escalation.weight));
           if (b.approval) lines.push(_autoBar('Approval', b.approval.score, b.approval.count, b.approval.total, b.approval.weight));
           if (b.memory) lines.push(_autoBar('Memory', b.memory.score, b.memory.count, b.memory.total, b.memory.weight));
-          detail.innerHTML = '<span style="opacity:0.5;font-size:0.55rem;">7-day window · ' + data.total + ' items</span>' + lines.join('');
+          detail.innerHTML = '<span style="opacity:0.5;font-size:var(--c-text-xs);">7-day window · ' + data.total + ' items</span>' + lines.join('');
         }
 
         // Render directly into Dev panel
@@ -4387,25 +4387,25 @@
           html += '<div style="position:relative;width:80px;height:80px;">';
           html += '<svg viewBox="0 0 36 36" width="80" height="80"><circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2.8"/>';
           html += '<circle cx="18" cy="18" r="15.9" fill="none" stroke="' + color + '" stroke-width="2.8" stroke-dasharray="' + score + ', 100" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>';
-          html += '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:' + color + ';">' + score + '%</div>';
+          html += '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:var(--c-text-lg);font-weight:700;color:' + color + ';">' + score + '%</div>';
           html += '</div><div>';
           var b2 = data.breakdown || {};
           var keys = ['throughput','delegation','completion','escalation','approval','memory'];
           keys.forEach(function(k) { if (b2[k]) html += _autoBar(k.charAt(0).toUpperCase() + k.slice(1), b2[k].score, b2[k].count, b2[k].total, b2[k].weight); });
-          html += '<div style="opacity:0.4;font-size:0.5rem;margin-top:0.3rem;">7-day window · ' + data.total + ' items</div>';
+          html += '<div style="opacity:0.4;font-size:var(--c-text-xs);margin-top:0.3rem;">7-day window · ' + data.total + ' items</div>';
           html += '</div></div>';
           devEl.innerHTML = html;
         }
       }
       function _autoBar(label, score, count, total, weight) {
         var c = score >= 80 ? '#34d399' : score >= 50 ? '#fbbf24' : '#ef4444';
-        return '<div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.2rem;font-size:0.55rem;">' +
+        return '<div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.2rem;font-size:var(--c-text-xs);">' +
           '<span style="width:60px;opacity:0.5;">' + label + '</span>' +
           '<div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);overflow:hidden;">' +
             '<div style="width:' + score + '%;height:100%;background:' + c + ';border-radius:2px;"></div>' +
           '</div>' +
           '<span style="width:30px;text-align:right;color:' + c + ';font-weight:600;">' + score + '%</span>' +
-          '<span style="width:30px;opacity:0.3;font-size:0.45rem;">' + weight + '</span>' +
+          '<span style="width:30px;opacity:0.3;font-size:var(--c-text-xs);">' + weight + '</span>' +
         '</div>';
       }
 
@@ -4427,8 +4427,8 @@
         var riskColor = totalRisk === 0 ? '#34d399' : totalRisk <= 3 ? '#fbbf24' : '#ef4444';
         var riskLabel = totalRisk === 0 ? 'All Clear' : totalRisk <= 3 ? 'Low Risk' : totalRisk <= 8 ? 'Moderate' : 'Elevated';
         html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.5rem;padding:0.3rem 0.5rem;border-radius:4px;background:' + riskColor + '08;border:1px solid ' + riskColor + '15;">';
-        html += '<span style="font-size:0.6rem;font-weight:600;color:' + riskColor + ';"><i class="fas ' + (totalRisk === 0 ? 'fa-check-circle' : 'fa-shield-alt') + '" style="margin-right:0.3rem;"></i>' + riskLabel + '</span>';
-        html += '<span style="font-size:0.55rem;opacity:0.4;">' + totalRisk + ' signal' + (totalRisk !== 1 ? 's' : '') + '</span>';
+        html += '<span style="font-size:var(--c-text-xs);font-weight:600;color:' + riskColor + ';"><i class="fas ' + (totalRisk === 0 ? 'fa-check-circle' : 'fa-shield-alt') + '" style="margin-right:0.3rem;"></i>' + riskLabel + '</span>';
+        html += '<span style="font-size:var(--c-text-xs);opacity:0.4;">' + totalRisk + ' signal' + (totalRisk !== 1 ? 's' : '') + '</span>';
         html += '</div>';
 
         // Detail list — show top urgent items
@@ -4441,11 +4441,11 @@
           html += '<div style="margin-top:0.4rem;">';
           urgentItems.slice(0, 4).forEach(function (item) {
             var agent = item.agent ? item.agent.charAt(0).toUpperCase() + item.agent.slice(1) : '?';
-            html += '<div style="font-size:0.6rem;padding:0.2rem 0;display:flex;gap:0.3rem;align-items:center;">';
-            html += '<span style="color:' + item.color + ';font-size:0.5rem;">●</span>';
+            html += '<div style="font-size:var(--c-text-xs);padding:0.2rem 0;display:flex;gap:0.3rem;align-items:center;">';
+            html += '<span style="color:' + item.color + ';font-size:var(--c-text-xs);">●</span>';
             html += '<span style="flex:1;opacity:0.7;">' + escapeHtml(item.title) + '</span>';
-            html += '<span style="font-size:0.5rem;color:' + item.color + ';">' + item.reason + '</span>';
-            html += '<span style="font-size:0.5rem;opacity:0.35;">' + agent + '</span>';
+            html += '<span style="font-size:var(--c-text-xs);color:' + item.color + ';">' + item.reason + '</span>';
+            html += '<span style="font-size:var(--c-text-xs);opacity:0.35;">' + agent + '</span>';
             html += '</div>';
           });
           html += '</div>';
@@ -4456,8 +4456,8 @@
       function riskCell(label, count, color, icon) {
         var bg = count > 0 ? color + '0a' : 'rgba(255,255,255,0.02)';
         return '<div style="padding:0.4rem; border-radius:6px; background:' + bg + '; text-align:center;">' +
-          '<div style="font-size:1rem; font-weight:600; color:' + (count > 0 ? color : 'rgba(255,255,255,0.15)') + ';"><i class="fas ' + icon + '" style="font-size:0.6rem;"></i> ' + count + '</div>' +
-          '<div style="font-size:0.45rem; opacity:0.4; margin-top:0.1rem;">' + label + '</div>' +
+          '<div style="font-size:var(--c-text-md); font-weight:600; color:' + (count > 0 ? color : 'rgba(255,255,255,0.15)') + ';"><i class="fas ' + icon + '" style="font-size:0.6rem;"></i> ' + count + '</div>' +
+          '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-top:0.1rem;">' + label + '</div>' +
           '</div>';
       }
 
@@ -4483,18 +4483,18 @@
           return !a.approval || a.approval.status !== 'revision_requested';
         });
         if (pending.length > 0) {
-          html += '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.3rem;">Awaiting approval:</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.3rem;">Awaiting approval:</div>';
           pending.slice(0, 3).forEach(function (a) {
-            html += '<div style="font-size:0.65rem; padding:0.2rem 0; opacity:0.7;">• ' + escapeHtml(FriendlyLabels.actionType(a.action_type || a.type)) + ' <span style="opacity:0.5;">(' + escapeHtml(a.origin_agent || a.created_by || '?') + ')</span></div>';
+            html += '<div style="font-size:var(--c-text-xs); padding:0.2rem 0; opacity:0.7;">• ' + escapeHtml(FriendlyLabels.actionType(a.action_type || a.type)) + ' <span style="opacity:0.5;">(' + escapeHtml(a.origin_agent || a.created_by || '?') + ')</span></div>';
           });
-          if (pending.length > 3) html += '<div style="font-size:0.55rem; opacity:0.3;">+' + (pending.length - 3) + ' more</div>';
+          if (pending.length > 3) html += '<div style="font-size:var(--c-text-xs); opacity:0.3;">+' + (pending.length - 3) + ' more</div>';
         }
         el.innerHTML = html;
       }
       function snapBadge(count, label, color) {
         var rgbMap = { '#fbbf24': '251,191,36', '#34d399': '52,211,153', '#60a5fa': '96,165,250', '#ef4444': '239,68,68', '#a78bfa': '167,139,250' };
         var rgb = rgbMap[color] || '255,255,255';
-        return '<span style="font-size:0.55rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(' + rgb + ',0.1); color:' + color + '; font-weight:500;">' + count + ' ' + label + '</span>';
+        return '<span style="font-size:var(--c-text-xs); padding:0.15rem 0.5rem; border-radius:3px; background:rgba(' + rgb + ',0.1); color:' + color + '; font-weight:500;">' + count + ' ' + label + '</span>';
       }
 
       // ── API Usage Chart ──
@@ -4655,11 +4655,11 @@
           var agentList = Object.keys(agentMap).sort(function (a, b) { return agentMap[b].calls - agentMap[a].calls; });
           if (agentList.length > 0 && agentsEl) {
             var agentColors = { nova: '#8A2BE2', forge: '#4ECDC4', pixel: '#FF6B9D', cipher: '#fbbf24', echo: '#1DA1F2', scribe: '#34d399', scout: '#f97316', quill: '#a78bfa' };
-            var aHtml = '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Calls by Agent</div>';
+            var aHtml = '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Calls by Agent</div>';
             aHtml += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">';
             agentList.forEach(function (a) {
               var color = agentColors[a] || 'rgba(255,255,255,0.5)';
-              aHtml += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+              aHtml += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
                 '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + color + ';margin-right:3px;vertical-align:middle;"></span>' +
                 escapeHtml(a) + ' <span style="color:rgba(255,255,255,0.75); font-weight:500;">' + agentMap[a].calls.toLocaleString() + '</span></span>';
             });
@@ -4698,7 +4698,7 @@
         var a = _costSummaryData.azure;
         var x = _costSummaryData.x;
         if (!g && !cl && !a && !x && !force) {
-          el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Loading cost data...</div>';
+          el.innerHTML = '<div class="dash-empty" style="font-size:var(--c-text-xs);">Loading cost data...</div>';
           return;
         }
         _costSummaryRendered = true;
@@ -4735,7 +4735,7 @@
           if (xPct > 0) html += '<div style="width:' + xPct + '%; background:#1DA1F2;" title="X.com: ' + xPct + '%"></div>';
           if (aPct > 0) html += '<div style="width:' + aPct + '%; background:#0078D4;" title="Azure: ' + aPct + '%"></div>';
           html += '</div>';
-          html += '<div style="display:flex; justify-content:space-between; font-size:0.5rem; opacity:0.35; margin-top:0.15rem;">';
+          html += '<div style="display:flex; justify-content:space-between; font-size:var(--c-text-xs); opacity:0.35; margin-top:0.15rem;">';
           html += '<span><i class="fas fa-coins" style="color:#fbbf24;margin-right:2px;"></i>Gemini ' + gPct + '%</span>';
           html += '<span><i class="fas fa-brain" style="color:#DC6956;margin-right:2px;"></i>Claude ' + clPct + '%</span>';
           html += '<span><i class="fab fa-x-twitter" style="color:#1DA1F2;margin-right:2px;"></i>X ' + xPct + '%</span>';
@@ -4782,11 +4782,11 @@
         // Cost by caller
         var callers = Object.keys(data.byCaller).sort(function (a, b) { return data.byCaller[b].cost - data.byCaller[a].cost; });
         if (callers.length > 0) {
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Service</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Service</div>';
           html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
           callers.forEach(function (c) {
             var d = data.byCaller[c];
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.1); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.1); color:rgba(255,255,255,0.6);">' +
               escapeHtml(c) + ' <span style="color:#fbbf24; font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
           });
           html += '</div>';
@@ -4795,11 +4795,11 @@
         // Cost by agent
         var agents = Object.keys(data.byAgent).sort(function (a, b) { return data.byAgent[b].cost - data.byAgent[a].cost; });
         if (agents.length > 0) {
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Agent</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Agent</div>';
           html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
           agents.forEach(function (a) {
             var d = data.byAgent[a];
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
               escapeHtml(a) + ' <span style="color:rgba(255,255,255,0.75); font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
           });
           html += '</div>';
@@ -4810,7 +4810,7 @@
         if (days.length > 1) {
           var maxDayCost = 0;
           days.forEach(function (d) { if (data.byDay[d].cost > maxDayCost) maxDayCost = data.byDay[d].cost; });
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Daily Spend</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Daily Spend</div>';
           html += '<div style="display:flex; align-items:flex-end; gap:2px; height:40px;">';
           days.forEach(function (d) {
             var pct = maxDayCost > 0 ? Math.max(2, (data.byDay[d].cost / maxDayCost) * 100) : 2;
@@ -4819,7 +4819,7 @@
             html += '<div title="' + d + ': $' + data.byDay[d].cost.toFixed(4) + ' (' + data.byDay[d].calls + ' calls)" style="flex:1; min-width:3px; max-width:12px; height:' + pct + '%; background:' + (isToday ? '#fbbf24' : 'rgba(251,191,36,0.25)') + '; border-radius:2px 2px 0 0;"></div>';
           });
           html += '</div>';
-          html += '<div style="display:flex; justify-content:space-between; font-size:0.45rem; opacity:0.2; margin-top:0.15rem;"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
+          html += '<div style="display:flex; justify-content:space-between; font-size:var(--c-text-xs); opacity:0.2; margin-top:0.15rem;"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
         }
 
         if (data.totalCalls === 0) {
@@ -4830,8 +4830,8 @@
 
       function _costKpi(value, label, color) {
         return '<div style="flex:1; min-width:70px; text-align:center; padding:0.3rem 0.4rem; background:rgba(255,255,255,0.015); border:1px solid rgba(255,255,255,0.04); border-radius:6px;">' +
-          '<div style="font-size:1rem; font-weight:600; color:' + color + ';">' + value + '</div>' +
-          '<div style="font-size:0.5rem; opacity:0.35;">' + label + '</div></div>';
+          '<div style="font-size:var(--c-text-md); font-weight:600; color:' + color + ';">' + value + '</div>' +
+          '<div style="font-size:var(--c-text-xs); opacity:0.35;">' + label + '</div></div>';
       }
 
       var _costRangeEl = document.getElementById('gemini-cost-range');
@@ -4873,11 +4873,11 @@
 
         var callers = Object.keys(data.byCaller).sort(function (a, b) { return data.byCaller[b].cost - data.byCaller[a].cost; });
         if (callers.length > 0) {
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Service</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Service</div>';
           html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
           callers.forEach(function (c) {
             var d = data.byCaller[c];
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(220,105,86,0.06); border:1px solid rgba(220,105,86,0.1); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(220,105,86,0.06); border:1px solid rgba(220,105,86,0.1); color:rgba(255,255,255,0.6);">' +
               escapeHtml(c) + ' <span style="color:#DC6956; font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
           });
           html += '</div>';
@@ -4885,11 +4885,11 @@
 
         var agents = Object.keys(data.byAgent).sort(function (a, b) { return data.byAgent[b].cost - data.byAgent[a].cost; });
         if (agents.length > 0) {
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Agent</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Agent</div>';
           html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
           agents.forEach(function (a) {
             var d = data.byAgent[a];
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
               escapeHtml(a) + ' <span style="color:rgba(255,255,255,0.75); font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
           });
           html += '</div>';
@@ -4899,7 +4899,7 @@
         if (days.length > 1) {
           var maxDayCost = 0;
           days.forEach(function (d) { if (data.byDay[d].cost > maxDayCost) maxDayCost = data.byDay[d].cost; });
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Daily Spend</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Daily Spend</div>';
           html += '<div style="display:flex; align-items:flex-end; gap:2px; height:40px;">';
           days.forEach(function (d) {
             var pct = maxDayCost > 0 ? Math.max(2, (data.byDay[d].cost / maxDayCost) * 100) : 2;
@@ -4908,7 +4908,7 @@
             html += '<div title="' + d + ': $' + data.byDay[d].cost.toFixed(4) + ' (' + data.byDay[d].calls + ' calls)" style="flex:1; min-width:3px; max-width:12px; height:' + pct + '%; background:' + (isToday ? '#DC6956' : 'rgba(220,105,86,0.25)') + '; border-radius:2px 2px 0 0;"></div>';
           });
           html += '</div>';
-          html += '<div style="display:flex; justify-content:space-between; font-size:0.45rem; opacity:0.2; margin-top:0.15rem;"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
+          html += '<div style="display:flex; justify-content:space-between; font-size:var(--c-text-xs); opacity:0.2; margin-top:0.15rem;"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
         }
 
         if (data.totalCalls === 0) {
@@ -4963,7 +4963,7 @@
           if (err.message && err.message.indexOf('429') !== -1) {
             _azureCostCacheTs = Date.now(); // prevent retries for 5 min
           }
-          if (el) el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">' + escapeHtml(err.message || 'Could not load Azure cost data.') + '</div>';
+          if (el) el.innerHTML = '<div class="dash-empty" style="font-size:var(--c-text-xs);">' + escapeHtml(err.message || 'Could not load Azure cost data.') + '</div>';
         })
         .finally(function () { _azureCostFetching = false; });
       }
@@ -4983,14 +4983,14 @@
         // Cost by service
         var services = Object.keys(data.byService).sort(function (a, b) { return data.byService[b].cost - data.byService[a].cost; });
         if (services.length > 0) {
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Service</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Service</div>';
           // Bar chart style
           var maxSvcCost = data.byService[services[0]] ? data.byService[services[0]].cost : 1;
           services.forEach(function (s) {
             var d = data.byService[s];
             var pct = maxSvcCost > 0 ? Math.max(3, (d.cost / maxSvcCost) * 100) : 3;
             html += '<div style="margin-bottom:0.3rem;">';
-            html += '<div style="display:flex; justify-content:space-between; font-size:0.55rem; margin-bottom:0.1rem;">';
+            html += '<div style="display:flex; justify-content:space-between; font-size:var(--c-text-xs); margin-bottom:0.1rem;">';
             html += '<span style="opacity:0.6;">' + escapeHtml(s) + '</span>';
             html += '<span style="color:#0078D4; font-weight:500;">' + sym + d.cost.toFixed(4) + '</span>';
             html += '</div>';
@@ -5005,7 +5005,7 @@
         if (days.length > 1) {
           var maxDayCost = 0;
           days.forEach(function (d) { if (data.byDay[d].cost > maxDayCost) maxDayCost = data.byDay[d].cost; });
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; margin-top:0.5rem; font-weight:600;">Daily Spend</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; margin-top:0.5rem; font-weight:600;">Daily Spend</div>';
           html += '<div style="display:flex; align-items:flex-end; gap:2px; height:40px;">';
           days.forEach(function (d) {
             var pct = maxDayCost > 0 ? Math.max(2, (data.byDay[d].cost / maxDayCost) * 100) : 2;
@@ -5014,7 +5014,7 @@
             html += '<div title="' + d + ': ' + sym + data.byDay[d].cost.toFixed(4) + '" style="flex:1; min-width:3px; max-width:12px; height:' + pct + '%; background:' + (isToday ? '#0078D4' : 'rgba(0,120,212,0.25)') + '; border-radius:2px 2px 0 0;"></div>';
           });
           html += '</div>';
-          html += '<div style="display:flex; justify-content:space-between; font-size:0.45rem; opacity:0.2; margin-top:0.15rem;"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
+          html += '<div style="display:flex; justify-content:space-between; font-size:var(--c-text-xs); opacity:0.2; margin-top:0.15rem;"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
         }
 
         el.innerHTML = html;
@@ -5080,30 +5080,30 @@
           html += '</div>';
 
           // Activity breakdown
-          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Activity (' + _xCostDays + ' days)</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Activity (' + _xCostDays + ' days)</div>';
           html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
-          html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
+          html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
             '<i class="fas fa-check" style="color:#34d399;margin-right:3px;"></i>Published <span style="color:#34d399; font-weight:500;">' + posted.length + '</span></span>';
-          html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
+          html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
             '<i class="fas fa-clock" style="color:#fbbf24;margin-right:3px;"></i>Pending <span style="color:#fbbf24; font-weight:500;">' + pending.length + '</span></span>';
           if (failed.length > 0) {
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.1); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.1); color:rgba(255,255,255,0.6);">' +
               '<i class="fas fa-times" style="color:#ef4444;margin-right:3px;"></i>Failed <span style="color:#ef4444; font-weight:500;">' + failed.length + '</span></span>';
           }
           html += '</div>';
 
           // Engagement breakdown
           if (totalEngagement > 0) {
-            html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Engagement</div>';
+            html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Engagement</div>';
             html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.1); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.1); color:rgba(255,255,255,0.6);">' +
               '<i class="fas fa-heart" style="color:#ef4444;margin-right:3px;"></i>' + totalLikes + ' likes</span>';
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
               '<i class="fas fa-retweet" style="color:#1DA1F2;margin-right:3px;"></i>' + totalRetweets + ' retweets</span>';
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.1); color:rgba(255,255,255,0.6);">' +
+            html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.1); color:rgba(255,255,255,0.6);">' +
               '<i class="fas fa-comment" style="color:#60a5fa;margin-right:3px;"></i>' + totalReplies + ' replies</span>';
             if (totalQuotes > 0) {
-              html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+              html += '<span style="font-size:var(--c-text-xs); padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
                 '<i class="fas fa-quote-left" style="opacity:0.5;margin-right:3px;"></i>' + totalQuotes + ' quotes</span>';
             }
             html += '</div>';
@@ -5111,7 +5111,7 @@
 
           // Subscription note
           var _xPlanLabel = X_MONTHLY_SUBSCRIPTION === 0 ? 'Free tier' : (X_MONTHLY_SUBSCRIPTION === 100 ? 'Basic tier' : (X_MONTHLY_SUBSCRIPTION === 5000 ? 'Pro tier' : '$' + X_MONTHLY_SUBSCRIPTION + '/mo'));
-          html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.3rem;">X API ' + _xPlanLabel + ' · $' + X_MONTHLY_SUBSCRIPTION + '/mo · Engagement pulled every 15min</div>';
+          html += '<div style="font-size:var(--c-text-xs); opacity:0.25; margin-top:0.3rem;">X API ' + _xPlanLabel + ' · $' + X_MONTHLY_SUBSCRIPTION + '/mo · Engagement pulled every 15min</div>';
 
           if (xActions.length === 0) {
             html = '<div class="dash-empty">No X.com posts in the last ' + _xCostDays + ' days.' + (X_MONTHLY_SUBSCRIPTION > 0 ? ' Subscription: $' + X_MONTHLY_SUBSCRIPTION + '/mo.' : ' Free tier.') + '</div>';
@@ -5186,7 +5186,7 @@
           var plat = match[2];
           var p = _PLAT_BADGES[plat.toLowerCase()];
           if (p) {
-            return escapeHtml(name) + ' <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.08rem 0.35rem;border-radius:3px;background:' + p.bg + ';color:' + p.color + ';font-weight:500;vertical-align:middle;"><i class="fab ' + p.icon + '"></i>' + escapeHtml(plat.charAt(0).toUpperCase() + plat.slice(1)) + '</span>';
+            return escapeHtml(name) + ' <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:var(--c-text-xs);padding:0.08rem 0.35rem;border-radius:3px;background:' + p.bg + ';color:' + p.color + ';font-weight:500;vertical-align:middle;"><i class="fab ' + p.icon + '"></i>' + escapeHtml(plat.charAt(0).toUpperCase() + plat.slice(1)) + '</span>';
           }
           return escapeHtml(name + ' (' + plat + ')');
         }
@@ -5214,7 +5214,7 @@
         html += '<div class="meetings-widget" style="margin-bottom:0.8rem;">';
         html += '<div class="meetings-widget-header">';
         html += '<span class="meetings-widget-title"><i class="fas fa-video" style="margin-right:4px;"></i> Meetings Today: ' + todayMeetings.length + '</span>';
-        html += '<a href="/modules/company/meetings.html" class="dash-refresh-btn" style="font-size:0.6rem; padding:3px 8px;"><i class="fas fa-video"></i> Call Meeting</a>';
+        html += '<a href="/modules/company/meetings.html" class="dash-refresh-btn" style="font-size:var(--c-text-xs); padding:3px 8px;"><i class="fas fa-video"></i> Call Meeting</a>';
         html += '</div>';
 
         if (recent.length === 0) {
@@ -5228,22 +5228,22 @@
             html += '<div class="meetings-widget-item' + (mIdx >= 3 ? ' meetings-widget-item--extra' : '') + '">';
             html += '<div style="display:flex; justify-content:space-between; align-items:center;">';
             html += '<div style="flex:1; min-width:0;">';
-            html += '<div style="font-size:0.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(m.title || 'Untitled Meeting') + '</div>';
-            html += '<div style="font-size:0.6rem; opacity:0.4; margin-top:2px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            html += '<div style="font-size:var(--c-text-base); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(m.title || 'Untitled Meeting') + '</div>';
+            html += '<div style="font-size:var(--c-text-xs); opacity:0.4; margin-top:2px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
             html += '<span>' + (m.dateLabel || '?') + '</span>';
             html += '<span>' + (m.type || 'Status') + '</span>';
             if (proposalCount > 0) html += '<span style="color:#fbbf24;">' + proposalCount + ' proposal' + (proposalCount > 1 ? 's' : '') + '</span>';
             if (riskCount > 0) html += '<span style="color:#f87171;">' + riskCount + ' risk' + (riskCount > 1 ? 's' : '') + '</span>';
             html += '</div>';
             html += '</div>';
-            html += '<span style="font-size:0.55rem; padding:2px 6px; border-radius:4px; background:' + statusColor + '15; color:' + statusColor + '; font-weight:600; white-space:nowrap;">' + (m.decisionStatus || 'Pending') + '</span>';
+            html += '<span style="font-size:var(--c-text-xs); padding:2px 6px; border-radius:4px; background:' + statusColor + '15; color:' + statusColor + '; font-weight:600; white-space:nowrap;">' + (m.decisionStatus || 'Pending') + '</span>';
             html += '</div>';
             html += '</div>';
           });
         }
 
         html += '<div style="margin-top:0.5rem; text-align:right;">';
-        html += '<a href="/modules/company/meetings.html" style="font-size:0.6rem; color:rgba(255,255,255,0.45); text-decoration:none;">View all meetings →</a>';
+        html += '<a href="/modules/company/meetings.html" style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.45); text-decoration:none;">View all meetings →</a>';
         html += '</div>';
         html += '</div>';
 
@@ -5333,13 +5333,13 @@
         [2, 3, 4].forEach(function (t) {
           if (!tiers[t] || tiers[t].length === 0) return;
           var label = t === 2 ? 'Executive' : t === 3 ? 'Department Heads' : 'Specialists';
-          html += '<div style="grid-column:1/-1;font-size:0.55rem;opacity:0.35;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin:0.3rem 0 0.1rem;">' + label + '</div>';
+          html += '<div style="grid-column:1/-1;font-size:var(--c-text-xs);opacity:0.35;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin:0.3rem 0 0.1rem;">' + label + '</div>';
           tiers[t].forEach(function (a) {
             html += '<div style="padding:0.5rem 0.6rem;border:1px solid rgba(255,255,255,0.05);border-radius:8px;background:rgba(255,255,255,0.015);">';
             html += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.2rem;">';
             html += '<div style="width:8px;height:8px;border-radius:50%;background:' + (a.color || '#a78bfa') + ';flex-shrink:0;"></div>';
-            html += '<span style="font-size:0.72rem;font-weight:600;">' + escapeHtml(a.name || a.id) + '</span></div>';
-            html += '<div style="font-size:0.55rem;opacity:0.4;">' + escapeHtml(a.role || '') + '</div></div>';
+            html += '<span style="font-size:var(--c-text-xs);font-weight:600;">' + escapeHtml(a.name || a.id) + '</span></div>';
+            html += '<div style="font-size:var(--c-text-xs);opacity:0.4;">' + escapeHtml(a.role || '') + '</div></div>';
           });
         });
         el.innerHTML = html || '<div class="dash-empty">No agents loaded.</div>';
@@ -5444,15 +5444,15 @@
     }
 
     function _renderWarning(msg) {
-      tbBody.innerHTML = '<div style="font-size:0.6rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;">' +
+      tbBody.innerHTML = '<div style="font-size:var(--c-text-xs);padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;">' +
         '<i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(msg) + '</div>';
     }
 
     function _renderTable(title, icon, rows, keyField, valField) {
-      if (!rows || rows.length === 0) return '<div style="font-size:0.52rem;opacity:0.25;padding:0.2rem 0;">No data</div>';
-      var h = '<div style="font-size:0.56rem;font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
+      if (!rows || rows.length === 0) return '<div style="font-size:var(--c-text-xs);opacity:0.25;padding:0.2rem 0;">No data</div>';
+      var h = '<div style="font-size:var(--c-text-xs);font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
         '<i class="fas fa-' + icon + '" style="margin-right:4px;opacity:0.5;"></i>' + _esc(title) + '</div>';
-      h += '<div style="font-size:0.55rem;">';
+      h += '<div style="font-size:var(--c-text-xs);">';
       rows.forEach(function (r) {
         var key = r[keyField] || '—';
         var val = r[valField] || 0;
@@ -5498,20 +5498,20 @@
       // Top Campaigns
       html += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:0.5rem 0.6rem;">';
       if (data.topCampaigns && data.topCampaigns.length > 0) {
-        html += '<div style="font-size:0.56rem;font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
+        html += '<div style="font-size:var(--c-text-xs);font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
           '<i class="fas fa-bullhorn" style="margin-right:4px;opacity:0.5;"></i>Top Campaigns</div>';
-        html += '<div style="font-size:0.55rem;">';
+        html += '<div style="font-size:var(--c-text-xs);">';
         data.topCampaigns.forEach(function (c) {
           html += '<div style="display:flex;justify-content:space-between;padding:0.1rem 0;border-bottom:1px solid rgba(255,255,255,0.02);">' +
             '<span style="opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">' +
-            _esc(c.campaign) + ' <span style="opacity:0.4;font-size:0.48rem;">' + _esc((c.source || '') + '/' + (c.medium || '')) + '</span></span>' +
+            _esc(c.campaign) + ' <span style="opacity:0.4;font-size:var(--c-text-xs);">' + _esc((c.source || '') + '/' + (c.medium || '')) + '</span></span>' +
             '<span style="font-weight:600;color:#34d399;">' + (c.sessions || 0) + '</span></div>';
         });
         html += '</div>';
       } else {
-        html += '<div style="font-size:0.56rem;font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
+        html += '<div style="font-size:var(--c-text-xs);font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
           '<i class="fas fa-bullhorn" style="margin-right:4px;opacity:0.5;"></i>Top Campaigns</div>';
-        html += '<div style="font-size:0.52rem;opacity:0.25;padding:0.2rem 0;">No campaign data</div>';
+        html += '<div style="font-size:var(--c-text-xs);opacity:0.25;padding:0.2rem 0;">No campaign data</div>';
       }
       html += '</div>';
 
@@ -5520,12 +5520,12 @@
       // Performance + Errors row
       html += '<div style="display:flex;gap:0.6rem;margin-top:0.5rem;flex-wrap:wrap;">';
       if (data.performance) {
-        html += '<div style="font-size:0.55rem;opacity:0.5;"><i class="fas fa-tachometer-alt" style="margin-right:3px;"></i>p50: <strong style="color:#38bdf8;">' +
+        html += '<div style="font-size:var(--c-text-xs);opacity:0.5;"><i class="fas fa-tachometer-alt" style="margin-right:3px;"></i>p50: <strong style="color:#38bdf8;">' +
           (data.performance.pageLoadMs_p50 || 0) + 'ms</strong> · p95: <strong style="color:#fbbf24;">' +
           (data.performance.pageLoadMs_p95 || 0) + 'ms</strong></div>';
       }
       if (data.errors && data.errors.length > 0) {
-        html += '<div style="font-size:0.55rem;opacity:0.5;margin-left:auto;"><i class="fas fa-bug" style="margin-right:3px;color:#ef4444;"></i>Errors: ';
+        html += '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-left:auto;"><i class="fas fa-bug" style="margin-right:3px;color:#ef4444;"></i>Errors: ';
         data.errors.slice(0, 3).forEach(function (e) {
           html += '<span style="margin-right:0.4rem;">' + _esc(e.name) + ' <strong style="color:#ef4444;">(' + e.count + ')</strong></span>';
         });

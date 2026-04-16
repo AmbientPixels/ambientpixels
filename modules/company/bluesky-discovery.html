@@ -21,13 +21,13 @@
   <style>
     .bsd-page { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
     .bsd-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem; }
-    .bsd-header h1 { font-size: 1.3rem; font-weight: 600; margin: 0; }
+    .bsd-header h1 { font-size: var(--c-text-xl); font-weight: 600; margin: 0; }
     .bsd-stats { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-    .bsd-stat { padding: 0.35rem 0.7rem; border-radius: 6px; font-size: 0.72rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+    .bsd-stat { padding: 0.35rem 0.7rem; border-radius: 6px; font-size: var(--c-text-xs); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
     .bsd-stat b { font-weight: 600; }
 
     .bsd-toolbar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .bsd-toolbar button, .bsd-toolbar select { font-size: 0.72rem; padding: 0.35rem 0.65rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #e5e7eb; cursor: pointer; }
+    .bsd-toolbar button, .bsd-toolbar select { font-size: var(--c-text-xs); padding: 0.35rem 0.65rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #e5e7eb; cursor: pointer; }
     .bsd-toolbar button:hover { background: rgba(255,255,255,0.08); }
     .bsd-toolbar button.active { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.3); color: #93c5fd; }
 
@@ -35,46 +35,46 @@
     .bsd-card.dismissed { opacity: 0.3; }
     .bsd-card-body { padding: 0.7rem 0.9rem; }
     .bsd-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.4rem; }
-    .bsd-author { font-weight: 600; font-size: 0.8rem; color: #93c5fd; }
-    .bsd-score { font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 10px; font-weight: 600; }
+    .bsd-author { font-weight: 600; font-size: var(--c-text-base); color: #93c5fd; }
+    .bsd-score { font-size: var(--c-text-xs); padding: 0.2rem 0.5rem; border-radius: 10px; font-weight: 600; }
     .bsd-score-high { background: rgba(52,211,153,0.15); color: #34d399; }
     .bsd-score-med { background: rgba(251,191,36,0.15); color: #fbbf24; }
     .bsd-score-low { background: rgba(156,163,175,0.15); color: #9ca3af; }
-    .bsd-text { font-size: 0.78rem; color: #d1d5db; line-height: 1.5; margin-bottom: 0.5rem; white-space: pre-wrap; word-break: break-word; }
-    .bsd-meta { font-size: 0.65rem; color: #6b7280; display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .bsd-text { font-size: var(--c-text-base); color: #d1d5db; line-height: 1.5; margin-bottom: 0.5rem; white-space: pre-wrap; word-break: break-word; }
+    .bsd-meta { font-size: var(--c-text-xs); color: #6b7280; display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
     .bsd-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
     .bsd-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .bsd-actions button { font-size: 0.68rem; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #d1d5db; cursor: pointer; transition: background 0.15s; }
+    .bsd-actions button { font-size: var(--c-text-xs); padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #d1d5db; cursor: pointer; transition: background 0.15s; }
     .bsd-actions button:hover { background: rgba(255,255,255,0.08); }
     .bsd-actions .bsd-btn-reply { border-color: rgba(96,165,250,0.3); color: #93c5fd; }
     .bsd-actions .bsd-btn-reply:hover { background: rgba(96,165,250,0.12); }
     .bsd-actions .bsd-btn-manual { border-color: rgba(52,211,153,0.3); color: #34d399; }
     .bsd-actions .bsd-btn-manual:hover { background: rgba(52,211,153,0.12); }
     .bsd-actions .bsd-btn-dismiss { border-color: rgba(156,163,175,0.15); color: #6b7280; }
-    .bsd-actions .bsd-btn-view { border-color: rgba(0,133,255,0.25); color: #0085ff; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.68rem; padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid; background: rgba(0,133,255,0.06); }
+    .bsd-actions .bsd-btn-view { border-color: rgba(0,133,255,0.25); color: #0085ff; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem; font-size: var(--c-text-xs); padding: 0.3rem 0.6rem; border-radius: 6px; border: 1px solid; background: rgba(0,133,255,0.06); }
     .bsd-actions .bsd-btn-view:hover { background: rgba(0,133,255,0.12); }
-    .bsd-replied-badge { font-size: 0.6rem; padding: 0.15rem 0.45rem; border-radius: 10px; background: rgba(52,211,153,0.12); color: #34d399; font-weight: 500; margin-left: 0.3rem; }
+    .bsd-replied-badge { font-size: var(--c-text-xs); padding: 0.15rem 0.45rem; border-radius: 10px; background: rgba(52,211,153,0.12); color: #34d399; font-weight: 500; margin-left: 0.3rem; }
 
-    .bsd-empty { text-align: center; padding: 3rem 1rem; color: #6b7280; font-size: 0.85rem; }
+    .bsd-empty { text-align: center; padding: 3rem 1rem; color: #6b7280; font-size: var(--c-text-base); }
 
     /* Modal */
     .bsd-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
     .bsd-modal-overlay.open { display: flex; }
     .bsd-modal { background: #1c1c1e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.2rem; width: 90%; max-width: 520px; max-height: 80vh; overflow-y: auto; }
-    .bsd-modal h3 { font-size: 0.95rem; margin: 0 0 0.3rem 0; }
-    .bsd-modal p { font-size: 0.72rem; color: #9ca3af; margin: 0 0 0.8rem 0; }
-    .bsd-modal textarea, .bsd-modal input[type="text"] { width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e5e7eb; font-family: inherit; font-size: 0.78rem; resize: vertical; box-sizing: border-box; }
+    .bsd-modal h3 { font-size: var(--c-text-md); margin: 0 0 0.3rem 0; }
+    .bsd-modal p { font-size: var(--c-text-xs); color: #9ca3af; margin: 0 0 0.8rem 0; }
+    .bsd-modal textarea, .bsd-modal input[type="text"] { width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #e5e7eb; font-family: inherit; font-size: var(--c-text-base); resize: vertical; box-sizing: border-box; }
     .bsd-modal textarea { min-height: 100px; }
     .bsd-modal-btns { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.8rem; }
-    .bsd-modal-btns button { font-size: 0.72rem; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #d1d5db; cursor: pointer; }
+    .bsd-modal-btns button { font-size: var(--c-text-xs); padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: #d1d5db; cursor: pointer; }
     .bsd-modal-btns .bsd-btn-primary { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.3); color: #93c5fd; }
 
     /* Keyword editor */
     .bsd-kw-panel { display: none; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: #1c1c1e; padding: 0.8rem; margin-bottom: 1rem; }
     .bsd-kw-panel.open { display: block; }
     .bsd-kw-list { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.5rem; }
-    .bsd-kw-chip { font-size: 0.68rem; padding: 0.25rem 0.5rem; border-radius: 12px; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #93c5fd; display: inline-flex; align-items: center; gap: 0.3rem; }
-    .bsd-kw-chip .bsd-kw-remove { cursor: pointer; opacity: 0.5; font-size: 0.6rem; }
+    .bsd-kw-chip { font-size: var(--c-text-xs); padding: 0.25rem 0.5rem; border-radius: 12px; background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #93c5fd; display: inline-flex; align-items: center; gap: 0.3rem; }
+    .bsd-kw-chip .bsd-kw-remove { cursor: pointer; opacity: 0.5; font-size: var(--c-text-xs); }
     .bsd-kw-chip .bsd-kw-remove:hover { opacity: 1; }
     .bsd-kw-add { display: flex; gap: 0.4rem; }
     .bsd-kw-add input { flex: 1; }

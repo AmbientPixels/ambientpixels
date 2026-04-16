@@ -20,7 +20,7 @@
   <link rel="stylesheet" href="/modules/company/css/tasks.css" />
   <style>
     .task-risk-pill {
-      font-size:0.55rem; padding:0.1rem 0.35rem; border-radius:4px;
+      font-size:var(--c-text-xs); padding:0.1rem 0.35rem; border-radius:4px;
       background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
       color:rgba(255,255,255,0.6); margin-left:0.4rem; text-transform:capitalize;
     }
@@ -29,14 +29,14 @@
     .task-risk-pill--low { border-color:rgba(52,211,153,0.4); color:#34d399; }
 
     /* Verification badges */
-    .verify-badge { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; vertical-align:middle; }
+    .verify-badge { font-size:var(--c-text-xs); padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; vertical-align:middle; }
     .verify-badge--pass { background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); color:#34d399; }
     .verify-badge--fail { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; }
     .verify-badge--manual { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
     .verify-badge--warn { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
 
     /* Verification block toast */
-    .verify-toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:9999; padding:0.6rem 1.2rem; border-radius:8px; font-size:0.72rem; font-weight:500; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; box-shadow:0 4px 20px rgba(0,0,0,0.4); pointer-events:none; opacity:0; transition:opacity 0.2s; }
+    .verify-toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:9999; padding:0.6rem 1.2rem; border-radius:8px; font-size:var(--c-text-base); font-weight:500; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; box-shadow:0 4px 20px rgba(0,0,0,0.4); pointer-events:none; opacity:0; transition:opacity 0.2s; }
     .verify-toast.show { opacity:1; }
     .verify-toast--notice { background:rgba(251,191,36,0.12); border-color:rgba(251,191,36,0.3); color:#fbbf24; }
 
@@ -45,7 +45,7 @@
     [data-status="review"] .verify-badge--manual { background:rgba(251,191,36,0.15); }
 
     /* Priority Engine pills */
-    .priority-pill { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; vertical-align:middle; }
+    .priority-pill { font-size:var(--c-text-xs); padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; vertical-align:middle; }
     .priority-pill--low { background:rgba(156,163,175,0.08); border:1px solid rgba(156,163,175,0.2); color:#9ca3af; }
     .priority-pill--medium { background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.25); color:#60a5fa; }
     .priority-pill--high { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
@@ -53,20 +53,20 @@
 
     /* Archive tab */
     .tm-tab-bar { display:flex; gap:0; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06); }
-    .tm-tab { padding:0.45rem 1rem; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.35); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; font-family:inherit; }
+    .tm-tab { padding:0.45rem 1rem; font-size:var(--c-text-base); font-weight:500; color:rgba(255,255,255,0.35); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; font-family:inherit; }
     .tm-tab:hover { color:rgba(255,255,255,0.6); }
     .tm-tab.active { color:#fff; border-bottom-color:rgba(255,255,255,0.7); }
-    .tm-tab .tm-tab-count { font-size:0.6rem; opacity:0.5; margin-left:0.3rem; }
+    .tm-tab .tm-tab-count { font-size:var(--c-text-xs); opacity:0.5; margin-left:0.3rem; }
     .tm-archive-panel { display:none; }
     .tm-archive-panel.active { display:block; }
-    .tm-archive-table { width:100%; border-collapse:collapse; font-size:0.7rem; }
-    .tm-archive-table th { text-align:left; padding:0.4rem 0.6rem; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.04em; color:rgba(255,255,255,0.25); border-bottom:1px solid rgba(255,255,255,0.06); font-weight:500; }
+    .tm-archive-table { width:100%; border-collapse:collapse; font-size:var(--c-text-xs); }
+    .tm-archive-table th { text-align:left; padding:0.4rem 0.6rem; font-size:var(--c-text-xs); text-transform:uppercase; letter-spacing:0.04em; color:rgba(255,255,255,0.25); border-bottom:1px solid rgba(255,255,255,0.06); font-weight:500; }
     .tm-archive-table td { padding:0.4rem 0.6rem; border-bottom:1px solid rgba(255,255,255,0.03); color:rgba(255,255,255,0.55); }
     .tm-archive-table tr:hover td { background:rgba(255,255,255,0.02); }
-    .tm-archive-empty { text-align:center; padding:2rem; opacity:0.2; font-size:0.75rem; }
-    .tm-archive-load-btn { display:block; margin:1rem auto; padding:0.4rem 1.2rem; font-size:0.7rem; font-family:inherit; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.15s; }
+    .tm-archive-empty { text-align:center; padding:2rem; opacity:0.2; font-size:var(--c-text-xs); }
+    .tm-archive-load-btn { display:block; margin:1rem auto; padding:0.4rem 1.2rem; font-size:var(--c-text-xs); font-family:inherit; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.15s; }
     .tm-archive-load-btn:hover { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85); }
-    .tm-archive-stats { display:flex; gap:1rem; margin-bottom:0.75rem; font-size:0.65rem; color:rgba(255,255,255,0.3); }
+    .tm-archive-stats { display:flex; gap:1rem; margin-bottom:0.75rem; font-size:var(--c-text-xs); color:rgba(255,255,255,0.3); }
     .tm-archive-stats span { background:rgba(255,255,255,0.03); padding:0.2rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.05); }
 
     /* Task search */
@@ -75,7 +75,7 @@
     }
     .tm-search-wrap input {
       width: 100%; padding: 0.35rem 0.6rem 0.35rem 1.8rem;
-      font-size: 0.72rem; font-family: inherit; color: inherit;
+      font-size: var(--c-text-base); font-family: inherit; color: inherit;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 6px; outline: none;
@@ -85,11 +85,11 @@
     .tm-search-wrap input::placeholder { color: rgba(255,255,255,0.2); }
     .tm-search-wrap .tm-search-icon {
       position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
-      font-size: 0.6rem; opacity: 0.25; pointer-events: none;
+      font-size: var(--c-text-xs); opacity: 0.25; pointer-events: none;
     }
     .tm-search-clear {
       position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
-      font-size: 0.65rem; opacity: 0; cursor: pointer; color: rgba(255,255,255,0.4);
+      font-size: var(--c-text-xs); opacity: 0; cursor: pointer; color: rgba(255,255,255,0.4);
       transition: opacity 0.15s; pointer-events: none;
     }
     .tm-search-clear.visible { opacity: 1; pointer-events: auto; }
@@ -102,7 +102,7 @@
       padding-top: 0.5rem;
     }
     .task-lc-title {
-      font-size: 0.6rem;
+      font-size: var(--c-text-xs);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -138,13 +138,13 @@
       box-shadow: 0 0 0 3px rgba(245,158,11,0.18);
     }
     .task-lc-label {
-      font-size: 0.62rem;
+      font-size: var(--c-text-xs);
       color: rgba(255,255,255,0.72);
       white-space: nowrap;
     }
     .task-lc-time {
       margin-top: 0.15rem;
-      font-size: 0.58rem;
+      font-size: var(--c-text-xs);
       color: rgba(255,255,255,0.3);
       cursor: default;
     }
@@ -164,7 +164,7 @@
       margin-top: 0.55rem;
     }
     .task-lc-badge {
-      font-size: 0.56rem;
+      font-size: var(--c-text-xs);
       border: 1px solid rgba(255,255,255,0.16);
       color: rgba(255,255,255,0.76);
       padding: 0.1rem 0.4rem;
@@ -183,7 +183,7 @@
     }
     .tm-campaign-chip {
       display: inline-block;
-      font-size: 0.52rem;
+      font-size: var(--c-text-xs);
       padding: 0.08rem 0.35rem;
       border-radius: 999px;
       border: 1px solid rgba(148,163,184,0.3);
@@ -1180,7 +1180,7 @@
 
         var meta = '<div class="tm-card-meta">';
         if (_cardType !== 'general') {
-          meta += '<span style="font-size:0.55rem; opacity:0.5; background:rgba(255,255,255,0.04); padding:1px 5px; border-radius:3px; margin-left:2px;">' + escapeHtml(_cardTypeLabel) + '</span>';
+          meta += '<span style="font-size:var(--c-text-xs); opacity:0.5; background:rgba(255,255,255,0.04); padding:1px 5px; border-radius:3px; margin-left:2px;">' + escapeHtml(_cardTypeLabel) + '</span>';
         }
 
         if (agent) {
@@ -1206,7 +1206,7 @@
         var pausedHtml = _pausedProjectBadge(task);
         var relHtml = _relatedBadge(task, allTasks || []);
 
-        var taskNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.55rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
+        var taskNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:var(--c-text-xs);margin-right:4px;">#' + task.taskNumber + '</span>' : '';
         card.innerHTML = '<span class="tm-division-bar" style="background:' + escapeHtml(divisionColor) + ';"></span>'
           + '<div class="tm-card-title">' + taskNumChip + escapeHtml(task.title) + pPill + pausedHtml + '</div>'
           + meta + provHtml + relHtml;
@@ -1379,7 +1379,7 @@
               _lastGroupHeader = _groupLabel;
               var count = _groupCounts[_groupLabel] || 0;
               var hr = document.createElement('tr');
-              hr.innerHTML = '<td colspan="10" style="font-size:0.62rem; opacity:0.55; padding:0.35rem 0.45rem; border-top:1px solid rgba(255,255,255,0.08);"><i class="fas ' + groupIcon + '" style="margin-right:4px; opacity:0.55;"></i>' + escapeHtml(_groupLabel) + ' <span style="opacity:0.4;">(' + count + ')</span></td>';
+              hr.innerHTML = '<td colspan="10" style="font-size:var(--c-text-xs); opacity:0.55; padding:0.35rem 0.45rem; border-top:1px solid rgba(255,255,255,0.08);"><i class="fas ' + groupIcon + '" style="margin-right:4px; opacity:0.55;"></i>' + escapeHtml(_groupLabel) + ' <span style="opacity:0.4;">(' + count + ')</span></td>';
               listBody.appendChild(hr);
             }
           }
@@ -1401,24 +1401,24 @@
           var tr = document.createElement('tr');
           tr.className = 'tm-list-row--with-division' + agingClass;
           tr.style.setProperty('--tm-division-color', divisionColor);
-          var listNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.58rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
+          var listNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:var(--c-text-xs);margin-right:4px;">#' + task.taskNumber + '</span>' : '';
           var listRelBadge = _relatedBadge(task, tasks);
           var titleCell = listNumChip + escapeHtml(task.title) + _pausedProjectBadge(task) + listRelBadge;
-          var campCell = camp ? '<span style="font-size:0.65rem;">' + escapeHtml(camp.title || camp.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
+          var campCell = camp ? '<span style="font-size:var(--c-text-xs);">' + escapeHtml(camp.title || camp.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
           var goal = _resolveGoal(task);
-          var goalCell = goal ? '<span style="font-size:0.65rem; color:rgba(255,255,255,0.55);">' + escapeHtml(goal.title || goal.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
+          var goalCell = goal ? '<span style="font-size:var(--c-text-xs); color:rgba(255,255,255,0.55);">' + escapeHtml(goal.title || goal.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
           var checked = _bulkSelected[task.id] ? ' checked' : '';
           tr.innerHTML =
             '<td style="width:28px;" onclick="event.stopPropagation();"><input type="checkbox" class="tm-bulk-check" data-task-id="' + task.id + '"' + checked + ' /></td>' +
             '<td>' + titleCell + '</td>' +
-            '<td><span style="font-size:0.62rem; opacity:0.55; background:rgba(255,255,255,0.04); padding:2px 6px; border-radius:3px;">' + _taskTypeLabel(task) + '</span></td>' +
+            '<td><span style="font-size:var(--c-text-xs); opacity:0.55; background:rgba(255,255,255,0.04); padding:2px 6px; border-radius:3px;">' + _taskTypeLabel(task) + '</span></td>' +
             '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
             '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>' +
             '<td>' + goalCell + '</td>' +
             '<td>' + campCell + '</td>' +
             '<td>' + divisionChipHtml(div) + '</td>' +
-            '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:0.7rem;' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>';
+            '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:var(--c-text-xs);' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>';
 
           tr.addEventListener('click', function () { openEditModal(task.id); });
 
@@ -1899,7 +1899,7 @@
               '<i class="fas fa-arrow-up" style="color:#fbbf24;font-size:0.5rem;"></i> ' +
               '<span class="tm-rel-label">Parent:</span> ' +
               '<span class="tm-rel-title">' + escapeHtml(parent.title) + '</span>' +
-              (pAgent ? ' <span style="color:' + pAgent.color + ';font-size:0.6rem;">(' + pAgent.name + ')</span>' : '') +
+              (pAgent ? ' <span style="color:' + pAgent.color + ';font-size:var(--c-text-xs);">(' + pAgent.name + ')</span>' : '') +
               ' <span class="tm-rel-status tm-rel-status--' + parent.status + '">' + parent.status + '</span>' +
               '</div>');
           }
@@ -1914,7 +1914,7 @@
               '<i class="fas fa-arrow-down" style="color:#8b5cf6;font-size:0.5rem;"></i> ' +
               '<span class="tm-rel-label">Child:</span> ' +
               '<span class="tm-rel-title">' + escapeHtml(child.title) + '</span>' +
-              (cAgent ? ' <span style="color:' + cAgent.color + ';font-size:0.6rem;">(' + cAgent.name + ')</span>' : '') +
+              (cAgent ? ' <span style="color:' + cAgent.color + ';font-size:var(--c-text-xs);">(' + cAgent.name + ')</span>' : '') +
               ' <span class="tm-rel-status tm-rel-status--' + child.status + '">' + child.status + '</span>' +
               '</div>');
           });
@@ -1935,7 +1935,7 @@
                 '<i class="fas fa-link" style="color:#64748b;font-size:0.5rem;"></i> ' +
                 '<span class="tm-rel-label">Campaign:</span> ' +
                 '<span class="tm-rel-title">' + escapeHtml(sib.title) + '</span>' +
-                (sAgent ? ' <span style="color:' + sAgent.color + ';font-size:0.6rem;">(' + sAgent.name + ')</span>' : '') +
+                (sAgent ? ' <span style="color:' + sAgent.color + ';font-size:var(--c-text-xs);">(' + sAgent.name + ')</span>' : '') +
                 ' <span class="tm-rel-status tm-rel-status--' + sib.status + '">' + sib.status + '</span>' +
                 '</div>');
             });
@@ -1964,7 +1964,7 @@
       function renderComments(task) {
         taskCommentsList.innerHTML = '';
         if (!task.comments || task.comments.length === 0) {
-          taskCommentsList.innerHTML = '<div style="opacity:0.2; font-size:0.65rem; font-style:italic;">No comments yet</div>';
+          taskCommentsList.innerHTML = '<div style="opacity:0.2; font-size:var(--c-text-xs); font-style:italic;">No comments yet</div>';
           return;
         }
         task.comments.forEach(function (c) {
@@ -2306,7 +2306,7 @@
       function divisionChipHtml(div) {
         if (!div) return '<span style="opacity:0.2">&mdash;</span>';
         var c = div.color || '#64748b';
-        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;padding:0.1rem 0.4rem;border-radius:4px;' +
+        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:var(--c-text-xs);padding:0.1rem 0.4rem;border-radius:4px;' +
           'background:' + c + '1a;border:1px solid ' + c + '33;color:' + c + ';font-weight:500;white-space:nowrap;">' +
           '<i class="' + (div.icon || 'fas fa-circle') + '" style="font-size:0.5rem;"></i>' + escapeHtml(div.name) + '</span>';
       }
@@ -2431,9 +2431,9 @@
             '<td>' + escapeHtml(t.title) + '</td>' +
             '<td>' + agentHtml + '</td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + (t.priority || 'medium') + '">' + (t.priority || 'medium') + '</span></td>' +
-            '<td style="font-size:0.65rem;opacity:0.5;">' + archivedStr + '</td>' +
-            '<td style="font-size:0.65rem;">' + reasonLabel + '</td>' +
-            '<td style="font-size:0.6rem;opacity:0.35;">' + (t.commentCount || 0) + (lastNote ? ' \u2014 ' + lastNote : '') + '</td>' +
+            '<td style="font-size:var(--c-text-xs);opacity:0.5;">' + archivedStr + '</td>' +
+            '<td style="font-size:var(--c-text-xs);">' + reasonLabel + '</td>' +
+            '<td style="font-size:var(--c-text-xs);opacity:0.35;">' + (t.commentCount || 0) + (lastNote ? ' \u2014 ' + lastNote : '') + '</td>' +
             '</tr>';
         });
         html += '</tbody></table>';

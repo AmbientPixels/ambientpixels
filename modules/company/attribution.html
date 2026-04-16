@@ -26,9 +26,9 @@
       border-radius: 10px;
       background: rgba(255,255,255,0.02);
     }
-    .oa-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .oa-section h2 { font-size: var(--c-text-base); margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
     .oa-section .oa-empty {
-      font-size: 0.7rem;
+      font-size: var(--c-text-xs);
       color: rgba(255,255,255,0.5);
       padding: 0.5rem 0.7rem;
       background: rgba(255,255,255,0.03);
@@ -38,14 +38,14 @@
     .oa-totals { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
     .oa-chip {
       padding: 0.4rem 0.7rem;
-      font-size: 0.65rem;
+      font-size: var(--c-text-xs);
       border-radius: 6px;
       background: rgba(255,255,255,0.04);
       color: rgba(255,255,255,0.75);
     }
     .oa-chip strong { color: #fff; }
     .oa-chip.oa-warn { background: rgba(251,191,36,0.1); color: #fbbf24; }
-    table.oa-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+    table.oa-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-xs); }
     table.oa-table th, table.oa-table td {
       text-align: left;
       padding: 0.35rem 0.5rem;
@@ -62,15 +62,15 @@
       border-radius: 8px;
       background: rgba(255,255,255,0.03);
     }
-    .oa-agent-card h3 { font-size: 0.72rem; margin: 0 0 0.4rem 0; text-transform: capitalize; }
-    .oa-agent-card .oa-metric { font-size: 0.6rem; color: rgba(255,255,255,0.6); margin-bottom: 0.2rem; }
-    .oa-agent-card .oa-metric strong { color: #fff; font-size: 0.7rem; }
+    .oa-agent-card h3 { font-size: var(--c-text-xs); margin: 0 0 0.4rem 0; text-transform: capitalize; }
+    .oa-agent-card .oa-metric { font-size: var(--c-text-xs); color: rgba(255,255,255,0.6); margin-bottom: 0.2rem; }
+    .oa-agent-card .oa-metric strong { color: #fff; font-size: var(--c-text-xs); }
     .oa-hook-matrix { display: table; width: 100%; }
     .oa-hook-cell {
       display: inline-block;
       padding: 0.4rem 0.6rem;
       margin: 0.1rem;
-      font-size: 0.6rem;
+      font-size: var(--c-text-xs);
       border-radius: 4px;
       background: rgba(52,211,153,0.08);
     }
@@ -79,7 +79,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      font-size: 0.65rem;
+      font-size: var(--c-text-xs);
       padding: 0.4rem 0;
     }
     .oa-funnel-bar .oa-funnel-step {
@@ -92,7 +92,7 @@
     .oa-source-badge {
       display: inline-block;
       padding: 0.1rem 0.4rem;
-      font-size: 0.55rem;
+      font-size: var(--c-text-xs);
       border-radius: 3px;
       margin-left: 0.3rem;
     }
@@ -135,7 +135,7 @@
     <div class="oa-section" data-section="cost">
       <h2><i class="fas fa-dollar-sign"></i> COST PER OUTCOME</h2>
       <div id="oa-cost"></div>
-      <div style="margin-top: 0.6rem; font-size: 0.6rem; color: rgba(255,255,255,0.4);">
+      <div style="margin-top: 0.6rem; font-size: var(--c-text-xs); color: rgba(255,255,255,0.4);">
         Cipher's campaign ROI panel on the CEO dashboard also shows this data — see the "actual-engagement" badge versus "task-proxy" fallback.
       </div>
     </div>
@@ -199,7 +199,7 @@
       document.getElementById('oa-experiments').innerHTML =
         '<table class="oa-table"><thead><tr><th>Hypothesis</th><th>Agent</th><th>Samples (T/B)</th><th>Treatment mean</th><th>Baseline mean</th><th>Effect</th><th>Verdict</th></tr></thead><tbody>'
         + rows + '</tbody></table>'
-        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Auto-conclude gates: samples≥10, per-arm≥5, |effectSize|≥0.15, verdict in {promote, discard}. ▲ = ready to conclude.</div>';
+        + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Auto-conclude gates: samples≥10, per-arm≥5, |effectSize|≥0.15, verdict in {promote, discard}. ▲ = ready to conclude.</div>';
     }
 
     function renderAgents(d) {
@@ -249,7 +249,7 @@
       }
       var html = camps.map(function (c) {
         return '<div style="padding:0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);">'
-          + '<div style="font-size:0.7rem; margin-bottom:0.3rem;"><strong>' + esc(c.title) + '</strong></div>'
+          + '<div style="font-size:var(--c-text-xs); margin-bottom:0.3rem;"><strong>' + esc(c.title) + '</strong></div>'
           + '<div class="oa-funnel-bar">'
           + '<div class="oa-funnel-step">Posts: ' + c.postsPublished + ' (' + c.postsComplete + ' mature)</div>'
           + '<div class="oa-funnel-step">Engagements: ' + c.totalEngagements + '</div>'
@@ -258,7 +258,7 @@
           + '</div></div>';
       }).join('');
       document.getElementById('oa-campaigns').innerHTML = html
-        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Blog views + form submits attributed via utm_content (action ID). Starts fresh at system deploy — no historical backfill.</div>';
+        + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Blog views + form submits attributed via utm_content (action ID). Starts fresh at system deploy — no historical backfill.</div>';
     }
 
     function renderCost(d) {
@@ -275,7 +275,7 @@
       document.getElementById('oa-cost').innerHTML =
         '<table class="oa-table"><thead><tr><th>Agent</th><th>Posts 30d</th><th>Median engagement per post</th></tr></thead><tbody>'
         + rows + '</tbody></table>'
-        + '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.4rem;">Dollar cost not joined here — see Cipher\'s dashboard for $/engagement. Cross-reference against geminiUsage for per-agent cost.</div>';
+        + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Dollar cost not joined here — see Cipher\'s dashboard for $/engagement. Cross-reference against geminiUsage for per-agent cost.</div>';
     }
 
     loadDigest().then(function (d) {

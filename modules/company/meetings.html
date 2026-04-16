@@ -441,7 +441,7 @@
           el.innerHTML =
             '<span class="mt-risk-sev mt-risk-' + r.severity + '">' + r.severity + '</span>' +
             '<span>' + esc(r.title) + '</span>' +
-            (r.reportedBy ? '<span style="font-size:0.55rem;opacity:0.3;">(' + r.reportedBy + ')</span>' : '');
+            (r.reportedBy ? '<span style="font-size:var(--c-text-xs);opacity:0.3;">(' + r.reportedBy + ')</span>' : '');
           list.appendChild(el);
         });
       }
@@ -452,7 +452,7 @@
         var COLORS = { approved: '#22c55e', activated: '#22c55e', rejected: '#ef4444', deferred: '#8b5cf6' };
         var LABELS = { approved: 'Approved → Todo', activated: 'Approved → Active', rejected: 'Rejected', deferred: 'Deferred' };
         var c = COLORS[p._decision] || '#6b7280';
-        return '<span style="font-size:0.6rem;font-weight:600;padding:2px 8px;border-radius:8px;background:' + c + '22;color:' + c + ';">' +
+        return '<span style="font-size:var(--c-text-xs);font-weight:600;padding:2px 8px;border-radius:8px;background:' + c + '22;color:' + c + ';">' +
           (LABELS[p._decision] || p._decision) + '</span>';
       }
 
@@ -613,22 +613,22 @@
         var STATUS_COLORS = { 'pending-approval': '#fbbf24', active: '#22c55e', completed: '#c084fc', backlog: '#6b7280', todo: '#3b82f6' };
 
         html += '<div style="margin-bottom:0.5rem;">';
-        html += '<span class="mt-status-badge mt-status-' + summary.decision + '" style="font-size:0.55rem;">' + summary.decision + '</span>';
-        if (summary.decisionNotes) html += '<span style="font-size:0.62rem;opacity:0.5;margin-left:0.4rem;">' + esc(summary.decisionNotes) + '</span>';
+        html += '<span class="mt-status-badge mt-status-' + summary.decision + '" style="font-size:var(--c-text-xs);">' + summary.decision + '</span>';
+        if (summary.decisionNotes) html += '<span style="font-size:var(--c-text-xs);opacity:0.5;margin-left:0.4rem;">' + esc(summary.decisionNotes) + '</span>';
         html += '</div>';
 
         if (summary.directives.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Projects (' + summary.directives.length + ')</div>';
+          html += '<div style="font-size:var(--c-text-xs);font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Projects (' + summary.directives.length + ')</div>';
           summary.directives.forEach(function (d) {
             var status = d.status || 'pending-approval';
             var sColor = STATUS_COLORS[status] || '#6b7280';
             html += '<div style="padding:0.35rem 0.5rem;border-left:3px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border-radius:0 6px 6px 0;margin-bottom:0.25rem;">';
-            html += '<div style="font-size:0.72rem;font-weight:600;">' + esc(d.title) + '</div>';
+            html += '<div style="font-size:var(--c-text-xs);font-weight:600;">' + esc(d.title) + '</div>';
             html += '<div style="display:flex;gap:0.25rem;flex-wrap:wrap;margin-top:2px;">';
-            html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:' + sColor + '22;color:' + sColor + ';font-weight:500;">' + (status || '').replace(/-/g, ' ') + '</span>';
-            if (d.classification) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + esc(d.classification) + '</span>';
-            if (d.owner) html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + esc(d.owner) + '</span>';
+            html += '<span style="font-size:var(--c-text-xs);padding:1px 5px;border-radius:4px;background:' + sColor + '22;color:' + sColor + ';font-weight:500;">' + (status || '').replace(/-/g, ' ') + '</span>';
+            if (d.classification) html += '<span style="font-size:var(--c-text-xs);padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + esc(d.classification) + '</span>';
+            if (d.owner) html += '<span style="font-size:var(--c-text-xs);padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">' + esc(d.owner) + '</span>';
             html += '</div></div>';
           });
           html += '</div>';
@@ -636,12 +636,12 @@
 
         if (summary.tasks.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
+          html += '<div style="font-size:var(--c-text-xs);font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
           summary.tasks.forEach(function (t) {
             var pColor = PRI_COLORS[t.priority] || '#60a5fa';
             html += '<div style="padding:0.2rem 0.4rem;border-left:2px solid rgba(255,255,255,0.12);margin-bottom:2px;">';
-            html += '<span style="font-size:0.68rem;font-weight:500;">' + esc(t.title) + '</span>';
-            html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:' + pColor + '22;color:' + pColor + ';">' + (t.priority || 'medium') + '</span>';
+            html += '<span style="font-size:var(--c-text-xs);font-weight:500;">' + esc(t.title) + '</span>';
+            html += ' <span style="font-size:var(--c-text-xs);padding:1px 4px;border-radius:3px;background:' + pColor + '22;color:' + pColor + ';">' + (t.priority || 'medium') + '</span>';
             html += '</div>';
           });
           html += '</div>';
@@ -649,9 +649,9 @@
 
         if (summary.risks.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:#ef4444;margin-bottom:0.3rem;"><i class="fas fa-exclamation-circle" style="font-size:0.55rem;margin-right:3px;"></i>Top Risks (' + summary.risks.length + ')</div>';
+          html += '<div style="font-size:var(--c-text-xs);font-weight:600;color:#ef4444;margin-bottom:0.3rem;"><i class="fas fa-exclamation-circle" style="font-size:0.55rem;margin-right:3px;"></i>Top Risks (' + summary.risks.length + ')</div>';
           summary.risks.forEach(function (r) {
-            html += '<div style="display:flex;align-items:center;gap:0.3rem;padding:0.15rem 0;font-size:0.65rem;">';
+            html += '<div style="display:flex;align-items:center;gap:0.3rem;padding:0.15rem 0;font-size:var(--c-text-xs);">';
             html += '<span class="mt-risk-sev mt-risk-' + (r.severity || 'Medium') + '">' + (r.severity || 'Medium') + '</span>';
             html += '<span>' + esc(r.title || '') + '</span>';
             html += '</div>';
@@ -659,7 +659,7 @@
           html += '</div>';
         }
 
-        html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;border-top:1px solid rgba(255,255,255,0.04);font-size:0.6rem;">';
+        html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;border-top:1px solid rgba(255,255,255,0.04);font-size:var(--c-text-xs);">';
         if (summary.counts.directives > 0) html += '<span style="color:rgba(255,255,255,0.5);font-weight:500;">+' + summary.counts.directives + ' Project' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
         if (summary.counts.tasks > 0) html += '<span style="color:#60a5fa;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
         if (summary.counts.risks > 0) html += '<span style="color:#ef4444;font-weight:500;">+' + summary.counts.risks + ' Risk' + (summary.counts.risks > 1 ? 's' : '') + '</span>';
@@ -703,10 +703,10 @@
           item.className = 'standup-past-item';
           var dateStr = fmtDate(meeting.date);
           var lockHtml = meeting.locked ? ' <i class="fas fa-lock" style="opacity:0.4;font-size:0.55rem;"></i>' : '';
-          var statusHtml = meeting.decisionStatus ? ' <span class="mt-status-badge mt-status-' + meeting.decisionStatus + '" style="font-size:0.5rem;">' + meeting.decisionStatus + '</span>' : '';
+          var statusHtml = meeting.decisionStatus ? ' <span class="mt-status-badge mt-status-' + meeting.decisionStatus + '" style="font-size:var(--c-text-xs);">' + meeting.decisionStatus + '</span>' : '';
           item.innerHTML = '<div class="standup-date-label"><i class="fas fa-video" style="margin-right:4px;opacity:0.5;"></i>' + dateStr + lockHtml + statusHtml +
-            ' <span style="opacity:0.4;font-size:0.65rem;">— ' + esc(meeting.title || 'Meeting') + '</span>' +
-            ' <span style="opacity:0.25;font-size:0.55rem;">(' + (meeting.entries || []).length + ' entries)</span></div>';
+            ' <span style="opacity:0.4;font-size:var(--c-text-xs);">— ' + esc(meeting.title || 'Meeting') + '</span>' +
+            ' <span style="opacity:0.25;font-size:var(--c-text-xs);">(' + (meeting.entries || []).length + ' entries)</span></div>';
 
           // Click to load full meeting view (transcript + decision panel)
           item.querySelector('.standup-date-label').style.cursor = 'pointer';

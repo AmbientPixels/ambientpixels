@@ -20,44 +20,44 @@
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
     .ca-section { margin-bottom: 1.4rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); }
-    .ca-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
-    .ca-empty { font-size: 0.7rem; color: rgba(255,255,255,0.5); padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+    .ca-section h2 { font-size: var(--c-text-base); margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .ca-empty { font-size: var(--c-text-xs); color: rgba(255,255,255,0.5); padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
     .ca-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
     .ca-hero-card { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
-    .ca-hero-card .ca-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
-    .ca-hero-card .ca-value { font-size: 1.3rem; font-weight: 600; color: #fff; }
-    .ca-hero-card .ca-sub { font-size: 0.6rem; opacity: 0.6; margin-top: 0.2rem; }
+    .ca-hero-card .ca-label { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .ca-hero-card .ca-value { font-size: var(--c-text-xl); font-weight: 600; color: #fff; }
+    .ca-hero-card .ca-sub { font-size: var(--c-text-xs); opacity: 0.6; margin-top: 0.2rem; }
     .ca-value.ca-status-green { color: #34d399; }
     .ca-value.ca-status-yellow { color: #fbbf24; }
     .ca-value.ca-status-red { color: #f87171; }
     .ca-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; }
 
-    .ca-agent-row { display: grid; grid-template-columns: 90px 1fr 140px 90px; gap: 0.6rem; align-items: center; padding: 0.4rem 0.6rem; border-radius: 6px; margin-bottom: 0.3rem; font-size: 0.7rem; background: rgba(255,255,255,0.02); }
+    .ca-agent-row { display: grid; grid-template-columns: 90px 1fr 140px 90px; gap: 0.6rem; align-items: center; padding: 0.4rem 0.6rem; border-radius: 6px; margin-bottom: 0.3rem; font-size: var(--c-text-xs); background: rgba(255,255,255,0.02); }
     .ca-agent-name { text-transform: capitalize; font-weight: 500; color: #fff; }
     .ca-bar-track { height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; position: relative; }
     .ca-bar-fill { height: 100%; background: linear-gradient(90deg, #34d399, #34d399); border-radius: 5px; transition: width 0.3s; }
     .ca-bar-fill.yellow { background: linear-gradient(90deg, #fbbf24, #fbbf24); }
     .ca-bar-fill.red { background: linear-gradient(90deg, #f87171, #f87171); }
-    .ca-agent-detail { font-size: 0.65rem; opacity: 0.75; }
-    .ca-agent-status { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; text-align: right; }
+    .ca-agent-detail { font-size: var(--c-text-xs); opacity: 0.75; }
+    .ca-agent-status { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.04em; text-align: right; }
 
-    .ca-request-row { padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.03); border-radius: 6px; margin-bottom: 0.4rem; font-size: 0.7rem; border-left: 2px solid rgba(251,191,36,0.6); }
+    .ca-request-row { padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.03); border-radius: 6px; margin-bottom: 0.4rem; font-size: var(--c-text-xs); border-left: 2px solid rgba(251,191,36,0.6); }
     .ca-request-row.pending-ceo { border-left-color: #f87171; }
     .ca-request-row.pending-cipher { border-left-color: #fbbf24; }
     .ca-request-head { display: flex; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.3rem; }
     .ca-request-head strong { text-transform: capitalize; color: #fff; }
     .ca-request-cost { font-weight: 600; color: #fbbf24; }
-    .ca-request-just { font-size: 0.65rem; opacity: 0.8; line-height: 1.4; }
-    .ca-request-meta { font-size: 0.55rem; opacity: 0.5; margin-top: 0.2rem; }
+    .ca-request-just { font-size: var(--c-text-xs); opacity: 0.8; line-height: 1.4; }
+    .ca-request-meta { font-size: var(--c-text-xs); opacity: 0.5; margin-top: 0.2rem; }
 
-    .ca-decision-row { padding: 0.35rem 0.6rem; font-size: 0.65rem; border-radius: 4px; margin-bottom: 0.25rem; background: rgba(255,255,255,0.02); display: grid; grid-template-columns: 70px 70px 70px 1fr 90px; gap: 0.4rem; align-items: center; }
-    .ca-decision-action { text-transform: uppercase; font-size: 0.55rem; letter-spacing: 0.04em; }
+    .ca-decision-row { padding: 0.35rem 0.6rem; font-size: var(--c-text-xs); border-radius: 4px; margin-bottom: 0.25rem; background: rgba(255,255,255,0.02); display: grid; grid-template-columns: 70px 70px 70px 1fr 90px; gap: 0.4rem; align-items: center; }
+    .ca-decision-action { text-transform: uppercase; font-size: var(--c-text-xs); letter-spacing: 0.04em; }
     .ca-decision-action.approved { color: #34d399; }
     .ca-decision-action.rejected { color: #f87171; }
     .ca-decision-action.experiment-concluded { color: #60a5fa; }
-    .ca-decision-ts { opacity: 0.5; font-size: 0.55rem; }
+    .ca-decision-ts { opacity: 0.5; font-size: var(--c-text-xs); }
 
-    .ca-roi-row { display: grid; grid-template-columns: 1fr 80px 90px 110px; gap: 0.5rem; padding: 0.35rem 0.6rem; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 0.25rem; font-size: 0.65rem; align-items: center; }
+    .ca-roi-row { display: grid; grid-template-columns: 1fr 80px 90px 110px; gap: 0.5rem; padding: 0.35rem 0.6rem; background: rgba(255,255,255,0.02); border-radius: 4px; margin-bottom: 0.25rem; font-size: var(--c-text-xs); align-items: center; }
     .ca-roi-row.variance-red { border-left: 2px solid #f87171; }
     .ca-roi-row.variance-green { border-left: 2px solid #34d399; }
     .ca-variance-pos { color: #f87171; }

@@ -26,9 +26,9 @@
       border-radius: 10px;
       background: rgba(255,255,255,0.02);
     }
-    .ws-section h2 { font-size: 0.85rem; margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .ws-section h2 { font-size: var(--c-text-base); margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
     .ws-empty {
-      font-size: 0.7rem;
+      font-size: var(--c-text-xs);
       color: rgba(255,255,255,0.5);
       padding: 0.5rem 0.7rem;
       background: rgba(255,255,255,0.03);
@@ -47,9 +47,9 @@
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.06);
     }
-    .ws-hero-card .ws-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
-    .ws-hero-card .ws-value { font-size: 1.1rem; font-weight: 600; color: #fff; }
-    .ws-hero-card .ws-sub { font-size: 0.6rem; opacity: 0.6; margin-top: 0.2rem; }
+    .ws-hero-card .ws-label { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .ws-hero-card .ws-value { font-size: var(--c-text-lg); font-weight: 600; color: #fff; }
+    .ws-hero-card .ws-sub { font-size: var(--c-text-xs); opacity: 0.6; margin-top: 0.2rem; }
     .ws-value.ws-status-green { color: #34d399; }
     .ws-value.ws-status-yellow { color: #fbbf24; }
     .ws-value.ws-status-red { color: #f87171; }
@@ -57,7 +57,7 @@
     .ws-fleet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 0.4rem; }
     .ws-agent-chip {
       padding: 0.4rem 0.5rem;
-      font-size: 0.65rem;
+      font-size: var(--c-text-xs);
       border-radius: 6px;
       text-align: center;
       background: rgba(52,211,153,0.08);
@@ -73,22 +73,22 @@
       padding: 0.5rem 0.8rem;
       border-radius: 8px;
       background: rgba(96,165,250,0.08);
-      font-size: 0.65rem;
+      font-size: var(--c-text-xs);
     }
-    .ws-follower-chip strong { color: #fff; font-size: 0.8rem; display: block; }
+    .ws-follower-chip strong { color: #fff; font-size: var(--c-text-base); display: block; }
     .ws-product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.5rem; }
     .ws-product-card {
       padding: 0.6rem;
       border-radius: 6px;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.05);
-      font-size: 0.65rem;
+      font-size: var(--c-text-xs);
     }
-    .ws-product-card strong { font-size: 0.72rem; color: #fff; display: block; margin-bottom: 0.2rem; }
+    .ws-product-card strong { font-size: var(--c-text-xs); color: #fff; display: block; margin-bottom: 0.2rem; }
     .ws-product-card .ws-launch { opacity: 0.6; }
     .ws-product-card.growing { border-left: 3px solid #34d399; }
     .ws-product-card.declining { border-left: 3px solid #f87171; }
-    table.ws-table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+    table.ws-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-xs); }
     table.ws-table th, table.ws-table td {
       text-align: left;
       padding: 0.35rem 0.5rem;
@@ -109,7 +109,7 @@
     .ws-pace-chip {
       display: inline-block;
       padding: 0.1rem 0.4rem;
-      font-size: 0.55rem;
+      font-size: var(--c-text-xs);
       border-radius: 3px;
     }
     .ws-pace-on { background: rgba(52,211,153,0.15); color: #34d399; }
@@ -121,16 +121,16 @@
       background: rgba(255,255,255,0.03);
       border-radius: 6px;
       margin-bottom: 0.3rem;
-      font-size: 0.65rem;
+      font-size: var(--c-text-xs);
     }
-    .ws-event-row .ws-event-ts { opacity: 0.5; font-size: 0.55rem; }
+    .ws-event-row .ws-event-ts { opacity: 0.5; font-size: var(--c-text-xs); }
     .ws-event-row .ws-event-type {
       display: inline-block;
       padding: 0.05rem 0.35rem;
       background: rgba(96,165,250,0.12);
       color: #60a5fa;
       border-radius: 3px;
-      font-size: 0.55rem;
+      font-size: var(--c-text-xs);
       margin-right: 0.3rem;
     }
   </style>
@@ -281,7 +281,7 @@
         var cls = stalled.has(a) ? 'ws-agent-chip stalled' : 'ws-agent-chip';
         return '<div class="' + cls + '">' + esc(a) + (stalled.has(a) ? ' ⚠' : '') + '</div>';
       }).join('') + '</div>';
-      html += '<div style="font-size:0.55rem;opacity:0.5;margin-top:0.5rem;">Stalled agents have 5+ consecutive zero-action heartbeats.</div>';
+      html += '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.5rem;">Stalled agents have 5+ consecutive zero-action heartbeats.</div>';
       document.getElementById('ws-fleet').innerHTML = html;
     }
 
@@ -341,8 +341,8 @@
       var exp = d.experiments || {};
       var aq = d.openApprovals || {};
       var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">';
-      html += '<div style="padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-size:0.55rem;opacity:0.5;">Active experiments</div><div style="font-size:1.2rem;font-weight:600;">' + (exp.active || 0) + '</div><div style="font-size:0.6rem;opacity:0.6;">' + (exp.readyToConclude || 0) + ' ready to conclude · ' + (exp.linkedinPending || 0) + ' LinkedIn pending</div></div>';
-      html += '<div style="padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-size:0.55rem;opacity:0.5;">Open approvals</div><div style="font-size:1.2rem;font-weight:600;">' + (aq.count || 0) + '</div><div style="font-size:0.6rem;opacity:0.6;">oldest ' + (aq.oldestDays || 0) + 'd</div></div>';
+      html += '<div style="padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-size:var(--c-text-xs);opacity:0.5;">Active experiments</div><div style="font-size:var(--c-text-lg);font-weight:600;">' + (exp.active || 0) + '</div><div style="font-size:var(--c-text-xs);opacity:0.6;">' + (exp.readyToConclude || 0) + ' ready to conclude · ' + (exp.linkedinPending || 0) + ' LinkedIn pending</div></div>';
+      html += '<div style="padding:0.5rem;background:rgba(255,255,255,0.03);border-radius:6px;"><div style="font-size:var(--c-text-xs);opacity:0.5;">Open approvals</div><div style="font-size:var(--c-text-lg);font-weight:600;">' + (aq.count || 0) + '</div><div style="font-size:var(--c-text-xs);opacity:0.6;">oldest ' + (aq.oldestDays || 0) + 'd</div></div>';
       html += '</div>';
       document.getElementById('ws-experiments').innerHTML = html;
     }
