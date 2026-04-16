@@ -57,7 +57,7 @@ module.exports = async function (context, req) {
         storage.getState('approvalQueue').then(v => v || []),
         storage.getState('governanceLog').then(v => v || []),
         storage.getState('agentExperiments').then(v => v || []),
-        storage.getState('execution_mode').then(v => v || 'supervised_autonomous'),
+        storage.getState('execution_mode').then(v => v || 'active'),
         storage.getState('socialAccountStats').then(v => v || null),
         storage.getState('outcomeSnapshots').then(v => v || {})
       ]);

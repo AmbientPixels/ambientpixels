@@ -135,7 +135,7 @@ function buildWorldState(inputs, nowMs) {
 
   // ── COMPANY ──
   const runwayDays = computeRunwayDays(financeDigest);
-  const activeMode = (executionMode && typeof executionMode === 'string') ? executionMode : 'supervised_autonomous';
+  const activeMode = (executionMode && typeof executionMode === 'string') ? executionMode : 'active';
 
   // ── FLEET ──
   const stalledAgents = (forgeOpsDigest && forgeOpsDigest.heartbeatHealth && Array.isArray(forgeOpsDigest.heartbeatHealth.stalledAgents))

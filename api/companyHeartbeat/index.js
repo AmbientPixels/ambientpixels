@@ -376,7 +376,7 @@ module.exports = async function (context) {
       const _worldApprovalQueue = (await storage.getState('approvalQueue')) || [];
       // `executionMode` (const, line 627) is in TDZ at this point. Fetch
       // raw mode directly; worldState builder normalizes unknown values.
-      const _worldExecMode = (await storage.getState('execution_mode')) || 'supervised_autonomous';
+      const _worldExecMode = (await storage.getState('execution_mode')) || 'active';
       worldState = buildWorldState({
         financeDigest: financeDigest,
         forgeOpsDigest: forgeOpsDigest,

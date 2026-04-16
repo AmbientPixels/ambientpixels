@@ -1805,12 +1805,11 @@ GATE CHECKLIST
    NEVER attempt to update:
      title, description, provenance/origin fields
 
-4) RATE CAPS (supervised_autonomous defaults)
+4) RATE CAPS (execution_mode=active defaults)
    creates <= 2
    moves   <= 5
    updates <= 8
    proposals <= 10
-   If experimental mode: caps are higher but still bounded.
    Do NOT exceed reasonable limits.
 
 5) IF A GATE WOULD FAIL
