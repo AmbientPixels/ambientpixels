@@ -212,6 +212,16 @@
           <div class="ceo-obs-light-label">AI Model</div>
           <div class="ceo-obs-light-value" id="ceo-strip-val-model">—</div>
         </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-budget"></div>
+          <div class="ceo-obs-light-label">Budget</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-budget">—</div>
+        </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-fleet"></div>
+          <div class="ceo-obs-light-label">Fleet</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-fleet">—</div>
+        </div>
         <div id="ceo-strip-alert-row"></div>
       </div>
 
@@ -1214,6 +1224,7 @@
         updateStoreModeBadge();
         loadExecMode();
         _dashLoadHeartbeatHealth();
+        _fetchSystemDigests();
         setTimeout(syncMetricsToDev, 2000);
       });
       setTimeout(function () {
@@ -1386,6 +1397,86 @@
           .catch(function() { cstatPulse.textContent = '—'; });
       }
 
+      // ── System Health Digest Caches ──
+      var _allocDigest = null;
+      var _awarenessDigest = null;
+
+      function _fetchSystemDigests() {
+        var base = (typeof getApiBase === 'function') ? getApiBase() : '/api';
+        var headers = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders)
+          ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
+
+        Promise.all([
+          fetch(base + '/allocationDigest', { headers: headers })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; }),
+          fetch(base + '/awarenessDigest', { headers: headers })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; })
+        ]).then(function (results) {
+          _allocDigest = results[0];
+          _awarenessDigest = results[1];
+          try { _renderBudgetDot(); } catch (e) { console.warn('[Dashboard] _renderBudgetDot error:', e); }
+          try { _renderFleetDot(); } catch (e) { console.warn('[Dashboard] _renderFleetDot error:', e); }
+          try { renderCeoAgentGrid(); } catch (e) { console.warn('[Dashboard] renderCeoAgentGrid error:', e); }
+          try { renderCeoInbox(); } catch (e) { console.warn('[Dashboard] renderCeoInbox error:', e); }
+        });
+      }
+
+      function _renderBudgetDot() {
+        var dot = document.getElementById('ceo-strip-dot-budget');
+        var val = document.getElementById('ceo-strip-val-budget');
+        if (!dot || !val) return;
+        if (!_allocDigest || !_allocDigest.system) {
+          dot.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          val.textContent = '—';
+          return;
+        }
+        var pct = _allocDigest.system.pct || 0;
+        var dotClass;
+        if (pct >= 90 || _allocDigest.system.squeezeMode) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--bad';
+        } else if (pct >= 70) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--warn';
+        } else {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+        }
+        dot.className = dotClass;
+        val.textContent = pct + '%';
+      }
+
+      function _renderFleetDot() {
+        var dot = document.getElementById('ceo-strip-dot-fleet');
+        var val = document.getElementById('ceo-strip-val-fleet');
+        if (!dot || !val) return;
+        if (!_awarenessDigest || !_awarenessDigest.digest || !_awarenessDigest.digest.perAgent) {
+          dot.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          val.textContent = '—';
+          return;
+        }
+        var pa = _awarenessDigest.digest.perAgent;
+        var ids = Object.keys(pa);
+        var total = ids.length;
+        var onRole = 0;
+        var drifting = 0;
+        ids.forEach(function (aid) {
+          var rh = pa[aid].roleAdherence || {};
+          var drift = rh.drift || 'unknown';
+          if (drift === 'on-role') onRole++;
+          else if (drift !== 'unknown') drifting++;
+        });
+        var dotClass;
+        if (drifting >= 3) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--bad';
+        } else if (drifting >= 1) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--warn';
+        } else {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+        }
+        dot.className = dotClass;
+        val.textContent = onRole + '/' + total + ' on-role';
+      }
+
       // ── CEO Agent Health Grid ──
       var _hbPerAgent = {};
       function renderCeoAgentGrid() {
@@ -1450,6 +1541,34 @@
               + '</div>';
           }
 
+          // Budget micro-indicator from allocation digest
+          var budgetMicro = '';
+          if (a.tier !== 1 && _allocDigest && _allocDigest.perAgent && _allocDigest.perAgent[id]) {
+            var alloc = _allocDigest.perAgent[id];
+            var allocColor = alloc.status === 'RED' ? '#f87171' : (alloc.status === 'YELLOW' ? '#fbbf24' : 'rgba(255,255,255,0.35)');
+            budgetMicro = '<span style="color:' + allocColor + ';"><i class="fas fa-coins" style="margin-right:2px;font-size:0.5rem;opacity:0.5;"></i>$' + alloc.spent + '/$' + alloc.cap + '</span>';
+          }
+          if (budgetMicro) {
+            if (microHtml) {
+              microHtml = microHtml.replace(/<\/div>$/, budgetMicro + '</div>');
+            } else {
+              microHtml = '<div class="agent-grid-micro">' + budgetMicro + '</div>';
+            }
+          }
+
+          // Drift label from awareness digest
+          var driftHtml = '';
+          if (a.tier !== 1 && _awarenessDigest && _awarenessDigest.digest && _awarenessDigest.digest.perAgent) {
+            var agentAware = _awarenessDigest.digest.perAgent[id];
+            if (agentAware && agentAware.roleAdherence) {
+              var agentDrift = agentAware.roleAdherence.drift || 'unknown';
+              if (agentDrift !== 'on-role' && agentDrift !== 'unknown') {
+                driftHtml = '<div style="font-size:0.55rem;color:#fbbf24;margin-top:2px;">'
+                  + '<i class="fas fa-shuffle" style="margin-right:2px;font-size:0.45rem;"></i>drifting</div>';
+              }
+            }
+          }
+
           var statusText = a.tier === 1 ? 'CEO' : (agoMin !== null && agoMin < 120 ? 'Active' : 'Idle');
           var statusCls = statusText === 'Active' ? 'agent-grid-status--active' : (statusText === 'CEO' ? 'agent-grid-status--active' : '');
 
@@ -1464,6 +1583,7 @@
           html += '</div>';
           html += microHtml;
           html += errorHtml;
+          html += driftHtml;
           html += '</div>';
           html += '<div class="agent-grid-status ' + statusCls + '">' + statusText + '</div>';
           html += '</div>';
@@ -2049,6 +2169,58 @@
         var badge = document.getElementById('inbox-total-badge');
         var sections = [];
         var totalItems = 0;
+
+        // 0. System Health Signals (from allocation + awareness digests)
+        var sysSignals = [];
+
+        if (_allocDigest && _allocDigest.system && (_allocDigest.system.pct >= 90 || _allocDigest.system.squeezeMode)) {
+          sysSignals.push('<div style="padding:0.5rem 0.6rem;border:1px solid rgba(239,68,68,0.2);border-radius:6px;margin-bottom:0.3rem;background:rgba(239,68,68,0.04);">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+            + '<span style="font-size:0.7rem;color:#f87171;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>System at ' + _allocDigest.system.pct + '% monthly budget</span>'
+            + '<a href="allocation.html" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;">View \u2192</a>'
+            + '</div></div>');
+        }
+
+        if (_allocDigest && _allocDigest.perAgent) {
+          Object.keys(_allocDigest.perAgent).forEach(function (aid) {
+            var pa = _allocDigest.perAgent[aid];
+            if (pa.status === 'RED') {
+              sysSignals.push('<div style="padding:0.5rem 0.6rem;border:1px solid rgba(251,191,36,0.15);border-radius:6px;margin-bottom:0.3rem;background:rgba(251,191,36,0.04);">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<span style="font-size:0.7rem;"><i class="fas fa-coins" style="margin-right:4px;color:#fbbf24;"></i>' + aid.charAt(0).toUpperCase() + aid.slice(1) + ' at ' + pa.pct + '% cap ($' + pa.spent + '/$' + pa.cap + ')</span>'
+                + '<a href="allocation.html" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;">View \u2192</a>'
+                + '</div></div>');
+            }
+          });
+        }
+
+        if (_awarenessDigest && _awarenessDigest.digest && _awarenessDigest.digest.perAgent) {
+          var dpa = _awarenessDigest.digest.perAgent;
+          Object.keys(dpa).forEach(function (aid) {
+            var rh = dpa[aid].roleAdherence || {};
+            var drift = rh.drift || 'unknown';
+            if (drift !== 'on-role' && drift !== 'unknown') {
+              sysSignals.push('<div style="padding:0.5rem 0.6rem;border:1px solid rgba(251,191,36,0.15);border-radius:6px;margin-bottom:0.3rem;background:rgba(251,191,36,0.04);">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<span style="font-size:0.7rem;"><i class="fas fa-shuffle" style="margin-right:4px;color:#fbbf24;"></i>' + aid.charAt(0).toUpperCase() + aid.slice(1) + ' is ' + escapeHtml(drift) + '</span>'
+                + '<a href="awareness.html" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;">View \u2192</a>'
+                + '</div></div>');
+            }
+          });
+        }
+
+        if (sysSignals.length > 0) {
+          var sysHtml = '<div style="margin-bottom:0.8rem;">';
+          sysHtml += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;">';
+          sysHtml += '<i class="fas fa-heartbeat" style="color:#f87171;font-size:0.7rem;"></i>';
+          sysHtml += '<strong style="font-size:0.75rem;color:#f87171;">System Signals</strong>';
+          sysHtml += '<span style="font-size:0.6rem;opacity:0.4;">(' + sysSignals.length + ')</span>';
+          sysHtml += '</div>';
+          sysHtml += sysSignals.join('');
+          sysHtml += '</div>';
+          sections.push(sysHtml);
+          totalItems += sysSignals.length;
+        }
 
         // 1a. Pending Action Approvals (from approvalQueue)
         var aqQueue = AgentEngine.getApprovalQueue();
