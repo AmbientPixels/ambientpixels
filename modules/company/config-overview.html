@@ -208,34 +208,27 @@
     <div class="ov-section-title">Autonomy Controls</div>
     <div class="cfg-helper">Controls how agents operate in the heartbeat</div>
     <div class="cfg-action-panel" id="cfg-action-panel">
-      <div class="cfg-action-title"><i class="fas fa-bolt dash-icon-pink"></i> Agent Modes</div>
+      <div class="cfg-action-title"><i class="fas fa-bolt dash-icon-pink"></i> Execution Mode</div>
       <div class="cfg-form-row-bordered">
-        <span class="cfg-form-label">Activation Mode</span>
-        <select id="cfg-activation-mode" class="cfg-inline-select">
-          <option value="manual">manual</option>
-          <option value="supervised_autonomous">supervised_autonomous</option>
-          <option value="experimental">experimental</option>
-        </select>
-        <span id="cfg-activation-mode-status" class="cfg-form-status"></span>
-      </div>
-      <div class="cfg-help-text">
-        <div class="cfg-help-label">What is Activation Mode?</div>
-        <div>Activation Mode controls how much authority agents have to change the system. It does not bypass approvals or safety gates—those still apply.</div>
-        <ul class="cfg-help-list">
-          <li>manual — agents can analyze and propose changes, but cannot modify tasks or memory.</li>
-          <li>supervised_autonomous — normal operations: agents can update tasks under governance gates (objectives, caps, allowlists).</li>
-          <li>experimental — higher throughput testing: caps are increased, but governance gates still apply.</li>
-        </ul>
-        <div>Tip: Use manual when tuning prompts or investigating issues. Use supervised_autonomous for day-to-day runs.</div>
-      </div>
-      <div class="cfg-form-row-bordered">
-        <span class="cfg-form-label">Automation Mode</span>
+        <span class="cfg-form-label">Mode</span>
         <select id="cfg-execution-mode" class="cfg-inline-select">
-          <option value="active">🟢 Live</option>
-          <option value="observe">🟡 Safe Mode</option>
-          <option value="frozen">🔴 Locked</option>
+          <option value="active">🟢 Active</option>
+          <option value="observe">🟡 Observe</option>
+          <option value="manual">🟠 Manual</option>
+          <option value="frozen">🔴 Frozen</option>
         </select>
         <span id="cfg-execution-mode-status" class="cfg-form-status"></span>
+      </div>
+      <div class="cfg-help-text">
+        <div class="cfg-help-label">What is Execution Mode?</div>
+        <div>One autonomy dial for the platform. Governance gates (objectives, caps, allowlists, approvals) still apply regardless of mode.</div>
+        <ul class="cfg-help-list">
+          <li>🟢 active — normal operations. Agents can update tasks and save memories under governance gates.</li>
+          <li>🟡 observe — agents analyze + propose, but task mutations are dropped. Memories still write.</li>
+          <li>🟠 manual — agents propose only. Both task mutations AND memory writes are dropped.</li>
+          <li>🔴 frozen — kill switch. Heartbeat exits early, no agent work at all.</li>
+        </ul>
+        <div>Tip: Use observe or manual when tuning prompts. Use frozen for emergencies. Default is active.</div>
       </div>
     </div>
 

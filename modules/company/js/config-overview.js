@@ -384,70 +384,15 @@
   });
 })();
 
-// Autonomy Controls panel — Activation Mode + Execution Mode (server-side)
+// Autonomy Controls panel — Execution Mode (single autonomy dial, server-side)
 (function () {
-  var activationModeSelect = document.getElementById('cfg-activation-mode');
-  var activationModeStatus = document.getElementById('cfg-activation-mode-status');
-  if (!activationModeSelect) return;
-
-  loadActivationMode();
-
-  // Re-render after CompanyStore server sync
-  window.addEventListener('companystoreready', function () { render(); });
-
-  function normalizeActivationMode(value) {
-    var v = String(value || '').trim().toLowerCase();
-    if (v === 'manual' || v === 'supervised_autonomous' || v === 'experimental') return v;
-    return 'supervised_autonomous';
-  }
-
-  function loadActivationMode() {
-    if (!activationModeSelect) return;
-    fetch('/api/company-state?key=activationMode', { method: 'GET' })
-      .then(function (res) { if (!res.ok) throw new Error('GET failed: ' + res.status); return res.json(); })
-      .then(function (data) {
-        var next = normalizeActivationMode(data && data.value);
-        activationModeSelect.value = next;
-        if (activationModeStatus) activationModeStatus.textContent = '';
-      })
-      .catch(function () {
-        activationModeSelect.value = 'supervised_autonomous';
-        if (activationModeStatus) activationModeStatus.textContent = 'Defaulting to supervised_autonomous';
-      });
-  }
-
-  if (activationModeSelect) {
-    activationModeSelect.addEventListener('change', function () {
-      var selected = normalizeActivationMode(activationModeSelect.value);
-      activationModeSelect.value = selected;
-      if (activationModeStatus) activationModeStatus.textContent = 'Saving\u2026';
-      fetch('/api/company-state', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'activationMode', value: selected })
-      })
-      .then(function (res) { if (!res.ok) throw new Error('POST failed: ' + res.status); return res.json(); })
-      .then(function () {
-        if (activationModeStatus) {
-          activationModeStatus.textContent = 'Saved';
-          setTimeout(function () {
-            if (activationModeStatus && activationModeStatus.textContent === 'Saved') activationModeStatus.textContent = '';
-          }, 1500);
-        }
-      })
-      .catch(function () {
-        if (activationModeStatus) activationModeStatus.textContent = 'Save failed';
-      });
-    });
-  }
-
-  // — Execution Mode (AmbientOS automation posture) —
   var executionModeSelect = document.getElementById('cfg-execution-mode');
   var executionModeStatus = document.getElementById('cfg-execution-mode-status');
+  if (!executionModeSelect) return;
 
   function normalizeExecMode(value) {
     var v = String(value || '').trim().toLowerCase();
-    if (v === 'active' || v === 'observe' || v === 'frozen') return v;
+    if (v === 'active' || v === 'observe' || v === 'manual' || v === 'frozen') return v;
     return 'active';
   }
 
@@ -462,7 +407,7 @@
       })
       .catch(function () {
         executionModeSelect.value = 'active';
-        if (executionModeStatus) executionModeStatus.textContent = 'Defaulting to Live';
+        if (executionModeStatus) executionModeStatus.textContent = 'Defaulting to active';
       });
   }
   loadExecutionMode();
