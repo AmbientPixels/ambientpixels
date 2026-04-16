@@ -282,7 +282,7 @@ const DOMAIN_LEAD_MAP = {
 };
 
 const ALLOWED_MODES = new Set(['manual', 'supervised_autonomous', 'experimental']);
-const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'frozen']);
+const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'manual', 'frozen']);
 
 // ── Workspace context ──
 const WORKSPACE_ROOT = path.resolve(__dirname, '../..');

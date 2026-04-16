@@ -418,7 +418,7 @@ function parseActionResponse(text) {
 }
 
 // AmbientOS execution_mode normalization
-const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'frozen']);
+const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'manual', 'frozen']);
 function normalizeExecutionMode(v) {
   var s = String(v || '').trim().toLowerCase();
   return ALLOWED_EXEC_MODES.has(s) ? s : 'active';
