@@ -1195,7 +1195,7 @@ body[data-theme="dim"] .cfg-action-btn--secondary { border-color: rgba(148,163,1
 body[data-theme="dim"] .cfg-action-btn--secondary:hover { background: rgba(241,245,249,0.06); border-color: rgba(148,163,184,0.15); color: rgba(241,245,249,0.6); }
 
 /* ── Inline Style Replacements ── */
-#cfg-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+#cfg-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
 .cfg-header-rel { position: relative; }
 .cfg-icon-subtle { opacity: 0.5; }
 .cfg-helper { font-size: 0.55rem; opacity: 0.3; margin: -0.3rem 0 0.4rem 0; }

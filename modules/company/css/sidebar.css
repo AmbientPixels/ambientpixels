@@ -244,6 +244,13 @@
   scrollbar-gutter: stable;
 }
 
+/* Default gutter for all pages — individual #XX-main rules override via ID specificity */
+.sb-content > .content-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
 /* ── Grouped category (System sub-groups) ── */
 .sb-topbar.sb-grouped {
   height: 78px;

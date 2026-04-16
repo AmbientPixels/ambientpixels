@@ -105,6 +105,7 @@
         {
           id: 'overview',
           label: 'Overview',
+          icon: 'fa-compass',
           links: [
             { href: BASE + 'config-overview.html', label: 'Config', icon: 'fa-sliders', match: ['config-overview.html'] },
             { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
@@ -114,6 +115,7 @@
         {
           id: 'agents',
           label: 'Agents',
+          icon: 'fa-users-gear',
           links: [
             { href: BASE + 'fleet.html', label: 'Fleet', icon: 'fa-users-gear', match: ['fleet.html'], minMode: 'admin' },
             { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
@@ -125,6 +127,7 @@
         {
           id: 'finance',
           label: 'Finance',
+          icon: 'fa-coins',
           links: [
             { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
             { href: BASE + 'allocation.html', label: 'Allocation', icon: 'fa-coins', match: ['allocation.html'] },
@@ -134,6 +137,7 @@
         {
           id: 'audit',
           label: 'Audit',
+          icon: 'fa-shield-halved',
           links: [
             { href: BASE + 'emergence.html', label: 'Emergence', icon: 'fa-wave-square', match: ['emergence.html'], minMode: 'admin' },
             { href: BASE + 'governance-report.html', label: 'Governance', icon: 'fa-shield-halved', match: ['governance-report.html'], minMode: 'admin' },
@@ -344,7 +348,7 @@
         if (!hasVisible) return;
 
         var tab = document.createElement('a');
-        tab.textContent = group.label;
+        tab.innerHTML = '<i class="fas ' + group.icon + '"></i>' + group.label;
         tab.className = 'sb-sub' + (group.id === activeGroupId ? ' sb-sub--active' : '');
         tab.href = '#';
         tab.addEventListener('click', function (e) {

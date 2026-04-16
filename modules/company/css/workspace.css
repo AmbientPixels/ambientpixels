@@ -549,7 +549,7 @@ body[data-theme="dim"] .ws-date-item { background: #1e293b; }
    Workspace — Inline Style Replacements
    ══════════════════════════════════════════ */
 body[data-theme="dark"] { background: #000000; }
-#ws-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+#ws-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
 #id-primary-color { width: 40px; height: 30px; border: none; background: none; cursor: pointer; }
 .ws-value-add-row { display: flex; gap: 0.3rem; margin-top: 0.4rem; }
 .ws-value-input--sm { flex: 1; font-size: 0.7rem; padding: 5px 8px; }
