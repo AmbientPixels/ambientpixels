@@ -1684,7 +1684,7 @@ Response format MUST be exactly:
 Mapping rules:
 - taskUpdates: include ONLY create-task, update-task, move-task objects (same action object fields as legacy format); update-task may use only allowed update keys, and include objective_id for create/in-progress transitions unless objective-exempt category.
 - proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed; include objective_id OR objective_suggestion, acceptanceCriteria, and evidence.runId.
-- remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by activationMode), using only allowed L4 memory types. evidence.runId is REQUIRED for every remember action — set it to the current heartbeat runId. The ONLY exception is type="weekly_report" which aggregates a week and has no single runId. Memory writes without evidence.runId are rejected with a policy-violation.
+- remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by execution_mode), using only allowed L4 memory types. evidence.runId is REQUIRED for every remember action — set it to the current heartbeat runId. The ONLY exception is type="weekly_report" which aggregates a week and has no single runId. Memory writes without evidence.runId are rejected with a policy-violation.
 - observations: short warning/summary strings.
 
 Role-specific guidance:
@@ -1777,11 +1777,13 @@ Before emitting ANY taskUpdates or remember actions, run this checklist:
 
 GATE CHECKLIST
 
-1) ACTIVATION MODE
-   - If activationMode === "manual":
+1) EXECUTION MODE
+   - If execution_mode === "manual":
        taskUpdates = []
        remember = []
-       proposals only
+       proposals + observations only
+   - If execution_mode === "observe":
+       taskUpdates = []
    - No exceptions.
 
 2) OBJECTIVE REQUIREMENT
