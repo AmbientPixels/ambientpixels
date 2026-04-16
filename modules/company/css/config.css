@@ -18,7 +18,7 @@
   border-bottom: 2px solid transparent;
   color: rgba(255,255,255,0.35);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -38,7 +38,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 @media (max-width: 600px) {
-  .cfg-tab { padding: 7px 10px; font-size: 12px; }
+  .cfg-tab { padding: 7px 10px; font-size: var(--c-text-xs); }
 }
 
 .cfg-status-dot {
@@ -58,7 +58,7 @@
 
 /* ── Section Title ── */
 .ov-section-title {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255,255,255,0.3);
@@ -75,7 +75,7 @@
   margin-bottom: 16px;
 }
 .cfg-checklist-title {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   color: rgba(255,255,255,0.5);
   text-transform: uppercase;
@@ -88,21 +88,21 @@
   justify-content: space-between;
   padding: 8px 0;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 13px;
+  font-size: var(--c-text-base);
 }
 .cfg-check-row:last-child { border-bottom: none; }
 .cfg-check-label { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.75); }
-.cfg-check-icon { width: 16px; text-align: center; font-size: 11px; }
+.cfg-check-icon { width: 16px; text-align: center; font-size: var(--c-text-xs); }
 .cfg-check-icon--ok  { color: #34d399; }
 .cfg-check-icon--warn { color: #fbbf24; }
 .cfg-check-icon--err  { color: #ef4444; }
 .cfg-check-value {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.4);
   font-family: 'SF Mono', 'Fira Code', monospace;
 }
 .cfg-tz-select {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 3px 8px;
   background: #2c2c2e;
   border: 1px solid rgba(255,255,255,0.1);
@@ -113,7 +113,7 @@
 }
 .cfg-tz-select:focus { outline: none; border-color: rgba(255,255,255,0.3); }
 .cfg-tz-saved {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: #34d399;
   opacity: 0;
   transition: opacity 0.3s;
@@ -134,15 +134,15 @@
   margin-bottom: 12px;
 }
 .cfg-api-health-title {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   color: rgba(255,255,255,0.5);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-.cfg-api-health-meta { font-size: 11px; color: rgba(255,255,255,0.25); }
+.cfg-api-health-meta { font-size: var(--c-text-xs); color: rgba(255,255,255,0.25); }
 .cfg-api-health-btn {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 5px 12px;
   background: #2c2c2e;
   border: 1px solid rgba(255,255,255,0.1);
@@ -166,7 +166,7 @@
   padding: 9px 11px;
   border-radius: 8px;
   background: #2c2c2e;
-  font-size: 13px;
+  font-size: var(--c-text-base);
 }
 .cfg-api-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .cfg-api-dot--up    { background: #34d399; box-shadow: 0 0 5px rgba(52,211,153,0.4); }
@@ -174,12 +174,12 @@
 .cfg-api-dot--unknown { background: #48484a; }
 .cfg-api-name { flex: 1; font-weight: 500; color: rgba(255,255,255,0.8); }
 .cfg-api-latency {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   font-family: 'SF Mono', 'Fira Code', monospace;
 }
 .cfg-api-status-badge {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 600;
@@ -191,7 +191,7 @@
   display: flex;
   gap: 12px;
   margin-top: 8px;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
 }
 
@@ -210,7 +210,7 @@
   padding: 12px 14px;
   background: #1c1c1e;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
 }
 .cfg-agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .cfg-agent-info { flex: 1; min-width: 0; }
@@ -218,17 +218,17 @@
 .cfg-agent-meta {
   display: flex;
   gap: 8px;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   margin-top: 2px;
 }
 .cfg-agent-meta span { white-space: nowrap; }
 .cfg-agent-right { text-align: right; flex-shrink: 0; }
-.cfg-agent-status { font-size: 11px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.04em; }
+.cfg-agent-status { font-size: var(--c-text-xs); text-transform: uppercase; font-weight: 600; letter-spacing: 0.04em; }
 .cfg-agent-status--active { color: #34d399; }
 .cfg-agent-status--idle   { color: #fbbf24; }
 .cfg-agent-status--stale  { color: #ef4444; }
-.cfg-agent-role { font-size: 10px; color: rgba(255,255,255,0.2); margin-top: 2px; }
+.cfg-agent-role { font-size: var(--c-text-xs); color: rgba(255,255,255,0.2); margin-top: 2px; }
 
 /* ── System Tools ── */
 .cfg-tools-grid {
@@ -246,7 +246,7 @@
   border: none;
   background: #1c1c1e;
   color: rgba(255,255,255,0.7);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   cursor: pointer;
@@ -274,7 +274,7 @@
 .cfg-storage-title,
 .cfg-store-title,
 .cfg-memstack-title {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 600;
   color: rgba(255,255,255,0.75);
   margin-bottom: 10px;
@@ -306,14 +306,14 @@
 
 .cfg-action-state,
 .cfg-store-state {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 500;
   color: rgba(255,255,255,0.8);
 }
 
 .cfg-action-helper,
 .cfg-store-info {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   margin-bottom: 10px;
   line-height: 1.5;
@@ -328,7 +328,7 @@
   gap: 6px;
   padding: 7px 14px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   cursor: pointer;
@@ -369,14 +369,14 @@
   padding-top: 10px;
 }
 .cfg-action-audit-title {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.25);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 6px;
 }
 .cfg-action-audit-row {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.35);
   padding: 3px 0;
   display: flex;
@@ -395,13 +395,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 4px 0;
   color: rgba(255,255,255,0.6);
 }
 .cfg-action-sub-label { min-width: 60px; color: rgba(255,255,255,0.4); }
 .cfg-action-sub-toggle {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 3px 8px;
   border-radius: 5px;
   cursor: pointer;
@@ -414,21 +414,21 @@
 .cfg-action-sub-toggle.on  { border-color: rgba(52,211,153,0.3); color: #34d399; }
 .cfg-action-sub-toggle.off { border-color: rgba(239,68,68,0.2);  color: #ef4444; }
 .cfg-autonomy-group-title {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.25);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 10px 0 5px;
 }
 .cfg-autonomy-group-title:first-child { margin-top: 0; }
-.cfg-action-sub-mode { font-size: 10px; color: rgba(255,255,255,0.25); margin-left: auto; }
-.cfg-action-counts { margin-top: 8px; font-size: 12px; color: rgba(255,255,255,0.3); }
+.cfg-action-sub-mode { font-size: var(--c-text-xs); color: rgba(255,255,255,0.25); margin-left: auto; }
+.cfg-action-counts { margin-top: 8px; font-size: var(--c-text-xs); color: rgba(255,255,255,0.3); }
 
 /* Planner/Cal info */
 
 .cfg-store-info {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
 }
 
@@ -437,7 +437,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   padding: 4px 0;
   color: rgba(255,255,255,0.7);
 }
@@ -454,12 +454,12 @@
   gap: 10px;
   padding: 8px 0;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 13px;
+  font-size: var(--c-text-base);
 }
 .cfg-ce-row:last-child { border-bottom: none; }
-.cfg-ce-label { min-width: 130px; color: rgba(255,255,255,0.45); font-size: 12px; }
+.cfg-ce-label { min-width: 130px; color: rgba(255,255,255,0.45); font-size: var(--c-text-xs); }
 .cfg-ce-select {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 5px 9px;
   background: #2c2c2e;
   border: 1px solid rgba(255,255,255,0.1);
@@ -470,7 +470,7 @@
 }
 .cfg-ce-select:focus { outline: none; border-color: rgba(255,255,255,0.3); }
 .cfg-ce-input {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 5px 9px;
   width: 70px;
   background: #2c2c2e;
@@ -482,7 +482,7 @@
 .cfg-ce-input:focus { outline: none; border-color: rgba(255,255,255,0.3); }
 .cfg-ce-checks { display: flex; flex-wrap: wrap; gap: 5px; }
 .cfg-ce-check {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 4px 9px;
   border-radius: 6px;
   cursor: pointer;
@@ -497,19 +497,19 @@
   background: rgba(255,255,255,0.08);
   color: rgba(255,255,255,0.85);
 }
-.cfg-ce-saved { font-size: 11px; color: #34d399; opacity: 0; transition: opacity 0.3s; margin-left: 6px; }
-.cfg-ce-version { font-size: 11px; color: rgba(255,255,255,0.2); margin-top: 6px; }
+.cfg-ce-saved { font-size: var(--c-text-xs); color: #34d399; opacity: 0; transition: opacity 0.3s; margin-left: 6px; }
+.cfg-ce-version { font-size: var(--c-text-xs); color: rgba(255,255,255,0.2); margin-top: 6px; }
 
 /* ── System Storage ── */
-.cfg-storage-usage { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
-.cfg-storage-counts { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 10px; line-height: 1.7; }
+.cfg-storage-usage { font-size: var(--c-text-md); font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
+.cfg-storage-counts { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); margin-bottom: 10px; line-height: 1.7; }
 .cfg-storage-count-row { display: flex; justify-content: space-between; max-width: 280px; }
 .cfg-storage-count-label { color: rgba(255,255,255,0.4); }
 .cfg-storage-count-val { font-weight: 600; color: rgba(255,255,255,0.7); }
-.cfg-storage-oldest { font-size: 11px; color: rgba(255,255,255,0.25); margin-bottom: 10px; }
+.cfg-storage-oldest { font-size: var(--c-text-xs); color: rgba(255,255,255,0.25); margin-bottom: 10px; }
 .cfg-storage-btns { display: flex; gap: 6px; flex-wrap: wrap; }
 .cfg-storage-btn {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 6px 12px;
   border-radius: 7px;
   cursor: pointer;
@@ -522,12 +522,12 @@
 .cfg-storage-btn--export{ border-color: rgba(52,211,153,0.25);  background: rgba(52,211,153,0.05);  color: #34d399; }
 .cfg-storage-btn--reset { border-color: rgba(239,68,68,0.25);   background: rgba(239,68,68,0.05);   color: #ef4444; }
 .cfg-storage-btn:disabled { opacity: 0.3; cursor: default; }
-.cfg-storage-toast { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 6px; min-height: 1rem; }
+.cfg-storage-toast { font-size: var(--c-text-xs); color: rgba(255,255,255,0.4); margin-top: 6px; min-height: 1rem; }
 
 /* ── Server Persistence ── */
 .cfg-store-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
 .cfg-store-btn {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 6px 12px;
   border-radius: 7px;
   cursor: pointer;
@@ -542,21 +542,21 @@
 .cfg-store-btn--pull   { border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.05); color: #a78bfa; }
 .cfg-store-btn--flush  { border-color: rgba(251,191,36,0.25);  background: rgba(251,191,36,0.05);  color: #fbbf24; }
 .cfg-store-btn:disabled{ opacity: 0.3; cursor: default; }
-.cfg-store-toast { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 5px; min-height: 1rem; }
+.cfg-store-toast { font-size: var(--c-text-xs); color: rgba(255,255,255,0.4); margin-top: 5px; min-height: 1rem; }
 
 /* ── Agent Memory Stack ── */
-.cfg-memstack-order { font-size: 11px; color: rgba(255,255,255,0.2); margin-bottom: 10px; }
+.cfg-memstack-order { font-size: var(--c-text-xs); color: rgba(255,255,255,0.2); margin-bottom: 10px; }
 .cfg-memstack-layer {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 7px 0;
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 13px;
+  font-size: var(--c-text-base);
 }
 .cfg-memstack-layer:last-child { border-bottom: none; }
 .cfg-memstack-num {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.2);
   min-width: 16px;
   font-family: 'SF Mono', 'Fira Code', monospace;
@@ -568,7 +568,7 @@
 .cfg-memstack-dot--loading { background: #48484a; }
 .cfg-memstack-label { font-weight: 500; min-width: 130px; color: rgba(255,255,255,0.8); }
 .cfg-memstack-tag {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 600;
@@ -580,14 +580,14 @@
 .cfg-memstack-tag--blob   { background: rgba(167,139,250,0.1); color: #a78bfa; }
 .cfg-memstack-tag--file   { background: rgba(52,211,153,0.1);  color: #34d399; }
 .cfg-memstack-value {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.35);
   font-family: 'SF Mono', 'Fira Code', monospace;
   flex: 1;
   text-align: right;
 }
 .cfg-memstack-edit {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.4);
   text-decoration: none;
   margin-left: 6px;
@@ -596,7 +596,7 @@
 }
 .cfg-memstack-edit:hover { color: rgba(255,255,255,0.75); text-decoration: underline; }
 .cfg-memstack-expand {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.2);
   background: none;
   border: none;
@@ -608,7 +608,7 @@
 .cfg-memstack-expand:hover { color: rgba(255,255,255,0.5); }
 .cfg-memstack-detail {
   padding: 4px 0 3px 28px;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   display: none;
 }
@@ -625,7 +625,7 @@
   margin-top: 24px;
 }
 .cfg-maintenance-title {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 600;
   color: rgba(255,255,255,0.65);
   margin-bottom: 6px;
@@ -635,14 +635,14 @@
 }
 .cfg-maintenance-title i { color: rgba(251,191,36,0.5); }
 .maintenance-intro {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   line-height: 1.6;
   margin-bottom: 14px;
 }
 .maintenance-intro p { margin: 0 0 3px; }
 .maintenance-summary {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   margin-bottom: 14px;
   padding: 8px 10px;
@@ -658,7 +658,7 @@
 }
 .cfg-maint-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .cfg-maint-group-label {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.3);
@@ -666,7 +666,7 @@
   font-weight: 600;
 }
 .cfg-maint-group .section-desc {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.25);
   margin: 0 0 8px;
   line-height: 1.5;
@@ -680,7 +680,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   background: rgba(255,255,255,0.04);
   color: rgba(255,255,255,0.55);
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, color 0.12s;
@@ -698,7 +698,7 @@
 .cfg-maint-btn--nuke:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); }
 .advanced-reset { margin-top: 4px; }
 .advanced-reset summary {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.3);
@@ -708,7 +708,7 @@
 }
 .advanced-reset summary:hover { color: rgba(255,255,255,0.5); }
 .advanced-warning {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   line-height: 1.6;
   margin: 8px 0 10px;
@@ -736,9 +736,9 @@
   width: 90%;
   text-align: center;
 }
-.cfg-confirm-box h3 { color: #ef4444; font-size: 15px; margin: 0 0 8px; }
+.cfg-confirm-box h3 { color: #ef4444; font-size: var(--c-text-md); margin: 0 0 8px; }
 .cfg-confirm-box p {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.4);
   margin: 0 0 16px;
   line-height: 1.5;
@@ -750,7 +750,7 @@
   border: 1px solid rgba(239,68,68,0.2);
   background: #2c2c2e;
   color: #ef4444;
-  font-size: 14px;
+  font-size: var(--c-text-base);
   font-family: 'SF Mono', 'Fira Code', monospace;
   text-align: center;
   outline: none;
@@ -762,7 +762,7 @@
 .cfg-confirm-actions button {
   padding: 8px 18px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   cursor: pointer;
   font-weight: 500;
@@ -794,7 +794,7 @@
   color: rgba(255,255,255,0.85);
   border-radius: 10px;
   padding: 10px 14px;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   opacity: 0;
   pointer-events: none;
   transform: translateY(8px);
@@ -822,7 +822,7 @@
   align-items: center;
   gap: 10px;
   transition: background 0.12s;
-  font-size: 13px;
+  font-size: var(--c-text-base);
 }
 .cfg-quick-card:hover { background: #2c2c2e; }
 .cfg-quick-icon {
@@ -832,12 +832,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--c-text-base);
   flex-shrink: 0;
   background: rgba(255,255,255,0.06);
 }
 .cfg-quick-label { font-weight: 500; color: rgba(255,255,255,0.8); }
-.cfg-quick-desc { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+.cfg-quick-desc { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); margin-top: 2px; }
 
 /* ── Status value colors ── */
 .cfg-val--ok   { color: #34d399; }
@@ -852,9 +852,9 @@
   border: 1px dashed rgba(255,255,255,0.08);
   border-radius: 12px;
 }
-.cfg-empty-state-icon  { font-size: 24px; opacity: 0.15; margin-bottom: 8px; }
-.cfg-empty-state-title { font-size: 13px; color: rgba(255,255,255,0.35); font-weight: 500; margin-bottom: 4px; }
-.cfg-empty-state-hint  { font-size: 12px; color: rgba(255,255,255,0.2); }
+.cfg-empty-state-icon  { font-size: var(--c-text-2xl); opacity: 0.15; margin-bottom: 8px; }
+.cfg-empty-state-title { font-size: var(--c-text-base); color: rgba(255,255,255,0.35); font-weight: 500; margin-bottom: 4px; }
+.cfg-empty-state-hint  { font-size: var(--c-text-xs); color: rgba(255,255,255,0.2); }
 
 /* ── Shared pill toggle ── */
 .tr-toggle {
@@ -912,7 +912,7 @@
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 .cfg-rt-row:last-child { border-bottom: none; }
-.cfg-rt-label { font-size: 13px; color: rgba(255,255,255,0.55); flex: 1; }
+.cfg-rt-label { font-size: var(--c-text-base); color: rgba(255,255,255,0.55); flex: 1; }
 .cfg-rt-input {
   width: 64px;
   padding: 5px 8px;
@@ -920,7 +920,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 7px;
   color: rgba(255,255,255,0.85);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   text-align: center;
   outline: none;
@@ -935,7 +935,7 @@
   gap: 6px;
   padding: 7px 14px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   cursor: pointer;
@@ -1198,33 +1198,33 @@ body[data-theme="dim"] .cfg-action-btn--secondary:hover { background: rgba(241,2
 #cfg-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
 .cfg-header-rel { position: relative; }
 .cfg-icon-subtle { opacity: 0.5; }
-.cfg-helper { font-size: 0.55rem; opacity: 0.3; margin: -0.3rem 0 0.4rem 0; }
+.cfg-helper { font-size: var(--c-text-xs); opacity: 0.3; margin: -0.3rem 0 0.4rem 0; }
 .cfg-flex-row { display: flex; align-items: center; gap: 0.5rem; }
 .cfg-flex-row--wrap { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.cfg-grid-empty { font-size: 0.6rem; opacity: 0.3; grid-column: 1 / -1; }
+.cfg-grid-empty { font-size: var(--c-text-xs); opacity: 0.3; grid-column: 1 / -1; }
 .cfg-form-row-bordered { display: flex; align-items: center; gap: 0.5rem; margin: 0.45rem 0 0.55rem; padding: 0.35rem 0.2rem 0.25rem; border-top: 1px solid rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.03); flex-wrap: wrap; }
 .cfg-form-row-sep { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid rgba(138,43,226,0.08); flex-wrap: wrap; }
 .cfg-form-row-sep--green { border-top-color: rgba(52,211,153,0.08); }
-.cfg-form-label { font-size: 0.6rem; opacity: 0.55; min-width: 110px; }
-.cfg-form-label-sm { font-size: 0.62rem; opacity: 0.5; }
-.cfg-inline-select { font-size: 0.58rem; background: rgba(20,24,32,0.85); color: #d9e2f7; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.2rem 0.45rem; }
+.cfg-form-label { font-size: var(--c-text-xs); opacity: 0.55; min-width: 110px; }
+.cfg-form-label-sm { font-size: var(--c-text-xs); opacity: 0.5; }
+.cfg-inline-select { font-size: var(--c-text-xs); background: rgba(20,24,32,0.85); color: #d9e2f7; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.2rem 0.45rem; }
 .cfg-inline-select--auto { min-width: auto; }
-.cfg-form-status { font-size: 0.52rem; opacity: 0.35; }
-.cfg-help-text { font-size: 0.55rem; opacity: 0.38; line-height: 1.45; margin: -0.15rem 0 0.55rem; padding: 0 0.25rem; }
-.cfg-help-label { font-size: 0.58rem; opacity: 0.58; margin-bottom: 0.2rem; }
+.cfg-form-status { font-size: var(--c-text-xs); opacity: 0.35; }
+.cfg-help-text { font-size: var(--c-text-xs); opacity: 0.38; line-height: 1.45; margin: -0.15rem 0 0.55rem; padding: 0 0.25rem; }
+.cfg-help-label { font-size: var(--c-text-xs); opacity: 0.58; margin-bottom: 0.2rem; }
 .cfg-help-list { margin: 0.32rem 0 0.32rem 1.05rem; padding: 0; }
 .cfg-row-flex { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.8rem; }
-.cfg-row-note { font-size: 0.55rem; opacity: 0.5; margin-left: 0.4rem; }
+.cfg-row-note { font-size: var(--c-text-xs); opacity: 0.5; margin-left: 0.4rem; }
 .cfg-mt { margin-top: 1.5rem; }
 .cfg-quota-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-.cfg-quota-label { font-size: 0.65rem; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 0.2rem; }
-.cfg-quota-desc { font-size: 0.6rem; color: rgba(255,255,255,0.35); line-height: 1.5; }
+.cfg-quota-label { font-size: var(--c-text-xs); font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 0.2rem; }
+.cfg-quota-desc { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); line-height: 1.5; }
 .cfg-quota-toggle { flex-shrink: 0; }
-.cfg-helper-sub { font-size: 0.55rem; opacity: 0.3; margin-top: 0.5rem; }
-.cfg-hint-row { display: flex; gap: 0.8rem; margin-top: 0.3rem; font-size: 0.48rem; opacity: 0.25; }
+.cfg-helper-sub { font-size: var(--c-text-xs); opacity: 0.3; margin-top: 0.5rem; }
+.cfg-hint-row { display: flex; gap: 0.8rem; margin-top: 0.3rem; font-size: var(--c-text-xs); opacity: 0.25; }
 .cfg-quick-icon--light { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); }
 .cfg-quick-icon--amber { background: rgba(251,191,36,0.08); color: #fbbf24; }
 .cfg-quick-icon--pink  { background: rgba(236,72,153,0.08); color: #ec4899; }
-.cfg-footer-note { font-size: 0.52rem; opacity: 0.4; margin-left: 0.3rem; }
+.cfg-footer-note { font-size: var(--c-text-xs); opacity: 0.4; margin-left: 0.3rem; }
 .cfg-maint-state-p { margin: 0 0 0.2rem 0; }
 .cfg-row-flex-mt { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap; }

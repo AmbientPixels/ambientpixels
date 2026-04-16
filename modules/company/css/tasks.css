@@ -13,13 +13,13 @@
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
 }
 .tm-header-sub {
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
   opacity: 0.45;
   margin: 0.3rem 0 0;
 }
 
 .tm-header h1 {
-  font-size: 1.4rem;
+  font-size: var(--c-text-xl);
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.02em;
@@ -46,7 +46,7 @@
   border: none;
   background: #1c1c1e;
   color: rgba(255,255,255,0.65);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 500;
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   cursor: pointer;
@@ -92,7 +92,7 @@
 }
 
 .tm-stat-value {
-  font-size: 22px;
+  font-size: var(--c-text-xl);
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.02em;
@@ -100,7 +100,7 @@
 }
 
 .tm-stat-label {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.35);
@@ -122,7 +122,7 @@
 }
 
 .tm-filter-label {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.3);
@@ -135,7 +135,7 @@
   border: none;
   background: #1c1c1e;
   color: rgba(255,255,255,0.75);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   outline: none;
   cursor: pointer;
@@ -158,7 +158,7 @@
   border: none;
   background: none;
   color: rgba(255,255,255,0.4);
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-weight: 500;
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   cursor: pointer;
@@ -186,7 +186,7 @@
 }
 
 .tm-signal-chip {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 4px 12px;
   border-radius: 999px;
   background: #1c1c1e;
@@ -219,7 +219,7 @@
 }
 
 .tm-preset-select {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 4px 10px;
   border-radius: 8px;
   border: none;
@@ -241,7 +241,7 @@
   padding: 8px 12px;
   margin-bottom: 10px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   background: rgba(251,191,36,0.06);
   border: 1px solid rgba(251,191,36,0.15);
@@ -253,7 +253,7 @@
 .tm-bulk-bar select,
 .tm-bulk-bar button {
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   background: #1c1c1e;
   border: none;
@@ -272,7 +272,7 @@
   gap: 8px;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   margin-bottom: 8px;
   line-height: 1.4;
@@ -325,7 +325,7 @@
 }
 
 .tm-column-title {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -336,7 +336,7 @@
 }
 
 .tm-column-count {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 2px 7px;
   border-radius: 999px;
   background: #2c2c2e;
@@ -354,7 +354,7 @@
   background: none;
   border: none;
   color: rgba(255,255,255,0.2);
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 4px;
@@ -390,7 +390,7 @@
 
 /* ── Column Summary ── */
 .tm-column-summary {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 4px 2px;
   margin-bottom: 6px;
   color: rgba(255,255,255,0.35);
@@ -430,7 +430,7 @@
 .tm-card--age-critical { border-left: 3px solid rgba(239,68,68,0.5); }
 
 .tm-card-title {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 500;
   margin-bottom: 6px;
   line-height: 1.4;
@@ -446,7 +446,7 @@
 }
 
 .tm-card-priority {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 2px 6px;
   border-radius: 999px;
   text-transform: uppercase;
@@ -460,7 +460,7 @@
 .tm-card-priority--critical { background: rgba(239,68,68,0.15);   color: #f87171; }
 
 .tm-card-assignee {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 2px 6px;
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.08);
@@ -473,7 +473,7 @@
 .tm-card-assignee i { font-size: 10px; }
 
 .tm-card-due {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   margin-left: auto;
   display: flex;
@@ -484,7 +484,7 @@
 .tm-card-due.overdue { color: #f87171; }
 
 .tm-card-comments {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   display: flex;
   align-items: center;
@@ -492,7 +492,7 @@
 }
 
 .tm-card-division {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.2);
   display: flex;
   align-items: center;
@@ -508,7 +508,7 @@
 }
 
 .tm-prov {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 1px 6px;
   border-radius: 4px;
   border: 1px solid rgba(255,255,255,0.06);
@@ -544,7 +544,7 @@
 }
 
 .tm-related {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 1px 6px;
   border-radius: 4px;
   display: inline-flex;
@@ -573,14 +573,14 @@
 .tm-list-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
 }
 
 .tm-list-table th {
   text-align: left;
   padding: 8px 10px;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.3);
@@ -593,7 +593,7 @@
 }
 
 .tm-list-table th:hover { color: rgba(255,255,255,0.55); }
-.tm-list-table th .sort-arrow { font-size: 10px; margin-left: 4px; opacity: 0.5; }
+.tm-list-table th .sort-arrow { font-size: var(--c-text-xs); margin-left: 4px; opacity: 0.5; }
 .tm-list-table th.sort-active { color: rgba(255,255,255,0.55); }
 .tm-list-table th.sort-active .sort-arrow { opacity: 1; color: #fbbf24; }
 
@@ -611,7 +611,7 @@
 .tm-list-table tbody tr:hover td { background: rgba(255,255,255,0.025); }
 
 .tm-list-status {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 3px 8px;
   border-radius: 999px;
   text-transform: uppercase;
@@ -670,7 +670,7 @@
   background: #2c2c2e;
   border: none;
   color: rgba(255,255,255,0.5);
-  font-size: 14px;
+  font-size: var(--c-text-base);
   cursor: pointer;
   width: 28px;
   height: 28px;
@@ -685,7 +685,7 @@
 .tm-modal-close:hover { background: #3a3a3c; color: #fff; }
 
 .tm-modal-title {
-  font-size: 17px;
+  font-size: var(--c-text-lg);
   font-weight: 600;
   flex: 1;
   margin: 0;
@@ -695,7 +695,7 @@
 
 .tm-modal-body label {
   display: block;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: rgba(255,255,255,0.35);
@@ -712,7 +712,7 @@
   border: none;
   background: #2c2c2e;
   color: rgba(255,255,255,0.85);
-  font-size: 14px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   outline: none;
   box-sizing: border-box;
@@ -747,7 +747,7 @@
 .tm-comments { margin-top: 14px; }
 
 .tm-comments h4 {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: rgba(255,255,255,0.3);
@@ -760,13 +760,13 @@
   background: #2c2c2e;
   border-radius: 8px;
   margin-bottom: 6px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.75);
   line-height: 1.45;
 }
 
 .tm-comment-meta {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
   margin-bottom: 3px;
 }
@@ -784,7 +784,7 @@
   border: none;
   background: #2c2c2e;
   color: rgba(255,255,255,0.8);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   outline: none;
 }
@@ -797,7 +797,7 @@
   border: none;
   background: rgba(255,255,255,0.1);
   color: rgba(255,255,255,0.8);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   cursor: pointer;
   transition: background 0.12s;
@@ -817,7 +817,7 @@
 #tm-modal-provenance .tm-prov-row { padding: 8px 12px; }
 
 .tm-rel-header {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   padding: 8px 12px;
   color: rgba(255,255,255,0.45);
@@ -836,7 +836,7 @@
   align-items: center;
   gap: 8px;
   padding: 7px 12px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   border-bottom: 1px solid rgba(255,255,255,0.025);
   transition: background 0.12s;
   flex-wrap: wrap;
@@ -847,7 +847,7 @@
 .tm-rel-item:hover { background: rgba(255,255,255,0.03); }
 
 .tm-rel-label {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: rgba(255,255,255,0.3);
@@ -864,7 +864,7 @@
 }
 
 .tm-rel-status {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 2px 7px;
   border-radius: 999px;
   margin-left: auto;
@@ -885,7 +885,7 @@
   text-align: center;
   padding: 32px 8px;
   color: rgba(255,255,255,0.2);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
 }
 
@@ -977,18 +977,18 @@ body[data-theme="dim"] .tm-empty { color: rgba(241,245,249,0.2); }
 /* Write-status banner (non-display styles; display:none stays inline) */
 #write-status-banner {
   margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px;
-  font-size: 0.7rem; background: rgba(239,68,68,0.1);
+  font-size: var(--c-text-xs); background: rgba(239,68,68,0.1);
   border: 1px solid rgba(239,68,68,0.25); color: #f87171;
 }
 #write-status-icon    { margin-right: 0.4rem; }
 #write-status-key-wrap { margin-left: 0.5rem; }
 #write-key-input {
-  width: 140px; padding: 0.2rem 0.4rem; font-size: 0.65rem;
+  width: 140px; padding: 0.2rem 0.4rem; font-size: var(--c-text-xs);
   background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15);
   border-radius: 4px; color: #fff; margin: 0 0.3rem;
 }
 #write-key-save {
-  padding: 0.2rem 0.5rem; font-size: 0.6rem;
+  padding: 0.2rem 0.5rem; font-size: var(--c-text-xs);
   background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);
   border-radius: 4px; color: #34d399; cursor: pointer;
 }
@@ -1006,7 +1006,7 @@ body[data-theme="dim"] .tm-empty { color: rgba(241,245,249,0.2); }
 #nova-triage-hint {
   padding: 0.5rem 0.6rem; margin: 0.3rem 0 0.5rem; border-radius: 6px;
   background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15);
-  font-size: 0.62rem; color: rgba(255,255,255,0.5);
+  font-size: var(--c-text-xs); color: rgba(255,255,255,0.5);
 }
 .tm-nova-robot  { color: #a78bfa; margin-right: 4px; }
 .tm-nova-strong { color: #a78bfa; }
