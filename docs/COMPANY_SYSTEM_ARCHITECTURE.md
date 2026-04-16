@@ -366,12 +366,15 @@ _Added February 18, 2026_
 └─────────────────────────────────────────────┘
 ```
 
-### Agent Modes
+### Execution Mode
 
-Two server-side controls for agent behavior (stored via `company-state` API):
+One server-side control for agent behavior (stored via `company-state` API):
 
-- **Activation Mode** (`activationMode` key): `manual` | `supervised_autonomous` | `experimental`
-- **Automation Mode** (`execution_mode` key): `active` (live) | `observe` (safe mode) | `frozen` (locked)
+- **`execution_mode`**: `active` | `observe` | `manual` | `frozen`
+  - `active` — agents update tasks and save memories under governance gates (default)
+  - `observe` — task mutations dropped; proposals + memories + observations still flow
+  - `manual` — task mutations AND memory writes dropped; proposals + observations only
+  - `frozen` — kill switch: heartbeat exits early, no agent work at all
 
 ### Storage & Persistence
 
