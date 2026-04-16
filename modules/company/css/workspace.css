@@ -8,12 +8,12 @@
   padding: 1.5rem 0 1rem;
 }
 .ws-header-sub {
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
   opacity: 0.45;
   margin: 0.3rem 0 0;
 }
 .ws-header h1 {
-  font-size: 1.4rem;
+  font-size: var(--c-text-xl);
   font-weight: 600;
   letter-spacing: -0.02em;
   margin: 0;
@@ -31,7 +31,7 @@
   padding: 7px 14px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   text-decoration: none;
@@ -56,7 +56,7 @@
   color: rgba(255,255,255,0.35);
   padding: 9px 14px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   white-space: nowrap;
@@ -85,7 +85,7 @@
 }
 .ws-field { margin-bottom: 12px; }
 .ws-field-label {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: rgba(255,255,255,0.3);
@@ -102,7 +102,7 @@
   border-radius: 8px;
   padding: 9px 12px;
   color: rgba(255,255,255,0.9);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   outline: none;
   box-sizing: border-box;
@@ -121,7 +121,7 @@
   margin-top: 5px;
 }
 .ws-value-tag {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 3px 10px;
   border-radius: 999px;
   background: rgba(255,255,255,0.06);
@@ -135,7 +135,7 @@
   padding: 8px 20px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   transition: background 0.12s, border-color 0.12s, color 0.12s;
@@ -143,7 +143,7 @@
 }
 .ws-save-btn:hover { background: rgba(96,165,250,0.18); border-color: rgba(96,165,250,0.5); color: #93c5fd; }
 .ws-save-msg {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: #34d399;
   margin-left: 8px;
   opacity: 0;
@@ -165,7 +165,7 @@
   padding: 7px 14px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   transition: background 0.12s, color 0.12s;
@@ -180,7 +180,7 @@
   border-radius: 8px;
   padding: 7px 12px;
   color: rgba(255,255,255,0.8);
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   outline: none;
   flex: 1;
@@ -208,7 +208,7 @@
   margin-bottom: 5px;
 }
 .ws-memory-type {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 1px 7px;
   border-radius: 6px;
   text-transform: uppercase;
@@ -221,13 +221,13 @@
 .ws-memory-type--decision     { background: rgba(239,68,68,0.1);     color: #f87171; }
 .ws-memory-type--milestone    { background: rgba(251,191,36,0.1);    color: #fbbf24; }
 .ws-memory-title {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 500;
   flex: 1;
   color: rgba(255,255,255,0.85);
 }
 .ws-memory-pin {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.2);
   cursor: pointer;
   transition: color 0.12s, opacity 0.12s;
@@ -235,7 +235,7 @@
 .ws-memory-pin:hover,
 .ws-memory-pin.active { color: #fbbf24; }
 .ws-memory-content {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   line-height: 1.5;
   color: rgba(255,255,255,0.5);
 }
@@ -244,7 +244,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 6px;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.2);
 }
 .ws-memory-actions {
@@ -259,7 +259,7 @@
   border: none;
   color: rgba(255,255,255,0.2);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   padding: 3px 5px;
   transition: color 0.12s;
   border-radius: 4px;
@@ -296,7 +296,7 @@
   border-radius: 8px;
   padding: 8px 14px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   font-weight: 500;
   color: rgba(255,255,255,0.35);
@@ -321,7 +321,7 @@
 }
 .ws-config-section:last-child { border-bottom: none; margin-bottom: 0; }
 .ws-config-title {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: rgba(255,255,255,0.3);
@@ -364,8 +364,8 @@
   50%       { opacity: 0.5; transform: scale(0.85); }
 }
 .ws-heartbeat-info { flex: 1; }
-.ws-heartbeat-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
-.ws-heartbeat-time  { font-size: 11px; color: rgba(255,255,255,0.25); }
+.ws-heartbeat-label { font-size: var(--c-text-base); font-weight: 500; color: rgba(255,255,255,0.8); }
+.ws-heartbeat-time  { font-size: var(--c-text-xs); color: rgba(255,255,255,0.25); }
 
 /* ── Tools Section ── */
 .ws-tools-grid {
@@ -396,15 +396,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.5);
   flex-shrink: 0;
 }
-.ws-tool-name { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
-.ws-tool-desc { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.4; }
+.ws-tool-name { font-size: var(--c-text-base); font-weight: 500; color: rgba(255,255,255,0.8); }
+.ws-tool-desc { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); line-height: 1.4; }
 .ws-tool-category {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 2px 7px;
   border-radius: 5px;
   background: rgba(255,255,255,0.05);
@@ -433,27 +433,27 @@
   flex-shrink: 0;
 }
 .ws-date-cal-month {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.3);
 }
 .ws-date-cal-day {
-  font-size: 22px;
+  font-size: var(--c-text-xl);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1;
   color: rgba(255,255,255,0.85);
 }
 .ws-date-info { flex: 1; }
-.ws-date-title { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); }
-.ws-date-type  { font-size: 11px; color: rgba(255,255,255,0.3); }
+.ws-date-title { font-size: var(--c-text-base); font-weight: 500; color: rgba(255,255,255,0.8); }
+.ws-date-type  { font-size: var(--c-text-xs); color: rgba(255,255,255,0.3); }
 .ws-date-delete {
   background: none;
   border: none;
   color: rgba(255,255,255,0.15);
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 5px;
   transition: color 0.12s;
   border-radius: 5px;
@@ -464,7 +464,7 @@
 .ws-empty {
   text-align: center;
   color: rgba(255,255,255,0.2);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-style: italic;
   padding: 32px 0;
 }
@@ -474,7 +474,7 @@
   .ws-identity-grid,
   .ws-config-grid { grid-template-columns: 1fr; }
   .ws-tools-grid  { grid-template-columns: 1fr; }
-  .ws-tab { padding: 8px 10px; font-size: 12px; }
+  .ws-tab { padding: 8px 10px; font-size: var(--c-text-xs); }
 }
 
 /* ── Light Theme ── */
@@ -552,8 +552,8 @@ body[data-theme="dark"] { background: #000000; }
 #ws-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
 #id-primary-color { width: 40px; height: 30px; border: none; background: none; cursor: pointer; }
 .ws-value-add-row { display: flex; gap: 0.3rem; margin-top: 0.4rem; }
-.ws-value-input--sm { flex: 1; font-size: 0.7rem; padding: 5px 8px; }
-.ws-save-btn--sm { margin: 0; padding: 5px 10px; font-size: 0.65rem; }
+.ws-value-input--sm { flex: 1; font-size: var(--c-text-xs); padding: 5px 8px; }
+.ws-save-btn--sm { margin: 0; padding: 5px 10px; font-size: var(--c-text-xs); }
 .ws-save-btn--flush { margin: 0; }
 .ws-field--flush { margin: 0; }
 .ws-field--mb { margin: 0 0 0.5rem; }
