@@ -43,7 +43,7 @@ const {
 const {
   _sanitizeSingleComment, generateConversationalEntityComment,
   _normalizeCategory, _isStartWorkStatus, _isTerminalTaskStatus,
-  _isObjectiveExemptCategory, resolveActivationMode,
+  _isObjectiveExemptCategory,
   normalizeExecutionMode, evaluateEscalationPath, shouldRunTier4Agent,
   logEvent
 } = H;
@@ -715,14 +715,13 @@ module.exports = async function (context) {
     const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt);
     const activeDirectives = activeCampaigns; // backward compat alias
     const activeObjectives = objectives.filter(o => o.status && o.status !== 'complete' && o.status !== 'canceled');
-    const normalizedActivationMode = await resolveActivationMode(storage, runId);
 
-    // Load execution_mode (AmbientOS automation posture)
+    // Load execution_mode (AmbientOS automation posture — single autonomy dial)
     const _rawExecMode = await storage.getState('execution_mode');
     const executionMode = normalizeExecutionMode(_rawExecMode);
 
-    await logEvent('mode-resolved', null, 'Activation mode resolved: ' + normalizedActivationMode + ', execution_mode: ' + executionMode, runId, {
-      runId: runId, activationMode: normalizedActivationMode, executionMode: executionMode
+    await logEvent('mode-resolved', null, 'Execution mode resolved: ' + executionMode, runId, {
+      runId: runId, executionMode: executionMode
     });
 
     // Frozen: block all automation, exit early
@@ -734,8 +733,9 @@ module.exports = async function (context) {
       return { skipped: true, reason: 'frozen' };
     }
 
-    // Compute effective rate caps (Phase 1F: experimental mode gets 1.5x; systemConfig overrides base)
-    const _capMultiplier = normalizedActivationMode === 'experimental' ? 1.5 : 1;
+    // Compute effective rate caps. Experimental-mode 1.5x multiplier retired with
+    // activationMode consolidation — if needed, revive as a new execution_mode value.
+    const _capMultiplier = 1;
     const _effectiveCaps = {
       maxCreatesPerAgentPerRun: Math.floor(_runtimeCaps.maxCreatesPerAgentPerRun * _capMultiplier),
       maxMovesPerAgentPerRun: Math.floor(_runtimeCaps.maxMovesPerAgentPerRun * _capMultiplier),
@@ -745,7 +745,7 @@ module.exports = async function (context) {
 
     await logEvent('run-start', null, 'Heartbeat run start', runId, {
       runId: runId,
-      mode: normalizedActivationMode,
+      mode: executionMode,
       taskCount: tasks.length,
       agentCount: AGENT_IDS.length
     });
@@ -764,7 +764,7 @@ module.exports = async function (context) {
     // ── Per-run counters (Phase 1C) ──
     const _runCounters = {
       runId: runId,
-      mode: normalizedActivationMode,
+      mode: executionMode,
       totals: { creates: 0, moves: 0, updates: 0, blocked: 0, proposals: 0 },
       byAgent: {}
     };
@@ -1666,7 +1666,6 @@ module.exports = async function (context) {
             reviewCooldownIds: _reviewCooldownIds,
             seedMemories: _seedMemories,
             researchIntelStore, socialIntel,
-            normalizedActivationMode,
             executionMode,
             isAgentInCooldown: _isAgentInCooldown,
             logAgentCooldownOnce: _logAgentCooldownOnce,
@@ -1737,7 +1736,6 @@ module.exports = async function (context) {
           reviewCooldownIds: _reviewCooldownIds,
           seedMemories: _seedMemories,
           researchIntelStore, socialIntel,
-          normalizedActivationMode,
           executionMode,
           isAgentInCooldown: _isAgentInCooldown,
           logAgentCooldownOnce: _logAgentCooldownOnce,
@@ -2680,7 +2678,7 @@ module.exports = async function (context) {
         tasksLoadedCount: _taskIdsAtLoad.size,
         tasksPersistedCount: _taskIdsAtPersist.size,
         archivedCount: _taskIdsArchived.size,
-        mode: normalizedActivationMode
+        mode: executionMode
       });
     }
 
@@ -3474,7 +3472,7 @@ module.exports = async function (context) {
 
     await logEvent('run-end', null, 'Heartbeat run end', runId, {
       runId: runId,
-      mode: normalizedActivationMode,
+      mode: executionMode,
       totals: _runCounters.totals,
       byAgent: _runCounters.byAgent
     });
@@ -3499,7 +3497,7 @@ module.exports = async function (context) {
 
     const _runDigestDetails = {
       runId: runId,
-      mode: normalizedActivationMode,
+      mode: executionMode,
       totals: _runCounters.totals,
       topBlockedAgents: topBlockedAgents,
       topProposalAgents: topProposalAgents
@@ -3525,7 +3523,7 @@ module.exports = async function (context) {
 
     await logEvent('run-health', null, 'Heartbeat run health: ' + status, runId, {
       runId: runId,
-      mode: normalizedActivationMode,
+      mode: executionMode,
       status: status,
       reasons: reasons,
       stats: {
@@ -3599,7 +3597,7 @@ module.exports = async function (context) {
       startedAt: cycleStart,
       finishedAt: finishedAt,
       durationMs: durationMs,
-      mode: normalizedActivationMode,
+      mode: executionMode,
       executionMode: executionMode,
       status: status,
       errorSummary: null,
