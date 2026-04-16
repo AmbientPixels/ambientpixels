@@ -383,10 +383,10 @@
 
         var s = data.summary || {};
         _applySectionDefaults({
-          'aud-by-type-section':     { collapse: 'always', count: Object.keys(s.byType || {}).length },
-          'aud-by-agent-section':    { collapse: 'always', count: Object.keys(s.byAgent || {}).length },
-          'aud-by-platform-section': { collapse: 'always', count: Object.keys(s.byPlatform || {}).length },
-          'aud-by-outcome-section':  { collapse: 'always', count: Object.keys(s.byOutcome || {}).length },
+          'aud-by-type-section':     { collapse: 'never', count: Object.keys(s.byType || {}).length },
+          'aud-by-agent-section':    { collapse: 'never', count: Object.keys(s.byAgent || {}).length },
+          'aud-by-platform-section': { collapse: 'never', count: Object.keys(s.byPlatform || {}).length },
+          'aud-by-outcome-section':  { collapse: 'never', count: Object.keys(s.byOutcome || {}).length },
           'aud-recent-section':      { collapse: 'never',  count: (data.recentEntries || []).length }
         });
       }

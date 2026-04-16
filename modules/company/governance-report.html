@@ -346,9 +346,9 @@
 
         var s = data.summary || {};
         _applySectionDefaults({
-          'gov-by-type-section':  { collapse: 'always', count: Object.keys(s.byType || {}).length },
-          'gov-by-agent-section': { collapse: 'always', count: Object.keys(s.byAgent || {}).length },
-          'gov-by-gate-section':  { collapse: 'always', count: Object.keys(s.byGate || {}).length },
+          'gov-by-type-section':  { collapse: 'never', count: Object.keys(s.byType || {}).length },
+          'gov-by-agent-section': { collapse: 'never', count: Object.keys(s.byAgent || {}).length },
+          'gov-by-gate-section':  { collapse: 'never', count: Object.keys(s.byGate || {}).length },
           'gov-recent-section':   { collapse: 'never',  count: (data.recentEntries || []).length }
         });
       }

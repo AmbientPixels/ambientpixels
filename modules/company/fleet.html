@@ -485,10 +485,10 @@
 
       _applySectionDefaults({
         'fl-roster-section': { collapse: 'never', count: activeCount },
-        'fl-proposals-section': { collapse: 'if-empty', count: pendingCount },
-        'fl-intel-section': { collapse: 'always', count: intelCount },
-        'fl-archived-section': { collapse: 'always', count: archivedCount },
-        'fl-decisions-section': { collapse: 'always', count: decisionsCount }
+        'fl-proposals-section': { collapse: 'never', count: pendingCount },
+        'fl-intel-section': { collapse: 'never', count: intelCount },
+        'fl-archived-section': { collapse: 'never', count: archivedCount },
+        'fl-decisions-section': { collapse: 'never', count: decisionsCount }
       });
     }).catch(function (err) {
       var m = 'Failed to load fleet.';

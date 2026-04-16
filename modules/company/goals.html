@@ -377,10 +377,10 @@
       var rosterCount = pp.length;
 
       _applySectionDefaults({
-        'gg-proposals-section': { collapse: 'if-empty', count: pendingCount },
-        'gg-candidates-section': { collapse: 'if-empty', count: candidatesCount },
-        'gg-decisions-section': { collapse: 'always', count: decisionsCount },
-        'gg-roster-section': { collapse: 'always', count: rosterCount }
+        'gg-proposals-section': { collapse: 'never', count: pendingCount },
+        'gg-candidates-section': { collapse: 'never', count: candidatesCount },
+        'gg-decisions-section': { collapse: 'never', count: decisionsCount },
+        'gg-roster-section': { collapse: 'never', count: rosterCount }
       });
     }).catch(function (err) {
       var m = 'Failed to load goals.';

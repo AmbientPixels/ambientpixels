@@ -367,12 +367,12 @@
       renderChurn(d);
       renderStreak(d);
       _applySectionDefaults({
-        'em-signals-section':  { collapse: 'if-empty' },
-        'em-aq-section':       { collapse: 'if-empty' },
-        'em-velocity-section': { collapse: 'always' },
-        'em-rejects-section':  { collapse: 'always' },
-        'em-churn-section':    { collapse: 'always' },
-        'em-capital-section':  { collapse: 'always' }
+        'em-signals-section':  { collapse: 'never' },
+        'em-aq-section':       { collapse: 'never' },
+        'em-velocity-section': { collapse: 'never' },
+        'em-rejects-section':  { collapse: 'never' },
+        'em-churn-section':    { collapse: 'never' },
+        'em-capital-section':  { collapse: 'never' }
       });
     }).catch(function (err) {
       var m = 'Failed to load emergence monitor.';

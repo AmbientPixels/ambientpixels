@@ -401,11 +401,11 @@
       _applySectionDefaults({
         'ws-fleet-section':       { collapse: 'never' },
         'ws-campaigns-section':   { collapse: 'never' },
-        'ws-products-section':    { collapse: 'if-empty' },
-        'ws-objectives-section':  { collapse: 'if-empty' },
-        'ws-followers-section':   { collapse: 'always', count: 1 },
-        'ws-experiments-section': { collapse: 'always' },
-        'ws-events-section':      { collapse: 'always' }
+        'ws-products-section':    { collapse: 'never' },
+        'ws-objectives-section':  { collapse: 'never' },
+        'ws-followers-section':   { collapse: 'never', count: 1 },
+        'ws-experiments-section': { collapse: 'never' },
+        'ws-events-section':      { collapse: 'never' }
       });
     }).catch(function (err) {
       var m = 'Failed to load world state.';
