@@ -44,6 +44,19 @@
   --c-gap:         12px;
   --c-gap-lg:      16px;
 
+  /* Typography scale */
+  --c-text-xs:     0.75rem;     /* 12px — floor. Badges, status pills */
+  --c-text-base:   0.875rem;    /* 14px — body text, table cells, descriptions */
+  --c-text-md:     1rem;        /* 16px — panel titles, section labels */
+  --c-text-lg:     1.125rem;    /* 18px — section headers, card titles */
+  --c-text-xl:     1.375rem;    /* 22px — KPI values */
+  --c-text-2xl:    1.75rem;     /* 28px — page titles */
+  --c-text-3xl:    2.25rem;     /* 36px — large display numbers */
+
+  /* Line-height */
+  --c-lh-tight:    1.3;         /* badges, labels, compact rows */
+  --c-lh-base:     1.5;         /* body text, table cells, descriptions */
+
   /* Font */
   --c-font:        'Inter', -apple-system, system-ui, sans-serif;
 }
@@ -71,7 +84,7 @@
 }
 
 .ap-panel-title {
-  font-size: 14px;
+  font-size: var(--c-text-md);
   font-weight: 600;
   color: var(--c-text);
   display: flex;
@@ -85,7 +98,7 @@
 }
 
 .ap-panel-badge {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   padding: 2px 9px;
   border-radius: var(--c-r-pill);
@@ -99,7 +112,7 @@
 
 /* ── Shared Section Header ── */
 .ap-section-title {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -112,7 +125,7 @@
   padding: 32px 16px;
   text-align: center;
   color: var(--c-text-3);
-  font-size: 13px;
+  font-size: var(--c-text-base);
 }
 
 .ap-empty i {
@@ -127,7 +140,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   padding: 2px 8px;
   border-radius: var(--c-r-pill);
@@ -147,7 +160,7 @@
   align-items: center;
   gap: 6px;
   font-family: var(--c-font);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 500;
   padding: 7px 14px;
   border-radius: var(--c-r-sm);
@@ -189,7 +202,7 @@
 }
 
 .ap-page-header h1 {
-  font-size: 22px;
+  font-size: var(--c-text-xl);
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
@@ -197,7 +210,7 @@
 }
 
 .ap-page-header p {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   color: var(--c-text-2);
   margin: 2px 0 0;
 }
@@ -229,7 +242,7 @@
   position: relative;
   padding: 10px 16px;
   font-family: var(--c-font);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 500;
   color: var(--c-text-2);
   background: none;
@@ -266,7 +279,7 @@
   height: 18px;
   padding: 0 5px;
   border-radius: var(--c-r-pill);
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   background: var(--c-surface-2);
   color: var(--c-text-3);
@@ -309,7 +322,7 @@ select,
   color: rgba(255, 255, 255, 0.85);
   padding: 0.4rem 2rem 0.4rem 0.6rem;
   font-family: 'Inter', sans-serif;
-  font-size: 0.75rem;
+  font-size: var(--c-text-xs);
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -340,7 +353,7 @@ select option:checked {
 }
 
 .company-header h1 {
-  font-size: 1.4rem;
+  font-size: var(--c-text-xl);
   font-weight: 600;
   margin: 0;
   letter-spacing: -0.02em;
@@ -348,7 +361,7 @@ select option:checked {
 
 .company-header p {
   opacity: 0.45;
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
   margin-top: 0.3rem;
 }
 
@@ -444,7 +457,7 @@ select option:checked {
 .agent-card--prime .agent-avatar {
   width: 62px;
   height: 62px;
-  font-size: 1.5rem;
+  font-size: var(--c-text-2xl);
 }
 
 .agent-avatar {
@@ -455,7 +468,7 @@ select option:checked {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: var(--c-text-xl);
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid var(--agent-color, rgba(138, 43, 226, 0.3));
   color: var(--agent-color, #a78bfa);
@@ -464,7 +477,7 @@ select option:checked {
 .agent-card--ceo .agent-avatar {
   width: 68px;
   height: 68px;
-  font-size: 1.6rem;
+  font-size: var(--c-text-2xl);
 }
 
 .agent-avatar img {
@@ -475,13 +488,13 @@ select option:checked {
 }
 
 .agent-name {
-  font-size: 1rem;
+  font-size: var(--c-text-md);
   font-weight: 500;
   margin: 0 0 0.15rem;
 }
 
 .agent-role {
-  font-size: 0.7rem;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 1.2px;
   opacity: 0.45;
@@ -490,7 +503,7 @@ select option:checked {
 
 .agent-dept-badge {
   display: inline-block;
-  font-size: 0.6rem;
+  font-size: var(--c-text-xs);
   padding: 2px 8px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
@@ -555,7 +568,7 @@ select option:checked {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: var(--c-text-lg);
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid var(--agent-color, rgba(138, 43, 226, 0.3));
   color: var(--agent-color, #a78bfa);
@@ -563,19 +576,19 @@ select option:checked {
 }
 
 .agent-detail-info h2 {
-  font-size: 1.1rem;
+  font-size: var(--c-text-lg);
   font-weight: 500;
   margin: 0;
 }
 
 .agent-detail-info p {
-  font-size: 0.75rem;
+  font-size: var(--c-text-xs);
   opacity: 0.45;
   margin: 0.15rem 0 0;
 }
 
 .agent-description {
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   line-height: 1.6;
   opacity: 0.7;
   margin-bottom: 1rem;
@@ -590,7 +603,7 @@ select option:checked {
 }
 
 .agent-capability-tag {
-  font-size: 0.6rem;
+  font-size: var(--c-text-xs);
   padding: 3px 8px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
@@ -611,7 +624,7 @@ select option:checked {
   align-items: center;
   gap: 0.6rem;
   padding: 0.5rem 0;
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
@@ -626,7 +639,7 @@ select option:checked {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   background: rgba(255, 255, 255, 0.04);
   color: var(--agent-color, #a78bfa);
   flex-shrink: 0;
@@ -638,11 +651,11 @@ select option:checked {
 
 .automation-name {
   font-weight: 500;
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
 }
 
 .automation-schedule {
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   opacity: 0.35;
   font-family: monospace;
 }
@@ -663,7 +676,7 @@ select option:checked {
   padding: 6px 14px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--c-text-xs);
   transition: all 0.2s;
   display: flex;
   align-items: center;
@@ -694,7 +707,7 @@ select option:checked {
 }
 
 .company-activity h3 {
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   font-weight: 500;
   opacity: 0.6;
   margin: 0 0 1rem;
@@ -714,7 +727,7 @@ select option:checked {
   gap: 0.8rem;
   padding: 0.6rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
 }
 
 .activity-item:last-child {
@@ -734,7 +747,7 @@ select option:checked {
 }
 
 .activity-time {
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   opacity: 0.3;
 }
 
@@ -757,7 +770,7 @@ select option:checked {
 .agent-chat-back {
   color: rgba(255, 255, 255, 0.4);
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   transition: color 0.2s;
 }
 
@@ -779,7 +792,7 @@ select option:checked {
   max-width: 80%;
   padding: 0.7rem 1rem;
   border-radius: 12px;
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   line-height: 1.5;
 }
 
@@ -801,7 +814,7 @@ select option:checked {
   align-self: flex-start;
   opacity: 0.4;
   font-style: italic;
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
 }
 
 .agent-chat-input-row {
@@ -818,7 +831,7 @@ select option:checked {
   border-radius: 8px;
   padding: 8px 12px;
   color: #fff;
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   font-family: inherit;
   resize: none;
   outline: none;
@@ -837,7 +850,7 @@ select option:checked {
   border-radius: 8px;
   padding: 8px 16px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
   transition: all 0.2s;
   white-space: nowrap;
 }
@@ -859,7 +872,7 @@ select option:checked {
 }
 
 .agent-mode-btn {
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   padding: 3px 10px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -890,7 +903,7 @@ select option:checked {
 }
 
 .agent-division-tag {
-  font-size: 0.55rem;
+  font-size: var(--c-text-xs);
   padding: 2px 7px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
@@ -912,7 +925,7 @@ select option:checked {
 }
 
 .agent-detail-divisions h4 {
-  font-size: 0.7rem;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 1px;
   opacity: 0.4;
@@ -943,7 +956,7 @@ select option:checked {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   background: rgba(255, 255, 255, 0.03);
   color: var(--agent-color, #a78bfa);
   flex-shrink: 0;
@@ -955,12 +968,12 @@ select option:checked {
 }
 
 .division-name {
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
   font-weight: 500;
 }
 
 .division-desc {
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   opacity: 0.35;
   margin-top: 1px;
 }
@@ -980,7 +993,7 @@ select option:checked {
 }
 
 .standup-header h3 {
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   font-weight: 500;
   opacity: 0.6;
   margin: 0;
@@ -995,7 +1008,7 @@ select option:checked {
   padding: 6px 16px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--c-text-xs);
   font-family: inherit;
   transition: background 0.12s, color 0.12s;
   display: flex;
@@ -1042,7 +1055,7 @@ select option:checked {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--agent-color, rgba(138, 43, 226, 0.2));
   color: var(--agent-color, #a78bfa);
@@ -1055,13 +1068,13 @@ select option:checked {
 }
 
 .standup-entry-name {
-  font-size: 0.8rem;
+  font-size: var(--c-text-base);
   font-weight: 500;
   margin-bottom: 0.2rem;
 }
 
 .standup-entry-role {
-  font-size: 0.6rem;
+  font-size: var(--c-text-xs);
   opacity: 0.35;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -1070,7 +1083,7 @@ select option:checked {
 }
 
 .standup-entry-text {
-  font-size: 0.82rem;
+  font-size: var(--c-text-base);
   line-height: 1.6;
   opacity: 0.8;
 }
@@ -1081,14 +1094,14 @@ select option:checked {
 
 .standup-status {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: var(--c-text-xs);
   opacity: 0.35;
   padding: 0.5rem 0;
   font-style: italic;
 }
 
 .standup-date-label {
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   opacity: 0.3;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -1102,7 +1115,7 @@ select option:checked {
   padding: 4px 12px;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   font-family: inherit;
   margin-top: 0.8rem;
   transition: all 0.2s;
@@ -1150,11 +1163,11 @@ select option:checked {
   .agent-avatar {
     width: 44px;
     height: 44px;
-    font-size: 1.1rem;
+    font-size: var(--c-text-lg);
   }
 
   .agent-name {
-    font-size: 0.85rem;
+    font-size: var(--c-text-base);
   }
 
   .agent-detail {
@@ -1455,8 +1468,8 @@ body[data-theme="dark"] { background: #000000; }
 .dash-icon-gold   { color: #f59e0b; }
 /* agent-chat.html */
 #chat-agent-avatar    { width: 36px; height: 36px; font-size: 1rem; }
-#chat-agent-name      { font-size: 0.95rem; }
-#chat-agent-role      { font-size: 0.7rem; opacity: 0.4; display: block; }
+#chat-agent-name      { font-size: var(--c-text-md); }
+#chat-agent-role      { font-size: var(--c-text-xs); opacity: 0.4; display: block; }
 .agent-chat-msg--placeholder { opacity: 0.5; font-style: italic; }
 /* analytics-hub.html */
 .sa-platform-grid--mt { margin-top: 0.6rem; }
@@ -1520,13 +1533,13 @@ body[data-mode="operator"]  .ap-admin-only    { display: none !important; }
 }
 .sys-section-hdr:hover { opacity: 0.85; }
 .sys-section-hdr .sys-count {
-  font-size: 0.6rem;
+  font-size: var(--c-text-xs);
   opacity: 0.4;
   font-weight: 400;
 }
 .sys-section-hdr .sys-chevron {
   margin-left: auto;
-  font-size: 0.6rem;
+  font-size: var(--c-text-xs);
   opacity: 0.3;
   transition: transform 0.15s;
 }
