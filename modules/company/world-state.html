@@ -264,9 +264,13 @@
       var statusClass = 'ws-status-' + String(fin.status || 'green').toLowerCase();
       var html = '';
       html += '<div class="ws-hero-card"><div class="ws-label">Company</div><div class="ws-value">' + esc(co.hero || '—') + '</div><div class="ws-sub">Launched ' + esc(co.launched || '—') + ' · Mode: ' + esc(co.activeMode || '—') + '</div></div>';
-      html += '<div class="ws-hero-card"><div class="ws-label">Runway</div><div class="ws-value">' + esc(runway) + '</div><div class="ws-sub">at current daily burn</div></div>';
+      var runwayColor = co.runwayDays == null ? '' : (co.runwayDays <= 14 ? 'ws-status-red' : (co.runwayDays <= 30 ? 'ws-status-yellow' : 'ws-status-green'));
+      html += '<div class="ws-hero-card"><div class="ws-label">Runway</div><div class="ws-value ' + runwayColor + '">' + esc(runway) + '</div><div class="ws-sub">at current daily burn</div></div>';
       html += '<div class="ws-hero-card"><div class="ws-label">Finance</div><div class="ws-value ' + statusClass + '">' + esc(fin.status || '—') + '</div><div class="ws-sub">$' + Number(fin.monthlyActual || 0).toFixed(2) + ' / $' + Number(fin.monthlyBudget || 0).toFixed(0) + ' · ' + esc(fin.burnTrend || 'stable') + '</div></div>';
-      html += '<div class="ws-hero-card"><div class="ws-label">Outcome coverage</div><div class="ws-value">' + esc((d.metrics && d.metrics.outcomeCoverage) || '—') + '</div><div class="ws-sub">blog views 30d: ' + ((d.metrics && d.metrics.blogViews30d) || 0) + '</div></div>';
+      var cov = (d.metrics && d.metrics.outcomeCoverage) || '—';
+      var covPct = parseInt(cov, 10);
+      var covColor = isNaN(covPct) ? '' : (covPct >= 70 ? 'ws-status-green' : (covPct >= 40 ? 'ws-status-yellow' : 'ws-status-red'));
+      html += '<div class="ws-hero-card"><div class="ws-label">Outcome coverage</div><div class="ws-value ' + covColor + '">' + esc(cov) + '</div><div class="ws-sub">blog views 30d: ' + ((d.metrics && d.metrics.blogViews30d) || 0) + '</div></div>';
       document.getElementById('ws-hero').innerHTML = html;
     }
 

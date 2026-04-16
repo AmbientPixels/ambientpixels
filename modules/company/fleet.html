@@ -201,11 +201,15 @@
       var oldest = pending.slice().sort(function(a,b){return (a.createdAt||'').localeCompare(b.createdAt||'');})[0];
       var oldestAge = oldest ? ageDays(oldest.createdAt) + 'd' : '—';
 
+      var activeColor = active.length >= 5 ? '#34d399' : '#f87171';
+      var pendingColor = pending.length === 0 ? '#34d399' : (pending.length >= 3 ? '#f87171' : '#fbbf24');
+      var oldestColor = oldest ? (ageDays(oldest.createdAt) >= 7 ? '#f87171' : (ageDays(oldest.createdAt) >= 3 ? '#fbbf24' : 'inherit')) : '#34d399';
+
       var html = '';
-      html += '<div class="fl-hero-card"><div class="fl-label">Active Fleet</div><div class="fl-value">' + active.length + '</div><div class="fl-sub">min ' + 5 + ' · max ' + 12 + '</div></div>';
-      html += '<div class="fl-hero-card"><div class="fl-label">Pending Proposals</div><div class="fl-value">' + pending.length + '</div><div class="fl-sub">hire / retire / evolve</div></div>';
+      html += '<div class="fl-hero-card"><div class="fl-label">Active Fleet</div><div class="fl-value" style="color:' + activeColor + ';">' + active.length + '</div><div class="fl-sub">min ' + 5 + ' · max ' + 12 + '</div></div>';
+      html += '<div class="fl-hero-card"><div class="fl-label">Pending Proposals</div><div class="fl-value" style="color:' + pendingColor + ';">' + pending.length + '</div><div class="fl-sub">hire / retire / evolve</div></div>';
       html += '<div class="fl-hero-card"><div class="fl-label">Archived</div><div class="fl-value">' + archived.length + '</div><div class="fl-sub">retired, memories preserved</div></div>';
-      html += '<div class="fl-hero-card"><div class="fl-label">Oldest Pending</div><div class="fl-value">' + oldestAge + '</div><div class="fl-sub">' + (oldest ? esc((oldest.type||'').replace('agent_','').replace('_proposal','')) : 'nothing pending') + '</div></div>';
+      html += '<div class="fl-hero-card"><div class="fl-label">Oldest Pending</div><div class="fl-value" style="color:' + oldestColor + ';">' + oldestAge + '</div><div class="fl-sub">' + (oldest ? esc((oldest.type||'').replace('agent_','').replace('_proposal','')) : 'nothing pending') + '</div></div>';
       document.getElementById('fl-hero').innerHTML = html;
     }
 

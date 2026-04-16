@@ -190,10 +190,14 @@
       var activeProducts = (d.strategicDigest && Array.isArray(d.strategicDigest.perProduct)) ? d.strategicDigest.perProduct.length : 0;
 
       var html = '';
-      html += '<div class="gg-hero-card"><div class="gg-label">Active Products</div><div class="gg-value">' + activeProducts + '</div><div class="gg-sub">tracked in strategicDigest</div></div>';
-      html += '<div class="gg-hero-card"><div class="gg-label">Pending Proposals</div><div class="gg-value ' + (pending.length >= 3 ? 'gg-status-yellow' : '') + '">' + pending.length + '</div><div class="gg-sub">awaiting CEO decision</div></div>';
+      var prodColor = activeProducts > 0 ? '#34d399' : 'inherit';
+      var pendColor = pending.length === 0 ? '' : (pending.length >= 3 ? 'gg-status-red' : 'gg-status-yellow');
+      var oldColor = oldest ? (ageDays(oldest.createdAt) >= 7 ? 'gg-status-red' : (ageDays(oldest.createdAt) >= 3 ? 'gg-status-yellow' : '')) : '';
+
+      html += '<div class="gg-hero-card"><div class="gg-label">Active Products</div><div class="gg-value" style="color:' + prodColor + ';">' + activeProducts + '</div><div class="gg-sub">tracked in strategicDigest</div></div>';
+      html += '<div class="gg-hero-card"><div class="gg-label">Pending Proposals</div><div class="gg-value ' + pendColor + '">' + pending.length + '</div><div class="gg-sub">awaiting CEO decision</div></div>';
       html += '<div class="gg-hero-card"><div class="gg-label">Budget Status</div><div class="gg-value gg-status-' + String(sys.status || 'green').toLowerCase() + '">' + esc(sys.status || '—') + '</div><div class="gg-sub">' + (sys.pct != null ? sys.pct + '% of cap' : '—') + (sys.squeezeMode ? ' · SQUEEZE' : '') + '</div></div>';
-      html += '<div class="gg-hero-card"><div class="gg-label">Oldest Pending</div><div class="gg-value">' + oldestAge + '</div><div class="gg-sub">' + (oldest ? esc(oldest.type).replace('product_','').replace('_proposal','') : 'nothing pending') + '</div></div>';
+      html += '<div class="gg-hero-card"><div class="gg-label">Oldest Pending</div><div class="gg-value ' + oldColor + '">' + oldestAge + '</div><div class="gg-sub">' + (oldest ? esc(oldest.type).replace('product_','').replace('_proposal','') : 'nothing pending') + '</div></div>';
       document.getElementById('gg-hero').innerHTML = html;
     }
 

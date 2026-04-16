@@ -879,6 +879,10 @@
       var xPlanName = xPlan === 0 ? 'Free' : (xPlan === 100 ? 'Basic' : (xPlan === 5000 ? 'Pro' : '$' + xPlan));
       setText('cs-x-sub', x ? x.postsCount + ' posts \u00B7 ' + xPlanName : xPlanName);
       setText('cs-projected', '$' + projected.toFixed(2));
+      var projEl = document.getElementById('cs-projected');
+      if (projEl) projEl.style.color = projected >= 35 ? '#f87171' : (projected >= 25 ? '#fbbf24' : '#34d399');
+      var totalEl = document.getElementById('cs-total');
+      if (totalEl) totalEl.style.color = combined >= 30 ? '#f87171' : (combined >= 20 ? '#fbbf24' : 'var(--c-amber)');
 
       // Hero summary
       var parts = ['$' + combined.toFixed(2) + ' total spend (30d)'];

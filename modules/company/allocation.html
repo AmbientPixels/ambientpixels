@@ -163,7 +163,8 @@
       var html = '';
       html += '<div class="ca-hero-card"><div class="ca-label">Month</div><div class="ca-value">' + esc(d.month || '—') + '</div><div class="ca-sub">Allocation period</div></div>';
       html += '<div class="ca-hero-card"><div class="ca-label">System Budget</div><div class="ca-value ' + statusClass(s.status) + '">$' + Number(s.spent || 0).toFixed(2) + ' / $' + Number(s.budget || 0).toFixed(0) + '</div><div class="ca-sub">' + (s.pct || 0) + '% · ' + esc(s.status || '—') + (s.squeezeMode ? ' · SQUEEZE' : '') + '</div></div>';
-      html += '<div class="ca-hero-card"><div class="ca-label">Remaining</div><div class="ca-value">$' + Number(s.remaining || 0).toFixed(2) + '</div><div class="ca-sub">this month</div></div>';
+      var remColor = statusClass(s.remaining <= 0 ? 'RED' : (s.pct >= 70 ? 'YELLOW' : 'GREEN'));
+      html += '<div class="ca-hero-card"><div class="ca-label">Remaining</div><div class="ca-value ' + remColor + '">$' + Number(s.remaining || 0).toFixed(2) + '</div><div class="ca-sub">this month</div></div>';
       var pending = Array.isArray(d.openRequests) ? d.openRequests.length : 0;
       html += '<div class="ca-hero-card"><div class="ca-label">Pending Requests</div><div class="ca-value ' + (pending >= 3 ? 'ca-status-yellow' : '') + '">' + pending + '</div><div class="ca-sub">awaiting Cipher or CEO</div></div>';
       document.getElementById('ca-hero').innerHTML = html;
