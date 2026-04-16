@@ -345,7 +345,7 @@
 
         var tab = document.createElement('a');
         tab.textContent = group.label;
-        tab.className = group.id === activeGroupId ? 'active' : '';
+        tab.className = 'sb-sub' + (group.id === activeGroupId ? ' sb-sub--active' : '');
         tab.href = '#';
         tab.addEventListener('click', function (e) {
           e.preventDefault();
