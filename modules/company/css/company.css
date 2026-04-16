@@ -1505,3 +1505,31 @@ body[data-theme="dark"] { background: #000000; }
 body[data-mode="executive"] .ap-operator-only { display: none !important; }
 body[data-mode="executive"] .ap-admin-only    { display: none !important; }
 body[data-mode="operator"]  .ap-admin-only    { display: none !important; }
+
+/* ── Collapsible Section Panels ── */
+.sys-section { border-radius: 8px; margin-bottom: 0.6rem; overflow: hidden; }
+.sys-section-body { }
+.sys-section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.12s;
+}
+.sys-section-hdr:hover { opacity: 0.85; }
+.sys-section-hdr .sys-count {
+  font-size: 0.6rem;
+  opacity: 0.4;
+  font-weight: 400;
+}
+.sys-section-hdr .sys-chevron {
+  margin-left: auto;
+  font-size: 0.6rem;
+  opacity: 0.3;
+  transition: transform 0.15s;
+}
+.sys-section.collapsed .sys-section-body { display: none; }
+.sys-section.collapsed .sys-chevron { transform: rotate(-90deg); }
+.sys-section.dimmed .sys-section-hdr { opacity: 0.4; }

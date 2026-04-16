@@ -115,28 +115,73 @@
     <div id="sa-totals" class="sa-totals"></div>
 
     <div class="sa-section" data-section="cadence">
-      <h2><i class="fas fa-clock"></i> REFLECTION CADENCE (3-day target)</h2>
-      <div id="sa-cadence"></div>
+      <div class="sys-section" id="sa-cadence-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-clock"></i>
+          <strong>REFLECTION CADENCE (3-day target)</strong>
+          <span class="sys-count" id="sa-cadence-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="sa-cadence"></div>
+        </div>
+      </div>
     </div>
 
     <div class="sa-section" data-section="roles">
-      <h2><i class="fas fa-user-check"></i> ROLE ADHERENCE</h2>
-      <div id="sa-roles"></div>
+      <div class="sys-section" id="sa-roles-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-user-check"></i>
+          <strong>ROLE ADHERENCE</strong>
+          <span class="sys-count" id="sa-roles-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="sa-roles"></div>
+        </div>
+      </div>
     </div>
 
     <div class="sa-section" data-section="fatigue">
-      <h2><i class="fas fa-exclamation-triangle"></i> STRATEGY FATIGUE SIGNALS</h2>
-      <div id="sa-fatigue"></div>
+      <div class="sys-section" id="sa-fatigue-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-triangle-exclamation"></i>
+          <strong>STRATEGY FATIGUE SIGNALS</strong>
+          <span class="sys-count" id="sa-fatigue-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="sa-fatigue"></div>
+        </div>
+      </div>
     </div>
 
     <div class="sa-section" data-section="decisions">
-      <h2><i class="fas fa-chart-line"></i> DECISION OUTCOME LEADERBOARD</h2>
-      <div id="sa-decisions"></div>
+      <div class="sys-section" id="sa-outcomes-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-chart-line"></i>
+          <strong>DECISION OUTCOME LEADERBOARD</strong>
+          <span class="sys-count" id="sa-outcomes-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="sa-decisions"></div>
+        </div>
+      </div>
     </div>
 
     <div class="sa-section" data-section="consolidation">
-      <h2><i class="fas fa-layer-group"></i> MEMORY CONSOLIDATION (last 30 days)</h2>
-      <div id="sa-consolidation"></div>
+      <div class="sys-section" id="sa-consolidation-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-brain"></i>
+          <strong>MEMORY CONSOLIDATION (last 30 days)</strong>
+          <span class="sys-count" id="sa-consolidation-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="sa-consolidation"></div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -321,11 +366,47 @@
       renderFatigue(d);
       renderDecisions(d);
       renderConsolidation(d);
+      _applySectionDefaults({
+        'sa-cadence-section':       { collapse: 'never' },
+        'sa-roles-section':         { collapse: 'never' },
+        'sa-fatigue-section':       { collapse: 'if-empty' },
+        'sa-outcomes-section':      { collapse: 'always' },
+        'sa-consolidation-section': { collapse: 'always' }
+      });
     }).catch(function (err) {
       var m = 'Failed to load awareness digest.';
       if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
       document.getElementById('sa-totals').innerHTML = '<div class="sa-empty">' + esc(m) + '</div>';
     });
+
+    // ── Collapsible section toggle ──
+    document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        hdr.parentElement.classList.toggle('collapsed');
+        hdr.parentElement.classList.remove('dimmed');
+      });
+    });
+
+    function _applySectionDefaults(defaults) {
+      Object.keys(defaults).forEach(function(id) {
+        var section = document.getElementById(id);
+        if (!section) return;
+        var body = section.querySelector('.sys-section-body');
+        var countEl = section.querySelector('.sys-count');
+        var cfg = defaults[id];
+        var count = cfg.count != null ? cfg.count
+          : body ? body.querySelectorAll(':scope > *').length : 0;
+        if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+        var shouldCollapse = cfg.collapse === 'always'
+          || (cfg.collapse === 'if-empty' && count === 0);
+        if (shouldCollapse) {
+          section.classList.add('collapsed');
+          if (count === 0) section.classList.add('dimmed');
+        } else {
+          section.classList.remove('collapsed', 'dimmed');
+        }
+      });
+    }
   })();
   </script>
   <script src="/modules/company/js/sidebar.js"></script>

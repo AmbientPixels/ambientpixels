@@ -86,31 +86,76 @@
 
     <div id="fl-hero" class="fl-hero"></div>
 
-    <div class="fl-section" data-section="roster">
-      <h2><i class="fas fa-users"></i> ACTIVE ROSTER</h2>
-      <div id="fl-roster"></div>
+    <div class="sys-section" id="fl-roster-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-users-gear"></i>
+        <strong>ACTIVE ROSTER</strong>
+        <span class="sys-count" id="fl-roster-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="fl-section" data-section="roster">
+          <div id="fl-roster"></div>
+        </div>
+      </div>
     </div>
 
-    <div class="fl-section" data-section="proposals">
-      <h2><i class="fas fa-inbox"></i> PENDING FLEET PROPOSALS</h2>
-      <div id="fl-proposals"></div>
+    <div class="sys-section" id="fl-proposals-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-inbox"></i>
+        <strong>PENDING FLEET PROPOSALS</strong>
+        <span class="sys-count" id="fl-proposals-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="fl-section" data-section="proposals">
+          <div id="fl-proposals"></div>
+        </div>
+      </div>
     </div>
 
     <div class="fl-grid-2">
-      <div class="fl-section" data-section="intel">
-        <h2><i class="fas fa-stethoscope"></i> FORGE'S FLEET INTELLIGENCE</h2>
-        <div id="fl-intel"></div>
+      <div class="sys-section" id="fl-intel-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-microscope"></i>
+          <strong>FORGE'S FLEET INTELLIGENCE</strong>
+          <span class="sys-count" id="fl-intel-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div class="fl-section" data-section="intel">
+            <div id="fl-intel"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="fl-section" data-section="archive">
-        <h2><i class="fas fa-box-archive"></i> ARCHIVED AGENTS</h2>
-        <div id="fl-archive"></div>
+      <div class="sys-section" id="fl-archived-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-archive"></i>
+          <strong>ARCHIVED AGENTS</strong>
+          <span class="sys-count" id="fl-archived-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div class="fl-section" data-section="archive">
+            <div id="fl-archive"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="fl-section" data-section="decisions">
-      <h2><i class="fas fa-gavel"></i> RECENT FLEET DECISIONS</h2>
-      <div id="fl-decisions"></div>
+    <div class="sys-section" id="fl-decisions-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-wrench"></i>
+        <strong>RECENT FLEET DECISIONS</strong>
+        <span class="sys-count" id="fl-decisions-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="fl-section" data-section="decisions">
+          <div id="fl-decisions"></div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -394,6 +439,34 @@
       }).join('');
     }
 
+    document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        hdr.parentElement.classList.toggle('collapsed');
+        hdr.parentElement.classList.remove('dimmed');
+      });
+    });
+
+    function _applySectionDefaults(defaults) {
+      Object.keys(defaults).forEach(function(id) {
+        var section = document.getElementById(id);
+        if (!section) return;
+        var body = section.querySelector('.sys-section-body');
+        var countEl = section.querySelector('.sys-count');
+        var cfg = defaults[id];
+        var count = cfg.count != null ? cfg.count
+          : body ? body.querySelectorAll(':scope > *').length : 0;
+        if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+        var shouldCollapse = cfg.collapse === 'always'
+          || (cfg.collapse === 'if-empty' && count === 0);
+        if (shouldCollapse) {
+          section.classList.add('collapsed');
+          if (count === 0) section.classList.add('dimmed');
+        } else {
+          section.classList.remove('collapsed', 'dimmed');
+        }
+      });
+    }
+
     loadAll().then(function (d) {
       renderHero(d);
       renderRoster(d);
@@ -401,6 +474,22 @@
       renderIntel(d);
       renderArchive(d);
       renderDecisions(d);
+
+      var pendingCount = ((d.approvalQueue || []).filter(function(q){return q.type && q.type.indexOf('agent_')===0 && q.status==='pending';})).length;
+      var activeCount = ((d.registry.agents || []).filter(function(a){return a.status==='active';})).length;
+      var archivedCount = ((d.registry.agents || []).filter(function(a){return a.status==='archived';})).length;
+      var intelEl = document.getElementById('fl-intel');
+      var intelCount = intelEl ? intelEl.querySelectorAll('.fl-intel-row').length : 0;
+      var decisionsEl = document.getElementById('fl-decisions');
+      var decisionsCount = decisionsEl ? decisionsEl.querySelectorAll('.fl-decision').length : 0;
+
+      _applySectionDefaults({
+        'fl-roster-section': { collapse: 'never', count: activeCount },
+        'fl-proposals-section': { collapse: 'if-empty', count: pendingCount },
+        'fl-intel-section': { collapse: 'always', count: intelCount },
+        'fl-archived-section': { collapse: 'always', count: archivedCount },
+        'fl-decisions-section': { collapse: 'always', count: decisionsCount }
+      });
     }).catch(function (err) {
       var m = 'Failed to load fleet.';
       if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';

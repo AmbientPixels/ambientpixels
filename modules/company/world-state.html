@@ -148,43 +148,91 @@
     <div id="ws-hero" class="ws-hero"></div>
 
     <div class="ws-grid-2">
-      <div class="ws-section" data-section="fleet">
-        <h2><i class="fas fa-users"></i> FLEET</h2>
-        <div id="ws-fleet"></div>
+      <div class="sys-section ws-section" id="ws-fleet-section" data-section="fleet">
+        <div class="sys-section-hdr">
+          <i class="fas fa-users-gear"></i>
+          <strong>Fleet</strong>
+          <span class="sys-count" id="ws-fleet-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ws-fleet"></div>
+        </div>
       </div>
 
-      <div class="ws-section" data-section="followers">
-        <h2><i class="fas fa-hashtag"></i> FOLLOWERS</h2>
-        <div id="ws-followers"></div>
+      <div class="sys-section ws-section" id="ws-campaigns-section" data-section="campaigns">
+        <div class="sys-section-hdr">
+          <i class="fas fa-layer-group"></i>
+          <strong>Active Campaigns</strong>
+          <span class="sys-count" id="ws-campaigns-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ws-campaigns"></div>
+        </div>
       </div>
     </div>
 
-    <div class="ws-section" data-section="products">
-      <h2><i class="fas fa-cube"></i> PRODUCTS</h2>
-      <div id="ws-products"></div>
+    <div class="sys-section ws-section" id="ws-products-section" data-section="products">
+      <div class="sys-section-hdr">
+        <i class="fas fa-boxes-stacked"></i>
+        <strong>Products</strong>
+        <span class="sys-count" id="ws-products-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div id="ws-products"></div>
+      </div>
     </div>
 
     <div class="ws-grid-2">
-      <div class="ws-section" data-section="objectives">
-        <h2><i class="fas fa-bullseye"></i> ACTIVE OBJECTIVES</h2>
-        <div id="ws-objectives"></div>
+      <div class="sys-section ws-section" id="ws-objectives-section" data-section="objectives">
+        <div class="sys-section-hdr">
+          <i class="fas fa-bullseye"></i>
+          <strong>Active Objectives</strong>
+          <span class="sys-count" id="ws-objectives-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ws-objectives"></div>
+        </div>
       </div>
 
-      <div class="ws-section" data-section="campaigns">
-        <h2><i class="fas fa-bullhorn"></i> ACTIVE CAMPAIGNS</h2>
-        <div id="ws-campaigns"></div>
+      <div class="sys-section ws-section" id="ws-followers-section" data-section="followers">
+        <div class="sys-section-hdr">
+          <i class="fas fa-user-plus"></i>
+          <strong>Followers</strong>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ws-followers"></div>
+        </div>
       </div>
     </div>
 
     <div class="ws-grid-2">
-      <div class="ws-section" data-section="experiments">
-        <h2><i class="fas fa-flask"></i> EXPERIMENTS + APPROVALS</h2>
-        <div id="ws-experiments"></div>
+      <div class="sys-section ws-section" id="ws-experiments-section" data-section="experiments">
+        <div class="sys-section-hdr">
+          <i class="fas fa-flask"></i>
+          <strong>Experiments + Approvals</strong>
+          <span class="sys-count" id="ws-experiments-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ws-experiments"></div>
+        </div>
       </div>
 
-      <div class="ws-section" data-section="events">
-        <h2><i class="fas fa-clock"></i> RECENT EVENTS (7d)</h2>
-        <div id="ws-events"></div>
+      <div class="sys-section ws-section" id="ws-events-section" data-section="events">
+        <div class="sys-section-hdr">
+          <i class="fas fa-clock-rotate-left"></i>
+          <strong>Recent Events (7d)</strong>
+          <span class="sys-count" id="ws-events-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ws-events"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -308,6 +356,35 @@
       document.getElementById('ws-events').innerHTML = html;
     }
 
+    // ── Collapsible sections ──
+    document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        hdr.parentElement.classList.toggle('collapsed');
+        hdr.parentElement.classList.remove('dimmed');
+      });
+    });
+
+    function _applySectionDefaults(defaults) {
+      Object.keys(defaults).forEach(function(id) {
+        var section = document.getElementById(id);
+        if (!section) return;
+        var body = section.querySelector('.sys-section-body');
+        var countEl = section.querySelector('.sys-count');
+        var cfg = defaults[id];
+        var count = cfg.count != null ? cfg.count
+          : body ? body.querySelectorAll(':scope > *').length : 0;
+        if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+        var shouldCollapse = cfg.collapse === 'always'
+          || (cfg.collapse === 'if-empty' && count === 0);
+        if (shouldCollapse) {
+          section.classList.add('collapsed');
+          if (count === 0) section.classList.add('dimmed');
+        } else {
+          section.classList.remove('collapsed', 'dimmed');
+        }
+      });
+    }
+
     load().then(function (d) {
       if (d._builtOnDemand) {
         console.log('[worldState] built on-demand (heartbeat cache missing or stale)');
@@ -320,6 +397,16 @@
       renderCampaigns(d);
       renderExperiments(d);
       renderEvents(d);
+
+      _applySectionDefaults({
+        'ws-fleet-section':       { collapse: 'never' },
+        'ws-campaigns-section':   { collapse: 'never' },
+        'ws-products-section':    { collapse: 'if-empty' },
+        'ws-objectives-section':  { collapse: 'if-empty' },
+        'ws-followers-section':   { collapse: 'always', count: 1 },
+        'ws-experiments-section': { collapse: 'always' },
+        'ws-events-section':      { collapse: 'always' }
+      });
     }).catch(function (err) {
       var m = 'Failed to load world state.';
       if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';

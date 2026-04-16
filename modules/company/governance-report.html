@@ -173,38 +173,74 @@
       </div>
     </div>
 
-    <div class="gov-panel">
-      <div class="gov-panel-head"><i class="fas fa-chart-simple"></i>By event type</div>
-      <div class="gov-panel-body">
-        <div class="gov-bucket-grid" id="gov-by-type"></div>
+    <div class="sys-section" id="gov-by-type-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-layer-group"></i>
+        <strong>By Type</strong>
+        <span class="sys-count" id="gov-by-type-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="gov-panel">
+          <div class="gov-panel-body">
+            <div class="gov-bucket-grid" id="gov-by-type"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="gov-panel">
-      <div class="gov-panel-head"><i class="fas fa-user"></i>By agent</div>
-      <div class="gov-panel-body">
-        <div class="gov-bucket-grid" id="gov-by-agent"></div>
+    <div class="sys-section" id="gov-by-agent-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-users"></i>
+        <strong>By Agent</strong>
+        <span class="sys-count" id="gov-by-agent-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="gov-panel">
+          <div class="gov-panel-body">
+            <div class="gov-bucket-grid" id="gov-by-agent"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="gov-panel">
-      <div class="gov-panel-head"><i class="fas fa-gavel"></i>Policy violations by gate</div>
-      <div class="gov-panel-body">
-        <div class="gov-bucket-grid" id="gov-by-gate"></div>
+    <div class="sys-section" id="gov-by-gate-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-shield-halved"></i>
+        <strong>By Gate</strong>
+        <span class="sys-count" id="gov-by-gate-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="gov-panel">
+          <div class="gov-panel-body">
+            <div class="gov-bucket-grid" id="gov-by-gate"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="gov-panel">
-      <div class="gov-panel-head"><i class="fas fa-clock-rotate-left"></i>Recent entries (last 50)</div>
-      <div class="gov-panel-body">
-        <table class="gov-table" id="gov-table">
-          <thead>
-            <tr>
-              <th>Time</th><th>Kind</th><th>Agent</th><th>Gate / Reason</th><th>Summary</th>
-            </tr>
-          </thead>
-          <tbody id="gov-table-body"></tbody>
-        </table>
+    <div class="sys-section" id="gov-recent-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-list"></i>
+        <strong>Recent Entries</strong>
+        <span class="sys-count" id="gov-recent-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="gov-panel">
+          <div class="gov-panel-body">
+            <table class="gov-table" id="gov-table">
+              <thead>
+                <tr>
+                  <th>Time</th><th>Kind</th><th>Agent</th><th>Gate / Reason</th><th>Summary</th>
+                </tr>
+              </thead>
+              <tbody id="gov-table-body"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -307,6 +343,14 @@
         renderBuckets('gov-by-agent', data.summary && data.summary.byAgent || {});
         renderBuckets('gov-by-gate', data.summary && data.summary.byGate || {});
         renderTable(data);
+
+        var s = data.summary || {};
+        _applySectionDefaults({
+          'gov-by-type-section':  { collapse: 'always', count: Object.keys(s.byType || {}).length },
+          'gov-by-agent-section': { collapse: 'always', count: Object.keys(s.byAgent || {}).length },
+          'gov-by-gate-section':  { collapse: 'always', count: Object.keys(s.byGate || {}).length },
+          'gov-recent-section':   { collapse: 'never',  count: (data.recentEntries || []).length }
+        });
       }
 
       function load() {
@@ -326,6 +370,34 @@
           .catch(function (err) {
             document.getElementById('gov-meta').textContent = 'Failed to load: ' + (err.message || err);
           });
+      }
+
+      document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+        hdr.addEventListener('click', function() {
+          hdr.parentElement.classList.toggle('collapsed');
+          hdr.parentElement.classList.remove('dimmed');
+        });
+      });
+
+      function _applySectionDefaults(defaults) {
+        Object.keys(defaults).forEach(function(id) {
+          var section = document.getElementById(id);
+          if (!section) return;
+          var body = section.querySelector('.sys-section-body');
+          var countEl = section.querySelector('.sys-count');
+          var cfg = defaults[id];
+          var count = cfg.count != null ? cfg.count
+            : body ? body.querySelectorAll(':scope > *').length : 0;
+          if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+          var shouldCollapse = cfg.collapse === 'always'
+            || (cfg.collapse === 'if-empty' && count === 0);
+          if (shouldCollapse) {
+            section.classList.add('collapsed');
+            if (count === 0) section.classList.add('dimmed');
+          } else {
+            section.classList.remove('collapsed', 'dimmed');
+          }
+        });
       }
 
       ['gov-window', 'gov-agent', 'gov-kind', 'gov-gate'].forEach(function (id) {

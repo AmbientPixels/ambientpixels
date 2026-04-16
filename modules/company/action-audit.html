@@ -184,37 +184,82 @@
       </div>
     </div>
 
-    <div class="aud-panel">
-      <div class="aud-panel-head"><i class="fas fa-list-check"></i>By action type</div>
-      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-type"></div></div>
+    <div class="sys-section" id="aud-by-type-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-layer-group"></i>
+        <strong>By Type</strong>
+        <span class="sys-count" id="aud-by-type-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="aud-panel">
+          <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-type"></div></div>
+        </div>
+      </div>
     </div>
 
-    <div class="aud-panel">
-      <div class="aud-panel-head"><i class="fas fa-user"></i>By agent</div>
-      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-agent"></div></div>
+    <div class="sys-section" id="aud-by-agent-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-users"></i>
+        <strong>By Agent</strong>
+        <span class="sys-count" id="aud-by-agent-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="aud-panel">
+          <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-agent"></div></div>
+        </div>
+      </div>
     </div>
 
-    <div class="aud-panel">
-      <div class="aud-panel-head"><i class="fas fa-bullhorn"></i>By platform</div>
-      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-platform"></div></div>
+    <div class="sys-section" id="aud-by-platform-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-share-nodes"></i>
+        <strong>By Platform</strong>
+        <span class="sys-count" id="aud-by-platform-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="aud-panel">
+          <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-platform"></div></div>
+        </div>
+      </div>
     </div>
 
-    <div class="aud-panel">
-      <div class="aud-panel-head"><i class="fas fa-gauge"></i>By outcome</div>
-      <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-outcome"></div></div>
+    <div class="sys-section" id="aud-by-outcome-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-check-circle"></i>
+        <strong>By Outcome</strong>
+        <span class="sys-count" id="aud-by-outcome-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="aud-panel">
+          <div class="aud-panel-body"><div class="aud-bucket-grid" id="aud-by-outcome"></div></div>
+        </div>
+      </div>
     </div>
 
-    <div class="aud-panel">
-      <div class="aud-panel-head"><i class="fas fa-clock-rotate-left"></i>Recent actions (last 50, newest first)</div>
-      <div class="aud-panel-body">
-        <table class="aud-table" id="aud-table">
-          <thead>
-            <tr>
-              <th>Time</th><th>Type</th><th>Platform</th><th>Agent</th><th>CEO</th><th>Outcome</th><th>Latency</th><th>Link / Error</th>
-            </tr>
-          </thead>
-          <tbody id="aud-table-body"></tbody>
-        </table>
+    <div class="sys-section" id="aud-recent-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-list"></i>
+        <strong>Recent Actions</strong>
+        <span class="sys-count" id="aud-recent-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="aud-panel">
+          <div class="aud-panel-body">
+            <table class="aud-table" id="aud-table">
+              <thead>
+                <tr>
+                  <th>Time</th><th>Type</th><th>Platform</th><th>Agent</th><th>CEO</th><th>Outcome</th><th>Latency</th><th>Link / Error</th>
+                </tr>
+              </thead>
+              <tbody id="aud-table-body"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -335,6 +380,15 @@
         renderBuckets('aud-by-platform', data.summary && data.summary.byPlatform || {});
         renderBuckets('aud-by-outcome', data.summary && data.summary.byOutcome || {});
         renderTable(data);
+
+        var s = data.summary || {};
+        _applySectionDefaults({
+          'aud-by-type-section':     { collapse: 'always', count: Object.keys(s.byType || {}).length },
+          'aud-by-agent-section':    { collapse: 'always', count: Object.keys(s.byAgent || {}).length },
+          'aud-by-platform-section': { collapse: 'always', count: Object.keys(s.byPlatform || {}).length },
+          'aud-by-outcome-section':  { collapse: 'always', count: Object.keys(s.byOutcome || {}).length },
+          'aud-recent-section':      { collapse: 'never',  count: (data.recentEntries || []).length }
+        });
       }
 
       function load() {
@@ -355,6 +409,34 @@
           .catch(function (err) {
             document.getElementById('aud-meta').textContent = 'Failed to load: ' + (err.message || err);
           });
+      }
+
+      document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+        hdr.addEventListener('click', function() {
+          hdr.parentElement.classList.toggle('collapsed');
+          hdr.parentElement.classList.remove('dimmed');
+        });
+      });
+
+      function _applySectionDefaults(defaults) {
+        Object.keys(defaults).forEach(function(id) {
+          var section = document.getElementById(id);
+          if (!section) return;
+          var body = section.querySelector('.sys-section-body');
+          var countEl = section.querySelector('.sys-count');
+          var cfg = defaults[id];
+          var count = cfg.count != null ? cfg.count
+            : body ? body.querySelectorAll(':scope > *').length : 0;
+          if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+          var shouldCollapse = cfg.collapse === 'always'
+            || (cfg.collapse === 'if-empty' && count === 0);
+          if (shouldCollapse) {
+            section.classList.add('collapsed');
+            if (count === 0) section.classList.add('dimmed');
+          } else {
+            section.classList.remove('collapsed', 'dimmed');
+          }
+        });
       }
 
       ['aud-window', 'aud-agent', 'aud-type', 'aud-platform', 'aud-outcome'].forEach(function (id) {

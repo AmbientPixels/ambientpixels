@@ -76,32 +76,67 @@
 
     <div id="ca-hero" class="ca-hero"></div>
 
-    <div class="ca-section" data-section="agents">
-      <h2><i class="fas fa-users"></i> PER-AGENT SPEND</h2>
-      <div id="ca-agents"></div>
-    </div>
-
-    <div class="ca-grid-2">
-      <div class="ca-section" data-section="pending">
-        <h2><i class="fas fa-hourglass-half"></i> PENDING REQUESTS</h2>
-        <div id="ca-pending"></div>
+    <div class="sys-section ca-section" id="ca-agents-section" data-section="agents">
+      <div class="sys-section-hdr">
+        <i class="fas fa-chart-bar"></i>
+        <strong>Per-Agent Spend</strong>
+        <span class="sys-count" id="ca-agents-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
       </div>
-
-      <div class="ca-section" data-section="decisions">
-        <h2><i class="fas fa-gavel"></i> RECENT DECISIONS</h2>
-        <div id="ca-decisions"></div>
+      <div class="sys-section-body">
+        <div id="ca-agents"></div>
       </div>
     </div>
 
     <div class="ca-grid-2">
-      <div class="ca-section" data-section="roi-campaigns">
-        <h2><i class="fas fa-bullhorn"></i> CAMPAIGN ROI</h2>
-        <div id="ca-roi-campaigns"></div>
+      <div class="sys-section ca-section" id="ca-pending-section" data-section="pending">
+        <div class="sys-section-hdr">
+          <i class="fas fa-inbox"></i>
+          <strong>Pending Requests</strong>
+          <span class="sys-count" id="ca-pending-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ca-pending"></div>
+        </div>
       </div>
 
-      <div class="ca-section" data-section="roi-experiments">
-        <h2><i class="fas fa-flask"></i> EXPERIMENT ROI (variance)</h2>
-        <div id="ca-roi-experiments"></div>
+      <div class="sys-section ca-section" id="ca-decisions-section" data-section="decisions">
+        <div class="sys-section-hdr">
+          <i class="fas fa-gavel"></i>
+          <strong>Recent Decisions</strong>
+          <span class="sys-count" id="ca-decisions-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ca-decisions"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ca-grid-2">
+      <div class="sys-section ca-section" id="ca-roi-campaigns-section" data-section="roi-campaigns">
+        <div class="sys-section-hdr">
+          <i class="fas fa-chart-line"></i>
+          <strong>Campaign ROI</strong>
+          <span class="sys-count" id="ca-roi-campaigns-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ca-roi-campaigns"></div>
+        </div>
+      </div>
+
+      <div class="sys-section ca-section" id="ca-roi-experiments-section" data-section="roi-experiments">
+        <div class="sys-section-hdr">
+          <i class="fas fa-chart-line"></i>
+          <strong>Experiment ROI (variance)</strong>
+          <span class="sys-count" id="ca-roi-experiments-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="ca-roi-experiments"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -214,6 +249,35 @@
       document.getElementById('ca-roi-experiments').innerHTML = html;
     }
 
+    // ── Collapsible sections ──
+    document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        hdr.parentElement.classList.toggle('collapsed');
+        hdr.parentElement.classList.remove('dimmed');
+      });
+    });
+
+    function _applySectionDefaults(defaults) {
+      Object.keys(defaults).forEach(function(id) {
+        var section = document.getElementById(id);
+        if (!section) return;
+        var body = section.querySelector('.sys-section-body');
+        var countEl = section.querySelector('.sys-count');
+        var cfg = defaults[id];
+        var count = cfg.count != null ? cfg.count
+          : body ? body.querySelectorAll(':scope > *').length : 0;
+        if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+        var shouldCollapse = cfg.collapse === 'always'
+          || (cfg.collapse === 'if-empty' && count === 0);
+        if (shouldCollapse) {
+          section.classList.add('collapsed');
+          if (count === 0) section.classList.add('dimmed');
+        } else {
+          section.classList.remove('collapsed', 'dimmed');
+        }
+      });
+    }
+
     load().then(function (d) {
       if (d._builtOnDemand) { console.log('[allocationDigest] built on-demand (heartbeat cache missing or stale)'); }
       renderHero(d);
@@ -222,6 +286,14 @@
       renderDecisions(d);
       renderROICampaigns(d);
       renderROIExperiments(d);
+
+      _applySectionDefaults({
+        'ca-agents-section':          { collapse: 'never' },
+        'ca-pending-section':         { collapse: 'if-empty' },
+        'ca-decisions-section':       { collapse: 'if-empty' },
+        'ca-roi-campaigns-section':   { collapse: 'always' },
+        'ca-roi-experiments-section': { collapse: 'always' }
+      });
     }).catch(function (err) {
       var m = 'Failed to load capital allocation.';
       if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';

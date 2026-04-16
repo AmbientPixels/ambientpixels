@@ -88,37 +88,91 @@
     <div id="em-banner"></div>
     <div id="em-hero" class="em-hero"></div>
 
-    <div class="em-section" data-section="signals">
-      <h2><i class="fas fa-satellite-dish"></i> ACTIVE SIGNALS</h2>
-      <div id="em-signals"></div>
+    <div class="sys-section" id="em-signals-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-satellite-dish"></i>
+        <strong>ACTIVE SIGNALS</strong>
+        <span class="sys-count" id="em-signals-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="em-section" data-section="signals">
+          <div id="em-signals"></div>
+        </div>
+      </div>
     </div>
 
-    <div class="em-section" data-section="approval">
-      <h2><i class="fas fa-inbox"></i> APPROVAL QUEUE (sorted by blast-radius)</h2>
-      <div id="em-approval"></div>
+    <div class="sys-section" id="em-aq-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-inbox"></i>
+        <strong>APPROVAL QUEUE</strong>
+        <span class="sys-count" id="em-aq-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="em-section" data-section="approval">
+          <div id="em-approval"></div>
+        </div>
+      </div>
     </div>
 
     <div class="em-grid-2">
-      <div class="em-section" data-section="velocity">
-        <h2><i class="fas fa-gauge-high"></i> PROPOSAL VELOCITY (30d)</h2>
-        <div id="em-velocity"></div>
+      <div class="sys-section" id="em-velocity-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-rocket"></i>
+          <strong>PROPOSAL VELOCITY (30d)</strong>
+          <span class="sys-count" id="em-velocity-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div class="em-section" data-section="velocity">
+            <div id="em-velocity"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="em-section" data-section="reject">
-        <h2><i class="fas fa-circle-xmark"></i> REJECT-RATE LEADERBOARD (30d)</h2>
-        <div id="em-reject"></div>
+      <div class="sys-section" id="em-rejects-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-ban"></i>
+          <strong>REJECT-RATE LEADERBOARD (30d)</strong>
+          <span class="sys-count" id="em-rejects-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div class="em-section" data-section="reject">
+            <div id="em-reject"></div>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="em-grid-2">
-      <div class="em-section" data-section="churn">
-        <h2><i class="fas fa-arrows-rotate"></i> FLEET CHURN (30d)</h2>
-        <div id="em-churn"></div>
+      <div class="sys-section" id="em-churn-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-rotate"></i>
+          <strong>FLEET CHURN (30d)</strong>
+          <span class="sys-count" id="em-churn-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div class="em-section" data-section="churn">
+            <div id="em-churn"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="em-section" data-section="streak">
-        <h2><i class="fas fa-fire"></i> CAPITAL RED STREAK</h2>
-        <div id="em-streak"></div>
+      <div class="sys-section" id="em-capital-section">
+        <div class="sys-section-hdr">
+          <i class="fas fa-fire"></i>
+          <strong>CAPITAL RED STREAK</strong>
+          <span class="sys-count" id="em-capital-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div class="em-section" data-section="streak">
+            <div id="em-streak"></div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -312,11 +366,47 @@
       renderReject(d);
       renderChurn(d);
       renderStreak(d);
+      _applySectionDefaults({
+        'em-signals-section':  { collapse: 'if-empty' },
+        'em-aq-section':       { collapse: 'if-empty' },
+        'em-velocity-section': { collapse: 'always' },
+        'em-rejects-section':  { collapse: 'always' },
+        'em-churn-section':    { collapse: 'always' },
+        'em-capital-section':  { collapse: 'always' }
+      });
     }).catch(function (err) {
       var m = 'Failed to load emergence monitor.';
       if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
       document.getElementById('em-hero').innerHTML = '<div class="em-empty">' + esc(m) + '</div>';
     });
+    // ── Collapsible section toggle ──
+    document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        hdr.parentElement.classList.toggle('collapsed');
+        hdr.parentElement.classList.remove('dimmed');
+      });
+    });
+
+    function _applySectionDefaults(defaults) {
+      Object.keys(defaults).forEach(function(id) {
+        var section = document.getElementById(id);
+        if (!section) return;
+        var body = section.querySelector('.sys-section-body');
+        var countEl = section.querySelector('.sys-count');
+        var cfg = defaults[id];
+        var count = cfg.count != null ? cfg.count
+          : body ? body.querySelectorAll(':scope > *').length : 0;
+        if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+        var shouldCollapse = cfg.collapse === 'always'
+          || (cfg.collapse === 'if-empty' && count === 0);
+        if (shouldCollapse) {
+          section.classList.add('collapsed');
+          if (count === 0) section.classList.add('dimmed');
+        } else {
+          section.classList.remove('collapsed', 'dimmed');
+        }
+      });
+    }
   })();
   </script>
   <script src="/modules/company/js/sidebar.js"></script>
