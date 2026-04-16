@@ -1308,18 +1308,40 @@
             .catch(function() { cstatApi.textContent = '—'; });
         }
 
-        // Daily Burn
+        // Daily Burn — sum today's costs from server-side geminiUsage
         var cstatBurn = document.getElementById('cstat-burn');
         var cstatBurnSub = document.getElementById('cstat-burn-sub');
         if (cstatBurn) {
-          var burnSessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
-          var today = new Date().toISOString().split('T')[0];
-          var todayCost = 0;
-          burnSessions.forEach(function (s) {
-            if (s.timestamp && s.timestamp.startsWith(today) && s.cost) todayCost += s.cost;
-          });
-          cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
-          cstatBurnSub.textContent = 'est. cost today';
+          var burnBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+          fetch(burnBase + '/company-state?key=geminiUsage', { headers: { 'x-company-secret': 'pixelpusher' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              var usage = data.value || data || [];
+              if (!Array.isArray(usage)) usage = [];
+              var today = new Date().toISOString().split('T')[0];
+              var todayCost = 0;
+              var monthCost = 0;
+              var thisMonth = today.substring(0, 7);
+              usage.forEach(function (u) {
+                var ts = u.timestamp || u.createdAt || '';
+                var cost = u.totalCost || u.cost || 0;
+                if (ts.startsWith(today)) todayCost += cost;
+                if (ts.startsWith(thisMonth)) monthCost += cost;
+              });
+              cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
+              cstatBurnSub.textContent = 'est. cost today · $' + monthCost.toFixed(2) + '/mo';
+            })
+            .catch(function() {
+              // Fallback to local session log
+              var burnSessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+              var today = new Date().toISOString().split('T')[0];
+              var todayCost = 0;
+              burnSessions.forEach(function (s) {
+                if (s.timestamp && s.timestamp.startsWith(today) && s.cost) todayCost += s.cost;
+              });
+              cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
+              cstatBurnSub.textContent = 'est. cost today';
+            });
         }
 
         // Task Pipeline
