@@ -244,6 +244,58 @@
   scrollbar-gutter: stable;
 }
 
+/* ── Grouped category (System sub-groups) ── */
+.sb-topbar.sb-grouped {
+  height: 56px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.sb-top-groups {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  padding: 2px 0 0 0;
+}
+
+.sb-top-groups a {
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  cursor: pointer;
+  padding-bottom: 2px;
+  transition: color 0.12s;
+}
+
+.sb-top-groups a:hover {
+  color: rgba(255,255,255,0.7);
+}
+
+.sb-top-groups a.active {
+  color: #60a5fa;
+  border-bottom: 2px solid #60a5fa;
+}
+
+.sb-top-sublinks {
+  display: flex;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 14px;
+  padding: 0 0 2px 0;
+}
+
+.sb-top-sublinks .sb-sub {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.sb-top-sublinks .sb-sub i {
+  font-size: 10px;
+}
+
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .sb-rail {
@@ -305,6 +357,21 @@
   .sb-sub {
     padding: 4px 9px;
     font-size: 12px;
+  }
+
+  .sb-topbar.sb-grouped {
+    height: 48px;
+    padding: 2px 10px;
+  }
+
+  .sb-top-groups {
+    gap: 12px;
+    font-size: 11px;
+  }
+
+  .sb-top-sublinks .sb-sub {
+    padding: 2px 6px;
+    font-size: 10px;
   }
 
   .sb-topbar-ambientos span { display: none; }
@@ -377,6 +444,16 @@ body[data-theme="light"] .sb-rail-globe:hover {
   color: rgba(0,0,0,0.5);
   background: rgba(0,0,0,0.04);
 }
+body[data-theme="light"] .sb-top-groups a {
+  color: rgba(0,0,0,0.35);
+}
+body[data-theme="light"] .sb-top-groups a:hover {
+  color: rgba(0,0,0,0.7);
+}
+body[data-theme="light"] .sb-top-groups a.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
 @media (max-width: 768px) {
   body[data-theme="light"] .sb-rail {
     border-top-color: rgba(0,0,0,0.08);
@@ -431,6 +508,16 @@ body[data-theme="dim"] .sb-topbar-ambientos:hover {
   border-color: rgba(148,163,184,0.25);
   color: rgba(241,245,249,0.75);
   background: rgba(148,163,184,0.05);
+}
+body[data-theme="dim"] .sb-top-groups a {
+  color: rgba(241,245,249,0.35);
+}
+body[data-theme="dim"] .sb-top-groups a:hover {
+  color: rgba(241,245,249,0.75);
+}
+body[data-theme="dim"] .sb-top-groups a.active {
+  color: #38bdf8;
+  border-bottom-color: #38bdf8;
 }
 @media (max-width: 768px) {
   body[data-theme="dim"] .sb-rail {

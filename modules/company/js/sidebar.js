@@ -100,26 +100,76 @@
       id: 'system',
       label: 'System',
       icon: 'fa-sliders',
-      overview: BASE + 'config-overview.html',
-      links: [
-        { href: BASE + 'config-overview.html', label: 'Config', icon: 'fa-sliders', match: ['config-overview.html'] },
-        { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
-        { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] },
-        { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
-        { href: BASE + 'allocation.html', label: 'Allocation', icon: 'fa-coins', match: ['allocation.html'] },
-        { href: BASE + 'goals.html', label: 'Goals', icon: 'fa-bullseye', match: ['goals.html'] },
-        { href: BASE + 'fleet.html', label: 'Fleet', icon: 'fa-users-gear', match: ['fleet.html'], minMode: 'admin' },
-        { href: BASE + 'emergence.html', label: 'Emergence', icon: 'fa-wave-square', match: ['emergence.html'], minMode: 'admin' },
-        { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
-        { href: BASE + 'agent-intelligence.html', label: 'Agent Intel', icon: 'fa-lightbulb', match: ['agent-intelligence.html'] },
-        { href: BASE + 'world-state.html', label: 'World State', icon: 'fa-globe', match: ['world-state.html'], minMode: 'admin' },
-        { href: BASE + 'awareness.html', label: 'Awareness', icon: 'fa-brain', match: ['awareness.html'], minMode: 'admin' },
-        { href: BASE + 'governance-report.html', label: 'Governance', icon: 'fa-shield-halved', match: ['governance-report.html'], minMode: 'admin' },
-        { href: BASE + 'action-audit.html', label: 'Action Audit', icon: 'fa-receipt', match: ['action-audit.html'], minMode: 'admin' },
-        { href: BASE + 'memory-stack.html', label: 'Diagnostics', icon: 'fa-microscope', match: ['memory-stack.html'], minMode: 'admin' }
+      // overview resolved dynamically — see resolveSystemOverview()
+      groups: [
+        {
+          id: 'overview',
+          label: 'Overview',
+          links: [
+            { href: BASE + 'config-overview.html', label: 'Config', icon: 'fa-sliders', match: ['config-overview.html'] },
+            { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
+            { href: BASE + 'world-state.html', label: 'World State', icon: 'fa-globe', match: ['world-state.html'], minMode: 'admin' }
+          ]
+        },
+        {
+          id: 'agents',
+          label: 'Agents',
+          links: [
+            { href: BASE + 'fleet.html', label: 'Fleet', icon: 'fa-users-gear', match: ['fleet.html'], minMode: 'admin' },
+            { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
+            { href: BASE + 'agent-intelligence.html', label: 'Agent Intel', icon: 'fa-lightbulb', match: ['agent-intelligence.html'] },
+            { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] },
+            { href: BASE + 'awareness.html', label: 'Awareness', icon: 'fa-brain', match: ['awareness.html'], minMode: 'admin' }
+          ]
+        },
+        {
+          id: 'finance',
+          label: 'Finance',
+          links: [
+            { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
+            { href: BASE + 'allocation.html', label: 'Allocation', icon: 'fa-coins', match: ['allocation.html'] },
+            { href: BASE + 'goals.html', label: 'Goals', icon: 'fa-bullseye', match: ['goals.html'] }
+          ]
+        },
+        {
+          id: 'audit',
+          label: 'Audit',
+          links: [
+            { href: BASE + 'emergence.html', label: 'Emergence', icon: 'fa-wave-square', match: ['emergence.html'], minMode: 'admin' },
+            { href: BASE + 'governance-report.html', label: 'Governance', icon: 'fa-shield-halved', match: ['governance-report.html'], minMode: 'admin' },
+            { href: BASE + 'action-audit.html', label: 'Action Audit', icon: 'fa-receipt', match: ['action-audit.html'], minMode: 'admin' },
+            { href: BASE + 'memory-stack.html', label: 'Diagnostics', icon: 'fa-microscope', match: ['memory-stack.html'], minMode: 'admin' }
+          ]
+        }
       ]
     }
   ];
+
+  // ── Helpers for grouped categories ──
+  function _canAccess(link) {
+    return !link.minMode || (window.APMode && window.APMode.atLeast(link.minMode));
+  }
+
+  function _firstAccessibleHref(links) {
+    for (var i = 0; i < links.length; i++) {
+      if (_canAccess(links[i])) return links[i].href;
+    }
+    return null;
+  }
+
+  function _allLinks(cat) {
+    if (cat.links) return cat.links;
+    var out = [];
+    if (cat.groups) {
+      cat.groups.forEach(function (g) { out = out.concat(g.links); });
+    }
+    return out;
+  }
+
+  function resolveSystemOverview() {
+    if (window.APMode && window.APMode.atLeast('admin')) return BASE + 'world-state.html';
+    return BASE + 'config-overview.html';
+  }
 
   // Detect current page
   var path = window.location.pathname;
@@ -135,9 +185,10 @@
   }
 
   // Find active category — default to command
+  // Searches inside groups for grouped categories
   var activeCatId = 'command';
   NAV.forEach(function (cat) {
-    cat.links.forEach(function (link) {
+    _allLinks(cat).forEach(function (link) {
       if (isActive(link.match)) activeCatId = cat.id;
     });
   });
@@ -170,8 +221,9 @@
     chip.innerHTML = '<i class="fas ' + cat.icon + '"></i>' + cat.label;
     chip.addEventListener('click', function () {
       // Navigate to overview page for this category
-      if (cat.id !== activeCatId && cat.overview) {
-        window.location.href = cat.overview;
+      if (cat.id !== activeCatId) {
+        var dest = cat.groups ? resolveSystemOverview() : cat.overview;
+        if (dest) window.location.href = dest;
       } else {
         selectCategory(cat.id);
       }
@@ -229,7 +281,7 @@
       modeBtn.title = 'Mode: ' + _modeLabel(next);
       modeBtn.style.color = _modeTint(next);
       modeBtn.innerHTML = '<i class="fas ' + _modeIcon(next) + '"></i>';
-      renderSubLinks(selectedCatId);
+      // renderSubLinks is triggered by ap-mode-change event in _applyModeAttr
     });
   }
 
@@ -262,10 +314,69 @@
   var topbar = document.createElement('nav');
   topbar.className = 'sb-topbar';
 
+  // Detect which group the current page belongs to (for grouped categories)
+  function _findActiveGroup(groups) {
+    for (var i = 0; i < groups.length; i++) {
+      for (var j = 0; j < groups[i].links.length; j++) {
+        if (isActive(groups[i].links[j].match)) return groups[i].id;
+      }
+    }
+    return 'overview'; // fallback per spec
+  }
+
   function renderSubLinks(catId) {
     topbar.innerHTML = '';
     var cat = NAV.filter(function (c) { return c.id === catId; })[0];
     if (!cat) return;
+
+    // ── Grouped category (System) ──
+    if (cat.groups) {
+      topbar.classList.add('sb-grouped');
+      var activeGroupId = _findActiveGroup(cat.groups);
+
+      // Row 1: group tabs
+      var groupRow = document.createElement('div');
+      groupRow.className = 'sb-top-groups';
+
+      cat.groups.forEach(function (group) {
+        // Hide group if ALL links require admin and user isn't admin
+        var hasVisible = group.links.some(function (l) { return _canAccess(l); });
+        if (!hasVisible) return;
+
+        var tab = document.createElement('a');
+        tab.textContent = group.label;
+        tab.className = group.id === activeGroupId ? 'active' : '';
+        tab.href = '#';
+        tab.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (group.id === activeGroupId) return; // no-op if already in group
+          var dest = _firstAccessibleHref(group.links);
+          if (dest) window.location.href = dest;
+        });
+        groupRow.appendChild(tab);
+      });
+      topbar.appendChild(groupRow);
+
+      // Row 2: sub-links for active group
+      var activeGroup = cat.groups.filter(function (g) { return g.id === activeGroupId; })[0];
+      if (activeGroup) {
+        var subRow = document.createElement('div');
+        subRow.className = 'sb-top-sublinks';
+        activeGroup.links.forEach(function (link) {
+          if (!_canAccess(link)) return;
+          var a = document.createElement('a');
+          a.href = link.href;
+          a.className = 'sb-sub' + (isActive(link.match) ? ' sb-sub--active' : '');
+          a.innerHTML = '<i class="fas ' + link.icon + '"></i>' + link.label;
+          subRow.appendChild(a);
+        });
+        topbar.appendChild(subRow);
+      }
+      return;
+    }
+
+    // ── Flat category (Command, Work, Plan, Content) ──
+    topbar.classList.remove('sb-grouped');
 
     // Category label
     var label = document.createElement('span');
@@ -299,6 +410,7 @@
   // ── Apply APMode attribute to body for CSS-based mode gating ──
   function _applyModeAttr() {
     document.body.setAttribute('data-mode', window.APMode ? window.APMode.get() : 'executive');
+    renderSubLinks(selectedCatId);
   }
   _applyModeAttr();
   window.addEventListener('ap-mode-change', _applyModeAttr);
