@@ -14,7 +14,7 @@
   background: none;
   border: none;
   color: rgba(255,255,255,0.4);
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 5px 12px;
   border-radius: 6px;
   cursor: pointer;
@@ -72,7 +72,7 @@
 }
 .exec-pulse-info { }
 .exec-pulse-label {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: rgba(255,255,255,0.35);
@@ -116,7 +116,7 @@
   color: rgba(255,255,255,0.3);
 }
 .act-section-header h2 {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -153,7 +153,7 @@
   text-align: center;
 }
 .act-raw-stat-val {
-  font-size: 22px;
+  font-size: var(--c-text-xl);
   font-weight: 700;
   letter-spacing: -0.03em;
   color: #fff;
@@ -161,7 +161,7 @@
   margin-bottom: 4px;
 }
 .act-raw-stat-label {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.35);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -290,9 +290,9 @@ body[data-theme="dim"] .act-modal { background: #1e293b; border-color: rgba(148,
 #act-main   { max-width: 900px; margin: 0 auto; padding: 1rem; }
 #act-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
 .act-h1 { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
-.act-header-sub { margin: 0.2rem 0 0; font-size: 0.8rem; opacity: 0.45; }
-.act-btn--sm { font-size: 0.6rem; padding: 0.3rem 0.8rem; flex-shrink: 0; }
-.act-count-badge { font-size: 0.6rem; opacity: 0.4; }
+.act-header-sub { margin: 0.2rem 0 0; font-size: var(--c-text-base); opacity: 0.45; }
+.act-btn--sm { font-size: var(--c-text-xs); padding: 0.3rem 0.8rem; flex-shrink: 0; }
+.act-count-badge { font-size: var(--c-text-xs); opacity: 0.4; }
 
 /* Bulk bar — non-display styles (display:none stays inline for JS toggling) */
 #pending-bulk-bar {
@@ -302,9 +302,9 @@ body[data-theme="dim"] .act-modal { background: #1e293b; border-color: rgba(148,
   gap: 0.5rem;
   background: rgba(52,211,153,0.025);
 }
-.act-bulk-label { display: flex; align-items: center; gap: 0.3rem; font-size: 0.6rem; opacity: 0.5; cursor: pointer; }
+.act-bulk-label { display: flex; align-items: center; gap: 0.3rem; font-size: var(--c-text-xs); opacity: 0.5; cursor: pointer; }
 .act-checkbox-green { accent-color: #34d399; }
-.act-bulk-btn { font-size: 0.58rem; padding: 0.18rem 0.6rem; }
+.act-bulk-btn { font-size: var(--c-text-xs); padding: 0.18rem 0.6rem; }
 
 /* Panel head modifier */
 .act-panel-head--amber { border-color: rgba(251,191,36,0.15); }
@@ -315,4 +315,4 @@ body[data-theme="dim"] .act-modal { background: #1e293b; border-color: rgba(148,
 
 /* Modal */
 .act-modal-icon { margin-right: 0.35rem; opacity: 0.6; }
-.act-modal-desc { font-size: 0.7rem; opacity: 0.6; margin: 0 0 0.5rem; }
+.act-modal-desc { font-size: var(--c-text-xs); opacity: 0.6; margin: 0 0 0.5rem; }

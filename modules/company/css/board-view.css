@@ -9,7 +9,7 @@
   gap: 8px;
 }
 .board-view .board-header h1 {
-  font-size: 1.4rem;
+  font-size: var(--c-text-xl);
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0 0 4px;
@@ -23,16 +23,16 @@
   border: none;
   border-radius: 8px;
   color: rgba(255,255,255,0.6);
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
 }
 .board-view .board-controls button:hover { background: #2c2c2e; color: rgba(255,255,255,0.85); }
-.board-view .board-date-range { font-size: 12px; color: rgba(255,255,255,0.3); }
+.board-view .board-date-range { font-size: var(--c-text-xs); color: rgba(255,255,255,0.3); }
 .board-view .board-section { margin-bottom: 18px; }
 .board-view .board-section-title {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-weight: 600;
   color: rgba(255,255,255,0.65);
   margin-bottom: 8px;
@@ -73,14 +73,14 @@
   line-height: 1;
 }
 .board-view .board-stat-label {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.35);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-top: 5px;
 }
 .board-view .board-badge {
-  font-size: 10px;
+  font-size: var(--c-text-xs);
   padding: 2px 7px;
   border-radius: 4px;
   font-weight: 600;
@@ -94,14 +94,14 @@
   margin-bottom: 4px;
   background: #2c2c2e;
 }
-.board-view .board-empty { font-size: 13px; color: rgba(255,255,255,0.25); padding: 8px 0; }
+.board-view .board-empty { font-size: var(--c-text-base); color: rgba(255,255,255,0.25); padding: 8px 0; }
 .board-view .board-section { margin-bottom: 12px; }
 .board-view .board-copy-btn { border-color: rgba(52,211,153,0.2) !important; color: #34d399 !important; }
 .board-view .board-copy-btn:hover { background: rgba(52,211,153,0.06) !important; }
 
 /* Executive Summary — structured list */
 .board-exec-list { list-style: none; padding: 0; margin: 0; }
-.board-exec-list li { padding: 0.3rem 0; font-size: 0.8rem; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.7); }
+.board-exec-list li { padding: 0.3rem 0; font-size: var(--c-text-base); line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.7); }
 .board-exec-list li:last-child { border-bottom: none; }
 
 /* Risk Register — severity borders */
@@ -111,7 +111,7 @@
 
 /* Risk filter controls */
 .board-risk-controls { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; flex-wrap: wrap; }
-.board-risk-controls select { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; background: #2c2c2e; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1); font-family: inherit; }
+.board-risk-controls select { font-size: var(--c-text-xs); padding: 2px 6px; border-radius: 4px; background: #2c2c2e; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1); font-family: inherit; }
 .board-view .board-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .board-view .board-goal-card {
   padding: 10px 12px;
@@ -120,8 +120,8 @@
   margin-bottom: 5px;
   background: #1c1c1e;
 }
-.board-view .board-goal-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 3px; }
-.board-view .board-goal-meta { font-size: 11px; color: rgba(255,255,255,0.35); display: flex; gap: 6px; flex-wrap: wrap; }
+.board-view .board-goal-title { font-size: var(--c-text-base); font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 3px; }
+.board-view .board-goal-meta { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); display: flex; gap: 6px; flex-wrap: wrap; }
 .board-view .board-progress-bar {
   height: 4px;
   border-radius: 2px;
@@ -140,9 +140,9 @@
   margin-bottom: 4px;
 }
 .board-view .board-agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.board-view .board-agent-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
-.board-view .board-agent-role { font-size: 11px; color: rgba(255,255,255,0.3); }
-.board-view .board-agent-stat { font-size: 12px; margin-left: auto; color: rgba(255,255,255,0.4); }
+.board-view .board-agent-name { font-size: var(--c-text-base); font-weight: 600; color: rgba(255,255,255,0.8); }
+.board-view .board-agent-role { font-size: var(--c-text-xs); color: rgba(255,255,255,0.3); }
+.board-view .board-agent-stat { font-size: var(--c-text-xs); margin-left: auto; color: rgba(255,255,255,0.4); }
 .board-view .board-cost-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .board-view .board-cost-item {
   flex: 1;
@@ -152,8 +152,8 @@
   border-radius: 8px;
   background: #1c1c1e;
 }
-.board-view .board-cost-val { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.85); }
-.board-view .board-cost-label { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+.board-view .board-cost-val { font-size: var(--c-text-md); font-weight: 700; color: rgba(255,255,255,0.85); }
+.board-view .board-cost-label { font-size: var(--c-text-xs); color: rgba(255,255,255,0.3); margin-top: 2px; }
 .board-view .board-content-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .board-view .board-content-pill {
   flex: 1;
@@ -164,7 +164,7 @@
   background: #1c1c1e;
 }
 .board-view .board-content-pill-val { font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.85); }
-.board-view .board-content-pill-label { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+.board-view .board-content-pill-label { font-size: var(--c-text-xs); color: rgba(255,255,255,0.3); margin-top: 3px; }
 
 @media (max-width: 700px) { .board-view .board-two-col { grid-template-columns: 1fr; } }
 

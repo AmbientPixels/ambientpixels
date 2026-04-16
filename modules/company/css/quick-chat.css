@@ -68,7 +68,7 @@
 }
 
 .qc-drawer-header h3 {
-  font-size: 14px;
+  font-size: var(--c-text-base);
   font-weight: 600;
   margin: 0;
   color: #e9d5ff;
@@ -84,7 +84,7 @@
   height: 28px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -120,7 +120,7 @@
 }
 
 .qc-drawer-footer a {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   color: rgba(139,92,246,0.5);
   text-decoration: none;
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
@@ -142,7 +142,7 @@
 
 /* Messages */
 .qc-msg {
-  font-size: 13px;
+  font-size: var(--c-text-base);
   padding: 8px 12px;
   border-radius: 10px;
   line-height: 1.5;
@@ -169,7 +169,7 @@
 }
 .qc-thinking-dots span {
   display: inline-block;
-  font-size: 1.2rem;
+  font-size: var(--c-text-lg);
   font-weight: 700;
   color: #a78bfa;
   animation: qc-dot-bounce 1.4s ease-in-out infinite;
@@ -187,7 +187,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
   color: rgba(255,255,255,0.85);
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   padding: 7px 10px;
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   outline: none;
@@ -200,7 +200,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
   color: rgba(255,255,255,0.9);
-  font-size: 13px;
+  font-size: var(--c-text-base);
   padding: 7px 11px;
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   outline: none;
@@ -216,7 +216,7 @@
   border-radius: 8px;
   cursor: pointer;
   padding: 7px 14px;
-  font-size: 13px;
+  font-size: var(--c-text-base);
   font-family: 'Inter', -apple-system, system-ui, sans-serif;
   display: flex;
   align-items: center;

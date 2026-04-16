@@ -20,7 +20,7 @@
 }
 
 .aint-stat-label {
-  font-size: 11px;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -35,13 +35,13 @@
 }
 
 .aint-stat-sub {
-  font-size: 12px;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.35);
   margin-top: 6px;
 }
 
 .aint-stat-delta {
-  font-size: 0.7rem;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   margin-left: 0.4rem;
   vertical-align: super;
@@ -73,7 +73,7 @@
 }
 
 .aint-digest-title {
-  font-size: 0.55rem;
+  font-size: var(--c-text-xs);
   opacity: 0.35;
   font-weight: 500;
   text-transform: uppercase;
@@ -82,13 +82,13 @@
 }
 
 .aint-digest-value {
-  font-size: 1.2rem;
+  font-size: var(--c-text-lg);
   font-weight: 700;
   margin: 0.1rem 0;
 }
 
 .aint-digest-sub {
-  font-size: 0.6rem;
+  font-size: var(--c-text-xs);
   opacity: 0.35;
 }
 
@@ -126,19 +126,19 @@
 }
 
 .aint-note-agent {
-  font-size: 0.7rem;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   color: rgba(255,255,255,0.75);
 }
 
 .aint-note-time {
-  font-size: 0.55rem;
+  font-size: var(--c-text-xs);
   opacity: 0.3;
   margin-left: auto;
 }
 
 .aint-note-text {
-  font-size: 0.72rem;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.55);
   line-height: 1.4;
   font-style: italic;
@@ -161,7 +161,7 @@
 
 .aint-lb-rank {
   width: 20px;
-  font-size: 0.7rem;
+  font-size: var(--c-text-xs);
   font-weight: 600;
   color: rgba(255,255,255,0.3);
   text-align: center;
@@ -174,13 +174,13 @@
 }
 
 .aint-lb-name-main {
-  font-size: 0.78rem;
+  font-size: var(--c-text-base);
   font-weight: 600;
   color: rgba(255,255,255,0.8);
 }
 
 .aint-lb-name-role {
-  font-size: 0.52rem;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.3);
 }
 
@@ -202,13 +202,13 @@
   width: 32px;
   text-align: right;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
 }
 
 .aint-lb-trend {
   width: 18px;
   text-align: center;
-  font-size: 0.65rem;
+  font-size: var(--c-text-xs);
   flex-shrink: 0;
 }
 
@@ -224,7 +224,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  font-size: 0.72rem;
+  font-size: var(--c-text-xs);
   color: rgba(255,255,255,0.25);
 }
 
@@ -238,7 +238,7 @@
 }
 
 .aint-panel-title {
-  font-size: 0.85rem;
+  font-size: var(--c-text-base);
   font-weight: 600;
   color: rgba(255,255,255,0.7);
   margin-bottom: 0.6rem;
@@ -257,11 +257,11 @@
   text-align: center;
   padding: 1.5rem 1rem;
   color: rgba(255,255,255,0.3);
-  font-size: 0.75rem;
+  font-size: var(--c-text-xs);
 }
 
 .aint-error {
-  font-size: 0.7rem;
+  font-size: var(--c-text-xs);
   padding: 0.5rem 0.75rem;
   border: 1px solid rgba(251,191,36,0.2);
   border-radius: 6px;
@@ -278,7 +278,7 @@
 
 @media (max-width: 480px) {
   .aint-stats { grid-template-columns: 1fr; }
-  .aint-stat-value { font-size: 1.8rem; }
+  .aint-stat-value { font-size: var(--c-text-2xl); }
 }
 
 /* ── Theme: Light ── */
