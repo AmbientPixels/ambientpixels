@@ -187,7 +187,7 @@ function _fleetProposalGate(agentId, type, targetKey, approvalQueue) {
 
 async function runAgentHeartbeat(ctx) {
   if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
-  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, pendingMessages, approvalQueue, emergenceDigest } = ctx;
+  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, executionMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, pendingMessages, approvalQueue, emergenceDigest } = ctx;
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -4208,10 +4208,10 @@ Write the full deliverable first, then the structured JSON block.`;
       let _memBlockedReason = null;
 
       // Manual mode gate: block all memory writes
-      if (normalizedActivationMode === 'manual') {
+      if (executionMode === 'manual') {
         _memBlockedReason = 'mode_gate_manual';
         await logEvent('policy-violation', agentId, 'Memory write blocked: manual mode', cycleId, {
-          runId: cycleId, agentId: agentId, gate: 'mode_gate', reason: 'manual_blocks_remember'
+          runId: cycleId, agentId: agentId, gate: 'mode_gate', reason: 'execution_mode_manual_blocks_remember'
         });
       } else if (!mem.text || mem.text.trim().length === 0) {
         _memBlockedReason = 'empty_text';

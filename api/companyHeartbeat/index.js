@@ -1667,6 +1667,7 @@ module.exports = async function (context) {
             seedMemories: _seedMemories,
             researchIntelStore, socialIntel,
             normalizedActivationMode,
+            executionMode,
             isAgentInCooldown: _isAgentInCooldown,
             logAgentCooldownOnce: _logAgentCooldownOnce,
             incPolicyGate: _incPolicyGate,
@@ -1737,6 +1738,7 @@ module.exports = async function (context) {
           seedMemories: _seedMemories,
           researchIntelStore, socialIntel,
           normalizedActivationMode,
+          executionMode,
           isAgentInCooldown: _isAgentInCooldown,
           logAgentCooldownOnce: _logAgentCooldownOnce,
           incPolicyGate: _incPolicyGate,
@@ -1883,7 +1885,7 @@ module.exports = async function (context) {
               if (!result.proposals) result.proposals = [];
 
               // Manual mode gate: proposal-only, no direct task mutations
-              if (normalizedActivationMode === 'manual') {
+              if (executionMode === 'manual') {
                 _incBlocked(agentId);
                 const _modeTask = mutationAction === 'create'
                   ? { id: null, title: (update.task && update.task.title) || 'Untitled', category: (update.task && update.task.category) || null, objective_id: (update.task && update.task.objective_id) || null }
@@ -1893,11 +1895,11 @@ module.exports = async function (context) {
                     title: (_modeTask && _modeTask.title) || (update.task && update.task.title) || null,
                     category: (_modeTask && _modeTask.category) || (update.task && update.task.category) || null,
                     objective_id: (_modeTask && _modeTask.objective_id) || (update.task && update.task.objective_id) || null,
-                    objective_suggestion: 'Switch to supervised_autonomous or assign an objective to proceed.',
+                    objective_suggestion: 'Set execution_mode to active or assign an objective to proceed.',
                     evidence: {
                       blockedAction: mutationAction,
                       taskId: update.taskId || null,
-                      mode: normalizedActivationMode
+                      mode: executionMode
                     }
                   }));
                   if (_isValidProposal(modeProposal)) {
@@ -1908,12 +1910,12 @@ module.exports = async function (context) {
                     await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
                   }
                 }
-                await logEvent('policy-violation', agentId, 'Task mutation blocked by activation mode', runId, {
+                await logEvent('policy-violation', agentId, 'Task mutation blocked by execution mode', runId, {
                   runId: runId,
                   agentId: agentId,
                   gate: 'mode_gate',
                   action: mutationAction,
-                  reason: 'activationMode=manual blocks task mutations',
+                  reason: 'execution_mode=manual blocks task mutations',
                   taskId: update.taskId || null,
                   category: (_modeTask && _modeTask.category) || (update.task && update.task.category) || null
                 });
