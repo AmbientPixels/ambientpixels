@@ -266,10 +266,27 @@
   gap: 2px;
 }
 
-/* Sub-links row — also reuses .sb-sub / .sb-sub--active */
+/* Sub-links row — flat links, active gets underline indicator */
 .sb-top-sublinks {
   display: flex;
-  gap: 2px;
+  gap: 12px;
+  padding: 2px 4px 0;
+}
+
+.sb-top-sublinks .sb-sub {
+  padding: 2px 0;
+  border-radius: 0;
+  background: none;
+}
+
+.sb-top-sublinks .sb-sub:hover {
+  background: none;
+}
+
+.sb-top-sublinks .sb-sub--active {
+  background: none;
+  border-bottom: 2px solid #60a5fa;
+  padding-bottom: 0;
 }
 
 /* ── Mobile ── */
@@ -415,6 +432,9 @@ body[data-theme="light"] .sb-rail-globe:hover {
   color: rgba(0,0,0,0.5);
   background: rgba(0,0,0,0.04);
 }
+body[data-theme="light"] .sb-top-sublinks .sb-sub--active {
+  border-bottom-color: #2563eb;
+}
 @media (max-width: 768px) {
   body[data-theme="light"] .sb-rail {
     border-top-color: rgba(0,0,0,0.08);
@@ -469,6 +489,9 @@ body[data-theme="dim"] .sb-topbar-ambientos:hover {
   border-color: rgba(148,163,184,0.25);
   color: rgba(241,245,249,0.75);
   background: rgba(148,163,184,0.05);
+}
+body[data-theme="dim"] .sb-top-sublinks .sb-sub--active {
+  border-bottom-color: #38bdf8;
 }
 @media (max-width: 768px) {
   body[data-theme="dim"] .sb-rail {
