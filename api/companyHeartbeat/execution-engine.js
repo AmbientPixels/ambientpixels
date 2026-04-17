@@ -132,7 +132,13 @@ function buildExecutePrompt(agent, task, workspaceFiles, costIntel, siteIntel, s
   // Gather existing comments for context
   const existingComments = (task.comments || [])
     .filter(c => c.text)
-    .map(c => '- [' + (c.type || 'comment') + ' by ' + (c.author || 'unknown') + '] ' + c.text.substring(0, 200))
+    .map(c => {
+      // Brief-correction comments from the quality-gate hallucination path carry ~2000 chars of
+      // actionable facts (hallucinated claims + correct product facts). A 200-char truncation
+      // would drop the entire correction instruction. Keep full content for this prefix.
+      var _budget = (typeof c.id === 'string' && c.id.indexOf('cmt-qgbrief-') === 0) ? 2500 : 200;
+      return '- [' + (c.type || 'comment') + ' by ' + (c.author || 'unknown') + '] ' + c.text.substring(0, _budget);
+    })
     .join('\n') || '(none)';
 
   // Revision-awareness: count prior deliverables and feedback to prevent re-draft loops

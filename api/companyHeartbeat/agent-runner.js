@@ -2844,6 +2844,7 @@ Write the full deliverable first, then the structured JSON block.`;
               _hallFactsLine = '\n\nCorrect facts for ' + _hallProductKey + ':\n- ' + _hp.description + '\n- Real features: ' + (_hp.features || []).join('; ') + '\n- This product is NOT: ' + (_hp.notThis || []).join('; ');
             }
             var _hallIssues = (_qgResult.issues || []).filter(function (i) { return typeof i === 'string' && QG_HALLUCINATION_KEYWORDS.test(i); });
+            if (_hallIssues.length === 0) _hallIssues = (_qgResult.issues || []).slice(0, 3);
             _qgParentTask.comments.push({
               id: 'cmt-qgbrief-' + Date.now(),
               author: 'system',
@@ -2851,7 +2852,7 @@ Write the full deliverable first, then the structured JSON block.`;
               type: 'system',
               createdAt: new Date().toISOString()
             });
-            context.log('[QualityGate] HALLUCINATION detected on', action.taskId, '— brief-correction comment posted to Echo parent task');
+            context.log('[QualityGate] HALLUCINATION detected on', action.taskId, 'product:', _hallProductKey || 'unknown', '— brief-correction comment posted to Echo parent task');
           }
         }
 

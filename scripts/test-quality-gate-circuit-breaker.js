@@ -76,5 +76,13 @@ assert(agentRunnerSrc.indexOf('cmt-qgbrief-') !== -1, 'hallucination path uses b
 assert(agentRunnerSrc.indexOf('_isHallucinationFailure(_qgResult)') !== -1, 'hallucination detection wired in');
 console.log('Hallucination wiring checks passed.');
 
+// Verify execution-engine.js gives cmt-qgbrief-* comments full length
+const execEngineSrc = fs.readFileSync(path.join(__dirname, '..', 'api', 'companyHeartbeat', 'execution-engine.js'), 'utf8');
+assert(execEngineSrc.indexOf("cmt-qgbrief-") !== -1, 'execution-engine special-cases cmt-qgbrief comments');
+assert(execEngineSrc.indexOf("2500") !== -1, 'execution-engine uses 2500-char budget for brief comments');
+// Verify hallucination issues fallback guard
+assert(agentRunnerSrc.indexOf('_hallIssues.length === 0') !== -1, 'hallucination block has empty-array fallback');
+console.log('Task 3 review-fix checks passed.');
+
 console.log('\n' + (failures === 0 ? 'All passed.' : failures + ' failure(s).'));
 process.exit(failures === 0 ? 0 : 1);
