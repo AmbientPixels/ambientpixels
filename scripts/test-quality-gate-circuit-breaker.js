@@ -29,17 +29,31 @@ assert(_isHallucinationFailure({ issues: ['Pixel Agents does not have pricing ti
 assert(_isHallucinationFailure({ issues: ['invented stat: 95% accuracy'] }) === true, 'invented → true');
 assert(_isHallucinationFailure({ issues: ['fabricated user count'] }) === true, 'fabricated → true');
 
+// Regression guards for regex false positives/negatives
+assert(_isHallucinationFailure({ issues: ['tone feels inventive but weak'] }) === false, 'inventive (adjective) → false, not hallucination');
+assert(_isHallucinationFailure({ issues: ['reinvents the wheel'] }) === false, 'reinvents → false, not hallucination');
+assert(_isHallucinationFailure({ issues: ['does not really include pricing'] }) === true, 'does not + adverb + include → true');
+assert(_isHallucinationFailure({ issues: ['does not actually support that feature'] }) === true, 'does not + adverb + support → true');
+assert(_isHallucinationFailure({ issues: ['inventing new features'] }) === true, 'inventing (verb) → true, hallucination');
+
 // _detectProductFromTask
 assert(_detectProductFromTask({ title: 'Draft LinkedIn post for Pixel Agents launch' }) === 'PixelAgents', 'pixel agents detected');
 assert(_detectProductFromTask({ title: 'Draft post about Blindspot' }) === 'Blindspot', 'blindspot detected');
 assert(_detectProductFromTask({ title: 'Generic post' }) === null, 'no product → null');
+// Longest-match: when task mentions both AmbientOS and AmbientScore, the longer (more specific) name wins
+assert(_detectProductFromTask({ title: 'Compare AmbientOS and AmbientScore' }) === 'AmbientScore', 'longest-match wins on cross-product tasks');
 
 // _buildStrongFeedbackBlock
 const block = _buildStrongFeedbackBlock('PixelAgents');
 assert(block.indexOf('FOUNDER VOICE RULES') !== -1, 'block has voice rules header');
 assert(block.indexOf('GOOD EXAMPLES') !== -1, 'block has examples header');
 assert(block.indexOf('PRODUCT FACTS for PixelAgents') !== -1, 'block has product facts');
-assert(block.length < 5000, 'block fits token budget (<5000 chars)');
+// Token budget: loop over EVERY product so a future product addition cannot silently blow the budget
+const productFacts = require(path.join(__dirname, '..', 'api', '_data', 'product-facts.json'));
+Object.keys(productFacts.products).forEach(function (pk) {
+  const b = _buildStrongFeedbackBlock(pk);
+  assert(b.length < 5000, 'block for ' + pk + ' fits token budget (<5000 chars, actual: ' + b.length + ')');
+});
 
 // Constants
 assert(QG_FAIL_CIRCUIT_BREAKER_THRESHOLD === 3, 'threshold is 3');

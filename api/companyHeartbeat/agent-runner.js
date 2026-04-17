@@ -75,7 +75,7 @@ async function _validateContentQuality(text, platform, context) {
 
 // ── Quality Gate Circuit Breaker constants (System: QG hardening) ──
 const QG_FAIL_CIRCUIT_BREAKER_THRESHOLD = 3;
-const QG_HALLUCINATION_KEYWORDS = /hallucin|invent(ed|s)?|fabricat|does(?:\s+not|n['’]t)\s+(?:have|exist|support|include)|not(?:\s+a|\s+an)?\s+(?:real|actual)\s+(?:feature|capability|product)/i;
+const QG_HALLUCINATION_KEYWORDS = /hallucin|\binvent(?:ed|s|ing)?\b|fabricat|does(?:\s+not|n['’]t)(?:\s+\w+)?\s+(?:have|exist|support|include)|not(?:\s+a|\s+an)?\s+(?:real|actual)\s+(?:feature|capability|product)/i;
 
 // Count prior quality-gate failures on a task by scanning for our stable comment marker.
 function _countQgFailures(task) {
@@ -99,14 +99,14 @@ function _detectProductFromTask(task) {
   if (!task) return null;
   var hay = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
   var products = (_productFacts && _productFacts.products) || {};
-  // Exact-name match first
-  var names = Object.keys(products);
+  // Exact-name match first — sort by length desc so longer names (e.g. "AmbientScore") win over shorter ones ("AmbientOS") for cross-product tasks
+  var names = Object.keys(products).sort(function (a, b) { return b.length - a.length; });
   for (var i = 0; i < names.length; i++) {
     if (hay.indexOf(names[i].toLowerCase()) !== -1) return names[i];
   }
   // Loose match for space-separated variants ("pixel agents" → PixelAgents)
   var loose = { 'pixel agents': 'PixelAgents', 'story forge': 'StoryForge', 'card forge': 'CardForge', 'ambient os': 'AmbientOS', 'ambient score': 'AmbientScore' };
-  var lkeys = Object.keys(loose);
+  var lkeys = Object.keys(loose).sort(function (a, b) { return b.length - a.length; });
   for (var j = 0; j < lkeys.length; j++) {
     if (hay.indexOf(lkeys[j]) !== -1) return loose[lkeys[j]];
   }
