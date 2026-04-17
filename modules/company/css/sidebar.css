@@ -97,18 +97,6 @@
   color: #60a5fa;
 }
 
-/* Active indicator — thin left bar */
-.sb-rail-chip--active::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  top: 12px;
-  bottom: 12px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: #60a5fa;
-}
-
 /* Rail footer */
 .sb-rail-footer {
   padding-bottom: 12px;
@@ -329,16 +317,6 @@
 
   .sb-rail-chip i { font-size: 16px; }
 
-  .sb-rail-chip--active::before {
-    left: 25%;
-    right: 25%;
-    top: 0;
-    bottom: auto;
-    width: auto;
-    height: 2px;
-    border-radius: 0 0 3px 3px;
-  }
-
   .sb-main {
     margin-left: 0;
     margin-bottom: 52px;
@@ -393,9 +371,6 @@ body[data-theme="light"] .sb-rail-chip--active {
 }
 body[data-theme="light"] .sb-rail-chip--active i {
   color: #2563eb;
-}
-body[data-theme="light"] .sb-rail-chip--active::before {
-  background: #2563eb;
 }
 body[data-theme="light"] .sb-sub {
   color: rgba(0,0,0,0.45);
@@ -465,9 +440,6 @@ body[data-theme="dim"] .sb-rail-chip--active {
 }
 body[data-theme="dim"] .sb-rail-chip--active i {
   color: #38bdf8;
-}
-body[data-theme="dim"] .sb-rail-chip--active::before {
-  background: #38bdf8;
 }
 body[data-theme="dim"] .sb-sub {
   color: rgba(241,245,249,0.4);
