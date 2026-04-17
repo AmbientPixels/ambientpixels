@@ -85,7 +85,7 @@
     {
       id: 'content',
       label: 'Content',
-      icon: 'fa-wand-magic-sparkles',
+      icon: 'fa-feather-pointed',
       overview: BASE + 'content-overview.html',
       links: [
         { href: BASE + 'content-overview.html', label: 'Content Hub', icon: 'fa-layer-group', match: ['content-overview.html'] },
@@ -99,7 +99,7 @@
     {
       id: 'system',
       label: 'System',
-      icon: 'fa-sliders',
+      icon: 'fa-gear',
       // overview resolved dynamically — see resolveSystemOverview()
       groups: [
         {

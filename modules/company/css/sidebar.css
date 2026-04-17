@@ -167,22 +167,22 @@
 
 /* Sub-links */
 .sb-sub {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
-  border-radius: 7px;
+  padding: 6px 2px;
+  margin: 0 6px;
   text-decoration: none;
   color: rgba(255,255,255,0.4);
   font-size: var(--c-text-base);
   font-weight: 500;
   white-space: nowrap;
-  transition: color 0.12s, background 0.12s;
+  transition: color 0.12s;
 }
 
 .sb-sub:hover {
   color: rgba(255,255,255,0.75);
-  background: rgba(255,255,255,0.05);
 }
 
 .sb-sub i {
@@ -190,10 +190,20 @@
   opacity: 0.5;
 }
 
-/* Active sub-link */
+/* Active sub-link — underline indicator */
 .sb-sub--active {
   color: #60a5fa;
-  background: rgba(96,165,250,0.08);
+}
+
+.sb-sub--active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #60a5fa;
+  border-radius: 2px 2px 0 0;
 }
 
 .sb-sub--active i {
@@ -250,35 +260,53 @@
   justify-content: center;
   align-items: flex-start;
   gap: 0;
+  overflow: hidden;
 }
 
 /* Group tabs row — reuses .sb-sub / .sb-sub--active */
 .sb-top-groups {
   display: flex;
   gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  width: 100%;
 }
+.sb-top-groups::-webkit-scrollbar { display: none; }
 
 /* Sub-links row — flat links, active gets underline indicator */
 .sb-top-sublinks {
   display: flex;
   gap: 12px;
   padding: 2px 4px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  width: 100%;
 }
+.sb-top-sublinks::-webkit-scrollbar { display: none; }
 
+/* Sub-tab tier — clearly secondary: smaller, lighter */
 .sb-top-sublinks .sb-sub {
-  padding: 2px 0;
-  border-radius: 0;
-  background: none;
+  padding: 4px 2px;
+  margin: 0 8px 0 0;
+  font-size: var(--c-text-xs);
+  font-weight: 400;
+  color: rgba(255,255,255,0.35);
 }
 
 .sb-top-sublinks .sb-sub:hover {
-  background: none;
+  color: rgba(255,255,255,0.7);
 }
 
 .sb-top-sublinks .sb-sub--active {
-  background: none;
-  border-bottom: 2px solid #60a5fa;
-  padding-bottom: 0;
+  color: #60a5fa;
+  font-weight: 500;
+}
+
+.sb-top-sublinks .sb-sub--active::after {
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1.5px;
 }
 
 /* ── Mobile ── */
