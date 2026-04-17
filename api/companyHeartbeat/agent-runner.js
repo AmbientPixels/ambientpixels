@@ -73,6 +73,79 @@ async function _validateContentQuality(text, platform, context) {
   }
 }
 
+// ── Quality Gate Circuit Breaker constants (System: QG hardening) ──
+const QG_FAIL_CIRCUIT_BREAKER_THRESHOLD = 3;
+const QG_HALLUCINATION_KEYWORDS = /hallucin|invent(ed|s)?|fabricat|does(?:\s+not|n['’]t)\s+(?:have|exist|support|include)|not(?:\s+a|\s+an)?\s+(?:real|actual)\s+(?:feature|capability|product)/i;
+
+// Count prior quality-gate failures on a task by scanning for our stable comment marker.
+function _countQgFailures(task) {
+  if (!task || !Array.isArray(task.comments)) return 0;
+  return task.comments.filter(function (c) {
+    return c && typeof c.id === 'string' && c.id.indexOf('cmt-qgfail-') === 0;
+  }).length;
+}
+
+// Detect hallucination-class failure by inspecting the issues array.
+function _isHallucinationFailure(qgResult) {
+  if (!qgResult || !Array.isArray(qgResult.issues)) return false;
+  return qgResult.issues.some(function (iss) {
+    return typeof iss === 'string' && QG_HALLUCINATION_KEYWORDS.test(iss);
+  });
+}
+
+// Try to identify which product a task is about so we can inject the right facts into Scribe's rewrite prompt.
+// Returns product key (e.g. "PixelAgents") or null.
+function _detectProductFromTask(task) {
+  if (!task) return null;
+  var hay = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+  var products = (_productFacts && _productFacts.products) || {};
+  // Exact-name match first
+  var names = Object.keys(products);
+  for (var i = 0; i < names.length; i++) {
+    if (hay.indexOf(names[i].toLowerCase()) !== -1) return names[i];
+  }
+  // Loose match for space-separated variants ("pixel agents" → PixelAgents)
+  var loose = { 'pixel agents': 'PixelAgents', 'story forge': 'StoryForge', 'card forge': 'CardForge', 'ambient os': 'AmbientOS', 'ambient score': 'AmbientScore' };
+  var lkeys = Object.keys(loose);
+  for (var j = 0; j < lkeys.length; j++) {
+    if (hay.indexOf(lkeys[j]) !== -1) return loose[lkeys[j]];
+  }
+  return null;
+}
+
+// Build the strong founder-voice + product-facts block injected into a Scribe rewrite prompt.
+// Keeps token cost bounded: 2 examples max, one product's facts, no issue text (caller adds that).
+function _buildStrongFeedbackBlock(productKey) {
+  var lines = [];
+  lines.push('FOUNDER VOICE RULES (non-negotiable):');
+  var principles = (_founderVoice && _founderVoice.principles) || [];
+  for (var i = 0; i < principles.length; i++) lines.push('- ' + principles[i]);
+  lines.push('');
+  var examples = ((_founderVoice && _founderVoice.examples) || []).slice(0, 2);
+  if (examples.length > 0) {
+    lines.push('GOOD EXAMPLES (pattern-match the tone, not the topic):');
+    for (var k = 0; k < examples.length; k++) {
+      var ex = examples[k];
+      lines.push('---');
+      lines.push('Platform: ' + (ex.platform || 'social'));
+      lines.push('Context: ' + (ex.context || ''));
+      lines.push('Post: ' + (ex.text || ''));
+      if (ex.why_it_works) lines.push('Why it works: ' + ex.why_it_works);
+    }
+    lines.push('---');
+    lines.push('');
+  }
+  if (productKey && _productFacts && _productFacts.products && _productFacts.products[productKey]) {
+    var p = _productFacts.products[productKey];
+    lines.push('PRODUCT FACTS for ' + productKey + ' (use ONLY these; do not invent features):');
+    lines.push('Description: ' + p.description);
+    lines.push('Real features: ' + (p.features || []).join('; '));
+    lines.push('This product is NOT: ' + (p.notThis || []).join('; '));
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
 // Phase 2 modules
 const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidProposal } = require('./normalization');
 
@@ -5322,4 +5395,4 @@ Write the full deliverable first, then the structured JSON block.`;
   return result;
 }
 
-module.exports = { runAgentHeartbeat, _validateContentQuality };
+module.exports = { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, _buildStrongFeedbackBlock, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD };
