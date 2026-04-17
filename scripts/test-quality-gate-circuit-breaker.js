@@ -84,5 +84,18 @@ assert(execEngineSrc.indexOf("2500") !== -1, 'execution-engine uses 2500-char bu
 assert(agentRunnerSrc.indexOf('_hallIssues.length === 0') !== -1, 'hallucination block has empty-array fallback');
 console.log('Task 3 review-fix checks passed.');
 
+// Task 4 wiring checks
+const indexSrc = fs.readFileSync(path.join(__dirname, '..', 'api', 'companyHeartbeat', 'index.js'), 'utf8');
+assert(indexSrc.indexOf('CIRCUIT BREAKER (auto-post)') !== -1, 'auto-post has circuit breaker');
+assert(indexSrc.indexOf('BRIEF CORRECTION REQUIRED (auto-post)') !== -1, 'auto-post has brief correction path');
+assert(indexSrc.indexOf('_countQgFailures') !== -1, 'auto-post imports circuit-breaker helpers');
+assert(indexSrc.indexOf("_isHallucinationFailure(_aqQualityGate)") !== -1, 'auto-post wires hallucination detection');
+assert(indexSrc.indexOf("'aq-qgesc-' + _pt.id") !== -1 || indexSrc.indexOf('_apEscId') !== -1, 'auto-post uses stable escalation id');
+// Idempotency guard (both paths)
+assert(indexSrc.match(/_aq\.some\(/), 'auto-post has AQ idempotency guard');
+assert(agentRunnerSrc.indexOf('_inlineEscId') !== -1, 'inline path uses captured escalation id');
+assert(agentRunnerSrc.match(/_aqEsc\.some\(/), 'inline path has AQ idempotency guard');
+console.log('Task 4 wiring checks passed.');
+
 console.log('\n' + (failures === 0 ? 'All passed.' : failures + ' failure(s).'));
 process.exit(failures === 0 ? 0 : 1);

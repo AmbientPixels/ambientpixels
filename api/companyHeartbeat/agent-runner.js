@@ -2784,21 +2784,26 @@ Write the full deliverable first, then the structured JSON block.`;
           // Add to approval queue as a task escalation so CEO sees it in needs-action feed
           try {
             var _aqEsc = (await storage.getState('approvalQueue')) || [];
-            _aqEsc.push({
-              id: 'aq-qgesc-' + _qgParentForCount.id,
-              kind: 'task_escalation',
-              taskId: _qgParentForCount.id,
-              taskTitle: _qgParentForCount.title || 'Quality-gate escalation',
-              originAgent: agentId,
-              classification: 'executive_required',
-              riskLevel: 'medium',
-              budgetImpact: 0,
-              brandImpact: 'medium',
-              status: 'pending',
-              submittedAt: new Date().toISOString(),
-              preview: 'Quality gate failed ' + _priorFails + ' times. Latest issues: ' + ((_qgResult.issues || []).slice(0, 3).join('; ')).substring(0, 200),
-              qualityGate: { pass: false, confidence: _qgResult.confidence || 0, issues: _qgResult.issues || [], failCount: _priorFails }
-            });
+            var _inlineEscId = 'aq-qgesc-' + _qgParentForCount.id;
+            if (_aqEsc.some(function (q) { return q && q.id === _inlineEscId; })) {
+              context.log('[QualityGate] circuit-breaker AQ entry already exists for', _qgParentForCount.id, '— skipping duplicate push');
+            } else {
+              _aqEsc.push({
+                id: _inlineEscId,
+                kind: 'task_escalation',
+                taskId: _qgParentForCount.id,
+                taskTitle: _qgParentForCount.title || 'Quality-gate escalation',
+                originAgent: agentId,
+                classification: 'executive_required',
+                riskLevel: 'medium',
+                budgetImpact: 0,
+                brandImpact: 'medium',
+                status: 'pending',
+                submittedAt: new Date().toISOString(),
+                preview: 'Quality gate failed ' + _priorFails + ' times. Latest issues: ' + ((_qgResult.issues || []).slice(0, 3).join('; ')).substring(0, 200),
+                qualityGate: { pass: false, confidence: _qgResult.confidence || 0, issues: _qgResult.issues || [], failCount: _priorFails }
+              });
+            }
             await storage.setState('approvalQueue', _aqEsc);
           } catch (_aqEscErr) { context.log('[Heartbeat] circuit-breaker AQ push failed:', String(_aqEscErr).substring(0, 200)); }
           try {

@@ -19,7 +19,7 @@ const { buildOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
 const { buildAllocationDigest } = require('./allocation-intel');
-const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
+const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
 
@@ -2857,6 +2857,48 @@ module.exports = async function (context) {
 
           // Quality gate FAILED — auto-reject, remove action, reset task for Scribe rewrite
           if (_aqQualityGate && !_aqQualityGate.pass && (_aqQualityGate.confidence || 0) >= 70) {
+            // Circuit breaker: escalate instead of retry after threshold failures
+            var _apPriorFails = _countQgFailures(_pt);
+            if (_apPriorFails >= QG_FAIL_CIRCUIT_BREAKER_THRESHOLD) {
+              var _apCbIdx = _actionsStore.findIndex(function (a) { return a.id === _newAction.id; });
+              if (_apCbIdx !== -1) _actionsStore.splice(_apCbIdx, 1);
+              _pt.status = 'escalated';
+              _pt._quality_gate_escalated = true;
+              _pt._social_action_created = false;
+              _pt._social_action_pending = false;
+              _pt.reviewed_copy = null;
+              _pt.awaiting_copy_review = false;
+              _pt.updatedAt = new Date().toISOString();
+              if (!_pt.comments) _pt.comments = [];
+              _pt.comments.push({
+                id: 'cmt-qgescalate-' + Date.now(),
+                author: 'system',
+                text: 'CIRCUIT BREAKER (auto-post): ' + _apPriorFails + ' consecutive quality-gate failures on this task. Escalating to CEO review — automatic retries disabled. Latest issues: ' + ((_aqQualityGate.issues || []).slice(0, 3).join('; ')).substring(0, 400),
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              // Idempotency guard: skip AQ push if an escalation entry for this task already exists
+              var _apEscId = 'aq-qgesc-' + _pt.id;
+              if (!_aq.some(function (q) { return q && q.id === _apEscId; })) {
+                _aq.push({
+                  id: _apEscId,
+                  kind: 'task_escalation',
+                  taskId: _pt.id,
+                  taskTitle: _pt.title || 'Quality-gate escalation',
+                  originAgent: 'echo',
+                  classification: 'executive_required',
+                  riskLevel: 'medium',
+                  budgetImpact: 0,
+                  brandImpact: 'medium',
+                  status: 'pending',
+                  submittedAt: new Date().toISOString(),
+                  preview: 'Quality gate failed ' + _apPriorFails + ' times (auto-post). Latest issues: ' + ((_aqQualityGate.issues || []).slice(0, 3).join('; ')).substring(0, 200),
+                  qualityGate: { pass: false, confidence: _aqQualityGate.confidence || 0, issues: _aqQualityGate.issues || [], failCount: _apPriorFails }
+                });
+              }
+              context.log('[QualityGate] AUTO-POST CIRCUIT BREAKER tripped for task', _pt.id, 'after', _apPriorFails, 'failures');
+              continue;
+            }
             // Remove the action we just pushed
             var _qgActIdx = _actionsStore.findIndex(function (a) { return a.id === _newAction.id; });
             if (_qgActIdx !== -1) _actionsStore.splice(_qgActIdx, 1);
@@ -2876,6 +2918,23 @@ module.exports = async function (context) {
               createdAt: new Date().toISOString()
             });
             context.log('[QualityGate] AUTO-POST REJECTED:', _platform, 'for task', _pt.id, '— issues:', (_aqQualityGate.issues || []).length, '— task reset for Scribe revision');
+            // Hallucination-class failure: also flag Echo's brief
+            if (_isHallucinationFailure(_aqQualityGate)) {
+              var _apProductKey = _detectProductFromTask(_pt);
+              var _apFactsLine = '';
+              if (_apProductKey && productFacts && productFacts.products && productFacts.products[_apProductKey]) {
+                var _app = productFacts.products[_apProductKey];
+                _apFactsLine = '\n\nCorrect facts for ' + _apProductKey + ':\n- ' + _app.description + '\n- Real features: ' + (_app.features || []).join('; ') + '\n- This product is NOT: ' + (_app.notThis || []).join('; ');
+              }
+              _pt.comments.push({
+                id: 'cmt-qgbrief-' + Date.now(),
+                author: 'system',
+                text: 'BRIEF CORRECTION REQUIRED (auto-post) — hallucinated features detected. Rewriting copy alone will repeat the same hallucination. Issues: ' + (_aqQualityGate.issues || []).join('; ') + _apFactsLine,
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              context.log('[QualityGate] AUTO-POST HALLUCINATION detected on', _pt.id, 'product:', _apProductKey || 'unknown', '— brief-correction comment posted');
+            }
             continue; // skip AQ push
           }
 
