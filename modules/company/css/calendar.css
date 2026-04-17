@@ -98,7 +98,7 @@
   cursor: pointer;
   font-size: var(--c-text-xs);
   font-weight: 500;
-  color: #60a5fa;
+  color: var(--c-link);
   padding: 0;
   white-space: nowrap;
   text-decoration: none;

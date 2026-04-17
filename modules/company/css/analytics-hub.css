@@ -262,8 +262,8 @@
 .sa-eng-bar  { width: 100%; min-height: 4px; border-radius: 3px 3px 0 0; background: rgba(52,211,153,0.6); }
 .sa-eng-label{ margin-top: 2px; font-size: var(--c-text-xs); color: rgba(255,255,255,0.25); }
 
-.sa-link { color: #60a5fa; text-decoration: none; }
-.sa-link:hover { text-decoration: underline; }
+.sa-link { color: var(--c-link); text-decoration: none; }
+.sa-link:hover { color: var(--c-link-hover); text-decoration: underline; }
 
 /* Account Overview */
 .sa-acct-cache-hint {
