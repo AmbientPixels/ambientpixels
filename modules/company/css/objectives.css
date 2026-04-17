@@ -147,7 +147,7 @@
 .obj-view-btn--active     { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); color: #fff; }
 
 /* ── List Table ── */
-.obj-list-table            { width: 100%; border-collapse: collapse; font-size: var(--c-text-xs); }
+.obj-list-table            { width: 100%; border-collapse: collapse; font-size: var(--c-text-base); }
 .obj-list-table th         { text-align: left; font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.4; padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); font-weight: 600; }
 .obj-list-table td         { padding: 0.45rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
 .obj-list-table tr:hover   { background: rgba(255,255,255,0.03); }
@@ -323,7 +323,7 @@ body[data-theme="dim"] .obj-modal             { background: #1e293b; border-colo
   opacity: 0.7;
 }
 .obj-card-desc {
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   opacity: 0.5;
   margin-bottom: 0.4rem;
   line-height: 1.3;

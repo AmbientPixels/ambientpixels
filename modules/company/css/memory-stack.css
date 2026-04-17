@@ -114,7 +114,7 @@
   padding: 8px 10px;
   margin-bottom: 7px;
   background: #2c2c2e;
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.6);
   line-height: 1.5;
 }

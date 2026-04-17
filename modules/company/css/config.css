@@ -376,7 +376,7 @@
   margin-bottom: 6px;
 }
 .cfg-action-audit-row {
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.35);
   padding: 3px 0;
   display: flex;
@@ -395,7 +395,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   padding: 4px 0;
   color: rgba(255,255,255,0.6);
 }
@@ -608,7 +608,7 @@
 .cfg-memstack-expand:hover { color: rgba(255,255,255,0.5); }
 .cfg-memstack-detail {
   padding: 4px 0 3px 28px;
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.3);
   display: none;
 }
@@ -635,14 +635,14 @@
 }
 .cfg-maintenance-title i { color: rgba(251,191,36,0.5); }
 .maintenance-intro {
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.3);
   line-height: 1.6;
   margin-bottom: 14px;
 }
 .maintenance-intro p { margin: 0 0 3px; }
 .maintenance-summary {
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.3);
   margin-bottom: 14px;
   padding: 8px 10px;
@@ -666,7 +666,7 @@
   font-weight: 600;
 }
 .cfg-maint-group .section-desc {
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.25);
   margin: 0 0 8px;
   line-height: 1.5;
@@ -708,7 +708,7 @@
 }
 .advanced-reset summary:hover { color: rgba(255,255,255,0.5); }
 .advanced-warning {
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.3);
   line-height: 1.6;
   margin: 8px 0 10px;
@@ -837,7 +837,7 @@
   background: rgba(255,255,255,0.06);
 }
 .cfg-quick-label { font-weight: 500; color: rgba(255,255,255,0.8); }
-.cfg-quick-desc { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); margin-top: 2px; }
+.cfg-quick-desc { font-size: var(--c-text-base); color: rgba(255,255,255,0.35); margin-top: 2px; }
 
 /* ── Status value colors ── */
 .cfg-val--ok   { color: #34d399; }
@@ -1210,7 +1210,7 @@ body[data-theme="dim"] .cfg-action-btn--secondary:hover { background: rgba(241,2
 .cfg-inline-select { font-size: var(--c-text-xs); background: rgba(20,24,32,0.85); color: #d9e2f7; border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.2rem 0.45rem; }
 .cfg-inline-select--auto { min-width: auto; }
 .cfg-form-status { font-size: var(--c-text-xs); opacity: 0.35; }
-.cfg-help-text { font-size: var(--c-text-xs); opacity: 0.38; line-height: 1.45; margin: -0.15rem 0 0.55rem; padding: 0 0.25rem; }
+.cfg-help-text { font-size: var(--c-text-base); opacity: 0.38; line-height: 1.45; margin: -0.15rem 0 0.55rem; padding: 0 0.25rem; }
 .cfg-help-label { font-size: var(--c-text-xs); opacity: 0.58; margin-bottom: 0.2rem; }
 .cfg-help-list { margin: 0.32rem 0 0.32rem 1.05rem; padding: 0; }
 .cfg-row-flex { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.8rem; }
@@ -1218,7 +1218,7 @@ body[data-theme="dim"] .cfg-action-btn--secondary:hover { background: rgba(241,2
 .cfg-mt { margin-top: 1.5rem; }
 .cfg-quota-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
 .cfg-quota-label { font-size: var(--c-text-xs); font-weight: 600; color: rgba(255,255,255,0.8); margin-bottom: 0.2rem; }
-.cfg-quota-desc { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); line-height: 1.5; }
+.cfg-quota-desc { font-size: var(--c-text-base); color: rgba(255,255,255,0.35); line-height: 1.5; }
 .cfg-quota-toggle { flex-shrink: 0; }
 .cfg-helper-sub { font-size: var(--c-text-xs); opacity: 0.3; margin-top: 0.5rem; }
 .cfg-hint-row { display: flex; gap: 0.8rem; margin-top: 0.3rem; font-size: var(--c-text-xs); opacity: 0.25; }

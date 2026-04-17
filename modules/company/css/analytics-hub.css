@@ -157,7 +157,7 @@
 .sa-platform-row {
   display: flex;
   justify-content: space-between;
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.6);
   padding: 3px 0;
 }
@@ -205,7 +205,7 @@
 .sa-platform-eng-row {
   display: flex;
   justify-content: space-between;
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.6);
   padding: 3px 0;
 }
@@ -216,7 +216,7 @@
 }
 
 .sa-table-wrap { overflow-x: auto; }
-.sa-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-xs); }
+.sa-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-base); }
 .sa-table th,
 .sa-table td {
   text-align: left;
@@ -237,7 +237,7 @@
   display: grid;
   grid-template-columns: 1.2fr 0.5fr 1fr;
   gap: 8px;
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   color: rgba(255,255,255,0.6);
   padding: 4px 0;
   border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -977,7 +977,7 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
 
 /* About panel typography */
 .ah-about {
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
   line-height: 1.55;
   color: rgba(255,255,255,0.65);
   max-width: 720px;
@@ -1078,7 +1078,7 @@ body[data-theme="dim"] .sa-live-date { color: rgba(241,245,249,0.35); }
   align-items: center;
   gap: 8px;
   padding: 0.22rem 0;
-  font-size: var(--c-text-xs);
+  font-size: var(--c-text-base);
 }
 .ah-tb-bar-label {
   flex: 0 0 96px;

@@ -402,7 +402,7 @@
   flex-shrink: 0;
 }
 .ws-tool-name { font-size: var(--c-text-base); font-weight: 500; color: rgba(255,255,255,0.8); }
-.ws-tool-desc { font-size: var(--c-text-xs); color: rgba(255,255,255,0.35); line-height: 1.4; }
+.ws-tool-desc { font-size: var(--c-text-base); color: rgba(255,255,255,0.35); line-height: 1.4; }
 .ws-tool-category {
   font-size: var(--c-text-xs);
   padding: 2px 7px;
