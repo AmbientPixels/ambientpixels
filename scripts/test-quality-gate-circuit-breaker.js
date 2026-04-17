@@ -70,5 +70,11 @@ assert(agentRunnerSrc.indexOf('- Professional and on-brand for AmbientPixels') =
 
 console.log('Wiring checks passed.');
 
+// Verify the hallucination-path strings are wired in
+assert(agentRunnerSrc.indexOf('BRIEF CORRECTION REQUIRED') !== -1, 'hallucination path writes brief correction comment');
+assert(agentRunnerSrc.indexOf('cmt-qgbrief-') !== -1, 'hallucination path uses brief comment id prefix');
+assert(agentRunnerSrc.indexOf('_isHallucinationFailure(_qgResult)') !== -1, 'hallucination detection wired in');
+console.log('Hallucination wiring checks passed.');
+
 console.log('\n' + (failures === 0 ? 'All passed.' : failures + ' failure(s).'));
 process.exit(failures === 0 ? 0 : 1);

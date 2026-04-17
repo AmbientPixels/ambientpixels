@@ -2832,6 +2832,27 @@ Write the full deliverable first, then the structured JSON block.`;
             createdAt: new Date().toISOString()
           });
           context.log('[QualityGate] REJECTED:', newAction.platform, 'action for task:', action.taskId, '— issues:', (_qgResult.issues || []).length, '— task reset to in-progress for Scribe revision');
+
+          // Hallucination-class failure: the fault is in Echo's brief, not just Scribe's copy.
+          // Add a prominent BRIEF-LEVEL system comment with the specific hallucinated phrases +
+          // corrected product facts so Echo cannot miss it on the next execute pass.
+          if (_isHallucinationFailure(_qgResult)) {
+            var _hallProductKey = _detectProductFromTask(_qgParentTask);
+            var _hallFactsLine = '';
+            if (_hallProductKey && _productFacts && _productFacts.products && _productFacts.products[_hallProductKey]) {
+              var _hp = _productFacts.products[_hallProductKey];
+              _hallFactsLine = '\n\nCorrect facts for ' + _hallProductKey + ':\n- ' + _hp.description + '\n- Real features: ' + (_hp.features || []).join('; ') + '\n- This product is NOT: ' + (_hp.notThis || []).join('; ');
+            }
+            var _hallIssues = (_qgResult.issues || []).filter(function (i) { return typeof i === 'string' && QG_HALLUCINATION_KEYWORDS.test(i); });
+            _qgParentTask.comments.push({
+              id: 'cmt-qgbrief-' + Date.now(),
+              author: 'system',
+              text: 'BRIEF CORRECTION REQUIRED — hallucinated features detected. Your earlier brief told Scribe to write about capabilities this product does not have. Rewriting the copy alone will repeat the same hallucination. Specific hallucinated claims:\n- ' + _hallIssues.join('\n- ') + _hallFactsLine + '\n\nOn your next execute-task pass, revise the BRIEF itself. Remove invented features. Use only facts from product-facts.',
+              type: 'system',
+              createdAt: new Date().toISOString()
+            });
+            context.log('[QualityGate] HALLUCINATION detected on', action.taskId, '— brief-correction comment posted to Echo parent task');
+          }
         }
 
         // Quality-gate feedback memory — closes the learning loop so the agent sees the specific
