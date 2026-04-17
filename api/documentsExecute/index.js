@@ -367,7 +367,7 @@ async function handleDocPublish(context, req, body) {
     }
 
     // Update approval queue
-    await _updateApprovalQueue(actionId, 'rejected');
+    await _updateApprovalQueue(actionId, 'rejected', { decisionNote: decisionNote, resolvedBy: 'ceo' });
 
     // ── Auto-route design feedback to Pixel ──
     // If CEO's rejection note mentions anything visual/design-related, auto-create a Pixel task
@@ -518,7 +518,7 @@ async function handleDocPublish(context, req, body) {
     if (actionIdx !== -1) { actions[actionIdx] = action; await storage.setState('actions', actions); }
 
     // Step 6: Update approval queue
-    await _updateApprovalQueue(actionId, 'approved');
+    await _updateApprovalQueue(actionId, 'approved', { decisionNote: decisionNote, resolvedBy: 'ceo' });
 
     // Step 7: Audit + governance logs
     await _logAudit('publish-approved', { actionId, documentId, title, slug, visibility, approvedBy: 'pixelpusher' });
@@ -581,12 +581,24 @@ async function handleDocPublish(context, req, body) {
 }
 
 // ── Helper: update approval queue entry ──
-async function _updateApprovalQueue(actionId, status) {
+async function _updateApprovalQueue(actionId, status, meta) {
   try {
     const queue = (await storage.getState('approvalQueue')) || [];
+    const now = new Date().toISOString();
+    const m = meta || {};
     for (let i = 0; i < queue.length; i++) {
       if (queue[i].action_id === actionId) {
         queue[i].status = status;
+        queue[i].resolvedAt = now;
+        queue[i].ceoDecision = status; // 'approved' | 'rejected'
+        queue[i].resolvedBy = m.resolvedBy || 'ceo';
+        queue[i]._autoResolved = false;
+        if (status === 'rejected' && m.decisionNote) {
+          queue[i].rejectionReason = m.decisionNote;
+          queue[i].decisionNote = m.decisionNote;
+        } else if (m.decisionNote) {
+          queue[i].decisionNote = m.decisionNote;
+        }
         break;
       }
     }
