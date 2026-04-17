@@ -222,7 +222,7 @@
     chip.type = 'button';
     chip.className = 'sb-rail-chip' + (cat.id === activeCatId ? ' sb-rail-chip--active' : '');
     chip.title = cat.label;
-    chip.innerHTML = '<i class="fas ' + cat.icon + '"></i>' + cat.label;
+    chip.innerHTML = '<i class="fas ' + cat.icon + '"></i>';
     chip.addEventListener('click', function () {
       // Navigate to overview page for this category
       if (cat.id !== activeCatId) {
