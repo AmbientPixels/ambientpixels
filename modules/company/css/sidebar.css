@@ -26,6 +26,7 @@
 
 /* Logo chip */
 .sb-rail-logo {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,6 +128,7 @@
 }
 
 .sb-rail-globe {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,6 +144,34 @@
 .sb-rail-globe:hover {
   color: rgba(255,255,255,0.55);
   background: rgba(255,255,255,0.05);
+}
+
+/* Reuse the chip tooltip pattern for footer + logo icons */
+.sb-rail-globe[data-tooltip]::after,
+.sb-rail-logo[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 5px 10px;
+  background: #2c2c2e;
+  color: rgba(255,255,255,0.95);
+  font-size: var(--c-text-xs);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease 0.2s;
+  z-index: 1100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.sb-rail-globe[data-tooltip]:hover::after,
+.sb-rail-logo[data-tooltip]:hover::after {
+  opacity: 1;
 }
 
 /* ── Right side: topbar + content ── */

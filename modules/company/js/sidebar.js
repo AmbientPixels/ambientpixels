@@ -207,7 +207,8 @@
   var logo = document.createElement('a');
   logo.href = BASE;
   logo.className = 'sb-rail-logo';
-  logo.title = 'AmbientPixels HQ';
+  logo.setAttribute('aria-label', 'AmbientPixels HQ');
+  logo.setAttribute('data-tooltip', 'AmbientPixels HQ');
   logo.innerHTML = '<i class="fas fa-building"></i>';
   rail.appendChild(logo);
 
@@ -257,12 +258,12 @@
   var curTheme = _getTheme();
   var footer = document.createElement('div');
   footer.className = 'sb-rail-footer';
-  footer.innerHTML = '<a href="' + BASE + 'documents.html" class="sb-rail-globe" title="Wiki"><i class="fas fa-book"></i></a>' +
-    '<a href="/" class="sb-rail-globe" title="Main Site"><i class="fas fa-globe"></i></a>' +
-    '<a href="/blog/" class="sb-rail-globe" title="Public Blog" style="opacity:0.5;"><i class="fas fa-newspaper"></i></a>' +
-    '<button type="button" id="sb-theme-btn" class="sb-rail-globe" title="Theme: ' + THEME_LABELS[curTheme] + '" style="background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0; opacity:0.6;"><i class="fas ' + (THEME_ICONS[curTheme] || 'fa-moon') + '"></i></button>' +
-    '<button type="button" id="sb-mode-btn" class="sb-rail-globe sb-mode-btn" title="Mode: ' + _modeLabel(curMode) + '" style="background:none; border:none; cursor:pointer; color:' + _modeTint(curMode) + '; font-size:inherit; padding:0; opacity:0.7;"><i class="fas ' + _modeIcon(curMode) + '"></i></button>' +
-    '<button type="button" id="sb-auth-btn" class="sb-rail-globe" title="Loading..." style="opacity:0.4; background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0;"><i class="fas fa-spinner fa-spin"></i></button>';
+  footer.innerHTML = '<a href="' + BASE + 'documents.html" class="sb-rail-globe" aria-label="Wiki" data-tooltip="Wiki"><i class="fas fa-book"></i></a>' +
+    '<a href="/" class="sb-rail-globe" aria-label="Main Site" data-tooltip="Main Site"><i class="fas fa-globe"></i></a>' +
+    '<a href="/blog/" class="sb-rail-globe" aria-label="Public Blog" data-tooltip="Public Blog" style="opacity:0.5;"><i class="fas fa-newspaper"></i></a>' +
+    '<button type="button" id="sb-theme-btn" class="sb-rail-globe" aria-label="Theme: ' + THEME_LABELS[curTheme] + '" data-tooltip="Theme: ' + THEME_LABELS[curTheme] + '" style="background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0; opacity:0.6;"><i class="fas ' + (THEME_ICONS[curTheme] || 'fa-moon') + '"></i></button>' +
+    '<button type="button" id="sb-mode-btn" class="sb-rail-globe sb-mode-btn" aria-label="Mode: ' + _modeLabel(curMode) + '" data-tooltip="Mode: ' + _modeLabel(curMode) + '" style="background:none; border:none; cursor:pointer; color:' + _modeTint(curMode) + '; font-size:inherit; padding:0; opacity:0.7;"><i class="fas ' + _modeIcon(curMode) + '"></i></button>' +
+    '<button type="button" id="sb-auth-btn" class="sb-rail-globe" aria-label="Loading..." data-tooltip="Loading..." style="opacity:0.4; background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0;"><i class="fas fa-spinner fa-spin"></i></button>';
   rail.appendChild(footer);
 
   // Theme toggle handler
@@ -273,7 +274,8 @@
       var idx = THEMES.indexOf(cur);
       var next = THEMES[(idx + 1) % THEMES.length];
       _applyTheme(next);
-      themeBtn.title = 'Theme: ' + THEME_LABELS[next];
+      themeBtn.setAttribute('aria-label', 'Theme: ' + THEME_LABELS[next]);
+      themeBtn.setAttribute('data-tooltip', 'Theme: ' + THEME_LABELS[next]);
       themeBtn.innerHTML = '<i class="fas ' + THEME_ICONS[next] + '"></i>';
     });
   }
@@ -283,7 +285,8 @@
   if (modeBtn && window.APMode) {
     modeBtn.addEventListener('click', function () {
       var next = window.APMode.cycle();
-      modeBtn.title = 'Mode: ' + _modeLabel(next);
+      modeBtn.setAttribute('aria-label', 'Mode: ' + _modeLabel(next));
+      modeBtn.setAttribute('data-tooltip', 'Mode: ' + _modeLabel(next));
       modeBtn.style.color = _modeTint(next);
       modeBtn.innerHTML = '<i class="fas ' + _modeIcon(next) + '"></i>';
       // renderSubLinks is triggered by ap-mode-change event in _applyModeAttr
@@ -296,14 +299,16 @@
     if (!btn) return;
     var user = data && data.clientPrincipal;
     if (user) {
-      btn.title = 'Logout (' + (user.userDetails || 'user') + ')';
+      btn.setAttribute('aria-label', 'Logout (' + (user.userDetails || 'user') + ')');
+      btn.setAttribute('data-tooltip', 'Logout (' + (user.userDetails || 'user') + ')');
       btn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
       btn.style.opacity = '0.6';
       btn.addEventListener('click', function () {
         window.location.href = '/.auth/logout?post_logout_redirect_uri=/';
       });
     } else {
-      btn.title = 'Sign In';
+      btn.setAttribute('aria-label', 'Sign In');
+      btn.setAttribute('data-tooltip', 'Sign In');
       btn.innerHTML = '<i class="fas fa-sign-in-alt"></i>';
       btn.style.opacity = '0.6';
       btn.addEventListener('click', function () {
