@@ -592,7 +592,6 @@ async function _updateApprovalQueue(actionId, status, meta) {
         queue[i].resolvedAt = now;
         queue[i].ceoDecision = status; // 'approved' | 'rejected'
         queue[i].resolvedBy = m.resolvedBy || 'ceo';
-        queue[i]._autoResolved = false;
         if (status === 'rejected' && m.decisionNote) {
           queue[i].rejectionReason = m.decisionNote;
           queue[i].decisionNote = m.decisionNote;
