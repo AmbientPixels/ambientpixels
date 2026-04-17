@@ -2269,7 +2269,11 @@ Write the full deliverable first, then the structured JSON block.`;
               var _qgFeedback = '';
               var _qgComment = (socialTask.comments || []).filter(function(c) { return c.text && c.text.indexOf('QUALITY GATE FAILED') !== -1; });
               if (_qgComment.length > 0) {
-                _qgFeedback = '\n\nPREVIOUS VERSION REJECTED BY QUALITY GATE:\n' + _qgComment[_qgComment.length - 1].text.substring(0, 800) + '\n\nFix ALL issues listed above. Do NOT repeat the same mistakes.\n';
+                var _productKey = _detectProductFromTask(socialTask);
+                var _strongBlock = _buildStrongFeedbackBlock(_productKey);
+                _qgFeedback = '\n\nPREVIOUS VERSION REJECTED BY QUALITY GATE:\n' + _qgComment[_qgComment.length - 1].text.substring(0, 800)
+                  + '\n\n' + _strongBlock
+                  + '\nFix ALL issues listed above. Do NOT repeat the same mistakes.\n';
               }
               const copyTask = {
                 id: 'task_' + Date.now() + '_copy_' + Math.random().toString(36).substr(2, 4),
@@ -2283,7 +2287,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   + 'Requirements:\n'
                   + '- Write exactly ONE post — not multiple variations, not a batch. One single post.\n'
                   + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes, no "Post 1/Post 2" labels)\n'
-                  + '- Professional and on-brand for AmbientPixels\n'
+                  + '- Founder voice (NOT corporate): casual, lowercase where natural, short paragraphs, one idea per line. No em dashes. No buzzwords (supercharge, unleash, revolutionary, thrilled). No rhetorical question hooks. 5th grade reading level. Lead with specifics not adjectives. Vulnerability beats polish.\n'
                   + '- MUST include the product URL: ' + _cmpUrl + '\n'
                   + '- LinkedIn posts: aim for 800-1500 chars. Write like a short article — narrative hook, short paragraphs, personal voice, clear takeaway. NOT a compressed ad tagline.\n'
                   + '- Reddit posts: format as "TITLE: [catchy post title, max 300 chars]\\n\\n[body, markdown supported, 200-800 words]". Title and body are both required. TONE: write like a builder sharing what they made — conversational, authentic, slightly informal. Use first person ("I built...", "We shipped..."). NO corporate speak, NO hashtags, NO press-release language. Lead with what the reader gets, not what we built. Tell a story: problem → what we built → how it works → link at the end. End with a genuine discussion prompt inviting feedback or questions. Redditors respect transparency and despise astroturfing.\n'
@@ -2753,6 +2757,58 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Quality gate FAILED — auto-reject and send issues back to agent for revision
       if (_qgResult && !_qgResult.pass && (_qgResult.confidence || 0) >= 70) {
+        // Circuit breaker: if this task has already failed QG >= threshold times, escalate instead of retry.
+        var _qgParentForCount = action.taskId ? tasks.find(function (t) { return t.id === action.taskId; }) : null;
+        var _priorFails = _countQgFailures(_qgParentForCount);
+        if (_qgParentForCount && _priorFails >= QG_FAIL_CIRCUIT_BREAKER_THRESHOLD) {
+          // Remove the action we just pushed (it failed quality)
+          var _cbActionIdx = actionsStore.findIndex(function (a) { return a.id === newAction.id; });
+          if (_cbActionIdx !== -1) actionsStore.splice(_cbActionIdx, 1);
+          await storage.setState('actions', actionsStore);
+          // Mark the task escalated
+          _qgParentForCount.status = 'escalated';
+          _qgParentForCount._quality_gate_escalated = true;
+          _qgParentForCount._social_action_created = false;
+          _qgParentForCount._social_action_pending = false;
+          _qgParentForCount.reviewed_copy = null;
+          _qgParentForCount.awaiting_copy_review = false;
+          _qgParentForCount.updatedAt = new Date().toISOString();
+          if (!_qgParentForCount.comments) _qgParentForCount.comments = [];
+          _qgParentForCount.comments.push({
+            id: 'cmt-qgescalate-' + Date.now(),
+            author: 'system',
+            text: 'CIRCUIT BREAKER: ' + _priorFails + ' consecutive quality-gate failures on this task. Escalating to CEO review — automatic retries disabled. Latest issues: ' + ((_qgResult.issues || []).slice(0, 3).join('; ')).substring(0, 400),
+            type: 'system',
+            createdAt: new Date().toISOString()
+          });
+          // Add to approval queue as a task escalation so CEO sees it in needs-action feed
+          try {
+            var _aqEsc = (await storage.getState('approvalQueue')) || [];
+            _aqEsc.push({
+              id: 'aq-qgesc-' + _qgParentForCount.id,
+              kind: 'task_escalation',
+              taskId: _qgParentForCount.id,
+              taskTitle: _qgParentForCount.title || 'Quality-gate escalation',
+              originAgent: agentId,
+              classification: 'executive_required',
+              riskLevel: 'medium',
+              budgetImpact: 0,
+              brandImpact: 'medium',
+              status: 'pending',
+              submittedAt: new Date().toISOString(),
+              preview: 'Quality gate failed ' + _priorFails + ' times. Latest issues: ' + ((_qgResult.issues || []).slice(0, 3).join('; ')).substring(0, 200),
+              qualityGate: { pass: false, confidence: _qgResult.confidence || 0, issues: _qgResult.issues || [], failCount: _priorFails }
+            });
+            await storage.setState('approvalQueue', _aqEsc);
+          } catch (_aqEscErr) { context.log('[Heartbeat] circuit-breaker AQ push failed:', String(_aqEscErr).substring(0, 200)); }
+          try {
+            await logEvent('policy-violation', agentId, 'Quality gate circuit breaker tripped', cycleId, {
+              runId: cycleId, gate: 'quality_gate_circuit_breaker', taskId: _qgParentForCount.id, failCount: _priorFails
+            });
+          } catch (_) {}
+          context.log('[QualityGate] CIRCUIT BREAKER tripped for task', _qgParentForCount.id, 'after', _priorFails, 'failures');
+          continue; // skip the normal retry path
+        }
         // Remove the action we just pushed (it failed quality)
         var _qgActionIdx = actionsStore.findIndex(function(a) { return a.id === newAction.id; });
         if (_qgActionIdx !== -1) actionsStore.splice(_qgActionIdx, 1);

@@ -58,5 +58,17 @@ Object.keys(productFacts.products).forEach(function (pk) {
 // Constants
 assert(QG_FAIL_CIRCUIT_BREAKER_THRESHOLD === 3, 'threshold is 3');
 
+// Integration shape check: read the actual file and verify the wiring strings are present.
+const fs = require('fs');
+const agentRunnerSrc = fs.readFileSync(path.join(__dirname, '..', 'api', 'companyHeartbeat', 'agent-runner.js'), 'utf8');
+
+assert(agentRunnerSrc.indexOf('CIRCUIT BREAKER:') !== -1, 'inline path has circuit-breaker comment marker');
+assert(agentRunnerSrc.indexOf('cmt-qgescalate-') !== -1, 'inline path writes escalation comment id');
+assert(agentRunnerSrc.indexOf('_buildStrongFeedbackBlock(_productKey)') !== -1, 'scribe copy task builds strong feedback block');
+assert(agentRunnerSrc.indexOf('Founder voice (NOT corporate)') !== -1, 'scribe copy task instruction updated to founder voice');
+assert(agentRunnerSrc.indexOf('- Professional and on-brand for AmbientPixels') === -1, 'old "Professional and on-brand" line removed');
+
+console.log('Wiring checks passed.');
+
 console.log('\n' + (failures === 0 ? 'All passed.' : failures + ' failure(s).'));
 process.exit(failures === 0 ? 0 : 1);
