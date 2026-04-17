@@ -221,7 +221,8 @@
     var chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'sb-rail-chip' + (cat.id === activeCatId ? ' sb-rail-chip--active' : '');
-    chip.title = cat.label;
+    chip.setAttribute('aria-label', cat.label);
+    chip.setAttribute('data-tooltip', cat.label);
     chip.innerHTML = '<i class="fas ' + cat.icon + '"></i>';
     chip.addEventListener('click', function () {
       // Navigate to overview page for this category
