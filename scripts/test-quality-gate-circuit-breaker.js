@@ -97,5 +97,10 @@ assert(agentRunnerSrc.indexOf('_inlineEscId') !== -1, 'inline path uses captured
 assert(agentRunnerSrc.match(/_aqEsc\.some\(/), 'inline path has AQ idempotency guard');
 console.log('Task 4 wiring checks passed.');
 
+// Task 4 M1 fix: auto-post hallucination block now mirrors inline filter+fallback
+assert(indexSrc.indexOf('_apHallIssues') !== -1, 'auto-post has hallucination-filtered issues list');
+assert(indexSrc.indexOf('_apHallIssues = (_aqQualityGate.issues || []).slice(0, 3)') !== -1, 'auto-post has empty-array fallback');
+assert(indexSrc.indexOf('Specific hallucinated claims:') !== -1, 'auto-post uses bullet-list format');
+
 console.log('\n' + (failures === 0 ? 'All passed.' : failures + ' failure(s).'));
 process.exit(failures === 0 ? 0 : 1);

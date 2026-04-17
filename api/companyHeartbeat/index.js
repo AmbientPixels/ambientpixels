@@ -19,7 +19,7 @@ const { buildOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
 const { buildAllocationDigest } = require('./allocation-intel');
-const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD } = require('./agent-runner');
+const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD, QG_HALLUCINATION_KEYWORDS } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
 
@@ -2926,10 +2926,12 @@ module.exports = async function (context) {
                 var _app = productFacts.products[_apProductKey];
                 _apFactsLine = '\n\nCorrect facts for ' + _apProductKey + ':\n- ' + _app.description + '\n- Real features: ' + (_app.features || []).join('; ') + '\n- This product is NOT: ' + (_app.notThis || []).join('; ');
               }
+              var _apHallIssues = (_aqQualityGate.issues || []).filter(function (i) { return typeof i === 'string' && QG_HALLUCINATION_KEYWORDS.test(i); });
+              if (_apHallIssues.length === 0) _apHallIssues = (_aqQualityGate.issues || []).slice(0, 3);
               _pt.comments.push({
                 id: 'cmt-qgbrief-' + Date.now(),
                 author: 'system',
-                text: 'BRIEF CORRECTION REQUIRED (auto-post) — hallucinated features detected. Rewriting copy alone will repeat the same hallucination. Issues: ' + (_aqQualityGate.issues || []).join('; ') + _apFactsLine,
+                text: 'BRIEF CORRECTION REQUIRED (auto-post) — hallucinated features detected. Rewriting copy alone will repeat the same hallucination. Specific hallucinated claims:\n- ' + _apHallIssues.join('\n- ') + _apFactsLine + '\n\nOn the next execute-task pass, revise the BRIEF itself. Remove invented features. Use only facts from product-facts.',
                 type: 'system',
                 createdAt: new Date().toISOString()
               });

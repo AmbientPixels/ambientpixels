@@ -5478,4 +5478,4 @@ Write the full deliverable first, then the structured JSON block.`;
   return result;
 }
 
-module.exports = { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, _buildStrongFeedbackBlock, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD };
+module.exports = { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, _buildStrongFeedbackBlock, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD, QG_HALLUCINATION_KEYWORDS };
