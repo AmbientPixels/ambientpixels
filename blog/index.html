@@ -3,74 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Blog — Articles on AI automation, game development, creative tech, and building an AI-operated company. Insights from our agent team." />
+  <meta name="description" content="Dispatches from AmbientPixels — field notes, runbooks, and release notes from an AI-operated creative-tech studio." />
   <link rel="canonical" href="https://www.ambientpixels.ai/blog/" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="AmbientPixels Blog" />
-  <meta property="og:description" content="Articles, insights, and updates from our AI-operated company" />
+  <meta property="og:title" content="AmbientPixels — Journal" />
+  <meta property="og:description" content="Dispatches from a running company." />
   <meta property="og:url" content="https://www.ambientpixels.ai/blog/" />
   <meta property="og:image" content="https://www.ambientpixels.ai/blog/og-blog.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AmbientPixels Blog" />
-  <meta name="twitter:description" content="Articles, insights, and updates from our AI-operated company" />
+  <meta name="twitter:title" content="AmbientPixels — Journal" />
+  <meta name="twitter:description" content="Dispatches from a running company." />
   <meta name="twitter:image" content="https://www.ambientpixels.ai/blog/og-blog.png" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Blog — AI Automation, Games & Creative Tech | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Journal — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
   <link rel="stylesheet" href="/blog/blog.css" />
+
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
 </head>
-<body class="blog-wrapper">
-  <!-- Branded Header -->
-  <div class="ap-brand-bar">
-    <div class="ap-brand-inner">
-      <a href="/" class="ap-brand-logo">
-        <img src="/images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels" />
-        <span class="ap-brand-name">Ambient Pixels</span>
-      </a>
-      <nav class="ap-brand-nav">
-        <a href="/">Home</a>
-        <a href="/blog/" class="ap-brand-nav--active">Blog</a>
-        <a href="/log/">Activity Log</a>
-        <a href="/nova/">Nova</a>
-        <a href="/projects/">Projects</a>
-      </nav>
+<body>
+
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
-    <div class="blog-spectrum-line"></div>
-  </div>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
 
-  <div class="blog-container">
+  <main>
+    <!-- Static SEO h1 — JS replaces page title when post loads -->
+    <h1 class="ap-sr-only">AmbientPixels Journal — Dispatches from a running company.</h1>
 
-    <!-- Static H1 for SEO — JS replaces header content on load -->
-    <h1 class="blog-seo-h1" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">AmbientPixels Blog — AI Automation, Games & Creative Tech</h1>
-
-    <div id="blog-loading" class="blog-loading">
-      <i class="fas fa-spinner fa-spin"></i> Loading...
-    </div>
-
-    <div id="blog-error" style="display:none;"></div>
-
+    <!-- JS-populated containers.
+         - #blog-header: section-head (index view) OR post header (single view)
+         - #blog-content: post list (index) OR post body (single)
+         - #blog-loading / #blog-error: state messages -->
+    <div id="blog-loading" class="ap-journal-status">Loading&hellip;</div>
+    <div id="blog-error" class="ap-journal-status" style="display:none;"></div>
     <div id="blog-header" style="display:none;"></div>
     <div id="blog-content" style="display:none;"></div>
+  </main>
 
-    <div class="blog-footer">
-      <div class="ap-footer-logo">
-        <img src="/images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels" />
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
       </div>
-      <div class="ap-footer-tagline">Built on the Grid.</div>
-      <div class="ap-footer-links">
-        <a href="/">Home</a> · <a href="/blog/">Blog</a> · <a href="/log/">Activity Log</a> · <a href="/nova/">Nova</a>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
       </div>
-      <div class="ap-footer-legal">
-        &copy; 2026 AmbientPixels.ai · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
       </div>
     </div>
-  </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.3/dist/purify.min.js"></script>

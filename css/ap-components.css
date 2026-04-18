@@ -398,6 +398,8 @@
 }
 .ap-pd.op-live { --op: var(--color-status-live); }
 .ap-pd.op-beta { --op: var(--color-status-beta); }
+.ap-pd.op-archive { --op: var(--color-text-muted); }
+.ap-pd.op-archive .year::before { animation: none; opacity: .7; }
 
 .ap-pd .go {
   font-family: var(--font-display);

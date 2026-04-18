@@ -1,4 +1,5 @@
-// blog.js — Public blog viewer for AmbientPixels
+// blog.js — Journal viewer for AmbientPixels (DS-compliant template)
+// Emits .ap-* markup; relies on /css/ap-components.css + /blog/blog.css.
 (function () {
   'use strict';
 
@@ -8,10 +9,10 @@
     ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
     : '/api';
 
-  var headerEl = document.getElementById('blog-header');
+  var headerEl  = document.getElementById('blog-header');
   var contentEl = document.getElementById('blog-content');
   var loadingEl = document.getElementById('blog-loading');
-  var errorEl = document.getElementById('blog-error');
+  var errorEl   = document.getElementById('blog-error');
 
   // Parse slug from path: /blog/my-slug → "my-slug"
   var pathParts = window.location.pathname.replace(/\/$/, '').split('/');
@@ -29,6 +30,8 @@
     loadPostIndex();
   }
 
+  // ---- Loaders --------------------------------------------------------
+
   function loadSinglePost(slug) {
     show('loading');
     fetch(API_BASE + '/blogPosts?slug=' + encodeURIComponent(slug))
@@ -40,7 +43,6 @@
       .then(function (post) {
         renderPost(post);
         if (window.ProductAnalytics) try { ProductAnalytics.track('post_viewed', { slug: slug, title: post.title || '' }); } catch(_){}
-        // Track view (fire-and-forget)
         try {
           var fp = (navigator.userAgent || '').slice(0, 64);
           var _utmSource = null, _utmContent = null;
@@ -65,9 +67,9 @@
       })
       .catch(function (err) {
         if (err && err.code === 'NOT_FOUND') {
-          showError('Post not found', 'No blog post with slug "' + esc(slug) + '".');
+          showError('Post not found.', 'No journal entry with slug "' + esc(slug) + '".');
         } else {
-          showError('Could not load post', 'A network or server error occurred. Please try again.');
+          showError('Could not load post.', 'A network or server error occurred. Please try again.');
         }
       });
   }
@@ -79,21 +81,22 @@
         if (!res.ok) throw new Error('Server error');
         return res.json();
       })
-      .then(function (posts) {
-        renderIndex(posts);
-      })
+      .then(function (posts) { renderIndex(posts); })
       .catch(function () {
-        showError('Could not load blog', 'A network or server error occurred.');
+        showError('Could not load journal.', 'A network or server error occurred.');
       });
   }
 
-  function renderPost(post) {
-    document.title = post.title + ' — AmbientPixels Blog';
+  // ---- Renderers ------------------------------------------------------
 
-    // Update OG meta tags for social sharing
+  // Single entry — DS §4.5 "single entry template."
+  function renderPost(post) {
+    document.title = post.title + ' — AmbientPixels Journal';
+
+    // OG meta for sharing
     var heroImg = post.hero_image || null;
     var heroUrl = (heroImg && heroImg.url) || post.cover_image || '';
-    setMeta('og:title', post.title + ' — AmbientPixels Blog');
+    setMeta('og:title', post.title + ' — AmbientPixels Journal');
     setMeta('og:description', post.excerpt || post.title);
     setMeta('og:url', window.location.href);
     setMeta('description', post.excerpt || post.title);
@@ -102,125 +105,186 @@
       setMeta('og:type', 'article');
     }
 
-    var heroHtml = '';
-    if (heroUrl) {
-      heroHtml = '<div class="blog-hero-image">' +
-        '<img src="' + esc(heroUrl) + '" alt="' + esc((heroImg && heroImg.alt) || post.title) + '" loading="eager">' +
+    var dateStr = formatISO(post.published_at);
+    var kindLabel = (post.kind || 'entry').toUpperCase();
+    var readTime = estimateReadTime(post.content_md);
+
+    // Title — split last 1–2 words as the italic punchline if title ends
+    // in a period-style closing; otherwise italic just the final word.
+    var titleHtml = italicizePunchline(post.title);
+
+    var heroHtml = heroUrl
+      ? '<div class="ap-journal-hero-image">' +
+          '<img src="' + esc(heroUrl) + '" alt="' + esc((heroImg && heroImg.alt) || post.title) + '" loading="eager">' +
+        '</div>'
+      : '';
+
+    var metaRail = '<div class="ap-sec-meta">' +
+        (post.excerpt ? esc(post.excerpt) : 'Field notes from AmbientPixels.') +
       '</div>';
-    }
 
     headerEl.innerHTML =
-      '<div class="blog-post-header">' +
-        '<a href="/blog/" class="blog-back"><i class="fas fa-arrow-left"></i> All Posts</a>' +
-        '<h1 class="blog-post-title">' + esc(post.title) + '</h1>' +
-        '<div class="blog-post-meta">' +
-          '<span class="blog-kind-badge">' + esc(post.kind || 'article') + '</span>' +
-          (post.published_at ? '<span><i class="fas fa-calendar"></i> ' + formatDate(post.published_at) + '</span>' : '') +
-          (post.created_by ? '<span><i class="fas fa-user"></i> ' + esc(post.created_by) + '</span>' : '') +
-          renderTags(post.tags) +
+      '<section class="ap-sec ap-journal-head">' +
+        '<div class="ap-sec-head">' +
+          '<div>' +
+            '<div class="ap-sec-idx">' +
+              '§ JOURNAL' +
+              (post.kind ? ' / ' + esc(kindLabel) : '') +
+              (dateStr ? ' &mdash; ' + esc(dateStr) : '') +
+            '</div>' +
+            '<h1 class="ap-display ap-journal-title">' + titleHtml + '</h1>' +
+            (readTime ? '<div class="ap-journal-readtime">' + esc(readTime) + '</div>' : '') +
+          '</div>' +
+          metaRail +
         '</div>' +
         heroHtml +
-      '</div>';
+      '</section>';
 
-    // Render markdown
+    // Render markdown body into .ap-journal-body
     var rawMd = post.content_md || '';
+    var bodyHtml;
     if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
       marked.setOptions({ breaks: true, gfm: true });
-      var rawHtml = marked.parse(rawMd);
-      contentEl.innerHTML = '<div class="blog-content">' + DOMPurify.sanitize(rawHtml, { USE_PROFILES: { html: true } }) + '</div>';
+      bodyHtml = DOMPurify.sanitize(marked.parse(rawMd), { USE_PROFILES: { html: true } });
     } else if (typeof marked !== 'undefined') {
-      contentEl.innerHTML = '<div class="blog-content"><p style="color:#f59e0b;"><i class="fas fa-exclamation-triangle"></i> Sanitizer unavailable — rendering as plain text.</p>' +
-        '<pre>' + esc(rawMd) + '</pre></div>';
+      bodyHtml = '<p class="ap-journal-warn">Sanitizer unavailable — rendering as plain text.</p><pre>' + esc(rawMd) + '</pre>';
     } else {
-      contentEl.innerHTML = '<div class="blog-content"><pre>' + esc(rawMd) + '</pre></div>';
+      bodyHtml = '<pre>' + esc(rawMd) + '</pre>';
     }
+
+    contentEl.innerHTML =
+      '<section class="ap-sec ap-journal-body-sec">' +
+        '<div class="ap-journal-body">' + bodyHtml + '</div>' +
+        '<div class="ap-journal-nav">' +
+          '<a class="ap-link-mono" href="/blog/">&larr; All dispatches.</a>' +
+        '</div>' +
+      '</section>';
 
     show('doc');
   }
 
+  // Index — DS §4.5 "entries index."
   function renderIndex(posts) {
-    document.title = 'Blog — AmbientPixels';
+    document.title = 'Journal — AmbientPixels';
 
     headerEl.innerHTML =
-      '<div class="blog-header">' +
-        '<h1><i class="fas fa-newspaper"></i>AmbientPixels Blog</h1>' +
-        '<p>Articles, insights, and updates from our AI-operated company</p>' +
-      '</div>';
+      '<section class="ap-sec">' +
+        '<div class="ap-sec-head">' +
+          '<div>' +
+            '<div class="ap-sec-idx">§ JOURNAL &mdash; DISPATCHES</div>' +
+            '<h2 class="ap-display">Dispatches from<br><em>a running company.</em></h2>' +
+          '</div>' +
+          '<div class="ap-sec-meta">' +
+            'Field notes, runbooks, and release notes. Published as they land. Not a content calendar.' +
+          '</div>' +
+        '</div>' +
+      '</section>';
 
     if (!posts || posts.length === 0) {
       contentEl.innerHTML =
-        '<div class="blog-empty">' +
-          '<i class="fas fa-feather-alt"></i>' +
-          'No posts published yet. Check back soon.' +
-        '</div>';
+        '<section class="ap-sec">' +
+          '<div class="ap-journal-empty">No dispatches published yet. Check back soon.</div>' +
+        '</section>';
       show('doc');
       return;
     }
 
-    var html = '<div class="blog-grid">';
-    posts.forEach(function (p) {
-      var cardHero = (p.hero_image && p.hero_image.url) || p.cover_image || '';
-      var thumbHtml = cardHero
-        ? '<div class="blog-card-thumb"><img src="' + esc(cardHero) + '" alt="' + esc(p.title) + '" loading="lazy"></div>'
-        : '';
-      html +=
-        '<a href="/blog/' + esc(p.slug) + '" class="blog-card' + (cardHero ? ' blog-card--has-thumb' : '') + '">' +
-          thumbHtml +
-          '<div class="blog-card-body">' +
-            '<div class="blog-card-title">' + esc(p.title) + '</div>' +
-            (p.excerpt ? '<div class="blog-card-excerpt">' + esc(p.excerpt) + '</div>' : '') +
-            '<div class="blog-card-meta">' +
-              '<span class="blog-kind-badge">' + esc(p.kind || 'article') + '</span>' +
-              (p.published_at ? '<span><i class="fas fa-calendar"></i> ' + formatDate(p.published_at) + '</span>' : '') +
-              (p.created_by ? '<span><i class="fas fa-user"></i> ' + esc(p.created_by) + '</span>' : '') +
-              renderTags(p.tags) +
-            '</div>' +
-          '</div>' +
-        '</a>';
-    });
-    html += '</div>';
+    var rows = posts.map(function (p, idx) {
+      var n = String(idx + 1).padStart(2, '0');
+      var dateStr = formatISO(p.published_at);
+      var kindLabel = (p.kind || 'entry').toUpperCase();
+      var readTime = estimateReadTime(p.content_md || '');
+      var titleHtml = italicizePunchline(p.title);
 
-    contentEl.innerHTML = html;
+      return (
+        '<a class="ap-pd op-archive" href="/blog/' + esc(p.slug) + '">' +
+          '<span class="n">' + n + '</span>' +
+          '<div>' +
+            '<h3>' + titleHtml + '</h3>' +
+            '<span class="meta">' +
+              (dateStr ? esc(dateStr) : '') +
+              (dateStr && kindLabel ? ' &middot; ' : '') +
+              esc(kindLabel) +
+            '</span>' +
+          '</div>' +
+          '<p>' + esc(p.excerpt || '') + '</p>' +
+          '<span class="year">' + esc(readTime || '&nbsp;') + '</span>' +
+          '<span class="go" aria-hidden="true">&rarr;</span>' +
+        '</a>'
+      );
+    }).join('');
+
+    contentEl.innerHTML =
+      '<section class="ap-sec">' +
+        '<div class="ap-prods ap-shipped">' + rows + '</div>' +
+      '</section>';
+
     show('doc');
   }
 
+  // ---- State helpers --------------------------------------------------
+
   function show(state) {
     loadingEl.style.display = state === 'loading' ? '' : 'none';
-    errorEl.style.display = state === 'error' ? '' : 'none';
-    headerEl.style.display = state === 'doc' ? '' : 'none';
-    contentEl.style.display = state === 'doc' ? '' : 'none';
+    errorEl.style.display   = state === 'error'   ? '' : 'none';
+    headerEl.style.display  = state === 'doc'     ? '' : 'none';
+    contentEl.style.display = state === 'doc'     ? '' : 'none';
   }
 
   function showError(title, detail) {
     errorEl.innerHTML =
-      '<div class="blog-error">' +
-        '<h2>' + esc(title) + '</h2>' +
-        '<p>' + esc(detail) + '</p>' +
-        '<a href="/blog/" class="blog-back" style="margin-top:1rem;"><i class="fas fa-arrow-left"></i> All Posts</a>' +
-      '</div>';
+      '<section class="ap-sec">' +
+        '<div class="ap-sec-idx">§ ERROR</div>' +
+        '<h2 class="ap-display ap-journal-title">' + esc(title) + '</h2>' +
+        '<p class="ap-journal-error-detail">' + esc(detail) + '</p>' +
+        '<a class="ap-link-mono" href="/blog/">&larr; All dispatches.</a>' +
+      '</section>';
     show('error');
   }
 
-  function renderTags(tags) {
-    if (!tags || !tags.length) return '';
-    return tags.slice(0, 4).map(function (t) {
-      return '<span class="blog-tag">' + esc(t) + '</span>';
-    }).join(' ');
+  // ---- Formatters -----------------------------------------------------
+
+  // Wrap the last 1–2 words of a title in <em> + trailing period, per DS
+  // §3.2 italic-punchline rule. If the title already ends with a period,
+  // we respect it; otherwise we add one.
+  function italicizePunchline(title) {
+    if (!title) return '';
+    var t = String(title).trim();
+    // Strip trailing period so we can re-append after the em.
+    var hadPeriod = /\.$/.test(t);
+    t = t.replace(/\.$/, '');
+
+    var words = t.split(/\s+/);
+    if (words.length <= 2) {
+      return '<em>' + esc(t) + '.</em>';
+    }
+    var tailLen = words.length >= 5 ? 2 : 1;
+    var head = words.slice(0, words.length - tailLen).join(' ');
+    var tail = words.slice(-tailLen).join(' ');
+    return esc(head) + ' <em>' + esc(tail) + '.</em>';
   }
 
-  function formatDate(iso) {
+  function formatISO(iso) {
     if (!iso) return '';
     var d = new Date(iso);
     if (isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function estimateReadTime(md) {
+    if (!md) return '';
+    var words = String(md).split(/\s+/).filter(Boolean).length;
+    var mins = Math.max(1, Math.round(words / 200));
+    return mins + ' MIN';
   }
 
   function setMeta(name, content) {
     var el = document.querySelector('meta[property="' + name + '"]') ||
              document.querySelector('meta[name="' + name + '"]');
-    if (el) {
-      el.setAttribute('content', content);
-    }
+    if (el) el.setAttribute('content', content);
   }
 
   function esc(s) {
