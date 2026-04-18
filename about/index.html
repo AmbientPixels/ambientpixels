@@ -3,405 +3,339 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="The Studio — AI-native systems design for production environments. AmbientPixels." />
+  <meta name="description" content="The AmbientPixels studio — creative-tech operating AI systems, digital products, and the infrastructure behind them. Founded 2024 in Seattle by Chad Martin." />
+  <link rel="canonical" href="https://www.ambientpixels.ai/about/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AmbientPixels — The Studio" />
+  <meta property="og:description" content="Ambient systems, operated quietly." />
+  <meta property="og:url" content="https://www.ambientpixels.ai/about/" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AmbientPixels — The Studio" />
+  <meta name="twitter:description" content="Ambient systems, operated quietly." />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>The Studio — AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/hero-base.css" />
+  <title>Studio — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
   <style>
-    /* Studio — Scoped Styles */
+    /* /about/ local — two-column prose layout (DS §4.4 step 3) */
 
-    /* 1. Hero — increased vertical padding + paragraph rhythm */
-    .stu-hero .hero-base-content {
-      padding: 4.25rem 1.5rem;
-    }
-    .stu-hero .hero-base-content p {
-      line-height: 1.75;
-    }
-    .stu-hero .hero-base-content h2 {
-      font-weight: 500;
+    /* Hero h1 — sits in the section-head position; slightly bigger than
+       section h2s per the §4.4 "hero-sized headline" guidance. */
+    .ap-studio-h1 {
+      font-size: clamp(56px, 7vw, 112px);
+      line-height: .9;
+      letter-spacing: -.04em;
+      margin: 12px 0 0;
+      max-width: 14ch;
+      text-wrap: balance;
     }
 
-    .stu-section { margin-bottom: 3rem; }
-    .stu-section h2 {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin: 0 0 0.75rem;
-    }
-    .stu-section > p {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      opacity: 0.65;
-      max-width: 720px;
-    }
-    .stu-grid {
+    /* Two-column prose body */
+    .ap-studio-prose {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.25rem;
-      margin-top: 1rem;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 80px;
+      align-items: start;
+      border-top: 1px solid var(--color-border);
+      padding-top: 60px;
+      margin-top: 80px;
     }
-    .stu-card {
-      border: 1px solid rgba(128,128,128,0.15);
-      border-radius: 8px;
-      padding: 1.25rem;
+    .ap-studio-prose p {
+      font-size: var(--fs-body);
+      line-height: var(--lh-body-loose);
+      color: var(--color-text-body);
+      margin: 0 0 var(--sp-6);
+      max-width: 58ch;
+    }
+    .ap-studio-prose p:last-child { margin-bottom: 0; }
+
+    /* Right-rail mono facts (like a telemetry strip but stacked) */
+    .ap-studio-facts {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      line-height: 1.7;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      transition: border-color 0.2s ease;
+      gap: var(--sp-4);
     }
-    .stu-card:hover {
-      border-color: rgba(128,128,128,0.3);
+    .ap-studio-facts dt {
+      opacity: .55;
+      margin-bottom: 2px;
     }
-    .stu-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
+    .ap-studio-facts dd {
       margin: 0;
-    }
-    .stu-card p {
-      font-size: 0.85rem;
+      color: var(--color-text-primary);
+      text-transform: none;
+      font-size: var(--fs-body-xs);
+      letter-spacing: 0;
+      font-family: var(--font-display);
       line-height: 1.5;
-      margin: 0;
-      opacity: 0.6;
-    }
-    .stu-card .stu-icon {
-      font-size: 1.25rem;
-      color: var(--stu-accent, #a78bfa);
-      margin-bottom: 0.25rem;
-    }
-    .stu-card {
-      border-top: 3px solid var(--stu-accent, rgba(128,128,128,0.15));
-    }
-    /* How We Build colors */
-    .stu-card--strategy   { --stu-accent: #4ECDC4; }
-    .stu-card--design     { --stu-accent: #60a5fa; }
-    .stu-card--automation { --stu-accent: #a78bfa; }
-    .stu-card--governance { --stu-accent: #f59e0b; }
-    .stu-card--deploy     { --stu-accent: #34d399; }
-    /* Controlled Intelligence colors */
-    .stu-card--boundaries { --stu-accent: #FF6B9D; }
-    .stu-card--approvals  { --stu-accent: #f59e0b; }
-    .stu-card--observe    { --stu-accent: #4ECDC4; }
-    .stu-card--versioning { --stu-accent: #60a5fa; }
-
-    /* 2. Architecture flow — increased padding, spacing, contrast */
-    .stu-flow {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      flex-wrap: wrap;
-      margin-top: 1.25rem;
-      padding: 1rem 0;
-    }
-    .stu-flow-step {
-      flex: 1;
-      min-width: 140px;
-      text-align: center;
-      padding: 1.25rem 0.85rem;
-      border: 1px solid rgba(128,128,128,0.15);
-      border-radius: 6px;
-    }
-    .stu-flow-step {
-      border-top: 2px solid var(--flow-accent, rgba(128,128,128,0.15));
-    }
-    .stu-flow--strategy  { --flow-accent: #4ECDC4; }
-    .stu-flow--design    { --flow-accent: #60a5fa; }
-    .stu-flow--automation{ --flow-accent: #a78bfa; }
-    .stu-flow--governance{ --flow-accent: #f59e0b; }
-    .stu-flow--production{ --flow-accent: #34d399; }
-    .stu-flow-step h4 {
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin: 0 0 0.25rem;
-    }
-    .stu-flow-step p {
-      font-size: 0.75rem;
-      margin: 0;
-      opacity: 0.45;
-    }
-    .stu-flow-arrow {
-      font-size: 1rem;
-      opacity: 0.3;
-      padding: 0 0.5rem;
-      flex-shrink: 0;
     }
 
-    /* 3. Principles — wider gap, more card padding */
-    .stu-principles {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1rem;
-    }
-    .stu-principle {
-      padding: 1.25rem 1rem;
-      border-left: 2px solid var(--prin-accent, #a78bfa);
-    }
-    .stu-prin--systems  { --prin-accent: #4ECDC4; }
-    .stu-prin--infra    { --prin-accent: #60a5fa; }
-    .stu-prin--account  { --prin-accent: #f59e0b; }
-    .stu-prin--clarity  { --prin-accent: #FF6B9D; }
-    .stu-prin--prod     { --prin-accent: #34d399; }
-    .stu-principle h3 {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin: 0 0 0.25rem;
-    }
-    .stu-principle p {
-      font-size: 0.8rem;
-      margin: 0;
-      opacity: 0.55;
-      line-height: 1.55;
-    }
-
-    /* 4. Founder — more inner padding, breathing room */
-    .stu-founder {
-      border: 1px solid rgba(128,128,128,0.15);
-      border-radius: 8px;
-      padding: 2.25rem 2rem;
-      margin-top: 1rem;
-      max-width: 720px;
-    }
-    .stu-founder h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 0 0 0.5rem;
-    }
-    .stu-founder p {
-      font-size: 0.9rem;
-      line-height: 1.7;
-      margin: 0 0 0.85rem;
-      opacity: 0.65;
-    }
-    .stu-founder .stu-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-      border: 1px solid rgba(128,128,128,0.2);
-      border-radius: 6px;
-      text-decoration: none;
-      transition: border-color 0.2s ease, background 0.2s ease;
-    }
-    .stu-founder .stu-btn:hover {
-      border-color: #a78bfa;
-      background: rgba(167, 139, 250, 0.06);
-    }
-
-    /* 5. CTA section — more vertical room */
-    #contact-cta .content-section {
-      padding: 2rem 0;
-    }
-
-    /* Light theme overrides */
-    [data-theme="light"] .stu-card .stu-icon { color: var(--stu-accent, #7c3aed); }
-    [data-theme="light"] .stu-card {
-      border-left-color: #e2e8f0;
-      border-right-color: #e2e8f0;
-      border-bottom-color: #e2e8f0;
-    }
-    [data-theme="light"] .stu-card:hover {
-      border-left-color: #cbd5e1;
-      border-right-color: #cbd5e1;
-      border-bottom-color: #cbd5e1;
-    }
-    [data-theme="light"] .stu-flow-step {
-      border-left-color: #e2e8f0;
-      border-right-color: #e2e8f0;
-      border-bottom-color: #e2e8f0;
-    }
-    [data-theme="light"] .stu-principle { border-left-color: var(--prin-accent, #7c3aed); }
-    [data-theme="light"] .stu-founder { border-color: #e2e8f0; }
-    [data-theme="light"] .stu-founder .stu-btn {
-      border-color: #d1d5db;
-      color: #334155;
-    }
-    [data-theme="light"] .stu-founder .stu-btn:hover {
-      border-color: #7c3aed;
-      background: rgba(124, 58, 237, 0.05);
-    }
-
-    @media (max-width: 600px) {
-      .stu-flow { flex-direction: column; }
-      .stu-flow-arrow { transform: rotate(90deg); padding: 0.25rem 0; }
-      .stu-principles { grid-template-columns: 1fr; }
-      .stu-hero .hero-base-content { padding: 3rem 1.2rem; }
+    @media (max-width: 1000px) {
+      .ap-studio-prose { grid-template-columns: 1fr; gap: 40px; }
     }
   </style>
 </head>
-<body data-theme="dark">
-  <header id="nav-header"></header>
+<body>
 
-  <!-- Hero -->
-  <section class="hero-base stu-hero" data-hero="architect">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>The Studio</h1>
-      <p class="subtitle">AI-native systems designed for production environments.</p>
-      <p>AmbientPixels is a structured systems studio. We design, build, and deploy modular AI platforms — governed automation pipelines with clear architecture, human oversight, and production-grade standards.</p>
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
-  </section>
+    <a class="ap-nav-cta" href="#start" onclick="event.preventDefault(); openProjectModal('studio-nav');">Start a project &rarr;</a>
+  </nav>
 
-  <main class="grid-container">
+  <main>
 
-    <!-- How We Build -->
-    <section class="content-section grid-col-12 stu-section">
-      <h2>How We Build</h2>
-      <p>Every system follows a defined path from strategy through deployment. No shortcuts. No ambiguity. Structured phases with clear deliverables at each stage.</p>
-      <div class="stu-grid">
-        <div class="stu-card stu-card--strategy">
-          <i class="fas fa-map stu-icon"></i>
-          <h3>Strategy &amp; System Mapping</h3>
-          <p>Define scope, identify dependencies, and map system architecture before any code is written.</p>
+    <!-- § STUDIO — ABOUT + two-column prose -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ STUDIO — ABOUT</div>
+          <h1 class="ap-display ap-studio-h1">Ambient systems,<br><em>operated quietly.</em></h1>
         </div>
-        <div class="stu-card stu-card--design">
-          <i class="fas fa-cubes stu-icon"></i>
-          <h3>Modular Design Systems</h3>
-          <p>Composable UI components, token-based theming, and reusable layout scaffolds built for scale.</p>
+        <div class="ap-sec-meta">
+          A creative-tech studio running AI systems, digital products, and the infrastructure behind them. Built in public, operated in the open.
         </div>
-        <div class="stu-card stu-card--automation">
-          <i class="fas fa-cogs stu-icon"></i>
-          <h3>Automation Layer</h3>
-          <p>Task pipelines, content generation, and agent orchestration with defined execution boundaries.</p>
+      </div>
+
+      <div class="ap-studio-prose">
+        <div>
+          <p>AmbientPixels is a structured systems studio. We design, build, and deploy modular AI platforms &mdash; governed automation pipelines with clear architecture, human oversight, and production-grade standards.</p>
+          <p>Every system we ship follows a defined path from strategy through production. Scope first, architecture second, automation third, governance fourth, deployment last. No shortcuts, no ambiguity, no unbounded agents running without a log.</p>
+          <p>AI integration is governed, not open-ended. Every automated action operates within scoped permissions, routes approval checkpoints for high-impact operations, and produces full telemetry. Nothing runs in the dark. Everything is reversible.</p>
+          <p>The studio is run by <strong>Chad Martin</strong>, with two decades of experience across video production, platform operations, and digital system design. AmbientPixels extends that discipline into modular architecture, automation systems, and AI-augmented infrastructure built for clarity, control, and long-term deployment.</p>
+          <p><a class="ap-link-mono" href="/skills/chad-martin-resume.html" style="opacity:.7;">Read the full resume &rarr;</a></p>
         </div>
-        <div class="stu-card stu-card--governance">
-          <i class="fas fa-shield-alt stu-icon"></i>
-          <h3>Human Governance</h3>
-          <p>Approval checkpoints, audit trails, and escalation paths for all high-impact operations.</p>
+        <dl class="ap-studio-facts">
+          <div>
+            <dt>Founded</dt>
+            <dd>2024</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd>Seattle, Washington</dd>
+          </div>
+          <div>
+            <dt>Founder</dt>
+            <dd>Chad Martin</dd>
+          </div>
+          <div>
+            <dt>Fields</dt>
+            <dd>AI systems &middot; product &amp; creative &middot; infrastructure</dd>
+          </div>
+          <div>
+            <dt>Run rate</dt>
+            <dd>Daily heartbeat, published to the open web</dd>
+          </div>
+          <div>
+            <dt>Currently</dt>
+            <dd>Seven products operating, more in flight</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- §2.8  § 01 — PRACTICE (condensed 3-pillar principles) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 01 — PRACTICE</div>
+          <h2 class="ap-display">Three rules,<br><em>one practice.</em></h2>
         </div>
-        <div class="stu-card stu-card--deploy">
-          <i class="fas fa-rocket stu-icon"></i>
-          <h3>Production Deployment</h3>
-          <p>CI/CD pipelines, staged rollouts, and monitoring dashboards for reliable delivery.</p>
+        <div class="ap-sec-meta">
+          The principles that hold across every system we ship. Small enough to remember, strict enough to follow.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Systems<br>over <em>surface.</em></h3>
+          <p>Architecture and infrastructure precede aesthetics. Structure enables expression. Build the pipeline before the paint.</p>
+          <ul>
+            <li>Architecture first</li>
+            <li>Tokens before pixels</li>
+            <li>APIs before polish</li>
+            <li>Scale, then shine</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Automation<br>with <em>accountability.</em></h3>
+          <p>Every automated action is scoped, logged, and reversible. High-impact operations route through human approval. No black boxes.</p>
+          <ul>
+            <li>Scoped permissions</li>
+            <li>Approval checkpoints</li>
+            <li>Full telemetry</li>
+            <li>Versioned behaviors</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Built<br>for <em>production.</em></h3>
+          <p>Ship-ready by default. Staging, testing, and monitoring are non-negotiable. We run what we build, in the open, every day.</p>
+          <ul>
+            <li>CI/CD pipelines</li>
+            <li>Staged rollouts</li>
+            <li>Observable runtime</li>
+            <li>Public logs</li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- System Architecture -->
-    <section class="content-section grid-col-12 stu-section">
-      <h2>System Architecture</h2>
-      <p>A layered system architecture. Each phase feeds the next with defined handoff points.</p>
-      <div class="stu-flow">
-        <div class="stu-flow-step stu-flow--strategy">
-          <h4>Strategy</h4>
-          <p>Scope &amp; mapping</p>
+    <!-- §2.9 (ap-shipped)  § 02 — SHIPPED (condensed 3-row sample) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 02 — SHIPPED</div>
+          <h2 class="ap-display">What we&rsquo;ve<br>put <em>into the world.</em></h2>
         </div>
-        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step stu-flow--design">
-          <h4>Design Systems</h4>
-          <p>Components &amp; tokens</p>
-        </div>
-        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step stu-flow--automation">
-          <h4>Automation</h4>
-          <p>Pipelines &amp; agents</p>
-        </div>
-        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step stu-flow--governance">
-          <h4>Governance</h4>
-          <p>Approvals &amp; audit</p>
-        </div>
-        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step stu-flow--production">
-          <h4>Production</h4>
-          <p>Deploy &amp; monitor</p>
+        <div class="ap-sec-meta">
+          A sample. See <a href="/projects/" class="ap-link-mono" style="opacity:.65;">all work &rarr;</a>
         </div>
       </div>
-    </section>
 
-    <!-- Controlled Intelligence -->
-    <section class="content-section grid-col-12 stu-section">
-      <h2>Controlled Intelligence</h2>
-      <p>AI integration is governed — not open-ended. Every automated action operates within defined constraints with full observability.</p>
-      <div class="stu-grid">
-        <div class="stu-card stu-card--boundaries">
-          <i class="fas fa-border-all stu-icon"></i>
-          <h3>Defined Boundaries</h3>
-          <p>Each AI agent operates within scoped permissions. No unbounded access. No unmonitored actions.</p>
-        </div>
-        <div class="stu-card stu-card--approvals">
-          <i class="fas fa-check-double stu-icon"></i>
-          <h3>Approval Checkpoints</h3>
-          <p>High-impact operations route through human approval before execution. Logged with provenance.</p>
-        </div>
-        <div class="stu-card stu-card--observe">
-          <i class="fas fa-eye stu-icon"></i>
-          <h3>Observability</h3>
-          <p>Full telemetry on agent decisions, action queues, and execution outcomes. Nothing runs in the dark.</p>
-        </div>
-        <div class="stu-card stu-card--versioning">
-          <i class="fas fa-code-branch stu-icon"></i>
-          <h3>Versioning</h3>
-          <p>System configurations, prompts, and agent behaviors are version-controlled and auditable.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Design Principles -->
-    <section class="content-section grid-col-12 stu-section">
-      <h2>Design Principles</h2>
-      <div class="stu-principles">
-        <div class="stu-principle stu-prin--systems">
-          <h3>Systems Over Surface</h3>
-          <p>Architecture and infrastructure precede aesthetics. Structure enables expression.</p>
-        </div>
-        <div class="stu-principle stu-prin--infra">
-          <h3>Infrastructure First</h3>
-          <p>Reliable foundations before features. Pipelines, tokens, and APIs before polish.</p>
-        </div>
-        <div class="stu-principle stu-prin--account">
-          <h3>Automation with Accountability</h3>
-          <p>Every automated action is logged, governed, and reversible.</p>
-        </div>
-        <div class="stu-principle stu-prin--clarity">
-          <h3>Clarity Over Complexity</h3>
-          <p>Simple interfaces, transparent logic, readable systems. No black boxes.</p>
-        </div>
-        <div class="stu-principle stu-prin--prod">
-          <h3>Built for Production</h3>
-          <p>Ship-ready by default. Staging, testing, and monitoring are non-negotiable.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Founder -->
-    <section class="content-section grid-col-12 stu-section">
-      <h2>Founder</h2>
-      <div class="stu-founder">
-        <h3>Chad Martin</h3>
-        <p>Chad Martin is the founder of AmbientPixels, an AI-native systems studio focused on structured digital infrastructure and governed automation.</p>
-        <p>With over two decades of experience across video production, platform operations, and digital system design, his work centers on scalable content frameworks and production-ready workflows. AmbientPixels extends that discipline into modular architecture, automation systems, and AI-augmented infrastructure built for clarity, control, and long-term deployment.</p>
-        <a href="/skills/chad-martin-resume.html" class="stu-btn">
-          <i class="fas fa-file-alt"></i> View Interactive Resume
+      <div class="ap-prods ap-shipped">
+        <a class="ap-pd op-live" href="/projects/">
+          <span class="n">01</span>
+          <div>
+            <h3>Xbox <em>Support Systems.</em></h3>
+            <span class="meta">Client &middot; Microsoft &middot; Web &amp; Localization</span>
+          </div>
+          <p>Help centers and support hubs for Gears of War, Halo Infinite, and Sea of Thieves. Multi-region delivery with accessible reporting tools.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/youtube.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Video <em>Production.</em></h3>
+            <span class="meta">Studio &middot; Media</span>
+          </div>
+          <p>Ambient environments and creative-tech content. AI-driven video pipelines published to YouTube and client channels.</p>
+          <span class="year">Ongoing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/log/">
+          <span class="n">03</span>
+          <div>
+            <h3>Activity <em>Log.</em></h3>
+            <span class="meta">Internal &middot; Transparency</span>
+          </div>
+          <p>Daily public dispatches from an AI-operated company. Auto-generated, CEO-reviewed, published to the open web.</p>
+          <span class="year">Publishing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
         </a>
       </div>
     </section>
 
-    <!-- Contact CTA -->
-    <section class="content-section grid-col-12">
-      <div id="contact-cta"></div>
+    <!-- §2.15  CTA -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Work with a studio<br><em>that runs quiet.</em></h2>
+      <p>Tell us what you&rsquo;re building. System, creative, or both. We&rsquo;ll scope, mock, and ship.</p>
+      <div class="ap-cta-actions">
+        <button type="button" class="ap-btn ap-btn--primary" onclick="openProjectModal('studio-cta');">Start a project &rarr;</button>
+        <a class="ap-btn ap-btn--ghost" href="/services/">See services</a>
+      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
     </section>
-
   </main>
 
-  <div id="footer-container"></div>
-  <div id="contact-modal-container"></div>
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="#start" onclick="event.preventDefault(); openProjectModal('footer-contact');">Work with us</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/main.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/init-contact-cta.js" defer></script>
+  <!-- Contact modal machinery -->
+  <div id="modal-container" data-auto-form="modal"></div>
+  <script src="/js/forms.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
+
+  <!-- Telemetry -->
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+
+  <script>
+    function openProjectModal(source) {
+      var sel = document.getElementById('project-type');
+      if (sel) sel.value = 'ai-systems';
+      var hidden = document.getElementById('contact-source');
+      if (!hidden) {
+        hidden = document.createElement('input');
+        hidden.type = 'hidden'; hidden.name = '_source'; hidden.id = 'contact-source';
+        var form = document.getElementById('contact-form');
+        if (form) form.appendChild(hidden);
+      }
+      hidden.value = source || 'studio';
+      if (typeof showModal === 'function') showModal('contact-modal');
+    }
+  </script>
 </body>
 </html>
