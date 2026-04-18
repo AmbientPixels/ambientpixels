@@ -1,0 +1,522 @@
+/* ============================================================
+   ap-skin.css — DS overlay for legacy pages.
+
+   Load order per page:
+     1. All legacy CSS (base, grid, nav, components, theme, banner,
+        projects, hero, lightbox, ...) — provides LAYOUT.
+     2. ap-tokens.css — provides DS tokens.
+     3. ap-skin.css (this file) — remaps legacy surfaces to DS
+        palette + fonts WITHOUT changing layout.
+
+   Intent: a page keeps its original HTML structure and component
+   grid, but reads as Monolith (black bg, Archivo + JetBrains Mono,
+   grayscale palette, hairline rules, no gradients). Use for case
+   studies and other legacy pages where a full DS §4 rewrite is too
+   disruptive.
+
+   This is not a system-wide change: only pages that explicitly
+   <link> this file get the skin.
+   ============================================================ */
+
+
+/* ---- Body + typography reset -------------------------------------- */
+
+body {
+  background: var(--color-bg) !important;
+  color: var(--color-text-body) !important;
+  font-family: var(--font-display) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+body,
+p, li, dd, dt, span, small, a, em, strong, blockquote, button,
+input, textarea, select, label, figure, figcaption {
+  font-family: var(--font-display);
+}
+
+/* Code / mono hooks */
+code, pre, kbd, samp,
+.role-tag, .tech-badge, .cs-roleline, .media-caption,
+.breadcrumb-container, .hero-card-badge,
+.metric-card h3, .impact-metrics .metric-card p,
+.next-project-card .btn-secondary,
+.blog-kind-badge {
+  font-family: var(--font-mono);
+}
+
+/* Headings — Archivo Black weight, tight tracking, DS primary */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -.025em;
+  color: var(--color-text-primary);
+}
+h1 { letter-spacing: -.04em; }
+h2 { letter-spacing: -.03em; }
+
+/* Muted italics per DS display rules */
+h1 em, h2 em, h3 em, h4 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-body);
+}
+
+
+/* ---- Hero-card (case study top block) ----------------------------- */
+
+.hero-card {
+  background: var(--color-bg) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  margin: var(--sp-10, 40px) 0 var(--sp-12, 48px) !important;
+}
+
+.hero-card-image {
+  background: var(--color-surface) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+.hero-card-content {
+  background: var(--color-bg) !important;
+  border-top: 0 !important;
+  padding: var(--sp-10, 40px) var(--sp-10, 40px) !important;
+}
+
+.hero-card-content h1 {
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1;
+  margin: 0 0 var(--sp-4, 16px);
+  color: var(--color-text-primary);
+}
+
+.hero-card-description {
+  font-family: var(--font-display);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--color-text-body);
+  opacity: .82;
+  max-width: 60ch;
+  margin: 0 0 var(--sp-5, 20px);
+}
+
+.hero-card-badge {
+  display: inline-block;
+  background: transparent !important;
+  color: var(--color-text-tertiary) !important;
+  border: 1px solid var(--color-border) !important;
+  padding: 4px 10px !important;
+  border-radius: 0 !important;
+  font-size: 11px !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  margin-bottom: var(--sp-4, 16px);
+}
+
+.cs-roleline {
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-top: var(--sp-4, 16px);
+}
+
+
+/* ---- Tech badges (tag pills) -------------------------------------- */
+
+.tech-badges { gap: var(--sp-2, 8px) !important; }
+
+.tech-badge {
+  background: transparent !important;
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+.tech-badge:hover {
+  border-color: var(--color-text-tertiary) !important;
+  color: var(--color-text-primary) !important;
+}
+.tech-badge i { color: var(--color-text-tertiary) !important; }
+
+
+/* ---- Role tags (hero-card project-tags variant) ------------------- */
+
+.role-tag {
+  background: transparent !important;
+  color: var(--color-text-secondary) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+
+/* ---- Content sections --------------------------------------------- */
+
+.content-section,
+.project-section {
+  background: transparent !important;
+}
+
+.content-section h2,
+.project-section h2 {
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  color: var(--color-text-primary);
+  margin-bottom: var(--sp-4, 16px);
+}
+.content-section h2 i,
+.project-section h2 i {
+  color: var(--color-text-tertiary);
+  margin-right: 8px;
+}
+
+.content-section h3,
+.project-section h3 {
+  color: var(--color-text-primary);
+  font-size: 18px;
+}
+
+.content-section p,
+.project-section p {
+  font-family: var(--font-display);
+  color: var(--color-text-body);
+  line-height: 1.55;
+  max-width: 70ch;
+}
+
+.section-divider {
+  border-top: 1px solid var(--color-border) !important;
+  background: none !important;
+  height: 0 !important;
+  margin: var(--sp-15, 60px) 0 !important;
+}
+
+
+/* ---- Bullet / info cards (ninja-theory bullet-cards, SoM cards) --- */
+
+.bullet-cards { gap: var(--sp-4, 16px); }
+.bullet-card {
+  background: var(--color-surface-soft) !important;
+  border-left: 2px solid var(--color-text-tertiary) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.bullet-card strong { color: var(--color-text-primary); font-weight: 900; }
+.bullet-card p { color: var(--color-text-body); }
+.bullet-icon {
+  background: transparent !important;
+  color: var(--color-text-tertiary) !important;
+  box-shadow: none !important;
+}
+
+
+/* ---- Media grid + gallery ----------------------------------------- */
+
+.media-grid { gap: var(--sp-3, 12px); }
+
+.media-item {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.media-item img { border-radius: 0; }
+.media-item a:hover { opacity: .85; }
+
+.media-caption {
+  font-size: 11px !important;
+  letter-spacing: .05em !important;
+  color: var(--color-text-tertiary) !important;
+  padding: var(--sp-3, 12px) !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+.inline-image {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  margin: var(--sp-6, 24px) 0;
+}
+
+
+/* ---- Metric cards (impact-metrics) -------------------------------- */
+
+.impact-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--sp-4, 16px);
+  margin: var(--sp-6, 24px) 0 var(--sp-8, 32px);
+}
+
+.metric-card {
+  background: var(--color-surface-soft) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: var(--sp-6, 24px) !important;
+  text-align: center;
+}
+.metric-card i {
+  color: var(--color-text-tertiary) !important;
+  font-size: 18px !important;
+  margin-bottom: var(--sp-3, 12px) !important;
+}
+.metric-card h3 {
+  font-family: var(--font-heavy, 'Archivo Black', sans-serif) !important;
+  font-size: clamp(36px, 3.5vw, 56px) !important;
+  line-height: 1 !important;
+  letter-spacing: -.03em !important;
+  color: var(--color-text-primary) !important;
+  margin: 0 0 var(--sp-2, 8px) !important;
+}
+.metric-card p {
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase !important;
+  color: var(--color-text-tertiary) !important;
+  margin: 0 !important;
+}
+
+.impact-highlights h3 {
+  font-size: 18px;
+  margin: var(--sp-6, 24px) 0 var(--sp-3, 12px);
+  color: var(--color-text-primary);
+}
+.impact-highlights ul { padding-left: 1.4em; }
+.impact-highlights li {
+  color: var(--color-text-body);
+  margin: var(--sp-2, 8px) 0;
+  line-height: 1.55;
+}
+
+
+/* ---- Pull quote (gears has one) ----------------------------------- */
+
+.ap-quote,
+.ap-quote--featured {
+  background: var(--color-surface-soft) !important;
+  border: 1px solid var(--color-border) !important;
+  border-left: 2px solid var(--color-text-tertiary) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: var(--sp-6, 24px) !important;
+}
+.ap-quote__text {
+  color: var(--color-text-body);
+  font-style: italic;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.55;
+}
+.ap-quote__author { color: var(--color-text-primary); font-weight: 900; }
+.ap-quote__role {
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.ap-quote__icon i { color: var(--color-text-tertiary); }
+
+
+/* ---- FAQ accordion (gears has one) -------------------------------- */
+
+.ap-faq .faq-category { margin-bottom: var(--sp-4, 16px); }
+.ap-faq .faq-category h3 {
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+.details-toggle {
+  background: transparent !important;
+  border: none !important;
+  border-top: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  padding: var(--sp-4, 16px) 0 !important;
+  box-shadow: none !important;
+}
+.details-toggle summary {
+  color: var(--color-text-primary) !important;
+  font-weight: 900 !important;
+  cursor: pointer;
+}
+.details-toggle[open] > div p {
+  color: var(--color-text-body);
+  line-height: 1.55;
+  margin-top: var(--sp-3, 12px);
+}
+
+
+/* ---- Buttons ------------------------------------------------------ */
+
+.btn,
+.btn-primary,
+.btn-secondary {
+  font-family: var(--font-display) !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  padding: var(--sp-3, 12px) var(--sp-5, 20px) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+  transition: all var(--dur-fast, .2s) !important;
+  display: inline-flex !important;
+  gap: var(--sp-2, 8px) !important;
+  align-items: center !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.btn-primary {
+  background: var(--color-text-primary) !important;
+  color: var(--color-bg) !important;
+  border: 1px solid var(--color-text-primary) !important;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255,255,255,.2) !important;
+  background: var(--color-text-primary) !important;
+  color: var(--color-bg) !important;
+}
+.btn-secondary {
+  background: transparent !important;
+  color: var(--color-text-primary) !important;
+  border: 1px solid var(--color-border) !important;
+}
+.btn-secondary:hover {
+  border-color: var(--color-text-primary) !important;
+  color: var(--color-text-primary) !important;
+}
+.btn i { color: inherit !important; }
+
+.project-buttons {
+  display: flex;
+  gap: var(--sp-3, 12px);
+  margin-top: var(--sp-4, 16px);
+  flex-wrap: wrap;
+}
+
+
+/* ---- Related projects + next project ----------------------------- */
+
+.related-projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--sp-4, 16px);
+}
+.related-project-card {
+  background: transparent !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: var(--sp-5, 20px) !important;
+  transition: background var(--dur-med, .3s);
+}
+.related-project-card:hover {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+.related-project-card a {
+  color: var(--color-text-primary) !important;
+  font-weight: 900;
+  text-decoration: none;
+  font-size: 16px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.related-project-card a i { color: var(--color-text-tertiary); }
+.related-project-card p {
+  color: var(--color-text-body);
+  opacity: .72;
+  margin-top: var(--sp-2, 8px);
+  font-size: 14px;
+}
+
+.next-project-card {
+  background: transparent !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: var(--sp-6, 24px) !important;
+}
+.next-project-card h3 {
+  font-size: clamp(24px, 2.5vw, 36px);
+  color: var(--color-text-primary);
+}
+.next-project-card p { color: var(--color-text-body); }
+
+
+/* ---- Lightbox (keep behavior; theme surfaces) --------------------- */
+
+.lightbox,
+.lightbox-overlay,
+.lightbox-backdrop {
+  background: rgba(12, 12, 12, .92) !important;
+}
+.lightbox-content,
+.lightbox-container {
+  background: var(--color-bg) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.lightbox-caption {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+
+/* ---- Links (plain body links) ------------------------------------- */
+
+main a:not(.btn):not(.tech-badge):not(.role-tag):not(.lightbox-trigger):not(.related-project-card a):not(.ap-link-mono):not(.ap-btn) {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+
+/* ---- Nav header + footer (shared partials) ------------------------
+   The shared legacy nav/footer loaded by init-header-footer.js still
+   uses its own styling. If you want to skin those too, consider either
+   (a) retrofitting /modules/header.html + footer.html markup to use
+   .ap-nav / .ap-foot, or (b) adding targeted overrides here. For now
+   the skin leaves them alone so this file stays case-study-scoped.
+   -------------------------------------------------------------------- */
+
+
+/* ---- Remove noisy decorations ------------------------------------- */
+
+/* Drop the Xbox/hero particle canvas if any page embeds one */
+.hero-particles,
+.particle,
+#hero-particles { display: none !important; }
+
+/* Breadcrumb container — mono */
+.breadcrumb-container {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
