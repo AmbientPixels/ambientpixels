@@ -8,7 +8,7 @@
    Pages using this file should NOT load base.css, theme.css, or
    banner.css — those contain the p/body/a/ul global defaults that
    leak into .ap-foot + other DS surfaces no matter how many
-   !important overrides we stack. The reset block below replaces
+   overrides we stack. The reset block below replaces
    everything base.css provided.
 
    Intent: a page keeps its original HTML structure (hero-card,
@@ -73,9 +73,9 @@ a {
 /* ---- Body + typography base --------------------------------------- */
 
 body {
-  background: var(--color-bg) !important;
-  color: var(--color-text-body) !important;
-  font-family: var(--font-display) !important;
+  background: var(--color-bg);
+  color: var(--color-text-body);
+  font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -116,22 +116,22 @@ h1 em, h2 em, h3 em, h4 em {
 /* ---- Hero-card (case study top block) ----------------------------- */
 
 .hero-card {
-  background: var(--color-bg) !important;
-  border: 1px solid var(--color-border) !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  margin: var(--sp-10, 40px) 0 var(--sp-12, 48px) !important;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+  border-radius: 0;
+  margin: var(--sp-10, 40px) 0 var(--sp-12, 48px);
 }
 
 .hero-card-image {
-  background: var(--color-surface) !important;
-  border-bottom: 1px solid var(--color-border) !important;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .hero-card-content {
-  background: var(--color-bg) !important;
-  border-top: 0 !important;
-  padding: var(--sp-10, 40px) var(--sp-10, 40px) !important;
+  background: var(--color-bg);
+  border-top: 0;
+  padding: var(--sp-10, 40px) var(--sp-10, 40px);
 }
 
 .hero-card-content h1 {
@@ -153,16 +153,16 @@ h1 em, h2 em, h3 em, h4 em {
 
 .hero-card-badge {
   display: inline-block;
-  background: transparent !important;
-  color: var(--color-text-tertiary) !important;
-  border: 1px solid var(--color-border) !important;
-  padding: 4px 10px !important;
-  border-radius: 0 !important;
-  font-size: 11px !important;
-  letter-spacing: .12em !important;
-  text-transform: uppercase !important;
-  font-weight: 500 !important;
-  box-shadow: none !important;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
+  border-radius: 0;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  box-shadow: none;
   margin-bottom: var(--sp-4, 16px);
 }
 
@@ -177,40 +177,40 @@ h1 em, h2 em, h3 em, h4 em {
 
 /* ---- Tech badges (tag pills) -------------------------------------- */
 
-.tech-badges { gap: var(--sp-2, 8px) !important; }
+.tech-badges { gap: var(--sp-2, 8px); }
 
 .tech-badge {
-  background: transparent !important;
-  color: var(--color-text-secondary) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  padding: 4px 10px !important;
-  font-size: 11px !important;
-  letter-spacing: .08em !important;
-  text-transform: uppercase !important;
-  font-weight: 500 !important;
-  box-shadow: none !important;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  box-shadow: none;
 }
 .tech-badge:hover {
-  border-color: var(--color-text-tertiary) !important;
-  color: var(--color-text-primary) !important;
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
 }
-.tech-badge i { color: var(--color-text-tertiary) !important; }
+.tech-badge i { color: var(--color-text-tertiary); }
 
 
 /* ---- Role tags (hero-card project-tags variant) ------------------- */
 
 .role-tag {
-  background: transparent !important;
-  color: var(--color-text-secondary) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  padding: 4px 10px !important;
-  font-size: 11px !important;
-  letter-spacing: .08em !important;
-  text-transform: uppercase !important;
-  font-weight: 500 !important;
-  box-shadow: none !important;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  padding: 4px 10px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  box-shadow: none;
 }
 
 
@@ -218,7 +218,7 @@ h1 em, h2 em, h3 em, h4 em {
 
 .content-section,
 .project-section {
-  background: transparent !important;
+  background: transparent;
 }
 
 .content-section h2,
@@ -250,10 +250,10 @@ h1 em, h2 em, h3 em, h4 em {
 }
 
 .section-divider {
-  border-top: 1px solid var(--color-border) !important;
-  background: none !important;
-  height: 0 !important;
-  margin: var(--sp-15, 60px) 0 !important;
+  border-top: 1px solid var(--color-border);
+  background: none;
+  height: 0;
+  margin: var(--sp-15, 60px) 0;
 }
 
 
@@ -261,17 +261,17 @@ h1 em, h2 em, h3 em, h4 em {
 
 .bullet-cards { gap: var(--sp-4, 16px); }
 .bullet-card {
-  background: var(--color-surface-soft) !important;
-  border-left: 2px solid var(--color-text-tertiary) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  background: var(--color-surface-soft);
+  border-left: 2px solid var(--color-text-tertiary);
+  border-radius: 0;
+  box-shadow: none;
 }
 .bullet-card strong { color: var(--color-text-primary); font-weight: 900; }
 .bullet-card p { color: var(--color-text-body); }
 .bullet-icon {
-  background: transparent !important;
-  color: var(--color-text-tertiary) !important;
-  box-shadow: none !important;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  box-shadow: none;
 }
 
 
@@ -280,21 +280,21 @@ h1 em, h2 em, h3 em, h4 em {
 .media-grid { gap: var(--sp-3, 12px); }
 
 .media-item {
-  background: var(--color-surface) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
 }
 .media-item img { border-radius: 0; }
 .media-item a:hover { opacity: .85; }
 
 .media-caption {
-  font-size: 11px !important;
-  letter-spacing: .05em !important;
-  color: var(--color-text-tertiary) !important;
-  padding: var(--sp-3, 12px) !important;
-  margin: 0 !important;
-  background: transparent !important;
+  font-size: 11px;
+  letter-spacing: .05em;
+  color: var(--color-text-tertiary);
+  padding: var(--sp-3, 12px);
+  margin: 0;
+  background: transparent;
 }
 
 .inline-image {
@@ -314,33 +314,33 @@ h1 em, h2 em, h3 em, h4 em {
 }
 
 .metric-card {
-  background: var(--color-surface-soft) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: var(--sp-6, 24px) !important;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--sp-6, 24px);
   text-align: center;
 }
 .metric-card i {
-  color: var(--color-text-tertiary) !important;
-  font-size: 18px !important;
-  margin-bottom: var(--sp-3, 12px) !important;
+  color: var(--color-text-tertiary);
+  font-size: 18px;
+  margin-bottom: var(--sp-3, 12px);
 }
 .metric-card h3 {
-  font-family: var(--font-heavy, 'Archivo Black', sans-serif) !important;
-  font-size: clamp(36px, 3.5vw, 56px) !important;
-  line-height: 1 !important;
-  letter-spacing: -.03em !important;
-  color: var(--color-text-primary) !important;
-  margin: 0 0 var(--sp-2, 8px) !important;
+  font-family: var(--font-heavy, 'Archivo Black', sans-serif);
+  font-size: clamp(36px, 3.5vw, 56px);
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--sp-2, 8px);
 }
 .metric-card p {
-  font-family: var(--font-mono) !important;
-  font-size: 11px !important;
-  letter-spacing: .1em !important;
-  text-transform: uppercase !important;
-  color: var(--color-text-tertiary) !important;
-  margin: 0 !important;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin: 0;
 }
 
 .impact-highlights h3 {
@@ -360,12 +360,12 @@ h1 em, h2 em, h3 em, h4 em {
 
 .ap-quote,
 .ap-quote--featured {
-  background: var(--color-surface-soft) !important;
-  border: 1px solid var(--color-border) !important;
-  border-left: 2px solid var(--color-text-tertiary) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: var(--sp-6, 24px) !important;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  border-left: 2px solid var(--color-text-tertiary);
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--sp-6, 24px);
 }
 .ap-quote__text {
   color: var(--color-text-body);
@@ -398,16 +398,16 @@ h1 em, h2 em, h3 em, h4 em {
   font-weight: 500;
 }
 .details-toggle {
-  background: transparent !important;
-  border: none !important;
-  border-top: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  padding: var(--sp-4, 16px) 0 !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
+  padding: var(--sp-4, 16px) 0;
+  box-shadow: none;
 }
 .details-toggle summary {
-  color: var(--color-text-primary) !important;
-  font-weight: 900 !important;
+  color: var(--color-text-primary);
+  font-weight: 900;
   cursor: pointer;
 }
 .details-toggle[open] > div p {
@@ -432,59 +432,59 @@ a.btn-secondary,
 button.btn,
 button.btn-primary,
 button.btn-secondary {
-  font-family: var(--font-mono) !important;
-  font-weight: 500 !important;
-  font-size: 11px !important;
-  letter-spacing: var(--tracking-mono-md, .12em) !important;
-  text-transform: uppercase !important;
-  padding: var(--sp-3, 12px) var(--sp-5, 20px) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  background-image: none !important;   /* kill any gradient bg */
-  filter: none !important;             /* kill glow filters */
-  text-shadow: none !important;
-  transition: all var(--dur-fast, .2s) !important;
-  display: inline-flex !important;
-  gap: var(--sp-2, 8px) !important;
-  align-items: center !important;
-  text-decoration: none !important;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: var(--tracking-mono-md, .12em);
+  text-transform: uppercase;
+  padding: var(--sp-3, 12px) var(--sp-5, 20px);
+  border-radius: 0;
+  box-shadow: none;
+  background-image: none;   /* kill any gradient bg */
+  filter: none;             /* kill glow filters */
+  text-shadow: none;
+  transition: all var(--dur-fast, .2s);
+  display: inline-flex;
+  gap: var(--sp-2, 8px);
+  align-items: center;
+  text-decoration: none;
 }
 .btn-primary,
 a.btn-primary,
 button.btn-primary {
-  background: var(--color-teal-surface) !important;
-  background-color: var(--color-teal-surface) !important;
-  color: var(--color-teal-primary) !important;
-  border: 1px solid var(--color-teal-primary) !important;
+  background: var(--color-teal-surface);
+  background-color: var(--color-teal-surface);
+  color: var(--color-teal-primary);
+  border: 1px solid var(--color-teal-primary);
 }
 .btn-primary:hover,
 a.btn-primary:hover,
 button.btn-primary:hover {
-  background: var(--color-teal-primary) !important;
-  background-color: var(--color-teal-primary) !important;
-  color: var(--color-bg) !important;
-  transform: none !important;
-  box-shadow: none !important;
+  background: var(--color-teal-primary);
+  background-color: var(--color-teal-primary);
+  color: var(--color-bg);
+  transform: none;
+  box-shadow: none;
 }
 .btn-secondary,
 a.btn-secondary,
 button.btn-secondary {
-  background: transparent !important;
-  background-color: transparent !important;
-  color: var(--color-teal-primary) !important;
-  border: 1px solid var(--color-teal-secondary) !important;
+  background: transparent;
+  background-color: transparent;
+  color: var(--color-teal-primary);
+  border: 1px solid var(--color-teal-secondary);
 }
 .btn-secondary:hover,
 a.btn-secondary:hover,
 button.btn-secondary:hover {
-  background: var(--color-teal-surface) !important;
-  background-color: var(--color-teal-surface) !important;
-  border-color: var(--color-teal-primary) !important;
-  color: var(--color-teal-primary) !important;
+  background: var(--color-teal-surface);
+  background-color: var(--color-teal-surface);
+  border-color: var(--color-teal-primary);
+  color: var(--color-teal-primary);
 }
 .btn i,
 .btn-primary i,
-.btn-secondary i { color: inherit !important; }
+.btn-secondary i { color: inherit; }
 
 /* Fallbacks for scoped legacy rules (.hero-resume-link .btn, etc.) */
 .hero-resume-link .btn,
@@ -493,11 +493,11 @@ button.btn-secondary:hover {
 .project-buttons .btn:hover,
 .content-section .btn,
 .project-section .btn {
-  background: var(--color-teal-surface) !important;
-  background-image: none !important;
-  color: var(--color-teal-primary) !important;
-  border: 1px solid var(--color-teal-primary) !important;
-  border-radius: 0 !important;
+  background: var(--color-teal-surface);
+  background-image: none;
+  color: var(--color-teal-primary);
+  border: 1px solid var(--color-teal-primary);
+  border-radius: 0;
 }
 
 .project-buttons {
@@ -510,54 +510,54 @@ button.btn-secondary:hover {
 
 /* ---- Breadcrumbs — square + teal current ------------------------- */
 
-.breadcrumb-list { gap: 10px !important; }
+.breadcrumb-list { gap: 10px; }
 
 .breadcrumb-item:not(:last-child)::after {
-  background: var(--color-border) !important;
-  opacity: 1 !important;
-  width: 8px !important;
+  background: var(--color-border);
+  opacity: 1;
+  width: 8px;
 }
 
 .breadcrumb-link,
 .breadcrumb-current {
-  font-family: var(--font-mono) !important;
-  font-size: 11px !important;
-  letter-spacing: var(--tracking-mono-md, .12em) !important;
-  text-transform: uppercase !important;
-  padding: 4px 10px !important;
-  border-radius: 0 !important;
-  font-weight: 500 !important;
-  transition: all var(--dur-fast, .2s) !important;
-  box-shadow: none !important;
-  transform: none !important;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: var(--tracking-mono-md, .12em);
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 0;
+  font-weight: 500;
+  transition: all var(--dur-fast, .2s);
+  box-shadow: none;
+  transform: none;
 }
 .breadcrumb-link {
-  background: transparent !important;
-  color: var(--color-text-tertiary) !important;
-  border: 1px solid var(--color-border) !important;
-  text-decoration: none !important;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
 }
 .breadcrumb-link:hover {
-  background: var(--color-surface) !important;
-  color: var(--color-text-primary) !important;
-  border-color: var(--color-text-tertiary) !important;
-  transform: none !important;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-text-tertiary);
+  transform: none;
 }
 .breadcrumb-current {
-  background: var(--color-teal-surface) !important;
-  color: var(--color-teal-primary) !important;
-  border: 1px solid var(--color-teal-primary) !important;
-  font-weight: 500 !important;
+  background: var(--color-teal-surface);
+  color: var(--color-teal-primary);
+  border: 1px solid var(--color-teal-primary);
+  font-weight: 500;
 }
-.breadcrumb-link i { color: inherit !important; }
+.breadcrumb-link i { color: inherit; }
 
 
 /* ---- Badges that should pop teal (hero badges, kind tags) ---------- */
 .hero-card-badge,
 .blog-kind-badge {
-  background: var(--color-teal-surface) !important;
-  color: var(--color-teal-primary) !important;
-  border: 1px solid var(--color-teal-primary) !important;
+  background: var(--color-teal-surface);
+  color: var(--color-teal-primary);
+  border: 1px solid var(--color-teal-primary);
 }
 
 
@@ -576,15 +576,15 @@ button.btn-secondary:hover {
 .ap-quote__footer,
 .ap-quote[style],
 .ap-quote--featured[style] {
-  overflow: visible !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
+  overflow: visible;
+  height: auto;
+  min-height: 0;
+  max-height: none;
 }
 
 /* Keep images cropped in .media-item but not their captions. */
 .media-item {
-  overflow: hidden !important;
+  overflow: hidden;
 }
 /* Fixed-height .media-item inside a 2-col quote grid keeps its crop */
 
@@ -599,7 +599,7 @@ button.btn-secondary:hover {
 .related-project-card,
 .next-project-card,
 .ap-card {
-  overflow: visible !important;
+  overflow: visible;
   min-width: 0;
   max-width: 100%;
 }
@@ -633,12 +633,12 @@ button.btn-secondary:hover {
 .impact-highlights li,
 .content-section p,
 .project-section p {
-  word-break: normal !important;
-  overflow-wrap: break-word !important;
-  hyphens: none !important;
-  max-width: 100% !important;
-  width: auto !important;
-  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+  hyphens: none;
+  max-width: 100%;
+  width: auto;
+  white-space: normal;
 }
 
 /* Grid system — owned by legacy grid.css (.grid-container + .grid-col-*).
@@ -647,7 +647,7 @@ button.btn-secondary:hover {
    border-box (items ignore padding of grid-container). Fix: switch the
    track sizing to minmax(0, 1fr) — still 12 equal tracks, but the
    min-size is 0 so they'll shrink to fit the content-box instead of
-   blowing out. No !important; more specific selector wins. */
+   blowing out. No; more specific selector wins. */
 main.grid-container,
 section.grid-container,
 .grid-container {
@@ -667,16 +667,16 @@ section.grid-container,
 .grid-col-6 > .ap-quote--featured,
 .grid-col-6 .ap-quote[style*="height"],
 .grid-col-6 .ap-quote--featured[style*="height"] {
-  height: auto !important;
-  min-height: 0 !important;
-  overflow: visible !important;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
 }
 
 /* If the inline grid inside grid-col-6 forces 1fr row on the quote,
    collapse to auto so the quote sizes to content (not the gap-filled
    remaining space). */
 .grid-col-6[style*="grid-template-rows"] {
-  grid-template-rows: auto auto !important;
+  grid-template-rows: auto auto;
 }
 
 
@@ -690,7 +690,7 @@ section.grid-container,
 
 /* Entire card is the link — <a class="related-project-card">. Higher
    specificity via the tag+class combo so we beat legacy without
-   !important. */
+  . */
 a.related-project-card,
 .related-project-card {
   display: block;
@@ -732,11 +732,11 @@ a.related-project-card:hover,
 }
 
 .next-project-card {
-  background: transparent !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: var(--sp-6, 24px) !important;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--sp-6, 24px);
 }
 .next-project-card h3 {
   font-size: clamp(24px, 2.5vw, 36px);
@@ -750,14 +750,14 @@ a.related-project-card:hover,
 .lightbox,
 .lightbox-overlay,
 .lightbox-backdrop {
-  background: rgba(12, 12, 12, .92) !important;
+  background: rgba(12, 12, 12, .92);
 }
 .lightbox-content,
 .lightbox-container {
-  background: var(--color-bg) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
 }
 .lightbox-caption {
   font-family: var(--font-mono);
@@ -780,7 +780,7 @@ main a:not(.btn):not(.tech-badge):not(.role-tag):not(.lightbox-trigger):not(.rel
 /* ---- Hover overrides — kill every legacy colored hover --------------
    Legacy CSS (projects.css, components.css, hero.css, theme.css) sprays
    cyan/purple/aura-glow hover treatments across almost every surface
-   via specific selectors. The !important flags here are intentional —
+   via specific selectors. The flags here are intentional —
    we're overriding very specific legacy rules that otherwise bleed
    through the skin and break the "neutral elevation only" principle
    of DS §3.4. Anything that needs a real hover gets the DS treatment:
@@ -794,11 +794,11 @@ main a:not(.btn):not(.tech-badge):not(.role-tag):not(.lightbox-trigger):not(.rel
 .xbox-section-title:hover,
 .featured-card:hover,
 .video-project-page section:hover {
-  background: transparent !important;
-  border-color: var(--color-border) !important;
-  box-shadow: none !important;
-  transform: none !important;
-  color: inherit !important;
+  background: transparent;
+  border-color: var(--color-border);
+  box-shadow: none;
+  transform: none;
+  color: inherit;
 }
 
 /* Card-level hovers — neutral elevation only */
@@ -814,12 +814,12 @@ main a:not(.btn):not(.tech-badge):not(.role-tag):not(.lightbox-trigger):not(.rel
 .ap-card:hover,
 .ap-quote:hover,
 .ap-quote--featured:hover {
-  background: var(--color-surface) !important;
-  border-color: var(--color-border) !important;
-  box-shadow: none !important;
-  outline: none !important;
-  color: inherit !important;
-  transform: none !important;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: none;
+  outline: none;
+  color: inherit;
+  transform: none;
 }
 
 /* Hover states for h3/h4 inside cards — keep neutral */
@@ -830,53 +830,53 @@ main a:not(.btn):not(.tech-badge):not(.role-tag):not(.lightbox-trigger):not(.rel
 .bullet-card:hover p,
 .metric-card:hover h3,
 .metric-card:hover p {
-  color: var(--color-text-primary) !important;
+  color: var(--color-text-primary);
 }
 
 /* Inline text-links shouldn't flash cyan on hover */
 main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
-  color: var(--color-hover-text) !important;
+  color: var(--color-hover-text);
   text-decoration: underline;
 }
 
 /* Section header hover flash (xbox-section-header has cyan glow) */
 .xbox-section-header {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 .xbox-section-header h2 {
-  color: var(--color-text-primary) !important;
-  border: none !important;
-  background: transparent !important;
+  color: var(--color-text-primary);
+  border: none;
+  background: transparent;
 }
 .xbox-section-header i {
-  color: var(--color-text-tertiary) !important;
-  filter: none !important;
-  text-shadow: none !important;
+  color: var(--color-text-tertiary);
+  filter: none;
+  text-shadow: none;
 }
 
 /* Role-tag hover (legacy cyan border + glow) */
 .role-tag:hover,
 .tech-badge:hover {
-  background: var(--color-surface) !important;
-  border-color: var(--color-text-tertiary) !important;
-  color: var(--color-text-primary) !important;
-  box-shadow: none !important;
-  transform: none !important;
+  background: var(--color-surface);
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: none;
+  transform: none;
 }
 
 /* Lightbox trigger hover — subtle opacity only */
 .lightbox-trigger:hover img,
 .card-image-link:hover img {
-  opacity: .9 !important;
-  transform: none !important;
-  filter: none !important;
+  opacity: .9;
+  transform: none;
+  filter: none;
 }
 
 /* Breadcrumb link hover */
 .breadcrumb-container a:hover {
-  color: var(--color-text-primary) !important;
+  color: var(--color-text-primary);
   text-decoration: underline;
 }
 
@@ -906,7 +906,7 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
 .media-item,
 .tech-badge,
 .role-tag {
-  background-image: none !important;
+  background-image: none;
 }
 
 .hero-card,
@@ -929,9 +929,9 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
 .next-project-card,
 .media-item,
 .media-caption {
-  box-shadow: none !important;
-  text-shadow: none !important;
-  filter: none !important;
+  box-shadow: none;
+  text-shadow: none;
+  filter: none;
 }
 
 /* Kill legacy rounded corners everywhere except pill buttons + dots */
@@ -957,7 +957,7 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
 .tech-badge,
 .role-tag,
 .details-toggle {
-  border-radius: 0 !important;
+  border-radius: 0;
 }
 
 
@@ -986,31 +986,31 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
 
 .ap-foot,
 .ap-foot * {
-  line-height: 1.45 !important;
+  line-height: 1.45;
 }
 .ap-foot p,
 .ap-foot-about,
 .ap-foot ul,
 .ap-foot ul li {
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
 }
 .ap-foot-about {
-  margin-top: var(--sp-3) !important;
+  margin-top: var(--sp-3);
 }
 .ap-foot h5 {
-  margin: 0 0 14px !important;
-  padding: 0 !important;
+  margin: 0 0 14px;
+  padding: 0;
 }
 .ap-foot ul {
-  list-style: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: var(--sp-3) !important;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
 }
 .ap-foot ul a {
-  text-decoration: none !important;
-  color: var(--color-text-primary) !important;
+  text-decoration: none;
+  color: var(--color-text-primary);
 }
 .ap-foot-about em {
   font-style: italic;
@@ -1021,14 +1021,14 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
 /* Legal strip + colophon alignment */
 .ap-legal,
 .ap-colophon {
-  line-height: 1.6 !important; /* mono is OK at 1.6 */
+  line-height: 1.6; /* mono is OK at 1.6 */
 }
 .ap-legal {
-  padding: var(--sp-6) var(--sp-10) !important;
+  padding: var(--sp-6) var(--sp-10);
 }
 .ap-colophon {
-  padding: 0 var(--sp-10) var(--sp-6) !important;
-  margin: 0 !important;
+  padding: 0 var(--sp-10) var(--sp-6);
+  margin: 0;
 }
 
 
@@ -1037,7 +1037,7 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
 /* Drop the Xbox/hero particle canvas if any page embeds one */
 .hero-particles,
 .particle,
-#hero-particles { display: none !important; }
+#hero-particles { display: none; }
 
 /* Breadcrumb container — mono */
 .breadcrumb-container {
