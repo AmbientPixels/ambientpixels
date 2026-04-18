@@ -78,10 +78,12 @@
       pointer-events: none;
     }
     /* Brand variant — drop the dim gradient and the photographic wash
-       so the logo reads as a confident brand mark. Still B&W at rest. */
+       so the logo reads as a confident brand mark. Still B&W at rest.
+       Image fills edge-to-edge (cover, not contain) — the source has
+       enough top/bottom breathing room to take a small crop. */
     .ap-case-media-frame--brand img {
       filter: grayscale(1) contrast(.95) brightness(.95);
-      object-fit: contain;
+      object-fit: cover;
       background: #0c0c0c;
     }
     .ap-case-media-frame--brand::after { content: none; }
@@ -115,11 +117,14 @@
       filter: none;
       transform: scale(1.03);
     }
-    /* Per-row gradient backgrounds — match the target page heroes. */
-    .thumb--bg-ai    { background: linear-gradient(135deg, rgba(157,0,255,.35), rgba(100,43,255,.55)); }
-    .thumb--bg-video { background: linear-gradient(135deg, #5dc21e, #107c10); }
-    .thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); }
-    .thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); }
+    /* Per-row gradient backgrounds — match the target page heroes.
+       Selector is scoped under .ap-pd--img .thumb to beat the
+       ap-components.css `.ap-pd--img .thumb { background: ... }` rule
+       on specificity alone (no !important). */
+    .ap-pd--img .thumb.thumb--bg-ai    { background: linear-gradient(135deg, #5b00a8, #3818a8); }
+    .ap-pd--img .thumb.thumb--bg-video { background: linear-gradient(135deg, #5dc21e, #107c10); }
+    .ap-pd--img .thumb.thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); }
+    .ap-pd--img .thumb.thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); }
   </style>
 </head>
 <body>
