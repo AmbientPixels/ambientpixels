@@ -26,21 +26,8 @@
   <link rel="stylesheet" href="/css/ap-components.css" />
 
   <style>
-    /* /services/ local — collapse .ap-pd to 4 columns when rows are
-       service deliverables (no live-state year indicator), per DS §4.1
-       "op-archive status and no status dot if not a live service." */
-    .ap-services-list .ap-pd {
-      grid-template-columns: 140px 1.5fr 2fr 60px;
-    }
-    @media (max-width: 1000px) {
-      .ap-services-list .ap-pd {
-        grid-template-columns: 56px 1fr auto;
-        grid-template-areas:
-          "n h  ."
-          "n p  p"
-          ". go go";
-      }
-    }
+    /* No /services/-local overrides needed: discipline sections now
+       use the canonical .ap-pillars grid from ap-components.css. */
   </style>
 </head>
 <body>
@@ -125,52 +112,58 @@
         </div>
       </div>
 
-      <div class="ap-prods ap-services-list">
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-ai-agents');">
-          <span class="n">01</span>
-          <div>
-            <h3>AI agents &amp; <em>assistants.</em></h3>
-            <span class="meta">Custom &middot; task automation &middot; internal tools</span>
-          </div>
-          <p>Design and deploy custom AI agents that extend your team &mdash; from task automation to internal knowledge surfaces.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-workflow');">
-          <span class="n">02</span>
-          <div>
-            <h3>Workflow <em>automation.</em></h3>
-            <span class="meta">Pipelines &middot; reliability &middot; scale</span>
-          </div>
+      <div class="ap-pillars ap-pillars--5">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">AI agents<br>&amp; <em>assistants.</em></h3>
+          <p>Custom AI agents that extend your team &mdash; from task automation to internal knowledge surfaces.</p>
+          <ul>
+            <li>Custom</li>
+            <li>Task automation</li>
+            <li>Internal tools</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Workflow<br><em>automation.</em></h3>
           <p>Automate repetitive processes with intelligent pipelines built for reliability and scale.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-knowledge');">
-          <span class="n">03</span>
-          <div>
-            <h3>Knowledge <em>systems.</em></h3>
-            <span class="meta">RAG &middot; AI search &middot; domain-tuned</span>
-          </div>
-          <p>Build structured knowledge bases with retrieval-augmented generation and AI-powered search tailored to your domain.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-content');">
-          <span class="n">04</span>
-          <div>
-            <h3>Content <em>pipelines.</em></h3>
-            <span class="meta">API-first &middot; generation &middot; distribution</span>
-          </div>
-          <p>Deploy automated content generation, transformation, and distribution as APIs, or integrate directly into your stack.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-integrations');">
-          <span class="n">05</span>
-          <div>
-            <h3>Custom AI <em>integrations.</em></h3>
-            <span class="meta">OpenAI &middot; Gemini &middot; Azure &middot; open-source</span>
-          </div>
-          <p>Integrate AI capabilities into your products and workflows using OpenAI, Gemini, Azure AI, and open-source models.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
+          <ul>
+            <li>Pipelines</li>
+            <li>Reliability</li>
+            <li>Scale</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Knowledge<br><em>systems.</em></h3>
+          <p>Structured knowledge bases with RAG and AI-powered search tailored to your domain.</p>
+          <ul>
+            <li>RAG</li>
+            <li>AI search</li>
+            <li>Domain-tuned</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Content<br><em>pipelines.</em></h3>
+          <p>Automated content generation, transformation, and distribution as APIs &mdash; or integrated directly into your stack.</p>
+          <ul>
+            <li>API-first</li>
+            <li>Generation</li>
+            <li>Distribution</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Custom<br><em>integrations.</em></h3>
+          <p>Integrate AI capabilities into your products and workflows using the model that fits the job.</p>
+          <ul>
+            <li>OpenAI</li>
+            <li>Gemini</li>
+            <li>Azure AI</li>
+            <li>Open-source</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -186,43 +179,47 @@
         </div>
       </div>
 
-      <div class="ap-prods ap-services-list">
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-web');">
-          <span class="n">01</span>
-          <div>
-            <h3>Web design &amp; <em>development.</em></h3>
-            <span class="meta">Performance &middot; clarity &middot; long-term growth</span>
-          </div>
-          <p>Build modern websites and web applications optimized for performance, clarity, and long-term growth.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-video');">
-          <span class="n">02</span>
-          <div>
-            <h3>AI video &amp; <em>media.</em></h3>
-            <span class="meta">Editing &middot; frame interp &middot; post-production</span>
-          </div>
-          <p>Architect video production pipelines with AI-assisted editing, frame interpolation, and automated post-production.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-voice');">
-          <span class="n">03</span>
-          <div>
-            <h3>AI voice &amp; <em>narration.</em></h3>
-            <span class="meta">Neural TTS &middot; SSML &middot; interfaces</span>
-          </div>
-          <p>Deploy natural-sounding voiceovers for video, podcasts, and product interfaces with neural TTS and SSML control.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-narrative');">
-          <span class="n">04</span>
-          <div>
-            <h3>Narrative <em>architecture.</em></h3>
-            <span class="meta">Voice &middot; personality &middot; content strategy</span>
-          </div>
-          <p>Design distinct voice, personality frameworks, and content strategy for AI-driven products.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
+      <div class="ap-pillars ap-pillars--4">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Web design<br>&amp; <em>dev.</em></h3>
+          <p>Modern websites and web applications optimized for performance, clarity, and long-term growth.</p>
+          <ul>
+            <li>Performance</li>
+            <li>Clarity</li>
+            <li>Long-term growth</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">AI video<br>&amp; <em>media.</em></h3>
+          <p>Video production pipelines with AI-assisted editing, frame interpolation, and automated post-production.</p>
+          <ul>
+            <li>Editing</li>
+            <li>Frame interp</li>
+            <li>Post-production</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">AI voice<br>&amp; <em>narration.</em></h3>
+          <p>Natural-sounding voiceovers for video, podcasts, and product interfaces with neural TTS and SSML control.</p>
+          <ul>
+            <li>Neural TTS</li>
+            <li>SSML</li>
+            <li>Interfaces</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Narrative<br><em>architecture.</em></h3>
+          <p>Distinct voice, personality frameworks, and content strategy for AI-driven products.</p>
+          <ul>
+            <li>Voice</li>
+            <li>Personality</li>
+            <li>Content strategy</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -238,43 +235,49 @@
         </div>
       </div>
 
-      <div class="ap-prods ap-services-list">
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-architecture');">
-          <span class="n">01</span>
-          <div>
-            <h3>System <em>architecture.</em></h3>
-            <span class="meta">Data flow &middot; service boundaries &middot; auth &middot; caching</span>
-          </div>
-          <p>Architect end-to-end systems &mdash; data flow, service boundaries, authentication, caching, and observability.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-apis');">
-          <span class="n">02</span>
-          <div>
-            <h3>API <em>development.</em></h3>
-            <span class="meta">Serverless &middot; resilient &middot; maintainable</span>
-          </div>
-          <p>Build production-ready APIs and serverless systems designed for speed, resilience, and maintainability.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-hosting');">
-          <span class="n">03</span>
-          <div>
-            <h3>Hosting &amp; <em>deployment.</em></h3>
-            <span class="meta">Azure &middot; Netlify &middot; Vercel &middot; CI/CD</span>
-          </div>
-          <p>Deploy and manage cloud hosting, CI/CD pipelines, and serverless architecture on Azure, Netlify, and Vercel.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-telemetry');">
-          <span class="n">04</span>
-          <div>
-            <h3>Data &amp; <em>observability.</em></h3>
-            <span class="meta">Dashboards &middot; telemetry &middot; structured logs</span>
-          </div>
-          <p>Build dashboards, telemetry pipelines, and structured logging for clear visibility into production systems.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
+      <div class="ap-pillars ap-pillars--4">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">System<br><em>architecture.</em></h3>
+          <p>End-to-end system design &mdash; data flow, service boundaries, authentication, caching, and observability.</p>
+          <ul>
+            <li>Data flow</li>
+            <li>Service boundaries</li>
+            <li>Auth</li>
+            <li>Caching</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">API<br><em>development.</em></h3>
+          <p>Production-ready APIs and serverless systems designed for speed, resilience, and maintainability.</p>
+          <ul>
+            <li>Serverless</li>
+            <li>Resilient</li>
+            <li>Maintainable</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Hosting &amp;<br><em>deployment.</em></h3>
+          <p>Cloud hosting, CI/CD pipelines, and serverless architecture deployed on Azure, Netlify, and Vercel.</p>
+          <ul>
+            <li>Azure</li>
+            <li>Netlify</li>
+            <li>Vercel</li>
+            <li>CI/CD</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Data &amp;<br><em>observability.</em></h3>
+          <p>Dashboards, telemetry pipelines, and structured logging for clear visibility into production systems.</p>
+          <ul>
+            <li>Dashboards</li>
+            <li>Telemetry</li>
+            <li>Structured logs</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -290,34 +293,37 @@
         </div>
       </div>
 
-      <div class="ap-prods ap-services-list">
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-web3');">
-          <span class="n">01</span>
-          <div>
-            <h3>Web3 <em>services.</em></h3>
-            <span class="meta">Token gating &middot; NFT tooling &middot; decentralized hosting</span>
-          </div>
-          <p>Build token-gated experiences, NFT tooling, and decentralized hosting for forward-looking projects.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="/projects/merch/">
-          <span class="n">02</span>
-          <div>
-            <h3>Merch &amp; <em>products.</em></h3>
-            <span class="meta">Print-on-demand &middot; apparel &middot; accessories</span>
-          </div>
-          <p>Original AmbientPixels artwork on print-on-demand products &mdash; posters, apparel, and accessories.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd" href="#start" onclick="event.preventDefault(); openProjectModal('svc-workshops');">
-          <span class="n">03</span>
-          <div>
-            <h3>Workshops &amp; <em>audits.</em></h3>
-            <span class="meta">AI integration &middot; architecture review &middot; code audits</span>
-          </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Web3<br><em>services.</em></h3>
+          <p>Token-gated experiences, NFT tooling, and decentralized hosting for forward-looking projects. Pragmatic scope, not crypto maximalism.</p>
+          <ul>
+            <li>Token gating</li>
+            <li>NFT tooling</li>
+            <li>Decentralized hosting</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Merch &amp;<br><em>products.</em></h3>
+          <p>Original AmbientPixels artwork on print-on-demand products &mdash; posters, apparel, and accessories. <a class="ap-link-mono" href="/projects/merch/">Browse the shop &rarr;</a></p>
+          <ul>
+            <li>Print-on-demand</li>
+            <li>Apparel</li>
+            <li>Accessories</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Workshops<br><em>&amp; audits.</em></h3>
           <p>Focused sessions on AI integration, system architecture review, and code audits for teams building with AI.</p>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
+          <ul>
+            <li>AI integration</li>
+            <li>Architecture review</li>
+            <li>Code audits</li>
+          </ul>
+        </div>
       </div>
     </section>
 

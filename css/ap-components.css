@@ -225,6 +225,8 @@
   grid-template-columns: repeat(3, 1fr);
   border-top: 1px solid var(--color-border);
 }
+.ap-pillars--4 { grid-template-columns: repeat(4, 1fr); }
+.ap-pillars--5 { grid-template-columns: repeat(5, 1fr); }
 
 .ap-pillar {
   padding: var(--sp-12) 36px;
@@ -234,6 +236,10 @@
   transition: background var(--dur-med);
 }
 .ap-pillar:last-child { border-right: none; }
+
+/* Tighter side padding when columns are narrower so content doesn't squeeze. */
+.ap-pillars--4 .ap-pillar { padding: var(--sp-12) var(--sp-6); }
+.ap-pillars--5 .ap-pillar { padding: var(--sp-10) var(--sp-5); }
 
 .ap-pillar:hover          { background: var(--color-surface-soft); }
 .ap-pillar:hover h3,
@@ -264,6 +270,8 @@
 .ap-pillar:nth-child(1) { --pr: var(--pc-ambientos); }
 .ap-pillar:nth-child(2) { --pr: var(--pc-nova); }
 .ap-pillar:nth-child(3) { --pr: var(--pc-ambientscore); }
+.ap-pillar:nth-child(4) { --pr: var(--pc-storyforge); }
+.ap-pillar:nth-child(5) { --pr: var(--pc-blindspot); }
 
 .ap-pillar p {
   font-size: var(--fs-body-sm);
@@ -292,8 +300,12 @@
 .ap-pillar ul li::before { content: '→ '; opacity: .45; }
 
 @media (max-width: 1000px) {
-  .ap-pillars { grid-template-columns: 1fr; }
-  .ap-pillar  { border-right: none; padding: 40px 0 !important; }
+  .ap-pillars,
+  .ap-pillars--4,
+  .ap-pillars--5 { grid-template-columns: 1fr; }
+  .ap-pillar,
+  .ap-pillars--4 .ap-pillar,
+  .ap-pillars--5 .ap-pillar { border-right: none; padding: 40px 0; }
 }
 
 
