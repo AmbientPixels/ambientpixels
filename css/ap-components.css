@@ -587,6 +587,7 @@
   grid-template-columns: 1.4fr 1fr 1fr 1fr;
   gap: var(--sp-15);
   font-size: var(--fs-meta);
+  line-height: 1.45;
 }
 
 .ap-foot h5 {
@@ -597,6 +598,7 @@
   opacity: .55;
   margin: 0 0 14px;
   font-weight: var(--fw-medium);
+  line-height: 1.45;
 }
 
 .ap-foot ul {
@@ -608,10 +610,16 @@
   gap: var(--sp-3);
   opacity: .82;
 }
+.ap-foot ul li {
+  margin: 0;
+  padding: 0;
+  line-height: 1.45;
+}
 .ap-foot ul a {
   color: var(--color-text-primary);
   text-decoration: none;
   transition: opacity var(--dur-fast);
+  line-height: 1.45;
 }
 .ap-foot ul a:hover { opacity: .55; }
 
@@ -620,7 +628,7 @@
   line-height: var(--lh-body-loose);
   opacity: .72;
   max-width: var(--max-about);
-  margin-top: var(--sp-3);
+  margin: var(--sp-3) 0 0;
 }
 .ap-foot-about em {
   font-style: italic;

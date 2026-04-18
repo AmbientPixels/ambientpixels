@@ -887,6 +887,68 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
    -------------------------------------------------------------------- */
 
 
+/* ---- DS footer alignment overrides --------------------------------
+   Defeat legacy base.css rules that leak into .ap-foot on skinned
+   pages and make the footer feel taller/looser than on the
+   fully-migrated pages:
+     base.css:  p  { margin: 0 0 1.25rem 0; }    // +20px under about
+     base.css:  body { line-height: 1.6; }        // taller leading
+     base.css:  ul { list-style: disc; }          // shouldn't apply
+                                                  //   because .ap-foot
+                                                  //   ul sets list-style
+                                                  //   none, but hold it
+                                                  //   here defensively.
+
+   Force .ap-foot* to match the home page exactly. */
+
+.ap-foot,
+.ap-foot * {
+  line-height: 1.45 !important;
+}
+.ap-foot p,
+.ap-foot-about,
+.ap-foot ul,
+.ap-foot ul li {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.ap-foot-about {
+  margin-top: var(--sp-3) !important;
+}
+.ap-foot h5 {
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+}
+.ap-foot ul {
+  list-style: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--sp-3) !important;
+}
+.ap-foot ul a {
+  text-decoration: none !important;
+  color: var(--color-text-primary) !important;
+}
+.ap-foot-about em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-body);
+}
+
+/* Legal strip + colophon alignment */
+.ap-legal,
+.ap-colophon {
+  line-height: 1.6 !important; /* mono is OK at 1.6 */
+}
+.ap-legal {
+  padding: var(--sp-6) var(--sp-10) !important;
+}
+.ap-colophon {
+  padding: 0 var(--sp-10) var(--sp-6) !important;
+  margin: 0 !important;
+}
+
+
 /* ---- Remove noisy decorations ------------------------------------- */
 
 /* Drop the Xbox/hero particle canvas if any page embeds one */
