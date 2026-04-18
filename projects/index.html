@@ -1,289 +1,229 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Selected systems, infrastructure, and production work from AmbientPixels." />
+  <meta name="description" content="Selected client and internal work from AmbientPixels — shipped systems, help centers, video, and creative output." />
+  <link rel="canonical" href="https://www.ambientpixels.ai/projects/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AmbientPixels — Work" />
+  <meta property="og:description" content="Three shipped, more in flight." />
+  <meta property="og:url" content="https://www.ambientpixels.ai/projects/" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AmbientPixels — Work" />
+  <meta name="twitter:description" content="Three shipped, more in flight." />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Projects — AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/forms.css" />
-  <link rel="stylesheet" href="/css/nova-shared.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/hero-base.css" />
+  <title>Work — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
 </head>
-<body data-theme="dark">
-  <header id="nav-header"></header>
+<body>
 
-  <!-- Hero -->
-  <section class="hero-base" data-hero="architect">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>Projects</h1>
-      <p class="subtitle">Selected systems, infrastructure, and production work built for real-world scale.</p>
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
-  </section>
+    <a class="ap-nav-cta" href="#start" onclick="event.preventDefault(); openProjectModal('work-nav');">Start a project &rarr;</a>
+  </nav>
 
-  <main class="grid-container">
-    <!-- Featured Project -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-star" style="color:#f59e0b"></i>
-        <h2 class="xbox-section-title">Featured Project</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">Highlighted work showcasing production capabilities</p>
+  <main>
 
-        <section class="card-section grid-col-12">
-          <a href="/projects/xbox-support.html" class="card-image-link" style="display: flex; justify-content: center; align-items: center; min-height: 200px; background: linear-gradient(135deg, #107c10 0%, #0a4e0a 100%);">
-            <i class="fab fa-xbox" style="font-size: 6rem; color: white;"></i>
-          </a>
-          <div class="card-content">
-            <h3>Xbox Support Systems</h3>
-            <div class="role-tags">
-              <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-              <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> UI/UX</span>
-              <span class="role-tag role-content"><i class="fas fa-file-alt"></i> Content</span>
-            </div>
-            <p>Support systems for Xbox games and services — game support hubs, help centers, and player assistance for Gears of War, Hellblade, and South of Midnight.</p>
-            <a href="/projects/xbox-support.html" class="btn btn-primary">
-              <i class="fas fa-external-link-alt"></i> View Project
-            </a>
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <!-- Digital Systems -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-microchip" style="color:#4ECDC4"></i>
-        <h2 class="xbox-section-title">Digital Systems</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">Production-grade tools and AI-driven platforms built for real-world workflows</p>
-
-        <section class="card-section grid-col-12">
-          <a href="/cardforge/index.html" class="card-image-link" style="display: flex; justify-content: center; align-items: center; min-height: 200px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
-            <i class="fas fa-layer-group" style="font-size: 5rem; color: #8b5cf6;"></i>
-          </a>
-          <div class="card-content">
-            <h3>CardForge — Modular AI Design System</h3>
-            <div class="role-tags">
-              <span class="role-tag role-ai"><i class="fas fa-robot"></i> AI System</span>
-              <span class="role-tag role-design"><i class="fas fa-globe"></i> Web Application</span>
-            </div>
-            <p>Browser-based card creation platform with modular templates, real-time preview, and AI-assisted content generation. Supports custom themes, export pipelines, and gallery management.</p>
-            <a href="/cardforge/index.html" class="btn btn-primary">
-              <i class="fas fa-external-link-alt"></i> Launch CardForge
-            </a>
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <!-- Video Projects Section -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-film" style="color:#60a5fa"></i>
-        <h2 class="xbox-section-title">Video Projects</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">Video production work from concept to final edit</p>
-
-        <div class="projects-grid">
-          <!-- Ninja Theory Help Center -->
-          <section class="card-section grid-col-6">
-            <a href="/projects/video/ninja-theory-help-center.html" class="card-image-link">
-              <div class="card-image featured-card" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden;">
-                <i class="fas fa-gamepad" style="font-size: 4rem; color: #8b5cf6; position: relative; z-index: 2; text-shadow: 0 0 15px rgba(139, 92, 246, 0.7);"></i>
-              </div>
-            </a>
-            <div class="card-content">
-              <h3>Ninja Theory Help Center</h3>
-              <div class="role-tags">
-                <span class="role-tag role-ai"><i class="fas fa-robot"></i> AI Production</span>
-                <span class="role-tag role-video"><i class="fas fa-video"></i> Motion Design</span>
-                <span class="role-tag role-voice"><i class="fas fa-microphone-alt"></i> AI Voice</span>
-              </div>
-              <p>AI-powered video showcase featuring Azure AI voice synthesis, automated animation timing, and ML-driven asset optimization.</p>
-              <a href="/projects/video/ninja-theory-help-center.html" class="btn btn-primary">
-                <i class="fas fa-external-link-alt"></i> View Project
-              </a>
-            </div>
-          </section>
-
-          <!-- Video Production Hub -->
-          <section class="card-section grid-col-6">
-            <a href="/projects/video/" class="card-image-link">
-              <div class="card-image featured-card" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; justify-content: center; align-items: center;">
-                <i class="fas fa-film" style="font-size: 4rem; color: #fff;"></i>
-              </div>
-            </a>
-            <div class="card-content">
-              <h3>Video Production Hub</h3>
-              <div class="role-tags">
-                <span class="role-tag role-design"><i class="fas fa-video"></i> Video</span>
-                <span class="role-tag role-creative"><i class="fas fa-lightbulb"></i> Creative</span>
-              </div>
-              <p>Motion graphics, editing, and visual storytelling projects.</p>
-              <a href="/projects/video/" class="btn btn-primary">
-                <i class="fas fa-external-link-alt"></i> View Projects
-              </a>
-            </div>
-          </section>
+    <!-- §2.7 + §2.9.ap-shipped  § WORK — SHIPPED -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ WORK — SHIPPED</div>
+          <h2 class="ap-display">Three shipped,<br><em>more in flight.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Selected client and internal work currently running in production. Not a case-study deck.
         </div>
       </div>
-    </section>
 
-    <!-- Game Support Hubs Section -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-gamepad" style="color:#FF6B9D"></i>
-        <h2 class="xbox-section-title">Game Support Hubs</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">Production support systems for game developers and publishers</p>
-
-        <!-- Ninja Theory Support -->
-        <section class="card-section grid-col-12">
-          <a href="/projects/websites/ninja-theory-support.html" class="card-image-link">
-            <img src="/images/projects/ninja-theroy/mini-hero-03.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
-          </a>
-          <div class="card-content">
-            <h3>Ninja Theory Support</h3>
-            <div class="role-tags">
-              <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-              <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> Design</span>
-              <span class="role-tag role-content"><i class="fas fa-file-alt"></i> Content</span>
-            </div>
-            <p>Xbox Support pages for Ninja Theory's Hellblade series, including Senua's Sacrifice and Hellblade II.</p>
-            <a href="/projects/websites/ninja-theory-support.html" class="btn btn-secondary">
-              <i class="fas fa-external-link-alt"></i> View Project
-            </a>
+      <div class="ap-prods ap-shipped">
+        <a class="ap-pd op-live" href="/projects/xbox-support.html">
+          <span class="n">01</span>
+          <div>
+            <h3>Xbox <em>Support Systems.</em></h3>
+            <span class="meta">Client &middot; Microsoft &middot; Web &amp; Localization</span>
           </div>
-        </section>
-
-        <div class="projects-grid">
-          <!-- Gears of War -->
-          <section class="card-section grid-col-6">
-            <a href="/projects/websites/gears-of-war-support.html" class="card-image-link">
-              <img src="/images/projects/gow/logo.png" alt="Gears of War" class="card-image" loading="lazy">
-            </a>
-            <div class="card-content">
-              <h3>Gears of War</h3>
-              <div class="role-tags">
-                <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-                <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> UI/UX</span>
-              </div>
-              <p>Support hub for The Coalition's Gears franchise — troubleshooting, known issues, and player resources.</p>
-              <a href="/projects/websites/gears-of-war-support.html" class="btn btn-secondary">
-                <i class="fas fa-external-link-alt"></i> View Support Hub
-              </a>
-            </div>
-          </section>
-
-          <!-- South of Midnight -->
-          <section class="card-section grid-col-6">
-            <a href="/projects/websites/south-of-midnight-support.html" class="card-image-link">
-              <img src="/images/projects/SoM/hero-01.jpg" alt="South of Midnight Support" class="card-image" loading="lazy">
-            </a>
-            <div class="card-content">
-              <h3>South of Midnight</h3>
-              <div class="role-tags">
-                <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-                <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> Design</span>
-                <span class="role-tag role-localization"><i class="fas fa-globe"></i> Localization</span>
-              </div>
-              <p>Fully localized Help Center with accessible reporting tools and support content.</p>
-              <a href="/projects/websites/south-of-midnight-support.html" class="btn btn-secondary">
-                <i class="fas fa-external-link-alt"></i> View Project
-              </a>
-            </div>
-          </section>
-
-        </div>
+          <p>Help centers, support hubs, and player-assistance surfaces built for the Xbox portfolio. Multi-region delivery with accessible reporting tools.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/ninja-theory-support.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Ninja Theory <em>Hellblade.</em></h3>
+            <span class="meta">Client &middot; Ninja Theory &middot; Help center</span>
+          </div>
+          <p>Xbox Support pages for the Hellblade series, including Senua&rsquo;s Sacrifice and Hellblade II.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/gears-of-war-support.html">
+          <span class="n">03</span>
+          <div>
+            <h3>Gears of <em>War.</em></h3>
+            <span class="meta">Client &middot; The Coalition &middot; Franchise hub</span>
+          </div>
+          <p>Support hub for the Gears franchise &mdash; troubleshooting, known issues, and player resources across every platform.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/south-of-midnight-support.html">
+          <span class="n">04</span>
+          <div>
+            <h3>South of <em>Midnight.</em></h3>
+            <span class="meta">Client &middot; Compulsion &middot; Localized help center</span>
+          </div>
+          <p>Fully localized help center with accessible reporting tools and support content shipped alongside launch.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/youtube.html">
+          <span class="n">05</span>
+          <div>
+            <h3>Video <em>Production.</em></h3>
+            <span class="meta">Studio &middot; Media &middot; AI-driven pipelines</span>
+          </div>
+          <p>Ambient environments and creative-tech content. AI-driven video pipelines published to YouTube and client channels.</p>
+          <span class="year">Publishing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/image-packs">
+          <span class="n">06</span>
+          <div>
+            <h3>Image <em>Packs.</em></h3>
+            <span class="meta">Studio &middot; Assets &middot; AI-generated</span>
+          </div>
+          <p>Curated AI-generated visual assets &mdash; characters, environments, textures &mdash; packaged for download.</p>
+          <span class="year">Ongoing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/log/">
+          <span class="n">07</span>
+          <div>
+            <h3>Activity <em>Log.</em></h3>
+            <span class="meta">Internal &middot; Transparency</span>
+          </div>
+          <p>Daily public dispatches from an AI-operated company. Auto-generated, CEO-reviewed, published to the open web.</p>
+          <span class="year">Publishing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/merch/">
+          <span class="n">08</span>
+          <div>
+            <h3>Creative <em>Merch.</em></h3>
+            <span class="meta">Studio &middot; Apparel &amp; prints</span>
+          </div>
+          <p>Original artwork on print-on-demand products &mdash; small runs, sharp concepts, print-quality output.</p>
+          <span class="year">Ongoing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
       </div>
     </section>
 
-    <!-- Creative Extensions -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-palette" style="color:#a78bfa"></i>
-        <h2 class="xbox-section-title">Creative Extensions</h2>
+    <!-- §2.15  CTA -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Have something shipped?<br><em>Bring it to us.</em></h2>
+      <p>We scope systems, help centers, content pipelines, and creative-tech surfaces. Tell us the shape of the work.</p>
+      <div class="ap-cta-actions">
+        <button type="button" class="ap-btn ap-btn--primary" onclick="openProjectModal('work-cta');">Start a project &rarr;</button>
+        <a class="ap-btn ap-btn--ghost" href="/services/">See services</a>
       </div>
-      <div class="section-content">
-        <div class="projects-grid">
-          <!-- Image Packs -->
-          <section class="card-section grid-col-4">
-            <a href="/projects/image-packs" class="card-image-link">
-              <div class="card-image featured-card" style="background-image: url('/images/image-packs/hero04.png');"></div>
-            </a>
-            <div class="card-content">
-              <h3>Image Packs</h3>
-              <div class="role-tags">
-                <span class="role-tag role-design"><i class="fas fa-palette"></i> Design</span>
-              </div>
-              <p>AI-generated visual assets — characters, environments, and textures.</p>
-              <a href="/projects/image-packs" class="btn btn-secondary">
-                <i class="fas fa-external-link-alt"></i> Browse Packs
-              </a>
-            </div>
-          </section>
-
-          <!-- AmbientPixels Merch -->
-          <section class="card-section grid-col-4">
-            <a href="/projects/merch/" class="card-image-link">
-              <img src="/images/artwork/sine-wave.jpg" alt="AmbientPixels Merchandise" class="card-image" loading="lazy">
-            </a>
-            <div class="card-content">
-              <h3>Merch</h3>
-              <div class="role-tags">
-                <span class="role-tag role-design"><i class="fas fa-palette"></i> Design</span>
-                <span class="role-tag role-product"><i class="fas fa-shopping-cart"></i> Product</span>
-              </div>
-              <p>Original artwork on print-on-demand products.</p>
-              <a href="/projects/merch/" class="btn btn-secondary">
-                <i class="fas fa-external-link-alt"></i> Shop Collection
-              </a>
-            </div>
-          </section>
-
-          <!-- YouTube Channel -->
-          <section class="card-section grid-col-4">
-            <a href="/projects/youtube.html" class="card-image-link">
-              <img src="/images/nova/YouTube_banner_glowing_dreamlike_landscape.png" alt="YouTube Channel" class="card-image" loading="lazy">
-            </a>
-            <div class="card-content">
-              <h3>YouTube</h3>
-              <div class="role-tags">
-                <span class="role-tag role-video"><i class="fas fa-video"></i> Video</span>
-              </div>
-              <p>Ambient environments and creative tech content.</p>
-              <a href="/projects/youtube.html" class="btn btn-secondary">
-                <i class="fas fa-external-link-alt"></i> View Channel
-              </a>
-            </div>
-          </section>
-        </div>
-      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
     </section>
   </main>
 
-  <div id="footer-container"></div>
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="#start" onclick="event.preventDefault(); openProjectModal('footer-contact');">Work with us</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/main.js" defer></script>
+  <!-- Contact modal machinery -->
+  <div id="modal-container" data-auto-form="modal"></div>
+  <script src="/js/forms.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
+
+  <!-- Telemetry -->
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
+
+  <script>
+    function openProjectModal(source) {
+      var sel = document.getElementById('project-type');
+      if (sel) sel.value = 'web';
+      var hidden = document.getElementById('contact-source');
+      if (!hidden) {
+        hidden = document.createElement('input');
+        hidden.type = 'hidden'; hidden.name = '_source'; hidden.id = 'contact-source';
+        var form = document.getElementById('contact-form');
+        if (form) form.appendChild(hidden);
+      }
+      hidden.value = source || 'work';
+      if (typeof showModal === 'function') showModal('contact-modal');
+    }
+  </script>
 </body>
 </html>
