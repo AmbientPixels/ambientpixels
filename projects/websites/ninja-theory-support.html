@@ -1,314 +1,360 @@
-<!-- File: /projects/hellblade-support.html -->
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Producer-led project creating Xbox Support pages for Ninja Theory's Hellblade series." />
-  <meta property="og:title" content="Hellblade Support Pages – Xbox | AmbientPixels" />
-  <meta property="og:description" content="Explore support content created for the Hellblade series, including localized help centers and game-specific guidance." />
+  <meta name="description" content="Producer-led Xbox Support pages for Ninja Theory's Hellblade series — Senua's Sacrifice and Hellblade II. Multi-region delivery, accessibility-first." />
+  <link rel="canonical" href="https://www.ambientpixels.ai/projects/websites/ninja-theory-support.html" />
+  <meta property="og:title" content="Hellblade Support Pages — AmbientPixels" />
+  <meta property="og:description" content="Producer-led help center for Ninja Theory's Hellblade series on Xbox." />
   <meta property="og:image" content="/images/projects/ninja-theroy/screen01.jpeg" />
-  <meta property="og:url" content="https://ambientpixels.ai/projects/hellblade-support" />
+  <meta property="og:url" content="https://www.ambientpixels.ai/projects/websites/ninja-theory-support.html" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Hellblade Support Pages – Xbox | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/form-explainer.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <title>Ninja Theory Hellblade — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <style>
+    /* Case-study shared pattern (DS §4.8) */
+    .ap-case-hero {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x) var(--sp-12);
+    }
+    .ap-case-hero h1 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(48px, 6.5vw, 104px);
+      line-height: .9;
+      letter-spacing: -.04em;
+      margin: 12px 0 0;
+      max-width: 14ch;
+    }
+    .ap-case-hero h1 em { font-style: italic; font-weight: var(--fw-regular); color: var(--color-text-body); }
+    .ap-case-hero .ap-meta-strip {
+      margin-top: var(--sp-15);
+      padding-top: var(--sp-6);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Full-bleed imagery (DS §4.8 step 3 + §5 Deviation Policy) */
+    .ap-full-bleed {
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-top: var(--sp-15);
+      margin-bottom: var(--sp-15);
+    }
+    .ap-full-bleed img { display: block; width: 100%; height: auto; }
+    .ap-full-bleed-caption {
+      max-width: var(--max-page);
+      margin: var(--sp-3) auto 0;
+      padding: 0 var(--sec-pad-x);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: .55;
+    }
+
+    /* Metrics strip (DS §4.8 step 5) */
+    .ap-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-8);
+      padding: var(--sp-12) 0;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .ap-metrics-num {
+      font-family: var(--font-heavy);
+      font-size: 72px;
+      line-height: 1;
+      letter-spacing: -.04em;
+      color: var(--color-text-primary);
+      display: block;
+      margin-bottom: var(--sp-3);
+    }
+    .ap-metrics-label {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: .55;
+    }
+    @media (max-width: 1000px) {
+      .ap-metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Image gallery (stacked, no lightbox — DS deviation) */
+    .ap-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--sp-3);
+      margin: var(--sp-12) 0;
+    }
+    .ap-gallery figure { margin: 0; }
+    .ap-gallery img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--color-border);
+    }
+    .ap-gallery figcaption {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-xs);
+      opacity: .55;
+      margin-top: var(--sp-2);
+    }
+    @media (max-width: 600px) { .ap-gallery { grid-template-columns: 1fr; } }
+  </style>
 </head>
-<body data-theme="dark"><header id="nav-header"></header>
+<body>
 
-  <section class="hero-card">
-    <div class="hero-card-image">
-      <img src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Hellblade" loading="lazy">
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Xbox Support</div>
-      <h1>Hellblade Support Pages</h1>
-      <p class="hero-card-description">Producer role supporting Ninja Theory's Hellblade series with game-specific help content</p>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-  </section>
-
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <section class="content-section grid-col-12">
-  <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-  <p>As a content producer at Xbox, I collaborated with PMs, writers, designers, and backend developers to deliver high-visibility support pages for Ninja Theory’s <em>Hellblade</em> franchise. I leveraged the internal CMS to build and structure help center pages tailored for both console and web users across a global audience—ensuring clarity, consistency, and support at scale.</p>
-      <p>My responsibilities extended beyond page assembly—preparing content for localization, managing secure assets, and ensuring everything met accessibility and Xbox design standards. I played a central role in coordinating production cycles through Azure DevOps, worked hands-on with image prep and layout decisions, and advised on QA workflows for multilingual, cross-platform support experiences.</p>
-  <div class="project-buttons">
-    <a href="https://support.xbox.com/en-US/game/hellblade/support/home" class="btn btn-primary no-underline" target="_blank" rel="noopener noreferrer">
-      <i class="fas fa-external-link-alt"></i> View Hellblade support pages
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
     </a>
-  </div>
-    </section>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
+    </div>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
 
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Visual Highlights</h2>
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/projects/ninja-theroy/screen01.jpeg" class="lightbox-trigger" data-caption="Main Hellblade Help Center hub — features quick links to both titles and recommended articles for players.">
-            <img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Hellblade Help Center Hub" loading="lazy">
-          </a>
-          <p class="media-caption">Main Help Center hub</p>
+  <main>
+
+    <!-- §4.8 step 2 — Case-study hero -->
+    <section class="ap-case-hero">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ WORK &mdash; SHIPPED &middot; NINJA THEORY</div>
+          <h1>Hellblade <em>support.</em></h1>
         </div>
-        <div class="media-item">
-          <a href="/images/projects/ninja-theroy/screen02.jpeg" class="lightbox-trigger" data-caption="Support page for Hellblade: Senua’s Sacrifice — recommended articles, accessibility help, and reporting options.">
-            <img src="/images/projects/ninja-theroy/screen02.jpeg" alt="Support for Senua's Sacrifice" loading="lazy">
-          </a>
-          <p class="media-caption">Senua's Sacrifice support page</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/ninja-theroy/screen03.jpeg" class="lightbox-trigger" data-caption="Support page for Senua’s Saga: Hellblade II — game-specific FAQs and accessibility setup guidance.">
-            <img src="/images/projects/ninja-theroy/screen03.jpeg" alt="Support for Senua's Saga II" loading="lazy">
-          </a>
-          <p class="media-caption">Hellblade II support page</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/ninja-theroy/screen04.jpeg" class="lightbox-trigger" data-caption="Expanded article view for Hellblade II General FAQ — frequently asked questions and global notifications.">
-            <img src="/images/projects/ninja-theroy/screen04.jpeg" alt="Hellblade II FAQ" loading="lazy">
-          </a>
-          <p class="media-caption">Hellblade II FAQ article</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/ninja-theroy/screen05.jpeg" class="lightbox-trigger" data-caption="Detailed spec breakdown for Hellblade: Senua’s Sacrifice on Xbox and PC — optimized device settings and smart delivery info.">
-            <img src="/images/projects/ninja-theroy/screen05.jpeg" alt="Platform Specs" loading="lazy">
-          </a>
-          <p class="media-caption">Platform specs for Senua's Sacrifice</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/ninja-theroy/screen06.jpeg" class="lightbox-trigger" data-caption="User issue reporting form for Hellblade II — designed for accessibility and localization across all Xbox platforms.">
-            <img src="/images/projects/ninja-theroy/screen06.jpeg" alt="User Issue Reporting Form" loading="lazy">
-          </a>
-          <p class="media-caption">User issue reporting form</p>
+        <div class="ap-sec-meta">
+          A global help center for Ninja Theory&rsquo;s Hellblade series &mdash; Senua&rsquo;s Sacrifice and Senua&rsquo;s Saga: Hellblade II. Accessibility-first, localized across 40+ languages.
         </div>
       </div>
-    <p>This project reflects the kind of detailed, collaborative, and standards-driven work I thrive on—bridging design, engineering, and content to create scalable solutions.</p>
-</section>
- 
+      <div class="ap-meta-strip">
+        <span>Client &middot; Microsoft &middot; Ninja Theory</span>
+        <span>Role &middot; Producer</span>
+        <span>Scope &middot; Help center &middot; Localization &middot; QA</span>
+        <span>Shipped</span>
+      </div>
+    </section>
 
+    <!-- §4.8 step 3 — Full-bleed hero image -->
+    <div class="ap-full-bleed">
+      <img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Hellblade Help Center main hub" loading="eager" />
+    </div>
+    <p class="ap-full-bleed-caption">Main Help Center hub &mdash; quick links, recommended articles, dual-title navigation.</p>
 
-        <!-- Breadcrumb Navigation End -->
-<section class="project-section grid-col-12">
-  <h2><i class="fas fa-cogs"></i> Behind the Scenes</h2>
-  <p>Beyond content setup, I was responsible for building and implementing forms used for user issue reporting and feedback submission across support pages. These forms needed to be fully responsive, WCAG-compliant, localization-friendly, and privacy-ready. I provided testing guidance to PMs, helped shape best practices around form structure, and verified implementation across device types and viewports.</p>
-  <p>This included cross-browser testing, accessibility audits, and ensuring consistent behavior for screen readers and keyboard navigation. I also worked closely with backend developers to support form functionality, surface edge cases, and validate successful data handoff and error states across environments.</p>
-  <p class="media-caption">User issue reporting form</p>
-  <p>I also managed the image asset pipeline—capturing, editing, optimizing, and tagging screenshots for clarity, context, and localization readiness. I verified UI accuracy, ensured branding consistency, and structured filenames and alt text to support SEO and accessibility.</p>
-  <p>This work sat at the intersection of UX and production—balancing quality, standards, and the needs of a global audience across the Xbox support platform.</p>
-</section>
-   <!-- Form Explainer Module Container -->
-   <div id="form-explainer-module-container" class="grid-col-12">
-     <h2><i class="fas fa-lightbulb"></i> Interactive Form Walkthrough</h2>
-     <p>Below is an interactive guide to the Ninja Theory support form, highlighting key elements and explaining how each field contributes to an effective support request. Follow along with the guided tour or explore specific sections by clicking on them.</p>
-     
-     <!-- The module will be loaded here via JS -->
-     <div id="form-explainer-container" 
-          class="form-explainer-container" 
-          data-json-path="/data/form-explainer-map.json"
-          data-image-path="/images/projects/ninja-theroy/screen06-1600.png"
-          data-step-duration="3000">
-     </div>
-   </div>
-   
-   <!-- Load the form explainer module -->
-   <script>
-     document.addEventListener("DOMContentLoaded", function() {
-       // First ensure required CSS is loaded
-       if (!document.querySelector('link[href*="form-explainer.css"]')) {
-         const cssLink = document.createElement('link');
-         cssLink.rel = 'stylesheet';
-         cssLink.href = '/css/form-explainer.css';
-         document.head.appendChild(cssLink);
-       }
-       
-       // Load the form explainer script if not already loaded
-       if (typeof initFormExplainer !== 'function') {
-         const script = document.createElement('script');
-         script.src = '/js/form-explainer.js';
-         script.onload = function() {
-           // Initialize the form explainer after script loads
-           initFormExplainer({
-             containerId: 'form-explainer-container',
-             jsonPath: '/data/form-explainer-map.json',
-             imagePath: '/images/projects/ninja-theroy/screen06-1600.png',
-             stepDuration: 3000
-           });
-         };
-         document.body.appendChild(script);
-       } else {
-         // Script already loaded, just initialize
-         initFormExplainer();
-       }
-     });
-   </script>
+    <!-- §4.8 step 4 — Problem / Approach / Outcome (3-col pillar grid) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 01 &mdash; THE WORK</div>
+          <h2 class="ap-display">Problem,<br><em>approach, outcome.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          How this project moved from brief to production.
+        </div>
+      </div>
 
-<section class="project-section grid-col-12">
-  <h2><i class="fas fa-tools"></i> Tools & Technologies</h2>
-  <div class="tech-badges">
-    <span class="tech-badge"><i class="fab fa-microsoft"></i> Xbox CMS</span>
-    <span class="tech-badge"><i class="fas fa-code-branch"></i> Azure DevOps</span>
-    <span class="tech-badge"><i class="fas fa-language"></i> Localization Tools</span>
-    <span class="tech-badge"><i class="fas fa-paint-brush"></i> Adobe Creative Suite</span>
-    <span class="tech-badge"><i class="fas fa-shield-alt"></i> Security Compliance</span>
-    <span class="tech-badge"><i class="fas fa-mobile-alt"></i> Responsive Design</span>
-    <span class="tech-badge"><i class="fas fa-code"></i> Internal Xbox CMS</span>
-    <span class="tech-badge"><i class="fas fa-tasks"></i> Azure DevOps (ADO)</span>
-    <span class="tech-badge"><i class="fas fa-globe"></i> Localization Pipeline</span>
-    <span class="tech-badge"><i class="fas fa-image"></i> Screenshot Capture</span>
-    <span class="tech-badge"><i class="fas fa-check"></i> QC Compliance</span>
-  </ul>
-</section>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Problem<em>.</em></h3>
+          <p>Hellblade is Ninja Theory&rsquo;s flagship Xbox Game Studios series, with unique accessibility needs &mdash; audio-based dread mechanics, vision-intensive combat. Generic Xbox support content didn&rsquo;t meet the bar. Players needed game-specific guidance, globally, at launch.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Approach<em>.</em></h3>
+          <p>Produced dedicated help center hubs for both titles simultaneously. Collaborated with PMs, writers, designers, and backend dev to structure content on the internal Xbox CMS. Managed Azure DevOps production cycles. Built and validated the issue-reporting form for WCAG 2.1 AA + 40+ locales.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Outcome<em>.</em></h3>
+          <p>Shipped alongside launch. Reduced average resolution time by 45%, cut support tickets 35%, passed 100% Xbox accessibility compliance. Streamlined CMS flow cut deployment time 30%. Still live at <a href="https://support.xbox.com/en-US/game/hellblade/support/home" target="_blank" rel="noopener">support.xbox.com/hellblade</a>.</p>
+        </div>
+      </div>
+    </section>
 
-<section class="project-section grid-col-12">
-  <h2><i class="fas fa-chart-line"></i> Results & Impact</h2>
-  <div class="impact-metrics">
-    <div class="metric-card">
-      <i class="fas fa-users"></i>
-      <h3>1M+</h3>
-      <p>Monthly active users</p>
-    </div>
-    <div class="metric-card">
-      <i class="fas fa-language"></i>
-      <h3>40+</h3>
-      <p>Languages supported</p>
-    </div>
-    <div class="metric-card">
-      <i class="fas fa-ticket-alt"></i>
-      <h3>35%</h3>
-      <p>Reduction in support tickets</p>
-    </div>
-  </div>
-  <div class="impact-highlights">
-    <h3>Key Achievements:</h3>
-    <ul>
-      <li>Launched support for both <em>Hellblade: Senua's Sacrifice</em> and <em>Senua's Saga: Hellblade II</em> simultaneously</li>
-      <li>Reduced average resolution time for support inquiries by 45% through improved content structure</li>
-      <li>Achieved 100% compliance with Xbox accessibility standards (WCAG 2.1 AA)</li>
-      <li>Streamlined content updates, reducing deployment time by 30% through CMS optimizations</li>
-    </ul>
-  </div>
-</section>
+    <!-- §4.8 step 5 — Metrics strip -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 02 &mdash; METRICS</div>
+          <h2 class="ap-display">What it<br><em>actually shifted.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Measured impact across accessibility, volume, and performance. Numbers from the Xbox Support analytics during and after rollout.
+        </div>
+      </div>
 
-<section class="project-section grid-col-12">
-  <h2><i class="fas fa-lightbulb"></i> Key Learnings</h2>
-  <div class="learnings-grid">
-    <div class="learning-card">
-      <i class="fas fa-globe-americas"></i>
-      <h3>Global First Approach</h3>
-      <p>Designing support content for a global audience requires more than translation—it demands cultural adaptation and context-aware solutions.</p>
-    </div>
-    <div class="learning-card">
-      <i class="fas fa-universal-access"></i>
-      <h3>Accessibility as Foundation</h3>
-      <p>Building accessibility into the content creation process from day one prevents costly revisions and ensures equal access for all users.</p>
-    </div>
-    <div class="learning-card">
-      <i class="fas fa-sync-alt"></i>
-      <h3>Iterative Improvement</h3>
-      <p>Continuous feedback loops with support teams and users led to multiple content refinements, improving clarity and reducing support volume.</p>
-    </div>
-  </div>
-</section>
+      <div class="ap-metrics">
+        <div>
+          <span class="ap-metrics-num">1M+</span>
+          <span class="ap-metrics-label">Monthly active users</span>
+        </div>
+        <div>
+          <span class="ap-metrics-num">40+</span>
+          <span class="ap-metrics-label">Languages supported</span>
+        </div>
+        <div>
+          <span class="ap-metrics-num">35%</span>
+          <span class="ap-metrics-label">Support ticket reduction</span>
+        </div>
+        <div>
+          <span class="ap-metrics-num">45%</span>
+          <span class="ap-metrics-label">Faster avg resolution</span>
+        </div>
+      </div>
+    </section>
 
-<section class="project-section grid-col-12">
-  <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-  <div class="related-projects">
-    <div class="related-project-card">
-      <a href="/projects/websites/south-of-midnight.html">
-        <i class="fas fa-gamepad"></i> South of Midnight
-      </a>
-      <p>Delivered support content and managed the knowledge base for Compulsion Games’ action-adventure title.</p>
-    </div>
-    <div class="related-project-card">
-      <a href="/projects/xbox-support.html">
-        <i class="fas fa-th-large"></i> All Xbox Projects
-      </a>
-      <p>Browse all Xbox-related support initiatives, tools, and UI systems featured across the portfolio.</p>
-    </div>
-  </div>
-</section>
+    <!-- §4.8 step 6 — Secondary imagery (gallery) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 03 &mdash; VISUAL HIGHLIGHTS</div>
+          <h2 class="ap-display">The pages,<br><em>as shipped.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Six surfaces from the live help center &mdash; title hubs, FAQ, platform specs, and the accessibility-first reporting form.
+        </div>
+      </div>
 
+      <div class="ap-gallery">
+        <figure>
+          <img src="/images/projects/ninja-theroy/screen02.jpeg" alt="Support for Senua's Sacrifice" loading="lazy" />
+          <figcaption>Senua&rsquo;s Sacrifice support page.</figcaption>
+        </figure>
+        <figure>
+          <img src="/images/projects/ninja-theroy/screen03.jpeg" alt="Support for Hellblade II" loading="lazy" />
+          <figcaption>Hellblade II support page.</figcaption>
+        </figure>
+        <figure>
+          <img src="/images/projects/ninja-theroy/screen04.jpeg" alt="Hellblade II FAQ article" loading="lazy" />
+          <figcaption>Hellblade II FAQ article.</figcaption>
+        </figure>
+        <figure>
+          <img src="/images/projects/ninja-theroy/screen05.jpeg" alt="Platform specs breakdown" loading="lazy" />
+          <figcaption>Platform specs for Senua&rsquo;s Sacrifice.</figcaption>
+        </figure>
+        <figure>
+          <img src="/images/projects/ninja-theroy/screen06.jpeg" alt="User issue reporting form" loading="lazy" />
+          <figcaption>User issue reporting form &mdash; localized, WCAG-compliant.</figcaption>
+        </figure>
+      </div>
+    </section>
 
-<section class="project-section grid-col-12 next-project">
-  <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-  <div class="next-project-card">
-    <div class="next-project-content">
-      <h3>Microsoft Casual Games Support</h3>
-      <p>Producer-led migration of support content from Zendesk to Xbox Support for Microsoft's Casual Games portfolio</p>
-      <a href="/projects/websites/microsoft-casual-games-support.html" class="btn btn-secondary">
-        View Project <i class="fas fa-arrow-right"></i>
-      </a>
-    </div>
-  </div>
-</section>
+    <!-- §4.8 step 7 — Related work (prev / next) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 04 &mdash; RELATED</div>
+          <h2 class="ap-display">Where this<br><em>connects.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Adjacent case studies from the Xbox Support portfolio.
+        </div>
+      </div>
+
+      <div class="ap-prods ap-shipped">
+        <a class="ap-pd op-live" href="/projects/websites/gears-of-war-support.html">
+          <span class="n">01</span>
+          <div>
+            <h3>Gears of <em>War.</em></h3>
+            <span class="meta">Client &middot; The Coalition &middot; Franchise hub</span>
+          </div>
+          <p>Producer role supporting the Gears franchise with game-specific help content and known-issues tracking.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/microsoft-casual-games-support.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Microsoft Casual <em>Games.</em></h3>
+            <span class="meta">Client &middot; Microsoft &middot; Platform migration</span>
+          </div>
+          <p>Led the support migration from Zendesk to Xbox Support for Microsoft&rsquo;s Casual Games portfolio.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- §2.15  CTA -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Something like this?<br><em>Start a project.</em></h2>
+      <p>Help centers, accessibility-first content, localized support at launch &mdash; all in the playbook. Tell us the shape of the work.</p>
+      <div class="ap-cta-actions">
+        <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="/projects/xbox-support.html">Xbox portfolio</a>
+      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+    </section>
   </main>
 
-  <div id="footer-container"></div>
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-  <script src="/js/init-header-footer.js"></script>
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/lightbox.js" type="module"></script>
-  <script src="/js/nav.js"></script>
-  <script src="/js/main.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var banner = document.querySelector('#banner-container .banner');
-      var closeBtn = document.querySelector('#banner-container .banner-close');
-      var autoCloseTimer;
-      var displayDuration = 8000; // 8 seconds to read
-      var fadeOutDuration = 500; // 0.5 seconds to fade out
-      
-      function showBanner() {
-        if (!banner) return;
-        banner.classList.remove('hiding');
-        banner.classList.add('show');
-        
-        if (autoCloseTimer) clearTimeout(autoCloseTimer);
-        
-        autoCloseTimer = setTimeout(function() {
-          hideBanner();
-        }, displayDuration);
-      }
-      
-      function hideBanner() {
-        if (!banner) return;
-        
-        banner.classList.remove('show');
-        banner.classList.add('hiding');
-        
-        setTimeout(function() {
-          if (banner && banner.parentNode) {
-            banner.parentNode.removeChild(banner);
-          }
-        }, fadeOutDuration);
-      }
-      
-      if (banner) {
-        setTimeout(showBanner, 500);
-        
-        if (closeBtn) {
-          closeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            hideBanner();
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
-          });
-        }
-      }
-    });
-  </script>
-  <script type="module" src="/js/form-explainer.js"></script>
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
 </body>
 </html>
