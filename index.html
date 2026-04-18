@@ -45,85 +45,104 @@
 
   <style>
     /* ============================================================
-       Home-local styles (hero composition only — everything else
-       comes from ap-components.css). The AP. mark is the only
-       site-wide hero-mark instance; intentionally not abstracted
-       into the shared component library.
+       Home-local styles — pixel-port of the Monolith home reference
+       (Ambient Pixels Home v2.html, class="variant-monolith").
+       Values here match that file verbatim; they are NOT tokenized
+       because the hero composition lives only on the home page.
        ============================================================ */
 
+    /* Hero — full-viewport block, AP mark slammed to bottom of fold */
     .ap-hero {
       max-width: var(--max-page);
       margin: 0 auto;
-      padding: var(--sp-6) var(--sec-pad-x) var(--sp-30);
+      padding: 80px 40px 120px;
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     }
 
     .ap-hero .ap-meta-strip {
-      margin: 0 0 var(--sp-6);
+      margin-bottom: 80px;
     }
 
-    /* AP. wordmark — letters in Archivo Black, period replaced with a CSS
-       circle so the dot renders as a true round orb (not the typographic
-       period glyph, which Archivo Black renders near-square at 560px). */
+    /* AP. wordmark — A and P as text in Archivo Black; period as a CSS
+       circle (Archivo Black's '.' glyph is near-square at 560px). */
     .ap-hero-mark {
       font-family: var(--font-heavy);
       font-size: var(--fs-hero-mark);
-      line-height: 1;
-      letter-spacing: -0.04em;
-      margin: 0 0 var(--sp-15);
+      line-height: .78;
+      letter-spacing: -.06em;
+      margin: 0;
+      display: flex;
+      align-items: baseline;
+      gap: 2%;
       color: var(--color-text-primary);
       user-select: none;
     }
+    .ap-hero-mark .a,
+    .ap-hero-mark .p { color: var(--color-text-primary); }
     .ap-hero-dot {
       display: inline-block;
-      width: 0.13em;
-      height: 0.13em;
-      background: var(--color-accent-amber);
+      width: .1em;
+      height: .1em;
       border-radius: 50%;
-      vertical-align: baseline;
-      margin-left: 0.04em;
+      background: var(--color-accent-amber);
+      align-self: flex-end;
+      margin-bottom: .08em;
+      margin-left: .02em;
       box-shadow:
-        0 0 40px var(--color-accent-amber-glow-near),
-        0 0 120px var(--color-accent-amber-glow-far);
+        0 0 24px var(--color-accent-amber-glow-near),
+        0 0 60px  var(--color-accent-amber-glow-far);
     }
 
-    /* Hero body — 2-col (h1 left, body+CTA right), per the reference. */
-    .ap-hero-body {
+    /* Hero sub — 2-col grid below AP, separated by a hairline rule */
+    .ap-hero-sub {
+      margin-top: 80px;
+      padding-top: 40px;
+      border-top: 1px solid var(--color-border);
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--col-gap);
-      align-items: start;
+      gap: 80px;
+      align-items: end;
     }
     .ap-display--hero {
-      font-size: var(--fs-display-sm);
-      line-height: var(--lh-display);
-      letter-spacing: var(--tracking-display);
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1;
+      letter-spacing: -.025em;
       margin: 0;
       max-width: 18ch;
+      text-wrap: balance;
     }
-    .ap-hero-sub {
-      font-family: var(--font-display);
-      font-size: var(--fs-body);
-      line-height: var(--lh-body-loose);
-      color: var(--color-text-body);
-      opacity: .82;
-      max-width: var(--max-prose);
-      margin: 0 0 var(--sp-6);
+    .ap-hero-right {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .ap-hero-right p {
+      font-size: 17px;
+      line-height: 1.5;
+      opacity: .75;
+      margin: 0;
+      max-width: 540px;
       text-wrap: pretty;
     }
-    .ap-hero-cta {
+    .ap-hero-actions {
       display: flex;
-      gap: var(--sp-4);
-      align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
+      margin-top: 8px;
     }
 
     @media (max-width: 1000px) {
-      .ap-hero-body { grid-template-columns: 1fr; gap: var(--sp-8); }
+      .ap-hero-sub { grid-template-columns: 1fr; gap: 32px; }
+      .ap-hero-mark { font-size: clamp(180px, 40vw, 280px); }
     }
     @media (max-width: 600px) {
-      .ap-hero { padding: var(--sp-4) var(--mobile-pad) var(--sp-20); }
-      .ap-hero .ap-meta-strip { gap: var(--sp-4); margin-bottom: var(--sp-8); font-size: 10px; }
-      .ap-hero-mark { margin-bottom: var(--sp-10); }
+      .ap-hero { padding: 40px 20px 60px; }
+      .ap-hero .ap-meta-strip { gap: var(--sp-4); margin-bottom: 40px; font-size: 10px; }
     }
   </style>
 </head>
@@ -155,13 +174,15 @@
       <span>All systems nominal &middot; v2.6<span class="ap-cursor" aria-hidden="true"></span></span>
     </div>
 
-    <div class="ap-hero-mark" aria-label="AmbientPixels.">AP<span class="ap-hero-dot" aria-hidden="true"></span></div>
+    <div class="ap-hero-mark" aria-label="AmbientPixels.">
+      <span class="a" aria-hidden="true">A</span><span class="p" aria-hidden="true">P</span><span class="ap-hero-dot" aria-hidden="true"></span>
+    </div>
 
-    <div class="ap-hero-body">
+    <div class="ap-hero-sub">
       <h1 class="ap-display ap-display--hero">Creative systems.<br>Quiet <em>operations.</em></h1>
-      <div>
-        <p class="ap-hero-sub">AmbientPixels builds AI-native systems, digital products, and production infrastructure — from governed automation to video pipelines.</p>
-        <div class="ap-hero-cta">
+      <div class="ap-hero-right">
+        <p>AmbientPixels builds AI-native systems, digital products, and production infrastructure — from governed automation to video pipelines.</p>
+        <div class="ap-hero-actions">
           <button type="button" class="ap-btn ap-btn--primary" onclick="openProjectModal('home-hero');">Start a project &rarr;</button>
           <a class="ap-btn ap-btn--ghost" href="/products/">See products</a>
         </div>

@@ -150,9 +150,14 @@
   letter-spacing: var(--tracking-cta);
 }
 
-/* Variant: pillar h3 */
+/* Variant: pillar h3 — flat 32px per Monolith home reference (DS doc says
+   clamp 32-48px; home wins). Line-height + tracking also tighter than
+   .ap-display defaults to match reference. */
 .ap-display--pillar {
-  font-size: var(--fs-heading);
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 18px;
 }
 
 /* Variant: product row h3 */
@@ -169,10 +174,12 @@
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
   letter-spacing: var(--tracking-mono-sm);
-  line-height: var(--lh-body-loose);
+  line-height: 1.7;
   text-transform: uppercase;
-  opacity: .7;
-  max-width: 42ch;
+  opacity: .55;
+  max-width: 40ch;
+  justify-self: end;
+  text-align: right;
 }
 
 
@@ -212,22 +219,26 @@
 .ap-pillar {
   padding: var(--sp-12) 36px;
   border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   position: relative;
   transition: background var(--dur-med);
 }
 .ap-pillar:last-child { border-right: none; }
 
-.ap-pillar:hover          { background: var(--color-hover-surface); }
+.ap-pillar:hover          { background: var(--color-surface-soft); }
 .ap-pillar:hover h3,
 .ap-pillar:hover h3 em    { color: var(--color-hover-text); }
 
+/* Pillar numeral — opacity .42 and 112px/.85 leading per Monolith home
+   reference (DS §3.3 doc says .12-.20; home wins). Tick bar 56px × 3px
+   (doc says 40px × 2px). */
 .ap-pillar .num {
   font-family: var(--font-heavy);
   font-size: var(--fs-numeral-lg);
-  line-height: 1;
+  line-height: .85;
   letter-spacing: var(--tracking-display);
-  opacity: .12;
-  margin: 0 0 var(--sp-5);
+  opacity: .42;
+  margin: 0 0 var(--sp-8);
   position: relative;
   padding-top: var(--sp-5);
 }
@@ -236,8 +247,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 40px;
-  height: 2px;
+  width: 56px;
+  height: 3px;
   background: var(--pr, var(--color-text-primary));
 }
 .ap-pillar:nth-child(1) { --pr: var(--pc-ambientos); }
@@ -287,13 +298,14 @@
 .ap-pd {
   display: grid;
   grid-template-columns: 140px 1.5fr 1fr 120px 60px;
-  gap: var(--sp-8);
+  gap: var(--sp-10);
   align-items: center;
-  padding: var(--sp-10) 36px;
+  padding: 56px 36px;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  transition: background var(--dur-fast);
+  transition: background-color var(--dur-fast), color var(--dur-fast);
   text-decoration: none;
+  cursor: pointer;
 }
 .ap-pd:hover,
 .ap-pd:focus-visible {
@@ -304,9 +316,10 @@
 .ap-pd .n {
   font-family: var(--font-heavy);
   font-size: var(--fs-numeral-md);
-  line-height: 1;
-  opacity: .20;
+  line-height: .8;
+  opacity: .22;
   letter-spacing: var(--tracking-display);
+  color: var(--color-text-primary);
   transition: opacity var(--dur-med), color var(--dur-med);
 }
 .ap-pd:hover .n,
@@ -319,8 +332,10 @@
   font-family: var(--font-display);
   font-weight: var(--fw-heavy);
   font-size: var(--fs-display-md);
-  line-height: .95;
-  letter-spacing: var(--tracking-tight);
+  line-height: .9;
+  /* -0.035em — between --tracking-display (-.04) and --tracking-tight (-.025);
+     Monolith home reference uses this value verbatim, no matching token. */
+  letter-spacing: -0.035em;
   margin: 0;
   transition: color var(--dur-med);
 }
@@ -540,6 +555,8 @@
   height: 12px;
   border-radius: var(--r-dot);
   background: var(--color-text-primary);
+  margin: 0 8px;
+  transform: translateY(-4px);
   opacity: .7;
 }
 
