@@ -10,137 +10,299 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/nova-shared.css" />
   <style>
-    .aa { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
+    /* Agent Architecture page — rebuilt on DS tokens.
+       Rule-separated tiers, mono labels, no purple/gold accents,
+       no rounded corners (status dots only). */
+    .aa {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x) var(--sp-20);
+    }
 
     .aa-hero-micro {
-      font-size: 0.72rem; color: var(--nv-text-tertiary); margin: 0 0 1.1rem;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      margin: 0 0 var(--sp-5);
+      opacity: .6;
     }
-    .aa-hero-cta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1rem; }
+    .aa-hero-cta {
+      display: flex;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+      margin-top: var(--sp-5);
+    }
 
     /* ── Tier Sections ── */
-    .aa-tier { margin-bottom: 3rem; }
-    .aa-tier-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 0.25rem; }
-    .aa-tier-head h2 { font-size: 1.15rem; font-weight: 700; color: var(--nv-text); margin: 0; }
-    .aa-tier-badge {
-      font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.08em;
-      padding: 2px 8px; border-radius: 4px;
-      background: rgba(167,139,250,0.1); color: rgba(167,139,250,0.6);
-      font-weight: 600;
+    .aa-tier {
+      padding: var(--sp-12) 0;
+      border-top: 1px solid var(--color-border);
     }
-    .aa-tier-desc { font-size: 0.8rem; color: var(--nv-text-tertiary); margin: 0 0 0.85rem; font-style: italic; }
+    .aa-tier:last-of-type { border-bottom: 1px solid var(--color-border); }
+
+    .aa-tier-head {
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-3);
+    }
+    .aa-tier-head h2 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(28px, 3vw, 44px);
+      line-height: 1;
+      letter-spacing: -.02em;
+      color: var(--color-text-primary);
+      margin: 0;
+    }
+    .aa-tier-badge {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      padding: 4px 8px;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-tertiary);
+      background: transparent;
+    }
+    .aa-tier-desc {
+      font-family: var(--font-display);
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+      color: var(--color-text-body);
+      opacity: .65;
+      margin: 0 0 var(--sp-8);
+      max-width: var(--max-prose);
+    }
 
     /* ── Centered Tier Layout (T1/T2) ── */
     .aa-tier--centered .aa-grid {
       grid-template-columns: 1fr;
-      max-width: 440px;
+      max-width: 520px;
       margin: 0 auto;
     }
     .aa-tier--centered .aa-tier-head,
     .aa-tier--centered .aa-tier-desc,
-    .aa-tier--centered .aa-gov-panel { text-align: center; justify-content: center; }
-
-    /* ── Tier Connector Line ── */
-    .aa-connector {
-      width: 1px; height: 28px; margin: 0 auto;
-      background: var(--nv-border);
+    .aa-tier--centered .aa-gov-panel {
+      text-align: center;
+      justify-content: center;
     }
 
-    /* ── Governance Info Panel ── */
+    /* ── Connector (dropped — rule separators do the job) ── */
+    .aa-connector { display: none; }
+
+    /* ── Governance Info Panel — amber accent (the one AP. color) ── */
     .aa-gov-panel {
-      display: flex; align-items: flex-start; gap: 10px; justify-content: center;
-      padding: 10px 16px; border-radius: 8px; margin-bottom: 0.85rem;
-      border: 1px solid rgba(255,215,0,0.08);
-      background: rgba(255,215,0,0.02);
-      max-width: 440px; margin-left: auto; margin-right: auto;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--sp-4);
+      padding: var(--sp-5) var(--sp-6);
+      margin: 0 auto var(--sp-6);
+      border-left: 2px solid var(--color-accent-amber);
+      max-width: 560px;
+      text-align: left;
     }
-    .aa-gov-panel-ico { flex-shrink: 0; width: 1em; height: 1em; opacity: 0.35; margin-top: 2px; }
+    .aa-gov-panel-ico {
+      flex-shrink: 0;
+      width: 1em;
+      height: 1em;
+      opacity: .65;
+      color: var(--color-accent-amber);
+      margin-top: 3px;
+    }
     .aa-gov-panel-body { min-width: 0; }
     .aa-gov-panel-title {
-      font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.06em; color: rgba(255,215,0,0.55); margin: 0 0 3px;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      color: var(--color-accent-amber);
+      margin: 0 0 4px;
+      opacity: .85;
     }
     .aa-gov-panel p {
-      font-size: 0.74rem; color: rgba(203,213,225,0.5); margin: 0; line-height: 1.6;
+      font-family: var(--font-display);
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+      color: var(--color-text-body);
+      opacity: .72;
+      margin: 0;
     }
 
-    /* ── CEO Card Variant ── */
-    .aa-card--ceo {
-      border-color: rgba(255,215,0,0.1);
-      background: rgba(255,215,0,0.025);
-    }
-    .aa-card--ceo:hover { border-color: rgba(255,215,0,0.22); }
-    .aa-card--ceo .aa-card-ico { opacity: 0.55; }
+    /* ── CEO Card Variant — amber border-left accent ── */
+    .aa-card--ceo { border-left: 2px solid var(--color-accent-amber); }
+    .aa-card--ceo .aa-card-ico { color: var(--color-accent-amber); opacity: .85; }
     .aa-seat-badge {
-      font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.07em;
-      padding: 1px 6px; border-radius: 3px; margin-left: 6px;
-      background: rgba(255,215,0,0.08); color: rgba(255,215,0,0.5);
-      font-weight: 600; vertical-align: middle;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      padding: 1px 6px;
+      margin-left: var(--sp-3);
+      border: 1px solid var(--color-accent-amber);
+      color: var(--color-accent-amber);
+      opacity: .75;
+      vertical-align: middle;
     }
 
     /* ── Dynamic Worker Info Block ── */
     .aa-info-block {
-      max-width: 600px; margin: 0 auto 3rem;
-      padding: 14px 18px; border-radius: 10px;
-      border: 1px solid var(--nv-border);
-      background: var(--nv-card-bg-alt);
+      max-width: 680px;
+      margin: 0 auto var(--sp-10);
+      padding: var(--sp-6) var(--sp-8);
+      border-top: 1px dashed var(--color-border-dashed);
+      border-bottom: 1px dashed var(--color-border-dashed);
       text-align: center;
     }
     .aa-info-block-title {
-      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.08em; color: var(--nv-text-tertiary); margin: 0 0 0.35rem;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      margin: 0 0 var(--sp-3);
+      opacity: .85;
     }
     .aa-info-block p {
-      font-size: 0.76rem; color: var(--nv-text-tertiary); margin: 0; line-height: 1.6;
+      font-family: var(--font-display);
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+      color: var(--color-text-body);
+      opacity: .72;
+      margin: 0;
     }
 
     /* ── Card Grid ── */
-    .aa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .aa-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--color-border);
+    }
 
     .aa-card {
-      padding: 14px 16px; border-radius: 10px;
-      border: 1px solid var(--nv-border);
-      background: var(--nv-card-bg);
-      transition: border-color 0.2s, transform 0.15s;
-      display: flex; flex-direction: column;
+      padding: var(--sp-6) var(--sp-7);
+      border-right: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      background: transparent;
+      transition: background var(--dur-med);
+      display: flex;
+      flex-direction: column;
     }
-    .aa-card:hover { border-color: rgba(167,139,250,0.25); transform: translateY(-1px); }
-    .aa-card-top { display: flex; align-items: flex-start; gap: 10px; }
-    .aa-card-ico { flex-shrink: 0; font-size: 1.1rem; margin-top: 3px; opacity: 0.7; }
+    .aa-card:nth-child(2n) { border-right: none; }
+    .aa-card:hover { background: var(--color-hover-surface); }
+
+    .aa-tier--centered .aa-card {
+      border-right: none;
+      border-left: 1px solid var(--color-border);
+      border-right: 1px solid var(--color-border);
+    }
+
+    .aa-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--sp-4);
+    }
+    .aa-card-ico {
+      flex-shrink: 0;
+      font-size: 20px;
+      margin-top: 2px;
+      opacity: .55;
+      color: var(--color-text-primary);
+      transition: opacity var(--dur-med);
+    }
+    .aa-card:hover .aa-card-ico { opacity: .9; }
     .aa-card-identity { flex: 1; min-width: 0; }
-    .aa-card-name { font-size: 0.92rem; font-weight: 600; color: var(--nv-text); margin: 0; line-height: 1.3; }
-    .aa-card-role { font-size: 0.76rem; color: var(--nv-text-secondary); display: block; margin-bottom: 2px; }
-    .aa-card-status {
-      font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.05em;
-      padding: 2px 8px; border-radius: 99px; font-weight: 500;
-      display: inline-block; margin-top: 3px;
+    .aa-card-name {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: 20px;
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      color: var(--color-text-primary);
+      margin: 0 0 2px;
     }
-    .aa-status--monitoring { background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.6); }
-    .aa-status--active { background: rgba(167,139,250,0.12); color: rgba(167,139,250,0.75); }
-    .aa-status--building { background: rgba(96,165,250,0.12); color: rgba(96,165,250,0.75); }
-    .aa-status--reviewing { background: rgba(251,191,36,0.12); color: rgba(251,191,36,0.75); }
-    .aa-status--escalated { background: rgba(239,68,68,0.12); color: rgba(239,68,68,0.75); }
-    .aa-status--supporting { background: rgba(148,163,184,0.07); color: rgba(148,163,184,0.45); }
+    .aa-card-role {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      display: block;
+      margin-bottom: var(--sp-3);
+      opacity: .7;
+    }
+    .aa-card-status {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-tertiary);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      margin-top: var(--sp-2);
+    }
+    /* Breathing dot before status label, colored by state */
+    .aa-card-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: var(--r-dot);
+      background: var(--color-text-tertiary);
+      animation: ap-breathe var(--dur-breathe) var(--ease-inout) infinite;
+    }
+    .aa-status--active::before    { background: var(--color-status-live); }
+    .aa-status--building::before  { background: var(--color-status-beta); }
+    .aa-status--reviewing::before { background: var(--color-accent-amber); }
+    .aa-status--escalated::before { background: var(--color-status-down, #ef4444); }
+    .aa-status--monitoring::before,
+    .aa-status--supporting::before { animation: none; opacity: .6; }
 
     .aa-card-owns {
-      margin: 8px 0 0; padding: 0; list-style: none; flex: 1;
+      margin: var(--sp-4) 0 0;
+      padding: 0;
+      list-style: none;
+      flex: 1;
     }
     .aa-card-owns li {
-      font-size: 0.75rem; color: var(--nv-text-secondary); line-height: 1.75;
-      padding-left: 12px; position: relative;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-sm);
+      text-transform: uppercase;
+      color: var(--color-text-body);
+      line-height: 1.8;
+      padding: var(--sp-2) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+      opacity: .72;
     }
+    .aa-card-owns li:first-child { border-top: none; }
     .aa-card-owns li::before {
-      content: ''; position: absolute; left: 0; top: 0.6em;
-      width: 4px; height: 4px; border-radius: 50%;
-      background: rgba(148,163,184,0.25);
+      content: '→ ';
+      opacity: .45;
+      margin-right: 4px;
     }
 
     .aa-loading {
-      text-align: center; padding: 2rem; font-size: 0.82rem;
-      color: var(--nv-text-tertiary);
+      text-align: center;
+      padding: var(--sp-10);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+      grid-column: 1 / -1;
+      opacity: .55;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 1000px) {
       .aa-grid { grid-template-columns: 1fr; }
+      .aa-card { border-right: none; }
+      .aa-card:nth-child(2n) { border-right: none; }
     }
   </style>
   <!-- DS skin — fonts + tokens + overlay on legacy layout -->
