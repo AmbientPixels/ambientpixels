@@ -614,9 +614,18 @@ button.btn-secondary:hover {
   overflow: visible;
 }
 
-/* Let long text wrap aggressively on narrow columns */
+/* Let text wrap at word boundaries only — NOT mid-word.
+   Previous rule had overflow-wrap: anywhere + hyphens: auto, which was
+   breaking words mid-character ("delicate" → "delicat", "Content" →
+   "Conter"). That was the "clipping" the CEO was seeing — the text
+   wasn't cut off by a container, it was being wrapped at arbitrary
+   character positions. overflow-wrap: break-word only breaks words
+   that WON'T FIT on a line at all (long URLs, unbreakable strings);
+   regular English prose wraps at spaces. */
 .ap-quote__text,
 .ap-quote p,
+.ap-quote__author,
+.ap-quote__role,
 .bullet-content p,
 .metric-card p,
 .related-project-card p,
@@ -624,11 +633,12 @@ button.btn-secondary:hover {
 .impact-highlights li,
 .content-section p,
 .project-section p {
-  word-break: normal;
-  overflow-wrap: anywhere;
-  hyphens: auto;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: none !important;
   max-width: 100% !important;
   width: auto !important;
+  white-space: normal !important;
 }
 
 /* Grid container sanity — force max-width + gutter + RESTORE the
