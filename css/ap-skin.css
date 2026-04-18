@@ -496,12 +496,196 @@ main a:not(.btn):not(.tech-badge):not(.role-tag):not(.lightbox-trigger):not(.rel
 }
 
 
+/* ---- Hover overrides — kill every legacy colored hover --------------
+   Legacy CSS (projects.css, components.css, hero.css, theme.css) sprays
+   cyan/purple/aura-glow hover treatments across almost every surface
+   via specific selectors. The !important flags here are intentional —
+   we're overriding very specific legacy rules that otherwise bleed
+   through the skin and break the "neutral elevation only" principle
+   of DS §3.4. Anything that needs a real hover gets the DS treatment:
+   surface → --color-surface, text → --color-text-primary, no hue. */
+
+.content-section:hover,
+.project-section:hover,
+.card-section:hover,
+.xbox-section:hover,
+.xbox-section-header:hover,
+.xbox-section-title:hover,
+.featured-card:hover,
+.video-project-page section:hover {
+  background: transparent !important;
+  border-color: var(--color-border) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  color: inherit !important;
+}
+
+/* Card-level hovers — neutral elevation only */
+.card-section:hover,
+.card-image-link:hover,
+.card-image-container:hover,
+.card-content:hover,
+.media-item:hover,
+.bullet-card:hover,
+.metric-card:hover,
+.related-project-card:hover,
+.next-project-card:hover,
+.ap-card:hover,
+.ap-quote:hover,
+.ap-quote--featured:hover {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: inherit !important;
+  transform: none !important;
+}
+
+/* Hover states for h3/h4 inside cards — keep neutral */
+.card-section:hover h3,
+.card-content:hover h3,
+.related-project-card:hover a,
+.bullet-card:hover strong,
+.bullet-card:hover p,
+.metric-card:hover h3,
+.metric-card:hover p {
+  color: var(--color-text-primary) !important;
+}
+
+/* Inline text-links shouldn't flash cyan on hover */
+main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
+  color: var(--color-hover-text) !important;
+  text-decoration: underline;
+}
+
+/* Section header hover flash (xbox-section-header has cyan glow) */
+.xbox-section-header {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.xbox-section-header h2 {
+  color: var(--color-text-primary) !important;
+  border: none !important;
+  background: transparent !important;
+}
+.xbox-section-header i {
+  color: var(--color-text-tertiary) !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+/* Role-tag hover (legacy cyan border + glow) */
+.role-tag:hover,
+.tech-badge:hover {
+  background: var(--color-surface) !important;
+  border-color: var(--color-text-tertiary) !important;
+  color: var(--color-text-primary) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Lightbox trigger hover — subtle opacity only */
+.lightbox-trigger:hover img,
+.card-image-link:hover img {
+  opacity: .9 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Breadcrumb link hover */
+.breadcrumb-container a:hover {
+  color: var(--color-text-primary) !important;
+  text-decoration: underline;
+}
+
+
+/* ---- Kill every legacy background gradient + drop-shadow ------------
+   Aggressive but necessary. Legacy components lean on linear-gradient
+   backgrounds (hero-card-content, card-image, button fills) + aura
+   box-shadows. The DS is grayscale + hairline only. */
+
+.hero-card-content,
+.hero-card-image,
+.card-image,
+.card-image-container,
+.featured-card,
+.card-section,
+.content-section,
+.project-section,
+.xbox-section,
+.xbox-section-header,
+.bullet-card,
+.metric-card,
+.ap-card,
+.ap-quote,
+.ap-quote--featured,
+.related-project-card,
+.next-project-card,
+.media-item,
+.tech-badge,
+.role-tag {
+  background-image: none !important;
+}
+
+.hero-card,
+.hero-card-content,
+.hero-card-image,
+.card-section,
+.card-image-link,
+.card-image,
+.card-image-container,
+.featured-card,
+.content-section,
+.project-section,
+.xbox-section,
+.bullet-card,
+.metric-card,
+.ap-card,
+.ap-quote,
+.ap-quote--featured,
+.related-project-card,
+.next-project-card,
+.media-item,
+.media-caption {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* Kill legacy rounded corners everywhere except pill buttons + dots */
+.hero-card,
+.hero-card-content,
+.hero-card-image,
+.card-section,
+.card-image,
+.card-image-container,
+.featured-card,
+.content-section,
+.project-section,
+.xbox-section,
+.xbox-section-header,
+.bullet-card,
+.metric-card,
+.ap-card,
+.ap-quote,
+.ap-quote--featured,
+.related-project-card,
+.next-project-card,
+.media-item,
+.tech-badge,
+.role-tag,
+.details-toggle {
+  border-radius: 0 !important;
+}
+
+
 /* ---- Nav header + footer (shared partials) ------------------------
-   The shared legacy nav/footer loaded by init-header-footer.js still
-   uses its own styling. If you want to skin those too, consider either
-   (a) retrofitting /modules/header.html + footer.html markup to use
-   .ap-nav / .ap-foot, or (b) adding targeted overrides here. For now
-   the skin leaves them alone so this file stays case-study-scoped.
+   Legacy pages using /modules/header.html + /modules/footer.html
+   (injected via init-header-footer.js) keep their old nav. If the
+   page instead inlines .ap-nav / .ap-foot-wrap and loads
+   /css/ap-components.css, it gets the DS nav. Mixed state is
+   acceptable during migration — each page's HTML decides.
    -------------------------------------------------------------------- */
 
 
