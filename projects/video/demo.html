@@ -15,19 +15,22 @@
   <title>Ninja Theory Help Center Video | AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/css/projects/xbox-support-app.css" />
   <link rel="stylesheet" href="/css/projects/video-projects.css" />
+  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="/css/ap-skin.css" />
 </head>
-<body data-theme="dark">
+<body>
   <!-- DEMO: Hero Card -->
   <section class="hero-card hero-card-ai" style="margin-bottom:2rem;">
     <div class="hero-card-image project-bg-ai card-image-container">
@@ -211,10 +214,7 @@
   </main>
 
 
-  <script src="/js/init-header-footer.js"></script>
-  <script src="/js/theme.js"></script>
   <script src="/js/lightbox.js" type="module"></script>
-  <script src="/js/nav.js"></script>
   <script src="/js/modal-window.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
   <script>
@@ -239,7 +239,22 @@
   </script>
 
   <div id="banner-container"></div>
-  <header id="nav-header"></header>
+    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
+    </div>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
 
 
   <main class="grid-container">
@@ -663,34 +678,76 @@
     <section class="project-section grid-col-12">
       <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
       <div class="related-projects">
-        <div class="related-project-card">
-          <a href="/projects/copilot-playground-case-study.html">
+        <a class="related-project-card" href="/projects/copilot-playground-case-study.html">
+          <strong class="related-project-card-title">
             <i class="fas fa-robot"></i> Copilot Playground
-          </a>
+          </strong>
           <p>AI-powered gaming support notifications and tools for Xbox</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects/hellblade-support-case-study.html">
+        </a>
+        <a class="related-project-card" href="/projects/hellblade-support-case-study.html">
+          <strong class="related-project-card-title">
             <i class="fas fa-gamepad"></i> Hellblade Support
-          </a>
+          </strong>
           <p>Dedicated support for Ninja Theory's Hellblade series</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects/xbox-video.html">
+        </a>
+        <a class="related-project-card" href="/projects/xbox-video.html">
+          <strong class="related-project-card-title">
             <i class="fas fa-video"></i> Xbox Video Projects
-          </a>
+          </strong>
           <p>Browse all Xbox-related video projects and case studies</p>
-        </div>
+        </a>
       </div>
     </section>
   </main>
 
-  <div id="footer-container"></div>
+  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-  <script src="/js/init-header-footer.js"></script>
-  <script src="/js/theme.js"></script>
   <script src="/js/lightbox.js" type="module"></script>
-  <script src="/js/nav.js"></script>
   <script>
     // Initialize timeline animations when the page loads
     document.addEventListener('DOMContentLoaded', function() {
@@ -718,6 +775,5 @@
       });
     });
   </script>
-  <script src="/js/main.js"></script>
 </body>
 </html>
