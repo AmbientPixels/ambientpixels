@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
 
   <style>
     /* Case-study hero — shared pattern across /projects/*.html migrations */
@@ -46,11 +47,13 @@
       padding-top: var(--sp-6);
       border-top: 1px solid var(--color-border);
     }
-    /* Full-bleed hero media — monochrome editorial treatment */
+    /* Full-bleed hero media — monochrome editorial treatment.
+       Side padding intentionally dropped: image fills the full
+       1440px container edge-to-edge. */
     .ap-case-media {
       max-width: var(--max-page);
       margin: 0 auto;
-      padding: 0 var(--sec-pad-x) var(--sp-12);
+      padding: 0 0 var(--sp-12);
     }
     .ap-case-media-frame {
       position: relative;
@@ -84,12 +87,39 @@
     .ap-case-media-frame--brand::after { content: none; }
     .ap-case-media-label {
       margin-top: var(--sp-4);
+      padding: 0 var(--sec-pad-x);
       font-family: var(--font-mono);
       font-size: var(--fs-mono-xs);
       letter-spacing: var(--tracking-mono-md);
       text-transform: uppercase;
       opacity: .55;
     }
+
+    /* Gradient + icon thumbnails — mirror the hero design of each
+       linked target page. Grayscale at rest, full color on hover,
+       consistent with the photographic .thumb behavior. */
+    .ap-pd--img .thumb.thumb--icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: grayscale(1) contrast(.92) brightness(.85);
+      transition: filter var(--dur-med), transform var(--dur-med);
+    }
+    .ap-pd--img .thumb.thumb--icon i {
+      font-size: 64px;
+      color: #fff;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,.25));
+    }
+    .ap-pd--img:hover .thumb.thumb--icon,
+    .ap-pd--img:focus-visible .thumb.thumb--icon {
+      filter: none;
+      transform: scale(1.03);
+    }
+    /* Per-row gradient backgrounds — match the target page heroes. */
+    .thumb--bg-ai    { background: linear-gradient(135deg, rgba(157,0,255,.35), rgba(100,43,255,.55)); }
+    .thumb--bg-video { background: linear-gradient(135deg, #5dc21e, #107c10); }
+    .thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); }
+    .thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); }
   </style>
 </head>
 <body>
@@ -155,7 +185,7 @@
 
       <div class="ap-prods">
         <a class="ap-pd ap-pd--img op-live" href="/projects/copilotplayground.html">
-          <span class="thumb"><img src="/images/projects/co-pilot-playground/hero.png" alt="Copilot Playground" loading="lazy"></span>
+          <span class="thumb thumb--icon thumb--bg-ai" aria-hidden="true"><i class="fas fa-robot"></i></span>
           <div>
             <h3>Copilot <em>Playground.</em></h3>
             <span class="meta">Experimental &middot; AI &middot; Training</span>
@@ -165,7 +195,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/video/xbox-video.html">
-          <span class="thumb"><img src="/images/projects/ninja-theroy-video/screen-02.png" alt="Xbox video content — Hellblade help center video showcase" loading="lazy"></span>
+          <span class="thumb thumb--icon thumb--bg-video" aria-hidden="true"><i class="fas fa-play-circle"></i></span>
           <div>
             <h3>Xbox video <em>content.</em></h3>
             <span class="meta">Lead producer &middot; Creative director &middot; Motion</span>
@@ -175,7 +205,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/websites/grand-central-power-bi.html">
-          <span class="thumb"><img src="/images/projects/grand-central/screen-01.jpg" alt="Grand Central 3.0 Power BI dashboard" loading="lazy"></span>
+          <span class="thumb thumb--icon thumb--bg-gc" aria-hidden="true"><i class="fas fa-database"></i></span>
           <div>
             <h3>Grand Central <em>3.0.</em></h3>
             <span class="meta">Producer &middot; DevOps &middot; Power BI</span>
@@ -185,7 +215,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/websites/xbox-support.html">
-          <span class="thumb"><img src="/images/projects/xbox-support/screen-01.jpeg" alt="Xbox Support main hub" loading="lazy"></span>
+          <span class="thumb thumb--icon thumb--bg-xbox" aria-hidden="true"><i class="fab fa-xbox"></i></span>
           <div>
             <h3>Xbox Support <em>site.</em></h3>
             <span class="meta">Producer &middot; UI/UX &middot; Content ops</span>
