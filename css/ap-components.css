@@ -516,20 +516,29 @@
   font-size: 64px;
   color: #fff;
   filter: drop-shadow(0 0 12px rgba(255,255,255,.25));
+  transition: color var(--dur-med), filter var(--dur-med);
 }
 .ap-pd--img:hover .thumb.thumb--icon,
 .ap-pd--img:focus-visible .thumb.thumb--icon {
   filter: none;
   transform: scale(1.03);
 }
-/* Gradient background slots — selectors scoped under .ap-pd--img .thumb
-   to beat the base `.ap-pd--img .thumb { background: ... }` rule on
-   specificity (no !important needed). */
-.ap-pd--img .thumb.thumb--bg-ai    { background: linear-gradient(135deg, #5b00a8, #3818a8); }
-.ap-pd--img .thumb.thumb--bg-video { background: linear-gradient(135deg, #5dc21e, #107c10); }
-.ap-pd--img .thumb.thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); }
-.ap-pd--img .thumb.thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); }
-.ap-pd--img .thumb.thumb--bg-log   { background: linear-gradient(135deg, #2e2e2e, #141414); }
+/* Icon picks up the slot's accent color on hover, with a matching halo. */
+.ap-pd--img:hover .thumb.thumb--icon i,
+.ap-pd--img:focus-visible .thumb.thumb--icon i {
+  color: var(--icon-hover, #fff);
+  filter: drop-shadow(0 0 18px var(--icon-glow, rgba(255,255,255,.45)));
+}
+/* Gradient background slots + paired icon-hover accents.
+   Selector scoped under .ap-pd--img .thumb to beat the base
+   `.ap-pd--img .thumb { background: ... }` rule on specificity
+   (no !important needed). --icon-hover and --icon-glow cascade up
+   via the .thumb--bg-* class to the i element via inheritance. */
+.ap-pd--img .thumb.thumb--bg-ai    { background: linear-gradient(135deg, #5b00a8, #3818a8); --icon-hover: #d6a8ff; --icon-glow: rgba(157, 92, 255, .55); }
+.ap-pd--img .thumb.thumb--bg-video { background: linear-gradient(135deg, #5dc21e, #107c10); --icon-hover: #b6f37a; --icon-glow: rgba(93, 194, 30, .55); }
+.ap-pd--img .thumb.thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); --icon-hover: #7eebec; --icon-glow: rgba(38, 208, 206, .55); }
+.ap-pd--img .thumb.thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); --icon-hover: #6fff6f; --icon-glow: rgba(16, 200, 16, .55); }
+.ap-pd--img .thumb.thumb--bg-log   { background: linear-gradient(135deg, #2e2e2e, #141414); --icon-hover: #4ade80; --icon-glow: rgba(74, 222, 128, .45); }
 
 
 /* ============================================================================
