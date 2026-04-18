@@ -4,7 +4,9 @@
    Scope: body reset, breakpoint stubs, keyframes used across components.
    ============================================================================ */
 
-/* ---- Body reset ------------------------------------------------------------ */
+/* ---- Base reset ------------------------------------------------------------ */
+
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   background: var(--color-bg);

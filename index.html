@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels — Creative-tech studio building AI systems, digital products, and production infrastructure. From governed automation to video production." />
+  <meta name="description" content="AmbientPixels — Creative-tech studio operating AI systems, digital products, and the infrastructure behind them. Seattle." />
   <link rel="canonical" href="https://www.ambientpixels.ai/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="AmbientPixels — AI Creative Systems Studio" />
-  <meta property="og:description" content="AI systems, digital products, and production infrastructure. From governed automation to video production." />
+  <meta property="og:description" content="Creative systems, operated quietly. A studio running AI, product, and infrastructure — from Seattle." />
   <meta property="og:url" content="https://www.ambientpixels.ai/" />
   <meta property="og:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AmbientPixels — Creative Systems Studio" />
-  <meta name="twitter:description" content="AI systems, digital products, and production infrastructure." />
+  <meta name="twitter:description" content="Creative systems, operated quietly." />
   <meta name="twitter:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
   <script type="application/ld+json">
   {
@@ -23,695 +23,379 @@
     "name": "AmbientPixels",
     "url": "https://www.ambientpixels.ai",
     "logo": "https://www.ambientpixels.ai/images/og-ambientpixels.png",
-    "description": "Creative-tech studio building AI systems, digital products, and production infrastructure.",
+    "description": "Creative-tech studio operating AI systems, digital products, and the infrastructure behind them.",
     "sameAs": []
   }
   </script>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>AmbientPixels — AI Creative Systems Studio | Digital Products & Automation</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
+  <title>AmbientPixels — Creative systems, operated quietly.</title>
+
+  <!-- Fonts: Archivo (display + regular) + Archivo Black (heavy) + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <!-- Legacy: contact modal form styles only (sunsets with /login page migration) -->
   <link rel="stylesheet" href="/css/forms.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/hero-base.css" />
+
   <style>
-    /* ── Home — Scoped Styles ── */
-    :root {
-      --h-accent: var(--hero-accent);
-      --h-accent-light: var(--hero-accent-soft);
-      --h-accent-dim: hsla(var(--hero-accent-h), var(--hero-accent-s), var(--hero-accent-l), 0.12);
+    /* ============================================================
+       Home-local styles (hero composition only — everything else
+       comes from ap-components.css). The AP. mark is the only
+       site-wide hero-mark instance; intentionally not abstracted
+       into the shared component library.
+       ============================================================ */
 
-      /* Per-pillar accent colors */
-      --h-ai: #4ecdc4;
-      --h-creative: #ff6b9d;
-      --h-infra: #ff8c00;
-
-      /* Product brand colors */
-      --h-ambientos: #ff8c00;
-      --h-cardforge: #ff6b9d;
-      --h-storyforge: #8b5cf6;
-      --h-nova: #8a2be2;
-      --h-blindspot: #EF9F27;
-      --h-pixelagents: #8F00FF;
-
-      /* Work accent colors */
-      --h-xbox: #107c10;
-      --h-video: #e74c3c;
-      --h-log: #4ecdc4;
-    }
-
-    /* ── Hero (Home overrides) ── */
-    .h-home-hero {
-      min-height: var(--hero-max-h);
-      justify-content: center;
-    }
-    .h-home-hero .hero-base-content {
+    .ap-hero {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-12) var(--sec-pad-x) var(--sp-30);
       text-align: center;
     }
-    .h-home-hero .hero-base-content .h-subhead {
-      font-size: 1.05rem;
-      line-height: 1.6;
-      margin: var(--hero-gap-3) auto 0;
-      opacity: 0.6;
-    }
-    .h-hero-cta {
-      display: flex;
-      gap: var(--hero-cta-gap);
+
+    .ap-hero .ap-meta-strip {
       justify-content: center;
-      margin-top: 2rem;
-    }
-    .h-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.7rem 1.4rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      font-family: inherit;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      letter-spacing: 0.01em;
-    }
-    .h-btn-primary {
-      background: var(--hero-accent);
-      color: #fff;
-      border: 1px solid var(--hero-accent);
-    }
-    .h-btn-primary:hover {
-      background: var(--hero-accent-soft);
-      border-color: var(--hero-accent-soft);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px hsla(var(--hero-accent-h), var(--hero-accent-s), var(--hero-accent-l), 0.25);
-    }
-    .h-btn-secondary {
-      background: transparent;
-      color: inherit;
-      border: 1px solid rgba(128,128,128,0.25);
-    }
-    .h-btn-secondary:hover {
-      border-color: var(--hero-accent);
-      color: var(--hero-accent);
-      transform: translateY(-1px);
+      margin: 0 0 var(--sp-20);
     }
 
-    /* ── Shared Section Rhythm ── */
-    .h-section {
-      max-width: 960px;
+    .ap-hero-mark {
+      font-family: var(--font-heavy);
+      font-size: var(--fs-hero-mark);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin: 0 0 var(--sp-15);
+      user-select: none;
+    }
+    .ap-hero-mark .amber {
+      color: var(--color-accent-amber);
+      text-shadow:
+        0 0 40px var(--color-accent-amber-glow-near),
+        0 0 100px var(--color-accent-amber-glow-far);
+    }
+
+    /* Hero sub-headline — overrides .ap-display default --fs-display-lg down
+       to --fs-heading so it doesn't compete with the AP. mark above. */
+    .ap-display--hero {
+      font-size: var(--fs-heading);
+      max-width: 18ch;
       margin: 0 auto;
-      padding: 4.75rem 1.5rem;
-    }
-    .h-section-label {
-      font-size: 0.65rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--h-accent);
-      margin: 0 0 0.5rem;
-      opacity: 0.85;
-    }
-    .h-section h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin: 0 0 0.5rem;
-      letter-spacing: -0.01em;
-    }
-    .h-section > p {
-      font-size: 1rem;
-      line-height: 1.6;
-      opacity: 0.6;
-      max-width: 600px;
-      margin: 0 0 2rem;
     }
 
-    /* ── What We Do — 3 service pillar cards ── */
-    .h-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-    }
-    .h-card {
-      padding: 1.75rem;
-      border: 1px solid rgba(128,128,128,0.08);
-      border-radius: 8px;
-      border-top: 3px solid var(--card-accent, var(--h-accent));
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .h-card:hover {
-      border-color: rgba(128,128,128,0.15);
-      border-top-color: var(--card-accent, var(--h-accent));
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    }
-    .h-card--ai { --card-accent: var(--h-ai); }
-    .h-card--creative { --card-accent: var(--h-creative); }
-    .h-card--infra { --card-accent: var(--h-infra); }
-    .h-card i {
-      font-size: 1.25rem;
-      color: var(--card-accent, var(--h-accent));
-      margin-bottom: 0.75rem;
-      display: block;
-    }
-    .h-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 0.4rem;
-    }
-    .h-card p {
-      font-size: 0.85rem;
-      line-height: 1.55;
-      margin: 0 0 0.75rem;
-      opacity: 0.6;
-    }
-    .h-card a {
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--card-accent, var(--h-accent));
-      text-decoration: none;
-    }
-    .h-card a:hover { text-decoration: underline; }
-
-    /* ── Products — equal-weight tiles ── */
-    .h-proof-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-    }
-    .h-proof {
-      padding: 1.75rem;
-      border: 1px solid rgba(128,128,128,0.08);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .h-proof:hover {
-      border-color: var(--proof-accent, var(--h-accent));
-      box-shadow: 0 4px 24px color-mix(in srgb, var(--proof-accent, var(--h-accent)) 15%, transparent);
-    }
-    .h-proof--ambientos { --proof-accent: var(--h-ambientos); }
-    .h-proof--cardforge { --proof-accent: var(--h-cardforge); }
-    .h-proof--storyforge { --proof-accent: var(--h-storyforge); }
-    .h-proof--nova { --proof-accent: var(--h-nova); }
-    .h-proof--blindspot { --proof-accent: var(--h-blindspot); }
-    .h-proof--pixelagents { --proof-accent: var(--h-pixelagents); }
-    .h-proof-icon {
-      font-size: 1.4rem;
-      color: var(--proof-accent, var(--h-accent));
-    }
-    .h-proof-tag {
-      font-size: 0.55rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--proof-accent, var(--h-accent));
-      background: color-mix(in srgb, var(--proof-accent, var(--h-accent)) 12%, transparent);
-      padding: 2px 8px;
-      border-radius: 4px;
-      display: inline-block;
-      align-self: flex-start;
-      opacity: 0.85;
-    }
-    .h-proof h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    .h-proof p {
-      font-size: 0.82rem;
-      line-height: 1.5;
-      margin: 0;
-      opacity: 0.55;
-    }
-    .h-proof a {
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--proof-accent, var(--h-accent));
-      text-decoration: none;
-      margin-top: auto;
-    }
-    .h-proof a:hover { text-decoration: underline; }
-
-    /* ── Featured Work — portfolio highlights ── */
-    .h-work-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-    }
-    .h-work-item {
-      padding: 1.75rem;
-      border: 1px solid rgba(128,128,128,0.08);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .h-work-item:hover {
-      border-color: var(--work-accent, var(--h-accent));
-      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    }
-    .h-work--xbox { --work-accent: var(--h-xbox); }
-    .h-work--video { --work-accent: var(--h-video); }
-    .h-work--log { --work-accent: var(--h-log); }
-    .h-work-item i.h-work-icon {
-      font-size: 1.1rem;
-      color: var(--work-accent, var(--h-accent));
-      width: 2.2rem;
-      height: 2.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      background: color-mix(in srgb, var(--work-accent, var(--h-accent)) 12%, transparent);
-    }
-    .h-work-item h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    .h-work-meta {
-      font-size: 0.65rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      opacity: 0.4;
-    }
-    .h-work-item p {
-      font-size: 0.82rem;
-      line-height: 1.5;
-      margin: 0;
-      opacity: 0.55;
-    }
-    .h-work-item a {
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--work-accent, var(--h-accent));
-      text-decoration: none;
-      margin-top: auto;
-    }
-    .h-work-item a:hover { text-decoration: underline; }
-
-    /* ── How We Work — horizontal flow ── */
-    .h-flow {
-      display: flex;
-      align-items: center;
-      gap: 0.15rem;
-      flex-wrap: wrap;
-    }
-    .h-flow-step {
-      flex: 1;
-      min-width: 130px;
-      text-align: center;
-      padding: 1.4rem 0.85rem;
-      border: 1px solid rgba(128,128,128,0.08);
-      border-radius: 6px;
-      border-bottom: 2px solid var(--h-accent-dim);
-      transition: border-color 0.2s;
-    }
-    .h-flow-step:hover {
-      border-bottom-color: var(--h-accent);
-    }
-    .h-flow-step h4 {
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin: 0 0 0.2rem;
-      color: var(--h-accent);
-    }
-    .h-flow-step p {
-      font-size: 0.7rem;
-      margin: 0;
-      opacity: 0.45;
-      line-height: 1.4;
-    }
-    .h-flow-arrow {
-      font-size: 0.85rem;
-      opacity: 0.18;
-      padding: 0 0.5rem;
-      flex-shrink: 0;
-    }
-
-    /* ── Principles — 4 blocks ── */
-    .h-principles {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
-    }
-    .h-principle {
-      padding: 1.4rem 1.1rem;
-      border-left: 2px solid var(--prin-accent, rgba(74, 124, 155, 0.55));
-    }
-    .h-principle--autonomy { --prin-accent: var(--h-ai); }
-    .h-principle--governance { --prin-accent: var(--h-ambientos); }
-    .h-principle--creative { --prin-accent: var(--h-creative); }
-    .h-principle--ship { --prin-accent: var(--h-nova); }
-    .h-principle h3 {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin: 0 0 0.3rem;
-    }
-    .h-principle p {
-      font-size: 0.8rem;
-      margin: 0;
-      opacity: 0.55;
-      line-height: 1.5;
-    }
-
-    /* ── Final CTA ── */
-    .h-cta-section {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 3.5rem 1.5rem 5rem;
-      text-align: center;
-    }
-    .h-cta-section h2 {
-      font-size: 2.15rem;
-      font-weight: 700;
-      margin: 0 0 0.5rem;
-    }
-    .h-cta-section p {
-      font-size: 0.95rem;
-      opacity: 0.55;
-      margin: 0 0 1.5rem;
-    }
-    .h-cta-links {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* ── Divider ── */
-    .h-divider {
-      max-width: 960px;
-      margin: 0 auto;
-      border: none;
-      border-top: 1px solid rgba(128,128,128,0.1);
-    }
-
-    /* ── Light theme ── */
-    [data-theme="light"] .h-card,
-    [data-theme="light"] .h-proof,
-    [data-theme="light"] .h-work-item,
-    [data-theme="light"] .h-flow-step {
-      border-color: #e2e8f0;
-    }
-    [data-theme="light"] .h-card:hover,
-    [data-theme="light"] .h-proof:hover,
-    [data-theme="light"] .h-work-item:hover {
-      border-color: var(--h-accent);
-    }
-    [data-theme="light"] .h-principle {
-      border-left-color: rgba(74, 124, 155, 0.5);
-    }
-    [data-theme="light"] .h-btn-primary {
-      background: var(--hero-accent);
-      border-color: var(--hero-accent);
-      color: #fff;
-    }
-    [data-theme="light"] .h-btn-primary:hover {
-      background: var(--hero-accent-soft);
-      border-color: var(--hero-accent-soft);
-    }
-    [data-theme="light"] .h-btn-secondary {
-      border-color: #d1d5db;
-      color: #334155;
-    }
-    [data-theme="light"] .h-btn-secondary:hover {
-      border-color: var(--hero-accent);
-      color: var(--hero-accent);
-    }
-    [data-theme="light"] .h-divider {
-      border-top-color: #e2e8f0;
-    }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      .h-home-hero { min-height: 360px; }
-      .h-home-hero .hero-base-content .h-subhead { font-size: 0.95rem; }
-      .h-hero-cta { flex-direction: column; align-items: center; }
-      .h-cards { grid-template-columns: 1fr; }
-      .h-proof-grid { grid-template-columns: 1fr; }
-      .h-work-grid { grid-template-columns: 1fr; }
-      .h-flow { flex-direction: column; }
-      .h-flow-arrow { transform: rotate(90deg); padding: 0.25rem 0; }
-      .h-principles { grid-template-columns: 1fr 1fr; }
-      .h-section h2 { font-size: 1.6rem; }
-    }
-    @media (max-width: 480px) {
-      .h-principles { grid-template-columns: 1fr; }
+    @media (max-width: 600px) {
+      .ap-hero { padding: var(--sp-8) var(--mobile-pad) var(--sp-20); }
+      .ap-hero .ap-meta-strip { gap: var(--sp-4); margin-bottom: var(--sp-12); font-size: 10px; }
     }
   </style>
 </head>
-<body data-theme="dark">
-  <header id="nav-header"></header>
+<body>
 
-  <!-- Hero -->
-  <section class="hero-base h-home-hero" data-hero="infrastructure">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1 id="h-headline">Creative Systems Studio.<span>AI-Native by Design.</span></h1>
-      <p class="h-subhead">AmbientPixels builds AI systems, digital products, and production infrastructure — from governed automation to video production.</p>
-      <div class="h-hero-cta">
-        <a href="/services/" class="h-btn h-btn-primary">
-          <i class="fas fa-arrow-right"></i> View Services
-        </a>
-        <a href="/projects/" class="h-btn h-btn-secondary">
-          <i class="fas fa-boxes-stacked"></i> Explore Projects
-        </a>
-      </div>
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
+    <a class="ap-nav-cta" href="#start" onclick="event.preventDefault(); openProjectModal('home-nav');">Start a project &rarr;</a>
+  </nav>
+
+  <!-- Hero — AP. wordmark (the only amber pixel on the site) -->
+  <section class="ap-hero">
+    <div class="ap-meta-strip">
+      <span>Est. 2024 — Seattle</span>
+      <span>Creative-tech studio</span>
+      <span>AI-native by design</span>
+      <span>All systems nominal &middot; v2.6<span class="ap-cursor" aria-hidden="true"></span></span>
+    </div>
+
+    <div class="ap-hero-mark" aria-label="AmbientPixels">
+      AP<span class="amber" aria-hidden="true">.</span>
+    </div>
+
+    <h1 class="ap-display ap-display--hero">Creative systems,<br><em>operated quietly.</em></h1>
   </section>
-  <script>
-    (function(){
-      var h=[
-        'Creative Systems Studio.<span>AI-Native by Design.</span>',
-        'Creative Systems Studio.<span>Built to Operate.</span>',
-        'Creative Systems Studio.<span>Systems. Products. Content.</span>',
-        'Creative Systems Studio.<span>From Concept to Production.</span>'
-      ];
-      var el=document.getElementById('h-headline');
-      if(el) el.innerHTML=h[Math.floor(Math.random()*h.length)];
-    })();
-  </script>
+
+  <!-- §2.13  Marquee -->
+  <div class="ap-marquee" aria-hidden="true">
+    <div class="ap-marquee-track">
+      <span>Ambient</span><span class="dot"></span><span><em>pixels</em></span><span class="dot"></span>
+      <span>operating</span><span class="dot"></span><span><em>systems</em></span><span class="dot"></span>
+      <span>for</span><span class="dot"></span><span><em>AI</em></span><span class="dot"></span>
+      <span>Ambient</span><span class="dot"></span><span><em>pixels</em></span><span class="dot"></span>
+      <span>operating</span><span class="dot"></span><span><em>systems</em></span><span class="dot"></span>
+      <span>for</span><span class="dot"></span><span><em>AI</em></span><span class="dot"></span>
+      <span>Ambient</span><span class="dot"></span><span><em>pixels</em></span><span class="dot"></span>
+      <span>operating</span><span class="dot"></span><span><em>systems</em></span><span class="dot"></span>
+      <span>for</span><span class="dot"></span><span><em>AI</em></span><span class="dot"></span>
+    </div>
+  </div>
 
   <main>
-    <!-- What We Do — 3 Service Pillars -->
-    <section class="h-section">
-      <p class="h-section-label">What We Do</p>
-      <h2>Systems, Creative, and Infrastructure</h2>
-      <p>Three disciplines, one studio. We design and ship across the full stack — from AI agents to video production.</p>
-      <div class="h-cards">
-        <div class="h-card h-card--ai">
-          <i class="fas fa-robot"></i>
-          <h3>AI Systems &amp; Automation</h3>
-          <p>Multi-agent orchestration, workflow automation, content pipelines, knowledge systems, and custom AI integrations.</p>
-          <a href="/services/#ai-systems">View AI Services →</a>
+
+    <!-- §2.7 + §2.8  § 01 — DISCIPLINES -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 01 — DISCIPLINES</div>
+          <h2 class="ap-display">Three fields,<br><em>one studio.</em></h2>
         </div>
-        <div class="h-card h-card--creative">
-          <i class="fas fa-palette"></i>
-          <h3>Product &amp; Creative</h3>
-          <p>Web design and development, AI video and media, voice narration, motion graphics, and narrative architecture.</p>
-          <a href="/services/#creative">View Creative Services →</a>
+        <div class="ap-sec-meta">
+          Three disciplines we operate in — AI systems, product &amp; creative, and the quieter infrastructure behind them. One roof. One mind.
         </div>
-        <div class="h-card h-card--infra">
-          <i class="fas fa-server"></i>
-          <h3>Infrastructure &amp; Architecture</h3>
-          <p>System architecture, API development, hosting and deployment, data pipelines, and observability.</p>
-          <a href="/services/#infrastructure">View Infrastructure →</a>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Systems<br>&amp; <em>automation.</em></h3>
+          <p>Multi-agent orchestration, workflow automation, content pipelines, knowledge systems, and custom AI integrations. Governed, observable, shipped.</p>
+          <ul>
+            <li>Multi-agent orchestration</li>
+            <li>Workflow automation</li>
+            <li>Knowledge pipelines</li>
+            <li>Custom agents</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Product<br>&amp; <em>creative.</em></h3>
+          <p>Web design and development, AI video and media, voice narration, motion graphics, and narrative architecture. Craft first, metrics second.</p>
+          <ul>
+            <li>Web design &amp; build</li>
+            <li>AI video &amp; media</li>
+            <li>Voice narration</li>
+            <li>Narrative architecture</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">The<br><em>infrastructure.</em></h3>
+          <p>System architecture, API development, hosting and deployment, data pipelines, observability. The quiet layer that lets the rest run.</p>
+          <ul>
+            <li>System architecture</li>
+            <li>API development</li>
+            <li>Hosting &amp; deployment</li>
+            <li>Observability</li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <hr class="h-divider" />
+    <!-- §2.7 + §2.9  § 02 — PRODUCTS -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 02 — PRODUCTS</div>
+          <h2 class="ap-display">Seven products,<br><em>all operating.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Platforms and tools we design, ship, and operate. Each one is a live surface — no roadmap slides, no coming-soon pages.
+        </div>
+      </div>
 
-    <!-- Products — Equal Weight -->
-    <section class="h-section">
-      <p class="h-section-label">Products</p>
-      <h2>What We've Built</h2>
-      <p>Platforms and tools we design, ship, and operate.</p>
-      <div class="h-proof-grid">
-        <div class="h-proof h-proof--ambientos">
-          <i class="fas fa-server h-proof-icon"></i>
-          <span class="h-proof-tag">Platform</span>
-          <h3>AmbientOS</h3>
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/ambientos/">
+          <span class="n">01</span>
+          <div>
+            <h3>Ambient<em>OS.</em></h3>
+            <span class="meta">Platform &middot; flagship</span>
+          </div>
           <p>Operating system for AI-run companies. Multi-agent orchestration, governance, memory, and execution pipelines.</p>
-          <a href="/ambientos/">Explore AmbientOS →</a>
-        </div>
-        <div class="h-proof h-proof--cardforge">
-          <i class="fas fa-layer-group h-proof-icon"></i>
-          <span class="h-proof-tag">Product</span>
-          <h3>CardForge</h3>
-          <p>Browser-based card creation platform with modular templates, real-time preview, and AI-assisted generation.</p>
-          <a href="/cardforge/">Open CardForge →</a>
-        </div>
-        <div class="h-proof h-proof--storyforge">
-          <i class="fas fa-book-open-reader h-proof-icon"></i>
-          <span class="h-proof-tag">Product</span>
-          <h3>StoryForge</h3>
-          <p>AI-powered choose-your-own-adventure with infinite stories across six genres, dynamic skill checks, and voice narration.</p>
-          <a href="/storyforge/">Play StoryForge →</a>
-        </div>
-        <div class="h-proof h-proof--nova">
-          <i class="fas fa-brain h-proof-icon"></i>
-          <span class="h-proof-tag">AI Operator</span>
-          <h3>Nova</h3>
+          <span class="year">Operating</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/nova/">
+          <span class="n">02</span>
+          <div>
+            <h3>Nova<em>.</em></h3>
+            <span class="meta">AI operator &middot; prime</span>
+          </div>
           <p>AI Prime Operator with persistent memory, live chat, dream engine, and daily system briefs. The mind behind AmbientOS.</p>
-          <a href="/nova/">Meet Nova →</a>
-        </div>
-        <div class="h-proof h-proof--ambientscore">
-          <i class="fas fa-chart-line h-proof-icon"></i>
-          <span class="h-proof-tag">Product</span>
-          <h3>AmbientScore</h3>
-          <p>Find where your website is losing revenue. Get an AmbientScore and 3 prioritized fixes in 60 seconds.</p>
-          <a href="/ambientscore/">Try AmbientScore →</a>
-        </div>
-        <div class="h-proof h-proof--blindspot">
-          <i class="fas fa-crosshairs h-proof-icon"></i>
-          <span class="h-proof-tag">Game</span>
-          <h3>Blindspot</h3>
-          <p>Card arena combat game. Build a fighter, battle 10 bosses, CYOA, and challenge other players in PvP.</p>
-          <a href="/blindspot/">Play Blindspot →</a>
-        </div>
-        <div class="h-proof h-proof--pixelagents">
-          <i class="fas fa-robot h-proof-icon"></i>
-          <span class="h-proof-tag">Marketplace</span>
-          <h3>Pixel Agents</h3>
+          <span class="year">Awake</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/ambientscore/">
+          <span class="n">03</span>
+          <div>
+            <h3>Ambient<em>Score.</em></h3>
+            <span class="meta">Product &middot; conversion</span>
+          </div>
+          <p>Find where your website is losing revenue. Get an AmbientScore and three prioritized fixes in 60 seconds.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/storyforge/">
+          <span class="n">04</span>
+          <div>
+            <h3>Story<em>Forge.</em></h3>
+            <span class="meta">Product &middot; game</span>
+          </div>
+          <p>AI-powered choose-your-own-adventure with infinite stories across six genres, dynamic skill checks, and voice narration.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/cardforge/">
+          <span class="n">05</span>
+          <div>
+            <h3>Card<em>Forge.</em></h3>
+            <span class="meta">Product &middot; tool</span>
+          </div>
+          <p>Browser-based card creation platform with modular templates, real-time preview, and AI-assisted generation.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/pixel-agents/">
+          <span class="n">06</span>
+          <div>
+            <h3>Pixel<em>Agents.</em></h3>
+            <span class="meta">Marketplace &middot; agents</span>
+          </div>
           <p>Curated marketplace of focused AI agents for hire. Run any agent in one click, or build and submit your own with Agent Forge.</p>
-          <a href="/pixel-agents/">Browse Pixel Agents →</a>
-        </div>
-      </div>
-    </section>
-
-    <hr class="h-divider" />
-
-    <!-- Featured Work -->
-    <section class="h-section">
-      <p class="h-section-label">Featured Work</p>
-      <h2>Shipped Projects</h2>
-      <p>Real client work and internal systems in production.</p>
-      <div class="h-work-grid">
-        <div class="h-work-item h-work--xbox">
-          <i class="fas fa-gamepad h-work-icon"></i>
-          <h3>Xbox Support Systems</h3>
-          <span class="h-work-meta">Client — Web &amp; Localization</span>
-          <p>Help centers and support hubs for Gears of War, Hellblade, and South of Midnight with accessible reporting tools.</p>
-          <a href="/projects/">View Project →</a>
-        </div>
-        <div class="h-work-item h-work--video">
-          <i class="fas fa-video h-work-icon"></i>
-          <h3>Video Production</h3>
-          <span class="h-work-meta">Studio — Media</span>
-          <p>Ambient environments, creative tech content, and AI-driven video pipelines published to YouTube and client channels.</p>
-          <a href="/projects/youtube.html">View Channel →</a>
-        </div>
-        <div class="h-work-item h-work--log">
-          <i class="fas fa-clock-rotate-left h-work-icon"></i>
-          <h3>Activity Log</h3>
-          <span class="h-work-meta">Internal — Transparency</span>
-          <p>Daily public dispatches from an AI-operated company. Auto-generated, CEO-reviewed, and published to the open web.</p>
-          <a href="/log/">View Log →</a>
-        </div>
-      </div>
-    </section>
-
-    <hr class="h-divider" />
-
-    <!-- How We Work -->
-    <section class="h-section">
-      <p class="h-section-label">Process</p>
-      <h2>How We Work</h2>
-      <p>A structured workflow from discovery to production deployment.</p>
-      <div class="h-flow">
-        <div class="h-flow-step">
-          <h4>Discovery</h4>
-          <p>Requirements, goals, constraints</p>
-        </div>
-        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="h-flow-step">
-          <h4>Architecture</h4>
-          <p>System design, data flows</p>
-        </div>
-        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="h-flow-step">
-          <h4>Build</h4>
-          <p>Development, automation, content</p>
-        </div>
-        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="h-flow-step">
-          <h4>Review</h4>
-          <p>QA, governance, client approval</p>
-        </div>
-        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="h-flow-step">
-          <h4>Ship</h4>
-          <p>Deploy, monitor, iterate</p>
-        </div>
-      </div>
-    </section>
-
-    <hr class="h-divider" />
-
-    <!-- Principles -->
-    <section class="h-section">
-      <p class="h-section-label">Principles</p>
-      <h2>How We Think</h2>
-      <div class="h-principles">
-        <div class="h-principle h-principle--autonomy">
-          <h3>Structured Autonomy</h3>
-          <p>AI operates within defined roles, constraints, and approval boundaries.</p>
-        </div>
-        <div class="h-principle h-principle--governance">
-          <h3>Human Governance</h3>
-          <p>Every high-impact action routes through human review with full provenance.</p>
-        </div>
-        <div class="h-principle h-principle--creative">
-          <h3>Creative + Technical</h3>
-          <p>Design, video, and content live alongside infrastructure, APIs, and automation.</p>
-        </div>
-        <div class="h-principle h-principle--ship">
-          <h3>Ship Continuously</h3>
-          <p>Iterative delivery with visible changelogs and measurable outcomes.</p>
-        </div>
-      </div>
-    </section>
-
-    <hr class="h-divider" />
-
-    <!-- Final CTA -->
-    <section class="h-cta-section">
-      <h2>Start a Project</h2>
-      <p>Tell us what you're building. We'll scope the system, creative, or both.</p>
-      <div class="h-cta-links">
-        <button type="button" class="h-btn h-btn-primary" onclick="openProjectModal('home')">
-          <i class="fas fa-arrow-right"></i> Start a Conversation
-        </button>
-        <a href="/services/" class="h-btn h-btn-secondary">
-          <i class="fas fa-list"></i> View All Services
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-beta" href="/blindspot/">
+          <span class="n">07</span>
+          <div>
+            <h3>Blind<em>spot.</em></h3>
+            <span class="meta">Game &middot; arena combat</span>
+          </div>
+          <p>Card arena combat. Build a fighter, battle ten bosses, and challenge other players in asynchronous PvP.</p>
+          <span class="year">Beta</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
         </a>
       </div>
+    </section>
+
+    <!-- §2.7 + §2.9 (ap-shipped variant)  § 03 — SHIPPED WORK -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 03 — WORK</div>
+          <h2 class="ap-display">Three shipped,<br><em>more in flight.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Real client work and internal systems in production. Each one lives on the open web.
+        </div>
+      </div>
+
+      <div class="ap-prods ap-shipped">
+        <a class="ap-pd op-live" href="/projects/">
+          <span class="n">01</span>
+          <div>
+            <h3>Xbox <em>support.</em></h3>
+            <span class="meta">Client &middot; Microsoft &middot; Web &amp; Localization</span>
+          </div>
+          <p>Help centers and support hubs for Gears of War, Hellblade, and South of Midnight, with accessible reporting tools.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/youtube.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Video <em>production.</em></h3>
+            <span class="meta">Studio &middot; Media</span>
+          </div>
+          <p>Ambient environments, creative-tech content, and AI-driven video pipelines published to YouTube and client channels.</p>
+          <span class="year">Publishing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/log/">
+          <span class="n">03</span>
+          <div>
+            <h3>Activity <em>log.</em></h3>
+            <span class="meta">Internal &middot; Transparency</span>
+          </div>
+          <p>Daily public dispatches from an AI-operated company. Auto-generated, CEO-reviewed, and published to the open web.</p>
+          <span class="year">Ongoing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- §2.15  CTA -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Let's build<br><em>something quiet.</em></h2>
+      <p>Tell us what you're building. System, creative, or both. We'll scope, mock, and ship.</p>
+      <div class="ap-cta-actions">
+        <button type="button" class="ap-btn ap-btn--primary" onclick="openProjectModal('home-cta');">Start a project &rarr;</button>
+        <a class="ap-btn ap-btn--ghost" href="/products/">See products</a>
+      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
     </section>
   </main>
 
-  <footer id="footer-container"></footer>
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS.</a></li>
+          <li><a href="/nova/">Nova.</a></li>
+          <li><a href="/ambientscore/">AmbientScore.</a></li>
+          <li><a href="/storyforge/">StoryForge.</a></li>
+          <li><a href="/cardforge/">CardForge.</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents.</a></li>
+          <li><a href="/blindspot/">Blindspot.</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/services/">Services.</a></li>
+          <li><a href="/projects/">Work.</a></li>
+          <li><a href="/about/">Studio.</a></li>
+          <li><a href="/blog/">Journal.</a></li>
+          <li><a href="/log/">Activity log.</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a class="ap-link-mono" href="mailto:hello@ambientpixels.ai" style="opacity:.82;">hello@ambientpixels.ai</a></li>
+          <li><a href="/pages/login.html">Login.</a></li>
+          <li><a href="/privacy.html">Privacy.</a></li>
+          <li><a href="/terms.html">Terms.</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/main.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-
+  <!-- Contact modal machinery (preserved — opens via Start-a-project CTA) -->
   <div id="modal-container" data-auto-form="modal"></div>
   <script src="/js/forms.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
 
+  <!-- Telemetry -->
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+
+  <!-- Start-a-project modal opener (preserved from prior home) -->
   <script>
     function openProjectModal(source) {
       var sel = document.getElementById('project-type');
@@ -726,10 +410,8 @@
         if (form) form.appendChild(hidden);
       }
       hidden.value = source || 'home';
-      showModal('contact-modal');
+      if (typeof showModal === 'function') showModal('contact-modal');
     }
   </script>
-  <script src="/js/telemetry-config.js"></script>
-  <script src="/js/telemetry-appinsights.js" defer></script>
 </body>
 </html>
