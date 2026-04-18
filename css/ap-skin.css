@@ -687,33 +687,48 @@ section.grid-container,
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--sp-4, 16px);
 }
+
+/* Entire card is the link — <a class="related-project-card">. Higher
+   specificity via the tag+class combo so we beat legacy without
+   !important. */
+a.related-project-card,
 .related-project-card {
-  background: transparent !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  padding: var(--sp-5, 20px) !important;
-  transition: background var(--dur-med, .3s);
-}
-.related-project-card:hover {
-  background: var(--color-surface) !important;
-  border-color: var(--color-border) !important;
-}
-.related-project-card a {
-  color: var(--color-text-primary) !important;
-  font-weight: 900;
+  display: block;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: var(--sp-5, 20px);
   text-decoration: none;
-  font-size: 16px;
+  color: var(--color-text-primary);
+  transition: background var(--dur-med, .3s), border-color var(--dur-fast, .2s);
+}
+a.related-project-card:hover,
+.related-project-card:hover {
+  background: var(--color-surface);
+  border-color: var(--color-text-tertiary);
+}
+
+.related-project-card-title {
   display: inline-flex;
   gap: 8px;
   align-items: center;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: -.01em;
 }
-.related-project-card a i { color: var(--color-text-tertiary); }
+.related-project-card-title i {
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+}
 .related-project-card p {
   color: var(--color-text-body);
   opacity: .72;
-  margin-top: var(--sp-2, 8px);
+  margin: var(--sp-2, 8px) 0 0;
   font-size: 14px;
+  line-height: 1.5;
 }
 
 .next-project-card {
