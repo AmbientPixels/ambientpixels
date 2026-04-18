@@ -27,6 +27,14 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  overflow-x: hidden;  /* hard safety — no horizontal scroll ever */
+  max-width: 100vw;
+  width: 100%;
 }
 
 body,
@@ -580,6 +588,9 @@ button.btn-secondary:hover {
 }
 /* Fixed-height .media-item inside a 2-col quote grid keeps its crop */
 
+/* Inner containers allow content to show but never overflow horizontally
+   past their parent. The outer .grid-container keeps overflow-x hidden
+   as the viewport-level safety. */
 .content-section,
 .project-section,
 .bullet-card,
@@ -587,16 +598,20 @@ button.btn-secondary:hover {
 .metric-card,
 .related-project-card,
 .next-project-card,
-.ap-card,
-.grid-container,
+.ap-card {
+  overflow: visible !important;
+  min-width: 0;
+  max-width: 100%;
+}
 .grid-col-6,
 .grid-col-4,
 .grid-col-3,
 .grid-col-12,
 .grid-col-6[style],
 .grid-col-12[style] {
-  overflow: visible !important;
   min-width: 0;
+  max-width: 100%;
+  overflow: visible;
 }
 
 /* Let long text wrap aggressively on narrow columns */
@@ -616,13 +631,16 @@ button.btn-secondary:hover {
   width: auto !important;
 }
 
-/* Grid container sanity — force max-width + gutter so inner .grid-col-*
-   doesn't spill when the DS font metrics differ from legacy. */
+/* Grid container sanity — force max-width + gutter + RESTORE the
+   overflow-x: hidden that legacy grid.css provided (I stripped it
+   before; the result was the horizontal scrollbar the CEO flagged). */
 .grid-container {
   max-width: var(--max-page, 1440px) !important;
   margin: 0 auto !important;
   padding: 0 var(--sec-pad-x, 40px) !important;
   box-sizing: border-box !important;
+  overflow-x: hidden !important;     /* safety */
+  width: 100%;
 }
 .grid-col-6,
 .grid-col-4,
@@ -633,6 +651,29 @@ button.btn-secondary:hover {
 }
 @media (max-width: 600px) {
   .grid-container { padding: 0 var(--mobile-pad, 20px) !important; }
+}
+
+/* Also lock down impact-metrics + media-grid so they can't overflow
+   their parent column. Legacy uses
+   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
+   which is fine, but combined with a fixed gap in a narrow column
+   it can spill. Force full-width + clip + min-width:0 on each cell. */
+.impact-metrics,
+.media-grid,
+.projects-grid,
+.learnings-grid,
+.related-projects {
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.metric-card,
+.media-item,
+.learning-card,
+.related-project-card {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* Producer Role & Impact specifically — the grid-col-6 there uses an
