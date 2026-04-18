@@ -74,6 +74,14 @@
       background: linear-gradient(180deg, rgba(12,12,12,0) 50%, rgba(12,12,12,.78) 100%);
       pointer-events: none;
     }
+    /* Brand variant — drop the dim gradient and the photographic wash
+       so the logo reads as a confident brand mark. Still B&W at rest. */
+    .ap-case-media-frame--brand img {
+      filter: grayscale(1) contrast(.95) brightness(.95);
+      object-fit: contain;
+      background: #0c0c0c;
+    }
+    .ap-case-media-frame--brand::after { content: none; }
     .ap-case-media-label {
       margin-top: var(--sp-4);
       font-family: var(--font-mono);
@@ -126,11 +134,11 @@
     </section>
 
     <!-- Case-study hero media — full-bleed editorial strip -->
-    <section class="ap-case-media" aria-label="Xbox Support portfolio montage">
-      <div class="ap-case-media-frame">
-        <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Xbox Support portfolio — Microsoft Casual Games, Gears of War, Hellblade, South of Midnight" loading="eager">
+    <section class="ap-case-media" aria-label="Xbox brand mark">
+      <div class="ap-case-media-frame ap-case-media-frame--brand">
+        <img src="/images/projects/xbox-logo-02.png" alt="Xbox — the platform behind this portfolio" loading="eager">
       </div>
-      <div class="ap-case-media-label">&sect; archive &middot; xbox support montage &middot; 2018&ndash;2025</div>
+      <div class="ap-case-media-label">&sect; client &middot; microsoft xbox &middot; platform</div>
     </section>
 
     <!-- § 01 — Xbox tools & systems -->
@@ -157,7 +165,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/video/xbox-video.html">
-          <span class="thumb"><img src="/images/projects/cools/image01.jpg" alt="Xbox video content" loading="lazy"></span>
+          <span class="thumb"><img src="/images/projects/ninja-theroy-video/screen-02.png" alt="Xbox video content — Hellblade help center video showcase" loading="lazy"></span>
           <div>
             <h3>Xbox video <em>content.</em></h3>
             <span class="meta">Lead producer &middot; Creative director &middot; Motion</span>
@@ -167,7 +175,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/websites/grand-central-power-bi.html">
-          <span class="thumb"><img src="/images/projects/grand-central/hero.png" alt="Grand Central 3.0 Power BI" loading="lazy"></span>
+          <span class="thumb"><img src="/images/projects/grand-central/screen-01.jpg" alt="Grand Central 3.0 Power BI dashboard" loading="lazy"></span>
           <div>
             <h3>Grand Central <em>3.0.</em></h3>
             <span class="meta">Producer &middot; DevOps &middot; Power BI</span>
@@ -177,7 +185,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/websites/xbox-support.html">
-          <span class="thumb"><img src="/images/projects/microsoft-casual-games/screen-01-1200.png" alt="Xbox Support site" loading="lazy"></span>
+          <span class="thumb"><img src="/images/projects/xbox-support/screen-01.jpeg" alt="Xbox Support main hub" loading="lazy"></span>
           <div>
             <h3>Xbox Support <em>site.</em></h3>
             <span class="meta">Producer &middot; UI/UX &middot; Content ops</span>
