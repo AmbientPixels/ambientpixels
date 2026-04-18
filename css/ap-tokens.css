@@ -1,0 +1,133 @@
+/* ============================================================================
+   AmbientPixels Design System — Tokens
+   Source of truth: .claude/skills/ambientpixelsdesign/skill.md §1
+   Do not edit values here. Edit the design system, then copy the block across.
+   ============================================================================ */
+
+:root {
+  /* ---- Color ---- */
+  --color-bg:              #0c0c0c;        /* page background */
+  --color-surface:         #141414;        /* hover + elevated row */
+  --color-surface-soft:    rgba(255,255,255,.03); /* pillar hover wash */
+
+  /* Hover — neutral elevation. Surface lifts; type stays near-white. No new hue. */
+  --color-hover-surface:   #141414;        /* row hover background (same as --color-surface) */
+  --color-hover-text:      #f4f4f4;        /* text on hover (same as --color-text-primary) */
+
+  /* ---- Optional teal palette (sparse, intentional use only — see §3.12) ---- */
+  --color-teal-surface:    #0D2330;        /* deep desaturated teal panel */
+  --color-teal-primary:    #5FB3E3;        /* primary teal text / links */
+  --color-teal-secondary:  #4DA8DA;        /* secondary teal text / meta */
+
+  --color-text-primary:    #f4f4f4;        /* logos, headlines, hover-active text */
+  --color-text-body:       #e8e8e8;        /* body copy, italic punchline */
+  --color-text-secondary:  rgba(244,244,244,.72);
+  --color-text-tertiary:   rgba(244,244,244,.55);
+  --color-text-muted:      rgba(244,244,244,.40);
+
+  --color-border:          rgba(255,255,255,.15);  /* section rules */
+  --color-border-soft:     rgba(255,255,255,.08);  /* footer rules, nav sub-rules */
+  --color-border-dashed:   rgba(255,255,255,.10);  /* pillar list separators */
+
+  --color-accent-amber:    #d4a952;        /* the AP. period. ONE PLACE ONLY. */
+  --color-accent-amber-glow-near: rgba(212,169,82,.55);
+  --color-accent-amber-glow-far:  rgba(212,169,82,.25);
+
+  --color-status-live:     rgba(74,222,128,.85);   /* green dot */
+  --color-status-beta:     rgba(212,169,82,.90);   /* amber dot (beta only) */
+  --color-status-live-solid: #4ade80;              /* footer breathing dot */
+
+  /* ---- Per-product accents (idle-state decoration only; never appear on hover) ---- */
+  --pc-ambientos:    #ff8c00;
+  --pc-nova:         #c792ea;
+  --pc-storyforge:   #8b5cf6;
+  --pc-cardforge:    #ff6b9d;
+  --pc-ambientscore: #4ecdc4;
+  --pc-pixelagents:  #8f00ff;
+  --pc-blindspot:    #ef9f27;
+
+  /* ---- Typography ---- */
+  --font-display:  'Archivo', sans-serif;           /* 900 weight for headlines */
+  --font-heavy:    'Archivo Black', sans-serif;     /* AP mark, ghosted numerals, marquee, CTA */
+  --font-mono:     'JetBrains Mono', monospace;     /* telemetry, section labels, meta */
+
+  --fs-hero-mark:     clamp(200px, 36vw, 560px);    /* AP. wordmark */
+  --fs-display-xl:    clamp(72px, 12vw, 224px);     /* CTA headline */
+  --fs-display-lg:    clamp(56px, 8vw, 120px);      /* section h2 */
+  --fs-display-md:    clamp(40px, 5.5vw, 84px);     /* product row h3 */
+  --fs-display-sm:    clamp(32px, 4.2vw, 66px);     /* shipped-work row h3 */
+  --fs-heading:       clamp(32px, 3vw, 48px);       /* hero sub-title, pillar h3 */
+  --fs-numeral-lg:    112px;                        /* pillar ghosted numerals */
+  --fs-numeral-md:    92px;                         /* product ghosted numerals */
+  --fs-marquee:       clamp(48px, 5vw, 72px);
+
+  --fs-body-lg:       19px;   /* CTA body */
+  --fs-body:          17px;   /* hero right-rail */
+  --fs-body-sm:       15px;   /* pillar body */
+  --fs-body-xs:       14px;   /* product row body */
+  --fs-meta:          13px;   /* nav, footer */
+  --fs-mono:          12px;   /* section labels, telemetry */
+  --fs-mono-xs:       11px;   /* year / status / legal */
+  --fs-mono-xxs:      10px;   /* footer list headings */
+
+  --fw-regular:       400;    /* italic punchlines ONLY — see rule in §3 */
+  --fw-medium:        500;    /* nav, footer list headings */
+  --fw-heavy:         900;    /* all display type */
+
+  --lh-display:       0.9;    /* headlines */
+  --lh-display-tight: 0.85;   /* CTA headline */
+  --lh-heading:       1.0;    /* sub-headings */
+  --lh-body:          1.55;   /* pillar body */
+  --lh-body-tight:    1.45;   /* product row body */
+  --lh-body-loose:    1.5;    /* hero right-rail, footer about */
+
+  --tracking-display: -0.04em; /* hero + section h2 */
+  --tracking-cta:     -0.05em; /* CTA h2 */
+  --tracking-tight:   -0.025em; /* product h3 */
+  --tracking-mono:    0.15em;  /* § labels */
+  --tracking-mono-md: 0.12em;  /* legal, list headings */
+  --tracking-mono-sm: 0.10em;  /* product meta */
+  --tracking-mono-xs: 0.08em;  /* legal bottom */
+  --tracking-mono-xxs: 0.04em; /* colophon */
+
+  /* ---- Spacing (8px base) ---- */
+  --sp-1:   4px;
+  --sp-2:   8px;
+  --sp-3:   12px;
+  --sp-4:   16px;
+  --sp-5:   20px;
+  --sp-6:   24px;
+  --sp-8:   32px;
+  --sp-10:  40px;   /* page gutter */
+  --sp-12:  48px;
+  --sp-15:  60px;   /* footer column gap */
+  --sp-20:  80px;   /* hero→sub, section→rows */
+  --sp-28:  112px;
+  --sp-30:  120px;  /* section vertical padding */
+  --sp-40:  160px;  /* CTA vertical padding */
+
+  /* ---- Layout ---- */
+  --max-page:    1440px;   /* nav, hero, section, cta, footer */
+  --max-prose:   50ch;     /* body paragraphs */
+  --max-about:   34ch;     /* footer about blurb */
+  --col-gap:     40px;     /* section-head grid gap */
+  --row-gap:     60px;     /* footer column gap */
+  --sec-pad-y:   120px;    /* section vertical padding */
+  --sec-pad-x:   40px;     /* section horizontal gutter */
+  --mobile-pad:  20px;     /* <600px gutter */
+
+  /* ---- Radius ---- */
+  --r-none:  0;
+  --r-pill:  999px;    /* buttons, nav CTA — the only rounded surface in the system */
+  --r-dot:   50%;      /* status dots */
+
+  /* ---- Motion ---- */
+  --dur-fast:    .2s;
+  --dur-med:     .3s;
+  --dur-slow:    .6s;
+  --dur-breathe: 2s;   /* status dot */
+  --dur-pulse:   3s;   /* footer legal dot */
+  --dur-roll:    60s;  /* marquee */
+  --ease:        ease-out;
+  --ease-inout:  ease-in-out;
+}

@@ -1,0 +1,689 @@
+/* ============================================================================
+   AmbientPixels Design System — Components
+   Load order: ap-tokens.css → ap-base.css → ap-components.css
+   Organized in the same order as the design system doc (§2.1 → §2.15).
+   Source of truth: .claude/skills/ambientpixelsdesign/skill.md §2
+   ============================================================================ */
+
+
+/* ============================================================================
+   §2.2  Header — Logomark + Nav
+   ============================================================================ */
+
+.ap-nav {
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: var(--sp-8) var(--sp-10);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ap-logo {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: 20px;
+  letter-spacing: var(--tracking-tight);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.ap-logo .m {
+  width: 22px;
+  height: 16px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.ap-logo .m::before,
+.ap-logo .m::after,
+.ap-logo .m i {
+  content: '';
+  display: block;
+  height: 3px;
+  background: var(--color-text-primary);
+  border-radius: 1px;
+}
+.ap-logo .m::before { width: 100%; }
+.ap-logo .m i      { width: 70%;  }
+.ap-logo .m::after { width: 45%;  }
+
+.ap-nav-links {
+  display: flex;
+  gap: var(--sp-8);
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  opacity: .8;
+}
+.ap-nav-links a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: opacity var(--dur-fast);
+}
+.ap-nav-links a:hover { opacity: .5; }
+
+.ap-nav-cta {
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-pill);
+  border: 1px solid var(--color-text-primary);
+  font-size: var(--fs-meta);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: all var(--dur-fast);
+}
+.ap-nav-cta:hover {
+  background: var(--color-text-primary);
+  color: var(--color-bg);
+}
+
+
+/* ============================================================================
+   §2.3  Meta Strip (telemetry line with blinking cursor)
+   ============================================================================ */
+
+.ap-meta-strip {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  opacity: .55;
+  display: flex;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}
+.ap-meta-strip span::before { content: '— '; }
+
+.ap-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 12px;
+  background: var(--color-text-primary);
+  margin-left: 6px;
+  vertical-align: -1px;
+  animation: ap-blink 1.1s steps(2) infinite;
+}
+
+
+/* ============================================================================
+   §2.4  Section Label (§ NN — NAME)
+   ============================================================================ */
+
+.ap-sec-idx {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono);
+  opacity: .55;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================================
+   §2.5  Display Headline (with italic punchline)
+   ============================================================================ */
+
+.ap-display {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: var(--fs-display-lg);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+  text-wrap: balance;
+}
+.ap-display em {
+  font-style: italic;
+  font-weight: var(--fw-regular);   /* italic is ALWAYS light; solid punchline */
+  color: var(--color-text-body);
+}
+
+/* Variant: hero sub-title (applied to h1) — inherits ap-display rules */
+.ap-display--hero { /* same base rules apply */ }
+
+/* Variant: CTA h2 — see also .ap-cta h2 below */
+.ap-display--cta {
+  font-size: var(--fs-display-xl);
+  line-height: var(--lh-display-tight);
+  letter-spacing: var(--tracking-cta);
+}
+
+/* Variant: pillar h3 */
+.ap-display--pillar {
+  font-size: var(--fs-heading);
+}
+
+/* Variant: product row h3 */
+.ap-display--row {
+  font-size: var(--fs-display-md);
+}
+
+
+/* ============================================================================
+   §2.6  Right-Rail Meta Paragraph (monospace meta body)
+   ============================================================================ */
+
+.ap-sec-meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono-sm);
+  line-height: var(--lh-body-loose);
+  text-transform: uppercase;
+  opacity: .7;
+  max-width: 42ch;
+}
+
+
+/* ============================================================================
+   §2.7  Section Head (label + headline + meta)
+   ============================================================================ */
+
+.ap-sec {
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: var(--sec-pad-y) var(--sec-pad-x);
+}
+
+.ap-sec-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--col-gap);
+  align-items: end;
+  margin-bottom: var(--sp-20);
+}
+
+@media (max-width: 1000px) {
+  .ap-sec-head { grid-template-columns: 1fr; }
+}
+
+
+/* ============================================================================
+   §2.8  Discipline Grid (3 columns, ghosted numerals)
+   ============================================================================ */
+
+.ap-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--color-border);
+}
+
+.ap-pillar {
+  padding: var(--sp-12) 36px;
+  border-right: 1px solid var(--color-border);
+  position: relative;
+  transition: background var(--dur-med);
+}
+.ap-pillar:last-child { border-right: none; }
+
+.ap-pillar:hover          { background: var(--color-hover-surface); }
+.ap-pillar:hover h3,
+.ap-pillar:hover h3 em    { color: var(--color-hover-text); }
+
+.ap-pillar .num {
+  font-family: var(--font-heavy);
+  font-size: var(--fs-numeral-lg);
+  line-height: 1;
+  letter-spacing: var(--tracking-display);
+  opacity: .12;
+  margin: 0 0 var(--sp-5);
+  position: relative;
+  padding-top: var(--sp-5);
+}
+.ap-pillar .num::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--pr, var(--color-text-primary));
+}
+.ap-pillar:nth-child(1) { --pr: var(--pc-ambientos); }
+.ap-pillar:nth-child(2) { --pr: var(--pc-nova); }
+.ap-pillar:nth-child(3) { --pr: var(--pc-ambientscore); }
+
+.ap-pillar p {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body);
+  opacity: .72;
+  margin: 0 0 var(--sp-8);
+  max-width: 40ch;
+  text-wrap: pretty;
+}
+
+.ap-pillar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono-sm);
+  text-transform: uppercase;
+  opacity: .8;
+}
+.ap-pillar ul li {
+  padding: var(--sp-3) 0;
+  border-top: 1px dashed var(--color-border-dashed);
+}
+.ap-pillar ul li:first-child { border-top: none; }
+.ap-pillar ul li::before { content: '→ '; opacity: .45; }
+
+@media (max-width: 1000px) {
+  .ap-pillars { grid-template-columns: 1fr; }
+  .ap-pillar  { border-right: none; padding: 40px 0 !important; }
+}
+
+
+/* ============================================================================
+   §2.9  Product / Work Row (the workhorse)
+   ============================================================================ */
+
+.ap-prods {
+  border-top: 1px solid var(--color-border);
+}
+
+.ap-pd {
+  display: grid;
+  grid-template-columns: 140px 1.5fr 1fr 120px 60px;
+  gap: var(--sp-8);
+  align-items: center;
+  padding: var(--sp-10) 36px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  transition: background var(--dur-fast);
+  text-decoration: none;
+}
+.ap-pd:hover,
+.ap-pd:focus-visible {
+  background: var(--color-hover-surface);
+  outline: none;
+}
+
+.ap-pd .n {
+  font-family: var(--font-heavy);
+  font-size: var(--fs-numeral-md);
+  line-height: 1;
+  opacity: .20;
+  letter-spacing: var(--tracking-display);
+  transition: opacity var(--dur-med), color var(--dur-med);
+}
+.ap-pd:hover .n,
+.ap-pd:focus-visible .n {
+  opacity: .85;
+  color: var(--color-hover-text);
+}
+
+.ap-pd h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: var(--fs-display-md);
+  line-height: .95;
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+  transition: color var(--dur-med);
+}
+.ap-pd:hover h3,
+.ap-pd:focus-visible h3 { color: var(--color-hover-text); }
+.ap-pd h3 em {
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  opacity: .82;
+}
+
+.ap-pd .meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-sm);
+  text-transform: uppercase;
+  opacity: .65;
+}
+
+.ap-pd p {
+  margin: 6px 0 0;
+  font-size: var(--fs-body-xs);
+  line-height: var(--lh-body-tight);
+  opacity: .7;
+  max-width: var(--max-prose);
+  text-wrap: pretty;
+}
+
+.ap-pd .year {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  opacity: .82;
+  text-align: right;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  justify-content: flex-end;
+}
+.ap-pd .year::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-dot);
+  background: var(--op, var(--color-status-live));
+  opacity: .9;
+  animation: ap-breathe var(--dur-breathe) var(--ease-inout) infinite;
+  margin-right: 2px;
+}
+.ap-pd.op-live { --op: var(--color-status-live); }
+.ap-pd.op-beta { --op: var(--color-status-beta); }
+
+.ap-pd .go {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: 28px;
+  text-align: right;
+  opacity: .4;
+  transition: transform var(--dur-fast), opacity var(--dur-fast), color var(--dur-fast);
+}
+.ap-pd:hover .go,
+.ap-pd:focus-visible .go {
+  transform: translateX(8px);
+  opacity: 1;
+  color: var(--color-hover-text);
+}
+.ap-pd:hover .year::before,
+.ap-pd:focus-visible .year::before {
+  animation: ap-breathe-once var(--dur-slow) var(--ease) 1;
+}
+
+/* Shipped Work uses a smaller title (3 items sit heavier than 7) */
+.ap-shipped .ap-pd h3 {
+  font-size: var(--fs-display-sm);
+  letter-spacing: var(--tracking-tight);
+}
+
+@media (max-width: 1000px) {
+  .ap-pd {
+    grid-template-columns: 56px 1fr auto;
+    grid-template-areas:
+      "n h y"
+      "n p p"
+      ". go go";
+    gap: 8px 16px;
+    padding: 40px 0;
+  }
+  .ap-pd .n    { grid-area: n; font-size: 48px; align-self: start; }
+  .ap-pd h3    { font-size: clamp(28px, 6vw, 44px); }
+  .ap-pd p     { grid-area: p; max-width: none; }
+  .ap-pd .year { grid-area: y; align-self: start; }
+  .ap-pd .go   { grid-area: go; text-align: left; }
+}
+
+
+/* ============================================================================
+   §2.10  Status Indicator (dot + label)
+   ============================================================================ */
+
+.ap-status {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.ap-status::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-dot);
+  background: var(--color-status-live);
+  animation: ap-breathe var(--dur-breathe) var(--ease-inout) infinite;
+}
+.ap-status--beta::before    { background: var(--color-status-beta); }
+.ap-status--archive::before { background: var(--color-text-muted); animation: none; }
+
+
+/* ============================================================================
+   §2.11  Primary Button (white pill) + Ghost Button
+   ============================================================================ */
+
+.ap-btn {
+  padding: var(--sp-4) var(--sp-6);
+  border-radius: var(--r-pill);
+  font-family: var(--font-display);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-meta);
+  transition: all var(--dur-fast);
+  display: inline-flex;
+  gap: var(--sp-2);
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+
+.ap-btn--primary {
+  background: var(--color-text-primary);
+  color: var(--color-bg);
+}
+.ap-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255,255,255,.2);
+}
+
+.ap-btn--ghost {
+  background: none;
+  padding: var(--sp-4) var(--sp-2);
+  position: relative;
+  color: var(--color-text-primary);
+}
+.ap-btn--ghost::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 10px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--dur-fast);
+}
+.ap-btn--ghost:hover::after { opacity: .6; }
+
+
+/* ============================================================================
+   §2.12  Secondary Link (underline-on-hover text)
+   ============================================================================ */
+
+.ap-link-mono {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-xs);
+  opacity: .45;
+  transition: opacity var(--dur-fast);
+  text-decoration: none;
+  color: inherit;
+}
+.ap-link-mono:hover {
+  opacity: .85;
+  text-decoration: underline;
+}
+
+
+/* ============================================================================
+   §2.13  Marquee Strip
+   ============================================================================ */
+
+.ap-marquee {
+  overflow: hidden;
+  padding: 28px 0;
+  border-top: 1px solid var(--color-border-soft);
+  border-bottom: 1px solid var(--color-border-soft);
+  white-space: nowrap;
+  font-family: var(--font-heavy);
+  font-size: var(--fs-marquee);
+  font-style: italic;
+  opacity: .7;
+}
+.ap-marquee-track {
+  display: inline-flex;
+  gap: 48px;
+  align-items: center;
+  animation: ap-roll var(--dur-roll) linear infinite;
+  padding-left: 48px;
+}
+.ap-marquee:hover .ap-marquee-track { animation-play-state: paused; }
+.ap-marquee span { opacity: .9; }
+.ap-marquee .dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--r-dot);
+  background: var(--color-text-primary);
+  opacity: .7;
+}
+
+
+/* ============================================================================
+   §2.14  Footer
+   ============================================================================ */
+
+.ap-foot-wrap { /* optional wrapper — style hooks live on children */ }
+
+.ap-foot {
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: var(--sp-15) var(--sp-10) 30px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: var(--sp-15);
+  font-size: var(--fs-meta);
+}
+
+.ap-foot h5 {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xxs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  opacity: .55;
+  margin: 0 0 14px;
+  font-weight: var(--fw-medium);
+}
+
+.ap-foot ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  opacity: .82;
+}
+.ap-foot ul a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: opacity var(--dur-fast);
+}
+.ap-foot ul a:hover { opacity: .55; }
+
+.ap-foot-about {
+  font-size: var(--fs-body-xs);
+  line-height: var(--lh-body-loose);
+  opacity: .72;
+  max-width: var(--max-about);
+  margin-top: var(--sp-3);
+}
+.ap-foot-about em {
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--color-text-body);
+}
+
+.ap-legal {
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: var(--sp-6) var(--sp-10);
+  border-top: 1px solid var(--color-border-soft);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-xs);
+  text-transform: uppercase;
+  opacity: .55;
+}
+.ap-legal-right {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.ap-legal-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-dot);
+  background: var(--color-status-live-solid);
+  animation: ap-breathe var(--dur-pulse) var(--ease-inout) infinite;
+}
+
+.ap-colophon {
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: 0 var(--sp-10) var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  opacity: .4;
+  letter-spacing: var(--tracking-mono-xxs);
+  text-align: center;
+}
+
+@media (max-width: 1000px) {
+  .ap-foot  { grid-template-columns: 1fr 1fr; }
+  .ap-legal { flex-direction: column; gap: 12px; text-align: left; }
+}
+@media (max-width: 600px) {
+  .ap-foot  { grid-template-columns: 1fr; padding: 40px 20px; }
+}
+
+
+/* ============================================================================
+   §2.15  CTA Block (closing)
+   ============================================================================ */
+
+.ap-cta {
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: var(--sp-40) var(--sec-pad-x);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+}
+.ap-cta h2 {
+  font-family: var(--font-heavy);
+  font-size: var(--fs-display-xl);
+  line-height: var(--lh-display-tight);
+  letter-spacing: var(--tracking-cta);
+  margin: 0 0 var(--sp-12);
+  text-wrap: balance;
+}
+.ap-cta h2 em {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--color-text-body);
+}
+.ap-cta p {
+  font-size: var(--fs-body-lg);
+  opacity: .75;
+  max-width: var(--max-prose);
+  margin: 0 auto var(--sp-10);
+  text-wrap: pretty;
+}
+.ap-cta-actions {
+  display: inline-flex;
+  gap: var(--sp-4);
+  align-items: center;
+  margin-bottom: var(--sp-8);
+  flex-wrap: wrap;
+  justify-content: center;
+}

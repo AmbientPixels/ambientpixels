@@ -1,0 +1,56 @@
+/* ============================================================================
+   AmbientPixels Design System — Base
+   Load order: ap-tokens.css → ap-base.css → ap-components.css
+   Scope: body reset, breakpoint stubs, keyframes used across components.
+   ============================================================================ */
+
+/* ---- Body reset ------------------------------------------------------------ */
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
+
+/* ---- Breakpoint stubs -----------------------------------------------------
+   Two steps down from desktop. Components declare their own rules inside these.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1000px) { /* tablet — components collapse multi-column grids */ }
+@media (max-width:  600px) { /* mobile — stack to single column, 20px gutter */ }
+
+/* ---- Keyframes ------------------------------------------------------------ */
+
+@keyframes ap-breathe {
+  0%, 100% { opacity: .5; }
+  50%      { opacity: 1; }
+}
+
+@keyframes ap-breathe-once {
+  0%, 100% { opacity: .9; transform: scale(1); }
+  50%      { opacity: 1;  transform: scale(1.5); }
+}
+
+@keyframes ap-blink {
+  50% { opacity: 0; }
+}
+
+@keyframes ap-roll {
+  to { transform: translateX(-50%); }
+}
+
+/* Reduced motion — freeze the idle animations that otherwise loop.
+   Status dots, cursor blink, marquee all hold still for users who prefer it. */
+
+@media (prefers-reduced-motion: reduce) {
+  .ap-marquee-track,
+  .ap-cursor,
+  .ap-pd .year::before,
+  .ap-status::before,
+  .ap-legal-dot {
+    animation: none !important;
+  }
+}
