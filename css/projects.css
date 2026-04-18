@@ -3259,12 +3259,13 @@ body[data-theme="light"] .project-section:hover {
 }
 
 .media-item:hover {
-  transform: translateY(-4px) scale(1.02) !important;  /* Slight scale for emphasis */
-  margin-bottom: 0 !important;
-  padding-bottom: 0 !important;
-  border: none !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);  /* Deeper shadow */
+  transform: translateY(-4px) scale(1.02);   /* visual emphasis only */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   z-index: 2;
+  /* Do NOT reset margin-bottom/padding-bottom/border on hover — those
+     change the element's layout box and cause the document to reflow.
+     Result: everything below (including the footer) jumps by 20-30px
+     when the user hovers. Visual-only hover effects only. */
 }
 
 .media-item:hover .media-caption {
