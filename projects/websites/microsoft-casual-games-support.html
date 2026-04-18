@@ -12,20 +12,43 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Microsoft Casual Games – Support Migration | AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link rel="stylesheet" href="/css/base.css" />
+  <!-- Legacy CSS — layout stack + JS-dependent sheets only.
+       base.css / theme.css / banner.css NOT loaded (they leak globals
+       into DS surfaces). ap-skin.css owns the global reset. -->
   <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/comparison-slider.css" />
   <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
-</head>
-<body data-theme="dark">
 
-  <header id="nav-header"></header>
+  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="/css/ap-skin.css" />
+</head>
+<body>
+
+  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
+    </div>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
 
   <section class="hero-card">
     <div class="hero-card-image">
@@ -231,18 +254,18 @@
     <section class="project-section grid-col-12">
       <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
       <div class="related-projects">
-        <div class="related-project-card">
-          <a href="/projects/copilotplayground.html">
+        <a class="related-project-card" href="/projects/copilotplayground.html">
+          <strong class="related-project-card-title">
             <i class="fas fa-robot"></i> Copilot Playground
-          </a>
+          </strong>
           <p>AI-driven support prompt chains for gaming help and content enhancement.</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects/websites/grand-central-power-bi.html">
+        </a>
+        <a class="related-project-card" href="/projects/websites/grand-central-power-bi.html">
+          <strong class="related-project-card-title">
             <i class="fas fa-database"></i> Grand Central 3.0
-          </a>
-          <p>Custom Power BI dashboards and data pipeline for Xbox Support</p>
-        </div>
+          </strong>
+          <p>Custom Power BI dashboards and data pipeline for Xbox Support.</p>
+        </a>
       </div>
     </section>
     
@@ -252,7 +275,7 @@
         <div class="next-project-content">
           <h3>Ninja Theory Website</h3>
           <p>Official help center website for Ninja Theory, showcasing their games, team, and creative vision</p>
-          <a href="/projects/websites/ninja-theroy-support.html" class="btn btn-secondary">
+          <a href="/projects/websites/ninja-theory-support.html" class="btn btn-secondary">
             View Project <i class="fas fa-arrow-right"></i>
           </a>
         </div>
@@ -260,17 +283,57 @@
     </section>
   </main>
 
-  <div id="footer-container"></div>
+  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-  <!-- Core Scripts -->
-  <script src="/js/main.js"></script>
-  <script src="/js/theme.js"></script>
-  <script src="/js/init-header-footer.js"></script>
+  <!-- Scripts -->
   <script src="/modules/breadcrumb.js"></script>
   <script src="/js/lightbox.js" type="module"></script>
-  
-  <!-- Component Scripts -->
-  <script src="../../js/comparison-slider.js"></script>
+  <script src="/js/comparison-slider.js"></script>
 
 </body>
 </html>
