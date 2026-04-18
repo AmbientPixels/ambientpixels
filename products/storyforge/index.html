@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="StoryForge — AI interactive fiction. Six genres, dice-rolled consequences, voice narration. Browser-native." />
+  <link rel="canonical" href="https://www.ambientpixels.ai/products/storyforge/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="StoryForge — AI Interactive Fiction | AmbientPixels" />
+  <meta property="og:description" content="Infinite CYOA across six genres, with skill checks and voice narration." />
+  <meta property="og:url" content="https://www.ambientpixels.ai/products/storyforge/" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="StoryForge — AmbientPixels" />
+  <meta name="twitter:description" content="AI interactive fiction. Six genres. Live now." />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>StoryForge — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <style>
+    /* Product-landing hero + specs — shared with /products/cardforge/,
+       /pixel-agents/, /blindspot/ intro pages. Matches DS §4.7 shape. */
+    .ap-product-hero {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x) var(--sp-20);
+    }
+    .ap-product-hero .ap-sec-head { align-items: end; margin-bottom: var(--sp-15); }
+    .ap-product-hero h1 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(64px, 9vw, 144px);
+      line-height: .9;
+      letter-spacing: -.05em;
+      margin: 12px 0 0;
+    }
+    .ap-product-hero h1 em {
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      color: var(--color-text-body);
+    }
+    .ap-product-hero .ap-meta-strip {
+      padding-top: var(--sp-6);
+      border-top: 1px solid var(--color-border);
+    }
+    .ap-product-hero-cta {
+      margin-top: var(--sp-10);
+      display: inline-flex;
+      gap: var(--sp-4);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .ap-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-6) var(--sp-10);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      line-height: 1.6;
+    }
+    .ap-specs > div {
+      display: grid;
+      grid-template-columns: 14ch 1fr;
+      gap: var(--sp-4);
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+    }
+    .ap-specs dt { text-transform: uppercase; color: var(--color-text-tertiary); }
+    .ap-specs dd {
+      margin: 0;
+      color: var(--color-text-primary);
+      text-transform: none;
+      font-family: var(--font-display);
+      font-size: var(--fs-body-xs);
+      letter-spacing: 0;
+    }
+    @media (max-width: 1000px) { .ap-specs { grid-template-columns: 1fr; } }
+
+    /* Note strip — signals this is the AmbientPixels intro before
+       visitors cross into the product's own brand world. */
+    .ap-crossover {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-4) var(--sec-pad-x);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: .55;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
+    </div>
+    <a class="ap-nav-cta" href="/storyforge/">Launch StoryForge &rarr;</a>
+  </nav>
+
+  <main>
+
+    <!-- DS §4.7 step 2 — Product hero -->
+    <section class="ap-product-hero">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; PRODUCT &mdash; 04 / STORYFORGE</div>
+          <h1>Story<em>Forge.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          AI interactive fiction. Six genres, dice-rolled consequences, voice narration. Browser-native &mdash; no install, no launcher, no save files to lose.
+        </div>
+      </div>
+
+      <!-- DS §4.7 step 3 — Meta strip -->
+      <div class="ap-meta-strip">
+        <span>v1 &middot; Six genres</span>
+        <span>Live</span>
+        <span>Since 2026</span>
+        <span>Free to play</span>
+      </div>
+
+      <!-- Landing CTA to the product -->
+      <div class="ap-product-hero-cta">
+        <a class="ap-btn ap-btn--primary" href="/storyforge/">Launch StoryForge &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="/products/">Back to products</a>
+      </div>
+    </section>
+
+    <div class="ap-crossover">&sect; note &middot; launching StoryForge crosses into its own brand &middot; outside the AmbientPixels Monolith system</div>
+
+    <!-- DS §4.7 step 5 — How it works -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; HOW IT WORKS</div>
+          <h2 class="ap-display">Pick a genre,<br><em>roll into a story.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Three moves to a scene. No onboarding, no character sheets, no rulebook to read first.
+        </div>
+      </div>
+
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/storyforge/">
+          <span class="n">01</span>
+          <div>
+            <h3>Pick a <em>genre.</em></h3>
+            <span class="meta">Six worlds &middot; fantasy, sci-fi, horror, more</span>
+          </div>
+          <p>Choose the world. A character wizard shapes your protagonist in seconds &mdash; no long sheets, no glossary.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/storyforge/">
+          <span class="n">02</span>
+          <div>
+            <h3>Roll for <em>outcomes.</em></h3>
+            <span class="meta">Skill checks &middot; dice &middot; consequences</span>
+          </div>
+          <p>Every choice runs through skill checks and dice. Success is rewarded, failure reshapes the branch &mdash; the story keeps going.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/storyforge/">
+          <span class="n">03</span>
+          <div>
+            <h3>Travel with <em>companions.</em></h3>
+            <span class="meta">Inventory &middot; audio &middot; narration</span>
+          </div>
+          <p>Persistent inventory, companions who remember, and Gemini narration read aloud if you want to listen instead of read.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- DS §4.7 step 6 — Specs -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; SPECS</div>
+          <h2 class="ap-display">What's under<br><em>the hood.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Technical shape of the game. AI-narrated CYOA with real rules &mdash; not a chatbot roleplay.
+        </div>
+      </div>
+
+      <dl class="ap-specs">
+        <div><dt>Genres</dt><dd>Six (fantasy, sci-fi, horror, mystery, western, post-apocalyptic)</dd></div>
+        <div><dt>AI engine</dt><dd>Gemini for narration, skill checks, and branching logic</dd></div>
+        <div><dt>Mechanics</dt><dd>Dice rolls, skill checks, inventory, companions</dd></div>
+        <div><dt>Audio</dt><dd>Optional voice narration + ambient music per scene</dd></div>
+        <div><dt>Platform</dt><dd>Browser &mdash; no install, no account required</dd></div>
+        <div><dt>Saves</dt><dd>Persistent per-story save state</dd></div>
+        <div><dt>Not this</dt><dd>Not a word processor, not an ebook generator, no PDF export</dd></div>
+        <div><dt>Pricing</dt><dd>Free to play</dd></div>
+      </dl>
+    </section>
+
+    <!-- §2.15  CTA -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Six worlds,<br><em>one door.</em></h2>
+      <p>StoryForge opens in its own brand skin when you launch it. Everything you read above travels with you.</p>
+      <div class="ap-cta-actions">
+        <a class="ap-btn ap-btn--primary" href="/storyforge/">Launch StoryForge &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="/products/">See all products</a>
+      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+    </section>
+  </main>
+
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
+
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+</body>
+</html>
