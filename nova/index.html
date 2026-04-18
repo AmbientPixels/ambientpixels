@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Nova is the Prime Operator of AmbientOS — AI Chief of Staff and founder co-pilot for AmbientPixels." />
+  <meta name="description" content="Nova — Prime Operator of AmbientOS. AI chief of staff coordinating agents, summarizing execution, and supporting founder decisions." />
   <link rel="canonical" href="https://www.ambientpixels.ai/nova/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Nova — Prime Operator of AmbientOS" />
-  <meta property="og:description" content="AI Chief of Staff coordinating agents, summarizing execution, and supporting founder decisions." />
+  <meta property="og:description" content="AI chief of staff. Always awake." />
   <meta property="og:url" content="https://www.ambientpixels.ai/nova/" />
   <meta property="og:image" content="https://www.ambientpixels.ai/nova/og-nova.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Nova — Prime Operator of AmbientOS" />
-  <meta name="twitter:description" content="AI Chief of Staff coordinating agents and supporting founder decisions." />
+  <meta name="twitter:description" content="AI chief of staff coordinating agents and supporting founder decisions." />
   <meta name="twitter:image" content="https://www.ambientpixels.ai/nova/og-nova.png" />
   <script type="application/ld+json">
   {
@@ -29,302 +29,280 @@
   }
   </script>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Nova — Prime Operator of AmbientOS | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero-base.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/nova-chat.css" /> <!-- Nova Chat UI -->
-  <link rel="stylesheet" href="/css/nova-logs.css" /> <!-- Dream engine styles -->
-  <link rel="stylesheet" href="/css/nova-shared.css" />
-  <link rel="stylesheet" href="/css/nova.css" />
-  <script src="/js/telemetry-config.js"></script>
-  <script src="/js/telemetry-appinsights.js" defer></script>
-  <script src="/js/product-analytics.js" defer></script>
+  <title>Nova — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <style>
+    /* /nova/ local — product-landing hero + specs per DS §4.7 */
+    .ap-product-hero {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x) var(--sp-20);
+    }
+    .ap-product-hero .ap-sec-head { align-items: end; margin-bottom: var(--sp-15); }
+    .ap-product-hero h1 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(64px, 9vw, 144px);
+      line-height: .9;
+      letter-spacing: -.05em;
+      margin: 12px 0 0;
+    }
+    .ap-product-hero h1 em {
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      color: var(--color-text-body);
+    }
+    .ap-product-hero .ap-meta-strip {
+      padding-top: var(--sp-6);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Specs block — mono 2-col dl */
+    .ap-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-6) var(--sp-10);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      line-height: 1.6;
+    }
+    .ap-specs > div {
+      display: grid;
+      grid-template-columns: 12ch 1fr;
+      gap: var(--sp-4);
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+    }
+    .ap-specs dt {
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+    }
+    .ap-specs dd {
+      margin: 0;
+      color: var(--color-text-primary);
+      text-transform: none;
+      font-family: var(--font-display);
+      font-size: var(--fs-body-xs);
+      letter-spacing: 0;
+    }
+    @media (max-width: 1000px) {
+      .ap-specs { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
-<body class="nova-home" data-theme="dark">
-  <header id="nav-header"></header>
-  <div class="banner-container" id="banner-container"></div>
+<body>
 
-  <section class="hero-base" data-hero="control">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>Nova</h1>
-      <p class="subtitle">Prime Operator of AmbientOS</p>
-      <hr class="hero-rule">
-      <p class="hero-status">Operational · Monitored · Governed</p>
-      <div class="hero-cta nova-hero-cta">
-        <a href="#operator-console" class="glass-button secondary"><i class="fas fa-terminal"></i> Open Operator Console</a>
-        <a href="/ambientos/" class="glass-button secondary"><i class="fas fa-server"></i> Explore AmbientOS</a>
-      </div>
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
-  </section>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
 
-  <main class="grid-container">
-    <section class="grid-col-12">
-      <h2><i class="fas fa-th-large cf-icon--section" aria-hidden="true"></i> Operator Overview</h2>
-      <p>Nova runs daily agent orchestration, synthesizes execution signals, and delivers concise founder-ready direction.</p>
-    </section>
+  <main>
 
-    <!-- Nova Chat Interface — AI-Persistent Conversation -->
-    <section class="grid-col-12 nova-chat-section" id="operator-console">
-      <h2><i class="fas fa-terminal cf-icon--section" aria-hidden="true"></i> Operator Console (Demo)</h2>
-      <p class="nova-note">Public demonstration of Nova's executive interface.</p>
+    <!-- DS §4.7 step 2 — Product hero -->
+    <section class="ap-product-hero">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ PRODUCT &mdash; 02 / NOVA</div>
+          <h1>Nova<em>.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          Prime Operator of AmbientOS. AI chief of staff coordinating the agent team, summarizing execution, and supporting founder decisions every day. Always awake.
+        </div>
+      </div>
 
-      <div class="nova-chat-container">
-        <div class="nova-chat-header">
-          <img src="/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png" alt="Nova" class="nova-chat-avatar" />
-          <div class="nova-chat-identity">
-            <h3>Nova</h3>
-            <div class="nova-chat-status">
-              <span class="nova-status-dot"></span>
-              <span class="nova-chat-status-label">Initializing...</span>
-            </div>
-          </div>
-          <div class="nova-chat-actions">
-            <button class="nova-chat-action-btn" id="nova-chat-clear" title="Clear conversation">
-              <i class="fas fa-eraser"></i>
-            </button>
-          </div>
-        </div>
-        <div class="nova-chat-messages" id="nova-chat-messages">
-          <div class="nova-chat-welcome">
-            <div class="nova-chat-welcome-icon"><i class="fas fa-user-tie"></i></div>
-            <h4>Operator link active</h4>
-            <p>Try one of these prompts:</p>
-            <div class="nova-quick-prompts">
-              <button class="nova-quick-prompt" data-prompt="Give me today's execution summary.">Today's summary</button>
-              <button class="nova-quick-prompt" data-prompt="What are the top risks right now?">Top risks</button>
-              <button class="nova-quick-prompt" data-prompt="What should the founder prioritize next?">Founder priority</button>
-              <button class="nova-quick-prompt" data-prompt="List notable system signals from the last cycle.">System signals</button>
-            </div>
-          </div>
-        </div>
-        <div class="nova-chat-input-area">
-          <textarea class="nova-chat-input" id="nova-chat-input" placeholder="Talk to Nova..." rows="1"></textarea>
-          <button class="nova-chat-send" id="nova-chat-send" title="Send message">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-        </div>
+      <!-- DS §4.7 step 3 — Meta strip -->
+      <div class="ap-meta-strip">
+        <span>v2.6 &middot; Current release</span>
+        <span>Always awake</span>
+        <span>Since 2024</span>
+        <span>AmbientOS platform &middot; tier-2 operator</span>
       </div>
     </section>
 
-    <!-- Daily System Brief -->
-    <section class="grid-col-12 content-section">
-      <h2><i class="fas fa-clipboard-list cf-icon--section section-icon--brief" aria-hidden="true"></i> Daily System Brief</h2>
-      <p class="nova-note">Nova's structured summary of system activity and notable signals.</p>
-      <ul id="nova-dream-log" class="nova-dream-feed">
-        <li>Loading daily brief...</li>
-      </ul>
-    </section>
+    <!-- DS §4.7 step 5 — Feature list (product-row style) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 01 &mdash; FEATURES</div>
+          <h2 class="ap-display">What Nova<br><em>actually does.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Six capabilities Nova performs every day. Each one is observable, governed, and versioned. Nothing runs in the dark.
+        </div>
+      </div>
 
-    <section class="grid-col-12 content-section operator-tools-header">
-      <h2><i class="fas fa-tools cf-icon--section section-icon--tools" aria-hidden="true"></i> Operator Tools</h2>
-      <p>Core surfaces Nova uses to monitor execution, assess risk, and support founder decisions.</p>
-    </section>
-
-    <section class="grid-col-6 card-section operator-tool-card ot-card--console">
-      <i class="fas fa-desktop ot-icon" aria-hidden="true"></i>
-      <div class="card-content">
-        <h3>Operator Console</h3>
-        <p>Real-time operating view of system health, execution telemetry, and performance trends.</p>
-        <a href="/nova/dashboard.html">Open Console (Internal) →</a>
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/nova/core.html">
+          <span class="n">01</span>
+          <div>
+            <h3>Operator <em>console.</em></h3>
+            <span class="meta">Live chat &middot; persistent memory</span>
+          </div>
+          <p>Direct interface to Nova. Persistent cross-session memory, executive-voice summaries, and founder-ready direction.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/nova/agents.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Agent <em>orchestration.</em></h3>
+            <span class="meta">Multi-agent &middot; heartbeat-driven</span>
+          </div>
+          <p>Coordinates the eight-agent team &mdash; Scribe, Echo, Cipher, Forge, Pixel, Scout, Quill &mdash; through a governed hourly heartbeat.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/nova/awareness.html">
+          <span class="n">03</span>
+          <div>
+            <h3>Self-<em>awareness.</em></h3>
+            <span class="meta">Reflection &middot; decision memory</span>
+          </div>
+          <p>Every three days Nova writes a structured reflection grounded in measurable outcomes. Role adherence, strategy fatigue, and repeated failures all surface.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/nova/logs.html">
+          <span class="n">04</span>
+          <div>
+            <h3>Dream <em>engine.</em></h3>
+            <span class="meta">Off-hours synthesis</span>
+          </div>
+          <p>Between cycles, Nova consolidates memory &mdash; collapsing clusters of similar observations into consolidated beliefs with evidence chains preserved.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/nova/dashboard.html">
+          <span class="n">05</span>
+          <div>
+            <h3>Daily <em>brief.</em></h3>
+            <span class="meta">Structured summary &middot; founder-ready</span>
+          </div>
+          <p>Structured summary of the last 24 hours of system activity &mdash; what shipped, what stalled, what to watch, and what needs a decision.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/nova/about.html">
+          <span class="n">06</span>
+          <div>
+            <h3>Nova&rsquo;s <em>story.</em></h3>
+            <span class="meta">Persona &middot; doctrine &middot; history</span>
+          </div>
+          <p>Who Nova is, the doctrine she operates under, and the trust architecture that keeps an always-on AI operator accountable.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
       </div>
     </section>
 
-    <section class="grid-col-6 card-section operator-tool-card ot-card--activity">
-      <i class="fas fa-clipboard-check ot-icon" aria-hidden="true"></i>
-      <div class="card-content">
-        <h3>Audit &amp; Activity</h3>
-        <p>Review public execution history, published updates, and operational milestones.</p>
-        <a href="/log/">View Activity →</a>
+    <!-- DS §4.7 step 6 — Specs block -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 02 &mdash; SPECS</div>
+          <h2 class="ap-display">How Nova<br><em>is built.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Technical shape of the operator. Not a datasheet &mdash; a reference for engineers integrating with or building on top of Nova.
+        </div>
       </div>
+
+      <dl class="ap-specs">
+        <div><dt>Tier</dt><dd>Prime operator (Tier 2)</dd></div>
+        <div><dt>Model</dt><dd>Claude Sonnet 4.6 (switchable via HEARTBEAT_MODEL)</dd></div>
+        <div><dt>Cadence</dt><dd>Hourly heartbeat, continuous availability</dd></div>
+        <div><dt>Memory</dt><dd>Persistent across sessions + rolling self-reflections</dd></div>
+        <div><dt>Reports to</dt><dd>Pixelpusher / Chad (CEO, Tier 1 human)</dd></div>
+        <div><dt>Manages</dt><dd>7 tier-3 agents + 1 tier-4 editor</dd></div>
+        <div><dt>Authority</dt><dd>Proposes objectives &middot; campaigns &middot; product lifecycle</dd></div>
+        <div><dt>Governance</dt><dd>Every external action routes through CEO approval</dd></div>
+        <div><dt>Observability</dt><dd>Full heartbeat log + action audit trail</dd></div>
+        <div><dt>Runtime</dt><dd>Azure Functions + Azure Blob state</dd></div>
+      </dl>
     </section>
 
-    <section class="grid-col-6 card-section operator-tool-card ot-card--memory">
-      <i class="fas fa-layer-group ot-icon" aria-hidden="true"></i>
-      <div class="card-content">
-        <h3>Memory &amp; Context</h3>
-        <p>Internal context surface for operator state diagnostics and telemetry interpretation.</p>
-        <a href="/nova/awareness.html">Open Context (Internal) →</a>
+    <!-- §2.15  CTA (product-specific) -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Bring Nova in,<br><em>or integrate ours.</em></h2>
+      <p>Nova runs AmbientPixels. We license the pattern, not the persona &mdash; talk to us about an operator tuned to your company.</p>
+      <div class="ap-cta-actions">
+        <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="/ambientos/">Explore AmbientOS</a>
       </div>
-    </section>
-
-    <section class="grid-col-6 card-section operator-tool-card ot-card--log">
-      <i class="fas fa-book ot-icon" aria-hidden="true"></i>
-      <div class="card-content">
-        <h3>Execution Log</h3>
-        <p>Public-safe execution narrative derived from system activity and operational cadence.</p>
-        <a href="/nova/logs.html">Open Log →</a>
-      </div>
-    </section>
-
-    <!-- Agent Roster (Preview) -->
-    <section class="grid-col-12 content-section ar-preview">
-      <h2><i class="fas fa-users cf-icon--section section-icon--roster" aria-hidden="true"></i> Agent Roster (Preview)</h2>
-      <p class="ar-sub">A structured view of the AmbientOS agent team operating under Nova.</p>
-
-      <div class="ar-grid">
-
-        <div class="ar-card ar-card--nova">
-          <i class="fas fa-brain ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Nova</div>
-            <span class="ar-card-role">Prime Operator</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 2</span>
-              <span class="ar-status ar-status--monitoring">Monitoring</span>
-            </div>
-            <a href="/nova/agents.html#nova" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-        <div class="ar-card ar-card--forge">
-          <i class="fas fa-server ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Forge</div>
-            <span class="ar-card-role">Systems Engineer</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 3</span>
-              <span class="ar-status ar-status--building">Building</span>
-            </div>
-            <a href="/nova/agents.html#forge" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-        <div class="ar-card ar-card--pixel">
-          <i class="fas fa-palette ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Pixel</div>
-            <span class="ar-card-role">Design Director</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 3</span>
-              <span class="ar-status ar-status--active">Active</span>
-            </div>
-            <a href="/nova/agents.html#pixel" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-        <div class="ar-card ar-card--cipher">
-          <i class="fas fa-chart-line ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Cipher</div>
-            <span class="ar-card-role">Finance Controller</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 3</span>
-              <span class="ar-status ar-status--reviewing">Reviewing</span>
-            </div>
-            <a href="/nova/agents.html#cipher" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-        <div class="ar-card ar-card--echo">
-          <i class="fas fa-bullhorn ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Echo</div>
-            <span class="ar-card-role">Marketing Lead</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 3</span>
-              <span class="ar-status ar-status--monitoring">Monitoring</span>
-            </div>
-            <a href="/nova/agents.html#echo" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-        <div class="ar-card ar-card--scribe">
-          <i class="fas fa-pen-nib ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Scribe</div>
-            <span class="ar-card-role">Content Lead</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 3</span>
-              <span class="ar-status ar-status--active">Active</span>
-            </div>
-            <a href="/nova/agents.html#scribe" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-        <div class="ar-card ar-card--scout">
-          <i class="fas fa-magnifying-glass-chart ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Scout</div>
-            <span class="ar-card-role">Research Lead</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 3</span>
-              <span class="ar-status ar-status--active">Active</span>
-            </div>
-            <a href="/nova/agents.html#scout" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-        <div class="ar-card ar-card--quill">
-          <i class="fas fa-spell-check ar-card-ico"></i>
-          <div class="ar-card-body">
-            <div class="ar-card-name">Quill</div>
-            <span class="ar-card-role">Content Editor</span>
-            <div class="ar-card-meta">
-              <span class="ar-tier">Tier 4</span>
-              <span class="ar-status ar-status--supporting">Supporting</span>
-            </div>
-            <a href="/nova/agents.html#quill" class="ar-card-link">View Profile →</a>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="ar-cta">
-        <p class="ar-cta-text">Explore full agent structure inside AmbientOS.</p>
-        <div class="ar-cta-buttons">
-          <a href="/support/" class="glass-button">Request Access</a>
-          <a href="/nova/agents.html" class="glass-button secondary">View Full Roster</a>
-        </div>
-      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
     </section>
   </main>
 
-  <div style="max-width:1180px;margin:0 auto;padding:0 1.1rem 2.5rem">
-    <nav class="nv-surfaces" aria-label="Nova surfaces navigation">
-      <p class="nv-surfaces-label">Nova Surfaces</p>
-      <p class="nv-surfaces-sub">Navigate Nova's public and internal operator views.</p>
-      <div class="nv-surfaces-grid">
-        <a class="nv-pill nv-pill--active" href="/nova/">
-          <i class="fas fa-brain"></i> Prime Operator
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
         </a>
-        <a class="nv-pill" href="/nova/agents.html">
-          <i class="fas fa-users"></i> Agent Architecture
-        </a>
-        <a class="nv-pill" href="/ambientos/">
-          <i class="fas fa-server"></i> AmbientOS Overview
-        </a>
-        <a class="nv-pill" href="/nova/awareness.html">
-          <i class="fas fa-eye"></i> System Context
-        </a>
-        <a class="nv-pill" href="/nova/logs.html">
-          <i class="fas fa-book"></i> Execution Log
-        </a>
-        <a class="nv-pill" href="/nova/dashboard.html">
-          <i class="fas fa-gauge-high"></i> Operator Console <span class="nv-pill-badge">Internal</span>
-        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
       </div>
-    </nav>
-  </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-  <footer id="footer-container"></footer>
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/main.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/nova-soul.js" defer></script>
-  <script src="/js/operator-brief.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <script src="/js/banner.js" defer></script>
-  <script>
-    window.novaVoiceMode = 'friendly';
-  </script>
-  <script src="/js/nova-chat-ui.js" defer></script>
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
 </body>
 </html>
