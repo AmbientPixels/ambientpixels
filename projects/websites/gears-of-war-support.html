@@ -1,396 +1,352 @@
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Producer-led project delivering Xbox Support content for the Gears of War franchise." />
-  <meta property="og:title" content="Gears of War Support Pages – Xbox | AmbientPixels" />
-  <meta property="og:description" content="Explore support content created for the Gears of War series, including localized help centers and game-specific guidance." />
+  <meta name="description" content="Producer-led Xbox Support pages for the Gears of War franchise. Modular content architecture, 40+ language delivery, 12-hour rapid publishing." />
+  <link rel="canonical" href="https://www.ambientpixels.ai/projects/websites/gears-of-war-support.html" />
+  <meta property="og:title" content="Gears of War Support Pages — AmbientPixels" />
+  <meta property="og:description" content="Producer-led support for The Coalition's Gears of War franchise on Xbox." />
   <meta property="og:image" content="/images/projects/gow/screen-01.jpeg" />
-  <meta property="og:url" content="https://ambientpixels.ai/projects/gow" />
+  <meta property="og:url" content="https://www.ambientpixels.ai/projects/websites/gears-of-war-support.html" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Gears of War Support Pages – Xbox | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <title>Gears of War Support — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <style>
+    .ap-case-hero {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x) var(--sp-12);
+    }
+    .ap-case-hero h1 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(48px, 6.5vw, 104px);
+      line-height: .9;
+      letter-spacing: -.04em;
+      margin: 12px 0 0;
+      max-width: 14ch;
+    }
+    .ap-case-hero h1 em { font-style: italic; font-weight: var(--fw-regular); color: var(--color-text-body); }
+    .ap-case-hero .ap-meta-strip {
+      margin-top: var(--sp-15);
+      padding-top: var(--sp-6);
+      border-top: 1px solid var(--color-border);
+    }
+    .ap-full-bleed {
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-top: var(--sp-15);
+      margin-bottom: var(--sp-15);
+    }
+    .ap-full-bleed img { display: block; width: 100%; height: auto; }
+    .ap-full-bleed-caption {
+      max-width: var(--max-page);
+      margin: var(--sp-3) auto 0;
+      padding: 0 var(--sec-pad-x);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: .55;
+    }
+    .ap-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-8);
+      padding: var(--sp-12) 0;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .ap-metrics-num {
+      font-family: var(--font-heavy);
+      font-size: 72px;
+      line-height: 1;
+      letter-spacing: -.04em;
+      color: var(--color-text-primary);
+      display: block;
+      margin-bottom: var(--sp-3);
+    }
+    .ap-metrics-label {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: .55;
+    }
+    @media (max-width: 1000px) { .ap-metrics { grid-template-columns: repeat(2, 1fr); } }
+
+    .ap-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-3);
+      margin: var(--sp-12) 0;
+    }
+    .ap-gallery figure { margin: 0; }
+    .ap-gallery img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--color-border);
+    }
+    .ap-gallery figcaption {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-xs);
+      opacity: .55;
+      margin-top: var(--sp-2);
+    }
+    @media (max-width: 1000px) { .ap-gallery { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .ap-gallery { grid-template-columns: 1fr; } }
+  </style>
 </head>
-<body data-theme="dark">
-  <header id="nav-header"></header>
+<body>
 
-  <section class="hero-card">
-    <div class="hero-card-image">
-      <img src="/images/projects/gow/logo.png" alt="Gears of War" loading="lazy">
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Xbox Support</div>
-      <h1>Gears of War Support</h1>
-      <p class="hero-card-description">Producer-led support content delivery for the Gears of War franchise</p>
-      <div class="project-tags">
-        <span class="tech-badge"><i class="fas fa-user-tie"></i> Producer Role</span>
-        <span class="tech-badge"><i class="fas fa-language"></i> Localization</span>
-        <span class="tech-badge"><i class="fas fa-server"></i> CMS</span>
-        <span class="tech-badge"><i class="fas fa-globe"></i> 40+ Languages</span>
-        <span class="tech-badge"><i class="fas fa-satellite-dish"></i> Live Ops</span>
-        <span class="tech-badge"><i class="fas fa-file-export"></i> Support Publishing</span>
-      </div>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-  </section>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project overview</h2>
-      <div class="project-overview">
-        <p>As the lead producer for Gears of War support content, I orchestrated the end-to-end delivery of player assistance materials across multiple game titles. My role was pivotal in maintaining the delicate balance between rapid response to live issues and upholding the premium editorial standards expected from a flagship Xbox franchise.</p>
-        
-        <!-- Hybrid Bullet Cards -->
-        <h3>Key Contributions</h3>
-        <div class="bullet-cards">
-          <div class="bullet-card">
-            <i class="fas fa-users bullet-icon"></i>
-            <div class="bullet-content">
-              <strong>Team Collaboration</strong>
-              <p>Fostered a collaborative environment that bridged development, design, and localization teams, enabling seamless content creation and knowledge sharing across the Gears of War franchise.</p>
-            </div>
-          </div>
-          
-          <div class="bullet-card">
-            <i class="fas fa-globe bullet-icon"></i>
-            <div class="bullet-content">
-              <strong>Localization Leadership</strong>
-              <p>Spearheaded the translation and cultural adaptation of support content across 40+ languages, working closely with regional teams to ensure accuracy and cultural relevance.</p>
-            </div>
-          </div>
-          
-          <div class="bullet-card">
-            <i class="fas fa-universal-access bullet-icon"></i>
-            <div class="bullet-content">
-              <strong>Accessibility Standards</strong>
-              <p>Championed WCAG 2.1 AA compliance across all support materials, working closely with the accessibility team to implement best practices for screen readers, keyboard navigation, and visual design.</p>
-            </div>
-          </div>
+  <main>
+
+    <section class="ap-case-hero">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ WORK &mdash; SHIPPED &middot; THE COALITION</div>
+          <h1>Gears of <em>War.</em></h1>
         </div>
-        
-        <p>Working within Xbox's internal tooling ecosystem, I ensured all support materials met strict accessibility guidelines and maintained consistency with the Gears of War brand standards, creating a seamless support experience for players worldwide.</p>
+        <div class="ap-sec-meta">
+          Producer-led support hub for The Coalition&rsquo;s Gears of War franchise &mdash; modular content, rapid publishing, and 40+ language localization across two titles.
+        </div>
       </div>
-      <div class="project-buttons">
-        <a href="https://support.xbox.com/en-US/game/gears-of-war/support/home" class="btn btn-primary" target="_blank" rel="noopener noreferrer" aria-label="View Gears of War support pages (opens in new tab)">
-          <i class="fas fa-external-link-alt" aria-hidden="true"></i> View Gears of War support pages
+      <div class="ap-meta-strip">
+        <span>Client &middot; Microsoft &middot; The Coalition</span>
+        <span>Role &middot; Producer &middot; Live ops</span>
+        <span>Scope &middot; Franchise hub &middot; 2 titles</span>
+        <span>Shipped</span>
+      </div>
+    </section>
+
+    <div class="ap-full-bleed">
+      <img src="/images/projects/gow/screen-01a.jpeg" alt="Gears of War support hub" loading="eager" />
+    </div>
+    <p class="ap-full-bleed-caption">Gears of War support hub &mdash; franchise-wide entry point.</p>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 01 &mdash; THE WORK</div>
+          <h2 class="ap-display">Problem,<br><em>approach, outcome.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          A flagship franchise with live-ops volatility and long-tail players &mdash; deploy velocity without quality loss.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Problem<em>.</em></h3>
+          <p>A flagship Xbox franchise spanning two titles with long-tail players and live-ops volatility. Rapid response to live issues had to coexist with the premium editorial standards expected from a Gears-branded surface &mdash; across 40+ languages, every release.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Approach<em>.</em></h3>
+          <p>Built a unified content framework with modular blocks reusable across both titles. Stood up a streamlined localization pipeline &mdash; quality gates, review cycles, regional teams. Served as liaison between game studios, localization, and platform engineers. Sprint planning via Azure DevOps; CMS via SharePoint.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Outcome<em>.</em></h3>
+          <p>28+ articles published with 100% QA coverage. Deploy time on critical updates dropped from 3 days to under 12 hours. Localization turnaround improved 60%. Still live at <a href="https://support.xbox.com/en-US/game/gears-of-war/support/home" target="_blank" rel="noopener">support.xbox.com/gears-of-war</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 02 &mdash; METRICS</div>
+          <h2 class="ap-display">What it<br><em>actually shipped.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Measured output across articles, titles, languages, and quality coverage.
+        </div>
+      </div>
+
+      <div class="ap-metrics">
+        <div><span class="ap-metrics-num">28+</span><span class="ap-metrics-label">Published articles</span></div>
+        <div><span class="ap-metrics-num">2</span><span class="ap-metrics-label">Supported titles</span></div>
+        <div><span class="ap-metrics-num">40+</span><span class="ap-metrics-label">Languages</span></div>
+        <div><span class="ap-metrics-num">100%</span><span class="ap-metrics-label">QA coverage</span></div>
+      </div>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 03 &mdash; SYSTEM DESIGN</div>
+          <h2 class="ap-display">Three things<br><em>made it move.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Engineering + editorial decisions that unlocked the 3-day-to-12-hour deploy window.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Localization<br><em>pipeline.</em></h3>
+          <p>Automated translation workflow supporting 40+ languages with integrated quality checks and regional adaptation. Turnaround cut 60%.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Modular<br><em>taxonomy.</em></h3>
+          <p>Structured content architecture enabling component reuse across multiple support articles and both titles. Less duplication, less localization cost.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Rapid<br><em>publishing.</em></h3>
+          <p>Streamlined CMS workflow reducing deploy time on critical updates from 3 days to under 12 hours.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 04 &mdash; VISUAL HIGHLIGHTS</div>
+          <h2 class="ap-display">The pages,<br><em>as shipped.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Nine surfaces from the live support hub &mdash; navigation, articles, troubleshooting, error codes, community, multiplayer, technical support, and contact flows.
+        </div>
+      </div>
+
+      <div class="ap-gallery">
+        <figure><img src="/images/projects/gow/screen-01a.jpeg" alt="Gears of War support hub" loading="lazy" /><figcaption>Support hub.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-01.jpeg" alt="Game selection" loading="lazy" /><figcaption>Game selection.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-02.jpeg" alt="Support articles" loading="lazy" /><figcaption>Support articles.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-03.jpeg" alt="Troubleshooting guide" loading="lazy" /><figcaption>Troubleshooting.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-04.jpeg" alt="Error codes reference" loading="lazy" /><figcaption>Error codes.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-05.jpeg" alt="Community support" loading="lazy" /><figcaption>Community support.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-06.jpeg" alt="Multiplayer support" loading="lazy" /><figcaption>Multiplayer help.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-07.jpeg" alt="Technical support" loading="lazy" /><figcaption>Tech support.</figcaption></figure>
+        <figure><img src="/images/projects/gow/screen-08.jpeg" alt="Contact support" loading="lazy" /><figcaption>Contact support.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 05 &mdash; RELATED</div>
+          <h2 class="ap-display">Where this<br><em>connects.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Adjacent case studies from the Xbox Support portfolio.
+        </div>
+      </div>
+
+      <div class="ap-prods ap-shipped">
+        <a class="ap-pd op-live" href="/projects/websites/ninja-theory-support.html">
+          <span class="n">01</span>
+          <div>
+            <h3>Ninja Theory <em>Hellblade.</em></h3>
+            <span class="meta">Client &middot; Ninja Theory &middot; Help center</span>
+          </div>
+          <p>Support content and help center for Ninja Theory&rsquo;s Hellblade series &mdash; Senua&rsquo;s Sacrifice and Hellblade II.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/microsoft-casual-games-support.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Microsoft Casual <em>Games.</em></h3>
+            <span class="meta">Client &middot; Microsoft &middot; Platform migration</span>
+          </div>
+          <p>Led the support migration from Zendesk to Xbox Support for Microsoft&rsquo;s Casual Games portfolio.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
         </a>
       </div>
     </section>
 
-    <!-- Role & Impact Section -->
-    <section class="content-section grid-col-12" id="role-impact">
-      <div class="grid-container">
-        <div class="grid-col-6">
-          <h2><i class="fas fa-user-tie"></i> Producer Role & Impact</h2>
-          
-          <div class="ap-faq">
-            <div class="faq-category">
-              <h3>Content Strategy</h3>
-              <details class="details-toggle" open>
-                <summary>How did you approach content strategy for a franchise with multiple titles?</summary>
-                <div>
-                  <p>Developed a unified content framework that maintained brand consistency while allowing for title-specific variations. This included creating modular content blocks that could be mixed and matched across different support scenarios, significantly reducing content duplication and localization costs.</p>
-                </div>
-              </details>
-            </div>
-
-            <div class="faq-category">
-              <h3>Localization Process</h3>
-              <details class="details-toggle" open>
-                <summary>What was your role in managing 40+ language localizations?</summary>
-                <div>
-                  <p>Established a streamlined localization pipeline that reduced turnaround time by 60%. Worked closely with regional teams to ensure technical accuracy while maintaining the franchise's distinctive voice. Implemented quality gates and review cycles to maintain consistency across all language variants.</p>
-                </div>
-              </details>
-            </div>
-
-            <div class="faq-category">
-              <h3>Cross-functional Collaboration</h3>
-              <details class="details-toggle" open>
-                <summary>How did you coordinate between different teams?</summary>
-                <div>
-                  <p>Served as the primary liaison between game studios, localization teams, and platform engineers. Conducted regular syncs to align on priorities, resolve blockers, and ensure all teams had the resources needed to meet aggressive deadlines. This coordination was critical during major game updates and DLC releases.</p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-col-6" style="display: grid; grid-template-rows: auto 1fr; gap: 1rem; min-height: 0;">
-          <div class="media-item hover-cyan" style="height: 400px; margin: 0; overflow: hidden; border-radius: 8px;">
-            <a href="/images/projects/gow/screen-01.jpeg" class="lightbox-trigger" data-caption="Behind the scenes of the Gears of War support portal, showing the content management interface and workflow tools." style="display: block; height: 100%;">
-              <img src="/images/projects/gow/screen-01.jpeg" alt="Content management interface for Gears of War support portal" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.3s ease;">
-            </a>
-            <p class="media-caption">Click to view full size</p>
-          </div>
-          
-          <div class="ap-quote ap-quote--featured" style="margin: 0; height: 100%; overflow: hidden;">
-            <div class="ap-quote-content">
-              <div class="ap-quote__icon">
-                <i class="fas fa-quote-right"></i>
-              </div>
-              <p class="ap-quote__text">
-                Managing the Gears of War support ecosystem required a delicate balance between rapid response to live issues and maintaining the high editorial standards expected from a flagship franchise. Our modular content system allowed us to deploy critical updates across 40+ languages within hours, not days.
-              </p>
-              <div class="ap-quote__footer">
-                <div class="ap-quote__author">Senior Content Producer</div>
-                <div class="ap-quote__role">Xbox Support</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Something like this?<br><em>Start a project.</em></h2>
+      <p>Franchise support hubs, localization pipelines, deploy-time reduction &mdash; all in the playbook. Tell us the shape of the work.</p>
+      <div class="ap-cta-actions">
+        <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="/projects/xbox-support.html">Xbox portfolio</a>
       </div>
-    </section>
-    
-    <div class="section-divider"></div>
-    
-    <!-- Gallery Section -->
-    <section class="content-section grid-col-12">
-      <div class="content-section-inner">
-        <h2><i class="fas fa-images"></i> Visual highlights</h2>
-        <div class="media-grid" style="--min-width: 280px;">
-          <!-- Thumbnail 1 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-01a.jpeg" class="lightbox-trigger" data-caption="Gears of War support hub interface" aria-label="View larger image: Gears of War Support">
-              <img src="/images/projects/gow/screen-01a.jpeg" alt="Gears of War support hub" loading="lazy">
-            </a>
-            <p class="media-caption">Support Hub</p>
-          </div>
-          
-          <!-- Thumbnail 2 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-01.jpeg" class="lightbox-trigger" data-caption="Gears of War game selection screen">
-              <img src="/images/projects/gow/screen-01.jpeg" alt="Game selection screen" loading="lazy">
-            </a>
-            <p class="media-caption">Game Selection</p>
-          </div>
-          
-          <!-- Thumbnail 3 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-02.jpeg" class="lightbox-trigger" data-caption="Gears of War support articles">
-              <img src="/images/projects/gow/screen-02.jpeg" alt="Support articles" loading="lazy">
-            </a>
-            <p class="media-caption">Support Articles</p>
-          </div>
-          
-          <!-- Thumbnail 4 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-03.jpeg" class="lightbox-trigger" data-caption="Gears of War troubleshooting guide">
-              <img src="/images/projects/gow/screen-03.jpeg" alt="Troubleshooting guide" loading="lazy">
-            </a>
-            <p class="media-caption">Troubleshooting</p>
-          </div>
-          
-          <!-- Thumbnail 5 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-04.jpeg" class="lightbox-trigger" data-caption="Gears of War error codes">
-              <img src="/images/projects/gow/screen-04.jpeg" alt="Error codes reference" loading="lazy">
-            </a>
-            <p class="media-caption">Error Codes</p>
-          </div>
-          
-          <!-- Thumbnail 6 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-05.jpeg" class="lightbox-trigger" data-caption="Gears of War community support">
-              <img src="/images/projects/gow/screen-05.jpeg" alt="Community support" loading="lazy">
-            </a>
-            <p class="media-caption">Community Support</p>
-          </div>
-          
-          <!-- Thumbnail 7 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-06.jpeg" class="lightbox-trigger" data-caption="Gears of War multiplayer support">
-              <img src="/images/projects/gow/screen-06.jpeg" alt="Multiplayer support" loading="lazy">
-            </a>
-            <p class="media-caption">Multiplayer Help</p>
-          </div>
-          
-          <!-- Thumbnail 8 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-07.jpeg" class="lightbox-trigger" data-caption="Gears of War technical support">
-              <img src="/images/projects/gow/screen-07.jpeg" alt="Technical support" loading="lazy">
-            </a>
-            <p class="media-caption">Tech Support</p>
-          </div>
-          
-          <!-- Thumbnail 9 -->
-          <div class="media-item hover-cyan">
-            <a href="/images/projects/gow/screen-08.jpeg" class="lightbox-trigger" data-caption="Gears of War support contact">
-              <img src="/images/projects/gow/screen-08.jpeg" alt="Contact support" loading="lazy">
-            </a>
-            <p class="media-caption">Contact Support</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tools & Technologies Section -->
-    <section class="content-section grid-col-12">
-      <div class="content-section-inner">
-        <h2><i class="fas fa-tools"></i> Tools & technologies</h2>
-        <div class="tech-badges">
-          <span class="tech-badge"><i class="fab fa-microsoft"></i> SharePoint</span>
-          <span class="tech-badge"><i class="fas fa-file-alt"></i> HTML/CSS</span>
-          <span class="tech-badge"><i class="fas fa-universal-access"></i> Accessibility</span>
-          <span class="tech-badge"><i class="fas fa-language"></i> Localization tools</span>
-          <span class="tech-badge"><i class="fas fa-tachometer-alt"></i> Azure DevOps</span>
-          <span class="tech-badge"><i class="fas fa-calendar-alt"></i> Release calendar</span>
-          <span class="tech-badge"><i class="fas fa-tasks"></i> Sprint planning</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- System Design Highlights Section -->
-    <section class="content-section grid-col-12">
-      <div class="content-section-inner">
-        <h2><i class="fas fa-project-diagram"></i> System Design Highlights</h2>
-        <div class="grid-container">
-          <div class="grid-col-4">
-            <div class="ap-card">
-              <i class="fas fa-language fa-2x"></i>
-              <h3>Localization Pipeline</h3>
-              <p>Automated translation workflow supporting 40+ languages with integrated quality checks and regional adaptation.</p>
-            </div>
-          </div>
-          <div class="grid-col-4">
-            <div class="ap-card">
-              <i class="fas fa-sitemap fa-2x"></i>
-              <h3>Modular Taxonomy</h3>
-              <p>Structured content architecture enabling component reuse across multiple support articles and game titles.</p>
-            </div>
-          </div>
-          <div class="grid-col-4">
-            <div class="ap-card">
-              <i class="fas fa-rocket fa-2x"></i>
-              <h3>Rapid Publishing</h3>
-              <p>Streamlined CMS workflow reducing deployment time from 3 days to under 12 hours for critical updates.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Results & Impact Section -->
-    <section class="content-section grid-col-12">
-      <div class="content-section-inner">
-        <h2><i class="fas fa-chart-line"></i> Results & impact</h2>
-        <div class="impact-metrics">
-          <div class="metric-card">
-            <i class="fas fa-file-alt"></i>
-            <h3>28+</h3>
-            <p>Published articles</p>
-          </div>
-          <div class="metric-card">
-            <i class="fas fa-gamepad"></i>
-            <h3>2</h3>
-            <p>Supported games</p>
-          </div>
-          <div class="metric-card">
-            <i class="fas fa-language"></i>
-            <h3>40+</h3>
-            <p>Languages supported</p>
-          </div>
-          <div class="metric-card">
-            <i class="fas fa-check-double"></i>
-            <h3>100%</h3>
-            <p>QA coverage</p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Related Projects Section -->
-    <section class="content-section grid-col-12">
-      <div class="content-section-inner">
-        <h2><i class="fas fa-project-diagram"></i> Related projects</h2>
-        <div class="related-projects">
-          <div class="related-project-card">
-            <a href="/projects/xbox-support.html">
-              <i class="fab fa-xbox"></i> Xbox Support
-            </a>
-            <p>Core support content production and publishing for Xbox platform</p>
-          </div>
-          <div class="related-project-card">
-            <a href="/projects/websites/ninja-theory-support.html">
-              <i class="fas fa-gamepad"></i> Ninja Theory Support
-            </a>
-            <p>Support content for Hellblade: Senua's Sacrifice and other titles</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Next Project Section -->
-    <div class="section-divider"></div>
-    <section class="content-section grid-col-12 next-project">
-      <div class="content-section-inner">
-        <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-        <div class="next-project-card">
-          <div class="media-item" style="margin-bottom: 1.5rem;">
-            <a href="/projects/websites/microsoft-casual-games-support.html">
-              <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games Support Portal" loading="lazy">
-            </a>
-          </div>
-          <div class="next-project-content">
-            <h3>Microsoft Casual Games Support</h3>
-            <p>Producer-led support migration and publishing for Microsoft Casual Games on Xbox Support</p>
-            <a href="/projects/websites/microsoft-casual-games-support.html" class="btn btn-secondary">
-              View Project <i class="fas fa-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
     </section>
   </main>
 
-  <div id="footer-container"></div>
-  
-  <!-- Banner Container -->
-  <div id="banner"></div>
-  
-  <!-- Banner Styles -->
-  <link rel="stylesheet" href="/css/banner.css">
-  
-  <!-- Scripts -->
-  <script src="/js/init-header-footer.js"></script>
-  <script src="/js/theme.js"></script>
-  <script type="module">
-    import { Lightbox } from '/js/lightbox.js';
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      window.lightbox = new Lightbox({
-        // Custom options if needed
-      });
-    });
-  </script>
-  <script src="/js/nav.js"></script>
-  <script src="/js/main.js"></script>
-  <script src="/modules/breadcrumb.js"></script>
-  
-  <!-- Banner Configuration -->
-  <script>
-    window.bannerConfig = {
-      bannersPath: '/data/banners/banners-page-state.json',
-      debug: true
-    };
-  </script>
-  
-  <!-- Banner Script (deferred) -->
-  <script src="/js/banner.js" defer></script>
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
+
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
 </body>
 </html>
