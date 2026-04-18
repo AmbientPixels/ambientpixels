@@ -641,49 +641,23 @@ button.btn-secondary:hover {
   white-space: normal !important;
 }
 
-/* Grid container sanity — force max-width + gutter + RESTORE the
-   overflow-x: hidden that legacy grid.css provided (I stripped it
-   before; the result was the horizontal scrollbar the CEO flagged). */
+/* Grid system — owned by legacy grid.css (.grid-container + .grid-col-*).
+   Legacy uses grid-template-columns: repeat(12, 1fr) which CAN overflow
+   the content-box when items have explicit widths + box-sizing:
+   border-box (items ignore padding of grid-container). Fix: switch the
+   track sizing to minmax(0, 1fr) — still 12 equal tracks, but the
+   min-size is 0 so they'll shrink to fit the content-box instead of
+   blowing out. No !important; more specific selector wins. */
+main.grid-container,
+section.grid-container,
 .grid-container {
-  max-width: var(--max-page, 1440px) !important;
-  margin: 0 auto !important;
-  padding: 0 var(--sec-pad-x, 40px) !important;
-  box-sizing: border-box !important;
-  overflow-x: hidden !important;     /* safety */
-  width: 100%;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
 }
 .grid-col-6,
 .grid-col-4,
 .grid-col-3,
 .grid-col-12 {
-  min-width: 0;    /* let grid items shrink */
-  box-sizing: border-box;
-}
-@media (max-width: 600px) {
-  .grid-container { padding: 0 var(--mobile-pad, 20px) !important; }
-}
-
-/* Also lock down impact-metrics + media-grid so they can't overflow
-   their parent column. Legacy uses
-   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr))
-   which is fine, but combined with a fixed gap in a narrow column
-   it can spill. Force full-width + clip + min-width:0 on each cell. */
-.impact-metrics,
-.media-grid,
-.projects-grid,
-.learnings-grid,
-.related-projects {
-  max-width: 100% !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-.metric-card,
-.media-item,
-.learning-card,
-.related-project-card {
-  min-width: 0 !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
+  min-width: 0;    /* let grid items shrink inside tracks */
 }
 
 /* Producer Role & Impact specifically — the grid-col-6 there uses an
