@@ -374,7 +374,13 @@ h1 em, h2 em, h3 em, h4 em {
 
 .btn,
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+a.btn,
+a.btn-primary,
+a.btn-secondary,
+button.btn,
+button.btn-primary,
+button.btn-secondary {
   font-family: var(--font-mono) !important;
   font-weight: 500 !important;
   font-size: 11px !important;
@@ -383,32 +389,65 @@ h1 em, h2 em, h3 em, h4 em {
   padding: var(--sp-3, 12px) var(--sp-5, 20px) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  background-image: none !important;   /* kill any gradient bg */
+  filter: none !important;             /* kill glow filters */
+  text-shadow: none !important;
   transition: all var(--dur-fast, .2s) !important;
   display: inline-flex !important;
   gap: var(--sp-2, 8px) !important;
   align-items: center !important;
+  text-decoration: none !important;
 }
-.btn-primary {
+.btn-primary,
+a.btn-primary,
+button.btn-primary {
   background: var(--color-teal-surface) !important;
+  background-color: var(--color-teal-surface) !important;
   color: var(--color-teal-primary) !important;
   border: 1px solid var(--color-teal-primary) !important;
 }
-.btn-primary:hover {
+.btn-primary:hover,
+a.btn-primary:hover,
+button.btn-primary:hover {
   background: var(--color-teal-primary) !important;
+  background-color: var(--color-teal-primary) !important;
   color: var(--color-bg) !important;
   transform: none !important;
+  box-shadow: none !important;
 }
-.btn-secondary {
+.btn-secondary,
+a.btn-secondary,
+button.btn-secondary {
   background: transparent !important;
+  background-color: transparent !important;
   color: var(--color-teal-primary) !important;
   border: 1px solid var(--color-teal-secondary) !important;
 }
-.btn-secondary:hover {
+.btn-secondary:hover,
+a.btn-secondary:hover,
+button.btn-secondary:hover {
   background: var(--color-teal-surface) !important;
+  background-color: var(--color-teal-surface) !important;
   border-color: var(--color-teal-primary) !important;
   color: var(--color-teal-primary) !important;
 }
-.btn i { color: inherit !important; }
+.btn i,
+.btn-primary i,
+.btn-secondary i { color: inherit !important; }
+
+/* Fallbacks for scoped legacy rules (.hero-resume-link .btn, etc.) */
+.hero-resume-link .btn,
+.hero-resume-link .btn:hover,
+.project-buttons .btn,
+.project-buttons .btn:hover,
+.content-section .btn,
+.project-section .btn {
+  background: var(--color-teal-surface) !important;
+  background-image: none !important;
+  color: var(--color-teal-primary) !important;
+  border: 1px solid var(--color-teal-primary) !important;
+  border-radius: 0 !important;
+}
 
 .project-buttons {
   display: flex;
@@ -472,21 +511,31 @@ h1 em, h2 em, h3 em, h4 em {
 
 
 /* ---- Overflow / clipping fixes -----------------------------------
-   Legacy pages often inline `overflow: hidden` + fixed heights on
-   cards + quotes that clip content when the DS font metrics differ
-   from Inter. Force visibility. */
+   Legacy pages inline `overflow: hidden` + fixed heights on cards +
+   quote boxes (e.g. gears-of-war-support has a grid-col-6 with a
+   400px media-item + a height:100% overflow:hidden pull quote). Any
+   text that exceeds that fixed height gets clipped. Forcing overflow
+   visible + height auto on the entire quote + grid chain, including
+   attribute selectors that match the specific inline styles. */
 
 .ap-quote,
 .ap-quote--featured,
 .ap-quote-content,
-.ap-quote__text {
+.ap-quote__text,
+.ap-quote__footer,
+.ap-quote[style],
+.ap-quote--featured[style] {
   overflow: visible !important;
   height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
 }
 
+/* Keep images cropped in .media-item but not their captions. */
 .media-item {
-  overflow: hidden !important; /* keep image cropping but not text */
+  overflow: hidden !important;
 }
+/* Fixed-height .media-item inside a 2-col quote grid keeps its crop */
 
 .content-section,
 .project-section,
@@ -495,13 +544,21 @@ h1 em, h2 em, h3 em, h4 em {
 .metric-card,
 .related-project-card,
 .next-project-card,
-.ap-card {
+.ap-card,
+.grid-container,
+.grid-col-6,
+.grid-col-4,
+.grid-col-3,
+.grid-col-12,
+.grid-col-6[style],
+.grid-col-12[style] {
   overflow: visible !important;
   min-width: 0;
 }
 
 /* Let long text wrap aggressively on narrow columns */
 .ap-quote__text,
+.ap-quote p,
 .bullet-content p,
 .metric-card p,
 .related-project-card p,
@@ -512,10 +569,12 @@ h1 em, h2 em, h3 em, h4 em {
   word-break: normal;
   overflow-wrap: anywhere;
   hyphens: auto;
+  max-width: 100% !important;
+  width: auto !important;
 }
 
 /* Grid container sanity — force max-width + gutter so inner .grid-col-*
-   doesn't spill when the DS body width/padding differs from legacy. */
+   doesn't spill when the DS font metrics differ from legacy. */
 .grid-container {
   max-width: var(--max-page, 1440px) !important;
   margin: 0 auto !important;
@@ -526,10 +585,30 @@ h1 em, h2 em, h3 em, h4 em {
 .grid-col-4,
 .grid-col-3,
 .grid-col-12 {
-  min-width: 0; /* let grid items shrink */
+  min-width: 0;    /* let grid items shrink */
+  box-sizing: border-box;
 }
 @media (max-width: 600px) {
   .grid-container { padding: 0 var(--mobile-pad, 20px) !important; }
+}
+
+/* Producer Role & Impact specifically — the grid-col-6 there uses an
+   inline grid with 400px media-item + 100%-height quote. Drop the
+   explicit 100% height so the quote expands naturally to fit text. */
+.grid-col-6 > .ap-quote,
+.grid-col-6 > .ap-quote--featured,
+.grid-col-6 .ap-quote[style*="height"],
+.grid-col-6 .ap-quote--featured[style*="height"] {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* If the inline grid inside grid-col-6 forces 1fr row on the quote,
+   collapse to auto so the quote sizes to content (not the gap-filled
+   remaining space). */
+.grid-col-6[style*="grid-template-rows"] {
+  grid-template-rows: auto auto !important;
 }
 
 
