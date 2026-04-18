@@ -1,86 +1,61 @@
-<!-- /modules/contact-modal.html -->
-<div id="contact-modal" class="modal hidden">
+<!-- /modules/contact-modal.html
+     DS-compliant rewrite. Behavioral class names preserved for JS:
+       .modal, .modal-overlay, .modal-close, .hidden, .active,
+       .form-group, .form-status, data-ambientos-intake="true".
+     .ap-modal parent class scopes the DS styling from ap-components.css §2.16.
+     No Font Awesome, no glass-panel, no legacy forms.css required. -->
+<div id="contact-modal" class="modal ap-modal hidden">
   <div class="modal-overlay" onclick="closeModal('contact-modal')"></div>
-  <div class="modal-content glass-panel">
-    <button class="modal-close" onclick="closeModal('contact-modal')" aria-label="Close">
-      <i class="fas fa-times"></i>
-    </button>
-    
-    <div class="contact-form-container">
-      <h2><i class="fas fa-paper-plane"></i> Start a Project</h2>
-      <p class="form-subtitle">Share your project details below and we'll get back to you.</p>
-      
-      <form id="contact-form" method="POST" class="contact-form" data-ambientos-intake="true">
-        <input type="hidden" name="type" value="contact">
-        <input type="hidden" name="form_started_at_ms" value="">
-        <input type="text" name="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
-        <div class="form-group">
-          <div class="label-wrapper">
-            <i class="fas fa-user"></i>
-            <label for="name">Your Name</label>
-          </div>
-          <div class="input-wrapper">
-            <input type="text" id="name" name="name" required>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <div class="label-wrapper">
-            <i class="fas fa-envelope"></i>
-            <label for="email">Your Email</label>
-          </div>
-          <div class="input-wrapper">
-            <input type="email" id="email" name="email" required>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <div class="label-wrapper">
-            <i class="fas fa-cube"></i>
-            <label for="project-type">Project Type</label>
-          </div>
-          <div class="input-wrapper">
-            <select id="project-type" name="project-type" class="styled-select" required>
-              <option value="" disabled selected>Select Project Type</option>
-              <option value="ai-systems">AI Systems / Automation</option>
-              <option value="web">Website Development</option>
-              <option value="design">UI/UX Design</option>
-              <option value="infrastructure">Infrastructure / APIs</option>
-              <option value="consulting">Consulting</option>
-              <option value="other">Something Else</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <div class="label-wrapper">
-            <i class="fas fa-comment"></i>
-            <label for="message">Your Message</label>
-          </div>
-          <div class="input-wrapper">
-            <textarea id="message" name="message" rows="5" required></textarea>
-          </div>
-        </div>
-        
-        <div class="form-group" style="margin-top:0.5rem;">
-          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;opacity:0.6;cursor:pointer;">
-            <input type="checkbox" name="privacyAccepted" required>
-            I agree to the <a href="/privacy.html" target="_blank" style="color:inherit;text-decoration:underline;">privacy policy</a>
-          </label>
-        </div>
+  <div class="modal-content">
+    <button type="button" class="modal-close" onclick="closeModal('contact-modal')" aria-label="Close">Close</button>
 
-        <div class="form-actions">
-          <button type="submit" class="glass-button btn-primary">
-            <i class="fas fa-paper-plane"></i> Send Message
-          </button>
-          <p class="form-helper" style="margin:0.6rem 0 0;font-size:0.78rem;color:rgba(148,163,184,0.6);text-align:center;">Include timeline + budget range if you have it.</p>
-        </div>
-        
-        <!-- Form status message -->
-        <div class="form-status"></div>
-      </form>
-    </div>
+    <h2>Start a <em>project.</em></h2>
+    <p class="ap-modal-sub">Share the rough shape. We&rsquo;ll reply within a business day.</p>
+
+    <form id="contact-form" method="POST" class="contact-form" data-ambientos-intake="true">
+      <input type="hidden" name="type" value="contact">
+      <input type="hidden" name="form_started_at_ms" value="">
+      <input type="text" name="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
+
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+        <label for="project-type">Type</label>
+        <select id="project-type" name="project-type" required>
+          <option value="" disabled selected>Select one</option>
+          <option value="ai-systems">AI systems / automation</option>
+          <option value="web">Website development</option>
+          <option value="design">UI / UX design</option>
+          <option value="infrastructure">Infrastructure / APIs</option>
+          <option value="consulting">Consulting</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+      </div>
+
+      <label class="ap-form-consent">
+        <input type="checkbox" name="privacyAccepted" required>
+        <span>I agree to the <a href="/privacy.html" target="_blank">privacy policy</a>.</span>
+      </label>
+
+      <div class="ap-form-actions">
+        <button type="submit" class="ap-btn ap-btn--primary">Send &rarr;</button>
+        <p class="ap-form-helper">Include timeline + budget if you have them.</p>
+      </div>
+
+      <div class="form-status" role="status" aria-live="polite"></div>
+    </form>
   </div>
 </div>
-
-<!-- form-intake.js handles submission via data-ambientos-intake attribute -->

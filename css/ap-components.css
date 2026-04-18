@@ -714,3 +714,210 @@
   flex-wrap: wrap;
   justify-content: center;
 }
+
+
+/* ============================================================
+   §2.16  Modal + Form (DS extension — not originally specced in §2)
+
+   The modal wraps a form; the form inputs follow the bottom-border-
+   only treatment from §5 Deviation Policy ("the one 'input'
+   component the system implicitly allows"). Scoped under .ap-modal
+   so legacy modals without that class keep their old styling.
+
+   Behavioral class names (.modal, .modal-overlay, .modal-close,
+   .hidden, .active, .form-group, .form-status) are preserved for
+   JavaScript compatibility — JS hooks must still find them.
+   ============================================================ */
+
+.ap-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity var(--dur-med);
+}
+.ap-modal.hidden { display: none; }
+.ap-modal.active { opacity: 1; }
+
+.ap-modal .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 12, 12, .82);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+
+.ap-modal .modal-content {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  margin: 8vh auto 6vh;
+  padding: var(--sp-15) var(--sp-12);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.ap-modal .modal-close {
+  position: absolute;
+  top: var(--sp-6);
+  right: var(--sp-6);
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color var(--dur-fast);
+}
+.ap-modal .modal-close:hover { color: var(--color-text-primary); }
+
+.ap-modal h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: clamp(32px, 3vw, 48px);
+  line-height: 1;
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 var(--sp-3);
+}
+.ap-modal h2 em {
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--color-text-body);
+}
+
+.ap-modal-sub {
+  font-size: var(--fs-body-xs);
+  line-height: var(--lh-body-loose);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--sp-10);
+  max-width: 50ch;
+}
+
+/* Form (bottom-border-only per DS §5) */
+.ap-modal .form-group {
+  margin-bottom: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.ap-modal .form-group label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.ap-modal input[type="text"],
+.ap-modal input[type="email"],
+.ap-modal select,
+.ap-modal textarea {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-body);
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--sp-3) 0;
+  outline: none;
+  transition: border-color var(--dur-fast);
+  width: 100%;
+}
+.ap-modal input:focus,
+.ap-modal select:focus,
+.ap-modal textarea:focus {
+  border-bottom-color: var(--color-text-primary);
+}
+.ap-modal textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: var(--lh-body);
+}
+.ap-modal select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  /* Minimal mono-styled chevron using two linear-gradients */
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(244,244,244,.55) 50%),
+    linear-gradient(135deg, rgba(244,244,244,.55) 50%, transparent 50%);
+  background-position: calc(100% - 14px) center, calc(100% - 8px) center;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 28px;
+}
+.ap-modal select option {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+/* Consent row — mono tag, inline checkbox */
+.ap-form-consent {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-xs);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: var(--sp-8) 0 var(--sp-8);
+  cursor: pointer;
+}
+.ap-form-consent input[type="checkbox"] {
+  accent-color: var(--color-text-primary);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.ap-form-consent a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.ap-form-consent a:hover { color: var(--color-text-primary); }
+
+.ap-form-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  margin-top: var(--sp-8);
+}
+.ap-form-helper {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+
+.ap-modal .form-status {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono-sm);
+  text-transform: uppercase;
+  margin-top: var(--sp-6);
+  padding: var(--sp-3) 0;
+  color: var(--color-text-secondary);
+  min-height: 1.5em;
+}
+.ap-modal .form-status:empty { display: none; }
+
+/* Modal responsive */
+@media (max-width: 600px) {
+  .ap-modal .modal-content {
+    margin: 4vh var(--mobile-pad);
+    padding: var(--sp-10) var(--sp-6);
+  }
+  .ap-modal h2 { font-size: 28px; }
+}
+
+/* Lock body scroll when modal is open */
+body.modal-open { overflow: hidden; }
