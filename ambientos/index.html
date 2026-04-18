@@ -141,68 +141,46 @@
       <div class="ap-sec-head">
         <div>
           <div class="ap-sec-idx">§ 01 &mdash; FEATURES</div>
-          <h2 class="ap-display">Six systems,<br><em>one platform.</em></h2>
+          <h2 class="ap-display">Three layers,<br><em>one platform.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          How AmbientOS runs a company. Every subsystem is observable, governed, and auditable. Agents can propose; humans approve.
+          How AmbientOS runs a company. Execution, governance, resilience &mdash; each subsystem observable, each auditable, each reversible. Agents propose; humans approve.
         </div>
       </div>
 
-      <div class="ap-prods">
-        <a class="ap-pd op-live" href="/nova/">
-          <span class="n">01</span>
-          <div>
-            <h3>Agent <em>fleet.</em></h3>
-            <span class="meta">Eight roles &middot; tier-2 through tier-4</span>
-          </div>
-          <p>Nova, Scribe, Echo, Cipher, Forge, Pixel, Scout, Quill. Each runs with a scoped doctrine, memory, and escalation triggers. Fleet itself is mutable via proposal.</p>
-          <span class="year">Operating</span>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <div class="ap-pd ap-pd--static op-live">
-          <span class="n">02</span>
-          <div>
-            <h3>Heartbeat <em>engine.</em></h3>
-            <span class="meta">Hourly cadence &middot; 15 modules</span>
-          </div>
-          <p>A single governed execution loop. Every agent thinks in sequence, produces proposals and internal state changes, and writes to an audit trail.</p>
-          <span class="year">Live</span>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Execution<br><em>layer.</em></h3>
+          <p>An eight-role agent fleet running through a single governed heartbeat. Every agent thinks in sequence, produces proposals and state changes, writes to an audit trail.</p>
+          <ul>
+            <li>Agent fleet (8 roles)</li>
+            <li>Heartbeat engine</li>
+            <li>Hourly cadence</li>
+            <li>Full audit trail</li>
+          </ul>
         </div>
-        <div class="ap-pd ap-pd--static op-live">
-          <span class="n">03</span>
-          <div>
-            <h3>Governance <em>layer.</em></h3>
-            <span class="meta">CEO-gate &middot; approval queue &middot; kill switch</span>
-          </div>
-          <p>External actions route through human approval. Eight blocking gates on the task pipeline. Execution mode can be set to active, observe, manual, or frozen.</p>
-          <span class="year">Live</span>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Governance<br><em>layer.</em></h3>
+          <p>External actions route through human approval. Eight blocking gates on the task pipeline. Every agent carries rolling memory, consolidated daily with evidence chains preserved.</p>
+          <ul>
+            <li>CEO approval queue</li>
+            <li>Eight pipeline gates</li>
+            <li>Persistent memory</li>
+            <li>Kill-switch mode</li>
+          </ul>
         </div>
-        <div class="ap-pd ap-pd--static op-live">
-          <span class="n">04</span>
-          <div>
-            <h3>Memory &amp; <em>reflection.</em></h3>
-            <span class="meta">Persistent &middot; consolidated &middot; observable</span>
-          </div>
-          <p>Every agent carries rolling memory across cycles. A daily consolidation cron collapses similar observations into consolidated beliefs with evidence chains preserved.</p>
-          <span class="year">Live</span>
-        </div>
-        <div class="ap-pd ap-pd--static op-live">
-          <span class="n">05</span>
-          <div>
-            <h3>Self-<em>correction.</em></h3>
-            <span class="meta">Stall detect &middot; quality gate &middot; convergence</span>
-          </div>
-          <p>Stalled agents auto-escalate to Forge. Social posts run a Haiku quality gate. Tasks with five failed deliverables surface as CEO-attention escalations.</p>
-          <span class="year">Live</span>
-        </div>
-        <div class="ap-pd ap-pd--static op-live">
-          <span class="n">06</span>
-          <div>
-            <h3>World <em>state.</em></h3>
-            <span class="meta">Shared ground truth &middot; under 1.5KB</span>
-          </div>
-          <p>A canonical snapshot injected at the top of every agent prompt each cycle. Identical text for all eight agents. No more Day-1 hallucinations.</p>
-          <span class="year">Live</span>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Resilience<br><em>layer.</em></h3>
+          <p>Stalled agents auto-escalate to Forge. A canonical world-state snapshot injects at the top of every prompt &mdash; identical text for all eight. No Day-1 hallucinations, no drift.</p>
+          <ul>
+            <li>Stall detection</li>
+            <li>Quality gates</li>
+            <li>World state (&lt; 1.5KB)</li>
+            <li>Convergence</li>
+          </ul>
         </div>
       </div>
     </section>
