@@ -444,20 +444,10 @@
 }
 
 /* Static variant — use when a row is a feature/spec description, not
-   navigation. Kills the pointer cursor, hover background, and the →
-   arrow so the row reads as information, not a clickable link. */
-.ap-pd--static {
-  cursor: default;
-}
-.ap-pd--static:hover,
-.ap-pd--static:focus-visible {
-  background: transparent;
-  color: var(--color-text-primary);
-}
-.ap-pd--static:hover h3,
-.ap-pd--static:focus-visible h3 { color: var(--color-text-primary); }
-.ap-pd--static:hover .n,
-.ap-pd--static:focus-visible .n { opacity: .22; color: var(--color-text-primary); }
+   navigation. Keeps the hover surface + text brightening so the row
+   still feels alive on pointer-over, but drops the pointer cursor and
+   the → arrow so visitors don't mistake it for a clickable link. */
+.ap-pd--static { cursor: default; }
 .ap-pd--static .go { display: none; }
 
 /* Image variant — portfolio rows that carry visual context.
