@@ -101,7 +101,7 @@
   display: inline-block;
   width: 8px;
   height: 12px;
-  background: var(--color-text-primary);
+  background: var(--color-status-live-solid);
   margin-left: 6px;
   vertical-align: -1px;
   animation: ap-blink 1.1s steps(2) infinite;
