@@ -7,14 +7,14 @@
   <link rel="canonical" href="https://www.ambientpixels.ai/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="AmbientPixels — AI Creative Systems Studio" />
-  <meta property="og:description" content="Creative systems, operated quietly. A studio running AI, product, and infrastructure — from Seattle." />
+  <meta property="og:description" content="Creative systems. Quiet operations. A studio running AI, product, and infrastructure — from Seattle." />
   <meta property="og:url" content="https://www.ambientpixels.ai/" />
   <meta property="og:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AmbientPixels — Creative Systems Studio" />
-  <meta name="twitter:description" content="Creative systems, operated quietly." />
+  <meta name="twitter:description" content="Creative systems. Quiet operations." />
   <meta name="twitter:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
   <script type="application/ld+json">
   {
@@ -28,7 +28,7 @@
   }
   </script>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>AmbientPixels — Creative systems, operated quietly.</title>
+  <title>AmbientPixels — Creative systems. Quiet operations.</title>
 
   <!-- Fonts: Archivo (display + regular) + Archivo Black (heavy) + JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -54,41 +54,75 @@
     .ap-hero {
       max-width: var(--max-page);
       margin: 0 auto;
-      padding: var(--sp-12) var(--sec-pad-x) var(--sp-30);
-      text-align: center;
+      padding: var(--sp-6) var(--sec-pad-x) var(--sp-30);
     }
 
     .ap-hero .ap-meta-strip {
-      justify-content: center;
-      margin: 0 0 var(--sp-20);
+      margin: 0 0 var(--sp-6);
     }
 
+    /* AP. wordmark — letters in Archivo Black, period replaced with a CSS
+       circle so the dot renders as a true round orb (not the typographic
+       period glyph, which Archivo Black renders near-square at 560px). */
     .ap-hero-mark {
       font-family: var(--font-heavy);
       font-size: var(--fs-hero-mark);
       line-height: 1;
       letter-spacing: -0.04em;
       margin: 0 0 var(--sp-15);
+      color: var(--color-text-primary);
       user-select: none;
     }
-    .ap-hero-mark .amber {
-      color: var(--color-accent-amber);
-      text-shadow:
+    .ap-hero-dot {
+      display: inline-block;
+      width: 0.13em;
+      height: 0.13em;
+      background: var(--color-accent-amber);
+      border-radius: 50%;
+      vertical-align: baseline;
+      margin-left: 0.04em;
+      box-shadow:
         0 0 40px var(--color-accent-amber-glow-near),
-        0 0 100px var(--color-accent-amber-glow-far);
+        0 0 120px var(--color-accent-amber-glow-far);
     }
 
-    /* Hero sub-headline — overrides .ap-display default --fs-display-lg down
-       to --fs-heading so it doesn't compete with the AP. mark above. */
+    /* Hero body — 2-col (h1 left, body+CTA right), per the reference. */
+    .ap-hero-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--col-gap);
+      align-items: start;
+    }
     .ap-display--hero {
       font-size: var(--fs-heading);
-      max-width: 18ch;
-      margin: 0 auto;
+      line-height: var(--lh-heading);
+      margin: 0;
+      max-width: 14ch;
+    }
+    .ap-hero-sub {
+      font-family: var(--font-display);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body-loose);
+      color: var(--color-text-body);
+      opacity: .82;
+      max-width: var(--max-prose);
+      margin: 0 0 var(--sp-6);
+      text-wrap: pretty;
+    }
+    .ap-hero-cta {
+      display: flex;
+      gap: var(--sp-4);
+      align-items: center;
+      flex-wrap: wrap;
     }
 
+    @media (max-width: 1000px) {
+      .ap-hero-body { grid-template-columns: 1fr; gap: var(--sp-8); }
+    }
     @media (max-width: 600px) {
-      .ap-hero { padding: var(--sp-8) var(--mobile-pad) var(--sp-20); }
-      .ap-hero .ap-meta-strip { gap: var(--sp-4); margin-bottom: var(--sp-12); font-size: 10px; }
+      .ap-hero { padding: var(--sp-4) var(--mobile-pad) var(--sp-20); }
+      .ap-hero .ap-meta-strip { gap: var(--sp-4); margin-bottom: var(--sp-8); font-size: 10px; }
+      .ap-hero-mark { margin-bottom: var(--sp-10); }
     }
   </style>
 </head>
@@ -120,11 +154,18 @@
       <span>All systems nominal &middot; v2.6<span class="ap-cursor" aria-hidden="true"></span></span>
     </div>
 
-    <div class="ap-hero-mark" aria-label="AmbientPixels">
-      AP<span class="amber" aria-hidden="true">.</span>
-    </div>
+    <div class="ap-hero-mark" aria-label="AmbientPixels.">AP<span class="ap-hero-dot" aria-hidden="true"></span></div>
 
-    <h1 class="ap-display ap-display--hero">Creative systems,<br><em>operated quietly.</em></h1>
+    <div class="ap-hero-body">
+      <h1 class="ap-display ap-display--hero">Creative systems.<br>Quiet <em>operations.</em></h1>
+      <div>
+        <p class="ap-hero-sub">AmbientPixels builds AI-native systems, digital products, and production infrastructure — from governed automation to video pipelines.</p>
+        <div class="ap-hero-cta">
+          <button type="button" class="ap-btn ap-btn--primary" onclick="openProjectModal('home-hero');">Start a project &rarr;</button>
+          <a class="ap-btn ap-btn--ghost" href="/products/">See products</a>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- §2.13  Marquee -->
@@ -160,34 +201,34 @@
         <div class="ap-pillar">
           <div class="num">01</div>
           <h3 class="ap-display ap-display--pillar">Systems<br>&amp; <em>automation.</em></h3>
-          <p>Multi-agent orchestration, workflow automation, content pipelines, knowledge systems, and custom AI integrations. Governed, observable, shipped.</p>
+          <p>Multi-agent pipelines, knowledge graphs, memory, and governance for AI-run companies. Structured autonomy, cosigned by humans.</p>
           <ul>
-            <li>Multi-agent orchestration</li>
-            <li>Workflow automation</li>
-            <li>Knowledge pipelines</li>
-            <li>Custom agents</li>
+            <li>Agent design</li>
+            <li>Orchestration</li>
+            <li>Memory systems</li>
+            <li>Governance</li>
           </ul>
         </div>
         <div class="ap-pillar">
           <div class="num">02</div>
           <h3 class="ap-display ap-display--pillar">Product<br>&amp; <em>creative.</em></h3>
-          <p>Web design and development, AI video and media, voice narration, motion graphics, and narrative architecture. Craft first, metrics second.</p>
+          <p>Web design and development, AI video, voice, interface systems — creative surfaces where audience shows up.</p>
           <ul>
-            <li>Web design &amp; build</li>
-            <li>AI video &amp; media</li>
-            <li>Voice narration</li>
-            <li>Narrative architecture</li>
+            <li>Web</li>
+            <li>AI video</li>
+            <li>Voice</li>
+            <li>Product design</li>
           </ul>
         </div>
         <div class="ap-pillar">
           <div class="num">03</div>
-          <h3 class="ap-display ap-display--pillar">The<br><em>infrastructure.</em></h3>
-          <p>System architecture, API development, hosting and deployment, data pipelines, observability. The quiet layer that lets the rest run.</p>
+          <h3 class="ap-display ap-display--pillar">Infra<br>&amp; <em>architecture.</em></h3>
+          <p>The systems beneath the systems. APIs, hosting, data flows, observability — made predictable, documented, and cheap to run.</p>
           <ul>
-            <li>System architecture</li>
-            <li>API development</li>
-            <li>Hosting &amp; deployment</li>
-            <li>Observability</li>
+            <li>Architecture</li>
+            <li>APIs</li>
+            <li>Hosting</li>
+            <li>Telemetry</li>
           </ul>
         </div>
       </div>
@@ -201,7 +242,7 @@
           <h2 class="ap-display">Seven products,<br><em>all operating.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          Platforms and tools we design, ship, and operate. Each one is a live surface — no roadmap slides, no coming-soon pages.
+          Small, sharp things we design, ship, and operate. Each has a clear job, a visible pulse, and a human who hears the log every morning.
         </div>
       </div>
 
@@ -212,7 +253,7 @@
             <h3>Ambient<em>OS.</em></h3>
             <span class="meta">Platform &middot; flagship</span>
           </div>
-          <p>Operating system for AI-run companies. Multi-agent orchestration, governance, memory, and execution pipelines.</p>
+          <p>Operating system for AI-run companies. Multi-agent orchestration, governance, memory, execution.</p>
           <span class="year">Operating</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
@@ -220,39 +261,39 @@
           <span class="n">02</span>
           <div>
             <h3>Nova<em>.</em></h3>
-            <span class="meta">AI operator &middot; prime</span>
+            <span class="meta">AI operator</span>
           </div>
-          <p>AI Prime Operator with persistent memory, live chat, dream engine, and daily system briefs. The mind behind AmbientOS.</p>
+          <p>Prime operator. Persistent memory, live chat, dream engine, daily system brief.</p>
           <span class="year">Awake</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
-        <a class="ap-pd op-live" href="/ambientscore/">
+        <a class="ap-pd op-live" href="/storyforge/">
           <span class="n">03</span>
           <div>
-            <h3>Ambient<em>Score.</em></h3>
-            <span class="meta">Product &middot; conversion</span>
-          </div>
-          <p>Find where your website is losing revenue. Get an AmbientScore and three prioritized fixes in 60 seconds.</p>
-          <span class="year">Live</span>
-          <span class="go" aria-hidden="true">&rarr;</span>
-        </a>
-        <a class="ap-pd op-live" href="/storyforge/">
-          <span class="n">04</span>
-          <div>
             <h3>Story<em>Forge.</em></h3>
-            <span class="meta">Product &middot; game</span>
+            <span class="meta">Product &middot; narrative</span>
           </div>
-          <p>AI-powered choose-your-own-adventure with infinite stories across six genres, dynamic skill checks, and voice narration.</p>
+          <p>Infinite CYOA across six genres, with skill checks and voice narration.</p>
           <span class="year">Live</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd op-live" href="/cardforge/">
-          <span class="n">05</span>
+          <span class="n">04</span>
           <div>
             <h3>Card<em>Forge.</em></h3>
             <span class="meta">Product &middot; tool</span>
           </div>
-          <p>Browser-based card creation platform with modular templates, real-time preview, and AI-assisted generation.</p>
+          <p>Browser-based card creation. Modular templates, real-time preview, no install.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/ambientscore/">
+          <span class="n">05</span>
+          <div>
+            <h3>Ambient<em>Score.</em></h3>
+            <span class="meta">Product &middot; scoring</span>
+          </div>
+          <p>Score a site in sixty seconds. Three prioritized fixes, one clear number.</p>
           <span class="year">Live</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
@@ -260,9 +301,9 @@
           <span class="n">06</span>
           <div>
             <h3>Pixel<em>Agents.</em></h3>
-            <span class="meta">Marketplace &middot; agents</span>
+            <span class="meta">Marketplace</span>
           </div>
-          <p>Curated marketplace of focused AI agents for hire. Run any agent in one click, or build and submit your own with Agent Forge.</p>
+          <p>Curated marketplace of focused AI agents. Hire one, or forge your own with Agent Forge.</p>
           <span class="year">Live</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
@@ -270,9 +311,9 @@
           <span class="n">07</span>
           <div>
             <h3>Blind<em>spot.</em></h3>
-            <span class="meta">Game &middot; arena combat</span>
+            <span class="meta">Game &middot; beta</span>
           </div>
-          <p>Card arena combat. Build a fighter, battle ten bosses, and challenge other players in asynchronous PvP.</p>
+          <p>Card arena combat. Build a fighter, face ten bosses, duel other players.</p>
           <span class="year">Beta</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
@@ -283,11 +324,11 @@
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">§ 03 — WORK</div>
+          <div class="ap-sec-idx">§ 03 — SHIPPED WORK</div>
           <h2 class="ap-display">Three shipped,<br><em>more in flight.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          Real client work and internal systems in production. Each one lives on the open web.
+          Selected client and internal work currently running in production. Not a case-study deck.
         </div>
       </div>
 
@@ -295,31 +336,31 @@
         <a class="ap-pd op-live" href="/projects/">
           <span class="n">01</span>
           <div>
-            <h3>Xbox <em>support.</em></h3>
-            <span class="meta">Client &middot; Microsoft &middot; Web &amp; Localization</span>
+            <h3>Xbox <em>Support Systems.</em></h3>
+            <span class="meta">Client &middot; Web &amp; Localization</span>
           </div>
-          <p>Help centers and support hubs for Gears of War, Hellblade, and South of Midnight, with accessible reporting tools.</p>
+          <p>Help centers and support hubs for Gears of War, Halo Infinite, and Sea of Thieves. Multi-region delivery with accessible reporting tools.</p>
           <span class="year">Shipped</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd op-live" href="/projects/youtube.html">
           <span class="n">02</span>
           <div>
-            <h3>Video <em>production.</em></h3>
+            <h3>Video <em>Production.</em></h3>
             <span class="meta">Studio &middot; Media</span>
           </div>
-          <p>Ambient environments, creative-tech content, and AI-driven video pipelines published to YouTube and client channels.</p>
-          <span class="year">Publishing</span>
+          <p>Ambient environments and creative-tech content. AI-driven video pipelines published to YouTube and client channels.</p>
+          <span class="year">Ongoing</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd op-live" href="/log/">
           <span class="n">03</span>
           <div>
-            <h3>Activity <em>log.</em></h3>
+            <h3>Activity <em>Log.</em></h3>
             <span class="meta">Internal &middot; Transparency</span>
           </div>
-          <p>Daily public dispatches from an AI-operated company. Auto-generated, CEO-reviewed, and published to the open web.</p>
-          <span class="year">Ongoing</span>
+          <p>Daily public dispatches from an AI-operated company. Auto-generated, CEO-reviewed, published to the open web.</p>
+          <span class="year">Publishing</span>
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
       </div>
@@ -350,32 +391,30 @@
       <div>
         <h5>Products</h5>
         <ul>
-          <li><a href="/ambientos/">AmbientOS.</a></li>
-          <li><a href="/nova/">Nova.</a></li>
-          <li><a href="/ambientscore/">AmbientScore.</a></li>
-          <li><a href="/storyforge/">StoryForge.</a></li>
-          <li><a href="/cardforge/">CardForge.</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents.</a></li>
-          <li><a href="/blindspot/">Blindspot.</a></li>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
         </ul>
       </div>
       <div>
         <h5>Studio</h5>
         <ul>
-          <li><a href="/services/">Services.</a></li>
-          <li><a href="/projects/">Work.</a></li>
-          <li><a href="/about/">Studio.</a></li>
-          <li><a href="/blog/">Journal.</a></li>
-          <li><a href="/log/">Activity log.</a></li>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
         </ul>
       </div>
       <div>
         <h5>Contact</h5>
         <ul>
-          <li><a class="ap-link-mono" href="mailto:hello@ambientpixels.ai" style="opacity:.82;">hello@ambientpixels.ai</a></li>
-          <li><a href="/pages/login.html">Login.</a></li>
-          <li><a href="/privacy.html">Privacy.</a></li>
-          <li><a href="/terms.html">Terms.</a></li>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="#start" onclick="event.preventDefault(); openProjectModal('footer-contact');">Work with us</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
         </ul>
       </div>
     </div>
