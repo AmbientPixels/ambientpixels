@@ -97,34 +97,8 @@
       opacity: .55;
     }
 
-    /* Gradient + icon thumbnails — mirror the hero design of each
-       linked target page. Grayscale at rest, full color on hover,
-       consistent with the photographic .thumb behavior. */
-    .ap-pd--img .thumb.thumb--icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      filter: grayscale(1) contrast(.92) brightness(.85);
-      transition: filter var(--dur-med), transform var(--dur-med);
-    }
-    .ap-pd--img .thumb.thumb--icon i {
-      font-size: 64px;
-      color: #fff;
-      filter: drop-shadow(0 0 12px rgba(255,255,255,.25));
-    }
-    .ap-pd--img:hover .thumb.thumb--icon,
-    .ap-pd--img:focus-visible .thumb.thumb--icon {
-      filter: none;
-      transform: scale(1.03);
-    }
-    /* Per-row gradient backgrounds — match the target page heroes.
-       Selector is scoped under .ap-pd--img .thumb to beat the
-       ap-components.css `.ap-pd--img .thumb { background: ... }` rule
-       on specificity alone (no !important). */
-    .ap-pd--img .thumb.thumb--bg-ai    { background: linear-gradient(135deg, #5b00a8, #3818a8); }
-    .ap-pd--img .thumb.thumb--bg-video { background: linear-gradient(135deg, #5dc21e, #107c10); }
-    .ap-pd--img .thumb.thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); }
-    .ap-pd--img .thumb.thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); }
+    /* Icon thumbnail variant + gradient slots now live in
+       /css/ap-components.css §2.9 — see .thumb--icon and .thumb--bg-*. */
   </style>
 </head>
 <body>

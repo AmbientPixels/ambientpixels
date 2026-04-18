@@ -500,6 +500,37 @@
   .ap-pd--img .thumb { grid-area: t; width: 88px; height: 88px; align-self: start; }
 }
 
+/* Icon thumbnail variant — for portfolio rows where there's no
+   photographic asset to use. Renders as a centered FontAwesome icon
+   on a colored gradient. Same grayscale-at-rest, color-on-hover
+   rhythm as the photographic .thumb. Pages using this MUST load
+   FontAwesome separately (it's not a core DS dependency). */
+.ap-pd--img .thumb.thumb--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: grayscale(1) contrast(.92) brightness(.85);
+  transition: filter var(--dur-med), transform var(--dur-med);
+}
+.ap-pd--img .thumb.thumb--icon i {
+  font-size: 64px;
+  color: #fff;
+  filter: drop-shadow(0 0 12px rgba(255,255,255,.25));
+}
+.ap-pd--img:hover .thumb.thumb--icon,
+.ap-pd--img:focus-visible .thumb.thumb--icon {
+  filter: none;
+  transform: scale(1.03);
+}
+/* Gradient background slots — selectors scoped under .ap-pd--img .thumb
+   to beat the base `.ap-pd--img .thumb { background: ... }` rule on
+   specificity (no !important needed). */
+.ap-pd--img .thumb.thumb--bg-ai    { background: linear-gradient(135deg, #5b00a8, #3818a8); }
+.ap-pd--img .thumb.thumb--bg-video { background: linear-gradient(135deg, #5dc21e, #107c10); }
+.ap-pd--img .thumb.thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); }
+.ap-pd--img .thumb.thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); }
+.ap-pd--img .thumb.thumb--bg-log   { background: linear-gradient(135deg, #2e2e2e, #141414); }
+
 
 /* ============================================================================
    §2.10  Status Indicator (dot + label)
