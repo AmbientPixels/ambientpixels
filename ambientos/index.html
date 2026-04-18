@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientOS — Operating system for AI-run companies. Multi-agent orchestration, governance, memory, and execution. The platform behind AmbientPixels." />
+  <link rel="canonical" href="https://www.ambientpixels.ai/ambientos/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="AmbientOS — Operating system for AI-run companies" />
+  <meta property="og:description" content="Multi-agent orchestration, governance, memory, execution. Platform, operating." />
+  <meta property="og:url" content="https://www.ambientpixels.ai/ambientos/" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AmbientOS" />
+  <meta name="twitter:description" content="Operating system for AI-run companies." />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "AmbientOS",
+    "description": "Operating system for AI-run companies. Multi-agent orchestration, governance, memory, and execution pipelines.",
+    "url": "https://www.ambientpixels.ai/ambientos/",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web Browser",
+    "author": { "@type": "Organization", "name": "AmbientPixels", "url": "https://www.ambientpixels.ai" }
+  }
+  </script>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>AmbientOS — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <style>
+    /* /ambientos/ local — product-landing hero + specs per DS §4.7
+       (shared pattern with /nova/, /ambientscore/ Tier-1 landings) */
+    .ap-product-hero {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x) var(--sp-20);
+    }
+    .ap-product-hero .ap-sec-head { align-items: end; margin-bottom: var(--sp-15); }
+    .ap-product-hero h1 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(64px, 9vw, 144px);
+      line-height: .9;
+      letter-spacing: -.05em;
+      margin: 12px 0 0;
+    }
+    .ap-product-hero h1 em {
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      color: var(--color-text-body);
+    }
+    .ap-product-hero .ap-meta-strip {
+      padding-top: var(--sp-6);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .ap-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-6) var(--sp-10);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      line-height: 1.6;
+    }
+    .ap-specs > div {
+      display: grid;
+      grid-template-columns: 12ch 1fr;
+      gap: var(--sp-4);
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+    }
+    .ap-specs dt { text-transform: uppercase; color: var(--color-text-tertiary); }
+    .ap-specs dd {
+      margin: 0;
+      color: var(--color-text-primary);
+      text-transform: none;
+      font-family: var(--font-display);
+      font-size: var(--fs-body-xs);
+      letter-spacing: 0;
+    }
+    @media (max-width: 1000px) { .ap-specs { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
+    </div>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
+
+  <main>
+
+    <!-- DS §4.7 step 2 — Product hero -->
+    <section class="ap-product-hero">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ PRODUCT &mdash; 01 / AMBIENTOS</div>
+          <h1>Ambient<em>OS.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          Operating system for AI-run companies. Eight specialized agents. Hourly execution. Governed by a human CEO. The platform AmbientPixels runs on, in the open.
+        </div>
+      </div>
+
+      <!-- DS §4.7 step 3 — Meta strip -->
+      <div class="ap-meta-strip">
+        <span>v2.6 &middot; Current release</span>
+        <span>Platform &middot; flagship</span>
+        <span>Since 2024 &middot; Seattle</span>
+        <span>Operating</span>
+      </div>
+    </section>
+
+    <!-- DS §4.7 step 5 — Features -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 01 &mdash; FEATURES</div>
+          <h2 class="ap-display">Six systems,<br><em>one platform.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          How AmbientOS runs a company. Every subsystem is observable, governed, and auditable. Agents can propose; humans approve.
+        </div>
+      </div>
+
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/nova/">
+          <span class="n">01</span>
+          <div>
+            <h3>Agent <em>fleet.</em></h3>
+            <span class="meta">Eight roles &middot; tier-2 through tier-4</span>
+          </div>
+          <p>Nova, Scribe, Echo, Cipher, Forge, Pixel, Scout, Quill. Each runs with a scoped doctrine, memory, and escalation triggers. Fleet itself is mutable via proposal.</p>
+          <span class="year">Operating</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="#">
+          <span class="n">02</span>
+          <div>
+            <h3>Heartbeat <em>engine.</em></h3>
+            <span class="meta">Hourly cadence &middot; 15 modules</span>
+          </div>
+          <p>A single governed execution loop. Every agent thinks in sequence, produces proposals and internal state changes, and writes to an audit trail.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="#">
+          <span class="n">03</span>
+          <div>
+            <h3>Governance <em>layer.</em></h3>
+            <span class="meta">CEO-gate &middot; approval queue &middot; kill switch</span>
+          </div>
+          <p>External actions route through human approval. Eight blocking gates on the task pipeline. Execution mode can be set to active, observe, manual, or frozen.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="#">
+          <span class="n">04</span>
+          <div>
+            <h3>Memory &amp; <em>reflection.</em></h3>
+            <span class="meta">Persistent &middot; consolidated &middot; observable</span>
+          </div>
+          <p>Every agent carries rolling memory across cycles. A daily consolidation cron collapses similar observations into consolidated beliefs with evidence chains preserved.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="#">
+          <span class="n">05</span>
+          <div>
+            <h3>Self-<em>correction.</em></h3>
+            <span class="meta">Stall detect &middot; quality gate &middot; convergence</span>
+          </div>
+          <p>Stalled agents auto-escalate to Forge. Social posts run a Haiku quality gate. Tasks with five failed deliverables surface as CEO-attention escalations.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="#">
+          <span class="n">06</span>
+          <div>
+            <h3>World <em>state.</em></h3>
+            <span class="meta">Shared ground truth &middot; under 1.5KB</span>
+          </div>
+          <p>A canonical snapshot injected at the top of every agent prompt each cycle. Identical text for all eight agents. No more Day-1 hallucinations.</p>
+          <span class="year">Live</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- DS §4.7 step 6 — Specs -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 02 &mdash; SPECS</div>
+          <h2 class="ap-display">How it&rsquo;s<br><em>actually built.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Technical shape of the platform. AmbientOS runs in production today &mdash; you can watch it ship to the open web daily.
+        </div>
+      </div>
+
+      <dl class="ap-specs">
+        <div><dt>Agents</dt><dd>8 specialized (Nova, Scribe, Echo, Cipher, Forge, Pixel, Scout, Quill)</dd></div>
+        <div><dt>Cadence</dt><dd>Hourly heartbeat + scheduled daily/weekly crons</dd></div>
+        <div><dt>Prime model</dt><dd>Claude Sonnet 4.6 (switchable per agent)</dd></div>
+        <div><dt>Runtime</dt><dd>Azure Functions (Node.js)</dd></div>
+        <div><dt>State</dt><dd>Azure Blob storage via central company-state API</dd></div>
+        <div><dt>Modules</dt><dd>15 heartbeat subsystems + dashboard UI</dd></div>
+        <div><dt>Governance</dt><dd>8 blocking gates, execution-mode kill switch</dd></div>
+        <div><dt>Observability</dt><dd>Full audit trail, emergence monitor, world-state snapshots</dd></div>
+        <div><dt>Capital</dt><dd>Per-agent monthly caps, Cipher-gated new spend</dd></div>
+        <div><dt>Fleet evolution</dt><dd>Agents can be hired, retired, or role-evolved via proposal</dd></div>
+      </dl>
+    </section>
+
+    <!-- §2.15  CTA -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Run your company,<br><em>or bring it ours.</em></h2>
+      <p>AmbientOS runs AmbientPixels. We license the pattern, not the instance &mdash; talk to us about an operating system tuned to your company.</p>
+      <div class="ap-cta-actions">
+        <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="/nova/">Meet Nova</a>
+      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+    </section>
+  </main>
+
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
+
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+</body>
+</html>
