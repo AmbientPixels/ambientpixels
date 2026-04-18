@@ -3,456 +3,320 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Portfolio showcasing my work and projects at Xbox Support, including console support, desktop app development, and game support resources" />
+  <meta name="description" content="Xbox Support portfolio — producer-led work across Microsoft's support ecosystem including console tools, help centers, data platforms, and game-specific support." />
+  <link rel="canonical" href="https://www.ambientpixels.ai/projects/xbox-support.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Xbox Support Systems — AmbientPixels" />
+  <meta property="og:description" content="Producer-led portfolio across Microsoft's Xbox Support ecosystem." />
+  <meta property="og:image" content="https://www.ambientpixels.ai/images/og-ambientpixels.png" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>My Xbox Support Portfolio - AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <title>Xbox Support Systems — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <style>
+    /* Case-study hero — shared pattern across /projects/*.html migrations */
+    .ap-case-hero {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x) var(--sp-12);
+    }
+    .ap-case-hero h1 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(48px, 6.5vw, 104px);
+      line-height: .9;
+      letter-spacing: -.04em;
+      margin: 12px 0 0;
+      max-width: 14ch;
+    }
+    .ap-case-hero h1 em {
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      color: var(--color-text-body);
+    }
+    .ap-case-hero .ap-meta-strip {
+      margin-top: var(--sp-15);
+      padding-top: var(--sp-6);
+      border-top: 1px solid var(--color-border);
+    }
+  </style>
 </head>
-<body data-theme="dark">
+<body>
 
-
-  <header id="nav-header"></header>
-
-  <section class="hero-card hero-card-xbox">
-    <div class="hero-card-image project-bg-xbox hero-particles-container">
-      <div id="hero-particles" class="hero-particles"></div>
-      <i class="fab fa-xbox project-icon-xbox" aria-label="Xbox logo" role="img"></i>
+  <!-- §2.2  Nav -->
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Portfolio</div>
-      <h1>Xbox Support Work & Projects</h1>
-      <p class="hero-card-description">Highlights from Xbox Support work and initiatives</p>
-      
-      <!-- Role Tags -->
-      <div class="role-tags">
-        <span class="role-tag role-producer">Producer</span>
-        <span class="role-tag role-uiux">UI/UX</span>
-        <span class="role-tag role-devops">DevOps</span>
-        <span class="role-tag role-training">Training</span>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
+
+  <main>
+
+    <!-- Case-study hero — DS §4.8 step 2 -->
+    <section class="ap-case-hero">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ WORK &mdash; SHIPPED &middot; MICROSOFT</div>
+          <h1>Xbox support systems,<br><em>shipped at Microsoft.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          A producer-led portfolio across Microsoft&rsquo;s Xbox Support ecosystem &mdash; console tools, data platforms, and help centers for first-party titles. Global audience, multi-region delivery, accessibility baked in.
+        </div>
       </div>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-      
-      <!-- Resume Link -->
-      <div class="hero-resume-link">
-        <a href="/skills/chad-martin-resume.html" class="btn btn-primary">
-          <i class="fas fa-file-alt"></i> View My Resume
-        </a>
+
+      <div class="ap-meta-strip">
+        <span>Client &middot; Microsoft</span>
+        <span>Role &middot; Producer &middot; UI/UX &middot; DevOps &middot; Training</span>
+        <span>Reach &middot; 32M+ monthly users</span>
+        <span>Shipped &middot; multiple releases</span>
       </div>
-    </div>
-  </section>
+    </section>
 
-<main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <!-- Xbox Support Projects Section -->
-  <section class="xbox-section grid-col-12">
-    <div class="xbox-section-header">
-      <i class="fas fa-gamepad"></i>
-      <h2 class="xbox-section-title">Xbox Support Projects</h2>
-    </div>
-    <p class="section-description">A curated selection of projects and initiatives developed within the Xbox Support ecosystem—spanning console tools, desktop applications, and game-related support systems.</p>
-  </section>
+    <!-- § 01 — Xbox tools & systems -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 01 &mdash; TOOLS &amp; SYSTEMS</div>
+          <h2 class="ap-display">Platforms that<br><em>power the support.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Tools and systems built inside Xbox Support &mdash; from AI pipelines to data platforms to the support site itself.
+        </div>
+      </div>
 
-  <!-- Xbox Tools & Systems Section -->
-  <section class="xbox-section grid-col-12">
-    <div class="xbox-section-header">
-      <i class="fas fa-tools"></i>
-      <h2 class="xbox-section-title">Xbox Tools & Systems</h2>
-    </div>
-    <p class="section-description">Innovative platforms and systems powering the Xbox support experience, from AI-driven solutions to data analytics and content management tools.</p>
-    
-    <div class="projects-grid">
-      <!-- Copilot Playground -->
-      <section class="card-section coll grid-col-12">
-        <a href="copilotplayground.html" class="card-image-link">
-          <div class="card-image project-bg-ai card-image-container card-image-container-ai">
-            <i class="fas fa-robot project-icon-ai"></i>
-          </div>
-        </a>
-        <div class="card-content">
-          <h3><i class="fas fa-robot"></i> Copilot Playground</h3>
-          <div class="role-tags">
-            <span class="role-tag role-experimental">Experimental</span>
-            <span class="role-tag role-devops">DevOps</span>
-            <span class="role-tag role-training">Training</span>
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/projects/copilotplayground.html">
+          <span class="n">01</span>
+          <div>
+            <h3>Copilot <em>Playground.</em></h3>
+            <span class="meta">Experimental &middot; AI &middot; Training</span>
           </div>
           <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
-          <a href="copilotplayground.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
-        </div>
-      </section>
-      <!-- Xbox Videos Section -->
-      <section class="card-section grid-col-4">
-        <a href="/projects/video/xbox-video.html" class="card-image-link">
-          <div class="card-image video-gradient-8 card-image-container">
-            <i class="fas fa-play-circle project-icon" aria-hidden="true"></i>
-            <span class="video-duration-badge">
-              <i class="far fa-clock"></i> 5:18
-            </span>
-          </div>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
         </a>
-        <div class="card-content">
-          <h3><i class="fas fa-video"></i> Xbox Video Content</h3>
-          <div class="role-tags">
-            <span class="role-tag role-producer">Lead Producer</span>
-            <span class="role-tag role-uiux">Creative Director</span>
-            <span class="role-tag role-experimental">Motion Design</span>
+        <a class="ap-pd op-live" href="/projects/video/xbox-video.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Xbox video <em>content.</em></h3>
+            <span class="meta">Lead producer &middot; Creative director &middot; Motion</span>
           </div>
-          <p>Collection of Xbox video content including showcases, training videos, and teasers.</p>
-          <a href="/projects/video/xbox-video.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
-        </div>
-      </section>
-
-      <!-- Grand Central 3.0 -->
-      <section class="card-section grid-col-4">
-        <a href="websites/grand-central-power-bi.html" class="card-image-link">
-          <div class="card-image project-bg-gc card-image-container card-image-container-gc">
-            <i class="fas fa-database project-icon-gc"></i>
-          </div>
+          <p>Collection of Xbox video content &mdash; showcases, training videos, and teasers for internal and external audiences.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
         </a>
-        <div class="card-content">
-          <h3><i class="fas fa-database"></i> Grand Central 3.0</h3>
-          <div class="role-tags">
-            <span class="role-tag role-producer">Producer</span>
-            <span class="role-tag role-devops">DevOps</span>
-            <span class="role-tag role-training">Training</span>
+        <a class="ap-pd op-live" href="/projects/websites/grand-central-power-bi.html">
+          <span class="n">03</span>
+          <div>
+            <h3>Grand Central <em>3.0.</em></h3>
+            <span class="meta">Producer &middot; DevOps &middot; Power BI</span>
           </div>
-          <p>Custom-built data tool and Power BI pipeline for Xbox Support, designed from scratch using advanced Excel and Power Query methods.</p>
-          <a href="websites/grand-central-power-bi.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
-        </div>
-    </section>
-
-      <!-- Xbox Support Site -->
-      <section class="card-section grid-col-4">
-        <a href="websites/xbox-support.html" class="card-image-link">
-          <div class="card-image card-image-container card-image-container-xbox">
-            <img src="https://img.icons8.com/color/512/xbox.png" 
-                 alt="Xbox Logo" 
-                 class="xbox-logo" 
-                 loading="lazy"
-                 style="width: 70%; max-width: 150px; height: auto;">
-          </div>
+          <p>Custom data tool and Power BI pipeline for Xbox Support, built from the ground up using advanced Excel + Power Query methods.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
         </a>
-        <div class="card-content">
-          <h3><i class="fas fa-headset"></i> Xbox Support Site</h3>
-          <div class="role-tags">
-            <span class="role-tag role-producer">Producer</span>
-            <span class="role-tag role-uiux">UI/UX</span>
-            <span class="role-tag role-training">Training</span>
+        <a class="ap-pd op-live" href="/projects/websites/xbox-support.html">
+          <span class="n">04</span>
+          <div>
+            <h3>Xbox Support <em>site.</em></h3>
+            <span class="meta">Producer &middot; UI/UX &middot; Content ops</span>
           </div>
-          <p>Producer-led work managing support content across Xbox platforms with 32M+ users monthly.</p>
-          <a href="websites/xbox-support.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
-        </div>
-      </section>
-    </div> <!-- Close projects-grid -->
-  </section> <!-- Close xbox-section -->
-
-  <!-- Xbox Game Support Projects Section -->
-  <section class="xbox-section grid-col-12">
-    <div class="xbox-section-header">
-      <i class="fas fa-gamepad"></i>
-      <h2 class="xbox-section-title">Xbox Game Support Projects</h2>
-    </div>
-    <p class="section-description">Dedicated support experiences for Xbox first-party titles, providing players with seamless assistance and resources for their favorite games.</p>
-    
-    <div class="projects-grid">
-
-     <!-- Microsoft Casual Games Support -->
-     <section class="card-section grid-col-6">
-      <a href="websites/microsoft-casual-games-support.html" class="card-image-link">
-        <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games Support" class="card-image" loading="lazy">
-      </a>
-      <div class="card-content grid-col-1">
-        <h3><i class="fas fa-gamepad"></i> Casual Games Support</h3>
-        <div class="role-tags">
-          <span class="role-tag role-producer">Producer</span>
-        </div>
-        <p>Led the support migration from Zendesk to Xbox Support for Microsoft's Casual Games portfolio, ensuring a seamless transition for users.</p>
-        <a href="websites/microsoft-casual-games-support.html" class="btn btn-secondary btn-margin-top">
-          <i class="fas fa-external-link-alt"></i> View Project Details
+          <p>Producer-led work managing support content across Xbox platforms with 32M+ monthly users.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
         </a>
       </div>
     </section>
 
-      <!-- Ninja Theory Help Center -->
-      <section class="card-section grid-col-6">
-        <a href="websites/ninja-theory-support.html" class="card-image-link">
-          <img src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
-        </a>
-        <div class="card-content">
-          <h3><i class="fas fa-gamepad"></i> Ninja Theory Help Center</h3>
-          <div class="role-tags">
-            <span class="role-tag role-producer">Producer</span>
-          </div>
-          <p>Support content and help center for Ninja Theory's games, including Hellblade series and other titles.</p>
-          <a href="websites/ninja-theory-support.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
+    <!-- § 02 — Game support projects -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 02 &mdash; GAME SUPPORT</div>
+          <h2 class="ap-display">First-party<br><em>titles, supported.</em></h2>
         </div>
-      </section>
-
- 
-
-      <!-- Gears of War -->
-      <section class="card-section grid-col-6">
-        <a href="websites/gears-of-war-support.html" class="card-image-link">
-          <img src="/images/projects/gow/logo.png" alt="Gears of War" class="card-image" loading="lazy">
-        </a>
-        <div class="card-content">
-          <h3><i class="fas fa-gamepad"></i> Gears of War</h3>
-          <div class="role-tags">
-            <span class="role-tag role-producer">Producer</span>
-          </div>
-          <p>Producer role supporting the Gears of War series with game-specific help content and known issues tracking.</p>
-          <a href="websites/gears-of-war-support.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
-        </div>
-      </section>
-      
-      <!-- South of Midnight -->
-      <section class="card-section grid-col-6">
-        <a href="websites/south-of-midnight-support.html" class="card-image-link">
-          <img src="/images/projects/SoM/hero-01.png" alt="South of Midnight" class="card-image" loading="lazy">
-        </a>
-        <div class="card-content">
-          <h3><i class="fas fa-moon"></i> South of Midnight</h3>
-          <div class="role-tags">
-            <span class="role-tag role-producer">Producer</span>
-          </div>
-          <p>Support and resources for the South of Midnight game, including guides and features.</p>
-          <a href="websites/south-of-midnight-support.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
-        </div>
-      </section>
-      
-      <!-- Figma Fleet -->
-      <section class="card-section grid-col-12">
-        <a href="figma-fleet.html" class="card-image-link">
-          <img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet" class="card-image" loading="lazy">
-        </a>
-        <div class="card-content">
-          <h3><i class="fab fa-figma"></i> Figma Fleet</h3>
-          <div class="role-tags">
-            <span class="role-tag role-uiux">UI/UX</span>
-            <span class="role-tag role-training">Training</span>
-          </div>
-          <p>Comprehensive Figma resources including design systems and UI kits for Xbox projects. Streamline your workflow with battle-tested templates and components.</p>
-          <a href="figma-fleet.html" class="btn btn-secondary btn-margin-top">
-            <i class="fas fa-external-link-alt"></i> View Project Details
-          </a>
-        </div>
-      </section>
-    </div> <!-- Close projects-grid -->
-  </section> <!-- Close xbox-section -->
-
-    <!-- Related Projects Section -->
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
-      <div class="related-projects">
-        <div class="related-project-card">
-          <a href="/projects/index.html">
-            <i class="fas fa-home"></i> Main Projects Hub
-          </a>
-          <p>Explore all projects and experiments from the studio</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects/video/xbox-video.html">
-            <i class="fas fa-video"></i> Xbox Video Hub
-          </a>
-          <p>Browse all Xbox video tutorials and support content</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/about/index.html">
-            <i class="fas fa-user"></i> About Me
-          </a>
-          <p>Learn more about my background and experience</p>
+        <div class="ap-sec-meta">
+          Dedicated support experiences for Xbox first-party and published titles &mdash; help centers, localized content, and player-assistance tools for each launch.
         </div>
       </div>
+
+      <div class="ap-prods ap-shipped">
+        <a class="ap-pd op-live" href="/projects/websites/ninja-theory-support.html">
+          <span class="n">01</span>
+          <div>
+            <h3>Ninja Theory <em>Hellblade.</em></h3>
+            <span class="meta">Producer &middot; Help center</span>
+          </div>
+          <p>Support content and help center for Ninja Theory&rsquo;s Hellblade series &mdash; Senua&rsquo;s Sacrifice and Senua&rsquo;s Saga: Hellblade II.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/gears-of-war-support.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Gears of <em>War.</em></h3>
+            <span class="meta">Producer &middot; Franchise hub</span>
+          </div>
+          <p>Producer role supporting the Gears of War franchise with game-specific help content and known-issues tracking.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/south-of-midnight-support.html">
+          <span class="n">03</span>
+          <div>
+            <h3>South of <em>Midnight.</em></h3>
+            <span class="meta">Producer &middot; Localized help</span>
+          </div>
+          <p>Fully localized help center with accessible reporting tools and support content shipped alongside launch.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/websites/microsoft-casual-games-support.html">
+          <span class="n">04</span>
+          <div>
+            <h3>Microsoft Casual <em>Games.</em></h3>
+            <span class="meta">Producer &middot; Platform migration</span>
+          </div>
+          <p>Led the support migration from Zendesk to Xbox Support for Microsoft&rsquo;s Casual Games portfolio &mdash; seamless transition for end users.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/figma-fleet.html">
+          <span class="n">05</span>
+          <div>
+            <h3>Figma <em>Fleet.</em></h3>
+            <span class="meta">UI/UX &middot; Design system &middot; Training</span>
+          </div>
+          <p>Comprehensive Figma resources &mdash; design systems and UI kits for Xbox projects. Battle-tested templates and components.</p>
+          <span class="year">Shipped</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- § 03 — Related hubs (DS §4.8 step 7) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ 03 &mdash; RELATED</div>
+          <h2 class="ap-display">Where this<br><em>connects.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Other hubs and surfaces this portfolio plugs into.
+        </div>
+      </div>
+
+      <div class="ap-prods ap-shipped">
+        <a class="ap-pd op-live" href="/projects/">
+          <span class="n">01</span>
+          <div>
+            <h3>All <em>work.</em></h3>
+            <span class="meta">Every shipped project &middot; client + internal</span>
+          </div>
+          <p>Full project index beyond Xbox &mdash; video production, image packs, creative extensions, and internal systems.</p>
+          <span class="year">Ongoing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/projects/video/xbox-video.html">
+          <span class="n">02</span>
+          <div>
+            <h3>Xbox video <em>hub.</em></h3>
+            <span class="meta">Tutorials &middot; support &middot; showcase</span>
+          </div>
+          <p>All Xbox-adjacent video content in one place &mdash; tutorials, showcase reels, and support explainers.</p>
+          <span class="year">Ongoing</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="ap-pd op-archive" href="/about/">
+          <span class="n">03</span>
+          <div>
+            <h3>About the <em>studio.</em></h3>
+            <span class="meta">Background &middot; principles &middot; founder</span>
+          </div>
+          <p>Studio background, operating principles, and founder bio. Useful context if you&rsquo;re scoping a similar engagement.</p>
+          <span class="year">Reference</span>
+          <span class="go" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- §2.15  CTA -->
+    <section class="ap-cta" id="start">
+      <h2 class="ap-display ap-display--cta">Something like this?<br><em>Start a project.</em></h2>
+      <p>Help centers, migration work, producer engagements, content ops &mdash; all in the playbook. Tell us the shape of what you need.</p>
+      <div class="ap-cta-actions">
+        <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="/services/">See services</a>
+      </div>
+      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
     </section>
   </main>
 
-  <div id="footer-container"></div>
-  
-  <!-- Contact Modal Container -->
-  <!-- Modal Container -->
-  <div id="contact-modal-container">
-    <!-- Contact modal will be loaded here by init-contact-modal.js -->
-  </div>
+  <!-- §2.14  Footer -->
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/nova/">Nova</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
+  </footer>
 
-
-
-  <script src="/js/init-header-footer.js"></script>
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/init-contact-modal.js" defer></script>
-
-  <style>
-    /* Simple particle effect */
-    .hero-particles {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: 1;
-    }
-    
-    .particle {
-      position: absolute;
-      background: rgba(90, 228, 255, 0.6);
-      border-radius: 50%;
-      pointer-events: none;
-      animation: float 15s infinite linear;
-    }
-    
-    @keyframes float {
-      0% { transform: translateY(0) translateX(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-1000px) translateX(200px); opacity: 0; }
-    }
-  </style>
-  <script>
-    // Simple particle generator
-    document.addEventListener('DOMContentLoaded', function() {
-      const container = document.querySelector('.hero-particles');
-      if (!container) return;
-      
-      // Create particles
-      function createParticle() {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        
-        // Random size between 2px and 6px
-        const size = Math.random() * 4 + 2;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        
-        // Random position
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.top = '100%';
-        
-        // Random animation duration
-        const duration = Math.random() * 15 + 10;
-        particle.style.animationDuration = `${duration}s`;
-        
-        // Random delay
-        particle.style.animationDelay = `-${Math.random() * 10}s`;
-        
-        container.appendChild(particle);
-        
-        // Remove particle after animation completes
-        setTimeout(() => {
-          if (particle.parentNode === container) {
-            container.removeChild(particle);
-          }
-        }, duration * 1000);
-      }
-      
-      // Initial particles
-      for (let i = 0; i < 40; i++) {
-        createParticle();
-      }
-      
-      // Add more particles periodically
-      setInterval(createParticle, 800);
-    });
-  </script>
-  <script>
-    // Add click handler after DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      const suggestBtn = document.querySelector('a[onclick*="showModal"]');
-      if (suggestBtn) {
-        suggestBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          showModal('contact-modal');
-        });
-      }
-    });
-  </script>
-  <script src="/js/main.js" defer></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var banner = document.querySelector('#banner-container .banner');
-    var closeBtn = document.querySelector('#banner-container .banner-close');
-    var autoCloseTimer;
-    var displayDuration = 8000; // 8 seconds to read
-    var fadeOutDuration = 500; // 0.5 seconds to fade out
-    
-    // Function to show banner
-    function showBanner() {
-      if (!banner) return;
-      
-      // Reset any previous states
-      banner.classList.remove('hiding');
-      banner.classList.add('show');
-      
-      // Clear any existing timer
-      if (autoCloseTimer) {
-        clearTimeout(autoCloseTimer);
-      }
-      
-      // Set timer to auto-hide
-      autoCloseTimer = setTimeout(function() {
-        hideBanner();
-      }, displayDuration);
-    }
-    
-    // Function to hide banner with animation
-    function hideBanner() {
-      if (!banner) return;
-      
-      banner.classList.remove('show');
-      banner.classList.add('hiding');
-      
-      // Remove from DOM after animation completes
-      setTimeout(function() {
-        if (banner && banner.parentNode) {
-          banner.parentNode.removeChild(banner);
-        }
-      }, fadeOutDuration);
-    }
-    
-    // Initialize banner
-    if (banner) {
-      // Show banner after a small delay to allow page to load
-      setTimeout(showBanner, 500);
-      
-      // Handle close button click
-      if (closeBtn) {
-        closeBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          hideBanner();
-          if (autoCloseTimer) {
-            clearTimeout(autoCloseTimer);
-          }
-        });
-      }
-    }
-  });
-</script>
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
 </body>
 </html>
