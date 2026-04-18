@@ -1,25 +1,68 @@
 /* ============================================================
    ap-skin.css — DS overlay for legacy pages.
 
-   Load order per page:
-     1. All legacy CSS (base, grid, nav, components, theme, banner,
-        projects, hero, lightbox, ...) — provides LAYOUT.
-     2. ap-tokens.css — provides DS tokens.
-     3. ap-skin.css (this file) — remaps legacy surfaces to DS
-        palette + fonts WITHOUT changing layout.
+   Loaded AFTER legacy CSS (grid, nav, components, hero, projects,
+   form-explainer, lightbox, breadcrumb) and AFTER ap-tokens +
+   ap-components, so everything here wins the cascade.
 
-   Intent: a page keeps its original HTML structure and component
-   grid, but reads as Monolith (black bg, Archivo + JetBrains Mono,
-   grayscale palette, hairline rules, no gradients). Use for case
-   studies and other legacy pages where a full DS §4 rewrite is too
-   disruptive.
+   Pages using this file should NOT load base.css, theme.css, or
+   banner.css — those contain the p/body/a/ul global defaults that
+   leak into .ap-foot + other DS surfaces no matter how many
+   !important overrides we stack. The reset block below replaces
+   everything base.css provided.
 
-   This is not a system-wide change: only pages that explicitly
-   <link> this file get the skin.
+   Intent: a page keeps its original HTML structure (hero-card,
+   content-section, grid-col-*, media-grid, bullet-card, ap-quote,
+   etc.) but reads as Monolith. Single source of truth for skinned
+   pages is tokens + components + this file.
    ============================================================ */
 
 
-/* ---- Body + typography reset -------------------------------------- */
+/* ---- Global reset (replaces base.css) ------------------------------ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body,
+h1, h2, h3, h4, h5, h6,
+p, figure, blockquote,
+dl, dd, ol, ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+img, svg, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* ---- Body + typography base --------------------------------------- */
 
 body {
   background: var(--color-bg) !important;
