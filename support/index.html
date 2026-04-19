@@ -3,493 +3,230 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Engage — Structured AI-native infrastructure, built for production environments. AmbientPixels." />
+  <meta name="description" content="Engage — structured AI-native infrastructure, built for production environments. AmbientPixels consultation request." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Engage — AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/forms.css" />
-  <style>
-    /* Engage — Scoped Styles */
-
-    .eng-hero .hero-base-content {
-      padding: 4.25rem 1.5rem;
-    }
-    .eng-hero .hero-base-content p {
-      line-height: 1.75;
-    }
-    .eng-hero .hero-base-content h2 {
-      font-weight: 500;
-    }
-
-    .eng-section { margin-bottom: 3rem; }
-    .eng-section h2 {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin: 0 0 0.75rem;
-    }
-    .eng-section > p {
-      font-size: 0.95rem;
-      line-height: 1.6;
-      opacity: 0.65;
-      max-width: 720px;
-    }
-
-    /* Engagement Model Cards */
-    .eng-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.25rem;
-      margin-top: 1rem;
-    }
-    .eng-card {
-      border: 1px solid rgba(128,128,128,0.15);
-      border-radius: 8px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      transition: border-color 0.2s ease;
-    }
-    .eng-card:hover {
-      border-color: rgba(128,128,128,0.3);
-    }
-    .eng-card .eng-icon {
-      font-size: 1.25rem;
-      color: var(--eng-accent, #a78bfa);
-      margin-bottom: 0.25rem;
-    }
-    .eng-card {
-      border-top: 3px solid var(--eng-accent, rgba(128,128,128,0.15));
-    }
-    .eng-card--advisory  { --eng-accent: #4ECDC4; }
-    .eng-card--build     { --eng-accent: #60a5fa; }
-    .eng-card--retainer  { --eng-accent: #f59e0b; }
-    .eng-card--enterprise{ --eng-accent: #FF6B9D; }
-    .eng-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-    }
-    .eng-card p {
-      font-size: 0.85rem;
-      line-height: 1.55;
-      margin: 0;
-      opacity: 0.6;
-    }
-
-    /* Process Flow */
-    .eng-process {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 1.25rem;
-      margin-top: 1.25rem;
-    }
-    .eng-step {
-      border: 1px solid rgba(128,128,128,0.15);
-      border-radius: 6px;
-      padding: 1.25rem 1rem;
-      text-align: center;
-    }
-    .eng-step-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(167, 139, 250, 0.12);
-      color: var(--step-accent, #a78bfa);
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    .eng-step {
-      border-top: 2px solid var(--step-accent, rgba(128,128,128,0.15));
-    }
-    .eng-step--discover    { --step-accent: #4ECDC4; }
-    .eng-step--architecture{ --step-accent: #60a5fa; }
-    .eng-step--build       { --step-accent: #a78bfa; }
-    .eng-step--governance  { --step-accent: #f59e0b; }
-    .eng-step--deploy      { --step-accent: #34d399; }
-    .eng-step h4 {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin: 0 0 0.25rem;
-    }
-    .eng-step p {
-      font-size: 0.75rem;
-      margin: 0;
-      opacity: 0.45;
-      line-height: 1.4;
-    }
-
-    /* Qualification Form — layout only, inputs styled by forms.css */
-    .eng-form {
-      max-width: 640px;
-      margin-top: 1rem;
-    }
-    .eng-form-row {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 0;
-    }
-    .eng-form-row > .form-group {
-      flex: 1;
-    }
-    .eng-form .form-group .label-wrapper {
-      margin-bottom: 0.35rem;
-    }
-    .eng-form .form-group label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    /* Submit button */
-    .eng-submit {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      font-family: inherit;
-      color: #efe9ff;
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(59, 130, 246, 0.22));
-      border: 1px solid rgba(167, 139, 250, 0.45);
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      letter-spacing: 0.02em;
-    }
-    .eng-submit:hover {
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(59, 130, 246, 0.32));
-      border-color: rgba(196, 181, 253, 0.7);
-      color: #fff;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25);
-    }
-
-    /* Platform note */
-    .eng-note {
-      margin-top: 2rem;
-      padding: 1rem 1.25rem;
-      border-left: 2px solid #a78bfa;
-      font-size: 0.82rem;
-      line-height: 1.5;
-      opacity: 0.45;
-      max-width: 640px;
-    }
-
-    /* Light theme overrides */
-    [data-theme="light"] .eng-card .eng-icon {
-      color: var(--eng-accent, #7c3aed);
-    }
-    [data-theme="light"] .eng-step-num {
-      color: var(--step-accent, #7c3aed);
-      background: rgba(124, 58, 237, 0.1);
-    }
-    [data-theme="light"] .eng-card {
-      border-left-color: #e2e8f0;
-      border-right-color: #e2e8f0;
-      border-bottom-color: #e2e8f0;
-    }
-    [data-theme="light"] .eng-card:hover {
-      border-left-color: #cbd5e1;
-      border-right-color: #cbd5e1;
-      border-bottom-color: #cbd5e1;
-    }
-    [data-theme="light"] .eng-step {
-      border-left-color: #e2e8f0;
-      border-right-color: #e2e8f0;
-      border-bottom-color: #e2e8f0;
-    }
-    [data-theme="light"] .eng-note {
-      border-left-color: #7c3aed;
-    }
-    [data-theme="light"] .eng-submit {
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(59, 130, 246, 0.1));
-      border-color: rgba(124, 58, 237, 0.3);
-      color: #5b21b6;
-    }
-    [data-theme="light"] .eng-submit:hover {
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(59, 130, 246, 0.15));
-      border-color: rgba(124, 58, 237, 0.5);
-      color: #4c1d95;
-      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
-    }
-
-    @media (max-width: 600px) {
-      .eng-hero .hero-base-content { padding: 3rem 1.2rem; }
-      .eng-form-row { flex-direction: column; gap: 0; }
-      .eng-process { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <style>
+    /* Engagement form — DS-aligned. Inputs styled by forms.css. */
+    .eng-form { max-width: var(--max-prose); margin-top: var(--sp-8); }
+    .eng-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); margin-bottom: 0; }
+    @media (max-width: 600px) { .eng-form-row { grid-template-columns: 1fr; } }
+    .eng-form .form-group { margin-bottom: var(--sp-5); }
+    .eng-form label { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.75); display: block; margin-bottom: var(--sp-2); }
+    .eng-form .label-wrapper { margin-bottom: var(--sp-2); }
+    .eng-form .input-wrapper { display: block; }
+    .eng-form input[type="text"], .eng-form input[type="email"], .eng-form select, .eng-form textarea {
+      width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--color-border);
+      padding: var(--sp-3) 0; font-family: var(--font-display); font-size: var(--fs-body); color: var(--color-text-primary);
+      transition: border-color var(--dur-fast);
+    }
+    .eng-form input:focus, .eng-form select:focus, .eng-form textarea:focus { outline: none; border-bottom-color: var(--color-text-primary); }
+    .eng-form textarea { min-height: 120px; resize: vertical; }
+    .eng-form .form-status { margin-top: var(--sp-3); font-family: var(--font-mono); font-size: var(--fs-mono-xs); opacity: .65; }
+    .eng-note { max-width: var(--max-prose); margin: var(--sp-12) 0 0; padding-left: var(--sp-5); border-left: 1px solid var(--color-border); font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.55); line-height: 1.5; }
+  </style>
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <!-- Hero -->
-  <section class="hero-base eng-hero" data-hero="architect">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>Start Your System</h1>
-      <p class="subtitle">Structured AI-native infrastructure, built for production environments.</p>
-      <p>AmbientPixels partners with organizations to design, build, and deploy governed automation systems. Every engagement follows a structured process — from discovery through production — with clear deliverables, defined architecture, and human oversight at every stage.</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-
-    <!-- Engagement Models -->
-    <section class="content-section grid-col-12 eng-section">
-      <h2>Engagement Models</h2>
-      <p>Four structured pathways to production-grade infrastructure. Each model scales to meet system complexity and organizational requirements.</p>
-      <div class="eng-grid">
-        <div class="eng-card eng-card--advisory">
-          <i class="fas fa-compass eng-icon"></i>
-          <h3>Advisory</h3>
-          <p>Architecture review, system assessment, and strategic planning for teams building AI-native infrastructure. Delivered as structured consultation with documented recommendations.</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; STUDIO &mdash; ENGAGE</div>
+          <h1 class="ap-display">Start your<em> system.</em></h1>
         </div>
-        <div class="eng-card eng-card--build">
-          <i class="fas fa-hammer eng-icon"></i>
-          <h3>Build</h3>
-          <p>End-to-end system design and development. Modular architecture, automation pipelines, governance layers, and deployment — scoped to a defined project with clear milestones.</p>
-        </div>
-        <div class="eng-card eng-card--retainer">
-          <i class="fas fa-sync-alt eng-icon"></i>
-          <h3>Retainer</h3>
-          <p>Ongoing system maintenance, iteration, and infrastructure expansion. Dedicated capacity for continuous improvement with monthly deliverables and priority support.</p>
-        </div>
-        <div class="eng-card eng-card--enterprise">
-          <i class="fas fa-building eng-icon"></i>
-          <h3>Enterprise</h3>
-          <p>Full-scale platform implementation with multi-system integration, custom governance frameworks, SLA-backed support, and dedicated engineering resources.</p>
+        <div class="ap-sec-meta">
+          Structured AI-native infrastructure, built for production environments. AmbientPixels partners to design, build, and deploy governed automation systems &mdash; clear deliverables, defined architecture, human oversight at every stage.
         </div>
       </div>
     </section>
 
-    <!-- Engagement Process -->
-    <section class="content-section grid-col-12 eng-section">
-      <h2>Engagement Process</h2>
-      <p>A defined workflow from initial conversation through production deployment.</p>
-      <div class="eng-process">
-        <div class="eng-step eng-step--discover">
-          <span class="eng-step-num">1</span>
-          <h4>Discovery</h4>
-          <p>Scope, goals, and system requirements</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; ENGAGEMENT MODELS</div>
+          <h2 class="ap-display">Four pathways, <em>one studio.</em></h2>
         </div>
-        <div class="eng-step eng-step--architecture">
-          <span class="eng-step-num">2</span>
-          <h4>Architecture</h4>
-          <p>System design, component mapping, and technical specification</p>
+        <div class="ap-sec-meta">
+          Each model scales to meet system complexity and organizational requirements.
         </div>
-        <div class="eng-step eng-step--build">
-          <span class="eng-step-num">3</span>
-          <h4>Build</h4>
-          <p>Modular development with milestone reviews and staging</p>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Advisory<em>.</em></h3>
+          <p>Architecture review, system assessment, strategic planning for teams building AI-native infrastructure. Structured consultation with documented recommendations.</p>
         </div>
-        <div class="eng-step eng-step--governance">
-          <span class="eng-step-num">4</span>
-          <h4>Governance</h4>
-          <p>Approval flows, observability, and audit integration</p>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Build<em>.</em></h3>
+          <p>End-to-end system design and development. Modular architecture, automation pipelines, governance layers, deployment &mdash; scoped to a defined project with clear milestones.</p>
         </div>
-        <div class="eng-step eng-step--deploy">
-          <span class="eng-step-num">5</span>
-          <h4>Deployment</h4>
-          <p>Production release, monitoring, and handoff documentation</p>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Retainer<em>.</em></h3>
+          <p>Ongoing maintenance, iteration, infrastructure expansion. Dedicated capacity for continuous improvement with monthly deliverables and priority support.</p>
         </div>
+      </div>
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Enterprise<em>.</em></h3>
+          <p>Full-scale platform implementation with multi-system integration, custom governance frameworks, SLA-backed support, dedicated engineering resources.</p>
+        </div>
+        <div class="ap-pillar" style="opacity: .55;"><div class="num">&nbsp;</div><h3 class="ap-display ap-display--pillar" style="opacity: .55;">Need<br><em>something else?</em></h3><p>If your project doesn&rsquo;t fit a model, describe it in the form below and we&rsquo;ll scope from there.</p></div>
+        <div class="ap-pillar" style="opacity: .55;"><div class="num">&nbsp;</div><h3 class="ap-display ap-display--pillar" style="opacity: .55;">Pro<br><em>bono?</em></h3><p>Open-source projects and learning initiatives can request reduced or pro-bono engagements case by case.</p></div>
       </div>
     </section>
 
-    <!-- Qualification Form -->
-    <section class="content-section grid-col-12 eng-section">
-      <h2>Request Consultation</h2>
-      <p>Tell us about your project. We'll review your requirements and respond within two business days.</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; ENGAGEMENT PROCESS</div>
+          <h2 class="ap-display">Five steps, <em>idea to production.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          A defined workflow from initial conversation through production deployment.
+        </div>
+      </div>
+      <div class="ap-prods">
+        <div class="ap-pd"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Discovery<em>.</em></h3><span class="meta">Initial scope</span></div><p>Scope, goals, and system requirements. The first conversation that shapes everything.</p><span class="year">Step 1</span><span class="go"></span></div>
+        <div class="ap-pd"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Architecture<em>.</em></h3><span class="meta">System design</span></div><p>System design, component mapping, technical specification.</p><span class="year">Step 2</span><span class="go"></span></div>
+        <div class="ap-pd"><span class="n">03</span><div><h3 class="ap-display ap-display--row">Build<em>.</em></h3><span class="meta">Modular dev</span></div><p>Modular development with milestone reviews and staging.</p><span class="year">Step 3</span><span class="go"></span></div>
+        <div class="ap-pd"><span class="n">04</span><div><h3 class="ap-display ap-display--row">Governance<em>.</em></h3><span class="meta">Approvals &middot; observability</span></div><p>Approval flows, observability, audit integration.</p><span class="year">Step 4</span><span class="go"></span></div>
+        <div class="ap-pd"><span class="n">05</span><div><h3 class="ap-display ap-display--row">Deployment<em>.</em></h3><span class="meta">Production release</span></div><p>Production release, monitoring, handoff documentation.</p><span class="year">Step 5</span><span class="go"></span></div>
+      </div>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; REQUEST CONSULTATION</div>
+          <h2 class="ap-display">Tell us what <em>you&rsquo;re building.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          We&rsquo;ll review your requirements and respond within two business days.
+        </div>
+      </div>
+
       <form class="eng-form contact-form" id="engage-form" method="POST" data-ambientos-intake="true">
-        <input type="hidden" name="type" value="demo">
-        <input type="hidden" name="form_started_at_ms" value="">
-        <input type="text" name="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
+        <input type="hidden" name="type" value="demo" />
+        <input type="hidden" name="form_started_at_ms" value="" />
+        <input type="text" name="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;" />
+
         <div class="eng-form-row">
           <div class="form-group">
-            <div class="label-wrapper">
-              <label for="eng-name">Name</label>
-            </div>
-            <div class="input-wrapper">
-              <input type="text" id="eng-name" name="name" required placeholder="Full name" />
-            </div>
+            <label for="eng-name">Name</label>
+            <input type="text" id="eng-name" name="name" required placeholder="Full name" />
           </div>
           <div class="form-group">
-            <div class="label-wrapper">
-              <label for="eng-company">Company</label>
-            </div>
-            <div class="input-wrapper">
-              <input type="text" id="eng-company" name="company" placeholder="Organization" />
-            </div>
+            <label for="eng-company">Company</label>
+            <input type="text" id="eng-company" name="company" placeholder="Organization" />
           </div>
         </div>
+
         <div class="eng-form-row">
           <div class="form-group">
-            <div class="label-wrapper">
-              <label for="eng-email">Email</label>
-            </div>
-            <div class="input-wrapper">
-              <input type="email" id="eng-email" name="email" required placeholder="you@company.com" />
-            </div>
+            <label for="eng-email">Email</label>
+            <input type="email" id="eng-email" name="email" required placeholder="you@company.com" />
           </div>
           <div class="form-group">
-            <div class="label-wrapper">
-              <label for="eng-project-type">Project Type</label>
-            </div>
-            <div class="input-wrapper">
-              <select id="eng-project-type" name="project_type" class="styled-select" required>
-                <option value="" disabled selected>Select type</option>
-                <option value="advisory">Advisory / Architecture Review</option>
-                <option value="build">Build / System Development</option>
-                <option value="retainer">Retainer / Ongoing Support</option>
-                <option value="enterprise">Enterprise / Platform Implementation</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+            <label for="eng-project-type">Project type</label>
+            <select id="eng-project-type" name="project_type" required>
+              <option value="" disabled selected>Select type</option>
+              <option value="advisory">Advisory / architecture review</option>
+              <option value="build">Build / system development</option>
+              <option value="retainer">Retainer / ongoing support</option>
+              <option value="enterprise">Enterprise / platform implementation</option>
+              <option value="other">Other</option>
+            </select>
           </div>
         </div>
+
         <div class="eng-form-row">
           <div class="form-group">
-            <div class="label-wrapper">
-              <label for="eng-timeline">Timeline</label>
-            </div>
-            <div class="input-wrapper">
-              <select id="eng-timeline" name="timeline" class="styled-select">
-                <option value="" disabled selected>Select timeline</option>
-                <option value="immediate">Immediate (< 2 weeks)</option>
-                <option value="short">Short-term (1–3 months)</option>
-                <option value="medium">Medium-term (3–6 months)</option>
-                <option value="long">Long-term (6+ months)</option>
-                <option value="flexible">Flexible</option>
-              </select>
-            </div>
+            <label for="eng-timeline">Timeline</label>
+            <select id="eng-timeline" name="timeline">
+              <option value="" disabled selected>Select timeline</option>
+              <option value="immediate">Immediate (&lt; 2 weeks)</option>
+              <option value="short">Short-term (1&ndash;3 months)</option>
+              <option value="medium">Medium-term (3&ndash;6 months)</option>
+              <option value="long">Long-term (6+ months)</option>
+              <option value="flexible">Flexible</option>
+            </select>
           </div>
           <div class="form-group">
-            <div class="label-wrapper">
-              <label for="eng-budget">Budget Range</label>
-            </div>
-            <div class="input-wrapper">
-              <select id="eng-budget" name="budget_range" class="styled-select">
-                <option value="" disabled selected>Select range</option>
-                <option value="5k-15k">$5,000 – $15,000</option>
-                <option value="15k-50k">$15,000 – $50,000</option>
-                <option value="50k-100k">$50,000 – $100,000</option>
-                <option value="100k+">$100,000+</option>
-                <option value="tbd">To be determined</option>
-              </select>
-            </div>
+            <label for="eng-budget">Budget range</label>
+            <select id="eng-budget" name="budget_range">
+              <option value="" disabled selected>Select range</option>
+              <option value="5k-15k">$5,000 &ndash; $15,000</option>
+              <option value="15k-50k">$15,000 &ndash; $50,000</option>
+              <option value="50k-100k">$50,000 &ndash; $100,000</option>
+              <option value="100k+">$100,000+</option>
+              <option value="tbd">To be determined</option>
+            </select>
           </div>
         </div>
+
         <div class="form-group">
-          <div class="label-wrapper">
-            <label for="eng-description">Project Description</label>
-          </div>
-          <div class="input-wrapper">
-            <textarea id="eng-description" name="description" required placeholder="Describe your project, current infrastructure, and what you're looking to build."></textarea>
-          </div>
+          <label for="eng-description">Project description</label>
+          <textarea id="eng-description" name="description" required placeholder="Describe your project, current infrastructure, and what you're looking to build."></textarea>
         </div>
+
         <input type="hidden" name="_source" value="engage" />
-        <div class="form-group" style="margin-top:0.5rem;">
-          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;opacity:0.6;cursor:pointer;">
-            <input type="checkbox" name="privacyAccepted" required>
-            I agree to the <a href="/privacy.html" target="_blank" style="color:inherit;text-decoration:underline;">privacy policy</a>
+
+        <div class="form-group" style="margin-top: var(--sp-3);">
+          <label style="display: flex; align-items: center; gap: var(--sp-2); text-transform: none; letter-spacing: 0; font-family: var(--font-display); font-size: var(--fs-body-sm); opacity: .82; cursor: pointer;">
+            <input type="checkbox" name="privacyAccepted" required style="width: auto;" />
+            I agree to the <a class="ap-link-mono" href="/privacy.html" target="_blank">privacy policy &rarr;</a>
           </label>
         </div>
+
         <div class="form-status"></div>
-        <button type="submit" class="eng-submit">
-          <i class="fas fa-paper-plane"></i>
-          <span>Request Consultation</span>
-        </button>
+
+        <div style="margin-top: var(--sp-8);">
+          <button type="submit" class="ap-btn ap-btn--primary">Request consultation &rarr;</button>
+        </div>
       </form>
 
-      <div class="eng-note">
-        Interested in platform integration with Nova or AmbientOS? Include details in your project description and we'll scope accordingly.
-      </div>
+      <p class="eng-note">
+        Interested in platform integration with Nova or AmbientOS? Include details in your project description and we&rsquo;ll scope accordingly.
+      </p>
     </section>
 
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
 
   <script src="/js/forms.js" defer></script>
   <script src="/js/form-intake.js" defer></script>
-  <script src="/js/telemetry-config.js"></script>
-  <script src="/js/telemetry-appinsights.js" defer></script>
 </body>
 </html>
