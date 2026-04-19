@@ -2,43 +2,211 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="stylesheet" href="/css/nebulight.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Xbox Support Content Team showcase - Meet the specialized team responsible for creating and maintaining Xbox support content across 40+ languages." />
-  <meta property="og:title" content="Xbox Support Content Team | AmbientPixels" />
-  <meta property="og:description" content="Meet the specialized team behind Xbox support content - writers, editors, designers, and developers creating world-class support materials." />
+  <meta name="description" content="Xbox Support Content Team — the team behind Microsoft Xbox Support content. Writers, editors, designers, developers across 40+ languages and 5 platforms." />
+  <meta property="og:title" content="Xbox Support Content Team — AmbientPixels" />
+  <meta property="og:description" content="Meet the specialized team behind Xbox support content — writers, editors, designers, developers across 40+ languages." />
   <meta property="og:image" content="/images/projects/xbox-support/screen-04.jpeg" />
-  <meta property="og:url" content="https://ambientpixels.github.io/projects/xbox-support-team" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/xbox-support-team" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Xbox Support Content Team | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-<link rel="stylesheet" href="/css/projects/video-projects.css" />
-  <link rel="stylesheet" href="/css/luma.css" />
-  <link rel="stylesheet" href="/css/nebulight.css" />
-  <link rel="stylesheet" href="/css/echogrid-avatar.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- RPG Avatar Card Module CSS (RPG Test Section) -->
-  <link rel="stylesheet" href="/modules/rpg-avatar-cards.css">
-  <link rel="stylesheet" href="/css/lightbox.css">
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Xbox Support Content Team — AmbientPixels</title>
+
+  <!-- DS fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <!-- DS canonical stack -->
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <!-- RPG avatar cards system — preserved as the centerpiece of this page.
+       Per the team-tribute brief, the cards keep their own visual language. -->
+  <link rel="stylesheet" href="/modules/rpg-avatar-cards.css" />
+
+  <!-- Lightbox modal styles for the gallery -->
+  <link rel="stylesheet" href="/css/lightbox.css" />
+
+  <!-- Page-scoped: metric strips, tag chips, mono lists, FAQ details. -->
+  <style>
+    .xst-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-8);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--sp-12) 0;
+      margin: var(--sp-8) 0 0;
+    }
+    .xst-metric .num {
+      font-family: var(--font-heavy);
+      font-size: 72px;
+      line-height: 1;
+      letter-spacing: var(--tracking-display);
+      margin: 0 0 var(--sp-3);
+    }
+    .xst-metric .lbl {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.6);
+    }
+    @media (max-width: 1000px) { .xst-metrics { grid-template-columns: 1fr 1fr; } }
+    @media (max-width:  600px) { .xst-metrics { grid-template-columns: 1fr; } }
+
+    .xst-tags {
+      list-style: none;
+      padding: 0;
+      margin: var(--sp-5) 0 0;
+      display: flex;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.7);
+    }
+    .xst-tags li {
+      padding: var(--sp-2) var(--sp-3);
+      border: 1px solid var(--color-border);
+    }
+
+    .xst-bullets {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-width: var(--max-prose);
+    }
+    .xst-bullets li {
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+    }
+    .xst-bullets li:first-child { border-top: none; }
+    .xst-bullets li::before { content: '→ '; opacity: .45; }
+    .xst-bullets strong { color: var(--color-text-primary); }
+
+    .xst-quote {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      font-size: var(--fs-body-lg);
+      line-height: 1.5;
+      color: var(--color-text-body);
+      max-width: var(--max-prose);
+      margin: var(--sp-8) 0 0;
+      padding: 0 0 0 var(--sp-6);
+      border-left: 1px solid var(--color-border);
+    }
+    .xst-quote .cite {
+      display: block;
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.6);
+      margin-top: var(--sp-3);
+    }
+
+    /* FAQ accordion — DS-styled native <details> */
+    .xst-faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-12);
+    }
+    @media (max-width: 1000px) { .xst-faq-grid { grid-template-columns: 1fr; } }
+    .xst-faq-cat h3 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: 18px;
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      color: var(--color-text-primary);
+      margin: 0 0 var(--sp-3);
+      padding-bottom: var(--sp-2);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .xst-faq details {
+      border-top: 1px solid var(--color-border-soft);
+      padding: var(--sp-3) 0;
+    }
+    .xst-faq details:first-child { border-top: none; }
+    .xst-faq summary {
+      font-family: var(--font-display);
+      font-weight: var(--fw-medium);
+      font-size: var(--fs-body-sm);
+      cursor: pointer;
+      list-style: none;
+      padding: var(--sp-2) 0;
+      position: relative;
+      padding-right: var(--sp-6);
+      color: var(--color-text-primary);
+    }
+    .xst-faq summary::-webkit-details-marker { display: none; }
+    .xst-faq summary::after {
+      content: '+';
+      position: absolute;
+      right: 0;
+      top: var(--sp-2);
+      font-family: var(--font-mono);
+      font-weight: 400;
+      opacity: .6;
+    }
+    .xst-faq details[open] summary::after { content: '−'; }
+    .xst-faq details > div p {
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+      opacity: .82;
+      margin: var(--sp-3) 0 var(--sp-3);
+      max-width: 60ch;
+    }
+
+    /* Final quote — bigger, multi-paragraph treatment */
+    .xst-final {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-20) var(--sec-pad-x);
+      border-top: 1px solid var(--color-border);
+    }
+    .xst-final blockquote {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      font-size: var(--fs-heading);
+      line-height: 1.4;
+      color: var(--color-text-body);
+      max-width: 60ch;
+      margin: 0;
+      padding: 0;
+    }
+    .xst-final blockquote p { margin: 0 0 var(--sp-5); }
+    .xst-final blockquote p:last-child { margin-bottom: 0; }
+    .xst-final cite {
+      display: block;
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.6);
+      margin-top: var(--sp-8);
+    }
+  </style>
+
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <script src="/js/lightbox.js" type="module"></script>
+  <!-- RPG avatar card system (preserved — JS-loaded card grid) -->
+  <script src="/modules/rpg-avatar-cards.js" defer></script>
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-  <div id="banner-container"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
+  <!-- §2.2 Nav -->
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -55,777 +223,678 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero-card hero-card-video">
-  <div class="hero-card-image video-gradient-10 card-image-container hero-particles-container">
-    <div id="hero-particles" class="hero-particles"></div>
-    <div class="hero-video-icon-container xbox-video-icon-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100;">
-      <i class="fas fa-gamepad project-icon-video" style="position: relative; z-index: 101;" aria-hidden="true"></i>
-    </div>
-  </div>
-  <div class="hero-card-content">
-    <div class="hero-card-badge badge-solid-blue">Team Showcase</div>
-    <h1>Xbox Support Content Team</h1>
-    <p class="hero-card-description">
-Every day, the Xbox Support Content Team transforms challenges into connection—helping millions of players feel understood, empowered, and never alone. Across platforms and languages, we bring empathy, clarity, and a human touch to every answer, making the world of play brighter for everyone.
-</p>
-    <div class="project-tags">
-      <span class="tech-badge"><i class="fas fa-pen"></i> Content Creation</span>
-      <span class="tech-badge"><i class="fas fa-globe"></i> 40+ Languages</span>
-      <span class="tech-badge"><i class="fas fa-universal-access"></i> Accessibility</span>
-      <span class="tech-badge"><i class="fas fa-code"></i> Publishing Pipeline</span>
-    </div>
-    <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-  </div>
-</section>
+  <main>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <!-- Quick Navigation -->
-    <div class="grid-col-12">
-      <div class="nav-container xbox-nav-container">
-        <nav class="section-nav">
-          <ul class="nav-list">
-            <li><a href="#mission" class="xbox-nav-link"><i class="fas fa-flag"></i> <span>Mission</span></a></li>
-            <li><a href="#team-lore" class="xbox-nav-link"><i class="fas fa-mask"></i> <span>Team</span></a></li>
-            <li><a href="#team-stack" class="xbox-nav-link"><i class="fas fa-layer-group"></i> <span>Tech Stack</span></a></li>
-            <li><a href="#ai-pipeline" class="xbox-nav-link"><i class="fas fa-brain"></i> <span>AI Tools</span></a></li>
-            <li><a href="#gallery" class="xbox-nav-link"><i class="fas fa-images"></i> <span>Gallery</span></a></li>
-          </ul>
-        </nav>
-      </div>
-    </div>
-    
-    <!-- Team Overview Section -->
-    <section class="content-section grid-col-12" id="mission">
-      <h2 class="section-title">Team Overview</h2>
-      <p class="section-intro">
-The Xbox Support Content Team was more than a group—it was the heartbeat behind every player’s journey. We didn’t just publish articles; we built bridges between confusion and clarity, frustration and relief.<br>
-What made us extraordinary wasn’t just our global reach, but our unity. Together, we turned challenges into victories and work into something that felt like purpose. Every update, every answer, was a promise: no player would ever feel lost or unheard.<br>
-In a world moving at the speed of play, we stood side by side—trusted, resilient, and always ready to help. Our greatest achievement wasn’t just the scale of our work, but the trust we earned, one player at a time.
-</p>
-  <!-- blockquote holder
-      <blockquote class="team-quote">
-        “Every day, we brought clarity, support, and delight to Xbox players worldwide. Our work was seen by millions—but our teamwork made it legendary.”<br>
-        <span class="quote-author">— Taryn, Team Rep</span>
-      </blockquote>
-      -->
-      <div class="impact-highlights">
-  <div class="impact-item"><span class="impact-number">1500+</span><span class="impact-text">Articles</span></div>
-  <div class="impact-item"><span class="impact-number">40+</span><span class="impact-text">Languages</span></div>
-  <div class="impact-item"><span class="impact-number">96%</span><span class="impact-text">User Satisfaction</span></div>
-  <div class="impact-item"><span class="impact-number">24/7</span><span class="impact-text">Global Support</span></div>
-</div>
-    </section>
-
-    <!-- RPG Test: The Superheroes Section (Demo/Test) -->
-    <section class="content-section grid-col-12" id="rpg-test-superheroes">
-      <h2 class="section-title"><i class="fas fa-dice-d20"></i> The Superhero Team</h2>
-      <div class="grid-container">
-        <div class="grid-col-12">
-          <h2 class="section-title"><i class="fas fa-mask"></i> Masters of the Mission</h2>
-          <p class="section-intro">
-            Meet the extraordinary individuals behind Xbox Support content. Each brought a unique superpower—localization, production, PM wizardry, writing, and more. Together, we delivered high-level, high-quality content in a professional, fun environment. This is our story, and every card below is a legend.
-          </p>
-             <!-- Team Overview Section 
-          <blockquote class="team-quote">
-            “We built a pipeline that could handle anything—from global launches to last-minute hotfixes. No leaks, no drama, just results.”<br>
-            <span class="quote-author">— Rob, Team Leader</span>
-          </blockquote>
-        -->
-
-          <div class="note-box">
-            <i class="fas fa-info-circle"></i> <strong>Team Powers:</strong> Hover over or tap each team member's card to reveal their special abilities, stats, and role details.
-          </div>
+    <!-- Hero -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
+          <h1 class="ap-display">Xbox Support<em> Content Team.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          The team behind Microsoft&rsquo;s Xbox Support content &mdash; writers, editors, designers, developers across 40+ languages and 5 platforms. Empathy at scale, clarity at speed.
+          <br/><br/>
+          <span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
         </div>
       </div>
+      <ul class="xst-tags">
+        <li>Content creation</li>
+        <li>40+ languages</li>
+        <li>Accessibility</li>
+        <li>Publishing pipeline</li>
+      </ul>
+    </section>
+
+    <!-- § 01 — TEAM OVERVIEW -->
+    <section class="ap-sec ap-sec--cool" id="mission">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; TEAM OVERVIEW</div>
+          <h2 class="ap-display">More than a group, <em>the heartbeat behind every player.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The mission, the impact, the trust earned one player at a time.
+        </div>
+      </div>
+
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        The Xbox Support Content Team was more than a group &mdash; it was the heartbeat behind every player&rsquo;s journey. We didn&rsquo;t just publish articles; we built bridges between confusion and clarity, frustration and relief.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        What made us extraordinary wasn&rsquo;t just our global reach, but our unity. Together, we turned challenges into victories and work into something that felt like purpose. Every update, every answer, was a promise: no player would ever feel lost or unheard.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        In a world moving at the speed of play, we stood side by side &mdash; trusted, resilient, and always ready to help. Our greatest achievement wasn&rsquo;t just the scale of our work, but the trust we earned, one player at a time.
+      </p>
+
+      <div class="xst-metrics">
+        <div class="xst-metric"><p class="num">1500+</p><p class="lbl">Articles</p></div>
+        <div class="xst-metric"><p class="num">40+</p><p class="lbl">Languages</p></div>
+        <div class="xst-metric"><p class="num">96%</p><p class="lbl">User satisfaction</p></div>
+        <div class="xst-metric"><p class="num">24/7</p><p class="lbl">Global support</p></div>
+      </div>
+    </section>
+
+    <!-- § 02 — THE TEAM (RPG avatar cards preserved) -->
+    <section class="ap-sec" id="team-lore">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; THE TEAM, IN CARDS</div>
+          <h2 class="ap-display">Masters of the mission, <em>in trading-card form.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Each member brought a unique superpower &mdash; localization, production, PM wizardry, writing. Hover or tap a card to reveal abilities, stats, and role details.
+        </div>
+      </div>
+
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
+        Together, we delivered high-level, high-quality content in a professional, fun environment. This is our story, and every card below is a legend.
+      </p>
+
+      <!-- RPG avatar card system — preserved as-is (JS-loaded). The cards are
+           the centerpiece of this page; they have their own deliberate
+           visual language and aren't reskinned to the AP DS. -->
       <div id="rpg-avatar-card-section" class="rpg-avatar-section" aria-label="RPG Team Avatars">
         <div class="rpg-avatar-grid" role="list"></div>
       </div>
-      <!-- Team Quote Area: After Avatar Grid -->
-      <blockquote class="team-quote">
-        “Every challenge was a chance to level up. Proud to have been part of this legendary squad.”<br>
-        <span class="quote-author">— Your name, Localization Lead</span>
-      </blockquote>
- <!-- Prompt Styles Used in This Series (collapsible, FAQ style) -->
- <!-- Team Quote Area: Before Prompt Styles 
-<blockquote class="team-quote">
-  “Creativity and teamwork turned every sprint into an adventure. We made support heroic!”<br>
-  <span class="quote-author">— Your name, Content Producer</span>
-</blockquote>
--->
-<details class="details-toggle" style="margin:2rem 0;">
-  <summary><i class="fas fa-magic"></i> Superhero Image Inspiration & Prompt Styles</summary>
-  <div>
-    <blockquote class="creator-quote" style="margin-bottom:1.2em;">
-      <strong>Note from the Creator:</strong>
-      <p>
-        The cards above aren’t set in stone! You can update your avatar to any static image you like—use the prompts below to create your own, or pick one from the image pack gallery.<br><br>
-        This project was inspired by our awesome team and a passion for superhero art. You can <a href="/projects/image-packs/super-heroes.html" target="_blank">download more of these superheroes here</a>. If you see one you like, let me know and we can upgrade your avatar card!
+
+      <p class="xst-quote">
+        &ldquo;Every challenge was a chance to level up. Proud to have been part of this legendary squad.&rdquo;
+        <span class="cite">&mdash; Localization Lead</span>
       </p>
-      <p>This is version 1 of the project—it might evolve into a fully-featured card maker: customizable, shareable, maybe even animated. We’ll see where it goes.</p>
-      <span style="display:block;margin-top:0.5em;font-style:italic;">— Pixelpusher (Chad)</span>
-    </blockquote>
-    <p>All hero images on this page were created using advanced generative AI prompts, blending cinematic realism, surreal symbolism, and deliberate anonymity to honor the spirit of the Xbox Support Team. Each portrait is both a tribute and a mystery—crafted with the following prompt styles:</p>
-    <ol>
-      <li><strong>Surreal Superhero Realism</strong><br>
-        Bold, grounded superhero characters painted in a stylized, cinematic way — inspired by the realism of Norman Rockwell, the detail of high-fashion portraiture, and surrealist symbolism. Faces are obscured by masks, angles, or veils to honor anonymity, while posture and costume convey identity.
-      </li>
-      <li><strong>Obscured Identity + Symbolic Framing</strong><br>
-        Characters shown from behind, in profile, or masked — rendered in strong silhouettes or ambient poses. Each shot is composed with deliberate mystery: veils, glowing visors, cloak movement, and surreal lighting replace facial features. Identity is implied, not shown.
-      </li>
-      <li><strong>Dynamic Cinematic Variants</strong><br>
-        Wide-angle or mid-motion poses: leaping across data bridges, crouched on ruins, standing in riftlight. Characters are caught in the act of being legendary — not static portraits. Environments bend reality slightly, using layered dream-logic: glyphs in the air, fractured sky panels, floating UI fragments.
-      </li>
-    </ol>
-  </div>
-</details>
 
-
+      <details style="margin-top: var(--sp-12); border-top: 1px solid var(--color-border); padding-top: var(--sp-5);">
+        <summary style="font-family: var(--font-mono); font-size: var(--fs-mono); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; cursor: pointer; opacity: .82;">
+          Superhero image inspiration &amp; prompt styles
+        </summary>
+        <div style="padding-top: var(--sp-5); max-width: var(--max-prose);">
+          <p style="font-size: var(--fs-body-sm); line-height: var(--lh-body); opacity: .82;">
+            <strong style="color: var(--color-text-primary);">Note from the creator.</strong>
+            The cards above aren&rsquo;t set in stone! Update your avatar to any static image you like &mdash; use the prompts below to create your own, or pick one from <a class="ap-link-mono" href="/projects/image-packs/super-heroes.html" target="_blank" rel="noopener noreferrer">the image pack gallery &rarr;</a>. This is version 1; it might evolve into a fully-featured card maker: customizable, shareable, maybe even animated. <em>&mdash; Pixelpusher (Chad)</em>
+          </p>
+          <p style="font-size: var(--fs-body-sm); line-height: var(--lh-body); opacity: .82; margin-top: var(--sp-3);">
+            All hero images on this page were created using advanced generative AI prompts, blending cinematic realism, surreal symbolism, and deliberate anonymity to honor the spirit of the Xbox Support Team. Each portrait is both a tribute and a mystery &mdash; crafted with three prompt styles:
+          </p>
+          <ul class="xst-bullets" style="margin-top: var(--sp-3);">
+            <li><strong>Surreal Superhero Realism</strong> &mdash; bold, grounded characters painted cinematically. Norman Rockwell&rsquo;s realism, high-fashion portraiture, surrealist symbolism. Faces obscured by masks, angles, or veils to honor anonymity.</li>
+            <li><strong>Obscured Identity + Symbolic Framing</strong> &mdash; characters from behind, in profile, or masked. Strong silhouettes, ambient poses, deliberate mystery. Identity is implied, not shown.</li>
+            <li><strong>Dynamic Cinematic Variants</strong> &mdash; wide-angle or mid-motion poses. Leaping across data bridges, crouched on ruins, standing in riftlight. Caught in the act of being legendary &mdash; not static portraits.</li>
+          </ul>
+        </div>
+      </details>
     </section>
-    <!-- END RPG Test: The Superheroes Section (Demo/Test) -->
 
-         <!-- Team Stats Overview -->
-<section class="content-section grid-col-12">
-  <h2 class="section-title"><i class="fas fa-chart-bar"></i> Team Stats</h2>
-  <div class="team-trading-cards">
-    <div class="team-trading-card aura-cyan texture-interface">
-      <i class="fas fa-pen-fancy card-icon"></i>
-      <div class="card-value">1,500+</div>
-      <div class="card-label">Support Articles</div>
-      <div class="card-stats">
-        <div class="stat-row">
-          <span class="stat-label">Avg. Length</span>
-          <span class="stat-value">1,200 words</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Update Freq.</span>
-          <span class="stat-value">Weekly</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Accuracy</span>
-          <span class="stat-value">99.8%</span>
+    <!-- § 03 — TEAM STATS -->
+    <section class="ap-sec ap-sec--cool" id="team-stack">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; TEAM STATS</div>
+          <h2 class="ap-display">Three numbers, <em>500 million stories.</em></h2>
         </div>
       </div>
-    </div>
-    <div class="team-trading-card aura-deep-violet texture-stars">
-      <i class="fas fa-globe card-icon"></i>
-      <div class="card-value">40+</div>
-      <div class="card-label">Languages</div>
-      <div class="card-stats">
-        <div class="stat-row">
-          <span class="stat-label">Top Lang</span>
-          <span class="stat-value">English</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Coverage</span>
-          <span class="stat-value">92%</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Regions</span>
-          <span class="stat-value">Global</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="team-trading-card aura-magenta-fade texture-nebula">
-      <i class="fas fa-users card-icon"></i>
-      <div class="card-value">500+ Million</div>
-      <div class="card-label">Players Supported</div>
-      <div class="card-stats">
-        <div class="stat-row">
-          <span class="stat-label">Daily Active</span>
-          <span class="stat-value">25M+</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Satisfaction</span>
-          <span class="stat-value">96%</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Response Time</span>
-          <span class="stat-value">< 24hrs</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section> 
-
-
-<!-- updated by Cascade: Journey Highlights Section -->
-<section class="content-section grid-col-12" id="journey-highlights">
-  <h2 class="section-title"><i class="fas fa-mountain"></i> Journey Highlights</h2>
-  <p class="section-intro hero-intro">Every milestone was a story—each project a leap into the unknown, where teamwork turned obstacles into breakthroughs. Here are some of the moments that defined us.</p>
-  <div class="service-grid">
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-video"></i></div>
-      <h3>Ninja Theory Help Center</h3>
-      <p>We reimagined support with animated storytelling and AI-powered narration, making help as immersive as the games themselves.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-mobile-alt"></i></div>
-      <h3>Xbox Support App</h3>
-      <p>Support, right where players needed it—on console, in-game, in the moment. Our app made help a companion, not a detour.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
-      <h3>Gears of War Support</h3>
-      <p>We rallied for a global community, delivering real-time help in 40+ languages and earning player trust in every region.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-gamepad"></i></div>
-      <h3>South of Midnight Launch</h3>
-      <p>Help content woven with folklore and accessibility—every player, every platform, every detail covered.</p>
-    </div>
-
-    <!-- added by Cascade: Casual Games Migration -->
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-chess-board"></i></div>
-      <h3>Casual Games Migration</h3>
-      <p>Successfully migrated all Microsoft Casual Games support content and player data to the new unified platform—ensuring a seamless experience for millions of fans.</p>
-    </div>
-    <!-- added by Cascade: CMS Data Migration Compass to Campsite -->
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-exchange-alt"></i></div>
-      <h3>CMS Data Migration: Compass &rarr; Campsite</h3>
-      <p>Migrated thousands of articles and assets from Compass CMS to Campsite for faster updates and better localization.</p>
-    </div>
-  </div>
-  <!-- updated by Cascade: Tools That Empowered Us Section 
-  <blockquote class="team-quote">
-    “Every milestone was a team victory. I’m proud of how we supported each other and grew stronger with every challenge.”<br>
-    <span class="quote-author">— Your name, Project Manager</span>
-  </blockquote>
-</section>
--->
-<!-- updated by Cascade: Tools That Empowered Us Section -->
-<section class="content-section grid-col-12" id="empower-tools">
-  <h2 class="section-title"><i class="fas fa-toolbox"></i> Tools That Empowered Us</h2>
-  <p class="section-intro">Our greatest innovations weren’t just technical—they were deeply human. Every tool was built to amplify empathy, creativity, and connection.</p>
-  <div class="agent-tools-grid">
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-robot"></i></span>
-        <span class="tool-title">Copilot Playground</span>
-      </div>
-      <div class="tool-description">
-        Our AI prompt engineering toolkit made content smarter, faster, and more adaptable—powering everything from instant answers to global localization.
-      </div>
-    </div>
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-link"></i></span>
-        <span class="tool-title">Publishing Pipeline</span>
-      </div>
-      <div class="tool-description">
-        One pipeline, five platforms—web, mobile, console, desktop, and apps. No leaks, no drama, just results.
-      </div>
-    </div>
-    <!-- updated by Cascade: replaced Game Title Forms with Custom C# Scripts for Data Pulls -->
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-file-code"></i></span>
-        <!-- updated by Cascade: fixed title typo -->
-        <!-- updated by Cascade: made title more technical -->
-        <span class="tool-title">C# ETL Automation Scripts</span>
-      </div>
-      <div class="tool-description">
-        Automated C# scripts streamlined complex data pulls, transforming manual exports into real-time, actionable insights.
-      </div>
-    </div>
-    <!-- moved by Cascade: Grand Central Power BI from Journey Highlights -->
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-layer-group"></i></span>
-        <span class="tool-title">Grand Central Power BI</span>
-      </div>
-      <div class="tool-description">
-        We turned messy data into insight—building custom pipelines that let us see, plan, and act faster than ever before.
-      </div>
-    </div>
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-magic"></i></span>
-        <span class="tool-title">Localization Engine</span>
-      </div>
-      <div class="tool-description">
-        40+ languages, one unified experience. We made support global, personal, and instant.
-      </div>
-    </div>
-    <!-- added by Cascade: Azure DevOps tool-card -->
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-cloud"></i></span>
-        <span class="tool-title">Azure DevOps</span>
-      </div>
-      <div class="tool-description">
-        Seamless project tracking, collaboration, and deployment—keeping every sprint on track and every launch on time.
-      </div>
-    </div>
-    <!-- added by Cascade: Data Analytics tool-card -->
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-chart-bar"></i></span>
-        <span class="tool-title">Data Analytics</span>
-      </div>
-      <div class="tool-description">
-        Advanced analytics and dashboards transformed raw data into actionable insights for the team.
-      </div>
-    </div>
-    <!-- added by Cascade: Figma tool-card -->
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-pencil-ruler"></i></span>
-        <span class="tool-title">Figma</span>
-      </div>
-      <div class="tool-description">
-        Unified design and prototyping for rapid iteration and seamless collaboration across the team.
-      </div>
-    </div>
-    <!-- added by Cascade: SharePoint Knowledge Base tool-card -->
-    <div class="tool-card">
-      <div class="tool-header">
-        <span class="tool-icon"><i class="fas fa-book-open"></i></span>
-        <span class="tool-title">SharePoint Knowledge Base</span>
-      </div>
-      <div class="tool-description">
-        Centralized documentation and resources kept the team aligned and empowered self-service learning.
-      </div>
-    </div>
-  </div>
-  <div class="badge-row mt-3 p-3">
-  <span class="role-tag badge-solid-blue"><i class="fas fa-heart"></i> Empathy</span>
-  <span class="role-tag badge-solid-green"><i class="fas fa-cogs"></i> Automation</span>
-  <span class="role-tag badge-solid-orange"><i class="fas fa-bolt"></i> Real-Time</span>
-  <span class="role-tag badge-solid-violet"><i class="fas fa-magic"></i> Creativity</span>
-  <span class="role-tag badge-solid-cyan"><i class="fas fa-globe"></i> Global</span>
-  <span class="role-tag badge-solid-gold"><i class="fas fa-universal-access"></i> Accessibility</span>
-  <span class="role-tag badge-solid-red"><i class="fas fa-lightbulb"></i> Insight</span>
-  <span class="role-tag badge-solid-pink"><i class="fas fa-users"></i> Teamwork</span>
-  <span class="role-tag badge-solid-purple"><i class="fas fa-shield-alt"></i> Trust</span>
-  <span class="role-tag badge-solid-teal"><i class="fas fa-rocket"></i> Innovation</span>
-  <span class="role-tag badge-solid-slate"><i class="fas fa-check-circle"></i> Quality</span>
-  <span class="role-tag badge-solid-orange"><i class="fas fa-language"></i> Localization</span>
-  <span class="role-tag badge-solid-blue"><i class="fas fa-hands-helping"></i> Support</span>
-</div>
-  <!-- Team Quote: Chad (Pixelpusher, moved to bottom of section) -->
-  <blockquote class="team-quote">
-    “The best tools don’t just solve problems—they spark creativity and bring teams together. Every script, every dashboard, every pixel was a way to make our work feel like play.”<br>
-    <span class="quote-author">— Chad, Pixelpusher</span>
-  </blockquote>
-</section>
-
-
-<!-- updated by Cascade: Lessons Learned Section -->
-<section class="content-section grid-col-12" id="lessons-learned">
-  <h2 class="section-title"><i class="fas fa-trophy"></i> Achievements Unlocked</h2>
-  <p class="section-intro">Milestones and moments that defined our journey—each achievement a testament to teamwork, innovation, and player impact.</p>
-  <div class="achievement-grid">
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-heart"></i></div>
-      <div class="achievement-title">Empathy Champion</div>
-      <div class="achievement-desc">Empathy at every scale—no player left behind.</div>
-    </div>
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-compress-arrows-alt"></i></div>
-      <div class="achievement-title">Clarity Master</div>
-      <div class="achievement-desc">Turned complexity into clarity, chaos into calm.</div>
-    </div>
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-users"></i></div>
-      <div class="achievement-title">Onboarding Guide</div>
-      <div class="achievement-desc">Made learning and onboarding a shared adventure.</div>
-    </div>
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-shield-alt"></i></div>
-      <div class="achievement-title">Trust Builder</div>
-      <div class="achievement-desc">Built trust with every update, every answer.</div>
-    </div>
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-chart-line"></i></div>
-      <div class="achievement-title">Data Alchemist</div>
-      <div class="achievement-desc">Transformed data into action, and action into impact.</div>
-    </div>
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-hands-helping"></i></div>
-      <div class="achievement-title">Team Spirit</div>
-      <div class="achievement-desc">Proved that support is a team sport—and a human one.</div>
-    </div>
-    <!-- added by Cascade: 24/7 Live Support Launch achievement-card -->
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-headset"></i></div>
-      <div class="achievement-title">24/7 Live Support Launch</div>
-      <div class="achievement-desc">Launched always-on support for game launches, system updates, and critical notifications.</div>
-    </div>
-    <!-- added by Cascade: Living Docs, United Team achievement-card -->
-    <div class="achievement-card">
-      <div class="achievement-icon"><i class="fas fa-book-open"></i></div>
-      <div class="achievement-title">Living Docs, United Team</div>
-      <div class="achievement-desc">Team-powered docs—shared, current, and accessible for all.</div>
-    </div>
-  </div>
-</section>
-
-<!-- updated by Cascade: Support That Never Sleeps: The Heartbeat of Our Journey -->
-<section class="content-section grid-col-12" id="service-card-demo">
-  <h2 class="section-title"><i class="fas fa-th-large"></i> Support That Never Sleeps</h2>
-  <p class="section-intro">
-    In the world of Xbox, every question is a chance to connect, every challenge a call to action. Our support systems were built not just for speed, but for empathy—turning confusion into clarity, and frustration into relief, day or night.
-  </p>
-  <div class="service-grid">
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-bolt"></i></div>
-      <h3>Instant Answers, Real Connection</h3>
-      <p>Whenever a player reached out, our systems responded in a heartbeat—offering guidance, comfort, and a sense of belonging to millions around the globe.</p>
-      <div class="service-card-footer">
-        <span class="tech-badge"><i class="fas fa-server"></i> Node.js</span>
-        <span class="tech-badge"><i class="fas fa-cloud"></i> Azure</span>
-      </div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
-      <h3>Trust at Every Step</h3>
-      <p>Behind every answer was a promise—privacy protected, security assured, and every player’s story treated with respect and care.</p>
-      <div class="service-card-footer">
-        <span class="tech-badge"><i class="fas fa-lock"></i> OAuth2</span>
-        <span class="tech-badge"><i class="fas fa-user-shield"></i> Compliance</span>
-      </div>
-    </div>
-    <div class="service-card">
-      <div class="service-icon"><i class="fas fa-magic"></i></div>
-      <h3>Technology With Heart</h3>
-      <p>Our tools didn’t just automate—they amplified our team’s empathy and creativity, helping us turn every support moment into something a little more magical.</p>
-      <div class="service-card-footer">
-        <span class="tech-badge"><i class="fas fa-robot"></i> Innovation</span>
-        <span class="tech-badge"><i class="fas fa-brain"></i> Insight</span>
-      </div>
-    </div>
-  </div>
-</section>
-          <!-- FAQ Section -->
-    <section class="content-section grid-col-12" id="team-faq">
-      <div class="grid-container">
-        <div class="grid-col-12">
-          <h2 class="section-title"><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
-          <p class="section-intro">Learn more about the Xbox Support Content Team's approach to creating world-class support materials and the unique challenges of supporting a global gaming ecosystem.</p>
-        </div>
-        
-        <div class="grid-col-6">
-          <div class="ap-faq">
-            <div class="faq-category">
-              <h3>Content Strategy</h3>
-              <details class="details-toggle" open>
-                <summary>How does the team approach content for different Xbox platforms?</summary>
-                <div>
-                  <p>Our content strategy is platform-aware but user-focused. We create modular content blocks that can be adapted for console, PC, mobile, and web experiences while maintaining a consistent voice and quality standard. This approach allows us to efficiently support the entire Xbox ecosystem while optimizing for each platform's unique characteristics.</p>
-                </div>
-              </details>
-              
-              <details class="details-toggle">
-                <summary>What makes the Xbox Support Content Team unique?</summary>
-                <div>
-                  <p>The Xbox Support Content Team functions as a specialized content studio with superhero-like capabilities. Each team member brings unique expertise—from technical writing to localization to accessibility—creating a powerful collective that can tackle complex support challenges across 40+ languages while maintaining Xbox's distinctive voice and brand standards.</p>
-                </div>
-              </details>
-              
-              <details class="details-toggle">
-                <summary>How do you balance technical accuracy with user-friendly language?</summary>
-                <div>
-                  <p>We employ a multi-layered review process where technical experts verify accuracy while content specialists ensure readability. Our content follows progressive disclosure principles—presenting essential information upfront with deeper technical details available for users who need them. This approach serves both casual gamers and power users effectively.</p>
-                </div>
-              </details>
-            </div>
-
-            <div class="faq-category">
-              <h3>Localization Excellence</h3>
-              <details class="details-toggle">
-                <summary>How do you manage content across 40+ languages?</summary>
-                <div>
-                  <p>Our localization pipeline combines advanced translation memory systems, cultural adaptation specialists, and regional reviewers. Content is architected with internationalization in mind from the start, using variables for region-specific elements and avoiding idioms that don't translate well. This approach reduces localization time by 60% while maintaining high quality across all languages.</p>
-                </div>
-              </details>
-              
-              <details class="details-toggle">
-                <summary>What challenges arise with gaming terminology localization?</summary>
-                <div>
-                  <p>Gaming terminology presents unique localization challenges as it often combines technical concepts, cultural references, and invented terms. We maintain comprehensive terminology databases for each language and work closely with game studios to ensure consistent translation of game-specific terms across all support materials and in-game text.</p>
-                </div>
-              </details>
-            </div>
+      <div class="ap-prods">
+        <div class="ap-pd">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Support<em> articles.</em></h3>
+            <span class="meta">Avg. 1,200 words &middot; weekly &middot; 99.8% accuracy</span>
           </div>
+          <p>Hand-crafted articles maintained at scale. Updated weekly to reflect platform changes, new game launches, and player feedback signals.</p>
+          <span class="year">1,500+</span>
+          <span class="go"></span>
         </div>
-        
-        <div class="grid-col-6">
-          <div class="ap-faq">
-            <div class="faq-category">
-              <h3>Accessibility Commitment</h3>
-              <details class="details-toggle" open>
-                <summary>How do you ensure content is accessible to all users?</summary>
-                <div>
-                  <p>Accessibility is built into our content creation process, not added afterward. All team members receive accessibility training, and we follow WCAG 2.1 AA standards as a minimum requirement. We regularly test with screen readers, keyboard navigation, and various assistive technologies. Our content undergoes accessibility reviews before publication, and we continuously improve based on user feedback.</p>
-                </div>
-              </details>
-              
-              <details class="details-toggle">
-                <summary>What accessibility features are included in your content?</summary>
-                <div>
-                  <p>Our content incorporates proper heading structures, descriptive alt text for images, captions for videos, keyboard-navigable interfaces, sufficient color contrast, and clear instructions that don't rely solely on visual cues. We also provide alternative formats for complex information, such as both visual and text-based troubleshooting guides.</p>
-                </div>
-              </details>
-            </div>
-
-            <div class="faq-category">
-              <h3>Team Collaboration</h3>
-              <details class="details-toggle">
-                <summary>How does the team collaborate with game studios?</summary>
-                <div>
-                  <p>We establish early partnerships with game studios, embedding support content specialists during development to identify potential support needs proactively. This collaboration ensures accurate documentation of features and known issues before release. For major titles, we create dedicated support content plans aligned with game milestones and participate in beta testing to refine support materials based on real user experiences.</p>
-                </div>
-              </details>
-              
-              <details class="details-toggle">
-                <summary>What's the team's approach to continuous improvement?</summary>
-                <div>
-                  <p>We embrace a data-driven approach to content improvement, analyzing user feedback, search patterns, and support ticket data to identify opportunities. Our content undergoes regular reviews using the Problem Resolution Rate (PRR) methodology to measure effectiveness. This systematic approach allows us to continuously refine our content library, prioritizing updates where they'll have the greatest impact on user experience.</p>
-                </div>
-              </details>
-            </div>
+        <div class="ap-pd">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Languages<em> supported.</em></h3>
+            <span class="meta">Top: English &middot; 92% coverage &middot; global regions</span>
           </div>
+          <p>Full localization pipeline across 40+ languages with regional reviewers and cultural adaptation specialists. Translation memory + terminology databases keep voice consistent.</p>
+          <span class="year">40+</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Players<em> supported.</em></h3>
+            <span class="meta">25M+ daily active &middot; 96% satisfaction &middot; &lt;24h response</span>
+          </div>
+          <p>Every Xbox player worldwide. Console, PC, mobile, web, in-game &mdash; one content team behind every help moment.</p>
+          <span class="year">500M+</span>
+          <span class="go"></span>
         </div>
       </div>
     </section>
 
-    
-  
+    <!-- § 04 — JOURNEY HIGHLIGHTS -->
+    <section class="ap-sec" id="journey-highlights">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; JOURNEY HIGHLIGHTS</div>
+          <h2 class="ap-display">Six milestones, <em>each a leap into the unknown.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The launches and migrations that defined us &mdash; teamwork turned obstacles into breakthroughs.
+        </div>
+      </div>
 
-   
-    
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Ninja Theory<br><em>Help Center.</em></h3>
+          <p>Reimagined support with animated storytelling and AI-powered narration &mdash; making help as immersive as the games themselves.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Xbox Support<br><em>App.</em></h3>
+          <p>Support, right where players needed it &mdash; on console, in-game, in the moment. Help as a companion, not a detour.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Gears of War<br><em>support.</em></h3>
+          <p>Real-time help in 40+ languages for a global community. Player trust in every region.</p>
+        </div>
+      </div>
 
-    <!-- Team Impact Section -->
-    <section class="content-section grid-col-12" id="team-impact">
-      <h2 class="section-title"><i class="fas fa-chart-line"></i> Team Impact</h2>
-      <p class="section-intro">
-        The Xbox Support Content Team has made significant contributions to the Xbox ecosystem, 
-        improving user experience and content quality across multiple platforms.
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">South of Midnight<br><em>launch.</em></h3>
+          <p>Help content woven with folklore and accessibility &mdash; every player, every platform, every detail covered.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Casual Games<br><em>migration.</em></h3>
+          <p>Migrated all Microsoft Casual Games support content and player data to the new unified platform &mdash; seamless for millions of fans.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">CMS migration<br><em>Compass &rarr; Campsite.</em></h3>
+          <p>Migrated thousands of articles and assets from Compass to Campsite for faster updates and better localization.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 05 — TOOLS THAT EMPOWERED US -->
+    <section class="ap-sec ap-sec--cool" id="empower-tools">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; TOOLS THAT EMPOWERED US</div>
+          <h2 class="ap-display">Nine tools, <em>built to amplify the team.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Our greatest innovations weren&rsquo;t just technical &mdash; they were deeply human. Every tool was built to amplify empathy, creativity, and connection.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Copilot<br><em>Playground.</em></h3>
+          <p>AI prompt engineering toolkit. Made content smarter, faster, and more adaptable &mdash; powering everything from instant answers to global localization.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Publishing<br><em>pipeline.</em></h3>
+          <p>One pipeline, five platforms &mdash; web, mobile, console, desktop, and apps. No leaks, no drama, just results.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">C# ETL<br><em>automation.</em></h3>
+          <p>Automated C# scripts streamlined complex data pulls &mdash; transforming manual exports into real-time, actionable insights.</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Grand Central<br><em>Power BI.</em></h3>
+          <p>Turned messy data into insight &mdash; custom pipelines that let us see, plan, and act faster than ever before.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Localization<br><em>engine.</em></h3>
+          <p>40+ languages, one unified experience. Made support global, personal, and instant.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">Azure<br><em>DevOps.</em></h3>
+          <p>Seamless project tracking, collaboration, and deployment &mdash; keeping every sprint on track and every launch on time.</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">07</div>
+          <h3 class="ap-display ap-display--pillar">Data<br><em>analytics.</em></h3>
+          <p>Advanced analytics and dashboards transformed raw data into actionable insights for the team.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">08</div>
+          <h3 class="ap-display ap-display--pillar">Figma<br><em>design.</em></h3>
+          <p>Unified design and prototyping for rapid iteration and seamless collaboration across the team.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">09</div>
+          <h3 class="ap-display ap-display--pillar">SharePoint<br><em>knowledge base.</em></h3>
+          <p>Centralized documentation and resources kept the team aligned and empowered self-service learning.</p>
+        </div>
+      </div>
+
+      <ul class="xst-tags" style="margin-top: var(--sp-12);">
+        <li>Empathy</li><li>Automation</li><li>Real-time</li><li>Creativity</li>
+        <li>Global</li><li>Accessibility</li><li>Insight</li><li>Teamwork</li>
+        <li>Trust</li><li>Innovation</li><li>Quality</li><li>Localization</li><li>Support</li>
+      </ul>
+
+      <p class="xst-quote">
+        &ldquo;The best tools don&rsquo;t just solve problems &mdash; they spark creativity and bring teams together. Every script, every dashboard, every pixel was a way to make our work feel like play.&rdquo;
+        <span class="cite">&mdash; Chad, Pixelpusher</span>
       </p>
-      
-      <div class="impact-highlights">
-        <div class="impact-item"><span class="impact-number">10x</span><span class="impact-text">Faster Publishing</span></div>
-        <div class="impact-item"><span class="impact-number">40+</span><span class="impact-text">Languages</span></div>
-        <div class="impact-item"><span class="impact-number">98.9%</span><span class="impact-text">Accuracy Rate</span></div>
+    </section>
+
+    <!-- § 06 — ACHIEVEMENTS -->
+    <section class="ap-sec" id="achievements">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; ACHIEVEMENTS UNLOCKED</div>
+          <h2 class="ap-display">Eight badges, <em>each one earned.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Milestones and moments that defined our journey &mdash; teamwork, innovation, player impact.
+        </div>
       </div>
-      
-      <div class="impact-metrics">
-        <div class="metric-card"><i class="fas fa-users"></i><h3>+85%</h3><p>User Satisfaction</p></div>
-        <div class="metric-card"><i class="fas fa-comment-alt"></i><h3>3.5x</h3><p>Positive Feedback</p></div>
-        <div class="metric-card"><i class="fas fa-search"></i><h3>-42%</h3><p>Support Tickets</p></div>
-        <div class="metric-card"><i class="fas fa-universal-access"></i><h3>100%</h3><p>WCAG Compliance</p></div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Empathy<br><em>champion.</em></h3>
+          <p>Empathy at every scale &mdash; no player left behind.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Clarity<br><em>master.</em></h3>
+          <p>Turned complexity into clarity, chaos into calm.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Onboarding<br><em>guide.</em></h3>
+          <p>Made learning and onboarding a shared adventure.</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Trust<br><em>builder.</em></h3>
+          <p>Built trust with every update, every answer.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Data<br><em>alchemist.</em></h3>
+          <p>Transformed data into action, and action into impact.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">Team<br><em>spirit.</em></h3>
+          <p>Proved that support is a team sport &mdash; and a human one.</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">07</div>
+          <h3 class="ap-display ap-display--pillar">24/7 live<br><em>support launch.</em></h3>
+          <p>Launched always-on support for game launches, system updates, and critical notifications.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">08</div>
+          <h3 class="ap-display ap-display--pillar">Living docs,<br><em>united team.</em></h3>
+          <p>Team-powered docs &mdash; shared, current, and accessible for all.</p>
+        </div>
+        <div class="ap-pillar" style="opacity: .35;">
+          <div class="num">&nbsp;</div>
+          <h3 class="ap-display ap-display--pillar" style="opacity: .55;">More<br><em>to come.</em></h3>
+          <p>Each launch, each migration, each player moment writes the next badge.</p>
+        </div>
       </div>
     </section>
 
-    
+    <!-- § 07 — SUPPORT THAT NEVER SLEEPS -->
+    <section class="ap-sec ap-sec--cool" id="ai-pipeline">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; SUPPORT THAT NEVER SLEEPS</div>
+          <h2 class="ap-display">Three systems, <em>one heartbeat.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Systems built not just for speed but for empathy &mdash; turning confusion into clarity, day or night.
+        </div>
+      </div>
 
-</div>
-</div>
-</section>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Instant answers,<br><em>real connection.</em></h3>
+          <p>Whenever a player reached out, our systems responded in a heartbeat &mdash; offering guidance, comfort, and a sense of belonging to millions around the globe.</p>
+          <ul>
+            <li>Node.js</li>
+            <li>Azure</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Trust<br><em>at every step.</em></h3>
+          <p>Behind every answer was a promise &mdash; privacy protected, security assured, and every player&rsquo;s story treated with respect and care.</p>
+          <ul>
+            <li>OAuth2</li>
+            <li>Compliance</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Technology<br><em>with heart.</em></h3>
+          <p>Tools that didn&rsquo;t just automate &mdash; they amplified the team&rsquo;s empathy and creativity, helping us turn every support moment into something a little more magical.</p>
+          <ul>
+            <li>Innovation</li>
+            <li>Insight</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
+    <!-- § 08 — KEY FEATURES -->
+    <section class="ap-sec" id="key-features">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 08 &mdash; KEY FEATURES</div>
+          <h2 class="ap-display">Six choices, <em>one seamless experience.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The innovations and design choices that made our support experience seamless, accessible, and uniquely Xbox.
+        </div>
+      </div>
 
-     <!-- Key Features Section -->
-<section class="content-section grid-col-12" id="key-features">
-  <h2 class="section-title"><i class="fas fa-star"></i> Key Features</h2>
-  <p class="section-intro">A showcase of the innovations and design choices that made our support experience seamless, accessible, and uniquely Xbox.</p>
-  <div class="feature-grid">
-    <div class="feature-card">
-      <h3><i class="fas fa-th-large"></i> Clean, Responsive Interface</h3>
-      <p>Game tiles and quick topic access for easy navigation and fast information.</p>
-    </div>
-    <div class="feature-card">
-          <h3><i class="fas fa-universal-access"></i> Accessible Content</h3>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Clean responsive<br><em>interface.</em></h3>
+          <p>Game tiles and quick topic access for easy navigation and fast information.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Accessible<br><em>content.</em></h3>
           <p>Designed with WCAG standards in mind for readability and input support, ensuring all players can access support content.</p>
         </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-palette"></i> Brand Integration</h3>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Brand<br><em>integration.</em></h3>
           <p>Fully customized with Ninja Theory visuals, color palette, and voice to maintain brand consistency across all support materials.</p>
         </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-comment-dots"></i> Live Feedback</h3>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Live<br><em>feedback.</em></h3>
           <p>PRR survey to capture player satisfaction and improve articles over time based on user feedback.</p>
         </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-search"></i> Search and Navigation</h3>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Search &amp;<br><em>navigation.</em></h3>
           <p>Powerful top-bar search and tailored links in the footer for quick access to relevant support content.</p>
         </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-bell"></i> System Alerts</h3>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">System<br><em>alerts.</em></h3>
           <p>Live notifications for outages and status interruptions across console, web, and mobile devices.</p>
         </div>
       </div>
     </section>
 
-   
-   
-<!-- updated by Cascade: Tech Stack, Systems & Pipelines section (Nova crystalline flux style) -->
-<!-- updated by Cascade: Unified Journey & Impact Section -->
-<section class="content-section grid-col-12" id="journey-impact">
-  <div class="content-section-inner">
-    <h2 class="section-title"><i class="fas fa-globe"></i> Our Journey & Impact</h2>
-    <p class="section-intro hero-intro">
-      We didn’t just publish—we orchestrated global launches, solved problems, and made every player feel seen.
-    </p>
-    <div>
-      <div class="impact-badges-centered">
-        <span class="badge badge-solid-purple badge-impact-lg">500M+ Players</span>
-        <span class="badge badge-solid-blue badge-impact-lg">40+ Languages</span>
-        <span class="badge badge-solid-cyan badge-impact-lg">5 Platforms</span>
+    <!-- § 09 — JOURNEY &amp; IMPACT -->
+    <section class="ap-sec ap-sec--cool" id="journey-impact">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 09 &mdash; JOURNEY &amp; IMPACT</div>
+          <h2 class="ap-display">We didn&rsquo;t just publish. <em>We orchestrated global launches.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Solved problems, made every player feel seen.
+        </div>
       </div>
-    </div>
-    </p>
-    <div class="service-grid journey-impact-grid">
-      <div class="service-card">
-        <div class="service-icon"><i class="fas fa-network-wired"></i></div>
-        <h3>Global Publishing Pipeline</h3>
-        <p>One update, five platforms, instant impact.<br>500M+ players, 40+ languages, zero leaks.<br>Relentless focus on accessibility and innovation.</p>
+
+      <div class="xst-metrics">
+        <div class="xst-metric"><p class="num">500M+</p><p class="lbl">Players reached</p></div>
+        <div class="xst-metric"><p class="num">40+</p><p class="lbl">Languages</p></div>
+        <div class="xst-metric"><p class="num">5</p><p class="lbl">Platforms</p></div>
+        <div class="xst-metric"><p class="num">24/7</p><p class="lbl">Always on</p></div>
       </div>
-      <div class="service-card">
-        <div class="service-icon"><i class="fas fa-tools"></i></div>
-        <h3>Legendary Tools</h3>
-        <ul class="service-list">
-          <li><b>Grand Central:</b> Real-time analytics & insights</li>
-          <li><b>Copilot Playground:</b> AI-powered support & automation</li>
-          <li><b>Azure DevOps Dashboards:</b> Clarity at every step</li>
-        </ul>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-12);">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Global publishing<br><em>pipeline.</em></h3>
+          <p>One update, five platforms, instant impact. 500M+ players, 40+ languages, zero leaks. Relentless focus on accessibility and innovation.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Legendary<br><em>tools.</em></h3>
+          <p>The systems that made it all possible:</p>
+          <ul>
+            <li>Grand Central &mdash; analytics &amp; insights</li>
+            <li>Copilot Playground &mdash; AI support &amp; automation</li>
+            <li>Azure DevOps &mdash; clarity at every step</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Technical<br><em>highlights.</em></h3>
+          <p>Engineering wins behind the curtain:</p>
+          <ul>
+            <li>Cloud-based asset sync for global teams</li>
+            <li>Automated compliance &amp; accessibility checks</li>
+            <li>One-click global publishing</li>
+          </ul>
+        </div>
       </div>
-      <div class="service-card">
-        <div class="service-icon"><i class="fas fa-bolt"></i></div>
-        <h3>Technical Highlights</h3>
-        <ul class="service-list">
-          <li>Cloud-based asset sync for global teams</li>
-          <li>Automated compliance & accessibility checks</li>
-          <li>One-click global publishing</li>
-        </ul>
+    </section>
+
+    <!-- § 10 — IMPACT METRICS -->
+    <section class="ap-sec" id="team-impact">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 10 &mdash; TEAM IMPACT</div>
+          <h2 class="ap-display">Four numbers, <em>one ecosystem improved.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Significant contributions to the Xbox ecosystem &mdash; user experience and content quality across multiple platforms.
+        </div>
       </div>
-    </div>
-   
-<!-- Visual Highlights Section -->
-<section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-  <h2 class="section-title"><i class="fas fa-images"></i> Visual Highlights</h2>
-  <div class="media-grid">
 
-    <div class="media-item">
-      <a href="/images/projects/xbox-support/screen-04.jpeg" class="lightbox-trigger" data-caption="Scene 1: Xbox Support Hub Homepage">
-        <img src="/images/projects/xbox-support/screen-04.jpeg" alt="Scene 1 - Xbox Support Hub Homepage" loading="lazy">
-      </a>
-      <p class="media-caption">Xbox Support Hub Homepage</p>
-    </div>
+      <div class="xst-metrics">
+        <div class="xst-metric"><p class="num">+85%</p><p class="lbl">User satisfaction</p></div>
+        <div class="xst-metric"><p class="num">3.5&times;</p><p class="lbl">Positive feedback</p></div>
+        <div class="xst-metric"><p class="num">&minus;42%</p><p class="lbl">Support tickets</p></div>
+        <div class="xst-metric"><p class="num">100%</p><p class="lbl">WCAG compliance</p></div>
+      </div>
+    </section>
 
-    <div class="media-item">
-      <a href="/images/projects/gow/screen-01.jpeg" class="lightbox-trigger" data-caption="Scene 2: South of Midnight Game Page">
-        <img src="/images/projects/gow/screen-01.jpeg" alt="Scene 2 - South of Midnight Game Page" loading="lazy">
-      </a>
-      <p class="media-caption">South of Midnight Game Page</p>
-    </div>
+    <!-- § 11 — FAQ -->
+    <section class="ap-sec ap-sec--cool" id="team-faq">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 11 &mdash; FREQUENTLY ASKED</div>
+          <h2 class="ap-display">How the team works, <em>in their own words.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The approach to creating world-class support materials and the unique challenges of supporting a global gaming ecosystem.
+        </div>
+      </div>
 
-    <div class="media-item">
-      <a href="/images/projects/ninja-theroy/screen01.jpeg" class="lightbox-trigger" data-caption="Scene 3: Ninja Theory Support Hub">
-        <img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Ninja Theory Support Hub" loading="lazy">
-      </a>
-      <p class="media-caption">Ninja Theory Support Hub</p>
-    </div>
+      <div class="xst-faq-grid xst-faq">
+        <div>
+          <div class="xst-faq-cat">
+            <h3>Content Strategy</h3>
+            <details open>
+              <summary>How does the team approach content for different Xbox platforms?</summary>
+              <div><p>Our content strategy is platform-aware but user-focused. We create modular content blocks that can be adapted for console, PC, mobile, and web experiences while maintaining a consistent voice and quality standard. This approach allows us to efficiently support the entire Xbox ecosystem while optimizing for each platform&rsquo;s unique characteristics.</p></div>
+            </details>
+            <details>
+              <summary>What makes the Xbox Support Content Team unique?</summary>
+              <div><p>The Xbox Support Content Team functions as a specialized content studio with superhero-like capabilities. Each team member brings unique expertise &mdash; from technical writing to localization to accessibility &mdash; creating a powerful collective that can tackle complex support challenges across 40+ languages while maintaining Xbox&rsquo;s distinctive voice and brand standards.</p></div>
+            </details>
+            <details>
+              <summary>How do you balance technical accuracy with user-friendly language?</summary>
+              <div><p>We employ a multi-layered review process where technical experts verify accuracy while content specialists ensure readability. Our content follows progressive disclosure principles &mdash; presenting essential information upfront with deeper technical details available for users who need them. This approach serves both casual gamers and power users effectively.</p></div>
+            </details>
+          </div>
 
-  </div>
-</section>
-<!-- Visual Highlights Section -->
-
-
-
-    <!-- Visual Highlights Section 
-    <blockquote class="team-quote mt-4">
-      “Every locale, every launch—our job was to make sure the right message reached the right player, every time.”<br>
-      <span class="quote-author">— Your name, Localization Master</span>
-    </blockquote>
--->
-  </div>
-</section>
-<!-- end updated by Cascade: Unified Journey & Impact Section -->
-
-<!-- cleaned by Cascade: all obsolete narrative/feature sections between new Journey & Impact and FAQ removed for clarity. FAQ and all required sections retained. -->
-
-     <!-- Related Projects Section -->
-     <section class="content-section grid-col-12" id="related-projects">
-      <h2 class="section-title"><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <p class="section-intro">
-        Explore these related projects to learn more about our work with Xbox Support content, 
-        AI tools, and specialized publishing pipelines.
-      </p>
-      
-      <div class="feature-grid">
-        <div class="card">
-          <a href="/projects/copilotplayground.html" class="card-image-link" aria-label="View Copilot Playground project">
-            <div class="card-gradient-icon project-bg-ai">
-              <i class="fas fa-robot"></i>
-            </div>
-          </a>
-          <div class="card-content">
-            <h3>Copilot Playground</h3>
-            <p>AI-powered gaming support platform with advanced prompt engineering tools.</p>
-            <a href="/projects/copilotplayground.html" class="card-link">View Project <i class="fas fa-arrow-right"></i></a>
+          <div class="xst-faq-cat" style="margin-top: var(--sp-10);">
+            <h3>Localization Excellence</h3>
+            <details>
+              <summary>How do you manage content across 40+ languages?</summary>
+              <div><p>Our localization pipeline combines advanced translation memory systems, cultural adaptation specialists, and regional reviewers. Content is architected with internationalization in mind from the start, using variables for region-specific elements and avoiding idioms that don&rsquo;t translate well. This approach reduces localization time by 60% while maintaining high quality across all languages.</p></div>
+            </details>
+            <details>
+              <summary>What challenges arise with gaming terminology localization?</summary>
+              <div><p>Gaming terminology presents unique localization challenges as it often combines technical concepts, cultural references, and invented terms. We maintain comprehensive terminology databases for each language and work closely with game studios to ensure consistent translation of game-specific terms across all support materials and in-game text.</p></div>
+            </details>
           </div>
         </div>
-        
-        <div class="card">
-          <a href="/projects/websites/grand-central-power-bi.html" class="card-image-link" aria-label="View Grand Central Power BI project">
-            <div class="card-gradient-icon video-gradient-10">
-              <i class="fas fa-database project-icon-gc"></i>
-            </div>
-          </a>
-          <div class="card-content">
-            <h3>Grand Central Power BI</h3>
-            <p>Centralized analytics dashboard for monitoring global support content performance.</p>
-            <a href="/projects/websites/grand-central-power-bi.html" class="card-link">Learn More <i class="fas fa-arrow-right"></i></a>
+
+        <div>
+          <div class="xst-faq-cat">
+            <h3>Accessibility Commitment</h3>
+            <details open>
+              <summary>How do you ensure content is accessible to all users?</summary>
+              <div><p>Accessibility is built into our content creation process, not added afterward. All team members receive accessibility training, and we follow WCAG 2.1 AA standards as a minimum requirement. We regularly test with screen readers, keyboard navigation, and various assistive technologies. Our content undergoes accessibility reviews before publication, and we continuously improve based on user feedback.</p></div>
+            </details>
+            <details>
+              <summary>What accessibility features are included in your content?</summary>
+              <div><p>Our content incorporates proper heading structures, descriptive alt text for images, captions for videos, keyboard-navigable interfaces, sufficient color contrast, and clear instructions that don&rsquo;t rely solely on visual cues. We also provide alternative formats for complex information, such as both visual and text-based troubleshooting guides.</p></div>
+            </details>
           </div>
-        </div>
-        
-        <div class="card">
-          <a href="/projects/xbox-support.html" class="card-image-link" aria-label="View Xbox Support Project Hub">
-            <div class="card-gradient-icon video-gradient-8"><!-- changed from aura-bg-emerald-glow to aura-bg-lime-green by Cascade for green background comparison -->
-              <i class="fab fa-xbox project-icon-xbox" aria-label="Xbox logo" role="img"></i>
-            </div>
-          </a>
-          <div class="card-content">
-            <h3>Xbox Support Project Hub</h3>
-            <p>Complete overview of Xbox support initiatives, resources, and specialized tools.</p>
-            <a href="/projects/xbox-support.html" class="card-link">Explore <i class="fas fa-arrow-right"></i></a>
+
+          <div class="xst-faq-cat" style="margin-top: var(--sp-10);">
+            <h3>Team Collaboration</h3>
+            <details>
+              <summary>How does the team collaborate with game studios?</summary>
+              <div><p>We establish early partnerships with game studios, embedding support content specialists during development to identify potential support needs proactively. This collaboration ensures accurate documentation of features and known issues before release. For major titles, we create dedicated support content plans aligned with game milestones and participate in beta testing to refine support materials based on real user experiences.</p></div>
+            </details>
+            <details>
+              <summary>What&rsquo;s the team&rsquo;s approach to continuous improvement?</summary>
+              <div><p>We embrace a data-driven approach to content improvement, analyzing user feedback, search patterns, and support ticket data to identify opportunities. Our content undergoes regular reviews using the Problem Resolution Rate (PRR) methodology to measure effectiveness. This systematic approach allows us to continuously refine our content library, prioritizing updates where they&rsquo;ll have the greatest impact on user experience.</p></div>
+            </details>
           </div>
         </div>
       </div>
     </section>
-   
-    <!-- Final Quote Section -->
-    <section class="content-section grid-col-12" id="closing-thoughts">
-      <div class="team-quote-block feature-highlight">
-        <div class="quote-content">
-          <i class="fas fa-quote-left quote-icon"></i>
-          <blockquote>
-            <p>We didn’t just support Xbox — we embodied it. Across five platforms, in 40+ languages, for 500 million players, we transformed complex support challenges into elegant, scalable systems.</p>
-            <p>Every tool we forged, every pipeline we engineered, every article we published carried our signature blend of technical precision and genuine passion for gaming. We stayed invisible — so the experience could stay seamless.</p>
-            <p>What sets us apart isn’t just what we build, but how we build it: with creativity, care, and an unwavering commitment to the player experience.</p>
-          </blockquote>
-          <cite>— The Xbox Support Content Team</cite>
+
+    <!-- § 12 — VISUAL HIGHLIGHTS -->
+    <section class="ap-sec" id="gallery" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 12 &mdash; VISUAL HIGHLIGHTS</div>
+          <h2 class="ap-display">Three frames, <em>three platforms.</em></h2>
         </div>
-        <div class="quote-image">
-          <img src="/images/hanson-consulting-group-light.svg" alt="Xbox Support Team" class="rounded-image" loading="lazy">
+        <div class="ap-sec-meta">
+          A glimpse at the surfaces &mdash; tap to expand.
         </div>
+      </div>
+
+      <div class="image-row">
+        <div class="image-item">
+          <a href="/images/projects/xbox-support/screen-04.jpeg" class="lightbox-trigger" data-caption="Xbox Support Hub Homepage">
+            <img src="/images/projects/xbox-support/screen-04.jpeg" alt="Xbox Support Hub Homepage" loading="lazy" />
+          </a>
+          <p class="image-caption">01 &mdash; Xbox Support Hub homepage</p>
+        </div>
+        <div class="image-item">
+          <a href="/images/projects/gow/screen-01.jpeg" class="lightbox-trigger" data-caption="South of Midnight Game Page">
+            <img src="/images/projects/gow/screen-01.jpeg" alt="South of Midnight Game Page" loading="lazy" />
+          </a>
+          <p class="image-caption">02 &mdash; South of Midnight game page</p>
+        </div>
+        <div class="image-item">
+          <a href="/images/projects/ninja-theroy/screen01.jpeg" class="lightbox-trigger" data-caption="Ninja Theory Support Hub">
+            <img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Ninja Theory Support Hub" loading="lazy" />
+          </a>
+          <p class="image-caption">03 &mdash; Ninja Theory support hub</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 13 — RELATED PROJECTS -->
+    <section class="ap-sec ap-sec--cool" id="related-projects">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 13 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Other projects from the Xbox Support era.
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/copilotplayground.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3>
+            <span class="meta">AI tooling &middot; Prompt engineering</span>
+          </div>
+          <p>AI prompt engineering toolkit with chains for SEO, localization, instant answers, and recommendations.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-archive" href="/projects/websites/grand-central-power-bi.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Grand Central<em> Power BI.</em></h3>
+            <span class="meta">Data &middot; Analytics</span>
+          </div>
+          <p>Centralized analytics dashboard for monitoring global support content performance.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-archive" href="/projects/xbox-support.html">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Xbox Support<em> Project Hub.</em></h3>
+            <span class="meta">Index &middot; Overview</span>
+          </div>
+          <p>Complete overview of Xbox support initiatives, resources, and specialized tools.</p>
+          <span class="year">Index</span>
+          <span class="go">&rarr;</span>
+        </a>
       </div>
     </section>
 
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <!-- Final quote — long-form team statement -->
+  <section class="xst-final">
+    <blockquote>
+      <p>We didn&rsquo;t just support Xbox &mdash; we embodied it. Across five platforms, in 40+ languages, for 500 million players, we transformed complex support challenges into elegant, scalable systems.</p>
+      <p>Every tool we forged, every pipeline we engineered, every article we published carried our signature blend of technical precision and genuine passion for gaming. We stayed invisible &mdash; so the experience could stay seamless.</p>
+      <p>What sets us apart isn&rsquo;t just what we build, but how we build it: with creativity, care, and an unwavering commitment to the player experience.</p>
+      <cite>&mdash; The Xbox Support Content Team</cite>
+    </blockquote>
+  </section>
+
+  <!-- §2.15 CTA -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got a content team<br><em>that needs to scale?</em></h2>
+    <p>Publishing pipelines, AI tooling, localization at scale &mdash; we&rsquo;ve built it for the world&rsquo;s biggest gaming community. Let&rsquo;s scope it for yours.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
+  <!-- §2.14 Footer -->
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -872,14 +941,5 @@ In a world moving at the speed of play, we stood side by side—trusted, resilie
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
 
-  <script src="/js/lightbox.js" type="module"></script>
-  <script src="/js/nebulight.js"></script>
-  <script src="/js/nebulight-methods.js"></script>
-
-  <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/avatar-trading-card.js"></script>
-  <script src="/js/echogrid-avatar.js"></script>
-  <!-- RPG Avatar Card Module JS (RPG Test Section) -->
-  <script src="/modules/rpg-avatar-cards.js" defer></script>
 </body>
 </html>
