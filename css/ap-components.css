@@ -31,25 +31,38 @@
   text-decoration: none;
 }
 
+/* Logomark — 3×3 "ambient pixel" grid.
+   8 static surround dots + a breathing center pixel. Name made mark.
+   Outer ring fades off toward the corners (.18) with brighter cardinals (.5),
+   so the eye lands on the pulsing center. Re-uses ap-breathe (§2.9). */
 .ap-logo .m {
-  width: 22px;
-  height: 16px;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: space-between;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  position: relative;
+  background:
+    radial-gradient(circle at 2px 2px,   rgba(244,244,244,.18) 1.25px, transparent 1.75px),
+    radial-gradient(circle at 10px 2px,  rgba(244,244,244,.5)  1.25px, transparent 1.75px),
+    radial-gradient(circle at 18px 2px,  rgba(244,244,244,.18) 1.25px, transparent 1.75px),
+    radial-gradient(circle at 2px 10px,  rgba(244,244,244,.5)  1.25px, transparent 1.75px),
+    radial-gradient(circle at 18px 10px, rgba(244,244,244,.5)  1.25px, transparent 1.75px),
+    radial-gradient(circle at 2px 18px,  rgba(244,244,244,.18) 1.25px, transparent 1.75px),
+    radial-gradient(circle at 10px 18px, rgba(244,244,244,.5)  1.25px, transparent 1.75px),
+    radial-gradient(circle at 18px 18px, rgba(244,244,244,.18) 1.25px, transparent 1.75px);
 }
-.ap-logo .m::before,
-.ap-logo .m::after,
-.ap-logo .m i {
+.ap-logo .m::before {
   content: '';
-  display: block;
-  height: 3px;
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
   background: var(--color-text-primary);
-  border-radius: 1px;
+  animation: ap-breathe var(--dur-pulse) var(--ease-inout) infinite;
 }
-.ap-logo .m::before { width: 100%; }
-.ap-logo .m i      { width: 70%;  }
-.ap-logo .m::after { width: 45%;  }
+.ap-logo .m::after,
+.ap-logo .m i { display: none; }
 
 .ap-nav-links {
   display: flex;
@@ -79,6 +92,132 @@
   background: var(--color-text-primary);
   color: var(--color-bg);
 }
+
+
+/* ============================================================================
+   §2.2.1  Mobile Nav — hamburger toggle + full-screen sheet
+   Activates at ≤1000px (where the 6-link row + CTA start clipping).
+   Markup is auto-injected by /js/ap-nav-mobile.js — no per-page HTML changes.
+   Bars mirror the logomark stepped pattern (100% / 70% / 45%) to stay in
+   the same visual language; they flatten to 100% when the sheet is open.
+   ============================================================================ */
+
+.ap-nav-toggle { display: none; }
+.ap-nav-sheet  { display: none; }
+
+@media (max-width: 1000px) {
+  .ap-nav { padding: var(--sp-5) var(--mobile-pad); }
+
+  .ap-nav-links,
+  .ap-nav-cta { display: none; }
+
+  .ap-nav-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 26px;
+    height: 18px;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ap-nav-toggle__bar {
+    display: block;
+    height: 2px;
+    background: var(--color-text-primary);
+    border-radius: 1px;
+    transition: width var(--dur-fast) var(--ease);
+  }
+  .ap-nav-toggle__bar:nth-child(1) { width: 100%; }
+  .ap-nav-toggle__bar:nth-child(2) { width: 70%;  }
+  .ap-nav-toggle__bar:nth-child(3) { width: 45%;  }
+  .ap-nav-toggle[aria-expanded="true"] .ap-nav-toggle__bar { width: 100%; }
+
+  .ap-nav-sheet {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--color-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease);
+  }
+  .ap-nav-sheet.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .ap-nav-sheet__inner {
+    max-width: var(--max-page);
+    height: 100%;
+    margin: 0 auto;
+    padding: var(--sp-5) var(--mobile-pad) var(--sp-8);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  .ap-nav-sheet__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 28px;
+  }
+  .ap-nav-sheet__close {
+    background: none;
+    border: 0;
+    padding: var(--sp-2) 0 var(--sp-2) var(--sp-4);
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-weight: var(--fw-medium);
+    font-size: var(--fs-meta);
+    letter-spacing: var(--tracking-tight);
+    cursor: pointer;
+    opacity: .8;
+    transition: opacity var(--dur-fast);
+  }
+  .ap-nav-sheet__close:hover { opacity: .5; }
+
+  .ap-nav-sheet__links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    margin-top: var(--sp-12);
+    flex: 1;
+  }
+  .ap-nav-sheet__links a {
+    font-family: var(--font-display);
+    font-weight: var(--fw-heavy);
+    font-size: clamp(40px, 10vw, 64px);
+    line-height: 1;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-text-primary);
+    text-decoration: none;
+    opacity: .92;
+    transition: opacity var(--dur-fast);
+  }
+  .ap-nav-sheet__links a em {
+    font-style: italic;
+    font-weight: var(--fw-regular);
+    color: var(--color-text-body);
+  }
+  .ap-nav-sheet__links a:hover,
+  .ap-nav-sheet__links a:focus-visible { opacity: .55; outline: none; }
+
+  .ap-nav-sheet__cta {
+    align-self: flex-start;
+    margin-top: var(--sp-8);
+  }
+}
+
+@media (max-width: 600px) {
+  .ap-nav-sheet__links { gap: var(--sp-3); }
+}
+
+html.ap-nav-lock,
+html.ap-nav-lock body { overflow: hidden; }
 
 
 /* ============================================================================
@@ -440,7 +579,7 @@
 
 @media (max-width: 1000px) {
   .ap-pd {
-    grid-template-columns: 56px 1fr auto;
+    grid-template-columns: 56px minmax(0, 1fr) auto;
     grid-template-areas:
       "n h y"
       "n p p"
@@ -449,8 +588,8 @@
     padding: 40px 0;
   }
   .ap-pd .n    { grid-area: n; font-size: 48px; align-self: start; }
-  .ap-pd h3    { font-size: clamp(28px, 6vw, 44px); }
-  .ap-pd p     { grid-area: p; max-width: none; }
+  .ap-pd h3    { font-size: clamp(28px, 6vw, 44px); overflow-wrap: break-word; }
+  .ap-pd p     { grid-area: p; max-width: none; overflow-wrap: break-word; }
   .ap-pd .year { grid-area: y; align-self: start; }
   .ap-pd .go   { grid-area: go; text-align: left; }
 }
@@ -491,13 +630,36 @@
 }
 @media (max-width: 1000px) {
   .ap-pd--img {
-    grid-template-columns: 88px 1fr auto;
+    grid-template-columns: 88px minmax(0, 1fr) auto;
     grid-template-areas:
       "t h y"
       "t p p"
       ". go go";
   }
   .ap-pd--img .thumb { grid-area: t; width: 88px; height: 88px; align-self: start; }
+}
+
+/* ≤500px — the 3-col row can't hold a long italic suffix ("Production.",
+   "Infrastructure.") next to a wide mono status ("• PUBLISHING") inside a
+   375px viewport. Drop status to its own row so the title gets full flex. */
+@media (max-width: 500px) {
+  .ap-pd {
+    grid-template-columns: 56px minmax(0, 1fr);
+    grid-template-areas:
+      "n h"
+      "n y"
+      "n p"
+      ". go";
+  }
+  .ap-pd--img {
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-areas:
+      "t h"
+      "t y"
+      "t p"
+      ". go";
+  }
+  .ap-pd .year { justify-self: start; text-align: left; }
 }
 
 /* Icon thumbnail variant — for portfolio rows where there's no
@@ -914,6 +1076,43 @@
   margin-bottom: var(--sp-8);
   flex-wrap: wrap;
   justify-content: center;
+}
+
+
+/* ============================================================================
+   §2.15.1  Narrow-viewport gutter + type corrections
+   Design spec §3.9 mandates 20px horizontal gutter at mobile, but the
+   core section blocks (.ap-sec, .ap-cta, .ap-legal, .ap-colophon) were
+   hard-coded to --sec-pad-x (40px) at every size — which pushed content
+   past narrow viewports and created a horizontal scrollbar. Also the
+   CTA headline's min clamp (--fs-display-xl, 72px) renders "something"
+   wider than a 320px content area; scaled down here so the longest word
+   in the line fits. overflow-x: clip is a belt-and-suspenders defense
+   against any remaining overflow source from subpages.
+   ============================================================================ */
+
+@media (max-width: 600px) {
+  .ap-sec,
+  .ap-cta {
+    padding-left: var(--mobile-pad);
+    padding-right: var(--mobile-pad);
+  }
+  .ap-legal {
+    padding-left: var(--mobile-pad);
+    padding-right: var(--mobile-pad);
+  }
+  .ap-colophon {
+    padding-left: var(--mobile-pad);
+    padding-right: var(--mobile-pad);
+  }
+  .ap-cta h2 {
+    font-size: clamp(48px, 13vw, 96px);
+  }
+}
+
+html,
+body {
+  overflow-x: clip;
 }
 
 
