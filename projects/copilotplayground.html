@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
 
   <!-- Page-scoped: metrics strip, mono lists, code block. DS tokens only. -->
   <style>
@@ -49,22 +50,17 @@
     @media (max-width: 1000px) { .cp-metrics { grid-template-columns: 1fr 1fr; gap: var(--sp-8); } }
     @media (max-width:  600px) { .cp-metrics { grid-template-columns: 1fr; } }
 
-    .cp-tags {
-      list-style: none;
-      padding: 0;
-      margin: var(--sp-5) 0 0;
+    /* Masthead AI icon variant — FA wand-sparkles on deep purple panel. */
+    .ap-case-mast-frame--ai {
+      background: #2D1B4E;
+      border: none;
       display: flex;
-      gap: var(--sp-3);
-      flex-wrap: wrap;
-      font-family: var(--font-mono);
-      font-size: var(--fs-mono-xs);
-      letter-spacing: var(--tracking-mono-md);
-      text-transform: uppercase;
-      opacity: var(--mono-opacity-boost, 0.7);
+      align-items: center;
+      justify-content: center;
     }
-    .cp-tags li {
-      padding: var(--sp-2) var(--sp-3);
-      border: 1px solid var(--color-border);
+    .ap-case-mast-frame--ai i {
+      font-size: clamp(72px, 10vw, 140px);
+      color: #C7A8FF;
     }
 
     .cp-bullets {
@@ -170,26 +166,26 @@
 
   <main>
 
-    <!-- Hero -->
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
-          <h1 class="ap-display">Copilot<em>Playground.</em></h1>
+    <!-- Editorial masthead — AI icon variant. -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Copilot<em> Playground.</em></h1>
+          <p class="lede">AI prompt engineering toolkit built for Microsoft&rsquo;s Xbox Support content team. 22 models, 40+ languages, 10&times; publishing speed. Prompt chains for SEO, localization, instant answers, recommendations.</p>
         </div>
-        <div class="ap-sec-meta">
-          AI prompt engineering toolkit built for Microsoft&rsquo;s Xbox Support content team. 22 models, 40+ languages, 10&times; publishing speed. Prompt chains for SEO, localization, instant answers, recommendations.
+        <div class="ap-case-mast-frame ap-case-mast-frame--ai" role="img" aria-label="AI prompt engineering toolkit">
+          <i class="fa-solid fa-robot" aria-hidden="true"></i>
         </div>
       </div>
-      <ul class="cp-tags">
-        <li>Prompt engineering</li>
-        <li>Few-shot learning</li>
-        <li>Chain-of-thought</li>
-        <li>Validation</li>
-        <li>Localization</li>
-        <li>Instant answers</li>
-        <li>Automation</li>
-      </ul>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Models</dt><dd>22 AI models</dd></div>
+        <div><dt>Languages</dt><dd>40+ localized</dd></div>
+        <div><dt>Speed</dt><dd>10&times; publishing</dd></div>
+        <div><dt>Techniques</dt><dd>Few-shot &middot; CoT &middot; validation</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; Operating</dd></div>
+      </dl>
     </section>
 
     <!-- § 01 — THE STORY -->

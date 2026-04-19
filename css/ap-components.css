@@ -798,6 +798,381 @@ html.ap-nav-lock body { overflow: hidden; }
 
 
 /* ============================================================================
+   §2.9a  Image gallery — .media-grid + .image-row
+   ----------------------------------------------------------------------------
+   One canonical pattern for project image galleries. .media-grid is the
+   legacy class (project pages); .image-row is the case-study variant. Both
+   render identically: 3+ column responsive grid, hairline-bordered tiles,
+   4:3 cropped images with brightness+scale hover, always-visible mono
+   caption strip below the image (NOT a hover-revealed overlay).
+   ============================================================================ */
+
+.media-grid,
+.image-row {
+  display: grid;
+  /* auto-fit collapses empty column tracks so a 3-item row fills width;
+     auto-fill would leave a 4th empty slot. */
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--sp-3);
+  margin: var(--sp-6) 0;
+  padding: 0;
+}
+
+.media-item,
+.image-item {
+  position: relative;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.media-item a,
+.image-item a {
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+
+.media-item img,
+.image-item img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-med), filter var(--dur-med);
+  border-radius: 0;
+}
+
+.media-item a:hover img,
+.media-item:hover img,
+.image-item a:hover img,
+.image-item:hover img {
+  filter: brightness(1.08);
+  transform: scale(1.04);
+}
+
+.media-item .media-caption,
+.image-item .image-caption,
+.media-item .image-caption,
+.image-item .media-caption {
+  position: static;
+  opacity: 1;
+  transform: none;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  padding: var(--sp-3);
+  margin: 0;
+  text-align: left;
+  text-shadow: none;
+  font-weight: normal;
+}
+
+
+/* ============================================================================
+   §2.9b  Screens gallery (scroll cinema) — one pinned stage on the left,
+   three caption sentinels on the right. Stage stays sticky while caption
+   cards scroll past, swapping the active screenshot via crossfade. Replaces
+   multiple .ap-case-media strips on product-landing pages.
+   ============================================================================ */
+
+.ap-screens-rail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sec-pad-x);
+  align-items: start;
+}
+
+.ap-screens-stage {
+  position: sticky;
+  top: 80px;
+  height: calc(100vh - 160px);
+  max-height: 720px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.ap-screens-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+  opacity: 0;
+  transition: opacity var(--dur-slow) var(--ease);
+  filter: grayscale(.55) contrast(1.05) brightness(.88);
+}
+.ap-screens-slide.is-active { opacity: 1; }
+
+.ap-screens-counter {
+  position: absolute;
+  top: var(--sp-4);
+  left: var(--sp-4);
+  padding: var(--sp-2) var(--sp-3);
+  background: rgba(0, 0, 0, .55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-sm);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.ap-screens-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 33.333%;
+  background: var(--color-text-primary);
+  transition: width var(--dur-med) var(--ease);
+}
+
+.ap-screens-sentinels {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-20);
+}
+
+.ap-screens-sentinel {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+}
+
+.ap-screens-caption {
+  max-width: 420px;
+  padding: var(--sp-6);
+  background: rgba(0, 0, 0, .6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+}
+.ap-screens-caption .ap-sec-idx { margin-bottom: var(--sp-3); }
+
+.ap-screens-title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 var(--sp-3);
+  text-wrap: balance;
+  color: var(--color-text-primary);
+}
+.ap-screens-title em {
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--color-text-body);
+}
+
+.ap-screens-desc {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono-sm);
+  line-height: var(--lh-body-loose);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .ap-screens-rail { grid-template-columns: 1fr; }
+  .ap-screens-stage {
+    top: 72px;
+    height: 60vh;
+    max-height: 520px;
+  }
+  .ap-screens-sentinel { min-height: 70vh; }
+  .ap-screens-caption { max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ap-screens-slide    { transition: opacity .01ms; }
+  .ap-screens-progress { transition: width .01ms; }
+  .ap-screens-counter,
+  .ap-screens-caption {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+
+/* ============================================================================
+   §2.9c  Case-study masthead + column-pair narrative
+   ----------------------------------------------------------------------------
+   Editorial hero pattern for case-study pages. Replaces the old "stack three
+   display headlines" anti-pattern with one composed unit:
+
+     <section class="ap-case-mast">
+       <div class="ap-sec-idx">§ WORK — SHIPPED · CLIENT</div>
+       <div class="ap-case-mast-grid">
+         <div class="ap-case-mast-prose"> h1 + lede </div>
+         <div class="ap-case-mast-frame"> signature image </div>
+       </div>
+       <dl class="ap-case-mast-specs"> 6 spec cells </dl>
+     </section>
+
+   .ap-case-cols is a 2-column narrative pattern used under a single section
+   header to lay two related stories side-by-side instead of stacking two
+   §-level H2 banners. Each column carries a small mono col-idx + h3 instead
+   of a full ap-display banner.
+   ============================================================================ */
+
+.ap-case-mast {
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: var(--sp-15) var(--sec-pad-x) var(--sp-12);
+}
+.ap-case-mast > .ap-sec-idx { margin-bottom: var(--sp-5); }
+
+.ap-case-mast-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: var(--col-gap);
+  align-items: end;
+  margin-bottom: var(--sp-10);
+}
+
+.ap-case-mast-prose { display: flex; flex-direction: column; gap: var(--sp-6); }
+.ap-case-mast-prose h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: clamp(56px, 9vw, 120px);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+.ap-case-mast-prose h1 em {
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--color-text-body);
+}
+.ap-case-mast-prose .lede {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--color-text-secondary);
+  max-width: 44ch;
+  margin: 0;
+}
+
+.ap-case-mast-frame {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.ap-case-mast-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ap-case-mast-specs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  margin: 0;
+}
+.ap-case-mast-specs > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-5);
+  border-right: 1px solid var(--color-border-soft);
+}
+.ap-case-mast-specs > div:nth-child(3n) { border-right: none; }
+.ap-case-mast-specs > div:nth-child(n+4) { border-top: 1px solid var(--color-border-soft); }
+.ap-case-mast-specs dt {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+.ap-case-mast-specs dd {
+  font-family: var(--font-display);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-body);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+@media (max-width: 1000px) {
+  .ap-case-mast-grid { grid-template-columns: 1fr; align-items: start; }
+  .ap-case-mast-specs { grid-template-columns: 1fr; }
+  .ap-case-mast-specs > div {
+    border-right: none;
+    border-top: 1px solid var(--color-border-soft);
+  }
+  .ap-case-mast-specs > div:first-child { border-top: none; }
+}
+
+/* Column-pair narrative — two stories side-by-side under one section
+   header instead of stacking two §-level display banners. */
+.ap-case-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--col-gap) calc(var(--col-gap) * 1.5);
+}
+.ap-case-cols > div { display: flex; flex-direction: column; gap: var(--sp-4); }
+.ap-case-cols h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heavy);
+  font-size: clamp(24px, 2.2vw, 32px);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+  color: var(--color-text-primary);
+}
+.ap-case-cols h3 em {
+  font-style: italic;
+  font-weight: var(--fw-regular);
+  color: var(--color-text-body);
+}
+.ap-case-cols .col-idx {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.ap-case-cols p {
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body);
+  color: var(--color-text-secondary);
+  max-width: var(--max-prose);
+  margin: 0;
+}
+@media (max-width: 1000px) {
+  .ap-case-cols { grid-template-columns: 1fr; gap: var(--sp-12); }
+}
+
+
+/* ============================================================================
    §2.10  Status Indicator (dot + label)
    ============================================================================ */
 

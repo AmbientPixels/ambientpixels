@@ -97,27 +97,6 @@
     .ff-tools li:first-child { border-top: none; }
     .ff-tools li::before { content: '→ '; opacity: .45; }
 
-    .ff-bts {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: var(--sp-12);
-      align-items: start;
-    }
-    .ff-bts .ff-bts-img {
-      aspect-ratio: 4 / 3;
-      overflow: hidden;
-      border: 1px solid var(--color-border);
-    }
-    .ff-bts .ff-bts-img img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      filter: grayscale(.7) contrast(1) brightness(.85);
-    }
-    @media (max-width: 1000px) { .ff-bts { grid-template-columns: 1fr; } }
-
-    /* Drop the DS grayscale filter on this page's hero case-media — keep the UI in color. */
-    .ap-case-media-frame.ff-hero img { filter: none; }
-    .ap-case-media-frame.ff-hero::after { content: none; }
   </style>
 
   <script defer src="/js/ap-nav-mobile.js"></script>
@@ -145,50 +124,61 @@
 
   <main>
 
-    <!-- Hero -->
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
-          <h1 class="ap-display">Figma<em> Fleet.</em></h1>
+    <!-- Editorial masthead -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Figma<em> Fleet.</em></h1>
+          <p class="lede">Contract UX design &mdash; a visual-first Figma onboarding toolkit for the Xbox Support content team. Annotated walkthroughs, shortcut overlays, component systems.</p>
         </div>
-        <div class="ap-sec-meta">
-          Contract UX design &mdash; a visual-first Figma onboarding toolkit for the Xbox Support content team. Annotated walkthroughs, shortcut overlays, component systems. 2024.
+        <div class="ap-case-mast-frame">
+          <img src="/images/projects/figma-fleet/figma-fleet-1920-01.jpg" alt="Figma Fleet onboarding hero" loading="lazy" style="object-position: 87% center;" />
         </div>
       </div>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Contract UX designer &middot; Microsoft</dd></div>
+        <div><dt>Audience</dt><dd>Xbox Support content team</dd></div>
+        <div><dt>Walkthroughs</dt><dd>10+ annotated</dd></div>
+        <div><dt>Trained</dt><dd>12 team members</dd></div>
+        <div><dt>Onboarding</dt><dd>40% faster</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; 2024</dd></div>
+      </dl>
     </section>
 
-    <!-- Hero case-media — full-bleed, full color (no DS grayscale wash) -->
-    <div class="ap-case-media">
-      <div class="ap-case-media-frame ff-hero">
-        <img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet onboarding hero" loading="lazy" />
-      </div>
-    </div>
-
-    <!-- § 01 — OVERVIEW -->
-    <section class="ap-sec">
+    <!-- §01 — column-pair narrative. Overview + behind-the-scenes. -->
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; OVERVIEW</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; THE WORK</div>
           <h2 class="ap-display">A toolkit, <em>not a manual.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          Built around the questions support leads actually asked: file access, layer control, edit flow.
+          Built around the questions support leads actually asked &mdash; file access, layer control, edit flow. Visual-first onboarding in a shared Figma workspace.
         </div>
       </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        As a contract visual designer for Microsoft, I built a clear, visually guided onboarding toolkit for Xbox Support team members learning Figma. The project &mdash; internally nicknamed &ldquo;Figma Fleet&rdquo; &mdash; focused on practical UX onboarding using annotated screenshots, shortcut overlays, and structured flows within a shared Figma workspace.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
-        The toolkit empowers support leads and content creators to understand frame hierarchy, edit flows, and contribute lightweight updates to shared files. System clarity, with just enough visual charm to keep engagement high.
-      </p>
+
+      <div class="ap-case-cols">
+        <div>
+          <div class="col-idx">&sect; 01.1 &mdash; overview</div>
+          <h3>Annotated walkthroughs, <em>not a PDF.</em></h3>
+          <p>As a contract visual designer for Microsoft, I built a clear, visually guided onboarding toolkit for Xbox Support team members learning Figma. The project &mdash; internally nicknamed &ldquo;Figma Fleet&rdquo; &mdash; focused on practical UX onboarding using annotated screenshots, shortcut overlays, and structured flows inside a shared Figma workspace.</p>
+          <p>The toolkit empowers support leads and content creators to understand frame hierarchy, edit flows, and contribute lightweight updates to shared files. System clarity, with just enough visual charm to keep engagement high.</p>
+        </div>
+        <div>
+          <div class="col-idx">&sect; 01.2 &mdash; behind the scenes</div>
+          <h3>Map the questions, <em>then answer in pictures.</em></h3>
+          <p>Started by mapping the most common questions Xbox Support teams asked about Figma &mdash; from file access to layer control. Then staged a multi-screen walkthrough, capturing each phase with annotation layers and a consistent visual style.</p>
+          <p>Built a keyboard overlay system that teaches shortcuts visually, helping speed up team fluency in live-edit scenarios. Every asset was produced inside Figma itself so the toolkit doubles as a live reference.</p>
+        </div>
+      </div>
     </section>
 
-    <!-- § 02 — VISUAL HIGHLIGHTS -->
-    <section class="ap-sec ap-sec--cool" data-lightbox-autoload>
+    <!-- §02 — Shipped frames (gallery) -->
+    <section class="ap-sec" data-lightbox-autoload>
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 02 &mdash; VISUAL HIGHLIGHTS</div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; SHIPPED FRAMES</div>
           <h2 class="ap-display">Eight frames, <em>one fleet.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -247,56 +237,56 @@
       </div>
     </section>
 
-    <!-- § 03 — BEHIND THE SCENES -->
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; 03 &mdash; BEHIND THE SCENES</div>
-          <h2 class="ap-display">Map the questions, <em>then answer in pictures.</em></h2>
-        </div>
-      </div>
-      <div class="ff-bts">
-        <div>
-          <p style="font-size: var(--fs-body); line-height: var(--lh-body); opacity: .82; margin: 0 0 var(--sp-5);">
-            This project required a blend of visual clarity and tool fluency. I started by mapping the most common questions Xbox Support teams asked about Figma &mdash; from file access to layer control. Then I staged a multi-screen walkthrough, capturing each phase with annotation layers and a consistent visual style.
-          </p>
-          <p style="font-size: var(--fs-body); line-height: var(--lh-body); opacity: .82; margin: 0;">
-            The process also included building a keyboard overlay system that teaches shortcuts visually, helping speed up team fluency in live-edit scenarios.
-          </p>
-        </div>
-        <div class="ff-bts-img">
-          <img src="/images/projects/figma-fleet/figma-fleet-3.png" alt="Inline structure reference" loading="lazy" />
-        </div>
-      </div>
-    </section>
-
-    <!-- § 04 — TOOLS &amp; TECHNIQUES -->
+    <!-- § 03 — STACK -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 04 &mdash; TOOLS &amp; TECHNIQUES</div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; STACK</div>
           <h2 class="ap-display">Seven habits, <em>one toolkit.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          The stack and the discipline.
+          Three disciplines &mdash; craft, systems, standards. Each one baked into the onboarding flow.
         </div>
       </div>
-      <ul class="ff-tools">
-        <li>Figma &mdash; desktop &amp; web</li>
-        <li>UI annotation &amp; markup design</li>
-        <li>Snagit, Skitch &amp; screenshot workflows</li>
-        <li>Custom shortcut mapping &amp; overlay UX</li>
-        <li>Component systems &amp; library hygiene</li>
-        <li>WCAG contrast &amp; accessibility checks</li>
-        <li>Visual documentation for training</li>
-      </ul>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Craft<br><em>+ capture.</em></h3>
+          <p>Figma as a live instruction surface &mdash; annotated screenshots, markup layers, overlay design produced inside the tool the learners are learning.</p>
+          <ul>
+            <li>Figma (desktop &amp; web)</li>
+            <li>UI annotation + markup</li>
+            <li>Snagit / Skitch capture</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Systems<br><em>+ shortcuts.</em></h3>
+          <p>A keyboard overlay system that teaches shortcuts visually. Component hygiene and library structure so the team can contribute without breaking shared files.</p>
+          <ul>
+            <li>Custom shortcut overlays</li>
+            <li>Component systems</li>
+            <li>Library hygiene</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Standards<br><em>+ reach.</em></h3>
+          <p>WCAG contrast and accessibility checks bundled into the reference. Visual documentation styled to live alongside the team&rsquo;s real support articles.</p>
+          <ul>
+            <li>WCAG contrast checks</li>
+            <li>Accessibility audits</li>
+            <li>Training documentation</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
-    <!-- § 05 — IMPACT -->
+    <!-- § 04 — IMPACT -->
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 05 &mdash; IMPACT</div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; IMPACT</div>
           <h2 class="ap-display">Three numbers, <em>one shipped fleet.</em></h2>
         </div>
       </div>
@@ -316,11 +306,11 @@
       </div>
     </section>
 
-    <!-- § 06 — LEARNINGS -->
+    <!-- § 05 — LEARNINGS -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 06 &mdash; LEARNINGS</div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; LEARNINGS</div>
           <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
         </div>
       </div>
@@ -343,12 +333,12 @@
       </div>
     </section>
 
-    <!-- § 07 — NEXT WORK -->
+    <!-- § 06 — ADJACENT WORK -->
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 07 &mdash; NEXT WORK</div>
-          <h2 class="ap-display">Adjacent project, <em>same client.</em></h2>
+          <div class="ap-sec-idx">&sect; 06 &mdash; ADJACENT WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
       </div>
       <div class="ap-prods">

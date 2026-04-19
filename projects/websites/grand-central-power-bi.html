@@ -17,8 +17,23 @@
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
   <style>
-    .gc-tags { list-style: none; padding: 0; margin: 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
-    .gc-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    /* Masthead icon variant — flat teal panel with centered glyph.
+       Echoes the legacy gc-card "icon + colored background" treatment
+       using DS §3.12 teal palette (no FA, no gradients). */
+    .ap-case-mast-frame--icon {
+      background: var(--color-teal-surface);
+      border-color: var(--color-teal-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ap-case-mast-frame--icon svg {
+      width: 38%;
+      height: auto;
+      color: var(--color-teal-primary);
+      opacity: .92;
+    }
+
     .gc-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
     .gc-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
     .gc-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
@@ -45,47 +60,102 @@
 
   <main>
 
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
-          <h1 class="ap-display">Grand Central<em> 3.0.</em></h1>
+    <!-- Editorial masthead -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Grand Central<em> 3.0.</em></h1>
+          <p class="lede">Built-from-scratch data platform for Xbox Support &mdash; raw exports through advanced Excel logic, merged via Power Query, visualized in Power BI. 7,490 assets tracked, weekly refresh, 30+ users.</p>
         </div>
-        <div class="ap-sec-meta">
-          Built-from-scratch data platform for Xbox Support &mdash; raw exports through advanced Excel logic, merged via Power Query, visualized in Power BI dashboards. 7,490 assets tracked, weekly refresh, 30+ users.
-          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        <div class="ap-case-mast-frame ap-case-mast-frame--icon" role="img" aria-label="Grand Central 3.0 &mdash; data platform">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <ellipse cx="12" cy="5" rx="8" ry="2.5" />
+            <path d="M4 5v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5" />
+            <path d="M4 11v6c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-6" />
+          </svg>
         </div>
       </div>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Built</dt><dd>From scratch &middot; solo</dd></div>
+        <div><dt>Assets tracked</dt><dd>7,490 published</dd></div>
+        <div><dt>Refresh</dt><dd>Weekly cycle</dd></div>
+        <div><dt>Users</dt><dd>30+ weekly</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; Operating</dd></div>
+      </dl>
     </section>
 
+    <!-- §01 — column-pair narrative. -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; THE WORK</div>
           <h2 class="ap-display">Static reports out, <em>living dashboards in.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          End-to-end data pipeline replacing manual audits with self-serviceable, weekly-refreshed insights for technical and editorial users.
+          End-to-end pipeline replacing manual audits with self-serviceable, weekly-refreshed insights for technical and editorial teams.
         </div>
       </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        Grand Central 3.0 is a fully custom-built data tool I designed and implemented for Xbox Support teams. Engineered the pipeline from the ground up &mdash; starting with raw Compass and CXT exports, transforming them through advanced Excel logic, merging via Power Query, and visualizing in dynamic Power BI dashboards. Every data merge, filter, sort, and transformation was crafted to handle messy, inconsistent data across multiple platforms.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
-        This system replaced static pivot reports and manual audit requests with a living toolset &mdash; updated weekly, self-serviceable, and tailored to both technical and editorial users. Grand Central now drives smarter planning, faster link cleanups, and richer insight into what content is active, missing, or misaligned.
-      </p>
+
+      <div class="ap-case-cols">
+        <div>
+          <div class="col-idx">&sect; 01.1 &mdash; the pipeline</div>
+          <h3>Engineered <em>end to end.</em></h3>
+          <p>Grand Central 3.0 is a fully custom-built data tool I designed and implemented for Xbox Support teams. Engineered the pipeline from the ground up &mdash; starting with raw Compass and CXT exports, transforming them through advanced Excel logic, merging via Power Query, and visualizing in dynamic Power BI dashboards.</p>
+          <p>Every data merge, filter, sort, and transformation was crafted to handle messy, inconsistent data across multiple platforms. Replaced static pivot reports and manual audit requests with a living toolset &mdash; updated weekly, self-serviceable, tailored to both technical and editorial users.</p>
+        </div>
+        <div>
+          <div class="col-idx">&sect; 01.2 &mdash; what it unlocked</div>
+          <h3>Visibility, link intel, <em>error awareness.</em></h3>
+          <p>Teams can now review published assets across IA, GUID, and Contact Us modules with no engineering help. With over half a million links indexed, migrations and redesigns are guided by real data, not assumptions. Surface dashboards flag <code>isOffline</code> risks early, improving UX and troubleshooting.</p>
+          <p>71,000+ Contact Us modules across 75 locales tracked, visualized, and no longer hidden in CSV hell. Dashboards reflect milestones like the 4,000+ asset surge in March, giving teams historical proof and future planning support.</p>
+        </div>
+      </div>
     </section>
 
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 02 &mdash; TOOLS &amp; TECHNOLOGIES</div>
-          <h2 class="ap-display">Six tools, <em>one pipeline.</em></h2>
+          <div class="ap-sec-idx">&sect; 02 &mdash; STACK</div>
+          <h2 class="ap-display">Three stages, <em>one pipeline.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Inputs, transformation, output &mdash; one repeatable, transparent flow others can maintain.
         </div>
       </div>
-      <ul class="gc-tags">
-        <li>Power BI</li><li>Excel</li><li>Power Query</li><li>CXT exports</li><li>Compass data</li><li>SharePoint</li>
-      </ul>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Inputs<br><em>+ sources.</em></h3>
+          <p>Raw exports from multiple Xbox content systems &mdash; messy, inconsistent, often broken. The pipeline normalizes everything before it touches a chart.</p>
+          <ul>
+            <li>CXT exports</li>
+            <li>Compass data</li>
+            <li>SharePoint</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Transformation<br><em>+ logic.</em></h3>
+          <p>Excel as a transformation engine &mdash; lookup chains, error flags, pattern detection. Power Query merges and shapes feed into the model.</p>
+          <ul>
+            <li>Excel (advanced)</li>
+            <li>Power Query</li>
+            <li>Lookup + flag logic</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Output<br><em>+ insight.</em></h3>
+          <p>Dynamic Power BI dashboards built for both technical and editorial users. Self-serviceable views replace audit requests.</p>
+          <ul>
+            <li>Power BI dashboards</li>
+            <li>Self-serve filters</li>
+            <li>Weekly refresh</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="ap-sec ap-sec--cool">
@@ -119,6 +189,7 @@
       <div class="ap-sec-head">
         <div>
           <div class="ap-sec-idx">&sect; 04 &mdash; KEY LEARNINGS</div>
+          <!-- (numbering aligned: §03 RESULTS, §04 KEY LEARNINGS, §05 ADJACENT) -->
           <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
         </div>
       </div>
@@ -132,7 +203,7 @@
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 05 &mdash; RELATED WORK</div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; ADJACENT WORK</div>
           <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
       </div>

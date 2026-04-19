@@ -20,8 +20,9 @@
   <!-- Comparison slider — preserved feature on this page (see /js/comparison-slider.js) -->
   <link rel="stylesheet" href="/css/comparison-slider.css" />
   <style>
-    .mcg-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
-    .mcg-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    /* Masthead hero-card aspect (1366x342 = 4:1 banner). */
+    .ap-case-mast-frame--banner { aspect-ratio: 4 / 1; }
+
     .mcg-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
     .mcg-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
     .mcg-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
@@ -49,49 +50,61 @@
 
   <main>
 
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
-          <h1 class="ap-display">Microsoft<em> Casual Games.</em></h1>
+    <!-- Editorial masthead — single composed hero. -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Microsoft<em> Casual Games.</em></h1>
+          <p class="lede">Producer-led migration from the Zendesk help center to Xbox Support &mdash; 12+ casual game titles, full accessibility compliance, zero user disruption at launch.</p>
+          <a class="ap-btn ap-btn--primary" href="https://support.xbox.com/en-US/game/microsoft-casual-games/support/home" target="_blank" rel="noopener noreferrer" style="align-self: flex-start;">View live support site &rarr;</a>
         </div>
-        <div class="ap-sec-meta">
-          Producer-led migration from the Zendesk help center to Xbox Support &mdash; 12+ casual game titles, 100% accessibility, zero user disruption at launch.
-          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        <div class="ap-case-mast-frame ap-case-mast-frame--banner">
+          <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games &mdash; Solitaire, Mahjong, Sudoku, Bingo, Word Games, Jigsaw" loading="lazy" />
         </div>
       </div>
-      <ul class="mcg-tags">
-        <li>Producer role</li><li>Content migration</li><li>Zendesk</li><li>Xbox Support</li>
-        <li>Accessibility</li><li>Multilingual</li><li>Publishing pipeline</li>
-      </ul>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Migration</dt><dd>Zendesk &rarr; Xbox Support</dd></div>
+        <div><dt>Titles</dt><dd>12+ casual games</dd></div>
+        <div><dt>Compliance</dt><dd>WCAG 2.1 AA &middot; Multilingual</dd></div>
+        <div><dt>Stack</dt><dd>Internal CMS &middot; Zendesk &middot; Localization</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; Operating</dd></div>
+      </dl>
     </section>
 
+    <!-- §01 — column-pair narrative. Two stories side-by-side. -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; THE WORK</div>
           <h2 class="ap-display">Two platforms, <em>one seamless transition.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          Maintaining and updating content on both platforms during the transition period &mdash; ensuring a seamless experience as users moved to the new infrastructure.
+          Dual-platform publishing during the transition &mdash; legacy and new running side-by-side, no user disruption, full accessibility from day one.
         </div>
       </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        As a content producer at Xbox, I led the support migration for Microsoft Casual Games &mdash; managing the transition from the Zendesk help center to the Xbox Support platform. The dual-role involved maintaining and updating content on both platforms during the transition period, ensuring a seamless experience for users as we moved to the new support.xbox.com infrastructure.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        Working closely with PMs and backend developers, I coordinated the content migration while continuing to support the existing Zendesk platform until the transition was complete. This included managing parallel content updates, implementing redirects, and training support teams on the new platform while maintaining the legacy system.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
-        After the migration, I continued supporting the new Xbox Support platform &mdash; handling page builds, feedback form management, and coordinating content updates across partner teams. Crucial in ensuring zero disruption to users throughout the transition period.
-      </p>
-      <a class="ap-btn ap-btn--primary" href="https://support.xbox.com/en-US/game/microsoft-casual-games/support/home" target="_blank" rel="noopener noreferrer">View live support site &rarr;</a>
+
+      <div class="ap-case-cols">
+        <div>
+          <div class="col-idx">&sect; 01.1 &mdash; project overview</div>
+          <h3>Producing across <em>two CMSes.</em></h3>
+          <p>As a content producer at Xbox, I led the support migration for Microsoft Casual Games &mdash; managing the transition from the Zendesk help center to the Xbox Support platform. The dual role involved maintaining and updating content on both platforms during the transition, ensuring a seamless experience for users moving to the new support.xbox.com infrastructure.</p>
+          <p>Working closely with PMs and backend developers, I coordinated the content migration while continuing to support the existing Zendesk platform until the transition was complete &mdash; managing parallel updates, implementing redirects, and training support teams on the new platform.</p>
+        </div>
+        <div>
+          <div class="col-idx">&sect; 01.2 &mdash; migration in motion</div>
+          <h3>Rebuilding from <em>the inside out.</em></h3>
+          <p>During the migration, I worked deeply in both platforms &mdash; maintaining legacy content while constructing the new support experience. Coordinated updates, prepped content for localization, and managed the structured transition of forms, articles, and metadata across platforms.</p>
+          <p>From accessibility compliance (WCAG 2.1 AA) to visual QA, device testing, and link validation, every asset and interaction was polished and production-ready. After launch I continued supporting the new platform &mdash; page builds, feedback forms, partner coordination &mdash; ensuring zero downtime through the transition.</p>
+        </div>
+      </div>
     </section>
 
     <section class="ap-sec" id="gallery" data-lightbox-autoload>
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 02 &mdash; VISUAL HIGHLIGHTS</div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; SHIPPED SURFACES</div>
           <h2 class="ap-display">Six surfaces, <em>one platform.</em></h2>
         </div>
         <div class="ap-sec-meta">Tap to expand.</div>
@@ -109,29 +122,11 @@
       </p>
     </section>
 
+    <!-- § 03 — TRANSFORMATION COMPARISON SLIDER (preserved feature) -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 03 &mdash; MIGRATION IN MOTION</div>
-          <h2 class="ap-display">Rebuilding from <em>the inside out.</em></h2>
-        </div>
-        <div class="ap-sec-meta">
-          Hands-on with systems, structure, and support &mdash; maintaining legacy while constructing the new.
-        </div>
-      </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        During the migration from Zendesk to Xbox Support, I worked deeply in both platforms &mdash; maintaining legacy content while constructing the new support experience. Coordinated updates, prepped content for localization, and managed the structured transition of forms, articles, and metadata across platforms.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
-        From accessibility compliance (WCAG 2.1 AA) to visual QA, device testing, and link validation, I helped ensure every asset, interaction, and content element was polished and production-ready. This direct work enabled a smooth launch of the new support site &mdash; adapted for a global, multilingual audience.
-      </p>
-    </section>
-
-    <!-- § 04 — TRANSFORMATION COMPARISON SLIDER (preserved feature) -->
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; 04 &mdash; TRANSFORMATION COMPARISON</div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; BEFORE / AFTER</div>
           <h2 class="ap-display">Drag the slider, <em>see the change.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -176,22 +171,54 @@
       </p>
     </section>
 
-    <section class="ap-sec ap-sec--cool">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; 05 &mdash; TOOLS &amp; TECHNOLOGIES</div>
-          <h2 class="ap-display">Two CMS, <em>one team.</em></h2>
-        </div>
-      </div>
-      <ul class="mcg-tags">
-        <li>Internal Xbox CMS</li><li>Zendesk CMS</li><li>Localization pipelines</li><li>Photoshop</li><li>Snipping tool</li><li>WCAG 2.1</li><li>Cross-browser testing</li><li>Mobile testing</li>
-      </ul>
-    </section>
-
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 06 &mdash; RESULTS &amp; IMPACT</div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; STACK</div>
+          <h2 class="ap-display">Two CMSes, <em>one team.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Three disciplines &mdash; publishing systems, production assets, live-environment standards.
+        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Publishing<br><em>systems.</em></h3>
+          <p>Two CMSes running in parallel through the migration window &mdash; legacy Zendesk continuity alongside the new Xbox Support build.</p>
+          <ul>
+            <li>Internal Xbox CMS</li>
+            <li>Zendesk CMS</li>
+            <li>Localization pipelines</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Production<br><em>assets.</em></h3>
+          <p>Visual QA, asset prep, and screen capture for help articles, troubleshooters, and post-migration form flows.</p>
+          <ul>
+            <li>Photoshop</li>
+            <li>Snipping tool</li>
+            <li>Asset QA passes</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Live<br><em>standards.</em></h3>
+          <p>Every shipped surface tested live across browsers, devices, and locales. Accessibility held to WCAG 2.1 AA from day one.</p>
+          <ul>
+            <li>WCAG 2.1 AA</li>
+            <li>Cross-browser testing</li>
+            <li>Mobile testing</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; RESULTS &amp; IMPACT</div>
           <h2 class="ap-display">Three numbers, <em>zero downtime.</em></h2>
         </div>
       </div>
@@ -209,10 +236,10 @@
       </ul>
     </section>
 
-    <section class="ap-sec ap-sec--cool">
+    <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 07 &mdash; KEY LEARNINGS</div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; KEY LEARNINGS</div>
           <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
         </div>
       </div>
@@ -223,10 +250,10 @@
       </div>
     </section>
 
-    <section class="ap-sec">
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 08 &mdash; RELATED WORK</div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; ADJACENT WORK</div>
           <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
       </div>

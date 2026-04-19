@@ -18,8 +18,10 @@
   <link rel="stylesheet" href="/css/ap-components.css" />
   <link rel="stylesheet" href="/css/lightbox.css" />
   <style>
-    .gow-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
-    .gow-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    /* Masthead logo variant — wordmark sits on the surface, not edge-to-edge. */
+    .ap-case-mast-frame--logo { background: #000; aspect-ratio: 16 / 9; }
+    .ap-case-mast-frame--logo img { object-fit: cover; }
+
     .gow-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
     .gow-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
     .gow-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
@@ -50,90 +52,59 @@
 
   <main>
 
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
-          <h1 class="ap-display">Gears of War<em> Support.</em></h1>
+    <!-- Editorial masthead -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Gears of War<em> Support.</em></h1>
+          <p class="lede">Producer-led support content for the Gears of War franchise &mdash; modular taxonomy, 40+ languages, rapid live-ops publishing held to flagship editorial standards.</p>
+          <a class="ap-btn ap-btn--primary" href="https://support.xbox.com/en-US/game/gears-of-war/support/home" target="_blank" rel="noopener noreferrer" style="align-self: flex-start;">View live support pages &rarr;</a>
         </div>
-        <div class="ap-sec-meta">
-          Producer-led support content delivery for the Gears of War franchise &mdash; modular taxonomy, 40+ languages, rapid live-ops publishing.
-          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        <div class="ap-case-mast-frame ap-case-mast-frame--logo">
+          <img src="/images/projects/gow/logo.png" alt="Gears of War wordmark" loading="lazy" />
         </div>
       </div>
-      <ul class="gow-tags">
-        <li>Producer role</li><li>Localization</li><li>CMS</li><li>40+ languages</li><li>Live ops</li><li>Support publishing</li>
-      </ul>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Franchise</dt><dd>Gears of War</dd></div>
+        <div><dt>Articles</dt><dd>28+ shipped</dd></div>
+        <div><dt>Languages</dt><dd>40+ localized</dd></div>
+        <div><dt>QA coverage</dt><dd>100%</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; Operating</dd></div>
+      </dl>
     </section>
 
+    <!-- §01 — column-pair narrative. Project overview + producer role
+         (FAQ collapsed into prose under one section). -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; THE WORK</div>
           <h2 class="ap-display">Live ops cadence, <em>flagship editorial standards.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          End-to-end delivery of player assistance materials across multiple game titles. Balancing rapid response with premium standards.
+          End-to-end delivery of player assistance materials &mdash; rapid response to live issues, premium franchise standards, full localization across 40+ languages.
         </div>
       </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        As the lead producer for Gears of War support content, I orchestrated the end-to-end delivery of player assistance materials across multiple game titles. The role was pivotal in maintaining the delicate balance between rapid response to live issues and upholding the premium editorial standards expected from a flagship Xbox franchise.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
-        Working within Xbox&rsquo;s internal tooling ecosystem, I ensured all support materials met strict accessibility guidelines and maintained consistency with the Gears of War brand standards &mdash; creating a seamless support experience for players worldwide.
-      </p>
-      <a class="ap-btn ap-btn--primary" href="https://support.xbox.com/en-US/game/gears-of-war/support/home" target="_blank" rel="noopener noreferrer">View live support pages &rarr;</a>
-    </section>
 
-    <section class="ap-sec">
-      <div class="ap-sec-head">
+      <div class="ap-case-cols">
         <div>
-          <div class="ap-sec-idx">&sect; 02 &mdash; KEY CONTRIBUTIONS</div>
-          <h2 class="ap-display">Three pillars, <em>one delivery model.</em></h2>
+          <div class="col-idx">&sect; 01.1 &mdash; project overview</div>
+          <h3>Production for <em>a flagship franchise.</em></h3>
+          <p>As the lead producer for Gears of War support content, I orchestrated the end-to-end delivery of player assistance materials across multiple game titles. The role balanced rapid response to live issues against the premium editorial standards expected from a flagship Xbox franchise.</p>
+          <p>Working within Xbox&rsquo;s internal tooling ecosystem, I ensured all support materials met strict accessibility guidelines and maintained consistency with the Gears of War brand &mdash; creating a seamless support experience for players worldwide.</p>
+        </div>
+        <div>
+          <div class="col-idx">&sect; 01.2 &mdash; producer role</div>
+          <h3>How the work, <em>actually worked.</em></h3>
+          <p>Developed a unified content framework that maintained brand consistency while allowing for title-specific variations. Modular blocks could be mixed and matched across support scenarios, reducing duplication and localization costs.</p>
+          <p>Established a streamlined localization pipeline that cut turnaround by 60%. Served as primary liaison between game studios, localization teams, and platform engineers &mdash; conducting regular syncs to align priorities, resolve blockers, and meet aggressive deadlines during major updates and DLC releases.</p>
         </div>
       </div>
-      <div class="ap-pillars">
-        <div class="ap-pillar">
-          <div class="num">01</div>
-          <h3 class="ap-display ap-display--pillar">Team<br><em>collaboration.</em></h3>
-          <p>Bridged development, design, and localization teams &mdash; seamless content creation and knowledge sharing across the franchise.</p>
-        </div>
-        <div class="ap-pillar">
-          <div class="num">02</div>
-          <h3 class="ap-display ap-display--pillar">Localization<br><em>leadership.</em></h3>
-          <p>Translation and cultural adaptation across 40+ languages, working closely with regional teams to ensure accuracy and cultural relevance.</p>
-        </div>
-        <div class="ap-pillar">
-          <div class="num">03</div>
-          <h3 class="ap-display ap-display--pillar">Accessibility<br><em>standards.</em></h3>
-          <p>Championed WCAG 2.1 AA compliance &mdash; screen readers, keyboard navigation, visual design across all support materials.</p>
-        </div>
-      </div>
-    </section>
 
-    <section class="ap-sec ap-sec--cool" id="role-impact">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; 03 &mdash; PRODUCER ROLE &amp; IMPACT</div>
-          <h2 class="ap-display">How the work, <em>actually worked.</em></h2>
-        </div>
-      </div>
-      <div class="gow-faq">
-        <details open>
-          <summary>How did you approach content strategy for a franchise with multiple titles?</summary>
-          <div><p>Developed a unified content framework that maintained brand consistency while allowing for title-specific variations. Modular content blocks could be mixed and matched across different support scenarios, significantly reducing content duplication and localization costs.</p></div>
-        </details>
-        <details>
-          <summary>What was your role in managing 40+ language localizations?</summary>
-          <div><p>Established a streamlined localization pipeline that reduced turnaround time by 60%. Worked closely with regional teams to ensure technical accuracy while maintaining the franchise&rsquo;s distinctive voice. Implemented quality gates and review cycles to maintain consistency across all language variants.</p></div>
-        </details>
-        <details>
-          <summary>How did you coordinate between different teams?</summary>
-          <div><p>Served as primary liaison between game studios, localization teams, and platform engineers. Conducted regular syncs to align on priorities, resolve blockers, and ensure all teams had the resources needed to meet aggressive deadlines. Critical during major game updates and DLC releases.</p></div>
-        </details>
-      </div>
       <p class="cp-quote" style="font-family: var(--font-display); font-style: italic; font-weight: var(--fw-regular); font-size: var(--fs-body-lg); line-height: 1.5; color: var(--color-text-body); max-width: var(--max-prose); margin: var(--sp-12) 0 0; padding: 0 0 0 var(--sp-6); border-left: 1px solid var(--color-border);">
-        &ldquo;Managing the Gears of War support ecosystem required a delicate balance between rapid response to live issues and maintaining the high editorial standards expected from a flagship franchise. Our modular content system allowed us to deploy critical updates across 40+ languages within hours, not days.&rdquo;
+        &ldquo;Our modular content system allowed us to deploy critical updates across 40+ languages within hours, not days.&rdquo;
         <span style="display: block; font-style: normal; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: .6; margin-top: var(--sp-3);">&mdash; Senior content producer, Xbox Support</span>
       </p>
     </section>
@@ -141,7 +112,7 @@
     <section class="ap-sec" id="gallery" data-lightbox-autoload>
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 04 &mdash; VISUAL HIGHLIGHTS</div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; SHIPPED SURFACES</div>
           <h2 class="ap-display">Nine surfaces, <em>one franchise.</em></h2>
         </div>
         <div class="ap-sec-meta">Tap to expand.</div>
@@ -162,21 +133,73 @@
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 05 &mdash; SYSTEM DESIGN HIGHLIGHTS</div>
-          <h2 class="ap-display">Three systems, <em>three multipliers.</em></h2>
+          <div class="ap-sec-idx">&sect; 03 &mdash; DELIVERY MODEL</div>
+          <h2 class="ap-display">Six systems, <em>one publishing engine.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          What was done and how it ran &mdash; team contributions on top, system design on bottom. Six pillars carry the franchise.
         </div>
       </div>
       <div class="ap-pillars">
-        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">Localization<br><em>pipeline.</em></h3><p>Automated translation workflow supporting 40+ languages with integrated quality checks and regional adaptation.</p></div>
-        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">Modular<br><em>taxonomy.</em></h3><p>Structured content architecture enabling component reuse across multiple support articles and game titles.</p></div>
-        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Rapid<br><em>publishing.</em></h3><p>Streamlined CMS workflow reducing deployment time from 3 days to under 12 hours for critical updates.</p></div>
+        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">Team<br><em>collaboration.</em></h3><p>Bridged development, design, and localization teams &mdash; seamless content creation and knowledge sharing across the franchise.</p></div>
+        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">Localization<br><em>leadership.</em></h3><p>Translation and cultural adaptation across 40+ languages, working closely with regional teams for accuracy and cultural relevance.</p></div>
+        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Accessibility<br><em>standards.</em></h3><p>WCAG 2.1 AA compliance championed across all support materials &mdash; screen readers, keyboard navigation, visual design.</p></div>
+      </div>
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar"><div class="num">04</div><h3 class="ap-display ap-display--pillar">Localization<br><em>pipeline.</em></h3><p>Automated translation workflow for 40+ languages with integrated quality checks and regional adaptation. 60% faster turnaround.</p></div>
+        <div class="ap-pillar"><div class="num">05</div><h3 class="ap-display ap-display--pillar">Modular<br><em>taxonomy.</em></h3><p>Structured content architecture enabling component reuse across multiple support articles and game titles.</p></div>
+        <div class="ap-pillar"><div class="num">06</div><h3 class="ap-display ap-display--pillar">Rapid<br><em>publishing.</em></h3><p>Streamlined CMS workflow cutting deployment from 3 days to under 12 hours for critical updates.</p></div>
       </div>
     </section>
 
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 06 &mdash; RESULTS &amp; IMPACT</div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; STACK</div>
+          <h2 class="ap-display">The stack, <em>the discipline.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Three disciplines &mdash; authoring, pipeline, planning. Each one held to live-environment behavior across 40+ regions.
+        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Authoring<br><em>+ assets.</em></h3>
+          <p>Markup, accessible structure, and asset prep for help articles and troubleshooters across the franchise.</p>
+          <ul>
+            <li>HTML / CSS</li>
+            <li>SharePoint</li>
+            <li>WCAG 2.1 AA</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Localization<br><em>pipeline.</em></h3>
+          <p>End-to-end translation workflow with integrated quality gates, regional adaptation, and review cycles.</p>
+          <ul>
+            <li>Localization tools</li>
+            <li>Quality gates</li>
+            <li>Regional review cycles</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Planning<br><em>+ ops.</em></h3>
+          <p>Release coordination, sprint planning, and DevOps for live-ops cadence across multiple game titles.</p>
+          <ul>
+            <li>Azure DevOps</li>
+            <li>Release calendar</li>
+            <li>Sprint planning</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; RESULTS &amp; IMPACT</div>
           <h2 class="ap-display">Four numbers, <em>one franchise.</em></h2>
         </div>
       </div>
@@ -188,22 +211,10 @@
       </div>
     </section>
 
-    <section class="ap-sec ap-sec--cool">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; 07 &mdash; TOOLS &amp; TECHNOLOGIES</div>
-          <h2 class="ap-display">The stack, <em>the discipline.</em></h2>
-        </div>
-      </div>
-      <ul class="gow-tags">
-        <li>SharePoint</li><li>HTML / CSS</li><li>Accessibility (WCAG 2.1 AA)</li><li>Localization tools</li><li>Azure DevOps</li><li>Release calendar</li><li>Sprint planning</li>
-      </ul>
-    </section>
-
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 08 &mdash; RELATED WORK</div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; ADJACENT WORK</div>
           <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
       </div>

@@ -18,8 +18,6 @@
   <link rel="stylesheet" href="/css/ap-components.css" />
   <link rel="stylesheet" href="/css/lightbox.css" />
   <style>
-    .nt-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
-    .nt-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
     .nt-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
     .nt-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
     .nt-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
@@ -46,42 +44,61 @@
 
   <main>
 
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
-          <h1 class="ap-display">Hellblade<em> support pages.</em></h1>
+    <!-- Editorial masthead -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Hellblade<em> support pages.</em></h1>
+          <p class="lede">Producer role supporting Ninja Theory&rsquo;s <em>Hellblade</em> series with game-specific help content. Two simultaneous launches, 1M+ monthly active users, 35% ticket reduction.</p>
+          <a class="ap-btn ap-btn--primary" href="https://support.xbox.com/en-US/game/hellblade/support/home" target="_blank" rel="noopener noreferrer" style="align-self: flex-start;">View Hellblade support pages &rarr;</a>
         </div>
-        <div class="ap-sec-meta">
-          Producer role supporting Ninja Theory&rsquo;s Hellblade series with game-specific help content. Two simultaneous launches, 1M+ monthly active users, 35% ticket reduction.
-          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        <div class="ap-case-mast-frame">
+          <img src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Hellblade &mdash; Senua key art (Ninja Theory)" loading="lazy" />
         </div>
       </div>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Studio</dt><dd>Ninja Theory</dd></div>
+        <div><dt>Titles</dt><dd>Hellblade I &amp; II</dd></div>
+        <div><dt>Audience</dt><dd>1M+ MAU &middot; 40+ languages</dd></div>
+        <div><dt>Stack</dt><dd>Internal CMS &middot; Azure DevOps &middot; Adobe</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; &minus;35% tickets</dd></div>
+      </dl>
     </section>
 
+    <!-- §01 — column-pair narrative. -->
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; THE WORK</div>
           <h2 class="ap-display">Cross-platform support, <em>at flagship cadence.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          Collaboration with PMs, writers, designers, backend developers &mdash; high-visibility support for the Hellblade franchise.
+          Collaboration with PMs, writers, designers, backend developers &mdash; high-visibility support for the Hellblade franchise. Forms, accessibility, image pipelines.
         </div>
       </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        As a content producer at Xbox, I collaborated with PMs, writers, designers, and backend developers to deliver high-visibility support pages for Ninja Theory&rsquo;s <em>Hellblade</em> franchise. Leveraged the internal CMS to build and structure help center pages tailored for both console and web users across a global audience &mdash; ensuring clarity, consistency, and support at scale.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
-        Responsibilities extended beyond page assembly &mdash; preparing content for localization, managing secure assets, ensuring everything met accessibility and Xbox design standards. Coordinated production cycles through Azure DevOps, worked hands-on with image prep and layout decisions, advised on QA workflows for multilingual, cross-platform support experiences.
-      </p>
-      <a class="ap-btn ap-btn--primary" href="https://support.xbox.com/en-US/game/hellblade/support/home" target="_blank" rel="noopener noreferrer">View Hellblade support pages &rarr;</a>
+
+      <div class="ap-case-cols">
+        <div>
+          <div class="col-idx">&sect; 01.1 &mdash; project overview</div>
+          <h3>Production for <em>two launches.</em></h3>
+          <p>As a content producer at Xbox, I collaborated with PMs, writers, designers, and backend developers to deliver high-visibility support pages for Ninja Theory&rsquo;s <em>Hellblade</em> franchise. Leveraged the internal CMS to build and structure help center pages tailored for both console and web users across a global audience.</p>
+          <p>Responsibilities extended beyond page assembly &mdash; preparing content for localization, managing secure assets, and ensuring everything met accessibility and Xbox design standards. Coordinated production cycles through Azure DevOps, worked hands-on with image prep and layout decisions, advised on QA workflows for multilingual, cross-platform experiences.</p>
+        </div>
+        <div>
+          <div class="col-idx">&sect; 01.2 &mdash; behind the scenes</div>
+          <h3>Forms, accessibility, <em>image pipelines.</em></h3>
+          <p>Built and implemented forms used for user issue reporting and feedback submission across support pages &mdash; fully responsive, WCAG-compliant, localization-friendly, privacy-ready. Provided testing guidance, helped shape best practices around form structure, verified implementation across device types and viewports.</p>
+          <p>Managed the image asset pipeline &mdash; capturing, editing, optimizing, tagging screenshots for clarity, context, and localization readiness. Verified UI accuracy, ensured branding consistency, structured filenames and alt text to support SEO and accessibility. Work sat at the intersection of UX and production.</p>
+        </div>
+      </div>
     </section>
 
     <section class="ap-sec" id="gallery" data-lightbox-autoload>
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 02 &mdash; VISUAL HIGHLIGHTS</div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; SHIPPED SURFACES</div>
           <h2 class="ap-display">Six surfaces, <em>two titles.</em></h2>
         </div>
         <div class="ap-sec-meta">Tap to expand.</div>
@@ -102,37 +119,51 @@
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 03 &mdash; BEHIND THE SCENES</div>
-          <h2 class="ap-display">Forms, accessibility, <em>image pipelines.</em></h2>
+          <div class="ap-sec-idx">&sect; 03 &mdash; STACK</div>
+          <h2 class="ap-display">The stack, <em>the discipline.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Three disciplines &mdash; publishing, asset pipeline, live standards. Held to flagship Xbox quality across two launches.
         </div>
       </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        Beyond content setup, responsible for building and implementing forms used for user issue reporting and feedback submission across support pages. These forms needed to be fully responsive, WCAG-compliant, localization-friendly, and privacy-ready. Provided testing guidance to PMs, helped shape best practices around form structure, verified implementation across device types and viewports.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        Cross-browser testing, accessibility audits, ensuring consistent behavior for screen readers and keyboard navigation. Worked closely with backend developers to support form functionality, surface edge cases, validate successful data handoff and error states across environments.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
-        Also managed the image asset pipeline &mdash; capturing, editing, optimizing, tagging screenshots for clarity, context, and localization readiness. Verified UI accuracy, ensured branding consistency, structured filenames and alt text to support SEO and accessibility. Work sat at the intersection of UX and production &mdash; balancing quality, standards, and the needs of a global audience.
-      </p>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Publishing<br><em>+ ops.</em></h3>
+          <p>CMS authoring, sprint coordination, and release tracking through ADO. Production cycles aligned with two simultaneous launches.</p>
+          <ul>
+            <li>Internal Xbox CMS</li>
+            <li>Azure DevOps (ADO)</li>
+            <li>Localization pipeline</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Asset<br><em>pipeline.</em></h3>
+          <p>Image capture, editing, optimization, and tagging. Branding consistency, structured filenames, alt-text discipline for SEO + a11y.</p>
+          <ul>
+            <li>Adobe Creative Suite</li>
+            <li>Screenshot capture</li>
+            <li>Responsive design</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Live<br><em>standards.</em></h3>
+          <p>WCAG 2.1 AA across all forms and articles, security &amp; privacy review on every form, QC sign-off before publish.</p>
+          <ul>
+            <li>WCAG 2.1 AA</li>
+            <li>Security &amp; privacy compliance</li>
+            <li>QC compliance</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 04 &mdash; TOOLS &amp; TECHNOLOGIES</div>
-          <h2 class="ap-display">The stack, <em>the discipline.</em></h2>
-        </div>
-      </div>
-      <ul class="nt-tags">
-        <li>Internal Xbox CMS</li><li>Azure DevOps (ADO)</li><li>Localization pipeline</li><li>Adobe Creative Suite</li><li>Security &amp; privacy compliance</li><li>Responsive design</li><li>Screenshot capture</li><li>QC compliance</li><li>WCAG 2.1 AA</li>
-      </ul>
-    </section>
-
-    <section class="ap-sec ap-sec--cool">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; 05 &mdash; RESULTS &amp; IMPACT</div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; RESULTS &amp; IMPACT</div>
           <h2 class="ap-display">Three numbers, <em>two simultaneous launches.</em></h2>
         </div>
       </div>
@@ -150,10 +181,10 @@
       </ul>
     </section>
 
-    <section class="ap-sec">
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 06 &mdash; KEY LEARNINGS</div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; KEY LEARNINGS</div>
           <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
         </div>
       </div>
@@ -164,10 +195,10 @@
       </div>
     </section>
 
-    <section class="ap-sec ap-sec--cool">
+    <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 07 &mdash; RELATED WORK</div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; ADJACENT WORK</div>
           <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
       </div>

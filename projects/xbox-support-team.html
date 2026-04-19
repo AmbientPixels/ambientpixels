@@ -56,24 +56,6 @@
     @media (max-width: 1000px) { .xst-metrics { grid-template-columns: 1fr 1fr; } }
     @media (max-width:  600px) { .xst-metrics { grid-template-columns: 1fr; } }
 
-    .xst-tags {
-      list-style: none;
-      padding: 0;
-      margin: var(--sp-5) 0 0;
-      display: flex;
-      gap: var(--sp-3);
-      flex-wrap: wrap;
-      font-family: var(--font-mono);
-      font-size: var(--fs-mono-xs);
-      letter-spacing: var(--tracking-mono-md);
-      text-transform: uppercase;
-      opacity: var(--mono-opacity-boost, 0.7);
-    }
-    .xst-tags li {
-      padding: var(--sp-2) var(--sp-3);
-      border: 1px solid var(--color-border);
-    }
-
     .xst-bullets {
       list-style: none;
       padding: 0;
@@ -225,54 +207,54 @@
 
   <main>
 
-    <!-- Hero -->
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
-          <h1 class="ap-display">Xbox Support<em> Content Team.</em></h1>
+    <!-- Editorial masthead -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Xbox Support<em> Content Team.</em></h1>
+          <p class="lede">The team behind Microsoft&rsquo;s Xbox Support content &mdash; writers, editors, designers, developers across 40+ languages and 5 platforms. Empathy at scale, clarity at speed.</p>
         </div>
-        <div class="ap-sec-meta">
-          The team behind Microsoft&rsquo;s Xbox Support content &mdash; writers, editors, designers, developers across 40+ languages and 5 platforms. Empathy at scale, clarity at speed.
-          <br/><br/>
-          <span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        <div class="ap-case-mast-frame">
+          <img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Ninja Theory Hellblade Help Center &mdash; one of many surfaces shipped by the Xbox Support content team" loading="lazy" />
         </div>
       </div>
-      <ul class="xst-tags">
-        <li>Content creation</li>
-        <li>40+ languages</li>
-        <li>Accessibility</li>
-        <li>Publishing pipeline</li>
-      </ul>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Articles</dt><dd>1,500+ shipped</dd></div>
+        <div><dt>Languages</dt><dd>40+ localized</dd></div>
+        <div><dt>Platforms</dt><dd>5 surfaces</dd></div>
+        <div><dt>Satisfaction</dt><dd>96% user score</dd></div>
+        <div><dt>Cadence</dt><dd>24/7 global</dd></div>
+      </dl>
     </section>
 
-    <!-- § 01 — TEAM OVERVIEW -->
+    <!-- §01 — column-pair narrative (was §01 TEAM OVERVIEW prose folded
+         into two columns). -->
     <section class="ap-sec ap-sec--cool" id="mission">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; TEAM OVERVIEW</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; THE WORK</div>
           <h2 class="ap-display">More than a group, <em>the heartbeat behind every player.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          The mission, the impact, the trust earned one player at a time.
+          The mission, the impact, the trust earned one player at a time. Empathy made systems &mdash; clarity at the speed of play.
         </div>
       </div>
 
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        The Xbox Support Content Team was more than a group &mdash; it was the heartbeat behind every player&rsquo;s journey. We didn&rsquo;t just publish articles; we built bridges between confusion and clarity, frustration and relief.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        What made us extraordinary wasn&rsquo;t just our global reach, but our unity. Together, we turned challenges into victories and work into something that felt like purpose. Every update, every answer, was a promise: no player would ever feel lost or unheard.
-      </p>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
-        In a world moving at the speed of play, we stood side by side &mdash; trusted, resilient, and always ready to help. Our greatest achievement wasn&rsquo;t just the scale of our work, but the trust we earned, one player at a time.
-      </p>
-
-      <div class="xst-metrics">
-        <div class="xst-metric"><p class="num">1500+</p><p class="lbl">Articles</p></div>
-        <div class="xst-metric"><p class="num">40+</p><p class="lbl">Languages</p></div>
-        <div class="xst-metric"><p class="num">96%</p><p class="lbl">User satisfaction</p></div>
-        <div class="xst-metric"><p class="num">24/7</p><p class="lbl">Global support</p></div>
+      <div class="ap-case-cols">
+        <div>
+          <div class="col-idx">&sect; 01.1 &mdash; the mission</div>
+          <h3>Bridges between <em>confusion and clarity.</em></h3>
+          <p>The Xbox Support Content Team was more than a group &mdash; it was the heartbeat behind every player&rsquo;s journey. We didn&rsquo;t just publish articles; we built bridges between confusion and clarity, frustration and relief.</p>
+          <p>What made us extraordinary wasn&rsquo;t just our global reach, but our unity. Together, we turned challenges into victories and work into something that felt like purpose.</p>
+        </div>
+        <div>
+          <div class="col-idx">&sect; 01.2 &mdash; the trust</div>
+          <h3>One player <em>at a time.</em></h3>
+          <p>Every update, every answer, was a promise: no player would ever feel lost or unheard. In a world moving at the speed of play, we stood side by side &mdash; trusted, resilient, always ready to help.</p>
+          <p>Our greatest achievement wasn&rsquo;t just the scale of our work, but the trust we earned, one player at a time.</p>
+        </div>
       </div>
     </section>
 

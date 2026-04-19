@@ -40,6 +40,7 @@
   <link rel="stylesheet" href="/css/ap-components.css" />
 
   <script defer src="/js/ap-nav-mobile.js"></script>
+  <script defer src="/js/ap-screens.js"></script>
   <style>
     /* /ambientos/ local — product-landing hero + specs per DS §4.7
        (shared pattern with /nova/, /ambientscore/ Tier-1 landings) */
@@ -138,22 +139,61 @@
       </div>
     </section>
 
-    <!-- Full-bleed hero media — actual AmbientOS Dashboard (Dev View).
-         Scrolling variant: tall portrait screenshot pans top→bottom. -->
-    <section class="ap-case-media" aria-label="AmbientOS operator dashboard">
-      <div class="ap-case-media-frame ap-case-media-frame--scroll"
-           style="--scroll-src: url('/images/AmbientOS/os-dashboard-dev.jpeg');"
-           role="img"
-           aria-label="Scrolling capture of the AmbientOS operator dashboard — System Health Monitor, AI Model Fleet, Agent Status, Heartbeat Health, System Pulse, Autonomy Score, Risk Heatmap, Actions, Cron Log, Governance Log, Traffic Brief, Social Command Center">
+    <!-- §2.9b — Screens gallery (scroll cinema).
+         One pinned stage crossfades between three shipped AmbientOS screens
+         as the user scrolls past three sentinels. Replaces the three legacy
+         .ap-case-media strips that were interleaved between hero/features/specs. -->
+    <section class="ap-sec ap-screens" aria-labelledby="ap-screens-title">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; SCREENS</div>
+          <h2 class="ap-display" id="ap-screens-title">Operator<em> views.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Three surfaces of the running system &mdash; dashboard, analytics, memory. Shipped to production; everything here is real.
+        </div>
       </div>
-      <div class="ap-case-media-label">&sect; screen &middot; ambientos v2.6 &middot; dev operator view</div>
+
+      <div class="ap-screens-rail">
+        <div class="ap-screens-stage" role="img" aria-label="AmbientOS operator screens — dashboard, analytics hub, memory stack explorer">
+          <div class="ap-screens-slide is-active" data-i="0" style="background-image: url('/images/AmbientOS/os-dashboard-dev.jpeg');"></div>
+          <div class="ap-screens-slide"           data-i="1" style="background-image: url('/images/AmbientOS/os-analytics.jpeg');"></div>
+          <div class="ap-screens-slide"           data-i="2" style="background-image: url('/images/AmbientOS/os-memory-stack.jpeg');"></div>
+          <div class="ap-screens-counter" aria-live="polite"><span data-idx>01</span> / 03 &middot; <span data-title>Operator dashboard</span></div>
+          <div class="ap-screens-progress" data-progress></div>
+        </div>
+
+        <ol class="ap-screens-sentinels">
+          <li class="ap-screens-sentinel" data-i="0">
+            <div class="ap-screens-caption">
+              <div class="ap-sec-idx">&sect; 01 &mdash; screen</div>
+              <h3 class="ap-screens-title">Operator<em> dashboard.</em></h3>
+              <p class="ap-screens-desc">System health &middot; fleet &middot; cron log.</p>
+            </div>
+          </li>
+          <li class="ap-screens-sentinel" data-i="1">
+            <div class="ap-screens-caption">
+              <div class="ap-sec-idx">&sect; 02 &mdash; screen</div>
+              <h3 class="ap-screens-title">Analytics<em> hub.</em></h3>
+              <p class="ap-screens-desc">Traffic &middot; social &middot; product.</p>
+            </div>
+          </li>
+          <li class="ap-screens-sentinel" data-i="2">
+            <div class="ap-screens-caption">
+              <div class="ap-sec-idx">&sect; 03 &mdash; screen</div>
+              <h3 class="ap-screens-title">Memory stack<em> explorer.</em></h3>
+              <p class="ap-screens-desc">L1&ndash;L9 &middot; per-agent map &middot; payload.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
     </section>
 
     <!-- DS §4.7 step 5 — Features -->
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">§ 01 &mdash; FEATURES</div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; FEATURES</div>
           <h2 class="ap-display">Three layers,<br><em>one platform.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -165,54 +205,44 @@
         <div class="ap-pillar">
           <div class="num">01</div>
           <h3 class="ap-display ap-display--pillar">Execution<br><em>layer.</em></h3>
-          <p>An eight-role agent fleet running through a single governed heartbeat. Every agent thinks in sequence, produces proposals and state changes, writes to an audit trail.</p>
+          <p>An eight-role agent fleet running through one governed heartbeat. Each agent thinks in sequence, produces proposals and state changes, writes a permanent audit trail. The fleet itself is mutable &mdash; agents can be hired, retired, or role-evolved by proposal.</p>
           <ul>
             <li>Agent fleet (8 roles)</li>
-            <li>Heartbeat engine</li>
-            <li>Hourly cadence</li>
+            <li>Hourly heartbeat</li>
+            <li>Self-modifying roster</li>
             <li>Full audit trail</li>
           </ul>
         </div>
         <div class="ap-pillar">
           <div class="num">02</div>
           <h3 class="ap-display ap-display--pillar">Governance<br><em>layer.</em></h3>
-          <p>External actions route through human approval. Eight blocking gates on the task pipeline. Every agent carries rolling memory, consolidated daily with evidence chains preserved.</p>
+          <p>External actions route through CEO approval. Eight blocking gates on the task pipeline. Cipher enforces per-agent monthly capital caps. Nova proposes product launches, pivots, and retires &mdash; all human-approved.</p>
           <ul>
             <li>CEO approval queue</li>
             <li>Eight pipeline gates</li>
-            <li>Persistent memory</li>
-            <li>Kill-switch mode</li>
+            <li>Capital caps enforced</li>
+            <li>4-mode kill switch</li>
           </ul>
         </div>
         <div class="ap-pillar">
           <div class="num">03</div>
           <h3 class="ap-display ap-display--pillar">Resilience<br><em>layer.</em></h3>
-          <p>Stalled agents auto-escalate to Forge. A canonical world-state snapshot injects at the top of every prompt &mdash; identical text for all eight. No Day-1 hallucinations, no drift.</p>
+          <p>Every publish writes a t0&rarr;t30 outcome trail. A daily emergence monitor watches compound patterns across the other systems. Each agent reflects on its own decision patterns. A canonical world-state snapshot injects identically into every prompt &mdash; no Day-1 hallucinations, no drift.</p>
           <ul>
-            <li>Stall detection</li>
-            <li>Quality gates</li>
+            <li>Outcome attribution (t0&rarr;t30)</li>
+            <li>Emergence monitor</li>
+            <li>Self-reflection (3-day)</li>
             <li>World state (&lt; 1.5KB)</li>
-            <li>Convergence</li>
           </ul>
         </div>
       </div>
-    </section>
-
-    <!-- Second media strip — Analytics Hub (scrolling). -->
-    <section class="ap-case-media" aria-label="AmbientOS analytics hub">
-      <div class="ap-case-media-frame ap-case-media-frame--scroll"
-           style="--scroll-src: url('/images/AmbientOS/os-analytics.jpeg');"
-           role="img"
-           aria-label="Scrolling capture of the AmbientOS Analytics Hub — Traffic Brief, Social Command Center, Product Analytics, and Account Overview">
-      </div>
-      <div class="ap-case-media-label">&sect; screen &middot; ambientos v2.6 &middot; analytics hub</div>
     </section>
 
     <!-- DS §4.7 step 6 — Specs -->
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">§ 02 &mdash; SPECS</div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; SPECS</div>
           <h2 class="ap-display">How it&rsquo;s<br><em>actually built.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -232,16 +262,6 @@
         <div><dt>Capital</dt><dd>Per-agent monthly caps, Cipher-gated new spend</dd></div>
         <div><dt>Fleet evolution</dt><dd>Agents can be hired, retired, or role-evolved via proposal</dd></div>
       </dl>
-    </section>
-
-    <!-- Third media strip — Memory Stack Explorer (diagnostics). -->
-    <section class="ap-case-media" aria-label="AmbientOS memory stack explorer">
-      <div class="ap-case-media-frame ap-case-media-frame--scroll"
-           style="--scroll-src: url('/images/AmbientOS/os-memory-stack.jpeg');"
-           role="img"
-           aria-label="Scrolling capture of the AmbientOS Memory Stack Explorer — L1–L9 prompt memory layers, freshness indicators, per-agent memory map, and raw payload preview">
-      </div>
-      <div class="ap-case-media-label">&sect; screen &middot; ambientos v2.6 &middot; memory stack explorer</div>
     </section>
 
     <!-- §2.15  CTA -->

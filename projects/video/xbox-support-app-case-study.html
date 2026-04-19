@@ -18,8 +18,9 @@
   <link rel="stylesheet" href="/css/ap-components.css" />
   <link rel="stylesheet" href="/css/lightbox.css" />
   <style>
-    .xsa-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
-    .xsa-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    /* Video masthead — wider aspect for YouTube embed in the signature slot. */
+    .ap-case-mast-frame--video { aspect-ratio: 16 / 9; }
+    .ap-case-mast-frame--video iframe { width: 100%; height: 100%; border: 0; display: block; }
     .xsa-video { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--color-border); }
     .xsa-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
     .xsa-timeline { list-style: none; padding: 0; margin: 0; max-width: var(--max-prose); }
@@ -50,45 +51,33 @@
 
   <main>
 
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX &middot; CASE STUDY</div>
-          <h1 class="ap-display">Xbox Support<em> App.</em></h1>
+    <!-- Editorial masthead — video variant (YouTube embed in the signature slot). -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX &middot; CASE STUDY</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Xbox Support<em> App.</em></h1>
+          <p class="lede">On-console support experience &mdash; instant access to help, QR-code sharing for mobile follow-along, real-time service status, intelligent topic organization. Help in-game without leaving the game.</p>
+          <a class="ap-link-mono" href="https://youtu.be/JwpnzA3LRkM" target="_blank" rel="noopener noreferrer">Watch on YouTube &rarr;</a>
         </div>
-        <div class="ap-sec-meta">
-          On-console support experience &mdash; instant access to help resources, QR-code sharing, real-time service status, intelligent topic organization.
-          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        <div class="ap-case-mast-frame ap-case-mast-frame--video">
+          <iframe src="https://www.youtube.com/embed/JwpnzA3LRkM" title="Xbox Support App Demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
       </div>
-      <ul class="xsa-tags"><li>Console</li><li>Support</li><li>App</li><li>QR sharing</li><li>Status notifications</li></ul>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Format</dt><dd>Animated case study</dd></div>
+        <div><dt>Runtime</dt><dd>2:24</dd></div>
+        <div><dt>Audience</dt><dd>30M+ console / month</dd></div>
+        <div><dt>Pipeline</dt><dd>After Effects &middot; Premiere &middot; Azure TTS</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; &minus;35% support calls</dd></div>
+      </dl>
     </section>
 
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
-          <h2 class="ap-display">Help, in-game, <em>without leaving the game.</em></h2>
-        </div>
-        <div class="ap-sec-meta">
-          Comprehensive support resources delivered directly to the console experience.
-        </div>
-      </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
-        The Xbox Support App brings comprehensive support resources directly to the console experience. This integrated solution allows players to access help content without leaving their game &mdash; with features like QR code sharing for mobile viewing, real-time service status updates, and intelligent topic organization.
-      </p>
-      <div class="xsa-video">
-        <iframe src="https://www.youtube.com/embed/JwpnzA3LRkM" title="Xbox Support App Demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
-      <p style="font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.55); margin: var(--sp-3) 0 0;">
-        <a class="ap-link-mono" href="https://youtu.be/JwpnzA3LRkM" target="_blank" rel="noopener noreferrer">Watch on YouTube &rarr;</a>
-      </p>
-    </section>
-
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; 02 &mdash; VIDEO BREAKDOWN</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; VIDEO BREAKDOWN</div>
           <h2 class="ap-display">Ten moments, <em>2:24 minutes.</em></h2>
         </div>
       </div>
@@ -106,10 +95,10 @@
       </ul>
     </section>
 
-    <section class="ap-sec ap-sec--cool">
+    <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 03 &mdash; KEY FEATURES</div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; KEY FEATURES</div>
           <h2 class="ap-display">Six features, <em>one app.</em></h2>
         </div>
       </div>
@@ -125,10 +114,10 @@
       </div>
     </section>
 
-    <section class="ap-sec">
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 04 &mdash; BEHIND THE SCENES</div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; BEHIND THE SCENES</div>
           <h2 class="ap-display">After Effects, <em>then Premiere.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -145,10 +134,10 @@
       </div>
     </section>
 
-    <section class="ap-sec ap-sec--cool" id="gallery" data-lightbox-autoload>
+    <section class="ap-sec" id="gallery" data-lightbox-autoload>
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 05 &mdash; GALLERY</div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; SHIPPED FRAMES</div>
           <h2 class="ap-display">Sixteen frames, <em>concept to console.</em></h2>
         </div>
         <div class="ap-sec-meta">Tap to expand.</div>
@@ -173,10 +162,10 @@
       </div>
     </section>
 
-    <section class="ap-sec">
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 06 &mdash; IMPACT &amp; RESULTS</div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; IMPACT &amp; RESULTS</div>
           <h2 class="ap-display">Four numbers, <em>30M+ console users.</em></h2>
         </div>
       </div>
@@ -188,11 +177,14 @@
       </div>
     </section>
 
-    <section class="ap-sec ap-sec--cool">
+    <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 07 &mdash; TECHNICAL DETAILS</div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; STACK</div>
           <h2 class="ap-display">The stack, <em>front to back.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Three pillars &mdash; console UI, Azure backend, video production. Each one shipped in tandem with the others.
         </div>
       </div>
       <div class="ap-pillars">
@@ -217,10 +209,10 @@
       </div>
     </section>
 
-    <section class="ap-sec">
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 08 &mdash; RELATED WORK</div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; ADJACENT WORK</div>
           <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
       </div>

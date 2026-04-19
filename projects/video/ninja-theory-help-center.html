@@ -18,10 +18,8 @@
   <link rel="stylesheet" href="/css/ap-components.css" />
   <link rel="stylesheet" href="/css/lightbox.css" />
   <style>
-    .nth-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
-    .nth-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
-    .nth-video { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--color-border); }
-    .nth-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+    .ap-case-mast-frame--video { aspect-ratio: 16 / 9; }
+    .ap-case-mast-frame--video iframe { width: 100%; height: 100%; border: 0; display: block; }
     .nth-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
     .nth-metric .num { font-family: var(--font-heavy); font-size: 60px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
     .nth-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
@@ -45,40 +43,43 @@
 
   <main>
 
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX &middot; CASE STUDY</div>
-          <h1 class="ap-display">Ninja Theory<em> Help Center.</em></h1>
+    <!-- Editorial masthead — video variant. -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX &middot; CASE STUDY</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Ninja Theory<em> Help Center.</em></h1>
+          <p class="lede">Animated showcase for the Hellblade and Senua&rsquo;s Saga help center on <a href="https://support.xbox.com" class="ap-link-mono" target="_blank" rel="noopener noreferrer">support.Xbox.com &rarr;</a>. Motion design in After Effects, narration by Ava &mdash; a custom Azure AI voice agent tuned via SSML for natural clarity, tone, pacing.</p>
+          <a class="ap-link-mono" href="https://www.youtube.com/watch?v=zhcM5tEaSfM" target="_blank" rel="noopener noreferrer">Watch on YouTube &rarr;</a>
         </div>
-        <div class="ap-sec-meta">
-          Animated video showcase for support.Xbox.com &mdash; Hellblade and Senua&rsquo;s Saga: Hellblade II. AI-assisted production with Azure-tuned narration.
-          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        <div class="ap-case-mast-frame ap-case-mast-frame--video">
+          <iframe src="https://www.youtube.com/embed/zhcM5tEaSfM" title="Ninja Theory Help Center Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
       </div>
-      <ul class="nth-tags"><li>Xbox</li><li>Animation</li><li>Support</li><li>AI-powered</li><li>ML</li></ul>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Role</dt><dd>Producer &middot; Microsoft Xbox</dd></div>
+        <div><dt>Studio</dt><dd>Ninja Theory</dd></div>
+        <div><dt>Format</dt><dd>Animated showcase</dd></div>
+        <div><dt>Narration</dt><dd>Ava (Azure TTS &middot; SSML)</dd></div>
+        <div><dt>Pipeline</dt><dd>After Effects &middot; 7 AI tools</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; Operating</dd></div>
+      </dl>
     </section>
 
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; PRODUCER NOTE</div>
           <h2 class="ap-display">Motion design, <em>narrated by Ava.</em></h2>
         </div>
         <div class="ap-sec-meta">
-          The new Ninja Theory Help Center brought to life through animation, AI narration, and SSML-tuned pacing.
+          Animated showcase + Help Center production &mdash; structure, tone, accessibility strategy across both surfaces.
         </div>
       </div>
-      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
-        This animated showcase brings the new Ninja Theory Help Center on <a href="https://support.xbox.com" class="ap-link-mono" target="_blank" rel="noopener noreferrer">support.Xbox.com &rarr;</a> to life &mdash; highlighting platform features for titles like Hellblade and Senua&rsquo;s Saga: Hellblade II. Developed in close collaboration with the Xbox Support content team, the video blends dynamic motion design with AI-assisted production. All visuals were crafted in Adobe After Effects, with narration by Ava &mdash; a custom Azure AI voice agent &mdash; tuned via SSML for natural clarity, tone, and pacing.
-      </p>
-      <p style="font-family: var(--font-display); font-style: italic; font-weight: var(--fw-regular); font-size: var(--fs-body-lg); line-height: 1.5; color: var(--color-text-body); max-width: var(--max-prose); margin: 0 0 var(--sp-8); padding: 0 0 0 var(--sp-6); border-left: 1px solid var(--color-border);">
+      <p style="font-family: var(--font-display); font-style: italic; font-weight: var(--fw-regular); font-size: var(--fs-body-lg); line-height: 1.5; color: var(--color-text-body); max-width: var(--max-prose); margin: 0; padding: 0 0 0 var(--sp-6); border-left: 1px solid var(--color-border);">
         &ldquo;In addition to animation, I also had the opportunity to serve as a producer on the Help Center website itself &mdash; helping shape its structure, tone, and accessibility strategy.&rdquo;
         <span style="display: block; font-style: normal; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: .6; margin-top: var(--sp-3);">&mdash; Chad Martin (Pixelpusher)</span>
       </p>
-      <div class="nth-video">
-        <iframe src="https://www.youtube.com/embed/zhcM5tEaSfM" title="Ninja Theory Help Center Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      </div>
     </section>
 
     <section class="ap-sec">

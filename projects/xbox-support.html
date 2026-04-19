@@ -19,39 +19,68 @@
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <script defer src="/js/ap-nav-mobile.js"></script>
 
   <style>
-    /* Case-study hero — shared pattern across /projects/*.html migrations */
-    .ap-case-hero {
-      max-width: var(--max-page);
-      margin: 0 auto;
-      padding: var(--sp-15) var(--sec-pad-x) var(--sp-12);
+    /* Masthead Xbox icon variant — sphere mark on brand green panel.
+       Same pattern as the legacy .thumb--bg-xbox tile, scaled up. */
+    .ap-case-mast-frame--xbox {
+      background: #107C10;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .ap-case-hero h1 {
-      font-family: var(--font-display);
-      font-weight: var(--fw-heavy);
-      font-size: clamp(48px, 6.5vw, 104px);
-      line-height: .9;
-      letter-spacing: -.04em;
-      margin: 12px 0 0;
-      max-width: 14ch;
+    .ap-case-mast-frame--xbox i {
+      font-size: clamp(120px, 20vw, 240px);
+      color: #fff;
     }
-    .ap-case-hero h1 em {
-      font-style: italic;
-      font-weight: var(--fw-regular);
-      color: var(--color-text-body);
-    }
-    .ap-case-hero .ap-meta-strip {
-      margin-top: var(--sp-15);
-      padding-top: var(--sp-6);
-      border-top: 1px solid var(--color-border);
-    }
-    /* .ap-case-media + .ap-case-media-frame--brand + .ap-case-media-label
-       now live in /css/ap-components.css §2.9b — see those rules. */
 
-    /* Icon thumbnail variant + gradient slots now live in
-       /css/ap-components.css §2.9 — see .thumb--icon and .thumb--bg-*. */
+    /* Row-thumb icon-on-panel variants — each mirrors the target page's
+       masthead treatment (FA icon + colored background) at thumb scale.
+       Rest state is muted (grayscale + dim); hover pops to full color + halo. */
+    .ap-pd--img .thumb.thumb--ai,
+    .ap-pd--img .thumb.thumb--video,
+    .ap-pd--img .thumb.thumb--gc-icon,
+    .ap-pd--img .thumb.thumb--xbox {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: grayscale(1) contrast(.92) brightness(.85);
+      transition: filter var(--dur-med), transform var(--dur-med);
+    }
+    .ap-pd--img:hover .thumb.thumb--ai,
+    .ap-pd--img:hover .thumb.thumb--video,
+    .ap-pd--img:hover .thumb.thumb--gc-icon,
+    .ap-pd--img:hover .thumb.thumb--xbox,
+    .ap-pd--img:focus-visible .thumb.thumb--ai,
+    .ap-pd--img:focus-visible .thumb.thumb--video,
+    .ap-pd--img:focus-visible .thumb.thumb--gc-icon,
+    .ap-pd--img:focus-visible .thumb.thumb--xbox {
+      filter: none;
+      transform: scale(1.03);
+    }
+
+    .ap-pd--img .thumb.thumb--ai      { background: #2D1B4E; }
+    .ap-pd--img .thumb.thumb--video   { background: #107C10; }
+    .ap-pd--img .thumb.thumb--gc-icon { background: var(--color-teal-surface); }
+    .ap-pd--img .thumb.thumb--xbox    { background: #107C10; }
+
+    .ap-pd--img .thumb.thumb--ai i      { font-size: 56px; color: #C7A8FF; transition: color var(--dur-med), filter var(--dur-med); }
+    .ap-pd--img .thumb.thumb--video i   { font-size: 56px; color: #FFFFFF; transition: color var(--dur-med), filter var(--dur-med); }
+    .ap-pd--img .thumb.thumb--gc-icon i { font-size: 56px; color: var(--color-teal-primary); transition: color var(--dur-med), filter var(--dur-med); }
+    .ap-pd--img .thumb.thumb--xbox i    { font-size: 68px; color: #FFFFFF; transition: color var(--dur-med), filter var(--dur-med); }
+
+    /* Per-tile hover glow — icon picks up an accent color + drop-shadow halo. */
+    .ap-pd--img:hover .thumb.thumb--ai i,
+    .ap-pd--img:focus-visible .thumb.thumb--ai i      { color: #D6A8FF; filter: drop-shadow(0 0 18px rgba(157, 92, 255, .55)); }
+    .ap-pd--img:hover .thumb.thumb--video i,
+    .ap-pd--img:focus-visible .thumb.thumb--video i   { color: #B6F37A; filter: drop-shadow(0 0 18px rgba(93, 194, 30, .55)); }
+    .ap-pd--img:hover .thumb.thumb--gc-icon i,
+    .ap-pd--img:focus-visible .thumb.thumb--gc-icon i { color: #8FD4F7; filter: drop-shadow(0 0 18px rgba(95, 179, 227, .55)); }
+    .ap-pd--img:hover .thumb.thumb--xbox i,
+    .ap-pd--img:focus-visible .thumb.thumb--xbox i    { color: #6FFF6F; filter: drop-shadow(0 0 18px rgba(16, 200, 16, .55)); }
   </style>
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
@@ -76,36 +105,30 @@
 
   <main>
 
-    <!-- Case-study hero — DS §4.8 step 2 -->
-    <section class="ap-case-hero">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">§ WORK &mdash; SHIPPED &middot; MICROSOFT</div>
-          <h1>Xbox support systems,<br><em>shipped at Microsoft.</em></h1>
+    <!-- Editorial masthead — Xbox portfolio hub. -->
+    <section class="ap-case-mast" aria-labelledby="case-title">
+      <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT</div>
+      <div class="ap-case-mast-grid">
+        <div class="ap-case-mast-prose">
+          <h1 id="case-title">Xbox support<em> systems.</em></h1>
+          <p class="lede">Producer-led portfolio across Microsoft&rsquo;s Xbox Support ecosystem &mdash; console tools, data platforms, and help centers for first-party titles. Global audience, multi-region delivery, accessibility baked in.</p>
         </div>
-        <div class="ap-sec-meta">
-          A producer-led portfolio across Microsoft&rsquo;s Xbox Support ecosystem &mdash; console tools, data platforms, and help centers for first-party titles. Global audience, multi-region delivery, accessibility baked in.
+        <div class="ap-case-mast-frame ap-case-mast-frame--xbox" role="img" aria-label="Xbox brand mark">
+          <i class="fab fa-xbox" aria-hidden="true"></i>
         </div>
       </div>
-
-      <div class="ap-meta-strip">
-        <span>Client &middot; Microsoft</span>
-        <span>Role &middot; Producer &middot; UI/UX &middot; DevOps &middot; Training</span>
-        <span>Reach &middot; 32M+ monthly users</span>
-        <span>Shipped &middot; multiple releases</span>
-      </div>
-    </section>
-
-    <!-- Case-study hero media — full-bleed editorial strip -->
-    <section class="ap-case-media" aria-label="Xbox brand mark">
-      <div class="ap-case-media-frame ap-case-media-frame--brand">
-        <img src="/images/projects/xbox-logo-02.png" alt="Xbox — the platform behind this portfolio" loading="eager">
-      </div>
-      <div class="ap-case-media-label">&sect; client &middot; microsoft xbox &middot; platform</div>
+      <dl class="ap-case-mast-specs">
+        <div><dt>Client</dt><dd>Microsoft Xbox</dd></div>
+        <div><dt>Role</dt><dd>Producer &middot; UI/UX &middot; DevOps</dd></div>
+        <div><dt>Surfaces</dt><dd>4 platforms &middot; 5 game hubs</dd></div>
+        <div><dt>Reach</dt><dd>32M+ players / month</dd></div>
+        <div><dt>Languages</dt><dd>40+ localized</dd></div>
+        <div><dt>Status</dt><dd>Shipped &middot; multiple releases</dd></div>
+      </dl>
     </section>
 
     <!-- § 01 — Xbox tools & systems -->
-    <section class="ap-sec">
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
           <div class="ap-sec-idx">§ 01 &mdash; TOOLS &amp; SYSTEMS</div>
@@ -116,9 +139,11 @@
         </div>
       </div>
 
-      <div class="ap-prods">
+      <div class="ap-prods ap-shipped">
         <a class="ap-pd ap-pd--img op-live" href="/projects/copilotplayground.html">
-          <span class="n">01</span>
+          <span class="thumb thumb--ai" role="img" aria-label="Copilot Playground &mdash; AI toolkit">
+            <i class="fa-solid fa-robot" aria-hidden="true"></i>
+          </span>
           <div>
             <h3>Copilot <em>Playground.</em></h3>
             <span class="meta">Experimental &middot; AI &middot; Training</span>
@@ -128,7 +153,9 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/video/xbox-video.html">
-          <span class="n">02</span>
+          <span class="thumb thumb--video" role="img" aria-label="Xbox video content">
+            <i class="fa-solid fa-play" aria-hidden="true"></i>
+          </span>
           <div>
             <h3>Xbox video <em>content.</em></h3>
             <span class="meta">Lead producer &middot; Creative director &middot; Motion</span>
@@ -138,7 +165,9 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/websites/grand-central-power-bi.html">
-          <span class="n">03</span>
+          <span class="thumb thumb--gc-icon" role="img" aria-label="Grand Central 3.0 &mdash; data platform">
+            <i class="fa-solid fa-database" aria-hidden="true"></i>
+          </span>
           <div>
             <h3>Grand Central <em>3.0.</em></h3>
             <span class="meta">Producer &middot; DevOps &middot; Power BI</span>
@@ -148,7 +177,9 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/websites/xbox-support.html">
-          <span class="n">04</span>
+          <span class="thumb thumb--xbox" role="img" aria-label="Xbox Support site">
+            <i class="fa-brands fa-xbox" aria-hidden="true"></i>
+          </span>
           <div>
             <h3>Xbox Support <em>site.</em></h3>
             <span class="meta">Producer &middot; UI/UX &middot; Content ops</span>
@@ -165,7 +196,7 @@
       <div class="ap-sec-head">
         <div>
           <div class="ap-sec-idx">§ 02 &mdash; GAME SUPPORT</div>
-          <h2 class="ap-display">First-party<br><em>titles, supported.</em></h2>
+          <h2 class="ap-display">Xbox projects,<br><em>shipped.</em></h2>
         </div>
         <div class="ap-sec-meta">
           Dedicated support experiences for Xbox first-party and published titles &mdash; help centers, localized content, and player-assistance tools for each launch.
@@ -194,7 +225,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/websites/south-of-midnight-support.html">
-          <span class="thumb"><img src="/images/projects/SoM/hero-01.png" alt="South of Midnight Support" loading="lazy"></span>
+          <span class="thumb"><img src="/images/projects/SoM/hero-03.jpg" alt="South of Midnight Support" loading="lazy"></span>
           <div>
             <h3>South of <em>Midnight.</em></h3>
             <span class="meta">Producer &middot; Localized help</span>
@@ -214,7 +245,7 @@
           <span class="go" aria-hidden="true">&rarr;</span>
         </a>
         <a class="ap-pd ap-pd--img op-live" href="/projects/figma-fleet.html">
-          <span class="thumb"><img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet" loading="lazy"></span>
+          <span class="thumb"><img src="/images/projects/figma-fleet/figma-fleet-1920-01.jpg" alt="Figma Fleet" loading="lazy" style="object-position: 87% center;"></span>
           <div>
             <h3>Figma <em>Fleet.</em></h3>
             <span class="meta">UI/UX &middot; Design system &middot; Training</span>
@@ -227,7 +258,7 @@
     </section>
 
     <!-- § 03 — Related hubs (DS §4.8 step 7) -->
-    <section class="ap-sec">
+    <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
           <div class="ap-sec-idx">§ 03 &mdash; RELATED</div>
