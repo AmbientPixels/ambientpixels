@@ -3,23 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Explore Ambient Pixels' curated collection of high-quality image packs for designers and developers. Free downloads of sci-fi, cyberpunk, and futuristic assets." />
+  <meta name="description" content="Image Packs — curated collections of AI-generated imagery for designers and developers. Sci-fi, cyberpunk, characters, interiors. Free under CC BY 4.0." />
+  <meta property="og:title" content="Image Packs — AmbientPixels" />
+  <meta property="og:description" content="Curated AI-generated image collections for designers and developers. Free under CC BY 4.0." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Image Packs | Ambient Pixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Image Packs — AmbientPixels</title>
+
+  <!-- DS fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <!-- DS canonical stack -->
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+
+  <style>
+    .ip-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-5);
+    }
+    @media (max-width: 1000px) { .ip-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width:  600px) { .ip-grid { grid-template-columns: 1fr; } }
+    .ip-card {
+      position: relative;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .ip-card-img {
+      display: block;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+    }
+    .ip-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: filter var(--dur-med), transform var(--dur-med);
+    }
+    .ip-card:hover .ip-card-img img,
+    .ip-card-img:hover img {
+      filter: brightness(1.08);
+      transform: scale(1.04);
+    }
+    .ip-card-body {
+      padding: var(--sp-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+      flex: 1;
+    }
+    .ip-card-body h3 {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: 22px;
+      letter-spacing: var(--tracking-tight);
+      line-height: 1.1;
+      margin: 0;
+      color: var(--color-text-primary);
+    }
+    .ip-card-body h3 em {
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      color: var(--color-text-body);
+    }
+    .ip-card-body p {
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+      opacity: .82;
+      margin: 0;
+    }
+    .ip-meta {
+      display: flex;
+      gap: var(--sp-3);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.6);
+      margin-top: auto;
+      padding-top: var(--sp-3);
+      border-top: 1px dashed var(--color-border-dashed);
+    }
+    .ip-card-cta {
+      margin-top: var(--sp-3);
+    }
+    .ip-soon {
+      position: absolute;
+      top: var(--sp-3);
+      right: var(--sp-3);
+      z-index: 2;
+      padding: var(--sp-2) var(--sp-3);
+      background: rgba(0, 0, 0, .82);
+      border: 1px solid var(--color-border);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.85);
+    }
+  </style>
+
+  <script defer src="/js/ap-nav-mobile.js"></script>
+  <script src="/js/modal-window.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
-  <div class="tx-layer" aria-hidden="true"></div>  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+  <div class="tx-layer" aria-hidden="true"></div>
+
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -36,109 +135,139 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-base" data-hero="architect">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>Image Packs</h1>
-      <p class="subtitle">High-quality AI-generated assets for designers and developers.</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-th"></i> Featured Packs</h2>
-      <p>These images are yours to explore, remix, and make your own. Just follow the <a href="/license" class="text-link">CC BY 4.0 license</a>, and share the credit. Let’s build worlds together.</p>
-    </section>
-
-    <!-- Interiors Pack -->
-    <section class="grid-col-4 card-section">
-      <img src="/images/image-packs/interiors/compact-cosmos.jpg" alt="Cosmic & Cybernetic Interiors" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-space-shuttle"></i> Cosmic & Cybernetic Interiors</h3>
-        <p>Explore AI-generated sci-fi and cyberpunk interior designs, from spacefarer habitats to neon-lit metropolises.</p>
-        <div class="card-meta">
-          <span><i class="fas fa-image"></i> 12 Images</span>
-          <span><i class="fas fa-download"></i> 2 Packs</span>
+    <!-- Hero -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; PROJECTS &mdash; IMAGE PACKS</div>
+          <h1 class="ap-display">Image<em> packs.</em></h1>
         </div>
-        <a href="/projects/image-packs/interiors.html" class="btn btn-secondary" style="margin-top: 1rem;">
-          <i class="fas fa-eye"></i> View Pack
-        </a>
-      </div>
-    </section>
-
-    <!-- Characters Pack -->
-    <section class="grid-col-4 card-section">
-      <img src="/images/image-packs/characters/hero1.png" alt="Character Portraits Collection" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-user-astronaut"></i> Character Portraits</h3>
-        <p>Discover 18 AI-generated characters, from mystical beings to cybernetic entities, each with unique backstories and stunning detail.</p>
-        <div class="card-meta">
-          <span><i class="fas fa-image"></i> 18 Portraits</span>
-          <span><i class="fas fa-download"></i> 1 Pack</span>
+        <div class="ap-sec-meta">
+          High-quality AI-generated assets for designers and developers. Yours to explore, remix, and make your own &mdash; under <a href="/license" class="ap-link-mono">CC BY 4.0 &rarr;</a>. Share the credit. Build worlds together.
         </div>
-        <a href="/projects/image-packs/characters-pack.html" class="btn btn-secondary" style="margin-top: 1rem;">
-          <i class="fas fa-eye"></i> View Collection
-        </a>
       </div>
     </section>
 
-    <!-- Cityscapes Pack -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <img src="/images/image-packs/cityscapes/hero01.jpg" alt="Futuristic Cityscapes" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-city"></i> Futuristic Cityscapes</h3>
-        <p>Explore sprawling metropolises of the future with our upcoming collection of AI-generated cityscapes. Neon-lit streets, floating districts, and cyberpunk skylines await.</p>
-        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
-          <i class="fas fa-bell"></i> Coming Soon
-        </button>
+    <!-- § 01 — FEATURED PACKS -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; FEATURED PACKS</div>
+          <h2 class="ap-display">Six collections, <em>more on the way.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Two live, three coming soon, one open slot &mdash; suggest one.
+        </div>
+      </div>
+
+      <div class="ip-grid">
+        <!-- Interiors -->
+        <div class="ip-card">
+          <a class="ip-card-img" href="/projects/image-packs/interiors.html" aria-label="Cosmic & Cybernetic Interiors">
+            <img src="/images/image-packs/interiors/compact-cosmos.jpg" alt="Cosmic & Cybernetic Interiors" loading="lazy" />
+          </a>
+          <div class="ip-card-body">
+            <h3>Cosmic &amp;<em> cybernetic interiors.</em></h3>
+            <p>Sci-fi and cyberpunk interior designs &mdash; from spacefarer habitats to neon-lit metropolises.</p>
+            <div class="ip-meta"><span>12 images</span><span>&middot; 2 packs</span></div>
+            <div class="ip-card-cta">
+              <a class="ap-btn ap-btn--primary" href="/projects/image-packs/interiors.html">View pack &rarr;</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Characters -->
+        <div class="ip-card">
+          <a class="ip-card-img" href="/projects/image-packs/characters-pack.html" aria-label="Character Portraits">
+            <img src="/images/image-packs/characters/hero1.png" alt="Character Portraits Collection" loading="lazy" />
+          </a>
+          <div class="ip-card-body">
+            <h3>Character<em> portraits.</em></h3>
+            <p>18 AI-generated characters &mdash; from mystical beings to cybernetic entities, each with a unique backstory and stunning detail.</p>
+            <div class="ip-meta"><span>18 portraits</span><span>&middot; 1 pack</span></div>
+            <div class="ip-card-cta">
+              <a class="ap-btn ap-btn--primary" href="/projects/image-packs/characters-pack.html">View collection &rarr;</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cityscapes (coming soon) -->
+        <div class="ip-card">
+          <span class="ip-soon">Coming soon</span>
+          <div class="ip-card-img">
+            <img src="/images/image-packs/cityscapes/hero01.jpg" alt="Futuristic Cityscapes" loading="lazy" />
+          </div>
+          <div class="ip-card-body">
+            <h3>Futuristic<em> cityscapes.</em></h3>
+            <p>Sprawling metropolises of the future &mdash; neon-lit streets, floating districts, cyberpunk skylines.</p>
+            <div class="ip-card-cta">
+              <a class="ap-btn ap-btn--ghost" aria-disabled="true" tabindex="-1" style="opacity: .55; pointer-events: none;">Coming soon</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Planets (coming soon) -->
+        <div class="ip-card">
+          <span class="ip-soon">Coming soon</span>
+          <div class="ip-card-img">
+            <img src="/images/image-packs/planets/hero01.jpg" alt="Alien Worlds & Planets" loading="lazy" />
+          </div>
+          <div class="ip-card-body">
+            <h3>Alien worlds<em> &amp; planets.</em></h3>
+            <p>Distant worlds of cosmic wonder &mdash; gas giants, desert worlds, each planet a story of discovery.</p>
+            <div class="ip-card-cta">
+              <a class="ap-btn ap-btn--ghost" aria-disabled="true" tabindex="-1" style="opacity: .55; pointer-events: none;">Coming soon</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- More -->
+        <div class="ip-card">
+          <span class="ip-soon">Coming soon</span>
+          <div class="ip-card-img">
+            <img src="/images/textures/delchron_microscopic_ultra_close-up_of_futuristic_surface_textu.png" alt="More Coming Soon" loading="lazy" />
+          </div>
+          <div class="ip-card-body">
+            <h3>More<em> collections.</em></h3>
+            <p>Constantly expanding the library. Have a suggestion? Let us know what you&rsquo;d like to see in future updates.</p>
+            <div class="ip-card-cta">
+              <a class="ap-btn ap-btn--ghost" aria-disabled="true" tabindex="-1" style="opacity: .55; pointer-events: none;">Coming soon</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Your suggestion -->
+        <div class="ip-card">
+          <span class="ip-soon">Your ideas</span>
+          <a class="ip-card-img" href="#" onclick="showModal('contact-modal'); return false;" aria-label="Suggest a pack">
+            <img src="/images/textures/delchron_Deltron_3030_texture_microscopic_extreme_close_up_futu.jpg" alt="Your Suggestion" loading="lazy" />
+          </a>
+          <div class="ip-card-body">
+            <h3>Your<em> suggestion.</em></h3>
+            <p>Got an idea for an image pack? We&rsquo;d love to hear it.</p>
+            <div class="ip-card-cta">
+              <a class="ap-btn ap-btn--primary" href="#" onclick="showModal('contact-modal'); return false;">Suggest a pack &rarr;</a>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Planets Pack -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <img src="/images/image-packs/planets/hero01.jpg" alt="Alien Worlds & Planets" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-globe"></i> Alien Worlds & Planets</h3>
-        <p>Journey to distant worlds with our upcoming collection of exotic planets. From gas giants to desert worlds, each planet tells a story of cosmic wonder and discovery.</p>
-        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
-          <i class="fas fa-bell"></i> Coming Soon
-        </button>
-      </div>
-    </section>
-
-    <!-- More Coming Soon -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <img src="/images/textures/delchron_microscopic_ultra_close-up_of_futuristic_surface_textu.png" alt="More Coming Soon" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-plus-circle"></i> More Collections</h3>
-        <p>We're constantly expanding our library. Have a suggestion? Let us know what you'd like to see in future updates!</p>
-        <button class="btn btn-secondary" style="margin-top: 1rem;" disabled>
-          <i class="fas fa-bell"></i> Coming Soon
-        </button>
-      </div>
-    </section>
-
-    <!-- Suggestion Pack -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Your Ideas</div>
-      <img src="/images/textures/delchron_Deltron_3030_texture_microscopic_extreme_close_up_futu.jpg" alt="Your Suggestion" class="card-image" loading="lazy">
-      <div class="card-content">
-        <h3><i class="fas fa-plus-circle"></i> Your Suggestion</h3>
-        <p>Have an idea for an image pack? We'd love to hear your suggestions for future releases.</p>
-        <a href="#" onclick="showModal(); return false;" class="btn btn-primary" style="margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">
-          <i class="fas fa-lightbulb"></i> Suggest a Pack
-        </a>
-      </div>
-    </section>
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <!-- §2.15 CTA -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Need custom<br><em>generative imagery?</em></h2>
+    <p>From single hero images to themed packs &mdash; AI-assisted, hand-curated, ready to ship.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -184,29 +313,7 @@
     </div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-  
-  <!-- Contact Modal Container -->
-  <!-- Modal Container -->
-  <div id="contact-modal-container">
-    <!-- Contact modal will be loaded here by init-contact-modal.js -->
-  </div>
 
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/init-contact-modal.js" defer></script>
-  <script>
-    // Add click handler after DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      const suggestBtn = document.querySelector('a[onclick*="showModal"]');
-      if (suggestBtn) {
-        suggestBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          showModal('contact-modal');
-        });
-      }
-    });
-  </script>
+  <div id="contact-modal-container"></div>
 </body>
 </html>

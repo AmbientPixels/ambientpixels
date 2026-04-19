@@ -3,27 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Video Portfolio - A curated collection of motion design, tutorials, and interactive media projects by AmbientPixels" />
+  <meta name="description" content="Video Hub — motion design, AI-narrated case studies, and interactive media projects by AmbientPixels." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Video Hub | Motion & Interactive Media - AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/projects/xbox-video.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Video Hub — AmbientPixels</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+
+  <script defer src="/js/ap-nav-mobile.js"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
-  <div class="tx-layer" aria-hidden="true"></div>  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
+  <div class="tx-layer" aria-hidden="true"></div>
+
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -40,244 +36,169 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-base" data-hero="architect">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>Video Portfolio</h1>
-      <p class="subtitle">Telling stories through motion, interaction, and visual rhythm.</p>
-    </div>
-  </section>
+  <main>
 
-<main class="grid-container">
-    
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container"></div>
-    
-    <!-- Featured Projects Section -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-star"></i>
-        <h2 class="xbox-section-title">Featured Projects</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">Explore a curated selection of motion design and interactive media projects. Each piece combines technical expertise with creative vision to deliver engaging user experiences.</p>
-      </div>
-    </section>
-
-    <!-- Motion Design Projects -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-film"></i>
-        <h2 class="xbox-section-title">Motion Design Projects</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">Animated content that brings concepts to life through fluid motion and engaging visuals.</p>
-        <div class="projects-grid">
-          <!-- Ninja Theory Help Center Video -->
-          <section class="card-section grid-col-4 mb-3">
-            <a href="/projects/video/ninja-theory-help-center.html" class="card-image-link" aria-label="View Ninja Theory Help Center">
-              <div class="card-image video-gradient-8 card-image-container">
-                <i class="fas fa-video project-icon" aria-hidden="true"></i>
-                <span class="video-duration-badge">
-                  <i class="far fa-clock"></i> 3:42
-                </span>
-              </div>
-            </a>
-            <div class="card-content">
-              <h3><i class="fas fa-video" aria-hidden="true"></i> Ninja Theory Help Center</h3>
-              <div class="role-tags">
-                <span class="role-tag role-animation"><i class="fas fa-film"></i> Motion</span>
-                <span class="role-tag role-voice"><i class="fas fa-robot"></i> AI Voice</span>
-                <span class="role-tag role-branding"><i class="fas fa-paint-brush"></i> Branding</span>
-              </div>
-              <p>Animated showcase of the Ninja Theory Help Center, highlighting key support features and accessibility options.</p>
-              <div class="card-cta-container">
-                <button class="btn btn-primary" onclick="showVideoModal('ninja-theory-help-center')" aria-label="Watch Ninja Theory Help Center video">
-                  <i class="fas fa-play" aria-hidden="true"></i> Watch Video
-                </button>
-                <a href="/projects/video/ninja-theory-help-center.html" class="btn btn-secondary" aria-label="View Ninja Theory Help Center case study">
-                  <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
-                </a>
-              </div>
-            </div>
-          </section>
-
-          <!-- Xbox Support App Case Study -->
-          <section class="card-section grid-col-4 mb-3">
-            <a href="/projects/video/xbox-support-app-case-study.html" class="card-image-link" aria-label="View Xbox Support App Case Study">
-              <div class="card-image video-gradient-xbox card-image-container">
-                <i class="fas fa-mobile-alt project-icon" aria-hidden="true"></i>
-                <span class="video-duration-badge">
-                  <i class="far fa-clock"></i> 2:50
-                </span>
-              </div>
-            </a>
-            <div class="card-content">
-              <h3><i class="fas fa-gamepad" aria-hidden="true"></i> Xbox Support App</h3>
-              <div class="role-tags">
-                <span class="role-tag role-animation"><i class="fas fa-film"></i> Motion</span>
-                <span class="role-tag role-uiux"><i class="fas fa-mobile-alt"></i> UI/UX</span>
-                <span class="role-tag role-voice"><i class="fas fa-robot"></i> AI Voice</span>
-                <span class="role-tag role-training"><i class="fas fa-graduation-cap"></i> Training</span>
-              </div>
-              <p>On-console support experience providing instant access to help resources and troubleshooting for Xbox users.</p>
-              <div class="card-cta-container">
-                <button class="btn btn-primary" onclick="showVideoModal('xbox-support-app')" aria-label="Watch Xbox Support App video">
-                  <i class="fas fa-play" aria-hidden="true"></i> Watch Video
-                </button>
-                <a href="/projects/video/xbox-support-app-case-study.html" class="btn btn-secondary" aria-label="View Xbox Support App case study">
-                  <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
-                </a>
-              </div>
-            </div>
-          </section>
-
-          <!-- Copilot Playground -->
-          <section class="card-section grid-col-4">
-            <div class="coming-soon-overlay">Coming Soon</div>
-            <a href="/projects/video/copilot-playground.html" class="card-image-link" aria-label="View Copilot Playground">
-              <div class="card-image video-gradient-6 card-image-container">
-                <i class="fas fa-robot project-icon" aria-hidden="true"></i>
-                <span class="video-duration-badge">
-                  <i class="far fa-clock"></i> 2:30
-                </span>
-              </div>
-            </a>
-            <div class="card-content">
-              <h3>Copilot Playground</h3>
-              <div class="role-tags">
-                <span class="role-tag role-experimental"><i class="fas fa-flask"></i> Experimental</span>
-                <span class="role-tag role-devops"><i class="fas fa-code-branch"></i> DevOps</span>
-                <span class="role-tag role-voice"><i class="fas fa-robot"></i> AI Voice</span>
-                <span class="role-tag role-uiux"><i class="fas fa-desktop"></i> UI/UX</span>
-                <span class="role-tag role-training"><i class="fas fa-graduation-cap"></i> Training</span>
-              </div>
-              <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
-              <div class="card-cta-container">
-                <button class="btn btn-primary" disabled aria-label="Video coming soon">
-                  <i class="fas fa-play" aria-hidden="true"></i> Coming Soon
-                </button>
-                <button class="btn btn-secondary" disabled aria-label="Case study coming soon">
-                  <i class="fas fa-info-circle" aria-hidden="true"></i> Coming Soon
-                </button>
-              </div>
-            </div>
-          </section>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; PROJECTS &mdash; VIDEO HUB</div>
+          <h1 class="ap-display">Video<em> hub.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          Motion design, AI-narrated case studies, and interactive media. Stories told through motion, interaction, and visual rhythm.
         </div>
       </div>
     </section>
 
-    <!-- AI Workflow Section -->
-    <section class="grid-col-12 ai-workflow-section">
-      <!-- AI Pipeline Section -->
-      <div class="content-section ai-pipeline-section">
-        <h2><i class="fas fa-project-diagram"></i> AI Production Pipeline</h2>
-        <p class="section-description">End-to-end AI-powered workflow from concept to final render</p>
-        
-        <div class="pipeline-container">
-          <!-- Pipeline Step 1 -->
-          <div class="pipeline-step">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <div class="step-icon">
-                <i class="fas fa-lightbulb"></i>
-              </div>
-              <h3>Creative Concepting</h3>
-              <p>Using ChatGPT, Claude, and Gemini to brainstorm ideas, draft scripts, and generate wireframe-level concepts. Rapidly exploring directions and refining tone before production begins.</p>
-              <div class="step-connector"></div>
-            </div>
-          </div>
-          
-          <!-- Pipeline Step 2 -->
-          <div class="pipeline-step">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <div class="step-icon">
-                <i class="fas fa-palette"></i>
-              </div>
-              <h3>Asset Creation</h3>
-              <p>Leveraging Adobe Firefly, Agent Photoshop, and Midjourney for texture generation, image manipulation, and environment design, particularly for game-related content and visual assets.</p>
-              <div class="step-connector"></div>
-            </div>
-          </div>
-          
-          <!-- Pipeline Step 3 -->
-          <div class="pipeline-step">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <div class="step-icon">
-                <i class="fas fa-film"></i>
-              </div>
-              <h3>Motion & Animation</h3>
-              <p>Using AI-assisted plugins in After Effects (like Runway and Motion Design Agents) to automate transitions, generate motion templates, and sync animations with audio.</p>
-              <div class="step-connector"></div>
-            </div>
-          </div>
-          
-          <!-- Pipeline Step 4 -->
-          <div class="pipeline-step">
-            <div class="step-number">4</div>
-            <div class="step-content">
-              <div class="step-icon">
-                <i class="fas fa-microphone"></i>
-              </div>
-              <h3>Voice & Audio</h3>
-              <p>Custom-tuned Azure Voice Studio for AI narration, combined with Premiere Pro's AI tools (Remix, Scene Edit Detection) for audio cleanup, music looping, and voiceover alignment.</p>
-              <div class="step-connector"></div>
-            </div>
-          </div>
-          
-          <!-- Pipeline Step 5 -->
-          <div class="pipeline-step">
-            <div class="step-number">5</div>
-            <div class="step-content">
-              <div class="step-icon">
-                <i class="fas fa-tasks"></i>
-              </div>
-              <h3>Quality & Refinement</h3>
-              <p>AI-powered UI/UX evaluation, script refinement with ChatGPT, and automated testing to ensure consistent quality, accessibility, and brand alignment across all deliverables.</p>
-            </div>
-          </div>
+    <!-- § 01 — FEATURED -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; FEATURED PROJECTS</div>
+          <h2 class="ap-display">Three case studies, <em>all in motion.</em></h2>
         </div>
-        
-        <div class="pipeline-tech">
-          <span class="tech-tag"><i class="fab fa-microsoft"></i> Azure AI</span>
-          <span class="tech-tag"><i class="fab fa-adobe"></i> Adobe Creative Cloud</span>
-          <span class="tech-tag"><i class="fas fa-robot"></i> ChatGPT/GPT-4</span>
-          <span class="tech-tag"><i class="fas fa-brain"></i> Claude/Gemini</span>
-          <span class="tech-tag"><i class="fas fa-magic"></i> Midjourney</span>
+        <div class="ap-sec-meta">
+          Animated showcases combining technical expertise with creative vision &mdash; each one engineered for engagement.
         </div>
       </div>
-    </section>
-    
-    <!-- Project Hubs Section -->
-    <section class="content-section project-section grid-col-12">
-      <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/index.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-home"></i> Main Projects Hub
-          </strong>
-          <p>Explore all projects and experiments from the studio</p>
+
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/video/ninja-theory-help-center.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Ninja Theory<em> Help Center.</em></h3>
+            <span class="meta">Motion &middot; AI Voice &middot; Branding &middot; 3:42</span>
+          </div>
+          <p>Animated showcase of the Ninja Theory Help Center, highlighting key support features and accessibility options.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
         </a>
-        <a class="related-project-card" href="/projects/xbox-support.html">
-          <strong class="related-project-card-title">
-            <i class="fab fa-xbox"></i> Xbox Support Hub
-          </strong>
-          <p>All Xbox-related support projects and resources</p>
+        <a class="ap-pd op-archive" href="/projects/video/xbox-support-app-case-study.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Xbox Support<em> App.</em></h3>
+            <span class="meta">Motion &middot; UI/UX &middot; AI Voice &middot; Training &middot; 2:50</span>
+          </div>
+          <p>On-console support experience providing instant access to help resources and troubleshooting for Xbox users.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
         </a>
-        <a class="related-project-card" href="/about/index.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-user"></i> About Me
-          </strong>
-          <p>Learn more about my background and experience</p>
+        <a class="ap-pd op-beta" href="/projects/video/copilot-playground.html">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Copilot<em> Playground video.</em></h3>
+            <span class="meta">Experimental &middot; DevOps &middot; AI Voice &middot; UI/UX &middot; 2:30</span>
+          </div>
+          <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
+          <span class="year">Coming soon</span>
+          <span class="go">&rarr;</span>
         </a>
       </div>
     </section>
-      
+
+    <!-- § 02 — AI PRODUCTION PIPELINE -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; AI PRODUCTION PIPELINE</div>
+          <h2 class="ap-display">Five steps, <em>concept to render.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          End-to-end AI-powered workflow &mdash; brainstorm, asset, motion, voice, polish.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Creative<br><em>concepting.</em></h3>
+          <p>ChatGPT, Claude, Gemini for brainstorming, script drafts, wireframe-level concepts. Rapid exploration before production.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Asset<br><em>creation.</em></h3>
+          <p>Adobe Firefly, Agent Photoshop, Midjourney for texture generation, image manipulation, environment design.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Motion &amp;<br><em>animation.</em></h3>
+          <p>AI-assisted plugins in After Effects (Runway, Motion Design Agents) automate transitions, generate templates, sync to audio.</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Voice &amp;<br><em>audio.</em></h3>
+          <p>Custom-tuned Azure Voice Studio for AI narration. Premiere Pro AI tools for cleanup, music looping, voiceover alignment.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Quality &amp;<br><em>refinement.</em></h3>
+          <p>AI-powered UI/UX evaluation, ChatGPT script refinement, automated testing for consistency, accessibility, brand alignment.</p>
+        </div>
+        <div class="ap-pillar" style="opacity: .55;">
+          <div class="num">&nbsp;</div>
+          <h3 class="ap-display ap-display--pillar" style="opacity: .55;">Stack:<br><em>everything below.</em></h3>
+          <p>Azure AI &middot; Adobe Creative Cloud &middot; ChatGPT/GPT-4 &middot; Claude/Gemini &middot; Midjourney</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 03 — RELATED -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; PROJECT HUBS</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/projects/">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Main projects<em> hub.</em></h3>
+            <span class="meta">Index</span>
+          </div>
+          <p>Explore all projects and experiments from the studio.</p>
+          <span class="year">Catalog</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-archive" href="/projects/xbox-support.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Xbox Support<em> hub.</em></h3>
+            <span class="meta">Microsoft Xbox</span>
+          </div>
+          <p>All Xbox-related support projects and resources.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-live" href="/about/">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">About<em> the studio.</em></h3>
+            <span class="meta">Background &middot; Experience</span>
+          </div>
+          <p>Learn more about the background, the team, and the work.</p>
+          <span class="year">Operating</span>
+          <span class="go">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Need a video<br><em>that explains everything?</em></h2>
+    <p>Motion design, AI-narrated case studies, animated tutorials &mdash; built around the story you actually need to tell.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -323,8 +244,5 @@
     </div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-  
-  <script src="/js/animate-pipeline.js" defer></script>
-  <script src="/js/video-modal.js" defer></script>
 </body>
 </html>

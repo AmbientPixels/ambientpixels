@@ -3,24 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Web development projects from AmbientPixels — support portals, dashboards, and interactive experiences." />
+  <meta name="description" content="Web Development — support portals, dashboards, and interactive experiences from AmbientPixels. Built for usability, performance, clean code." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Web Development Projects — AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/projects/xbox-video.css" />
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Web Development — AmbientPixels</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+
+  <script defer src="/js/ap-nav-mobile.js"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
-  <div class="tx-layer" aria-hidden="true"></div>  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
+  <div class="tx-layer" aria-hidden="true"></div>
+
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -37,162 +36,112 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-base" data-hero="architect">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <h1>Web Development Projects</h1>
-      <p class="subtitle">Support portals, dashboards, and interactive experiences — built for usability, performance, and clean code.</p>
-    </div>
-  </section>
+  <main>
 
-<main class="grid-container">
-  <!-- Breadcrumb Navigation -->
-  <div class="breadcrumb-container grid-col-12"></div>
-  <section class="content-section grid-col-12">
-    <h2><i class="fas fa-laptop-code"></i> Web Development Projects</h2>
-    <p>Explore a collection of web development projects showcasing support portals, interactive dashboards, and user experiences—each designed with a focus on usability, performance, and clean code.</p>
-  </section>
-
-    <!-- Xbox Support Website -->
-    <section class="grid-col-12 card-section">
-      <a href="/projects/websites/xbox-support.html" class="card-image-link" aria-label="View Xbox Support Website">
-        <div class="card-image video-gradient-xbox">
-          <i class="fab fa-xbox project-icon" aria-hidden="true"></i>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; PROJECTS &mdash; WEB DEVELOPMENT</div>
+          <h1 class="ap-display">Web<em> development.</em></h1>
         </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fab fa-xbox" aria-hidden="true"></i> Xbox Support</h3>
-        <div class="role-tags">
-          <span class="role-tag role-animation">Web Development</span>
-          <span class="role-tag role-voice">Support Portal</span>
-          <span class="role-tag role-branding">User Experience</span>
-        </div>
-        <p>Comprehensive support website for Xbox users, featuring troubleshooting guides, community forums, and account management tools.</p>
-        <div class="card-cta-container">
-          <a href="/projects/websites/xbox-support.html" class="btn btn-primary" aria-label="View Xbox Support Website">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> View Project
-          </a>
+        <div class="ap-sec-meta">
+          Support portals, dashboards, and interactive experiences &mdash; designed with a focus on usability, performance, and clean code.
         </div>
       </div>
     </section>
 
-    <!-- Gears of War Support -->
-    <section class="grid-col-6 card-section">
-      <a href="/projects/websites/gears-of-war-support.html" class="card-image-link" aria-label="View Gears of War Support Website">
-        <div class="card-image game-card-image">
-          <img src="/images/projects/gow/logo.png" alt="Gears of War Logo">
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; SHIPPED PROJECTS</div>
+          <h2 class="ap-display">Six surfaces, <em>one studio.</em></h2>
         </div>
-      </a>
-      <div class="card-content">
-        <h3>Gears of War Support</h3>
-        <div class="role-tags">
-          <span class="role-tag role-animation">Web Development</span>
-          <span class="role-tag role-voice">Game Support</span>
-          <span class="role-tag role-branding">Community</span>
+        <div class="ap-sec-meta">
+          Each project a different room &mdash; player support, game launches, casual games migration, BI dashboards.
         </div>
-        <p>Dedicated support portal for Gears of War players, featuring game guides, patch notes, and community resources.</p>
-        <div class="card-cta-container">
-          <a href="/projects/websites/gears-of-war-support.html" class="btn btn-primary" aria-label="View Gears of War Support Website">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> View Project
-          </a>
-        </div>
+      </div>
+
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/websites/xbox-support.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Xbox<em> Support.</em></h3>
+            <span class="meta">Web &middot; Support portal &middot; UX</span>
+          </div>
+          <p>Comprehensive support website for Xbox users &mdash; troubleshooting guides, community forums, account management tools.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+
+        <a class="ap-pd op-archive" href="/projects/websites/gears-of-war-support.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Gears of War<em> support.</em></h3>
+            <span class="meta">Web &middot; Game support &middot; Community</span>
+          </div>
+          <p>Dedicated support portal for Gears of War players &mdash; game guides, patch notes, community resources.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Ninja Theory<em> support.</em></h3>
+            <span class="meta">Web &middot; Game support &middot; Community</span>
+          </div>
+          <p>Support hub for Ninja Theory games, offering troubleshooting guides, FAQs, and community resources.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+
+        <a class="ap-pd op-archive" href="/projects/websites/south-of-midnight-support.html">
+          <span class="n">04</span>
+          <div>
+            <h3 class="ap-display ap-display--row">South of<em> Midnight.</em></h3>
+            <span class="meta">Web &middot; UI/UX &middot; Branding</span>
+          </div>
+          <p>Official support website for South of Midnight &mdash; game information, support resources, community updates.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+
+        <a class="ap-pd op-archive" href="/projects/websites/microsoft-casual-games-support.html">
+          <span class="n">05</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Microsoft<em> Casual Games.</em></h3>
+            <span class="meta">Web &middot; Migration &middot; Content strategy</span>
+          </div>
+          <p>Producer-led migration of support content from Zendesk to Xbox Support for Microsoft Casual Games.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+
+        <a class="ap-pd op-archive" href="/projects/websites/grand-central-power-bi.html">
+          <span class="n">06</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Grand Central<em> Power BI.</em></h3>
+            <span class="meta">Data &middot; Analytics &middot; Visualization</span>
+          </div>
+          <p>Interactive Power BI dashboard for tracking support metrics, customer satisfaction, and operational efficiency.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
       </div>
     </section>
 
-    <!-- Ninja Theory Support -->
-    <section class="grid-col-6 card-section">
-      <a href="/projects/websites/ninja-theory-support.html" class="card-image-link" aria-label="View Ninja Theory Support Website">
-        <div class="card-image game-hero-image">
-          <img src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Ninja Theory">
-        </div>
-      </a>
-      <div class="card-content">
-        <h3>Ninja Theory Support</h3>
-        <div class="role-tags">
-          <span class="role-tag role-animation">Web Development</span>
-          <span class="role-tag role-voice">Game Support</span>
-          <span class="role-tag role-branding">Community</span>
-        </div>
-        <p>Support hub for Ninja Theory games, offering troubleshooting guides, FAQs, and community resources for players.</p>
-        <div class="card-cta-container">
-          <a href="/projects/websites/ninja-theory-support.html" class="btn btn-primary" aria-label="View Ninja Theory Support Website">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> View Project
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- South of Midnight Support -->
-    <section class="grid-col-6 card-section">
-      <a href="/projects/websites/south-of-midnight-support.html" class="card-image-link" aria-label="View South of Midnight Support Website">
-        <div class="card-image game-hero-image">
-          <img src="/images/projects/SoM/hero-01.png" alt="South of Midnight">
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-gamepad" aria-hidden="true"></i> South of Midnight</h3>
-        <div class="role-tags">
-          <span class="role-tag role-animation">Web Development</span>
-          <span class="role-tag role-uiux">UI/UX</span>
-          <span class="role-tag role-branding">Branding</span>
-        </div>
-        <p>Official support website for South of Midnight, featuring game information, support resources, and community updates.</p>
-        <div class="card-cta-container">
-          <a href="/projects/websites/south-of-midnight-support.html" class="btn btn-primary" aria-label="View South of Midnight Support Website">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> View Project
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Microsoft Casual Games Support -->
-    <section class="grid-col-6   card-section">
-      <a href="/projects/websites/casual-games-support.html" class="card-image-link" aria-label="View Microsoft Casual Games Support Website">
-        <div class="card-image game-hero-image">
-          <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games">
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-gamepad" aria-hidden="true"></i> Microsoft Casual Games</h3>
-        <div class="role-tags">
-          <span class="role-tag role-animation">Web Development</span>
-          <span class="role-tag role-voice">Support Migration</span>
-          <span class="role-tag role-branding">Content Strategy</span>
-        </div>
-        <p>Producer-led migration of support content from Zendesk to Xbox Support for Microsoft Casual Games.</p>
-        <div class="card-cta-container">
-          <a href="/projects/websites/casual-games-support.html" class="btn btn-primary" aria-label="View Microsoft Casual Games Support Website">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> View Project
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Grand Central Power BI -->
-    <section class="grid-col-12 card-section">
-      <a href="/projects/websites/grand-central-power-bi.html" class="card-image-link" aria-label="View Grand Central Power BI Dashboard">
-        <div class="card-image video-gradient-10 card-image-container">
-          <i class="fas fa-database project-icon" aria-hidden="true"></i>
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-database" aria-hidden="true"></i> Grand Central Power BI</h3>
-        <div class="role-tags">
-          <span class="role-tag badge-ocean">Data</span>
-          <span class="role-tag role-analytics">Analytics</span>
-          <span class="role-tag role-data">Data Visualization</span>
-        </div>
-        <p>Interactive Power BI dashboard for tracking support metrics, customer satisfaction, and operational efficiency.</p>
-        <div class="card-cta-container">
-          <a href="/projects/websites/grand-central-power-bi.html" class="btn btn-primary" aria-label="View Grand Central Power BI Dashboard">
-            <i class="fas fa-external-link-alt" aria-hidden="true"></i> View Dashboard
-          </a>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got a portal<br><em>to build?</em></h2>
+    <p>Support sites, dashboards, design systems, and the front-end engineering that holds them together.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -238,6 +187,5 @@
     </div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
 </body>
 </html>
