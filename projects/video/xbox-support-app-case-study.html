@@ -1,542 +1,257 @@
-<!-- File: /projects/video/xbox-support-app-case-study.html -->
-<!-- Xbox Support App - On-Console Support Experience -->
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="On-console support experience for Xbox users, providing instant access to help resources and troubleshooting." />
-  <meta property="og:title" content="Xbox Support App | AmbientPixels" />
-  <meta property="og:description" content="The Xbox Support App delivers a seamless, on-console support experience for Xbox users, providing instant access to help resources, troubleshooting guides, and community support without ever leaving the game." />
+  <meta name="description" content="Xbox Support App — on-console support experience providing instant access to help resources, QR sharing, and real-time service status." />
+  <meta property="og:title" content="Xbox Support App — AmbientPixels" />
+  <meta property="og:description" content="On-console support experience for Xbox users." />
   <meta property="og:image" content="/images/projects/video/xbox-support-thumbnail.jpg" />
-  <meta property="og:url" content="https://ambientpixels.github.io/projects/video/xbox-support-app" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/video/xbox-support-app-case-study" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Xbox Support App | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/projects/xbox-support-app.css" />
-  <link rel="stylesheet" href="/css/projects/video-projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Xbox Support App — AmbientPixels</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
+  <style>
+    .xsa-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
+    .xsa-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .xsa-video { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--color-border); }
+    .xsa-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+    .xsa-timeline { list-style: none; padding: 0; margin: 0; max-width: var(--max-prose); }
+    .xsa-timeline li { padding: var(--sp-3) 0; border-top: 1px dashed var(--color-border-dashed); display: grid; grid-template-columns: 80px 1fr; gap: var(--sp-5); }
+    .xsa-timeline li:first-child { border-top: none; }
+    .xsa-timeline .t { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); padding-top: 2px; }
+    .xsa-timeline .d { font-size: var(--fs-body-sm); line-height: var(--lh-body); opacity: .82; }
+    .xsa-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
+    .xsa-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
+    .xsa-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
+    .xsa-metric .det { font-size: var(--fs-mono-xs); opacity: var(--mono-opacity-boost, 0.5); margin-top: var(--sp-2); }
+    @media (max-width: 1000px) { .xsa-metrics { grid-template-columns: 1fr 1fr; } .xsa-timeline li { grid-template-columns: 1fr; gap: var(--sp-2); } }
+  </style>
+  <script defer src="/js/ap-nav-mobile.js"></script>
+  <script src="/js/lightbox.js" type="module"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-  <div id="banner-container"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card hero-card-video">
-    <div class="hero-card-image project-bg-video card-image-container hero-gradient-mystic">
-      <i class="fas fa-video project-icon-video" aria-hidden="true"></i>
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Case Study</div>
-      <h1>Xbox Support <span class="video-glow">App</span></h1>
-      <p class="hero-card-description">On-Console Support Experience for Xbox Users</p>
-      <div class="project-tags">
-        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Console</span>
-        <span class="project-tag"><i class="fas fa-headset" aria-hidden="true"></i> Support</span>
-        <span class="project-tag"><i class="fas fa-mobile-alt" aria-hidden="true"></i> App</span>
-      </div>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12">
-      <!-- Breadcrumb will be injected here by breadcrumb.js -->
-    </div>
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <p>The Xbox Support App brings comprehensive support resources directly to the console experience. This integrated solution allows players to access help content without leaving their game, with features like QR code sharing for mobile viewing, real-time service status updates, and intelligent topic organization.</p>
-      
-      <div class="video-embed">
-        <div class="video-embed-container">
-          <iframe width="100%" height="500" src="https://www.youtube.com/embed/JwpnzA3LRkM" title="Xbox Support App Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX &middot; CASE STUDY</div>
+          <h1 class="ap-display">Xbox Support<em> App.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          On-console support experience &mdash; instant access to help resources, QR-code sharing, real-time service status, intelligent topic organization.
+          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
         </div>
       </div>
-      
-      <p class="video-caption"><i class="fas fa-external-link-alt"></i> Watch on YouTube: <a href="https://youtu.be/JwpnzA3LRkM" target="_blank">Xbox Support App Demo</a></p>
+      <ul class="xsa-tags"><li>Console</li><li>Support</li><li>App</li><li>QR sharing</li><li>Status notifications</li></ul>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-film"></i> Video Breakdown</h2>
-      <div class="timeline-container">
-        <div class="timeline">
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">0:00 – Introduction</span>
-              <p>Overview of the Xbox Support app's capabilities for both new and experienced users.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">0:15 – Accessing Support</span>
-              <p>Multiple access points including the profile and system tab, home screen, and search functionality. Support content is personalized when signed in.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">0:33 – Single Sourcing & QR Code</span>
-              <p>Support content is synchronized with support.xbox.com. Users can scan a QR code to read articles on another device while continuing to use the console.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">1:03 – Reading Articles on Another Device</span>
-              <p>Detailed look at how to scan and read articles on your mobile device for convenience and multitasking.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">1:13 – Status Notifications</span>
-              <p>The app surfaces Xbox Live status, account services, and live alerts to keep players informed about potential disruptions.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">1:27 – Targeted Notifications</span>
-              <p>Banner messages appear based on account type or known issues, guiding users to helpful information.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">1:39 – Help Topics</span>
-              <p>Support content is organized into categories such as account, billing, and games. Topics include billboards, subpages, and article groups.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">1:58 – Content Customization & Search</span>
-              <p>Important content can be pinned. Articles are sorted alphabetically and searchable via the top nav.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2:11 – Summary of Features</span>
-              <p>Recap of convenience features: in-console access, mobile-friendly QR sharing, customization, and search.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <span class="timeline-time">2:24 – Additional Resources</span>
-              <p>Encouragement to view related videos and support tools across Xbox platforms.</p>
-            </div>
-          </div>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <h2 class="ap-display">Help, in-game, <em>without leaving the game.</em></h2>
         </div>
+        <div class="ap-sec-meta">
+          Comprehensive support resources delivered directly to the console experience.
+        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
+        The Xbox Support App brings comprehensive support resources directly to the console experience. This integrated solution allows players to access help content without leaving their game &mdash; with features like QR code sharing for mobile viewing, real-time service status updates, and intelligent topic organization.
+      </p>
+      <div class="xsa-video">
+        <iframe src="https://www.youtube.com/embed/JwpnzA3LRkM" title="Xbox Support App Demo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p style="font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.55); margin: var(--sp-3) 0 0;">
+        <a class="ap-link-mono" href="https://youtu.be/JwpnzA3LRkM" target="_blank" rel="noopener noreferrer">Watch on YouTube &rarr;</a>
+      </p>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; VIDEO BREAKDOWN</div>
+          <h2 class="ap-display">Ten moments, <em>2:24 minutes.</em></h2>
+        </div>
+      </div>
+      <ul class="xsa-timeline">
+        <li><span class="t">0:00</span><span class="d"><strong style="color: var(--color-text-primary);">Introduction.</strong> Overview of the Xbox Support app&rsquo;s capabilities for both new and experienced users.</span></li>
+        <li><span class="t">0:15</span><span class="d"><strong style="color: var(--color-text-primary);">Accessing support.</strong> Multiple access points including the profile and system tab, home screen, and search functionality. Personalized when signed in.</span></li>
+        <li><span class="t">0:33</span><span class="d"><strong style="color: var(--color-text-primary);">Single sourcing &amp; QR.</strong> Synced with support.xbox.com. Scan a QR code to read articles on another device while continuing to use the console.</span></li>
+        <li><span class="t">1:03</span><span class="d"><strong style="color: var(--color-text-primary);">Reading on another device.</strong> Detailed look at how to scan and read articles on mobile for convenience and multitasking.</span></li>
+        <li><span class="t">1:13</span><span class="d"><strong style="color: var(--color-text-primary);">Status notifications.</strong> The app surfaces Xbox Live status, account services, and live alerts to keep players informed about disruptions.</span></li>
+        <li><span class="t">1:27</span><span class="d"><strong style="color: var(--color-text-primary);">Targeted notifications.</strong> Banner messages appear based on account type or known issues, guiding users to helpful information.</span></li>
+        <li><span class="t">1:39</span><span class="d"><strong style="color: var(--color-text-primary);">Help topics.</strong> Support content organized into categories such as account, billing, and games. Topics include billboards, subpages, and article groups.</span></li>
+        <li><span class="t">1:58</span><span class="d"><strong style="color: var(--color-text-primary);">Customization &amp; search.</strong> Important content can be pinned. Articles sorted alphabetically and searchable via the top nav.</span></li>
+        <li><span class="t">2:11</span><span class="d"><strong style="color: var(--color-text-primary);">Summary of features.</strong> Recap of convenience features &mdash; in-console access, mobile-friendly QR sharing, customization, search.</span></li>
+        <li><span class="t">2:24</span><span class="d"><strong style="color: var(--color-text-primary);">Additional resources.</strong> Encouragement to view related videos and support tools across Xbox platforms.</span></li>
+      </ul>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; KEY FEATURES</div>
+          <h2 class="ap-display">Six features, <em>one app.</em></h2>
+        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">QR code<br><em>sharing.</em></h3><p>Easily transfer support articles to your mobile device by scanning a QR code &mdash; follow along on phone while keeping the game on screen.</p></div>
+        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">In-game<br><em>overlay.</em></h3><p>Access support content without leaving your game using the in-game overlay &mdash; minimal disruption to the gaming experience.</p></div>
+        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Real-time<br><em>updates.</em></h3><p>Live service status updates and notifications about known issues affecting your gaming experience.</p></div>
+      </div>
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar"><div class="num">04</div><h3 class="ap-display ap-display--pillar">Intelligent<br><em>search.</em></h3><p>Quickly find solutions with AI-powered search that understands natural language queries and suggests relevant support articles.</p></div>
+        <div class="ap-pillar"><div class="num">05</div><h3 class="ap-display ap-display--pillar">Status<br><em>notifications.</em></h3><p>Real-time updates about Xbox Live service status and known issues, keeping players informed about potential service interruptions.</p></div>
+        <div class="ap-pillar"><div class="num">06</div><h3 class="ap-display ap-display--pillar">Mobile<br><em>integration.</em></h3><p>Seamlessly continue reading support articles on your mobile device with a simple QR code scan &mdash; perfect for multi-tasking gamers.</p></div>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-star"></i> Key Features</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <h3><i class="fas fa-qrcode"></i> QR Code Sharing</h3>
-          <p>Easily transfer support articles to your mobile device by scanning a QR code, allowing you to follow along on your phone while keeping your game on screen.</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; BEHIND THE SCENES</div>
+          <h2 class="ap-display">After Effects, <em>then Premiere.</em></h2>
         </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-tv"></i> In-Game Overlay</h3>
-          <p>Access support content without leaving your game using the in-game overlay, ensuring minimal disruption to your gaming experience.</p>
+        <div class="ap-sec-meta">
+          Custom motion design pipeline &mdash; layered compositions, precise timing, waveform color grading, SSML-enhanced narration.
         </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-sync"></i> Real-Time Updates</h3>
-          <p>Get live service status updates and notifications about known issues affecting your gaming experience.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-search"></i> Intelligent Search</h3>
-          <p>Quickly find solutions with our AI-powered search that understands natural language queries and suggests relevant support articles.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-bell"></i> Status Notifications</h3>
-          <p>Real-time updates about Xbox Live service status and known issues, keeping players informed about potential service interruptions.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-mobile-alt"></i> Mobile Integration</h3>
-          <p>Seamlessly continue reading support articles on your mobile device with a simple QR code scan, perfect for multi-tasking gamers.</p>
-        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
+        This video was built using a custom motion design pipeline in Adobe After Effects and Premiere Pro. Scenes were animated with layered compositions, precise timing markers, and keyframe easing. Color grading tuned using waveform scopes for consistency and clarity across dark UI elements. Voiceover syncing and audio balancing handled in Premiere &mdash; blending SSML-enhanced Azure AI narration with music and ambient sound design for a polished, professional tone.
+      </p>
+      <div class="image-row">
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/after-effect-screen-08.png" class="lightbox-trigger" data-caption="Timeline view of layered animation in After Effects"><img src="/images/projects/video/xbox-support-app-on console/after-effect-screen-08.png" alt="After Effects Layering" loading="lazy" /></a><p class="image-caption">01 &mdash; Layered animation in AE</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/after-effect-screen-09-color-grading.png" class="lightbox-trigger" data-caption="Waveform color grading"><img src="/images/projects/video/xbox-support-app-on console/after-effect-screen-09-color-grading.png" alt="Color Grading in AE" loading="lazy" /></a><p class="image-caption">02 &mdash; Color grading &amp; scope</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/premiere-audio-mixing-screen-08.png" class="lightbox-trigger" data-caption="Audio mixing in Premiere"><img src="/images/projects/video/xbox-support-app-on console/premiere-audio-mixing-screen-08.png" alt="Premiere Audio Mixing" loading="lazy" /></a><p class="image-caption">03 &mdash; Audio mixing in Premiere</p></div>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-cogs"></i> Behind the Scenes</h2>
-      <p>This video was built using a custom motion design pipeline in Adobe After Effects and Premiere Pro. Scenes were animated with layered compositions, precise timing markers, and keyframe easing. Color grading was tuned using waveform scopes to ensure consistency and clarity across dark UI elements. Voiceover syncing and audio balancing were handled in Premiere, blending SSML-enhanced Azure AI narration with music and ambient sound design for a polished, professional tone.</p>
-      
-      <div class="media-grid">
-        <!-- Animation Timeline -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/after-effect-screen-08.png" class="lightbox-trigger" data-caption="Timeline view of layered animation in After Effects.">
-            <img src="/images/projects/video/xbox-support-app-on console/after-effect-screen-08.png" alt="After Effects Layering" loading="lazy">
-          </a>
-          <p class="media-caption">Layered Animation in AE</p>
+    <section class="ap-sec ap-sec--cool" id="gallery" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; GALLERY</div>
+          <h2 class="ap-display">Sixteen frames, <em>concept to console.</em></h2>
         </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/after-effect-screen-09-color-grading.png" class="lightbox-trigger" data-caption="Waveform color grading to unify tone and luminance.">
-            <img src="/images/projects/video/xbox-support-app-on console/after-effect-screen-09-color-grading.png" alt="Color Grading in AE" loading="lazy">
-          </a>
-          <p class="media-caption">Color Grading & Scope Balancing</p>
-        </div>
-        
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/premiere-audio-mixing-screen-08.png" class="lightbox-trigger" data-caption="Audio levels, narration ducking, and music mixing in Premiere.">
-            <img src="/images/projects/video/xbox-support-app-on console/premiere-audio-mixing-screen-08.png" alt="Premiere Audio Mixing" loading="lazy">
-          </a>
-          <p class="media-caption">Audio Mixing in Premiere</p>
-        </div>
+        <div class="ap-sec-meta">Tap to expand.</div>
+      </div>
+      <div class="image-row">
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-01.png" class="lightbox-trigger" data-caption="Launching the Support App"><img src="/images/projects/video/xbox-support-app-on console/screen-01.png" alt="Launching the Support App" loading="lazy" /></a><p class="image-caption">01 &mdash; Launching app</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-02.png" class="lightbox-trigger" data-caption="Support Home Overview"><img src="/images/projects/video/xbox-support-app-on console/screen-02.png" alt="Support Home Overview" loading="lazy" /></a><p class="image-caption">02 &mdash; Support home</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-03.png" class="lightbox-trigger" data-caption="Profile + System Tab Access"><img src="/images/projects/video/xbox-support-app-on console/screen-03.png" alt="Profile + System Tab Access" loading="lazy" /></a><p class="image-caption">03 &mdash; Profile + System</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-04.png" class="lightbox-trigger" data-caption="Search Integration"><img src="/images/projects/video/xbox-support-app-on console/screen-04.png" alt="Search Integration" loading="lazy" /></a><p class="image-caption">04 &mdash; Search integration</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-05.png" class="lightbox-trigger" data-caption="Targeted Notifications"><img src="/images/projects/video/xbox-support-app-on console/screen-05.png" alt="Targeted Notifications" loading="lazy" /></a><p class="image-caption">05 &mdash; Targeted notifications</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-06.png" class="lightbox-trigger" data-caption="Xbox Live Status Page"><img src="/images/projects/video/xbox-support-app-on console/screen-06.png" alt="Xbox Live Status Page" loading="lazy" /></a><p class="image-caption">06 &mdash; Live status page</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-07.png" class="lightbox-trigger" data-caption="Get Help Navigation"><img src="/images/projects/video/xbox-support-app-on console/screen-07.png" alt="Get Help Navigation" loading="lazy" /></a><p class="image-caption">07 &mdash; Get Help nav</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-08.png" class="lightbox-trigger" data-caption="Help Topics Grid"><img src="/images/projects/video/xbox-support-app-on console/screen-08.png" alt="Help Topics Grid" loading="lazy" /></a><p class="image-caption">08 &mdash; Help topics grid</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-09.png" class="lightbox-trigger" data-caption="Article View Example"><img src="/images/projects/video/xbox-support-app-on console/screen-09.png" alt="Article View Example" loading="lazy" /></a><p class="image-caption">09 &mdash; Article view</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-10.png" class="lightbox-trigger" data-caption="QR Code Prompt"><img src="/images/projects/video/xbox-support-app-on console/screen-10.png" alt="QR Code Prompt" loading="lazy" /></a><p class="image-caption">10 &mdash; QR code prompt</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-11.png" class="lightbox-trigger" data-caption="Cross-Device Experience"><img src="/images/projects/video/xbox-support-app-on console/screen-11.png" alt="Cross-Device Experience" loading="lazy" /></a><p class="image-caption">11 &mdash; Cross-device</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-12.png" class="lightbox-trigger" data-caption="Multi-Page Billboard Layout"><img src="/images/projects/video/xbox-support-app-on console/screen-12.png" alt="Multi-Page Billboard Layout" loading="lazy" /></a><p class="image-caption">12 &mdash; Multi-page billboard</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-13.png" class="lightbox-trigger" data-caption="Content Pinning"><img src="/images/projects/video/xbox-support-app-on console/screen-13.png" alt="Content Pinning" loading="lazy" /></a><p class="image-caption">13 &mdash; Content pinning</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-14.png" class="lightbox-trigger" data-caption="Alphabetized Listings"><img src="/images/projects/video/xbox-support-app-on console/screen-14.png" alt="Alphabetized Listings" loading="lazy" /></a><p class="image-caption">14 &mdash; Alphabetized listings</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-15.png" class="lightbox-trigger" data-caption="Top-Level Navigation"><img src="/images/projects/video/xbox-support-app-on console/screen-15.png" alt="Top-Level Navigation" loading="lazy" /></a><p class="image-caption">15 &mdash; Top-level nav</p></div>
+        <div class="image-item"><a href="/images/projects/video/xbox-support-app-on console/screen-16.png" class="lightbox-trigger" data-caption="Summary of Features"><img src="/images/projects/video/xbox-support-app-on console/screen-16.png" alt="Summary of Features" loading="lazy" /></a><p class="image-caption">16 &mdash; Summary of features</p></div>
       </div>
     </section>
-    
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Gallery</h2>
-      <p>Explore the visual journey of the Xbox Support App, from concept to final implementation.</p>
-      
-      <div class="media-grid">
-        <!-- Screenshot 01 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-01.png" class="lightbox-trigger" data-caption="Starting the Xbox Support App from the console dashboard">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-01.png" alt="Launching the Support App" loading="lazy">
-          </a>
-          <p class="media-caption">Launching the Support App</p>
-        </div>
-        
-        <!-- Screenshot 02 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-02.png" class="lightbox-trigger" data-caption="Main hub of the app, showing personalized help and quick access tools">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-02.png" alt="Support Home Overview" loading="lazy">
-          </a>
-          <p class="media-caption">Support Home Overview</p>
-        </div>
-        
-        <!-- Screenshot 03 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-03.png" class="lightbox-trigger" data-caption="Accessing support from the Profile & System menu in the Xbox guide">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-03.png" alt="Profile + System Tab Access" loading="lazy">
-          </a>
-          <p class="media-caption">Profile + System Tab Access</p>
-        </div>
-        
-        <!-- Screenshot 04 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-04.png" class="lightbox-trigger" data-caption="Using the console's search feature to find the Support App">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-04.png" alt="Search Integration" loading="lazy">
-          </a>
-          <p class="media-caption">Search Integration</p>
-        </div>
-        
-        <!-- Screenshot 05 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-05.png" class="lightbox-trigger" data-caption="Banner alerts tailored to user accounts and console status">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-05.png" alt="Targeted Notifications" loading="lazy">
-          </a>
-          <p class="media-caption">Targeted Notifications</p>
-        </div>
-        
-        <!-- Screenshot 06 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-06.png" class="lightbox-trigger" data-caption="Real-time Xbox service notifications and feature health overview">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-06.png" alt="Xbox Live Status Page" loading="lazy">
-          </a>
-          <p class="media-caption">Xbox Live Status Page</p>
-        </div>
-        
-        <!-- Screenshot 07 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-07.png" class="lightbox-trigger" data-caption="Organized support categories within the 'Get Help' section">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-07.png" alt="Get Help Navigation" loading="lazy">
-          </a>
-          <p class="media-caption">Get Help Navigation</p>
-        </div>
-        
-        <!-- Screenshot 08 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-08.png" class="lightbox-trigger" data-caption="Visual display of support categories like account, games, and billing">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-08.png" alt="Help Topics Grid" loading="lazy">
-          </a>
-          <p class="media-caption">Help Topics Grid</p>
-        </div>
-        
-        <!-- Screenshot 09 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-09.png" class="lightbox-trigger" data-caption="Reading an individual support article directly on console">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-09.png" alt="Article View Example" loading="lazy">
-          </a>
-          <p class="media-caption">Article View Example</p>
-        </div>
-        
-        <!-- Screenshot 10 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-10.png" class="lightbox-trigger" data-caption="Option to open the article on a different device via QR scan">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-10.png" alt="QR Code Prompt" loading="lazy">
-          </a>
-          <p class="media-caption">QR Code Prompt</p>
-        </div>
-        
-        <!-- Screenshot 11 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-11.png" class="lightbox-trigger" data-caption="Scanning a QR code to continue reading on mobile or tablet">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-11.png" alt="Cross-Device Experience" loading="lazy">
-          </a>
-          <p class="media-caption">Cross-Device Experience</p>
-        </div>
-        
-        <!-- Screenshot 12 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-12.png" class="lightbox-trigger" data-caption="Detailed help articles organized with navigation and subtopics">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-12.png" alt="Multi-Page Billboard Layout" loading="lazy">
-          </a>
-          <p class="media-caption">Multi-Page Billboard Layout</p>
-        </div>
-        
-        <!-- Screenshot 13 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-13.png" class="lightbox-trigger" data-caption="Example of a pinned help topic at the top of a category list">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-13.png" alt="Content Pinning" loading="lazy">
-          </a>
-          <p class="media-caption">Content Pinning</p>
-        </div>
-        
-        <!-- Screenshot 14 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-14.png" class="lightbox-trigger" data-caption="Auto-sorted support articles organized for quick scanning">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-14.png" alt="Alphabetized Listings" loading="lazy">
-          </a>
-          <p class="media-caption">Alphabetized Listings</p>
-        </div>
-        
-        <!-- Screenshot 15 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-15.png" class="lightbox-trigger" data-caption="Navigation UI showing Help, Home, Status, and Settings">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-15.png" alt="Top-Level Navigation" loading="lazy">
-          </a>
-          <p class="media-caption">Top-Level Navigation</p>
-        </div>
-        
-        <!-- Screenshot 16 -->
-        <div class="media-item">
-          <a href="/images/projects/video/xbox-support-app-on console/screen-16.png" class="lightbox-trigger" data-caption="Final screen summarizing the app's core support tools">
-            <img src="/images/projects/video/xbox-support-app-on console/screen-16.png" alt="Summary of Features" loading="lazy">
-          </a>
-          <p class="media-caption">Summary of Features</p>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; IMPACT &amp; RESULTS</div>
+          <h2 class="ap-display">Four numbers, <em>30M+ console users.</em></h2>
         </div>
       </div>
+      <div class="xsa-metrics">
+        <div class="xsa-metric"><p class="num">35%</p><p class="lbl">Reduced support calls</p><p class="det">Through improved self-service</p></div>
+        <div class="xsa-metric"><p class="num">90%</p><p class="lbl">User satisfaction</p><p class="det">For in-console support</p></div>
+        <div class="xsa-metric"><p class="num">45%</p><p class="lbl">Faster resolution</p><p class="det">Vs. web-only support</p></div>
+        <div class="xsa-metric"><p class="num">30M+</p><p class="lbl">Monthly users</p><p class="det">Across all Xbox consoles</p></div>
+      </div>
     </section>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-chart-line"></i> Impact & Results</h2>
-      <div class="impact-metrics">
-        <div class="metric-card">
-          <i class="fas fa-phone-slash"></i>
-          <h3>35%</h3>
-          <p>Reduced Support Calls</p>
-          <div class="metric-detail">Through improved self-service</div>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; TECHNICAL DETAILS</div>
+          <h2 class="ap-display">The stack, <em>front to back.</em></h2>
         </div>
-        
-        <div class="metric-card">
-          <i class="fas fa-smile"></i>
-          <h3>90%</h3>
-          <p>User Satisfaction</p>
-          <div class="metric-detail">For in-console support</div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Frontend<br><em>stack.</em></h3>
+          <p>The console UI layer.</p>
+          <ul><li>React Native</li><li>Xbox One XDK</li><li>Xbox Series X|S GDK</li></ul>
         </div>
-        
-        <div class="metric-card">
-          <i class="fas fa-tachometer-alt"></i>
-          <h3>45%</h3>
-          <p>Faster Resolution</p>
-          <div class="metric-detail">Compared to web-only support</div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Backend<br><em>stack.</em></h3>
+          <p>The Azure-powered service layer.</p>
+          <ul><li>Azure Cosmos DB</li><li>Azure App Service</li><li>Azure CDN</li></ul>
         </div>
-        
-        <div class="metric-card">
-          <i class="fas fa-gamepad"></i>
-          <h3>30M+</h3>
-          <p>Monthly Users</p>
-          <div class="metric-detail">Across all Xbox consoles</div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Production<br><em>stack.</em></h3>
+          <p>The video build pipeline.</p>
+          <ul><li>After Effects</li><li>Premiere Pro</li><li>Azure Voice Studio</li></ul>
         </div>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <div class="callout technical-details">
-        <h2><i class="fas fa-lightbulb"></i> Technical Details</h2>
-        <p class="technical-intro">The Xbox Support App was developed using industry-standard tools and technologies to create a seamless support experience.</p>
-        
-        <div class="grid-container">
-          <div class="grid-col-6">
-            <div class="tech-category">
-              <h3><i class="fas fa-tv"></i> Frontend</h3>
-              <ul class="tech-list">
-                <li><i class="fas fa-check-circle"></i> React Native</li>
-                <li><i class="fas fa-check-circle"></i> Xbox One XDK</li>
-                <li><i class="fas fa-check-circle"></i> Xbox Series X|S GDK</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div class="grid-col-6">
-            <div class="tech-category">
-              <h3><i class="fas fa-server"></i> Backend</h3>
-              <ul class="tech-list">
-                <li><i class="fas fa-check-circle"></i> Azure Cosmos DB</li>
-                <li><i class="fas fa-check-circle"></i> Azure App Service</li>
-                <li><i class="fas fa-check-circle"></i> Azure CDN</li>
-              </ul>
-            </div>
-          </div>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 08 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/copilotplayground.html"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3><span class="meta">AI tooling</span></div><p>AI-powered gaming support notifications and tools for Xbox.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Hellblade<em> support.</em></h3><span class="meta">Game support</span></div><p>Dedicated support for Ninja Theory&rsquo;s Hellblade series.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-live" href="/projects/video/"><span class="n">03</span><div><h3 class="ap-display ap-display--row">Video<em> hub.</em></h3><span class="meta">Index</span></div><p>Browse all video projects and case studies.</p><span class="year">Catalog</span><span class="go">&rarr;</span></a>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/copilot-playground-case-study.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-robot"></i> Copilot Playground
-          </strong>
-          <p>AI-powered gaming support notifications and tools for Xbox</p>
-        </a>
-        <a class="related-project-card" href="/projects/hellblade-support-case-study.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-gamepad"></i> Hellblade Support
-          </strong>
-          <p>Dedicated support for Ninja Theory's Hellblade series</p>
-        </a>
-        <a class="related-project-card" href="/projects/xbox-video.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-video"></i> Xbox Video Projects
-          </strong>
-          <p>Browse all Xbox-related video projects and case studies</p>
-        </a>
-      </div>
-    </section>
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got a console feature<br><em>that needs a tour?</em></h2>
+    <p>Animated case studies, AI narration, motion design pipelines &mdash; built to explain complex products in under 3 minutes.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/video/">See more video work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
-  <!-- Breadcrumb Scripts -->
-  <script src="/modules/breadcrumb.js" defer></script>
-  <script src="/js/lightbox.js" type="module"></script>
-  <script>
-    // Initialize timeline animations when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      const timelineItems = document.querySelectorAll('.timeline-item');
-      
-      // Create an Intersection Observer to detect when items come into view
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            // Unobserve after animation starts to improve performance
-            observer.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.1, // Trigger when 10% of the item is visible
-        rootMargin: '0px 0px -100px 0px' // Adjust the bottom margin to start animation a bit earlier
-      });
-
-      // Observe each timeline item
-      timelineItems.forEach((item, index) => {
-        // Add staggered delay for animation
-        item.style.setProperty('--delay', `${index * 0.1}s`);
-        observer.observe(item);
-      });
-    });
-  </script>
 </body>
 </html>

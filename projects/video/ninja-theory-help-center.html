@@ -1,532 +1,234 @@
-<!-- File: /projects/video/ninja-theory-help-center.html -->
-<!-- Ninja Theory Help Center - Animated Support Video Showcase -->
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options." />
-  <meta property="og:title" content="Ninja Theory Help Center Video | AmbientPixels" />
-  <meta property="og:description" content="Explore the animated showcase of the Ninja Theory Help Center, featuring key support features and accessibility options for Hellblade players." />
+  <meta name="description" content="Ninja Theory Help Center — animated showcase video for Xbox Support, narrated by custom Azure AI voice. AI production pipeline + technical deep dive." />
+  <meta property="og:title" content="Ninja Theory Help Center Video — AmbientPixels" />
+  <meta property="og:description" content="Animated video showcase for the Ninja Theory Help Center on Xbox." />
   <meta property="og:image" content="/images/projects/video/ninja-theroy/thumbnail.jpg" />
-  <meta property="og:url" content="https://ambientpixels.github.io/projects/video/ninja-theory-help-center" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/video/ninja-theory-help-center" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Ninja Theory Help Center Video | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/projects/xbox-support-app.css" />
-  <link rel="stylesheet" href="/css/projects/video-projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Ninja Theory Help Center — AmbientPixels</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
+  <style>
+    .nth-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
+    .nth-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .nth-video { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border: 1px solid var(--color-border); }
+    .nth-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+    .nth-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
+    .nth-metric .num { font-family: var(--font-heavy); font-size: 60px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
+    .nth-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
+    .nth-metric .det { font-size: var(--fs-mono-xs); opacity: var(--mono-opacity-boost, 0.5); margin-top: var(--sp-2); }
+    @media (max-width: 1000px) { .nth-metrics { grid-template-columns: 1fr 1fr; } }
+  </style>
+  <script defer src="/js/ap-nav-mobile.js"></script>
+  <script src="/js/lightbox.js" type="module"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-  <div id="banner-container"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card hero-card-video">
-    <div class="hero-card-image project-bg-video card-image-container">
-      <i class="fas fa-video project-icon-video" aria-hidden="true"></i>
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Help Center Showcase Video</div>
-      <h1>Ninja Theory <span class="video-glow">Help Center</span></h1>
-      <p class="hero-card-description">Animated Video Showcase for Xbox Support</p>
-      <div class="project-tags">
-        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Xbox</span>
-        <span class="project-tag"><i class="fas fa-video" aria-hidden="true"></i> Animation</span>
-        <span class="project-tag"><i class="fas fa-headset" aria-hidden="true"></i> Support</span>
-        <span class="project-tag"><i class="fas fa-robot" aria-hidden="true"></i> AI-Powered</span>
-        <span class="project-tag"><i class="fas fa-brain" aria-hidden="true"></i> ML</span>
+  <main>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX &middot; CASE STUDY</div>
+          <h1 class="ap-display">Ninja Theory<em> Help Center.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          Animated video showcase for support.Xbox.com &mdash; Hellblade and Senua&rsquo;s Saga: Hellblade II. AI-assisted production with Azure-tuned narration.
+          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        </div>
       </div>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-  </section>
+      <ul class="nth-tags"><li>Xbox</li><li>Animation</li><li>Support</li><li>AI-powered</li><li>ML</li></ul>
+    </section>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <p>This animated showcase brings the new Ninja Theory Help Center on <a href="https://support.xbox.com" target="_blank" rel="noopener noreferrer">support.Xbox.com</a> to life—highlighting platform features for titles like Hellblade and Senua’s Saga: Hellblade II. Developed in close collaboration with the Xbox Support content team, the video blends dynamic motion design with AI-assisted production. All visuals were crafted in Adobe After Effects, with narration by Ava—our custom Azure AI voice agent—tuned via SSML for natural clarity, tone, and pacing. The result is an accessible, story-driven experience built for support engagement and user confidence.</p>
-      
-      <blockquote>
-        <p>In addition to animation, I also had the opportunity to serve as a producer on the Help Center website itself—helping shape its structure, tone, and accessibility strategy. See more under Related Projects below.</p>
-        <footer>— Chad Martin (Pixelpusher)</footer>
-      </blockquote>
-
-
-      <div class="video-embed">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/zhcM5tEaSfM" title="Ninja Theory Help Center Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <h2 class="ap-display">Motion design, <em>narrated by Ava.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The new Ninja Theory Help Center brought to life through animation, AI narration, and SSML-tuned pacing.
+        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        This animated showcase brings the new Ninja Theory Help Center on <a href="https://support.xbox.com" class="ap-link-mono" target="_blank" rel="noopener noreferrer">support.Xbox.com &rarr;</a> to life &mdash; highlighting platform features for titles like Hellblade and Senua&rsquo;s Saga: Hellblade II. Developed in close collaboration with the Xbox Support content team, the video blends dynamic motion design with AI-assisted production. All visuals were crafted in Adobe After Effects, with narration by Ava &mdash; a custom Azure AI voice agent &mdash; tuned via SSML for natural clarity, tone, and pacing.
+      </p>
+      <p style="font-family: var(--font-display); font-style: italic; font-weight: var(--fw-regular); font-size: var(--fs-body-lg); line-height: 1.5; color: var(--color-text-body); max-width: var(--max-prose); margin: 0 0 var(--sp-8); padding: 0 0 0 var(--sp-6); border-left: 1px solid var(--color-border);">
+        &ldquo;In addition to animation, I also had the opportunity to serve as a producer on the Help Center website itself &mdash; helping shape its structure, tone, and accessibility strategy.&rdquo;
+        <span style="display: block; font-style: normal; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: .6; margin-top: var(--sp-3);">&mdash; Chad Martin (Pixelpusher)</span>
+      </p>
+      <div class="nth-video">
+        <iframe src="https://www.youtube.com/embed/zhcM5tEaSfM" title="Ninja Theory Help Center Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-robot"></i> AI Production Pipeline</h2>
-        <p class="section-intro">This project was brought to life using an advanced AI-driven production pipeline that enhanced creativity and efficiency at every stage. Here's a look at the tools and processes that powered this production:</p>
-      </div>
-      
-      <div class="timeline-container">
-        <div class="timeline">
-          <!-- Creative Concepting -->
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-icon"><i class="fas fa-lightbulb"></i></div>
-                <h3 class="timeline-time">Creative Concepting</h3>
-              </div>
-              <p>Leveraged ChatGPT, Claude, and Gemini to brainstorm ideas, outline scripts, and generate wireframes or scene sketches, establishing a strong creative direction and visual tone from the start.</p>
-            </div>
-          </div>
-          
-          <!-- Project Management -->
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-icon"><i class="fas fa-project-diagram"></i></div>
-                <h3 class="timeline-time">Project Management & Guidance</h3>
-              </div>
-              <p>Utilized Nova, a custom GPT-based project guide, to track goals, manage timelines, and provide creative decision support throughout the production process.</p>
-            </div>
-          </div>
-          
-          <!-- Animation & Motion -->
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-icon"><i class="fas fa-film"></i></div>
-                <h3 class="timeline-time">Animation & Motion Design</h3>
-              </div>
-              <p>Enhanced After Effects with AI tools like Runway, script-assist agents, and pre-trained motion models to automate transitions, generate keyframes, and align visuals to audio, maintaining consistent motion rhythm across scenes.</p>
-            </div>
-          </div>
-          
-          <!-- Asset Creation -->
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-icon"><i class="fas fa-paint-brush"></i></div>
-                <h3 class="timeline-time">Asset Creation</h3>
-              </div>
-              <p>Combined Adobe Firefly, Midjourney, and Photoshop plugins with custom AI assistants to generate textures, visual effects, and imagery, creating rich, layered environments.</p>
-            </div>
-          </div>
-          
-          <!-- Voice & Audio -->
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-icon"><i class="fas fa-microphone"></i></div>
-                <h3 class="timeline-time">Voice & Audio</h3>
-              </div>
-              <p>Created Ava, a branded voice agent built with Azure Voice Studio, using SSML scripting and GPT-assisted prompts to control tone, pacing, and clarity for natural-sounding narration.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-icon"><i class="fas fa-eye"></i></div>
-                <h3 class="timeline-time">UI & Design Feedback</h3>
-              </div>
-              <p>Deployed a review agent using ChatGPT Vision to analyze UI screenshots, providing automated feedback on clarity, spacing, contrast, and accessibility throughout the design process.</p>
-            </div>
-          </div>
-          
-          <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-header">
-                <div class="timeline-icon"><i class="fas fa-keyboard"></i></div>
-                <h3 class="timeline-time">Script & On-Screen Text</h3>
-              </div>
-              <p>Utilized agents like ChatGPT and Notion AI to co-develop scripts, adjust tone, and generate short-form copy for titles, subtitles, and screen overlays, ensuring viewer-friendly content aligned with brand voice.</p>
-            </div>
-          </div>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; AI PRODUCTION PIPELINE</div>
+          <h2 class="ap-display">Seven steps, <em>powered by agents.</em></h2>
         </div>
+        <div class="ap-sec-meta">
+          Advanced AI-driven production pipeline that enhanced creativity and efficiency at every stage.
+        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">Creative<br><em>concepting.</em></h3><p>ChatGPT, Claude, Gemini for brainstorming, script outlines, wireframes, and scene sketches &mdash; establishing creative direction and visual tone from the start.</p></div>
+        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">Project<br><em>management.</em></h3><p>Nova, a custom GPT-based project guide, tracked goals, managed timelines, and provided creative decision support throughout production.</p></div>
+        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Animation &amp;<br><em>motion design.</em></h3><p>Enhanced After Effects with AI tools like Runway, script-assist agents, and pre-trained motion models &mdash; automating transitions, generating keyframes, aligning visuals to audio.</p></div>
+      </div>
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar"><div class="num">04</div><h3 class="ap-display ap-display--pillar">Asset<br><em>creation.</em></h3><p>Adobe Firefly, Midjourney, and Photoshop plugins with custom AI assistants for textures, visual effects, and imagery &mdash; rich, layered environments.</p></div>
+        <div class="ap-pillar"><div class="num">05</div><h3 class="ap-display ap-display--pillar">Voice &amp;<br><em>audio.</em></h3><p>Created Ava, a branded voice agent built with Azure Voice Studio, using SSML scripting and GPT-assisted prompts to control tone, pacing, and clarity for natural-sounding narration.</p></div>
+        <div class="ap-pillar"><div class="num">06</div><h3 class="ap-display ap-display--pillar">UI &amp;<br><em>design feedback.</em></h3><p>Review agent using ChatGPT Vision to analyze UI screenshots, providing automated feedback on clarity, spacing, contrast, and accessibility.</p></div>
+      </div>
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar"><div class="num">07</div><h3 class="ap-display ap-display--pillar">Script &amp;<br><em>on-screen text.</em></h3><p>ChatGPT and Notion AI to co-develop scripts, adjust tone, generate short-form copy for titles, subtitles, and overlays &mdash; viewer-friendly content aligned with brand voice.</p></div>
+        <div class="ap-pillar" style="opacity: .55;"><div class="num">&nbsp;</div><h3 class="ap-display ap-display--pillar" style="opacity: .55;">Stack:<br><em>seven AI tools.</em></h3><p>ChatGPT &middot; Claude &middot; Gemini &middot; Runway &middot; After Effects agents &middot; Azure Voice Studio &middot; Notion AI</p></div>
+        <div class="ap-pillar" style="opacity: .55;"><div class="num">&nbsp;</div><h3 class="ap-display ap-display--pillar" style="opacity: .55;">Result:<br><em>under 4 minutes.</em></h3><p>An accessible, story-driven experience built for support engagement and user confidence.</p></div>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-robot"></i> AI Agents & Tools</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <h3><i class="fas fa-brain"></i> Ava - Voice Agent</h3>
-          <p>Custom AI voice assistant built with Azure Voice Studio, using SSML scripting for precise control over narration. Handles all voiceover work with natural intonation and brand-consistent delivery.</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; AI AGENTS &amp; TOOLS</div>
+          <h2 class="ap-display">Six agents, <em>each with a job.</em></h2>
         </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-paint-brush"></i> Vision - Design Agent</h3>
-          <p>ChatGPT Vision-powered assistant that analyzes UI screenshots, providing real-time feedback on design elements, spacing, and accessibility compliance.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-magic"></i> Runway ML</h3>
-          <p>Integrated into After Effects for AI-assisted motion design, automating rotoscoping, and generating complex motion patterns while maintaining visual consistency.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-comment-alt"></i> ScriptFlow</h3>
-          <p>Custom agent combining GPT-4 and Notion AI for script development, generating multiple versions of on-screen text and maintaining brand voice consistency.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-edit"></i> Editorial Agent</h3>
-          <p>AI-powered editorial assistant that refines scripts and generates on-screen text, ensuring consistency in tone, style, and brand voice while optimizing content for clarity and engagement.</p>
-        </div>
-        
-        <div class="feature-card">
-          <h3><i class="fas fa-tachometer-alt"></i> Nova PM</h3>
-          <p class="nova-quip">"Like a cosmic conductor, I orchestrate your project's rhythm—tracking milestones, balancing resources, and foreseeing snags before they can say 'missed deadline.' Consider me your temporal guardian, keeping the chaos of production neatly aligned with the celestial dance of your schedule."</p>
-        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">Ava<br><em>voice agent.</em></h3><p>Custom AI voice assistant built with Azure Voice Studio, using SSML scripting for precise control over narration. Handles all voiceover with natural intonation and brand-consistent delivery.</p></div>
+        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">Vision<br><em>design agent.</em></h3><p>ChatGPT Vision-powered assistant that analyzes UI screenshots, providing real-time feedback on design elements, spacing, and accessibility compliance.</p></div>
+        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Runway<br><em>ML.</em></h3><p>Integrated into After Effects for AI-assisted motion design, automating rotoscoping, generating complex motion patterns while maintaining visual consistency.</p></div>
+      </div>
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar"><div class="num">04</div><h3 class="ap-display ap-display--pillar">ScriptFlow<br><em>writer.</em></h3><p>Custom agent combining GPT-4 and Notion AI for script development, generating multiple versions of on-screen text and maintaining brand voice consistency.</p></div>
+        <div class="ap-pillar"><div class="num">05</div><h3 class="ap-display ap-display--pillar">Editorial<br><em>agent.</em></h3><p>AI-powered editorial assistant that refines scripts and generates on-screen text &mdash; consistency in tone, style, brand voice, optimized for clarity and engagement.</p></div>
+        <div class="ap-pillar"><div class="num">06</div><h3 class="ap-display ap-display--pillar">Nova<br><em>PM.</em></h3><p style="font-style: italic; opacity: .82;">&ldquo;Like a cosmic conductor, I orchestrate your project&rsquo;s rhythm &mdash; tracking milestones, balancing resources, and foreseeing snags before they can say &lsquo;missed deadline.&rsquo;&rdquo;</p></div>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-cogs"></i> Behind the Scenes: Technical Production</h2>
-      
-      <div class="tech-details-grid">
-        <div class="tech-category">
-          <h3><i class="fas fa-film"></i> Animation Pipeline</h3>
-          <ul class="tech-list">
-<li><i class="fas fa-th-large"></i> <strong>Responsive Composition System:</strong> Custom AE templates built for 16:9, 1:1, and 9:16 playback</li>
-
-<li><i class="fas fa-ruler-horizontal"></i> <strong>Scene Rhythm Sync:</strong> VO pacing matched to keyframe animation using NovaMotion agent</li>
-
-<li><i class="fas fa-microchip"></i> <strong>SSML-Driven Timing:</strong> Ava's narration guides transition points via timestamp-based triggers</li>
-
-          </ul>
-        </div>
-        
-        <div class="tech-category">
-          <h3><i class="fas fa-palette"></i> Visual Design</h3>
-          <ul class="tech-list">
-            <li><i class="fas fa-bezier-curve"></i> <strong>Vector Assets:</strong> Adobe Illustrator CC with dynamic data linking</li>
-            <li><i class="fas fa-adjust"></i> <strong>Color Grading:</strong> Adobe Premiere Pro with custom LUTs</li>
-            <li><i class="fas fa-tint"></i> <strong>Effects:</strong> Boris FX Continuum for advanced visual treatments</li>
-            <li><i class="fas fa-ruler-combined"></i> <strong>Composition:</strong> 1920x1080 @ 30fps, sRGB color space</li>
-          </ul>
-        </div>
-        
-        <div class="tech-category">
-          <h3><i class="fas fa-headphones"></i> Audio Production</h3>
-          <ul class="tech-list">
-            <li><i class="fas fa-microphone-alt"></i> <strong>Voiceover:</strong> Azure AI Neural Voices with custom SSML tuning</li>
-            <li><i class="fas fa-wave-square"></i> <strong>Mixing:</strong> Adobe Audition with iZotope RX for noise reduction</li>
-            <li><i class="fas fa-music"></i> <strong>Scoring:</strong> AI-generated music with AIVA, mixed in Logic Pro</li>
-            <li><i class="fas fa-volume-up"></i> <strong>Delivery:</strong> Stereo mix at -16 LUFS, 48kHz sample rate</li>
-          </ul>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; BEHIND THE SCENES: TECHNICAL PRODUCTION</div>
+          <h2 class="ap-display">Three pipelines, <em>one polished result.</em></h2>
         </div>
       </div>
-      
-      <div class="tech-highlights">
-        <h3><i class="fas fa-lightbulb"></i> Technical Highlights</h3>
-        <div class="highlight-item">
-          <i class="fas fa-file-export"></i>
-          <div>
-            <h4>Delivery & Encoding</h4>
-            <p>Delivered final assets via shared internal SharePoint for review and provided full project zip files including source files, assets, and project files. Encoded in H.264 (MP4) and ProRes 422 HQ formats for optimal quality and compatibility.</p>
-          </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Animation<br><em>pipeline.</em></h3>
+          <p>Custom AE templates + scene rhythm sync + SSML-driven timing.</p>
+          <ul><li>Responsive composition (16:9, 1:1, 9:16)</li><li>VO pacing matched via NovaMotion</li><li>SSML timestamp triggers</li></ul>
         </div>
-        <div class="highlight-item">
-          <i class="fas fa-music"></i>
-          <div>
-            <h4>Audio Production</h4>
-            <p>Utilized Adobe Premiere Pro's seamless looping functionality to extend background music tracks while maintaining natural transitions and audio quality. Applied crossfades and EQ adjustments to ensure smooth, continuous playback.</p>
-          </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Visual<br><em>design.</em></h3>
+          <p>Adobe Illustrator + Premiere LUTs + Boris FX continuum.</p>
+          <ul><li>Vector assets &mdash; Illustrator CC</li><li>Color grading &mdash; Premiere Pro custom LUTs</li><li>Effects &mdash; Boris FX Continuum</li><li>1920&times;1080 @ 30fps, sRGB</li></ul>
         </div>
-        <div class="highlight-item">
-          <i class="fas fa-robot"></i>
-          <div>
-            <h4>AI Voice Generation</h4>
-            <p>Created branded AI voiceovers using SSML (Speech Synthesis Markup Language) for precise control over pronunciation, emphasis, and pacing. Fine-tuned parameters including pitch, rate, and volume to match the desired brand voice characteristics.</p>
-          </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Audio<br><em>production.</em></h3>
+          <p>Azure AI voice + Audition mixing + AIVA scoring.</p>
+          <ul><li>Azure AI Neural Voices (SSML-tuned)</li><li>Adobe Audition + iZotope RX</li><li>AIVA-generated music in Logic Pro</li><li>Stereo mix at &minus;16 LUFS, 48kHz</li></ul>
         </div>
       </div>
-    
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/after-effect-screen-08.png" class="lightbox-trigger" data-caption="Timeline view of layered animation in After Effects showing complex composition structure.">
-            <img src="/images/projects/video/ninja-theroy/after-effect-screen-08.png" alt="AE Composition Structure" loading="lazy">
-          </a>
-          <p class="media-caption">AE Composition Structure</p>
-        </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/after-effect-screen-09-color-grading.png" class="lightbox-trigger" data-caption="DaVinci Resolve color grading interface showing waveform and vector scope analysis.">
-            <img src="/images/projects/video/ninja-theroy/after-effect-screen-09-color-grading.png" alt="Color Grading in DaVinci Resolve" loading="lazy">
-          </a>
-          <p class="media-caption">Color Grading & Scopes</p>
-        </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/premiere-audio-mixing-screen-08.png" class="lightbox-trigger" data-caption="Audio levels, narration ducking, and music mixing in Premiere.">
-            <img src="/images/projects/video/ninja-theroy/premiere-audio-mixing-screen-08.png" alt="Premiere Audio Mixing" loading="lazy">
-          </a>
-          <p class="media-caption">Voiceover & Audio Mixing</p>
-        </div>
+      <div class="image-row" style="margin-top: var(--sp-12);">
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/after-effect-screen-08.png" class="lightbox-trigger" data-caption="AE composition structure"><img src="/images/projects/video/ninja-theroy/after-effect-screen-08.png" alt="AE Composition Structure" loading="lazy" /></a><p class="image-caption">01 &mdash; AE composition</p></div>
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/after-effect-screen-09-color-grading.png" class="lightbox-trigger" data-caption="Color grading interface"><img src="/images/projects/video/ninja-theroy/after-effect-screen-09-color-grading.png" alt="Color Grading" loading="lazy" /></a><p class="image-caption">02 &mdash; Color grading</p></div>
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/premiere-audio-mixing-screen-08.png" class="lightbox-trigger" data-caption="Audio mixing in Premiere"><img src="/images/projects/video/ninja-theroy/premiere-audio-mixing-screen-08.png" alt="Premiere Audio Mixing" loading="lazy" /></a><p class="image-caption">03 &mdash; Audio mixing</p></div>
       </div>
     </section>
 
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Gallery</h2>
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/video-screen-01.png" class="lightbox-trigger" data-caption="Enhanced Help Center overview — homepage highlights for Ninja Theory titles.">
-            <img src="/images/projects/video/ninja-theroy/video-screen-01.png" alt="Help Center Overview" loading="lazy">
-          </a>
-          <p class="media-caption">Help Center Overview</p>
+    <section class="ap-sec ap-sec--cool" id="gallery" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; GALLERY</div>
+          <h2 class="ap-display">Six frames, <em>one help center.</em></h2>
         </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/video-screen-02.png" class="lightbox-trigger" data-caption="Home page layout — showcasing featured games, curated topics, and trending support articles.">
-            <img src="/images/projects/video/ninja-theroy/video-screen-02.png" alt="Home Page Layout" loading="lazy">
-          </a>
-          <p class="media-caption">Home Page Layout</p>
-        </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/video-screen-03.png" class="lightbox-trigger" data-caption="Custom support form for Hellblade titles — report issues directly to the team.">
-            <img src="/images/projects/video/ninja-theroy/video-screen-03.png" alt="Support Form" loading="lazy">
-          </a>
-          <p class="media-caption">Support Form</p>
-        </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/video-screen-04.png" class="lightbox-trigger" data-caption="PRR (Problem Resolution Rate) survey — helping improve content effectiveness.">
-            <img src="/images/projects/video/ninja-theroy/video-screen-04.png" alt="PRR Feedback Survey" loading="lazy">
-          </a>
-          <p class="media-caption">PRR Feedback Survey</p>
-        </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/video-screen-05.png" class="lightbox-trigger" data-caption="Footer customization — links to Ninja Theory content, social platforms, and key destinations.">
-            <img src="/images/projects/video/ninja-theroy/video-screen-05.png" alt="Footer Customization" loading="lazy">
-          </a>
-          <p class="media-caption">Footer Customization</p>
-        </div>
-    
-        <div class="media-item">
-          <a href="/images/projects/video/ninja-theroy/video-screen-06.png" class="lightbox-trigger" data-caption="System notifications panel — highlighting service alerts and Xbox Live updates.">
-            <img src="/images/projects/video/ninja-theroy/video-screen-06.png" alt="System Notifications" loading="lazy">
-          </a>
-          <p class="media-caption">System Notifications</p>
-        </div>
+        <div class="ap-sec-meta">Tap to expand.</div>
       </div>
-    </section>
-    
-
-    <section class="content-section grid-col-12">
-      <div class="callout technical-details">
-        <h2><i class="fas fa-lightbulb"></i> Technical Details</h2>
-        <p class="technical-intro">The Ninja Theory Help Center video was produced using industry-standard tools and technologies to create a polished, professional result.</p>
-        
-        <div class="grid-container">
-          <div class="grid-col-6">
-            <div class="tech-category">
-              <h3><i class="fas fa-film"></i> Animation & Video</h3>
-              <ul class="tech-list">
-                <li><i class="fas fa-check-circle"></i> Adobe After Effects</li>
-                <li><i class="fas fa-check-circle"></i> Adobe Premiere Pro</li>
-                <li><i class="fas fa-check-circle"></i> Adobe Media Encoder</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div class="grid-col-6">
-            <div class="tech-category">
-              <h3><i class="fas fa-magic"></i> Design & Audio</h3>
-              <ul class="tech-list">
-                <li><i class="fas fa-check-circle"></i> Adobe Photoshop</li>
-                <li><i class="fas fa-check-circle"></i> Azure AI Speech Studio</li>
-                <li><i class="fas fa-check-circle"></i> SSML (Speech Synthesis)</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+      <div class="image-row">
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/video-screen-01.png" class="lightbox-trigger" data-caption="Help Center overview"><img src="/images/projects/video/ninja-theroy/video-screen-01.png" alt="Help Center Overview" loading="lazy" /></a><p class="image-caption">01 &mdash; Help Center overview</p></div>
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/video-screen-02.png" class="lightbox-trigger" data-caption="Home page layout"><img src="/images/projects/video/ninja-theroy/video-screen-02.png" alt="Home Page Layout" loading="lazy" /></a><p class="image-caption">02 &mdash; Home page</p></div>
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/video-screen-03.png" class="lightbox-trigger" data-caption="Support form for Hellblade"><img src="/images/projects/video/ninja-theroy/video-screen-03.png" alt="Support Form" loading="lazy" /></a><p class="image-caption">03 &mdash; Support form</p></div>
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/video-screen-04.png" class="lightbox-trigger" data-caption="PRR feedback survey"><img src="/images/projects/video/ninja-theroy/video-screen-04.png" alt="PRR Feedback Survey" loading="lazy" /></a><p class="image-caption">04 &mdash; PRR survey</p></div>
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/video-screen-05.png" class="lightbox-trigger" data-caption="Footer customization"><img src="/images/projects/video/ninja-theroy/video-screen-05.png" alt="Footer Customization" loading="lazy" /></a><p class="image-caption">05 &mdash; Footer customization</p></div>
+        <div class="image-item"><a href="/images/projects/video/ninja-theroy/video-screen-06.png" class="lightbox-trigger" data-caption="System notifications panel"><img src="/images/projects/video/ninja-theroy/video-screen-06.png" alt="System Notifications" loading="lazy" /></a><p class="image-caption">06 &mdash; System notifications</p></div>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-chart-line"></i> Impact & Results</h2>
-      
-      <div class="impact-metrics">
-        <div class="metric-card">
-          <i class="fas fa-users"></i>
-          <h3>+85%</h3>
-          <p>Help Center Awareness</p>
-          <div class="metric-detail">Increase in fanbase engagement</div>
-        </div>
-        
-        <div class="metric-card">
-          <i class="fas fa-comment-alt"></i>
-          <h3>3.5x</h3>
-          <p>Feedback Submissions</p>
-          <div class="metric-detail">Via PRR system</div>
-        </div>
-        
-        <div class="metric-card">
-          <i class="fas fa-check-circle"></i>
-          <h3>100%</h3>
-          <p>Stakeholder Approval</p>
-          <div class="metric-detail">For art & accessibility</div>
-        </div>
-        
-        <div class="metric-card">
-          <i class="fas fa-layer-group"></i>
-          <h3>New Standard</h3>
-          <p>Template Created</p>
-          <div class="metric-detail">For future support hubs</div>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; IMPACT &amp; RESULTS</div>
+          <h2 class="ap-display">Four numbers, <em>one new template.</em></h2>
         </div>
       </div>
-      
-      <div class="cta-section">
-        <a href="#" class="btn btn-primary">
-          <i class="fas fa-play"></i> Watch Video
-        </a>
-        <a href="/projects/video/xbox-video.html" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> Back to Videos
-        </a>
+      <div class="nth-metrics">
+        <div class="nth-metric"><p class="num">+85%</p><p class="lbl">Help Center awareness</p><p class="det">Increase in fanbase engagement</p></div>
+        <div class="nth-metric"><p class="num">3.5&times;</p><p class="lbl">Feedback submissions</p><p class="det">Via PRR system</p></div>
+        <div class="nth-metric"><p class="num">100%</p><p class="lbl">Stakeholder approval</p><p class="det">For art &amp; accessibility</p></div>
+        <div class="nth-metric"><p class="num">New</p><p class="lbl">Template standard</p><p class="det">For future support hubs</p></div>
       </div>
     </section>
 
-
-    
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/copilot-playground-case-study.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-robot"></i> Copilot Playground
-          </strong>
-          <p>AI-powered gaming support notifications and tools for Xbox</p>
-        </a>
-        <a class="related-project-card" href="/projects/hellblade-support-case-study.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-gamepad"></i> Hellblade Support
-          </strong>
-          <p>Dedicated support for Ninja Theory's Hellblade series</p>
-        </a>
-        <a class="related-project-card" href="/projects/xbox-video.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-video"></i> Xbox Video Projects
-          </strong>
-          <p>Browse all Xbox-related video projects and case studies</p>
-        </a>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/copilotplayground.html"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3><span class="meta">AI tooling</span></div><p>AI-powered gaming support notifications and tools for Xbox.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Hellblade<em> support.</em></h3><span class="meta">Game support</span></div><p>Dedicated support pages for Ninja Theory&rsquo;s Hellblade series.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-live" href="/projects/video/"><span class="n">03</span><div><h3 class="ap-display ap-display--row">Video<em> hub.</em></h3><span class="meta">Index</span></div><p>Browse all Xbox-related video projects and case studies.</p><span class="year">Catalog</span><span class="go">&rarr;</span></a>
       </div>
     </section>
+
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Need an animated<br><em>case study like this?</em></h2>
+    <p>AI-narrated, motion-designed, accessibility-first &mdash; under 4 minutes, ships in days, scales to a template.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/video/">See more video work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
-  <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/lightbox.js" type="module"></script>
-  <script>
-    // Initialize timeline animations when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      const timelineItems = document.querySelectorAll('.timeline-item');
-      
-      // Create an Intersection Observer to detect when items come into view
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            // Unobserve after animation starts to improve performance
-            observer.unobserve(entry.target);
-          }
-        });
-      }, {
-        threshold: 0.1, // Trigger when 10% of the item is visible
-        rootMargin: '0px 0px -100px 0px' // Adjust the bottom margin to start animation a bit earlier
-      });
-
-      // Observe each timeline item
-      timelineItems.forEach((item, index) => {
-        // Add staggered delay for animation
-        item.style.setProperty('--delay', `${index * 0.1}s`);
-        observer.observe(item);
-      });
-    });
-  </script>
 </body>
 </html>

@@ -3,311 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Xbox Support Video Portfolio - A collection of video projects, tutorials, and walkthroughs for Xbox Support" />
+  <meta name="description" content="Xbox Support video portfolio — animated tutorials, walkthroughs, and case studies for Xbox Support content." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Xbox Support Videos - AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/css/video-player.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" />
-  <link rel="stylesheet" href="/css/projects/xbox-video.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- Project-specific styles are in global CSS files -->
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Xbox Support Videos — AmbientPixels</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <script defer src="/js/ap-nav-mobile.js"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
-  <div class="tx-layer" aria-hidden="true"></div>  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
+  <div class="tx-layer" aria-hidden="true"></div>
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card hero-card-video hero-card-video-container">
-    <div class="hero-card-image video-gradient-8 card-image-container hero-particles-container">
-      <div id="hero-particles" class="hero-particles"></div>
-      <div class="hero-video-icon-container xbox-video-icon-wrapper">
-        <i class="fas fa-play-circle hero-video-icon xbox-video-icon" aria-hidden="true"></i>
-      </div>
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Video Collection</div>
-      <h1>Xbox <span class="video-glow">Video</span> Content</h1>
-      <p class="hero-card-description">A collection of video tutorials, walkthroughs, and support content</p>
-      <div class="project-tags">
-        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Xbox</span>
-        <span class="project-tag"><i class="fas fa-video" aria-hidden="true"></i> Tutorials</span>
-        <span class="project-tag"><i class="fas fa-headset" aria-hidden="true"></i> Support</span>
-      </div>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
+  <main>
 
-  </section>
-
-<main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container"></div>
-    
-    <section class="content-section grid-col-12">
-    <h2><i class="fas fa-gamepad"></i>Animated Videos</h2>
-    <p>Explore a collection of animated videos created to support Xbox players—highlighting in-console help tools, branded support hubs, and AI-enhanced service experiences.</p>
-  </section>
-
-    <!-- Ninja Theory Help Center Video -->
-    <section class="grid-col-4 card-section">
-      <a href="/projects/video/ninja-theory-help-center.html" class="card-image-link" aria-label="View Ninja Theory Help Center">
-        <div class="card-image video-gradient-8 card-image-container">
-          <i class="fas fa-video project-icon" aria-hidden="true"></i>
-          <span class="video-duration-badge">
-            <i class="far fa-clock"></i> 3:42
-          </span>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+          <h1 class="ap-display">Xbox<em> support videos.</em></h1>
         </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-video" aria-hidden="true"></i> Ninja Theory Help Center</h3>
-        <div class="role-tags">
-          <span class="role-tag role-animation">Motion Design</span>
-          <span class="role-tag role-voice">AI Voiceover</span>
-          <span class="role-tag role-branding">Brand Integration</span>
-        </div>
-        <p>Animated showcase of the Ninja Theory Help Center, highlighting key support features and accessibility options.</p>
-        <div class="card-cta-container">
-          <button class="btn btn-primary" onclick="showVideoModal('ninja-theory-help-center')" aria-label="Watch Ninja Theory Help Center video">
-            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
-          </button>
-          <a href="/projects/video/ninja-theory-help-center.html" class="btn btn-secondary" aria-label="View Ninja Theory Help Center case study">
-            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
-          </a>
+        <div class="ap-sec-meta">
+          A collection of animated tutorials, walkthroughs, and AI-narrated case studies created for Xbox Support &mdash; in-console help tools, branded support hubs, AI-enhanced service experiences.
+          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
         </div>
       </div>
     </section>
 
-    <!-- Microsoft Casual Games Support -->
-    <section class="grid-col-4 card-section">
-      <a href="/projects/video/xbox-support-app-case-study.html" class="card-image-link" aria-label="View Xbox Support App Case Study">
-        <div class="card-image hero-gradient-mystic card-image-container">
-          <i class="fas fa-gamepad project-icon" aria-hidden="true"></i>
-          <span class="video-duration-badge">
-            <i class="far fa-clock"></i> 2:50
-          </span>
-        </div>
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-gamepad" aria-hidden="true"></i> Xbox Support App</h3>
-        <div class="role-tags">
-          <span class="role-tag role-animation">Motion Design</span>
-          <span class="role-tag role-uiux">UI/UX</span>
-          <span class="role-tag role-voice">AI Voiceover</span>
-          <span class="role-tag role-training">Training</span>
-        </div>
-        <p>On-console support experience providing instant access to help resources and troubleshooting for Xbox users.</p>
-        <div class="card-cta-container">
-          <button class="btn btn-primary" onclick="showVideoModal('xbox-support-app')" aria-label="Watch Xbox Support App video">
-            <i class="fas fa-play" aria-hidden="true"></i> Watch Video
-          </button>
-          <a href="/projects/video/xbox-support-app-case-study.html" class="btn btn-secondary" aria-label="View Xbox Support App case study">
-            <i class="fas fa-info-circle" aria-hidden="true"></i> Case Study
-          </a>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; ANIMATED VIDEOS</div>
+          <h2 class="ap-display">Three case studies, <em>all in motion.</em></h2>
         </div>
       </div>
-    </section>
-
-    <!-- Copilot Playground -->
-    <section class="grid-col-4 card-section">
-      <div class="coming-soon-overlay">Coming Soon</div>
-      <div class="card-image video-gradient-6 card-image-container" style="position: relative;">
-        <i class="fas fa-robot project-icon" aria-hidden="true"></i>
-        <span class="video-duration-badge" style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 500; display: flex; align-items: center; gap: 0.2rem; backdrop-filter: blur(2px);">
-          <i class="far fa-clock" style="font-size: 0.7em;"></i> 2:30
-        </span>
-      </div>
-      <div class="card-content">
-        <h3><i class="fas fa-robot" aria-hidden="true"></i> Copilot Playground</h3>
-        <div class="role-tags">
-          <span class="role-tag role-experimental">Experimental</span>
-          <span class="role-tag role-devops">DevOps</span>
-          <span class="role-tag role-voice">AI Voiceover</span>
-          <span class="role-tag role-uiux">UI/UX</span>
-          <span class="role-tag role-training">Training</span>
-        </div>
-        <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
-        <div class="card-cta-container">
-          <button class="btn btn-primary" disabled aria-label="Video coming soon">
-            <i class="fas fa-play" aria-hidden="true"></i> Coming Soon
-          </button>
-          <button class="btn btn-secondary" disabled aria-label="Case study coming soon">
-            <i class="fas fa-info-circle" aria-hidden="true"></i> Coming Soon
-          </button>
-        </div>
-      </div>
-    </section>
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-globe"></i> Website Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/websites/xbox-support.html">
-          <strong class="related-project-card-title">
-            <i class="fab fa-xbox"></i> Xbox Support
-          </strong>
-          <p>Comprehensive support portal for Xbox users and developers</p>
-        </a>
-        <a class="related-project-card" href="/projects/websites/gears-of-war-support.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-gamepad"></i> Gears of War Support
-          </strong>
-          <p>Dedicated support site for the Gears of War franchise</p>
-        </a>
-        <a class="related-project-card" href="/projects/websites/ninja-theroy-support.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-headset"></i> Ninja Theory Support
-          </strong>
-          <p>Support hub for Ninja Theory's game titles and resources</p>
-        </a>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/index.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-home"></i> Main Projects Hub
-          </strong>
-          <p>Explore all projects and experiments from the studio</p>
-        </a>
-        <a class="related-project-card" href="/projects/xbox-support.html">
-          <strong class="related-project-card-title">
-            <i class="fab fa-xbox"></i> Xbox Support Hub
-          </strong>
-          <p>All Xbox-related support projects and resources</p>
-        </a>
-        <a class="related-project-card" href="/about/index.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-user"></i> About Me
-          </strong>
-          <p>Learn more about my background and experience</p>
-        </a>
-      </div>
-      
-      <!-- Nova Thought Quote -->
-      <section class="nova-quote-section content-section grid-col-12">
-        <div class="nova-thought aura-cyan">
-          <div class="nova-quote-content">
-            <p class="nova-quote-text">
-              Seamless support isn't just design—it's care, precision, and intent. Every interaction is a promise, every touchpoint a reflection.
-            </p>
-            <p class="nova-signature">
-              <i class="fas fa-robot nova-robot-icon"></i> Nova, Ambient Intelligence
-            </p>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/video/ninja-theory-help-center.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Ninja Theory<em> Help Center.</em></h3>
+            <span class="meta">Motion design &middot; AI voiceover &middot; Brand integration &middot; 3:42</span>
           </div>
-          <div class="nova-aura-overlay"></div>
+          <p>Animated showcase of the Ninja Theory Help Center, highlighting key support features and accessibility options.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-archive" href="/projects/video/xbox-support-app-case-study.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Xbox Support<em> App.</em></h3>
+            <span class="meta">Motion design &middot; UI/UX &middot; AI voiceover &middot; Training &middot; 2:50</span>
+          </div>
+          <p>On-console support experience providing instant access to help resources and troubleshooting for Xbox users.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-beta" href="#">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Copilot<em> Playground video.</em></h3>
+            <span class="meta">Experimental &middot; DevOps &middot; AI voiceover &middot; UI/UX &middot; Training &middot; 2:30</span>
+          </div>
+          <p>AI-driven support prompt chains for gaming help, localization, and content enhancement across 40+ languages.</p>
+          <span class="year">Coming soon</span>
+          <span class="go">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; PROJECT HUBS</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
-      </section>
-      
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/projects/video/"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Video<em> hub.</em></h3><span class="meta">Index</span></div><p>All video work &mdash; case studies, motion design, interactive media.</p><span class="year">Catalog</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/xbox-support.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Xbox Support<em> hub.</em></h3><span class="meta">Microsoft Xbox</span></div><p>All Xbox-related support projects and resources.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-live" href="/projects/"><span class="n">03</span><div><h3 class="ap-display ap-display--row">All<em> projects.</em></h3><span class="meta">Index</span></div><p>Browse all projects and experiments from the studio.</p><span class="year">Catalog</span><span class="go">&rarr;</span></a>
+      </div>
+    </section>
+
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Need an animated<br><em>case study?</em></h2>
+    <p>AI-narrated motion graphics for product launches, support content, and platform tours &mdash; ships in days.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/video/">See more video work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-  
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js"></script>
-  
-  <!-- Contact Modal Container -->
-  <!-- Modal Container -->
-  <div id="contact-modal-container">
-    <!-- Contact modal will be loaded here by init-contact-modal.js -->
-  </div>
-
-  <script src="/js/hero-particles.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/init-contact-modal.js" defer></script>
-  <script src="/js/video-modal.js" defer></script>
-  <script>
-    // Initialize any additional event listeners after DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      // Handle contact modal trigger
-      const suggestBtn = document.querySelector('a[onclick*="showModal"]');
-      if (suggestBtn) {
-        suggestBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          showModal('contact-modal');
-        });
-      }
-
-      // Add ARIA attributes to all buttons with icons
-      document.querySelectorAll('button, a.btn').forEach(btn => {
-        const icon = btn.querySelector('i[class^="fas"]');
-        if (icon && !btn.getAttribute('aria-label')) {
-          const text = btn.textContent.trim();
-          btn.setAttribute('aria-label', text);
-        }
-      });
-    });
-  </script>
 </body>
 </html>
