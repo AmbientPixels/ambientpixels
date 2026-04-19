@@ -1,37 +1,157 @@
-<!-- File: /projects/copilot-playground.html -->
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Copilot Playground – An AI-enhanced toolkit for gaming support with prompt chains for SEO, localization, instant answers, and recommendations." />
-  <meta property="og:title" content="Copilot Playground | AmbientPixels" />
-  <meta property="og:description" content="Explore the Copilot Playground, a toolkit of AI-driven prompt chains improving Xbox gaming support—from keyword tasks to instant answers and localized translations." />
+  <meta name="description" content="Copilot Playground — AI prompt engineering toolkit built for Microsoft's Xbox Support content team. 22 models, 40+ languages, 10× publishing speed." />
+  <meta property="og:title" content="Copilot Playground — AmbientPixels" />
+  <meta property="og:description" content="AI prompt engineering toolkit built for Microsoft's Xbox Support content team. 22 models, 40+ languages, 10× publishing speed." />
   <meta property="og:image" content="/images/projects/copilot-playground/preview.jpg" />
-  <meta property="og:url" content="https://ambientpixels.ai/projects/copilot-playground" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/copilotplayground" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Copilot Playground | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <title>Copilot Playground — AmbientPixels</title>
 
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <!-- DS fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <!-- DS canonical stack -->
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <!-- Page-scoped: metrics strip, mono lists, code block. DS tokens only. -->
+  <style>
+    .cp-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-8);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--sp-12) 0;
+      margin: var(--sp-8) 0 0;
+    }
+    .cp-metric .num {
+      font-family: var(--font-heavy);
+      font-size: 72px;
+      line-height: 1;
+      letter-spacing: var(--tracking-display);
+      margin: 0 0 var(--sp-3);
+    }
+    .cp-metric .lbl {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.6);
+    }
+    @media (max-width: 1000px) { .cp-metrics { grid-template-columns: 1fr 1fr; gap: var(--sp-8); } }
+    @media (max-width:  600px) { .cp-metrics { grid-template-columns: 1fr; } }
+
+    .cp-tags {
+      list-style: none;
+      padding: 0;
+      margin: var(--sp-5) 0 0;
+      display: flex;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.7);
+    }
+    .cp-tags li {
+      padding: var(--sp-2) var(--sp-3);
+      border: 1px solid var(--color-border);
+    }
+
+    .cp-bullets {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      max-width: var(--max-prose);
+    }
+    .cp-bullets li {
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+    }
+    .cp-bullets li:first-child { border-top: none; }
+    .cp-bullets li::before { content: '→ '; opacity: .45; }
+    .cp-bullets strong { color: var(--color-text-primary); }
+
+    .cp-quote {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      font-size: var(--fs-body-lg);
+      line-height: 1.5;
+      color: var(--color-text-body);
+      max-width: var(--max-prose);
+      margin: var(--sp-8) 0 0;
+      padding: 0 0 0 var(--sp-6);
+      border-left: 1px solid var(--color-border);
+    }
+    .cp-quote .cite {
+      display: block;
+      font-style: normal;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.6);
+      margin-top: var(--sp-3);
+    }
+
+    .cp-code {
+      border: 1px solid var(--color-border);
+      background: #0a0a0a;
+      padding: var(--sp-5);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--color-text-body);
+      overflow-x: auto;
+      margin: var(--sp-5) 0 0;
+    }
+    .cp-code .ch { color: var(--color-text-tertiary); }
+    .cp-code .kw { color: #c792ea; }   /* keywords */
+    .cp-code .fn { color: #5fb3e3; }   /* function names */
+    .cp-code .st { color: #4ecdc4; }   /* strings */
+    .cp-code pre { margin: 0; white-space: pre; }
+
+    .cp-disclaimer {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-6) var(--sec-pad-x);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-xs);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.5);
+      text-align: center;
+      border-top: 1px solid var(--color-border-soft);
+    }
+    .cp-disclaimer em {
+      font-style: italic;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 13px;
+      opacity: .75;
+      display: block;
+      margin-top: var(--sp-3);
+    }
+  </style>
+
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
+  <!-- §2.2 Nav -->
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -48,531 +168,630 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  
-<section class="hero-card hero-card-ai">
-  <div class="hero-card-image project-bg-ai card-image-container">
-    <i class="fas fa-robot project-icon-ai"></i>
-  </div>
-  <div class="hero-card-content">
-    <div class="hero-card-badge badge-violet">AI prompt engineering</div>
-    <h1>
-      Copilot playground
-    </h1>
-    <p class="hero-card-description">
-      Prompt engineering toolkit designed to assist Microsoft support teams in creating scalable, AI-powered content solutions.
-    </p>
-    <p class="hero-card-intro" style="font-size:1.07rem; color:var(--aura-fg,#bfcfff); margin-top:0.7rem; margin-bottom:0;">
-      Built for Xbox support, this toolkit uses AI prompt chains and automation to deliver fast, high-quality content at scale.
-    </p>
-    <div class="role-tags">
-      <span class="role-tag role-terminal"><i class="fas fa-terminal"></i> Prompt Engineering</span>
-      <span class="role-tag role-fewshot"><i class="fas fa-magic"></i> Few-shot Learning</span>
-      <span class="role-tag role-chain"><i class="fas fa-link"></i> Chain-of-Thought</span>
-      <span class="role-tag role-validation"><i class="fas fa-shield-alt"></i> Validation</span>
-      <span class="role-tag role-localization"><i class="fas fa-language"></i> Localization</span>
-      <span class="role-tag role-instant"><i class="fas fa-bolt"></i> Instant Answers</span>
-      <span class="role-tag role-automation"><i class="fas fa-robot"></i> Automation</span>
-    </div>
-  </div>
-</section>
+  <main>
 
-
-
-<main class="grid-container">
-  <!-- Breadcrumb Navigation -->
-  <div class="breadcrumb-container grid-col-12"></div>
-  
-  <section class="content-section grid-col-12">
-    <div class="story-intro">
-      <h2><i class="fas fa-book-open"></i> The challenge</h2>
-      <p>
-        Scaling human support in a world of infinite questions isn’t just a technical problem—it’s an emotional one. When millions of players need help—across 40+ languages—traditional workflows crumble, and teams risk burnout. Copy-paste templates and manual rewrites can’t keep up. Xbox needed speed, scale, and soul.
-      </p>
-    </div>
-
-    <div class="story-solution">
-      <h2><i class="fas fa-lightbulb"></i> The breakthrough</h2>
-      <p>
-        Enter Copilot Playground—an AI-powered workspace where writers, agents, and editors could generate production-ready content in real time. No code. No waiting. Just results. The transformation was immediate: what once took hours now took minutes, and the team felt the difference overnight.
-      </p>
-    </div>
-
-      <div class="note-box">
-        <i class="fas fa-chart-line"></i>
+    <!-- Hero -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
         <div>
-          <h3>The transformation</h3>
-          <p>With Copilot Playground, we turned hours of content work into minutes—and raised quality in the process.</p>
-          <div class="impact-highlights">
-            <div class="impact-item">
-              <span class="impact-number">10x</span>
-              <span class="impact-text">Faster Content Generation</span>
-            </div>
-            <div class="impact-item">
-              <span class="impact-number">40+</span>
-              <span class="impact-text">Languages Supported</span>
-            </div>
-            <div class="impact-item">
-              <span class="impact-number">98.9%</span>
-              <span class="impact-text">First-Pass Accuracy</span>
-            </div>
-            <div class="impact-item">
-              <i class="fas fa-globe"></i>
-              <span class="impact-number">100%</span>
-              <span class="impact-text">Automated Localization</span>
-            </div>
-          </div>
-          <blockquote>“It used to take a day to publish across all locales. Now it’s 20 minutes.”</blockquote>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
+          <h1 class="ap-display">Copilot<em>Playground.</em></h1>
         </div>
-      <!-- Clarification Note: Copilot Playground is independent -->
-  
-      </div>
-    </section>
-
-    <!-- LLM Stats & Model Guide Section -->
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-brain"></i> AI model coverage & familiarity <span class="section-subtext">(June 2025)</span></h2>
-      <div class="impact-metrics">
-        <div class="metric-card">
-          <span class="favicon-model"></span>
-          <h3>22</h3>
-          <p>Total models</p>
-        </div>
-        <div class="metric-card">
-          <span class="favicon-dev"></span>
-          <h3>7</h3>
-          <p>Dev variants</p>
-        </div>
-        <div class="metric-card">
-          <span class="favicon-phi"></span>
-          <h3>10</h3>
-          <p>Phi variants</p>
+        <div class="ap-sec-meta">
+          AI prompt engineering toolkit built for Microsoft&rsquo;s Xbox Support content team. 22 models, 40+ languages, 10&times; publishing speed. Prompt chains for SEO, localization, instant answers, recommendations.
         </div>
       </div>
-      <div class="callout technical-details">
-  <h2><i class="fas fa-lightbulb"></i> Technical details</h2>
-  <p class="lead">Hands-on experience with a wide range of LLMs, adapting to each project's needs and always matching the right model to the right workflow.</p>
-  <section class="technical-details-cards">
-    <div class="grid-container feature-card-grid grid-col-12">
-
-    <div class="grid-col-4 service-card feature-card">
-      <div class="feature-card-headline"><i class="fas fa-robot"></i> OpenAI & proprietary models</div>
-      <div class="feature-card-desc">Major hands-on experience with GPT-4o, GPT-4, and GPT-3.5 (all major and preview releases), including dev and experimental variants.</div>
-      <div class="role-tags">
-        <span class="role-tag role-experimental"><i class="fas fa-robot"></i> GPT-4o</span>
-        <span class="role-tag tag-gpt4"><i class="fas fa-robot"></i> GPT-4</span>
-        <span class="role-tag tag-gpt35"><i class="fas fa-robot"></i> GPT-3.5</span>
-      </div>
-    </div>
-    
-    <div class="grid-col-4 feature-card">
-      <div class="feature-card-headline"><i class="fas fa-bolt"></i> Phi Family</div>
-      <div class="feature-card-desc">Expertise with phi-3, phi-2, and phi-35 (mini, small, medium, moe, vision variants).</div>
-      <div class="role-tags">
-        <span class="role-tag"><i class="fas fa-bolt"></i> phi-3</span>
-        <span class="role-tag"><i class="fas fa-bolt"></i> phi-2</span>
-        <span class="role-tag"><i class="fas fa-bolt"></i> phi-35</span>
-      </div>
-    </div>
-    <div class="grid-col-4 feature-card">
-      <div class="feature-card-headline"><i class="fas fa-cubes"></i> Open-weight & multilingual</div>
-      <div class="feature-card-desc">Experience with Mistral, Mixtral, DeepSeek R1, Qwen-32B, and multilingual/cost-efficient alternatives.</div>
-      <div class="role-tags">
-        <span class="role-tag badge-solid-purple"><i class="fas fa-cubes"></i> Mistral</span>
-        <span class="role-tag badge-solid-purple"><i class="fas fa-cubes"></i> Mixtral</span>
-        <span class="role-tag badge-solid-teal"><i class="fas fa-cubes"></i> DeepSeek R1</span>
-        <span class="role-tag badge-solid-gold"><i class="fas fa-cubes"></i> Qwen-32B</span>
-        <span class="role-tag badge-solid-pink"><i class="fas fa-language"></i> Multilingual</span>
-        <span class="role-tag badge-solid-green"><i class="fas fa-dollar-sign"></i> cost-efficient</span>
-      </div>
-    </div>
-    <div class="grid-col-4 feature-card">
-      <div class="feature-card-headline"><i class="fas fa-eye"></i> Vision & multimodal models</div>
-      <div class="feature-card-desc">Integrated vision and multimodal models for image, document, and audio analysis (GPT-4o Vision, Gemini, LLaVA, and more).</div>
-      <div class="role-tags">
-        <span class="role-tag badge-solid-pink"><i class="fas fa-eye"></i> Vision</span>
-        <span class="role-tag badge-solid-pink"><i class="fas fa-gem"></i> Gemini</span>
-        <span class="role-tag badge-solid-pink"><i class="fas fa-camera"></i> LLaVA</span>
-        <span class="role-tag badge-aurora"><i class="fab fa-openai"></i> GPT-4o Vision</span>
-      </div>
-    </div>
-    <div class="grid-col-4 feature-card">
-      <div class="feature-card-headline"><i class="fas fa-project-diagram"></i> Workflow orchestration</div>
-      <div class="feature-card-desc">Advanced workflow automation and chaining with tools like LangChain, CrewAI, and custom pipelines for complex tasks.</div>
-      <div class="role-tags">
-        <span class="role-tag badge-solid-orange"><i class="fas fa-project-diagram"></i> LangChain</span>
-        <span class="role-tag badge-solid-orange"><i class="fas fa-robot"></i> CrewAI</span>
-        <span class="role-tag badge-solid-orange"><i class="fas fa-cogs"></i> Custom Pipelines</span>
-      </div>
-    </div>
-    <div class="grid-col-4 feature-card">
-      <div class="feature-card-headline"><i class="fas fa-search"></i> SEO & lightweight models</div>
-      <div class="feature-card-desc">SEO/meta content models for keywording, labeling, fast data pulls, and workflow prototyping (preview/dev models).</div>
-      <div class="role-tags">
-        <span class="role-tag badge-solid-blue"><i class="fas fa-search"></i> SEO</span>
-        <span class="role-tag badge-solid-blue"><i class="fas fa-tags"></i> meta</span>
-        <span class="role-tag badge-solid-blue"><i class="fas fa-key"></i> keywording</span>
-        <span class="role-tag badge-solid-blue"><i class="fas fa-tag"></i> labeling</span>
-        <span class="role-tag badge-solid-red"><i class="fas fa-wrench"></i> Workflow prototyping</span>
-        <span class="role-tag badge-solid-red"><i class="fas fa-eye"></i> preview</span>
-        <span class="role-tag badge-solid-red"><i class="fas fa-flask"></i> dev</span>
-      </div>
-    </div>
-  </div>
-
-   <blockquote>
-        <p>  I approach every model with curiosity and respect, always aiming to match the right tool to the right problem.</p>
-        <footer>— Chad Martin (Pixelpusher)</footer>
-      </blockquote>
-    
-     
-    </section>
-</section>
-
-    <!-- Service Grid: Visual Feature Highlights -->
-    <section class="content-section grid-col-12">
-      <h2 class="section-title"><i class="fas fa-toolbox"></i> Playground toolkit</h2>
-      <div class="service-grid">
-        <div class="service-card">
-          <i class="fas fa-link"></i>
-          <h3>Uber chain prompt</h3>
-          <p>Showcases Foundry’s ability to chain prompts and templates together for rapid prototyping and creative support workflows.</p>
-        </div>
-        <div class="service-card">
-          <i class="fas fa-heading"></i>
-          <h3>Headline generator</h3>
-          <p>Produces short, medium, and long headlines for engaging titles, all with instant character counts.</p>
-        </div>
-        <div class="service-card">
-          <i class="fas fa-layer-group"></i>
-          <h3>Hub page generator</h3>
-          <p>Kick-starts hub page design with AI—compelling headlines, descriptions, and layout ideas.</p>
-        </div>
-        <div class="service-card">
-          <i class="fas fa-bug"></i>
-          <h3>Error code generator</h3>
-          <p>Streamlines error code generation for every support scenario, making troubleshooting fast and scalable.</p>
-        </div>
-        <div class="service-card">
-          <i class="fas fa-database"></i>
-          <h3>Error code generator with dataset</h3>
-          <p>Tests "stranger" error codes for adaptability—see how Foundry manages the unexpected.</p>
-        </div>
-        <div class="service-card">
-          <i class="fas fa-key"></i>
-          <h3>SEO error code keyword generator</h3>
-          <p>Extracts key search terms from web pages linked to specific error codes for SEO optimization.</p>
-        </div>
-        <div class="service-card">
-          <i class="fas fa-file-alt"></i>
-          <h3>SEO error code description generator (prod)</h3>
-          <p>Creates SEO-optimized meta descriptions for error code pages—precise, user-focused, production-ready.</p>
-        </div>
-        <div class="service-card">
-          <i class="fas fa-code-branch"></i>
-          <h3>SXC SEO error code description generator (dev)</h3>
-          <p>Development version with on-screen diagnostics and deeper insights into SEO output.</p>
-        </div>
-        <div class="service-card">
-          <a href="/docs/create-method.html" class="service-card-link" tabindex="0" aria-label="C.R.E.A.T.E. Prompting Method" target="_blank" rel="noopener">
-            <i class="fas fa-sparkles"></i>
-            <h3>C.R.E.A.T.E. prompting method</h3>
-            <p>Explore my creative process for prompt engineering and AI content design. Tips, templates, and real-world examples for every project.</p>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-search"></i> SEO tools</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <i class="fas fa-key"></i>
-          <h3>SEO keyword generator</h3>
-          <p>A template designed for selecting and integrating keywords that are most likely to connect with your target audience, based on search trends and intent.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-file-alt"></i>
-          <h3>SEO description generator</h3>
-          <p>Helps create concise and SEO-optimized descriptions for SXC content, including target audience, key features, and relevant keywords.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-sitemap"></i>
-          <h3>SEO chain</h3>
-          <p>Combines SEO descriptions and keywords templates with an analysis tool that evaluates performance and offers improvement recommendations.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-search-plus"></i> Content scrubber</h2>
-      <div class="feature-card">
-        <p>This tool conducts focused and effective searches on the Xbox support website with advanced processing for accurate results across multiple languages. The process includes:</p>
-        <ul class="tech-list">
-          <li><i class="fas fa-sign-in-alt" aria-hidden="true"></i> <strong>Input Processing:</strong> Validates input phrases for accuracy before search</li>
-          <li><i class="fas fa-search" aria-hidden="true"></i> <strong>Keyword Optimization:</strong> Prioritizes exact matches and considers variations</li>
-          <li><i class="fas fa-cogs" aria-hidden="true"></i> <strong>Search Execution:</strong> Uses advanced techniques including quotation marks and site-specific searches</li>
-          <li><i class="fas fa-chart-line" aria-hidden="true"></i> <strong>Result Analysis:</strong> Identifies and analyzes the most relevant results with contextual relevance</li>
-        </ul>
-      </div>
-      <div class="feature-card">
-        <i class="fas fa-magic"></i>
-        <h4>Content quality analyzer</h4>
-        <p>Analyze text for readability, clarity, and tone, providing actionable suggestions to improve support content quality.</p>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-tags"></i> Content tools</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <i class="fas fa-heading"></i>
-          <h3>Headline generator</h3>
-          <p>Produces short, medium, and long headlines from text or URL input, including character counts. Perfect for creating engaging titles for home cards and articles.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-paragraph"></i>
-          <h3>Lorem ipsum generator</h3>
-          <p>Generate placeholder text that resembles coherent Latin or other language-like text with character count included. Ideal for layout mockups and content planning.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-sitemap"></i>
-          <h3>Hub page generator</h3>
-          <p>Efficiently kick-start your hub page design with AI, streamlining the creative process with compelling headlines, descriptions, and layout ideas.</p>
-        </div>
-      </div>
-      
-      <div class="sub-section">
-        <h3><i class="fas fa-tag"></i> Content utilities</h3>
-        <div class="feature-grid">
-          <div class="feature-card">
-            <i class="fas fa-tag"></i>
-            <h4>Category generator</h4>
-            <p>Analyzes text or URLs and categorizes them into predefined categories, streamlining user support by matching queries to specific topics.</p>
-          </div>
-          <div class="feature-card">
-            <i class="fas fa-comment-alt"></i>
-            <h4>Instant answers</h4>
-            <p>Generates concise, helpful responses for common support queries, including content scenarios and error code explanations.</p>
-            <ul class="feature-sublist">
-              <li>Content Scenario Generator</li>
-              <li>Error code explanation generator</li>
-            </ul>
-          </div>
-          <div class="feature-card">
-            <i class="fas fa-magic"></i>
-            <h4>Localization generator</h4>
-            <p>Generate localized content for different languages, including translations and cultural adaptations.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-bolt"></i> Power tools</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <i class="fas fa-code-compare"></i>
-          <h3>Diff tool</h3>
-          <p>Compare and contrast the content of two text inputs side by side, perfect for content verification and quality control.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-language"></i>
-          <h3>Game Title Translator</h3>
-          <p>Translate game titles into all supported languages, typically used for Notification Banners.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-globe"></i>
-          <h3>XboxLocExpress</h3>
-          <p>An alternative solution for localization and translation tasks when standard processes are unavailable.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-robot"></i> Chat bots</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <i class="fas fa-question-circle"></i>
-          <h3>SXC help chat</h3>
-          <p>Offers a foundational approach to Xbox console troubleshooting with empathy, expertise, and tailored solutions.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-search"></i>
-          <h3>SXC SEO chat bot</h3>
-          <p>A simplified interface for all your SEO needs, from keyword generation to description rating and optimization.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-heading"></i>
-          <h3>SXC Home Card Headlines</h3>
-          <p>Create concise, engaging headlines for home cards on SXC, ensuring they fit within character limits while being compelling.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-cogs"></i> Behind the scenes</h2>
-      <div class="tech-showcase">
-        <div class="tech-showcase-content">
-          <div class="tech-showcase-text">
-            <h3>Engineering excellence in AI</h3>
-            <p>Building the Copilot Playground required solving complex technical challenges while maintaining performance and reliability. Here's a glimpse into the architecture:</p>
-            <ul class="tech-features">
-              <li><i class="fas fa-layer-group"></i> <strong>Multi-layered architecture</strong> – Clean separation between prompt logic, validation chains, and delivery pipelines.</li>
-              <li><i class="fas fa-code"></i> <strong>Handlebars prompting</strong> – Prompts use Handlebars templates (e.g. <code>{{user_issue}}</code>, <code>{{platform}}</code>) for reusable, scalable AI logic.</li>
-              <li><i class="fas fa-shield-alt"></i> <strong>Validation layers</strong> – Built-in filters ensure outputs are safe, relevant, and aligned with brand tone.</li>
-              <li><i class="fas fa-code-branch"></i> <strong>Fully Customizable</strong> – Templates adapt across products, audiences, and locales with minimal lift.</li>
-              <li><i class="fas fa-language"></i> <strong>Locale-Aware Output</strong> – Prompt outputs adjust tone and structure based on language and regional nuance.</li>
-              <li><i class="fas fa-user-cog"></i> <strong>Persona Conditioning</strong> – Supports roles like Agent, Specialist, or Explainer using context-aware logic injection.</li>
-            </ul>
-          </div>
-          <div class="tech-showcase-visual">
-            <div class="code-snippet">
-              <div class="code-header"><span class="code-header-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></span>prompt_template.py</div>
-              <pre><code class="language-python"><span class="keyword">class</span> <span class="class-name">PromptEngine</span>:
-    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="param">self</span>, <span class="param">model</span>=<span class="string">"gpt-4"</span>):
-        <span class="param">self</span>.model = model
-        <span class="param">self</span>.templates = <span class="param">self</span>._load_templates()
-        
-    <span class="keyword">def</span> <span class="function">generate</span>(<span class="param">self</span>, <span class="param">template_name</span>, **<span class="param">kwargs</span>):
-        <span class="comment">"""Generate content using predefined prompt templates"""</span>
-        template = <span class="param">self</span>.templates.get(template_name)
-        <span class="keyword">if not</span> template:
-            <span class="keyword">raise</span> <span class="class-name">ValueError</span>(<span class="string">f"Template {template_name} not found"</span>)
-            
-        <span class="comment"># Apply template with provided variables</span>
-        prompt = template.format(**<span class="param">kwargs</span>)
-        
-        <span class="comment"># Add system message for context</span>
-        system_msg = <span class="string">"""You are an AI assistant specialized in gaming support. 
-        Provide accurate, helpful responses while maintaining a friendly tone."""</span>
-        
-        <span class="keyword">return</span> <span class="param">self</span>._call_api(system_msg, prompt)
-
-    <span class="keyword">def</span> <span class="function">_load_templates</span>(<span class="param">self</span>):
-        <span class="comment"># Load prompt templates from version control</span>
-        <span class="keyword">pass</span></code></pre>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-code-branch"></i> Prompt engineering techniques</h2>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <i class="fas fa-layer-group"></i>
-          <h3>Multi-agent systems</h3>
-          <p>Orchestrated specialized AI agents that collaborate on complex tasks, with each agent handling specific aspects like content generation, validation, and localization.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-project-diagram"></i>
-          <h3>Prompt chaining</h3>
-          <p>Designed sequential prompt workflows where each step's output becomes the next step's input, enabling complex reasoning and content generation.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-shield-alt"></i>
-          <h3>Guardrail implementation</h3>
-          <p>Built-in validation layers that ensure outputs meet quality standards, brand guidelines, and safety requirements before reaching end-users.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-chart-line"></i> Engineering impact</h2>
-      <div class="impact-metrics">
-        <div class="metric-card">
-          <i class="fas fa-magic"></i>
-          <h3>5+</h3>
-          <p>Novel prompt patterns</p>
-        </div>
-        <div class="metric-card">
-          <i class="fas fa-rocket"></i>
-          <h3>10x</h3>
-          <p>Faster iteration</p>
-        </div>
-        <div class="metric-card">
-          <i class="fas fa-tachometer-alt"></i>
-          <h3>100%</h3>
-          <p>Uptime</p>
-        </div>
-      </div>
-      <ul class="benefits-list">
-        <li><strong>Reduced Latency:</strong> Optimized prompt chains decreased response times by 60% while improving output quality.</li>
-        <li><strong>Cost Efficiency:</strong> Fewer API calls and tokens used through prompt optimization, reducing operational costs by 40%.</li>
-        <li><strong>Scalability:</strong> Designed prompts that maintain quality across 25+ LLM models and 40+ languages.</li>
-        <li><strong>Reliability:</strong> Implemented fallback mechanisms that maintain service during model updates or partial outages.</li>
-        <li><strong>Maintainability:</strong> Structured prompt templates with clear versioning and documentation for team collaboration.</li>
+      <ul class="cp-tags">
+        <li>Prompt engineering</li>
+        <li>Few-shot learning</li>
+        <li>Chain-of-thought</li>
+        <li>Validation</li>
+        <li>Localization</li>
+        <li>Instant answers</li>
+        <li>Automation</li>
       </ul>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-lightbulb"></i> Engineering insights</h2>
-      <div class="learnings-grid">
-        <div class="learning-card">
-          <i class="fas fa-shield-alt"></i>
-          <h3>Guardrails as code</h3>
-          <p>Implemented a multi-layered validation system that includes regex patterns, semantic checks, and model-based validation to ensure all AI outputs meet strict quality and safety standards before reaching production.</p>
+    <!-- § 01 — THE STORY -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; THE STORY</div>
+          <h2 class="ap-display">Hours of work, <em>compressed to minutes.</em></h2>
         </div>
-        <div class="learning-card">
-          <i class="fas fa-hands-helping"></i>
-          <h3>Augment teams</h3>
+        <div class="ap-sec-meta">
+          Scaling human support across 40+ languages required speed without sacrificing quality. Copilot Playground turned the writing room into a real-time pipeline.
+        </div>
+      </div>
+
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        <strong style="color: var(--color-text-primary);">The challenge.</strong> Scaling human support in a world of infinite questions isn&rsquo;t just a technical problem &mdash; it&rsquo;s an emotional one. When millions of players need help across 40+ languages, traditional workflows crumble and teams risk burnout. Copy-paste templates and manual rewrites can&rsquo;t keep up. Xbox needed speed, scale, and soul.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        <strong style="color: var(--color-text-primary);">The breakthrough.</strong> Copilot Playground &mdash; an AI-powered workspace where writers, agents, and editors generate production-ready content in real time. No code. No waiting. Just results. What once took hours took minutes, and the team felt the difference overnight.
+      </p>
+
+      <div class="cp-metrics">
+        <div class="cp-metric">
+          <p class="num">10&times;</p>
+          <p class="lbl">Faster content generation</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">40+</p>
+          <p class="lbl">Languages supported</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">98.9%</p>
+          <p class="lbl">First-pass accuracy</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">100%</p>
+          <p class="lbl">Automated localization</p>
+        </div>
+      </div>
+
+      <p class="cp-quote">
+        &ldquo;It used to take a day to publish across all locales. Now it&rsquo;s 20 minutes.&rdquo;
+        <span class="cite">&mdash; Xbox Support content team</span>
+      </p>
+    </section>
+
+    <!-- § 02 — MODEL COVERAGE -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; MODEL COVERAGE (JUNE 2025)</div>
+          <h2 class="ap-display">Twenty-two models, <em>one workflow.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Hands-on with proprietary, open-weight, vision, multilingual, and lightweight LLMs. Match the right tool to the right problem.
+        </div>
+      </div>
+
+      <div class="cp-metrics">
+        <div class="cp-metric">
+          <p class="num">22</p>
+          <p class="lbl">Total models</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">7</p>
+          <p class="lbl">Dev variants</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">10</p>
+          <p class="lbl">Phi variants</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">6</p>
+          <p class="lbl">Model families</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-12);">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">OpenAI<br><em>&amp; proprietary.</em></h3>
+          <p>Major hands-on experience with GPT-4o, GPT-4, and GPT-3.5 (all major and preview releases), including dev and experimental variants.</p>
+          <ul>
+            <li>GPT-4o</li>
+            <li>GPT-4</li>
+            <li>GPT-3.5</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Phi<br><em>family.</em></h3>
+          <p>Expertise with phi-3, phi-2, and phi-35 (mini, small, medium, moe, vision variants).</p>
+          <ul>
+            <li>phi-3</li>
+            <li>phi-2</li>
+            <li>phi-35</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Open-weight<br><em>&amp; multilingual.</em></h3>
+          <p>Mistral, Mixtral, DeepSeek R1, Qwen-32B, and multilingual / cost-efficient alternatives.</p>
+          <ul>
+            <li>Mistral</li>
+            <li>Mixtral</li>
+            <li>DeepSeek R1</li>
+            <li>Qwen-32B</li>
+            <li>Multilingual</li>
+            <li>Cost-efficient</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Vision<br><em>&amp; multimodal.</em></h3>
+          <p>Integrated vision and multimodal models for image, document, and audio analysis (GPT-4o Vision, Gemini, LLaVA, and more).</p>
+          <ul>
+            <li>Vision</li>
+            <li>Gemini</li>
+            <li>LLaVA</li>
+            <li>GPT-4o Vision</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Workflow<br><em>orchestration.</em></h3>
+          <p>Advanced workflow automation and chaining with tools like LangChain, CrewAI, and custom pipelines for complex tasks.</p>
+          <ul>
+            <li>LangChain</li>
+            <li>CrewAI</li>
+            <li>Custom pipelines</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">SEO<br><em>&amp; lightweight.</em></h3>
+          <p>SEO/meta content models for keywording, labeling, fast data pulls, and workflow prototyping (preview/dev models).</p>
+          <ul>
+            <li>SEO</li>
+            <li>Meta</li>
+            <li>Keywording</li>
+            <li>Labeling</li>
+            <li>Workflow prototyping</li>
+            <li>Preview &amp; dev</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="cp-quote">
+        &ldquo;I approach every model with curiosity and respect, always aiming to match the right tool to the right problem.&rdquo;
+        <span class="cite">&mdash; Chad Martin (Pixelpusher)</span>
+      </p>
+    </section>
+
+    <!-- § 03 — PLAYGROUND TOOLKIT -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; PLAYGROUND TOOLKIT</div>
+          <h2 class="ap-display">Nine tools, <em>one toolkit.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The core prompt-engineering tools shipped to the Xbox Support content team.
+        </div>
+      </div>
+
+      <div class="ap-prods">
+        <div class="ap-pd">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Uber chain<em> prompt.</em></h3>
+            <span class="meta">Prompt chaining</span>
+          </div>
+          <p>Showcases Foundry&rsquo;s ability to chain prompts and templates together for rapid prototyping and creative support workflows.</p>
+          <span class="year">Internal</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Headline<em> generator.</em></h3>
+            <span class="meta">Content &middot; Hub cards</span>
+          </div>
+          <p>Produces short, medium, and long headlines for engaging titles, all with instant character counts.</p>
+          <span class="year">Internal</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Hub page<em> generator.</em></h3>
+            <span class="meta">Layout &middot; Content</span>
+          </div>
+          <p>Kick-starts hub page design with AI &mdash; compelling headlines, descriptions, and layout ideas.</p>
+          <span class="year">Internal</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">04</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Error code<em> generator.</em></h3>
+            <span class="meta">Troubleshooting</span>
+          </div>
+          <p>Streamlines error code generation for every support scenario, making troubleshooting fast and scalable.</p>
+          <span class="year">Internal</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">05</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Error code<em> with dataset.</em></h3>
+            <span class="meta">Adaptability</span>
+          </div>
+          <p>Tests &ldquo;stranger&rdquo; error codes for adaptability &mdash; see how Foundry manages the unexpected.</p>
+          <span class="year">Internal</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">06</span>
+          <div>
+            <h3 class="ap-display ap-display--row">SEO error code<em> keyword generator.</em></h3>
+            <span class="meta">SEO &middot; Discovery</span>
+          </div>
+          <p>Extracts key search terms from web pages linked to specific error codes for SEO optimization.</p>
+          <span class="year">Internal</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">07</span>
+          <div>
+            <h3 class="ap-display ap-display--row">SEO description<em> generator (prod).</em></h3>
+            <span class="meta">SEO &middot; Production</span>
+          </div>
+          <p>Creates SEO-optimized meta descriptions for error code pages &mdash; precise, user-focused, production-ready.</p>
+          <span class="year">Production</span>
+          <span class="go"></span>
+        </div>
+        <div class="ap-pd">
+          <span class="n">08</span>
+          <div>
+            <h3 class="ap-display ap-display--row">SXC SEO description<em> (dev).</em></h3>
+            <span class="meta">SEO &middot; Diagnostics</span>
+          </div>
+          <p>Development version with on-screen diagnostics and deeper insights into SEO output.</p>
+          <span class="year">Dev</span>
+          <span class="go"></span>
+        </div>
+        <a class="ap-pd op-live" href="/docs/create-method.html" target="_blank" rel="noopener noreferrer">
+          <span class="n">09</span>
+          <div>
+            <h3 class="ap-display ap-display--row">C.R.E.A.T.E.<em> method.</em></h3>
+            <span class="meta">Method &middot; Documentation</span>
+          </div>
+          <p>The creative process behind prompt engineering and AI content design. Tips, templates, and real-world examples for every project.</p>
+          <span class="year">Published</span>
+          <span class="go">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- § 04 — SEO TOOLS -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; SEO TOOLS</div>
+          <h2 class="ap-display">Three SEO chains, <em>one analysis loop.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Search-aware tools for keyword discovery, optimized descriptions, and end-to-end SEO refinement.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Keyword<br><em>generator.</em></h3>
+          <p>Selects and integrates keywords most likely to connect with the target audience, based on search trends and intent.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Description<br><em>generator.</em></h3>
+          <p>Creates concise SEO-optimized descriptions for SXC content &mdash; target audience, key features, relevant keywords.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">SEO<br><em>chain.</em></h3>
+          <p>Combines descriptions and keywords templates with an analysis tool that evaluates performance and offers improvement recommendations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 05 — CONTENT SCRUBBER -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; CONTENT SCRUBBER</div>
+          <h2 class="ap-display">Search smart, <em>analyze deeper.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Focused, multilingual searches across the Xbox support site with advanced processing for accurate results.
+        </div>
+      </div>
+      <ul class="cp-bullets">
+        <li><strong>Input processing</strong> &mdash; validates input phrases for accuracy before search.</li>
+        <li><strong>Keyword optimization</strong> &mdash; prioritizes exact matches and considers variations.</li>
+        <li><strong>Search execution</strong> &mdash; uses advanced techniques including quotation marks and site-specific searches.</li>
+        <li><strong>Result analysis</strong> &mdash; identifies and analyzes the most relevant results with contextual relevance.</li>
+        <li><strong>Content quality analyzer</strong> &mdash; analyzes text for readability, clarity, and tone, providing actionable suggestions.</li>
+      </ul>
+    </section>
+
+    <!-- § 06 — CONTENT TOOLS -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; CONTENT TOOLS</div>
+          <h2 class="ap-display">Generators for the <em>writing room.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Headlines, placeholder text, hub layouts, and the small utilities that fill out a publishing day.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Headline<br><em>generator.</em></h3>
+          <p>Produces short, medium, and long headlines from text or URL input, with character counts. Perfect for engaging titles on home cards and articles.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Lorem ipsum<br><em>generator.</em></h3>
+          <p>Generates placeholder text resembling coherent Latin or other language-like text with character count included. Ideal for layout mockups and content planning.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Hub page<br><em>generator.</em></h3>
+          <p>Kick-starts hub page design with AI &mdash; streamlines the creative process with compelling headlines, descriptions, and layout ideas.</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Category<br><em>generator.</em></h3>
+          <p>Analyzes text or URLs and categorizes them into predefined categories, streamlining user support by matching queries to specific topics.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Instant<br><em>answers.</em></h3>
+          <p>Generates concise, helpful responses for common support queries, including content scenarios and error code explanations.</p>
+          <ul>
+            <li>Content scenario generator</li>
+            <li>Error code explanation generator</li>
+          </ul>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">Localization<br><em>generator.</em></h3>
+          <p>Generates localized content for different languages, including translations and cultural adaptations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 07 — POWER TOOLS &amp; CHAT BOTS -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; POWER TOOLS &amp; CHAT BOTS</div>
+          <h2 class="ap-display">Sharper utilities, <em>conversational surfaces.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Diff &amp; localization power tools, plus three chat-driven helpers shipped into the Xbox content workflow.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Diff<br><em>tool.</em></h3>
+          <p>Compares and contrasts the content of two text inputs side by side &mdash; perfect for content verification and quality control.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Game title<br><em>translator.</em></h3>
+          <p>Translates game titles into all supported languages, typically used for notification banners.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Xbox Loc<br><em>Express.</em></h3>
+          <p>Alternative solution for localization and translation tasks when standard processes are unavailable.</p>
+        </div>
+      </div>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-8);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">SXC<br><em>help chat.</em></h3>
+          <p>A foundational approach to Xbox console troubleshooting with empathy, expertise, and tailored solutions.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">SXC SEO<br><em>chat bot.</em></h3>
+          <p>A simplified interface for all SEO needs &mdash; from keyword generation to description rating and optimization.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">SXC home card<br><em>headlines.</em></h3>
+          <p>Creates concise, engaging headlines for home cards on SXC, ensuring they fit within character limits while staying compelling.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 08 — BEHIND THE SCENES -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 08 &mdash; BEHIND THE SCENES</div>
+          <h2 class="ap-display">Engineering excellence, <em>quietly.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Multi-layered prompt architecture &mdash; clean separation between prompt logic, validation chains, and delivery pipelines.
+        </div>
+      </div>
+      <ul class="cp-bullets">
+        <li><strong>Multi-layered architecture</strong> &mdash; clean separation between prompt logic, validation chains, and delivery pipelines.</li>
+        <li><strong>Handlebars prompting</strong> &mdash; templates use Handlebars (e.g. <code>{{user_issue}}</code>, <code>{{platform}}</code>) for reusable, scalable AI logic.</li>
+        <li><strong>Validation layers</strong> &mdash; built-in filters ensure outputs are safe, relevant, and aligned with brand tone.</li>
+        <li><strong>Fully customizable</strong> &mdash; templates adapt across products, audiences, and locales with minimal lift.</li>
+        <li><strong>Locale-aware output</strong> &mdash; prompt outputs adjust tone and structure based on language and regional nuance.</li>
+        <li><strong>Persona conditioning</strong> &mdash; supports roles like Agent, Specialist, or Explainer using context-aware logic injection.</li>
+      </ul>
+
+      <div class="cp-code">
+        <pre><span class="ch">// prompt_template.py</span>
+<span class="kw">class</span> <span class="fn">PromptEngine</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, model=<span class="st">"gpt-4"</span>):
+        self.model = model
+        self.templates = self._load_templates()
+
+    <span class="kw">def</span> <span class="fn">generate</span>(self, template_name, **kwargs):
+        <span class="ch">"""Generate content using predefined prompt templates"""</span>
+        template = self.templates.get(template_name)
+        <span class="kw">if not</span> template:
+            <span class="kw">raise</span> ValueError(<span class="st">f"Template {template_name} not found"</span>)
+
+        <span class="ch"># Apply template with provided variables</span>
+        prompt = template.format(**kwargs)
+
+        <span class="ch"># Add system message for context</span>
+        system_msg = <span class="st">"""You are an AI assistant specialized in gaming
+        support. Provide accurate, helpful responses while maintaining
+        a friendly tone."""</span>
+
+        <span class="kw">return</span> self._call_api(system_msg, prompt)
+
+    <span class="kw">def</span> <span class="fn">_load_templates</span>(self):
+        <span class="ch"># Load prompt templates from version control</span>
+        <span class="kw">pass</span></pre>
+      </div>
+    </section>
+
+    <!-- § 09 — TECHNIQUES + IMPACT + INSIGHTS -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 09 &mdash; TECHNIQUES, IMPACT &amp; INSIGHTS</div>
+          <h2 class="ap-display">Five novel patterns, <em>shipped at scale.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The prompt patterns we developed, the engineering wins they enabled, and the lessons that will shape the next toolkit.
+        </div>
+      </div>
+
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Multi-agent<br><em>systems.</em></h3>
+          <p>Orchestrated specialized AI agents that collaborate on complex tasks &mdash; one for content generation, one for validation, one for localization.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Prompt<br><em>chaining.</em></h3>
+          <p>Sequential prompt workflows where each step&rsquo;s output becomes the next step&rsquo;s input &mdash; enabling complex reasoning and content generation.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Guardrail<br><em>implementation.</em></h3>
+          <p>Built-in validation layers that ensure outputs meet quality standards, brand guidelines, and safety requirements before reaching end-users.</p>
+        </div>
+      </div>
+
+      <div class="cp-metrics">
+        <div class="cp-metric">
+          <p class="num">5+</p>
+          <p class="lbl">Novel prompt patterns</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">10&times;</p>
+          <p class="lbl">Faster iteration</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">100%</p>
+          <p class="lbl">Uptime</p>
+        </div>
+        <div class="cp-metric">
+          <p class="num">25+</p>
+          <p class="lbl">LLM models</p>
+        </div>
+      </div>
+
+      <ul class="cp-bullets" style="margin-top: var(--sp-12);">
+        <li><strong>Reduced latency</strong> &mdash; optimized prompt chains decreased response times by 60% while improving output quality.</li>
+        <li><strong>Cost efficiency</strong> &mdash; fewer API calls and tokens through prompt optimization, reducing operational costs by 40%.</li>
+        <li><strong>Scalability</strong> &mdash; prompts that maintain quality across 25+ LLM models and 40+ languages.</li>
+        <li><strong>Reliability</strong> &mdash; fallback mechanisms maintain service during model updates or partial outages.</li>
+        <li><strong>Maintainability</strong> &mdash; structured prompt templates with clear versioning and documentation for team collaboration.</li>
+      </ul>
+
+      <div class="ap-pillars" style="margin-top: var(--sp-12);">
+        <div class="ap-pillar">
+          <div class="num">04</div>
+          <h3 class="ap-display ap-display--pillar">Guardrails<br><em>as code.</em></h3>
+          <p>Multi-layered validation: regex patterns, semantic checks, and model-based validation ensure all AI outputs meet strict quality and safety standards before reaching production.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">05</div>
+          <h3 class="ap-display ap-display--pillar">Augment<br><em>teams.</em></h3>
           <p>AI excelled at routine updates, allowing human experts to focus on complex issues and strategy.</p>
         </div>
-        <div class="learning-card">
-          <i class="fas fa-globe-americas"></i>
-          <h3>Global nuance</h3>
+        <div class="ap-pillar">
+          <div class="num">06</div>
+          <h3 class="ap-display ap-display--pillar">Global<br><em>nuance.</em></h3>
           <p>40+ language support demanded sophisticated prompt engineering for cultural context and localization.</p>
         </div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/websites/ninja-theory-support.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-gamepad"></i> Ninja Theory Support Hub
-          </strong>
-          <p>Support migration and publishing for Ninja Theory's Senua's Saga titles.</p>
+    <!-- § 10 — RELATED WORK -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 10 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/video/ninja-theory-help-center.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Ninja Theory<em> Help Center.</em></h3>
+            <span class="meta">Microsoft Xbox &middot; Video</span>
+          </div>
+          <p>Animated showcase and platform tour for Ninja Theory&rsquo;s new Help Center on support.Xbox.com &mdash; motion design, Azure AI narration, and hands-on site production.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
         </a>
-        <a class="related-project-card" href="/projects/websites/grand-central-power-bi.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-database"></i> Grand Central 3.0
-          </strong>
-          <p>Custom Power BI dashboards and data pipeline for Xbox Support</p>
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Ninja Theory<em> Support Hub.</em></h3>
+            <span class="meta">Microsoft Xbox &middot; Web</span>
+          </div>
+          <p>Support migration and publishing for Ninja Theory&rsquo;s Senua&rsquo;s Saga titles.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-archive" href="/projects/websites/grand-central-power-bi.html">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Grand Central<em> 3.0.</em></h3>
+            <span class="meta">Microsoft Xbox &middot; Data</span>
+          </div>
+          <p>Custom Power BI dashboards and data pipeline for Xbox Support.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
         </a>
       </div>
     </section>
-    
-     <!-- Next Project Section -->
-     <div class="section-divider"></div>
-     <section class="content-section grid-col-12 next-project">
-  <div class="content-section-inner">
-    <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-    <div class="next-project-card">
-      <div class="media-item" style="margin-bottom: 1.5rem;">
-        <a href="/projects/video/ninja-theory-help-center.html">
-          <img src="/images/projects/ninja-theroy/mini-hero-02.jpg" alt="Ninja Theory Help Center" loading="lazy">
-        </a>
-      </div>
-      <div class="next-project-content">
-        <h3>Ninja Theory Help Center</h3>
-        <p>Animated showcase and platform tour for Ninja Theory’s new Help Center on support.Xbox.com—highlighting features for Hellblade and Senua’s Saga: Hellblade II. Produced in collaboration with Xbox Support, blending motion design, Azure AI narration, and hands-on site production.</p>
-        <a href="/projects/video/ninja-theory-help-center.html" class="btn btn-secondary">
-          View Project <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
-    </div>
-  </div>
-      <blockquote class="nova-quote badge-violet">
-        <p><i class="fas fa-quote-left"></i> You’ve scrolled this far? That’s dedication! Nova’s crystalline curiosity approves—let’s see what’s next on the journey. <i class="fas fa-quote-right"></i></p>
-        <footer>— Nova, your ambient AI</footer>
-      </blockquote>
-    </section>
+
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <!-- §2.15 CTA -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got a content team<br><em>that needs an AI co-pilot?</em></h2>
+    <p>Prompt engineering, AI tooling, and the validation layers that keep them production-safe &mdash; scoped for the team you actually have.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
+  <!-- Disclaimer — independence + branding notice -->
+  <div class="cp-disclaimer">
+    Disclaimer
+    <em>Copilot Playground is an internal Microsoft tool. This page showcases prompt engineering work created using that tool. No internal systems or proprietary content are shown.</em>
+  </div>
+
+  <!-- §2.14 Footer -->
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -618,17 +837,6 @@
     </div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js"></script>
-  <script type="module" src="/js/lightbox.js"></script>
-  <!-- NDA Lightbox Extension for red overlay -->
-  <script src="/js/nda-lightbox-extension.js" defer></script>
-  
-  <!-- Footer Disclaimer: Branding and Independence Notice -->
-  <footer class="footer-disclaimer" style="max-width: 900px; margin: 2.5rem auto 1.5rem; padding: 1.25rem 1.5rem; background: var(--aura-bg, #23233b); border-radius: 8px; color: var(--aura-fg, #bfcfff); font-size: 0.98rem; box-shadow: 0 2px 8px rgba(60,80,180,0.05); border-left: 4px solid #7f57ff;">
-    <strong>Disclaimer:</strong> 
-    <em>Copilot Playground is an internal Microsoft tool. This page showcases my prompt engineering work created using that tool. No internal systems or proprietary content are shown.</em>
 
 </body>
 </html>
