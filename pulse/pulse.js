@@ -60,16 +60,68 @@
   }
 
   // ---- Stats band ---------------------------------------------
+  // Tile set: (1) static agent count, (2) last-dispatch relative time,
+  // (3) all-time dispatch count, (4) days in operation since 2024-01-01.
+
+  var FOUNDED_DATE = '2024-01-01';
 
   function renderStats(entries) {
-    var today = entries[0] || null;
-    var stats = (today && today.stats) || {};
-    var nodes = document.querySelectorAll('#pulse-stats [data-value]');
-    nodes.forEach(function (el) {
-      var key = el.parentNode.getAttribute('data-key');
-      var v = stats[key];
-      el.textContent = (v === 0 || v) ? v : '0';
-    });
+    // Last dispatch — relative time since most recent published_at
+    var latest = entries[0] || null;
+    var lastDispatchStat = document.querySelector('[data-key="last_dispatch"]');
+    if (lastDispatchStat) {
+      var valueEl = lastDispatchStat.querySelector('[data-value]');
+      var subEl = lastDispatchStat.querySelector('[data-sub]');
+      if (latest && latest.published_at) {
+        valueEl.textContent = relativeTime(latest.published_at);
+        subEl.textContent = latest.title ? truncate(latest.title, 40) : formatDateShort(latest.date);
+      } else if (latest && latest.date) {
+        valueEl.textContent = 'today';
+        subEl.textContent = formatDateShort(latest.date);
+      } else {
+        valueEl.textContent = '—';
+        subEl.textContent = 'Awaiting feed';
+      }
+    }
+
+    // Total dispatches — cumulative count
+    var totalStat = document.querySelector('[data-key="total_dispatches"]');
+    if (totalStat) {
+      totalStat.querySelector('[data-value]').textContent = entries.length || '0';
+    }
+
+    // Day in operation — days since founded date
+    var dayStat = document.querySelector('[data-key="day_in_operation"]');
+    if (dayStat) {
+      dayStat.querySelector('[data-value]').textContent = daysSince(FOUNDED_DATE);
+    }
+  }
+
+  function daysSince(isoDate) {
+    // "Day 1" is the first day (inclusive), not "0 days elapsed", so +1.
+    var start = new Date(isoDate + 'T00:00:00');
+    var now = new Date();
+    var ms = now.getTime() - start.getTime();
+    return Math.max(1, Math.floor(ms / 86400000) + 1);
+  }
+
+  function relativeTime(isoTimestamp) {
+    var then = new Date(isoTimestamp);
+    if (isNaN(then.getTime())) return '—';
+    var diffMin = Math.max(0, Math.floor((Date.now() - then.getTime()) / 60000));
+    if (diffMin < 1) return 'just now';
+    if (diffMin < 60) return diffMin + 'm ago';
+    var h = Math.floor(diffMin / 60);
+    if (h < 24) return h + 'h ago';
+    var d = Math.floor(h / 24);
+    if (d < 30) return d + 'd ago';
+    var mo = Math.floor(d / 30);
+    return mo + 'mo ago';
+  }
+
+  function truncate(s, n) {
+    if (!s) return '';
+    return s.length > n ? s.substring(0, n - 1) + '…' : s;
   }
 
   // ---- Today's dispatch ---------------------------------------

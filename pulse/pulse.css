@@ -129,10 +129,20 @@
 }
 .pulse-stat-value {
   font-family: var(--font-heavy);
-  font-size: clamp(48px, 5vw, 72px);
+  font-size: clamp(44px, 4.4vw, 64px);
   line-height: 0.9;
   letter-spacing: var(--tracking-display);
   color: var(--color-text-primary);
+}
+
+.pulse-stat-sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  line-height: 1.4;
+  margin-top: var(--sp-2);
 }
 
 /* ---- Shared section scaffolding ----------------------------- */
