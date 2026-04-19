@@ -339,6 +339,8 @@
   flex-direction: column;
   gap: var(--sp-4);
   min-height: 260px;
+  min-width: 0; /* allow flex child to shrink below intrinsic content size */
+  overflow: hidden;
 }
 .pulse-post:last-child { border-right: none; }
 .pulse-post:hover { background: var(--color-hover-surface, rgba(255,255,255,0.03)); }
@@ -353,10 +355,13 @@
 .pulse-post-title {
   font-family: var(--font-display);
   font-weight: var(--fw-heavy);
-  font-size: var(--fs-display-sm, 28px);
-  line-height: 1;
-  letter-spacing: -0.025em;
+  font-size: clamp(22px, 1.8vw, 28px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 .pulse-post-excerpt {
   font-family: var(--font-display);
