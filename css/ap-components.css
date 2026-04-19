@@ -229,7 +229,7 @@ html.ap-nav-lock body { overflow: hidden; }
   font-size: var(--fs-mono);
   letter-spacing: var(--tracking-mono);
   text-transform: uppercase;
-  opacity: .55;
+  opacity: var(--mono-opacity-boost, 0.55);
   display: flex;
   gap: var(--sp-8);
   flex-wrap: wrap;
@@ -255,7 +255,7 @@ html.ap-nav-lock body { overflow: hidden; }
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
   letter-spacing: var(--tracking-mono);
-  opacity: .55;
+  opacity: var(--mono-opacity-boost, 0.55);
   text-transform: uppercase;
 }
 
@@ -315,7 +315,7 @@ html.ap-nav-lock body { overflow: hidden; }
   letter-spacing: var(--tracking-mono-sm);
   line-height: 1.7;
   text-transform: uppercase;
-  opacity: .55;
+  opacity: var(--mono-opacity-boost, 0.55);
   max-width: 40ch;
   justify-self: end;
   text-align: right;
@@ -429,7 +429,7 @@ html.ap-nav-lock body { overflow: hidden; }
   font-size: var(--fs-mono);
   letter-spacing: var(--tracking-mono-sm);
   text-transform: uppercase;
-  opacity: .8;
+  opacity: var(--mono-opacity-boost, 0.8);
 }
 .ap-pillar ul li {
   padding: var(--sp-3) 0;
@@ -513,7 +513,7 @@ html.ap-nav-lock body { overflow: hidden; }
   font-size: var(--fs-mono-xs);
   letter-spacing: var(--tracking-mono-sm);
   text-transform: uppercase;
-  opacity: .65;
+  opacity: var(--mono-opacity-boost, 0.65);
 }
 
 .ap-pd p {

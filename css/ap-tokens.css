@@ -130,4 +130,30 @@
   --dur-roll:    60s;  /* marquee */
   --ease:        ease-out;
   --ease-inout:  ease-in-out;
+
+  /* ---- Premium polish layer (additive — see skill addendum §1) ---- */
+
+  /* Tonal rhythm — §02 / alternate sections ride this band */
+  --color-bg-cool:             #08080a;
+
+  /* Warm hairlines — swapped into --color-border* only under body.polish-hairlines */
+  --color-border-warm:         rgba(255,240,220,.09);
+  --color-border-warm-soft:    rgba(255,240,220,.06);
+  --color-border-warm-dashed:  rgba(255,240,220,.07);
+
+  /* Ambient glow — single warm-cream light source, fixed top-right */
+  --glow-opacity:              0.0375;       /* intensity 4/8 × 0.075 ceiling */
+  --glow-size:                 1100px;
+  --glow-x:                    78%;
+  --glow-y:                    6%;
+  --glow-hue:                  255, 220, 170;  /* RGB triplet — do not shift per-accent */
+
+  /* Type polish */
+  --body-tracking:             0.003em;
+  /* --mono-opacity-boost is intentionally NOT defined at :root. It is set only
+     under body.polish-type (§8) so the per-component fallbacks in §9 preserve
+     current rendering on pages that don't opt into polish-type. */
+
+  /* Texture layer — paper @ intensity 4 (ceiling 0.65 × 0.4 = 0.26) */
+  --tx-op:                     0.26;
 }

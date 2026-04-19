@@ -56,3 +56,170 @@ body {
     animation: none !important;
   }
 }
+
+/* ============================================================================
+   Premium polish layer (additive)
+   Source: .claude/skills/ambientpixelsdesign/DESIGN_SYSTEM_ADDENDUM.md
+   Every rule is scoped under body.polish-* or body[data-texture]. A page
+   with no polish classes renders identically to the monolith reference.
+   ============================================================================ */
+
+/* ---- §3 Ambient light ---------------------------------------------------- */
+
+/* Primary — fixed, off-screen warm-cream light source */
+body.polish-glow::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(var(--glow-size) circle at var(--glow-x) var(--glow-y),
+      rgba(var(--glow-hue), var(--glow-opacity)) 0%,
+      rgba(var(--glow-hue), calc(var(--glow-opacity) * 0.35)) 28%,
+      transparent 62%);
+  transition: opacity .4s var(--ease);
+}
+
+/* Content sits above the ambient layer */
+body.polish-glow nav,
+body.polish-glow main,
+body.polish-glow footer,
+body.polish-glow .ap-hero,
+body.polish-glow .ap-marquee,
+body.polish-glow .ap-cta { position: relative; z-index: 1; }
+
+/* Secondary — backlight behind AP. wordmark */
+body.polish-glow .ap-hero-mark { position: relative; }
+body.polish-glow .ap-hero-mark::before {
+  content: '';
+  position: absolute;
+  left: -10%; right: -10%; top: -20%; bottom: -20%;
+  background: radial-gradient(60% 70% at 35% 50%,
+    rgba(255,255,255,0.025) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Secondary — glow beneath CTA headline */
+body.polish-glow .ap-cta::before {
+  content: '';
+  position: absolute;
+  left: 50%; top: 30%;
+  transform: translate(-50%, -50%);
+  width: 900px; height: 500px;
+  background: radial-gradient(ellipse at center,
+    rgba(255,230,190,0.035) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ---- §4 Vignette --------------------------------------------------------- */
+
+body.polish-vignette::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(140% 100% at 50% 0%,
+      rgba(255,255,255,0.015) 0%, transparent 55%),
+    radial-gradient(120% 90% at 50% 100%,
+      rgba(0,0,0,0.35) 0%, transparent 55%);
+}
+
+/* ---- §5 Texture layer ---------------------------------------------------- */
+/* Insert as first child of <body>:  <div class="tx-layer" aria-hidden="true"></div>
+   Technique is selected by body[data-texture]. Intensity lives in --tx-op.
+   Paper @ 4 (tx-op 0.26) is the production default; other techniques implemented
+   for completeness but require a ticket before shipping on a page. */
+
+.tx-layer {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--tx-op, 0);
+  transition: opacity .3s ease;
+}
+body[data-texture="none"] .tx-layer,
+body:not([data-texture]) .tx-layer { display: none; }
+
+/* PRODUCTION DEFAULT — paper grain, warm-biased */
+body[data-texture="paper"] .tx-layer {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.93  0 0 0 0 0.78  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 320px 320px;
+  mix-blend-mode: soft-light;
+}
+
+/* Alternates — implement for completeness, none are production default */
+body[data-texture="grain"] .tx-layer {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  mix-blend-mode: overlay;
+}
+body[data-texture="dots"] .tx-layer {
+  background-image: radial-gradient(rgba(255,240,220,.35) 1px, transparent 1.4px);
+  background-size: 28px 28px;
+  mix-blend-mode: screen;
+}
+body[data-texture="mesh"] .tx-layer {
+  background-image:
+    repeating-linear-gradient( 45deg, rgba(255,240,220,.05) 0 1px, transparent 1px 60px),
+    repeating-linear-gradient(-45deg, rgba(255,240,220,.04) 0 1px, transparent 1px 60px);
+  mix-blend-mode: screen;
+}
+body[data-texture="scan"] .tx-layer {
+  background-image: repeating-linear-gradient(0deg,
+    rgba(255,255,255,0.035) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+
+/* ---- §6 Tonal rhythm (.ap-sec--cool) ------------------------------------- */
+/* Drops the section's visual plane onto --color-bg-cool by bleeding a
+   full-viewport-width band behind the max-width container.
+   Rule: alternate — never two .ap-sec--cool sections in a row. */
+
+body.polish-tonal .ap-sec--cool { position: relative; }
+body.polish-tonal .ap-sec--cool::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0; bottom: 0;
+  width: 100vw;
+  background: var(--color-bg-cool);
+  z-index: -1;
+}
+
+/* ---- §7 Warm hairlines --------------------------------------------------- */
+/* Token swap — every component already references var(--color-border*),
+   so the warmth propagates without per-component edits. */
+
+body.polish-hairlines {
+  --color-border:         var(--color-border-warm);
+  --color-border-soft:    var(--color-border-warm-soft);
+  --color-border-dashed:  var(--color-border-warm-dashed);
+}
+
+/* ---- §8 Type polish ------------------------------------------------------ */
+/* Body-copy tracking + mono-label fade. --mono-opacity-boost is only
+   defined here (not at :root) so the per-component fallbacks in §9
+   preserve current rendering on pages that don't opt into polish-type.
+   Tracking is body-copy-only — display headlines are unaffected. */
+
+body.polish-type {
+  letter-spacing: var(--body-tracking);
+  --mono-opacity-boost: 0.62;
+}
+
+/* ---- Print guard --------------------------------------------------------- */
+/* Strip texture, glow, vignette, tonal band, and the two backlight
+   secondaries from print output. Reading pages should print flat. */
+
+@media print {
+  body::before,
+  body::after,
+  .tx-layer,
+  .ap-sec--cool::before,
+  .ap-hero-mark::before,
+  .ap-cta::before { display: none !important; }
+}
