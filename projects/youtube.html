@@ -3,141 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels YouTube Channel — Ambient environments for focus, relaxation, and creative flow." />
-  <meta property="og:title" content="YouTube Channel — AmbientPixels" />
-  <meta property="og:description" content="Ambient environments for focus, relaxation, and creative flow." />
+  <meta name="description" content="AmbientPixels on YouTube — ambient environments for focus, travel, and rest. Built for atmosphere, not noise." />
+  <meta property="og:title" content="YouTube — AmbientPixels" />
+  <meta property="og:description" content="Ambient environments for focus, travel, and rest. Built for atmosphere, not noise." />
   <meta property="og:image" content="/images/nova/YouTube_banner_glowing_dreamlike_landscape.png" />
   <meta property="og:url" content="https://ambientpixels.ai/projects/youtube" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>YouTube Channel — AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <style>
-    /* YouTube — Scoped Styles */
-    .yt-hero .hero-base-content { padding: 4.25rem 1.5rem; }
-    .yt-hero .hero-base-content p { line-height: 1.75; }
+  <title>YouTube — AmbientPixels</title>
 
-    .yt-section { margin-bottom: 3rem; }
-    .yt-section h2 { font-size: 1.4rem; font-weight: 600; margin: 0 0 0.75rem; }
-    .yt-section > p { font-size: 0.95rem; line-height: 1.6; opacity: 0.65; max-width: 720px; }
-
-    .yt-channel-card {
-      border: 1px solid rgba(128,128,128,0.15);
-      border-radius: 8px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-top: 1rem;
-    }
-    .yt-channel-card h3 { font-size: 1.1rem; font-weight: 600; margin: 0; }
-    .yt-channel-card p { font-size: 0.9rem; line-height: 1.65; margin: 0; opacity: 0.65; }
-    .yt-channel-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.25rem; }
-    .yt-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 500;
-      border: 1px solid rgba(128,128,128,0.2); border-radius: 6px;
-      text-decoration: none; transition: border-color 0.2s ease, background 0.2s ease;
-    }
-    .yt-btn--primary { background: rgba(255, 0, 0, 0.08); border-color: rgba(255, 0, 0, 0.25); color: #ff4444; }
-    .yt-btn--primary:hover { background: rgba(255, 0, 0, 0.14); border-color: rgba(255, 0, 0, 0.4); }
-    .yt-btn--secondary:hover { border-color: #a78bfa; background: rgba(167, 139, 250, 0.06); }
-
-    .yt-video-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.25rem;
-      margin-top: 1rem;
-    }
-    .yt-video-wrapper {
-      position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
-      border-radius: 8px; border: 1px solid rgba(128,128,128,0.15);
-    }
-    .yt-video-wrapper iframe {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
-    }
-
-    .yt-playlist-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.25rem;
-      margin-top: 1rem;
-    }
-    .yt-playlist-card {
-      border: 1px solid rgba(128,128,128,0.15);
-      border-top: 3px solid var(--yt-accent, rgba(128,128,128,0.15));
-      border-radius: 8px;
-      padding: 1.25rem;
-      display: flex; flex-direction: column; gap: 0.5rem;
-      transition: border-color 0.2s ease;
-    }
-    .yt-playlist-card:hover { border-color: rgba(128,128,128,0.3); }
-    .yt-playlist-card .yt-icon { font-size: 1.25rem; color: var(--yt-accent, #a78bfa); margin-bottom: 0.25rem; }
-    .yt-playlist-card h3 { font-size: 1rem; font-weight: 600; margin: 0; }
-    .yt-playlist-card p { font-size: 0.85rem; line-height: 1.5; margin: 0; opacity: 0.6; }
-    .yt-playlist-card ul { list-style: none; padding: 0; margin: 0.25rem 0 0; display: flex; flex-direction: column; gap: 0.35rem; }
-    .yt-playlist-card ul li a {
-      font-size: 0.82rem; text-decoration: none; opacity: 0.55;
-      display: inline-flex; align-items: center; gap: 0.35rem;
-      transition: opacity 0.2s ease;
-    }
-    .yt-playlist-card ul li a:hover { opacity: 0.85; }
-
-    .yt-card--travel    { --yt-accent: #4ECDC4; }
-    .yt-card--home      { --yt-accent: #f59e0b; }
-    .yt-card--sleep     { --yt-accent: #a78bfa; }
-
-    .yt-related {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .yt-related-card {
-      border: 1px solid rgba(128,128,128,0.15);
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      transition: border-color 0.2s ease;
-    }
-    .yt-related-card:hover { border-color: rgba(128,128,128,0.3); }
-    .yt-related-card a { text-decoration: none; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
-    .yt-related-card p { font-size: 0.8rem; margin: 0.35rem 0 0; opacity: 0.5; }
-
-    /* Light theme */
-    [data-theme="light"] .yt-channel-card { border-color: #e2e8f0; }
-    [data-theme="light"] .yt-playlist-card {
-      border-left-color: #e2e8f0; border-right-color: #e2e8f0; border-bottom-color: #e2e8f0;
-    }
-    [data-theme="light"] .yt-playlist-card:hover {
-      border-left-color: #cbd5e1; border-right-color: #cbd5e1; border-bottom-color: #cbd5e1;
-    }
-    [data-theme="light"] .yt-playlist-card .yt-icon { color: var(--yt-accent, #7c3aed); }
-    [data-theme="light"] .yt-video-wrapper { border-color: #e2e8f0; }
-    [data-theme="light"] .yt-related-card { border-color: #e2e8f0; }
-    [data-theme="light"] .yt-btn--primary { color: #dc2626; border-color: rgba(220, 38, 38, 0.3); background: rgba(220, 38, 38, 0.06); }
-    [data-theme="light"] .yt-btn--secondary { border-color: #d1d5db; color: #334155; }
-
-    @media (max-width: 600px) {
-      .yt-video-grid { grid-template-columns: 1fr; }
-      .yt-playlist-grid { grid-template-columns: 1fr; }
-      .yt-hero .hero-base-content { padding: 3rem 1.2rem; }
-    }
-  </style>
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <!-- DS fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <!-- DS canonical stack -->
   <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <!-- Page-scoped video grid — DS tokens only, no raw colors -->
+  <style>
+    .yt-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-5);
+    }
+    .yt-frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .yt-frame iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: 0; display: block;
+    }
+    .yt-cap {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.55);
+      margin: var(--sp-3) 0 0;
+    }
+    /* Channel-brand pill — outlined YouTube red. Page-scoped deviation
+       from the DS so the channel CTA reads as "YouTube" at a glance. */
+    .yt-subscribe {
+      background: rgba(255, 0, 0, 0.08);
+      border: 1px solid rgba(255, 0, 0, 0.35);
+      color: #ff4444;
+      transition: background var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast);
+    }
+    .yt-subscribe:hover {
+      background: rgba(255, 0, 0, 0.16);
+      border-color: rgba(255, 0, 0, 0.6);
+      transform: translateY(-2px);
+    }
+    @media (max-width: 1000px) { .yt-grid { grid-template-columns: 1fr; } }
+  </style>
+
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
+  <!-- §2.2 Nav -->
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -154,125 +85,178 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <main class="grid-container">
+  <main>
 
-    <!-- Hero — DS case-study pattern -->
-    <section class="content-section grid-col-12">
-      <div class="ap-sec-idx" style="font-family: var(--font-mono); font-size: 12px; letter-spacing: .15em; opacity: .55; text-transform: uppercase; margin-bottom: 12px;">&sect; WORK &mdash; SHIPPED &middot; AMBIENTPIXELS</div>
-      <h1 style="font-family: var(--font-display); font-weight: 900; font-size: clamp(40px, 5vw, 72px); line-height: .95; letter-spacing: -.03em; margin: 0 0 16px; color: var(--color-text-primary); max-width: 18ch;">YouTube <em style="font-style: italic; font-weight: 400; color: var(--color-text-body);">channel.</em></h1>
-      <p style="font-family: var(--font-display); font-size: 17px; line-height: 1.5; color: var(--color-text-body); opacity: .82; max-width: 60ch; margin: 0 0 12px;">Ambient environments for focus, relaxation, and creative flow.</p>
-      <p style="font-family: var(--font-display); font-size: 15px; line-height: 1.6; color: var(--color-text-body); opacity: .72; max-width: 65ch; margin: 0;">AmbientPixels on YouTube &mdash; immersive soundscapes and visual environments designed for work, study, travel, and rest. Each video is crafted to create atmosphere, not noise.</p>
+    <!-- Hero — title + channel description + red Subscribe / ghost Watch latest CTAs -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; AMBIENTPIXELS</div>
+          <h1 class="ap-display">YouTube<em>.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          Ambient environments for relaxation, work, and sleep. Whether you need to unwind on a long flight, build a peaceful atmosphere at home, or drift off quickly &mdash; you&rsquo;ll find something here. Atmosphere, not noise.
+        </div>
+      </div>
+      <div class="ap-cta-actions" style="display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-8);">
+        <a class="ap-btn yt-subscribe" href="https://www.youtube.com/@ambientpixels6107" target="_blank" rel="noopener noreferrer">Subscribe on YouTube &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="https://www.youtube.com/@ambientpixels6107/videos" target="_blank" rel="noopener noreferrer">Watch latest</a>
+      </div>
     </section>
 
+    <!-- § 01 — FEATURED VIDEOS -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; FEATURED</div>
+          <h2 class="ap-display">Three to start,<br><em>more on the channel.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          A demo of the environments, a quick getting-started, and one of Nova&rsquo;s first soundscape pulls.
+        </div>
+      </div>
 
-    <!-- Channel Overview -->
-    <section class="content-section grid-col-12 yt-section">
-      <h2><i class="fab fa-youtube" style="color:#ff4444"></i> Channel</h2>
-      <div class="yt-channel-card">
-        <h3>AmbientPixels</h3>
-        <p>Creating ambient environments for relaxation, work, and sleep. Whether you need to unwind on a long flight, build a peaceful atmosphere at home, or drift off quickly — you'll find something here.</p>
-        <div class="yt-channel-actions">
-          <a href="https://www.youtube.com/@ambientpixels6107" class="yt-btn yt-btn--primary" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-youtube"></i> Subscribe
-          </a>
-          <a href="https://www.youtube.com/@ambientpixels6107/videos" class="yt-btn yt-btn--secondary" target="_blank" rel="noopener noreferrer">
-            <i class="fas fa-play"></i> Watch Latest
-          </a>
+      <div class="yt-grid">
+        <div>
+          <div class="yt-frame">
+            <iframe src="https://www.youtube.com/embed/yAJtma9FybQ"
+                    title="Ambient Environments Demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen loading="lazy"></iframe>
+          </div>
+          <p class="yt-cap">01 &mdash; Ambient environments demo</p>
+        </div>
+        <div>
+          <div class="yt-frame">
+            <iframe src="https://www.youtube.com/embed/DPzacDkWVA8"
+                    title="Getting Started Guide"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen loading="lazy"></iframe>
+          </div>
+          <p class="yt-cap">02 &mdash; Getting started</p>
+        </div>
+        <div>
+          <div class="yt-frame">
+            <iframe src="https://www.youtube.com/embed/_kOIUVxqy1o"
+                    title="Nova's Ambient Soundscapes"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen loading="lazy"></iframe>
+          </div>
+          <p class="yt-cap">03 &mdash; Nova&rsquo;s soundscapes</p>
         </div>
       </div>
     </section>
 
-    <!-- Featured Videos -->
-    <section class="content-section grid-col-12 yt-section">
-      <h2><i class="fas fa-film" style="color:#60a5fa"></i> Featured Videos</h2>
-      <div class="yt-video-grid">
-        <div class="yt-video-wrapper">
-          <iframe src="https://www.youtube.com/embed/yAJtma9FybQ"
-                  title="Ambient Environments Demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen loading="lazy"></iframe>
+    <!-- § 02 — PLAYLISTS (pillar grid) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; PLAYLISTS</div>
+          <h2 class="ap-display">Three rooms,<br><em>three moods.</em></h2>
         </div>
-        <div class="yt-video-wrapper">
-          <iframe src="https://www.youtube.com/embed/DPzacDkWVA8"
-                  title="Getting Started Guide"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen loading="lazy"></iframe>
-        </div>
-        <div class="yt-video-wrapper">
-          <iframe src="https://www.youtube.com/embed/_kOIUVxqy1o"
-                  title="Nova's Ambient Soundscapes"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen loading="lazy"></iframe>
+        <div class="ap-sec-meta">
+          Travel, home, sleep. Curated runs of atmosphere for the moment you need it.
         </div>
       </div>
-    </section>
 
-    <!-- Playlists -->
-    <section class="content-section grid-col-12 yt-section">
-      <h2><i class="fas fa-list" style="color:#4ECDC4"></i> Playlists</h2>
-      <p>Curated collections designed for specific moods and moments.</p>
-      <div class="yt-playlist-grid">
-        <div class="yt-playlist-card yt-card--travel">
-          <i class="fas fa-plane-departure yt-icon"></i>
-          <h3>Travel Ambient</h3>
-          <p>Soundscapes for flights, road trips, and journeys.</p>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Travel<br><em>ambient.</em></h3>
+          <p>Soundscapes for flights, road trips, and the long quiet between destinations.</p>
           <ul>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-cloud"></i> Flight Mode</a></li>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-suitcase"></i> Journey Soundscapes</a></li>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-map"></i> Road Trip</a></li>
+            <li>Flight Mode</li>
+            <li>Journey Soundscapes</li>
+            <li>Road Trip</li>
           </ul>
         </div>
-        <div class="yt-playlist-card yt-card--home">
-          <i class="fas fa-home yt-icon"></i>
-          <h3>Home Ambient</h3>
-          <p>Atmosphere for living rooms, kitchens, and study spaces.</p>
+
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Home<br><em>ambient.</em></h3>
+          <p>Atmosphere for the rooms you live in &mdash; living, cooking, studying, working.</p>
           <ul>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-couch"></i> Living Room</a></li>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-utensils"></i> Kitchen</a></li>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-book"></i> Study</a></li>
+            <li>Living Room</li>
+            <li>Kitchen</li>
+            <li>Study</li>
           </ul>
         </div>
-        <div class="yt-playlist-card yt-card--sleep">
-          <i class="fas fa-moon yt-icon"></i>
-          <h3>Sleep Ambient</h3>
-          <p>Nightscapes and sleep sounds for peaceful rest.</p>
+
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Sleep<br><em>ambient.</em></h3>
+          <p>Nightscapes and slow sounds for falling asleep and staying that way.</p>
           <ul>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-cloud-moon"></i> Nightscapes</a></li>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-wave-square"></i> Sleep Sounds</a></li>
-            <li><a href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer"><i class="fas fa-star"></i> Dreamscape</a></li>
+            <li>Nightscapes</li>
+            <li>Sleep Sounds</li>
+            <li>Dreamscape</li>
           </ul>
         </div>
       </div>
     </section>
 
-    <!-- Related Projects -->
-    <section class="content-section grid-col-12 yt-section">
-      <h2><i class="fas fa-project-diagram" style="color:#f59e0b"></i> Related Projects</h2>
-      <div class="yt-related">
-        <div class="yt-related-card">
-          <a href="/projects/video/">
-            <i class="fas fa-film"></i> Video Hub
-          </a>
-          <p>Motion design and video production projects</p>
+    <!-- § 03 — RELATED WORK -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms,<br><em>same studio.</em></h2>
         </div>
-        <div class="yt-related-card">
-          <a href="/projects/image-packs/">
-            <i class="fas fa-image"></i> Image Packs
-          </a>
-          <p>AI-generated visual collections</p>
+        <div class="ap-sec-meta">
+          Other channels of output from the same hands &mdash; motion, stills, the wider catalog.
         </div>
-        <div class="yt-related-card">
-          <a href="/projects/">
-            <i class="fas fa-th-large"></i> All Projects
-          </a>
-          <p>Explore the complete portfolio</p>
-        </div>
+      </div>
+
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/projects/video/">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Video<em> hub.</em></h3>
+            <span class="meta">Motion &middot; Production</span>
+          </div>
+          <p>Motion design and video production for client and studio work.</p>
+          <span class="year">Ongoing</span>
+          <span class="go">&rarr;</span>
+        </a>
+
+        <a class="ap-pd op-live" href="/projects/image-packs/">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Image<em> packs.</em></h3>
+            <span class="meta">Visuals &middot; Curated</span>
+          </div>
+          <p>AI-generated visual collections &mdash; characters, interiors, super-heroes, more.</p>
+          <span class="year">Publishing</span>
+          <span class="go">&rarr;</span>
+        </a>
+
+        <a class="ap-pd op-archive" href="/projects/">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">All<em> projects.</em></h3>
+            <span class="meta">Index</span>
+          </div>
+          <p>The complete portfolio of shipped studio work.</p>
+          <span class="year">Catalog</span>
+          <span class="go">&rarr;</span>
+        </a>
       </div>
     </section>
 
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <!-- §2.15 CTA -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Listen in,<br><em>or drift off.</em></h2>
+    <p>Subscribe for new environments every week &mdash; or queue a playlist and step away from the screen.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn yt-subscribe" href="https://www.youtube.com/@ambientpixels6107" target="_blank" rel="noopener noreferrer">Subscribe &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="https://www.youtube.com/@ambientpixels6107/videos" target="_blank" rel="noopener noreferrer">Watch latest</a>
+    </div>
+    <a class="ap-link-mono" href="https://www.youtube.com/@ambientpixels6107/playlists" target="_blank" rel="noopener noreferrer">Or browse all playlists &rarr;</a>
+  </section>
+
+  <!-- §2.14 Footer -->
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>

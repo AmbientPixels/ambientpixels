@@ -1,38 +1,114 @@
-<!-- File: /projects/cools.html -->
-<!-- $COOLS - A community-driven cryptocurrency inspired by the legendary Cool S -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="$COOLS - A community-driven cryptocurrency project inspired by the iconic Cool S symbol from 90s school culture." />
-  <meta property="og:title" content="$COOLS - The Coolest Meme Coin" />
-  <meta property="og:description" content="Bringing the iconic Cool S to the blockchain with a community-driven approach." />
+  <meta name="description" content="$COOLS — a community-driven cryptocurrency project inspired by the iconic Cool S symbol from 90s school culture. Live on Ethereum Mainnet." />
+  <meta property="og:title" content="$COOLS — AmbientPixels" />
+  <meta property="og:description" content="Community-driven cryptocurrency built on the iconic 90s Cool S symbol. Generative art, fair launch, no presale." />
   <meta property="og:image" content="/images/projects/cools/og-image.jpg" />
-  <meta property="og:url" content="https://ambientpixels.github.io/projects/cools" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/cools" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>$COOLS - The Coolest Meme Coin</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
+  <title>$COOLS — AmbientPixels</title>
 
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <!-- DS fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <!-- DS canonical stack -->
   <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <!-- Lightbox modal styles for the project gallery -->
+  <link rel="stylesheet" href="/css/lightbox.css" />
+
+  <!-- Page-scoped: gallery grid, video frame, tech list. DS tokens only. -->
+  <style>
+    /* Hero case-media — keep $COOLS art in full color (no DS grayscale wash) */
+    .ap-case-media-frame.cools-hero img { filter: none; }
+    .ap-case-media-frame.cools-hero::after { content: none; }
+
+    .cools-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-5);
+    }
+    .cools-gallery a {
+      display: block;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .cools-gallery img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: transform var(--dur-med);
+    }
+    .cools-gallery a:hover img { transform: scale(1.04); }
+    .cools-gallery .cap {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.55);
+      margin: var(--sp-3) 0 0;
+    }
+    @media (max-width: 1000px) { .cools-gallery { grid-template-columns: 1fr; } }
+
+    .cools-video {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .cools-video video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      display: block; background: #000;
+    }
+
+    .cools-tools {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.8);
+      max-width: var(--max-prose);
+    }
+    .cools-tools li {
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+    }
+    .cools-tools li:first-child { border-top: none; }
+    .cools-tools li::before { content: '→ '; opacity: .45; }
+
+    /* Feature pillars use the standard .ap-pillars pattern; small adjustment for
+       the closing quote line at the bottom of each pillar. */
+    .cools-pillar-quote {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: var(--fw-regular);
+      font-size: var(--fs-body-sm);
+      line-height: var(--lh-body);
+      opacity: .68;
+      margin: var(--sp-5) 0 0;
+      padding-top: var(--sp-3);
+      border-top: 1px solid var(--color-border-soft);
+    }
+  </style>
+
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <script src="/js/lightbox.js" type="module"></script>
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-  <div id="banner-container"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
+  <!-- §2.2 Nav -->
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -49,163 +125,234 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="mini-hero">
-    <img src="/images/projects/cools/image01.jpg" alt="$COOLS - The Coolest Meme Coin" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>$COOLS</h1>
-      <p class="subtitle">The coolest meme coin on the blockchain</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-    <section class="content-section grid-col-12">
-      <h2>Introduction</h2>
-      <p>$COOLS is a community-driven cryptocurrency project that brings the iconic Cool S symbol from 90s school culture to the blockchain. This project combines nostalgia with modern web3 technology to create a fun and engaging community experience.</p>
-    </section>
-
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <div class="project-card">
-        <h3>$COOLS Token</h3>
-        <p>A decentralized cryptocurrency that pays homage to the iconic Cool S symbol. The project aims to build a strong community around this nostalgic symbol while exploring the possibilities of blockchain technology.</p>
-        <p><strong>Status:</strong> Live on Ethereum Mainnet</p>
-        <div class="project-buttons">
-          <a href="https://ambientpixels.github.io/cools-website/" class="btn btn-primary" target="_blank" rel="noopener noreferrer" style="text-decoration: none !important; -webkit-text-decoration: none !important; text-decoration-line: none !important;">
-            <i class="fas fa-external-link-alt"></i> View Live
-          </a>
-          <a href="https://pump.fun/coin/Ak6sYoaZwUxmfsYscNeX9tiukUM67zqBxya5uuwqpump" class="btn btn-secondary" target="_blank" rel="noopener noreferrer" style="text-decoration: none !important; -webkit-text-decoration: none !important; text-decoration-line: none !important;">
-            <i class="fas fa-coins"></i> View on pump.fun
-          </a>
+    <!-- Hero -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; $COOLS / GENERATIVE</div>
+          <h1 class="ap-display">$COOLS<em>.</em></h1>
         </div>
+        <div class="ap-sec-meta">
+          Community-driven cryptocurrency built on the iconic 90s &ldquo;Cool S&rdquo; symbol. Live on Ethereum Mainnet. Generative NFT art, fair launch, no presale.
+        </div>
+      </div>
+      <div style="margin-top: var(--sp-6);">
+        <span class="ap-status ap-status--live">Live on Ethereum Mainnet</span>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2>Tech Stack</h2>
-      <ul class="tech-stack">
-        <li><i class="fab fa-ethereum"></i> Ethereum Smart Contracts (Solidity)</li>
-        <li><i class="fab fa-js"></i> Web3.js</li>
-        <li><i class="fab fa-react"></i> React.js</li>
-        <li><i class="fas fa-server"></i> Node.js</li>
-        <li><i class="fas fa-database"></i> IPFS</li>
-        <li><i class="fas fa-film"></i> Adobe After Effects</li>
-        <li><i class="fas fa-video"></i> Adobe Premiere Pro</li>
-        <li><i class="fas fa-compact-disc"></i> Adobe Media Encoder</li>
-        <li><i class="fas fa-paint-brush"></i> Adobe Photoshop</li>
+    <!-- Hero case-media — full color -->
+    <div class="ap-case-media">
+      <div class="ap-case-media-frame cools-hero">
+        <img src="/images/projects/cools/image01.jpg" alt="$COOLS — the coolest meme coin" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- § 01 — INTRODUCTION -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; INTRODUCTION</div>
+          <h2 class="ap-display">A symbol from <em>school desks,</em><br>now on-chain.</h2>
+        </div>
+        <div class="ap-sec-meta">
+          The Cool S &mdash; doodled on every notebook in the &lsquo;90s &mdash; reborn as a community token and a generative art collection.
+        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        $COOLS is a community-driven cryptocurrency project that brings the iconic Cool S symbol from 90s school culture to the blockchain. The project combines nostalgia with modern web3 technology to create a fun and engaging community experience.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
+        A decentralized token that pays homage to the iconic mark, $COOLS aims to build a strong community around this nostalgic symbol while exploring the possibilities of blockchain technology.
+      </p>
+      <div class="ap-cta-actions" style="display: flex; gap: var(--sp-3); flex-wrap: wrap;">
+        <a class="ap-btn ap-btn--primary" href="https://ambientpixels.github.io/cools-website/" target="_blank" rel="noopener noreferrer">View live site &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="https://pump.fun/coin/Ak6sYoaZwUxmfsYscNeX9tiukUM67zqBxya5uuwqpump" target="_blank" rel="noopener noreferrer">View on pump.fun</a>
+      </div>
+    </section>
+
+    <!-- § 02 — TECH STACK -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; TECH STACK</div>
+          <h2 class="ap-display">Smart contracts, <em>then post-production.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Web3 stack on the chain side. Adobe pipeline on the visual side.
+        </div>
+      </div>
+      <ul class="cools-tools">
+        <li>Ethereum smart contracts &mdash; Solidity</li>
+        <li>Web3.js</li>
+        <li>React.js</li>
+        <li>Node.js</li>
+        <li>IPFS</li>
+        <li>Adobe After Effects</li>
+        <li>Adobe Premiere Pro</li>
+        <li>Adobe Media Encoder</li>
+        <li>Adobe Photoshop</li>
       </ul>
     </section>
 
-    <section class="grid-col-12 content-section">
-      <div class="section-header">
-        <h2><i class="fas fa-star"></i> Features</h2>
-        <p class="section-subtitle">Explore the unique features of the Cool S project, designed with creativity and community in mind.</p>
+    <!-- § 03 — FEATURES -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; FEATURES</div>
+          <h2 class="ap-display">Community, art, <em>and mobile-first.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Three principles that shaped the launch &mdash; designed with creativity and community in mind.
+        </div>
       </div>
-      
-      <div class="card-grid">
-        <!-- Community -->
-        <div class="card">
-          <div class="card-icon"><i class="fas fa-users fa-2x"></i></div>
-          <h3>Community Driven</h3>
-          <ul class="card-links">
-            <li><a href="#" class="card-link"><i class="fas fa-handshake"></i> Fair Launch</a></li>
-            <li><a href="#" class="card-link"><i class="fas fa-comments"></i> Community Forums</a></li>
-            <li><a href="#" class="card-link"><i class="fas fa-vote-yea"></i> Governance</a></li>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Community<br><em>driven.</em></h3>
+          <p>Built by and for the community with a fair launch and no presale.</p>
+          <ul>
+            <li>Fair launch</li>
+            <li>Community forums</li>
+            <li>Governance</li>
           </ul>
-          <p class="card-quote">"Built by and for the community with a fair launch and no presale."</p>
+          <p class="cools-pillar-quote">&ldquo;Built by and for the community with a fair launch and no presale.&rdquo;</p>
         </div>
-        
-        <!-- Art -->
-        <div class="card">
-          <div class="card-icon"><i class="fas fa-paint-brush fa-2x"></i></div>
-          <h3>Generative Art</h3>
-          <ul class="card-links">
-            <li><a href="#" class="card-link"><i class="fas fa-palette"></i> Unique Variations</a></li>
-            <li><a href="#" class="card-link"><i class="fas fa-certificate"></i> NFT Collection</a></li>
-            <li><a href="#" class="card-link"><i class="fas fa-images"></i> Gallery</a></li>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Generative<br><em>art.</em></h3>
+          <p>Unique Cool S variations generated as NFTs for collectors.</p>
+          <ul>
+            <li>Unique variations</li>
+            <li>NFT collection</li>
+            <li>Gallery</li>
           </ul>
-          <p class="card-quote">"Unique Cool S variations generated as NFTs for collectors."</p>
+          <p class="cools-pillar-quote">&ldquo;Unique Cool S variations generated as NFTs for collectors.&rdquo;</p>
         </div>
-        
-        <!-- Mobile -->
-        <div class="card">
-          <div class="card-icon"><i class="fas fa-mobile-alt fa-2x"></i></div>
-          <h3>Mobile First</h3>
-          <ul class="card-links">
-            <li><a href="#" class="card-link"><i class="fas fa-tablet-alt"></i> Responsive Design</a></li>
-            <li><a href="#" class="card-link"><i class="fas fa-tachometer-alt"></i> Fast Loading</a></li>
-            <li><a href="#" class="card-link"><i class="fas fa-universal-access"></i> Accessibility</a></li>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Mobile<br><em>first.</em></h3>
+          <p>Fully responsive design that works on every device.</p>
+          <ul>
+            <li>Responsive design</li>
+            <li>Fast loading</li>
+            <li>Accessibility</li>
           </ul>
-          <p class="card-quote">"Fully responsive design that works on all devices."</p>
+          <p class="cools-pillar-quote">&ldquo;Fully responsive design that works on all devices.&rdquo;</p>
         </div>
       </div>
     </section>
 
-    <section class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Project Gallery</h2>
-      <div class="media-grid">
-        <div class="media-item">
+    <!-- § 04 — GALLERY -->
+    <section class="ap-sec ap-sec--cool" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; PROJECT GALLERY</div>
+          <h2 class="ap-display">Three frames, <em>one mark.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Tap an image to expand.
+        </div>
+      </div>
+      <div class="cools-gallery">
+        <div>
           <a href="/images/projects/cools/image01.jpg" class="lightbox-trigger" data-caption="$COOLS Project">
-            <img src="/images/projects/cools/image01.jpg" alt="$COOLS Project" loading="lazy">
+            <img src="/images/projects/cools/image01.jpg" alt="$COOLS Project frame 01" loading="lazy" />
           </a>
-          <p class="media-caption">$COOLS Project</p>
+          <p class="cap">01 &mdash; $COOLS Project</p>
         </div>
-        <div class="media-item">
+        <div>
           <a href="/images/projects/cools/image02.jpg" class="lightbox-trigger" data-caption="$COOLS Project">
-            <img src="/images/projects/cools/image02.jpg" alt="$COOLS Project" loading="lazy">
+            <img src="/images/projects/cools/image02.jpg" alt="$COOLS Project frame 02" loading="lazy" />
           </a>
-          <p class="media-caption">$COOLS Project</p>
+          <p class="cap">02 &mdash; $COOLS Project</p>
         </div>
-        <div class="media-item">
+        <div>
           <a href="/images/projects/cools/image03.jpg" class="lightbox-trigger" data-caption="$COOLS Project">
-            <img src="/images/projects/cools/image03.jpg" alt="$COOLS Project" loading="lazy">
+            <img src="/images/projects/cools/image03.jpg" alt="$COOLS Project frame 03" loading="lazy" />
           </a>
-          <p class="media-caption">$COOLS Project</p>
+          <p class="cap">03 &mdash; $COOLS Project</p>
         </div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2>Video Showcase</h2>
- 
-        <div class="video-item">
-          <h3 class="video-title">$COOLS Logo Reveal</h3>
-          <div class="video-wrapper">
-            <video controls poster="/images/projects/cools/image02.jpg">
-              <source src="https://github.com/AmbientPixels/cools-website/raw/refs/heads/main/light-logo-reveal.mp4" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
+    <!-- § 05 — VIDEO -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; VIDEO</div>
+          <h2 class="ap-display">$COOLS logo<em> reveal.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Light-on-dark reveal cut for the launch.
+        </div>
+      </div>
+      <div class="cools-video">
+        <video controls poster="/images/projects/cools/image02.jpg">
+          <source src="https://github.com/AmbientPixels/cools-website/raw/refs/heads/main/light-logo-reveal.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </section>
+
+    <!-- § 06 — RELATED WORK -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-live" href="/projects/youtube.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">YouTube<em> channel.</em></h3>
+            <span class="meta">Ambient &middot; Atmosphere</span>
           </div>
-        </div>
-
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/youtube.html">
-          <strong class="related-project-card-title">
-            <i class="fab fa-youtube"></i> YouTube Channel
-          </strong>
-          <p>Watch our creative process and tutorials</p>
+          <p>Watch the creative process and ambient soundscapes from the studio.</p>
+          <span class="year">Publishing</span>
+          <span class="go">&rarr;</span>
         </a>
-        <a class="related-project-card" href="/projects/image-packs/interiors.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-image"></i> Image Packs Hub
-          </strong>
-          <p>Curated collections of high-resolution, AI-generated images</p>
+        <a class="ap-pd op-live" href="/projects/image-packs/interiors.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Image<em> packs.</em></h3>
+            <span class="meta">Visuals &middot; Curated</span>
+          </div>
+          <p>Curated collections of high-resolution, AI-generated images.</p>
+          <span class="year">Publishing</span>
+          <span class="go">&rarr;</span>
         </a>
-        <a class="related-project-card" href="/projects">
-          <strong class="related-project-card-title">
-            <i class="fas fa-th-large"></i> All Projects
-          </strong>
-          <p>Explore our complete portfolio</p>
+        <a class="ap-pd op-archive" href="/projects/">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">All<em> projects.</em></h3>
+            <span class="meta">Index</span>
+          </div>
+          <p>Explore the complete portfolio of shipped studio work.</p>
+          <span class="year">Catalog</span>
+          <span class="go">&rarr;</span>
         </a>
       </div>
     </section>
-    
+
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <!-- §2.15 CTA -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got an idea<br><em>worth a community?</em></h2>
+    <p>Token launches, generative art collections, and the visual identities that hold them together &mdash; from concept to chain.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
+  <!-- §2.14 Footer -->
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -252,12 +399,5 @@
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
 
-  <script>
-    if (typeof bannerConfig === 'undefined') {
-      window.bannerConfig = { enabled: false };
-    }
-  </script>
-  
-  <script src="/js/lightbox.js" type="module"></script>
 </body>
 </html>

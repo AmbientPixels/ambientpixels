@@ -1,35 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Contract project designing a Figma onboarding toolkit for Xbox Support team at Microsoft." />
-  <meta property="og:title" content="Figma Fleet – Onboarding Toolkit | AmbientPixels" />
-  <meta property="og:description" content="A visual-first training toolkit designed in Figma for Microsoft’s Xbox Support team." />
+  <meta name="description" content="Contract UX design — a Figma-based onboarding toolkit for Microsoft's Xbox Support content team. Annotated walkthroughs, shortcut overlays, component systems." />
+  <meta property="og:title" content="Figma Fleet — AmbientPixels" />
+  <meta property="og:description" content="A visual-first Figma training toolkit designed for Microsoft's Xbox Support team." />
   <meta property="og:image" content="/images/projects/figma-fleet/figma-fleet-1.png" />
-  <meta property="og:url" content="https://ambientpixels.ai/projects/figma-fleet-training" />
-  <meta name="theme-color" content="#071019" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/figma-fleet" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Figma Fleet – Microsoft Xbox Support Onboarding | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <title>Figma Fleet — AmbientPixels</title>
 
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <!-- DS fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <!-- DS canonical stack -->
   <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+
+  <!-- Lightbox modal styles (used by /js/lightbox.js for the gallery) -->
+  <link rel="stylesheet" href="/css/lightbox.css" />
+
+  <!-- Page-scoped: gallery grid + impact metrics + tech list. DS tokens only. -->
+  <style>
+    .ff-gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-5);
+    }
+    .ff-gallery a {
+      display: block;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .ff-gallery img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: grayscale(.7) contrast(1) brightness(.85);
+      transition: filter var(--dur-med);
+    }
+    .ff-gallery a:hover img { filter: grayscale(0) contrast(1) brightness(1); }
+    .ff-gallery .cap {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.55);
+      margin: var(--sp-3) 0 0;
+    }
+    @media (max-width: 1000px) { .ff-gallery { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width:  600px) { .ff-gallery { grid-template-columns: 1fr; } }
+
+    .ff-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-8);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--sp-12) 0;
+    }
+    .ff-metric .num {
+      font-family: var(--font-heavy);
+      font-size: 72px;
+      line-height: 1;
+      letter-spacing: var(--tracking-display);
+      margin: 0 0 var(--sp-3);
+    }
+    .ff-metric .lbl {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.6);
+    }
+    @media (max-width: 1000px) { .ff-metrics { grid-template-columns: 1fr; gap: var(--sp-10); } }
+
+    .ff-tools {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      text-transform: uppercase;
+      opacity: var(--mono-opacity-boost, 0.8);
+      max-width: var(--max-prose);
+    }
+    .ff-tools li {
+      padding: var(--sp-3) 0;
+      border-top: 1px dashed var(--color-border-dashed);
+    }
+    .ff-tools li:first-child { border-top: none; }
+    .ff-tools li::before { content: '→ '; opacity: .45; }
+
+    .ff-bts {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--sp-12);
+      align-items: start;
+    }
+    .ff-bts .ff-bts-img {
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+    }
+    .ff-bts .ff-bts-img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: grayscale(.7) contrast(1) brightness(.85);
+    }
+    @media (max-width: 1000px) { .ff-bts { grid-template-columns: 1fr; } }
+
+    /* Drop the DS grayscale filter on this page's hero case-media — keep the UI in color. */
+    .ap-case-media-frame.ff-hero img { filter: none; }
+    .ap-case-media-frame.ff-hero::after { content: none; }
+  </style>
+
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <script src="/js/lightbox.js" type="module"></script>
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
-  <div class="tx-layer" aria-hidden="true"></div>  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+  <div class="tx-layer" aria-hidden="true"></div>
+
+  <!-- §2.2 Nav -->
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -46,93 +143,242 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card">
-    <div class="hero-card-image">
-      <img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet Onboarding" loading="lazy">
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">UX Design</div>
-      <h1>Figma Fleet – Onboarding Toolkit</h1>
-      <p class="hero-card-description">Contract design work for Microsoft's Xbox Support — a Figma-based UX training toolkit</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <p>As a contract visual designer for Microsoft, I was tasked with building a clear, visually guided onboarding toolkit for Xbox Support team members learning Figma. This project—internally nicknamed “Figma Fleet”—focused on practical UX onboarding using annotated screenshots, shortcut overlays, and structured flows within a shared Figma workspace.</p>
-      <p>The toolkit empowers support leads and content creators to understand frame hierarchy, edit flows, and contribute lightweight updates to shared files. It blends system clarity with just enough visual charm to keep engagement high.</p>
-    </section>
-
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Visual Highlights</h2>
-      <div class="media-grid">
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-1.png" class="lightbox-trigger" data-caption="Figma dashboard showcasing shared Xbox project files."><img src="/images/projects/figma-fleet/figma-fleet-1.png" alt="Figma dashboard" loading="lazy"></a><p class="media-caption">Figma project dashboard</p></div>
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-2.png" class="lightbox-trigger" data-caption="Layer panel walkthrough with naming conventions."><img src="/images/projects/figma-fleet/figma-fleet-2.png" alt="Layer panel" loading="lazy"></a><p class="media-caption">Layer naming walkthrough</p></div>
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-3.png" class="lightbox-trigger" data-caption="Frame structure demonstrating layout and spacing tools."><img src="/images/projects/figma-fleet/figma-fleet-3.png" alt="Frame spacing" loading="lazy"></a><p class="media-caption">Frame & layout logic</p></div>
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-4.png" class="lightbox-trigger" data-caption="Component library with Xbox-themed UI modules."><img src="/images/projects/figma-fleet/figma-fleet-4.png" alt="Component library" loading="lazy"></a><p class="media-caption">Component system overview</p></div>
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-5.png" class="lightbox-trigger" data-caption="Commenting tools in use during review session."><img src="/images/projects/figma-fleet/figma-fleet-5.png" alt="Comments in use" loading="lazy"></a><p class="media-caption">Feedback mode demo</p></div>
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-6.png" class="lightbox-trigger" data-caption="Interactive prototype preview for support flows."><img src="/images/projects/figma-fleet/figma-fleet-6.png" alt="Prototype preview" loading="lazy"></a><p class="media-caption">Prototype simulation</p></div>
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-7.png" class="lightbox-trigger" data-caption="Keyboard shortcuts overlay for fast nav and edits."><img src="/images/projects/figma-fleet/figma-fleet-7.png" alt="Shortcut overlay" loading="lazy"></a><p class="media-caption">Keyboard shortcuts map</p></div>
-        <div class="media-item"><a href="/images/projects/figma-fleet/figma-fleet-8.png" class="lightbox-trigger" data-caption="Finished tutorial asset ready for internal publishing."><img src="/images/projects/figma-fleet/figma-fleet-8.png" alt="Final asset" loading="lazy"></a><p class="media-caption">Final tutorial output</p></div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-cogs"></i> Behind the Scenes</h2>
-      <p>This project required a blend of visual clarity and tool fluency. I began by mapping the most common questions Xbox Support teams asked about Figma—from file access to layer control. I then staged a multi-screen walkthrough, capturing each phase with annotation layers and a consistent visual style.</p>
-      <p><img src="/images/projects/figma-fleet/figma-fleet-3.png" alt="Inline structure reference" class="inline-img">The process also included creating a keyboard overlay system to teach shortcuts visually, helping speed up team fluency in live-edit scenarios.</p>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-tools"></i> Tools & Techniques</h2>
-      <ul class="tech-stack">
-        <li><i class="fas fa-vector-square"></i> Figma (desktop + web)</li>
-        <li><i class="fas fa-pencil-ruler"></i> UI Annotation & Markup Design</li>
-        <li><i class="fas fa-mouse-pointer"></i> Snagit, Skitch & Screenshot Workflows</li>
-        <li><i class="fas fa-keyboard"></i> Custom Shortcut Mapping & Overlay UX</li>
-        <li><i class="fas fa-shapes"></i> Component Systems & Library Hygiene</li>
-        <li><i class="fas fa-low-vision"></i> WCAG Contrast & Accessibility Checks</li>
-        <li><i class="fas fa-chalkboard"></i> Visual Documentation for Training</li>
-      </ul>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-chart-line"></i> Results & Impact</h2>
-      <div class="impact-metrics">
-        <div class="metric-card"><i class="fas fa-file-alt"></i><h3>10+</h3><p>Annotated walkthroughs created</p></div>
-        <div class="metric-card"><i class="fas fa-user-check"></i><h3>12</h3><p>Team members trained</p></div>
-        <div class="metric-card"><i class="fas fa-stopwatch"></i><h3>40%</h3><p>Faster onboarding time</p></div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-lightbulb"></i> Key Learnings</h2>
-      <div class="learnings-grid">
-        <div class="learning-card"><i class="fas fa-chalkboard-teacher"></i><h3>Visual Learning First</h3><p>Figma adoption is faster when examples are practical, repeatable, and visual.</p></div>
-        <div class="learning-card"><i class="fas fa-ruler-combined"></i><h3>Component Discipline</h3><p>Even small teams benefit from shared structure and consistent naming.</p></div>
-        <div class="learning-card"><i class="fas fa-user-friends"></i><h3>Support-Centric Design</h3><p>Design training should reflect the real tools and constraints of the team.</p></div>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12 next-project">
-      <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-      <div class="next-project-card">
-        <div class="next-project-content">
-          <h3>Copilot Playground</h3>
-          <p>AI-driven prompt testing environment for Xbox gaming help flows.</p>
-          <a href="/projects/copilotplayground.html" class="btn btn-secondary">
-            View Project <i class="fas fa-arrow-right"></i>
-          </a>
+    <!-- Hero -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX SUPPORT</div>
+          <h1 class="ap-display">Figma<em> Fleet.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          Contract UX design &mdash; a visual-first Figma onboarding toolkit for the Xbox Support content team. Annotated walkthroughs, shortcut overlays, component systems. 2024.
         </div>
       </div>
     </section>
+
+    <!-- Hero case-media — full-bleed, full color (no DS grayscale wash) -->
+    <div class="ap-case-media">
+      <div class="ap-case-media-frame ff-hero">
+        <img src="/images/projects/figma-fleet/figma-fleet-1920-01a.jpg" alt="Figma Fleet onboarding hero" loading="lazy" />
+      </div>
+    </div>
+
+    <!-- § 01 — OVERVIEW -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; OVERVIEW</div>
+          <h2 class="ap-display">A toolkit, <em>not a manual.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Built around the questions support leads actually asked: file access, layer control, edit flow.
+        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        As a contract visual designer for Microsoft, I built a clear, visually guided onboarding toolkit for Xbox Support team members learning Figma. The project &mdash; internally nicknamed &ldquo;Figma Fleet&rdquo; &mdash; focused on practical UX onboarding using annotated screenshots, shortcut overlays, and structured flows within a shared Figma workspace.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        The toolkit empowers support leads and content creators to understand frame hierarchy, edit flows, and contribute lightweight updates to shared files. System clarity, with just enough visual charm to keep engagement high.
+      </p>
+    </section>
+
+    <!-- § 02 — VISUAL HIGHLIGHTS -->
+    <section class="ap-sec ap-sec--cool" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; VISUAL HIGHLIGHTS</div>
+          <h2 class="ap-display">Eight frames, <em>one fleet.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The toolkit at a glance &mdash; dashboards, layer logic, components, prototypes, shortcuts, final assets. Tap to expand.
+        </div>
+      </div>
+      <div class="ff-gallery">
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-1.png" class="lightbox-trigger" data-caption="Figma dashboard showcasing shared Xbox project files.">
+            <img src="/images/projects/figma-fleet/figma-fleet-1.png" alt="Figma dashboard" loading="lazy" />
+          </a>
+          <p class="cap">01 &mdash; Project dashboard</p>
+        </div>
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-2.png" class="lightbox-trigger" data-caption="Layer panel walkthrough with naming conventions.">
+            <img src="/images/projects/figma-fleet/figma-fleet-2.png" alt="Layer panel" loading="lazy" />
+          </a>
+          <p class="cap">02 &mdash; Layer naming</p>
+        </div>
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-3.png" class="lightbox-trigger" data-caption="Frame structure demonstrating layout and spacing tools.">
+            <img src="/images/projects/figma-fleet/figma-fleet-3.png" alt="Frame spacing" loading="lazy" />
+          </a>
+          <p class="cap">03 &mdash; Frame &amp; layout</p>
+        </div>
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-4.png" class="lightbox-trigger" data-caption="Component library with Xbox-themed UI modules.">
+            <img src="/images/projects/figma-fleet/figma-fleet-4.png" alt="Component library" loading="lazy" />
+          </a>
+          <p class="cap">04 &mdash; Component system</p>
+        </div>
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-5.png" class="lightbox-trigger" data-caption="Commenting tools in use during review session.">
+            <img src="/images/projects/figma-fleet/figma-fleet-5.png" alt="Comments in use" loading="lazy" />
+          </a>
+          <p class="cap">05 &mdash; Feedback mode</p>
+        </div>
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-6.png" class="lightbox-trigger" data-caption="Interactive prototype preview for support flows.">
+            <img src="/images/projects/figma-fleet/figma-fleet-6.png" alt="Prototype preview" loading="lazy" />
+          </a>
+          <p class="cap">06 &mdash; Prototype simulation</p>
+        </div>
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-7.png" class="lightbox-trigger" data-caption="Keyboard shortcuts overlay for fast nav and edits.">
+            <img src="/images/projects/figma-fleet/figma-fleet-7.png" alt="Shortcut overlay" loading="lazy" />
+          </a>
+          <p class="cap">07 &mdash; Shortcut map</p>
+        </div>
+        <div>
+          <a href="/images/projects/figma-fleet/figma-fleet-8.png" class="lightbox-trigger" data-caption="Finished tutorial asset ready for internal publishing.">
+            <img src="/images/projects/figma-fleet/figma-fleet-8.png" alt="Final asset" loading="lazy" />
+          </a>
+          <p class="cap">08 &mdash; Final tutorial</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 03 — BEHIND THE SCENES -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; BEHIND THE SCENES</div>
+          <h2 class="ap-display">Map the questions, <em>then answer in pictures.</em></h2>
+        </div>
+      </div>
+      <div class="ff-bts">
+        <div>
+          <p style="font-size: var(--fs-body); line-height: var(--lh-body); opacity: .82; margin: 0 0 var(--sp-5);">
+            This project required a blend of visual clarity and tool fluency. I started by mapping the most common questions Xbox Support teams asked about Figma &mdash; from file access to layer control. Then I staged a multi-screen walkthrough, capturing each phase with annotation layers and a consistent visual style.
+          </p>
+          <p style="font-size: var(--fs-body); line-height: var(--lh-body); opacity: .82; margin: 0;">
+            The process also included building a keyboard overlay system that teaches shortcuts visually, helping speed up team fluency in live-edit scenarios.
+          </p>
+        </div>
+        <div class="ff-bts-img">
+          <img src="/images/projects/figma-fleet/figma-fleet-3.png" alt="Inline structure reference" loading="lazy" />
+        </div>
+      </div>
+    </section>
+
+    <!-- § 04 — TOOLS &amp; TECHNIQUES -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; TOOLS &amp; TECHNIQUES</div>
+          <h2 class="ap-display">Seven habits, <em>one toolkit.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The stack and the discipline.
+        </div>
+      </div>
+      <ul class="ff-tools">
+        <li>Figma &mdash; desktop &amp; web</li>
+        <li>UI annotation &amp; markup design</li>
+        <li>Snagit, Skitch &amp; screenshot workflows</li>
+        <li>Custom shortcut mapping &amp; overlay UX</li>
+        <li>Component systems &amp; library hygiene</li>
+        <li>WCAG contrast &amp; accessibility checks</li>
+        <li>Visual documentation for training</li>
+      </ul>
+    </section>
+
+    <!-- § 05 — IMPACT -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; IMPACT</div>
+          <h2 class="ap-display">Three numbers, <em>one shipped fleet.</em></h2>
+        </div>
+      </div>
+      <div class="ff-metrics">
+        <div class="ff-metric">
+          <p class="num">10+</p>
+          <p class="lbl">Annotated walkthroughs created</p>
+        </div>
+        <div class="ff-metric">
+          <p class="num">12</p>
+          <p class="lbl">Team members trained</p>
+        </div>
+        <div class="ff-metric">
+          <p class="num">40%</p>
+          <p class="lbl">Faster onboarding time</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 06 — LEARNINGS -->
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; LEARNINGS</div>
+          <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
+        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar">
+          <div class="num">01</div>
+          <h3 class="ap-display ap-display--pillar">Visual learning<br><em>first.</em></h3>
+          <p>Figma adoption is faster when examples are practical, repeatable, and visual.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">02</div>
+          <h3 class="ap-display ap-display--pillar">Component<br><em>discipline.</em></h3>
+          <p>Even small teams benefit from shared structure and consistent naming.</p>
+        </div>
+        <div class="ap-pillar">
+          <div class="num">03</div>
+          <h3 class="ap-display ap-display--pillar">Support-centric<br><em>design.</em></h3>
+          <p>Design training should reflect the real tools and constraints of the team.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- § 07 — NEXT WORK -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; NEXT WORK</div>
+          <h2 class="ap-display">Adjacent project, <em>same client.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/copilotplayground.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3>
+            <span class="meta">Microsoft Xbox &middot; AI tooling</span>
+          </div>
+          <p>AI-driven prompt testing environment for Xbox gaming help flows.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <!-- §2.15 CTA -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Have a team to onboard?<br><em>Let&rsquo;s build the toolkit.</em></h2>
+    <p>Visual-first training for design tools, content systems, and the workflows in between &mdash; scoped for the team you actually have.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
+  <!-- §2.14 Footer -->
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -179,7 +425,5 @@
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
 
-  <script src="/modules/breadcrumb.js" defer></script> <!-- updated by Cascade -->
-  
 </body>
 </html>
