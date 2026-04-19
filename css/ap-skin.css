@@ -1241,6 +1241,17 @@ footer.footer-disclaimer,
   border-radius: 0;
 }
 
+/* Kill the cyan vignette halo at slider edges — violates DS §3.4
+   (neutral elevation only, no hue glow). The .compare-aura-ring + the
+   .compare-quote-whisper "active" state both fire a 32-64px cyan box
+   shadow that lights up the entire slider in teal at extreme positions.
+   The slider drag itself is the affordance — we don't need a halo. */
+.compare-aura-ring,
+.compare-aura-ring.active,
+.compare-quote-whisper.active {
+  display: none;
+}
+
 /* Wrapper-child tag/badge patterns — these single-class wrappers contain
    <span> children that pick up rounded corners via descendant selectors
    like `.project-tags span` (0,1,1) which beats my flat `.tech-badge`

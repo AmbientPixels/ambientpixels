@@ -33,8 +33,6 @@
     const wrap = container.closest('.compare-3col') || container.parentElement?.parentElement || document;
     const beforePills = wrap.querySelectorAll('[data-key="before"], .compare-pill[data-side="before"]');
     const afterPills = wrap.querySelectorAll('[data-key="after"], .compare-pill[data-side="after"]');
-    const auraRing = container.querySelector('.compare-aura-ring');
-    const whisper = container.querySelector('.compare-quote-whisper');
 
     let dragging = false;
 
@@ -57,14 +55,10 @@
         });
       }
 
-      // Aura ring fades in near the edges (pure visual flourish)
-      if (auraRing) {
-        auraRing.classList.toggle('active', p < 12 || p > 88);
-      }
-      // Whisper quote shows briefly when slider is at far edges
-      if (whisper) {
-        whisper.classList.toggle('active', p < 8 || p > 92);
-      }
+      // Note: NOT toggling .compare-aura-ring or .compare-quote-whisper
+      // .active. The CSS for those uses cyan halo glow which violates DS
+      // §3.4 (neutral elevation only — no hue, no glow). The elements
+      // exist in markup but stay at base opacity:0 / inactive state.
     }
 
     function pctFromEvent(clientX) {
