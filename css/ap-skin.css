@@ -307,10 +307,21 @@ h1 em, h2 em, h3 em, h4 em {
   margin: var(--sp-6, 24px) 0;
 }
 
-/* Image-row gallery — used by case studies / project pages for inline
-   3-column lightbox image groups (Color Grading, Behind the Scenes, etc.).
-   No CSS existed for these classes anywhere in the legacy stack — adding
-   minimal DS-correct styling here so they render as a proper grid. */
+/* ---- Unified gallery style (.media-grid + .image-row) ---------------
+   One canonical pattern for every image gallery on the site. .media-grid
+   is the legacy class (used on most project pages); .image-row was added
+   later for case-study image groups. Both render identically here.
+
+   Replaces:
+   - projects.css :3183-3245 .media-grid/.media-item heavy chrome
+   - projects.css :3326-3358 .media-item img + hover-revealed caption
+   - missing .image-row/.image-item styles entirely
+
+   Style: 3+ column responsive grid, hairline-bordered tiles, 4:3 cropped
+   images with brightness+scale hover, always-visible mono caption strip
+   below the image (NOT a hover-revealed overlay). */
+
+.media-grid,
 .image-row {
   display: grid;
   /* auto-fit collapses empty column tracks so a 3-item row fills the
@@ -318,40 +329,79 @@ h1 em, h2 em, h3 em, h4 em {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--sp-3, 12px);
   margin: var(--sp-6, 24px) 0;
+  padding: 0;
 }
+
+.media-item,
 .image-item {
   position: relative;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: auto;  /* override projects.css `height: 100%` which assumed a
+                    fixed-height grid; we use intrinsic content height now */
+  margin: 0;
+  padding: 0;
 }
+
+.media-item a,
 .image-item a {
   display: block;
   overflow: hidden;
   text-decoration: none;
+  color: inherit;
 }
+
+.media-item img,
 .image-item img {
   width: 100%;
+  height: auto;       /* override projects.css `height: 300px` rigid sizing */
   aspect-ratio: 4 / 3;
   object-fit: cover;
   display: block;
   transition: transform var(--dur-med, .3s), filter var(--dur-med, .3s);
+  border-radius: 0;
 }
-.image-item a:hover img {
+
+.media-item a:hover img,
+.media-item:hover img,
+.image-item a:hover img,
+.image-item:hover img {
   filter: brightness(1.08);
   transform: scale(1.04);
 }
-.image-item .image-caption {
+
+/* Caption — always visible mono strip below image. Override projects.css
+   :3339 which made it a hidden absolute-positioned overlay revealed on
+   hover; the new pattern keeps captions readable at all times. */
+.media-item .media-caption,
+.image-item .image-caption,
+.media-item .image-caption,
+.image-item .media-caption {
+  position: static;
+  opacity: 1;
+  transform: none;
+  background: transparent;
   font-family: var(--font-mono);
   font-size: var(--fs-mono-xs, 11px);
   letter-spacing: .05em;
+  text-transform: uppercase;
   color: var(--color-text-tertiary);
   padding: var(--sp-3, 12px);
   margin: 0;
+  text-align: left;
+  text-shadow: none;
+  font-weight: normal;
+}
+.media-item:hover .media-caption,
+.image-item:hover .image-caption {
+  opacity: 1;
+  transform: none;
   background: transparent;
-  text-transform: uppercase;
 }
 
 /* .mini-hero — many legacy pages use this hero pattern but don't load
