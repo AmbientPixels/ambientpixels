@@ -76,7 +76,7 @@
   font-size: var(--fs-body-lg);
   line-height: var(--lh-body-loose);
   color: var(--color-text-body);
-  margin: 0 0 var(--sp-7);
+  margin: 0 0 var(--sp-8);
   max-width: 54ch;
   text-wrap: pretty;
 }
@@ -138,7 +138,7 @@
 /* ---- Shared section scaffolding ----------------------------- */
 
 .pulse-section {
-  padding: var(--sp-14) 0 var(--sp-10);
+  padding: var(--sp-15) 0 var(--sp-12);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -223,7 +223,7 @@
 }
 .pulse-today-highlights li {
   position: relative;
-  padding-left: var(--sp-7);
+  padding-left: var(--sp-8);
   font-family: var(--font-display);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
@@ -377,12 +377,12 @@
   border-top: 1px solid var(--color-border);
 }
 .pulse-agent {
-  padding: var(--sp-7) var(--sp-5);
+  padding: var(--sp-10) var(--sp-6);
   border-right: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
 }
 .pulse-agent:nth-child(4n) { border-right: none; }
 
