@@ -1136,7 +1136,16 @@ img.card-image {
   filter: none;
 }
 
-/* Kill legacy rounded corners everywhere except pill buttons + dots */
+/* Kill legacy rounded corners everywhere except pill buttons + dots.
+   Per DS §3.11: "Rounded corners outside --r-pill buttons and --r-dot
+   status dots [are not allowed]." This list is intentionally broad —
+   every legacy card, box, badge, pill, tag, caption, and overlay class
+   gets squared. RPG avatar cards on /projects/xbox-support-team.html
+   are intentionally excluded (.rpg-*) — they're a deliberate team-tribute
+   aesthetic with their own visual language.
+
+   Use element+class selectors (e.g. details.details-toggle,
+   img.lightbox-img) where a higher-specificity legacy rule was winning. */
 .hero-card,
 .hero-card-content,
 .hero-card-image,
@@ -1156,9 +1165,98 @@ img.card-image {
 .related-project-card,
 .next-project-card,
 .media-item,
+.image-item,
 .tech-badge,
 .role-tag,
-.details-toggle {
+.project-tag,
+.coming-soon-overlay,
+.service-card,
+.feature-card,
+.tool-card,
+.learning-card,
+.achievement-card,
+.tech-category,
+.faq-category,
+.timeline-content,
+.note-box,
+.impact-item,
+.card,
+.lightbox-caption,
+.lightbox-img,
+.xbox-nav-link,
+details,
+details.details-toggle,
+details.details-toggle[open],
+details.details-toggle summary,
+details.details-toggle > div,
+.details-toggle,
+blockquote {
+  border-radius: 0;
+}
+
+/* Naked <img> elements pick up a 4px radius from legacy <img>{} resets
+   in components.css. Force square. RPG avatar cards on the Xbox team
+   page intentionally keep their own border-radius (excluded). */
+main img:not(.rpg-avatar-img) {
+  border-radius: 0;
+}
+
+/* Lightbox modal elements — appended to <body> not inside <main>, so my
+   `main img` rule above doesn't catch them. The lightbox modal has id
+   #lightbox so target via that for high specificity. */
+#lightbox img,
+#lightbox .lightbox-caption,
+#lightbox .lightbox-content,
+#lightbox .lightbox-content img {
+  border-radius: 0;
+}
+
+/* Final 1-off legacy chrome bits surfaced by the rounded-corner scan. */
+footer.footer-disclaimer,
+.video-embed,
+.tech-highlights,
+.callout,
+.callout.technical-details,
+.card-gradient-icon,
+.team-trading-card .stat-row,
+.badge.badge-impact-lg {
+  border-radius: 0;
+}
+
+/* Wrapper-child tag/badge patterns — these single-class wrappers contain
+   <span> children that pick up rounded corners via descendant selectors
+   like `.project-tags span` (0,1,1) which beats my flat `.tech-badge`
+   (0,1,0). Match the descendant-combinator specificity here so ap-skin
+   wins via later source order. */
+.project-tags span,
+.project-tags > *,
+.tech-badges span,
+.tech-badges > *,
+.role-tags span,
+.role-tags > *,
+.badge-row span,
+.badge-row > *,
+.badge-row .badge,
+.team-trading-card,
+.team-trading-card .card-icon,
+.team-trading-card .card-stats,
+.team-trading-card .stat-row,
+.tech-showcase,
+.code-snippet,
+.footer-disclaimer,
+.nav-container,
+.xbox-nav-container,
+.hero-card-badge,
+.hero-card-badge.badge-solid-blue,
+.badge-solid-purple,
+.badge-solid-blue,
+.badge-solid-green,
+.badge-solid-orange,
+.badge-solid-pink,
+.badge-solid-gold,
+.badge-solid-teal,
+body .lightbox-caption,
+body .lightbox-img {
   border-radius: 0;
 }
 
