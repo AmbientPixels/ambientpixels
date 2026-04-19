@@ -1,151 +1,145 @@
-<!-- File: /projects/microsoft-casual-games-support.html -->
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Producer-led project migrating Microsoft Casual Games support from Zendesk to Xbox.com." />
-  <meta property="og:title" content="Microsoft Casual Games – Support Migration | AmbientPixels" />
-  <meta property="og:description" content="Explore a producer-led support content migration from Zendesk to Xbox Support for Microsoft Casual Games." />
+  <meta name="description" content="Microsoft Casual Games — producer-led migration from Zendesk to Xbox Support. 12+ games, 100% accessibility, zero user disruption." />
+  <meta property="og:title" content="Microsoft Casual Games — AmbientPixels" />
+  <meta property="og:description" content="Producer-led support migration from Zendesk to Xbox Support for a family of casual games." />
   <meta property="og:image" content="/images/projects/microsoft-casual-games/screen-01.jpeg" />
-  <meta property="og:url" content="https://ambientpixels.ai/projects/microsoft-casual-games-support" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/websites/microsoft-casual-games-support" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Microsoft Casual Games – Support Migration | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <!-- Legacy CSS — layout stack + JS-dependent sheets only.
-       base.css / theme.css / banner.css NOT loaded (they leak globals
-       into DS surfaces). ap-skin.css owns the global reset. -->
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/comparison-slider.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <title>Microsoft Casual Games — AmbientPixels</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
+  <!-- Comparison slider — preserved feature on this page (see /js/comparison-slider.js) -->
+  <link rel="stylesheet" href="/css/comparison-slider.css" />
+  <style>
+    .mcg-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
+    .mcg-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .mcg-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
+    .mcg-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
+    .mcg-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
+    @media (max-width: 1000px) { .mcg-metrics { grid-template-columns: 1fr; } }
+    .mcg-bullets { list-style: none; padding: 0; margin: 0; max-width: var(--max-prose); }
+    .mcg-bullets li { padding: var(--sp-3) 0; border-top: 1px dashed var(--color-border-dashed); font-size: var(--fs-body-sm); line-height: var(--lh-body); }
+    .mcg-bullets li:first-child { border-top: none; }
+    .mcg-bullets li::before { content: '→ '; opacity: .45; }
+  </style>
+  <script defer src="/js/ap-nav-mobile.js"></script>
+  <script src="/js/lightbox.js" type="module"></script>
+  <script src="/js/comparison-slider.js" defer></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
 
-  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card">
-    <div class="hero-card-image">
-      <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games Support Hub" loading="lazy">
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge badge-solid-blue">Support Migration</div>
-      <h1>Microsoft Casual Games – Support Migration</h1>
-      <p class="hero-card-description">Producer role overseeing transition from Zendesk to Xbox Support for a family of games</p>
-      <div class="project-tags">
-        <span class="tech-badge"><i class="fas fa-user-tie"></i> Producer Role</span>
-        <span class="tech-badge"><i class="fas fa-exchange-alt"></i> Content Migration</span>
-        <span class="tech-badge"><i class="fas fa-database"></i> Zendesk</span>
-        <span class="tech-badge"><i class="fas fa-xbox"></i> Xbox Support</span>
-        <span class="tech-badge"><i class="fas fa-universal-access"></i> Accessibility</span>
-        <span class="tech-badge"><i class="fas fa-language"></i> Multilingual</span>
-        <span class="tech-badge"><i class="fas fa-project-diagram"></i> Publishing Pipeline</span>
-      </div>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-    
-  </section>
+  <main>
 
-  <main class="grid-container">
-
-    <div class="breadcrumb-container"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <p>As a content producer at Xbox, I led the support migration for Microsoft Casual Games, managing the transition from the Zendesk help center to the Xbox Support platform. My dual-role involved maintaining and updating content on both platforms during the transition period, ensuring a seamless experience for users as we moved to the new support.xbox.com infrastructure.</p>
-      <p>Working closely with PMs and backend developers, I coordinated the content migration while continuing to support the existing Zendesk platform until the transition was complete. This included managing parallel content updates, implementing redirects, and training support teams on the new platform while maintaining the legacy system.</p>
-      <p>After the migration, I continued supporting the new Xbox Support platform, handling page builds, feedback form management, and coordinating content updates across partner teams. My role was crucial in ensuring zero disruption to users throughout the transition period.</p>
-      <div class="project-buttons">
-        <a href="https://support.xbox.com/en-US/game/microsoft-casual-games/support/home" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-          <i class="fas fa-external-link-alt"></i> View Live Support Site
-        </a>
-      </div>
-    </section>
-
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Visual Highlights</h2>
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/projects/microsoft-casual-games/screen-01.jpeg" class="lightbox-trigger" data-caption="Main Casual Games support hub.">
-            <img src="/images/projects/microsoft-casual-games/screen-01.jpeg" alt="Main Support Hub" loading="lazy">
-          </a>
-          <p class="media-caption">Main Support Hub</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+          <h1 class="ap-display">Microsoft<em> Casual Games.</em></h1>
         </div>
-        <div class="media-item">
-          <a href="/images/projects/microsoft-casual-games/screen-06.jpeg" class="lightbox-trigger" data-caption="Support article with user assistance options.">
-            <img src="/images/projects/microsoft-casual-games/screen-06.jpeg" alt="Support Form View" loading="lazy">
-          </a>
-          <p class="media-caption">Support Article + Assistance</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/microsoft-casual-games/form01.jpeg" class="lightbox-trigger" data-caption="Post-migration feedback form.">
-            <img src="/images/projects/microsoft-casual-games/form01.jpeg" alt="Support Form Example" loading="lazy">
-          </a>
-          <p class="media-caption">Support Form Example</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/microsoft-casual-games/screen-07.jpeg" class="lightbox-trigger" data-caption="Xbox Support article detailing steps to delete downloaded Jigsaw puzzles.">
-            <img src="/images/projects/microsoft-casual-games/screen-07.jpeg" alt="Jigsaw Puzzle Deletion Support Article" loading="lazy">
-          </a>
-          <p class="media-caption">Xbox Support – Jigsaw Puzzle Deletion</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/microsoft-casual-games/screen-02.jpeg" class="lightbox-trigger" data-caption="Game-specific support page with troubleshooting guides.">
-            <img src="/images/projects/microsoft-casual-games/screen-02.jpeg" alt="Game Support Page" loading="lazy">
-          </a>
-          <p class="media-caption">Game Support Page</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/microsoft-casual-games/screen-04.jpeg" class="lightbox-trigger" data-caption="Detailed troubleshooting steps with expandable sections.">
-            <img src="/images/projects/microsoft-casual-games/screen-04.jpeg" alt="Troubleshooting Guide" loading="lazy">
-          </a>
-          <p class="media-caption">Troubleshooting Guide</p>
+        <div class="ap-sec-meta">
+          Producer-led migration from the Zendesk help center to Xbox Support &mdash; 12+ casual game titles, 100% accessibility, zero user disruption at launch.
+          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
         </div>
       </div>
-      <p>This project reflects a scalable, standards-driven publishing pipeline that supported both legacy continuity and modern platform integration—across browsers, devices, and global markets.</p>
+      <ul class="mcg-tags">
+        <li>Producer role</li><li>Content migration</li><li>Zendesk</li><li>Xbox Support</li>
+        <li>Accessibility</li><li>Multilingual</li><li>Publishing pipeline</li>
+      </ul>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-cogs"></i> Migration in Motion</h2>
-      <p class="nova-voice">Rebuilding from the inside out—hands-on with systems, structure, and support.</p>
-      <p>During the migration from Zendesk to Xbox Support, I worked deeply in both platforms—maintaining legacy content while constructing the new support experience. I coordinated updates, prepped content for localization, and managed the structured transition of forms, articles, and metadata across platforms.</p>
-      <p>From accessibility compliance (WCAG 2.1 AA) to visual QA, device testing, and link validation, I helped ensure every asset, interaction, and content element was polished and production-ready. This direct work enabled a smooth launch of the new support site—adapted for a global, multilingual audience.</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <h2 class="ap-display">Two platforms, <em>one seamless transition.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Maintaining and updating content on both platforms during the transition period &mdash; ensuring a seamless experience as users moved to the new infrastructure.
+        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        As a content producer at Xbox, I led the support migration for Microsoft Casual Games &mdash; managing the transition from the Zendesk help center to the Xbox Support platform. The dual-role involved maintaining and updating content on both platforms during the transition period, ensuring a seamless experience for users as we moved to the new support.xbox.com infrastructure.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        Working closely with PMs and backend developers, I coordinated the content migration while continuing to support the existing Zendesk platform until the transition was complete. This included managing parallel content updates, implementing redirects, and training support teams on the new platform while maintaining the legacy system.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-8);">
+        After the migration, I continued supporting the new Xbox Support platform &mdash; handling page builds, feedback form management, and coordinating content updates across partner teams. Crucial in ensuring zero disruption to users throughout the transition period.
+      </p>
+      <a class="ap-btn ap-btn--primary" href="https://support.xbox.com/en-US/game/microsoft-casual-games/support/home" target="_blank" rel="noopener noreferrer">View live support site &rarr;</a>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-magic"></i> Transformation in Motion</h2>
-      <p class="nova-voice">Experience the evolution—drag the slider to compare the interfaces.</p>
+    <section class="ap-sec" id="gallery" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; VISUAL HIGHLIGHTS</div>
+          <h2 class="ap-display">Six surfaces, <em>one platform.</em></h2>
+        </div>
+        <div class="ap-sec-meta">Tap to expand.</div>
+      </div>
+      <div class="image-row">
+        <div class="image-item"><a href="/images/projects/microsoft-casual-games/screen-01.jpeg" class="lightbox-trigger" data-caption="Main Casual Games support hub."><img src="/images/projects/microsoft-casual-games/screen-01.jpeg" alt="Main Support Hub" loading="lazy" /></a><p class="image-caption">01 &mdash; Support hub</p></div>
+        <div class="image-item"><a href="/images/projects/microsoft-casual-games/screen-06.jpeg" class="lightbox-trigger" data-caption="Support article with user assistance options."><img src="/images/projects/microsoft-casual-games/screen-06.jpeg" alt="Support Form View" loading="lazy" /></a><p class="image-caption">02 &mdash; Article + assistance</p></div>
+        <div class="image-item"><a href="/images/projects/microsoft-casual-games/form01.jpeg" class="lightbox-trigger" data-caption="Post-migration feedback form."><img src="/images/projects/microsoft-casual-games/form01.jpeg" alt="Support Form Example" loading="lazy" /></a><p class="image-caption">03 &mdash; Feedback form</p></div>
+        <div class="image-item"><a href="/images/projects/microsoft-casual-games/screen-07.jpeg" class="lightbox-trigger" data-caption="Jigsaw Puzzle deletion support article."><img src="/images/projects/microsoft-casual-games/screen-07.jpeg" alt="Jigsaw Puzzle Deletion Support" loading="lazy" /></a><p class="image-caption">04 &mdash; Jigsaw deletion guide</p></div>
+        <div class="image-item"><a href="/images/projects/microsoft-casual-games/screen-02.jpeg" class="lightbox-trigger" data-caption="Game-specific support page."><img src="/images/projects/microsoft-casual-games/screen-02.jpeg" alt="Game Support Page" loading="lazy" /></a><p class="image-caption">05 &mdash; Game support page</p></div>
+        <div class="image-item"><a href="/images/projects/microsoft-casual-games/screen-04.jpeg" class="lightbox-trigger" data-caption="Detailed troubleshooting steps."><img src="/images/projects/microsoft-casual-games/screen-04.jpeg" alt="Troubleshooting Guide" loading="lazy" /></a><p class="image-caption">06 &mdash; Troubleshooting</p></div>
+      </div>
+      <p style="font-size: var(--fs-body-sm); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: var(--sp-8) 0 0;">
+        A scalable, standards-driven publishing pipeline that supported both legacy continuity and modern platform integration &mdash; across browsers, devices, and global markets.
+      </p>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; MIGRATION IN MOTION</div>
+          <h2 class="ap-display">Rebuilding from <em>the inside out.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Hands-on with systems, structure, and support &mdash; maintaining legacy while constructing the new.
+        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        During the migration from Zendesk to Xbox Support, I worked deeply in both platforms &mdash; maintaining legacy content while constructing the new support experience. Coordinated updates, prepped content for localization, and managed the structured transition of forms, articles, and metadata across platforms.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        From accessibility compliance (WCAG 2.1 AA) to visual QA, device testing, and link validation, I helped ensure every asset, interaction, and content element was polished and production-ready. This direct work enabled a smooth launch of the new support site &mdash; adapted for a global, multilingual audience.
+      </p>
+    </section>
+
+    <!-- § 04 — TRANSFORMATION COMPARISON SLIDER (preserved feature) -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; TRANSFORMATION COMPARISON</div>
+          <h2 class="ap-display">Drag the slider, <em>see the change.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Side-by-side: legacy Zendesk on the left, new Xbox Support on the right. Drag to reveal more of either side.
+        </div>
+      </div>
 
       <div class="compare-3col">
-        <!-- Left: Before Pills -->
         <div class="compare-left before-stack">
           <h3 class="compare-col-title">Legacy UI</h3>
           <ul class="compare-pill-stack">
@@ -155,8 +149,6 @@
             <li class="compare-pill" data-key="static">Static Pages</li>
           </ul>
         </div>
-
-        <!-- Middle: Compare Slider -->
         <div class="compare-middle">
           <div class="img-compare-container" id="comparison-slider">
             <span class="compare-label compare-label-before" data-key="before">Zendesk - Before</span>
@@ -164,16 +156,10 @@
             <img class="img-compare-img after-img" src="/images/projects/microsoft-casual-games/screen-01-1200.png" alt="New Xbox Support Interface (after)">
             <img class="img-compare-img before-img" src="/images/projects/microsoft-casual-games/zendesk01-1200.png" alt="Legacy Zendesk Interface (before)">
             <div class="slider-handle"></div>
-            <!-- Overlay Callouts (appear/disappear with slider) -->
-
-            <!-- Aura ring for slider drag effect -->
             <div class="compare-aura-ring" aria-hidden="true"></div>
-            <!-- Whisper quote for full right -->
-            <div class="compare-quote-whisper nova-voice" aria-hidden="true">“The transformation is complete.”</div>
+            <div class="compare-quote-whisper nova-voice" aria-hidden="true">&ldquo;The transformation is complete.&rdquo;</div>
           </div>
         </div>
-
-        <!-- Right: After Pills -->
         <div class="compare-right after-stack">
           <h3 class="compare-col-title">New UX</h3>
           <ul class="compare-pill-stack">
@@ -185,157 +171,93 @@
         </div>
       </div>
 
-      <p class="impact-note">The redesigned interface offers a more intuitive and streamlined experience for users.</p>
+      <p style="font-size: var(--fs-body-sm); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: var(--sp-8) 0 0;">
+        The redesigned interface offers a more intuitive and streamlined experience for users.
+      </p>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-tools"></i> Tools & Technologies</h2>
-      <div class="tech-badges">
-        <span class="tech-badge"><i class="fas fa-code"></i> Internal Xbox CMS</span>
-        <span class="tech-badge"><i class="fas fa-cogs"></i> Zendesk CMS</span>
-        <span class="tech-badge"><i class="fas fa-language"></i> Localization Pipelines</span>
-        <span class="tech-badge"><i class="fas fa-paint-brush"></i> Photoshop</span>
-        <span class="tech-badge"><i class="fas fa-cut"></i> Snipping Tool</span>
-        <span class="tech-badge"><i class="fas fa-universal-access"></i> WCAG 2.1</span>
-        <span class="tech-badge"><i class="fas fa-desktop"></i> Cross-Browser Testing</span>
-        <span class="tech-badge"><i class="fas fa-mobile-alt"></i> Mobile Testing</span>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; TOOLS &amp; TECHNOLOGIES</div>
+          <h2 class="ap-display">Two CMS, <em>one team.</em></h2>
+        </div>
       </div>
+      <ul class="mcg-tags">
+        <li>Internal Xbox CMS</li><li>Zendesk CMS</li><li>Localization pipelines</li><li>Photoshop</li><li>Snipping tool</li><li>WCAG 2.1</li><li>Cross-browser testing</li><li>Mobile testing</li>
+      </ul>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-chart-line"></i> Results & Impact</h2>
-      <div class="impact-metrics">
-        <div class="metric-card">
-          <i class="fas fa-file-alt"></i>
-          <h3>12+</h3>
-          <p>Game titles migrated</p>
-        </div>
-        <div class="metric-card">
-          <i class="fas fa-check-circle"></i>
-          <h3>100%</h3>
-          <p>Accessibility compliance</p>
-        </div>
-        <div class="metric-card">
-          <i class="fas fa-exchange-alt"></i>
-          <h3>Zero</h3>
-          <p>User disruption during launch</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; RESULTS &amp; IMPACT</div>
+          <h2 class="ap-display">Three numbers, <em>zero downtime.</em></h2>
         </div>
       </div>
-      <div class="impact-highlights">
-        <h3>Key Achievements:</h3>
-        <ul>
-          <li>Migrated hundreds of support articles and forms across 12+ casual game titles</li>
-          <li>Ensured full accessibility compliance and seamless UX across devices and locales</li>
-          <li>Reduced support ticket duplication through clearer self-help structure</li>
-          <li>Successfully sunset legacy site with no downtime or user confusion</li>
-        </ul>
+      <div class="mcg-metrics">
+        <div class="mcg-metric"><p class="num">12+</p><p class="lbl">Game titles migrated</p></div>
+        <div class="mcg-metric"><p class="num">100%</p><p class="lbl">Accessibility compliance</p></div>
+        <div class="mcg-metric"><p class="num">Zero</p><p class="lbl">User disruption at launch</p></div>
       </div>
+      <h3 style="font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 22px; margin: var(--sp-12) 0 var(--sp-5); color: var(--color-text-primary);">Key achievements</h3>
+      <ul class="mcg-bullets">
+        <li>Migrated hundreds of support articles and forms across 12+ casual game titles.</li>
+        <li>Ensured full accessibility compliance and seamless UX across devices and locales.</li>
+        <li>Reduced support ticket duplication through clearer self-help structure.</li>
+        <li>Successfully sunset legacy site with no downtime or user confusion.</li>
+      </ul>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-lightbulb"></i> Key Learnings</h2>
-      <div class="learnings-grid">
-        <div class="learning-card">
-          <i class="fas fa-network-wired"></i>
-          <h3>Migration Planning</h3>
-          <p>Proactive mapping of legacy structures to new platforms ensures cleaner launch timelines.</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; KEY LEARNINGS</div>
+          <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
         </div>
-        <div class="learning-card">
-          <i class="fas fa-universal-access"></i>
-          <h3>Accessibility First</h3>
-          <p>Building WCAG-ready content from day one avoids backtracking and improves usability for all.</p>
-        </div>
-        <div class="learning-card">
-          <i class="fas fa-handshake"></i>
-          <h3>Cross-Team Sync</h3>
-          <p>Frequent syncs with PMs, design, and localization teams reduced friction across publishing and QA stages.</p>
-        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">Migration<br><em>planning.</em></h3><p>Proactive mapping of legacy structures to new platforms ensures cleaner launch timelines.</p></div>
+        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">Accessibility<br><em>first.</em></h3><p>Building WCAG-ready content from day one avoids backtracking and improves usability for all.</p></div>
+        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Cross-team<br><em>sync.</em></h3><p>Frequent syncs with PMs, design, and localization teams reduced friction across publishing and QA stages.</p></div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/copilotplayground.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-robot"></i> Copilot Playground
-          </strong>
-          <p>AI-driven support prompt chains for gaming help and content enhancement.</p>
-        </a>
-        <a class="related-project-card" href="/projects/websites/grand-central-power-bi.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-database"></i> Grand Central 3.0
-          </strong>
-          <p>Custom Power BI dashboards and data pipeline for Xbox Support.</p>
-        </a>
-      </div>
-    </section>
-    
-    <section class="project-section grid-col-12 next-project">
-      <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-      <div class="next-project-card">
-        <div class="next-project-content">
-          <h3>Ninja Theory Website</h3>
-          <p>Official help center website for Ninja Theory, showcasing their games, team, and creative vision</p>
-          <a href="/projects/websites/ninja-theory-support.html" class="btn btn-secondary">
-            View Project <i class="fas fa-arrow-right"></i>
-          </a>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 08 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
         </div>
       </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/copilotplayground.html"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3><span class="meta">AI tooling &middot; Prompt engineering</span></div><p>AI-driven support prompt chains for gaming help and content enhancement.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/websites/grand-central-power-bi.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Grand Central<em> 3.0.</em></h3><span class="meta">Data &middot; Power BI</span></div><p>Custom Power BI dashboards and data pipeline for Xbox Support.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html"><span class="n">03</span><div><h3 class="ap-display ap-display--row">Ninja Theory<em> support.</em></h3><span class="meta">Hellblade &middot; Game support</span></div><p>Official help center website for Ninja Theory.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+      </div>
     </section>
+
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got a CMS<br><em>migration ahead?</em></h2>
+    <p>Parallel-publishing strategies, redirect plans, and the QA muscle to keep both systems live until the new one earns its keep.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
-  <!-- Scripts -->
-  <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/lightbox.js" type="module"></script>
-  <script src="/js/comparison-slider.js"></script>
-
 </body>
 </html>

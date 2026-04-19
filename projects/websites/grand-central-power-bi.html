@@ -1,224 +1,169 @@
-<!-- File: /projects/grand-central.html -->
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Custom-built data tool and Power BI pipeline for Xbox Support, designed from scratch using advanced Excel and Power Query methods." />
-  <meta property="og:title" content="Grand Central 3.0 | AmbientPixels" />
-  <meta property="og:description" content="Explore Grand Central 3.0—an internal Power BI platform built and architected by the producer using advanced Excel and data workflows." />
+  <meta name="description" content="Grand Central 3.0 — custom Power BI data pipeline for Xbox Support. Excel + Power Query + Power BI dashboards driving content audits at scale." />
+  <meta property="og:title" content="Grand Central 3.0 — AmbientPixels" />
+  <meta property="og:description" content="Built-from-scratch platform to analyze and visualize Xbox Support data with Power BI and complex Excel logic." />
   <meta property="og:image" content="/images/projects/grand-central/gc-dashboard.jpg" />
-  <meta property="og:url" content="https://ambientpixels.ai/projects/grand-central" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/websites/grand-central-power-bi" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Grand Central 3.0 | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <!-- Legacy CSS — layout stack + JS-dependent sheets only. -->
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-
-  <!-- DS skin -->
+  <title>Grand Central 3.0 — AmbientPixels</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <style>
+    .gc-tags { list-style: none; padding: 0; margin: 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
+    .gc-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .gc-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
+    .gc-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
+    .gc-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
+    @media (max-width: 1000px) { .gc-metrics { grid-template-columns: 1fr; } }
+    .gc-bullets { list-style: none; padding: 0; margin: var(--sp-8) 0 0; max-width: var(--max-prose); }
+    .gc-bullets li { padding: var(--sp-3) 0; border-top: 1px dashed var(--color-border-dashed); font-size: var(--fs-body-sm); line-height: var(--lh-body); }
+    .gc-bullets li:first-child { border-top: none; }
+    .gc-bullets li::before { content: '→ '; opacity: .45; }
+    .gc-bullets strong { color: var(--color-text-primary); }
+  </style>
+  <script defer src="/js/ap-nav-mobile.js"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-  <!-- §2.2 Nav -->
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card hero-card-gc">
-    <div class="hero-card-image video-gradient-10 card-image-container">
-      <i class="fas fa-database project-icon-gc"></i>
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge badge-royal">Data Analytics</div>
-      <h1>Grand Central 3.0 – Custom Data Pipeline</h1>
-      <p class="hero-card-description">Built-from-scratch platform to analyze and visualize Xbox Support data with Power BI and complex Excel logic</p>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <p>Grand Central 3.0 is a fully custom-built data tool I designed and implemented for Xbox Support teams. I engineered the pipeline from the ground up—starting with raw Compass and CXT exports, transforming them through advanced Excel logic, merging them with Power Query, and visualizing them in dynamic Power BI dashboards. Every data merge, filter, sort, and transformation was crafted to handle messy, inconsistent data across multiple platforms.</p>
-      <p>This system replaced static pivot reports and manual audit requests with a living toolset—updated weekly, self-serviceable, and tailored to both technical and editorial users. Grand Central now drives smarter planning, faster link cleanups, and richer insight into what content is active, missing, or misaligned.</p>
-      <div class="project-buttons">
-        <a href="#gallery" class="btn btn-primary">
-          <i class="fas fa-images"></i> View Screenshots
-        </a>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+          <h1 class="ap-display">Grand Central<em> 3.0.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          Built-from-scratch data platform for Xbox Support &mdash; raw exports through advanced Excel logic, merged via Power Query, visualized in Power BI dashboards. 7,490 assets tracked, weekly refresh, 30+ users.
+          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
+        </div>
       </div>
     </section>
 
-    
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-tools"></i> Tools & Technologies</h2>
-      <div class="tech-badges">
-        <span class="tech-badge"><i class="fas fa-database"></i> Power BI</span>
-        <span class="tech-badge"><i class="fas fa-table"></i> Excel</span>
-        <span class="tech-badge"><i class="fas fa-random"></i> Power Query</span>
-        <span class="tech-badge"><i class="fas fa-file-csv"></i> CXT Exports</span>
-        <span class="tech-badge"><i class="fas fa-file-code"></i> Compass Data</span>
-        <span class="tech-badge"><i class="fas fa-network-wired"></i> SharePoint</span>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <h2 class="ap-display">Static reports out, <em>living dashboards in.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          End-to-end data pipeline replacing manual audits with self-serviceable, weekly-refreshed insights for technical and editorial users.
+        </div>
       </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        Grand Central 3.0 is a fully custom-built data tool I designed and implemented for Xbox Support teams. Engineered the pipeline from the ground up &mdash; starting with raw Compass and CXT exports, transforming them through advanced Excel logic, merging via Power Query, and visualizing in dynamic Power BI dashboards. Every data merge, filter, sort, and transformation was crafted to handle messy, inconsistent data across multiple platforms.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        This system replaced static pivot reports and manual audit requests with a living toolset &mdash; updated weekly, self-serviceable, and tailored to both technical and editorial users. Grand Central now drives smarter planning, faster link cleanups, and richer insight into what content is active, missing, or misaligned.
+      </p>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-chart-line"></i> Results & Benefits</h2>
-      <div class="impact-metrics">
-        <div class="metric-card">
-          <i class="fas fa-users"></i>
-          <h3>30+</h3>
-          <p>Weekly users</p>
-        </div>
-        <div class="metric-card">
-          <i class="fas fa-sync-alt"></i>
-          <h3>Weekly</h3>
-          <p>Data refresh cycle</p>
-        </div>
-        <div class="metric-card">
-          <i class="fas fa-box"></i>
-          <h3>7,490</h3>
-          <p>Published Assets Tracked</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; TOOLS &amp; TECHNOLOGIES</div>
+          <h2 class="ap-display">Six tools, <em>one pipeline.</em></h2>
         </div>
       </div>
-      <p>Grand Central isn’t just a dashboard—it’s a source of clarity. The tool transformed how Xbox Support teams audit content, uncover link dependencies, and track error trends. Here's what changed:</p>
-      <ul class="benefits-list">
-        <li><strong>Content visibility at scale:</strong> Teams can now review published assets across IA, GUID, and Contact Us modules with no engineering help required.</li>
-        <li><strong>Link intelligence unlocked:</strong> With over half a million links indexed, migrations and redesigns are guided by real data, not assumptions.</li>
-        <li><strong>Cloud error awareness:</strong> Surface-level dashboards now show more than counts—they flag `isOffline` risks early, improving both UX and troubleshooting.</li>
-        <li><strong>Localization clarity:</strong> 71,000+ Contact Us modules across 75 locales—tracked, visualized, and no longer hidden in CSV hell.</li>
-        <li><strong>Publishing surge tracking:</strong> Dashboards reflect key milestones like the 4,000+ asset surge in March—giving teams historical proof and future planning support.</li>
+      <ul class="gc-tags">
+        <li>Power BI</li><li>Excel</li><li>Power Query</li><li>CXT exports</li><li>Compass data</li><li>SharePoint</li>
       </ul>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-lightbulb"></i> Key Learnings</h2>
-      <div class="learnings-grid">
-        <div class="learning-card">
-          <i class="fas fa-tools"></i>
-          <h3>Excel Engineering</h3>
-          <p>Learned how to shape and optimize thousands of messy rows with lookup chains, error flags, and pattern detection logic.</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; RESULTS &amp; BENEFITS</div>
+          <h2 class="ap-display">Three numbers, <em>one source of clarity.</em></h2>
         </div>
-        <div class="learning-card">
-          <i class="fas fa-code-branch"></i>
-          <h3>Pipeline Thinking</h3>
-          <p>From input to transformation to output—designed a repeatable, transparent data flow that others can maintain.</p>
+        <div class="ap-sec-meta">
+          A dashboard is a tool, not a deliverable.
         </div>
-        <div class="learning-card">
-          <i class="fas fa-brain"></i>
-          <h3>Scalable Insights</h3>
-          <p>Designed dashboards that are not just reports—but tools for making confident decisions and telling a story with data.</p>
+      </div>
+      <div class="gc-metrics">
+        <div class="gc-metric"><p class="num">30+</p><p class="lbl">Weekly users</p></div>
+        <div class="gc-metric"><p class="num">Weekly</p><p class="lbl">Data refresh cycle</p></div>
+        <div class="gc-metric"><p class="num">7,490</p><p class="lbl">Published assets tracked</p></div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: var(--sp-12) 0 var(--sp-5);">
+        Grand Central isn&rsquo;t just a dashboard &mdash; it&rsquo;s a source of clarity. The tool transformed how Xbox Support teams audit content, uncover link dependencies, and track error trends. Here&rsquo;s what changed:
+      </p>
+      <ul class="gc-bullets">
+        <li><strong>Content visibility at scale</strong> &mdash; teams can review published assets across IA, GUID, and Contact Us modules with no engineering help required.</li>
+        <li><strong>Link intelligence unlocked</strong> &mdash; with over half a million links indexed, migrations and redesigns are guided by real data, not assumptions.</li>
+        <li><strong>Cloud error awareness</strong> &mdash; surface-level dashboards now show more than counts; they flag <code>isOffline</code> risks early, improving UX and troubleshooting.</li>
+        <li><strong>Localization clarity</strong> &mdash; 71,000+ Contact Us modules across 75 locales tracked, visualized, and no longer hidden in CSV hell.</li>
+        <li><strong>Publishing surge tracking</strong> &mdash; dashboards reflect key milestones like the 4,000+ asset surge in March, giving teams historical proof and future planning support.</li>
+      </ul>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; KEY LEARNINGS</div>
+          <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
         </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">Excel<br><em>engineering.</em></h3><p>Learned how to shape and optimize thousands of messy rows with lookup chains, error flags, and pattern detection logic.</p></div>
+        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">Pipeline<br><em>thinking.</em></h3><p>From input to transformation to output &mdash; designed a repeatable, transparent data flow that others can maintain.</p></div>
+        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Scalable<br><em>insights.</em></h3><p>Designed dashboards that are not just reports but tools for making confident decisions and telling a story with data.</p></div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/websites/ninja-theory-support.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-gamepad"></i> Hellblade Support Pages
-          </strong>
-          <p>Xbox Support pages for Ninja Theory's Hellblade series.</p>
-        </a>
-        <a class="related-project-card" href="/projects/">
-          <strong class="related-project-card-title">
-            <i class="fas fa-archive"></i> All Projects
-          </strong>
-          <p>Browse all projects in the portfolio.</p>
-        </a>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Hellblade<em> support pages.</em></h3><span class="meta">Ninja Theory &middot; Game support</span></div><p>Xbox Support pages for Ninja Theory&rsquo;s Hellblade series.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/websites/microsoft-casual-games-support.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Microsoft<em> Casual Games.</em></h3><span class="meta">Migration &middot; 12+ games</span></div><p>Support migration from Zendesk to Xbox.com for Microsoft Casual Games.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-live" href="/projects/"><span class="n">03</span><div><h3 class="ap-display ap-display--row">All<em> projects.</em></h3><span class="meta">Index</span></div><p>Browse all projects in the portfolio.</p><span class="year">Catalog</span><span class="go">&rarr;</span></a>
       </div>
     </section>
 
-    <section class="project-section grid-col-12 next-project">
-      <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-      <div class="next-project-card">
-        <div class="next-project-content">
-          <h3>Microsoft Casual Games Support</h3>
-          <p>Support migration from Zendesk to Xbox.com for Microsoft Casual Games.</p>
-          <a href="/projects/websites/casual-games-support.html" class="btn btn-secondary">
-            View Project <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <!-- §2.14 Footer (inline DS) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got messy data,<br><em>need a dashboard?</em></h2>
+    <p>Excel + Power Query + Power BI &mdash; from raw exports to self-serviceable insights, built so others can maintain it.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
-  <script src="/modules/breadcrumb.js"></script>
-  <script type="module" src="/js/lightbox.js"></script>
 </body>
 </html>
