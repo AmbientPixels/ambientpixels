@@ -39,25 +39,25 @@ const HTML = `<!doctype html>
   .mark {
     position: relative;
     color: #f4f4f4;
-    font-size: 620px;
+    font-size: 440px;
     line-height: 0.82;
     letter-spacing: -0.095em;
     display: flex;
     align-items: flex-end;
-    padding-left: 24px;
+    padding: 0;
   }
   .mark .a { margin-right: 0; }
   .dot {
     display: inline-block;
-    width: 62px;
-    height: 62px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     background: #d4a952;
-    margin-left: 36px;
-    margin-bottom: 44px;
+    margin-left: 26px;
+    margin-bottom: 30px;
     box-shadow:
-      0 0 40px rgba(212, 169, 82, 0.55),
-      0 0 120px rgba(212, 169, 82, 0.25);
+      0 0 32px rgba(212, 169, 82, 0.55),
+      0 0 96px rgba(212, 169, 82, 0.22);
   }
   .vignette {
     position: absolute;
@@ -79,7 +79,7 @@ const HTML = `<!doctype html>
   const browser = await chromium.launch();
   const context = await browser.newContext({
     viewport: { width: 1200, height: 630 },
-    deviceScaleFactor: 1,
+    deviceScaleFactor: 2,
   });
   const page = await context.newPage();
   await page.setContent(HTML, { waitUntil: 'networkidle' });
