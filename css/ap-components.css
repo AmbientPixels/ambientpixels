@@ -592,6 +592,35 @@
   filter: grayscale(.7) contrast(1.05) brightness(.88);
 }
 
+/* Scrolling screenshot variant — for tall portrait screenshots of
+   dashboards. The frame stays fixed 16:7 but the image (rendered via
+   background-image) pans from top to bottom over 30s, alternating
+   back up. Gives a cinematic 'here is everything this screen holds'
+   effect without a static crop.
+
+   Usage:
+     <div class="ap-case-media-frame ap-case-media-frame--scroll"
+          style="--scroll-src: url('/images/AmbientOS/os-foo.jpeg')"></div>
+   No <img> child needed — the background-image on the frame does the work. */
+.ap-case-media-frame--scroll {
+  background-image: var(--scroll-src);
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-position: 50% 0%;
+  filter: grayscale(.7) contrast(1.05) brightness(.88);
+  animation: ap-scroll-image 36s var(--ease-inout) infinite alternate;
+}
+.ap-case-media-frame--scroll > img { display: none; }
+@keyframes ap-scroll-image {
+  0%   { background-position: 50%   0%; }
+  8%   { background-position: 50%   0%; }
+  92%  { background-position: 50% 100%; }
+  100% { background-position: 50% 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ap-case-media-frame--scroll { animation: none; background-position: 50% 0%; }
+}
+
 .ap-case-media-label {
   margin-top: var(--sp-4);
   padding: 0 var(--sec-pad-x);
