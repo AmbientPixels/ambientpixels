@@ -3,157 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Terms of Service — Rules and responsibilities for using AmbientPixels." />
+  <meta name="description" content="Terms of Service — rules and responsibilities for using AmbientPixels." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Terms of Service — AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+  <style>
+    .legal-prose { max-width: var(--max-prose); font-size: var(--fs-body); line-height: var(--lh-body); opacity: .82; }
+    .legal-prose h2 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 22px; letter-spacing: var(--tracking-mono-md); text-transform: uppercase; color: var(--color-text-primary); margin: var(--sp-12) 0 var(--sp-3); padding-bottom: var(--sp-2); border-bottom: 1px solid var(--color-border); }
+    .legal-prose ul { list-style: none; padding: 0; margin: 0; }
+    .legal-prose ul li { padding: var(--sp-3) 0; border-top: 1px dashed var(--color-border-dashed); }
+    .legal-prose ul li:first-child { border-top: none; }
+    .legal-prose ul li::before { content: '→ '; opacity: .45; }
+    .legal-prose p { margin: 0 0 var(--sp-5); }
+  </style>
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
 </head>
 <body class="polish-hairlines polish-type" data-texture="none">
   <div class="tx-layer" aria-hidden="true"></div>
-  <!-- Dynamic Navigation Header -->
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="mini-hero">
-    <img src="/images/mini-hero-v1.jpg" alt="Terms of Service" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>Terms of Service</h1>
-      <p class="subtitle">The rules and responsibilities for using Ambient Pixels</p>
-    </div>
-  </section>
+  <main>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; LEGAL &mdash; TERMS OF SERVICE</div>
+          <h1 class="ap-display">Terms of<em> service.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          The rules and responsibilities for using AmbientPixels.
+        </div>
+      </div>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-file-contract"></i> Terms of Service</h2>
-      <p class="nova-intro">Welcome to Ambient Pixels. By using this site, you agree to the following terms and conditions. Please read them carefully.</p>
-      <h3>1. Acceptance of Terms</h3>
-      <p>By accessing or using Ambient Pixels, you agree to comply with these Terms of Service and all applicable laws and regulations.</p>
-      <h3>2. User Responsibilities</h3>
-      <ul class="nova-list">
-        <li>Provide accurate information when required</li>
-        <li>Respect the rights and privacy of others</li>
-        <li>Use the site for lawful purposes only</li>
-      </ul>
-      <h3>3. Prohibited Use</h3>
-      <ul class="nova-list">
-        <li>No unauthorized access or tampering with the site or its data</li>
-        <li>No harassment, abuse, or disruptive behavior</li>
-        <li>No use of the site for illegal or harmful activities</li>
-      </ul>
-      <h3>4. Disclaimers</h3>
-      <p>Ambient Pixels is provided "as is" without warranties of any kind. We do not guarantee uninterrupted or error-free service, and we are not liable for any damages arising from your use of the site.</p>
-      <h3>5. Contact</h3>
-      <p>For questions about these terms, contact <a href="mailto:legal@ambientpixels.ai" class="nova-link">legal@ambientpixels.ai</a>.</p>
-      <p class="nova-disclaimer">These terms may be updated as needed. Continued use of the site means you accept any changes.</p>
-    </section>
+      <div class="legal-prose">
+        <p>Welcome to AmbientPixels. By using this site, you agree to the following terms and conditions. Please read them carefully.</p>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-rocket"></i> Explore more</h2>
-<ul>
-  <li><a href="/docs/windsurf-system-overview.html">Discover our method</a></li>
-  <li><a href="/services/">Services & Skills</a></li>
-  <li><a href="/docs/">Documentation Hub</a></li>
-</ul>
-<p>Our approach, services, and the system behind the grid</p>
-    </section>
-    
-    <!-- Contact CTA will be dynamically injected here -->
-    <section class="content-section grid-col-12">
-      <div id="contact-cta"></div>
+        <h2>1. Acceptance of terms</h2>
+        <p>By accessing or using AmbientPixels, you agree to comply with these Terms of Service and all applicable laws and regulations.</p>
+
+        <h2>2. User responsibilities</h2>
+        <ul>
+          <li>Provide accurate information when required.</li>
+          <li>Respect the rights and privacy of others.</li>
+          <li>Use the site for lawful purposes only.</li>
+        </ul>
+
+        <h2>3. Prohibited use</h2>
+        <ul>
+          <li>No unauthorized access or tampering with the site or its data.</li>
+          <li>No harassment, abuse, or disruptive behavior.</li>
+          <li>No use of the site for illegal or harmful activities.</li>
+        </ul>
+
+        <h2>4. Disclaimers</h2>
+        <p>AmbientPixels is provided &ldquo;as is&rdquo; without warranties of any kind. We do not guarantee uninterrupted or error-free service, and we are not liable for any damages arising from your use of the site.</p>
+
+        <h2>5. Contact</h2>
+        <p>For questions about these terms, contact <a class="ap-link-mono" href="mailto:legal@ambientpixels.ai">legal@ambientpixels.ai &rarr;</a></p>
+
+        <p>These terms may be updated as needed. Continued use of the site means you accept any changes.</p>
+      </div>
     </section>
   </main>
 
-  <!-- Footer will be dynamically injected here -->
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/modules/breadcrumb.js" defer></script>
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
-<script src="/js/init-contact-cta.js" defer></script>
-<script src="/js/init-contact-modal.js" defer></script>
 </body>
 </html>
