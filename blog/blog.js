@@ -142,6 +142,9 @@
 
     // Render markdown body into .ap-journal-body
     var rawMd = post.content_md || '';
+    // Some stored posts were saved wrapped in an explicit ```markdown fence;
+    // marked would otherwise render the entire body as a single code block.
+    rawMd = rawMd.replace(/^\s*```(?:markdown|md)?\s*\n([\s\S]*?)\n\s*```\s*$/i, '$1');
     var bodyHtml;
     if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
       marked.setOptions({ breaks: true, gfm: true });

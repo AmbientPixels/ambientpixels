@@ -58,10 +58,10 @@
 .ap-journal-head .ap-sec-head { align-items: start; }
 
 .ap-journal-title {
-  font-size: clamp(40px, 5vw, 72px);
-  line-height: .95;
+  font-size: clamp(36px, 3.4vw, 56px);
+  line-height: 1;
   letter-spacing: -.03em;
-  max-width: 18ch;
+  max-width: 22ch;
   margin: var(--sp-3) 0 var(--sp-4);
 }
 
