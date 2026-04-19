@@ -1223,6 +1223,24 @@ footer.footer-disclaimer,
   border-radius: 0;
 }
 
+/* Image comparison slider chrome — used on case-study pages with
+   before/after slider (e.g. microsoft-casual-games-support). The legacy
+   CSS uses 999px pill shape on side buttons, slider labels, and whisper
+   quote. Per DS §3.11 only .ap-btn / .ap-nav-cta keep pill shape — these
+   go square. .img-compare-container also drops its 8px radius. */
+.compare-pill,
+.compare-label,
+.compare-label-before,
+.compare-label-after,
+.compare-quote-whisper,
+.windsurf-callout,
+.compare-3col .compare-pill,
+.compare-3col .compare-label,
+.img-compare-container,
+#comparison-slider {
+  border-radius: 0;
+}
+
 /* Wrapper-child tag/badge patterns — these single-class wrappers contain
    <span> children that pick up rounded corners via descendant selectors
    like `.project-tags span` (0,1,1) which beats my flat `.tech-badge`
