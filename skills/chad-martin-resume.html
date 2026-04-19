@@ -1,573 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Chad Martin - Producer at Xbox | Microsoft">
-  <title>Chad Martin | Xbox Producer | Microsoft | Ambient Pixels</title>
-  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/grid.css">
-  <link rel="stylesheet" href="/css/nav.css">
-  <link rel="stylesheet" href="/css/components.css">
-  <link rel="stylesheet" href="/css/hero.css">
-  <link rel="stylesheet" href="/css/theme.css">
-  <link rel="stylesheet" href="/css/banner.css">
-  <link rel="stylesheet" href="/css/nova-mood.css">
-  <link rel="stylesheet" href="/css/resume.css">
-  <link rel="stylesheet" href="/css/forms.css">
-  <link rel="stylesheet" href="/css/resume-hero.css">
-  </style>
-  <script>
-    // Particle effect for hero section
-    document.addEventListener('DOMContentLoaded', function() {
-      const container = document.getElementById('hero-particles');
-      if (!container) return;
-      
-      function createParticle() {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        
-        // Random size between 1px and 4px
-        const size = Math.random() * 3 + 1;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        
-        // Random position
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.top = '100%';
-        
-        // Random animation duration between 10s and 25s
-        const duration = Math.random() * 15 + 10;
-        particle.style.animationDuration = `${duration}s`;
-        
-        // Random delay for staggered appearance
-        particle.style.animationDelay = `-${Math.random() * 10}s`;
-        
-        // Random opacity for depth
-        particle.style.opacity = Math.random() * 0.5 + 0.1;
-        
-        container.appendChild(particle);
-        
-        // Remove particle after animation completes
-        setTimeout(() => {
-          if (particle.parentNode === container) {
-            container.removeChild(particle);
-          }
-        }, duration * 1000);
-      }
-      
-      // Create initial particles
-      for (let i = 0; i < 30; i++) {
-        createParticle();
-      }
-      
-      // Add new particles periodically
-      setInterval(createParticle, 800);
-    });
-  </script>
-  <!-- DS skin — fonts + tokens + overlay on legacy layout -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Chad Martin — Senior Producer &amp; Technical Strategist. Producer, Xbox Support (Microsoft) via Hanson Consulting Group." />
+  <title>Chad Martin — Resume — AmbientPixels</title>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
+  <style>
+    .cv-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
+    .cv-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .cv-role { max-width: var(--max-prose); padding: var(--sp-8) 0; border-top: 1px solid var(--color-border); }
+    .cv-role:first-of-type { border-top: none; }
+    .cv-role h3 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: clamp(24px, 2.5vw, 32px); letter-spacing: var(--tracking-tight); margin: 0 0 var(--sp-2); color: var(--color-text-primary); }
+    .cv-role h3 em { font-style: italic; font-weight: var(--fw-regular); color: var(--color-text-body); }
+    .cv-role .meta { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.65); margin: 0 0 var(--sp-5); }
+    .cv-role p { font-size: var(--fs-body-sm); line-height: var(--lh-body); opacity: .82; margin: 0 0 var(--sp-3); max-width: 60ch; }
+    .cv-skill-group { margin-bottom: var(--sp-10); }
+    .cv-skill-group h3 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 18px; letter-spacing: var(--tracking-mono-md); text-transform: uppercase; color: var(--color-text-primary); margin: 0 0 var(--sp-3); padding-bottom: var(--sp-2); border-bottom: 1px solid var(--color-border); }
+    .cv-skill-list { list-style: none; padding: 0; margin: 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.75); }
+    .cv-skill-list li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .cv-award { max-width: var(--max-prose); padding: var(--sp-5) 0; border-top: 1px solid var(--color-border-soft); }
+    .cv-award:first-of-type { border-top: none; }
+    .cv-award h3 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 20px; margin: 0 0 var(--sp-2); color: var(--color-text-primary); }
+    .cv-award .date { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); margin: 0 0 var(--sp-3); }
+    .cv-award p { font-size: var(--fs-body-sm); line-height: var(--lh-body); opacity: .82; margin: 0 0 var(--sp-3); }
+    .cv-award ul { list-style: none; padding: 0; margin: 0; }
+    .cv-award ul li { padding: var(--sp-2) 0; font-size: var(--fs-body-sm); opacity: .82; }
+    .cv-award ul li::before { content: '→ '; opacity: .45; }
+    .cv-edu { padding: var(--sp-5) 0; border-top: 1px solid var(--color-border-soft); }
+    .cv-edu:first-of-type { border-top: none; }
+    .cv-edu h3 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 20px; margin: 0 0 var(--sp-2); color: var(--color-text-primary); }
+    .cv-edu p { font-size: var(--fs-body-sm); line-height: var(--lh-body); opacity: .82; margin: 0; }
+    .cv-edu .date { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); margin: var(--sp-2) 0 0; }
+  </style>
   <script defer src="/js/ap-nav-mobile.js"></script>
-  <link rel="stylesheet" href="/css/ap-skin.css" />
 </head>
 <body class="polish-hairlines polish-type" data-texture="none">
   <div class="tx-layer" aria-hidden="true"></div>
-    <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
-  <!-- Full Width Hero Section -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <div class="hero-badge">Resume</div>
-      <h1>Chad Martin</h1>
-      <p class="hero-subtitle">Senior Producer & Technical Strategist</p>
-      <p class="hero-job-title">Producer – Xbox | Microsoft (via Hanson Consulting Group)</p>
-      <p class="hero-description">Turning complexity into clarity—through design, intent, and systems that serve millions.</p>
-      
-      <!-- Role Tags -->
-      <div class="role-tags">
-        <span class="role-tag role-producer">Producer</span>
-        <span class="role-tag role-technical">Technical</span>
-        <span class="role-tag role-leadership">Leadership</span>
-        <span class="role-tag role-strategy">Strategy</span>
-        <span class="role-tag role-ai"><i class="fas fa-robot"></i>AI systems crafter</span>
-        <span class="role-tag role-video"><i class="fas fa-photo-film"></i>Video & animation</span>
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="project-buttons">
-        <a href="/skills/Chad-Martin-Resume-2025-June.pdf" class="btn btn-primary" download="Chad-Martin-Resume">
-          <i class="fas fa-download"></i> Download resume (PDF)
-        </a>
-        <button type="button" class="btn btn-secondary glass-button" onclick="showModal('contact-modal')">
-          <i class="fas fa-paper-plane"></i>
-          <span>Get in touch</span>
-        </button>
-        <a href="https://www.linkedin.com/in/chad-martin-b038496/" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
-          <i class="fab fa-linkedin-in"></i> Connect on LinkedIn
-        </a>
-      </div>
-    </div>
-    <div class="hero-particles" id="hero-particles"></div>
-  </section>
-  
-  <main class="grid-container">
-    <script>
-      // Starfield animation - Exact 404 Implementation
-      function createStars(container, count = 100) {
-        const starsContainer = document.getElementById(container);
-        if (!starsContainer) return;
-        
-        const fragment = document.createDocumentFragment();
-        
-        for (let i = 0; i < count; i++) {
-          const star = document.createElement('div');
-          star.className = 'star';
-          
-          // Random size between 1 and 3px
-          const size = Math.random() * 2 + 1;
-          
-          // Random position
-          const posX = Math.random() * 100;
-          const posY = Math.random() * 100;
-          
-          // Random animation duration between 3 and 8s
-          const duration = Math.random() * 5 + 3;
-          
-          // Random delay for twinkling effect
-          const delay = Math.random() * 5;
-          
-          star.style.cssText = `
-            width: ${size}px;
-            height: ${size}px;
-            left: ${posX}%;
-            top: ${posY}%;
-            animation-delay: ${delay}s;
-            --duration: ${duration}s;
-          `;
-          
-          fragment.appendChild(star);
-        }
-        
-        starsContainer.innerHTML = '';
-        starsContainer.appendChild(fragment);
-      }
-      
-      // Initialize starfield on load
-      document.addEventListener('DOMContentLoaded', function() {
-        createStars('stars', 100);
-      });
-    </script>
-    
-   
-    
-      <!-- Featured Projects -->
-      <section class="content-section grid-col-12">
-        <h2><i class="fas fa-star"></i> Featured projects</h2>
-        <div class="grid-container">
-           <!-- Xbox Support Hub -->
-           <div class="project-card grid-col-12">
-            <a href="/projects/xbox-support.html" class="project-image project-bg-web">
-              <i class="fab fa-xbox"></i>
-            </a>
-            <div class="project-content">
-              <h3>Xbox support showcase</h3>
-              <p class="project-description">Explore the full Xbox Support ecosystem through interactive case studies, video walkthroughs, and screenshots. Highlights support experiences across console, web, desktop, and mobile platforms.</p>
-              <div class="project-tags">
-                <span>Web</span>
-                <span>Support</span>
-                <span>UX</span>
-              </div>
-              <a href="/projects/xbox-support.html" class="project-link">
-                <span>View project</span>
-                <i class="fas fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
 
-          <!-- Xbox Video Content -->
-          <div class="project-card grid-col-4">
-            <a href="/projects/video/xbox-video.html" class="project-image project-bg-gaming">
-              <i class="fas fa-video"></i>
-            </a>
-            <div class="project-content">
-              <h3>Xbox video content</h3>
-              <p class="project-description">A collection of animated videos and tutorials for Xbox support, including in-console help tools, branded support hubs, and AI-enhanced service experiences.</p>
-              <div class="project-tags">
-                <span>Video</span>
-                <span>Animation</span>
-                <span>Support</span>
-              </div>
-              <a href="/projects/video/xbox-video.html" class="project-link">
-                <span>View project</span>
-                <i class="fas fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
-          <!-- Copilot Playground -->
-          <div class="project-card grid-col-4">
-            <a href="/projects/copilotplayground.html" class="project-image project-bg-ai">
-              <i class="fas fa-robot"></i>
-            </a>
-            <div class="project-content">
-              <h3>Copilot playground</h3>
-              <p class="project-description">Led as prompt engineer, designing AI-driven prompt chains for Xbox gaming support. Built systems for keyword extraction, instant answers, and localized content generation to enhance user experience at scale.</p>
-              <div class="project-tags">
-                <span>AI/ML</span>
-                <span>UX Design</span>
-                <span>Automation</span>
-              </div>
-              <a href="/projects/copilotplayground.html" class="project-link">
-                <span>View project</span>
-                <i class="fas fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
-  
-          <!-- Microsoft Casual Games -->
-          <div class="project-card grid-col-4">
-            <a href="/projects/websites/microsoft-casual-games-support.html" class="project-image video-gradient-3">
-              <i class="fas fa-gamepad"></i>
-            </a>
-            <div class="project-content">
-              <h3>Microsoft casual games</h3>
-              <p class="project-description">Managed the migration of Microsoft Casual Games support content from Zendesk to Xbox.com. Oversaw parallel updates, ensured consistency across platforms, and maintained a seamless support experience for users.</p>
-              <div class="project-tags">
-                <span>Gaming</span>
-                <span>Support</span>
-                <span>UX</span>
-              </div>
-              <a href="/projects/websites/microsoft-casual-games-support.html" class="project-link">
-                <span>View project</span>
-                <i class="fas fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
-  
-         
+  <main>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; STUDIO &mdash; RESUME</div>
+          <h1 class="ap-display">Chad<em> Martin.</em></h1>
         </div>
-      </section>
-    
-    
-    
- 
-
-
-
-
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-briefcase"></i> Experience</h2>
-      <div class="resume-section">
-  <div class="experience-item">
-    <h3><i class="fas fa-cogs"></i>Producer – Xbox | Microsoft</h3>
-    <div class="role-tags">
-      <span class="role-tag role-producer"><i class="fas fa-cog"></i>Producer</span>
-      <span class="role-tag role-technical"><i class="fas fa-code"></i>Technical</span>
-      <span class="role-tag role-leadership"><i class="fas fa-users"></i>Leadership</span>
-      <span class="role-tag role-strategy"><i class="fas fa-chess"></i>Strategy</span>
-      <a class="role-tag role-site" href="https://support.xbox.com" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i>support.xbox.com</a>
-    </div>
-    <p class="company">Hanson Consulting Group · Full-time</p>
-    <p class="date">Jun 2014 – Present · Kirkland, WA</p>
-    <p>Producer and systems strategist for Xbox Support, contributing to CMS migrations, internal tooling, AI-powered editorial workflows, multiplatform content delivery, and original video production. Drove the Copilot Playground initiative and collaborated with engineering, localization, and UX to enhance support experiences. Produced in-app support content for the Xbox Support app on console and the <a href="https://www.xbox.com/en-us/apps/xbox-app-on-pc" target="_blank" rel="noopener noreferrer">Xbox app on PC</a>, and maintained <a href="https://support.xbox.com" target="_blank" rel="noopener noreferrer">support.xbox.com</a>—Xbox’s global support site with 30 million monthly users.</p>
-
-
-    <p>Built and launched game support hubs for major titles including Hellblade II, South of Midnight, Microsoft Casual Games, and Gears of War— delivering help content across console, desktop app, mobile, and web. Also produced video walkthroughs, showcase reels, and training-focused trailers to support product launches and elevate the support experience.</p>
-        </div>
-
-  <div class="experience-item">
-    <h3><i class="fas fa-laptop-code"></i>Xbox Console & Web Producer– Xbox | Microsoft</h3>
-    <div class="role-tags">
-      <span class="role-tag role-producer"><i class="fas fa-cog"></i>Producer</span>
-      <span class="role-tag role-technical"><i class="fas fa-code"></i>Web development</span>
-      <span class="role-tag role-content"><i class="fas fa-edit"></i>Content</span>
-      <span class="role-tag role-strategy"><i class="fas fa-sitemap"></i>CMS</span>
-      <span class="role-tag role-site"><i class="fas fa-gamepad"></i>Xbox console</span>
-    </div>
-    <p class="company">Denny Mountain Media</p>
-    <p class="date">May 2010 – Jun 2014 · Redmond, WA</p>
-    <p>Maintained and published content for Xbox.com and Xbox console platforms using proprietary CMS tools. Delivered support materials—including troubleshooters, product pages, and game-specific help—directly to the console UI.</p>
-    <p>Produced promotional Game Billboards: full-screen interactive panels spotlighting games, features, and service updates.</p>
-    <p>Contributed content to <a href="https://support.xbox.com" target="_blank" rel="noopener noreferrer">support.xbox.com</a>, optimized assets, and performed QA for global launches.</p>
-    <p>Collaborated across internal and international teams to ship high-visibility support and promotional content across multiple product lifecycles, including the Xbox One launch.</p>
-  </div>
-
-  <div class="experience-item">
-    <h3><i class="fas fa-share-alt"></i>Web Producer – Xbox | Microsoft</h3>
-    <div class="role-tags">
-      <span class="role-tag role-producer"><i class="fas fa-cog"></i>Producer</span>
-      <span class="role-tag role-technical"><i class="fab fa-microsoft"></i>SharePoint</span>
-      <span class="role-tag role-content"><i class="fas fa-paint-brush"></i>Design</span>
-      <span class="role-tag role-strategy"><i class="fas fa-users"></i>Internal tools</span>
-      <a class="role-tag role-site" href="https://xbox.com" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i>Xbox.com</a>
-    </div>
-    <p class="company">Filter, A Merkle Company</p>
-    <p class="date">Feb 2009 – Jun 2010 · Seattle, WA</p>
-    <p>Produced and published content for Xbox.com, one of Microsoft's most-visited consumer sites, including splash pages, game hubs, and global release campaigns. Built responsive, production-ready web pages from Photoshop mockups using hand-coded HTML and CSS.</p>
-    <p>Supported internal Microsoft teams by designing SharePoint sites and communication templates, delivering content and tools to over 25,000 employees worldwide. Managed high-visibility content for millions of monthly users while maintaining brand and technical standards.</p>
-  </div>
-
-  <div class="experience-item">
-    <h3><i class="fas fa-layer-group"></i>Additional roles</h3>
-    <div class="role-tags">
-      <span class="role-tag role-content"><i class="fas fa-photo-film"></i>Media</span>
-      <span class="role-tag role-technical"><i class="fas fa-tags"></i>Metadata</span>
-      <span class="role-tag role-leadership"><i class="fas fa-graduation-cap"></i>Training</span>
-    </div>
-    <p class="company">Microsoft, Muze, Loudeye, DiscoverMusic</p>
-    <p class="date">1998 – 2009 · Seattle, WA</p>
-    <p>Held roles including Web Producer, Media Supervisor, Graphic Designer, and Content Technician. Responsibilities spanned metadata tagging, CMS publishing, CD archive management, digital delivery, QA, and team training across media and tech companies.</p>
-  </div>
-</div>
-
-    <section class="content-section grid-col-12 skills-section">
-      <h2><i class="fas fa-code"></i> Skills</h2>
-      <div class="skills-grid">
-        <!-- Design & Visual -->
-        <div class="skill-block">
-          <h4><i class="fas fa-palette"></i> Design & visual</h4>
-          <div class="skill-tags">
-            <span class="skill-pill" tabindex="0"><i class="fas fa-brush"></i>Graphic design</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-paint-brush"></i>Web design</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-icons"></i>UX/UI</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-bullhorn"></i>Brand development</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-bolt"></i>Prototyping</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-lightbulb"></i>Creative direction</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-text-height"></i>Typography</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-adjust"></i>Color theory</span>
-          </div>
-        </div>
-        
-        <!-- Video & Motion -->
-        <div class="skill-block">
-          <h4><i class="fas fa-video"></i> Video & motion</h4>
-          <div class="skill-tags">
-            <span class="skill-pill" tabindex="0"><i class="fas fa-film"></i>Adobe After Effects</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-pencil-ruler"></i>2D animation</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-video"></i>Video editing</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-user-astronaut"></i>Character design</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-headphones"></i>Audio mixing & mastering</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-compress-arrows-alt"></i>Video production</span>
-          </div>
-        </div>
-        
-        <!-- Web Development -->
-        <div class="skill-block">
-          <h4><i class="fas fa-code"></i> Web development</h4>
-          <div class="skill-tags">
-            <span class="skill-pill" tabindex="0"><i class="fab fa-html5"></i>HTML5 / CSS3 / JavaScript</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-code"></i>XML / ASMX</span>
-            <span class="skill-pill" tabindex="0"><i class="fab fa-microsoft"></i>SharePoint</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-cogs"></i>CMS Development</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-bug"></i>QA & Debugging</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-desktop"></i>Responsive Design</span>
-          </div>
-        </div>
-        
-        <!-- Data & Analytics -->
-        <div class="skill-block">
-          <h4><i class="fas fa-chart-line"></i> Data & Analytics</h4>
-          <div class="skill-tags">
-            <span class="skill-pill" tabindex="0"><i class="fas fa-table"></i>Advanced Excel formulas</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-database"></i>Power Query</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-chart-bar"></i>Power BI dashboards</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-sitemap"></i>Data modeling & visualization</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-project-diagram"></i>Power Pivot</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-robot"></i>Power Automate</span>
-          </div>
-        </div>
-        
-        <!-- AI & Automation -->
-        <div class="skill-block">
-          <h4><i class="fas fa-robot"></i> AI & Automation</h4>
-          <div class="skill-tags">
-            <span class="skill-pill" tabindex="0"><i class="fas fa-keyboard"></i>AI prompt design</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-robot"></i>Editorial automation</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-image"></i>Image AI generation</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-microphone-alt"></i>Voice AI generation</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-tags"></i>Metadata systems</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-project-diagram"></i>Data pipelines</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-server"></i>Azure DevOps</span>
-            <span class="skill-pill" tabindex="0"><i class="fab fa-github"></i>GitHub / Azure pipelines</span>
-          </div>
-        </div>
-        
-        <!-- Leadership & Strategy -->
-        <div class="skill-block">
-          <h4><i class="fas fa-chess-knight"></i> Leadership & strategy</h4>
-          <div class="skill-tags">
-            <span class="skill-pill" tabindex="0"><i class="fas fa-chess"></i>Content strategy</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-globe"></i>Localization</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-people-arrows"></i>Cross-functional leadership</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-universal-access"></i>Accessibility (WCAG 2.1 AA)</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-clipboard-check"></i>QA processes</span>
-            <span class="skill-pill" tabindex="0"><i class="fas fa-users"></i>Team mentorship</span>
-          </div>
+        <div class="ap-sec-meta">
+          Senior Producer &amp; Technical Strategist. Producer &mdash; Xbox Support (Microsoft) via Hanson Consulting Group.
+          <br/><br/>
+          Turning complexity into clarity &mdash; through design, intent, and systems that serve millions.
         </div>
       </div>
+      <ul class="cv-tags">
+        <li>Producer</li><li>Technical</li><li>Leadership</li><li>Strategy</li><li>AI systems</li><li>Video &amp; animation</li>
+      </ul>
+      <div class="ap-cta-actions" style="display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-8);">
+        <a class="ap-btn ap-btn--primary" href="/skills/Chad-Martin-Resume-2025-June.pdf" download="Chad-Martin-Resume">Download resume (PDF) &rarr;</a>
+        <a class="ap-btn ap-btn--ghost" href="https://www.linkedin.com/in/chad-martin-b038496/" target="_blank" rel="noopener noreferrer">Connect on LinkedIn</a>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-trophy"></i> Awards & Accolades</h2>
-      <div class="awards-container">
-    
-        <div class="award-item">
-          <div class="award-icon">
-            <i class="fas fa-trophy"></i>
-          </div>
-          <div class="award-content">
-            <h3>Microsoft Impact Award – UX & Platform Innovation</h3>
-            <p class="date">February 2024</p>
-            <p class="award-description">
-              Awarded for leadership in the Compass-to-Campsite CMS migration powering Xbox Support, modernizing the editorial pipeline and improving global publishing efficiency.
-            </p>
-            <div class="award-details">
-              <p>Recognized for:</p>
-              <ul>
-                <li>Transformational platform migration affecting millions of users</li>
-                <li>Significant improvements in content localization and publishing workflows</li>
-                <li>Cross-organization collaboration and innovation</li>
-                <li>Executive recognition signed by Microsoft CEO Satya Nadella</li>
-              </ul>
-            </div>
-          </div>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; FEATURED PROJECTS</div>
+          <h2 class="ap-display">Four case studies, <em>one ecosystem.</em></h2>
         </div>
-    
-        <div class="award-item">
-          <div class="award-icon">
-            <i class="fas fa-award"></i>
-          </div>
-          <div class="award-content">
-            <h3>Hanson Consulting Group – Superhero Award</h3>
-            <p class="date">December 2022</p>
-            <p class="award-description">
-              Recognized for excellence in leadership, collaboration, and creative problem solving within Xbox Support content production pipelines.
-            </p>
-            <div class="award-details">
-              <p>Superhero Award named after Hanson's motto:</p>
-              <ul>
-                <li>Geeks</li>
-                <li>Nerds</li>
-                <li>Geniuses</li>
-                <li>Superheroes</li>
-              </ul>
-              <p style="font-style: italic; margin-top: 0.5em;">We’re here to save the day.</p>
-            </div>
-          </div>
-        </div>
-    
       </div>
-    </section>
-    
-
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-graduation-cap"></i> Education</h2>
-      <div class="resume-section">
-        <div class="education-item">
-          <div class="education-logo ai-logo">
-            <img src="/images/projects/ai-logo.png" alt="Art Institute of Seattle Logo">
-          </div>
-          <div class="education-details">
-            <h3 class="school">Art Institute of Seattle</h3>
-            <p>Associate of Applied Arts, Video Production</p>
-            <span class="date">1995 - 1997</span>
-<div class="personal-quote"><i class="fas fa-comment-dots personal-quote-icon"></i> "Creative roots and technical storytelling began here."</div>
-          </div>
-        </div>
-        <div class="education-item">
-          <div class="education-logo">
-            <img src="/images/projects/uaf-logo.png" alt="University of Alaska Fairbanks Logo">
-          </div>
-          <div class="education-details">
-            <h3 class="school">University of Alaska Fairbanks</h3>
-            <p>Broadcast Journalism</p>
-            <span class="date">1993 - 1995</span>
-          </div>
-        </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/xbox-support.html"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Xbox Support<em> showcase.</em></h3><span class="meta">Web &middot; Support &middot; UX</span></div><p>The full Xbox Support ecosystem through interactive case studies, video walkthroughs, and screenshots across console, web, desktop, and mobile.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/video/xbox-video.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Xbox video<em> content.</em></h3><span class="meta">Video &middot; Animation &middot; Support</span></div><p>Animated videos and tutorials for Xbox Support, including in-console help tools, branded support hubs, and AI-enhanced service experiences.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/copilotplayground.html"><span class="n">03</span><div><h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3><span class="meta">AI/ML &middot; UX &middot; Automation</span></div><p>Led as prompt engineer, designing AI-driven prompt chains for Xbox gaming support &mdash; keyword extraction, instant answers, localized content at scale.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/websites/microsoft-casual-games-support.html"><span class="n">04</span><div><h3 class="ap-display ap-display--row">Microsoft<em> Casual Games.</em></h3><span class="meta">Gaming &middot; Support &middot; UX</span></div><p>Managed the migration of Microsoft Casual Games support content from Zendesk to Xbox.com &mdash; parallel updates, platform consistency, seamless user experience.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
       </div>
     </section>
 
-    
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; EXPERIENCE</div>
+          <h2 class="ap-display">Twenty-five years, <em>four chapters.</em></h2>
+        </div>
+      </div>
 
-    
+      <div class="cv-role">
+        <h3>Producer<em> — Xbox</em> (Microsoft)</h3>
+        <p class="meta">Hanson Consulting Group &middot; Full-time &middot; Jun 2014 &ndash; present &middot; Kirkland, WA</p>
+        <p>Producer and systems strategist for Xbox Support &mdash; contributing to CMS migrations, internal tooling, AI-powered editorial workflows, multiplatform content delivery, and original video production. Drove the Copilot Playground initiative and collaborated with engineering, localization, and UX to enhance support experiences.</p>
+        <p>Produced in-app support content for the Xbox Support app on console and the Xbox app on PC, and maintained support.xbox.com &mdash; Xbox&rsquo;s global support site with 30 million monthly users.</p>
+        <p>Built and launched game support hubs for major titles: Hellblade II, South of Midnight, Microsoft Casual Games, Gears of War &mdash; help content across console, desktop app, mobile, web. Also produced video walkthroughs, showcase reels, training trailers for product launches.</p>
+      </div>
+
+      <div class="cv-role">
+        <h3>Xbox console &amp;<em> web producer</em> — Xbox (Microsoft)</h3>
+        <p class="meta">Denny Mountain Media &middot; May 2010 &ndash; Jun 2014 &middot; Redmond, WA</p>
+        <p>Maintained and published content for Xbox.com and Xbox console platforms using proprietary CMS tools. Delivered support materials &mdash; troubleshooters, product pages, game-specific help &mdash; directly to the console UI.</p>
+        <p>Produced promotional Game Billboards: full-screen interactive panels spotlighting games, features, service updates. Contributed content to support.xbox.com, optimized assets, performed QA for global launches.</p>
+        <p>Collaborated across internal and international teams to ship high-visibility support and promotional content across multiple product lifecycles, including the Xbox One launch.</p>
+      </div>
+
+      <div class="cv-role">
+        <h3>Web producer<em> — Xbox</em> (Microsoft)</h3>
+        <p class="meta">Filter, A Merkle Company &middot; Feb 2009 &ndash; Jun 2010 &middot; Seattle, WA</p>
+        <p>Produced and published content for Xbox.com, one of Microsoft&rsquo;s most-visited consumer sites, including splash pages, game hubs, global release campaigns. Built responsive, production-ready web pages from Photoshop mockups using hand-coded HTML and CSS.</p>
+        <p>Supported internal Microsoft teams by designing SharePoint sites and communication templates, delivering content and tools to over 25,000 employees worldwide. Managed high-visibility content for millions of monthly users while maintaining brand and technical standards.</p>
+      </div>
+
+      <div class="cv-role">
+        <h3>Additional<em> roles.</em></h3>
+        <p class="meta">Microsoft, Muze, Loudeye, DiscoverMusic &middot; 1998 &ndash; 2009 &middot; Seattle, WA</p>
+        <p>Web Producer, Media Supervisor, Graphic Designer, Content Technician. Responsibilities spanned metadata tagging, CMS publishing, CD archive management, digital delivery, QA, and team training across media and tech companies.</p>
+      </div>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; SKILLS</div>
+          <h2 class="ap-display">Six disciplines, <em>one toolkit.</em></h2>
+        </div>
+      </div>
+
+      <div class="cv-skill-group">
+        <h3>Design &amp; visual</h3>
+        <ul class="cv-skill-list">
+          <li>Graphic design</li><li>Web design</li><li>UX / UI</li><li>Brand development</li><li>Prototyping</li><li>Creative direction</li><li>Typography</li><li>Color theory</li>
+        </ul>
+      </div>
+
+      <div class="cv-skill-group">
+        <h3>Video &amp; motion</h3>
+        <ul class="cv-skill-list">
+          <li>Adobe After Effects</li><li>2D animation</li><li>Video editing</li><li>Character design</li><li>Audio mixing &amp; mastering</li><li>Video production</li>
+        </ul>
+      </div>
+
+      <div class="cv-skill-group">
+        <h3>Web development</h3>
+        <ul class="cv-skill-list">
+          <li>HTML5 / CSS3 / JavaScript</li><li>XML / ASMX</li><li>SharePoint</li><li>CMS development</li><li>QA &amp; debugging</li><li>Responsive design</li>
+        </ul>
+      </div>
+
+      <div class="cv-skill-group">
+        <h3>Data &amp; analytics</h3>
+        <ul class="cv-skill-list">
+          <li>Advanced Excel formulas</li><li>Power Query</li><li>Power BI dashboards</li><li>Data modeling &amp; visualization</li><li>Power Pivot</li><li>Power Automate</li>
+        </ul>
+      </div>
+
+      <div class="cv-skill-group">
+        <h3>AI &amp; automation</h3>
+        <ul class="cv-skill-list">
+          <li>AI prompt design</li><li>Editorial automation</li><li>Image AI generation</li><li>Voice AI generation</li><li>Metadata systems</li><li>Data pipelines</li><li>Azure DevOps</li><li>GitHub / Azure pipelines</li>
+        </ul>
+      </div>
+
+      <div class="cv-skill-group">
+        <h3>Leadership &amp; strategy</h3>
+        <ul class="cv-skill-list">
+          <li>Content strategy</li><li>Localization</li><li>Cross-functional leadership</li><li>Accessibility (WCAG 2.1 AA)</li><li>QA processes</li><li>Team mentorship</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; AWARDS &amp; ACCOLADES</div>
+          <h2 class="ap-display">Two awards, <em>one ongoing story.</em></h2>
+        </div>
+      </div>
+
+      <div class="cv-award">
+        <h3>Microsoft Impact Award &mdash; UX &amp; platform innovation</h3>
+        <p class="date">February 2024</p>
+        <p>Awarded for leadership in the Compass-to-Campsite CMS migration powering Xbox Support &mdash; modernizing the editorial pipeline and improving global publishing efficiency.</p>
+        <p>Recognized for:</p>
+        <ul>
+          <li>Transformational platform migration affecting millions of users.</li>
+          <li>Significant improvements in content localization and publishing workflows.</li>
+          <li>Cross-organization collaboration and innovation.</li>
+          <li>Executive recognition signed by Microsoft CEO Satya Nadella.</li>
+        </ul>
+      </div>
+
+      <div class="cv-award">
+        <h3>Hanson Consulting Group &mdash; Superhero Award</h3>
+        <p class="date">December 2022</p>
+        <p>Recognized for excellence in leadership, collaboration, and creative problem solving within Xbox Support content production pipelines.</p>
+        <p>Named after Hanson&rsquo;s motto:</p>
+        <ul>
+          <li>Geeks</li><li>Nerds</li><li>Geniuses</li><li>Superheroes</li>
+        </ul>
+        <p style="font-style: italic; margin-top: var(--sp-3);">&ldquo;We&rsquo;re here to save the day.&rdquo;</p>
+      </div>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; EDUCATION</div>
+          <h2 class="ap-display">Two schools, <em>one foundation.</em></h2>
+        </div>
+      </div>
+
+      <div class="cv-edu">
+        <h3>Art Institute of Seattle</h3>
+        <p>Associate of Applied Arts, Video Production</p>
+        <p class="date">1995 &ndash; 1997</p>
+        <p style="font-style: italic; margin-top: var(--sp-3); opacity: .75;">&ldquo;Creative roots and technical storytelling began here.&rdquo;</p>
+      </div>
+
+      <div class="cv-edu">
+        <h3>University of Alaska Fairbanks</h3>
+        <p>Broadcast Journalism</p>
+        <p class="date">1993 &ndash; 1995</p>
+      </div>
+    </section>
+
   </main>
-  
-  <!-- Footer -->
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Want to work<br><em>together?</em></h2>
+    <p>Producer engagements, AI tooling, platform migrations, video content &mdash; all in the playbook.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/skills/Chad-Martin-Resume-2025-June.pdf" download>Download PDF</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-  
-  <!-- Contact Form Modal (Loaded via init-contact-modal.js) -->
-  <div id="modal-container" data-auto-form="get-in-touch"></div>
-
-  <!-- Scripts (Order is important) -->
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/forms.js" defer></script>
-  <script src="/js/init-contact-modal.js" defer></script>
 </body>
 </html>
