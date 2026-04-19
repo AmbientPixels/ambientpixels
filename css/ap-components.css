@@ -594,13 +594,9 @@
 
 /* Scrolling screenshot variant — for tall portrait screenshots of
    dashboards. The frame stays fixed 16:7 but the image (rendered via
-   background-image) pans from top to bottom tied to page scroll
-   position (parallax). As the user scrolls the page past the frame,
-   the image reveals top→bottom, giving a cinematic 'here is
+   background-image) pans from top to bottom over 36s, alternating
+   back up, independent of page scroll. Gives a cinematic 'here is
    everything this screen holds' effect without a static crop.
-
-   Modern browsers: scroll-driven animation via animation-timeline: view().
-   Fallback: time-based 36s infinite alternate loop.
 
    Usage:
      <div class="ap-case-media-frame ap-case-media-frame--scroll"
@@ -612,7 +608,6 @@
   background-repeat: no-repeat;
   background-position: 50% 0%;
   filter: grayscale(.7) contrast(1.05) brightness(.88);
-  /* Fallback for browsers without scroll-driven animations */
   animation: ap-scroll-image 36s var(--ease-inout) infinite alternate;
 }
 .ap-case-media-frame--scroll > img { display: none; }
@@ -621,19 +616,6 @@
   8%   { background-position: 50%   0%; }
   92%  { background-position: 50% 100%; }
   100% { background-position: 50% 100%; }
-}
-/* Scroll-driven parallax — ties image pan to page scroll position.
-   Chrome/Edge 115+, Safari 26+. Firefox falls back to time-based loop. */
-@supports (animation-timeline: view()) {
-  .ap-case-media-frame--scroll {
-    animation: ap-scroll-parallax linear both;
-    animation-timeline: view();
-    animation-range: cover;
-  }
-  @keyframes ap-scroll-parallax {
-    0%   { background-position: 50%   0%; }
-    100% { background-position: 50% 100%; }
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .ap-case-media-frame--scroll {
