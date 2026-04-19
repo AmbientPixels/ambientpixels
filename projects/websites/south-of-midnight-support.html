@@ -1,333 +1,200 @@
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Producer-led project creating Xbox Support pages for South of Midnight." />
-  <meta property="og:title" content="South of Midnight Support Pages – Xbox | AmbientPixels" />
-  <meta property="og:description" content="Explore support content created for South of Midnight, including localized help centers, accessibility options, and user reporting tools." />
+  <meta name="description" content="South of Midnight support pages — producer-led Xbox Support content for Compulsion Games. Folklore, accessibility, 40+ languages." />
+  <meta property="og:title" content="South of Midnight Support — AmbientPixels" />
+  <meta property="og:description" content="Producer role supporting South of Midnight with immersive, accessible help center content." />
   <meta property="og:image" content="/images/projects/SoM/screen-01.jpeg" />
-  <meta property="og:url" content="https://ambientpixels.ai/projects/south-of-midnight-support" />
+  <meta property="og:url" content="https://ambientpixels.ai/projects/websites/south-of-midnight-support" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>South of Midnight Support Pages – Xbox | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <!-- Legacy CSS — only the layout stack + JS-dependent specialized sheets.
-       base.css, theme.css, banner.css intentionally NOT loaded: their
-       global p/body/ul defaults leak into DS surfaces. ap-skin.css now
-       owns the global reset that base.css used to provide. -->
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-
-  <!-- DS skin — DS fonts + tokens + overlay on legacy layout -->
+  <title>South of Midnight Support — AmbientPixels</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
+  <style>
+    .som-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
+    .som-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .som-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-8); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--sp-12) 0; margin: var(--sp-8) 0 0; }
+    .som-metric .num { font-family: var(--font-heavy); font-size: 72px; line-height: 1; letter-spacing: var(--tracking-display); margin: 0 0 var(--sp-3); }
+    .som-metric .lbl { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); }
+    @media (max-width: 1000px) { .som-metrics { grid-template-columns: 1fr; } }
+    .som-bullets { list-style: none; padding: 0; margin: 0; max-width: var(--max-prose); }
+    .som-bullets li { padding: var(--sp-3) 0; border-top: 1px dashed var(--color-border-dashed); font-size: var(--fs-body-sm); line-height: var(--lh-body); }
+    .som-bullets li:first-child { border-top: none; }
+    .som-bullets li::before { content: '→ '; opacity: .45; }
+  </style>
+  <script defer src="/js/ap-nav-mobile.js"></script>
+  <script src="/js/lightbox.js" type="module"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-  <!-- §2.2 Nav (inline DS, replaces /modules/header.html) -->
+
   <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home"><span class="m"><i></i></span>AmbientPixels.</a>
     <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
+      <a href="/services/">Services.</a><a href="/products/">Products.</a><a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a><a href="/blog/">Journal.</a><a href="/pages/login.html">Login.</a>
     </div>
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card">
-    <div class="hero-card-image">
-      <img src="/images/projects/SoM/hero-01.png" alt="South of Midnight" loading="lazy">
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Xbox Support</div>
-      <h1>South of Midnight Support Pages</h1>
-      <p class="hero-card-description">Producer role supporting South of Midnight with immersive, accessible help center content</p>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <p>As a content producer at Xbox, I partnered with Compulsion Games and cross-discipline teams to launch the support experience for <em>South of Midnight</em>. This included building a dynamic, fully localized Help Center aligned with the game’s unique tone—interweaving accessibility, folklore, and functional clarity.</p>
-      <p>I crafted structured content tailored for console and PC users, helped prepare the site for localization across 40+ languages, and oversaw creative asset flow, UI reviews, and accessibility checks. I worked closely with PMs and designers to bring this support hub to life, and helped define scalable templates to support future titles.</p>
-    </section>
-
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Visual Highlights</h2>
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-01.jpeg" class="lightbox-trigger" data-caption="South of Midnight Help Center homepage – entry point to core topics, game info, FAQs, and support tools.">
-            <img src="/images/projects/SoM/screen-01.jpeg" alt="South of Midnight Hub" loading="lazy">
-          </a>
-          <p class="media-caption">Help Center homepage</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+          <h1 class="ap-display">South of Midnight<em> support.</em></h1>
         </div>
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-02.jpeg" class="lightbox-trigger" data-caption="Support overview page – guides users through setup, specs, and early-game orientation.">
-            <img src="/images/projects/SoM/screen-02.jpeg" alt="Support Overview" loading="lazy">
-          </a>
-          <p class="media-caption">Support overview</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-03.jpeg" class="lightbox-trigger" data-caption="General Xbox troubleshooting support as integrated within the South of Midnight ecosystem.">
-            <img src="/images/projects/SoM/screen-03.jpeg" alt="Xbox Help Integration" loading="lazy">
-          </a>
-          <p class="media-caption">Xbox games & apps support</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-04.jpeg" class="lightbox-trigger" data-caption="FAQ panel addressing common questions about platforms, game modes, and animation settings.">
-            <img src="/images/projects/SoM/screen-04.jpeg" alt="FAQ Section" loading="lazy">
-          </a>
-          <p class="media-caption">FAQ section</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-05.jpeg" class="lightbox-trigger" data-caption="Accessibility options menu – visual breakdown of gameplay, audio, and control configuration.">
-            <img src="/images/projects/SoM/screen-05.jpeg" alt="Accessibility Settings" loading="lazy">
-          </a>
-          <p class="media-caption">Accessibility settings</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-06.jpeg" class="lightbox-trigger" data-caption="Player issue reporting form – structured for privacy, localization, and multi-title routing.">
-            <img src="/images/projects/SoM/screen-06.jpeg" alt="Issue Reporting Form" loading="lazy">
-          </a>
-          <p class="media-caption">Player issue report form</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-07.jpeg" class="lightbox-trigger" data-caption="Known Issues article – patch tracking and real-time release notes within the support hub.">
-            <img src="/images/projects/SoM/screen-07.jpeg" alt="Known Issues" loading="lazy">
-          </a>
-          <p class="media-caption">Known issues & updates</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/SoM/screen-08.jpeg" class="lightbox-trigger" data-caption="Digital game troubleshooting panel – device-level repair steps to support game integrity.">
-            <img src="/images/projects/SoM/screen-08.jpeg" alt="Troubleshooting Panel" loading="lazy">
-          </a>
-          <p class="media-caption">Troubleshooting tools</p>
+        <div class="ap-sec-meta">
+          Producer role supporting Compulsion Games&rsquo; <em>South of Midnight</em> &mdash; immersive, accessible help center content interweaving folklore, accessibility, and functional clarity.
+          <br/><br/><span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
         </div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-cogs"></i> Behind the Scenes</h2>
-      <p>My contributions included shaping and deploying the in-game issue reporting form—covering South of Midnight, We Happy Few, and Contrast. These forms were designed for accessibility, scalability, and secure handling across platforms. I collaborated with developers and QA to test submission workflows, supported compliance reviews, and ensured localization readiness for all help center modules.</p>
-      <p>I also managed the screenshot asset pipeline—capturing, editing, tagging, and optimizing images for narrative clarity and SEO alignment. Every detail mattered, from alt text accuracy to platform-specific content visibility.</p>
-      <img src="/images/projects/SoM/screen-06.jpeg" alt="South of Midnight Support Form – User Issue Reporting" class="inline-image" loading="lazy">
-      <p class="media-caption">Player issue reporting form</p>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-tools"></i> Tools & Technologies</h2>
-      <div class="tech-badges">
-        <span class="tech-badge"><i class="fab fa-microsoft"></i> Xbox CMS</span>
-        <span class="tech-badge"><i class="fas fa-code-branch"></i> Azure DevOps</span>
-        <span class="tech-badge"><i class="fas fa-language"></i> Localization Tools</span>
-        <span class="tech-badge"><i class="fas fa-paint-brush"></i> Adobe Creative Suite</span>
-        <span class="tech-badge"><i class="fas fa-shield-alt"></i> Security Compliance</span>
-        <span class="tech-badge"><i class="fas fa-mobile-alt"></i> Responsive Design</span>
-        <span class="tech-badge"><i class="fas fa-book"></i> Game-specific Knowledge Bases</span>
-        <span class="tech-badge"><i class="fas fa-image"></i> Screenshot Capture</span>
-        <span class="tech-badge"><i class="fas fa-check"></i> QC Compliance</span>
-      </div>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-chart-line"></i> Results & Impact</h2>
-      <div class="impact-metrics">
-        <div class="metric-card">
-          <i class="fas fa-language"></i>
-          <h3>40+</h3>
-          <p>Languages supported</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <h2 class="ap-display">Southern Gothic, <em>technically clear.</em></h2>
         </div>
-        <div class="metric-card">
-          <i class="fas fa-universal-access"></i>
-          <h3>100%</h3>
-          <p>WCAG 2.1 AA compliant</p>
-        </div>
-        <div class="metric-card">
-          <i class="fas fa-ticket-alt"></i>
-          <h3>0</h3>
-          <p>Critical issues at launch</p>
+        <div class="ap-sec-meta">
+          Partnership with Compulsion Games &mdash; dynamic, fully localized Help Center aligned with the game&rsquo;s unique tone.
         </div>
       </div>
-      <div class="impact-highlights">
-        <h3>Key Achievements:</h3>
-        <ul>
-          <li>Launched support for <em>South of Midnight</em> ahead of schedule, aligning with game's reveal</li>
-          <li>Reduced support ticket volume by 30% through intuitive content organization</li>
-          <li>Achieved 100% compliance with Xbox accessibility standards (WCAG 2.1 AA)</li>
-          <li>Established reusable templates for future Compulsion Games titles</li>
-          <li>Streamlined asset pipeline, reducing update deployment time by 40%</li>
-        </ul>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        As a content producer at Xbox, I partnered with Compulsion Games and cross-discipline teams to launch the support experience for <em>South of Midnight</em>. Built a dynamic, fully localized Help Center aligned with the game&rsquo;s unique tone &mdash; interweaving accessibility, folklore, and functional clarity.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        Crafted structured content tailored for console and PC users, helped prepare the site for localization across 40+ languages, oversaw creative asset flow, UI reviews, and accessibility checks. Worked closely with PMs and designers to bring this support hub to life, and helped define scalable templates to support future titles.
+      </p>
+    </section>
+
+    <section class="ap-sec" id="gallery" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; VISUAL HIGHLIGHTS</div>
+          <h2 class="ap-display">Eight surfaces, <em>one help center.</em></h2>
+        </div>
+        <div class="ap-sec-meta">Tap to expand.</div>
+      </div>
+      <div class="image-row">
+        <div class="image-item"><a href="/images/projects/SoM/screen-01.jpeg" class="lightbox-trigger" data-caption="South of Midnight Help Center homepage"><img src="/images/projects/SoM/screen-01.jpeg" alt="SoM Hub" loading="lazy" /></a><p class="image-caption">01 &mdash; Help Center hub</p></div>
+        <div class="image-item"><a href="/images/projects/SoM/screen-02.jpeg" class="lightbox-trigger" data-caption="Support overview page"><img src="/images/projects/SoM/screen-02.jpeg" alt="Support Overview" loading="lazy" /></a><p class="image-caption">02 &mdash; Support overview</p></div>
+        <div class="image-item"><a href="/images/projects/SoM/screen-03.jpeg" class="lightbox-trigger" data-caption="Xbox games & apps support"><img src="/images/projects/SoM/screen-03.jpeg" alt="Xbox Help Integration" loading="lazy" /></a><p class="image-caption">03 &mdash; Xbox games &amp; apps</p></div>
+        <div class="image-item"><a href="/images/projects/SoM/screen-04.jpeg" class="lightbox-trigger" data-caption="FAQ panel"><img src="/images/projects/SoM/screen-04.jpeg" alt="FAQ Section" loading="lazy" /></a><p class="image-caption">04 &mdash; FAQ section</p></div>
+        <div class="image-item"><a href="/images/projects/SoM/screen-05.jpeg" class="lightbox-trigger" data-caption="Accessibility options menu"><img src="/images/projects/SoM/screen-05.jpeg" alt="Accessibility Settings" loading="lazy" /></a><p class="image-caption">05 &mdash; Accessibility settings</p></div>
+        <div class="image-item"><a href="/images/projects/SoM/screen-06.jpeg" class="lightbox-trigger" data-caption="Player issue reporting form"><img src="/images/projects/SoM/screen-06.jpeg" alt="Issue Reporting Form" loading="lazy" /></a><p class="image-caption">06 &mdash; Issue reporting form</p></div>
+        <div class="image-item"><a href="/images/projects/SoM/screen-07.jpeg" class="lightbox-trigger" data-caption="Known Issues article"><img src="/images/projects/SoM/screen-07.jpeg" alt="Known Issues" loading="lazy" /></a><p class="image-caption">07 &mdash; Known issues</p></div>
+        <div class="image-item"><a href="/images/projects/SoM/screen-08.jpeg" class="lightbox-trigger" data-caption="Digital game troubleshooting panel"><img src="/images/projects/SoM/screen-08.jpeg" alt="Troubleshooting Panel" loading="lazy" /></a><p class="image-caption">08 &mdash; Troubleshooting</p></div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-lightbulb"></i> Key Learnings</h2>
-      <div class="learnings-grid">
-        <div class="learning-card">
-          <i class="fas fa-globe-americas"></i>
-          <h3>Cultural Sensitivity in Support Content</h3>
-          <p>Bringing Southern Gothic themes into a support setting required nuance—balancing technical clarity with thematic voice.</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; BEHIND THE SCENES</div>
+          <h2 class="ap-display">Forms, assets, <em>localization-ready.</em></h2>
         </div>
-        <div class="learning-card">
-          <i class="fas fa-project-diagram"></i>
-          <h3>Reusable Frameworks for Multi-IP Studios</h3>
-          <p>Creating scalable systems allowed Compulsion’s legacy titles to share a submission and help framework with South of Midnight.</p>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        Shaped and deployed the in-game issue reporting form &mdash; covering South of Midnight, We Happy Few, and Contrast. Forms designed for accessibility, scalability, and secure handling across platforms. Collaborated with developers and QA to test submission workflows, supported compliance reviews, ensured localization readiness for all help center modules.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        Also managed the screenshot asset pipeline &mdash; capturing, editing, tagging, optimizing images for narrative clarity and SEO alignment. Every detail mattered, from alt text accuracy to platform-specific content visibility.
+      </p>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; TOOLS &amp; TECHNOLOGIES</div>
+          <h2 class="ap-display">The stack, <em>the discipline.</em></h2>
         </div>
-        <div class="learning-card">
-          <i class="fas fa-universal-access"></i>
-          <h3>Accessibility from the Ground Up</h3>
-          <p>From page templates to game option callouts, accessibility wasn’t retrofitted—it was foundational.</p>
+      </div>
+      <ul class="som-tags">
+        <li>Xbox CMS</li><li>Azure DevOps</li><li>Localization tools</li><li>Adobe Creative Suite</li><li>Security &amp; privacy compliance</li><li>Responsive design</li><li>Game-specific knowledge bases</li><li>Screenshot capture</li><li>QC compliance</li>
+      </ul>
+    </section>
+
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; RESULTS &amp; IMPACT</div>
+          <h2 class="ap-display">Three numbers, <em>zero critical issues at launch.</em></h2>
         </div>
+      </div>
+      <div class="som-metrics">
+        <div class="som-metric"><p class="num">40+</p><p class="lbl">Languages</p></div>
+        <div class="som-metric"><p class="num">100%</p><p class="lbl">WCAG 2.1 AA compliant</p></div>
+        <div class="som-metric"><p class="num">0</p><p class="lbl">Critical issues at launch</p></div>
+      </div>
+      <h3 style="font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 22px; margin: var(--sp-12) 0 var(--sp-5); color: var(--color-text-primary);">Key achievements</h3>
+      <ul class="som-bullets">
+        <li>Launched support for <em>South of Midnight</em> ahead of schedule, aligning with the game&rsquo;s reveal.</li>
+        <li>Reduced support ticket volume by 30% through intuitive content organization.</li>
+        <li>Achieved 100% compliance with Xbox accessibility standards (WCAG 2.1 AA).</li>
+        <li>Established reusable templates for future Compulsion Games titles.</li>
+        <li>Streamlined asset pipeline, reducing update deployment time by 40%.</li>
+      </ul>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 06 &mdash; KEY LEARNINGS</div>
+          <h2 class="ap-display">Three takeaways, <em>still useful.</em></h2>
+        </div>
+      </div>
+      <div class="ap-pillars">
+        <div class="ap-pillar"><div class="num">01</div><h3 class="ap-display ap-display--pillar">Cultural<br><em>sensitivity.</em></h3><p>Bringing Southern Gothic themes into a support setting required nuance &mdash; balancing technical clarity with thematic voice.</p></div>
+        <div class="ap-pillar"><div class="num">02</div><h3 class="ap-display ap-display--pillar">Reusable<br><em>frameworks.</em></h3><p>Scalable systems allowed Compulsion&rsquo;s legacy titles to share a submission and help framework with South of Midnight.</p></div>
+        <div class="ap-pillar"><div class="num">03</div><h3 class="ap-display ap-display--pillar">Accessibility<br><em>foundational.</em></h3><p>From page templates to game option callouts, accessibility wasn&rsquo;t retrofitted &mdash; it was foundational.</p></div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/websites/ninja-theory-support.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-gamepad"></i> Hellblade Support
-          </strong>
-          <p>Support pages for Ninja Theory's Hellblade series.</p>
-        </a>
-        <a class="related-project-card" href="/projects/xbox-support.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-th-large"></i> All Xbox Projects
-          </strong>
-          <p>Browse all Xbox-related support initiatives, tools, and UI systems featured across the portfolio.</p>
-        </a>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 07 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Hellblade<em> support.</em></h3><span class="meta">Ninja Theory &middot; Game support</span></div><p>Support pages for Ninja Theory&rsquo;s Hellblade series.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/xbox-support.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">All Xbox<em> projects.</em></h3><span class="meta">Index</span></div><p>Browse all Xbox-related support initiatives, tools, and UI systems featured across the portfolio.</p><span class="year">Index</span><span class="go">&rarr;</span></a>
+        <a class="ap-pd op-archive" href="/projects/websites/microsoft-casual-games-support.html"><span class="n">03</span><div><h3 class="ap-display ap-display--row">Microsoft<em> Casual Games.</em></h3><span class="meta">Migration &middot; 12+ games</span></div><p>Producer-led migration of support content from Zendesk to Xbox Support.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
       </div>
     </section>
 
-    <section class="project-section grid-col-12 next-project">
-      <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-      <div class="next-project-card">
-        <div class="next-project-content">
-          <h3>Microsoft Casual Games Support</h3>
-          <p>Producer-led migration of support content from Zendesk to Xbox Support for Microsoft's Casual Games portfolio</p>
-          <a href="/projects/websites/microsoft-casual-games-support.html" class="btn btn-secondary">
-            View Project <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <!-- §2.14 Footer (inline DS, replaces /modules/footer.html) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got a launch<br><em>with Southern flair?</em></h2>
+    <p>Themed help centers that respect the brand &mdash; without sacrificing accessibility or technical clarity.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
+      <div><a class="ap-logo" href="/" style="font-size: 22px;"><span class="m"><i></i></span>AmbientPixels.</a><p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p></div>
+      <div><h5>Products</h5><ul><li><a href="/ambientos/">AmbientOS</a></li><li><a href="/nova/">Nova</a></li><li><a href="/storyforge/">StoryForge</a></li><li><a href="/cardforge/">CardForge</a></li><li><a href="/ambientscore/">AmbientScore</a></li><li><a href="/pixel-agents/">Pixel Agents</a></li><li><a href="/blindspot/">Blindspot</a></li></ul></div>
+      <div><h5>Studio</h5><ul><li><a href="/about/">About</a></li><li><a href="/services/">Services</a></li><li><a href="/projects/">Projects</a></li><li><a href="/blog/">Journal</a></li></ul></div>
+      <div><h5>Contact</h5><ul><li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li><li><a href="/log/">Activity log</a></li><li><a href="mailto:press@ambientpixels.ai">Press</a></li></ul></div>
     </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
+    <div class="ap-legal"><span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span><span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot"></span></span></div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/lightbox.js" type="module"></script>
-  <script src="/js/main.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var banner = document.querySelector('#banner-container .banner');
-      var closeBtn = document.querySelector('#banner-container .banner-close');
-      var autoCloseTimer;
-      var displayDuration = 8000; // 8 seconds to read
-      var fadeOutDuration = 500; // 0.5 seconds to fade out
-      
-      function showBanner() {
-        if (!banner) return;
-        banner.classList.remove('hiding');
-        banner.classList.add('show');
-        
-        if (autoCloseTimer) clearTimeout(autoCloseTimer);
-        
-        autoCloseTimer = setTimeout(function() {
-          hideBanner();
-        }, displayDuration);
-      }
-      
-      function hideBanner() {
-        if (!banner) return;
-        
-        banner.classList.remove('show');
-        banner.classList.add('hiding');
-        
-        setTimeout(function() {
-          if (banner && banner.parentNode) {
-            banner.parentNode.removeChild(banner);
-          }
-        }, fadeOutDuration);
-      }
-      
-      if (banner) {
-        setTimeout(showBanner, 500);
-        
-        if (closeBtn) {
-          closeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            hideBanner();
-            if (autoCloseTimer) clearTimeout(autoCloseTimer);
-          });
-        }
-      }
-    });
-  </script>
 </body>
 </html>

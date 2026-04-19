@@ -1,37 +1,36 @@
 <!DOCTYPE html>
-<html lang="en" class="video-project-page">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Producer-led support platform work on support.Xbox.com — powering help journeys across console, mobile, and web." />
-  <meta property="og:title" content="Xbox Support – Publishing at Scale | AmbientPixels" />
-  <meta property="og:description" content="Producer role for support.Xbox.com, managing large-scale publishing, bug fixes, and notification systems across platforms." />
+  <meta name="description" content="Xbox Support — producer-led publishing for support.Xbox.com. 32M+ users monthly, 40+ regions, full-stack content + tooling work." />
+  <meta property="og:title" content="Xbox Support — AmbientPixels" />
+  <meta property="og:description" content="Producer role for support.Xbox.com — large-scale publishing, bug fixes, notification systems across platforms." />
   <meta property="og:image" content="/images/projects/xbox-support/hero-card.jpg" />
   <meta property="og:url" content="https://ambientpixels.ai/projects/websites/xbox-support" />
-  <meta name="theme-color" content="#107C10" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Xbox Support – Publishing at Scale | AmbientPixels</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <!-- Legacy CSS — layout stack + JS-dependent sheets only. -->
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/lightbox.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <title>Xbox Support — AmbientPixels</title>
 
-  <!-- DS skin -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
   <link rel="stylesheet" href="/css/ap-tokens.css" />
   <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
-  <link rel="stylesheet" href="/css/ap-skin.css" />
+  <link rel="stylesheet" href="/css/lightbox.css" />
+
+  <style>
+    .xs-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
+    .xs-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+  </style>
+
+  <script defer src="/js/ap-nav-mobile.js"></script>
+  <script src="/js/lightbox.js" type="module"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
-  <!-- §2.2 Nav -->
+
   <nav class="ap-nav">
     <a class="ap-logo" href="/" aria-label="AmbientPixels home">
       <span class="m"><i></i></span>
@@ -48,152 +47,173 @@
     <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
   </nav>
 
-  <section class="hero-card hero-card-xbox">
-    <div class="hero-card-image">
-      <img src="https://img.icons8.com/color/512/xbox.png" 
-           alt="Xbox Logo" 
-           class="xbox-logo" 
-           loading="lazy">
-    </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge">Platform Publishing</div>
-      <h1>Xbox Support – Publishing at Scale</h1>
-      <p class="hero-card-description">Producer-led work managing support content across Xbox platforms with 32M+ users monthly</p>
-      <p class="cs-roleline">Role: Producer — Xbox Support (Microsoft)</p>
-    </div>
-  </section>
+  <main>
 
-  <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-info-circle"></i> Project Overview</h2>
-      <p>As a senior content producer, I managed live publishing and platform upkeep for support.Xbox.com, delivering help content and notifications across web, console, mobile apps, and desktop clients. My work spanned scheduled game launches, global migrations, form systems, and highly visible system-wide updates for an audience of over 32 million players per month.</p>
-      <p>My contributions ranged from front-line bug triage and content QA to writing scripts for asset verification, automating scrub passes, and collaborating across PM, DevOps, content, and localization. I produced user flows such as the Xbox refund experience, contributed to editorial and production guidelines, and authored high-visibility notifications that appeared across Xbox ecosystems.</p>
-    </section>
-
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-cogs"></i> Behind the Scenes</h2>
-      <p>I worked across the full publishing pipeline—from building troubleshooters and localization-ready forms to writing notifications deployed across console, web, and apps. I crafted the Xbox refund support experience, created training and launch videos for game hubs, and managed sensitive embargoed content with zero leaks. I also maintained Instant Answer logic for Xbox’s internal help search and wrote editorial guidelines to support cross-team consistency. Technical work included writing PowerShell and C# scripts to automate content scrubs and validate asset references via Azure DevOps. All work was tested in live environments for accessibility (WCAG 2.1 AA), regional compliance, and platform behavior.</p>
-      
-      <!--
-      <div class="media-grid">
-        <div class="media-item">
-          <a href="/images/projects/xbox-support/behind-01.jpeg" class="lightbox-trigger" data-caption="Internal view of notification CMS configuration panel.">
-            <img src="/images/projects/xbox-support/behind-01.jpeg" alt="Notification CMS Editor" loading="lazy">
-          </a>
-          <p class="media-caption">Notification editor</p>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; WORK &mdash; SHIPPED &middot; MICROSOFT XBOX</div>
+          <h1 class="ap-display">Xbox<em> Support.</em></h1>
         </div>
-        <div class="media-item">
-          <a href="/images/projects/xbox-support/behind-02.jpeg" class="lightbox-trigger" data-caption="Embargoed article management with localization metadata.">
-            <img src="/images/projects/xbox-support/behind-02.jpeg" alt="Embargo Article Admin" loading="lazy">
-          </a>
-          <p class="media-caption">Embargo article view</p>
-        </div>
-        <div class="media-item">
-          <a href="/images/projects/xbox-support/behind-03.jpeg" class="lightbox-trigger" data-caption="OneNote planning doc for refund journey updates and rollout.">
-            <img src="/images/projects/xbox-support/behind-03.jpeg" alt="OneNote Planning Doc" loading="lazy">
-          </a>
-          <p class="media-caption">Refund journey planning</p>
+        <div class="ap-sec-meta">
+          Producer-led publishing for support.Xbox.com &mdash; help content + notifications across web, console, mobile apps, desktop. 32M+ users monthly. 40+ regions.
+          <br/><br/>
+          <span style="opacity: .65;">Role: Producer &mdash; Xbox Support (Microsoft)</span>
         </div>
       </div>
-      -->
     </section>
 
-    <section id="gallery" class="content-section grid-col-12" data-lightbox-autoload>
-      <h2><i class="fas fa-images"></i> Visual Highlights</h2>
-      <div class="media-grid">
-        <div class="media-item">
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 01 &mdash; PROJECT OVERVIEW</div>
+          <h2 class="ap-display">Live publishing, <em>at platform scale.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Front-line bug triage, content QA, asset-verification scripting, and cross-team production with PM, DevOps, content, localization.
+        </div>
+      </div>
+
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0 0 var(--sp-5);">
+        As a senior content producer, I managed live publishing and platform upkeep for support.Xbox.com &mdash; delivering help content and notifications across web, console, mobile apps, and desktop clients. Work spanned scheduled game launches, global migrations, form systems, and highly visible system-wide updates for an audience of over 32 million players per month.
+      </p>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        Contributions ranged from front-line bug triage and content QA to writing scripts for asset verification, automating scrub passes, and collaborating across PM, DevOps, content, and localization. Produced user flows like the Xbox refund experience, contributed to editorial and production guidelines, and authored high-visibility notifications that appeared across Xbox ecosystems.
+      </p>
+    </section>
+
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; BEHIND THE SCENES</div>
+          <h2 class="ap-display">From troubleshooters to <em>refund flows.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Full-stack publishing pipeline &mdash; troubleshooters, localization-ready forms, ecosystem-wide notifications, automated content scrubs.
+        </div>
+      </div>
+      <p style="font-size: var(--fs-body); line-height: var(--lh-body); max-width: var(--max-prose); opacity: .82; margin: 0;">
+        Worked across the full publishing pipeline &mdash; from building troubleshooters and localization-ready forms to writing notifications deployed across console, web, and apps. Crafted the Xbox refund support experience, created training and launch videos for game hubs, and managed sensitive embargoed content with zero leaks. Maintained Instant Answer logic for Xbox&rsquo;s internal help search and wrote editorial guidelines to support cross-team consistency. Technical work included PowerShell and C# scripts to automate content scrubs and validate asset references via Azure DevOps. All work tested in live environments for accessibility (WCAG 2.1 AA), regional compliance, and platform behavior.
+      </p>
+    </section>
+
+    <section class="ap-sec ap-sec--cool" id="gallery" data-lightbox-autoload>
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; VISUAL HIGHLIGHTS</div>
+          <h2 class="ap-display">Six surfaces, <em>one platform.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Tap to expand.
+        </div>
+      </div>
+      <div class="image-row">
+        <div class="image-item">
           <a href="/images/projects/xbox-support/screen-01.jpeg" class="lightbox-trigger" data-caption="Main Xbox Support homepage – entry point to topics, search, and announcements.">
-            <img src="/images/projects/xbox-support/screen-01.jpeg" alt="Main Xbox Support Hub" loading="lazy">
+            <img src="/images/projects/xbox-support/screen-01.jpeg" alt="Main Xbox Support Hub" loading="lazy" />
           </a>
-          <p class="media-caption">Xbox Support homepage</p>
+          <p class="image-caption">01 &mdash; Support homepage</p>
         </div>
-        <div class="media-item">
+        <div class="image-item">
           <a href="/images/projects/xbox-support/screen-02.jpeg" class="lightbox-trigger" data-caption="Notification banner published across Xbox console, web, and mobile app.">
-            <img src="/images/projects/xbox-support/screen-02.jpeg" alt="Support Notification Example" loading="lazy">
+            <img src="/images/projects/xbox-support/screen-02.jpeg" alt="Support Notification Example" loading="lazy" />
           </a>
-          <p class="media-caption">Cross-platform notification</p>
+          <p class="image-caption">02 &mdash; Cross-platform notification</p>
         </div>
-        <div class="media-item">
+        <div class="image-item">
           <a href="/images/projects/xbox-support/screen-03.png" class="lightbox-trigger" data-caption="Refund flow help article – part of Xbox self-service journey.">
-            <img src="/images/projects/xbox-support/screen-03.png" alt="Refund Flow Support" loading="lazy">
+            <img src="/images/projects/xbox-support/screen-03.png" alt="Refund Flow Support" loading="lazy" />
           </a>
-          <p class="media-caption">Refund support experience</p>
+          <p class="image-caption">03 &mdash; Refund support experience</p>
         </div>
-        <div class="media-item">
+        <div class="image-item">
           <a href="/images/projects/xbox-support/screen-04.jpeg" class="lightbox-trigger" data-caption="Internal CMS view showing structured content blocks and localized logic.">
-            <img src="/images/projects/xbox-support/screen-04.jpeg" alt="CMS Internal View" loading="lazy">
+            <img src="/images/projects/xbox-support/screen-04.jpeg" alt="CMS Internal View" loading="lazy" />
           </a>
-          <p class="media-caption">CMS content editor</p>
+          <p class="image-caption">04 &mdash; CMS content editor</p>
         </div>
-        <div class="media-item">
+        <div class="image-item">
           <a href="/images/projects/xbox-support/screen-05.jpeg" class="lightbox-trigger" data-caption="Form editor showing logic for region-aware issue routing.">
-            <img src="/images/projects/xbox-support/screen-05.jpeg" alt="Form Configuration View" loading="lazy">
+            <img src="/images/projects/xbox-support/screen-05.jpeg" alt="Form Configuration View" loading="lazy" />
           </a>
-          <p class="media-caption">Troubleshooter form logic</p>
+          <p class="image-caption">05 &mdash; Troubleshooter form logic</p>
         </div>
-        <div class="media-item">
+        <div class="image-item">
           <a href="/images/projects/xbox-support/screen-06.jpeg" class="lightbox-trigger" data-caption="Form editor showing logic for region-aware issue routing.">
-            <img src="/images/projects/xbox-support/screen-06.jpeg" alt="Form Configuration View" loading="lazy">
+            <img src="/images/projects/xbox-support/screen-06.jpeg" alt="Form Configuration View" loading="lazy" />
           </a>
-          <p class="media-caption">Troubleshooter form logic</p>
+          <p class="image-caption">06 &mdash; Form configuration</p>
         </div>
       </div>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-tools"></i> Tools & Technologies</h2>
-      <div class="tech-badges">
-        <span class="tech-badge"><i class="fab fa-html5"></i> HTML5</span>
-        <span class="tech-badge"><i class="fab fa-css3-alt"></i> CSS3</span>
-        <span class="tech-badge"><i class="fas fa-code"></i> Campsite CMS (current)</span>
-        <span class="tech-badge"><i class="fas fa-code"></i> Compass CMS (legacy)</span>
-        <span class="tech-badge"><i class="fas fa-file-code"></i> XML / Markdown</span>
-        <span class="tech-badge"><i class="fab fa-js"></i> JavaScript</span>
-        <span class="tech-badge"><i class="fas fa-sitemap"></i> Figma + OneNote Documentation</span>
-        <span class="tech-badge"><i class="fas fa-bug"></i> Azure DevOps</span>
-        <span class="tech-badge"><i class="fas fa-terminal"></i> PowerShell + C# Scripts</span>
-        <span class="tech-badge"><i class="fas fa-language"></i> Localization to 40+ regions</span>
-        <span class="tech-badge"><i class="fas fa-universal-access"></i> WCAG 2.1 AA</span>
-        <span class="tech-badge"><i class="fas fa-mobile-alt"></i> Responsive Design</span>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; TOOLS &amp; TECHNOLOGIES</div>
+          <h2 class="ap-display">Twelve technologies, <em>one publishing pipeline.</em></h2>
+        </div>
       </div>
+      <ul class="xs-tags">
+        <li>HTML5</li><li>CSS3</li><li>Campsite CMS (current)</li><li>Compass CMS (legacy)</li>
+        <li>XML / Markdown</li><li>JavaScript</li><li>Figma + OneNote docs</li><li>Azure DevOps</li>
+        <li>PowerShell + C# scripts</li><li>Localization to 40+ regions</li><li>WCAG 2.1 AA</li><li>Responsive design</li>
+      </ul>
     </section>
 
-    <section class="project-section grid-col-12">
-      <h2><i class="fas fa-project-diagram"></i> Related Projects</h2>
-      <div class="related-projects">
-        <a class="related-project-card" href="/projects/websites/ninja-theory-support.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-fire"></i> Hellblade Support Site
-          </strong>
-          <p>Custom support launch for Ninja Theory's Hellblade title with dynamic forms, hub layout, and search tuning.</p>
+    <section class="ap-sec ap-sec--cool">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 05 &mdash; RELATED WORK</div>
+          <h2 class="ap-display">Adjacent rooms, <em>same studio.</em></h2>
+        </div>
+      </div>
+      <div class="ap-prods">
+        <a class="ap-pd op-archive" href="/projects/websites/ninja-theory-support.html">
+          <span class="n">01</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Ninja Theory<em> support.</em></h3>
+            <span class="meta">Hellblade &middot; Custom support launch</span>
+          </div>
+          <p>Custom support launch for Ninja Theory&rsquo;s Hellblade title with dynamic forms, hub layout, and search tuning.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
         </a>
-        <a class="related-project-card" href="/projects/copilotplayground.html">
-          <strong class="related-project-card-title">
-            <i class="fas fa-robot"></i> Copilot Playground
-          </strong>
+        <a class="ap-pd op-archive" href="/projects/copilotplayground.html">
+          <span class="n">02</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3>
+            <span class="meta">AI tooling &middot; Prompt engineering</span>
+          </div>
           <p>AI-driven support prompt chains for gaming help and content enhancement.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
+        </a>
+        <a class="ap-pd op-archive" href="/projects/websites/microsoft-casual-games-support.html">
+          <span class="n">03</span>
+          <div>
+            <h3 class="ap-display ap-display--row">Microsoft<em> Casual Games.</em></h3>
+            <span class="meta">Migration &middot; 12+ games</span>
+          </div>
+          <p>Zendesk to Xbox Support platform migration for 12+ games, forms, feedback flows, and launch tracking.</p>
+          <span class="year">Shipped</span>
+          <span class="go">&rarr;</span>
         </a>
       </div>
     </section>
 
-    <section class="project-section grid-col-12 next-project">
-      <h2><i class="fas fa-arrow-right"></i> Next Project</h2>
-      <div class="next-project-card">
-        <div class="next-project-content">
-          <h3>Microsoft Casual Games</h3>
-          <p>Zendesk to Xbox Support platform migration for 12+ games, forms, feedback flows, and launch tracking</p>
-          <a href="/projects/websites/microsoft-casual-games-support.html" class="btn btn-secondary">
-            View Project <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <!-- §2.14 Footer (inline DS) -->
+  <section class="ap-cta">
+    <h2 class="ap-display ap-display--cta">Got a support<br><em>platform to scale?</em></h2>
+    <p>CMS migrations, content QA, automated publishing pipelines &mdash; built for the team you actually have.</p>
+    <div class="ap-cta-actions">
+      <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
+      <a class="ap-btn ap-btn--ghost" href="/projects/">See more work</a>
+    </div>
+    <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
+  </section>
+
   <footer class="ap-foot-wrap">
     <div class="ap-foot">
       <div>
@@ -239,8 +259,5 @@
     </div>
     <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
   </footer>
-
-  <script src="/modules/breadcrumb.js"></script>
-  <script src="/js/lightbox.js" type="module"></script>
 </body>
 </html>
