@@ -611,7 +611,17 @@ button.btn-secondary:hover {
 .grid-col-12[style] {
   min-width: 0;
   max-width: 100%;
-  overflow: visible;
+  /* No overflow override — default is `visible`, but explicit `visible` here
+     was overriding `.card-section { overflow: hidden }` from components.css
+     since both are single-class specificity and this loads later. That broke
+     badge clipping + image-scale clipping on every card-grid layout. */
+}
+
+/* Reaffirm overflow:hidden on .card-section (was being overridden by the
+   .grid-col-X rule above). element+class specificity beats single-class
+   selectors that might otherwise loosen this. */
+section.card-section {
+  overflow: hidden;
 }
 
 /* Let text wrap at word boundaries only — NOT mid-word.
@@ -801,6 +811,18 @@ main a:not(.btn):not(.tech-badge):not(.role-tag):not(.lightbox-trigger):not(.rel
   color: inherit;
 }
 
+/* Override projects.css:3016 — that rule uses .content-section:not(.hero-intro):hover
+   which has higher specificity (0,2,1) than the grouped rule above (0,2,0),
+   so it wins and re-applies the cyan glow + lift. Match the specificity here
+   to win it back via source order. */
+.content-section:not(.hero-intro):hover,
+.project-section:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--color-border);
+  background: transparent;
+}
+
 /* Card-level hovers — neutral elevation only */
 .card-section:hover,
 .card-image-link:hover,
@@ -867,11 +889,40 @@ main a:not(.btn):not(.ap-btn):not(.ap-link-mono):not(.ap-nav-cta):hover {
 }
 
 /* Lightbox trigger hover — subtle opacity only */
-.lightbox-trigger:hover img,
-.card-image-link:hover img {
+/* Lightbox triggers — opacity lift only, no scale (keeps the click target stable) */
+.lightbox-trigger:hover img {
   opacity: .9;
   transform: none;
   filter: none;
+}
+
+/* Card image hover — subtle brightness + scale lift. Triggers on the image-link
+   wrapper or on parent card hover. Replaces the previous "kill all hovers" rule
+   which was over-aggressive — legacy cyan glows are still killed via the
+   .card-section:hover background/box-shadow resets above. */
+.card-image-link:hover img,
+.card-section:hover img.card-image {
+  filter: brightness(1.08);
+  transform: scale(1.04);
+}
+
+/* Image cropping — works around projects.css selector conflict where
+   .card-image is defined twice (once for <img>, once for <div> containers).
+   This img-element-specific selector wins regardless of source order. */
+img.card-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  transition: filter var(--dur-med, .3s), transform var(--dur-med, .3s);
+}
+
+/* Card-image link wrapper — invisible at rest, hosts the hover effect above */
+.card-image-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
 }
 
 /* Breadcrumb link hover */

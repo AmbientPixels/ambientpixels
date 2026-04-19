@@ -2958,35 +2958,10 @@ button:active,
   text-decoration-color: transparent !important;
 }
 
-/* Ensure primary button background is visible */
-.project-buttons > .btn-primary,
-.project-buttons > .btn-primary:hover {
-  background: linear-gradient(135deg, #3a7bd5, #8e44ad) !important;
-  -webkit-print-color-adjust: exact !important;
-  print-color-adjust: exact !important;
-  background-clip: padding-box !important;
-}
-
-.project-buttons > .btn-primary:hover {
-  background: linear-gradient(135deg, #2c6ecb, #7d3c98) !important;
-}
-
-/* More specific primary button hover */
-.project-buttons > .btn.btn-primary:hover,
-.project-buttons > .btn.btn-primary:focus,
-.project-buttons > .btn.btn-primary:active {
-  background: transparent !important;
-  background-image: none !important;
-  color: #4bcaff !important;
-  border: 1px solid #4bcaff !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Remove any text decoration on hover */
-.project-buttons > .btn.btn-primary:hover * {
-  text-decoration: none !important;
-}
+/* Removed: legacy .project-buttons > .btn-primary purple→magenta gradient
+   overrides with !important. ap-skin.css now styles all .btn-primary as
+   the teal square per DS §3.12. The !important here was preventing the
+   skin from taking effect on any page that wraps buttons in .project-buttons. */
 
 /* Content Sections */
 /* Unified section styling */
@@ -3057,7 +3032,10 @@ body[data-theme="light"] .project-section:hover {
   color: var(--text-color, #fff);
 }
 
-/* Project Buttons */
+/* Project Buttons — kept text-decoration !importants only, since they
+   prevent the legacy `a:hover { text-decoration: underline }` from leaking
+   through. The visual !importants on border/padding/border-radius/transition
+   were preventing ap-skin.css from applying the DS teal square style. */
 .project-buttons a,
 .project-card a,
 .btn-primary,
@@ -3065,20 +3043,9 @@ body[data-theme="light"] .project-section:hover {
   text-decoration: none !important;
   -webkit-text-decoration: none !important;
   text-decoration-line: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  padding: 0.5rem 1rem !important;
-  border-radius: 4px !important;
-  transition: all 0.2s ease !important;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.project-buttons a:hover,
-.project-card a:hover,
-.btn-primary:hover,
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Toggle Button Styles */
