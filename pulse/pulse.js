@@ -26,12 +26,17 @@
     .then(function (r) { return r.ok ? r.json() : []; })
     .catch(function () { return []; });
 
-  Promise.all([dailyLogPromise, blogPostsPromise]).then(function (results) {
+  var pulseStatsPromise = fetch(API_BASE + '/pulseStats')
+    .then(function (r) { return r.ok ? r.json() : {}; })
+    .catch(function () { return {}; });
+
+  Promise.all([dailyLogPromise, blogPostsPromise, pulseStatsPromise]).then(function (results) {
     var entries = Array.isArray(results[0]) ? results[0] : [];
     var posts = Array.isArray(results[1]) ? results[1] : (results[1] && results[1].posts) || [];
+    var pulseStats = (results[2] && typeof results[2] === 'object') ? results[2] : {};
 
     renderHero(entries);
-    renderStats(entries);
+    renderStats(entries, pulseStats);
     renderToday(entries);
     renderStream(entries);
     renderJournal(posts);
@@ -60,27 +65,23 @@
   }
 
   // ---- Stats band ---------------------------------------------
-  // Tile set: (1) static agent count, (2) last-dispatch relative time,
-  // (3) all-time dispatch count, (4) days in operation since 2024-01-01.
+  // Tile set: (1) static agent count, (2) AI calls today, (3) all-time
+  // dispatch count, (4) last heartbeat (live system pulse).
 
-  var FOUNDED_DATE = '2024-01-01';
-
-  function renderStats(entries) {
-    // Last dispatch — relative time since most recent published_at
-    var latest = entries[0] || null;
-    var lastDispatchStat = document.querySelector('[data-key="last_dispatch"]');
-    if (lastDispatchStat) {
-      var valueEl = lastDispatchStat.querySelector('[data-value]');
-      var subEl = lastDispatchStat.querySelector('[data-sub]');
-      if (latest && latest.published_at) {
-        valueEl.textContent = relativeTime(latest.published_at);
-        subEl.textContent = latest.title ? truncate(latest.title, 40) : formatDateShort(latest.date);
-      } else if (latest && latest.date) {
-        valueEl.textContent = 'today';
-        subEl.textContent = formatDateShort(latest.date);
+  function renderStats(entries, pulseStats) {
+    // AI calls today — total model requests across today's heartbeat cycles
+    var aiStat = document.querySelector('[data-key="ai_calls_today"]');
+    if (aiStat) {
+      var aiVal = aiStat.querySelector('[data-value]');
+      var aiSub = aiStat.querySelector('[data-sub]');
+      var calls = (pulseStats && typeof pulseStats.aiCallsToday === 'number') ? pulseStats.aiCallsToday : null;
+      var cycles = (pulseStats && typeof pulseStats.cyclesToday === 'number') ? pulseStats.cyclesToday : 0;
+      if (calls !== null) {
+        aiVal.textContent = calls.toLocaleString();
+        aiSub.textContent = cycles ? (cycles + ' cycle' + (cycles === 1 ? '' : 's') + ' today') : 'Model requests';
       } else {
-        valueEl.textContent = '—';
-        subEl.textContent = 'Awaiting feed';
+        aiVal.textContent = '—';
+        aiSub.textContent = 'Model requests';
       }
     }
 
@@ -90,19 +91,20 @@
       totalStat.querySelector('[data-value]').textContent = entries.length || '0';
     }
 
-    // Day in operation — days since founded date
-    var dayStat = document.querySelector('[data-key="day_in_operation"]');
-    if (dayStat) {
-      dayStat.querySelector('[data-value]').textContent = daysSince(FOUNDED_DATE);
+    // Last heartbeat — relative time since most recent heartbeat cycle
+    var hbStat = document.querySelector('[data-key="last_heartbeat"]');
+    if (hbStat) {
+      var hbVal = hbStat.querySelector('[data-value]');
+      var hbSub = hbStat.querySelector('[data-sub]');
+      var ts = pulseStats && pulseStats.lastHeartbeatAt;
+      if (ts) {
+        hbVal.textContent = relativeTime(ts);
+        hbSub.textContent = 'System heartbeat';
+      } else {
+        hbVal.textContent = '—';
+        hbSub.textContent = 'Cycle pending';
+      }
     }
-  }
-
-  function daysSince(isoDate) {
-    // "Day 1" is the first day (inclusive), not "0 days elapsed", so +1.
-    var start = new Date(isoDate + 'T00:00:00');
-    var now = new Date();
-    var ms = now.getTime() - start.getTime();
-    return Math.max(1, Math.floor(ms / 86400000) + 1);
   }
 
   function relativeTime(isoTimestamp) {

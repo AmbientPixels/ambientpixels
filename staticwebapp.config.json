@@ -387,6 +387,13 @@
    ]
   },
   {
+   "route": "/api/pulseStats",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pulseStats",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
    "route": "/api/company-standup-run",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-standup-run",
    "allowedRoles": [
