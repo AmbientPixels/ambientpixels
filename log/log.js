@@ -116,7 +116,7 @@
         '<nav class="ap-log-subnav" aria-label="Log sub-nav">' +
           '<a href="/">Home</a>' +
           '<a href="/blog/">Journal</a>' +
-          '<a href="/nova/">Nova</a>' +
+          '<a href="/pulse/">Pulse</a>' +
         '</nav>' +
       '</section>';
 
