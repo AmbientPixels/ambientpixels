@@ -331,14 +331,14 @@
 .pa-run-error {
   text-align: center;
   padding: 2rem 1rem;
-  background: var(--pa-tertiary-dim);
-  border: 1px solid var(--pa-tertiary-border);
+  background: var(--pa-accent-dim);
+  border: 1px solid var(--pa-accent-border);
   border-radius: var(--pa-radius-lg);
 }
 
 .pa-run-error i {
   font-size: 2rem;
-  color: var(--pa-tertiary);
+  color: var(--pa-accent);
   margin-bottom: 0.75rem;
   display: block;
 }
@@ -465,7 +465,7 @@
 .pa-result-score-fill {
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--pa-tertiary), var(--pa-primary), var(--pa-secondary));
+  background: linear-gradient(90deg, var(--pa-accent), var(--pa-primary), var(--pa-accent));
   transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

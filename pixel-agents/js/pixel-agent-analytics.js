@@ -256,7 +256,7 @@
       var nextDateStr = nextDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
       html += '<div class="pa-analytics-section">' +
-        '<div class="pa-analytics-section-title"><i class="fas fa-calendar-check" style="color:var(--pa-secondary);margin-right:6px"></i>Next Payout</div>' +
+        '<div class="pa-analytics-section-title"><i class="fas fa-calendar-check" style="color:var(--pa-accent);margin-right:6px"></i>Next Payout</div>' +
         '<div class="pa-next-payout">' +
           '<div class="pa-next-payout-amount">~$' + parseFloat(data.summary.nextPayoutEstimate).toFixed(2) + '</div>' +
           '<div class="pa-next-payout-meta">' +

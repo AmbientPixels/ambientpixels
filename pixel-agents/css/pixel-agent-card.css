@@ -213,7 +213,7 @@
 
 .pa-card-action:hover {
   transform: translateY(-1px);
-  background: #7a00e0;
+  background: var(--pa-primary-hover);
   box-shadow: 0 4px 16px var(--pa-primary-glow);
 }
 
@@ -274,6 +274,6 @@ body[data-theme="light"] .pa-card-usage { color: var(--pa-text-faint); }
   letter-spacing: 0.8px;
   padding: 3px 8px;
   border-radius: 0 0 var(--pa-radius-sm) var(--pa-radius-sm);
-  background: var(--pa-tertiary);
+  background: var(--pa-accent);
   color: #fff;
 }

@@ -51,6 +51,25 @@
   color: var(--pa-primary);
 }
 
+/* Horizontal wordmark — icon inline with "Pixel Agents" */
+.pa-sidebar-logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.pa-logo-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--pa-primary);
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+.pa-logo-wordmark {
+  line-height: 1;
+}
+
 /* Operator badge */
 .pa-sidebar-operator {
   display: flex;
@@ -68,7 +87,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--pa-secondary);
+  background: var(--pa-accent);
   flex-shrink: 0;
 }
 
@@ -154,25 +173,29 @@
   margin-left: auto;
 }
 
-/* New Agent CTA */
+/* New Agent CTA — editorial-style button (paper fill, ink text, red-ring hover).
+   Matches the .pa-btn-editorial treatment in the manifesto so the sidebar's
+   primary conversion doesn't compete with every other red button on the page. */
 .pa-sidebar-cta {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
   margin: 0.75rem 0.75rem 0;
-  padding: 0.65rem 0.75rem;
+  padding: 0.7rem 0.75rem;
   border-radius: var(--pa-radius-md);
   font-family: var(--pa-font-display);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: var(--pa-primary);
-  color: #fff;
-  transition: all var(--pa-transition-fast);
+  letter-spacing: 0.1em;
+  background: var(--pa-ink);
+  color: var(--pa-neutral);
+  border: none;
   white-space: nowrap;
   overflow: hidden;
+  transition: transform var(--pa-dur-fast) var(--pa-ease-standard),
+              box-shadow var(--pa-dur-fast) var(--pa-ease-standard);
 }
 
 .pa-sidebar-cta i {
@@ -181,8 +204,8 @@
 }
 
 .pa-sidebar-cta:hover {
-  background: var(--pa-primary-hover);
-  box-shadow: 0 4px 16px var(--pa-primary-glow);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px var(--pa-primary);
 }
 
 /* Sidebar resources (docs, faq, changelog, contact) */
@@ -405,7 +428,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: var(--pa-secondary);
+  color: var(--pa-accent);
   margin-bottom: 0.25rem;
 }
 

@@ -10,7 +10,7 @@ const MAX_LIVE_AGENTS = 5;
 const AUTO_APPROVE_THRESHOLD = 70; // all scores must be >= this to skip CEO queue
 
 // Fields that can change without re-review
-var COSMETIC_FIELDS = ['tagline', 'description', 'icon', 'portrait', 'portraitUrl', 'tier', 'generationConfig'];
+var COSMETIC_FIELDS = ['tagline', 'description', 'icon', 'portrait', 'portraitUrl', 'portraitBgUrl', 'tier', 'generationConfig'];
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -154,8 +154,28 @@ module.exports = async function (context, req) {
             overwrite: true
           });
           agentConfig.portraitUrl = 'https://cardforgeblobdata.blob.core.windows.net/generated-images/' + blobName;
-          delete agentConfig.portrait;
           context.log('[AgentSubmit] Portrait uploaded as WebP:', blobName, '(' + imgBuffer.length + ' bytes)');
+
+          // ── Pre-blurred background variant for hero atmosphere layer ──
+          // ~50px wide WebP (quality 70, ~1KB). Consumed by .pa-hero-v3__bgblur.
+          try {
+            var bgBlobName = 'agent-portraits/' + agentId + '-bg.webp';
+            var bgBuffer = await sharp(rawBuffer)
+              .resize(50, null, { fit: 'inside' })
+              .webp({ quality: 70 })
+              .toBuffer();
+            var bgBlockBlob = container.getBlockBlobClient(bgBlobName);
+            await bgBlockBlob.upload(bgBuffer, bgBuffer.length, {
+              blobHTTPHeaders: { blobContentType: 'image/webp' },
+              overwrite: true
+            });
+            agentConfig.portraitBgUrl = 'https://cardforgeblobdata.blob.core.windows.net/generated-images/' + bgBlobName;
+            context.log('[AgentSubmit] Portrait bg variant uploaded:', bgBlobName, '(' + bgBuffer.length + ' bytes)');
+          } catch (bgErr) {
+            context.log.warn('[AgentSubmit] Portrait bg variant failed (non-fatal):', bgErr.message);
+          }
+
+          delete agentConfig.portrait;
         }
       } catch (imgErr) {
         context.log.warn('[AgentSubmit] Portrait upload failed:', imgErr.message);

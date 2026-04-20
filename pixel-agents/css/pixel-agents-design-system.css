@@ -3,33 +3,37 @@
    Tokens, fonts, scoped resets, utility classes
    ═══════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600&family=Fraunces:ital,opsz,wght,SOFT@1,144,400..500,50&display=swap');
 
 :root {
-  /* ── Brand ── */
-  --pa-primary:          #8F00FF;
-  --pa-primary-dim:      rgba(143, 0, 255, 0.12);
-  --pa-primary-border:   rgba(143, 0, 255, 0.30);
-  --pa-primary-glow:     rgba(143, 0, 255, 0.25);
+  /* ── Brand ──
+     Primary is Signal Red. Cyan + magenta (secondary/tertiary) are retired;
+     their tokens are aliased to --pa-accent (amber) during the phase-2 purge
+     so nothing visually breaks while raw references are migrated. */
+  --pa-primary:          #E3442C;
+  --pa-primary-hover:    #C93823;
+  --pa-primary-dim:      rgba(227, 68, 44, 0.12);
+  --pa-primary-border:   rgba(227, 68, 44, 0.30);
+  --pa-primary-glow:     rgba(227, 68, 44, 0.22);
 
-  --pa-secondary:        #00F0FF;
-  --pa-secondary-dim:    rgba(0, 240, 255, 0.12);
-  --pa-secondary-border: rgba(0, 240, 255, 0.30);
-
-  --pa-tertiary:         #FF00D4;
-  --pa-tertiary-dim:     rgba(255, 0, 212, 0.12);
-  --pa-tertiary-border:  rgba(255, 0, 212, 0.30);
+  --pa-accent:           #E8A33A;
+  --pa-accent-dim:       rgba(232, 163, 58, 0.12);
+  --pa-accent-border:    rgba(232, 163, 58, 0.30);
+  --pa-accent-soft:      rgba(227, 68, 44, 0.14);
 
   /* ── Surfaces ── */
-  --pa-neutral:          #08080A;
-  --pa-surface:          #111114;
+  --pa-neutral:          #0A0A0C;
+  --pa-surface:          #131316;
   --pa-surface-raised:   #1A1A1F;
   --pa-surface-hover:    #222228;
 
-  /* ── Text ── */
-  --pa-text:             #E8E8F0;
-  --pa-text-muted:       #6B6B80;
-  --pa-text-faint:       #3E3E50;
+  /* ── Text / Ink ── */
+  --pa-text:             #F4F1EA;
+  --pa-text-muted:       rgba(244, 241, 234, 0.62);
+  --pa-text-faint:       rgba(244, 241, 234, 0.38);
+  --pa-ink:              #F4F1EA;
+  --pa-ink-80:           rgba(244, 241, 234, 0.82);
+  --pa-ink-60:           rgba(244, 241, 234, 0.62);
 
   /* ── Separators ── */
   --pa-sep:              rgba(255, 255, 255, 0.06);
@@ -46,23 +50,43 @@
   --pa-success:          #4ade80;
   --pa-warning:          #fbbf24;
   --pa-danger:           #f87171;
-  --pa-primary-hover:    #7a00e0;
 
   /* ── Typography ── */
-  --pa-font-display:     'Space Grotesk', sans-serif;
-  --pa-font-body:        'Manrope', sans-serif;
+  --pa-font-display:     'Space Grotesk', system-ui, sans-serif;
+  --pa-font-body:        'Manrope', system-ui, sans-serif;
+  --pa-font-accent:      'Fraunces', Georgia, serif;   /* italic editorial accents only (opsz 144, SOFT 50 applied per-use) */
   --pa-font-mono:        'Courier New', 'Fira Code', monospace;
 
-  /* ── Radii ── */
-  --pa-radius-sm:        6px;
-  --pa-radius-md:        10px;
-  --pa-radius-lg:        16px;
+  /* ── Type scale (1.25 modular, 16px anchor) ── */
+  --pa-t-xs:             12px;
+  --pa-t-sm:             14px;
+  --pa-t-base:           16px;
+  --pa-t-md:             20px;
+  --pa-t-lg:             25px;
+  --pa-t-xl:             32px;
+  --pa-t-2xl:            40px;
+  --pa-t-3xl:            56px;
+  --pa-t-4xl:            clamp(40px, 4.8vw, 72px);
+
+  /* ── Radii (micro-radius premium) ── */
+  --pa-radius-sm:        2px;
+  --pa-radius-md:        4px;
+  --pa-radius-lg:        4px;
   --pa-radius-pill:      999px;
 
-  /* ── Transitions ── */
-  --pa-transition-fast:  150ms ease;
-  --pa-transition:       250ms ease;
+  /* ── Transitions + Motion ── */
+  --pa-ease-standard:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --pa-ease-entrance:    cubic-bezier(0.16, 1, 0.3, 1);
+  --pa-dur-fast:         150ms;
+  --pa-dur-standard:     250ms;
+  --pa-dur-slow:         600ms;
+  --pa-transition-fast:  var(--pa-dur-fast) var(--pa-ease-standard);
+  --pa-transition:       var(--pa-dur-standard) var(--pa-ease-standard);
   --pa-transition-slow:  400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Atmosphere ── */
+  --pa-grain-opacity:         0.08;
+  --pa-vignette:              radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
 
   /* ── Layout ── */
   --pa-sidebar-width:    240px;
@@ -72,35 +96,40 @@
 }
 
 /* ══════════════════════════════════════
-   LIGHT THEME — Token Overrides
+   LIGHT THEME — Token Overrides (premium cream / paper)
+   Warm paper tones + warm charcoal ink instead of cool navy grays.
    ══════════════════════════════════════ */
 body[data-theme="light"] {
-  --pa-neutral:          #f5f5f7;
-  --pa-surface:          #ffffff;
-  --pa-surface-raised:   #f0f0f5;
-  --pa-surface-hover:    #e8e8ef;
+  --pa-neutral:          #F4F1EA;   /* warm paper base */
+  --pa-surface:          #FCFAF4;   /* ivory card surface */
+  --pa-surface-raised:   #EFEBDF;   /* elevated cream for depth */
+  --pa-surface-hover:    #E6E1D2;   /* hover — subtly darker paper */
 
-  --pa-text:             #1a1a2e;
-  --pa-text-muted:       #6b6b80;
-  --pa-text-faint:       #a0a0b0;
+  --pa-text:             #1F1D1A;   /* warm charcoal, not cool navy */
+  --pa-text-muted:       rgba(31, 29, 26, 0.64);
+  --pa-text-faint:       rgba(31, 29, 26, 0.42);
+  --pa-ink:              #1F1D1A;
+  --pa-ink-80:           rgba(31, 29, 26, 0.82);
+  --pa-ink-60:           rgba(31, 29, 26, 0.60);
 
-  --pa-sep:              rgba(0, 0, 0, 0.06);
-  --pa-sep-strong:       rgba(0, 0, 0, 0.12);
+  /* Separators on paper — warm transparent browns, not cool black */
+  --pa-sep:              rgba(31, 29, 26, 0.08);
+  --pa-sep-strong:       rgba(31, 29, 26, 0.16);
 
-  --pa-primary-dim:      rgba(143, 0, 255, 0.08);
-  --pa-primary-border:   rgba(143, 0, 255, 0.20);
-  --pa-primary-glow:     rgba(143, 0, 255, 0.15);
+  --pa-primary-dim:      rgba(227, 68, 44, 0.08);
+  --pa-primary-border:   rgba(227, 68, 44, 0.22);
+  --pa-primary-glow:     rgba(227, 68, 44, 0.14);
 
-  --pa-secondary-dim:    rgba(0, 200, 220, 0.08);
-  --pa-secondary-border: rgba(0, 200, 220, 0.20);
-
-  --pa-tertiary-dim:     rgba(255, 0, 212, 0.08);
-  --pa-tertiary-border:  rgba(255, 0, 212, 0.20);
+  --pa-accent-dim:       rgba(232, 163, 58, 0.10);
+  --pa-accent-border:    rgba(232, 163, 58, 0.24);
+  --pa-accent-soft:      rgba(227, 68, 44, 0.08);
 }
 
 /* ── Scoped Reset ──
-   Override shared base.css styles within the Pixel Agents shell */
-.pa-shell {
+   Override shared base.css and theme.css within the Pixel Agents shell.
+   Use body.pa-shell (not just .pa-shell) so specificity matches
+   body[data-theme="dark"] in theme.css; later cascade position wins. */
+body.pa-shell {
   font-family: var(--pa-font-body);
   color: var(--pa-text);
   background: var(--pa-neutral);
@@ -131,9 +160,54 @@ body[data-theme="light"] {
   color: var(--pa-text-muted);
 }
 
-.pa-shell a {
+/* Link reset — use body.pa-shell so specificity matches base.css's
+   body[data-theme="light"] a rule (0,0,1,2); later cascade position wins.
+   Base links inherit text color; content links get a deliberate red-primary
+   treatment with an animated underline on hover. */
+body.pa-shell a,
+body.pa-shell a:hover {
   color: inherit;
   text-decoration: none;
+  text-shadow: none;
+}
+/* Neutralize the decorative underline bar base.css renders on light theme */
+body.pa-shell a::after {
+  background: none;
+}
+
+/* Buttons explicitly set their own color — restore with matching specificity */
+body.pa-shell a.pa-btn-primary,
+body.pa-shell button.pa-btn-primary { color: #fff; }
+body.pa-shell a.pa-btn-editorial,
+body.pa-shell button.pa-btn-editorial { color: var(--pa-neutral); }
+body.pa-shell a.pa-sidebar-cta,
+body.pa-shell button.pa-sidebar-cta { color: var(--pa-neutral); }
+body.pa-shell a.pa-btn-ghost,
+body.pa-shell a.pa-btn-secondary,
+body.pa-shell button.pa-btn-ghost,
+body.pa-shell button.pa-btn-secondary { color: var(--pa-text-muted); }
+body.pa-shell a.pa-btn-ghost:hover,
+body.pa-shell a.pa-btn-secondary:hover,
+body.pa-shell button.pa-btn-ghost:hover,
+body.pa-shell button.pa-btn-secondary:hover { color: var(--pa-ink); }
+
+/* Content links — body copy anchors inside manifesto / sub / footer get
+   a subtle accent underline at rest and switch to primary on hover. */
+body.pa-shell .pa-manifesto__body a,
+body.pa-shell .pa-hero-v3__sub a,
+body.pa-shell .pa-footer-v2 a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--pa-accent-border);
+  text-underline-offset: 3px;
+  transition: color var(--pa-dur-fast) var(--pa-ease-standard),
+              text-decoration-color var(--pa-dur-fast) var(--pa-ease-standard);
+}
+body.pa-shell .pa-manifesto__body a:hover,
+body.pa-shell .pa-hero-v3__sub a:hover,
+body.pa-shell .pa-footer-v2 a:hover {
+  color: var(--pa-primary);
+  text-decoration-color: var(--pa-primary);
 }
 
 .pa-shell button {
@@ -155,44 +229,94 @@ body[data-theme="light"] {
 }
 
 /* ── Noise Overlay ──
-   Subtle grain texture, apply to any container */
+   Editorial grain. Uses mix-blend-mode: overlay so the grain is visible on
+   both dark and light backgrounds (essential on #0A0A0C near-black where
+   low-opacity grayscale noise would otherwise wash out).
+
+   --pa-grain-opacity controls intensity: 0.05 whisper / 0.08 editorial (default)
+   / 0.12 cinematic. Higher values feel retro and fight premium — hold <= 0.15. */
 .pa-noise::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
-  background-size: 200px 200px;
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+  opacity: var(--pa-grain-opacity, 0.08);
   pointer-events: none;
   z-index: 1;
 }
 
-/* ── Scanline Overlay ── */
-.pa-scanlines::after {
+/* ── Vignette Overlay ──
+   Radial edge darkening for premium/editorial feel. Apply to .pa-hero-v3 or
+   any container that needs its headline lifted over varying background luminance. */
+.pa-vignette::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(255, 255, 255, 0.015) 2px,
-    rgba(255, 255, 255, 0.015) 4px
-  );
+  background: var(--pa-vignette);
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
-/* ── Text Color Utilities ── */
-.pa-text-cyan    { color: var(--pa-secondary); }
-.pa-text-purple  { color: var(--pa-primary); }
-.pa-text-pink    { color: var(--pa-tertiary); }
+/* ── Focus Ring ──
+   Keyboard users get the signal-red ring on every interactive element inside
+   the shell. Offset gives the ring breathing room; inherit lets the ring
+   match the element's own corner radius. */
+.pa-shell a:focus-visible,
+.pa-shell button:focus-visible,
+.pa-shell input:focus-visible,
+.pa-shell select:focus-visible,
+.pa-shell textarea:focus-visible,
+.pa-shell [role="button"]:focus-visible,
+.pa-shell [tabindex]:focus-visible {
+  outline: 2px solid var(--pa-primary);
+  outline-offset: 3px;
+  border-radius: inherit;
+}
+
+/* ── Reduced Motion Respect ──
+   Disable entrance animations and compress transitions for users who have
+   expressed a preference. Keep color/border hover feedback (non-motion). */
+@media (prefers-reduced-motion: reduce) {
+  .pa-shell *,
+  .pa-shell *::before,
+  .pa-shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .pa-shell .pa-agent-card:hover,
+  .pa-shell .pa-btn-primary:hover,
+  .pa-shell .pa-btn-editorial:hover {
+    transform: none;
+  }
+  .pa-shell .pa-agent-card:hover .pa-agent-portrait img {
+    transform: none;
+  }
+}
+
+/* Scanline overlay class deprecated (Phase 9) — grain via .pa-noise is the
+   editorial-grade replacement. Reintroduce if a retro-CRT surface is ever needed. */
+
+/* ── Text Color Utilities ──
+   Legacy class names retained for backward compatibility during phase-2 purge.
+   .pa-text-cyan / .pa-text-pink now render amber (via retired-token aliases).
+   Migrate call sites to .pa-text-accent or .pa-text-red in phase 2. */
+.pa-text-cyan    { color: var(--pa-accent); }       /* legacy alias */
+.pa-text-purple  { color: var(--pa-primary); }      /* legacy alias, now red */
+.pa-text-pink    { color: var(--pa-accent); }       /* legacy alias */
+.pa-text-red     { color: var(--pa-primary); }
+.pa-text-accent  { color: var(--pa-accent); }
 .pa-text-muted   { color: var(--pa-text-muted); }
 .pa-text-gold    { color: var(--pa-tier-legendary); }
 
 /* ── Font Utilities ── */
 .pa-font-display { font-family: var(--pa-font-display); }
 .pa-font-body    { font-family: var(--pa-font-body); }
+.pa-font-accent  { font-family: var(--pa-font-accent); font-style: italic; }
 .pa-font-mono    { font-family: var(--pa-font-mono); }
 
 /* ── Avatar Menu ── */
@@ -222,6 +346,51 @@ body[data-theme="light"] {
 .pa-icon-dot {
   font-size: 0.45rem;
   vertical-align: middle;
+}
+
+/* ══════════════════════════════════════
+   AVATAR PALETTE PICKER
+   6 preset swatches injected into .pa-avatar-menu by pa-palette.js
+   ══════════════════════════════════════ */
+.pa-avatar-palette {
+  padding: 12px 12px 10px;
+  border-top: 1px solid var(--pa-sep);
+  margin-top: 6px;
+}
+.pa-avatar-palette-label {
+  display: block;
+  font-family: var(--pa-font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--pa-ink-60);
+  margin-bottom: 8px;
+}
+.pa-avatar-palette-swatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+.pa-palette-swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--pa-radius-sm);
+  border: 1px solid var(--pa-sep-strong);
+  cursor: pointer;
+  padding: 0;
+  transition: transform var(--pa-dur-fast) var(--pa-ease-standard),
+              box-shadow var(--pa-dur-fast) var(--pa-ease-standard);
+}
+.pa-palette-swatch:hover {
+  transform: scale(1.08);
+}
+.pa-palette-swatch.is-active {
+  box-shadow: 0 0 0 2px var(--pa-ink), 0 0 0 3px var(--pa-neutral);
+}
+.pa-palette-swatch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--pa-ink), 0 0 0 4px var(--pa-primary);
 }
 
 /* ── Scrollbar (thin, subtle) ── */

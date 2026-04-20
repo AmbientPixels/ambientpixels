@@ -88,6 +88,7 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+  <script src="/pixel-agents/js/pa-palette.js"></script>
 
   <!-- Telemetry — all deferred so they don't block the HTML parser. Deferred
        scripts execute in source order, so telemetry-config.js still runs
@@ -108,7 +109,8 @@
        ═══════════════════════════════════ -->
   <aside class="pa-sidebar">
     <div class="pa-sidebar-logo">
-      <span class="pa-logo-accent">Pixel</span><br>Agents
+      <i class="fas fa-diagram-project pa-logo-icon" aria-hidden="true"></i>
+      <span class="pa-logo-wordmark"><span class="pa-logo-accent">Pixel</span> Agents</span>
     </div>
 
     <div class="pa-sidebar-operator">
@@ -153,7 +155,7 @@
        TOP BAR
        ═══════════════════════════════════ -->
   <header class="pa-topbar-v2">
-    <span class="pa-wordmark">Pixel Agents</span>
+    <span class="pa-wordmark">Explore</span>
     <div class="pa-topbar-actions">
       <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
         <i class="fas fa-moon"></i>
@@ -186,63 +188,59 @@
        ═══════════════════════════════════ -->
   <main class="pa-main">
 
-    <!-- ── Hero ── -->
-    <section class="pa-hero-v2 pa-noise pa-scanlines">
-      <div class="pa-hero-content">
-        <div class="pa-hero-protocol">
-          <span>Protocol v2.1 :: Initialized</span>
-          <span class="pa-blink"></span>
-        </div>
-        <h1>Build once.<br>Deploy forever.<br>Earn on every run.</h1>
-        <p class="pa-hero-sub">
-          The AI agent marketplace where creators ship tools and get paid.
-          <strong>Structured output. Zero prompt engineering.</strong>
-        </p>
-        <div class="pa-hero-pills">
-          <span class="pa-hero-pill"><i class="fas fa-bolt"></i> Sub-second results</span>
-          <span class="pa-hero-pill"><i class="fas fa-code"></i> Structured JSON output</span>
-          <span class="pa-hero-pill"><i class="fas fa-wand-magic-sparkles"></i> No prompt engineering</span>
-        </div>
-        <a href="#agent-grid" class="pa-btn-primary pa-mt-sm">
-          Browse Agents <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
-      <div class="pa-hero-right">
-        <div class="pa-hero-stat-box">
-          <i class="fas fa-robot pa-hero-stat-icon"></i>
-          <div>
-            <div class="pa-stat-value" id="pa-stat-agents">24</div>
-            <div class="pa-stat-label">Agents Online</div>
+    <!-- ── Hero v3 — Agent-led split, smooth gradient spotlight ── -->
+    <section class="pa-hero-v3 pa-noise" id="pa-hero-v3">
+      <div class="pa-hero-v3__inner">
+        <div class="pa-hero-v3__content">
+          <div class="pa-hero-protocol">
+            <span id="pa-hero-eyebrow">Agent of the Day</span>
+            <span class="pa-blink"></span>
+          </div>
+          <h1 class="pa-hero-v3__title">Build once.<br>Deploy forever.<br>Earn on every run.</h1>
+          <p class="pa-hero-v3__sub">
+            The AI agent marketplace where creators ship tools and get paid.
+            <strong>Structured output. Zero prompt engineering.</strong>
+          </p>
+          <div class="pa-hero-v3__agent" id="pa-hero-agent-meta">
+            <!-- populated by pixel-agents-ui.js: agent-label, agent-name, agent-tier -->
+          </div>
+          <div class="pa-hero-v3__ctas" id="pa-hero-ctas">
+            <a href="#agent-grid" class="pa-btn-primary">
+              Run Agent <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="#agent-grid" class="pa-btn-secondary">Browse all agents</a>
+          </div>
+          <div class="pa-hero-v3__pills">
+            <span class="pa-hero-pill"><i class="fas fa-bolt"></i> Sub-second results</span>
+            <span class="pa-hero-pill"><i class="fas fa-code"></i> Structured JSON output</span>
+            <span class="pa-hero-pill"><i class="fas fa-wand-magic-sparkles"></i> No prompt engineering</span>
           </div>
         </div>
-        <div class="pa-hero-stat-box">
-          <i class="fas fa-users pa-hero-stat-icon"></i>
-          <div>
-            <div class="pa-stat-value" id="pa-stat-community">0</div>
-            <div class="pa-stat-label">Community Agents</div>
-          </div>
-        </div>
-        <div class="pa-hero-stat-box">
-          <i class="fas fa-play pa-hero-stat-icon"></i>
-          <div>
-            <div class="pa-stat-value" id="pa-stat-runs">0</div>
-            <div class="pa-stat-label">Total Deployments</div>
-          </div>
+        <div class="pa-hero-v3__portrait" id="pa-hero-portrait">
+          <!-- populated by pixel-agents-ui.js -->
         </div>
       </div>
     </section>
 
-    <!-- ── Agent Spotlight ── -->
-    <section class="pa-section">
-      <div class="pa-section-header">
-        <div>
-          <span class="pa-section-label">Daily Spotlight</span>
-          <h2>Agent of the Day</h2>
-        </div>
+    <!-- ── Qualitative stat strip (Variant B) ── -->
+    <section class="pa-hero-stats" aria-label="Platform stats">
+      <div class="pa-hero-stat">
+        <span class="pa-hero-stat__value" id="pa-stat-agents">24</span>
+        <span class="pa-hero-stat__label">Agents Live</span>
+      </div>
+      <div class="pa-hero-stat">
+        <span class="pa-hero-stat__value">5</span>
+        <span class="pa-hero-stat__label">Rarity Tiers</span>
+      </div>
+      <div class="pa-hero-stat">
+        <span class="pa-hero-stat__value">Sub-second</span>
+        <span class="pa-hero-stat__label">Response Time</span>
       </div>
     </section>
+
+    <!-- ── Daily Spotlight widgets (ancillary marketing row) ── -->
     <section class="pa-spotlight" id="pa-spotlight">
-      <!-- Rendered by pixel-agents-ui.js -->
+      <!-- Rendered by pixel-agents-ui.js — widgets only, agent itself lives in hero above -->
     </section>
 
     <!-- ── Top Rated Carousel ── -->
@@ -301,47 +299,33 @@
       </div>
     </section>
 
-    <!-- ── Build Your Own ── -->
-    <section class="pa-terminal-section">
-      <div class="pa-terminal-grid">
-        <div>
-          <h2>Build Your Own Agent</h2>
-          <p class="pa-terminal-sub">Create a custom AI agent with our visual builder. Drag components, write prompts, test live, and publish to the catalog.</p>
-          <div class="pa-terminal-features">
-            <div class="pa-terminal-feature">
-              <i class="fas fa-puzzle-piece pa-text-cyan"></i>
-              Drag-and-drop pipeline builder
-            </div>
-            <div class="pa-terminal-feature">
-              <i class="fas fa-flask pa-text-purple"></i>
-              Test your agent before publishing
-            </div>
-            <div class="pa-terminal-feature">
-              <i class="fas fa-users pa-text-pink"></i>
-              Share with the community
-            </div>
-          </div>
-          <a href="/agent-forge/" class="pa-btn-primary pa-mt-lg">
-            Open Agent Forge <i class="fas fa-arrow-right"></i>
-          </a>
+    <!-- ── Manifesto (closing beat — serves as the "build your own" CTA too) ── -->
+    <section class="pa-manifesto pa-noise">
+      <div class="pa-manifesto__inner">
+        <div class="pa-manifesto__content">
+          <div class="pa-manifesto__eyebrow"><span class="pa-manifesto__rule"></span>The Manifesto</div>
+          <h2 class="pa-manifesto__title">
+            Agents are characters,
+            <span class="pa-manifesto__title-accent">not chatbots.</span>
+          </h2>
+          <p class="pa-manifesto__body">
+            Every Pixel Agent is drawn, written, and tuned like a role in a film — a voice, a face, a purpose. You don't prompt them. You cast them.
+          </p>
         </div>
-        <div class="pa-terminal">
-          <div class="pa-terminal-dots">
-            <span></span><span></span><span></span>
-          </div>
-          <div class="pa-terminal-body">
-            <p><span class="pa-text-muted">$</span> pixel-agent forge --new</p>
-            <p><span class="pa-text-muted">&gt;</span> Choose a template: <span class="pa-text-cyan">Analyzer</span></p>
-            <p><span class="pa-text-muted">&gt;</span> Configuring identity... done</p>
-            <p><span class="pa-text-muted">&gt;</span> Writing system prompt... done</p>
-            <p><span class="pa-text-muted">&gt;</span> Running test... <span class="pa-text-cyan">passed</span></p>
-            <p><span class="pa-text-muted">&gt;</span> <span class="pa-text-purple">[Ready]</span> Submit for review? <span class="pa-terminal-cursor"></span></p>
+        <div class="pa-manifesto__aside">
+          <figure class="pa-pull">
+            <span class="pa-pull__mark">&ldquo;</span>
+            <blockquote class="pa-pull__body">Build once. Deploy forever. Earn on every run.</blockquote>
+            <figcaption class="pa-pull__sig">— First Principle</figcaption>
+          </figure>
+          <div class="pa-manifesto__cta">
+            <a class="pa-btn-editorial" href="/agent-forge/">Open Agent Forge <span aria-hidden="true">→</span></a>
+            <p class="pa-manifesto__footnote">No code. Drag components, write a voice, ship.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ── Footer ── -->
     <footer class="pa-footer-v2">
       <span>&copy; 2026 Pixel Agents</span>
       <div class="pa-footer-links">

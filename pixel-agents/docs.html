@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+  <script src="/pixel-agents/js/pa-palette.js"></script>
 
   <!-- Telemetry -->
   <script src="/js/telemetry-config.js"></script>
@@ -108,7 +109,7 @@
     .pa-docs-section p { font-size: 0.85rem; line-height: 1.7; color: var(--pa-text-muted); margin: 0 0 0.75rem; }
     .pa-docs-section ul { padding-left: 1.5rem; margin: 0 0 0.75rem; }
     .pa-docs-section li { font-size: 0.85rem; line-height: 1.7; color: var(--pa-text-muted); margin-bottom: 0.4rem; }
-    .pa-docs-section code { font-family: var(--pa-font-mono); font-size: 0.78rem; padding: 2px 6px; background: var(--pa-surface-raised); border-radius: var(--pa-radius-sm); color: var(--pa-secondary); }
+    .pa-docs-section code { font-family: var(--pa-font-mono); font-size: 0.78rem; padding: 2px 6px; background: var(--pa-surface-raised); border-radius: var(--pa-radius-sm); color: var(--pa-accent); }
     .pa-docs-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.82rem; }
     .pa-docs-table th { font-family: var(--pa-font-display); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep-strong); color: var(--pa-text-muted); }
     .pa-docs-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--pa-sep); color: var(--pa-text); }
@@ -141,7 +142,8 @@
        ═══════════════════════════════════ -->
   <aside class="pa-sidebar">
     <div class="pa-sidebar-logo">
-      <span class="pa-logo-accent">Pixel</span><br>Agents
+      <i class="fas fa-diagram-project pa-logo-icon" aria-hidden="true"></i>
+      <span class="pa-logo-wordmark"><span class="pa-logo-accent">Pixel</span> Agents</span>
     </div>
 
     <div class="pa-sidebar-operator">
@@ -546,6 +548,33 @@ Do NOT wrap in code fences. Return ONLY raw JSON.</pre>
       </div>
 
     </div>
+
+    <!-- ── Manifesto (closing beat, site-wide) ── -->
+    <section class="pa-manifesto pa-noise">
+      <div class="pa-manifesto__inner">
+        <div class="pa-manifesto__content">
+          <div class="pa-manifesto__eyebrow"><span class="pa-manifesto__rule"></span>The Manifesto</div>
+          <h2 class="pa-manifesto__title">
+            Agents are characters,
+            <span class="pa-manifesto__title-accent">not chatbots.</span>
+          </h2>
+          <p class="pa-manifesto__body">
+            Every Pixel Agent is drawn, written, and tuned like a role in a film — a voice, a face, a purpose. You don't prompt them. You cast them.
+          </p>
+        </div>
+        <div class="pa-manifesto__aside">
+          <figure class="pa-pull">
+            <span class="pa-pull__mark">&ldquo;</span>
+            <blockquote class="pa-pull__body">Build once. Deploy forever. Earn on every run.</blockquote>
+            <figcaption class="pa-pull__sig">— First Principle</figcaption>
+          </figure>
+          <div class="pa-manifesto__cta">
+            <a class="pa-btn-editorial" href="/pixel-agents/">Back to catalog <span aria-hidden="true">→</span></a>
+            <p class="pa-manifesto__footnote">Browse every agent, deploy instantly, no setup.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Footer -->
     <footer class="pa-footer-v2">

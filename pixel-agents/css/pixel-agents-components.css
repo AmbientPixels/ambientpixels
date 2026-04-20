@@ -4,39 +4,538 @@
    ═══════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════
-   HERO
+   HERO v3 — Agent-led split with portrait-as-atmosphere
    ══════════════════════════════════════ */
-.pa-hero-v2 {
+.pa-hero-v3 {
   position: relative;
-  min-height: 240px;
+  /* No explicit width — let auto + negative side margins expand the box past
+     the main content padding so the hero bleeds to the viewport edge. */
+  min-height: clamp(560px, 70vh, 820px);
+  margin: -2rem -2rem 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--pa-ink);
+  isolation: isolate;
+
+  /* Editorial spotlight: a primary-colored light source emanating from the
+     upper-right (behind the portrait column) + a softer amber glow from
+     the lower-left + neutral base. Uses --pa-primary-glow so palette
+     swaps from the profile dropdown adapt automatically. */
+  background:
+    radial-gradient(ellipse 80% 65% at 78% 25%,
+      var(--pa-primary-glow) 0%,
+      var(--pa-primary-dim) 32%,
+      transparent 68%),
+    radial-gradient(ellipse 55% 50% at 20% 85%,
+      rgba(232, 163, 58, 0.07) 0%,
+      transparent 60%),
+    var(--pa-neutral);
+}
+
+/* Vignette — subtle radial edge darkening on top of the spotlight gradient */
+.pa-hero-v3::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pa-vignette);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.pa-hero-v3__inner {
+  position: relative;
+  z-index: 4;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 64px 48px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 56px;
+  align-items: center;
+  min-height: inherit;
+}
+
+.pa-hero-v3__content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 640px;
+}
+
+.pa-hero-v3 .pa-hero-protocol {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--pa-font-body);
+  font-size: var(--pa-t-xs);
+  font-weight: 600;
+  color: var(--pa-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin: 0;
+}
+.pa-hero-v3 .pa-hero-protocol::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+}
+.pa-hero-v3 .pa-blink {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--pa-primary);
+  animation: pa-blink 1.2s ease-in-out infinite;
+}
+@keyframes pa-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+.pa-hero-v3__title {
+  font-family: var(--pa-font-display);
+  font-weight: 700;
+  font-size: var(--pa-t-4xl);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--pa-ink);
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.pa-hero-v3__sub {
+  font-family: var(--pa-font-body);
+  font-size: var(--pa-t-md);
+  line-height: 1.5;
+  color: var(--pa-ink-80);
+  max-width: 520px;
+  margin: 0;
+}
+.pa-hero-v3__sub strong {
+  color: var(--pa-ink);
+  font-weight: 600;
+}
+
+.pa-hero-v3__agent {
   display: flex;
   align-items: center;
-  padding: 2.5rem 2rem 2rem;
-  margin: -2rem -2rem 2rem;
-  background:
-    radial-gradient(ellipse at 70% 20%, rgba(143, 0, 255, 0.12), transparent 55%),
-    radial-gradient(ellipse at 20% 80%, rgba(0, 240, 255, 0.06), transparent 50%),
-    var(--pa-neutral);
-  overflow: hidden;
-  border-bottom: 1px solid var(--pa-sep);
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--pa-sep-strong);
+  border-bottom: 1px solid var(--pa-sep-strong);
 }
-
-.pa-hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 680px;
+.pa-hero-v3__agent-label {
+  font-family: var(--pa-font-body);
+  font-size: var(--pa-t-xs);
+  color: var(--pa-ink-60);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
 }
-
-.pa-hero-v2 h1 {
-  font-size: clamp(32px, 5vw, 56px);
+.pa-hero-v3__agent-name {
+  font-family: var(--pa-font-display);
+  font-size: var(--pa-t-md);
+  font-weight: 700;
+  color: var(--pa-ink);
+}
+.pa-hero-v3__agent-tier {
+  font-family: var(--pa-font-body);
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: -0.5px;
-  line-height: 0.95;
-  color: #fff;
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.12em;
+  padding: 4px 8px;
+  border-radius: var(--pa-radius-sm);
+  border: 1px solid currentColor;
+}
+.pa-hero-v3__agent-tier[data-tier="legendary"] { color: var(--pa-tier-legendary); }
+.pa-hero-v3__agent-tier[data-tier="epic"]      { color: var(--pa-tier-epic); }
+.pa-hero-v3__agent-tier[data-tier="rare"]      { color: var(--pa-tier-rare); }
+.pa-hero-v3__agent-tier[data-tier="uncommon"]  { color: var(--pa-tier-uncommon); }
+.pa-hero-v3__agent-tier[data-tier="common"]    { color: var(--pa-tier-common); }
+
+.pa-hero-v3__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
 }
 
+.pa-hero-v3__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.pa-hero-v3__pills .pa-hero-pill {
+  font-size: var(--pa-t-xs);
+  color: var(--pa-ink-60);
+  padding: 6px 10px;
+  border-radius: var(--pa-radius-pill);
+  background: var(--pa-sep);
+  border: 1px solid var(--pa-sep-strong);
+}
+.pa-hero-v3__pills .pa-hero-pill i {
+  margin-right: 6px;
+  color: var(--pa-primary);
+}
+
+/* Portrait — right column, poster-crisp */
+.pa-hero-v3__portrait {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+.pa-hero-v3__portrait-frame {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--pa-radius-md);
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  animation: pa-hero-portrait-in 600ms var(--pa-ease-entrance) both;
+}
+@keyframes pa-hero-portrait-in {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.pa-hero-v3__portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+}
+/* Frosted glass caption bar — full-width, pinned to bottom of the frame.
+   backdrop-filter blurs the portrait behind the bar so text reads cleanly
+   regardless of the portrait's tonality. Solid-color fallback for browsers
+   without backdrop-filter support. */
+.pa-hero-v3__portrait-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--pa-font-body);
+  font-size: var(--pa-t-xs);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  background: rgba(10, 10, 12, 0.55);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .pa-hero-v3__portrait-caption {
+    background: rgba(10, 10, 12, 0.35);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  }
+}
+.pa-hero-v3__portrait-caption::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+  flex-shrink: 0;
+}
+.pa-hero-v3__portrait-name {
+  color: var(--pa-primary);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+/* Portrait bottom vignette — lighter now that the frosted bar carries most
+   of the contrast. Keeps a gentle edge fade into the bar. */
+.pa-hero-v3__portrait-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 70%, rgba(0, 0, 0, 0.25) 100%);
+  pointer-events: none;
+}
+
+/* ── Hero stat strip ── */
+.pa-hero-stats {
+  position: relative;
+  z-index: 4;
+  margin: -2rem -2rem 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--pa-sep);
+  border-bottom: 1px solid var(--pa-sep);
+  background: var(--pa-neutral);
+}
+.pa-hero-stat {
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-left: 1px solid var(--pa-sep);
+}
+.pa-hero-stat:first-child {
+  border-left: 0;
+}
+.pa-hero-stat__value {
+  font-family: var(--pa-font-display);
+  font-size: var(--pa-t-lg);
+  font-weight: 700;
+  color: var(--pa-ink);
+  letter-spacing: -0.01em;
+}
+.pa-hero-stat__label {
+  font-family: var(--pa-font-body);
+  font-size: var(--pa-t-xs);
+  color: var(--pa-ink-60);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+  .pa-hero-v3__inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 48px 28px;
+  }
+  .pa-hero-v3__portrait {
+    order: -1;
+    padding: 0;
+  }
+  .pa-hero-v3__portrait-frame {
+    max-width: 360px;
+    max-height: 55vh;
+  }
+  .pa-hero-v3__content {
+    max-width: 100%;
+  }
+}
+@media (max-width: 640px) {
+  .pa-hero-v3 {
+    min-height: auto;
+    margin: -2rem -1rem 0;
+  }
+  .pa-hero-v3__inner { padding: 40px 20px; }
+  .pa-hero-stats {
+    margin: -2rem -1rem 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  .pa-hero-stat { border-left: 0; border-top: 1px solid var(--pa-sep); }
+  .pa-hero-stat:first-child { border-top: 0; }
+}
+
+/* ══════════════════════════════════════
+   MANIFESTO — site-wide editorial closing beat
+   Works as bottom-hero (landing) or bottom-footer (utility pages)
+   ══════════════════════════════════════ */
+.pa-manifesto {
+  position: relative;
+  width: 100%;
+  padding: 80px 56px 96px;
+  margin: 48px -2rem 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, var(--pa-accent-soft), transparent 60%),
+    var(--pa-neutral);
+  border-top: 1px solid var(--pa-sep);
+  color: var(--pa-ink);
+  overflow: hidden;
+}
+.pa-manifesto__inner {
+  position: relative;
+  z-index: 4;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 60px;
+  align-items: center;
+}
+.pa-manifesto__content {
+  display: flex;
+  flex-direction: column;
+}
+.pa-manifesto__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  font-family: var(--pa-font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--pa-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 28px;
+}
+.pa-manifesto__rule {
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+  display: inline-block;
+}
+.pa-manifesto__title {
+  font-family: var(--pa-font-display);
+  font-weight: 700;
+  font-size: clamp(40px, 4.8vw, 72px);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  margin: 0 0 24px;
+  color: var(--pa-ink);
+  text-transform: uppercase;
+}
+.pa-manifesto__title-accent {
+  display: block;
+  font-family: var(--pa-font-accent);   /* Fraunces */
+  font-style: italic;                   /* keep — Georgia fallback needs this */
+  font-weight: 400;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  font-size: clamp(40px, 4.8vw, 72px);  /* matches headline so punchline lands at sibling weight */
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--pa-primary);
+  margin-top: 4px;
+  text-transform: none;
+}
+.pa-manifesto__body {
+  font-family: var(--pa-font-body);
+  font-size: 18px;
+  line-height: 1.55;
+  max-width: 520px;
+  color: var(--pa-ink-80);
+  margin: 0;
+}
+
+.pa-manifesto__aside {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-self: center;
+}
+
+/* Pull-quote card */
+.pa-pull {
+  position: relative;
+  border-left: 3px solid var(--pa-primary);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0 var(--pa-radius-md) var(--pa-radius-md) 0;
+  padding: 28px 32px 28px 60px;
+  margin: 0;
+}
+.pa-pull__mark {
+  position: absolute;
+  top: 6px;
+  left: 18px;
+  font-family: var(--pa-font-display);
+  font-size: 54px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--pa-primary);
+  user-select: none;
+}
+.pa-pull__body {
+  font-family: var(--pa-font-accent);   /* Fraunces italic */
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 96, "SOFT" 50;
+  font-size: 24px;
+  line-height: 1.35;
+  color: var(--pa-ink);
+  margin: 0 0 12px;
+}
+.pa-pull__sig {
+  font-family: var(--pa-font-body);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--pa-ink-60);
+}
+
+/* Editorial CTA — deliberate second primary button style, NOT a .pa-btn-primary override.
+   Reserved for the most important conversion moment on the page.
+   Selector includes `a.` to match the specificity of .pa-shell a { color: inherit }
+   (same 0,0,1,1) so our color declaration wins by cascade order. */
+a.pa-btn-editorial,
+button.pa-btn-editorial,
+.pa-btn-editorial {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--pa-ink);
+  color: var(--pa-neutral);
+  text-transform: uppercase;
+  font-family: var(--pa-font-display);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+  padding: 14px 22px;
+  border-radius: var(--pa-radius-md);
+  border: none;
+  text-decoration: none;
+  transition: transform var(--pa-dur-fast) var(--pa-ease-standard),
+              box-shadow var(--pa-dur-fast) var(--pa-ease-standard);
+}
+a.pa-btn-editorial:hover,
+button.pa-btn-editorial:hover,
+.pa-btn-editorial:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px var(--pa-primary);
+}
+
+.pa-manifesto__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+.pa-manifesto__footnote {
+  font-family: var(--pa-font-body);
+  font-size: 12px;
+  color: var(--pa-ink-60);
+  margin: 0;
+}
+
+/* Footer strip — hairline legal row below the manifesto */
+.pa-footer-strip {
+  border-top: 1px solid var(--pa-sep);
+  padding: 24px 56px;
+  font-family: var(--pa-font-body);
+  font-size: 12px;
+  color: var(--pa-ink-60);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 0 -2rem;
+  background: var(--pa-neutral);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .pa-manifesto { padding: 64px 36px 72px; }
+  .pa-manifesto__inner { grid-template-columns: 1fr; gap: 40px; }
+}
+@media (max-width: 768px) {
+  .pa-manifesto { padding: 48px 20px 56px; }
+  .pa-manifesto__inner { gap: 32px; }
+  .pa-manifesto__title { font-size: clamp(32px, 8vw, 40px); }
+  .pa-manifesto__title-accent { font-size: clamp(28px, 7vw, 36px); }
+  .pa-pull { padding: 24px 24px 24px 52px; }
+  .pa-pull__mark { font-size: 44px; top: 4px; left: 16px; }
+  .pa-pull__body { font-size: 20px; }
+  .pa-footer-strip { padding: 20px 24px; margin: 0 -1rem; }
+}
+
+/* Shared hero fragments reused by .pa-hero-v3 — kept after v2 deprecation */
 .pa-hero-protocol {
   display: inline-flex;
   align-items: center;
@@ -53,31 +552,8 @@
   display: inline-block;
   width: 6px;
   height: 14px;
-  background: var(--pa-secondary);
+  background: var(--pa-accent);
   animation: pa-blink 1s step-end infinite;
-}
-
-.pa-hero-sub {
-  font-family: var(--pa-font-body);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--pa-text-muted);
-  max-width: 400px;
-  margin-bottom: 1rem;
-}
-
-.pa-hero-sub strong {
-  color: var(--pa-text);
-  font-weight: 600;
-}
-
-/* Hero value prop pills */
-.pa-hero-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1.25rem;
-  margin-bottom: 1.25rem;
 }
 
 .pa-hero-pill {
@@ -96,103 +572,8 @@
 }
 
 .pa-hero-pill i {
-  color: var(--pa-secondary);
+  color: var(--pa-accent);
   font-size: 0.6rem;
-}
-
-/* Hero stats row */
-.pa-hero-stats {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.pa-stat-widget {
-  display: flex;
-  flex-direction: column;
-  padding: 0.75rem 1.25rem;
-  background: var(--pa-surface);
-  border: 1px solid var(--pa-sep-strong);
-  border-radius: var(--pa-radius-md);
-  min-width: 120px;
-}
-
-.pa-stat-label {
-  font-family: var(--pa-font-display);
-  font-size: 0.6rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--pa-text-muted);
-  margin-bottom: 0.15rem;
-}
-
-.pa-stat-value {
-  font-family: var(--pa-font-display);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--pa-text);
-}
-
-/* Hero indicators */
-.pa-hero-indicators {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.pa-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--pa-font-display);
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--pa-text-muted);
-}
-
-.pa-indicator-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.pa-indicator--cyan .pa-indicator-dot  { background: var(--pa-secondary); box-shadow: 0 0 6px var(--pa-secondary); }
-.pa-indicator--purple .pa-indicator-dot { background: var(--pa-primary); box-shadow: 0 0 6px var(--pa-primary); }
-
-/* Hero right side — stat counters (positioned absolutely on desktop) */
-.pa-hero-right {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  z-index: 2;
-}
-
-.pa-hero-stat-box {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: rgba(17, 17, 20, 0.85);
-  border: 1px solid var(--pa-sep-strong);
-  border-radius: var(--pa-radius-md);
-  backdrop-filter: blur(8px);
-}
-
-.pa-hero-stat-icon {
-  font-size: 0.85rem;
-  color: var(--pa-text-muted);
-}
-
-.pa-hero-stat-box .pa-stat-value {
-  font-size: 1.4rem;
-}
-
-.pa-hero-stat-box .pa-stat-label {
-  margin-bottom: 0;
 }
 
 /* ══════════════════════════════════════
@@ -314,7 +695,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--pa-secondary);
+  color: var(--pa-accent);
 }
 
 .pa-spotlight-success-value {
@@ -367,14 +748,14 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #fff;
-  background: linear-gradient(135deg, var(--pa-primary) 0%, #c040ff 50%, var(--pa-tertiary) 100%);
+  background: var(--pa-primary);
   border-radius: var(--pa-radius-md);
   transition: all var(--pa-transition-fast);
   text-decoration: none;
 }
 
 .pa-spotlight-cta:hover {
-  box-shadow: 0 6px 24px rgba(143, 0, 255, 0.35);
+  box-shadow: 0 6px 24px rgba(227, 68, 44, 0.35);
   transform: translateY(-1px);
 }
 
@@ -450,17 +831,43 @@
 }
 
 /* Spotlight side widgets */
+/* Spotlight now holds widgets only — the agent portrait moved into .pa-hero-v3.
+   Override the legacy 1.2fr/0.8fr two-column grid above so widgets span full width. */
+.pa-spotlight {
+  display: block;
+  grid-template-columns: none;
+  margin: 24px 0 40px;
+}
+
 .pa-spotlight-widgets {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
 }
 
 .pa-spotlight-widget {
   background: var(--pa-surface);
   border: 1px solid var(--pa-sep);
-  border-radius: var(--pa-radius-lg);
-  padding: 1.25rem;
+  border-radius: var(--pa-radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+  transition: border-color var(--pa-dur-standard) var(--pa-ease-standard),
+              transform var(--pa-dur-standard) var(--pa-ease-standard);
+}
+.pa-spotlight-widget:hover {
+  border-color: var(--pa-sep-strong);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1100px) {
+  .pa-spotlight-widgets { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .pa-spotlight-widgets { grid-template-columns: 1fr; }
 }
 
 .pa-spotlight-widget-header {
@@ -506,7 +913,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 0.5rem;
-  color: var(--pa-secondary);
+  color: var(--pa-accent);
 }
 
 .pa-widget-status--purple { color: var(--pa-primary); }
@@ -600,7 +1007,7 @@
   position: relative;
   aspect-ratio: 16 / 9;
   background:
-    radial-gradient(circle at center, rgba(143, 0, 255, 0.08), transparent 60%),
+    radial-gradient(circle at center, rgba(227, 68, 44, 0.08), transparent 60%),
     #0D0D12;
   overflow: hidden;
   display: flex;
@@ -621,7 +1028,7 @@
   width: 100%;
   height: 100%;
   font-size: 2.5rem;
-  color: rgba(143, 0, 255, 0.2);
+  color: rgba(227, 68, 44, 0.2);
 }
 
 /* Fallback sits behind image; hidden when image loads */
@@ -671,7 +1078,7 @@
 .pa-carousel-card:hover {
   border-color: var(--pa-primary-border);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(143, 0, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(227, 68, 44, 0.12);
 }
 
 .pa-carousel-card .pa-agent-portrait {
@@ -807,14 +1214,14 @@
 }
 
 .pa-source-tab:hover {
-  border-color: var(--pa-secondary-border);
+  border-color: var(--pa-accent-border);
   color: var(--pa-text);
 }
 
 .pa-source-tab.active {
-  background: var(--pa-secondary-dim);
-  border-color: var(--pa-secondary-border);
-  color: var(--pa-secondary);
+  background: var(--pa-accent-dim);
+  border-color: var(--pa-accent-border);
+  color: var(--pa-accent);
 }
 
 /* ── Sort Dropdown ── */
@@ -901,19 +1308,32 @@
   display: flex;
   flex-direction: column;
   background: var(--pa-surface-raised);
-  border: 1px solid rgba(143, 0, 255, 0.08);
+  border: 1px solid var(--pa-sep);
   border-radius: var(--pa-radius-lg);
   overflow: hidden;
-  transition: all var(--pa-transition-slow);
+  transition: transform var(--pa-dur-standard) var(--pa-ease-standard),
+              border-color var(--pa-dur-standard) var(--pa-ease-standard),
+              box-shadow var(--pa-dur-standard) var(--pa-ease-standard);
   cursor: pointer;
   text-decoration: none;
   color: inherit;
 }
 
 .pa-agent-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(143, 0, 255, 0.2);
-  box-shadow: 0 12px 32px rgba(143, 0, 255, 0.1);
+  transform: translateY(-2px);
+  border-color: var(--pa-sep-strong);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* Portrait lifts gently inside the card's crop on hover.
+   The card overflow:hidden contains the scale so only the image moves. */
+.pa-agent-card .pa-agent-portrait img,
+.pa-agent-card img.pa-agent-portrait {
+  transition: transform var(--pa-dur-slow) var(--pa-ease-standard);
+}
+.pa-agent-card:hover .pa-agent-portrait img,
+.pa-agent-card:hover img.pa-agent-portrait {
+  transform: scale(1.02);
 }
 
 /* Tier-specific hover glow */
@@ -968,13 +1388,13 @@
 .pa-badge--featured {
   background: var(--pa-primary);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(143, 0, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(227, 68, 44, 0.4);
 }
 
 .pa-badge--community {
-  background: var(--pa-tertiary);
+  background: var(--pa-accent);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(255, 0, 212, 0.4);
+  box-shadow: 0 2px 8px rgba(232, 163, 58, 0.4);
 }
 
 /* Tier badge colors */
@@ -1011,9 +1431,9 @@
 .pa-cat--strategy    { background: rgba(251, 191, 36, 0.75);  color: #000; }
 .pa-cat--naming      { background: rgba(167, 139, 250, 0.75); color: #fff; }
 .pa-cat--pitch       { background: rgba(248, 113, 113, 0.75); color: #fff; }
-.pa-cat--design      { background: rgba(255, 0, 212, 0.75);   color: #fff; }
+.pa-cat--design      { background: rgba(232, 163, 58, 0.75);   color: #fff; }
 .pa-cat--lifestyle   { background: rgba(244, 114, 182, 0.75); color: #fff; }
-.pa-cat--tools       { background: rgba(0, 240, 255, 0.75);   color: #000; }
+.pa-cat--tools       { background: rgba(232, 163, 58, 0.75);   color: #000; }
 .pa-cat--career      { background: rgba(251, 146, 60, 0.75);  color: #fff; }
 .pa-cat--intel       { background: rgba(129, 140, 248, 0.75); color: #fff; }
 .pa-cat--gaming      { background: rgba(245, 158, 11, 0.75);  color: #000; }
@@ -1126,17 +1546,22 @@
   border: none;
   border-radius: var(--pa-radius-md);
   cursor: pointer;
-  transition: all var(--pa-transition-fast);
+  transition: background var(--pa-dur-fast) var(--pa-ease-standard),
+              box-shadow var(--pa-dur-fast) var(--pa-ease-standard),
+              transform var(--pa-dur-fast) var(--pa-ease-standard);
   text-decoration: none;
 }
 
 .pa-btn-primary:hover {
-  background: #7a00e0;
-  box-shadow: 0 4px 16px var(--pa-primary-glow);
+  background: var(--pa-primary-hover);
+  box-shadow: 0 0 24px var(--pa-primary-glow);
   transform: translateY(-1px);
 }
 
-.pa-btn-ghost {
+/* .pa-btn-secondary is the canonical name going forward; .pa-btn-ghost
+   kept as an alias for backward compatibility until all call sites migrate. */
+.pa-btn-ghost,
+.pa-btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -1149,14 +1574,17 @@
   border: 1px solid var(--pa-sep-strong);
   border-radius: var(--pa-radius-md);
   cursor: pointer;
-  transition: all var(--pa-transition-fast);
+  transition: color var(--pa-dur-fast) var(--pa-ease-standard),
+              border-color var(--pa-dur-fast) var(--pa-ease-standard),
+              background var(--pa-dur-fast) var(--pa-ease-standard);
   text-decoration: none;
 }
 
-.pa-btn-ghost:hover {
-  color: var(--pa-text);
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.04);
+.pa-btn-ghost:hover,
+.pa-btn-secondary:hover {
+  color: var(--pa-ink);
+  border-color: var(--pa-ink-60);
+  background: var(--pa-surface-hover);
 }
 
 /* ══════════════════════════════════════
@@ -1213,9 +1641,9 @@
   text-align: center;
 }
 
-.pa-terminal-feature i.pa-text-cyan    { color: var(--pa-secondary); }
+.pa-terminal-feature i.pa-text-cyan    { color: var(--pa-accent); }
 .pa-terminal-feature i.pa-text-purple  { color: var(--pa-primary); }
-.pa-terminal-feature i.pa-text-pink    { color: var(--pa-tertiary); }
+.pa-terminal-feature i.pa-text-pink    { color: var(--pa-accent); }
 
 .pa-terminal {
   background: var(--pa-neutral);
@@ -1260,7 +1688,7 @@
   display: inline-block;
   width: 7px;
   height: 14px;
-  background: var(--pa-secondary);
+  background: var(--pa-accent);
   animation: pa-blink 1s step-end infinite;
   vertical-align: middle;
   margin-left: 2px;
@@ -1349,33 +1777,12 @@
     flex: 1;
   }
 
-  .pa-hero-right {
-    position: static;
-    flex-direction: row;
-    margin-top: 1.25rem;
-  }
-
   .pa-terminal-section .pa-terminal-grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .pa-hero-v2 {
-    margin: -1.25rem -1.25rem 2rem;
-    padding: 2rem 1.25rem;
-    min-height: 300px;
-  }
-
-  .pa-hero-v2 h1 {
-    font-size: clamp(32px, 8vw, 48px);
-  }
-
-  .pa-hero-stats {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
   .pa-agent-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
@@ -1383,10 +1790,6 @@
 
   .pa-spotlight {
     grid-template-columns: 1fr;
-  }
-
-  .pa-spotlight-widgets {
-    flex-direction: column;
   }
 
   .pa-footer-v2 {
@@ -1397,12 +1800,6 @@
 }
 
 @media (max-width: 480px) {
-  .pa-hero-v2 {
-    margin: -1rem -1rem 1.5rem;
-    padding: 1.5rem 1rem;
-    min-height: auto;
-  }
-
   .pa-agent-grid {
     grid-template-columns: 1fr;
   }
@@ -1410,28 +1807,12 @@
   .pa-carousel-card {
     flex: 0 0 220px;
   }
-
-  .pa-hero-right {
-    flex-direction: column;
-  }
 }
 
 /* ══════════════════════════════════════
    LIGHT THEME — Component Overrides
    Only for values that can't use tokens
    ══════════════════════════════════════ */
-
-/* Hero: swap dark gradient for light */
-body[data-theme="light"] .pa-hero-v2 {
-  background:
-    radial-gradient(ellipse at 70% 20%, rgba(143, 0, 255, 0.06), transparent 55%),
-    radial-gradient(ellipse at 20% 80%, rgba(0, 240, 255, 0.04), transparent 50%),
-    var(--pa-neutral);
-}
-
-body[data-theme="light"] .pa-hero-v2 h1 {
-  color: var(--pa-text);
-}
 
 body[data-theme="light"] .pa-hero-protocol {
   color: var(--pa-text-muted);
@@ -1441,26 +1822,21 @@ body[data-theme="light"] .pa-hero-protocol .pa-blink {
   background: var(--pa-primary);
 }
 
-/* Hero stat boxes: lighter backdrop */
-body[data-theme="light"] .pa-hero-stat-box {
-  background: rgba(255, 255, 255, 0.85);
-}
-
 /* Buttons on primary bg stay white text in both themes */
 body[data-theme="light"] .pa-btn-primary:hover {
-  background: #7a00e0;
+  background: var(--pa-primary-hover);
 }
 
 /* Portrait fallback: lighter bg */
 body[data-theme="light"] .pa-agent-portrait {
   background:
-    radial-gradient(circle at center, rgba(143, 0, 255, 0.05), transparent 60%),
+    radial-gradient(circle at center, rgba(227, 68, 44, 0.05), transparent 60%),
     #f0f0f5;
 }
 
 /* Portrait fallback icon: lighter */
 body[data-theme="light"] .pa-portrait-fallback {
-  color: rgba(143, 0, 255, 0.15);
+  color: rgba(227, 68, 44, 0.15);
 }
 
 /* Terminal: keep dark even in light theme (it's a terminal) */
@@ -1483,7 +1859,7 @@ body[data-theme="light"] .pa-agent-card {
 }
 
 body[data-theme="light"] .pa-agent-card:hover {
-  box-shadow: 0 8px 24px rgba(143, 0, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(227, 68, 44, 0.08);
 }
 
 /* Carousel card hover */
@@ -1492,5 +1868,5 @@ body[data-theme="light"] .pa-carousel-card {
 }
 
 body[data-theme="light"] .pa-carousel-card:hover {
-  box-shadow: 0 8px 24px rgba(143, 0, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(227, 68, 44, 0.08);
 }

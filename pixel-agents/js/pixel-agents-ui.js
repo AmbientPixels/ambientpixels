@@ -130,82 +130,27 @@
 
   // ── Hero Stats ──
   function updateHeroStats() {
-    // Agent count
+    // Only the live-agent count in the qualitative stat strip — tier count
+    // and response time are static; community count + total-runs are
+    // intentionally excluded (they read as zero on a new surface, which
+    // reads as empty product rather than new product).
     var agentsEl = document.getElementById('pa-stat-agents');
     if (agentsEl) agentsEl.textContent = allAgents.length;
-
-    // Community count
-    var communityCount = allAgents.filter(function (a) { return a.community; }).length;
-    var communityEl = document.getElementById('pa-stat-community');
-    if (communityEl) communityEl.textContent = communityCount;
-
-    // Total runs
-    var totalRuns = 0;
-    Object.keys(usageStats).forEach(function (k) { totalRuns += usageStats[k] || 0; });
-    var runsEl = document.getElementById('pa-stat-runs');
-    if (runsEl) runsEl.textContent = formatNumber(totalRuns);
   }
 
   // ── Spotlight ──
   function renderSpotlight() {
-    var container = document.getElementById('pa-spotlight');
-    if (!container || spotlightAgents.length === 0) return;
-
+    if (spotlightAgents.length === 0) return;
     var agent = spotlightAgents[spotlightIndex % spotlightAgents.length];
-    var rating = generateRating(agent.id, agent.tier);
-    var runs = usageStats[agent.id] || 0;
-    var successRate = Math.min(99, 90 + Math.abs(hashCode(agent.id)) % 10);
-    var url = '/pixel-agents/run.html?agent=' + escapeAttr(agent.id);
-    var categoryLabel = CATEGORY_LABELS[agent.category] || agent.category;
 
-    // Build capability tags
-    var caps = (agent.capabilities || []).slice(0, 3);
-    var tagsHtml = caps.map(function (c) {
-      return '<span class="pa-spotlight-tag">' + escapeHtml(c) + '</span>';
-    }).join('');
+    // ── Populate the unified hero (.pa-hero-v3) ──
+    populateHeroAgent(agent);
 
-    // Next agent preview
-    var nextAgent = spotlightAgents.length > 1
-      ? spotlightAgents[(spotlightIndex + 1) % spotlightAgents.length]
-      : null;
-    var nextHtml = '';
-    if (nextAgent) {
-      var nextUrl = '/pixel-agents/run.html?agent=' + escapeAttr(nextAgent.id);
-      nextHtml =
-        '<a href="' + nextUrl + '" class="pa-spotlight-next">' +
-          '<div class="pa-spotlight-next-avatar">' +
-            '<img src="' + escapeAttr(nextAgent.portraitUrl || '/pixel-agents/img/' + nextAgent.id + '.webp') + '" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
-            '<i class="' + escapeAttr(nextAgent.icon) + '"></i>' +
-          '</div>' +
-          '<div class="pa-spotlight-next-info">' +
-            '<span class="pa-spotlight-next-name">' + escapeHtml(nextAgent.name) + '</span>' +
-            '<span class="pa-spotlight-next-tagline">' + escapeHtml(nextAgent.tagline) + '</span>' +
-          '</div>' +
-          '<i class="fas fa-plus pa-spotlight-next-action"></i>' +
-        '</a>';
-    }
+    // ── Widgets section ──
+    var container = document.getElementById('pa-spotlight');
+    if (!container) return;
 
     container.innerHTML =
-      '<div class="pa-spotlight-main">' +
-        '<div class="pa-spotlight-portrait">' +
-          renderPortrait(agent, 'spotlight') +
-          '<span class="pa-spotlight-badge"><i class="fas fa-star" style="margin-right:4px"></i>Agent of the Day</span>' +
-          '<span class="pa-spotlight-online"><span class="pa-online-dot"></span> Online</span>' +
-        '</div>' +
-        '<div class="pa-spotlight-body">' +
-          '<div class="pa-spotlight-header-row">' +
-            '<h3 class="pa-spotlight-name">' + escapeHtml(agent.name) + '</h3>' +
-            '<div class="pa-spotlight-success">' +
-              '<span class="pa-spotlight-success-label">Success Rate</span>' +
-              '<span class="pa-spotlight-success-value">' + successRate + '%</span>' +
-            '</div>' +
-          '</div>' +
-          '<p class="pa-spotlight-desc">' + escapeHtml(agent.tagline) + '</p>' +
-          '<div class="pa-spotlight-tags">' + tagsHtml + '</div>' +
-          '<a href="' + url + '" class="pa-spotlight-cta">Deploy Agent</a>' +
-        '</div>' +
-        nextHtml +
-      '</div>' +
       '<div class="pa-spotlight-widgets">' +
         '<div class="pa-spotlight-widget">' +
           '<div class="pa-spotlight-widget-header">' +
@@ -227,7 +172,7 @@
         '</div>' +
         '<div class="pa-spotlight-widget">' +
           '<div class="pa-spotlight-widget-header">' +
-            '<i class="fas fa-share-nodes pa-spotlight-widget-icon" style="color:var(--pa-secondary)"></i>' +
+            '<i class="fas fa-share-nodes pa-spotlight-widget-icon" style="color:var(--pa-accent)"></i>' +
             '<span class="pa-spotlight-widget-label">Social Cards</span>' +
           '</div>' +
           '<h3>Shareable Results</h3>' +
@@ -244,6 +189,49 @@
           '<span class="pa-widget-status" style="color:var(--pa-warning)"><i class="fas fa-chart-line" style="font-size:0.4rem"></i> LIVE</span>' +
         '</div>' +
       '</div>';
+  }
+
+  // ── Populate the unified hero (.pa-hero-v3) with the agent of the day ──
+  function populateHeroAgent(agent) {
+    // Eyebrow — "Agent of the Day :: <date>"
+    var eyebrowEl = document.getElementById('pa-hero-eyebrow');
+    if (eyebrowEl) {
+      var today = new Date();
+      var dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+      eyebrowEl.textContent = 'Agent of the Day :: ' + dateStr;
+    }
+
+    // Foreground portrait
+    var portraitEl = document.getElementById('pa-hero-portrait');
+    if (portraitEl) {
+      var portraitUrl = agent.portraitUrl || '/pixel-agents/img/' + agent.id + '.webp';
+      portraitEl.innerHTML =
+        '<div class="pa-hero-v3__portrait-frame">' +
+          '<img class="pa-hero-v3__portrait-img" src="' + escapeAttr(portraitUrl) + '" alt="' + escapeAttr(agent.name + ' — ' + (agent.tier || 'agent')) + '">' +
+          '<div class="pa-hero-v3__portrait-caption">Online &middot; <span class="pa-hero-v3__portrait-name">' + escapeHtml(agent.name) + '</span></div>' +
+        '</div>';
+    }
+
+    // Agent meta strip (name + tier + tagline)
+    var metaEl = document.getElementById('pa-hero-agent-meta');
+    if (metaEl) {
+      var tier = agent.tier || 'common';
+      var tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+      metaEl.innerHTML =
+        '<span class="pa-hero-v3__agent-label">Featured</span>' +
+        '<span class="pa-hero-v3__agent-name">' + escapeHtml(agent.name) + '</span>' +
+        '<span class="pa-hero-v3__agent-tier" data-tier="' + escapeAttr(tier) + '">' + escapeHtml(tierLabel) + '</span>';
+    }
+
+    // Primary CTA — deep-link to this specific agent
+    var ctas = document.getElementById('pa-hero-ctas');
+    if (ctas) {
+      var primary = ctas.querySelector('.pa-btn-primary');
+      if (primary) {
+        primary.setAttribute('href', '/pixel-agents/run.html?agent=' + escapeAttr(agent.id));
+        primary.innerHTML = 'Run ' + escapeHtml(agent.name) + ' <i class="fas fa-arrow-right"></i>';
+      }
+    }
   }
 
   function hashCode(str) {
@@ -431,9 +419,9 @@
           return (b.createdAt || b.approvedAt || '').localeCompare(a.createdAt || a.approvedAt || '');
         case 'name-az':
           return (a.name || '').localeCompare(b.name || '');
-        default: // featured
-          if (a.featured && !b.featured) return -1;
-          if (!a.featured && b.featured) return 1;
+        default: // "featured" sort — honors the curator-set order field only.
+          // Featured is an editorial badge, not a sort key — clustering all
+          // featured agents into the first row makes the badge meaningless.
           return (a.order || 99) - (b.order || 99);
       }
     });

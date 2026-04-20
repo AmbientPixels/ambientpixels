@@ -24,8 +24,8 @@
   align-items: center;
   gap: 0.4rem;
 }
-.pa-topbar-logo i { color: var(--pa-secondary); }
-.pa-topbar-logo:hover { color: var(--pa-secondary); }
+.pa-topbar-logo i { color: var(--pa-accent); }
+.pa-topbar-logo:hover { color: var(--pa-accent); }
 .pa-topbar-byline {
   font-size: 0.75rem;
   color: var(--pa-text-faint);
