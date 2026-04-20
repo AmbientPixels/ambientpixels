@@ -61,6 +61,15 @@ body:has(.ap-log-subnav) #log-content > .ap-sec {
   padding-top: var(--sp-10);
 }
 
+/* Same tightening for single-day view. Two .ap-sec containers stack
+   (header + body), same 2x sec-pad-y problem as the index. */
+.ap-sec:has(> .log-single-header) {
+  padding-bottom: var(--sp-8);
+}
+body:has(.log-single-header) #log-content > .ap-sec {
+  padding-top: var(--sp-10);
+}
+
 /* ---- Loading / error / empty states (mono) --------------------------- */
 
 .log-loading {
