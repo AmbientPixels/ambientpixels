@@ -47,6 +47,7 @@
 .ap-log-subnav a:focus-visible {
   color: var(--color-accent-amber);
   opacity: 1;
+  text-decoration: none;
 }
 
 /* Tighten vertical rhythm around the subnav (mirrors blog pattern). */
@@ -249,9 +250,13 @@ body:has(.ap-log-subnav) #log-content > .ap-sec {
 /* Good-news moods earn the single amber accent. */
 .log-mood--productive,
 .log-mood--milestone {
-  background: rgba(212, 169, 82, 0.08);
+  background: rgba(212, 169, 82, 0.14);
   color: var(--color-accent-amber);
-  border-color: rgba(212, 169, 82, 0.25);
+  border-color: rgba(212, 169, 82, 0.4);
+}
+.log-mood--productive i,
+.log-mood--milestone i {
+  opacity: 1;
 }
 /* Everything else stays quiet. */
 .log-mood--steady,

@@ -114,9 +114,9 @@
           '</div>' +
         '</div>' +
         '<nav class="ap-log-subnav" aria-label="Log sub-nav">' +
-          '<a href="/">Home</a>' +
-          '<a href="/blog/">Journal</a>' +
-          '<a href="/pulse/">Pulse</a>' +
+          '<a class="ap-link-mono" href="/">Home</a>' +
+          '<a class="ap-link-mono" href="/blog/">Journal</a>' +
+          '<a class="ap-link-mono" href="/pulse/">Pulse</a>' +
         '</nav>' +
       '</section>';
 

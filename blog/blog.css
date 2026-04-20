@@ -77,6 +77,7 @@
 .ap-journal-subnav a:focus-visible {
   color: var(--color-accent-amber);
   opacity: 1;
+  text-decoration: none;
 }
 
 /* Tighten vertical rhythm around the subnav. Default .ap-sec-head has a

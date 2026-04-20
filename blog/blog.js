@@ -182,9 +182,9 @@
           '</div>' +
         '</div>' +
         '<nav class="ap-journal-subnav" aria-label="Journal sub-nav">' +
-          '<a href="/">Home</a>' +
-          '<a href="/log/">Activity Log</a>' +
-          '<a href="/pulse/">Pulse</a>' +
+          '<a class="ap-link-mono" href="/">Home</a>' +
+          '<a class="ap-link-mono" href="/log/">Activity Log</a>' +
+          '<a class="ap-link-mono" href="/pulse/">Pulse</a>' +
         '</nav>' +
       '</section>';
 
