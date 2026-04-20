@@ -403,7 +403,8 @@
   content: '';
   width: 40px;
   height: 2px;
-  background: var(--pc, rgba(244,244,244,.35));
+  background: var(--pc, rgba(244,244,244,.5));
+  opacity: .7;
 }
 .pulse-agent:nth-child(4n) { border-right: none; }
 
