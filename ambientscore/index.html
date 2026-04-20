@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientScore — AI-powered website conversion audit. Score a site in sixty seconds. Three prioritized fixes, one clear number." />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AmbientScore — AI Website Conversion Audit</title>
+  <meta name="description" content="Find where your website is losing revenue. Get an AmbientScore and 3 prioritized fixes you can implement immediately.">
   <link rel="canonical" href="https://www.ambientpixels.ai/ambientscore/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="AmbientScore — AI Website Conversion Audit" />
-  <meta property="og:description" content="Score a site in sixty seconds. Three prioritized fixes, one clear number." />
+  <meta property="og:description" content="Find where your website is losing revenue. Get a prioritized fix list in 60 seconds." />
   <meta property="og:url" content="https://www.ambientpixels.ai/ambientscore/" />
   <meta property="og:image" content="https://www.ambientpixels.ai/ambientscore/images/og-ambientscore.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AmbientScore" />
-  <meta name="twitter:description" content="Score a site in sixty seconds." />
+  <meta name="twitter:title" content="AmbientScore — AI Website Conversion Audit" />
+  <meta name="twitter:description" content="Find where your website is losing revenue. Prioritized fixes in 60 seconds." />
   <meta name="twitter:image" content="https://www.ambientpixels.ai/ambientscore/images/og-ambientscore.png" />
   <script type="application/ld+json">
   {
@@ -29,260 +30,148 @@
     "author": { "@type": "Organization", "name": "AmbientPixels", "url": "https://www.ambientpixels.ai" }
   }
   </script>
-  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>AmbientScore — AmbientPixels</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
-
-  <link rel="stylesheet" href="/css/ap-tokens.css" />
-  <link rel="stylesheet" href="/css/ap-base.css" />
-  <link rel="stylesheet" href="/css/ap-components.css" />
-
-  <script defer src="/js/ap-nav-mobile.js"></script>
-  <style>
-    /* Product-landing hero + specs per DS §4.7 (shared shape with
-       /nova/ and /ambientos/). */
-    .ap-product-hero {
-      max-width: var(--max-page);
-      margin: 0 auto;
-      padding: var(--sp-15) var(--sec-pad-x) var(--sp-20);
-    }
-    .ap-product-hero .ap-sec-head { align-items: end; margin-bottom: var(--sp-15); }
-    .ap-product-hero h1 {
-      font-family: var(--font-display);
-      font-weight: var(--fw-heavy);
-      font-size: clamp(64px, 9vw, 144px);
-      line-height: .9;
-      letter-spacing: -.05em;
-      margin: 12px 0 0;
-    }
-    .ap-product-hero h1 em {
-      font-style: italic;
-      font-weight: var(--fw-regular);
-      color: var(--color-text-body);
-    }
-    .ap-product-hero .ap-meta-strip {
-      padding-top: var(--sp-6);
-      border-top: 1px solid var(--color-border);
-    }
-    .ap-product-hero-cta {
-      margin-top: var(--sp-10);
-      display: inline-flex;
-      gap: var(--sp-4);
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .ap-specs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--sp-6) var(--sp-10);
-      font-family: var(--font-mono);
-      font-size: var(--fs-mono);
-      letter-spacing: var(--tracking-mono-sm);
-      line-height: 1.6;
-    }
-    .ap-specs > div {
-      display: grid;
-      grid-template-columns: 14ch 1fr;
-      gap: var(--sp-4);
-      padding: var(--sp-3) 0;
-      border-top: 1px dashed var(--color-border-dashed);
-    }
-    .ap-specs dt { text-transform: uppercase; color: var(--color-text-tertiary); }
-    .ap-specs dd {
-      margin: 0;
-      color: var(--color-text-primary);
-      text-transform: none;
-      font-family: var(--font-display);
-      font-size: var(--fs-body-xs);
-      letter-spacing: 0;
-    }
-    @media (max-width: 1000px) { .ap-specs { grid-template-columns: 1fr; } }
-  </style>
-</head>
-<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper" style="--tx-op: 0.195;">
-  <div class="tx-layer" aria-hidden="true"></div>
-
-  <!-- §2.2  Nav -->
-  <nav class="ap-nav">
-    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
-      <span class="m"><i></i></span>
-      AmbientPixels.
-    </a>
-    <div class="ap-nav-links">
-      <a href="/services/">Services.</a>
-      <a href="/products/">Products.</a>
-      <a href="/projects/">Work.</a>
-      <a href="/about/">Studio.</a>
-      <a href="/blog/">Journal.</a>
-      <a href="/pages/login.html">Login.</a>
-    </div>
-    <a class="ap-nav-cta" href="/ambientscore/scan.html">Run a scan &rarr;</a>
-  </nav>
-
-  <main>
-
-    <!-- DS §4.7 step 2 — Product hero -->
-    <section class="ap-product-hero">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">§ PRODUCT &mdash; 03 / AMBIENTSCORE</div>
-          <h1>Ambient<em>Score.</em></h1>
-        </div>
-        <div class="ap-sec-meta">
-          Score a site in sixty seconds. Three prioritized fixes, one clear number. Evidence-backed &mdash; not a generic AI summary.
-        </div>
-      </div>
-
-      <!-- DS §4.7 step 3 — Meta strip -->
-      <div class="ap-meta-strip">
-        <span>v1 &middot; 8-dimension framework</span>
-        <span>Live</span>
-        <span>Since 2026</span>
-        <span>Free score &middot; $29 full breakdown</span>
-      </div>
-
-      <!-- Landing CTA to the scan tool -->
-      <div class="ap-product-hero-cta">
-        <a class="ap-btn ap-btn--primary" href="/ambientscore/scan.html">Run a scan &rarr;</a>
-        <a class="ap-btn ap-btn--ghost" href="/ambientscore/strategy.html">Strategy service</a>
-      </div>
-    </section>
-
-    <!-- DS §4.7 step 5 — Features (the 3-step process becomes features) -->
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">§ 01 &mdash; HOW IT WORKS</div>
-          <h2 class="ap-display">Paste, score,<br><em>fix.</em></h2>
-        </div>
-        <div class="ap-sec-meta">
-          Three steps to a ranked fix list. No onboarding, no dashboard, no account required to run a scan.
-        </div>
-      </div>
-
-      <div class="ap-pillars">
-        <div class="ap-pillar">
-          <div class="num">01</div>
-          <h3 class="ap-display ap-display--pillar">Paste your<br><em>URL.</em></h3>
-          <p>Enter any website URL. We analyze the page content, CTAs, trust elements, and conversion path.</p>
-          <ul>
-            <li>30 seconds</li>
-            <li>No signup</li>
-            <li>Any public URL</li>
-          </ul>
-        </div>
-        <div class="ap-pillar">
-          <div class="num">02</div>
-          <h3 class="ap-display ap-display--pillar">Conversion<br><em>analysis.</em></h3>
-          <p>AI evaluates messaging clarity, CTA strength, funnel friction, trust signals, and more &mdash; using a weighted revenue model.</p>
-          <ul>
-            <li>8 dimensions</li>
-            <li>Weighted model</li>
-            <li>Evidence-backed</li>
-          </ul>
-        </div>
-        <div class="ap-pillar">
-          <div class="num">03</div>
-          <h3 class="ap-display ap-display--pillar">Prioritized<br><em>fix list.</em></h3>
-          <p>A scored report with specific, actionable fixes ranked by impact. Headlines and CTAs rewritten for you.</p>
-          <ul>
-            <li>Ranked by impact</li>
-            <li>Rewrites included</li>
-            <li>Letter grade</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- DS §4.7 step 6 — Specs -->
-    <section class="ap-sec">
-      <div class="ap-sec-head">
-        <div>
-          <div class="ap-sec-idx">§ 02 &mdash; SPECS</div>
-          <h2 class="ap-display">How the<br><em>score is built.</em></h2>
-        </div>
-        <div class="ap-sec-meta">
-          Technical shape of the audit. Not generic AI prose &mdash; a structured 8-dimension framework weighted against a revenue model.
-        </div>
-      </div>
-
-      <dl class="ap-specs">
-        <div><dt>Dimensions</dt><dd>8 (clarity, CTAs, trust, friction, funnel, copy, offer, social proof)</dd></div>
-        <div><dt>Scoring</dt><dd>Weighted 0-100 with letter grade + interpretation</dd></div>
-        <div><dt>Scan time</dt><dd>~60 seconds including analysis</dd></div>
-        <div><dt>Input</dt><dd>Any public URL</dd></div>
-        <div><dt>Output</dt><dd>Score + findings + prioritized fix list (with rewrites)</dd></div>
-        <div><dt>Pricing</dt><dd>Free score &middot; $29 full breakdown &middot; $89 3-pack</dd></div>
-        <div><dt>Privacy</dt><dd>No account required for the free score</dd></div>
-        <div><dt>Evidence</dt><dd>Every finding cites the element it evaluated</dd></div>
-      </dl>
-    </section>
-
-    <!-- §2.15  CTA -->
-    <section class="ap-cta" id="start">
-      <h2 class="ap-display ap-display--cta">Find out where<br><em>the leak is.</em></h2>
-      <p>Your free score takes sixty seconds. The full breakdown is $29 &mdash; less than an hour with a consultant, and you keep the fix list.</p>
-      <div class="ap-cta-actions">
-        <a class="ap-btn ap-btn--primary" href="/ambientscore/scan.html">Run a scan &rarr;</a>
-        <a class="ap-btn ap-btn--ghost" href="/ambientscore/strategy.html">Talk to a human</a>
-      </div>
-      <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
-    </section>
-  </main>
-
-  <!-- §2.14  Footer -->
-  <footer class="ap-foot-wrap">
-    <div class="ap-foot">
-      <div>
-        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
-          <span class="m"><i></i></span>
-          AmbientPixels.
-        </a>
-        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
-      </div>
-      <div>
-        <h5>Products</h5>
-        <ul>
-          <li><a href="/ambientos/">AmbientOS</a></li>
-          <li><a href="/nova/">Nova</a></li>
-          <li><a href="/storyforge/">StoryForge</a></li>
-          <li><a href="/cardforge/">CardForge</a></li>
-          <li><a href="/ambientscore/">AmbientScore</a></li>
-          <li><a href="/pixel-agents/">Pixel Agents</a></li>
-          <li><a href="/blindspot/">Blindspot</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Studio</h5>
-        <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/services/">Services</a></li>
-          <li><a href="/projects/">Projects</a></li>
-          <li><a href="/blog/">Journal</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <ul>
-          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
-          <li><a href="/log/">Activity log</a></li>
-          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="ap-legal">
-      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
-      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
-    </div>
-    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated April 2026.</div>
-  </footer>
-
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="/ambientscore/css/ambientscore.css">
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
+</head>
+<body>
+
+  <!-- Brand Bar -->
+  <header class="as-brand-bar">
+    <div class="as-container">
+      <span class="as-brand-name">AmbientScore</span>
+      <a href="https://ambientpixels.ai" class="as-brand-link">by AmbientPixels</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="as-hero">
+    <div class="as-container">
+      <h1>Find where your website is losing revenue.</h1>
+      <p>Get a AmbientScore and 3 prioritized fixes you can implement immediately.</p>
+      <form id="as-scan-form" class="as-url-form">
+        <input type="url" id="as-url-input" class="as-url-input" placeholder="https://yoursite.com" required autocomplete="url">
+        <button type="submit" id="as-scan-btn" class="as-scan-btn">Get My Score</button>
+      </form>
+      <p class="as-trust-line">Free Conversion Score &mdash; Full Actionable Report $29</p>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <section id="as-loading" class="as-loading" style="display:none;">
+    <div class="as-container">
+      <div class="as-spinner"></div>
+      <p class="as-loading-text" id="as-loading-text">Fetching your page...</p>
+      <div class="as-loading-steps">
+        <span class="as-loading-step active" id="as-step-fetch">Fetching page</span>
+        <span class="as-loading-step" id="as-step-extract">Extracting elements</span>
+        <span class="as-loading-step" id="as-step-evaluate">Evaluating 8 dimensions</span>
+        <span class="as-loading-step" id="as-step-score">Computing score</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Error State -->
+  <section id="as-error" class="as-error" style="display:none;">
+    <div class="as-container">
+      <p id="as-error-text"></p>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="as-results" class="as-results" style="display:none;">
+    <div class="as-container">
+
+      <!-- Score -->
+      <div class="as-score-section">
+        <div class="as-score-gauge" id="as-score-gauge">--</div>
+        <div class="as-grade" id="as-grade"></div>
+        <div class="as-score-label">AmbientScore</div>
+        <div class="as-score-interpretation" id="as-score-interpretation"></div>
+        <div class="as-score-meta">
+          <span class="as-meta-check">8 conversion dimensions evaluated</span>
+          <span class="as-meta-check">Evidence-backed scoring</span>
+          <span class="as-meta-check">Actionable rewrites included</span>
+        </div>
+      </div>
+
+      <!-- JS Warning -->
+      <div id="as-js-warning" class="as-warning" style="display:none;"></div>
+
+      <!-- Visible Findings -->
+      <div class="as-findings" id="as-findings-visible"></div>
+
+      <!-- Blurred Findings -->
+      <div class="as-blur-overlay" id="as-findings-blurred"></div>
+
+      <!-- Upgrade CTA -->
+      <div class="as-upgrade" id="as-upgrade">
+        <h3>Unlock Full Revenue Breakdown</h3>
+        <ul class="as-upgrade-list">
+          <li><span id="as-blurred-count">0</span> additional findings ranked by impact</li>
+          <li>Headline + CTA rewrites included</li>
+          <li>Priority roadmap for highest ROI fixes</li>
+        </ul>
+        <div class="as-upgrade-buttons">
+          <button class="as-buy-btn" id="as-buy-single">Unlock Full Breakdown — $29</button>
+          <button class="as-pack-btn" id="as-buy-pack">3-Pack — $89</button>
+        </div>
+        <div class="as-credits-redeem" id="as-credits-redeem" style="display:none;">
+          <p class="as-credits-divider">or</p>
+          <div class="as-credits-form">
+            <input type="email" id="as-credits-email" class="as-credits-email-input" placeholder="Enter your pack email" />
+            <button type="button" class="as-credits-btn" id="as-credits-check-btn">Use Credits</button>
+          </div>
+          <div id="as-credits-status" class="as-credits-status"></div>
+        </div>
+        <p class="as-upgrade-proof">Built on an 8-dimension conversion framework used by growth marketers.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="as-how">
+    <div class="as-container">
+      <h2>How It Works</h2>
+      <div class="as-steps">
+        <div class="as-step">
+          <div class="as-step-num">1</div>
+          <h3>Paste Your URL</h3>
+          <p>Enter any website URL. We analyze the page content, CTAs, trust elements, and conversion path.</p>
+        </div>
+        <div class="as-step">
+          <div class="as-step-num">2</div>
+          <h3>Conversion Health Analysis</h3>
+          <p>AI evaluates messaging clarity, CTA strength, funnel friction, trust signals, and more — using a weighted revenue model.</p>
+        </div>
+        <div class="as-step">
+          <div class="as-step-num">3</div>
+          <h3>Prioritized Fix List</h3>
+          <p>Get a scored report with specific, actionable fixes ranked by impact. Headlines and CTAs rewritten for you.</p>
+        </div>
+      </div>
+      <p class="as-how-differentiator" style="text-align:center;margin-top:24px;font-size:14px;color:var(--as-text-muted);">Built on a structured 8-dimension conversion framework &mdash; not generic AI summaries.</p>
+    </div>
+  </section>
+
+  <!-- Proof -->
+  <div class="as-proof">
+    <span class="as-proof-item">8 conversion dimensions</span>
+    <span class="as-proof-item">Evidence-backed scoring</span>
+    <span class="as-proof-item">Actionable rewrites included</span>
+    <span class="as-proof-item">Results in 60 seconds</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="as-footer">
+    <div class="as-container">
+      <p>&copy; 2026 AmbientScore by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
+    </div>
+  </footer>
+
+  <script src="/ambientscore/js/ambientscore.js"></script>
 </body>
 </html>
