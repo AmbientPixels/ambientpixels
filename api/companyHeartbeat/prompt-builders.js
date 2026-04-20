@@ -331,7 +331,7 @@ Task: "${_heroTask.title}" (id: ${_heroTask.id})
 ${_heroDocId ? 'Document ID: ' + _heroDocId : ''}
 This hero image task has been waiting for ${Math.round(_heroAge / 60000)} minutes. The ENTIRE content pipeline is blocked.
 YOUR FIRST ACTION MUST BE:
-{ "type": "generate-image", "taskId": "${_heroTask.id}", "image": { "purpose": "blog_header", "topic": "${_heroTitle}", "goal": "Hero image for: ${_heroTitle}", "preset": "ap-neon-glass"${_heroDocId ? ', "attachTo": { "type": "document", "id": "' + _heroDocId + '" }' : ''} } }
+{ "type": "generate-image", "taskId": "${_heroTask.id}", "image": { "purpose": "blog_header", "topic": "${_heroTitle}", "goal": "Hero image for: ${_heroTitle}", "preset": "ap-quiet-editorial"${_heroDocId ? ', "attachTo": { "type": "document", "id": "' + _heroDocId + '" }' : ''} } }
 DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
       }
     }

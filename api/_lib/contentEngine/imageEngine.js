@@ -138,6 +138,13 @@ var PRESETS = {
     author: 'Pixel',
     visibility: 'internal',
     style: 'Iridescent holographic card art with rainbow prismatic reflections, chrome metallic surfaces, futuristic energy auras, shifting color spectrum from teal to magenta to gold, luminous glow effects.'
+  },
+  'ap-quiet-editorial': {
+    label: 'Quiet Editorial',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Quiet editorial scene on a matte near-black canvas (#0a0a0a). Single warm cream light source from upper-right casting a soft ambient glow (RGB 255,220,170) with gentle falloff into deep preserved shadow — like one practical light in a large darkened studio. Fine warm paper-grain texture across the frame, subtle not dominant. Monochromatic warm-neutral palette: bone, cream, smoke, shadow. At most one small amber accent element (#f59e0b range) — never a rainbow, never teal-and-orange grading, never neon. Editorial restraint, generous negative space, confident brutalist minimalism. Matte finish throughout, no glass sheen, no glossy highlights. Reads as premium AI-studio press photography: dimensional but never loud.'
   }
 };
 
@@ -562,12 +569,12 @@ async function loadContentEngineConfig() {
     var raw = await _streamToString(dl.readableStreamBody);
     var cfg = JSON.parse(raw);
     return {
-      defaultPreset: cfg.defaultPreset || 'ap-neon-glass',
+      defaultPreset: cfg.defaultPreset || 'ap-quiet-editorial',
       defaultOutputs: Array.isArray(cfg.defaultOutputs) ? cfg.defaultOutputs : ['x_image'],
       maxImagesPerDay: parseInt(cfg.maxImagesPerDay) || 50
     };
   } catch (e) {
-    return { defaultPreset: 'ap-neon-glass', defaultOutputs: ['x_image'], maxImagesPerDay: 50 };
+    return { defaultPreset: 'ap-quiet-editorial', defaultOutputs: ['x_image'], maxImagesPerDay: 50 };
   }
 }
 
