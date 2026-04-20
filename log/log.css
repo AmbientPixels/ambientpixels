@@ -157,12 +157,25 @@ body:has(.log-single-header) #log-content > .ap-sec {
   box-shadow: 0 0 10px rgba(196,122,58,.45);
 }
 .log-day:has(.log-mood--quiet)::before {
-  background: rgba(244,244,244,.25);
+  background: rgba(244,244,244,.32);
 }
-/* Today always gets the amber glow regardless of mood. */
-.log-day--today::before {
-  background: var(--color-accent-amber);
-  box-shadow: 0 0 12px var(--color-accent-amber-glow-near, rgba(212,169,82,.65));
+/* Latest entry — first card in the feed. Always hollow amber ring
+   regardless of mood so it reads as a distinct "start here" marker.
+   Doubled class on the selector so specificity (0,2,1) ties with the
+   mood-has rules above; source order then wins. */
+.log-day.log-day--latest::before {
+  background: transparent;
+  border: 2px solid var(--color-accent-amber);
+  width: 9px;
+  height: 9px;
+  left: -5px;
+  box-shadow: 0 0 12px var(--color-accent-amber-glow-near, rgba(212,169,82,.6));
+}
+
+/* "Today" inline date label — amber, not legacy green. */
+.log-day-today-label {
+  color: var(--color-accent-amber);
+  font-weight: 500;
 }
 
 .log-day-date {

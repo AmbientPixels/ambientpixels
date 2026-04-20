@@ -133,13 +133,14 @@
     var today = new Date().toISOString().substring(0, 10);
     var html = '<section class="ap-sec"><div class="log-feed">';
 
-    entries.forEach(function (entry) {
+    entries.forEach(function (entry, idx) {
+      var isLatest = idx === 0;
       var isToday = entry.date === today;
       html +=
-        '<div class="log-day' + (isToday ? ' log-day--today' : '') + '">' +
+        '<div class="log-day' + (isLatest ? ' log-day--latest' : '') + '">' +
           '<div class="log-day-date">' +
             formatDateFull(entry.date) +
-            (isToday ? ' <span style="color:#34d399; font-weight:500;">· Today</span>' : '') +
+            (isToday ? ' <span class="log-day-today-label">· Today</span>' : '') +
           '</div>' +
           '<a href="/log/' + esc(entry.date) + '" style="text-decoration:none; color:inherit;">' +
             '<div class="log-day-title">' + esc(entry.title) + '</div>' +
