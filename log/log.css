@@ -31,7 +31,9 @@
   gap: var(--sp-6);
   margin-top: var(--sp-4);
   padding-top: var(--sp-3);
+  padding-bottom: var(--sp-3);
   border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 .ap-log-subnav a {
   font-family: var(--font-mono);
@@ -148,7 +150,9 @@ body:has(.log-single-header) #log-content > .ap-sec {
   border-radius: 50%;
   background: var(--color-text-muted);
 }
-.log-day--today::before {
+.log-day--today::before,
+.log-day:has(.log-mood--productive)::before,
+.log-day:has(.log-mood--milestone)::before {
   background: var(--color-accent-amber);
   box-shadow: 0 0 10px var(--color-accent-amber-glow-near, rgba(212,169,82,.55));
 }
@@ -219,12 +223,16 @@ body:has(.log-single-header) #log-content > .ap-sec {
   letter-spacing: var(--tracking-mono-md);
   text-transform: uppercase;
   color: var(--color-text-tertiary);
-  opacity: var(--mono-opacity-boost, 0.7);
+  /* Opacity is per-child so the mood pill can render full. */
 }
 .log-stat {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
+  opacity: var(--mono-opacity-boost, 0.7);
+}
+.log-stat:has(.log-mood) {
+  opacity: 1; /* mood pill stays at full strength */
 }
 .log-stat i {
   font-size: 10px;
@@ -233,7 +241,6 @@ body:has(.log-single-header) #log-content > .ap-sec {
 .log-stat-value {
   color: var(--color-text-body);
   font-weight: 500;
-  opacity: 1;
 }
 
 /* ---- Mood badge — quiet pill, amber only for good-news moods -------- */
@@ -248,9 +255,10 @@ body:has(.log-single-header) #log-content > .ap-sec {
   font-size: var(--fs-mono-xs);
   letter-spacing: var(--tracking-mono-md);
   text-transform: uppercase;
-  background: rgba(255, 240, 220, 0.04);
-  color: var(--color-text-tertiary);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 240, 220, 0.07);
+  color: var(--color-text-body);
+  border: 1px solid rgba(255, 240, 220, 0.22);
+  opacity: 1;
 }
 .log-mood i {
   font-size: 10px;

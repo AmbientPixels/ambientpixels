@@ -61,7 +61,9 @@
   gap: var(--sp-6);
   margin-top: var(--sp-4);
   padding-top: var(--sp-3);
+  padding-bottom: var(--sp-3);
   border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 .ap-journal-subnav a {
   font-family: var(--font-mono);
