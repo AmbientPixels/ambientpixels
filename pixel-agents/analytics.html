@@ -21,7 +21,6 @@
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
-  <script src="/pixel-agents/js/pa-palette.js"></script>
 
   <!-- Analytics styles -->
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-analytics.css" />
@@ -91,9 +90,6 @@
   <header class="pa-topbar-v2">
     <span class="pa-wordmark">Activity</span>
     <div class="pa-topbar-actions">
-      <button class="pa-btn-icon" id="pa-theme-toggle" title="Toggle theme">
-        <i class="fas fa-moon"></i>
-      </button>
       <button class="pa-btn-icon" title="Notifications">
         <i class="fas fa-bell"></i>
       </button>
@@ -230,23 +226,6 @@
       });
     }
 
-    }
-
-    var savedTheme = localStorage.getItem('preferred-theme');
-    if (savedTheme) {
-      document.body.setAttribute('data-theme', savedTheme);
-      var icon = document.querySelector('#pa-theme-toggle i');
-      if (icon) icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
-    }
-    var themeBtn = document.getElementById('pa-theme-toggle');
-    if (themeBtn) {
-      themeBtn.addEventListener('click', function() {
-        var isDark = document.body.getAttribute('data-theme') === 'dark';
-        var next = isDark ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', next);
-        localStorage.setItem('preferred-theme', next);
-        this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
-      });
     }
   })();
   

@@ -194,6 +194,7 @@
   aspect-ratio: 4 / 5;
   border-radius: var(--pa-radius-md);
   overflow: hidden;
+  background: var(--pa-portrait-frame);   /* dark backing in both themes */
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
   animation: pa-hero-portrait-in 600ms var(--pa-ease-entrance) both;
 }
@@ -1008,7 +1009,7 @@ button.pa-btn-editorial:hover,
   aspect-ratio: 16 / 9;
   background:
     radial-gradient(circle at center, rgba(227, 68, 44, 0.08), transparent 60%),
-    #0D0D12;
+    var(--pa-portrait-frame);   /* stays dark in both themes — "character frame on a page" */
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -1827,17 +1828,10 @@ body[data-theme="light"] .pa-btn-primary:hover {
   background: var(--pa-primary-hover);
 }
 
-/* Portrait fallback: lighter bg */
-body[data-theme="light"] .pa-agent-portrait {
-  background:
-    radial-gradient(circle at center, rgba(227, 68, 44, 0.05), transparent 60%),
-    #f0f0f5;
-}
-
-/* Portrait fallback icon: lighter */
-body[data-theme="light"] .pa-portrait-fallback {
-  color: rgba(227, 68, 44, 0.15);
-}
+/* Portrait area intentionally stays dark in light theme via --pa-portrait-frame.
+   The Arcane-style portraits were designed for dark contexts; a dark backing
+   persists across themes so the card reads as "character frame on a page"
+   rather than a dark hole punched through the cream surface. */
 
 /* Terminal: keep dark even in light theme (it's a terminal) */
 body[data-theme="light"] .pa-terminal {

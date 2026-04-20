@@ -88,6 +88,13 @@
   --pa-grain-opacity:         0.08;
   --pa-vignette:              radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
 
+  /* ── Portrait frame ──
+     Stays dark in both themes so Arcane-style portraits (designed for dark
+     contexts) sit on a deliberate "character frame" rather than reading as
+     dark holes punched through the page in light mode. NOT overridden in
+     the light-theme token block. */
+  --pa-portrait-frame:        #0A0A0C;
+
   /* ── Layout ── */
   --pa-sidebar-width:    240px;
   --pa-sidebar-collapsed: 64px;
@@ -95,35 +102,12 @@
   --pa-bottom-nav-height: 60px;
 }
 
-/* ══════════════════════════════════════
-   LIGHT THEME — Token Overrides (premium cream / paper)
-   Warm paper tones + warm charcoal ink instead of cool navy grays.
-   ══════════════════════════════════════ */
-body[data-theme="light"] {
-  --pa-neutral:          #F4F1EA;   /* warm paper base */
-  --pa-surface:          #FCFAF4;   /* ivory card surface */
-  --pa-surface-raised:   #EFEBDF;   /* elevated cream for depth */
-  --pa-surface-hover:    #E6E1D2;   /* hover — subtly darker paper */
-
-  --pa-text:             #1F1D1A;   /* warm charcoal, not cool navy */
-  --pa-text-muted:       rgba(31, 29, 26, 0.64);
-  --pa-text-faint:       rgba(31, 29, 26, 0.42);
-  --pa-ink:              #1F1D1A;
-  --pa-ink-80:           rgba(31, 29, 26, 0.82);
-  --pa-ink-60:           rgba(31, 29, 26, 0.60);
-
-  /* Separators on paper — warm transparent browns, not cool black */
-  --pa-sep:              rgba(31, 29, 26, 0.08);
-  --pa-sep-strong:       rgba(31, 29, 26, 0.16);
-
-  --pa-primary-dim:      rgba(227, 68, 44, 0.08);
-  --pa-primary-border:   rgba(227, 68, 44, 0.22);
-  --pa-primary-glow:     rgba(227, 68, 44, 0.14);
-
-  --pa-accent-dim:       rgba(232, 163, 58, 0.10);
-  --pa-accent-border:    rgba(232, 163, 58, 0.24);
-  --pa-accent-soft:      rgba(227, 68, 44, 0.08);
-}
+/* Light theme removed — Pixel Agents is a dark-native product.
+   The Arcane-style portraits are designed for dark contexts, and the
+   premium editorial direction (signal red on near-black) loses visual weight
+   on a cream page. Committing to dark is a stronger brand move than shipping
+   a compromised light theme. Legacy body[data-theme="light"] rules in other
+   CSS files are now dead code — can be purged in a future cleanup. */
 
 /* ── Scoped Reset ──
    Override shared base.css and theme.css within the Pixel Agents shell.
@@ -346,51 +330,6 @@ body.pa-shell .pa-footer-v2 a:hover {
 .pa-icon-dot {
   font-size: 0.45rem;
   vertical-align: middle;
-}
-
-/* ══════════════════════════════════════
-   AVATAR PALETTE PICKER
-   6 preset swatches injected into .pa-avatar-menu by pa-palette.js
-   ══════════════════════════════════════ */
-.pa-avatar-palette {
-  padding: 12px 12px 10px;
-  border-top: 1px solid var(--pa-sep);
-  margin-top: 6px;
-}
-.pa-avatar-palette-label {
-  display: block;
-  font-family: var(--pa-font-body);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--pa-ink-60);
-  margin-bottom: 8px;
-}
-.pa-avatar-palette-swatches {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
-}
-.pa-palette-swatch {
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: var(--pa-radius-sm);
-  border: 1px solid var(--pa-sep-strong);
-  cursor: pointer;
-  padding: 0;
-  transition: transform var(--pa-dur-fast) var(--pa-ease-standard),
-              box-shadow var(--pa-dur-fast) var(--pa-ease-standard);
-}
-.pa-palette-swatch:hover {
-  transform: scale(1.08);
-}
-.pa-palette-swatch.is-active {
-  box-shadow: 0 0 0 2px var(--pa-ink), 0 0 0 3px var(--pa-neutral);
-}
-.pa-palette-swatch:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--pa-ink), 0 0 0 4px var(--pa-primary);
 }
 
 /* ── Scrollbar (thin, subtle) ── */
