@@ -1,478 +1,345 @@
-/* log.css — Public daily activity log styles */
+/* ============================================================
+   log.css — Activity Log styles (AP design-system port).
 
-:root {
-  --log-bg: #071019;
-  --log-surface: #0d1a2a;
-  --log-border: rgba(255,255,255,0.08);
-  --log-text: rgba(255,255,255,0.88);
-  --log-muted: rgba(255,255,255,0.5);
-  --log-accent: #8A2BE2;
-  --log-accent-soft: rgba(138,43,226,0.15);
-  --log-green: #34d399;
-  --log-amber: #fbbf24;
-  --log-blue: #60a5fa;
-  --log-max-width: 720px;
+   Structural scaffolding (.ap-nav, .ap-foot, .ap-sec, .ap-sec-head,
+   .ap-display, tx-layer + polish classes) lives in the AP core
+   stylesheets. This file covers log-local concerns only:
+     - Index sub-nav (.ap-log-subnav)
+     - Feed list + day cards (.log-feed, .log-day, .log-day-*)
+     - Highlights, stats, mood badges
+     - Single-day view
+     - Loading / error / empty states
+
+   Tokens only. No raw hex, no rainbow, no purple. Single amber
+   accent, used only for "today" and the productive/milestone moods.
+   ============================================================ */
+
+/* Screen-reader-only SEO h1 (in shell) */
+.ap-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
-/* ── Brand Bar ── */
-.ap-brand-bar {
-  background: rgba(7,16,25,0.95);
-  border-bottom: 1px solid var(--log-border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-}
+/* ---- Index sub-nav (below section head) ----------------------------- */
 
-.ap-brand-bar::after {
-  content: '';
-  display: block;
-  height: 2px;
-  background: linear-gradient(90deg, #8A2BE2, #60a5fa, #34d399, #fbbf24, #8A2BE2);
-  opacity: 0.5;
-}
-
-.ap-brand-inner {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0.6rem 1.5rem;
+.ap-log-subnav {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.ap-brand-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.ap-brand-logo img {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  filter: drop-shadow(0 0 6px rgba(138,43,226,0.3));
-}
-
-.ap-brand-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: -0.01em;
-}
-
-.ap-brand-nav {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-}
-
-.ap-brand-nav a {
-  color: var(--log-muted);
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.ap-brand-nav a:hover {
-  color: #fff;
-}
-
-.ap-brand-nav--active {
-  color: var(--log-accent) !important;
-}
-
-/* ── Brand Footer ── */
-.ap-footer-logo {
-  margin-bottom: 0.6rem;
-}
-
-.ap-footer-logo img {
-  width: 28px;
-  height: 28px;
-  border-radius: 5px;
-  opacity: 0.6;
-  filter: drop-shadow(0 0 4px rgba(138,43,226,0.2));
-}
-
-.ap-footer-tagline {
-  font-size: 0.75rem;
-  color: var(--log-muted);
-  margin-bottom: 0.6rem;
-  opacity: 0.7;
-}
-
-.ap-footer-links {
-  font-size: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.ap-footer-links a {
-  color: var(--log-muted);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.ap-footer-links a:hover {
-  color: var(--log-accent);
-}
-
-.ap-footer-legal {
-  font-size: 0.68rem;
-  opacity: 0.4;
-}
-
-.ap-footer-legal a {
-  color: var(--log-muted);
-  text-decoration: none;
-}
-
-.ap-footer-legal a:hover {
-  color: var(--log-accent);
-}
-
-/* ── Layout ── */
-.log-wrapper {
-  background: var(--log-bg);
-  color: var(--log-text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  min-height: 100vh;
-  line-height: 1.6;
-}
-
-.log-container {
-  max-width: var(--log-max-width);
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
-}
-
-/* ── Header ── */
-.log-header {
-  text-align: center;
-  padding: 3rem 0 2rem;
-  border-bottom: 1px solid var(--log-border);
-  margin-bottom: 2rem;
-}
-
-.log-header h1 {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 0 0 0.4rem;
-  color: #fff;
-}
-
-.log-header h1 i {
-  opacity: 0.4;
-  margin-right: 0.5rem;
-  font-size: 0.85em;
-}
-
-.log-header p {
-  color: var(--log-muted);
-  font-size: 0.95rem;
-  margin: 0 0 1rem;
-}
-
-.log-nav {
-  display: flex;
-  gap: 1.5rem;
   justify-content: center;
+  gap: var(--sp-6);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--color-border);
 }
-
-.log-nav a {
-  color: var(--log-muted);
+.ap-log-subnav a {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
   text-decoration: none;
-  font-size: 0.82rem;
-  transition: color 0.2s;
+  opacity: var(--mono-opacity-boost, 0.7);
+  transition: color 0.2s, opacity 0.2s;
+}
+.ap-log-subnav a:hover,
+.ap-log-subnav a:focus-visible {
+  color: var(--color-accent-amber);
+  opacity: 1;
 }
 
-.log-nav a:hover {
-  color: var(--log-accent);
+/* Tighten vertical rhythm around the subnav (mirrors blog pattern). */
+.ap-sec-head:has(+ .ap-log-subnav) {
+  margin-bottom: var(--sp-6);
+}
+.ap-sec:has(> .ap-log-subnav) {
+  padding-bottom: var(--sp-8);
+}
+body:has(.ap-log-subnav) #log-content > .ap-sec {
+  padding-top: var(--sp-10);
 }
 
-/* ── Loading / Error ── */
+/* ---- Loading / error / empty states (mono) --------------------------- */
+
 .log-loading {
-  text-align: center;
-  padding: 4rem 0;
-  color: var(--log-muted);
-  font-size: 0.95rem;
+  max-width: var(--max-page);
+  margin: 0 auto;
+  padding: var(--sp-15) var(--sec-pad-x);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  text-align: left;
 }
 
 .log-error {
-  text-align: center;
-  padding: 4rem 0;
-  color: var(--log-muted);
+  padding: var(--sp-8) 0 0;
 }
-
 .log-error h2 {
-  font-size: 1.1rem;
-  color: #fff;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.4vw, 36px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--sp-3);
+}
+.log-error p {
+  font-family: var(--font-display);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body-loose);
+  color: var(--color-text-body);
+  margin: 0 0 var(--sp-6);
+  max-width: var(--max-prose);
 }
 
 .log-empty {
   text-align: center;
-  padding: 4rem 0;
-  color: var(--log-muted);
+  padding: var(--sp-12) 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
 }
-
 .log-empty i {
-  font-size: 2.5rem;
-  opacity: 0.2;
   display: block;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  margin-bottom: var(--sp-4);
+  opacity: 0.4;
 }
 
-/* ── Feed ── */
+/* ---- Feed (list of days) -------------------------------------------- */
+
 .log-feed {
+  max-width: var(--max-prose);
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-/* ── Day Card ── */
+/* Day card — timeline rail with dot markers */
 .log-day {
   position: relative;
-  padding: 1.5rem 0 1.5rem 2rem;
-  border-left: 2px solid var(--log-border);
+  padding: var(--sp-6) 0 var(--sp-8) var(--sp-10);
+  border-left: 1px solid var(--color-border);
 }
-
 .log-day:last-child {
   border-left-color: transparent;
 }
-
 .log-day::before {
   content: '';
   position: absolute;
-  left: -5px;
-  top: 1.75rem;
-  width: 8px;
-  height: 8px;
+  left: -4px;
+  top: calc(var(--sp-6) + 6px);
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--log-accent);
-  border: 2px solid var(--log-bg);
+  background: var(--color-text-muted);
 }
-
 .log-day--today::before {
-  background: var(--log-green);
-  box-shadow: 0 0 8px rgba(52,211,153,0.4);
+  background: var(--color-accent-amber);
+  box-shadow: 0 0 10px var(--color-accent-amber-glow-near, rgba(212,169,82,.55));
 }
 
 .log-day-date {
-  font-size: 0.72rem;
-  color: var(--log-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.4rem;
+  color: var(--color-text-tertiary);
+  opacity: var(--mono-opacity-boost, 0.7);
+  margin-bottom: var(--sp-2);
 }
 
 .log-day-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0 0 0.6rem;
-  line-height: 1.3;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display, 900);
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--sp-3);
 }
 
 .log-day-summary {
-  font-size: 0.9rem;
-  color: var(--log-text);
-  line-height: 1.6;
-  margin-bottom: 0.8rem;
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular, 400);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body-loose, 1.6);
+  color: var(--color-text-body);
+  margin: 0 0 var(--sp-4);
+  max-width: 60ch;
 }
 
-/* ── Highlights ── */
+/* ---- Highlights ----------------------------------------------------- */
+
 .log-highlights {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 0.8rem;
+  gap: var(--sp-2);
+  margin: 0 0 var(--sp-4);
 }
-
 .log-highlight {
   display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  font-size: 0.82rem;
-  color: var(--log-text);
-  line-height: 1.4;
+  gap: var(--sp-3);
+  font-family: var(--font-display);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--color-text-body);
 }
-
 .log-highlight i {
-  color: var(--log-accent);
-  margin-top: 0.15rem;
+  color: var(--color-text-muted);
   flex-shrink: 0;
-  font-size: 0.7rem;
+  margin-top: 7px;
+  font-size: 10px;
 }
+.log-highlight span { flex: 1; }
 
-/* ── Stats Bar ── */
+/* ---- Stats bar ------------------------------------------------------ */
+
 .log-stats {
   display: flex;
-  gap: 1rem;
+  gap: var(--sp-5);
   flex-wrap: wrap;
-  font-size: 0.72rem;
-  color: var(--log-muted);
+  margin-top: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  opacity: var(--mono-opacity-boost, 0.7);
 }
-
 .log-stat {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: var(--sp-2);
 }
-
 .log-stat i {
-  opacity: 0.5;
-  font-size: 0.65rem;
+  font-size: 10px;
+  opacity: 0.7;
 }
-
 .log-stat-value {
-  color: var(--log-text);
+  color: var(--color-text-body);
   font-weight: 500;
+  opacity: 1;
 }
 
-/* ── Mood Badge ── */
+/* ---- Mood badge — quiet pill, amber only for good-news moods -------- */
+
 .log-mood {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.1rem 0.45rem;
-  border-radius: 4px;
-  font-size: 0.65rem;
-  font-weight: 500;
+  gap: var(--sp-1, 4px);
+  padding: 0.25em 0.7em;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  background: rgba(255, 240, 220, 0.04);
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border);
+}
+.log-mood i {
+  font-size: 10px;
+  opacity: 0.85;
+}
+/* Good-news moods earn the single amber accent. */
+.log-mood--productive,
+.log-mood--milestone {
+  background: rgba(212, 169, 82, 0.08);
+  color: var(--color-accent-amber);
+  border-color: rgba(212, 169, 82, 0.25);
+}
+/* Everything else stays quiet. */
+.log-mood--steady,
+.log-mood--quiet,
+.log-mood--busy {
+  /* inherit default above */
 }
 
-.log-mood--productive { background: rgba(52,211,153,0.12); color: var(--log-green); }
-.log-mood--steady { background: rgba(96,165,250,0.12); color: var(--log-blue); }
-.log-mood--quiet { background: rgba(255,255,255,0.06); color: var(--log-muted); }
-.log-mood--busy { background: rgba(251,191,36,0.12); color: var(--log-amber); }
-.log-mood--milestone { background: var(--log-accent-soft); color: var(--log-accent); }
+/* ---- Single-day view ----------------------------------------------- */
 
-/* ── Single Day View ── */
-.log-single-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--log-border);
-}
-
-.log-single-date {
-  font-size: 0.75rem;
-  color: var(--log-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.log-single-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 0.5rem;
-  line-height: 1.2;
-}
-
-.log-single-meta {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  font-size: 0.78rem;
-  color: var(--log-muted);
-}
-
-.log-single-body {
-  font-size: 1rem;
-  line-height: 1.75;
-  color: var(--log-text);
-  margin-bottom: 2rem;
-}
-
-.log-single-body p {
-  margin: 0 0 1rem;
-}
-
-/* ── Back Link ── */
 .log-back {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  color: var(--log-muted);
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
   text-decoration: none;
-  font-size: 0.82rem;
-  margin-bottom: 1.5rem;
-  transition: color 0.2s;
+  margin-bottom: var(--sp-8);
+  opacity: var(--mono-opacity-boost, 0.7);
+  transition: color 0.2s, opacity 0.2s;
+}
+.log-back:hover,
+.log-back:focus-visible {
+  color: var(--color-accent-amber);
+  opacity: 1;
 }
 
-.log-back:hover {
-  color: var(--log-accent);
+.log-single-header {
+  margin-bottom: var(--sp-10);
+  padding-bottom: var(--sp-8);
+  border-bottom: 1px solid var(--color-border);
+}
+.log-single-date {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  opacity: var(--mono-opacity-boost, 0.7);
+  margin-bottom: var(--sp-3);
+}
+.log-single-title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display, 900);
+  font-size: clamp(36px, 3.4vw, 56px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--sp-4);
+  max-width: 22ch;
+}
+.log-single-meta {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
 }
 
-/* ── Footer ── */
-.log-footer {
-  text-align: center;
-  padding: 2rem 0;
-  margin-top: 3rem;
-  border-top: 1px solid var(--log-border);
-  font-size: 0.78rem;
-  color: var(--log-muted);
+.log-single-body {
+  font-family: var(--font-display);
+  font-weight: var(--fw-regular, 400);
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--color-text-body);
+  max-width: var(--max-prose);
+}
+.log-single-body p {
+  margin: 0 0 var(--sp-4);
 }
 
-.log-footer a {
-  color: var(--log-accent);
-  text-decoration: none;
-}
+/* ---- Responsive ----------------------------------------------------- */
 
-.log-footer a:hover {
-  text-decoration: underline;
-}
-
-/* ── Responsive ── */
 @media (max-width: 640px) {
-  .ap-brand-inner {
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 0.5rem 1rem;
-  }
-
-  .ap-brand-nav {
-    gap: 0.8rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .ap-brand-nav a {
-    font-size: 0.72rem;
-  }
-
-  .ap-brand-name {
-    font-size: 0.9rem;
-  }
-
-  .log-container {
-    padding: 1.5rem 1rem 3rem;
-  }
-
-  .log-header {
-    padding: 2rem 0 1.5rem;
-  }
-
-  .log-header h1 {
-    font-size: 1.4rem;
-  }
-
   .log-day {
-    padding-left: 1.5rem;
+    padding-left: var(--sp-8);
   }
-
   .log-single-title {
-    font-size: 1.3rem;
+    font-size: clamp(28px, 6vw, 36px);
   }
-
   .log-stats {
-    gap: 0.6rem;
+    gap: var(--sp-4);
   }
 }

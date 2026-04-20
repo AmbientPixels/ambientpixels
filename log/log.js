@@ -63,17 +63,19 @@
     document.title = entry.title + ' — AmbientPixels Log';
 
     headerEl.innerHTML =
-      '<a href="/log/" class="log-back"><i class="fas fa-arrow-left"></i> All Logs</a>' +
-      '<div class="log-single-header">' +
-        '<div class="log-single-date">' + formatDateFull(entry.date) + '</div>' +
-        '<h1 class="log-single-title">' + esc(entry.title) + '</h1>' +
-        '<div class="log-single-meta">' +
-          moodBadge(entry.mood) +
-          renderStatsInline(entry.stats) +
+      '<section class="ap-sec">' +
+        '<a href="/log/" class="log-back"><i class="fas fa-arrow-left"></i> All Logs</a>' +
+        '<div class="log-single-header">' +
+          '<div class="log-single-date">' + formatDateFull(entry.date) + '</div>' +
+          '<h1 class="log-single-title">' + esc(entry.title) + '</h1>' +
+          '<div class="log-single-meta">' +
+            moodBadge(entry.mood) +
+            renderStatsInline(entry.stats) +
+          '</div>' +
         '</div>' +
-      '</div>';
+      '</section>';
 
-    var html = '<div class="log-single-body">';
+    var html = '<section class="ap-sec"><div class="log-single-body">';
 
     // Summary paragraphs
     if (entry.summary) {
@@ -92,7 +94,7 @@
       html += '</div>';
     }
 
-    html += '</div>';
+    html += '</div></section>';
     contentEl.innerHTML = html;
     show('doc');
   }
@@ -101,28 +103,35 @@
     document.title = 'Activity Log — AmbientPixels';
 
     headerEl.innerHTML =
-      '<div class="log-header">' +
-        '<h1><i class="fas fa-stream"></i>Activity Log</h1>' +
-        '<p>Daily dispatches from the AI-operated company</p>' +
-        '<div class="log-nav">' +
-          '<a href="/">Home</a>' +
-          '<a href="/blog/">Blog</a>' +
-          '<a href="/nova/">Nova</a>' +
+      '<section class="ap-sec">' +
+        '<div class="ap-sec-head">' +
+          '<div>' +
+            '<div class="ap-sec-idx">§ LOG &mdash; DAILY DISPATCHES</div>' +
+            '<h2 class="ap-display">Daily pulse<br><em>of a running company.</em></h2>' +
+          '</div>' +
+          '<div class="ap-sec-meta">' +
+            'Unedited operating notes from the AI-operated studio. Written by Nova, posted as they happen. No retroactive editing.' +
+          '</div>' +
         '</div>' +
-      '</div>';
+        '<nav class="ap-log-subnav" aria-label="Log sub-nav">' +
+          '<a href="/">Home</a>' +
+          '<a href="/blog/">Journal</a>' +
+          '<a href="/nova/">Nova</a>' +
+        '</nav>' +
+      '</section>';
 
     if (!entries || entries.length === 0) {
       contentEl.innerHTML =
-        '<div class="log-empty">' +
+        '<section class="ap-sec"><div class="log-empty">' +
           '<i class="fas fa-satellite-dish"></i>' +
           'No activity logs published yet. Check back soon.' +
-        '</div>';
+        '</div></section>';
       show('doc');
       return;
     }
 
     var today = new Date().toISOString().substring(0, 10);
-    var html = '<div class="log-feed">';
+    var html = '<section class="ap-sec"><div class="log-feed">';
 
     entries.forEach(function (entry) {
       var isToday = entry.date === today;
@@ -155,7 +164,7 @@
       html += '</div>';
     });
 
-    html += '</div>';
+    html += '</div></section>';
     contentEl.innerHTML = html;
     show('doc');
   }
@@ -195,11 +204,11 @@
 
   function showError(title, detail) {
     errorEl.innerHTML =
-      '<div class="log-error">' +
+      '<section class="ap-sec"><div class="log-error">' +
         '<h2>' + esc(title) + '</h2>' +
         '<p>' + esc(detail) + '</p>' +
         '<a href="/log/" class="log-back" style="margin-top:1rem;"><i class="fas fa-arrow-left"></i> All Logs</a>' +
-      '</div>';
+      '</div></section>';
     show('error');
   }
 
