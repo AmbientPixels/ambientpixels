@@ -181,6 +181,11 @@
             'Field notes, runbooks, and release notes. Published as they land. Not a content calendar.' +
           '</div>' +
         '</div>' +
+        '<nav class="ap-journal-subnav" aria-label="Journal sub-nav">' +
+          '<a href="/">Home</a>' +
+          '<a href="/log/">Activity Log</a>' +
+          '<a href="/nova/">Nova</a>' +
+        '</nav>' +
       '</section>';
 
     if (!posts || posts.length === 0) {
