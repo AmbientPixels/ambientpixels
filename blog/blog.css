@@ -81,13 +81,19 @@
 
 /* Tighten vertical rhythm around the subnav. Default .ap-sec-head has a
    large margin-bottom tuned for full content sections, and two stacked
-   .ap-sec containers produce 2x section padding between them. These
-   rules absorb both when the subnav is present. */
+   .ap-sec containers produce 2x var(--sec-pad-y) between them (= 240px).
+   These rules absorb the extra space when the subnav is present so the
+   nav reads as part of the header, not an orphan strip. */
 .ap-sec-head:has(+ .ap-journal-subnav) {
   margin-bottom: var(--sp-6);
 }
 .ap-sec:has(> .ap-journal-subnav) {
-  padding-bottom: var(--sp-6);
+  padding-bottom: var(--sp-8);
+}
+/* The post list lives in a separate #blog-content > .ap-sec. Pull its
+   top padding in too, but only when the index's subnav is on the page. */
+body:has(.ap-journal-subnav) #blog-content > .ap-sec {
+  padding-top: var(--sp-10);
 }
 
 /* ---- Single-post header add-ons ------------------------------------- */
