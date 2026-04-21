@@ -2501,22 +2501,59 @@
       }
 
       // ── Stat Cards ──
+      // Aggregates lifetime geminiUsage for tokens/cost/session counts. AgentEngine.getMetrics()
+      // was a zero-stub that had never been implemented; renders off server state directly now.
       function renderStats() {
-        var m = AgentEngine.getMetrics();
         var statuses = AgentEngine.getAgentStatuses();
-        var totalTokens = m.totalInputTokens + m.totalOutputTokens;
-
-        statSessions.textContent = m.totalMessages;
-        statSessionsSub.textContent = m.firstUsed ? 'since ' + shortDate(m.firstUsed) : '—';
-
         statActive.textContent = statuses.active.length;
         statIdle.textContent = statuses.idle.length + ' idle';
 
-        statTokens.textContent = formatNumber(totalTokens);
-        statTokensSub.textContent = formatNumber(m.totalInputTokens) + ' in / ' + formatNumber(m.totalOutputTokens) + ' out';
+        var modelLabel = (_modelLabelMap && _modelLabelMap[_activeModelKey]) || 'Gemini';
 
-        statCost.textContent = '$' + m.totalCost.toFixed(4);
-        statCostSub.textContent = 'Gemini 2.0 Flash';
+        var storeMode = AgentEngine.getStoreMode ? AgentEngine.getStoreMode() : 'local';
+        if (storeMode !== 'server') {
+          statSessions.textContent = '0';
+          statSessionsSub.textContent = '—';
+          statTokens.textContent = '0';
+          statTokensSub.textContent = '0 in / 0 out';
+          statCost.textContent = '$0.0000';
+          statCostSub.textContent = modelLabel;
+          return;
+        }
+
+        statSessions.textContent = '—';
+        statSessionsSub.textContent = 'loading…';
+        statTokens.textContent = '—';
+        statTokensSub.textContent = '';
+        statCost.textContent = '$—';
+        statCostSub.textContent = modelLabel;
+
+        fetch(getApiBase() + '/company-state?key=geminiUsage', {
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' }
+        }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (resp) {
+          var usage = (resp && resp.value) || [];
+          if (!Array.isArray(usage)) usage = [];
+          var inputTokens = 0, outputTokens = 0, cost = 0, first = null;
+          usage.forEach(function (u) {
+            inputTokens += (u.promptTokens || 0);
+            outputTokens += (u.completionTokens || 0);
+            cost += (u.totalCost || 0);
+            var ts = u.timestamp;
+            if (ts && (!first || ts < first)) first = ts;
+          });
+          statSessions.textContent = formatNumber(usage.length);
+          statSessionsSub.textContent = first ? 'since ' + shortDate(first) : '—';
+          statTokens.textContent = formatNumber(inputTokens + outputTokens);
+          statTokensSub.textContent = formatNumber(inputTokens) + ' in / ' + formatNumber(outputTokens) + ' out';
+          statCost.textContent = '$' + cost.toFixed(4);
+        }).catch(function () {
+          statSessions.textContent = '—';
+          statSessionsSub.textContent = 'fetch failed';
+          statTokens.textContent = '—';
+          statTokensSub.textContent = '';
+          statCost.textContent = '$—';
+        });
       }
 
       // ── Model Fleet ──
