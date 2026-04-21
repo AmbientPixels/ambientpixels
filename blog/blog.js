@@ -216,7 +216,7 @@
             '</span>' +
           '</div>' +
           '<p>' + esc(p.excerpt || '') + '</p>' +
-          '<span class="year">' + esc(readTime || '&nbsp;') + '</span>' +
+          '<span class="year">' + esc(readTime || '\u00A0') + '</span>' +
           '<span class="go" aria-hidden="true">&rarr;</span>' +
         '</a>'
       );
