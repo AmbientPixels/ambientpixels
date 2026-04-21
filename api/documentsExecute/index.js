@@ -457,6 +457,56 @@ async function handleDocPublish(context, req, body) {
       throw new Error('Document content is empty or too short');
     }
 
+    // ── QUALITY GATE BACKSTOP (defense in depth) ──
+    // For public kinds (marketing_post / product_brief), require an upstream qualityGate stamp.
+    // Never re-runs Haiku here — this endpoint stays deterministic. The cutoff is env-driven so
+    // it can be set at deploy-completion time in Azure Portal (not hardcoded in advance).
+    // Unset env var → backstop is disabled (logs a loud warning on every invocation).
+    if (isPublic) {
+      const _bkCutoff = process.env.QG_BACKSTOP_ENFORCEMENT_CUTOFF || '';
+      if (!_bkCutoff) {
+        context.log('[Backstop] DISABLED — QG_BACKSTOP_ENFORCEMENT_CUTOFF env var not set. Set it in Azure Portal to enable backstop enforcement.');
+      } else {
+        const _bkQg = doc.qualityGate || null;
+        const _bkDocCreatedAt = doc.created_at || '';
+        const _bkGrandfathered = _bkDocCreatedAt && _bkDocCreatedAt < _bkCutoff;
+        let _bkReason = null;
+        if (_bkGrandfathered) {
+          context.log('[Backstop] Grandfathered pre-gate doc:', documentId, 'created_at:', _bkDocCreatedAt, '< cutoff:', _bkCutoff, '— letting through');
+        } else if (!_bkQg) {
+          _bkReason = 'no upstream quality-gate stamp and doc created after cutoff (' + _bkCutoff + ') — likely bypassed the gate via an unexpected code path';
+        } else if (_bkQg.pass === false && (_bkQg.confidence || 0) >= 70) {
+          _bkReason = 'upstream gate rejected with confidence ' + _bkQg.confidence + '%: ' + ((_bkQg.issues || []).slice(0, 3).join('; ')).substring(0, 300);
+        }
+        if (_bkReason) {
+          context.log('[Backstop] BLOCKED publish for doc:', documentId, '—', _bkReason);
+          action.approval.status = 'rejected';
+          action.approval.decision_note = '[QUALITY GATE BACKSTOP] ' + _bkReason;
+          action.execution.status = 'failed';
+          action.execution.finished_at = now;
+          action.execution.last_error = _bkReason;
+          action.execution_status = 'rejected';
+          if (actionIdx !== -1) { actions[actionIdx] = action; await storage.setState('actions', actions); }
+          await _updateApprovalQueue(actionId, 'rejected', { decisionNote: action.approval.decision_note, resolvedBy: 'quality-gate-backstop' });
+          await _logGovernance(storage, 'publish-blocked-quality-gate', { actionId: actionId, documentId: documentId, title: title, reason: _bkReason });
+          context.res = {
+            status: 409,
+            headers: corsHeaders,
+            body: {
+              success: false,
+              blocked: true,
+              code: 'QUALITY_GATE_BACKSTOP',
+              reason: _bkReason,
+              issues: _bkQg ? (_bkQg.issues || []) : [],
+              actionId: actionId,
+              documentId: documentId
+            }
+          };
+          return;
+        }
+      }
+    }
+
     // Generate excerpt for blog posts (first ~200 chars of plain text)
     var excerpt = '';
     if (isPublic) {

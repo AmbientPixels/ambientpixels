@@ -39,9 +39,38 @@ async function _validateContentQuality(text, platform, context) {
       var p = _productFacts.products[name];
       return name + ': ' + p.description + '. Features: ' + p.features.join(', ') + '. NOT: ' + p.notThis.join('; ');
     }).join('\n');
+    // Brand-level constraints (apply across all content, not per-product). Rendered
+    // as natural-language labeled lines — never as JSON.stringify output.
+    var brandStr = '';
+    if (_productFacts.brand) {
+      var b = _productFacts.brand;
+      var bParts = [];
+      if (b.colors) {
+        bParts.push('COLORS — isThis: ' + (b.colors.isThis_description || ''));
+        bParts.push('COLORS — notThis: ' + (b.colors.notThis || []).join('; '));
+      }
+      if (b.fonts) {
+        bParts.push('FONTS — isThis: ' + (b.fonts.isThis || []).join(', '));
+        bParts.push('FONTS — notThis: ' + (b.fonts.notThis || []).join('; '));
+      }
+      if (b.siteSections) {
+        bParts.push('SITE SECTIONS that actually exist: ' + (b.siteSections.isThis || []).join(' | '));
+        bParts.push('SITE SECTIONS that do NOT exist (flag if cited): ' + (b.siteSections.notThis || []).join('; '));
+      }
+      if (b.aestheticDirection) {
+        bParts.push('AESTHETIC — isThis: ' + (b.aestheticDirection.isThis || []).join('; '));
+        bParts.push('AESTHETIC — notThis: ' + (b.aestheticDirection.notThis || []).join('; '));
+      }
+      if (b.voice) {
+        bParts.push('VOICE bannedPhrases (flag any exact or near-match, case-insensitive): ' + (b.voice.bannedPhrases || []).join('; '));
+        bParts.push('VOICE bannedPatterns: ' + (b.voice.bannedPatterns || []).join('; '));
+        bParts.push('VOICE isThis: ' + (b.voice.isThis || []).join('; '));
+      }
+      if (bParts.length) brandStr = '\n\nBRAND FACTS (universal — apply to ALL content regardless of which product is mentioned):\n' + bParts.join('\n');
+    }
     var toneBlocklist = (_founderVoice.tone_blocklist || []).join(', ');
     var toneGoodExamples = (_founderVoice.tone_good_examples || []).map(function(e) { return '"' + e + '"'; }).join('\n');
-    var prompt = 'You are a content quality checker for AmbientPixels. Check this ' + platform + ' post for:\n1. Factual accuracy against the product descriptions below\n2. Hallucinated features or capabilities that do not exist\n3. FABRICATED STATISTICS — any specific numbers, percentages, user counts, ticket counts, accuracy rates, or metrics that are not from the product facts below. If the post cites a specific number (e.g. "37 tickets", "95% accuracy", "10,000 users"), it is almost certainly fabricated and MUST be flagged.\n4. TONE VIOLATIONS — the post MUST match founder voice rules. Flag ANY of these:\n   - Buzzwords or hype from this blocklist: ' + toneBlocklist + '\n   - Rhetorical questions used as hooks ("Ever feel like...?", "Ready to...?", "What if you could...?")\n   - Emoji as opening hooks or emoji walls (single contextual emoji at end is fine)\n   - Em dashes anywhere in the text\n   - Excessive exclamation marks or exclamation marks in corporate-sounding sentences (casual single use like "Shipped it!" in a short line is OK)\n   - Generic AI filler or landscape-setting openers\n   - Reading level too high: long compound sentences, jargon, or SAT words when a simple word exists\n   Good tone examples:\n' + toneGoodExamples + '\n   A post with correct facts but AI-marketing tone MUST fail. Tone violations are as serious as factual errors.\n\nPRODUCT FACTS:\n' + factsStr + '\n\nPOST TO CHECK:\n' + text + '\n\nReturn ONLY raw JSON with no markdown, no preamble, no explanation:\n{"pass": true_or_false, "confidence": 0_to_100, "issues": ["issue1", "issue2"]}';
+    var prompt = 'You are a content quality checker for AmbientPixels. Check this ' + platform + ' post for:\n1. Factual accuracy against the product descriptions below\n2. Hallucinated features or capabilities that do not exist\n3. FABRICATED STATISTICS — any specific numbers, percentages, user counts, ticket counts, accuracy rates, or metrics that are not from the product facts below. If the post cites a specific number (e.g. "37 tickets", "95% accuracy", "10,000 users"), it is almost certainly fabricated and MUST be flagged.\n4. TONE VIOLATIONS — the post MUST match founder voice rules. Flag ANY of these:\n   - Buzzwords or hype from this blocklist: ' + toneBlocklist + '\n   - Rhetorical questions used as hooks ("Ever feel like...?", "Ready to...?", "What if you could...?")\n   - Emoji as opening hooks or emoji walls (single contextual emoji at end is fine)\n   - Em dashes anywhere in the text\n   - Excessive exclamation marks or exclamation marks in corporate-sounding sentences (casual single use like "Shipped it!" in a short line is OK)\n   - Generic AI filler or landscape-setting openers\n   - Reading level too high: long compound sentences, jargon, or SAT words when a simple word exists\n   Good tone examples:\n' + toneGoodExamples + '\n   A post with correct facts but AI-marketing tone MUST fail. Tone violations are as serious as factual errors.\n5. BRAND VIOLATIONS — the post MUST NOT contradict the BRAND FACTS below. Flag ANY of:\n   - Mentions of colors not in the brand isThis palette (e.g. "signal red", or "amber" outside Blindspot)\n   - Mentions of fonts not in the two-font stack (Space Grotesk + Manrope) — any third font name is a hallucination\n   - References to site sections that do not exist (e.g. "manifesto page", "cast page") — only cite sections from the BRAND FACTS siteSections list\n   - Aesthetic descriptors not in isThis (e.g. "dark-native editorial", "notebook", "cel-shaded") — these are hallucinations\n   - ANY voice bannedPhrase (exact or near-match, case-insensitive) — fabricated marketing language\n\nIMPORTANT: List every violation you find. Return all of them in the issues array. Do not stop at the first match.\n\nPRODUCT FACTS:\n' + factsStr + brandStr + '\n\nPOST TO CHECK:\n' + text + '\n\nReturn ONLY raw JSON with no markdown, no preamble, no explanation:\n{"pass": true_or_false, "confidence": 0_to_100, "issues": ["issue1", "issue2"]}';
     var controller = new AbortController();
     var timeout = setTimeout(function() { controller.abort(); }, 10000);
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
@@ -3403,6 +3432,72 @@ Write the full deliverable first, then the structured JSON block.`;
           campaign_id: _docLinkedTask ? _docLinkedTask.campaign_id || null : null,
           source: { action_id: null, task_id: action.taskId || null }
         };
+
+        // ── CONTENT QUALITY GATE (marketing_post / product_brief only) ──
+        // Runs BEFORE doc is stored so failed content never becomes a durable artifact.
+        // Fail-closed only on Haiku pass:false + confidence>=70. Fail-open on infra errors
+        // (null result) and too-short content — stamps the doc so the backstop knows the gate tried.
+        if (_isExternalKind) {
+          var _docQgResult = null;
+          var _docQgReason = null;
+          if (doc.content_md && doc.content_md.length > 40) {
+            try {
+              var _docQgText = (doc.title || '') + '\n\n' + doc.content_md;
+              _docQgResult = await _validateContentQuality(_docQgText, 'blog-' + kind, context);
+              if (_docQgResult) {
+                context.log('[QualityGate] DOC', kind, doc.id, 'pass:', _docQgResult.pass, 'confidence:', _docQgResult.confidence, 'issues:', (_docQgResult.issues || []).length);
+              } else {
+                _docQgReason = 'haiku-unavailable';
+              }
+            } catch (_docQgErr) {
+              context.log('[QualityGate] DOC error (fail-open):', String(_docQgErr).substring(0, 150));
+              _docQgReason = 'haiku-unavailable';
+            }
+          } else {
+            _docQgReason = 'content-too-short';
+          }
+          // Fail-closed branch: Haiku rejected with high confidence — do not store, do not stamp.
+          if (_docQgResult && !_docQgResult.pass && (_docQgResult.confidence || 0) >= 70) {
+            context.log('[QualityGate] DOC REJECTED', kind, doc.id, '—', (_docQgResult.issues || []).slice(0, 3).join('; ').substring(0, 300));
+            if (action.taskId) {
+              result.taskUpdates.push({
+                action: 'comment', taskId: action.taskId, agentId: 'system',
+                comment: '[QUALITY GATE] Blog draft rejected — rewrite required. Issues:\n- ' + (_docQgResult.issues || []).slice(0, 8).join('\n- ') + '\n\nRewrite the post addressing each issue, then resubmit via create-doc.'
+              });
+            }
+            try {
+              await logEvent('policy-violation', agentId, 'Quality gate rejected blog draft', cycleId, {
+                runId: cycleId, gate: 'quality_gate', reason: 'haiku_rejection_doc',
+                kind: kind, docTitle: doc.title, confidence: _docQgResult.confidence || 0,
+                issueCount: (_docQgResult.issues || []).length,
+                issuesPreview: ((_docQgResult.issues || []).slice(0, 5).join('; ')).substring(0, 400)
+              });
+            } catch (_qgDocLogErr) { /* non-fatal */ }
+            continue; // skip docsStore.push — doc never created
+          }
+          // Stamp: either the real Haiku verdict, or a fail-open marker so the backstop passes through.
+          if (_docQgResult) {
+            doc.qualityGate = {
+              pass: !!_docQgResult.pass,
+              confidence: _docQgResult.confidence || 0,
+              issues: _docQgResult.issues || [],
+              model: 'claude-haiku-4-5-20251001',
+              checkedAt: new Date().toISOString(),
+              rulesChecked: ['factual-accuracy', 'hallucinated-features', 'fabricated-statistics', 'tone-violations', 'brand-violations']
+            };
+          } else {
+            doc.qualityGate = {
+              pass: true,
+              confidence: 0,
+              issues: [],
+              model: 'claude-haiku-4-5-20251001',
+              checkedAt: new Date().toISOString(),
+              failOpen: true,
+              failOpenReason: _docQgReason || 'unknown'
+            };
+            context.log('[QualityGate] DOC fail-open stamp applied:', kind, doc.id, 'reason:', _docQgReason);
+          }
+        }
 
         const docsStore = (await storage.getState('documents')) || [];
         docsStore.push(doc);

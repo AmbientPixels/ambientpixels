@@ -50,6 +50,107 @@
       "notThis": ["it is NOT a coding tool", "it does NOT generate code", "it does NOT deploy agents to external platforms"]
     }
   },
+  "brand": {
+    "colors": {
+      "isThis_description": "primary purple/violet #8F00FF, secondary cyan #00F0FF, tertiary magenta/pink #FF00D4, neutral near-black #08080A, background dark #121212",
+      "isThis": {
+        "primary": "#8F00FF",
+        "secondary": "#00F0FF",
+        "tertiary": "#FF00D4",
+        "neutral": "#08080A",
+        "background": "#121212"
+      },
+      "notThis": [
+        "signal red",
+        "red as a brand or accent color",
+        "amber (that is Blindspot, not Pixel Agents or AmbientPixels brand)",
+        "any color not in the isThis map"
+      ]
+    },
+    "fonts": {
+      "isThis": ["Space Grotesk (headlines, labels)", "Manrope (body)"],
+      "notThis": [
+        "Fraunces",
+        "Fraunces Italic",
+        "any third font beyond Space Grotesk and Manrope",
+        "claiming the stack has more than two fonts"
+      ]
+    },
+    "siteSections": {
+      "isThis": [
+        "/pixel-agents/ (index — agent catalog)",
+        "/pixel-agents/run (agent detail + run interface)",
+        "/pixel-agents/docs",
+        "/pixel-agents/faq",
+        "/pixel-agents/contact",
+        "/pixel-agents/upgrade",
+        "/pixel-agents/changelog",
+        "/pixel-agents/analytics",
+        "/agent-forge/ (visual agent builder)"
+      ],
+      "notThis": [
+        "manifesto page",
+        "cast page",
+        "about page (does not exist for Pixel Agents)",
+        "team page",
+        "press page",
+        "any section name not verified in the repo"
+      ]
+    },
+    "aestheticDirection": {
+      "isThis": [
+        "dark dashboard",
+        "cinematic photorealistic AI portraits",
+        "purple/violet accents",
+        "sidebar nav",
+        "hero tagline: THE FUTURE AGENT-SIDE"
+      ],
+      "notThis": [
+        "dark-native editorial",
+        "editorial",
+        "notebook",
+        "cel-shaded",
+        "Arcane-style (that is the internal portrait generation prompt, not the public aesthetic description)"
+      ]
+    },
+    "voice": {
+      "bannedPhrases": [
+        "pushing the boundaries",
+        "push the boundaries",
+        "unleash",
+        "empower",
+        "empowering",
+        "cohesive experience",
+        "cohesive and immersive",
+        "let your work shine",
+        "let your ideas shine",
+        "pour thought into",
+        "poured a lot of thought into",
+        "ignite",
+        "creative spark",
+        "creative journey",
+        "brightest ideas",
+        "tools should fade into the background",
+        "innovative, creator-focused",
+        "truly resonates",
+        "every pixel, every line",
+        "fresh coat of paint"
+      ],
+      "bannedPatterns": [
+        "em dashes (— or –)",
+        "three-adjective marketing triplets (e.g. 'bold, impactful, and inspiring')",
+        "sentences starting with 'we believe that' in marketing posts",
+        "exclamation marks in body copy (signoff is fine)"
+      ],
+      "isThis": [
+        "first-person founder voice for personal posts",
+        "we/AmbientPixels voice for brand pages",
+        "5th-grade reading level",
+        "short sentences, punchy",
+        "concrete and specific (name an agent, show a screenshot, cite a real page)"
+      ]
+    }
+  },
   "company": {
     "name": "AmbientPixels",
     "url": "https://ambientpixels.ai",
