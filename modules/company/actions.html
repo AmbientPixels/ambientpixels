@@ -993,8 +993,11 @@
           window._aqItemsByActionId = {};
           queue.forEach(function(item) { if (item.action_id) window._aqItemsByActionId[item.action_id] = item; });
 
-          var naTypes = ['convergence_escalation', 'campaign_pace_escalation'];
-          var items = queue.filter(function(item) { return naTypes.indexOf(item.type) !== -1 && item.status === 'pending'; });
+          var naTypes = ['convergence_escalation', 'campaign_pace_escalation', 'task_escalation'];
+          var items = queue.filter(function(item) {
+            var t = item.type || item.kind;
+            return naTypes.indexOf(t) !== -1 && item.status === 'pending';
+          });
 
           if (items.length === 0) { panel.style.display = 'none'; return; }
           panel.style.display = '';
@@ -1005,7 +1008,8 @@
 
           var _naTypeConfig = {
             convergence_escalation: { icon: 'fa-exclamation-triangle', color: '#f87171', bg: 'rgba(248,113,113,0.08)', label: 'Stuck', meta: function(item) { return (item.deliverableCount || item.attempts || '5+') + ' attempts'; } },
-            campaign_pace_escalation: { icon: 'fa-bullhorn', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', label: 'Campaign Pace', meta: function(item) { return (item.weeksBehind || 2) + 'wk behind pace · ' + (item.campaignTitle || 'campaign'); } }
+            campaign_pace_escalation: { icon: 'fa-bullhorn', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', label: 'Campaign Pace', meta: function(item) { return (item.weeksBehind || 2) + 'wk behind pace · ' + (item.campaignTitle || 'campaign'); } },
+            task_escalation: { icon: 'fa-shield-alt', color: '#f97316', bg: 'rgba(249,115,22,0.08)', label: 'Quality Gate', meta: function(item) { var fc = (item.qualityGate && item.qualityGate.failCount) || item.failCount || '?'; return fc + '× QG fail'; } }
           };
 
           var html = '';
@@ -1013,7 +1017,7 @@
             var taskTitle = esc(item.taskTitle || item.title || 'Untitled task');
             var agent = esc(item.originAgent || item.assignee || '?');
             var created = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
-            var cfg = _naTypeConfig[item.type] || _naTypeConfig.convergence_escalation;
+            var cfg = _naTypeConfig[item.type || item.kind] || _naTypeConfig.convergence_escalation;
 
             html += '<div class="act-row" style="padding:0.5rem 0;cursor:pointer;" onclick="openNaDrawer(' + idx + ')">';
             html += '<div class="act-row-icon" style="background:' + cfg.bg + ';color:' + cfg.color + ';"><i class="fas ' + cfg.icon + '"></i></div>';
@@ -1055,8 +1059,8 @@
           var agent = item.originAgent || item.assignee || '?';
           var agentLabel = agent.charAt(0).toUpperCase() + agent.slice(1);
           html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
-          var _badgeMap = { convergence_escalation: { label: 'Stuck', color: '#f87171' }, campaign_pace_escalation: { label: 'Campaign Pace', color: '#fbbf24' } };
-          var _badge = _badgeMap[item.type] || _badgeMap.convergence_escalation;
+          var _badgeMap = { convergence_escalation: { label: 'Stuck', color: '#f87171' }, campaign_pace_escalation: { label: 'Campaign Pace', color: '#fbbf24' }, task_escalation: { label: 'Quality Gate', color: '#f97316' } };
+          var _badge = _badgeMap[item.type || item.kind] || _badgeMap.convergence_escalation;
           html += '<span class="act-drawer-badge" style="background:' + _badge.color + '20;color:' + _badge.color + ';">' + _badge.label + '</span>';
           html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">Assigned to ' + esc(agentLabel) + '</span>';
           html += '<span style="font-size:var(--c-text-xs);opacity:0.3;margin-left:auto;">' + esc(taskId) + '</span>';
