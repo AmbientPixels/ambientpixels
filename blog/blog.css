@@ -95,6 +95,15 @@ body:has(.ap-journal-subnav) #blog-content > .ap-sec {
   padding-top: var(--sp-10);
 }
 
+/* Amber status-dot on hover — the single amber accent for the blog index.
+   Scoped to .op-archive so .op-live and .op-beta cards elsewhere keep
+   their status colors. Fires only on interaction; zero amber at rest. */
+.ap-pd.op-archive:hover .year::before,
+.ap-pd.op-archive:focus-visible .year::before {
+  background: var(--color-accent-amber);
+  opacity: 1;
+}
+
 /* ---- Single-post header add-ons ------------------------------------- */
 
 .ap-journal-head .ap-sec-head { align-items: start; }
