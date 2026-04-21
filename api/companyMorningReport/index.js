@@ -37,8 +37,9 @@ async function _callModel(prompt, maxTokens, caller) {
       storage.logGeminiUsage({ caller: caller || 'morning-report', model: CLAUDE_MODEL, promptTokens: cu.input_tokens || 0, completionTokens: cu.output_tokens || 0, totalTokens: (cu.input_tokens || 0) + (cu.output_tokens || 0) }).catch(function () {});
       return (data.content && data.content[0] && data.content[0].text) || '';
     }
-    // Gemini fallback
-    var gBody = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, topP: 0.9, maxOutputTokens: maxTokens || 1500 } };
+    // Gemini fallback — thinkingBudget: 0 disables 2.5-flash's "thinking" tokens which
+    // otherwise consume maxOutputTokens and truncate structured JSON outputs mid-response.
+    var gBody = { contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, topP: 0.9, maxOutputTokens: maxTokens || 1500, thinkingConfig: { thinkingBudget: 0 } } };
     var gRes = await fetch(GEMINI_URL + GEMINI_API_KEY, { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(gBody) });
     var gData = await gRes.json();
     if (!gRes.ok) throw new Error('Gemini ' + gRes.status);
