@@ -9,7 +9,7 @@ const storage = require('../_utils/companyStorage');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const STANDUP_API_KEY = process.env.STANDUP_API_KEY || '';
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=';
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 // Runtime model resolution — reads dashboard toggle with 5-min cache
@@ -281,7 +281,7 @@ async function callGemini(systemPrompt, userMessage) {
   const data = await res.json();
   if (!res.ok) throw new Error('Gemini ' + res.status + ': ' + JSON.stringify(data).substring(0, 200));
   const um = data?.usageMetadata;
-  if (um) { storage.logGeminiUsage({ caller: 'standup', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {}); }
+  if (um) { storage.logGeminiUsage({ caller: 'standup', model: 'gemini-2.5-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {}); }
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 

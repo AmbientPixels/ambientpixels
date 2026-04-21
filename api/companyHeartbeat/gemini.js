@@ -9,7 +9,7 @@ var { AGENT_ENVELOPE_SCHEMA } = require('./constants');
 
 var GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=';
 var CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 
 // Model IDs
@@ -17,7 +17,7 @@ var MODELS = {
   'claude': 'claude-sonnet-4-6',
   'claude-sonnet': 'claude-sonnet-4-6',
   'claude-haiku': 'claude-haiku-4-5-20251001',
-  'gemini': 'gemini-2.0-flash'
+  'gemini': 'gemini-2.5-flash'
 };
 
 // Fallback from env var (used if systemConfig not set)
@@ -144,7 +144,7 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
     if (um) {
       storage.logGeminiUsage({
         caller: caller || 'heartbeat',
-        model: 'gemini-2.0-flash',
+        model: 'gemini-2.5-flash',
         agentId: agentId || null,
         promptTokens: um.promptTokenCount || 0,
         completionTokens: um.candidatesTokenCount || 0,

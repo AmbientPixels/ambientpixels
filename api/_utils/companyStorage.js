@@ -378,18 +378,19 @@ async function migrateStore(payload) {
 }
 
 // ── Gemini API Usage Tracking ──
-// Gemini 2.0 Flash pricing (per 1M tokens)
+// Gemini pricing (per 1M tokens). 2.0-flash retained for historical usage entries.
 const GEMINI_PRICING = {
+  'gemini-2.5-flash': { input: 0.30, output: 2.50 },
   'gemini-2.0-flash': { input: 0.10, output: 0.40 },
   'gemini-2.0-flash-lite': { input: 0.025, output: 0.10 },
-  'default': { input: 0.10, output: 0.40 }
+  'default': { input: 0.30, output: 2.50 }
 };
 
 async function logGeminiUsage(entry) {
   // entry: { caller, model, promptTokens, completionTokens, totalTokens, timestamp, agentId? }
   try {
     const usage = (await getState('geminiUsage')) || [];
-    const model = entry.model || 'gemini-2.0-flash';
+    const model = entry.model || 'gemini-2.5-flash';
     const pricing = GEMINI_PRICING[model] || GEMINI_PRICING['default'];
     const inputCost = (entry.promptTokens || 0) * pricing.input / 1000000;
     const outputCost = (entry.completionTokens || 0) * pricing.output / 1000000;

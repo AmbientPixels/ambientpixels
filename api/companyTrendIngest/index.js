@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=';
 
 const MAX_RADAR_SNAPSHOTS = 30; // keep last 30 ingestion runs
 const CATEGORY_IDS = ['ai_ml', 'devtools', 'design', 'marketing', 'infrastructure', 'product'];
@@ -336,7 +336,7 @@ async function callGemini(promptText, log) {
   if (um && storage.logGeminiUsage) {
     storage.logGeminiUsage({
       caller: 'trendIngest',
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       agentId: null,
       promptTokens: um.promptTokenCount || 0,
       completionTokens: um.candidatesTokenCount || 0,
@@ -475,7 +475,7 @@ async function runIngestion(log) {
   var snapshot = {
     snapshotId: snapshotId,
     ingestedAt: new Date().toISOString(),
-    source: 'gemini-2.0-flash',
+    source: 'gemini-2.5-flash',
     trendCount: trends.length,
     githubSignals: githubLines || null,
     hnSignals:     hnLines     || null,

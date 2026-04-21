@@ -6,7 +6,7 @@ const storage = require('../_utils/companyStorage');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=';
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 // Runtime model resolution — reads dashboard toggle with 5-min cache
@@ -43,7 +43,7 @@ async function _callModel(prompt, maxTokens, caller) {
     var gData = await gRes.json();
     if (!gRes.ok) throw new Error('Gemini ' + gRes.status);
     var um = gData && gData.usageMetadata;
-    if (um) storage.logGeminiUsage({ caller: caller || 'morning-report', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(function () {});
+    if (um) storage.logGeminiUsage({ caller: caller || 'morning-report', model: 'gemini-2.5-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(function () {});
     return (gData && gData.candidates && gData.candidates[0] && gData.candidates[0].content && gData.candidates[0].content.parts && gData.candidates[0].content.parts[0] && gData.candidates[0].content.parts[0].text) || '';
   } finally {
     clearTimeout(timeoutId);

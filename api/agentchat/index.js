@@ -5,7 +5,7 @@ const { normalizeCampaignRef, ensureCampaign } = require('../_shared/campaignMat
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=';
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 // Resolved at runtime per-request — reads systemConfig.heartbeatModel (dashboard toggle)
@@ -1055,7 +1055,7 @@ ${message}`;
       }
       const um = data?.usageMetadata;
       if (um) {
-        storage.logGeminiUsage({ caller: 'agentchat', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
+        storage.logGeminiUsage({ caller: 'agentchat', model: 'gemini-2.5-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
       }
       rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     }
