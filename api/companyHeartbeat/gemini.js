@@ -112,7 +112,12 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
   var generationConfig = {
     temperature: temperature || 0.7,
     topP: 0.9,
-    maxOutputTokens: maxTokens || 1500
+    maxOutputTokens: maxTokens || 1500,
+    // Disable gemini-2.5-flash "thinking" tokens — they consume maxOutputTokens
+    // and truncate structured JSON envelopes, causing downstream parse failures
+    // that silently zero out agentActions. Same bug fixed in morning-report
+    // (commit 4c76d3218).
+    thinkingConfig: { thinkingBudget: 0 }
   };
   if (structured) {
     // Force valid JSON envelope. Without this, Gemini 2.0 Flash narrates
