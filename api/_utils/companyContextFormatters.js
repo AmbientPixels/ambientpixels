@@ -354,10 +354,6 @@ function formatMorningBrief(state) {
     lines.push('\nDocuments: ' + docs.length + ' total (' + published + ' published, ' + drafts + ' drafts)');
   }
 
-  // Full skill content for the morning brief context as well
-  var mbSkillsBlock = formatSkillsBlock(state, 'nova');
-  if (mbSkillsBlock) lines.push(mbSkillsBlock);
-
   return lines.join('\n');
 }
 
