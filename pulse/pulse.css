@@ -226,26 +226,27 @@
   list-style: none;
   padding: 0;
   margin: 0 0 var(--sp-8);
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--sp-3);
   max-width: var(--max-prose);
 }
 .pulse-today-highlights li {
-  position: relative;
-  padding-left: var(--sp-8);
+  display: flex;
+  gap: var(--sp-3);
   font-family: var(--font-display);
   font-size: var(--fs-body);
   line-height: var(--lh-body);
   color: var(--color-text-body);
 }
-.pulse-today-highlights li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.7em;
-  width: 18px;
-  height: 2px;
-  background: var(--color-accent-amber);
+.pulse-today-highlights li i {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  margin-top: 7px;
+  font-size: 10px;
+}
+.pulse-today-highlights li span {
+  flex: 1;
 }
 
 .pulse-today-cta {

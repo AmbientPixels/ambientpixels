@@ -157,7 +157,7 @@
     if (today.highlights && today.highlights.length) {
       html += '<ul class="pulse-today-highlights">';
       today.highlights.forEach(function (h) {
-        html += '<li>' + esc(h) + '</li>';
+        html += '<li><i class="fas fa-bolt" aria-hidden="true"></i><span>' + esc(h) + '</span></li>';
       });
       html += '</ul>';
     }
