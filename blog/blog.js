@@ -200,7 +200,7 @@
     var rows = posts.map(function (p, idx) {
       var n = String(idx + 1).padStart(2, '0');
       var dateStr = formatISO(p.published_at);
-      var kindLabel = (p.kind || 'entry').toUpperCase();
+      var kindLabel = (p.kind || 'entry').replace(/_/g, ' ').toUpperCase();
       var readTime = estimateReadTime(p.content_md || '');
       var titleHtml = italicizePunchline(p.title);
 
