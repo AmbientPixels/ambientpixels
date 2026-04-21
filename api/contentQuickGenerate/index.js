@@ -53,7 +53,7 @@ module.exports = async function (context, req) {
     // Load config defaults (non-blocking — use fallbacks if unavailable)
     var _ceConfig = null;
     try { _ceConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* use hardcoded defaults */ }
-    var preset = (body.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-neon-glass').trim();
+    var preset = (body.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-quiet-editorial').trim();
     var outputs = body.outputs || (_ceConfig && _ceConfig.defaultOutputs) || ['x_image'];
     var audience = (body.audience || '').trim() || undefined;
     var tone = (body.tone || '').trim() || undefined;

@@ -800,7 +800,7 @@ Write the full deliverable first, then the structured JSON block.`;
             purpose: 'blog_header',
             topic: _pTitle,
             goal: 'Hero image for: ' + _pTitle,
-            preset: 'ap-neon-glass',
+            preset: 'ap-quiet-editorial',
             attachTo: _pDocId ? { type: 'document', id: _pDocId } : undefined
           }
         });
@@ -3843,7 +3843,7 @@ Write the full deliverable first, then the structured JSON block.`;
       let _ceConfig = null;
       try { _ceConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* use hardcoded defaults */ }
 
-      const cpPreset = (cp.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-neon-glass').trim();
+      const cpPreset = (cp.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-quiet-editorial').trim();
       let cpOutputs = cp.outputs || (_ceConfig && _ceConfig.defaultOutputs) || ['x_image'];
       const cpVariations = Math.min(Math.max(parseInt(cp.variations) || 1, 1), 2); // agents capped at 2 variations
 
@@ -4076,7 +4076,7 @@ Write the full deliverable first, then the structured JSON block.`;
       let _imgCeConfig = null;
       try { _imgCeConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* defaults */ }
 
-      const imgPreset = (img.preset || (_imgCeConfig && _imgCeConfig.defaultPreset) || 'ap-neon-glass').trim();
+      const imgPreset = (img.preset || (_imgCeConfig && _imgCeConfig.defaultPreset) || 'ap-quiet-editorial').trim();
       // Map purpose → default outputType (agent can override)
       const PURPOSE_OUTPUT_MAP = { 'blog_header': 'blog_image', 'inline_illustration': 'blog_image', 'social_media': 'x_image' };
       const imgOutputType = (img.outputType && imageEngine.PURPOSES && imageEngine.PURPOSES[img.outputType]) ? img.outputType : PURPOSE_OUTPUT_MAP[imgPurpose];
