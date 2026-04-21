@@ -3505,6 +3505,24 @@ module.exports = async function (context) {
       return TIER4_SUB_AGENTS.has(id) && !skippedAgents.some(function (s) { return s.agentId === id; });
     });
 
+    // Read-only probe: did today's daily log land? Surface the status on
+    // the cronLog entry so a missed morning-report fire is visible from
+    // the dashboard without new infra. Does NOT auto-heal — morning
+    // report is heavy AI work and would distort the heartbeat cycle.
+    let morningReportStatus = 'pending';
+    try {
+      const _dl = (await storage.getState('dailyLog')) || [];
+      const _utcToday = new Date().toISOString().slice(0, 10);
+      const _utcHour = new Date().getUTCHours();
+      const _hasToday = _dl.some(function (e) { return e && e.date === _utcToday; });
+      if (_hasToday) {
+        morningReportStatus = 'ok';
+      } else if (_utcHour >= 16) {
+        morningReportStatus = 'missed';
+        context.log.warn('[Heartbeat] Morning report missed for', _utcToday, '— run /api/company-morning-report-trigger to backfill');
+      }
+    } catch (_e) { /* probe is non-critical, never fail the cycle for it */ }
+
     const cronLog = (await storage.getState('cronLog')) || [];
     cronLog.push({
       agentId: null,
@@ -3517,6 +3535,7 @@ module.exports = async function (context) {
       skippedAgents: skippedAgents,
       ranTier4: ranTier4,
       escalationLog: escalationLog.length > 0 ? escalationLog : undefined,
+      morning_report_status: morningReportStatus,
       timestamp: new Date().toISOString()
     });
     if (cronLog.length > 50) cronLog.splice(0, cronLog.length - 50);

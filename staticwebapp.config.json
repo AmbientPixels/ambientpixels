@@ -373,6 +373,13 @@
    ]
   },
   {
+   "route": "/api/company-morning-report-trigger",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-morning-report-trigger",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
    "route": "/api/blogPosts",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blogPosts",
    "allowedRoles": [
