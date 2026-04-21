@@ -295,15 +295,15 @@ var AgentEngine = (function () {
       inputPrice: '$0.80 / 1M tokens',
       outputPrice: '$4.00 / 1M tokens'
     }, {
-      id: 'gemini-2.0-flash',
-      name: 'Gemini 2.0 Flash',
+      id: 'gemini-2.5-flash',
+      name: 'Gemini 2.5 Flash',
       provider: 'Google',
       status: 'active',
       usage: 'Heartbeat toggle · Always: image generation',
       alwaysActive: true,
       alwaysActiveRole: 'image gen',
-      inputPrice: '$0.10 / 1M tokens',
-      outputPrice: '$0.40 / 1M tokens'
+      inputPrice: '$0.30 / 1M tokens',
+      outputPrice: '$2.50 / 1M tokens'
     }];
   }
 
