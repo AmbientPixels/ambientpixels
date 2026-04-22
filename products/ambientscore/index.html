@@ -41,6 +41,7 @@
   <link rel="stylesheet" href="/css/ap-components.css" />
 
   <script defer src="/js/ap-nav-mobile.js"></script>
+  <script defer src="/js/ap-screens.js"></script>
   <style>
     /* Product-landing hero + specs per DS §4.7 (shared shape with
        /nova/ and /ambientos/). */
@@ -101,6 +102,178 @@
       letter-spacing: 0;
     }
     @media (max-width: 1000px) { .ap-specs { grid-template-columns: 1fr; } }
+
+    /* ── /products/ambientscore/ overrides for .ap-screens slides ──
+       The default DS treatment desaturates slides for the AmbientOS
+       operator-views. AmbientScore audits are editorial cream — keep
+       full color and a paper-light contrast. */
+    .as-cinema .ap-screens-slide {
+      filter: none;
+      background-color: #fdfaf2;
+      background-size: cover;
+      background-position: top center;
+    }
+    .as-cinema .ap-screens-stage {
+      background: #fdfaf2;
+    }
+    /* The mobile slide gets a phone-shaped centered treatment instead
+       of a stretched bg-cover. */
+    .as-cinema .ap-screens-slide.is-mobile {
+      background-image: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .as-cinema .as-phone {
+      width: min(380px, 60%);
+      aspect-ratio: 9 / 16;
+      max-height: 92%;
+      background-color: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+      overflow: hidden;
+      position: relative;
+    }
+    .as-cinema .as-phone img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    /* ── Full-audit lightbox section ── */
+    .as-fullaudit {
+      max-width: var(--max-page);
+      margin: 0 auto;
+      padding: var(--sp-15) var(--sec-pad-x);
+      text-align: center;
+    }
+    .as-fullaudit-preview {
+      display: block;
+      width: 100%;
+      max-width: 880px;
+      margin: var(--sp-8) auto 0;
+      background: #fdfaf2;
+      border: 1px solid var(--color-border);
+      padding: var(--sp-3);
+      cursor: zoom-in;
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+    .as-fullaudit-preview:hover { transform: translateY(-2px); }
+    .as-fullaudit-preview > .as-fullaudit-desktop {
+      width: 100%;
+      max-height: 720px;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+      background: #fff;
+    }
+    /* Small phone-frame in the bottom-right corner — proves it holds at 390px. */
+    .as-fullaudit-mobile {
+      position: absolute;
+      right: -28px;
+      bottom: -28px;
+      width: 132px;
+      aspect-ratio: 9 / 16;
+      background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+    .as-fullaudit-mobile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 0%;
+      display: block;
+      animation: as-phone-scroll 40s ease-in-out 1.5s infinite alternate;
+    }
+    .as-fullaudit-mobile:hover img,
+    .as-fullaudit-preview:hover .as-fullaudit-mobile img {
+      animation-play-state: paused;
+    }
+    @keyframes as-phone-scroll {
+      0%   { object-position: 50% 0%; }
+      100% { object-position: 50% 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .as-fullaudit-mobile img { animation: none; }
+    }
+    @media (max-width: 600px) {
+      .as-fullaudit-mobile {
+        right: -12px;
+        bottom: -12px;
+        width: 86px;
+        border-radius: 10px;
+      }
+    }
+    .as-fullaudit-btn {
+      margin-top: var(--sp-6);
+    }
+
+    /* The lightbox dialog itself. */
+    .as-lightbox {
+      padding: 0;
+      border: none;
+      background: transparent;
+      max-width: 100vw;
+      max-height: 100vh;
+      width: 100vw;
+      height: 100vh;
+    }
+    .as-lightbox::backdrop {
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .as-lightbox-frame {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: var(--sp-3);
+      padding: var(--sp-4);
+    }
+    .as-lightbox-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--color-text-secondary);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      text-transform: uppercase;
+    }
+    .as-lightbox-close {
+      background: transparent;
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      padding: var(--sp-2) var(--sp-4);
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono);
+      letter-spacing: var(--tracking-mono-sm);
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .as-lightbox-close:hover { background: rgba(255,255,255,0.06); }
+    .as-lightbox-scroll {
+      overflow: auto;
+      background: #fdfaf2;
+      border: 1px solid var(--color-border);
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .as-lightbox-scroll img {
+      width: 100%;
+      display: block;
+    }
   </style>
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper" style="--tx-op: 0.195;">
@@ -198,11 +371,58 @@
       </div>
     </section>
 
-    <!-- DS §4.7 step 6 — Specs -->
+    <!-- §02 — Cinematic scroller (the audit) -->
+    <section class="ap-sec ap-screens as-cinema" aria-labelledby="as-cinema-title">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 02 &mdash; THE AUDIT</div>
+          <h2 class="ap-display" id="as-cinema-title">Reads like an<br><em>actual audit.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          Drop-cap grade, executive summary, eight ranked dimensions, headline rewrites &mdash; every finding cites the element it evaluated. Scroll to read it like a magazine spread.
+        </div>
+      </div>
+
+      <div class="ap-screens-rail">
+        <div class="ap-screens-stage" role="img" aria-label="AmbientScore audit — score arrives, full audit, mobile audit">
+          <div class="ap-screens-slide is-active" data-i="0" style="background-image: url('img/01-landing-empty-desktop.png');"></div>
+          <div class="ap-screens-slide"           data-i="1" style="background-image: url('img/04-report-unlocked-desktop.png');"></div>
+          <div class="ap-screens-slide" data-i="2" style="background-image: url('img/05-strategy-desktop.png');"></div>
+          <div class="ap-screens-counter" aria-live="polite"><span data-idx>01</span> / 03 &middot; <span data-title>Paste a URL</span></div>
+          <div class="ap-screens-progress" data-progress></div>
+        </div>
+
+        <ol class="ap-screens-sentinels">
+          <li class="ap-screens-sentinel" data-i="0">
+            <div class="ap-screens-caption">
+              <div class="ap-sec-idx">&sect; 01 &mdash; the input</div>
+              <h3 class="ap-screens-title">A URL.<em> A score.</em></h3>
+              <p class="ap-screens-desc">Sixty seconds. No signup. No email.</p>
+            </div>
+          </li>
+          <li class="ap-screens-sentinel" data-i="1">
+            <div class="ap-screens-caption">
+              <div class="ap-sec-idx">&sect; 02 &mdash; the audit</div>
+              <h3 class="ap-screens-title">An editorial<em> document.</em></h3>
+              <p class="ap-screens-desc">Drop-cap grade. Eight dimensions. Headline rewrites. Findings with evidence.</p>
+            </div>
+          </li>
+          <li class="ap-screens-sentinel" data-i="2">
+            <div class="ap-screens-caption">
+              <div class="ap-sec-idx">&sect; 03 &mdash; the next step</div>
+              <h3 class="ap-screens-title">Want it<em> built?</em></h3>
+              <p class="ap-screens-desc">We ship the fixes. You keep the report.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- DS §4.7 step 6 — Specs (renumbered §02 → §03) -->
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">§ 02 &mdash; SPECS</div>
+          <div class="ap-sec-idx">§ 03 &mdash; SPECS</div>
           <h2 class="ap-display">How the<br><em>score is built.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -221,6 +441,36 @@
         <div><dt>Evidence</dt><dd>Every finding cites the element it evaluated</dd></div>
       </dl>
     </section>
+
+    <!-- §03b — Full audit (lightbox) -->
+    <section class="as-fullaudit" aria-labelledby="as-fullaudit-title">
+      <div class="ap-sec-idx">&sect; 03b &mdash; A FULL AUDIT</div>
+      <h2 class="ap-display" id="as-fullaudit-title">Read one,<br><em>start to finish.</em></h2>
+      <p class="ap-sec-meta" style="max-width:560px;margin:var(--sp-4) auto 0;">Click the preview to open the full sample audit. Scroll inside to read every dimension, finding, and rewrite.</p>
+
+      <button type="button" class="as-fullaudit-preview" id="as-open-audit" aria-label="Open the full sample audit">
+        <img class="as-fullaudit-desktop" src="img/04-report-unlocked-desktop.png" alt="Sample AmbientScore audit cover" />
+        <span class="as-fullaudit-mobile" aria-hidden="true">
+          <img src="img/04-report-unlocked-mobile.png" alt="" />
+        </span>
+      </button>
+
+      <div class="as-fullaudit-btn">
+        <button type="button" class="ap-btn ap-btn--ghost" id="as-open-audit-btn">View full audit &rarr;</button>
+      </div>
+    </section>
+
+    <dialog class="as-lightbox" id="as-lightbox" aria-label="Full sample AmbientScore audit">
+      <div class="as-lightbox-frame">
+        <div class="as-lightbox-bar">
+          <span>Sample audit &middot; ambientpixels.ai</span>
+          <button type="button" class="as-lightbox-close" id="as-lightbox-close">Close &times;</button>
+        </div>
+        <div class="as-lightbox-scroll">
+          <img src="img/04-report-unlocked-desktop.png" alt="Full sample AmbientScore audit" />
+        </div>
+      </div>
+    </dialog>
 
     <!-- §2.15  CTA -->
     <section class="ap-cta" id="start">
@@ -284,5 +534,30 @@
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
+  <script>
+    // Full-audit lightbox open/close.
+    (function () {
+      var dlg = document.getElementById('as-lightbox');
+      var closeBtn = document.getElementById('as-lightbox-close');
+      if (!dlg) return;
+      function open() {
+        if (typeof dlg.showModal === 'function') dlg.showModal();
+        else dlg.setAttribute('open', '');
+        dlg.querySelector('.as-lightbox-scroll').scrollTop = 0;
+      }
+      function close() {
+        if (typeof dlg.close === 'function') dlg.close();
+        else dlg.removeAttribute('open');
+      }
+      ['as-open-audit', 'as-open-audit-btn'].forEach(function (id) {
+        var btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', open);
+      });
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      dlg.addEventListener('click', function (e) {
+        if (e.target === dlg) close();
+      });
+    })();
+  </script>
 </body>
 </html>
