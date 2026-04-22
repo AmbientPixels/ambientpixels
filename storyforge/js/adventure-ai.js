@@ -44,7 +44,7 @@ window.AdventureAI = (function () {
     },
     cyberpunk_neon: {
       id: 'cyberpunk_neon',
-      label: 'Cyberpunk Neon',
+      label: 'Cyberpunk',
       icon: 'fa-bolt',
       prompt: 'Neon-drenched cyberpunk digital art. This MUST be dominated by vivid neon lighting — hot pink, electric blue, acid green — against deep black and purple. NOT subtle, NOT muted, NOT painterly, NOT watercolor. Rain-slicked reflective surfaces everywhere. Dense urban megastructures with holographic signs. Extreme contrast — blown-out neon highlights crushing into pure black shadows. Think Blade Runner 2049 meets Akira.'
     },
@@ -197,7 +197,7 @@ window.AdventureAI = (function () {
       'The character is ' + characterDesc + '. ' +
       'Setting elements: ' + theme + '. ' +
       'Close-up portrait, face and upper body only. Single character, no background figures. ' +
-      'Dramatic directional lighting with rim light. Circular vignette composition. ' +
+      'Dramatic directional lighting with rim light. Square composition with full corners visible — no circular vignette, no oval frame, fill the entire square canvas to the edges. ' +
       'No text, no watermarks, no UI elements, no borders, no logos.';
     return callImageAPI(prompt);
   }

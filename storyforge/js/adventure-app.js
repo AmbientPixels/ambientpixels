@@ -36,7 +36,11 @@
     if (Ent && Ent.isPro()) { badge.style.display = 'none'; return; }
     var limit = (Ent && Ent.getDailyLimit) ? Ent.getDailyLimit() : 3;
     var remaining = getDailyRemaining(limit);
-    badge.innerHTML = '<i class="fas fa-bolt"></i> ' + remaining + ' of ' + limit + ' free adventures remaining today';
+    if (remaining === 0) {
+      badge.innerHTML = '<i class="fas fa-bolt"></i> You’ve used today’s free stories — new ones in 24h, or go Pro for unlimited';
+    } else {
+      badge.innerHTML = '<i class="fas fa-bolt"></i> ' + remaining + ' of ' + limit + ' free adventures remaining today';
+    }
     badge.className = 'adv-daily-limit' + (remaining === 0 ? ' adv-daily-limit--empty' : '');
     badge.style.display = '';
   }
@@ -60,7 +64,7 @@
   }
 
   function loadGenres() {
-    return fetch('/storyforge/data/genres.json?v=2')
+    return fetch('/storyforge/data/genres.json?v=3')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         genres = data.genres || [];
@@ -84,7 +88,7 @@
       return '<a href="' + (isLocked ? '#' : '/storyforge/play.html?genre=' + g.id) +
         '" class="adv-hub__genre' + lockedClass + '" data-genre="' + g.id + '" data-tier="' + (g.tier || 'free') +
         '" style="--genre-color:' + g.color + '; --genre-rgb:' + rgb + '">' +
-        '<img class="adv-hub__genre-img" src="images/genre-' + g.id + '.webp" alt="' + g.name + '" loading="lazy" />' +
+        '<img class="adv-hub__genre-img" src="images/genre-cards/genre-' + g.id + '.png" alt="' + g.name + '" loading="lazy" />' +
         lockBadge +
         '<div class="adv-hub__genre-name">' + g.name + '</div>' +
         '<div class="adv-hub__genre-desc">' + g.description + '</div>' +

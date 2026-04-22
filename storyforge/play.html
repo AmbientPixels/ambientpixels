@@ -21,14 +21,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css?v=20260310c" />
-  <link rel="stylesheet" href="/css/theme.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-base.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-play.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-particles.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-effects.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260310c" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=JetBrains+Mono:wght@400;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css?v=20260424n" />
+  <link rel="stylesheet" href="/css/theme.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-base.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-play.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-particles.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-effects.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-theme.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260424n" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -40,14 +41,17 @@
   }
   </script>
 </head>
-<body style="background:#0F0F23" data-theme="dark">
+<body style="background:#1A1410" data-theme="dark">
   <div class="adv-app" id="advApp">
 
     <!-- Header -->
     <header class="adv-header">
       <a href="/storyforge/" class="adv-header__logo">
         <i class="fas fa-book-open-reader"></i>
-        <span>StoryForge</span>
+        <span class="adv-header__logo-stack">
+          <span class="adv-header__logo-name">StoryForge</span>
+          <span class="adv-header__logo-tagline">Graphic Novel Hub</span>
+        </span>
       </a>
       <nav class="adv-header__nav">
         <a href="/storyforge/" class="adv-header__link">Hub</a>
@@ -104,10 +108,6 @@
               <p class="adv-wizard__subtitle">Each genre shapes the world, the dangers, and the stories you'll discover.</p>
               <div id="dailyLimitBadge" class="adv-daily-limit" style="display:none;"></div>
               <div id="genreGrid" class="adv-genre-grid"></div>
-              <div class="adv-wizard__name-field">
-                <label class="adv-wizard__name-label">Character Name (optional)</label>
-                <input type="text" id="playerNameInput" class="adv-wizard__name-input" placeholder="Leave blank for a random name" maxlength="30" />
-              </div>
             </div>
           </div>
 
@@ -131,7 +131,13 @@
                 </div>
                 <!-- Right: Options -->
                 <div class="adv-char-creator__right">
-                  <div id="charOptionsContainer" class="adv-char-creator__options"></div>
+                  <div class="adv-char-creator__field-grid">
+                    <div class="adv-char-creator__field adv-char-creator__field--name">
+                      <label class="adv-char-creator__label" for="playerNameInput">Name</label>
+                      <input type="text" id="playerNameInput" class="adv-char-creator__input" placeholder="Leave blank for a random name" maxlength="30" />
+                    </div>
+                    <div id="charOptionsContainer" class="adv-char-creator__options"></div>
+                  </div>
                   <div class="adv-char-creator__preview" id="charPreviewText"></div>
                   <!-- Art Style Selector -->
                   <div class="adv-art-style">
@@ -148,10 +154,23 @@
             <div class="adv-wizard__panel-inner" style="max-width:750px; margin:0 auto;">
               <h2 class="adv-wizard__title"><i class="fas fa-diagram-project"></i> Build Your Character</h2>
               <div class="adv-wizard__stats-layout">
-                <!-- Left: Stat Radar Chart -->
-                <div class="adv-stat-radar" id="statRadarContainer">
-                  <canvas id="statRadarCanvas" width="240" height="240" role="img" aria-label="Character stat distribution chart"></canvas>
-                </div>
+                <!-- Left: Portrait + Stat Radar Chart -->
+                <div class="adv-stat-left">
+                  <!-- Character portrait carried over from step 2 (display-only mirror) -->
+                  <div class="adv-stat-portrait" id="statPortraitWrap">
+                    <div class="adv-stat-portrait__frame">
+                      <img class="adv-stat-portrait__img" id="statPortraitImage" alt="Your character" />
+                      <div class="adv-stat-portrait__placeholder" id="statPortraitPlaceholder">
+                        <i class="fas fa-user-circle"></i>
+                      </div>
+                    </div>
+                    <div class="adv-stat-portrait__caption" id="statPortraitCaption"></div>
+                  </div>
+                  <div class="adv-stat-radar" id="statRadarContainer">
+                    <canvas id="statRadarCanvas" width="240" height="280" role="img" aria-label="Character stat distribution chart"></canvas>
+                  </div>
+                </div><!-- /.adv-stat-left -->
+
                 <!-- Right: Archetypes + Sliders -->
                 <div class="adv-wizard__stats-controls">
                   <div class="adv-archetype-cards" id="archetypePresets"></div>
@@ -439,15 +458,67 @@
     <div class="adv-toast-container" id="toastContainer"></div>
   </div>
 
-  <script src="js/adventure-audio.js?v=20260310c" defer></script>
-  <script src="js/adventure-ui.js?v=20260310c" defer></script>
-  <script src="js/adventure-rpg.js?v=20260310c" defer></script>
-  <script src="js/adventure-storage.js?v=20260310c" defer></script>
-  <script src="js/adventure-share.js?v=20260310c" defer></script>
-  <script src="js/adventure-ai.js?v=20260310c" defer></script>
-  <script src="js/adventure-entitlements.js?v=20260310c" defer></script>
-  <script src="js/adventure-engine.js?v=20260310c" defer></script>
-  <script src="js/adventure-tutorial.js?v=20260310c" defer></script>
+  <script src="js/adventure-audio.js?v=20260424n" defer></script>
+  <script src="js/adventure-ui.js?v=20260424n" defer></script>
+  <script src="js/adventure-rpg.js?v=20260424n" defer></script>
+  <script src="js/adventure-storage.js?v=20260424n" defer></script>
+  <script src="js/adventure-share.js?v=20260424n" defer></script>
+  <script src="js/adventure-ai.js?v=20260424n" defer></script>
+  <script src="js/adventure-entitlements.js?v=20260424n" defer></script>
+  <script src="js/adventure-engine.js?v=20260424n" defer></script>
+  <script src="js/adventure-tutorial.js?v=20260424n" defer></script>
+
+  <script>
+    // Mirror the character portrait from wizard step 2 -> stats panel (step 3).
+    // Display-only: no API call, no regen — just src copy via MutationObserver.
+    (function () {
+      function syncStatPortrait() {
+        var src = document.getElementById('portraitImage');
+        var dst = document.getElementById('statPortraitImage');
+        var ph = document.getElementById('statPortraitPlaceholder');
+        var caption = document.getElementById('statPortraitCaption');
+        if (!src || !dst) return;
+        if (src.src && src.src !== window.location.href) {
+          dst.src = src.src;
+          if (ph) ph.style.display = 'none';
+        }
+        if (caption) {
+          var nameInput = document.getElementById('playerNameInput');
+          var name = nameInput && nameInput.value ? nameInput.value.trim() : '';
+          if (!name && nameInput && window.AdventureRPG && typeof window.AdventureRPG.generateName === 'function') {
+            name = window.AdventureRPG.generateName();
+            nameInput.value = name; // persist so engine uses the same name at game start
+          }
+          caption.textContent = name || 'Unnamed Hero';
+          caption.classList.remove('adv-stat-portrait__caption--description');
+        }
+      }
+      function init() {
+        var src = document.getElementById('portraitImage');
+        if (!src) return;
+        new MutationObserver(syncStatPortrait).observe(src, {
+          attributes: true,
+          attributeFilter: ['src']
+        });
+        // Also re-sync when user advances to step 3 (Next click or step click)
+        var triggers = [
+          document.getElementById('wizardNextBtn'),
+          document.querySelector('.adv-wizard__step[data-step="3"]')
+        ];
+        triggers.forEach(function (t) {
+          if (t) t.addEventListener('click', function () {
+            setTimeout(syncStatPortrait, 100);
+          });
+        });
+        syncStatPortrait();
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
 
   <style>
     /* Genre cards — used in wizard step 1 */

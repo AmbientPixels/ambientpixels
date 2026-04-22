@@ -21,13 +21,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css?v=20260310c" />
-  <link rel="stylesheet" href="/css/theme.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-base.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-hub.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-effects.css?v=20260310c" />
-  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260310c" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Caveat+Brush&family=JetBrains+Mono:wght@400;700&family=Lora:wght@400;500;600;700&family=Patrick+Hand&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css?v=20260424n" />
+  <link rel="stylesheet" href="/css/theme.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-base.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-hub.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-effects.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-theme.css?v=20260424n" />
+  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260424n" />
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
@@ -45,14 +46,17 @@
   }
   </script>
 </head>
-<body style="background:#0F0F23" data-theme="dark">
+<body style="background:#1A1410" data-theme="dark">
   <div class="adv-app">
 
     <!-- Header -->
     <header class="adv-header">
       <a href="/storyforge/" class="adv-header__logo">
         <i class="fas fa-book-open-reader"></i>
-        <span>StoryForge</span>
+        <span class="adv-header__logo-stack">
+          <span class="adv-header__logo-name">StoryForge</span>
+          <span class="adv-header__logo-tagline">Graphic Novel Hub</span>
+        </span>
       </a>
       <nav class="adv-header__nav">
         <a href="/storyforge/" class="adv-header__link adv-header__link--active">Hub</a>
@@ -71,36 +75,38 @@
     <main class="adv-hub">
 
       <!-- Hero -->
-      <div class="adv-hub__hero">
-        <img class="adv-hub__hero-bg" src="images/hero-banner01.webp" alt="StoryForge — AI-powered choose-your-own-adventure game" loading="lazy" />
+      <div class="adv-hub__hero adv-hub__hero--graphic-novel">
+        <img class="adv-hub__hero-bg" src="images/heroes/hub-hero.png" alt="StoryForge — interactive graphic novel platform" loading="eager" onerror="this.style.display='none'" />
         <div class="adv-hub__hero-content">
-          <div class="adv-hub__hero-icon"><i class="fas fa-book-open-reader"></i></div>
-          <h1>StoryForge — AI Choose-Your-Own-Adventure</h1>
-          <p>AI-powered adventures. Infinite stories. Every choice matters.</p>
+          <h1>STORYFORGE</h1>
+          <p>Pick a genre. Forge your character. Step into the story.</p>
+          <a href="#genreGrid" class="adv-hub__hero-cta">
+            Start Your Journey <i class="fas fa-arrow-right"></i>
+          </a>
         </div>
       </div>
 
       <!-- Features -->
       <section class="adv-hub__features">
         <div class="adv-hub__feature">
-          <i class="fas fa-wand-magic-sparkles"></i>
-          <h3>AI-Generated Stories</h3>
-          <p>Every adventure is unique, crafted by AI in real-time</p>
+          <i class="fas fa-book-open-reader"></i>
+          <h3>Infinite Stories</h3>
+          <p>Every adventure is unique. Every choice changes what happens next.</p>
         </div>
         <div class="adv-hub__feature">
           <i class="fas fa-palette"></i>
-          <h3>Scene Illustrations</h3>
-          <p>AI artwork brings each scene to life as you play</p>
+          <h3>Painterly Scene Art</h3>
+          <p>Illustrated comic panels bring every turn to life.</p>
         </div>
         <div class="adv-hub__feature">
           <i class="fas fa-user-pen"></i>
           <h3>Custom Characters</h3>
-          <p>Design your hero with portraits, stats, and backstory</p>
+          <p>Design your protagonist with portraits, stats, and backstory.</p>
         </div>
         <div class="adv-hub__feature">
           <i class="fas fa-masks-theater"></i>
-          <h3>Multiple Genres</h3>
-          <p>Fantasy, Horror, Sci-Fi, Detective, and more</p>
+          <h3>Eight Genres</h3>
+          <p>Fantasy, Horror, Sci-Fi, Detective, Pirate, Post-Apocalyptic, and more.</p>
         </div>
       </section>
 
@@ -144,7 +150,7 @@
   <script src="js/adventure-ui.js" defer></script>
   <script src="js/adventure-storage.js" defer></script>
   <script src="js/adventure-entitlements.js" defer></script>
-  <script src="js/adventure-app.js" defer></script>
+  <script src="js/adventure-app.js?v=20260424n" defer></script>
   <script>
   window.authReady = (function () {
     async function checkAuth() {

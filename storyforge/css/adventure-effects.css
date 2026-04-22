@@ -157,14 +157,16 @@
   to { opacity: 0; transform: translateY(-8px); }
 }
 
-/* Genre accent color override — overrides --sf-accent per genre */
-.adv-app[data-genre="fantasy"] { --sf-accent: #7C3AED; --sf-accent-rgb: 124, 58, 237; --sf-accent-soft: #A78BFA; }
-.adv-app[data-genre="horror"] { --sf-accent: #EF4444; --sf-accent-rgb: 239, 68, 68; --sf-accent-soft: #FCA5A5; }
-.adv-app[data-genre="scifi"] { --sf-accent: #06B6D4; --sf-accent-rgb: 6, 182, 212; --sf-accent-soft: #67E8F9; }
-.adv-app[data-genre="detective"] { --sf-accent: #FBBF24; --sf-accent-rgb: 251, 191, 36; --sf-accent-soft: #FDE68A; }
-.adv-app[data-genre="postapoc"] { --sf-accent: #84CC16; --sf-accent-rgb: 132, 204, 22; --sf-accent-soft: #BEF264; }
-.adv-app[data-genre="pirate"] { --sf-accent: #F97316; --sf-accent-rgb: 249, 115, 22; --sf-accent-soft: #FDBA74; }
-.adv-app[data-genre="superhero"] { --sf-accent: #3B82F6; --sf-accent-rgb: 59, 130, 246; --sf-accent-soft: #93C5FD; }
+/* Genre accent color override — overrides --sf-accent per genre.
+   Warm-family palette per design-system overhaul. Each scene shows ONE accent;
+   the Hub may show multiple genre tiles, each isolated to its own genre accent. */
+.adv-app[data-genre="fantasy"]   { --sf-accent: #B8602C; --sf-accent-rgb: 184, 96, 44;   --sf-accent-soft: #D4824A; }
+.adv-app[data-genre="horror"]    { --sf-accent: #C83A2E; --sf-accent-rgb: 200, 58, 46;   --sf-accent-soft: #E66752; }
+.adv-app[data-genre="scifi"]     { --sf-accent: #4A6B7C; --sf-accent-rgb: 74, 107, 124;  --sf-accent-soft: #7A98A8; }
+.adv-app[data-genre="detective"] { --sf-accent: #C89B3C; --sf-accent-rgb: 200, 155, 60;  --sf-accent-soft: #E0BE6E; }
+.adv-app[data-genre="postapoc"]  { --sf-accent: #8B4A2B; --sf-accent-rgb: 139, 74, 43;   --sf-accent-soft: #B0714D; }
+.adv-app[data-genre="pirate"]    { --sf-accent: #D96B1A; --sf-accent-rgb: 217, 107, 26;  --sf-accent-soft: #F2904A; }
+.adv-app[data-genre="superhero"] { --sf-accent: #B0392C; --sf-accent-rgb: 176, 57, 44;   --sf-accent-soft: #D26257; }
 
 /* Apply accent to key elements */
 .adv-choice__key {

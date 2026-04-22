@@ -175,7 +175,11 @@
     if (Ent && Ent.isPro()) { badge.style.display = 'none'; return; }
     var limit = (Ent && Ent.getDailyLimit) ? Ent.getDailyLimit() : 3;
     var remaining = AI.getRemainingUsage(limit);
-    badge.innerHTML = '<i class="fas fa-bolt"></i> ' + remaining + ' of ' + limit + ' free adventures remaining today';
+    if (remaining === 0) {
+      badge.innerHTML = '<i class="fas fa-bolt"></i> You’ve used today’s free stories — new ones in 24h, or go Pro for unlimited';
+    } else {
+      badge.innerHTML = '<i class="fas fa-bolt"></i> ' + remaining + ' of ' + limit + ' free adventures remaining today';
+    }
     badge.className = 'adv-daily-limit' + (remaining === 0 ? ' adv-daily-limit--empty' : '');
     badge.style.display = '';
   }
@@ -358,21 +362,21 @@
       ctx.stroke();
     }
 
-    // Draw labels
-    ctx.font = '600 11px "Chakra Petch", sans-serif';
+    // Draw labels — dark ink for cream-mode wizard step 3 background
+    ctx.font = '400 14px "Bangers", "Russo One", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     for (var i = 0; i < n; i++) {
       var angle = startAngle + i * angleStep;
-      var lx = cx + Math.cos(angle) * (R + 18);
-      var ly = cy + Math.sin(angle) * (R + 18);
-      ctx.fillStyle = 'rgba(' + accentRgb + ', 0.7)';
+      var lx = cx + Math.cos(angle) * (R + 20);
+      var ly = cy + Math.sin(angle) * (R + 20);
+      ctx.fillStyle = '#1A1410';
       ctx.fillText(labels[i], lx, ly);
       // Value below label
-      ctx.font = '700 10px "Chakra Petch", sans-serif';
-      ctx.fillStyle = 'rgba(226, 232, 240, 0.8)';
-      ctx.fillText(vals[i], lx, ly + 13);
-      ctx.font = '600 11px "Chakra Petch", sans-serif';
+      ctx.font = '700 13px "JetBrains Mono", monospace';
+      ctx.fillStyle = '#4A3D2E';
+      ctx.fillText(vals[i], lx, ly + 15);
+      ctx.font = '400 14px "Bangers", "Russo One", sans-serif';
     }
   }
 
@@ -657,7 +661,7 @@
   }
 
   function loadGenres() {
-    return fetch('/storyforge/data/genres.json?v=2')
+    return fetch('/storyforge/data/genres.json?v=3')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         genres = data.genres || [];
@@ -676,7 +680,7 @@
 
     grid.innerHTML = genres.map(function (g) {
       return '<div class="adv-genre-card" data-genre="' + g.id + '">' +
-        '<img class="adv-genre-card__img" src="images/genre-' + g.id + '.webp" alt="' + g.name + '" loading="lazy" />' +
+        '<img class="adv-genre-card__img" src="images/genre-cards/genre-' + g.id + '.png" alt="' + g.name + '" loading="lazy" />' +
         '<div class="adv-genre-card__name">' + g.name + '</div>' +
         '<div class="adv-genre-card__desc">' + g.description + '</div>' +
       '</div>';
@@ -1187,7 +1191,8 @@
     });
     var remaining = budget - used;
     display.textContent = remaining + ' / ' + budget;
-    display.classList.toggle('adv-stat-allocator__budget--empty', remaining <= 0);
+    display.classList.toggle('adv-stat-allocator__budget--empty', remaining === 0);
+    display.classList.toggle('adv-stat-allocator__budget--over', remaining < 0);
     display.classList.toggle('adv-stat-allocator__budget--low', remaining > 0 && remaining <= 4);
   }
 
