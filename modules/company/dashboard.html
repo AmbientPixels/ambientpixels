@@ -222,6 +222,11 @@
           <div class="ceo-obs-light-label">Fleet</div>
           <div class="ceo-obs-light-value" id="ceo-strip-val-fleet">—</div>
         </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-keepalive"></div>
+          <div class="ceo-obs-light-label">Keepalive</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-keepalive">—</div>
+        </div>
         <div id="ceo-strip-alert-row"></div>
       </div>
 
@@ -1422,6 +1427,7 @@
       // ── System Health Digest Caches ──
       var _allocDigest = null;
       var _awarenessDigest = null;
+      var _keepaliveStatus = null;
 
       function _fetchSystemDigests() {
         var base = (typeof getApiBase === 'function') ? getApiBase() : '/api';
@@ -1434,12 +1440,17 @@
             .catch(function () { return null; }),
           fetch(base + '/awarenessDigest', { headers: headers })
             .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; }),
+          fetch(base + '/keepalive-status', { headers: headers })
+            .then(function (r) { return r.ok ? r.json() : null; })
             .catch(function () { return null; })
         ]).then(function (results) {
           _allocDigest = results[0];
           _awarenessDigest = results[1];
+          _keepaliveStatus = results[2];
           try { _renderBudgetDot(); } catch (e) { console.warn('[Dashboard] _renderBudgetDot error:', e); }
           try { _renderFleetDot(); } catch (e) { console.warn('[Dashboard] _renderFleetDot error:', e); }
+          try { _renderKeepaliveDot(); } catch (e) { console.warn('[Dashboard] _renderKeepaliveDot error:', e); }
           try { renderCeoAgentGrid(); } catch (e) { console.warn('[Dashboard] renderCeoAgentGrid error:', e); }
           try { renderCeoInbox(); } catch (e) { console.warn('[Dashboard] renderCeoInbox error:', e); }
         });
@@ -1497,6 +1508,34 @@
         }
         dot.className = dotClass;
         val.textContent = onRole + '/' + total + ' on-role';
+      }
+
+      function _renderKeepaliveDot() {
+        var dot = document.getElementById('ceo-strip-dot-keepalive');
+        var val = document.getElementById('ceo-strip-val-keepalive');
+        if (!dot || !val) return;
+        if (!_keepaliveStatus || !_keepaliveStatus.lastPingAt) {
+          dot.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          val.textContent = '—';
+          return;
+        }
+        var ageMs = Date.now() - new Date(_keepaliveStatus.lastPingAt).getTime();
+        var ageMin = Math.floor(ageMs / 60000);
+        var failed = _keepaliveStatus.lastStatus && _keepaliveStatus.lastStatus !== 'ok';
+        var dotClass;
+        if (failed || ageMin > 15) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--bad';
+        } else if (ageMin > 6) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--warn';
+        } else {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+        }
+        dot.className = dotClass;
+        var label;
+        if (ageMin < 1) label = 'just now';
+        else if (ageMin < 60) label = ageMin + 'm ago';
+        else label = Math.floor(ageMin / 60) + 'h ago';
+        val.textContent = label;
       }
 
       // ── CEO Agent Health Grid ──
