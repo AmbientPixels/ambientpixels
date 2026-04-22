@@ -21,11 +21,35 @@
     return;
   }
 
-  // If coming from Stripe checkout, verify payment first
   if (sessionId) {
     unlockAndLoad();
   } else {
     loadReport();
+  }
+
+  // ── Dimension code map ────────────────────────
+
+  var DIM_CODES = {
+    'messaging clarity':     { code: 'D-01', short: 'MSG.CLR' },
+    'cta strength':          { code: 'D-02', short: 'CTA.STR' },
+    'trust signals':         { code: 'D-03', short: 'TRS.SIG' },
+    'funnel friction':       { code: 'D-04', short: 'FNL.FRC' },
+    'social proof':          { code: 'D-05', short: 'SOC.PRF' },
+    'offer clarity':         { code: 'D-06', short: 'OFR.CLR' },
+    'offer and pricing':     { code: 'D-06', short: 'OFR.CLR' },
+    'content flow':          { code: 'D-07', short: 'CNT.FLW' },
+    'continuity':            { code: 'D-07', short: 'CNT.FLW' },
+    'conversion hierarchy':  { code: 'D-07', short: 'CNT.FLW' },
+    'risk reversal':         { code: 'D-08', short: 'RSK.REV' },
+    'differentiation':       { code: 'D-08', short: 'RSK.REV' },
+    'audience alignment':    { code: 'D-01', short: 'MSG.CLR' },
+    'quick-win fixes':       { code: 'D-08', short: 'RSK.REV' }
+  };
+
+  function dimCode(label) {
+    if (!label) return { code: 'D--', short: '' };
+    var key = String(label).toLowerCase().trim();
+    return DIM_CODES[key] || { code: 'D--', short: '' };
   }
 
   // ── Unlock via Stripe session ──────────────────
@@ -38,17 +62,13 @@
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        // Store pack info for banner display
         if (data.priceType === 'pack') {
-          // Fresh pack purchase always yields 2 remaining (3 bought, 1 auto-redeemed)
           sessionStorage.setItem('cc_pack_credits', '2');
         }
-        // Clean URL params
         window.history.replaceState({}, '', window.location.pathname + '?id=' + reportId);
         loadReport();
       })
       .catch(function () {
-        // Try loading anyway — webhook may have already unlocked it
         loadReport();
       });
   }
@@ -75,7 +95,10 @@
         if (err.message === 'not_found' && loadRetries < MAX_RETRIES) {
           loadRetries++;
           loadingEl.style.display = 'block';
-          loadingEl.innerHTML = '<div class="as-container" style="text-align:center;padding:60px 0;"><div class="as-spinner"></div><p style="margin-top:16px;color:var(--as-text-secondary);">Loading your report... (' + loadRetries + '/' + MAX_RETRIES + ')</p></div>';
+          loadingEl.innerHTML = '<div class="as-container">' +
+            '<div class="as-loading-eyebrow">Loading report</div>' +
+            '<p class="as-loading-text"><span class="as-spinner"></span>Retrieving your audit (' + loadRetries + ' of ' + MAX_RETRIES + ').</p>' +
+            '</div>';
           setTimeout(loadReport, 3000);
         } else if (err.message === 'not_found') {
           showMessage('Report not found. Please try scanning again.', true);
@@ -91,23 +114,50 @@
     if (window.ProductAnalytics) ProductAnalytics.trackFunnel('paywall_shown', { reportId: reportId, score: report.score });
     loadingEl.style.display = 'none';
     contentEl.style.display = 'block';
-    contentEl.innerHTML = '<div class="as-paywall">' +
-      '<div class="as-score-gauge ' + scoreClass(report.score) + '" style="margin:0 auto 16px;">' + report.score + '</div>' +
-      '<div class="as-grade">Grade: ' + esc(report.grade) + '</div>' +
-      '<div class="as-score-label" style="margin-bottom:24px;">AmbientScore</div>' +
-      '<p style="color:var(--as-text-secondary);margin-bottom:32px;">Your report has been generated. Unlock the full 8-dimension analysis with detailed findings, headline rewrites, and CTA improvements.</p>' +
-      '<a href="/ambientscore/?url=' + encodeURIComponent(report.url || '') + '" class="as-buy-btn" style="text-decoration:none;">Unlock Full Report — $29</a>' +
-      '<div class="as-credits-redeem" style="margin-top:24px;">' +
-      '<p class="as-credits-divider">Have a pack?</p>' +
-      '<div class="as-credits-form">' +
-      '<input type="email" id="as-credits-email" class="as-credits-email-input" placeholder="Enter your pack email" />' +
-      '<button type="button" class="as-credits-btn" id="as-credits-check-btn">Use Credits</button>' +
-      '</div>' +
-      '<div id="as-credits-status" class="as-credits-status"></div>' +
-      '</div>' +
-      '</div>';
 
-    // Wire up credit check/redeem
+    var urlDisplay = displayUrl(report.url);
+    var html = '';
+
+    html += '<section class="as-paywall">';
+    html += '<div class="as-sc-stamp">Locked . Preview</div>';
+    html += '<div class="as-score-top">';
+    html += '<div class="as-score-top-left">';
+    html += '<div class="as-score-type">Conversion Audit . Form SC-1</div>';
+    html += '<div class="as-score-title">' + esc(urlDisplay) + '</div>';
+    html += '</div>';
+    html += '<div class="as-score-ref">';
+    html += 'Ref ' + esc((report.id || reportId || '').toString().slice(-6).toUpperCase()) + '<br>';
+    html += esc(formatDate(new Date(report.createdAt || Date.now())));
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="as-score-body">';
+    html += '<div class="as-grade">' + esc(report.grade || '-') + '</div>';
+    html += '<div class="as-score-right">';
+    html += '<div>';
+    html += '<div class="as-paywall-score">' + (report.score != null ? report.score : 0) + '<sub>/100</sub></div>';
+    html += '<div class="as-score-label">Conversion score</div>';
+    html += '</div>';
+    html += '<p>Your report has been generated. Unlock the full 8-dimension analysis with detailed findings, headline rewrites, and CTA improvements.</p>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="as-upgrade-buttons">';
+    html += '<a class="as-buy-btn" href="/ambientscore/?url=' + encodeURIComponent(report.url || '') + '">Unlock full report . $29</a>';
+    html += '</div>';
+
+    html += '<div class="as-credits-redeem">';
+    html += '<p class="as-credits-divider">Or redeem a pack credit</p>';
+    html += '<div class="as-credits-form">';
+    html += '<input type="email" id="as-credits-email" class="as-credits-email-input" placeholder="Enter your pack email" />';
+    html += '<button type="button" class="as-credits-btn" id="as-credits-check-btn">Use Credits</button>';
+    html += '</div>';
+    html += '<div id="as-credits-status" class="as-credits-status"></div>';
+    html += '</div>';
+    html += '</section>';
+
+    contentEl.innerHTML = html;
+
     var creditsCheckBtn = document.getElementById('as-credits-check-btn');
     var creditsEmailInput = document.getElementById('as-credits-email');
     var creditsStatus = document.getElementById('as-credits-status');
@@ -118,7 +168,7 @@
         if (!email) return;
 
         creditsCheckBtn.disabled = true;
-        creditsCheckBtn.textContent = 'Checking...';
+        creditsCheckBtn.textContent = 'Checking.';
         creditsStatus.innerHTML = '';
 
         fetch(API + '/as-credits', {
@@ -134,11 +184,11 @@
             if (data.credits > 0) {
               creditsStatus.innerHTML =
                 '<p class="as-credits-balance">You have <strong>' + data.credits + '</strong> credit' + (data.credits > 1 ? 's' : '') + ' remaining.</p>' +
-                '<button class="as-buy-btn" id="as-credits-confirm" style="margin-top:8px;">Use 1 Credit to Unlock</button>';
+                '<button class="as-buy-btn" id="as-credits-confirm" style="margin-top:12px;border-right:1px solid var(--ink);">Use 1 credit to unlock</button>';
 
               document.getElementById('as-credits-confirm').addEventListener('click', function () {
                 this.disabled = true;
-                this.textContent = 'Unlocking...';
+                this.textContent = 'Unlocking.';
                 redeemCredit(email);
               });
             } else {
@@ -192,36 +242,64 @@
     // Pack banner
     if (report.priceType === 'pack') {
       var creditsLeft = sessionStorage.getItem('cc_pack_credits');
-      html += '<div style="text-align:center;padding:12px 16px;margin-bottom:24px;background:var(--as-accent-soft);border:1px solid var(--as-accent);border-radius:var(--as-radius-sm);font-size:14px;color:var(--as-accent);">';
-      html += 'This report was unlocked with your 3-Pack.';
+      html += '<div class="as-pack-banner">';
+      html += '<span>Unlocked with your 3-pack.</span>';
       if (creditsLeft != null) {
-        html += ' Pack credits remaining: <strong>' + creditsLeft + '</strong>';
+        html += '<span>Credits remaining <strong>' + esc(creditsLeft) + '</strong></span>';
       }
       html += '</div>';
     }
 
     // Header
     html += '<div class="as-report-header">';
-    html += '<h1 style="font-size:24px;color:var(--as-accent);margin-bottom:4px;">Conversion Audit Report</h1>';
-    html += '<div class="as-report-url">' + esc(report.url) + '</div>';
-    html += '<div class="as-report-date">' + new Date(report.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</div>';
+    html += '<div>';
+    html += '<div class="as-eyebrow">Filed ' + esc(formatDate(new Date(report.createdAt || Date.now()))) + ' . Confidential</div>';
+    html += '<h1>Conversion <em>audit.</em></h1>';
+    html += '<div class="as-report-url">' + esc(report.url || '') + '</div>';
+    html += '</div>';
+    html += '<div class="as-report-date">';
+    html += 'Ref ' + esc((report.id || reportId || '').toString().slice(-6).toUpperCase());
     if (report.siteTypeLabel) {
-      html += '<div class="as-site-type">Site Type: <span class="as-site-type-value">' + esc(report.siteTypeLabel) + '</span></div>';
+      html += '<br><span class="as-site-type">Site type <span class="as-site-type-value">' + esc(report.siteTypeLabel) + '</span></span>';
     }
     html += '</div>';
+    html += '</div>';
 
-    // Actions bar
+    // Actions
     html += '<div class="as-actions">';
     html += '<button class="as-action-btn" onclick="window.print()">Print / Save PDF</button>';
     html += '<button class="as-action-btn" id="as-share-btn">Copy Link</button>';
     html += '</div>';
 
-    // Score
-    html += '<div class="as-score-section" style="margin-bottom:40px;">';
-    html += '<div class="as-score-gauge ' + scoreClass(report.score) + '">' + report.score + '</div>';
-    html += '<div class="as-grade">Grade: ' + esc(report.grade) + '</div>';
-    html += '<div class="as-score-label">AmbientScore</div>';
-    html += '<div class="as-score-context">' + scoreContext(report.score) + '</div>';
+    // Score card
+    html += '<div class="as-score-section">';
+    html += '<div class="as-score-top">';
+    html += '<div class="as-score-top-left">';
+    html += '<div class="as-score-type">Conversion Audit . Form SC-1</div>';
+    html += '<div class="as-score-title">' + esc(displayUrl(report.url)) + '</div>';
+    html += '</div>';
+    html += '<div class="as-score-ref">';
+    html += 'Ref ' + esc((report.id || reportId || '').toString().slice(-6).toUpperCase()) + '<br>';
+    html += esc(formatDate(new Date(report.createdAt || Date.now())));
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="as-score-body">';
+    html += '<div class="as-grade">' + esc(report.grade || '-') + '</div>';
+    html += '<div class="as-score-right">';
+    html += '<div>';
+    html += '<div class="as-score-gauge">' + (report.score != null ? report.score : 0) + '</div>';
+    html += '<div class="as-score-label">Conversion score</div>';
+    html += '</div>';
+    html += '<div class="as-score-interpretation">' + esc(scoreContext(report.score)) + '</div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="as-score-meta">';
+    html += '<span class="as-meta-check">8 dimensions evaluated</span>';
+    html += '<span class="as-meta-check">Evidence-backed findings</span>';
+    html += '<span class="as-meta-check">Rewrites included</span>';
+    html += '</div>';
     html += '</div>';
 
     // JS warning
@@ -229,83 +307,98 @@
       html += '<div class="as-warning">' + esc(report.jsRenderedWarning) + '</div>';
     }
 
-    // Executive Summary
+    // Executive summary
     if (synth.executiveSummary) {
       html += '<div class="as-section">';
-      html += '<h2>Executive Summary</h2>';
-      html += '<p class="as-exec-summary">' + esc(synth.executiveSummary) + '</p>';
+      html += '<div class="as-section-head">';
+      html += '<div><div class="as-section-eyebrow">§ 01</div><h2>Executive <em>summary.</em></h2></div>';
+      html += '<div><p class="as-exec-summary">' + esc(synth.executiveSummary) + '</p></div>';
+      html += '</div>';
       if (synth.conversionHealthAssessment) {
         html += '<div class="as-health-assessment">' + esc(synth.conversionHealthAssessment) + '</div>';
       }
       if (synth.analysisConfidence) {
         var confLevel = (synth.analysisConfidence.level || 'moderate').toLowerCase();
-        var confColor = confLevel === 'high' ? 'var(--as-accent)' : confLevel === 'low' ? 'var(--as-danger)' : 'var(--as-warning)';
+        var confLabel = confLevel.charAt(0).toUpperCase() + confLevel.slice(1);
         html += '<div class="as-confidence">';
-        html += '<span class="as-confidence-label">Analysis Confidence:</span> ';
-        html += '<span class="as-confidence-level" style="color:' + confColor + ';">' + esc(confLevel.charAt(0).toUpperCase() + confLevel.slice(1)) + '</span>';
+        html += '<span class="as-confidence-label">Analysis confidence</span>';
+        html += '<span class="as-confidence-level">' + esc(confLabel) + '</span>';
         if (synth.analysisConfidence.reason) {
-          html += '<span class="as-confidence-reason"> — ' + esc(synth.analysisConfidence.reason) + '</span>';
+          html += '<span class="as-confidence-reason">' + esc(synth.analysisConfidence.reason) + '</span>';
         }
         html += '</div>';
       }
       html += '</div>';
     }
 
-    // Dimension Scores
+    // Dimensions
     html += '<div class="as-section">';
-    html += '<h2>Dimension Scores</h2>';
+    html += '<div class="as-section-head">';
+    html += '<div><div class="as-section-eyebrow">§ 02</div><h2>Dimension <em>scores.</em></h2></div>';
+    html += '<div><p class="as-exec-summary">Each axis scored from 0 to 100 using the weighted conversion model.</p></div>';
+    html += '</div>';
     Object.keys(dims).forEach(function (id) {
       var d = dims[id];
+      var dim = dimCode(d.label);
       html += '<div class="as-dim-bar">';
       html += '<div class="as-dim-bar-header">';
+      html += '<span class="as-dim-bar-code">' + esc(dim.code + ' · ' + (dim.short || '')) + '</span>';
       html += '<span class="as-dim-bar-label">' + esc(d.label) + (d.partial ? ' *' : '') + '</span>';
-      html += '<span class="as-dim-bar-score" style="color:' + scoreColor(d.score) + ';">' + d.score + '/100 (' + d.grade + ')</span>';
+      html += '<div class="as-dim-bar-track"><div class="as-dim-bar-fill" style="width:' + Math.max(2, d.score) + '%;"></div></div>';
       html += '</div>';
-      html += '<div class="as-dim-bar-track"><div class="as-dim-bar-fill" style="width:' + Math.max(2, d.score) + '%;background:' + scoreColor(d.score) + ';"></div></div>';
+      html += '<span class="as-dim-bar-score">' + d.score + '<small>' + esc(d.grade || '') + '</small></span>';
       html += '</div>';
     });
     if (report.disclaimer) {
-      html += '<p style="font-size:11px;color:var(--as-text-muted);">* ' + esc(report.disclaimer) + '</p>';
+      html += '<p class="as-methodology" style="margin-top:18px;border-top:0;padding-top:0;">* ' + esc(report.disclaimer) + '</p>';
     }
     html += '</div>';
 
-    // Top Priorities
+    // Top priorities
     if (synth.topPriorities && synth.topPriorities.length > 0) {
       html += '<div class="as-section">';
-      html += '<h2>Top Priorities</h2>';
+      html += '<div class="as-section-head">';
+      html += '<div><div class="as-section-eyebrow">§ 03</div><h2>Top <em>priorities.</em></h2></div>';
+      html += '<div><p class="as-exec-summary">Fixes ranked by impact. Work these first.</p></div>';
+      html += '</div>';
       synth.topPriorities.forEach(function (p) {
         var effortClass = p.effort === 'quick' ? 'as-effort-quick' : p.effort === 'rebuild' ? 'as-effort-rebuild' : 'as-effort-medium';
+        var effortLabel = (p.effort || 'medium').charAt(0).toUpperCase() + (p.effort || 'medium').slice(1);
         html += '<div class="as-priority">';
+        html += '<div class="as-priority-rank">Priority 0' + p.rank + '</div>';
         html += '<div class="as-priority-header">';
-        html += '<h4>#' + p.rank + ' ' + esc(p.title) + '</h4>';
-        html += '<div class="as-priority-badges">';
-        html += '<span class="as-effort-badge ' + effortClass + '">' + esc(p.effort || 'medium') + '</span>';
-        html += '</div>';
+        html += '<h4>' + esc(p.title) + '</h4>';
+        html += '<div class="as-priority-badges"><span class="as-effort-badge ' + effortClass + '">' + esc(effortLabel) + '</span></div>';
         html += '</div>';
         html += '<p class="as-priority-desc">' + esc(p.description) + '</p>';
-        html += '<div class="as-priority-impact">' + esc(p.estimatedImpact) + '</div>';
+        if (p.estimatedImpact) {
+          html += '<div class="as-priority-impact">Impact . ' + esc(p.estimatedImpact) + '</div>';
+        }
         html += '</div>';
       });
       html += '</div>';
     }
 
-    // Priority Roadmap
+    // Implementation roadmap
     if (synth.priorityRoadmap) {
       html += '<div class="as-section">';
-      html += '<h2>Implementation Roadmap</h2>';
+      html += '<div class="as-section-head">';
+      html += '<div><div class="as-section-eyebrow">§ 04</div><h2>Implementation <em>roadmap.</em></h2></div>';
+      html += '<div><p class="as-exec-summary">Three phases, each scoped so you can ship the next one without waiting on the last.</p></div>';
+      html += '</div>';
       html += '<div class="as-roadmap">';
       var phases = [
-        { key: 'phase1', icon: '1', accent: 'var(--as-accent)' },
-        { key: 'phase2', icon: '2', accent: 'var(--as-warning)' },
-        { key: 'phase3', icon: '3', accent: '#8b5cf6' }
+        { key: 'phase1', num: '01' },
+        { key: 'phase2', num: '02' },
+        { key: 'phase3', num: '03' }
       ];
       phases.forEach(function (ph) {
         var phase = synth.priorityRoadmap[ph.key];
         if (phase && phase.items && phase.items.length > 0) {
           html += '<div class="as-roadmap-phase">';
           html += '<div class="as-roadmap-phase-header">';
-          html += '<span class="as-roadmap-num" style="background:' + ph.accent + '20;color:' + ph.accent + ';">' + ph.icon + '</span>';
-          html += '<span class="as-roadmap-label">' + esc(phase.label) + '</span>';
+          html += '<span class="as-roadmap-num">' + ph.num + '</span>';
+          html += '<span class="as-roadmap-label">' + esc(phase.label || 'Phase ' + ph.num) + '</span>';
           html += '</div>';
           html += '<ul class="as-roadmap-items">';
           phase.items.forEach(function (item) {
@@ -319,27 +412,30 @@
       html += '</div>';
     }
 
-    // Headline Rewrites
+    // Headline rewrites
     if (synth.headlineRewrites && synth.headlineRewrites.length > 0) {
       html += '<div class="as-section">';
-      html += '<h2>Headline Rewrites</h2>';
+      html += '<div class="as-section-head">';
+      html += '<div><div class="as-section-eyebrow">§ 05</div><h2>Headline <em>rewrites.</em></h2></div>';
+      html += '<div><p class="as-exec-summary">Current copy on the left. Suggested replacement on the right.</p></div>';
+      html += '</div>';
       synth.headlineRewrites.forEach(function (r) {
         html += '<div class="as-rewrite-card">';
         html += '<div class="as-rewrite-block as-rewrite-before">';
         html += '<div class="as-rewrite-block-label">Current</div>';
         html += '<div class="as-rewrite-block-text">' + esc(r.current) + '</div>';
         if (r.problems && r.problems.length > 0) {
-          html += '<div class="as-rewrite-block-label" style="margin-top:8px;">Why It Underperforms</div>';
+          html += '<div class="as-rewrite-block-label" style="margin-top:14px;">Why it underperforms</div>';
           html += '<ul class="as-rewrite-issues">';
           r.problems.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
           html += '</ul>';
         }
         html += '</div>';
         html += '<div class="as-rewrite-block as-rewrite-after">';
-        html += '<div class="as-rewrite-block-label">Suggested Rewrite</div>';
+        html += '<div class="as-rewrite-block-label">Suggested rewrite</div>';
         html += '<div class="as-rewrite-block-text">' + esc(r.suggested) + '</div>';
         if (r.improvements && r.improvements.length > 0) {
-          html += '<div class="as-rewrite-block-label" style="margin-top:8px;">Expected Impact</div>';
+          html += '<div class="as-rewrite-block-label" style="margin-top:14px;">Expected impact</div>';
           html += '<ul class="as-rewrite-wins">';
           r.improvements.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
           html += '</ul>';
@@ -350,26 +446,29 @@
       html += '</div>';
     }
 
-    // CTA Rewrites
+    // CTA rewrites
     if (synth.ctaRewrites && synth.ctaRewrites.length > 0) {
       html += '<div class="as-section">';
-      html += '<h2>CTA Improvements</h2>';
+      html += '<div class="as-section-head">';
+      html += '<div><div class="as-section-eyebrow">§ 06</div><h2>CTA <em>rewrites.</em></h2></div>';
+      html += '<div><p class="as-exec-summary">Button labels reworked for specificity and action.</p></div>';
+      html += '</div>';
       synth.ctaRewrites.forEach(function (r) {
         html += '<div class="as-rewrite-card">';
         html += '<div class="as-rewrite-block as-rewrite-before">';
         html += '<div class="as-rewrite-block-label">Current</div>';
-        html += '<span class="as-cta-pill as-cta-old">' + esc(r.current) + '</span>';
+        html += '<div><span class="as-cta-pill as-cta-old">' + esc(r.current) + '</span></div>';
         if (r.problems && r.problems.length > 0) {
-          html += '<ul class="as-rewrite-issues" style="margin-top:8px;">';
+          html += '<ul class="as-rewrite-issues" style="margin-top:14px;">';
           r.problems.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
           html += '</ul>';
         }
         html += '</div>';
         html += '<div class="as-rewrite-block as-rewrite-after">';
         html += '<div class="as-rewrite-block-label">Suggested</div>';
-        html += '<span class="as-cta-pill as-cta-new">' + esc(r.suggested) + '</span>';
+        html += '<div><span class="as-cta-pill as-cta-new">' + esc(r.suggested) + '</span></div>';
         if (r.improvements && r.improvements.length > 0) {
-          html += '<ul class="as-rewrite-wins" style="margin-top:8px;">';
+          html += '<ul class="as-rewrite-wins" style="margin-top:14px;">';
           r.improvements.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
           html += '</ul>';
         }
@@ -379,72 +478,98 @@
       html += '</div>';
     }
 
-    // All Findings
+    // All findings
     if (findings.length > 0) {
       html += '<div class="as-section">';
-      html += '<h2>All Findings (' + findings.length + ')</h2>';
+      html += '<div class="as-section-head">';
+      html += '<div><div class="as-section-eyebrow">§ 07</div><h2>All <em>findings.</em></h2></div>';
+      html += '<div><p class="as-exec-summary">' + findings.length + ' observations, each cited to the page element that triggered it.</p></div>';
+      html += '</div>';
       html += '<div style="overflow-x:auto;">';
       html += '<table class="as-findings-table"><thead><tr>';
       html += '<th>Severity</th><th>Dimension</th><th>Finding</th><th>Recommendation</th>';
       html += '</tr></thead><tbody>';
       findings.forEach(function (f) {
+        var sev = (f.severity || 'minor').toLowerCase();
+        var sevLabel = sev.charAt(0).toUpperCase() + sev.slice(1);
+        var dim = dimCode(f.dimensionLabel);
         html += '<tr>';
-        html += '<td style="color:' + severityColor(f.severity) + ';font-weight:600;text-transform:uppercase;font-size:11px;">' + esc(f.severity) + '</td>';
-        html += '<td style="color:var(--as-text-muted);">' + esc(f.dimensionLabel) + '</td>';
-        html += '<td style="color:var(--as-text);">' + (f.evidence ? '<div style="font-size:11px;color:var(--as-text-muted);font-style:italic;margin-bottom:4px;padding:4px 8px;background:rgba(255,255,255,0.03);border-left:2px solid var(--as-border);border-radius:0 4px 4px 0;">' + esc(f.evidence) + '</div>' : '') + esc(f.finding) + '</td>';
-        html += '<td style="color:var(--as-text-secondary);">' + esc(f.recommendation) + '</td>';
+        html += '<td><span class="as-ft-sev ' + sev + '">' + esc(sevLabel) + '</span></td>';
+        html += '<td><span class="as-ft-dim">' + esc(dim.code) + '</span><br><small style="font-family:var(--mono);font-size:9px;letter-spacing:0.14em;color:var(--ink-muted);text-transform:uppercase;">' + esc(dim.short || f.dimensionLabel || '') + '</small></td>';
+        html += '<td>';
+        if (f.evidence) {
+          html += '<span class="as-ft-evidence">' + esc(f.evidence) + '</span>';
+        }
+        html += esc(f.finding);
+        html += '</td>';
+        html += '<td>' + esc(f.recommendation) + '</td>';
         html += '</tr>';
       });
       html += '</tbody></table></div></div>';
     }
 
-    // Strategic Opportunities
+    // Strategic opportunities
     if (synth.strategicOpportunities && synth.strategicOpportunities.length > 0) {
       html += '<div class="as-section">';
-      html += '<h2>Strategic Opportunities</h2>';
+      html += '<div class="as-section-head">';
+      html += '<div><div class="as-section-eyebrow">§ 08</div><h2>Strategic <em>opportunities.</em></h2></div>';
+      html += '<div><p class="as-exec-summary">Bigger bets that live outside the immediate fix list.</p></div>';
+      html += '</div>';
       synth.strategicOpportunities.forEach(function (s) {
-        html += '<p style="padding-left:16px;border-left:2px solid var(--as-accent);margin-bottom:12px;color:var(--as-text-secondary);">' + esc(s) + '</p>';
+        html += '<div class="as-opportunity">' + esc(s) + '</div>';
       });
       html += '</div>';
     }
+
+    // Signature block
+    html += '<div class="as-section" style="border-top:1px solid var(--ink);padding-top:48px;">';
+    html += '<div class="as-sig-grid">';
+    html += '<h2>Findings, <em>not opinions.</em></h2>';
+    html += '<div class="as-sig-meta">';
+    html += '<p>Every line in this report cites the exact element on the page that triggered it. No unsupported claims. No padding.</p>';
+    html += '<div class="as-sig-name">The AmbientScore Desk</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '</div>';
 
     // Upsell
     var strategyUrl = '/ambientscore/strategy.html?reportId=' + encodeURIComponent(reportId)
       + '&url=' + encodeURIComponent(report.url || '')
       + '&score=' + (report.score || '')
       + '&siteType=' + encodeURIComponent(report.siteType || report.siteTypeLabel || '');
-    html += '<div class="as-report-upsell">';
-    html += '<h3>Want These Fixes Implemented?</h3>';
-    html += '<p>AmbientPixels implements messaging rewrites, funnel restructuring, CTA optimization, and AI-driven content integration \u2014 so you capture the revenue this report identified.</p>';
-    html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">';
-    html += '<a href="' + strategyUrl + '" class="as-buy-btn" style="text-decoration:none;">Book a Strategy Call</a>';
-    var mailSubject = 'AmbientScore Strategy Inquiry \u2013 ' + (report.url || 'My Website');
-    var mailBody = 'I just ran a AmbientScore audit.\n\n' +
+    var mailSubject = 'AmbientScore Strategy Inquiry . ' + (report.url || 'My Website');
+    var mailBody = 'I just ran an AmbientScore audit.\n\n' +
       'Report ID: ' + (report.id || 'N/A') + '\n' +
       'Score: ' + (report.score != null ? report.score + '/100' : 'N/A') + '\n' +
       'Website: ' + (report.url || 'N/A') + '\n\n' +
-      'I\u2019d like to discuss implementation.';
+      'I would like to discuss implementation.';
     var mailHref = 'mailto:ambientpixels2022@gmail.com?subject=' + encodeURIComponent(mailSubject) + '&body=' + encodeURIComponent(mailBody);
-    html += '<a href="' + mailHref + '" class="as-buy-btn" style="text-decoration:none;background:transparent;color:var(--as-accent);border:1px solid var(--as-accent);">Email Us Directly</a>';
+
+    html += '<div class="as-report-upsell">';
+    html += '<div class="as-report-upsell-eyebrow">Implementation</div>';
+    html += '<h3>Want these fixes <em>shipped?</em></h3>';
+    html += '<p>AmbientPixels implements the messaging rewrites, funnel restructuring, CTA work, and content repairs this report identified. So you capture the revenue instead of filing the audit.</p>';
+    html += '<div class="as-upsell-ctas">';
+    html += '<a href="' + strategyUrl + '">Book a strategy call</a>';
+    html += '<a href="' + mailHref + '">Email us directly</a>';
     html += '</div>';
     html += '</div>';
 
     // Methodology
-    html += '<div class="as-methodology" style="margin-top:32px;">';
-    html += '<strong>Methodology:</strong> This report evaluates 8 conversion dimensions using structured analysis of visible page content. ';
-    html += 'Scores are computed deterministically from rubric-based criteria. This analysis does not include traffic data, A/B test results, or analytics.';
+    html += '<div class="as-methodology">';
+    html += '<strong>Methodology</strong><br>';
+    html += 'This report evaluates eight conversion dimensions using structured analysis of visible page content. Scores are computed deterministically from rubric-based criteria. This analysis does not include traffic data, A/B test results, or analytics.';
     html += '</div>';
 
     contentEl.innerHTML = html;
 
-    // Wire up share button
     var shareBtn = document.getElementById('as-share-btn');
     if (shareBtn) {
       shareBtn.addEventListener('click', function () {
         var url = window.location.origin + '/ambientscore/report.html?id=' + reportId;
         if (navigator.clipboard) {
           navigator.clipboard.writeText(url).then(function () {
-            shareBtn.textContent = 'Copied!';
+            shareBtn.textContent = 'Copied';
             setTimeout(function () { shareBtn.textContent = 'Copy Link'; }, 2000);
           });
         }
@@ -456,43 +581,42 @@
 
   function scoreContext(score) {
     if (score >= 80) return 'Strong conversion health. Your site demonstrates deliberate optimization across key dimensions.';
-    if (score >= 70) return 'Good foundation with clear upside. Core conversion elements are in place — targeted improvements can move the needle.';
+    if (score >= 70) return 'Good foundation with clear upside. Core conversion elements are in place. Targeted improvements can move the needle.';
     if (score >= 60) return 'Workable but underoptimized. The conversion path functions, but several dimensions show room for deliberate CRO attention.';
     return 'Needs attention. Multiple conversion dimensions show structural gaps that are likely reducing conversion rates.';
   }
 
-  function scoreClass(score) {
-    if (score >= 70) return 'score-high';
-    if (score >= 60) return 'score-mid';
-    return 'score-low';
+  function displayUrl(url) {
+    if (!url) return 'Your site';
+    try {
+      var u = new URL(url);
+      return u.hostname.replace(/^www\./, '') + (u.pathname !== '/' ? u.pathname : '');
+    } catch (e) {
+      return url;
+    }
   }
 
-  function scoreColor(score) {
-    if (score >= 80) return '#10b981';
-    if (score >= 70) return '#22c55e';
-    if (score >= 60) return '#f59e0b';
-    return '#ef4444';
-  }
-
-  function severityColor(sev) {
-    if (sev === 'critical') return '#ef4444';
-    if (sev === 'important') return '#f59e0b';
-    return '#94a3b8';
+  function formatDate(d) {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
   }
 
   function showMessage(msg, isError) {
     loadingEl.style.display = 'none';
     contentEl.style.display = 'block';
-    contentEl.innerHTML = '<div style="text-align:center;padding:80px 0;">' +
-      '<p style="font-size:16px;color:' + (isError ? 'var(--as-danger)' : 'var(--as-text-secondary)') + ';">' + esc(msg) + '</p>' +
-      '<a href="/ambientscore/" style="display:inline-block;margin-top:16px;padding:10px 24px;background:var(--as-accent);color:#fff;border-radius:8px;">Back to AmbientScore</a>' +
-      '</div>';
+    var html = '<div class="as-error" style="margin-top:80px;">';
+    html += '<p>' + esc(msg) + '</p>';
+    html += '</div>';
+    html += '<div style="text-align:center;margin-top:24px;">';
+    html += '<a href="/ambientscore/" class="as-buy-btn" style="border-right:1px solid var(--ink);display:inline-block;text-decoration:none;">Back to AmbientScore</a>';
+    html += '</div>';
+    contentEl.innerHTML = html;
   }
 
   function esc(str) {
-    if (!str) return '';
+    if (str == null) return '';
     var div = document.createElement('div');
-    div.textContent = str;
+    div.textContent = String(str);
     return div.innerHTML;
   }
 })();

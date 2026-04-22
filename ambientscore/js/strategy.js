@@ -66,7 +66,6 @@
     var privacyAccepted = form.elements.privacyAccepted.checked;
     var hp = form.elements.hp.value;
 
-    // Client-side validation
     if (!name || !email || !company || !website || !primaryGoal || !monthlyTraffic) {
       statusEl.textContent = 'Please fill in all required fields.';
       statusEl.className = 'as-form-status as-error';
@@ -114,7 +113,7 @@
 
     if (window.ProductAnalytics) ProductAnalytics.trackFunnel('strategy_submitted', { reportId: qReportId, score: qScore, primaryGoal: primaryGoal });
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
+    submitBtn.textContent = 'Submitting.';
 
     fetch(API, {
       method: 'POST',
@@ -130,38 +129,41 @@
           form.style.display = 'none';
           var header = document.querySelector('.as-strategy-header');
           if (header) {
-            header.querySelector('h1').textContent = 'Request Received';
-            header.querySelector('p').textContent = '';
+            var hEl = header.querySelector('h1');
+            var pEl = header.querySelector('p');
+            if (hEl) hEl.innerHTML = 'Request <em>received.</em>';
+            if (pEl) pEl.textContent = '';
           }
 
-          // Score-aware confirmation
-          var scoreNum = parseFloat(qScore);
-          var hasScore = !isNaN(scoreNum);
-          var msg = 'Thanks \u2014 we\'re reviewing your audit';
-          if (hasScore) msg += ' (Score: ' + Math.round(scoreNum) + ')';
-          msg += ' and will propose strategy times within 24 hours.';
+          var localScoreNum = parseFloat(qScore);
+          var hasScore = !isNaN(localScoreNum);
+          var msg = '';
+          msg += '<p style="font-family:var(--serif);font-size:18px;line-height:1.5;color:var(--ink);margin-bottom:16px;">';
+          msg += 'Thanks. We are reviewing your audit';
+          if (hasScore) msg += ' (score ' + Math.round(localScoreNum) + ')';
+          msg += ' and will propose two to three strategy times within 24 hours.';
+          msg += '</p>';
 
-          // Dynamic messaging based on score
           if (hasScore) {
-            if (scoreNum < 60) {
-              msg += '<p style="margin-top:16px;font-size:13px;color:var(--as-text-secondary);">Based on your audit, there are high-impact improvements available.</p>';
-            } else if (scoreNum >= 70) {
-              msg += '<p style="margin-top:16px;font-size:13px;color:var(--as-text-secondary);">Strong foundation \u2014 we\'ll focus on optimization and lift.</p>';
+            if (localScoreNum < 60) {
+              msg += '<p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-soft);margin-bottom:16px;">Based on your audit, there are high-impact improvements available.</p>';
+            } else if (localScoreNum >= 70) {
+              msg += '<p style="font-family:var(--serif);font-style:italic;font-size:15px;color:var(--ink-soft);margin-bottom:16px;">Strong foundation. We will focus on optimization and lift.</p>';
             }
           }
 
-          // What happens next
-          msg += '<div style="margin-top:24px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto;font-size:13px;color:var(--as-text-secondary);line-height:1.8;">';
-          msg += '<strong style="color:var(--as-text);">What happens next:</strong><br>';
-          msg += '\u2022 We review your report in detail<br>';
-          msg += '\u2022 We outline a focused improvement roadmap<br>';
-          msg += '\u2022 We propose 2\u20133 time options<br>';
-          msg += '\u2022 You confirm and we finalize';
+          msg += '<div style="margin-top:18px;padding-top:18px;border-top:1px dotted var(--rule);">';
+          msg += '<div style="font-family:var(--mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--stamp);font-weight:600;margin-bottom:12px;">What happens next</div>';
+          msg += '<ul style="list-style:none;padding:0;margin:0;font-family:var(--serif);font-size:15px;color:var(--ink-soft);line-height:1.7;">';
+          msg += '<li style="padding-left:20px;position:relative;"><span style="position:absolute;left:0;top:0;color:var(--stamp);font-weight:600;">›</span>We review your report in detail</li>';
+          msg += '<li style="padding-left:20px;position:relative;"><span style="position:absolute;left:0;top:0;color:var(--stamp);font-weight:600;">›</span>We outline a focused improvement roadmap</li>';
+          msg += '<li style="padding-left:20px;position:relative;"><span style="position:absolute;left:0;top:0;color:var(--stamp);font-weight:600;">›</span>We propose two to three time options</li>';
+          msg += '<li style="padding-left:20px;position:relative;"><span style="position:absolute;left:0;top:0;color:var(--stamp);font-weight:600;">›</span>You confirm and we finalize</li>';
+          msg += '</ul>';
           msg += '</div>';
 
-          // CTA back to report
           if (qReportId) {
-            msg += '<br><a href="/ambientscore/report.html?id=' + encodeURIComponent(qReportId) + '" class="as-buy-btn" style="display:inline-block;margin-top:8px;text-decoration:none;">View Your Audit Report</a>';
+            msg += '<div style="margin-top:22px;"><a href="/ambientscore/report.html?id=' + encodeURIComponent(qReportId) + '" class="as-buy-btn" style="display:inline-block;text-decoration:none;border-right:1px solid var(--ink);">View your audit report</a></div>';
           }
           statusEl.innerHTML = msg;
           statusEl.className = 'as-form-status as-success';

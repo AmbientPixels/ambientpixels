@@ -23,6 +23,9 @@
   var resultsSection = document.getElementById('as-results');
   var scoreGauge = document.getElementById('as-score-gauge');
   var gradeEl = document.getElementById('as-grade');
+  var reportUrlLabel = document.getElementById('as-report-url-label');
+  var refIdEl = document.getElementById('as-ref-id');
+  var refDateEl = document.getElementById('as-ref-date');
   var jsWarning = document.getElementById('as-js-warning');
   var findingsVisible = document.getElementById('as-findings-visible');
   var findingsBlurred = document.getElementById('as-findings-blurred');
@@ -39,29 +42,41 @@
     score: document.getElementById('as-step-score')
   };
 
+  var STEP_LABELS = {
+    fetch: '01 Fetch',
+    extract: '02 Extract',
+    evaluate: '03 Evaluate',
+    score: '04 Score'
+  };
+
   // ── Loading Animation ──────────────────────────
 
   var loadingInterval = null;
+
+  function setLoadingText(msg) {
+    loadingText.innerHTML = '<span class="as-spinner"></span>' + escapeHtml(msg);
+  }
 
   function startLoadingSteps() {
     var order = ['fetch', 'extract', 'evaluate', 'score'];
     var current = 0;
     var messages = [
-      'Fetching your page...',
-      'Extracting conversion elements...',
-      'Evaluating 8 dimensions...',
-      'Computing AmbientScore...'
+      'Fetching your page.',
+      'Extracting conversion elements.',
+      'Evaluating eight dimensions.',
+      'Computing score.'
     ];
 
     loadingInterval = setInterval(function () {
       if (current > 0) {
-        steps[order[current - 1]].classList.remove('active');
-        steps[order[current - 1]].classList.add('done');
-        steps[order[current - 1]].textContent = '\u2713 ' + steps[order[current - 1]].textContent.replace(/^[\u2713] /, '');
+        var prev = order[current - 1];
+        steps[prev].classList.remove('active');
+        steps[prev].classList.add('done');
+        steps[prev].textContent = STEP_LABELS[prev];
       }
       if (current < order.length) {
         steps[order[current]].classList.add('active');
-        loadingText.textContent = messages[current];
+        setLoadingText(messages[current]);
         current++;
       } else {
         clearInterval(loadingInterval);
@@ -73,7 +88,7 @@
     if (loadingInterval) clearInterval(loadingInterval);
     Object.keys(steps).forEach(function (k) {
       steps[k].classList.remove('active', 'done');
-      steps[k].textContent = steps[k].textContent.replace(/^[\u2713] /, '');
+      steps[k].textContent = STEP_LABELS[k];
     });
   }
 
@@ -84,14 +99,15 @@
     resultsSection.style.display = 'none';
     errorSection.style.display = 'none';
     scanBtn.disabled = true;
-    scanBtn.textContent = 'Scanning...';
+    scanBtn.textContent = 'Running.';
+    setLoadingText('Fetching your page.');
     startLoadingSteps();
   }
 
   function hideLoading() {
     loadingSection.style.display = 'none';
     scanBtn.disabled = false;
-    scanBtn.textContent = 'Get My Score';
+    scanBtn.textContent = 'Run Audit';
     stopLoadingSteps();
   }
 
@@ -99,7 +115,7 @@
     SITE_BLOCKED: [
       "This site requires browser verification (bot protection), so we couldn't fetch the page content. Try a different URL.",
       "We couldn't scan this site because it blocks automated requests. Try the homepage URL or a different page (like /pricing).",
-      "This site's security settings prevented our scan. If you control the site, allowlist our scanner — or try another URL for now.",
+      "This site's security settings prevented our scan. If you control the site, allowlist our scanner. Or try another URL for now.",
       "Blocked by bot protection. We're working on improved coverage, but this URL can't be scanned right now."
     ],
     SITE_TIMEOUT: [
@@ -109,7 +125,7 @@
     ],
     ANALYSIS_FAILED: [
       "Something tripped up our analysis engine. Please try again.",
-      "We hit an error while scoring this page. Try again — if it repeats, try a different URL.",
+      "We hit an error while scoring this page. Try again. If it repeats, try a different URL.",
       "We couldn't complete the analysis this time. Please retry."
     ]
   };
@@ -122,7 +138,6 @@
 
   function friendlyError(raw, scannedUrl) {
     var code = '';
-    // Try to parse structured error from API
     try {
       var parsed = JSON.parse(raw);
       code = parsed.error || '';
@@ -139,7 +154,6 @@
       msg = raw || "Something went wrong. Please try again.";
     }
 
-    // Append homepage suggestion for blocked/timeout errors
     if (scannedUrl && (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1)) {
       var base = _baseUrl(scannedUrl);
       if (base && base !== scannedUrl && base !== scannedUrl + '/') {
@@ -152,10 +166,9 @@
   function showError(msg) {
     hideLoading();
     errorSection.style.display = 'block';
-    // Support newline-separated suggestion line
     var parts = msg.split('\n\n');
     if (parts.length > 1) {
-      errorText.innerHTML = escapeHtml(parts[0]) + '<br><small style="opacity:0.7;font-size:0.85em;">' + escapeHtml(parts[1]) + '</small>';
+      errorText.innerHTML = escapeHtml(parts[0]) + '<br><small>' + escapeHtml(parts[1]) + '</small>';
     } else {
       errorText.textContent = msg;
     }
@@ -163,6 +176,31 @@
 
   function hideError() {
     errorSection.style.display = 'none';
+  }
+
+  // ── Dimension code map (label → D-0X . CODE) ──
+
+  var DIM_CODES = {
+    'messaging clarity':  { code: 'D-01', short: 'MSG.CLR' },
+    'cta strength':       { code: 'D-02', short: 'CTA.STR' },
+    'trust signals':      { code: 'D-03', short: 'TRS.SIG' },
+    'funnel friction':    { code: 'D-04', short: 'FNL.FRC' },
+    'social proof':       { code: 'D-05', short: 'SOC.PRF' },
+    'offer clarity':      { code: 'D-06', short: 'OFR.CLR' },
+    'offer and pricing':  { code: 'D-06', short: 'OFR.CLR' },
+    'content flow':       { code: 'D-07', short: 'CNT.FLW' },
+    'continuity':         { code: 'D-07', short: 'CNT.FLW' },
+    'conversion hierarchy': { code: 'D-07', short: 'CNT.FLW' },
+    'risk reversal':      { code: 'D-08', short: 'RSK.REV' },
+    'differentiation':    { code: 'D-08', short: 'RSK.REV' },
+    'audience alignment': { code: 'D-01', short: 'MSG.CLR' },
+    'quick-win fixes':    { code: 'D-08', short: 'RSK.REV' }
+  };
+
+  function dimCode(label) {
+    if (!label) return { code: 'D--', short: '' };
+    var key = String(label).toLowerCase().trim();
+    return DIM_CODES[key] || { code: 'D--', short: '' };
   }
 
   // ── Render Results ─────────────────────────────
@@ -175,17 +213,26 @@
     currentReportId = data.reportId;
     if (window.ProductAnalytics) ProductAnalytics.trackFunnel('scan_completed', { score: data.score, grade: data.grade, reportId: data.reportId });
 
-    // Score gauge
-    var score = data.score || 0;
+    // Score + grade
+    var score = data.score != null ? data.score : 0;
     scoreGauge.textContent = score;
-    scoreGauge.className = 'as-score-gauge ' + (score >= 70 ? 'score-high' : score >= 60 ? 'score-mid' : 'score-low');
-    gradeEl.textContent = 'Grade: ' + (data.grade || '--');
+    gradeEl.textContent = (data.grade || '-');
 
-    // Score interpretation
+    // URL + ref
+    var urlDisplay = data.url || currentUrl || 'Your site';
+    try {
+      var u = new URL(urlDisplay);
+      urlDisplay = u.hostname.replace(/^www\./, '') + (u.pathname !== '/' ? u.pathname : '');
+    } catch (e) {}
+    if (reportUrlLabel) reportUrlLabel.textContent = urlDisplay;
+
+    var shortRef = (data.reportId || '').toString().slice(-6).toUpperCase() || '------';
+    if (refIdEl) refIdEl.textContent = shortRef;
+    if (refDateEl) refDateEl.textContent = formatDate(new Date());
+
+    // Interpretation
     var interpEl = document.getElementById('as-score-interpretation');
-    if (interpEl) {
-      interpEl.textContent = scoreInterpretation(score);
-    }
+    if (interpEl) interpEl.textContent = scoreInterpretation(score);
 
     // JS warning
     if (data.jsRenderedWarning) {
@@ -198,15 +245,20 @@
     // Visible findings (first 3)
     var teaser = data.teaserFindings || [];
     findingsVisible.innerHTML = '';
-    teaser.forEach(function (f) {
-      findingsVisible.innerHTML += buildFindingCard(f, false);
-    });
+    if (teaser.length) {
+      findingsVisible.style.display = 'block';
+      teaser.forEach(function (f) {
+        findingsVisible.innerHTML += buildFindingCard(f, false);
+      });
+    } else {
+      findingsVisible.style.display = 'none';
+    }
 
     // Blurred findings
     var blurred = (data.blurredCount || 0);
     findingsBlurred.innerHTML = '';
     if (blurred > 0) {
-      // Show 2 blurred placeholder cards
+      findingsBlurred.style.display = 'block';
       var placeholders = Math.min(blurred, 2);
       for (var i = 0; i < placeholders; i++) {
         findingsBlurred.innerHTML += buildFindingCard({
@@ -221,38 +273,55 @@
       var creditsRedeem = document.getElementById('as-credits-redeem');
       if (creditsRedeem) creditsRedeem.style.display = 'block';
     } else {
+      findingsBlurred.style.display = 'none';
       upgradeSection.style.display = 'none';
     }
 
-    // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function formatDate(d) {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
   }
 
   function scoreInterpretation(score) {
     if (score >= 80) return 'Strong conversion health. Your site demonstrates deliberate optimization across key dimensions. Remaining opportunities are refinements, not structural gaps.';
-    if (score >= 70) return 'Good foundation with clear upside. Core conversion elements are in place — targeted improvements to messaging, CTAs, or trust signals can move the needle meaningfully.';
+    if (score >= 70) return 'Good foundation with clear upside. Core conversion elements are in place. Targeted improvements to messaging, CTAs, or trust signals can move the needle meaningfully.';
     if (score >= 60) return 'Workable but underoptimized. The conversion path functions, but several dimensions show room for deliberate CRO attention that could improve visitor-to-customer flow.';
-    return 'Needs attention. Multiple conversion dimensions show structural gaps — addressing messaging clarity, trust signals, or funnel friction would likely improve conversion rates.';
+    return 'Needs attention. Multiple conversion dimensions show structural gaps. Addressing messaging clarity, trust signals, or funnel friction would likely improve conversion rates.';
   }
 
   function buildFindingCard(f, isBlurred) {
-    var impactClass = f.estimatedImpact === 'high' ? 'as-impact-high' : f.estimatedImpact === 'low' ? 'as-impact-low' : 'as-impact-med';
-    return '<div class="as-finding-card' + (isBlurred ? ' blurred' : '') + '">' +
-      '<div class="as-finding-badges">' +
-      '<span class="as-finding-severity ' + (f.severity || 'minor') + '">' + escapeHtml(f.severity || 'minor') + '</span>' +
-      (!isBlurred && f.estimatedImpact ? '<span class="as-finding-impact ' + impactClass + '">Impact: ' + escapeHtml(f.estimatedImpact) + '</span>' : '') +
-      '</div>' +
-      '<div class="as-finding-dim">' + escapeHtml(f.dimensionLabel || '') + '</div>' +
-      (f.evidence && !isBlurred ? '<div class="as-finding-evidence">' + escapeHtml(f.evidence) + '</div>' : '') +
-      '<div class="as-finding-text">' + escapeHtml(f.finding || '') + '</div>' +
-      (f.recommendation ? '<div class="as-finding-rec">' + escapeHtml(f.recommendation) + '</div>' : '') +
-      '</div>';
+    var dim = dimCode(f.dimensionLabel);
+    var dimLine = isBlurred
+      ? 'D-XX &middot; Locked'
+      : (dim.code + ' &middot; ' + escapeHtml(dim.short || (f.dimensionLabel || '').toUpperCase()));
+    var sev = (f.severity || 'minor').toLowerCase();
+    var sevLabel = sev.charAt(0).toUpperCase() + sev.slice(1);
+    var html = '<div class="as-finding-card' + (isBlurred ? ' blurred' : '') + '">';
+    html += '<div class="as-finding-badges">';
+    html += '<span class="as-finding-dim">' + dimLine + '</span>';
+    html += '<span class="as-finding-severity ' + sev + '">Severity ' + escapeHtml(sevLabel) + '</span>';
+    if (!isBlurred && f.estimatedImpact) {
+      html += '<span class="as-finding-impact">Impact ' + escapeHtml(f.estimatedImpact) + '</span>';
+    }
+    html += '</div>';
+    if (f.evidence && !isBlurred) {
+      html += '<div class="as-finding-evidence">' + escapeHtml(f.evidence) + '</div>';
+    }
+    html += '<div class="as-finding-text">' + escapeHtml(f.finding || '') + '</div>';
+    if (f.recommendation) {
+      html += '<div class="as-finding-rec">' + escapeHtml(f.recommendation) + '</div>';
+    }
+    html += '</div>';
+    return html;
   }
 
   function escapeHtml(str) {
-    if (!str) return '';
+    if (str == null) return '';
     var div = document.createElement('div');
-    div.textContent = str;
+    div.textContent = String(str);
     return div.innerHTML;
   }
 
@@ -263,7 +332,6 @@
     var url = urlInput.value.trim();
     if (!url) return;
 
-    // Ensure protocol
     if (!/^https?:\/\//i.test(url)) {
       url = 'https://' + url;
       urlInput.value = url;
@@ -299,7 +367,7 @@
 
     buySingle.disabled = true;
     buyPack.disabled = true;
-    buySingle.textContent = 'Redirecting to checkout...';
+    buySingle.textContent = 'Redirecting.';
 
     fetch(API + '/as-analyze', {
       method: 'POST',
@@ -323,7 +391,7 @@
         showError(err.message);
         buySingle.disabled = false;
         buyPack.disabled = false;
-        buySingle.textContent = 'Unlock Full Breakdown \u2014 $29';
+        buySingle.textContent = 'Unlock full report . $29';
       });
   }
 
@@ -342,7 +410,7 @@
       if (!email) return;
 
       creditsCheckBtn.disabled = true;
-      creditsCheckBtn.textContent = 'Checking...';
+      creditsCheckBtn.textContent = 'Checking.';
       creditsStatus.innerHTML = '';
 
       fetch(API + '/as-credits', {
@@ -358,11 +426,11 @@
           if (data.credits > 0) {
             creditsStatus.innerHTML =
               '<p class="as-credits-balance">You have <strong>' + data.credits + '</strong> credit' + (data.credits > 1 ? 's' : '') + ' remaining.</p>' +
-              '<button class="as-buy-btn" id="as-credits-confirm" style="margin-top:8px;">Use 1 Credit to Unlock</button>';
+              '<button class="as-buy-btn" id="as-credits-confirm" style="margin-top:12px;border-right:1px solid var(--ink);">Use 1 credit to unlock</button>';
 
             document.getElementById('as-credits-confirm').addEventListener('click', function () {
               this.disabled = true;
-              this.textContent = 'Unlocking...';
+              this.textContent = 'Unlocking.';
               redeemCredit(email);
             });
           } else {
@@ -396,12 +464,26 @@
       });
   }
 
+  // ── Quiet CTA form (bottom of page) ──────────
+
+  var qctaForm = document.getElementById('as-qcta-form');
+  var qctaInput = document.getElementById('as-qcta-url-input');
+  if (qctaForm && qctaInput) {
+    qctaForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = qctaInput.value.trim();
+      if (!v) return;
+      urlInput.value = v;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    });
+  }
+
   // ── Handle cancelled return from Stripe ────────
 
   if (window.location.search.includes('cancelled=1')) {
     if (window.ProductAnalytics) ProductAnalytics.trackConversion('checkout_cancelled');
     showError('Checkout was cancelled. Your free scan results are still available below.');
-    // Clear the param
     window.history.replaceState({}, '', window.location.pathname);
   }
 })();
