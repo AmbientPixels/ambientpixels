@@ -399,11 +399,11 @@
     function getBudgets() {
       var xm = getXMonthly();
       return [
-        { id: 'gemini', label: 'Gemini API', target: 15, color: '#fbbf24', icon: 'fa-coins' },
+        { id: 'gemini', label: 'Gemini API', target: 20, color: '#fbbf24', icon: 'fa-coins' },
         { id: 'claude', label: 'Claude API', target: 10, color: '#DC6956', icon: 'fa-brain' },
         { id: 'azure',  label: 'Azure Infra', target: 10, color: '#0078D4', icon: 'fa-microsoft' },
         { id: 'x',      label: 'X.com API',   target: Math.max(xm, 1), color: '#1DA1F2', icon: 'fa-x-twitter' },
-        { id: 'total',  label: 'Total Monthly', target: 35 + xm, color: '#34d399', icon: 'fa-wallet' }
+        { id: 'total',  label: 'Total Monthly', target: 40 + xm, color: '#34d399', icon: 'fa-wallet' }
       ];
     }
 
