@@ -3624,3 +3624,33 @@ body[data-theme="dark"] {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   GALLERY MOBILE — horizontal overflow fix.
+   .adv-gallery__filters at ≤600px uses overflow-x: auto +
+   flex-wrap: nowrap (intentional — 9 filter buttons are
+   meant to scroll horizontally). Without min-width: 0 on
+   the flex item, it took its intrinsic content width
+   (~887px) and forced .adv-gallery__toolbar → main →
+   document wider than viewport. One-line fix unblocks
+   the scroll-inside-its-own-row behavior the author wanted.
+   ============================================================ */
+@media (max-width: 900px) {
+  /* main.adv-gallery is a flex item of .adv-app (which is display:flex),
+     and defaults to min-width: auto (= min-content). The filter row's
+     9 buttons have a collective min-content of ~887px, so main was
+     growing past viewport. Setting min-width: 0 at the flex-item level
+     lets main honor the 375px parent, then the nested min-width: 0s
+     let the filters' own overflow-x: auto scroll horizontally in place. */
+  main.adv-gallery {
+    min-width: 0;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  .adv-gallery > *,
+  .adv-gallery__toolbar > *,
+  .adv-gallery__filters {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
