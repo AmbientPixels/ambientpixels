@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to StoryForge — save your adventures and continue across devices." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Sign In — StoryForge</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=JetBrains+Mono:wght@400;700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <!-- StoryForge tokens -->
+  <link rel="stylesheet" href="/storyforge/css/adventure-theme.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--sf-bg-page);
+      color: var(--sf-text-primary);
+      font-family: var(--sf-font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .sf-login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+
+    .sf-login {
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    .sf-login__logo {
+      font-family: var(--sf-font-display);
+      font-weight: 400;
+      font-size: clamp(44px, 6vw, 60px);
+      letter-spacing: 0.04em;
+      color: var(--sf-accent);
+      text-transform: uppercase;
+      margin: 0 0 0.25rem;
+      text-shadow: 0 2px 16px var(--sf-accent-glow);
+    }
+
+    .sf-login__subtitle {
+      font-family: var(--sf-font-body);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--sf-text-secondary);
+      margin: 0 0 2.25rem;
+      line-height: 1.5;
+    }
+
+    .sf-login__card {
+      background: var(--sf-bg-elevated);
+      border: 1px solid var(--sf-border-hover);
+      border-radius: 12px;
+      padding: 2rem 1.75rem;
+      text-align: left;
+      box-shadow: 0 0 40px rgba(239, 138, 31, 0.08);
+    }
+
+    .sf-login__heading {
+      font-family: var(--sf-font-display);
+      font-weight: 400;
+      font-size: 1.35rem;
+      letter-spacing: 0.03em;
+      color: var(--sf-text-primary);
+      margin: 0 0 0.5rem;
+    }
+
+    .sf-login__desc {
+      font-family: var(--sf-font-body);
+      font-size: 0.88rem;
+      color: var(--sf-text-secondary);
+      line-height: 1.55;
+      margin: 0 0 1.5rem;
+    }
+
+    .sf-login__btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border-radius: 8px;
+      font-family: var(--sf-font-body);
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .sf-login__btn i { font-size: 1rem; }
+
+    .sf-login__btn--primary {
+      background: linear-gradient(135deg, #2a2015, #3a2a18);
+      border: 1px solid var(--sf-accent);
+      color: var(--sf-accent);
+      box-shadow: 0 0 15px rgba(239, 138, 31, 0.15);
+      letter-spacing: 0.04em;
+    }
+    .sf-login__btn--primary:hover,
+    .sf-login__btn--primary:focus-visible {
+      background: linear-gradient(135deg, #3a2a18, #4a3a22);
+      box-shadow: 0 0 25px rgba(239, 138, 31, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .sf-login__btn--ghost {
+      background: linear-gradient(135deg, #1f1812, #2a2018);
+      border: 1px solid var(--sf-border-light);
+      color: var(--sf-text-muted);
+      font-size: 0.85rem;
+    }
+    .sf-login__btn--ghost:hover,
+    .sf-login__btn--ghost:focus-visible {
+      background: linear-gradient(135deg, #2a2018, #35281e);
+      color: var(--sf-text-secondary);
+    }
+
+    .sf-login__divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.9rem 0;
+      font-family: var(--sf-font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sf-text-muted);
+    }
+    .sf-login__divider::before,
+    .sf-login__divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--sf-border-light);
+    }
+
+    .sf-login__benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--sf-border-light);
+    }
+
+    .sf-login__benefit {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--sf-font-body);
+      font-size: 0.82rem;
+      color: var(--sf-text-secondary);
+    }
+
+    .sf-login__benefit i {
+      color: var(--sf-accent);
+      width: 16px;
+      text-align: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .sf-login__footer {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      font-family: var(--sf-font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sf-text-muted);
+    }
+
+    .sf-login__footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .sf-login__footer a:hover { color: var(--sf-accent); }
+
+    @media (max-width: 480px) {
+      .sf-login__card { padding: 1.5rem 1.25rem; }
+      .sf-login__footer { flex-direction: column; gap: 0.5rem; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="sf-login-wrap">
+    <div class="sf-login">
+      <h1 class="sf-login__logo">StoryForge</h1>
+      <p class="sf-login__subtitle">Every choice rewritten. Your adventure awaits.</p>
+
+      <div class="sf-login__card">
+        <h2 class="sf-login__heading">Continue Your Adventure</h2>
+        <p class="sf-login__desc">Sign in to save your progress, pick up where you left off on any device, and unlock the full genre catalog.</p>
+
+        <a href="/.auth/login/google?post_login_redirect_uri=/storyforge/"
+           class="sf-login__btn sf-login__btn--primary"
+           id="sf-login-google">
+          <i class="fab fa-google"></i> Sign in with Google
+        </a>
+
+        <div class="sf-login__divider">or</div>
+
+        <a href="/.auth/login/aad?post_login_redirect_uri=/storyforge/"
+           class="sf-login__btn sf-login__btn--ghost"
+           id="sf-login-ms">
+          <i class="fab fa-microsoft"></i> Sign in with Microsoft
+        </a>
+
+        <div class="sf-login__benefits">
+          <div class="sf-login__benefit"><i class="fas fa-bookmark"></i> Your adventures save to the cloud</div>
+          <div class="sf-login__benefit"><i class="fas fa-mobile-alt"></i> Continue across devices</div>
+          <div class="sf-login__benefit"><i class="fas fa-unlock"></i> Unlock the full genre catalog</div>
+          <div class="sf-login__benefit"><i class="fas fa-images"></i> Share to the public gallery</div>
+        </div>
+      </div>
+
+      <div class="sf-login__footer">
+        <a href="/storyforge/"><i class="fas fa-arrow-left"></i> Back to StoryForge</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/storyforge/">Continue as guest</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var redirect = params.get('redirect') || '/storyforge/';
+      var encoded = encodeURIComponent(redirect);
+      var google = document.getElementById('sf-login-google');
+      var ms = document.getElementById('sf-login-ms');
+      if (google) google.href = '/.auth/login/google?post_login_redirect_uri=' + encoded;
+      if (ms) ms.href = '/.auth/login/aad?post_login_redirect_uri=' + encoded;
+    })();
+  </script>
+</body>
+</html>

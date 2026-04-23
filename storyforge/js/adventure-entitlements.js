@@ -108,7 +108,7 @@ window.AdventureEntitlements = (function () {
     // Redirect to login if not signed in
     if (sessionStorage.getItem('isAuthenticated') !== 'true' &&
         !(document.body && document.body.getAttribute('data-auth-state') === 'signed-in')) {
-      window.location.href = '/pages/login.html?redirect=/storyforge/';
+      window.location.href = '/storyforge/login.html?redirect=/storyforge/';
       return;
     }
 

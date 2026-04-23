@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to CardForge — save your cards, build decks, share with the gallery." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Sign In — CardForge</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --cf-bg:           #1B1F2E;
+      --cf-bg-deep:      #141827;
+      --cf-surface:      #2D3348;
+      --cf-surface-2:    #353B52;
+      --cf-accent:       #7B8FE0;
+      --cf-accent-glow:  rgba(123, 143, 224, 0.35);
+      --cf-accent-dim:   rgba(123, 143, 224, 0.12);
+      --cf-accent-deep:  #5E72C4;
+      --cf-text:         #E8ECF5;
+      --cf-text-muted:   #9AA0B8;
+      --cf-text-faint:   #6B7190;
+      --cf-border:       rgba(123, 143, 224, 0.18);
+      --cf-border-hover: rgba(123, 143, 224, 0.45);
+      --cf-border-soft:  rgba(255, 255, 255, 0.06);
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--cf-bg);
+      color: var(--cf-text);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .cf-login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+
+    .cf-login {
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    .cf-login__logo {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: clamp(32px, 4.2vw, 42px);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cf-accent);
+      margin: 0 0 0.5rem;
+      text-shadow: 0 2px 20px var(--cf-accent-glow);
+    }
+
+    .cf-login__subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--cf-text-muted);
+      margin: 0 0 2.25rem;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
+    }
+
+    .cf-login__card {
+      background: var(--cf-surface);
+      border: 1px solid var(--cf-border);
+      border-radius: 12px;
+      padding: 2rem 1.75rem;
+      text-align: left;
+      box-shadow: 0 0 40px rgba(123, 143, 224, 0.1);
+    }
+
+    .cf-login__heading {
+      font-family: 'Cinzel', serif;
+      font-weight: 600;
+      font-size: 1.2rem;
+      letter-spacing: 0.04em;
+      color: var(--cf-text);
+      margin: 0 0 0.5rem;
+    }
+
+    .cf-login__desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      color: var(--cf-text-muted);
+      line-height: 1.55;
+      margin: 0 0 1.5rem;
+    }
+
+    .cf-login__btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .cf-login__btn i { font-size: 1rem; }
+
+    .cf-login__btn--primary {
+      background: linear-gradient(135deg, #141827, #1E2336);
+      border: 1px solid var(--cf-accent);
+      color: var(--cf-accent);
+      box-shadow: 0 0 15px rgba(123, 143, 224, 0.15);
+      letter-spacing: 0.04em;
+    }
+    .cf-login__btn--primary:hover,
+    .cf-login__btn--primary:focus-visible {
+      background: linear-gradient(135deg, #1E2336, #2A3048);
+      box-shadow: 0 0 25px rgba(123, 143, 224, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .cf-login__btn--ghost {
+      background: linear-gradient(135deg, #171A28, #1F2334);
+      border: 1px solid var(--cf-border-soft);
+      color: var(--cf-text-muted);
+      font-size: 0.85rem;
+    }
+    .cf-login__btn--ghost:hover,
+    .cf-login__btn--ghost:focus-visible {
+      background: linear-gradient(135deg, #1F2334, #2A3048);
+      color: var(--cf-text);
+    }
+
+    .cf-login__divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.9rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cf-text-faint);
+    }
+    .cf-login__divider::before,
+    .cf-login__divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--cf-border-soft);
+    }
+
+    .cf-login__benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--cf-border-soft);
+    }
+
+    .cf-login__benefit {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      color: var(--cf-text-muted);
+    }
+
+    .cf-login__benefit i {
+      color: var(--cf-accent);
+      width: 16px;
+      text-align: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .cf-login__footer {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cf-text-faint);
+    }
+
+    .cf-login__footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .cf-login__footer a:hover { color: var(--cf-accent); }
+
+    @media (max-width: 480px) {
+      .cf-login__card { padding: 1.5rem 1.25rem; }
+      .cf-login__footer { flex-direction: column; gap: 0.5rem; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="cf-login-wrap">
+    <div class="cf-login">
+      <h1 class="cf-login__logo">CardForge</h1>
+      <p class="cf-login__subtitle">Forge your collection. Build your deck.</p>
+
+      <div class="cf-login__card">
+        <h2 class="cf-login__heading">Sign in to continue</h2>
+        <p class="cf-login__desc">Save your cards to the cloud, build decks, and share creations with the public gallery.</p>
+
+        <a href="/.auth/login/google?post_login_redirect_uri=/cardforge/"
+           class="cf-login__btn cf-login__btn--primary"
+           id="cf-login-google">
+          <i class="fab fa-google"></i> Sign in with Google
+        </a>
+
+        <div class="cf-login__divider">or</div>
+
+        <a href="/.auth/login/aad?post_login_redirect_uri=/cardforge/"
+           class="cf-login__btn cf-login__btn--ghost"
+           id="cf-login-ms">
+          <i class="fab fa-microsoft"></i> Sign in with Microsoft
+        </a>
+
+        <div class="cf-login__benefits">
+          <div class="cf-login__benefit"><i class="fas fa-cloud"></i> Your cards save to the cloud</div>
+          <div class="cf-login__benefit"><i class="fas fa-layer-group"></i> Build and save decks</div>
+          <div class="cf-login__benefit"><i class="fas fa-images"></i> Share on the public gallery</div>
+          <div class="cf-login__benefit"><i class="fas fa-wand-magic-sparkles"></i> AI-powered card generation</div>
+        </div>
+      </div>
+
+      <div class="cf-login__footer">
+        <a href="/cardforge/"><i class="fas fa-arrow-left"></i> Back to CardForge</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/cardforge/">Browse as guest</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var redirect = params.get('redirect') || '/cardforge/';
+      var encoded = encodeURIComponent(redirect);
+      var google = document.getElementById('cf-login-google');
+      var ms = document.getElementById('cf-login-ms');
+      if (google) google.href = '/.auth/login/google?post_login_redirect_uri=' + encoded;
+      if (ms) ms.href = '/.auth/login/aad?post_login_redirect_uri=' + encoded;
+    })();
+  </script>
+</body>
+</html>

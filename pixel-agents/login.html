@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in to Pixel Agents — build, deploy, and earn on AI agents." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Sign In — Pixel Agents</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <!-- Pixel Agents design tokens + fonts (Space Grotesk, Manrope, Fraunces) -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--pa-neutral);
+      color: var(--pa-ink);
+      font-family: var(--pa-font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .pa-login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem;
+    }
+
+    .pa-login {
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    .pa-login__logo {
+      font-family: var(--pa-font-display);
+      font-weight: 700;
+      font-size: clamp(28px, 4vw, 36px);
+      letter-spacing: -0.035em;
+      text-transform: uppercase;
+      color: var(--pa-ink);
+      margin: 0 0 0.5rem;
+    }
+
+    .pa-login__subtitle {
+      font-family: var(--pa-font-body);
+      font-size: 0.95rem;
+      color: var(--pa-ink-60);
+      margin: 0 0 2.25rem;
+      line-height: 1.5;
+    }
+
+    .pa-login__subtitle em {
+      font-family: var(--pa-font-accent);
+      font-variation-settings: "opsz" 144, "SOFT" 50;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--pa-ink);
+    }
+
+    .pa-login__card {
+      background: var(--pa-surface-raised);
+      border: 1px solid var(--pa-sep-strong);
+      border-radius: var(--pa-radius-md);
+      padding: 2rem 1.75rem;
+      text-align: left;
+    }
+
+    .pa-login__heading {
+      font-family: var(--pa-font-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--pa-ink);
+      margin: 0 0 0.5rem;
+    }
+
+    .pa-login__desc {
+      font-size: 0.85rem;
+      color: var(--pa-ink-60);
+      line-height: 1.55;
+      margin: 0 0 1.5rem;
+    }
+
+    .pa-login__btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      width: 100%;
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--pa-radius-md);
+      font-family: var(--pa-font-body);
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background var(--pa-dur-fast) var(--pa-ease-standard),
+                  border-color var(--pa-dur-fast) var(--pa-ease-standard),
+                  color var(--pa-dur-fast) var(--pa-ease-standard);
+    }
+
+    .pa-login__btn i { font-size: 1rem; }
+
+    .pa-login__btn--primary {
+      background: linear-gradient(135deg, #1a0d0b, #2a1612);
+      border: 1px solid var(--pa-primary);
+      color: var(--pa-primary);
+      box-shadow: 0 0 15px rgba(227, 68, 44, 0.15);
+      letter-spacing: 0.04em;
+    }
+    .pa-login__btn--primary:hover,
+    .pa-login__btn--primary:focus-visible {
+      background: linear-gradient(135deg, #2a1612, #3a1f19);
+      box-shadow: 0 0 25px rgba(227, 68, 44, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .pa-login__btn--ghost {
+      background: linear-gradient(135deg, #121218, #1a1a24);
+      border: 1px solid var(--pa-sep-strong);
+      color: var(--pa-ink-60);
+      font-size: 0.82rem;
+    }
+    .pa-login__btn--ghost:hover,
+    .pa-login__btn--ghost:focus-visible {
+      background: linear-gradient(135deg, #1a1a24, #22222e);
+      color: var(--pa-ink-80);
+    }
+
+    .pa-login__divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.9rem 0;
+      font-family: var(--pa-font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--pa-text-faint);
+    }
+    .pa-login__divider::before,
+    .pa-login__divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--pa-sep);
+    }
+
+    .pa-login__benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--pa-sep);
+    }
+
+    .pa-login__benefit {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+      color: var(--pa-ink-80);
+    }
+
+    .pa-login__benefit i {
+      color: var(--pa-primary);
+      width: 16px;
+      text-align: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .pa-login__footer {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      font-family: var(--pa-font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--pa-text-muted);
+    }
+
+    .pa-login__footer a {
+      color: inherit;
+      text-decoration: none;
+      transition: color var(--pa-dur-fast) var(--pa-ease-standard);
+    }
+    .pa-login__footer a:hover {
+      color: var(--pa-primary);
+    }
+
+    @media (max-width: 480px) {
+      .pa-login__card { padding: 1.5rem 1.25rem; }
+      .pa-login__footer { flex-direction: column; gap: 0.5rem; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="pa-login-wrap">
+    <div class="pa-login">
+      <h1 class="pa-login__logo">Pixel Agents.</h1>
+      <p class="pa-login__subtitle">Build once. Deploy forever. <em>Earn on every run.</em></p>
+
+      <div class="pa-login__card">
+        <h2 class="pa-login__heading">Sign in to continue</h2>
+        <p class="pa-login__desc">Save your agents, track runs across devices, and earn a share of the creator pool on every run.</p>
+
+        <a href="/.auth/login/google?post_login_redirect_uri=/pixel-agents/"
+           class="pa-login__btn pa-login__btn--primary"
+           id="pa-login-google">
+          <i class="fab fa-google"></i> Sign in with Google
+        </a>
+
+        <div class="pa-login__divider">or</div>
+
+        <a href="/.auth/login/aad?post_login_redirect_uri=/pixel-agents/"
+           class="pa-login__btn pa-login__btn--ghost"
+           id="pa-login-ms">
+          <i class="fab fa-microsoft"></i> Sign in with Microsoft
+        </a>
+
+        <div class="pa-login__benefits">
+          <div class="pa-login__benefit"><i class="fas fa-cloud"></i> Your agents save to the cloud</div>
+          <div class="pa-login__benefit"><i class="fas fa-coins"></i> Earn on every run</div>
+          <div class="pa-login__benefit"><i class="fas fa-chart-line"></i> Track runs and revenue</div>
+          <div class="pa-login__benefit"><i class="fas fa-crown"></i> Unlock Pro Creator tier</div>
+        </div>
+      </div>
+
+      <div class="pa-login__footer">
+        <a href="/pixel-agents/"><i class="fas fa-arrow-left"></i> Back to Pixel Agents</a>
+        <span aria-hidden="true">&middot;</span>
+        <a href="/pixel-agents/">Browse as guest</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var redirect = params.get('redirect') || '/pixel-agents/';
+      var encoded = encodeURIComponent(redirect);
+      var google = document.getElementById('pa-login-google');
+      var ms = document.getElementById('pa-login-ms');
+      if (google) google.href = '/.auth/login/google?post_login_redirect_uri=' + encoded;
+      if (ms) ms.href = '/.auth/login/aad?post_login_redirect_uri=' + encoded;
+    })();
+  </script>
+</body>
+</html>

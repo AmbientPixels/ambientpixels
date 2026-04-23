@@ -62,7 +62,7 @@
         '<i class="fas fa-lock"></i>' +
         '<h2>Sign In Required</h2>' +
         '<p>Sign in to see analytics for your agents.</p>' +
-        '<a href="/pages/login.html?redirect=/pixel-agents/analytics.html" class="pa-analytics-empty-cta">' +
+        '<a href="/pixel-agents/login.html?redirect=/pixel-agents/analytics.html" class="pa-analytics-empty-cta">' +
           '<i class="fas fa-sign-in-alt"></i> Sign In' +
         '</a>' +
       '</div>';
