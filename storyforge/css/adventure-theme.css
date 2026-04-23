@@ -3690,6 +3690,6 @@ body[data-theme="dark"] {
    unless explicitly styled, causing white-on-white unreadable options. */
 .adv-gallery__sort select,
 .adv-gallery__sort select option {
-  background-color: var(--sf-bg-panel);
-  color: var(--sf-text-primary);
+  background-color: var(--sf-bg-caption);
+  color: var(--sf-ink-primary);
 }
