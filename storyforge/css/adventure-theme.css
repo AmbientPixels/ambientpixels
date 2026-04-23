@@ -3506,6 +3506,19 @@ body[data-theme="dark"] {
   display: none;
 }
 
+/* ── Hide Hub corner action-line bursts on mobile ─────────────────
+   theme.css:696 + :727 stack two ::after decorations on .adv-hub:
+   220x220 SVG action lines in opposite corners + a dashed border.
+   Bleed outside the visible Hub area on narrow viewports — the
+   bottom-right burst reads as a 3D perspective-grid artifact rather
+   than comic-page flourish. Decoration not worth the cost on small
+   screens; hide both at the genre-grid breakpoint. */
+@media (max-width: 600px) {
+  .adv-hub::after {
+    display: none;
+  }
+}
+
 /* ── Location badge — move to sit under the scene image ──────────
    Was rendering between the turn bar and story title (a confusing
    middle spot, attached to nothing). Now lives directly under the
