@@ -2038,9 +2038,11 @@
     // Image frequency gating: free tier gets images every 2 turns
     var freq = (Ent && Ent.getImageFrequency) ? Ent.getImageFrequency() : 1;
     if (freq > 1 && gameState.turnCount % freq !== 1) {
-      // Skip image on this turn for free tier
+      // Skip image on this turn for free tier — keep the halftone
+      // running, just swap the loading caption to a Pro upsell.
       var placeholder = UI.$('sceneImagePlaceholder');
-      placeholder.innerHTML = '<span class="adv-loading-text">Images every scene with Pro</span>';
+      var loadingText = UI.$('loadingText');
+      if (loadingText) loadingText.textContent = 'Images every scene with Pro';
       placeholder.style.display = '';
       UI.$('sceneImage').classList.remove('adv-scene__image--loaded');
       return;
@@ -2070,16 +2072,16 @@
             });
           }
         } else {
-          // Show "unavailable" state instead of infinite spinner
+          // Show "unavailable" state — keep halftone, swap caption.
           stopLoadingTextCycle();
-          var placeholder = UI.$('sceneImagePlaceholder');
-          placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
+          var loadingText = UI.$('loadingText');
+          if (loadingText) loadingText.textContent = 'Image unavailable';
         }
       })
       .catch(function () {
         stopLoadingTextCycle();
-        var placeholder = UI.$('sceneImagePlaceholder');
-        if (placeholder) placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
+        var loadingText = UI.$('loadingText');
+        if (loadingText) loadingText.textContent = 'Image unavailable';
       });
   }
 
@@ -2088,7 +2090,16 @@
     img.classList.remove('adv-scene__image--loaded');
     img.src = '';
     var placeholder = UI.$('sceneImagePlaceholder');
-    placeholder.innerHTML = '<span class="adv-loading-text" id="loadingText">Generating scene...</span>';
+    // Preserve the .adv-halftone-print markup (field + cursor-following
+    // spotlight) injected statically in play.html — only update the
+    // loading text element. Overwriting innerHTML here used to nuke the
+    // halftone children, breaking the loader on every scene after the
+    // first.
+    var loadingText = UI.$('loadingText');
+    if (loadingText) {
+      loadingText.textContent = 'Generating scene...';
+      loadingText.classList.remove('adv-loading-text--fade');
+    }
     placeholder.style.display = '';
     startLoadingTextCycle();
   }
