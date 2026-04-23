@@ -3693,3 +3693,14 @@ body[data-theme="dark"] {
   background-color: var(--sf-bg-panel);
   color: var(--sf-text-primary);
 }
+
+/* More breathing room in the sort + search pills — gallery.css:90/125
+   set 0.35rem 0.85rem which felt cramped against the squared corners. */
+.adv-gallery__sort,
+.adv-gallery__search {
+  padding: 0.55rem 1.1rem;
+}
+
+.adv-gallery__sort select option {
+  padding: 0.4rem 0.75rem;
+}
