@@ -3469,6 +3469,20 @@ body[data-theme="dark"] {
   flex: 0 1 320px;
 }
 
+/* ── Hub section headlines: 16px → 28px ───────────────────────────
+   theme.css:844 set Bangers at 16px which wastes the display font's
+   intent — Bangers is designed for headline sizes. Bump to 1.75rem
+   so "CONTINUE ADVENTURE" / "NEW ADVENTURE" read as proper section
+   headlines, not pill labels. Icon scales proportionally. */
+.adv-hub__section-title {
+  font-size: 1.75rem;
+  letter-spacing: 0.08em;
+}
+
+.adv-hub__section-title i {
+  font-size: 1.1rem;
+}
+
 /* ── Location badge — move to sit under the scene image ──────────
    Was rendering between the turn bar and story title (a confusing
    middle spot, attached to nothing). Now lives directly under the
