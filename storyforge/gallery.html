@@ -22,13 +22,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=JetBrains+Mono:wght@400;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css?v=20260426n" />
-  <link rel="stylesheet" href="/css/theme.css?v=20260426n" />
-  <link rel="stylesheet" href="css/adventure-base.css?v=20260426n" />
-  <link rel="stylesheet" href="css/adventure-gallery.css?v=20260426n" />
-  <link rel="stylesheet" href="css/adventure-effects.css?v=20260426n" />
-  <link rel="stylesheet" href="css/adventure-theme.css?v=20260426n" />
-  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260426n" />
+  <link rel="stylesheet" href="/css/base.css?v=20260426p" />
+  <link rel="stylesheet" href="/css/theme.css?v=20260426p" />
+  <link rel="stylesheet" href="css/adventure-base.css?v=20260426p" />
+  <link rel="stylesheet" href="css/adventure-gallery.css?v=20260426p" />
+  <link rel="stylesheet" href="css/adventure-effects.css?v=20260426p" />
+  <link rel="stylesheet" href="css/adventure-theme.css?v=20260426p" />
+  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260426p" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -89,15 +89,20 @@
             <i class="fas fa-search"></i>
             <input type="text" id="gallerySearch" placeholder="Search adventures..." autocomplete="off" aria-label="Search adventures" />
           </div>
-          <div class="adv-gallery__sort">
-            <i class="fas fa-arrow-down-short-wide"></i>
-            <select id="gallerySort" aria-label="Sort adventures">
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="longest">Most Turns</option>
-              <option value="shortest">Fewest Turns</option>
-              <option value="level">Highest Level</option>
-            </select>
+          <div class="adv-gallery__sort adv-dropdown" id="gallerySortWrap">
+            <button type="button" class="adv-dropdown__trigger" id="gallerySortTrigger"
+                    aria-haspopup="listbox" aria-expanded="false" aria-label="Sort adventures">
+              <i class="fas fa-arrow-down-short-wide"></i>
+              <span class="adv-dropdown__label">Newest</span>
+              <i class="fas fa-chevron-down adv-dropdown__caret" aria-hidden="true"></i>
+            </button>
+            <ul class="adv-dropdown__menu" id="gallerySortMenu" role="listbox" aria-hidden="true">
+              <li class="adv-dropdown__option" data-value="newest"   role="option" aria-selected="true">Newest</li>
+              <li class="adv-dropdown__option" data-value="oldest"   role="option">Oldest</li>
+              <li class="adv-dropdown__option" data-value="longest"  role="option">Most Turns</li>
+              <li class="adv-dropdown__option" data-value="shortest" role="option">Fewest Turns</li>
+              <li class="adv-dropdown__option" data-value="level"    role="option">Highest Level</li>
+            </ul>
           </div>
         </div>
       </div>

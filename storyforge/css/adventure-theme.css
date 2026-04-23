@@ -3702,7 +3702,86 @@ body[data-theme="dark"] {
 }
 
 .adv-gallery__sort select option {
+  padding: 1rem 1.5rem;
+  min-height: 3rem;
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   CUSTOM DROPDOWN — replaces native <select> so we actually get
+   CSS control over the popup (native selects are drawn by OS
+   widget code which ignores padding/margin/etc).
+   Usage: .adv-dropdown wrapper with a .adv-dropdown__trigger
+   button + .adv-dropdown__menu <ul> of .adv-dropdown__option
+   items. JS toggles .adv-dropdown--open on the wrapper.
+   ============================================================ */
+
+.adv-dropdown {
+  position: relative;
+}
+
+.adv-dropdown__trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.adv-dropdown__caret {
+  margin-left: auto;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+}
+
+.adv-dropdown--open .adv-dropdown__caret {
+  transform: rotate(180deg);
+}
+
+.adv-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  min-width: 180px;
+  margin: 0;
+  padding: 0.35rem 0;
+  list-style: none;
+  background: var(--sf-bg-panel);
+  border: 1px solid var(--sf-border-medium);
+  border-radius: 3px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  display: none;
+}
+
+.adv-dropdown--open .adv-dropdown__menu {
+  display: block;
+}
+
+.adv-dropdown__option {
   padding: 0.75rem 1.25rem;
-  min-height: 2.25rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  color: var(--sf-text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  user-select: none;
+}
+
+.adv-dropdown__option:hover {
+  background: var(--sf-bg-surface-hover);
+  color: var(--sf-text-primary);
+}
+
+.adv-dropdown__option[aria-selected="true"] {
+  background: rgba(var(--sf-accent-rgb), 0.12);
+  color: var(--sf-accent);
 }
