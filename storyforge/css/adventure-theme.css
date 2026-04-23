@@ -3450,6 +3450,25 @@ body[data-theme="dark"] {
   padding-right: 0.85rem;
 }
 
+/* ── Continue Adventure cards: graceful 1/2/3 layout ──────────────
+   adventure-hub.css:221 used `grid-template-columns: repeat(
+   auto-fill, minmax(280px, 1fr))` which leaves empty grid cells when
+   there are fewer cards than would fit (the "looks like a 3-slot
+   grid where one failed to load" bug). Switch to flex with
+   justify-content: center so 1/2/3 cards center cleanly with equal
+   spacing, and 4+ wraps to the next row also centered. Keeps the
+   existing gap (0.75rem), max-width (1024px), margin auto from the
+   source rules. */
+.adv-hub__saves {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.adv-hub__save-card {
+  flex: 0 1 320px;
+}
+
 /* ── Location badge — move to sit under the scene image ──────────
    Was rendering between the turn bar and story title (a confusing
    middle spot, attached to nothing). Now lives directly under the
