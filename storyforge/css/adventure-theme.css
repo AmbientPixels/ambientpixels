@@ -3662,3 +3662,12 @@ body[data-theme="dark"] {
     padding-bottom: 0;
   }
 }
+
+/* Square up the gallery toolbar buttons to match the graphic-novel
+   sharp-corner aesthetic (was border-radius: 20px pill at gallery
+   .css:152/89/124). Applies on all viewports. */
+.adv-gallery__filter,
+.adv-gallery__search,
+.adv-gallery__sort {
+  border-radius: 3px;
+}
