@@ -160,13 +160,13 @@
 /* Genre accent color override — overrides --sf-accent per genre.
    Warm-family palette per design-system overhaul. Each scene shows ONE accent;
    the Hub may show multiple genre tiles, each isolated to its own genre accent. */
-.adv-app[data-genre="fantasy"]   { --sf-accent: #B8602C; --sf-accent-rgb: 184, 96, 44;   --sf-accent-soft: #D4824A; }
+.adv-app[data-genre="fantasy"]   { --sf-accent: #6B4F8A; --sf-accent-rgb: 107, 79, 138;   --sf-accent-soft: #8E72AC; }
 .adv-app[data-genre="horror"]    { --sf-accent: #C83A2E; --sf-accent-rgb: 200, 58, 46;   --sf-accent-soft: #E66752; }
 .adv-app[data-genre="scifi"]     { --sf-accent: #4A6B7C; --sf-accent-rgb: 74, 107, 124;  --sf-accent-soft: #7A98A8; }
-.adv-app[data-genre="detective"] { --sf-accent: #C89B3C; --sf-accent-rgb: 200, 155, 60;  --sf-accent-soft: #E0BE6E; }
+.adv-app[data-genre="detective"] { --sf-accent: #4A5F3D; --sf-accent-rgb: 74, 95, 61;     --sf-accent-soft: #6B825A; }
 .adv-app[data-genre="postapoc"]  { --sf-accent: #8B4A2B; --sf-accent-rgb: 139, 74, 43;   --sf-accent-soft: #B0714D; }
-.adv-app[data-genre="pirate"]    { --sf-accent: #D96B1A; --sf-accent-rgb: 217, 107, 26;  --sf-accent-soft: #F2904A; }
-.adv-app[data-genre="superhero"] { --sf-accent: #B0392C; --sf-accent-rgb: 176, 57, 44;   --sf-accent-soft: #D26257; }
+.adv-app[data-genre="pirate"]    { --sf-accent: #2E7D7A; --sf-accent-rgb: 46, 125, 122;   --sf-accent-soft: #5BAAA6; }
+.adv-app[data-genre="superhero"] { --sf-accent: #3760A8; --sf-accent-rgb: 55, 96, 168;    --sf-accent-soft: #5C82C2; }
 
 /* Apply accent to key elements */
 .adv-choice__key {

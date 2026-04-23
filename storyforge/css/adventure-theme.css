@@ -3009,3 +3009,455 @@ body[data-theme="dark"] {
 .adv-difficulty__btn {
   border-radius: 2px;
 }
+
+
+/* ================================================================
+   PR8 — play.html active-story polish pass (2026-04-25)
+   Six fixes for the in-story state. All rules below the PR7-FINAL
+   block win the cascade against earlier theme + play.css rules.
+   ================================================================ */
+
+/* Chrome accent — does NOT take genre tinting. Used for sidebar
+   labels, level badge, and Pause pill so the warm orange identity
+   stays constant across all genres. Genre tint still drives the
+   scene image treatments and other diegetic chrome. */
+:root {
+  --sf-accent-chrome:     #EF8A1F;
+  --sf-accent-chrome-rgb: 239, 138, 31;
+}
+
+/* ── FIX 1: Halftone-print spotlight loading state ────────────────
+   Comic-book Lichtenstein-zoom panel: cream parchment surface
+   covered in a dim halftone dot field. A spotlight follows the
+   cursor (or auto-drifts when idle) revealing larger accent-colored
+   dots in its radius — like shining an ink-light over the page or
+   inspecting it with a loupe. JS in play.html updates two CSS
+   custom properties (--cursor-x, --cursor-y) for the spot center;
+   the spotlight radius and softness are tunable here. Spotlight
+   color = var(--sf-accent), so each genre paints its own dots. */
+
+.adv-scene__image-placeholder {
+  background-color: var(--sf-bg-caption);
+  background-image: url('/storyforge/images/assets/paper-tile.png');
+  background-size: 256px;
+  background-blend-mode: multiply;
+  overflow: hidden;
+  transition: opacity 0.4s ease;
+  z-index: 4;
+  /* Re-enable pointer events (adventure-play.css L86 disables them).
+     Safe because the engine hides the placeholder via display:none
+     once the scene image loads — no events leak to the underlying
+     <img> during gameplay. */
+  pointer-events: auto;
+  cursor: crosshair;
+  --cursor-x: 50%;
+  --cursor-y: 50%;
+  --spot-radius: 220px;
+}
+
+/* The scene <img> is z-5 above the placeholder (z-4) AND covers the
+   whole wrap with opacity:0 until loaded. That makes it invisible
+   but still capture every mousemove, blocking the spotlight handler.
+   Disable pointer-events on the image — it's display-only. */
+.adv-scene__image {
+  pointer-events: none;
+}
+
+/* Hide the empty .adv-scene__text caption box while the engine is
+   still generating the first scene. min-height:100px (play.css L289)
+   + cream paper bg (theme L1273) was rendering as a leftover empty
+   rectangle below the audio bar. */
+.adv-scene__text:empty {
+  display: none;
+}
+
+.adv-halftone-print {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Base layer — dim warm-grey halftone dot field covering the whole
+   panel. Dots are intentionally small and low-contrast so they read
+   as paper grain until the spotlight passes over them. */
+.adv-halftone-print__field {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(122, 104, 80, 0.55) 1.4px,
+    transparent 1.9px
+  );
+  background-size: 9px 9px;
+}
+
+/* Spotlight layer — same grid but slightly larger accent-colored
+   dots, masked to a soft radial halo that follows the cursor.
+   No opaque core: opacity falls off smoothly from the centre to the
+   edge so the dots feather in/out instead of popping. Overall layer
+   opacity is dialed back so the bloom reads as ambient halo, not
+   flashlight. */
+.adv-halftone-print__spotlight {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    var(--sf-accent) 2.6px,
+    transparent 3.2px
+  );
+  background-size: 9px 9px;
+  opacity: 0.75;
+  -webkit-mask-image: radial-gradient(
+    circle var(--spot-radius) at var(--cursor-x) var(--cursor-y),
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.45) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+          mask-image: radial-gradient(
+    circle var(--spot-radius) at var(--cursor-x) var(--cursor-y),
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.45) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  transition:
+    -webkit-mask-image 80ms linear,
+            mask-image 80ms linear;
+  will-change: mask-image;
+}
+
+/* Subtle pulsing on the spotlight radius for visual life */
+.adv-halftone-print__spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 80px at var(--cursor-x) var(--cursor-y),
+    rgba(var(--sf-accent-rgb), 0.18) 0%,
+    transparent 70%
+  );
+  animation: sf-halftone-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes sf-halftone-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+/* Cream caption box for the rotating loading message. Slightly
+   darker cream (--sf-bg-caption-alt) than the parchment surface
+   so it stamps onto the page instead of washing out. */
+.adv-scene__image-placeholder .adv-loading-text {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  max-width: min(80%, 28rem);
+  text-align: center;
+  background-color: var(--sf-bg-caption-alt);
+  color: var(--sf-ink-primary);
+  font-family: var(--sf-font-body);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: normal;
+  text-shadow: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid #000;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  z-index: 6;
+  transition: opacity 0.35s ease;
+}
+
+.adv-scene__image-placeholder .adv-loading-text.adv-loading-text--fade {
+  opacity: 0;
+}
+
+/* ── FIX 2: Dossier sidebar chrome — warm regardless of genre ──── */
+.adv-sidebar .adv-panel__title {
+  color: var(--sf-accent-chrome);
+}
+
+/* "THE DOSSIER" pseudo-header (defined at L1759) inherits genre-tinted
+   --sf-accent. Re-route to chrome accent so it stays warm on sci-fi. */
+@media (min-width: 901px) {
+  .adv-sidebar::before {
+    color: var(--sf-accent-chrome);
+  }
+}
+
+.adv-level-bar__badge {
+  background: var(--sf-accent-chrome);
+  color: var(--sf-bg-page);
+}
+
+/* Inventory / Companion count spans inside the panel title read as
+   secondary metadata — keep them muted cream so the count is quiet. */
+.adv-sidebar .adv-panel__title #inventoryCount,
+.adv-sidebar .adv-panel__title #companionCount {
+  color: var(--sf-text-secondary);
+  font-family: var(--sf-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+}
+
+/* ── FIX 3: HP bar — color follows percentage ────────────────────
+   Engine sets --warning at <=60%, --danger at <30%. Default state
+   (no modifier) is full/healthy and reads green, NOT red. This
+   beats theme.css L1508 which painted every HP state ember red. */
+.adv-hp__fill {
+  background: var(--sf-status-good);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+  transition: width 0.5s ease, background 0.3s ease;
+  animation: none;
+}
+
+.adv-hp__fill--warning {
+  background: var(--sf-status-warn);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+  animation: none;
+}
+
+.adv-hp__fill--danger {
+  background: var(--sf-status-hp);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+  animation: adv-hpPulse 1.5s ease-in-out infinite;
+}
+
+/* ── FIX 4: Dossier portrait — square rounded, larger ────────────
+   Mirrors the Customize / Stats portrait shape (6px radius, black
+   border). Source already wired via gameState.portraitImage in
+   renderSidebarPortrait() — same image as Customize + Stats. */
+.adv-sidebar__portrait {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding-bottom: 0.5rem;
+}
+
+.adv-sidebar__portrait-frame {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  border: 2px solid #000;
+  background: var(--sf-bg-page);
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
+.adv-sidebar__portrait-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.adv-sidebar__portrait-name {
+  font-family: var(--sf-font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: var(--sf-text-primary);
+}
+
+/* ── FIX 5: Pause button — accent-orange comic pill ──────────────
+   Distinguishes Pause as a state action vs. nav. Uses --sf-accent-
+   chrome so it reads warm orange even on cool-tinted genres (sci-fi). */
+.adv-header__nav #pauseBtn {
+  background: var(--sf-accent-chrome);
+  background-image: none;
+  color: var(--sf-bg-page);
+  border: 1px solid var(--sf-border-heavy);
+  border-radius: 2px;
+  padding: 0.5rem 0.95rem;
+  font-family: var(--sf-font-display);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.adv-header__nav #pauseBtn:hover {
+  background: #FFB04A;
+  transform: translateY(-1px);
+}
+
+.adv-header__nav #pauseBtn i {
+  font-size: 12px;
+}
+
+/* ── FIX 6: Icon-only nav buttons (fullscreen, undo) — match nav pill ── */
+.adv-header__nav .adv-btn--icon {
+  background: var(--sf-bg-caption);
+  color: var(--sf-ink-primary);
+  border: 1px solid var(--sf-border-heavy);
+  border-radius: 2px;
+  padding: 0.5rem 0.65rem;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.adv-header__nav .adv-btn--icon:hover {
+  background: var(--sf-accent-chrome);
+  color: var(--sf-bg-page);
+  transform: translateY(-1px);
+}
+
+/* ── Inventory expanded detail — cream paper card ─────────────────
+   Replaces the navy-dark `rgba(15, 15, 35, 0.6)` from
+   adventure-play.css L670 (legacy SaaS palette). The detail panel
+   reads as a paper note flipping out from the dark dossier item —
+   matches caption-box treatment used for narration + loading text. */
+.adv-inventory__detail {
+  background-color: var(--sf-bg-caption);
+  background-image: url('/storyforge/images/assets/paper-tile.png');
+  background-size: 256px;
+  background-blend-mode: multiply;
+  border-radius: 0 0 6px 6px;
+  border: 1px solid #000;
+  border-top: none;
+  margin-top: -1px;
+  font-family: var(--sf-font-body);
+}
+
+.adv-inventory__desc {
+  color: var(--sf-ink-secondary);
+  font-style: italic;
+  font-size: 0.78rem;
+}
+
+/* Action buttons re-tuned for cream surface — border + label colors
+   stay diegetic (red drop, gold use, etc.) but get more saturation
+   so they read against cream instead of being washed out. */
+.adv-inventory__btn {
+  font-family: var(--sf-font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.adv-inventory__btn--equip {
+  background: rgba(var(--sf-accent-rgb), 0.12);
+  border-color: rgba(var(--sf-accent-rgb), 0.55);
+  color: var(--sf-accent-deep);
+}
+.adv-inventory__btn--equip:hover {
+  background: rgba(var(--sf-accent-rgb), 0.22);
+  border-color: var(--sf-accent);
+}
+
+.adv-inventory__btn--unequip {
+  background: rgba(74, 61, 46, 0.08);
+  border-color: rgba(74, 61, 46, 0.45);
+  color: var(--sf-ink-secondary);
+}
+.adv-inventory__btn--unequip:hover {
+  background: rgba(74, 61, 46, 0.18);
+  border-color: var(--sf-ink-secondary);
+}
+
+.adv-inventory__btn--use {
+  background: rgba(107, 142, 78, 0.12);
+  border-color: rgba(107, 142, 78, 0.55);
+  color: var(--sf-status-good);
+}
+.adv-inventory__btn--use:hover {
+  background: rgba(107, 142, 78, 0.22);
+  border-color: var(--sf-status-good);
+}
+
+.adv-inventory__btn--drop {
+  background: rgba(196, 74, 46, 0.1);
+  border-color: rgba(196, 74, 46, 0.55);
+  color: var(--sf-status-hp);
+}
+.adv-inventory__btn--drop:hover {
+  background: rgba(196, 74, 46, 0.2);
+  border-color: var(--sf-status-hp);
+}
+
+/* ── Choice card hover — keep cream, don't go dark ────────────────
+   adventure-play.css:324 sets `background: rgba(accent, 0.1)` on
+   hover, which clobbers `--sf-bg-caption` while leaving the paper-
+   tile + multiply blend in place — multiply over a faint accent
+   tint reads as dark mush. Restore the cream surface and let the
+   border + lift do the hover affordance. */
+.adv-choice:hover {
+  background-color: var(--sf-bg-caption-alt);
+  background-image: url('/storyforge/images/assets/paper-tile.png');
+  background-size: 256px;
+  background-blend-mode: multiply;
+  transform: translateY(-3px);
+  border-color: var(--sf-accent);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--sf-accent);
+}
+
+.adv-choice:active {
+  transform: translateY(-1px);
+  background-color: var(--sf-bg-caption);
+}
+
+/* ── Scene caption width — align closer to scene image ────────────
+   theme.css:1285 set max-width: 38rem (~608px) which created a
+   noticeable "wide image, narrow text" jump. Wider reading column
+   feels more like a full graphic-novel page; still narrower than
+   the image so the eye keeps a distinct text rhythm. */
+@media (min-width: 901px) {
+  .adv-scene__text {
+    max-width: 45rem;
+  }
+
+  /* Choice card gap — 16px was reading as a cramped strip. 28px lets
+     the three cards breathe and read as distinct decisions instead
+     of a single segmented bar. Mobile (≤900px) keeps the 0.75rem
+     vertical stack from the base rule. */
+  .adv-choices {
+    gap: 1.75rem;
+  }
+}
+
+/* ── Turn counter — promote from chrome whisper to readable callout ─
+   Was inheriting 12px muted-grey from the turn bar. Bumped to comic
+   display font + brighter color so "Turn 1 / 25" reads as meaningful
+   progress at a glance. Other turn-bar chrome (audio controls) stays
+   subtle. */
+#turnLabel,
+#turnMax {
+  font-family: var(--sf-font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  color: var(--sf-text-primary);
+}
+
+/* Turn bar horizontal padding — adventure-play.css:109 sets `padding:
+   0.4rem 0` (zero horizontal), so "Turn 1" was flush to the bar's
+   left edge. Add breathing room on both sides; audio controls on the
+   right get the same treatment. */
+.adv-scene__turn-bar {
+  padding-left: 0.85rem;
+  padding-right: 0.85rem;
+}
+
+/* ── Location badge — move to sit under the scene image ──────────
+   Was rendering between the turn bar and story title (a confusing
+   middle spot, attached to nothing). Now lives directly under the
+   image so it reads as "where this scene takes place." Reset the
+   negative bottom margin from adventure-play.css:847 (which was
+   hugging the title in the old position) and align to the image's
+   left edge so it acts like a Tintin-style panel caption pin. */
+.adv-location-badge {
+  margin: -0.25rem 0 0 0;
+  align-self: flex-start;
+}

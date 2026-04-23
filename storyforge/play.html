@@ -22,14 +22,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=JetBrains+Mono:wght@400;700&family=Lora:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css?v=20260424n" />
-  <link rel="stylesheet" href="/css/theme.css?v=20260424n" />
-  <link rel="stylesheet" href="css/adventure-base.css?v=20260424n" />
-  <link rel="stylesheet" href="css/adventure-play.css?v=20260424n" />
-  <link rel="stylesheet" href="css/adventure-particles.css?v=20260424n" />
-  <link rel="stylesheet" href="css/adventure-effects.css?v=20260424n" />
-  <link rel="stylesheet" href="css/adventure-theme.css?v=20260424n" />
-  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260424n" />
+  <link rel="stylesheet" href="/css/base.css?v=20260425r" />
+  <link rel="stylesheet" href="/css/theme.css?v=20260425r" />
+  <link rel="stylesheet" href="css/adventure-base.css?v=20260425r" />
+  <link rel="stylesheet" href="css/adventure-play.css?v=20260425r" />
+  <link rel="stylesheet" href="css/adventure-particles.css?v=20260425r" />
+  <link rel="stylesheet" href="css/adventure-effects.css?v=20260425r" />
+  <link rel="stylesheet" href="css/adventure-theme.css?v=20260425r" />
+  <link rel="stylesheet" href="css/adventure-responsive.css?v=20260425r" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -251,12 +251,18 @@
               <span class="adv-particles adv-particles--2"></span>
               <span class="adv-particles adv-particles--3"></span>
               <div class="adv-scene__image-placeholder" id="sceneImagePlaceholder">
+                <div class="adv-halftone-print" aria-hidden="true">
+                  <div class="adv-halftone-print__field"></div>
+                  <div class="adv-halftone-print__spotlight"></div>
+                </div>
                 <span class="adv-loading-text" id="loadingText">Generating scene...</span>
               </div>
               <div class="adv-title-card" id="titleCard" style="display:none;">
                 <span class="adv-title-card__text" id="titleCardText"></span>
               </div>
             </div>
+
+            <div class="adv-location-badge" id="locationBadge" style="display:none;"></div>
 
             <div class="adv-scene__turn-bar">
               <span id="turnLabel">Turn 1</span>
@@ -285,12 +291,9 @@
               </div>
             </div>
 
-            <div class="adv-location-badge" id="locationBadge" style="display:none;"></div>
             <h2 class="adv-story-title" id="storyTitle" style="display:none;"></h2>
 
-            <div class="adv-scene__text adv-scene-enter" id="sceneText" aria-live="polite">
-              <!-- Scene text injected here -->
-            </div>
+            <div class="adv-scene__text adv-scene-enter" id="sceneText" aria-live="polite"></div>
 
             <!-- Dice Roll -->
             <div class="adv-dice" id="dicePanel" role="status" aria-live="assertive">
@@ -458,17 +461,85 @@
     <div class="adv-toast-container" id="toastContainer"></div>
   </div>
 
-  <script src="js/adventure-audio.js?v=20260424n" defer></script>
-  <script src="js/adventure-ui.js?v=20260424n" defer></script>
-  <script src="js/adventure-rpg.js?v=20260424n" defer></script>
-  <script src="js/adventure-storage.js?v=20260424n" defer></script>
-  <script src="js/adventure-share.js?v=20260424n" defer></script>
-  <script src="js/adventure-ai.js?v=20260424n" defer></script>
-  <script src="js/adventure-entitlements.js?v=20260424n" defer></script>
-  <script src="js/adventure-engine.js?v=20260424n" defer></script>
-  <script src="js/adventure-tutorial.js?v=20260424n" defer></script>
+  <script src="js/adventure-audio.js?v=20260425r" defer></script>
+  <script src="js/adventure-ui.js?v=20260425r" defer></script>
+  <script src="js/adventure-rpg.js?v=20260425r" defer></script>
+  <script src="js/adventure-storage.js?v=20260425r" defer></script>
+  <script src="js/adventure-share.js?v=20260425r" defer></script>
+  <script src="js/adventure-ai.js?v=20260425r" defer></script>
+  <script src="js/adventure-entitlements.js?v=20260425r" defer></script>
+  <script src="js/adventure-engine.js?v=20260425r" defer></script>
+  <script src="js/adventure-tutorial.js?v=20260425r" defer></script>
 
   <script>
+    // Halftone-spotlight loading state — cursor-following spotlight with
+    // idle Lissajous drift. Updates two CSS custom properties (--cursor-x,
+    // --cursor-y) on the placeholder element. Pure-CSS field renders the
+    // dots; this script only moves the focal point.
+    (function () {
+      var ph = document.getElementById('sceneImagePlaceholder');
+      if (!ph) return;
+
+      var idleTimer = null;
+      var idle = true;
+      var t0 = performance.now();
+      var rafId = null;
+
+      function setSpot(x, y) {
+        ph.style.setProperty('--cursor-x', x + 'px');
+        ph.style.setProperty('--cursor-y', y + 'px');
+      }
+
+      function driftLoop(now) {
+        if (!idle) { rafId = null; return; }
+        var rect = ph.getBoundingClientRect();
+        if (rect.width > 0) {
+          // Lissajous figure-8: x oscillates ~12s, y oscillates ~17s,
+          // amplitudes scale to ~70% of the panel so the spotlight
+          // explores most of the area without grazing the edges.
+          var t = (now - t0) / 1000;
+          var x = rect.width  * (0.5 + 0.35 * Math.sin(t * 2 * Math.PI / 12));
+          var y = rect.height * (0.5 + 0.32 * Math.sin(t * 2 * Math.PI / 17 * 2));
+          setSpot(x, y);
+        }
+        rafId = requestAnimationFrame(driftLoop);
+      }
+
+      function startDrift() {
+        idle = true;
+        if (!rafId) rafId = requestAnimationFrame(driftLoop);
+      }
+
+      function stopDrift() {
+        idle = false;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(startDrift, 1500);
+      }
+
+      ph.addEventListener('mousemove', function (e) {
+        var rect = ph.getBoundingClientRect();
+        setSpot(e.clientX - rect.left, e.clientY - rect.top);
+        stopDrift();
+      });
+
+      ph.addEventListener('mouseleave', function () {
+        clearTimeout(idleTimer);
+        startDrift();
+      });
+
+      ph.addEventListener('touchmove', function (e) {
+        var rect = ph.getBoundingClientRect();
+        var t = e.touches[0];
+        if (!t) return;
+        setSpot(t.clientX - rect.left, t.clientY - rect.top);
+        stopDrift();
+      }, { passive: true });
+
+      // Initial drift kicks in immediately
+      startDrift();
+    })();
+
     // Mirror the character portrait from wizard step 2 -> stats panel (step 3).
     // Display-only: no API call, no regen — just src copy via MutationObserver.
     (function () {

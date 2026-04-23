@@ -481,7 +481,7 @@
           UI.$('pauseBtn').style.display = '';
           UI.$('immersiveBtn').style.display = '';
           if (typeof StoryAudio !== 'undefined') StoryAudio.startAmbient(selectedGenre.id);
-          UI.showLoading(UI.$('sceneText'), 'Forging your story...');
+          UI.$('sceneText').innerHTML = '';
           UI.$('choicesContainer').innerHTML = '';
           updateSidebar();
           startLoadingTextCycle();
@@ -1334,10 +1334,9 @@
     if (typeof StoryAudio !== 'undefined') {
       StoryAudio.startAmbient(selectedGenre.id);
     }
-    UI.showLoading(UI.$('sceneText'), 'Forging your story...');
+    UI.$('sceneText').innerHTML = '';
     UI.$('choicesContainer').innerHTML = '';
     updateSidebar();
-    // Start genre-themed loading messages during text generation
     startLoadingTextCycle();
 
     AI.incrementUsage();
@@ -1999,73 +1998,32 @@
       });
   }
 
-  // --- Loading text cycling ---
-  var GENRE_LOADING_MESSAGES = {
-    fantasy: [
-      'Ancient runes shimmer in the darkness...',
-      'The mist parts to reveal a new path...',
-      'Magic weaves the world into being...',
-      'A distant horn echoes through the valley...',
-      'The tapestry of fate unfolds...'
-    ],
-    horror: [
-      'Something stirs in the shadows...',
-      'The floorboards creak beneath unseen weight...',
-      'A cold breath brushes your neck...',
-      'The lights flicker and dim...',
-      'Silence falls — too silent...'
-    ],
-    scifi: [
-      'Scanning dimensional frequencies...',
-      'Quantum field stabilizing...',
-      'Neural link synchronizing...',
-      'Rendering holographic environment...',
-      'Calibrating sensory array...'
-    ],
-    detective: [
-      'Piecing together the evidence...',
-      'A clue catches your eye...',
-      'The city hums with secrets...',
-      'Smoke curls under the lamplight...',
-      'The plot thickens...'
-    ],
-    postapoc: [
-      'Static crackles across the wasteland...',
-      'Dust settles on the ruins...',
-      'A signal breaks through the interference...',
-      'The Geiger counter ticks softly...',
-      'Shadows shift between the wreckage...'
-    ],
-    pirate: [
-      'The horizon shimmers with promise...',
-      'Salt spray fills the air...',
-      'The compass needle spins and settles...',
-      'Waves crash against the hull...',
-      'A new heading is charted...'
-    ]
-  };
+  // --- Loading text cycling — comic-themed cream caption (PR8) ---
+  var LOADING_MESSAGES = [
+    'Inking the scene…',
+    'Drawing the panel…',
+    'Setting the moment…',
+    'Forging your story…'
+  ];
 
   var loadingTextInterval = null;
 
   function startLoadingTextCycle() {
     stopLoadingTextCycle();
-    var genreId = selectedGenre ? selectedGenre.id : null;
-    var messages = (genreId && GENRE_LOADING_MESSAGES[genreId]) || ['Generating scene...'];
-
     var textEl = UI.$('loadingText');
     if (!textEl) return;
-    var idx = Math.floor(Math.random() * messages.length);
-    textEl.textContent = messages[idx];
+    var idx = 0;
+    textEl.textContent = LOADING_MESSAGES[idx];
     textEl.classList.remove('adv-loading-text--fade');
 
     loadingTextInterval = setInterval(function () {
       textEl.classList.add('adv-loading-text--fade');
       setTimeout(function () {
-        idx = (idx + 1) % messages.length;
-        textEl.textContent = messages[idx];
+        idx = (idx + 1) % LOADING_MESSAGES.length;
+        textEl.textContent = LOADING_MESSAGES[idx];
         textEl.classList.remove('adv-loading-text--fade');
-      }, 400);
-    }, 2500);
+      }, 350);
+    }, 2000);
   }
 
   function stopLoadingTextCycle() {
@@ -2225,7 +2183,7 @@
       if (fill) {
         fill.style.width = hpPct + '%';
         fill.className = 'adv-hp__fill' +
-          (hpPct <= 25 ? ' adv-hp__fill--danger' : (hpPct <= 50 ? ' adv-hp__fill--warning' : ''));
+          (hpPct < 30 ? ' adv-hp__fill--danger' : (hpPct <= 60 ? ' adv-hp__fill--warning' : ''));
       }
       var hpVal = UI.$('hpValue');
       if (hpVal) hpVal.textContent = stats.hp;

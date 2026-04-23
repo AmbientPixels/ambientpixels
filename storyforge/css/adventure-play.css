@@ -28,9 +28,9 @@
   box-shadow: var(--sf-shadow-lift);
 }
 
-/* Fantasy — violet to indigo */
+/* Fantasy — muted wizard violet (less saturated than legacy) */
 .adv-app[data-genre="fantasy"] .adv-scene__image-wrap {
-  background: linear-gradient(135deg, #1a0533 0%, #2d1b69 40%, #1b0f4a 70%, #0f0a2e 100%);
+  background: linear-gradient(135deg, #14102a 0%, #261a3d 40%, #1a1530 70%, #0c0820 100%);
 }
 
 /* Horror — deep red to black */
@@ -43,9 +43,9 @@
   background: linear-gradient(135deg, #061520 0%, #0a2a3a 40%, #082030 70%, #04101a 100%);
 }
 
-/* Detective — dark amber to brown */
+/* Detective — dark forest green, leather-chair tones */
 .adv-app[data-genre="detective"] .adv-scene__image-wrap {
-  background: linear-gradient(150deg, #1a1408 0%, #2a2010 35%, #1a1508 70%, #0f0c04 100%);
+  background: linear-gradient(150deg, #0d1409 0%, #1a2412 35%, #0f1709 70%, #060a04 100%);
 }
 
 /* Post-apocalyptic — olive to dark earth */
@@ -53,9 +53,9 @@
   background: linear-gradient(170deg, #0f1508 0%, #1a2510 40%, #121a0a 70%, #080c04 100%);
 }
 
-/* Pirate — warm amber to dark brown */
+/* Pirate — deep teal seas, oxidized brass tones */
 .adv-app[data-genre="pirate"] .adv-scene__image-wrap {
-  background: linear-gradient(165deg, #1a1008 0%, #2a1a0a 35%, #1a1208 70%, #0f0a04 100%);
+  background: linear-gradient(165deg, #0a1816 0%, #14282a 35%, #0a1715 70%, #050d0c 100%);
 }
 
 /* Superhero — deep blue to dark navy */
