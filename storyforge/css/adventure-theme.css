@@ -3530,3 +3530,63 @@ body[data-theme="dark"] {
   margin: -0.25rem 0 0 0;
   align-self: flex-start;
 }
+
+/* ============================================================
+   HUB HERO POLISH — Change 1: logo sizing + top-left anchor
+   Appended last so all rules win the cascade. Structural note:
+   .hero-content is expanded to fill the panel so h1, p, and
+   .hero-cta can each be absolutely positioned against the panel
+   edges. Change 1 = logo; Change 2 will fine-tune the tagline
+   + CTA cluster currently scaffolded at bottom-left.
+   ============================================================ */
+
+.adv-hub__hero--graphic-novel .adv-hub__hero-content {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.adv-hub__hero--graphic-novel h1 {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  max-width: 400px;
+  font-size: clamp(48px, 5.2vw, 88px);
+  line-height: 0.88;
+  margin: 0;
+}
+
+.adv-hub__hero--graphic-novel p {
+  position: absolute;
+  bottom: calc(2.5rem + 56px + 12px);
+  left: 32px;
+  margin: 0;
+}
+
+.adv-hub__hero--graphic-novel .adv-hub__hero-cta {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 32px;
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .adv-hub__hero--graphic-novel h1 {
+    max-width: 320px;
+    font-size: clamp(44px, 7vw, 72px);
+  }
+}
+
+@media (max-width: 640px) {
+  .adv-hub__hero--graphic-novel h1 {
+    top: 16px;
+    left: 16px;
+    max-width: 220px;
+    font-size: clamp(32px, 10vw, 48px);
+  }
+  .adv-hub__hero--graphic-novel p,
+  .adv-hub__hero--graphic-novel .adv-hub__hero-cta {
+    left: 16px;
+  }
+}
