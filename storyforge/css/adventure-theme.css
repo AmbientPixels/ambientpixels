@@ -3653,4 +3653,12 @@ body[data-theme="dark"] {
     min-width: 0;
     max-width: 100%;
   }
+  /* Wrap filter pills to multiple rows instead of scrolling horizontally
+     (adventure-gallery.css:743 set overflow-x: auto + flex-wrap: nowrap). */
+  .adv-gallery__filters {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    justify-content: center;
+    padding-bottom: 0;
+  }
 }
