@@ -3559,16 +3559,17 @@ body[data-theme="dark"] {
 
 .adv-hub__hero--graphic-novel p {
   position: absolute;
-  bottom: calc(2.5rem + 56px + 12px);
+  bottom: 32px;
   left: 32px;
+  max-width: 380px;
   margin: 0;
 }
 
+/* CTA hidden — tagline directs the action, genre grid sits immediately
+   below the hero, and a graphic-novel caption reads cleaner without a
+   SaaS-style button. Markup kept intact for rollback + a11y. */
 .adv-hub__hero--graphic-novel .adv-hub__hero-cta {
-  position: absolute;
-  bottom: 2.5rem;
-  left: 32px;
-  margin-top: 0;
+  display: none;
 }
 
 @media (max-width: 900px) {
@@ -3585,8 +3586,11 @@ body[data-theme="dark"] {
     max-width: 220px;
     font-size: clamp(32px, 10vw, 48px);
   }
-  .adv-hub__hero--graphic-novel p,
-  .adv-hub__hero--graphic-novel .adv-hub__hero-cta {
+  .adv-hub__hero--graphic-novel p {
     left: 16px;
+    right: 16px;
+    max-width: none;
+    bottom: 16px;
+    text-align: center;
   }
 }
