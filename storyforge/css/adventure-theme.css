@@ -3583,3 +3583,44 @@ body[data-theme="dark"] {
     text-align: center;
   }
 }
+
+/* ============================================================
+   HUB MOBILE — fix horizontal overflow at narrow viewports.
+   Grid items default to min-width: auto (= min-content), and
+   the genre card images have natural widths of 848–1024px, so
+   each grid track was growing to the image width and forcing
+   main.adv-hub 3× wider than the viewport. Three fixes:
+     1) min-width: 0 on the grid items to release the min-content
+        sizing trap so minmax(…, 1fr) actually shrinks.
+     2) Explicit 3-col at ≤900px and 2-col at ≤640px for the
+        genre grid (auto-fill minmax(200px,…) was still demanding
+        5+ tracks of min-content at tablet widths).
+     3) Hide the .adv-hub::before/::after decorations on narrow
+        screens — they use inset: -1rem to -2rem and push
+        scrollWidth 32px past the viewport.
+   ============================================================ */
+
+.adv-hub__genres > .adv-hub__genre,
+.adv-hub__saves > .adv-hub__save-card {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .adv-hub__genres {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .adv-hub::before,
+  .adv-hub::after {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .adv-hub__genres {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .adv-hub__saves {
+    grid-template-columns: 1fr;
+  }
+}
