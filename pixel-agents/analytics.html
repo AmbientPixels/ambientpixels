@@ -93,7 +93,10 @@
       <button class="pa-btn-icon" title="Notifications">
         <i class="fas fa-bell"></i>
       </button>
-      <div class="pa-avatar" id="pa-avatar" title="Account">
+      <a class="pa-signin-pill" id="pa-signin-pill" href="/pages/login.html?redirect=/pixel-agents/analytics.html">
+        <i class="fas fa-sign-in-alt"></i> <span class="pa-signin-pill__label">Sign In</span>
+      </a>
+      <div class="pa-avatar" id="pa-avatar" style="display:none;" title="Account">
         <i class="fas fa-user"></i>
       </div>
       <div class="pa-avatar-menu" id="pa-avatar-menu">
@@ -212,9 +215,13 @@
       var loginBtn = document.getElementById('pa-login-btn');
       var userStatus = document.getElementById('pa-user-status');
       var userName = document.getElementById('pa-user-name');
+      var signinPill = document.getElementById('pa-signin-pill');
+      var avatar = document.getElementById('pa-avatar');
       if (loginBtn) loginBtn.style.display = 'none';
       if (userStatus) userStatus.style.display = '';
       if (userName) userName.textContent = name;
+      if (signinPill) signinPill.style.display = 'none';
+      if (avatar) avatar.style.display = '';
     }
 
     var logoutBtn = document.getElementById('pa-logout-btn');

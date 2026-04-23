@@ -341,6 +341,51 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* Sign In pill — logged-out state of the topbar auth affordance */
+.pa-signin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--pa-radius-pill);
+  border: 1.5px solid var(--pa-primary-border);
+  background: var(--pa-primary-dim);
+  color: var(--pa-ink);
+  font-family: var(--pa-font-body);
+  font-weight: 600;
+  font-size: 0.82rem;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--pa-dur-fast) var(--pa-ease-standard),
+              border-color var(--pa-dur-fast) var(--pa-ease-standard),
+              color var(--pa-dur-fast) var(--pa-ease-standard);
+}
+
+.pa-signin-pill i {
+  font-size: 0.85rem;
+}
+
+.pa-signin-pill:hover,
+.pa-signin-pill:focus-visible {
+  background: var(--pa-primary);
+  border-color: var(--pa-primary);
+  color: var(--pa-ink);
+}
+
+@media (max-width: 480px) {
+  .pa-signin-pill {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    border-radius: var(--pa-radius-md);
+  }
+  .pa-signin-pill .pa-signin-pill__label {
+    display: none;
+  }
+}
+
 /* Avatar */
 .pa-avatar {
   width: 32px;
