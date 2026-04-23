@@ -3671,3 +3671,25 @@ body[data-theme="dark"] {
 .adv-gallery__sort {
   border-radius: 3px;
 }
+
+/* Keep the orange active state visible even while the filter is hovered.
+   adventure-gallery.css:164 sets .adv-gallery__filter:hover (specificity
+   0,2,0) which was overriding .adv-gallery__filter--active (0,1,0) any
+   time the cursor sat on the clicked button — so "All" read orange on
+   load but the orange vanished as soon as you clicked another filter. */
+.adv-gallery__filter--active,
+.adv-gallery__filter--active:hover {
+  background: rgba(var(--sf-accent-rgb), 0.15);
+  border-color: var(--sf-accent);
+  color: var(--sf-accent);
+}
+
+/* Sort dropdown — style the native <option> list.
+   adventure-gallery.css:138 set the select to background: none + color:
+   inherit, but <option> elements render with the OS default (white bg)
+   unless explicitly styled, causing white-on-white unreadable options. */
+.adv-gallery__sort select,
+.adv-gallery__sort select option {
+  background-color: var(--sf-bg-panel);
+  color: var(--sf-text-primary);
+}
