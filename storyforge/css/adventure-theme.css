@@ -1098,19 +1098,18 @@ body[data-theme="dark"] {
   letter-spacing: 0.02em;
 }
 
-/* ── Steps 2 + 3 — CREAM PAPER MODE ── */
-@media (min-width: 901px) {
-  .adv-wizard__panel[data-panel="2"],
-  .adv-wizard__panel[data-panel="3"] {
-    background-color: var(--sf-bg-caption);
-    background-image: url("/storyforge/images/assets/paper-tile.png");
-    background-size: 256px;
-    background-blend-mode: multiply;
-    border: 3px solid var(--sf-border-heavy);
-    border-radius: 4px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-  }
+/* ── Steps 2 + 3 — CREAM PAPER MODE (all viewports) ── */
+.adv-wizard__panel[data-panel="2"],
+.adv-wizard__panel[data-panel="3"] {
+  background-color: var(--sf-bg-caption);
+  background-image: url("/storyforge/images/assets/paper-tile.png");
+  background-size: 256px;
+  background-blend-mode: multiply;
+  border: 3px solid var(--sf-border-heavy);
+  border-radius: 4px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
 
   .adv-wizard__panel[data-panel="2"] .adv-wizard__title,
   .adv-wizard__panel[data-panel="3"] .adv-wizard__title {
@@ -1231,7 +1230,6 @@ body[data-theme="dark"] {
     color: var(--sf-ink-secondary);
     font-family: var(--sf-font-ui);
   }
-}
 
 /* ============================================================
    ACTIVE STORY — comic-panel scene + cream caption + speech-balloons
@@ -1610,15 +1608,6 @@ body[data-theme="dark"] {
 
   .adv-scene__text p {
     color: var(--sf-text-primary);
-  }
-
-  /* Mobile wizard steps 2/3 — drop cream paper, use dark with accent borders */
-  .adv-wizard__panel[data-panel="2"],
-  .adv-wizard__panel[data-panel="3"] {
-    background: var(--sf-bg-panel);
-    background-image: none;
-    border: 1px solid var(--sf-border-medium);
-    padding: 1rem;
   }
 }
 
