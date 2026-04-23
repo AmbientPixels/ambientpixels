@@ -3483,6 +3483,29 @@ body[data-theme="dark"] {
   font-size: 1.1rem;
 }
 
+/* ── Continue Adventure cards: hide redundant IN PROGRESS pill ────
+   The Continue Adventure section is filtered at adventure-app.js:132
+   to only render adventures where `status !== 'completed' &&
+   status !== 'abandoned'` — i.e. every card here is in-progress by
+   definition. The pill says nothing the section header doesn't
+   already imply, AND on the new 320px-wide cards it was colliding
+   with the HP bar in the meta row. Hide it. (If a future state
+   ever mixes completed + in-progress here, bring it back.) */
+.adv-hub__save-status--in_progress {
+  display: none;
+}
+
+/* ── Continue Adventure cards: hide empty thumb on new adventures ─
+   When a save has no scene image yet (brand-new adventure that
+   hasn't generated turn 1), the thumb falls back to a small genre
+   icon in a 64×48 bordered box. From the user's perspective it
+   reads as a broken image placeholder, not a scene preview. Hide
+   the thumb container when it has no <img> child — info column
+   takes full width on those cards. */
+.adv-hub__save-thumb:not(:has(img)) {
+  display: none;
+}
+
 /* ── Location badge — move to sit under the scene image ──────────
    Was rendering between the turn bar and story title (a confusing
    middle spot, attached to nothing). Now lives directly under the
