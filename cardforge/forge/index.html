@@ -3,16 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CardForge — FORGE preview</title>
+  <title>CardForge — The Forge</title>
 
   <!-- Fonts: Unbounded (display), Space Grotesk (sans), JetBrains Mono (mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Load order: tokens → chrome → responsive (last) -->
+  <!-- Font Awesome (stage buttons + chevrons + overlays) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- CSS load order: tokens → chrome → editor → panels → responsive (last) -->
   <link rel="stylesheet" href="css/forge-tokens.css">
   <link rel="stylesheet" href="css/forge-chrome.css">
+  <link rel="stylesheet" href="css/forge-editor.css">
+  <link rel="stylesheet" href="css/forge-panels.css">
   <link rel="stylesheet" href="css/forge-responsive.css">
 </head>
 <body class="forge-page">
@@ -44,19 +49,42 @@
       </nav>
     </div>
     <div class="forge-topbar-right">
+      <!-- Card-style pill lands in Phase 5 Task 5.8 -->
       <button class="forge-signin" type="button">SIGN IN</button>
     </div>
   </header>
 
-  <main style="padding: 40px 56px;">
-    <h1 style="font-family: var(--forge-font-display); font-size: 48px; font-weight: 700; letter-spacing: -1.5px; margin: 0 0 16px;">Chrome preview.</h1>
-    <p style="color: var(--forge-text2); font-size: 14px; line-height: 1.6; max-width: 520px;">
-      Top bar and obsidian/ember page background only. Landing ships in Phase 2, editor shell in Phase 3.
-    </p>
-    <p style="color: var(--forge-mute); font-family: var(--forge-font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 24px;">
-      ◈ PHASE 1 — DESIGN TOKENS + CHROME
-    </p>
+  <main class="forge-editor">
+    <aside class="forge-editor-left" id="forge-left-panel" aria-label="Editor left panel">
+      <!-- Populated by forge-left-panel.js: Identity + Stages + Pick Card Style -->
+    </aside>
+
+    <section class="forge-editor-stage" id="forge-stage" aria-label="Card design stage">
+      <header class="forge-stage-header">
+        <!-- Populated by forge-stage.js: stage crumb + title + icon buttons -->
+      </header>
+
+      <div class="forge-stage-floor">
+        <div class="forge-stage-glow" aria-hidden="true"></div>
+        <div class="forge-stage-card" id="forge-stage-card">
+          <!-- Phase 5 Task 5.1: card render dispatched by window.ForgeRender -->
+        </div>
+      </div>
+
+      <footer class="forge-stage-footer">
+        <!-- Populated by forge-stage.js: action row (undo / shuffle / hammer / share / caption) -->
+      </footer>
+    </section>
+
+    <aside class="forge-editor-right" id="forge-right-panel" aria-label="Editor right panel">
+      <!-- Populated by forge-right-panel.js: Vitals + Overlays + Live state + FORGE → NEXT -->
+    </aside>
   </main>
+
+  <!-- Panel modules (self-initialize on DOMContentLoaded) -->
+  <script src="js/forge-left-panel.js" defer></script>
+  <script src="js/forge-stage.js" defer></script>
+  <script src="js/forge-right-panel.js" defer></script>
 
 </body>
 </html>

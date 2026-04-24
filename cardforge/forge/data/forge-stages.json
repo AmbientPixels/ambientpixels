@@ -1,0 +1,9 @@
+[
+  { "id": "identity",    "num": "01", "label": "Identity" },
+  { "id": "card-design", "num": "02", "label": "Card Design" },
+  { "id": "vitals",      "num": "03", "label": "Vitals" },
+  { "id": "overlays",    "num": "04", "label": "Overlays" },
+  { "id": "lore",        "num": "05", "label": "Lore" },
+  { "id": "preview",     "num": "06", "label": "Preview" },
+  { "id": "mint",        "num": "07", "label": "Mint" }
+]

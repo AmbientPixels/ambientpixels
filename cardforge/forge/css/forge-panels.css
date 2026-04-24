@@ -1,0 +1,383 @@
+/* forge-panels.css — left panel + right panel internals per redesign-handoff.md §6.2, §6.4.
+   Load AFTER forge-editor.css, BEFORE forge-responsive.css.
+
+   Shared:
+     .forge-section-label — the `◈ LABEL` mono convention. Every panel section starts with one.
+     .forge-panel-input — common input field styling.
+   Left-panel specific: .forge-identity, .forge-stages, .forge-style-picker
+   Right-panel specific: .forge-vitals, .forge-overlays, .forge-live-state, .forge-next-btn */
+
+/* ---------------------------------------------------------------
+   Shared — section labels + inputs
+   --------------------------------------------------------------- */
+.forge-section-label {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-mute);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.forge-section + .forge-section {
+  margin-top: 18px;
+}
+
+.forge-input-label {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-mute);
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+
+.forge-panel-input,
+.forge-panel-select {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--forge-bg3);
+  border: 1px solid var(--forge-line2);
+  color: var(--forge-text);
+  font-family: var(--forge-font-sans);
+  font-size: 12px;
+  border-radius: var(--forge-r-sm);
+  box-sizing: border-box;
+}
+
+.forge-panel-input::placeholder {
+  color: var(--forge-dim);
+}
+
+.forge-panel-input:focus,
+.forge-panel-select:focus {
+  outline: none;
+  border-color: var(--forge-ember-55);
+}
+
+.forge-panel-select {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.forge-panel-select i {
+  font-size: 8px;
+  color: var(--forge-mute);
+}
+
+/* ---------------------------------------------------------------
+   Left panel — STAGES rail (§6.2)
+   --------------------------------------------------------------- */
+.forge-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.forge-stage-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.forge-stage-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.forge-stage-row.is-active {
+  background: var(--forge-ember-dim);
+  border-left-color: var(--forge-ember);
+}
+
+.forge-stage-row.is-done {
+  /* transparent bg, checkmark in indicator */
+}
+
+.forge-stage-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--forge-r-sm);
+  border: 1px solid var(--forge-line2);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  font-family: var(--forge-font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--forge-mute);
+  flex-shrink: 0;
+}
+
+.forge-stage-row.is-active .forge-stage-indicator {
+  border-color: var(--forge-ember);
+  color: var(--forge-ember);
+}
+
+.forge-stage-row.is-done .forge-stage-indicator {
+  border-color: rgba(255, 122, 26, 0.4);
+  background: rgba(255, 122, 26, 0.13);
+  color: var(--forge-ember);
+}
+
+.forge-stage-label {
+  font-family: var(--forge-font-sans);
+  font-size: 11px;
+  color: var(--forge-text2);
+  font-weight: 400;
+}
+
+.forge-stage-row.is-active .forge-stage-label {
+  color: var(--forge-ember);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------
+   Left panel — PICK CARD STYLE (§6.2)
+   --------------------------------------------------------------- */
+.forge-style-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.forge-style-chip {
+  padding: 8px 10px;
+  background: var(--forge-bg2);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  text-align: left;
+}
+
+.forge-style-chip:hover {
+  border-color: var(--forge-line2);
+  background: var(--forge-bg3);
+}
+
+.forge-style-chip.is-selected {
+  background: var(--forge-ember-dim);
+  border-color: var(--forge-ember);
+}
+
+.forge-style-chip-name {
+  font-family: var(--forge-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--forge-text);
+}
+
+.forge-style-chip.is-selected .forge-style-chip-name {
+  color: var(--forge-ember);
+}
+
+.forge-style-chip-tag {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-mute);
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* Voice note under the chip grid */
+.forge-style-voice {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: var(--forge-bg0);
+  border: 1px dashed var(--forge-line2);
+  border-radius: var(--forge-r-sm);
+  font-family: var(--forge-font-sans);
+  font-size: 10px;
+  color: var(--forge-text2);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* ---------------------------------------------------------------
+   Right panel — VITALS (§6.4)
+   --------------------------------------------------------------- */
+.forge-vitals {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.forge-vital-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.forge-vital-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+}
+
+.forge-vital-label {
+  color: var(--forge-mute);
+  text-transform: uppercase;
+}
+
+.forge-vital-value {
+  color: var(--forge-ember);
+  font-weight: 700;
+}
+
+.forge-vital-track {
+  position: relative;
+  height: 3px;
+  background: var(--forge-bg3);
+  border-radius: 2px;
+}
+
+.forge-vital-fill {
+  height: 100%;
+  background: var(--forge-ember);
+  border-radius: 2px;
+  box-shadow: 0 0 6px var(--forge-ember-88);
+  transition: width 0.15s ease;
+}
+
+.forge-vital-thumb {
+  position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--forge-ember);
+  box-shadow: 0 0 8px var(--forge-ember);
+  transform: translateX(-4px);
+  transition: left 0.15s ease;
+}
+
+/* ---------------------------------------------------------------
+   Right panel — OVERLAYS (§6.4)
+   --------------------------------------------------------------- */
+.forge-overlays {
+  display: flex;
+  flex-direction: column;
+}
+
+.forge-overlay-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--forge-line);
+}
+
+.forge-overlay-row:last-child {
+  border-bottom: none;
+}
+
+.forge-overlay-label {
+  font-family: var(--forge-font-sans);
+  font-size: 11px;
+  color: var(--forge-text2);
+}
+
+.forge-overlay-toggle {
+  position: relative;
+  width: 26px;
+  height: 14px;
+  border-radius: 7px;
+  background: var(--forge-bg3);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.forge-overlay-toggle::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.forge-overlay-toggle.is-on {
+  background: var(--forge-ember);
+}
+
+.forge-overlay-toggle.is-on::before {
+  transform: translateX(12px);
+}
+
+/* ---------------------------------------------------------------
+   Right panel — LIVE STATE box (§6.4)
+   --------------------------------------------------------------- */
+.forge-live-state {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--forge-bg0);
+  border: 1px dashed var(--forge-line2);
+  border-radius: var(--forge-r-sm);
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--forge-dim);
+}
+
+.forge-live-state-row {
+  display: flex;
+  gap: 6px;
+}
+
+.forge-live-state-key {
+  color: var(--forge-dim);
+}
+
+.forge-live-state-val {
+  color: var(--forge-text2);
+}
+
+.forge-live-state-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--forge-success);
+  box-shadow: 0 0 6px var(--forge-success);
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ---------------------------------------------------------------
+   Right panel — FORGE → NEXT (§6.4)
+   --------------------------------------------------------------- */
+.forge-next-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  background: var(--forge-ember);
+  color: #fff;
+  border: none;
+  border-radius: var(--forge-r-md);
+  font-family: var(--forge-font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 20px var(--forge-ember-55);
+  transition: background 0.15s ease;
+}
+
+.forge-next-btn:hover {
+  background: var(--forge-ember-soft);
+}
