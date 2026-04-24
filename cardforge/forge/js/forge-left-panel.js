@@ -1,11 +1,10 @@
-/* forge-left-panel.js — renders Identity + Stages + Pick Card Style sections.
- * Per redesign-handoff.md §6.2.
+/* forge-left-panel.js — renders Identity + Stages + Pick Card Style.
+ * Per redesign-handoff.md §6.2 + Phase 4 Task 4.2.
  *
- * Phase 3: renders with a static default state (no interactivity, no persistence).
- * Phase 4 Task 4.2 wires stage-click navigation + style-chip state updates.
- * STAGES + STYLES are inlined here so the module works from file:// protocol
- * without needing fetch(); `data/forge-stages.json` is the canonical
- * external copy but is not loaded at runtime in Phase 3.
+ * Subscribes to window.ForgeState for re-renders. Click handlers dispatch via
+ * window.ForgeStageFlow (stages) and window.ForgeState.set (style picks + name input).
+ *
+ * STAGES + STYLES inlined so the module works from file:// without fetch.
  */
 
 (function () {
@@ -21,7 +20,6 @@
     { id: 'mint',        num: '07', label: 'Mint' }
   ];
 
-  // Card styles per dir10-obsidian-cards.jsx. Voice sub-tag = first word of byline.
   var STYLES = [
     { id: 'monograph', name: 'Monograph', tag: 'serif',     voice: 'Treats the hero like a profile piece. Serif display, cream paper, pull quote.' },
     { id: 'ember',     name: 'Ember',     tag: 'dark',      voice: 'Obsidian-native. Rim glow, ember accents, mono readout of stats.' },
@@ -43,11 +41,11 @@
         '<div class="forge-section-label">◈ IDENTITY</div>' +
         '<div style="margin-bottom: 10px;">' +
           '<div class="forge-input-label">NAME</div>' +
-          '<input class="forge-panel-input" type="text" value="' + escapeHtml(state.name) + '" placeholder="Name your hero..." />' +
+          '<input class="forge-panel-input" type="text" id="forge-left-name" value="' + escapeHtml(state.name) + '" placeholder="Name your hero..." />' +
         '</div>' +
         '<div>' +
           '<div class="forge-input-label">CLASS</div>' +
-          '<div class="forge-panel-select" role="button" tabindex="0">' +
+          '<div class="forge-panel-select" role="button" tabindex="0" id="forge-left-class">' +
             '<span>' + escapeHtml(state.classLabel || 'Fantasy Ranger') + '</span>' +
             '<i class="fa-solid fa-chevron-down"></i>' +
           '</div>' +
@@ -56,7 +54,8 @@
   }
 
   function renderStages(state) {
-    var activeIdx = STAGES.findIndex(function (s) { return s.id === state.activeStage; });
+    var order = (window.ForgeStageFlow && window.ForgeStageFlow.STAGE_ORDER) || STAGES.map(function (s) { return s.id; });
+    var activeIdx = order.indexOf(state.activeStage);
     if (activeIdx < 0) activeIdx = 0;
 
     var rows = STAGES.map(function (s, i) {
@@ -64,7 +63,6 @@
       var isDone = i < activeIdx;
       var cls = 'forge-stage-row' + (isActive ? ' is-active' : '') + (isDone ? ' is-done' : '');
       var indicatorContent = isDone ? '<i class="fa-solid fa-check" style="font-size: 7px;"></i>' : s.num;
-
       return '' +
         '<div class="' + cls + '" data-stage-id="' + s.id + '" role="button" tabindex="0">' +
           '<div class="forge-stage-indicator">' + indicatorContent + '</div>' +
@@ -80,8 +78,7 @@
   }
 
   function renderStylePicker(state) {
-    var selectedStyle = STYLES.find(function (s) { return s.id === state.styleId; }) || STYLES[1]; // default ember
-
+    var selectedStyle = STYLES.find(function (s) { return s.id === state.styleId; }) || STYLES[1];
     var chips = STYLES.map(function (s) {
       var cls = 'forge-style-chip' + (s.id === state.styleId ? ' is-selected' : '');
       return '' +
@@ -107,6 +104,56 @@
       renderStylePicker(state);
   }
 
+  // ---------------------------------------------------------------
+  // Event wiring — delegate on the panel root so re-renders don't
+  // need to re-bind listeners.
+  // ---------------------------------------------------------------
+  function wire(root) {
+    if (!root) return;
+
+    // Stage row click → StageFlow.goTo
+    root.addEventListener('click', function (ev) {
+      var stageEl = ev.target.closest('.forge-stage-row');
+      if (stageEl && stageEl.dataset.stageId) {
+        if (window.ForgeStageFlow) window.ForgeStageFlow.goTo(stageEl.dataset.stageId);
+        return;
+      }
+
+      var styleChip = ev.target.closest('.forge-style-chip');
+      if (styleChip && styleChip.dataset.styleId) {
+        var prev = window.ForgeState.get().styleId;
+        var next = styleChip.dataset.styleId;
+        if (prev === next) return;
+
+        if (window.ForgeTelemetry && typeof window.ForgeTelemetry.track === 'function') {
+          window.ForgeTelemetry.track('style.pick', {
+            from: prev,
+            to: next,
+            atStage: window.ForgeState.get().activeStage
+          });
+        }
+        window.ForgeState.set({ styleId: next });
+      }
+    });
+
+    // Keyboard parity — Enter/Space on stage rows
+    root.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      var stageEl = ev.target.closest('.forge-stage-row');
+      if (stageEl && stageEl.dataset.stageId) {
+        ev.preventDefault();
+        if (window.ForgeStageFlow) window.ForgeStageFlow.goTo(stageEl.dataset.stageId);
+      }
+    });
+
+    // Name input — live sync to state (debounced via ForgeState's own 300ms save)
+    root.addEventListener('input', function (ev) {
+      if (ev.target && ev.target.id === 'forge-left-name') {
+        window.ForgeState.set({ name: ev.target.value });
+      }
+    });
+  }
+
   window.ForgeLeftPanel = {
     STAGES: STAGES,
     STYLES: STYLES,
@@ -114,14 +161,23 @@
   };
 
   document.addEventListener('DOMContentLoaded', function () {
-    var defaultState = (window.ForgeState && typeof window.ForgeState.get === 'function')
-      ? window.ForgeState.get()
-      : {
-          name: '',
-          classLabel: 'Fantasy Ranger',
-          activeStage: 'card-design',
-          styleId: 'ember'
-        };
-    render(document.getElementById('forge-left-panel'), defaultState);
+    var root = document.getElementById('forge-left-panel');
+    if (!root || !window.ForgeState) return;
+    render(root, window.ForgeState.get());
+    wire(root);
+    window.ForgeState.subscribe(function (state) {
+      // Preserve focus + caret position across re-renders of the name input
+      var active = document.activeElement;
+      var isNameFocused = active && active.id === 'forge-left-name';
+      var caret = isNameFocused ? active.selectionStart : null;
+      render(root, state);
+      if (isNameFocused) {
+        var nameEl = document.getElementById('forge-left-name');
+        if (nameEl) {
+          nameEl.focus();
+          if (caret != null) nameEl.setSelectionRange(caret, caret);
+        }
+      }
+    });
   });
 })();

@@ -81,7 +81,13 @@
     </aside>
   </main>
 
-  <!-- Panel modules (self-initialize on DOMContentLoaded) -->
+  <!-- Core modules — load order matters. With `defer`, scripts run in document order
+       after parsing. State store must exist before any panel subscribes. -->
+  <script src="js/forge-state.js" defer></script>
+  <script src="js/forge-stage-flow.js" defer></script>
+  <script src="js/forge-portrait.js" defer></script>
+
+  <!-- Panel modules (self-initialize on DOMContentLoaded, subscribe to ForgeState) -->
   <script src="js/forge-left-panel.js" defer></script>
   <script src="js/forge-stage.js" defer></script>
   <script src="js/forge-right-panel.js" defer></script>

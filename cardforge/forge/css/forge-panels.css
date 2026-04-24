@@ -381,3 +381,214 @@
 .forge-next-btn:hover {
   background: var(--forge-ember-soft);
 }
+
+.forge-next-btn:disabled {
+  background: var(--forge-bg3);
+  color: var(--forge-mute);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------------------------------------------------------------
+   Identity-stage form (center stage when activeStage === 'identity')
+   Per Phase 4 Task 4.3 — name + rarity chips + portrait grid + AI suggest
+   --------------------------------------------------------------- */
+.forge-identity-form {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.forge-identity-header {
+  display: flex;
+  justify-content: center;
+}
+
+.forge-identity-name {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--forge-bg1);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  color: var(--forge-text);
+  font-family: var(--forge-font-display);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  text-align: center;
+}
+
+.forge-identity-name::placeholder {
+  color: var(--forge-mute);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.forge-identity-name:focus {
+  outline: none;
+  border-color: var(--forge-ember-55);
+  box-shadow: 0 0 0 3px var(--forge-ember-dim);
+}
+
+/* Rarity chips — inline row */
+.forge-identity-rarity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.forge-rarity-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.forge-rarity-chip {
+  padding: 6px 14px;
+  background: var(--forge-bg2);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  color: var(--forge-text2);
+  font-family: var(--forge-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.forge-rarity-chip:hover {
+  color: var(--forge-text);
+  border-color: var(--forge-line2);
+}
+
+.forge-rarity-chip.is-selected {
+  background: var(--forge-ember-dim);
+  border-color: var(--forge-ember);
+  color: var(--forge-ember);
+}
+
+/* Portrait grid — 4×3 */
+.forge-identity-portraits {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.forge-identity-portraits-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forge-ai-suggest {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: var(--forge-bg1);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  color: var(--forge-text2);
+  font-family: var(--forge-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.forge-ai-suggest i {
+  color: var(--forge-ember);
+  font-size: 10px;
+}
+
+.forge-ai-suggest:hover:not(:disabled) {
+  border-color: var(--forge-ember-33);
+  color: var(--forge-text);
+}
+
+.forge-ai-suggest:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.forge-ai-suggest-count {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-mute);
+  letter-spacing: 0.5px;
+}
+
+.forge-portrait-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.forge-portrait-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  background: var(--forge-bg1);
+  border: 1.5px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.forge-portrait-tile:hover {
+  border-color: var(--forge-ember-33);
+  transform: translateY(-1px);
+}
+
+.forge-portrait-tile.is-selected {
+  border-color: var(--forge-ember);
+  box-shadow: 0 0 18px var(--forge-ember-33);
+}
+
+.forge-portrait-tile-svg {
+  aspect-ratio: 5 / 7;
+  overflow: hidden;
+  border-radius: var(--forge-r-sm);
+  background: var(--forge-bg0);
+}
+
+.forge-portrait-tile-svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.forge-portrait-tile-label {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-mute);
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.forge-portrait-tile.is-selected .forge-portrait-tile-label {
+  color: var(--forge-ember);
+}
+
+/* Stage footer — disabled state */
+.forge-stage-roundbtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: var(--forge-line);
+}
+
+.forge-stage-roundbtn--ember:disabled {
+  background: var(--forge-bg3);
+  box-shadow: none;
+  color: var(--forge-mute);
+}

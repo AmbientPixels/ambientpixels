@@ -1,20 +1,16 @@
 /* forge-right-panel.js — renders Vitals + Overlays + Live state + FORGE → NEXT.
- * Per redesign-handoff.md §6.4.
+ * Per redesign-handoff.md §6.4 + Phase 4 Task 4.2.
  *
- * Phase 3: renders with a static default state. No drag, no toggle interaction.
- * Phase 4 Task 4.2 wires stat-thumb drag, overlay toggles, and the forge-next button.
+ * Wires: stat-track click (sets value 0-100 from click X), overlay toggles,
+ * forge-next button. Subscribes to window.ForgeState for re-renders.
  *
- * Stat keys are the existing CardForge schema — STR/AGI/INT/END/LCK (locked per
- * project_cardforge_forge_redesign.md). Do not rename to spec's STR/DEX/INT/CON/LUK.
+ * Stat keys locked as STR/AGI/INT/END/LCK per project_cardforge_forge_redesign.md.
  */
 
 (function () {
   'use strict';
 
-  // Order matters — this is the vertical order of vital rows.
   var STAT_KEYS = ['STR', 'AGI', 'INT', 'END', 'LCK'];
-
-  // 4 overlays per spec §6.4
   var OVERLAYS = [
     { id: 'rim',       label: 'Rim glow' },
     { id: 'grain',     label: 'Film grain' },
@@ -28,17 +24,19 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  function clamp(n) { return Math.max(0, Math.min(100, n)); }
+
   function renderVitals(state) {
     var stats = state.stats || {};
     var rows = STAT_KEYS.map(function (key) {
-      var val = Math.max(0, Math.min(100, Number(stats[key]) || 0));
+      var val = clamp(Number(stats[key]) || 0);
       return '' +
         '<div class="forge-vital-row" data-stat="' + key + '">' +
           '<div class="forge-vital-header">' +
             '<span class="forge-vital-label">' + key + '</span>' +
             '<span class="forge-vital-value">' + val + '</span>' +
           '</div>' +
-          '<div class="forge-vital-track">' +
+          '<div class="forge-vital-track" data-stat-track="' + key + '" role="slider" aria-label="' + key + ' stat" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + val + '" tabindex="0">' +
             '<div class="forge-vital-fill" style="width: ' + val + '%;"></div>' +
             '<div class="forge-vital-thumb" style="left: ' + val + '%;"></div>' +
           '</div>' +
@@ -83,9 +81,9 @@
   }
 
   function renderLiveState(state) {
-    var hash = state.hash || 'a3f9c2b8';
+    var hash = state.hash || '--------';
     var styleId = state.styleId || 'ember';
-    var autosave = state.autosavedAt ? formatAutosaveAge(state.autosavedAt) : '0:03 ago';
+    var autosave = state.autosavedAt ? formatAutosaveAge(state.autosavedAt) : 'not saved';
 
     return '' +
       '<div class="forge-section">' +
@@ -110,8 +108,9 @@
       '</div>';
   }
 
-  function renderForgeNext() {
-    return '<button class="forge-next-btn" type="button">⚒ FORGE → NEXT</button>';
+  function renderForgeNext(state) {
+    var atTerminal = state.activeStage === 'mint';
+    return '<button class="forge-next-btn" type="button" id="forge-next-btn"' + (atTerminal ? ' disabled' : '') + '>⚒ FORGE → NEXT</button>';
   }
 
   function render(root, state) {
@@ -120,7 +119,70 @@
       renderVitals(state) +
       renderOverlays(state) +
       renderLiveState(state) +
-      renderForgeNext();
+      renderForgeNext(state);
+  }
+
+  // ---------------------------------------------------------------
+  // Wire interactions — delegate on root
+  // ---------------------------------------------------------------
+  function setStatFromClick(track, clientX) {
+    var key = track.dataset.statTrack;
+    if (!key) return;
+    var rect = track.getBoundingClientRect();
+    var rel = (clientX - rect.left) / rect.width;
+    var val = Math.round(clamp(rel * 100));
+    var stats = Object.assign({}, window.ForgeState.get().stats);
+    stats[key] = val;
+    window.ForgeState.set({ stats: stats });
+  }
+
+  function wire(root) {
+    if (!root) return;
+
+    // Click handling — track clicks (slider), overlay toggles, forge-next
+    root.addEventListener('click', function (ev) {
+      var track = ev.target.closest('.forge-vital-track');
+      if (track) {
+        setStatFromClick(track, ev.clientX);
+        return;
+      }
+
+      var toggle = ev.target.closest('.forge-overlay-toggle');
+      if (toggle && toggle.dataset.overlayId) {
+        var id = toggle.dataset.overlayId;
+        var prev = window.ForgeState.get().overlays || {};
+        var next = Object.assign({}, prev);
+        next[id] = !prev[id];
+        window.ForgeState.set({ overlays: next });
+        return;
+      }
+
+      var nextBtn = ev.target.closest('#forge-next-btn');
+      if (nextBtn && window.ForgeStageFlow) {
+        window.ForgeStageFlow.next();
+        return;
+      }
+    });
+
+    // Keyboard parity — arrow keys on stat tracks adjust by ±5
+    root.addEventListener('keydown', function (ev) {
+      var track = ev.target.closest('.forge-vital-track');
+      if (!track) return;
+      var key = track.dataset.statTrack;
+      if (!key) return;
+
+      var step = 0;
+      if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') step = 5;
+      else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') step = -5;
+      else if (ev.key === 'Home') step = -100;
+      else if (ev.key === 'End') step = 100;
+      else return;
+
+      ev.preventDefault();
+      var stats = Object.assign({}, window.ForgeState.get().stats);
+      stats[key] = clamp((Number(stats[key]) || 0) + step);
+      window.ForgeState.set({ stats: stats });
+    });
   }
 
   window.ForgeRightPanel = {
@@ -130,14 +192,10 @@
   };
 
   document.addEventListener('DOMContentLoaded', function () {
-    var defaultState = (window.ForgeState && typeof window.ForgeState.get === 'function')
-      ? window.ForgeState.get()
-      : {
-          stats: { STR: 72, AGI: 64, INT: 88, END: 58, LCK: 45 },
-          overlays: { rim: true, grain: false, foil: true, signature: false },
-          styleId: 'ember',
-          hash: 'a3f9c2b8'
-        };
-    render(document.getElementById('forge-right-panel'), defaultState);
+    var root = document.getElementById('forge-right-panel');
+    if (!root || !window.ForgeState) return;
+    render(root, window.ForgeState.get());
+    wire(root);
+    window.ForgeState.subscribe(function (state) { render(root, state); });
   });
 })();
