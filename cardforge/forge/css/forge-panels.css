@@ -636,3 +636,193 @@ body.forge-dragging .forge-vital-fill {
   box-shadow: none;
   color: var(--forge-mute);
 }
+
+/* ---------------------------------------------------------------
+   Mint-stage layout (Phase 7 — stage 07)
+   Card on the left, mint panel on the right with hash + share URL + exports
+   --------------------------------------------------------------- */
+.forge-mint-stage {
+  display: grid;
+  grid-template-columns: auto 340px;
+  gap: 32px;
+  align-items: center;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.forge-mint-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.forge-mint-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 18px 16px;
+  background: var(--forge-bg1);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-lg);
+}
+
+.forge-mint-status {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--forge-bg0);
+  border: 1px dashed var(--forge-line2);
+  border-radius: var(--forge-r-sm);
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.forge-mint-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.forge-mint-status-key {
+  color: var(--forge-mute);
+  min-width: 48px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.forge-mint-status-val {
+  color: var(--forge-text2);
+  flex: 1;
+  min-width: 0;
+  word-break: break-all;
+}
+
+.forge-mint-share-url {
+  color: var(--forge-ember);
+  font-weight: 600;
+}
+
+.forge-mint-status-note .forge-mint-status-val {
+  color: var(--forge-mute);
+  font-style: italic;
+}
+
+.forge-mint-copy-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: var(--forge-bg3);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-sm);
+  color: var(--forge-text2);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.forge-mint-copy-btn i {
+  font-size: 10px;
+}
+
+.forge-mint-copy-btn:hover {
+  border-color: var(--forge-ember-33);
+  color: var(--forge-ember);
+}
+
+.forge-mint-exports {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.forge-mint-export-btn {
+  padding: 8px 10px;
+  background: var(--forge-bg2);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-sm);
+  color: var(--forge-text2);
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.forge-mint-export-btn i {
+  font-size: 9px;
+}
+
+.forge-mint-export-btn:hover:not(:disabled) {
+  border-color: var(--forge-ember-33);
+  color: var(--forge-text);
+}
+
+.forge-mint-export-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.forge-mint-main-btn {
+  padding: 12px;
+  background: var(--forge-ember);
+  color: #fff;
+  border: none;
+  border-radius: var(--forge-r-md);
+  font-family: var(--forge-font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  box-shadow: 0 0 30px var(--forge-ember-55);
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.forge-mint-main-btn:hover:not(:disabled) {
+  background: var(--forge-ember-soft);
+}
+
+.forge-mint-main-btn:disabled {
+  cursor: not-allowed;
+  background: var(--forge-bg3);
+  color: var(--forge-mute);
+  box-shadow: none;
+}
+
+.forge-mint-main-btn--success {
+  background: var(--forge-bg2);
+  color: var(--forge-text);
+  border: 1px solid var(--forge-line2);
+  box-shadow: none;
+}
+
+.forge-mint-main-btn--success:hover:not(:disabled) {
+  background: var(--forge-bg3);
+  border-color: var(--forge-ember-33);
+  color: var(--forge-ember);
+}
+
+.forge-mint-error {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 80, 80, 0.08);
+  border: 1px solid rgba(255, 80, 80, 0.35);
+  border-radius: var(--forge-r-sm);
+  color: #ff8888;
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+}

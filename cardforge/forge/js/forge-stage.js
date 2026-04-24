@@ -159,44 +159,194 @@
       '</div>';
   }
 
+  function renderMintStage(root, state) {
+    // Card + mint panel (hash, share URL if minted, export buttons, mint/start-over)
+    var minted = !!state.shareId;
+    var hashDisplay = state.hash || '------------';
+    var shareUrl = state.shareUrl || '';
+    var shareShort = shareUrl ? shareUrl.replace(window.location.origin, '') : '';
+
+    var statusRows = '<div class="forge-mint-status-row">' +
+        '<span class="forge-mint-status-key">hash</span>' +
+        '<span class="forge-mint-status-val">' + escapeHtml(hashDisplay) + '</span>' +
+      '</div>';
+
+    if (minted) {
+      statusRows +=
+        '<div class="forge-mint-status-row">' +
+          '<span class="forge-mint-status-key">share</span>' +
+          '<span class="forge-mint-status-val forge-mint-share-url" title="' + escapeHtml(shareUrl) + '">' + escapeHtml(shareShort) + '</span>' +
+          '<button class="forge-mint-copy-btn" type="button" data-action="copy-share" aria-label="Copy share URL">' +
+            '<i class="fa-solid fa-copy"></i>' +
+          '</button>' +
+        '</div>';
+      if (state.localOnly) {
+        statusRows +=
+          '<div class="forge-mint-status-row forge-mint-status-note">' +
+            '<span class="forge-mint-status-key">note</span>' +
+            '<span class="forge-mint-status-val">local only (publish API unreachable)</span>' +
+          '</div>';
+      }
+    }
+
+    var mainBtn = minted
+      ? '<button class="forge-mint-main-btn forge-mint-main-btn--success" type="button" data-action="start-over">' +
+          '<i class="fa-solid fa-rotate-right"></i> START ANOTHER' +
+        '</button>'
+      : '<button class="forge-mint-main-btn" type="button" data-action="mint" id="forge-mint-main">' +
+          '⚒ MINT THIS CARD' +
+        '</button>';
+
+    root.innerHTML = '' +
+      '<div class="forge-mint-stage">' +
+        '<div class="forge-mint-card" id="forge-mint-card-wrap"></div>' +
+        '<div class="forge-mint-panel">' +
+          '<div class="forge-section-label">◈ MINT STATUS</div>' +
+          '<div class="forge-mint-status">' + statusRows + '</div>' +
+          '<div class="forge-mint-exports">' +
+            '<button class="forge-mint-export-btn" type="button" data-action="export-png"' + (minted ? '' : ' disabled') + '>' +
+              '<i class="fa-solid fa-download"></i> PNG' +
+            '</button>' +
+            '<button class="forge-mint-export-btn" type="button" data-action="export-svg"' + (minted ? '' : ' disabled') + '>' +
+              '<i class="fa-solid fa-download"></i> SVG' +
+            '</button>' +
+            '<button class="forge-mint-export-btn" type="button" data-action="export-json">' +
+              '<i class="fa-solid fa-download"></i> JSON' +
+            '</button>' +
+          '</div>' +
+          mainBtn +
+        '</div>' +
+      '</div>';
+
+    // Render the card inside the mint card wrap via ForgeRender
+    var cardWrap = root.querySelector('#forge-mint-card-wrap');
+    if (cardWrap && window.ForgeRender && typeof window.ForgeRender.update === 'function') {
+      window.ForgeRender.update(cardWrap, state, 'md');
+    }
+  }
+
   function renderStageContent(root, state) {
     if (!root) return;
+    var floor = root.closest('.forge-stage-floor');
+    var glow = floor ? floor.querySelector('.forge-stage-glow') : null;
+
     if (state.activeStage === 'identity') {
-      // Identity stage takes over the whole floor — hide the glow + card slot.
-      var floor = root.closest('.forge-stage-floor');
-      if (floor) {
-        var glow = floor.querySelector('.forge-stage-glow');
-        if (glow) glow.style.display = 'none';
-      }
+      // Identity stage takes over the whole floor — hide the glow.
+      if (glow) glow.style.display = 'none';
       renderIdentityStage(root, state);
-    } else {
-      var floor2 = root.closest('.forge-stage-floor');
-      if (floor2) {
-        var glow2 = floor2.querySelector('.forge-stage-glow');
-        if (glow2) glow2.style.display = '';
-      }
-      renderCardStage(root, state);
+      return;
     }
+
+    if (state.activeStage === 'mint') {
+      // Mint stage has its own layout with card + panel. Keep the glow visible.
+      if (glow) glow.style.display = '';
+      renderMintStage(root, state);
+      return;
+    }
+
+    // All other stages: card preview via ForgeRender
+    if (glow) glow.style.display = '';
+    renderCardStage(root, state);
   }
 
   // ---------------------------------------------------------------
   // Wire footer + identity form
   // ---------------------------------------------------------------
+  async function handleMintAction() {
+    var btn = document.getElementById('forge-mint-main');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> MINTING...'; }
+    try {
+      if (!window.ForgeShare || typeof window.ForgeShare.publishAndShare !== 'function') {
+        throw new Error('ForgeShare module not loaded');
+      }
+      var state = window.ForgeState.get();
+      var result = await window.ForgeShare.publishAndShare(state);
+      // Commit result to state — subscribe fires, UI re-renders with mint success view
+      window.ForgeState.set({
+        hash: result.hash,
+        shareId: result.shareId,
+        shareUrl: result.shareUrl,
+        localOnly: !!result.localOnly,
+        mintedAt: Date.now()
+      });
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.innerHTML = '⚒ MINT THIS CARD'; }
+      var panel = document.querySelector('.forge-mint-panel');
+      if (panel && !panel.querySelector('.forge-mint-error')) {
+        var err = document.createElement('div');
+        err.className = 'forge-mint-error';
+        err.textContent = 'Mint failed: ' + (e && e.message || 'unknown error');
+        panel.appendChild(err);
+      }
+    }
+  }
+
+  function handleCopyShare() {
+    var url = window.ForgeState.get().shareUrl;
+    if (!url) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        var btn = document.querySelector('.forge-mint-copy-btn');
+        if (btn) {
+          var prev = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+          setTimeout(function () { btn.innerHTML = prev; }, 1500);
+        }
+      }).catch(function () { window.prompt('Copy this link:', url); });
+    } else {
+      window.prompt('Copy this link:', url);
+    }
+  }
+
+  function getMintedCardEl() {
+    var wrap = document.querySelector('#forge-mint-card-wrap .forge-card');
+    return wrap || null;
+  }
+
+  async function handleExport(format) {
+    if (!window.ForgeShare) return;
+    var state = window.ForgeState.get();
+    var name = state.name || 'forge-card';
+    try {
+      if (format === 'json') {
+        window.ForgeShare.exportJSON(state, name);
+      } else if (format === 'png') {
+        var png = getMintedCardEl();
+        if (png) await window.ForgeShare.exportPNG(png, name);
+      } else if (format === 'svg') {
+        var svg = getMintedCardEl();
+        if (svg) await window.ForgeShare.exportSVG(svg, name);
+      }
+    } catch (e) {
+      alert('Export failed: ' + (e && e.message || 'unknown'));
+    }
+  }
+
+  function handleStartOver() {
+    if (window.ForgeState && typeof window.ForgeState.reset === 'function') {
+      window.ForgeState.reset();
+      // Return to identity so user starts fresh
+      if (window.ForgeStageFlow) window.ForgeStageFlow.goTo('identity');
+    }
+  }
+
   function handleStageAction(action) {
     if (!window.ForgeStageFlow) return;
     switch (action) {
-      case 'next':
-        window.ForgeStageFlow.next();
-        return;
-      case 'prev':
-        window.ForgeStageFlow.prev();
-        return;
+      case 'next':        window.ForgeStageFlow.next(); return;
+      case 'prev':        window.ForgeStageFlow.prev(); return;
+      case 'mint':        handleMintAction(); return;
+      case 'start-over':  handleStartOver(); return;
+      case 'copy-share':  handleCopyShare(); return;
+      case 'export-png':  handleExport('png'); return;
+      case 'export-svg':  handleExport('svg'); return;
+      case 'export-json': handleExport('json'); return;
       case 'shuffle':
       case 'undo':
       case 'redo':
       case 'share':
       case 'fullscreen':
-        // Non-blocking no-ops for Phase 4; Phase 6/7 wire the real behaviors.
+        // Non-blocking no-ops — not wired to real behavior yet.
         return;
     }
   }
