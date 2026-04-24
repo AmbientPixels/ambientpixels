@@ -237,34 +237,19 @@
   }
 
   async function initGallery() {
-    // 1. Render synthesized preset cards immediately so the hero
-    //    isn't empty while the API is in flight. These use the same
-    //    buildSyntheticFront() template as the padding below, so the
-    //    aesthetic stays consistent when we crossfade to real cards.
-    renderFan(PRESET_FALLBACK.slice(0, 5));
-    renderShowcase(PRESET_FALLBACK.slice(0, 10));
-    revealAfterPaint();
-
-    // 2. Fetch real gallery cards and pad with synthetic presets up
-    //    to 5 for the fan / 10 for the showcase — so the fan is
-    //    always full, and non-real cards still read as CardForge
-    //    cards (not portrait thumbnails).
+    // Real CardForge cards only — no preset-portrait fallback. The
+    // hero has enough anchor content (title, ticker, CTAs, ember
+    // glow) that a brief empty fan reads as "loading" rather than
+    // "empty". Showing fake portrait thumbnails first and then
+    // swapping to real cards would undermine the "look what the
+    // forge produces" story.
     var cards = await fetchPublishedCards();
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
-    if (realCards.length === 0) return; // initial presets stay.
+    if (realCards.length === 0) return; // API empty / unreachable → fan stays empty.
 
-    var fan = document.getElementById('cf-hero-fan');
-    var strip = document.getElementById('cf-showcase-strip');
-    if (fan) fan.classList.remove('cf-splash-loaded');
-    if (strip) strip.classList.remove('cf-splash-loaded');
-
-    setTimeout(function () {
-      // Render ONLY real cards. Fewer than 5 renders a symmetric fan
-      // via FAN_POS_BY_COUNT. No synthetic padding.
-      renderFan(realCards.slice(0, 5));
-      renderShowcase(realCards.slice(0, 10));
-      revealAfterPaint();
-    }, 240);
+    renderFan(realCards.slice(0, 5));
+    renderShowcase(realCards.slice(0, 10));
+    revealAfterPaint();
   }
 
   function init() {
