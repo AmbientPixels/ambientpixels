@@ -23,7 +23,8 @@ const {
   FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS
 } = require('./constants');
 const {
-  logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
+  logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
+  spawnQgRespawnCopyTask
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const _productFacts = require('../_data/product-facts.json');
@@ -2887,6 +2888,15 @@ Write the full deliverable first, then the structured JSON block.`;
               createdAt: new Date().toISOString()
             });
             context.log('[QualityGate] HALLUCINATION detected on', action.taskId, 'product:', _hallProductKey || 'unknown', '— brief-correction comment posted to Echo parent task');
+          }
+
+          // Spawn fresh Scribe copy task with QG feedback embedded so the pipeline self-heals.
+          // Without this the parent dies in limbo after auto-reject (no flag triggers re-engagement).
+          var _qgHallCtx = (typeof _hallProductKey !== 'undefined' && _hallProductKey && typeof _hallFactsLine !== 'undefined' && _hallFactsLine)
+            ? { productKey: _hallProductKey, factsLine: _hallFactsLine } : null;
+          var _qgRespawn = spawnQgRespawnCopyTask(tasks, _qgParentTask, newAction.platform, _qgResult.issues, _qgHallCtx);
+          if (_qgRespawn) {
+            context.log('[QualityGate] Spawned QG-respawn copy task', _qgRespawn.id, 'for parent', _qgParentTask.id);
           }
         }
 

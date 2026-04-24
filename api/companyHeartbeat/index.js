@@ -2937,6 +2937,14 @@ module.exports = async function (context) {
               });
               context.log('[QualityGate] AUTO-POST HALLUCINATION detected on', _pt.id, 'product:', _apProductKey || 'unknown', '— brief-correction comment posted');
             }
+
+            // Spawn fresh Scribe copy task so the pipeline self-heals — see helpers.spawnQgRespawnCopyTask.
+            var _apHallCtx = (typeof _apProductKey !== 'undefined' && _apProductKey && typeof _apFactsLine !== 'undefined' && _apFactsLine)
+              ? { productKey: _apProductKey, factsLine: _apFactsLine } : null;
+            var _apRespawn = H.spawnQgRespawnCopyTask(tasks, _pt, _platform, _aqQualityGate.issues, _apHallCtx);
+            if (_apRespawn) {
+              context.log('[QualityGate] AUTO-POST Spawned QG-respawn copy task', _apRespawn.id, 'for parent', _pt.id);
+            }
             continue; // skip AQ push
           }
 

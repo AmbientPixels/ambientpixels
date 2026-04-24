@@ -333,6 +333,75 @@ async function flushRunLog() {
   return { logsAdded: toLogs.length, governanceAdded: toGovernance.length };
 }
 
+// Spawn a fresh Scribe copy task after a quality-gate auto-rejection so the
+// pipeline self-heals instead of stranding the parent in limbo. Mirrors the
+// CEO-revision respawn pattern in index.js:533-575 but keyed off QG issues.
+// Idempotent: skips if a non-done Scribe copy task already exists for the parent.
+function spawnQgRespawnCopyTask(tasks, parentTask, platform, qgIssues, hallContext) {
+  if (!Array.isArray(tasks) || !parentTask || !parentTask.id) return null;
+
+  var _existing = tasks.find(function (t) {
+    return t && t.assignee === 'scribe' && t.parent_task_id === parentTask.id &&
+      t.status !== 'done' && t.status !== 'archived' &&
+      typeof t.title === 'string' && t.title.indexOf('Write social copy') === 0;
+  });
+  if (_existing) return null;
+
+  var _platform = String(platform || 'linkedin').toLowerCase();
+  var _maxLen = _platform === 'x' ? '280 chars'
+    : _platform === 'bluesky' ? '300 chars'
+    : _platform === 'reddit' ? 'TITLE (max 300 chars) + body (200-800 words, markdown)'
+    : _platform === 'facebook' ? '100-250 chars'
+    : '400-800 chars for LinkedIn';
+
+  var _cleanTitle = (parentTask.title || 'Untitled').replace(/^(?:DELIVERABLE: Blog Post —\s*|Promote blog post on [^:]+:\s*)/i, '');
+  var _issuesList = (qgIssues || []).slice(0, 8).map(function (i) { return '- ' + i; }).join('\n');
+
+  var _description = 'QUALITY GATE REJECTED the previous draft. Rewrite the ' + _platform + ' post for "' + _cleanTitle + '".\n\n'
+    + 'Quality gate issues to fix:\n' + (_issuesList || '- (no specific issues captured)') + '\n\n'
+    + 'Platform: ' + _platform + '\n'
+    + 'Max length: ' + _maxLen + '\n\n';
+
+  if (hallContext && hallContext.factsLine) {
+    _description += 'Product facts to ground the copy:' + hallContext.factsLine + '\n\n';
+  }
+
+  _description += 'Requirements:\n'
+    + '- Address every quality-gate issue above. Do NOT repeat the patterns that failed.\n'
+    + '- Write exactly ONE post — one single post, no variations.\n'
+    + '- Clean platform-ready copy (no markdown, no headers, no internal notes).\n'
+    + '- Use execute-task to produce your deliverable.';
+
+  var _newTaskId = 'task_' + Date.now() + '_qgcopy_' + Math.random().toString(36).substr(2, 4);
+  var _newTask = {
+    id: _newTaskId,
+    title: 'Write social copy for: ' + _cleanTitle,
+    description: _description,
+    taskType: 'social_copy',
+    status: 'todo',
+    priority: 'critical',
+    assignee: 'scribe',
+    source: 'heartbeat',
+    created_by: 'system',
+    parent_task_id: parentTask.id,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    campaign_id: parentTask.campaign_id || null,
+    objective_id: parentTask.objective_id || null,
+    tags: ['social-copy', 'auto-created', 'qg-respawn', 'social-copy-for-' + parentTask.id],
+    comments: [{
+      id: 'cmt-qgrespawn-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+      author: 'system',
+      text: 'Auto-spawned after quality gate rejection. Rewrite addressing the QG issues in the description above.',
+      type: 'system',
+      createdAt: new Date().toISOString()
+    }]
+  };
+  tasks.push(_newTask);
+  return _newTask;
+}
+
 module.exports = {
   _sanitizeSingleComment,
   generateConversationalEntityComment,
@@ -355,5 +424,6 @@ module.exports = {
   _createActionFromHeartbeat,
   logEvent,
   beginRunLogging,
-  flushRunLog
+  flushRunLog,
+  spawnQgRespawnCopyTask
 };
