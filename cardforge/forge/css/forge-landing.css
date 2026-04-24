@@ -1,0 +1,370 @@
+/* forge-landing.css — landing page layout per redesign-handoff.md §5.
+   Load AFTER forge-chrome.css, BEFORE forge-responsive.css. */
+
+/* ---------------------------------------------------------------
+   Layout — 2-column grid (§5 intro)
+   --------------------------------------------------------------- */
+.forge-landing {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 30px;
+  padding: 32px 56px 28px;
+  max-width: 1440px;
+  margin: 0 auto;
+  min-height: calc(100vh - 48px);
+  align-items: center;
+}
+
+.forge-landing-left {
+  min-width: 0;
+}
+
+.forge-landing-right {
+  position: relative;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------
+   Status pill (§5.1 item 1)
+   --------------------------------------------------------------- */
+.forge-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--forge-ember-dim);
+  border: 1px solid var(--forge-ember-33);
+  border-radius: var(--forge-r-md);
+  margin-bottom: 20px;
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--forge-ember);
+}
+
+.forge-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--forge-ember);
+  box-shadow: 0 0 10px var(--forge-ember);
+}
+
+/* ---------------------------------------------------------------
+   Hero headline (§5.1 item 2)
+   --------------------------------------------------------------- */
+.forge-hero-headline {
+  font-family: var(--forge-font-display);
+  font-size: 68px;
+  font-weight: 700;
+  line-height: 0.94;
+  letter-spacing: -2px;
+  margin: 0;
+  color: var(--forge-text);
+}
+
+.forge-hero-headline em {
+  color: var(--forge-ember);
+  font-style: italic;
+  font-weight: inherit;
+}
+
+/* ---------------------------------------------------------------
+   Odometer (§5.1 item 3)
+   --------------------------------------------------------------- */
+.forge-odometer {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-top: 22px;
+  background: var(--forge-bg1);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-lg);
+}
+
+.forge-odometer-label {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-mute);
+  letter-spacing: 2px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.forge-odometer-digits {
+  display: flex;
+  gap: 3px;
+}
+
+.forge-odometer-digit {
+  position: relative;
+  width: 48px;
+  height: 66px;
+  background: linear-gradient(180deg, #1a2230, #0d1117 50%, #1a2230);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  display: grid;
+  place-items: center;
+  font-family: var(--forge-font-mono);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--forge-ember);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 14px var(--forge-ember-88);
+  overflow: hidden;
+}
+
+/* Horizontal scan-line overlay on each digit */
+.forge-odometer-digit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 48%, rgba(0, 0, 0, 0.4) 50%, transparent 52%);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+   Body copy (§5.1 item 4)
+   --------------------------------------------------------------- */
+.forge-hero-body {
+  font-size: 14px;
+  color: var(--forge-text2);
+  line-height: 1.6;
+  max-width: 470px;
+  margin: 22px 0 26px;
+}
+
+/* ---------------------------------------------------------------
+   CTAs (§5.1 item 5)
+   --------------------------------------------------------------- */
+.forge-hero-ctas {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 22px;
+  align-items: center;
+}
+
+.forge-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: var(--forge-r-lg);
+  font-family: var(--forge-font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.forge-cta--primary {
+  padding: 13px 22px;
+  background: var(--forge-ember);
+  color: #fff;
+  border: none;
+  box-shadow: 0 0 30px var(--forge-ember-55);
+}
+
+.forge-cta--primary:hover {
+  background: var(--forge-ember-soft);
+  transform: translateY(-1px);
+}
+
+.forge-cta--secondary {
+  padding: 13px 20px;
+  background: transparent;
+  color: var(--forge-text);
+  border: 1px solid var(--forge-line2);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.forge-cta--secondary:hover {
+  border-color: var(--forge-ember-55);
+  color: var(--forge-ember-soft);
+}
+
+/* ---------------------------------------------------------------
+   Live stats strip (§5.1 item 6)
+   --------------------------------------------------------------- */
+.forge-live-stats {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-family: var(--forge-font-mono);
+  font-size: 11px;
+  color: var(--forge-mute);
+  letter-spacing: 1px;
+}
+
+.forge-live-stats > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.forge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.forge-dot--success {
+  background: var(--forge-success);
+  box-shadow: 0 0 8px var(--forge-success);
+}
+
+/* ---------------------------------------------------------------
+   Right column — combinator (§5.2)
+   --------------------------------------------------------------- */
+
+/* Formula bar */
+.forge-formula {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--forge-bg1);
+  border: 1px solid var(--forge-line);
+  border-radius: var(--forge-r-lg);
+  font-family: var(--forge-font-mono);
+  font-size: 11px;
+  color: var(--forge-text2);
+  letter-spacing: 1px;
+}
+
+.forge-formula-label {
+  font-size: 9px;
+  color: var(--forge-mute);
+  letter-spacing: 2px;
+}
+
+.forge-formula-expr {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.forge-formula-num,
+.forge-formula-term {
+  color: var(--forge-ember);
+}
+
+.forge-formula-op {
+  color: var(--forge-mute);
+}
+
+.forge-formula-tail {
+  color: var(--forge-mute);
+  margin-left: auto;
+}
+
+/* Lever grid — 3 columns × 2 rows */
+.forge-lever-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.forge-lever-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--forge-bg1);
+  border: 1px solid var(--forge-line);
+  border-radius: 5px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.forge-lever-cell.is-active {
+  border-color: var(--forge-ember-55);
+  box-shadow: inset 0 0 20px var(--forge-ember-15);
+}
+
+.forge-lever-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--forge-bg3);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.forge-lever-icon i {
+  font-size: 12px;
+  color: var(--forge-text2);
+}
+
+.forge-lever-cell.is-active .forge-lever-icon i {
+  color: var(--forge-ember);
+}
+
+.forge-lever-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.forge-lever-label {
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  color: var(--forge-mute);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.forge-lever-count {
+  font-family: var(--forge-font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--forge-text);
+  line-height: 1.1;
+}
+
+.forge-lever-cell.is-active .forge-lever-count {
+  color: var(--forge-ember);
+}
+
+/* "Also included" strip — dashed, mono, subtle */
+.forge-also-included {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-top: 10px;
+  background: var(--forge-bg1);
+  border: 1px dashed var(--forge-line2);
+  border-radius: 5px;
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  color: var(--forge-mute);
+  letter-spacing: 1px;
+}
+
+.forge-also-spark {
+  color: var(--forge-ember);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------
+   Ghost-card peeks — placeholder (populated Phase 5 Task 5.9)
+   --------------------------------------------------------------- */
+.forge-ghost-cards {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
