@@ -166,10 +166,10 @@ const CardForgeDebug = (() => {
     toggleBtn.style.position = 'fixed';
     toggleBtn.style.bottom = '6px';
     toggleBtn.style.right = '6px';
-    toggleBtn.style.backgroundColor = 'rgba(100, 211, 255, 0.15)';
-    toggleBtn.style.color = 'rgba(100, 211, 255, 0.5)';
-    toggleBtn.style.border = '1px solid rgba(100, 211, 255, 0.2)';
-    toggleBtn.style.borderRadius = '4px';
+    toggleBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
+    toggleBtn.style.color = 'rgba(255, 255, 255, 0.5)';
+    toggleBtn.style.border = '1px solid rgba(255, 255, 255, 0.12)';
+    toggleBtn.style.borderRadius = '0';
     toggleBtn.style.padding = '2px 6px';
     toggleBtn.style.fontSize = '10px';
     toggleBtn.style.zIndex = '10001';

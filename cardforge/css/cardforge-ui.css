@@ -40,7 +40,10 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* Minimal footer */
+/* Minimal footer. Note: site-wide /css/base.css sets
+   p a:not(.btn):not(.card-image-link):not(.no-underline) { color: #87ceeb }
+   for "dark theme cyan" links, which beats .cf-footer a on specificity.
+   Match that selector shape here to override scoped to the cf footer. */
 .cf-footer {
   padding: 24px;
   text-align: center;
@@ -48,12 +51,14 @@
   color: rgba(255, 255, 255, 0.35);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
-.cf-footer a {
+.cf-footer a,
+.cf-footer p a:not(.btn):not(.card-image-link):not(.no-underline) {
   color: rgba(255, 255, 255, 0.5);
   text-decoration: none;
 }
-.cf-footer a:hover {
-  color: rgba(255, 255, 255, 0.8);
+.cf-footer a:hover,
+.cf-footer p a:not(.btn):not(.card-image-link):not(.no-underline):hover {
+  color: var(--cf-ob-ember);
 }
 .cf-footer__links {
   margin-top: 0.35rem;
