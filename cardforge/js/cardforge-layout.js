@@ -24,20 +24,30 @@
   }
 
   /* ---------------- Quick Publish ----------------
-   * #cf-publish-quick-btn in the preview toolbar (under the card)
-   * just proxies to the Forge-section publish button that wireStepNav
-   * injects. Same auth / deck-tab / publish handling — zero logic
-   * duplication. */
+   * #cf-publish-quick-btn in the preview toolbar (under the card).
+   * Calls the same publish logic as the Forge-section button —
+   * card publish via window.cardForgeActions.handlePublishCard(),
+   * or deck publish when the Forge sidebar is on the deck tab. */
   function wireQuickPublish() {
     const quickBtn = document.getElementById('cf-publish-quick-btn');
     if (!quickBtn) return;
-    quickBtn.addEventListener('click', function () {
-      const forgeBtn = document.getElementById('forge-publish-nav-btn');
-      if (forgeBtn) {
-        forgeBtn.click();
-      } else if (window.cardForgeActions && window.cardForgeActions.handlePublishCard) {
-        // Fallback if wireStepNav hasn't run yet
-        window.cardForgeActions.handlePublishCard();
+    quickBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      const deckTab = document.querySelector('.forge-sidebar-tab[data-forge-tab="deck"].active');
+      const actions = window.cardForgeActions;
+      if (deckTab && actions) {
+        const decks = actions.getSavedDecks && actions.getSavedDecks();
+        if (!decks || decks.length === 0) {
+          actions.showNotification && actions.showNotification('No decks to publish — create a deck first', 'info');
+        } else if (!actions._selectedDeckId) {
+          actions.showNotification && actions.showNotification('Select a deck first', 'info');
+        } else {
+          actions.publishDeck && actions.publishDeck(actions._selectedDeckId);
+        }
+      } else if (actions && actions.handlePublishCard) {
+        actions.handlePublishCard();
+      } else if (window.publishCard) {
+        window.publishCard();
       }
     });
   }
