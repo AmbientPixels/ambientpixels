@@ -10,6 +10,12 @@ body.cf-splash {
   background: var(--cf-ob-bg-0);
   color: var(--cf-ob-text-1);
   -webkit-font-smoothing: antialiased;
+
+  /* Bigger splash-specific mini-cards — default is 180×252 @ 0.45
+     scale; splash uses 240×336 @ 0.6 scale for more visual weight. */
+  --mini-card-scale: 0.6;
+  --mini-card-width: 240px;
+  --mini-card-height: 336px;
 }
 
 /* ---- Top nav ---- */
@@ -230,7 +236,7 @@ body.cf-splash {
 
 .cf-splash-hero__visual {
   position: relative;
-  min-height: 520px;
+  min-height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -239,8 +245,8 @@ body.cf-splash {
 .cf-splash-hero__visual::before {
   content: '';
   position: absolute;
-  width: 520px;
-  height: 520px;
+  width: 620px;
+  height: 620px;
   background: radial-gradient(circle, var(--cf-ob-ember-22), transparent 65%);
   filter: blur(50px);
   z-index: 0;
@@ -249,8 +255,8 @@ body.cf-splash {
 /* ---- Hero card fan ---- */
 .cf-hero-fan {
   position: relative;
-  width: 520px;
-  height: 520px;
+  width: 620px;
+  height: 540px;
   z-index: 1;
 }
 .cf-hero-fan__card {
@@ -270,34 +276,46 @@ body.cf-splash {
 .cf-hero-fan__card.mini-card { border-color: var(--cf-ob-line-2); }
 .cf-hero-fan__card.mini-card:hover { border-color: var(--cf-ob-ember-33); }
 .cf-hero-fan__card[data-fan-pos="0"] {
-  transform: translate(-50%, -50%) rotate(-16deg) translate(-160px, 20px) scale(0.88);
+  transform: translate(-50%, -50%) rotate(-16deg) translate(-220px, 30px) scale(0.88);
   z-index: 1;
 }
 .cf-hero-fan__card[data-fan-pos="1"] {
-  transform: translate(-50%, -50%) rotate(-8deg) translate(-80px, 0) scale(0.94);
+  transform: translate(-50%, -50%) rotate(-8deg) translate(-115px, 0) scale(0.94);
   z-index: 2;
 }
 .cf-hero-fan__card[data-fan-pos="2"] {
-  transform: translate(-50%, -50%) rotate(0deg) translate(0, -10px) scale(1);
+  transform: translate(-50%, -50%) rotate(0deg) translate(0, -12px) scale(1);
   z-index: 5;
 }
 .cf-hero-fan__card[data-fan-pos="3"] {
-  transform: translate(-50%, -50%) rotate(8deg) translate(80px, 0) scale(0.94);
+  transform: translate(-50%, -50%) rotate(8deg) translate(115px, 0) scale(0.94);
   z-index: 3;
 }
 .cf-hero-fan__card[data-fan-pos="4"] {
-  transform: translate(-50%, -50%) rotate(16deg) translate(160px, 20px) scale(0.88);
+  transform: translate(-50%, -50%) rotate(16deg) translate(220px, 30px) scale(0.88);
   z-index: 2;
 }
+/* Hover anywhere on the fan → cards spread outward (no scale pop). */
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="0"] {
+  transform: translate(-50%, -50%) rotate(-22deg) translate(-290px, 40px) scale(0.88);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="1"] {
+  transform: translate(-50%, -50%) rotate(-12deg) translate(-165px, 6px) scale(0.94);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="2"] {
+  transform: translate(-50%, -50%) rotate(0deg) translate(0, -12px) scale(1);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="3"] {
+  transform: translate(-50%, -50%) rotate(12deg) translate(165px, 6px) scale(0.94);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="4"] {
+  transform: translate(-50%, -50%) rotate(22deg) translate(290px, 40px) scale(0.88);
+}
+/* Single-card hover still gets a subtle glow/elevation, no scaling. */
 .cf-hero-fan__card:hover {
   z-index: 10;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px var(--cf-ob-ember-22);
 }
-.cf-hero-fan__card:hover[data-fan-pos="0"] { transform: translate(-50%, -50%) rotate(-16deg) translate(-160px, 10px) scale(1); }
-.cf-hero-fan__card:hover[data-fan-pos="1"] { transform: translate(-50%, -50%) rotate(-8deg) translate(-80px, -10px) scale(1.04); }
-.cf-hero-fan__card:hover[data-fan-pos="2"] { transform: translate(-50%, -50%) rotate(0deg) translate(0, -20px) scale(1.08); }
-.cf-hero-fan__card:hover[data-fan-pos="3"] { transform: translate(-50%, -50%) rotate(8deg) translate(80px, -10px) scale(1.04); }
-.cf-hero-fan__card:hover[data-fan-pos="4"] { transform: translate(-50%, -50%) rotate(16deg) translate(160px, 10px) scale(1); }
 
 /* Fade-in when JS injects the real card DOM — no skeletons, just a
    clean reveal once the API-fetched cards arrive. */
@@ -483,15 +501,18 @@ body.cf-splash {
 
 /* ---- Responsive ---- */
 @media (max-width: 980px) {
+  body.cf-splash {
+    --mini-card-scale: 0.5;
+    --mini-card-width: 200px;
+    --mini-card-height: 280px;
+  }
   .cf-splash-hero { grid-template-columns: 1fr; padding: 48px 32px; gap: 32px; }
-  .cf-splash-hero__visual { min-height: 380px; order: -1; }
-  .cf-hero-fan { width: 100%; max-width: 420px; height: 380px; }
-  .cf-hero-fan__card { width: 160px; height: 224px; }
-  .cf-hero-fan__portrait { height: 160px; }
-  .cf-hero-fan__card[data-fan-pos="0"] { transform: translate(-50%, -50%) rotate(-12deg) translate(-130px, 8px) scale(0.85); }
-  .cf-hero-fan__card[data-fan-pos="1"] { transform: translate(-50%, -50%) rotate(-6deg) translate(-65px, -4px) scale(0.92); }
-  .cf-hero-fan__card[data-fan-pos="3"] { transform: translate(-50%, -50%) rotate(6deg) translate(65px, -4px) scale(0.92); }
-  .cf-hero-fan__card[data-fan-pos="4"] { transform: translate(-50%, -50%) rotate(12deg) translate(130px, 8px) scale(0.85); }
+  .cf-splash-hero__visual { min-height: 440px; order: -1; }
+  .cf-hero-fan { width: 100%; max-width: 520px; height: 440px; }
+  .cf-hero-fan__card[data-fan-pos="0"] { transform: translate(-50%, -50%) rotate(-14deg) translate(-160px, 16px) scale(0.88); }
+  .cf-hero-fan__card[data-fan-pos="1"] { transform: translate(-50%, -50%) rotate(-7deg) translate(-85px, 0) scale(0.94); }
+  .cf-hero-fan__card[data-fan-pos="3"] { transform: translate(-50%, -50%) rotate(7deg) translate(85px, 0) scale(0.94); }
+  .cf-hero-fan__card[data-fan-pos="4"] { transform: translate(-50%, -50%) rotate(14deg) translate(160px, 16px) scale(0.88); }
   .cf-splash-ways { padding: 48px 32px; }
   .cf-splash-ways__grid { grid-template-columns: 1fr; }
   .cf-splash-nav { padding: 14px 20px; }
