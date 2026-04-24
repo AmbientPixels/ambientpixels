@@ -49,7 +49,7 @@
   gap: 0.5rem;
 }
 
-.db-bar-title i { color: #7c3aed; }
+.db-bar-title i { color: #e86816; }
 
 .db-bar-actions {
   display: flex;
@@ -77,22 +77,22 @@
 .db-btn:hover {
   background: rgba(255,255,255,0.08);
   border-color: rgba(124, 58, 237, 0.3);
-  color: #c4b5fd;
+  color: #ffb477;
 }
 
 .db-btn:focus-visible {
-  outline: 2px solid #7c3aed;
+  outline: 2px solid #e86816;
   outline-offset: 2px;
 }
 
 .db-btn-primary {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  background: linear-gradient(135deg, #e86816, #6d28d9);
   border-color: rgba(124, 58, 237, 0.4);
   color: #fff;
 }
 
 .db-btn-primary:hover {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: linear-gradient(135deg, #ff7a1a, #e86816);
   box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
 }
 
@@ -145,7 +145,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #7c3aed;
+  color: #e86816;
   font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -248,7 +248,7 @@
 
 .db-collection-title .count {
   background: rgba(124, 58, 237, 0.15);
-  color: #c4b5fd;
+  color: #ffb477;
   padding: 0.1rem 0.45rem;
   border-radius: 8px;
   font-size: 0.7rem;
@@ -538,7 +538,7 @@
   gap: 0.25rem;
 }
 
-.db-deck-stat i { color: #7c3aed; font-size: 0.65rem; }
+.db-deck-stat i { color: #e86816; font-size: 0.65rem; }
 
 /* Deck cards list */
 .db-deck-list {
@@ -716,7 +716,7 @@
 
 .db-view-icon {
   font-size: 2rem;
-  color: #7c3aed;
+  color: #e86816;
   margin-bottom: 0.5rem;
 }
 
@@ -748,7 +748,7 @@
   border-radius: 9px;
   background: rgba(124, 58, 237, 0.08);
   border: 1px solid rgba(124, 58, 237, 0.15);
-  color: #c4b5fd;
+  color: #ffb477;
   font-size: 0.68rem;
   font-weight: 500;
 }
@@ -801,12 +801,12 @@
 
 .db-icon-picker button:hover {
   background: rgba(124, 58, 237, 0.15);
-  color: #c4b5fd;
+  color: #ffb477;
 }
 
 .db-icon-picker button.selected {
   background: rgba(124, 58, 237, 0.2);
-  color: #7c3aed;
+  color: #e86816;
 }
 
 /* ── Toast ── */
@@ -819,7 +819,7 @@
   border: 1px solid rgba(124, 58, 237, 0.25);
   border-radius: 8px;
   padding: 0.6rem 1.2rem;
-  color: #c4b5fd;
+  color: #ffb477;
   font-size: 0.82rem;
   font-weight: 500;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5);
@@ -854,7 +854,7 @@
   display: block;
 }
 
-.db-loading i { color: #7c3aed; }
+.db-loading i { color: #e86816; }
 .db-error i { color: #ef4444; }
 .db-error p { color: #a0a0c0; margin-bottom: 1rem; }
 
@@ -926,7 +926,7 @@
   border: 1px solid rgba(124, 58, 237, 0.15);
   border-radius: 6px;
   font-size: 0.72rem;
-  color: #c4b5fd;
+  color: #ffb477;
   line-height: 1.4;
   max-height: 100px;
   overflow: hidden;
@@ -942,7 +942,7 @@
 .db-tip-accent .db-tip-icon { color: #f59e0b; }
 
 .db-tip-icon {
-  color: #7c3aed;
+  color: #e86816;
   font-size: 0.8rem;
   flex-shrink: 0;
 }

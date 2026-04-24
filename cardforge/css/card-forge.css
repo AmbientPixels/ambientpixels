@@ -35,7 +35,7 @@
   --cf-danger: #ff5252;
   --cf-success: #00e676;
   --cf-warning: #ffd740;
-  --cf-info: var(--mood-primary-color, #A78BFA);
+  --cf-info: var(--mood-primary-color, #ff9a4e);
   --cf-gold: #ffd700;
 
   /* Text Hierarchy */
@@ -45,32 +45,32 @@
   --cf-text-dim: #606080;
 
   /* Focus Ring */
-  --cf-focus-ring: 2px solid var(--mood-primary-color, #A78BFA);
+  --cf-focus-ring: 2px solid var(--mood-primary-color, #ff9a4e);
   --cf-focus-offset: 2px;
 
   /* ── Button Tier System ── */
   /* T1 Action Primary — high-commitment actions (Create Card, Save) */
-  --cf-btn-primary-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(99, 102, 241, 0.85));
-  --cf-btn-primary-border: rgba(139, 92, 246, 0.5);
+  --cf-btn-primary-bg: linear-gradient(135deg, rgba(255, 122, 26, 0.85), rgba(255, 154, 78, 0.85));
+  --cf-btn-primary-border: rgba(255, 122, 26, 0.5);
   --cf-btn-primary-text: #fff;
-  --cf-btn-primary-hover-bg: linear-gradient(135deg, rgba(139, 92, 246, 1), rgba(99, 102, 241, 1));
-  --cf-btn-primary-hover-border: rgba(139, 92, 246, 0.8);
-  --cf-btn-primary-hover-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+  --cf-btn-primary-hover-bg: linear-gradient(135deg, rgba(255, 122, 26, 1), rgba(255, 154, 78, 1));
+  --cf-btn-primary-hover-border: rgba(255, 122, 26, 0.8);
+  --cf-btn-primary-hover-shadow: 0 4px 16px rgba(255, 122, 26, 0.3);
 
   /* T2 Action Secondary — secondary actions (Roll Random, Create Deck) */
-  --cf-btn-secondary-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(99, 102, 241, 0.08));
-  --cf-btn-secondary-border: rgba(139, 92, 246, 0.25);
-  --cf-btn-secondary-text: #c4b5fd;
-  --cf-btn-secondary-hover-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(99, 102, 241, 0.18));
-  --cf-btn-secondary-hover-border: rgba(139, 92, 246, 0.5);
-  --cf-btn-secondary-hover-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
+  --cf-btn-secondary-bg: linear-gradient(135deg, rgba(255, 122, 26, 0.08), rgba(255, 154, 78, 0.08));
+  --cf-btn-secondary-border: rgba(255, 122, 26, 0.25);
+  --cf-btn-secondary-text: #ffb477;
+  --cf-btn-secondary-hover-bg: linear-gradient(135deg, rgba(255, 122, 26, 0.18), rgba(255, 154, 78, 0.18));
+  --cf-btn-secondary-hover-border: rgba(255, 122, 26, 0.5);
+  --cf-btn-secondary-hover-shadow: 0 0 8px rgba(255, 122, 26, 0.15);
 
   /* T3 Inline Action — small add/generate/utility buttons */
   --cf-btn-inline-bg: transparent;
-  --cf-btn-inline-border: rgba(139, 92, 246, 0.3);
-  --cf-btn-inline-text: #c4b5fd;
-  --cf-btn-inline-hover-bg: rgba(139, 92, 246, 0.1);
-  --cf-btn-inline-hover-border: rgba(139, 92, 246, 0.6);
+  --cf-btn-inline-border: rgba(255, 122, 26, 0.3);
+  --cf-btn-inline-text: #ffb477;
+  --cf-btn-inline-hover-bg: rgba(255, 122, 26, 0.1);
+  --cf-btn-inline-hover-border: rgba(255, 122, 26, 0.6);
   --cf-btn-inline-hover-text: #e0d4ff;
 
   /* T5 Navigation/Utility — preview controls, pagination, subtle actions */
@@ -90,12 +90,12 @@
   --arena-text-dim: #64748B;
   --arena-win: #22C55E;
   --arena-loss: #F43F5E;
-  --arena-xp: #A78BFA;
+  --arena-xp: #ff9a4e;
   --arena-energy: #3B82F6;
   --arena-gold: #F59E0B;
   --arena-border: rgba(148, 163, 184, 0.08);
   --arena-border-subtle: rgba(148, 163, 184, 0.04);
-  --arena-glow-purple: rgba(139, 92, 246, 0.3);
+  --arena-glow-purple: rgba(255, 122, 26, 0.3);
   --arena-glow-green: rgba(34, 197, 94, 0.3);
   --arena-glow-red: rgba(244, 63, 94, 0.3);
   --arena-glow-blue: rgba(59, 130, 246, 0.3);
@@ -174,8 +174,8 @@
 
 
 .choose-image-btn:hover {
-  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
-  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  background: var(--cf-btn-inline-hover-bg, rgba(255, 122, 26, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(255, 122, 26, 0.6));
   color: var(--cf-btn-inline-hover-text, #e0d4ff);
   transform: none;
 }
@@ -293,8 +293,8 @@
 .use-url-btn,
 .load-images-btn {
   background: var(--cf-btn-inline-bg, transparent);
-  color: var(--cf-btn-inline-text, #c4b5fd);
-  border: 1px solid var(--cf-btn-inline-border, rgba(139, 92, 246, 0.3));
+  color: var(--cf-btn-inline-text, #ffb477);
+  border: 1px solid var(--cf-btn-inline-border, rgba(255, 122, 26, 0.3));
   border-radius: 6px;
   padding: 6px 14px;
   cursor: pointer;
@@ -305,8 +305,8 @@
 
 .use-url-btn:hover,
 .load-images-btn:hover {
-  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
-  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  background: var(--cf-btn-inline-hover-bg, rgba(255, 122, 26, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(255, 122, 26, 0.6));
   color: var(--cf-btn-inline-hover-text, #e0d4ff);
 }
 
@@ -329,8 +329,8 @@
 
 .image-pagination button {
   background: var(--cf-btn-inline-bg, transparent);
-  color: var(--cf-btn-inline-text, #c4b5fd);
-  border: 1px solid var(--cf-btn-inline-border, rgba(139, 92, 246, 0.3));
+  color: var(--cf-btn-inline-text, #ffb477);
+  border: 1px solid var(--cf-btn-inline-border, rgba(255, 122, 26, 0.3));
   border-radius: 6px;
   padding: 4px 10px;
   cursor: pointer;
@@ -340,8 +340,8 @@
 }
 
 .image-pagination button:hover {
-  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
-  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  background: var(--cf-btn-inline-hover-bg, rgba(255, 122, 26, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(255, 122, 26, 0.6));
   color: var(--cf-btn-inline-hover-text, #e0d4ff);
 }
 
@@ -469,7 +469,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(99,102,241,0.35), rgba(236,72,153,0.35));
+  background: linear-gradient(135deg, rgba(255, 154, 78,0.35), rgba(236,72,153,0.35));
   opacity: 0.28;
   pointer-events: none;
   mix-blend-mode: overlay;
@@ -518,7 +518,7 @@
 
 /* Selected state for My Cards list */
 .cardforge-list li.selected {
-  background: rgba(99,102,241,0.15);
+  background: rgba(255, 154, 78,0.15);
   border-radius: 4px;
 }
 

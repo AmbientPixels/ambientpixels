@@ -381,10 +381,10 @@
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #8B5CF6, #6366F1);
+    background: linear-gradient(135deg, #ff7a1a, #ff9a4e);
     color: #fff;
-    border: 2px solid rgba(139, 92, 246, 0.4);
-    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35);
+    border: 2px solid rgba(255, 122, 26, 0.4);
+    box-shadow: 0 4px 16px rgba(255, 122, 26, 0.35);
     align-items: center;
     justify-content: center;
     font-size: 1.2rem;
