@@ -11,12 +11,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Font Awesome (combinator icons) -->
+  <!-- Font Awesome (combinator icons + ghost-card arcade icons) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- CSS: tokens → chrome → page-specific → responsive (last) -->
+  <!-- Fonts for ghost cards: Fraunces (Monograph — future), Cinzel (Codex) -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS: tokens → chrome → card-styles (for ghost cards) → page-specific → responsive (last) -->
   <link rel="stylesheet" href="css/forge-tokens.css">
   <link rel="stylesheet" href="css/forge-chrome.css">
+  <link rel="stylesheet" href="css/forge-card-styles.css">
   <link rel="stylesheet" href="css/forge-landing.css">
   <link rel="stylesheet" href="css/forge-responsive.css">
 </head>
@@ -101,6 +105,46 @@
   <script src="js/forge-telemetry.js" defer></script>
   <script src="js/forge-odometer.js" defer></script>
   <script src="js/forge-lever-grid.js" defer></script>
+
+  <!-- Ghost cards (Task 5.9) — decorative CardEmber + CardCodex peeks behind
+       the combinator. Style modules + portrait builder for rendering. -->
+  <script src="js/forge-portrait.js" defer></script>
+  <script src="js/forge-styles/style-ember.js" defer></script>
+  <script src="js/forge-styles/style-codex.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var host = document.querySelector('.forge-ghost-cards');
+      if (!host || !window.ForgePortrait || !window.ForgeStyleEmber || !window.ForgeStyleCodex) return;
+
+      function buildGhost(styleMod, charId, cssClass) {
+        var char = window.ForgePortrait.get(charId);
+        if (!char) return null;
+        var state = {
+          name: char.name,
+          classLabel: char.class,
+          rarity: char.rarity,
+          portraitId: char.id,
+          styleId: styleMod.id,
+          stats: { STR: 72, AGI: 82, INT: 65, END: 70, LCK: 48 },
+          overlays: {}
+        };
+        var built = styleMod.build(state);
+        var portrait = window.ForgePortrait.build(char.id);
+        if (built.portraitSlot && portrait) built.portraitSlot.appendChild(portrait);
+        var card = document.createElement('div');
+        card.className = 'forge-card forge-card--' + styleMod.id + ' forge-card--size-sm forge-ghost-card ' + cssClass;
+        card.setAttribute('aria-hidden', 'true');
+        card.appendChild(built.frag);
+        return card;
+      }
+
+      // Same character in two different styles — reinforces "one system, many voices"
+      var ghost1 = buildGhost(window.ForgeStyleEmber, 'ember', 'forge-ghost-card--ember');
+      var ghost2 = buildGhost(window.ForgeStyleCodex, 'ember', 'forge-ghost-card--codex');
+      if (ghost1) host.appendChild(ghost1);
+      if (ghost2) host.appendChild(ghost2);
+    });
+  </script>
 
   <!-- CTA telemetry — guarded so it no-ops until Phase 3.6 ships ForgeTelemetry.
        Real event emission requires App Insights config flag flip (see audit 0.3). -->

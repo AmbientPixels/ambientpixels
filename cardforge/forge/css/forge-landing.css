@@ -360,11 +360,53 @@
 }
 
 /* ---------------------------------------------------------------
-   Ghost-card peeks — placeholder (populated Phase 5 Task 5.9)
+   Ghost-card peeks (Task 5.9) — decorative cards behind the combinator
+   Two different styles of the same character → reinforces the
+   "one system, many voices" pitch without stealing focus from the headline.
    --------------------------------------------------------------- */
 .forge-ghost-cards {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  width: 520px;
+  height: 480px;
   pointer-events: none;
   z-index: 0;
+  overflow: hidden;
+}
+
+.forge-ghost-card {
+  position: absolute;
+  pointer-events: none;
+}
+
+.forge-ghost-card--ember {
+  right: -40px;
+  top: 30px;
+  transform: rotate(-6deg) scale(0.55);
+  opacity: 0.18;
+}
+
+.forge-ghost-card--codex {
+  right: 100px;
+  top: 90px;
+  transform: rotate(8deg) scale(0.5);
+  opacity: 0.14;
+}
+
+/* Cards above the ambient glows but below the actual hero content */
+.forge-landing > * {
+  position: relative;
+  z-index: 1;
+}
+
+.forge-ghost-cards {
+  z-index: 0;
+}
+
+/* Respect reduced motion — no rotation/scale change on load (they're already static) */
+@media (prefers-reduced-motion: reduce) {
+  .forge-ghost-card {
+    transition: none;
+  }
 }

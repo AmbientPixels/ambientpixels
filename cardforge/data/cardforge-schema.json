@@ -16,6 +16,18 @@
       },
       "required": ["version", "cardId"]
     },
+
+    "styleId": {
+      "type": "string",
+      "enum": ["monograph", "ember", "codex", "press", "arcade", "terminal"],
+      "default": "ember",
+      "description": "FORGE redesign visual style (added 2026-04-23). Selects which render function draws the card. Additive field — legacy cards saved before this field existed render as 'ember' by default. Mirrored into cardData.styleId per the dual-path pattern Blindspot uses for every optional field."
+    },
+
+    "portraitId": {
+      "type": "string",
+      "description": "FORGE redesign portrait selection (added 2026-04-23). References a 12-entry character fixture shared by the editor + gallery. Optional — cards without a portraitId fall back to their name/class for character lookup."
+    },
     
     "modularSystem": {
       "type": "object",
