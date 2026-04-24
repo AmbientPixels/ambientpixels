@@ -1,0 +1,337 @@
+/* cardforge-forge-theme.css — obsidian/ember theme overlay for the existing editor.
+ *
+ * A pure override layer. Does NOT modify any existing cardforge-*.css file.
+ * Loads LAST in the CSS chain and swaps colors/chrome only on elements that
+ * carry `.cf-theme-forge` (body class). Toggle on/off by adding/removing that
+ * class to <body> — every underlying style remains intact.
+ *
+ * Applies:
+ *   • Obsidian/ember palette via CSS custom properties
+ *   • Page bar (cf-page-bar) restyled to match forge-topbar
+ *   • 3-column panels (cf-rail / cf-main-pane / cf-preview-pane) retinted
+ *   • Primary buttons: purple gradient → ember gradient
+ *   • Ambient radial glow layer
+ *
+ * Does NOT touch:
+ *   • Tier-option grids, form fields, modular-system buttons (kept as-is to
+ *     preserve the 5000-line interaction surface without collateral damage)
+ *   • Card rendering (card-forge-editor.js owns that pipeline)
+ *   • Quick Build wizard internals
+ */
+
+/* ---------------------------------------------------------------
+   Obsidian/ember tokens — scoped to the theme class
+   --------------------------------------------------------------- */
+body.cf-theme-forge {
+  --forge-bg0:  #07090c;
+  --forge-bg1:  #0d1117;
+  --forge-bg2:  #141a22;
+  --forge-bg3:  #1c2430;
+  --forge-line:  #222b37;
+  --forge-line2: #2d3948;
+  --forge-text:  #e8ecf2;
+  --forge-text2: #a8b2c0;
+  --forge-mute:  #6b7687;
+  --forge-dim:   #4a5360;
+  --forge-ember:      #ff7a1a;
+  --forge-ember-soft: #ff9a4e;
+  --forge-ember-dim:  rgba(255, 122, 26, 0.12);
+  --forge-ember-22:   rgba(255, 122, 26, 0.22);
+  --forge-ember-33:   rgba(255, 122, 26, 0.33);
+  --forge-ember-55:   rgba(255, 122, 26, 0.55);
+  --forge-ember-88:   rgba(255, 122, 26, 0.88);
+
+  /* Override the existing primary-button purple → ember */
+  --cf-btn-primary-bg: linear-gradient(135deg, var(--forge-ember), var(--forge-ember-soft));
+  --cf-btn-primary-hover-bg: linear-gradient(135deg, var(--forge-ember-soft), var(--forge-ember));
+  --cf-btn-primary-border: var(--forge-ember);
+  --cf-btn-primary-hover-border: var(--forge-ember-soft);
+  --cf-btn-primary-hover-shadow: 0 4px 18px rgba(255, 122, 26, 0.45);
+  --cf-btn-primary-text: #ffffff;
+
+  background: var(--forge-bg0);
+  color: var(--forge-text);
+}
+
+/* Ambient glows on the page — upper-right ember + lower-left ember (subtle) */
+body.cf-theme-forge::before {
+  content: '';
+  position: fixed;
+  top: -100px;
+  right: -140px;
+  width: 540px;
+  height: 540px;
+  background: radial-gradient(circle, var(--forge-ember-22), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.cf-theme-forge::after {
+  content: '';
+  position: fixed;
+  bottom: -220px;
+  left: -180px;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(255, 122, 26, 0.07), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Lift real content above the ambient layer */
+body.cf-theme-forge > * { position: relative; z-index: 1; }
+
+/* ---------------------------------------------------------------
+   Top bar — match forge-topbar aesthetic
+   --------------------------------------------------------------- */
+body.cf-theme-forge .cf-page-bar {
+  background: var(--forge-bg0) !important;
+  border-bottom: 1px solid var(--forge-line) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: var(--forge-text) !important;
+  min-height: 48px !important;
+  padding: 0 24px !important;
+}
+
+body.cf-theme-forge .cf-page-bar__title {
+  font-family: 'Unbounded', 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, var(--forge-ember), var(--forge-ember-soft));
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
+}
+
+body.cf-theme-forge .cf-page-bar__subtitle {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--forge-mute);
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+body.cf-theme-forge .cf-icon-btn {
+  background: transparent !important;
+  border: 1px solid var(--forge-line2) !important;
+  color: var(--forge-text2) !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 4px !important;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease !important;
+}
+
+body.cf-theme-forge .cf-icon-btn:hover,
+body.cf-theme-forge .cf-icon-btn:focus-visible {
+  border-color: var(--forge-ember-55) !important;
+  background: var(--forge-ember-dim) !important;
+  color: var(--forge-ember) !important;
+  transform: none !important;
+}
+
+/* New Card button — was purple, now ember */
+body.cf-theme-forge .cf-new-card-btn {
+  background: var(--forge-ember) !important;
+  border: none !important;
+  color: #fff !important;
+  padding: 7px 16px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 0 20px var(--forge-ember-33) !important;
+}
+
+body.cf-theme-forge .cf-new-card-btn:hover {
+  background: var(--forge-ember-soft) !important;
+  transform: none !important;
+  box-shadow: 0 0 28px var(--forge-ember-55) !important;
+}
+
+/* ---------------------------------------------------------------
+   Hero section — flatten + recolor, don't hide (keeps SEO + existing links)
+   --------------------------------------------------------------- */
+body.cf-theme-forge .cf-hero {
+  background: var(--forge-bg0) !important;
+  border-bottom: 1px solid var(--forge-line) !important;
+  padding: 32px 24px !important;
+}
+
+body.cf-theme-forge .cf-hero h1,
+body.cf-theme-forge .cf-hero .cf-hero__title {
+  font-family: 'Unbounded', 'Space Grotesk', sans-serif !important;
+  color: var(--forge-text) !important;
+  letter-spacing: -0.5px !important;
+}
+
+body.cf-theme-forge .cf-hero em,
+body.cf-theme-forge .cf-hero .cf-hero__accent {
+  color: var(--forge-ember) !important;
+  font-style: italic !important;
+}
+
+body.cf-theme-forge .cf-hero p,
+body.cf-theme-forge .cf-hero .cf-hero__subtitle {
+  color: var(--forge-text2) !important;
+}
+
+/* ---------------------------------------------------------------
+   3-column panel split — left rail / center pane / right preview
+   The existing .cardforge-container + .cf-rail + .cf-main-pane +
+   .cf-preview-pane already form a 3-column grid; we just retint them.
+   --------------------------------------------------------------- */
+body.cf-theme-forge .cardforge-container {
+  background: var(--forge-bg0) !important;
+}
+
+body.cf-theme-forge .cf-rail {
+  background: var(--forge-bg1) !important;
+  border-right: 1px solid var(--forge-line) !important;
+}
+
+body.cf-theme-forge .cf-main-pane {
+  background: radial-gradient(ellipse at center, #0e131a 0%, var(--forge-bg0) 65%) !important;
+}
+
+body.cf-theme-forge .cf-preview-pane {
+  background: var(--forge-bg1) !important;
+  border-left: 1px solid var(--forge-line) !important;
+}
+
+/* Rail tabs — match the forge style-chip / stage-row aesthetic */
+body.cf-theme-forge .forge-sidebar-tab {
+  color: var(--forge-text2) !important;
+  border-radius: 4px !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+}
+
+body.cf-theme-forge .forge-sidebar-tab:hover {
+  color: var(--forge-text) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+body.cf-theme-forge .forge-sidebar-tab.active {
+  background: var(--forge-ember-dim) !important;
+  color: var(--forge-ember) !important;
+  font-weight: 600 !important;
+}
+
+body.cf-theme-forge .forge-section-title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  color: var(--forge-mute) !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+}
+
+body.cf-theme-forge .forge-section-title::before {
+  content: '◈ ';
+  color: var(--forge-ember);
+  margin-right: 4px;
+}
+
+/* ---------------------------------------------------------------
+   Tier headers — subtle obsidian styling, keep existing tier internals
+   --------------------------------------------------------------- */
+body.cf-theme-forge .modular-tier {
+  background: var(--forge-bg1) !important;
+  border: 1px solid var(--forge-line) !important;
+  border-radius: 4px !important;
+}
+
+body.cf-theme-forge .tier-header {
+  background: var(--forge-bg2) !important;
+  color: var(--forge-text) !important;
+  border-bottom: 1px solid var(--forge-line) !important;
+}
+
+body.cf-theme-forge .tier-header:hover {
+  background: var(--forge-bg3) !important;
+}
+
+body.cf-theme-forge .tier-option.selected {
+  border-color: var(--forge-ember) !important;
+  background: var(--forge-ember-dim) !important;
+}
+
+/* ---------------------------------------------------------------
+   Form fields — bg3 inputs with ember focus
+   --------------------------------------------------------------- */
+body.cf-theme-forge input[type="text"],
+body.cf-theme-forge input[type="number"],
+body.cf-theme-forge input[type="url"],
+body.cf-theme-forge input[type="search"],
+body.cf-theme-forge textarea,
+body.cf-theme-forge select {
+  background: var(--forge-bg3) !important;
+  border: 1px solid var(--forge-line2) !important;
+  color: var(--forge-text) !important;
+  border-radius: 4px !important;
+}
+
+body.cf-theme-forge input:focus,
+body.cf-theme-forge textarea:focus,
+body.cf-theme-forge select:focus {
+  outline: none !important;
+  border-color: var(--forge-ember-55) !important;
+  box-shadow: 0 0 0 2px var(--forge-ember-dim) !important;
+}
+
+body.cf-theme-forge label,
+body.cf-theme-forge .cf-field-label {
+  color: var(--forge-text2) !important;
+}
+
+/* ---------------------------------------------------------------
+   Forge Templates / Style Templates section — match the style-picker feel
+   --------------------------------------------------------------- */
+body.cf-theme-forge .forge-templates {
+  background: var(--forge-bg1) !important;
+  border-top: 1px solid var(--forge-line) !important;
+}
+
+/* ---------------------------------------------------------------
+   Preview pane — radial backdrop + card-forward framing
+   --------------------------------------------------------------- */
+body.cf-theme-forge .cf-preview-pane {
+  background: radial-gradient(ellipse at center top, #0e131a 0%, var(--forge-bg1) 60%) !important;
+}
+
+/* ---------------------------------------------------------------
+   Empty states, footers, pills — misc subtle passes
+   --------------------------------------------------------------- */
+body.cf-theme-forge .cf-empty-state,
+body.cf-theme-forge .cf-empty-state p,
+body.cf-theme-forge .cf-empty-state small {
+  color: var(--forge-mute) !important;
+}
+
+body.cf-theme-forge .cf-empty-state > i {
+  color: var(--forge-ember-33) !important;
+}
+
+body.cf-theme-forge .cf-footer {
+  background: var(--forge-bg0) !important;
+  border-top: 1px solid var(--forge-line) !important;
+  color: var(--forge-mute) !important;
+}
+
+body.cf-theme-forge .cf-status-pill {
+  background: var(--forge-ember-dim) !important;
+  border: 1px solid var(--forge-ember-33) !important;
+  color: var(--forge-ember) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+}
+
+/* ---------------------------------------------------------------
+   Reduced motion — already respected globally, but kill hover lifts here
+   --------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  body.cf-theme-forge * { transition: none !important; }
+}

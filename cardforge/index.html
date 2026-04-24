@@ -25,6 +25,8 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Orbitron:wght@400;500;600;700&family=MedievalSharp&family=Pirata+One&display=swap" rel="stylesheet">
+  <!-- Forge theme fonts: Unbounded (display) + JetBrains Mono (mono) for obsidian/ember chrome -->
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/base.css?v=20260310g">
   <link rel="stylesheet" href="/css/grid.css?v=20260310g">
   <link rel="stylesheet" href="/css/components.css?v=20260310g">
@@ -44,7 +46,8 @@
   <link rel="stylesheet" href="css/cardforge-layout.css?v=20260310g">
   <link rel="stylesheet" href="css/cardforge-hero.css?v=20260310h">
   <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260310j">
-  <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260310g"> <!-- Responsive design — MUST be last CSS to override all -->
+  <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260310g"> <!-- Responsive design — MUST be last of legacy chain -->
+  <link rel="stylesheet" href="css/cardforge-forge-theme.css?v=20260423a"> <!-- Obsidian/ember theme overlay — scoped to body.cf-theme-forge -->
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
@@ -62,7 +65,7 @@
   }
   </script>
 </head>
-<body data-theme="dark" class="cf-ui--neon">
+<body data-theme="dark" class="cf-ui--neon cf-theme-forge">
   <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden;">
     <defs>
       <symbol id="cf-icon-dice" viewBox="0 0 24 24">
