@@ -204,21 +204,27 @@
   }
 
   async function initGallery() {
-    // Render fallback immediately so the page never looks empty
+    // Render fallback immediately so the page never looks empty.
     renderFan(pickRandom(PRESET_FALLBACK, 5));
-    renderShowcase(PRESET_FALLBACK);
+    renderShowcase(PRESET_FALLBACK.slice(0, 10));
 
-    // Upgrade in-place with real published cards (best-effort)
+    // Upgrade in-place with real published cards (best-effort).
+    // Prefer cards with renderedFront so the splash always shows
+    // full-fidelity CardForge cards when any exist; real cards go
+    // FIRST so they dominate the fan.
     var cards = await fetchPublishedCards();
-    if (cards.length >= 5) {
-      renderFan(pickRandom(cards, 5));
-      renderShowcase(cards.slice(0, 10));
-    } else if (cards.length > 0) {
-      // Blend: real cards first, then presets to fill
-      var blended = cards.concat(PRESET_FALLBACK).slice(0, 10);
-      renderFan(pickRandom(blended, 5));
-      renderShowcase(blended);
-    }
+    if (!cards.length) return;
+
+    var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
+    var otherCards = cards.filter(function (c) { return !(c.renderedFront && c.frontClasses); });
+
+    // Fan: up to 5, real cards first, fill with other real, then presets.
+    var fanCards = realCards.concat(otherCards).concat(PRESET_FALLBACK).slice(0, 5);
+    // Showcase: up to 10, same priority.
+    var showcaseCards = realCards.concat(otherCards).concat(PRESET_FALLBACK).slice(0, 10);
+
+    renderFan(fanCards);
+    renderShowcase(showcaseCards);
   }
 
   function init() {
