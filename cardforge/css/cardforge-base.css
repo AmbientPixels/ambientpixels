@@ -2094,8 +2094,8 @@ body[data-theme="light"] .cf-summary-value {
   --cf-ob-text-1: #e7ebf1;
   --cf-ob-text-2: #a6aeb9;
   --cf-ob-text-mute: #6b7381;
-  --cf-ob-radius-md: 8px;
-  --cf-ob-radius-lg: 12px;
+  --cf-ob-radius-md: 0;
+  --cf-ob-radius-lg: 0;
 
   /* Re-route legacy aura/mood tokens to obsidian equivalents so
      every existing rule that uses var(--aura-*) / var(--mood-*)
@@ -2152,3 +2152,52 @@ body::before {
 [data-step-section="1"][data-active-tier="typo"] .artwork-section,
 [data-step-section="1"][data-active-tier="4"] .artwork-section,
 [data-step-section="1"][data-active-tier="5"] .artwork-section { display: none; }
+
+/* ================================================================
+   Sharp / brutalist corners — flatten editor chrome.
+   Kept rounded: .card-preview-canvas (card art), .step-btn__dot
+   (pill indicator), .card-inner descendants (card interior).
+   ================================================================ */
+.cf-page-bar,
+.cf-page-bar *,
+.cf-rail,
+.cf-rail-nav,
+.cf-rail-nav .step-btn,
+.cf-rail-group,
+.cf-rail-footer,
+.cf-rail-footer__action,
+.cf-main-pane,
+.cf-main-pane .cf-section,
+.cf-main-pane .presets-section,
+.cf-main-pane .random-section,
+.cf-main-pane .cf-ai-creator-section,
+.cf-main-pane .artwork-section,
+.cf-main-pane .modular-tier,
+.cf-main-pane .forge-panel,
+.cf-main-pane .cf-panel,
+.cf-main-pane .tier-option,
+.cf-main-pane .cf-chip,
+.cf-main-pane .preset-btn,
+.cf-main-pane .roll-btn,
+.cf-main-pane .cf-ai-generate-btn,
+.cf-main-pane .cf-ai-inline-btn,
+.cf-main-pane .cf-ai-prompt,
+.cf-main-pane .btn-primary,
+.cf-main-pane .cf-step-nav-btn,
+.cf-main-pane #forge-publish-nav-btn,
+.cf-main-pane input[type="text"],
+.cf-main-pane input[type="url"],
+.cf-main-pane input[type="number"],
+.cf-main-pane input[type="email"],
+.cf-main-pane input[type="search"],
+.cf-main-pane input:not([type]),
+.cf-main-pane select,
+.cf-main-pane textarea,
+.cf-preview-pane,
+.cf-preview-pane .cardforge-preview,
+.card-preview-zone,
+.cf-preview-toolbar,
+.preview-toolbar,
+.toolbar-btn {
+  border-radius: 0;
+}
