@@ -7,6 +7,8 @@
 :root {
   --cf-rail-width: 220px;
   --cf-rail-width-collapsed: 64px;
+  --cf-controls-width: 420px;
+  --cf-preview-min: 520px;
 }
 
 /* Main container layout */
@@ -21,14 +23,17 @@
 
 .cf-app-grid {
   display: grid;
-  grid-template-columns: var(--cf-rail-width) minmax(520px, 1fr) 460px;
+  grid-template-columns: var(--cf-rail-width) minmax(var(--cf-preview-min), 1fr) var(--cf-controls-width);
   gap: 16px;
   align-items: start;
   width: 100%;
 }
+.cf-app-grid > .cf-rail          { grid-column: 1; }
+.cf-app-grid > .cf-preview-pane  { grid-column: 2; display: flex; justify-content: center; align-items: flex-start; }
+.cf-app-grid > .cf-main-pane     { grid-column: 3; min-width: 0; overflow: hidden; }
 
 body.cf-rail-collapsed .cf-app-grid {
-  grid-template-columns: var(--cf-rail-width-collapsed) minmax(520px, 1fr) 460px;
+  grid-template-columns: var(--cf-rail-width-collapsed) minmax(var(--cf-preview-min), 1fr) var(--cf-controls-width);
 }
 
 .cf-rail {
