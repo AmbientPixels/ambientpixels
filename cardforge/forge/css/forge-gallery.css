@@ -1,0 +1,215 @@
+/* forge-gallery.css — mixed-style gallery per redesign-handoff.md §8.
+   Load AFTER forge-chrome.css + forge-card-styles.css, BEFORE forge-responsive.css. */
+
+/* ---------------------------------------------------------------
+   Page shell + section header
+   --------------------------------------------------------------- */
+.forge-gallery {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px 40px 48px;
+}
+
+.forge-gallery-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--forge-line);
+}
+
+.forge-gallery-head-left {
+  min-width: 0;
+}
+
+.forge-gallery-crumb {
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  color: var(--forge-ember);
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.forge-gallery-title {
+  font-family: var(--forge-font-display);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  color: var(--forge-text);
+  margin: 4px 0 0;
+  line-height: 1.05;
+}
+
+.forge-gallery-subtitle {
+  font-family: var(--forge-font-sans);
+  font-size: 13px;
+  color: var(--forge-text2);
+  margin: 6px 0 0;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+/* ---------------------------------------------------------------
+   Filter strip (§8 — style chips)
+   --------------------------------------------------------------- */
+.forge-gallery-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.forge-gallery-filter-label {
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  color: var(--forge-mute);
+  letter-spacing: 2px;
+  margin-right: 6px;
+}
+
+.forge-gallery-chip {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  color: var(--forge-text2);
+  font-family: var(--forge-font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.forge-gallery-chip:hover {
+  color: var(--forge-text);
+  border-color: var(--forge-ember-33);
+}
+
+.forge-gallery-chip.is-active {
+  background: var(--forge-ember-dim);
+  border-color: var(--forge-ember-55);
+  color: var(--forge-ember);
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------
+   Grid — 4 cols, each cell rotates slightly
+   --------------------------------------------------------------- */
+.forge-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.forge-gallery-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 8px 10px;
+  min-height: 400px; /* ensures consistent cell height even as cards vary */
+}
+
+.forge-gallery-card-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  transform-origin: center top;
+  transition: transform 0.25s ease;
+}
+
+.forge-gallery-cell:hover .forge-gallery-card-wrap {
+  transform: rotate(0deg) translateY(-2px) !important;
+}
+
+.forge-gallery-cell[data-rotate="pos"] .forge-gallery-card-wrap {
+  transform: rotate(1.5deg);
+}
+
+.forge-gallery-cell[data-rotate="neg"] .forge-gallery-card-wrap {
+  transform: rotate(-1.5deg);
+}
+
+/* Shrink inner card to fit cell comfortably */
+.forge-gallery-cell .forge-card--size-sm {
+  zoom: 0.78;
+}
+
+/* Card caption below */
+.forge-gallery-cell-meta {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.forge-gallery-cell-name {
+  font-family: var(--forge-font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forge-text);
+  letter-spacing: -0.2px;
+}
+
+.forge-gallery-cell-style {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-ember);
+  letter-spacing: 1.5px;
+  margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Empty + loading states
+   --------------------------------------------------------------- */
+.forge-gallery-empty {
+  grid-column: 1 / -1;
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--forge-mute);
+  font-family: var(--forge-font-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  border: 1px dashed var(--forge-line2);
+  border-radius: var(--forge-r-md);
+}
+
+.forge-gallery-loading {
+  grid-column: 1 / -1;
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--forge-mute);
+  font-family: var(--forge-font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.forge-gallery-loading-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--forge-ember);
+  margin-right: 8px;
+  animation: forge-gallery-pulse 1.4s infinite;
+}
+
+@keyframes forge-gallery-pulse {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* Reduced motion — kill the pulse, keep the dot visible */
+@media (prefers-reduced-motion: reduce) {
+  .forge-gallery-loading-dot {
+    animation: none;
+    opacity: 1;
+  }
+  .forge-gallery-card-wrap,
+  .forge-gallery-cell:hover .forge-gallery-card-wrap {
+    transition: none;
+  }
+}
