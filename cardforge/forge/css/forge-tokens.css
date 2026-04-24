@@ -62,8 +62,36 @@
   text-shadow: var(--forge-glow-ember-text);
 }
 
-/* Focus ring — a11y baseline, phase 3.5 expands this */
+/* Focus ring — a11y baseline */
 *:focus-visible {
   outline: 2px solid var(--forge-ember);
   outline-offset: 2px;
+}
+
+/* Reduced-motion — Phase 3.5. Kill transitions on interactive elements; static
+   box-shadow/text-shadow glows are fine (they don't animate). Don't use the
+   nuclear `* { transition: none }` because the odometer scan-line overlay and
+   ambient glows use box-shadow, not transform/opacity animations. */
+@media (prefers-reduced-motion: reduce) {
+  .forge-cta,
+  .forge-signin,
+  .forge-next-btn,
+  .forge-nav a,
+  .forge-stage-row,
+  .forge-stage-iconbtn,
+  .forge-stage-roundbtn,
+  .forge-style-chip,
+  .forge-rarity-chip,
+  .forge-portrait-tile,
+  .forge-lever-cell,
+  .forge-overlay-toggle,
+  .forge-overlay-toggle::before,
+  .forge-vital-fill,
+  .forge-vital-thumb,
+  .forge-ai-suggest,
+  .forge-panel-input,
+  .forge-panel-select,
+  .forge-stage-card-placeholder {
+    transition: none !important;
+  }
 }

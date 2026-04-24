@@ -86,6 +86,9 @@
 
   <!-- Core modules — load order matters. With `defer`, scripts run in document order
        after parsing. State store must exist before any panel subscribes. -->
+  <!-- Telemetry wrapper loads FIRST so every later module can call it safely.
+       Silent-fail until prod flips the App Insights config flag (audit 0.3). -->
+  <script src="js/forge-telemetry.js" defer></script>
   <script src="js/forge-state.js" defer></script>
   <script src="js/forge-stage-flow.js" defer></script>
   <script src="js/forge-portrait.js" defer></script>

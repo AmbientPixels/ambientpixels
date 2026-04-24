@@ -163,13 +163,55 @@
       }
     });
 
-    // Keyboard parity — Enter/Space on stage rows
+    // Keyboard nav — roving tabindex across stages (↑/↓) + style chips (arrows
+    // move in the 2-col grid), Enter/Space to activate.
     root.addEventListener('keydown', function (ev) {
-      if (ev.key !== 'Enter' && ev.key !== ' ') return;
       var stageEl = ev.target.closest('.forge-stage-row');
       if (stageEl && stageEl.dataset.stageId) {
-        ev.preventDefault();
-        if (window.ForgeStageFlow) window.ForgeStageFlow.goTo(stageEl.dataset.stageId);
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          if (window.ForgeStageFlow) window.ForgeStageFlow.goTo(stageEl.dataset.stageId);
+          return;
+        }
+        var rows = Array.from(root.querySelectorAll('.forge-stage-row'));
+        var idx = rows.indexOf(stageEl);
+        if (ev.key === 'ArrowDown' || ev.key === 'ArrowRight') {
+          ev.preventDefault();
+          if (idx < rows.length - 1) rows[idx + 1].focus();
+          return;
+        }
+        if (ev.key === 'ArrowUp' || ev.key === 'ArrowLeft') {
+          ev.preventDefault();
+          if (idx > 0) rows[idx - 1].focus();
+          return;
+        }
+        if (ev.key === 'Home') {
+          ev.preventDefault();
+          rows[0].focus();
+          return;
+        }
+        if (ev.key === 'End') {
+          ev.preventDefault();
+          rows[rows.length - 1].focus();
+          return;
+        }
+      }
+
+      // Style chip grid — 2 columns × 3 rows. ArrowRight/Left = ±1 chip,
+      // ArrowDown/Up = ±2 chips (same column, next row).
+      var chipEl = ev.target.closest('.forge-style-chip');
+      if (chipEl) {
+        var chips = Array.from(root.querySelectorAll('.forge-style-chip'));
+        var cidx = chips.indexOf(chipEl);
+        var target = -1;
+        if (ev.key === 'ArrowRight') target = cidx + 1;
+        else if (ev.key === 'ArrowLeft') target = cidx - 1;
+        else if (ev.key === 'ArrowDown') target = cidx + 2;
+        else if (ev.key === 'ArrowUp') target = cidx - 2;
+        if (target >= 0 && target < chips.length) {
+          ev.preventDefault();
+          chips[target].focus();
+        }
       }
     });
 
