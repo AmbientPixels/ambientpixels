@@ -203,28 +203,43 @@
     }).join('');
   }
 
-  async function initGallery() {
-    // Render fallback immediately so the page never looks empty.
-    renderFan(pickRandom(PRESET_FALLBACK, 5));
-    renderShowcase(PRESET_FALLBACK.slice(0, 10));
+  function renderSkeletons() {
+    // Render empty card-shaped skeletons while the API is in flight.
+    // Obviously-loading state avoids the jarring "plain portrait → real
+    // card" flicker that happens when presets render first.
+    var fan = document.getElementById('cf-hero-fan');
+    var strip = document.getElementById('cf-showcase-strip');
+    var skel = function () {
+      return '<div class="mini-card cf-splash-skeleton"><div class="cf-splash-skeleton__inner"></div></div>';
+    };
+    if (fan) {
+      fan.innerHTML = [0,1,2,3,4].map(function (i) {
+        return '<div class="cf-hero-fan__card mini-card cf-splash-skeleton" data-fan-pos="' + i + '"><div class="cf-splash-skeleton__inner"></div></div>';
+      }).join('');
+    }
+    if (strip) {
+      strip.innerHTML = [0,1,2,3,4,5,6,7,8,9].map(skel).join('');
+    }
+  }
 
-    // Upgrade in-place with real published cards (best-effort).
-    // Prefer cards with renderedFront so the splash always shows
-    // full-fidelity CardForge cards when any exist; real cards go
-    // FIRST so they dominate the fan.
+  async function initGallery() {
+    renderSkeletons();
+
+    // Fetch real cards. Prefer cards with renderedFront so the splash
+    // always shows full-fidelity CardForge cards when any exist.
     var cards = await fetchPublishedCards();
-    if (!cards.length) return;
 
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
     var otherCards = cards.filter(function (c) { return !(c.renderedFront && c.frontClasses); });
 
-    // Fan: up to 5, real cards first, fill with other real, then presets.
-    var fanCards = realCards.concat(otherCards).concat(PRESET_FALLBACK).slice(0, 5);
-    // Showcase: up to 10, same priority.
-    var showcaseCards = realCards.concat(otherCards).concat(PRESET_FALLBACK).slice(0, 10);
+    // If nothing came back at all, fall through to presets so the hero
+    // isn't empty. (Real cards come first; presets only fill.)
+    var pool = realCards.concat(otherCards);
+    if (pool.length === 0) pool = PRESET_FALLBACK.slice();
+    else pool = pool.concat(PRESET_FALLBACK);
 
-    renderFan(fanCards);
-    renderShowcase(showcaseCards);
+    renderFan(pool.slice(0, 5));
+    renderShowcase(pool.slice(0, 10));
   }
 
   function init() {
