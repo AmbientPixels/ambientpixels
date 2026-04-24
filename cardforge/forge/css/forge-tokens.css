@@ -1,0 +1,69 @@
+/* forge-tokens.css — obsidian/ember design tokens for CardForge FORGE redesign.
+   Per redesign-handoff.md §3. Keep radii small (max 8px) on chrome; cards can go larger.
+   Load FIRST in every forge page. */
+
+:root {
+  /* Background scale — obsidian surfaces */
+  --forge-bg0:  #07090c;  /* page */
+  --forge-bg1:  #0d1117;  /* panel */
+  --forge-bg2:  #141a22;  /* raised panel */
+  --forge-bg3:  #1c2430;  /* input / chip bg */
+
+  /* Lines */
+  --forge-line:  #222b37; /* subtle divider */
+  --forge-line2: #2d3948; /* visible divider / input border */
+
+  /* Text scale */
+  --forge-text:  #e8ecf2; /* primary */
+  --forge-text2: #a8b2c0; /* secondary */
+  --forge-mute:  #6b7687; /* label / meta */
+  --forge-dim:   #4a5360; /* disabled / inactive */
+
+  /* Accent — ember */
+  --forge-ember:      #ff7a1a;
+  --forge-ember-soft: #ff9a4e;
+  --forge-ember-dim:  rgba(255, 122, 26, 0.12);
+  --forge-ember-15:   rgba(255, 122, 26, 0.15);
+  --forge-ember-22:   rgba(255, 122, 26, 0.22);
+  --forge-ember-33:   rgba(255, 122, 26, 0.33);
+  --forge-ember-55:   rgba(255, 122, 26, 0.55);
+  --forge-ember-88:   rgba(255, 122, 26, 0.88);
+
+  --forge-success: #4ae38a;
+
+  /* Type stack */
+  --forge-font-display: 'Unbounded', 'Space Grotesk', sans-serif;
+  --forge-font-sans:    'Space Grotesk', sans-serif;
+  --forge-font-mono:    'JetBrains Mono', monospace;
+
+  /* Glow — for active affordances only */
+  --forge-glow-ember:      0 0 20px rgba(255, 122, 26, 0.55);
+  --forge-glow-ember-text: 0 0 14px rgba(255, 122, 26, 0.53);
+
+  /* Radii — site chrome never above 8px; cards may use larger */
+  --forge-r-sm: 3px;
+  --forge-r-md: 4px;
+  --forge-r-lg: 6px;
+  --forge-r-xl: 8px;
+}
+
+/* Utility: mono label convention — `◈ LABEL` style */
+.forge-label-mono {
+  font-family: var(--forge-font-mono);
+  font-size: 9px;
+  color: var(--forge-mute);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Utility: ember glow — applied to active CTAs, odometer digits, active indicators */
+.forge-glow-active {
+  box-shadow: var(--forge-glow-ember);
+  text-shadow: var(--forge-glow-ember-text);
+}
+
+/* Focus ring — a11y baseline, phase 3.5 expands this */
+*:focus-visible {
+  outline: 2px solid var(--forge-ember);
+  outline-offset: 2px;
+}
