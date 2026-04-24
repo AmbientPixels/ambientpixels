@@ -263,15 +263,27 @@ body.cf-splash {
   position: absolute;
   top: 50%;
   left: 50%;
-  /* Width/height come from .mini-card (180 × 252) — mini-card class is
-     added alongside .cf-hero-fan__card so full-fidelity card rendering
+  /* Width/height come from .mini-card — mini-card class is added
+     alongside .cf-hero-fan__card so full-fidelity card rendering
      works via .mini-card-scaler inside. */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
   transform-origin: center bottom;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  /* Custom bezier for a smooth spring-like fan-out. Staggered via
+     per-position transition-delay below so the outer cards lead the
+     cascade. */
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s ease;
   text-decoration: none;
   color: inherit;
 }
+/* Stagger — outer cards move first, inner follow. Only applies when
+   the fan is hovered (otherwise delays would slow the mouseleave
+   snap-back identically, which still reads smooth). */
+.cf-hero-fan__card[data-fan-pos="2"] { transition-delay: 140ms, 0ms; }
+.cf-hero-fan__card[data-fan-pos="1"],
+.cf-hero-fan__card[data-fan-pos="3"] { transition-delay: 70ms, 0ms; }
+.cf-hero-fan__card[data-fan-pos="0"],
+.cf-hero-fan__card[data-fan-pos="4"] { transition-delay: 0ms, 0ms; }
 /* Ensure .mini-card bg/border don't fight our fan styles */
 .cf-hero-fan__card.mini-card { border-color: var(--cf-ob-line-2); }
 .cf-hero-fan__card.mini-card:hover { border-color: var(--cf-ob-ember-33); }
