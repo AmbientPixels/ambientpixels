@@ -176,16 +176,22 @@ body.cf-theme-forge .cardforge-container {
   max-width: none !important;
 }
 
+/* 3-column grid with CARD VIEWER IN THE MIDDLE.
+   HTML order is rail → main(forms) → preview(card), but grid-template-areas
+   places preview visually in the middle column without touching HTML. */
 body.cf-theme-forge .cf-app-grid {
   display: grid !important;
-  grid-template-columns: 280px minmax(0, 1fr) 360px !important;
+  grid-template-columns: 280px minmax(0, 1fr) 440px !important;
+  grid-template-areas: "rail preview main" !important;
   gap: 0 !important;
   align-items: stretch !important;
   min-height: calc(100vh - 48px) !important;
   width: 100% !important;
 }
 
+/* LEFT — nav rail */
 body.cf-theme-forge .cf-rail {
+  grid-area: rail !important;
   width: auto !important;
   min-width: 0 !important;
   max-width: none !important;
@@ -199,22 +205,41 @@ body.cf-theme-forge .cf-rail {
   align-self: stretch !important;
 }
 
-body.cf-theme-forge .cf-main-pane {
+/* MIDDLE — card preview (centered vertically + horizontally, sticky) */
+body.cf-theme-forge .cf-preview-pane {
+  grid-area: preview !important;
   min-width: 0 !important;
   max-width: none !important;
-  padding: 24px 28px !important;
+  padding: 20px !important;
   background: radial-gradient(ellipse at center, #0e131a 0%, var(--forge-bg0) 70%) !important;
-  overflow-x: hidden !important;
+  border: none !important;
+  position: sticky !important;
+  top: 48px !important;
+  max-height: calc(100vh - 48px) !important;
+  overflow-y: auto !important;
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
-body.cf-theme-forge .cf-preview-pane {
+/* Card floats cleanly in the middle pane */
+body.cf-theme-forge .cf-preview-pane .right-column,
+body.cf-theme-forge .cf-preview-pane .card-preview-zone {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* RIGHT — form controls (all the editor sections) */
+body.cf-theme-forge .cf-main-pane {
+  grid-area: main !important;
   min-width: 0 !important;
   max-width: none !important;
   padding: 20px 18px !important;
   background: var(--forge-bg1) !important;
   border-left: 1px solid var(--forge-line) !important;
-  position: sticky !important;
-  top: 48px !important;
   max-height: calc(100vh - 48px) !important;
   overflow-y: auto !important;
   align-self: stretch !important;
