@@ -2113,6 +2113,26 @@ body[data-theme="light"] .cf-summary-value {
   --mood-accent-color: var(--cf-ob-line-2);
   --mood-secondary-color: var(--cf-ob-text-2);
   --card-bg-primary: var(--cf-ob-bg-2);
+
+  /* Site-wide /css/theme.css defines --dark-bg: #071019 and
+     --dark-text: #D8E0E5, then applies them via
+     body[data-theme="dark"] { background: var(--dark-bg); ... }
+     That site-wide rule has higher specificity than plain body {}.
+     Re-point the tokens here so cardforge pages inherit obsidian
+     values — other pages (non-cardforge) still get the original
+     blue-black because they don't load cardforge-base.css. */
+  --dark-bg: var(--cf-ob-bg-0);
+  --dark-text: var(--cf-ob-text-1);
+  --dark-accent: var(--cf-ob-ember);
+  --dark-purple: var(--cf-ob-ember);
+  --dark-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Match the site-wide body[data-theme="dark"] specificity so source
+   order + specificity tie-breaker give us obsidian values. */
+body[data-theme="dark"] {
+  background: var(--cf-ob-bg-0);
+  color: var(--cf-ob-text-1);
 }
 
 body {
