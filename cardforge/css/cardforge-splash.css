@@ -1,0 +1,298 @@
+/* ================================================================
+   CardForge splash — obsidian entry experience. Loaded only on
+   cardforge/index.html. Tokens inherited from cardforge-base.css :root.
+   ================================================================ */
+
+html, body { height: 100%; }
+body.cf-splash {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--cf-ob-bg-0);
+  color: var(--cf-ob-text-1);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Top nav ---- */
+.cf-splash-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: rgba(7, 9, 12, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--cf-ob-line-1);
+}
+
+.cf-splash-nav__brand {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--cf-ob-ember), var(--cf-ob-ember-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.cf-splash-nav__links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.cf-splash-nav__links a {
+  color: var(--cf-ob-text-2);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 10px;
+  transition: color 0.15s, background 0.15s;
+}
+.cf-splash-nav__links a:hover { color: var(--cf-ob-text-1); background: rgba(255, 255, 255, 0.04); }
+
+.cf-splash-nav__auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-text-2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cf-splash-nav__auth:hover { border-color: var(--cf-ob-ember-33); color: var(--cf-ob-text-1); }
+.cf-splash-nav__auth--user { cursor: default; }
+.cf-splash-nav__auth[hidden] { display: none; }
+.cf-splash-nav__user-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- Hero section ---- */
+.cf-splash-hero {
+  min-height: calc(100vh - 65px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  padding: 64px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cf-splash-hero__eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--cf-ob-ember);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.cf-splash-hero__title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  margin: 0 0 20px;
+}
+
+.cf-splash-hero__tagline {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--cf-ob-text-2);
+  max-width: 520px;
+  margin: 0 0 32px;
+}
+
+.cf-splash-hero__ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.cf-btn--primary {
+  background: var(--cf-ob-ember);
+  border: 1px solid var(--cf-ob-ember);
+  color: #fff;
+  box-shadow: 0 0 22px var(--cf-ob-ember-33);
+}
+.cf-btn--primary:hover {
+  background: var(--cf-ob-ember-soft);
+  transform: translateY(-1px);
+}
+.cf-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-text-1);
+}
+.cf-btn--ghost:hover { border-color: var(--cf-ob-ember-33); }
+
+.cf-splash-hero__visual {
+  position: relative;
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cf-splash-hero__visual::before {
+  content: '';
+  position: absolute;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, var(--cf-ob-ember-22), transparent 65%);
+  filter: blur(40px);
+}
+
+/* Continue-draft banner above hero */
+.cf-continue-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 560px;
+  padding: 12px 18px;
+  margin: 0 0 24px;
+  background: var(--cf-ob-ember-dim);
+  border: 1px solid var(--cf-ob-ember-33);
+  font-size: 13px;
+}
+.cf-continue-banner__text { color: var(--cf-ob-text-1); }
+.cf-continue-banner__text strong { color: var(--cf-ob-ember); }
+.cf-continue-banner[hidden] { display: none; }
+
+/* ---- Ways-to-start tiles ---- */
+.cf-splash-ways {
+  padding: 80px 80px;
+  background: var(--cf-ob-bg-1);
+  border-top: 1px solid var(--cf-ob-line-1);
+}
+.cf-splash-ways__title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 32px;
+  text-align: center;
+}
+.cf-splash-ways__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.cf-way {
+  padding: 28px;
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-2);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.cf-way:hover {
+  border-color: var(--cf-ob-ember-33);
+  transform: translateY(-2px);
+}
+.cf-way__icon {
+  width: 42px;
+  height: 42px;
+  background: var(--cf-ob-ember-dim);
+  color: var(--cf-ob-ember);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.cf-way__title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+.cf-way__desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cf-ob-text-2);
+  margin: 0;
+}
+
+/* ---- Showcase ---- */
+.cf-splash-showcase {
+  padding: 80px 40px;
+}
+.cf-splash-showcase__title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-align: center;
+}
+.cf-splash-showcase__sub {
+  text-align: center;
+  color: var(--cf-ob-text-2);
+  margin: 0 0 40px;
+}
+.cf-splash-showcase__strip {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 0 40px 20px;
+  scrollbar-width: none;
+}
+.cf-splash-showcase__strip::-webkit-scrollbar { display: none; }
+.cf-showcase-card {
+  flex: 0 0 auto;
+  width: 240px;
+  height: 340px;
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-2);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s;
+}
+.cf-showcase-card:hover { transform: translateY(-4px) scale(1.02); }
+
+/* ---- Footer ---- */
+.cf-splash-footer {
+  padding: 40px 80px;
+  border-top: 1px solid var(--cf-ob-line-1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--cf-ob-text-mute);
+  font-size: 12px;
+}
+.cf-splash-footer a { color: var(--cf-ob-text-2); text-decoration: none; margin-right: 18px; }
+.cf-splash-footer a:hover { color: var(--cf-ob-text-1); }
+
+/* ---- Responsive ---- */
+@media (max-width: 980px) {
+  .cf-splash-hero { grid-template-columns: 1fr; padding: 48px 32px; gap: 32px; }
+  .cf-splash-hero__visual { min-height: 320px; order: -1; }
+  .cf-splash-ways { padding: 48px 32px; }
+  .cf-splash-ways__grid { grid-template-columns: 1fr; }
+  .cf-splash-nav { padding: 14px 20px; }
+  .cf-splash-showcase { padding: 48px 0; }
+  .cf-splash-footer { flex-direction: column; gap: 16px; padding: 32px 24px; text-align: center; }
+}

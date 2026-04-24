@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CardForge — Design, Customize & Share RPG Cards</title>
+  <meta name="description" content="Design custom RPG cards with 40M+ style combinations, AI generation, deck building, and a shareable gallery.">
+
+  <link rel="canonical" href="https://ambientpixels.ai/cardforge/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ambientpixels.ai/cardforge/">
+  <meta property="og:title" content="CardForge — Design, Customize & Share RPG Cards">
+  <meta property="og:description" content="Design custom RPG cards with 40M+ style combinations, AI generation, deck building, and a shareable gallery.">
+  <meta property="og:image" content="https://ambientpixels.ai/cardforge/images/cardforge-og.png">
+  <meta property="og:site_name" content="AmbientPixels">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CardForge — Design, Customize & Share RPG Cards">
+  <meta name="twitter:description" content="Design custom RPG cards with 40M+ style combinations, AI generation, deck building, and a shareable gallery.">
+  <meta name="twitter:image" content="https://ambientpixels.ai/cardforge/images/cardforge-og.png">
+  <meta name="theme-color" content="#07090c">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260424a">
+  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260424a">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body class="cf-splash" data-theme="dark">
+
+  <header class="cf-splash-nav">
+    <a class="cf-splash-nav__brand" href="/cardforge/">CardForge</a>
+    <div class="cf-splash-nav__links">
+      <a href="/cardforge/gallery.html">Gallery</a>
+      <a href="/cardforge/deck.html">Decks</a>
+      <button id="cf-login-btn" class="cf-splash-nav__auth cf-splash-nav__auth--login" type="button" hidden>
+        <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
+        <span>Sign in</span>
+      </button>
+      <div id="cf-user-status" class="cf-splash-nav__auth cf-splash-nav__auth--user" hidden>
+        <i class="fas fa-user-circle" aria-hidden="true"></i>
+        <span class="cf-splash-nav__user-name"></span>
+      </div>
+      <a href="/cardforge/editor.html" class="cf-btn cf-btn--primary" data-splash-cta="nav-open-editor">
+        <i class="fas fa-hammer"></i> Open Editor
+      </a>
+    </div>
+  </header>
+
+  <section class="cf-splash-hero">
+    <div class="cf-splash-hero__text">
+      <div class="cf-splash-hero__eyebrow">&#x25C8; RPG CARD CREATOR</div>
+
+      <div id="cf-continue-banner" class="cf-continue-banner" hidden>
+        <div class="cf-continue-banner__text">
+          You have a draft in progress: <strong class="cf-continue-banner__name">Untitled card</strong>
+        </div>
+        <a id="cf-continue-btn" class="cf-btn cf-btn--primary" href="/cardforge/editor.html">
+          Continue <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <h1 class="cf-splash-hero__title">Design. Customize.<br>Share.</h1>
+      <p class="cf-splash-hero__tagline">
+        Modular design across eight tiers. Forty million style combinations.
+        AI-generated cards in seconds. Build decks, publish to the public
+        gallery, trade shareable URLs &mdash; all from one editor.
+      </p>
+      <div class="cf-splash-hero__ctas">
+        <a class="cf-btn cf-btn--primary" href="/cardforge/editor.html" data-splash-cta="hero-open-editor">
+          <i class="fas fa-hammer"></i> Open Editor
+        </a>
+        <a class="cf-btn cf-btn--ghost" href="/cardforge/gallery.html" data-splash-cta="hero-gallery">
+          <i class="fas fa-images"></i> View Gallery
+        </a>
+      </div>
+    </div>
+    <div class="cf-splash-hero__visual">
+      <!-- Ember glow sits behind via ::before. Future: sample card artwork can drop in here. -->
+    </div>
+  </section>
+
+  <section class="cf-splash-ways">
+    <h2 class="cf-splash-ways__title">Three ways to start</h2>
+    <div class="cf-splash-ways__grid">
+      <a class="cf-way" href="/cardforge/editor.html?start=quick" data-splash-cta="way-quick">
+        <div class="cf-way__icon"><i class="fas fa-bolt"></i></div>
+        <h3 class="cf-way__title">Quick Build</h3>
+        <p class="cf-way__desc">Type a few words &mdash; AI generates a full card in seconds. Perfect for fast experimentation.</p>
+      </a>
+      <a class="cf-way" href="/cardforge/editor.html?start=preset" data-splash-cta="way-preset">
+        <div class="cf-way__icon"><i class="fas fa-palette"></i></div>
+        <h3 class="cf-way__title">From a Preset</h3>
+        <p class="cf-way__desc">Eleven curated starting points &mdash; hero, cinematic, minimal, celestial, and more.</p>
+      </a>
+      <a class="cf-way" href="/cardforge/editor.html?start=blank" data-splash-cta="way-blank">
+        <div class="cf-way__icon"><i class="fas fa-square"></i></div>
+        <h3 class="cf-way__title">Blank Canvas</h3>
+        <p class="cf-way__desc">Start from zero. Full control over every tier of the modular design system.</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="cf-splash-showcase">
+    <h2 class="cf-splash-showcase__title">Recently forged</h2>
+    <p class="cf-splash-showcase__sub">A taste of what the community has published.</p>
+    <div class="cf-splash-showcase__strip" id="cf-showcase-strip">
+      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #1a2230, #0c1117);"></div>
+      <div class="cf-showcase-card" style="background: linear-gradient(135deg, rgba(255, 122, 26, 0.2), #1a2230);"></div>
+      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #141b24, #07090c);"></div>
+      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #0c1117, rgba(255, 154, 78, 0.2));"></div>
+      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #1a2230, #141b24);"></div>
+      <div class="cf-showcase-card" style="background: linear-gradient(135deg, rgba(255, 122, 26, 0.14), #0c1117);"></div>
+    </div>
+  </section>
+
+  <footer class="cf-splash-footer">
+    <div>&copy; 2026 AmbientPixels &middot; CardForge</div>
+    <div>
+      <a href="/cardforge/gallery.html">Gallery</a>
+      <a href="/cardforge/deck.html">Decks</a>
+      <a href="/cardforge/editor.html">Editor</a>
+    </div>
+  </footer>
+
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
+  <script>
+    if (window.ProductAnalytics && typeof window.ProductAnalytics.init === 'function') {
+      window.ProductAnalytics.init('cardforge-splash');
+    }
+  </script>
+
+  <script src="js/cardforge-splash.js?v=20260424a" defer></script>
+</body>
+</html>
