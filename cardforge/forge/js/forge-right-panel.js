@@ -1,10 +1,9 @@
-/* forge-right-panel.js — renders Vitals + Overlays + Live state + FORGE → NEXT.
- * Per redesign-handoff.md §6.4 + Phase 4 Task 4.2.
+/* forge-right-panel.js — vitals + overlays + live share state.
+ * Post-refactor: no FORGE → NEXT button (publish moved to center footer).
+ * Live state shows share URL after publish.
  *
- * Wires: stat-track click (sets value 0-100 from click X), overlay toggles,
- * forge-next button. Subscribes to window.ForgeState for re-renders.
- *
- * Stat keys locked as STR/AGI/INT/END/LCK per project_cardforge_forge_redesign.md.
+ * Stats: direct-DOM drag during mousedown→mouseup for 1:1 tracking, commits
+ * to state on mouseup (eliminates re-render-per-mousemove lag).
  */
 
 (function () {
@@ -81,9 +80,21 @@
   }
 
   function renderLiveState(state) {
-    var hash = state.hash || '--------';
+    var hash = state.hash || '------------';
     var styleId = state.styleId || 'ember';
     var autosave = state.autosavedAt ? formatAutosaveAge(state.autosavedAt) : 'not saved';
+    var shareRow = '';
+    if (state.shareUrl) {
+      var shortUrl = state.shareUrl.replace(window.location.origin, '');
+      shareRow =
+        '<div class="forge-live-state-row">' +
+          '<span class="forge-live-state-key">share:</span>' +
+          '<span class="forge-live-state-val forge-live-state-share" title="' + escapeHtml(state.shareUrl) + '">' + escapeHtml(shortUrl) + '</span>' +
+          '<button class="forge-live-state-copy" type="button" data-action="copy-share" aria-label="Copy share URL" title="Copy">' +
+            '<i class="fa-solid fa-copy"></i>' +
+          '</button>' +
+        '</div>';
+    }
 
     return '' +
       '<div class="forge-section">' +
@@ -104,13 +115,9 @@
             '<span class="forge-live-state-key">autosaved</span>' +
             '<span class="forge-live-state-val">' + escapeHtml(autosave) + '</span>' +
           '</div>' +
+          shareRow +
         '</div>' +
       '</div>';
-  }
-
-  function renderForgeNext(state) {
-    var atTerminal = state.activeStage === 'mint';
-    return '<button class="forge-next-btn" type="button" id="forge-next-btn"' + (atTerminal ? ' disabled' : '') + '>⚒ FORGE → NEXT</button>';
   }
 
   function render(root, state) {
@@ -118,21 +125,15 @@
     root.innerHTML =
       renderVitals(state) +
       renderOverlays(state) +
-      renderLiveState(state) +
-      renderForgeNext(state);
+      renderLiveState(state);
   }
 
   // ---------------------------------------------------------------
-  // Wire interactions — delegate on root
+  // Wire
   // ---------------------------------------------------------------
   function startStatDrag(track, startEv) {
     var key = track.dataset.statTrack;
     if (!key) return;
-
-    // Cache rect + DOM handles once at drag start. During drag we write
-    // directly to these nodes (no state.set → subscribe → re-render loop).
-    // This gives 1:1 mouse tracking instead of the state-round-trip lag.
-    // Final value commits to state on mouseup.
     var rect = track.getBoundingClientRect();
     var row = track.closest('.forge-vital-row');
     var fill = track.querySelector('.forge-vital-fill');
@@ -160,7 +161,6 @@
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       document.body.classList.remove('forge-dragging');
-      // Commit once at drag end — triggers the only re-render of the drag.
       if (lastVal != null) {
         var stats = Object.assign({}, window.ForgeState.get().stats);
         if (stats[key] !== lastVal) {
@@ -173,11 +173,26 @@
     document.addEventListener('mouseup', onUp);
   }
 
+  function handleCopyShare() {
+    var url = window.ForgeState.get().shareUrl;
+    if (!url) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        var btn = document.querySelector('.forge-live-state-copy');
+        if (!btn) return;
+        var prev = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(function () { btn.innerHTML = prev; }, 1200);
+      }).catch(function () { window.prompt('Copy this link:', url); });
+    } else {
+      window.prompt('Copy this link:', url);
+    }
+  }
+
   function wire(root) {
     if (!root) return;
 
-    // Slider drag — mousedown on track (or its expanded hit area) starts drag.
-    // mousedown fires before click, so we handle both single-click and drag here.
+    // Slider drag
     root.addEventListener('mousedown', function (ev) {
       if (ev.button !== 0) return;
       var track = ev.target.closest('.forge-vital-track');
@@ -186,7 +201,7 @@
       startStatDrag(track, ev);
     });
 
-    // Click handling — overlay toggles, forge-next (tracks handled via mousedown above)
+    // Clicks — overlay toggles + copy-share
     root.addEventListener('click', function (ev) {
       var toggle = ev.target.closest('.forge-overlay-toggle');
       if (toggle && toggle.dataset.overlayId) {
@@ -198,14 +213,14 @@
         return;
       }
 
-      var nextBtn = ev.target.closest('#forge-next-btn');
-      if (nextBtn && window.ForgeStageFlow) {
-        window.ForgeStageFlow.next();
+      var actionBtn = ev.target.closest('[data-action]');
+      if (actionBtn && actionBtn.dataset.action === 'copy-share') {
+        handleCopyShare();
         return;
       }
     });
 
-    // Keyboard parity — arrow keys on stat tracks adjust by ±5
+    // Keyboard on stat tracks — ±5 step
     root.addEventListener('keydown', function (ev) {
       var track = ev.target.closest('.forge-vital-track');
       if (!track) return;

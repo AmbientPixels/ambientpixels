@@ -826,3 +826,174 @@ body.forge-dragging .forge-vital-fill {
   font-family: var(--forge-font-mono);
   font-size: 10px;
 }
+
+/* ===============================================================
+   SIMPLIFIED EDITOR (post-scope-reduction)
+   — compact rarity chips, compact portrait grid in left panel
+   — SAVE DRAFT + PUBLISH footer buttons
+   — share URL row in live state
+   =============================================================== */
+
+/* Compact rarity chips for left panel — tighter than center-stage form */
+.forge-rarity-chips--compact {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.forge-rarity-chips--compact .forge-rarity-chip {
+  padding: 4px 8px;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+/* Compact portrait grid — 4 columns, tiny tiles, no label under each */
+.forge-portrait-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+.forge-portrait-tile--compact {
+  padding: 2px;
+  background: var(--forge-bg2);
+  border: 1.5px solid var(--forge-line2);
+  border-radius: var(--forge-r-sm);
+  cursor: pointer;
+  display: block;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.forge-portrait-tile--compact:hover {
+  border-color: var(--forge-ember-33);
+  transform: translateY(-1px);
+}
+
+.forge-portrait-tile--compact.is-selected {
+  border-color: var(--forge-ember);
+  box-shadow: 0 0 12px var(--forge-ember-33);
+}
+
+.forge-portrait-tile--compact .forge-portrait-tile-svg {
+  aspect-ratio: 5 / 7;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--forge-bg0);
+}
+
+.forge-portrait-tile--compact .forge-portrait-tile-svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Center-stage footer — simplified: secondary + publish + optional NEW */
+.forge-stage-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.forge-stage-secondary-btn {
+  padding: 8px 14px;
+  background: var(--forge-bg2);
+  border: 1px solid var(--forge-line2);
+  border-radius: var(--forge-r-md);
+  color: var(--forge-text2);
+  font-family: var(--forge-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.forge-stage-secondary-btn i {
+  font-size: 9px;
+}
+
+.forge-stage-secondary-btn:hover {
+  border-color: var(--forge-ember-33);
+  color: var(--forge-text);
+}
+
+.forge-stage-publish-btn {
+  padding: 10px 22px;
+  background: var(--forge-ember);
+  border: none;
+  border-radius: var(--forge-r-md);
+  color: #fff;
+  font-family: var(--forge-font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  cursor: pointer;
+  box-shadow: 0 0 24px var(--forge-ember-55);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s ease;
+}
+
+.forge-stage-publish-btn i {
+  font-size: 11px;
+}
+
+.forge-stage-publish-btn:hover:not(:disabled) {
+  background: var(--forge-ember-soft);
+}
+
+.forge-stage-publish-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.forge-stage-publish-btn.is-success {
+  background: var(--forge-success);
+  color: #0a0a0a;
+  box-shadow: 0 0 24px rgba(74, 227, 138, 0.35);
+}
+
+.forge-stage-publish-btn.is-success:disabled {
+  opacity: 1;
+}
+
+/* Live state — share URL row + copy button */
+.forge-live-state-share {
+  color: var(--forge-ember) !important;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.forge-live-state-copy {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: var(--forge-bg3);
+  border: 1px solid var(--forge-line2);
+  border-radius: 3px;
+  color: var(--forge-mute);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.forge-live-state-copy i {
+  font-size: 9px;
+}
+
+.forge-live-state-copy:hover {
+  border-color: var(--forge-ember-33);
+  color: var(--forge-ember);
+}

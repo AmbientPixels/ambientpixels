@@ -21,30 +21,31 @@
 
   function makeDefaults() {
     return {
-      // Identity (stage 01)
+      // Identity
       name: '',
       classId: null,
       classLabel: '',
       rarity: 'Rare',
-      portraitId: null,
+      portraitId: 'nova',        // default character so the preview has something on first load
 
-      // Card Design (stage 02)
+      // Card design
       styleId: 'ember',
 
-      // Vitals (stage 03) — freeform 0-100 per locked decision, no budget cap
+      // Stats — freeform 0-100, no budget cap (locked decision)
       stats: { STR: 72, AGI: 64, INT: 88, END: 58, LCK: 45 },
 
-      // Overlays (stage 04)
+      // Overlays
       overlays: { rim: true, grain: false, foil: true, signature: false },
 
-      // Lore (stage 05)
+      // Flavor (optional — not yet surfaced in simplified UI)
       backstory: '',
       abilityLine: '',
 
-      // Flow
-      activeStage: 'card-design',  // start users on card-design so the preview is the first thing they see
+      // Publish state
       hash: null,
       shareId: null,
+      shareUrl: null,
+      localOnly: false,
       mintedAt: null,
       autosavedAt: null
     };
