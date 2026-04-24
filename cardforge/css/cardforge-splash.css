@@ -265,14 +265,11 @@ body.cf-splash {
   left: 50%;
   /* Width/height come from .mini-card — mini-card class is added
      alongside .cf-hero-fan__card so full-fidelity card rendering
-     works via .mini-card-scaler inside. */
+     works via .mini-card-scaler inside. Transition lives on the
+     higher-specificity .cf-hero-fan > .cf-hero-fan__card rule
+     further down (so opacity + transform both animate). */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
   transform-origin: center bottom;
-  /* Custom bezier for a smooth spring-like fan-out. Staggered via
-     per-position transition-delay below so the outer cards lead the
-     cascade. */
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.4s ease;
   text-decoration: none;
   color: inherit;
 }
@@ -329,15 +326,18 @@ body.cf-splash {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px var(--cf-ob-ember-22);
 }
 
-/* Dissolve-in / crossfade. Cards start at opacity 0; when the
-   parent container gets .cf-splash-loaded they fade up. When real
-   cards arrive after the API resolves, the class is briefly removed
-   (cards fade out), the DOM is swapped, and the class is re-added
-   (real cards fade in). */
+/* Dissolve-in / crossfade + smooth fan-out. This rule has higher
+   specificity than the single-class .cf-hero-fan__card, so we have
+   to include BOTH transitions here — opacity for the reveal,
+   transform for the fan-out hover cascade. Otherwise the transform
+   transition gets wiped and hover "pops" instead of animating. */
 .cf-hero-fan > .cf-hero-fan__card,
 .cf-splash-showcase__strip > .cf-showcase-card {
   opacity: 0;
-  transition: opacity 0.25s ease-out;
+  transition:
+    opacity 0.25s ease-out,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease;
 }
 .cf-hero-fan.cf-splash-loaded > .cf-hero-fan__card,
 .cf-splash-showcase__strip.cf-splash-loaded > .cf-showcase-card {

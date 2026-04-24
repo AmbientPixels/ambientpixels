@@ -181,12 +181,24 @@
     );
   }
 
+  // Centered fan-position map by card count, so a 4-card fan looks
+  // balanced instead of having an empty 5th slot.
+  var FAN_POS_BY_COUNT = {
+    1: [2],
+    2: [1, 3],
+    3: [1, 2, 3],
+    4: [0, 1, 3, 4],
+    5: [0, 1, 2, 3, 4]
+  };
+
   function renderFan(cards) {
     var fan = document.getElementById('cf-hero-fan');
     if (!fan) return;
     var picks = cards.slice(0, 5);
+    var positions = FAN_POS_BY_COUNT[picks.length] || [0, 1, 2, 3, 4];
     fan.innerHTML = picks.map(function (c, i) {
-      return '<a class="cf-hero-fan__card mini-card" data-fan-pos="' + i + '" href="/cardforge/gallery.html" data-splash-cta="fan-card" aria-label="' + escHtml(c.name || 'Card') + '">' +
+      var pos = positions[i];
+      return '<a class="cf-hero-fan__card mini-card" data-fan-pos="' + pos + '" href="/cardforge/gallery.html" data-splash-cta="fan-card" aria-label="' + escHtml(c.name || 'Card') + '">' +
                renderCardContent(c) +
              '</a>';
     }).join('');
@@ -227,25 +239,22 @@
     renderShowcase(fallbackPool.slice(0, 10));
     revealAfterPaint();
 
-    // 2. Fetch real cards in parallel. When they arrive, fade the fan
-    //    down, swap in real cards, fade back up — crossfade.
+    // 2. Fetch real cards in parallel. When they arrive, crossfade
+    //    and render ONLY real CardForge cards (never mix presets
+    //    after real cards — that made non-CardForge-styled portraits
+    //    bleed into the fan).
     var cards = await fetchPublishedCards();
-
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
-    var otherCards = cards.filter(function (c) { return !(c.renderedFront && c.frontClasses); });
-    var pool = realCards.concat(otherCards);
-    if (pool.length === 0) return; // presets already shown; nothing to upgrade.
-    pool = pool.concat(PRESET_FALLBACK);
+    if (realCards.length === 0) return; // presets already shown.
 
     var fan = document.getElementById('cf-hero-fan');
     var strip = document.getElementById('cf-showcase-strip');
     if (fan) fan.classList.remove('cf-splash-loaded');
     if (strip) strip.classList.remove('cf-splash-loaded');
 
-    // Wait for the fade-out to complete before swapping DOM.
     setTimeout(function () {
-      renderFan(pool.slice(0, 5));
-      renderShowcase(pool.slice(0, 10));
+      renderFan(realCards.slice(0, 5));       // up to 5 real cards, fewer is fine
+      renderShowcase(realCards.slice(0, 10)); // up to 10 real cards, fewer is fine
       revealAfterPaint();
     }, 240);
   }
