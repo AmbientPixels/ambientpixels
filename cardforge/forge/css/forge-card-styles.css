@@ -1,0 +1,661 @@
+/* forge-card-styles.css — per-style card rendering.
+   Per redesign-handoff.md §7.1 + dir10-obsidian-cards.jsx measurements.
+   All dimensions at natural `md` size (s=0.82 factor already baked in).
+   Size variants use `zoom` — Firefox 126+ + all other evergreen browsers.
+
+   Load AFTER forge-panels.css, BEFORE forge-responsive.css. */
+
+/* ---------------------------------------------------------------
+   Shared scaffolding — size variants + fallback
+   --------------------------------------------------------------- */
+.forge-card {
+  display: inline-block;
+  position: relative;
+  line-height: 1;
+}
+
+.forge-card--size-sm { zoom: 0.67; }
+.forge-card--size-md { zoom: 1; }
+.forge-card--size-lg { zoom: 1.34; }
+
+.forge-card--fallback {
+  width: 280px;
+  padding: 20px;
+  border: 1px dashed var(--forge-line2);
+  color: var(--forge-mute);
+  font-family: var(--forge-font-mono);
+  font-size: 11px;
+  text-align: center;
+}
+
+/* Generic portrait slot — every style contains a child with one of these
+   class names. The SVG drops in via appendChild and fills 100% of the slot. */
+.ember-portrait svg,
+.mono-portrait svg,
+.codex-portrait svg,
+.press-portrait svg,
+.arcade-portrait svg,
+.term-portrait svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ===============================================================
+   CardEmber — obsidian-native default (§7.1 ember)
+   =============================================================== */
+.forge-card--ember .ember-outer {
+  width: 278px;
+  background: #0a0d12;
+  color: #e8ecf2;
+  border: 1px solid #222b37;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 33px rgba(255, 122, 26, 0.33), 0 25px 49px -12px rgba(0, 0, 0, 0.9);
+  font-family: var(--forge-font-sans);
+}
+
+.forge-card--ember .ember-portrait-wrap {
+  position: relative;
+  height: 262px;
+  overflow: hidden;
+}
+
+.forge-card--ember .ember-portrait {
+  position: absolute;
+  inset: 0;
+}
+
+.forge-card--ember .ember-portrait-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, #0a0d12);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.forge-card--ember .ember-rarity-pill {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  padding: 2px 6px;
+  background: #ff7a1a;
+  color: #000;
+  font-family: var(--forge-font-mono);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.forge-card--ember .ember-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 11px;
+  right: 11px;
+  z-index: 2;
+}
+
+.forge-card--ember .ember-class {
+  font-family: var(--forge-font-mono);
+  font-size: 7px;
+  color: #ff7a1a;
+  letter-spacing: 1.2px;
+}
+
+.forge-card--ember .ember-name {
+  font-family: var(--forge-font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-top: 2px;
+  line-height: 1.1;
+}
+
+.forge-card--ember .ember-stats {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 11px;
+  border-top: 1px solid rgba(255, 122, 26, 0.2);
+  font-family: var(--forge-font-mono);
+  font-size: 7px;
+}
+
+.forge-card--ember .ember-stat {
+  text-align: center;
+}
+
+.forge-card--ember .ember-stat-label {
+  color: #6b7687;
+}
+
+.forge-card--ember .ember-stat-value {
+  color: #ff7a1a;
+  font-weight: 700;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* ===============================================================
+   CardMonograph — cream paper, Fraunces serif (§7.1 monograph)
+   =============================================================== */
+.forge-card--monograph .mono-outer {
+  width: 278px;
+  background: #faf7f2;
+  color: #1a1814;
+  border-radius: 7px;
+  overflow: hidden;
+  box-shadow: 0 25px 49px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.forge-card--monograph .mono-portrait-wrap {
+  position: relative;
+  height: 246px;
+  overflow: hidden;
+}
+
+.forge-card--monograph .mono-portrait {
+  position: absolute;
+  inset: 0;
+  filter: grayscale(0.15);
+}
+
+.forge-card--monograph .mono-number {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-family: var(--forge-font-mono);
+  font-size: 7px;
+  letter-spacing: 1.2px;
+}
+
+.forge-card--monograph .mono-meta {
+  padding: 15px 16px 16px;
+}
+
+.forge-card--monograph .mono-class {
+  font-size: 7px;
+  color: #c0392b;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.forge-card--monograph .mono-name {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  margin: 3px 0 6px;
+  line-height: 1.1;
+}
+
+.forge-card--monograph .mono-divider {
+  height: 1px;
+  background: #e8e2d5;
+  margin: 7px 0;
+}
+
+.forge-card--monograph .mono-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.forge-card--monograph .mono-stat-label {
+  font-family: var(--forge-font-mono);
+  font-size: 7px;
+  color: #8b8578;
+  letter-spacing: 0.8px;
+}
+
+.forge-card--monograph .mono-stat-value {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* ===============================================================
+   CardCodex — parchment + Cinzel (§7.1 codex, audit 0.6 corrections applied)
+   =============================================================== */
+.forge-card--codex .codex-outer {
+  width: 278px;
+  background: #f2e6cc;
+  color: #2a1810;
+  border: 2px solid #2a1810;
+  padding: 10px;
+  /* Hard offset shadow — 0.3 opacity per JSX (NOT 0.9 as in prose spec) */
+  box-shadow: 5px 5px 0 0 rgba(42, 24, 16, 0.3), 0 25px 49px -12px rgba(0, 0, 0, 0.6);
+  font-family: 'Fraunces', 'Times New Roman', serif;
+}
+
+.forge-card--codex .codex-header {
+  border-bottom: 2px double #2a1810;
+  padding-bottom: 4px;
+  margin-bottom: 7px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.forge-card--codex .codex-name {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.forge-card--codex .codex-number {
+  font-family: 'Cinzel', serif;
+  font-size: 7px;
+  color: #8b2e1e;
+  border: 1px solid #8b2e1e;
+  padding: 1px 5px;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+}
+
+.forge-card--codex .codex-portrait-wrap {
+  aspect-ratio: 4 / 3;
+  border: 1px solid #2a1810;
+  overflow: hidden;
+  margin-bottom: 7px;
+  position: relative;
+}
+
+.forge-card--codex .codex-portrait {
+  position: absolute;
+  inset: 0;
+  filter: sepia(0.3) contrast(1.05);
+}
+
+.forge-card--codex .codex-class {
+  font-size: 8px;
+  font-style: italic;
+  margin-bottom: 7px;
+}
+
+.forge-card--codex .codex-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2.5px;
+}
+
+.forge-card--codex .codex-stat {
+  text-align: center;
+  border: 1px solid #2a1810;
+  padding: 2px 0;
+  /* Sepia-warm tint (audit 0.6 — NOT ink-grey rgba(42,24,16,0.08)) */
+  background: rgba(160, 117, 32, 0.08);
+}
+
+.forge-card--codex .codex-stat-label {
+  font-family: 'Cinzel', serif;
+  font-size: 6px;
+  color: #8a7050;
+  font-weight: 700;
+}
+
+.forge-card--codex .codex-stat-value {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+/* ===============================================================
+   CardPress — risograph red, Archivo Black (§7.1 press, audit 0.6 yellow #ffe000)
+   =============================================================== */
+.forge-card--press .press-outer {
+  width: 278px;
+  background: #e93e1a;
+  border: 3px solid #0a0a0a;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 5px 5px 0 0 #0a0a0a, 0 25px 49px -12px rgba(0, 0, 0, 0.6);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.forge-card--press .press-portrait-wrap {
+  position: relative;
+  height: 246px;
+  overflow: hidden;
+}
+
+.forge-card--press .press-portrait {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: multiply;
+}
+
+.forge-card--press .press-chip-row {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  display: flex;
+  gap: 0;
+  z-index: 2;
+}
+
+.forge-card--press .press-rarity-chip,
+.forge-card--press .press-number-chip {
+  padding: 2px 7px;
+  font-family: 'Archivo Black', 'Impact', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.8px;
+}
+
+.forge-card--press .press-rarity-chip {
+  background: #ffe000; /* audit 0.6 — NOT #ffd500 */
+  color: #0a0a0a;
+}
+
+.forge-card--press .press-number-chip {
+  background: #0a0a0a;
+  color: #fff;
+}
+
+.forge-card--press .press-footer {
+  background: #0a0a0a;
+  color: #fff;
+  padding: 11px 13px;
+  border-top: 3px solid #0a0a0a;
+}
+
+.forge-card--press .press-class {
+  font-family: var(--forge-font-mono);
+  font-size: 7px;
+  color: #ffe000;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+.forge-card--press .press-name {
+  font-family: 'Archivo Black', 'Impact', sans-serif;
+  font-size: 20px;
+  line-height: 0.88;
+  letter-spacing: -0.8px;
+  margin: 3px 0 7px;
+}
+
+.forge-card--press .press-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  border-top: 1.2px solid #ffe000;
+  padding-top: 5px;
+}
+
+.forge-card--press .press-stat-label {
+  font-family: var(--forge-font-mono);
+  font-size: 6px;
+  color: #ffe000;
+  font-weight: 600;
+}
+
+.forge-card--press .press-stat-value {
+  font-family: 'Archivo Black', 'Impact', sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+/* ===============================================================
+   CardArcade — TCG foil frame (§7.1 arcade, audit 0.6 static gradient)
+   =============================================================== */
+.forge-card--arcade .arcade-outer {
+  width: 278px;
+  /* Static base gradient — NOT color-mix per JSX audit 0.6 */
+  background: linear-gradient(135deg, #1a0a2a, #2a0e1e);
+  border: 2.5px solid var(--accent, #4fd1c5);
+  border-radius: 11px;
+  overflow: hidden;
+  padding: 7px;
+  font-family: 'Space Grotesk', sans-serif;
+  color: #fff;
+  /* Per-character accent halo */
+  box-shadow:
+    0 0 33px color-mix(in srgb, var(--accent, #4fd1c5) 40%, transparent),
+    0 25px 49px -12px rgba(0, 0, 0, 0.6);
+}
+
+.forge-card--arcade .arcade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 3px 5px;
+}
+
+.forge-card--arcade .arcade-name {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  color: #fff;
+}
+
+.forge-card--arcade .arcade-pips {
+  display: flex;
+  gap: 2.5px;
+}
+
+.forge-card--arcade .arcade-pip {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.forge-card--arcade .arcade-pip.is-filled {
+  background: var(--accent, #4fd1c5);
+  box-shadow: 0 0 3px var(--accent, #4fd1c5);
+}
+
+.forge-card--arcade .arcade-portrait-wrap {
+  height: 197px;
+  border-radius: 7px;
+  overflow: hidden;
+  position: relative;
+  border: 1.2px solid color-mix(in srgb, var(--accent, #4fd1c5) 40%, transparent);
+}
+
+.forge-card--arcade .arcade-portrait {
+  position: absolute;
+  inset: 0;
+}
+
+.forge-card--arcade .arcade-atk-def {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  padding: 2px 5px;
+  background: rgba(0, 0, 0, 0.6);
+  font-size: 7px;
+  color: var(--accent, #4fd1c5);
+  font-family: var(--forge-font-mono);
+  border-radius: 3px;
+  z-index: 2;
+}
+
+.forge-card--arcade .arcade-ability {
+  padding: 7px 3px 2px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 8px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.forge-card--arcade .arcade-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 3px 3px;
+  border-top: 1px solid color-mix(in srgb, var(--accent, #4fd1c5) 20%, transparent);
+  margin-top: 5px;
+  font-family: var(--forge-font-mono);
+  font-size: 7px;
+  color: var(--accent, #4fd1c5);
+}
+
+.forge-card--arcade .arcade-footer-icons {
+  display: flex;
+  gap: 4px;
+}
+
+.forge-card--arcade .arcade-footer-icons i {
+  font-size: 8px;
+}
+
+.forge-card--arcade .arcade-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  margin-top: 5px;
+}
+
+.forge-card--arcade .arcade-stat-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3px 2px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--accent, #4fd1c5);
+  border-radius: 5px;
+  font-family: var(--forge-font-mono);
+}
+
+.forge-card--arcade .arcade-stat-label {
+  font-size: 6px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.forge-card--arcade .arcade-stat-value {
+  font-size: 11px;
+  color: var(--accent, #4fd1c5);
+  font-weight: 700;
+  margin-top: 1px;
+}
+
+/* ===============================================================
+   CardTerminal — ASCII/YAML (§7.1 terminal, audit 0.6 grayscale + 4 stats)
+   =============================================================== */
+.forge-card--terminal .term-outer {
+  width: 278px;
+  background: #0b0f0c;
+  border: 1.2px solid rgba(80, 255, 180, 0.25);
+  padding: 10px;
+  font-family: var(--forge-font-mono);
+  font-size: 8px;
+  color: #d8f0e0;
+  box-shadow: 0 25px 49px -12px rgba(0, 0, 0, 0.9), 0 0 25px rgba(74, 227, 138, 0.15);
+}
+
+.forge-card--terminal .term-decor-top,
+.forge-card--terminal .term-decor-bot {
+  color: #f0b742;
+  font-size: 7px;
+}
+
+.forge-card--terminal .term-decor-top {
+  border-bottom: 1px dashed rgba(80, 255, 180, 0.2);
+  padding-bottom: 4px;
+  margin-bottom: 7px;
+}
+
+.forge-card--terminal .term-decor-bot {
+  border-top: 1px dashed rgba(80, 255, 180, 0.2);
+  padding-top: 4px;
+  margin-top: 7px;
+  text-align: right;
+}
+
+.forge-card--terminal .term-portrait-wrap {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(80, 255, 180, 0.15);
+  margin-bottom: 7px;
+}
+
+.forge-card--terminal .term-portrait {
+  position: absolute;
+  inset: 0;
+  /* audit 0.6 — grayscale, NOT saturate */
+  filter: grayscale(0.5) contrast(1.1);
+}
+
+.forge-card--terminal .term-rarity {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  z-index: 2;
+  color: #4ae38a;
+  font-size: 6px;
+}
+
+.forge-card--terminal .term-name-bar {
+  position: absolute;
+  bottom: 3px;
+  left: 3px;
+  right: 3px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 5px;
+}
+
+.forge-card--terminal .term-class {
+  color: #4ae38a;
+  font-size: 6px;
+}
+
+.forge-card--terminal .term-name {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.forge-card--terminal .term-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.forge-card--terminal .term-stat {
+  display: flex;
+  gap: 5px;
+  font-size: 7px;
+  align-items: baseline;
+}
+
+.forge-card--terminal .term-stat-label {
+  width: 22px;
+  color: #6a8a78;
+}
+
+.forge-card--terminal .term-stat-bar {
+  flex: 1;
+  letter-spacing: -1px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.forge-card--terminal .term-stat-filled {
+  color: #4ae38a;
+}
+
+.forge-card--terminal .term-stat-empty {
+  color: rgba(255, 255, 255, 0.12);
+}
+
+.forge-card--terminal .term-stat-value {
+  width: 18px;
+  text-align: right;
+  color: #f0b742;
+}

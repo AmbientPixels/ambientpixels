@@ -145,17 +145,17 @@
   }
 
   function renderCardStage(root, state) {
-    // Phase 5 Task 5.1 replaces this via window.ForgeRender.update().
-    var label = STAGE_TITLES[state.activeStage] || 'Preview';
-    var phaseHint = 'Phase 5';
-    if (state.activeStage === 'lore')    phaseHint = 'Phase 5 + lore overlay';
-    if (state.activeStage === 'mint')    phaseHint = 'Phase 7 (mint)';
-    if (state.activeStage === 'preview') phaseHint = 'Phase 5 (rotating preview)';
-
+    // Phase 5 live: dispatch to ForgeRender — picks the style module,
+    // preserves the portrait SVG across swaps via the dispatcher's cache.
+    if (window.ForgeRender && typeof window.ForgeRender.update === 'function') {
+      window.ForgeRender.update(root, state, 'md');
+      return;
+    }
+    // Fallback if render module didn't load (e.g. network error on CDN fonts)
     root.innerHTML = '' +
       '<div class="forge-stage-card-placeholder">' +
         '<div style="font-weight: 700; color: var(--forge-ember); margin-bottom: 6px;">CARD PREVIEW</div>' +
-        '<div>' + escapeHtml(label) + ' · ' + escapeHtml(phaseHint) + '</div>' +
+        '<div>ForgeRender module not loaded</div>' +
       '</div>';
   }
 

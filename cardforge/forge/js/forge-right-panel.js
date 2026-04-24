@@ -125,32 +125,49 @@
   // ---------------------------------------------------------------
   // Wire interactions — delegate on root
   // ---------------------------------------------------------------
-  function setStatAt(key, clientX, rect) {
-    if (!key || !rect) return;
-    var rel = (clientX - rect.left) / rect.width;
-    var val = Math.round(clamp(rel * 100));
-    var stats = Object.assign({}, window.ForgeState.get().stats);
-    if (stats[key] === val) return;
-    stats[key] = val;
-    window.ForgeState.set({ stats: stats });
-  }
-
   function startStatDrag(track, startEv) {
     var key = track.dataset.statTrack;
     if (!key) return;
-    // Cache the rect so re-renders mid-drag don't invalidate our math.
-    // Geometry is stable — the re-render produces an equivalent track at
-    // the same position, so the cached rect stays correct.
+
+    // Cache rect + DOM handles once at drag start. During drag we write
+    // directly to these nodes (no state.set → subscribe → re-render loop).
+    // This gives 1:1 mouse tracking instead of the state-round-trip lag.
+    // Final value commits to state on mouseup.
     var rect = track.getBoundingClientRect();
+    var row = track.closest('.forge-vital-row');
+    var fill = track.querySelector('.forge-vital-fill');
+    var thumb = track.querySelector('.forge-vital-thumb');
+    var valueEl = row ? row.querySelector('.forge-vital-value') : null;
 
     document.body.classList.add('forge-dragging');
-    setStatAt(key, startEv.clientX, rect);
+    var lastVal = null;
 
-    function onMove(ev) { ev.preventDefault(); setStatAt(key, ev.clientX, rect); }
+    function paint(clientX) {
+      var rel = (clientX - rect.left) / rect.width;
+      var val = Math.round(clamp(rel * 100));
+      if (val === lastVal) return;
+      lastVal = val;
+      if (fill)   fill.style.width = val + '%';
+      if (thumb)  thumb.style.left = val + '%';
+      if (valueEl) valueEl.textContent = val;
+      track.setAttribute('aria-valuenow', val);
+    }
+
+    paint(startEv.clientX);
+
+    function onMove(ev) { ev.preventDefault(); paint(ev.clientX); }
     function onUp() {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       document.body.classList.remove('forge-dragging');
+      // Commit once at drag end — triggers the only re-render of the drag.
+      if (lastVal != null) {
+        var stats = Object.assign({}, window.ForgeState.get().stats);
+        if (stats[key] !== lastVal) {
+          stats[key] = lastVal;
+          window.ForgeState.set({ stats: stats });
+        }
+      }
     }
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);

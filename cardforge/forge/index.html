@@ -5,19 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CardForge — The Forge</title>
 
-  <!-- Fonts: Unbounded (display), Space Grotesk (sans), JetBrains Mono (mono) -->
+  <!-- Fonts:
+       Unbounded (display), Space Grotesk (sans), JetBrains Mono (mono) — chrome + hero.
+       Fraunces (Monograph), Cinzel (Codex + Arcade), Archivo Black (Press) — card styles. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Fraunces:ital,wght@0,400..900;1,400..900&family=Cinzel:wght@400;500;600;700&family=Archivo+Black&display=swap" rel="stylesheet">
 
-  <!-- Font Awesome (stage buttons + chevrons + overlays) -->
+  <!-- Font Awesome (stage buttons + chevrons + overlays + arcade icons) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- CSS load order: tokens → chrome → editor → panels → responsive (last) -->
+  <!-- CSS load order: tokens → chrome → editor → panels → card-styles → responsive (last) -->
   <link rel="stylesheet" href="css/forge-tokens.css">
   <link rel="stylesheet" href="css/forge-chrome.css">
   <link rel="stylesheet" href="css/forge-editor.css">
   <link rel="stylesheet" href="css/forge-panels.css">
+  <link rel="stylesheet" href="css/forge-card-styles.css">
   <link rel="stylesheet" href="css/forge-responsive.css">
 </head>
 <body class="forge-page">
@@ -86,6 +89,15 @@
   <script src="js/forge-state.js" defer></script>
   <script src="js/forge-stage-flow.js" defer></script>
   <script src="js/forge-portrait.js" defer></script>
+
+  <!-- Card render dispatcher + 6 style modules (each registers window.ForgeStyle<X>) -->
+  <script src="js/forge-render.js" defer></script>
+  <script src="js/forge-styles/style-ember.js" defer></script>
+  <script src="js/forge-styles/style-monograph.js" defer></script>
+  <script src="js/forge-styles/style-codex.js" defer></script>
+  <script src="js/forge-styles/style-press.js" defer></script>
+  <script src="js/forge-styles/style-arcade.js" defer></script>
+  <script src="js/forge-styles/style-terminal.js" defer></script>
 
   <!-- Panel modules (self-initialize on DOMContentLoaded, subscribe to ForgeState) -->
   <script src="js/forge-left-panel.js" defer></script>
