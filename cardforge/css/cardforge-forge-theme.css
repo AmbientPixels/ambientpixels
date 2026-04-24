@@ -153,97 +153,53 @@ body.cf-theme-forge .cf-new-card-btn:hover {
 }
 
 /* ---------------------------------------------------------------
-   Hero section — HIDDEN in forge theme so the 3-panel editor is
-   the full focal point, not pushed below an above-the-fold hero.
+   Hero section — flatten + recolor, don't hide (keeps SEO + existing links)
    --------------------------------------------------------------- */
 body.cf-theme-forge .cf-hero {
-  display: none !important;
+  background: var(--forge-bg0) !important;
+  border-bottom: 1px solid var(--forge-line) !important;
+  padding: 32px 24px !important;
+}
+
+body.cf-theme-forge .cf-hero h1,
+body.cf-theme-forge .cf-hero .cf-hero__title {
+  font-family: 'Unbounded', 'Space Grotesk', sans-serif !important;
+  color: var(--forge-text) !important;
+  letter-spacing: -0.5px !important;
+}
+
+body.cf-theme-forge .cf-hero em,
+body.cf-theme-forge .cf-hero .cf-hero__accent {
+  color: var(--forge-ember) !important;
+  font-style: italic !important;
+}
+
+body.cf-theme-forge .cf-hero p,
+body.cf-theme-forge .cf-hero .cf-hero__subtitle {
+  color: var(--forge-text2) !important;
 }
 
 /* ---------------------------------------------------------------
    3-column panel split — left rail / center pane / right preview
-   Force a full-bleed unified editor shell with no column gaps.
-   The existing grid is 220px | minmax(520px, 1fr) | 460px with 16px gap
-   — we widen the rail to 280px, collapse the gaps to 0, pin the side
-   columns with sticky positioning, and give each column a hard border.
+   The existing .cardforge-container + .cf-rail + .cf-main-pane +
+   .cf-preview-pane already form a 3-column grid; we just retint them.
    --------------------------------------------------------------- */
 body.cf-theme-forge .cardforge-container {
   background: var(--forge-bg0) !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  min-height: calc(100vh - 48px) !important;
-  width: 100% !important;
-  max-width: none !important;
-}
-
-body.cf-theme-forge .cf-app-grid {
-  display: grid !important;
-  grid-template-columns: 280px minmax(0, 1fr) 360px !important;
-  gap: 0 !important;
-  align-items: stretch !important;
-  min-height: calc(100vh - 48px) !important;
-  width: 100% !important;
 }
 
 body.cf-theme-forge .cf-rail {
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  padding: 18px 16px !important;
   background: var(--forge-bg1) !important;
   border-right: 1px solid var(--forge-line) !important;
-  position: sticky !important;
-  top: 48px !important;
-  max-height: calc(100vh - 48px) !important;
-  overflow-y: auto !important;
-  align-self: stretch !important;
 }
 
 body.cf-theme-forge .cf-main-pane {
-  min-width: 0 !important;
-  max-width: none !important;
-  padding: 24px 28px !important;
-  background: radial-gradient(ellipse at center, #0e131a 0%, var(--forge-bg0) 70%) !important;
-  overflow-x: hidden !important;
+  background: radial-gradient(ellipse at center, #0e131a 0%, var(--forge-bg0) 65%) !important;
 }
 
 body.cf-theme-forge .cf-preview-pane {
-  min-width: 0 !important;
-  max-width: none !important;
-  padding: 20px 18px !important;
   background: var(--forge-bg1) !important;
   border-left: 1px solid var(--forge-line) !important;
-  position: sticky !important;
-  top: 48px !important;
-  max-height: calc(100vh - 48px) !important;
-  overflow-y: auto !important;
-  align-self: stretch !important;
-}
-
-/* Scrollbar styling for the side panels — slim obsidian */
-body.cf-theme-forge .cf-rail::-webkit-scrollbar,
-body.cf-theme-forge .cf-preview-pane::-webkit-scrollbar {
-  width: 5px;
-}
-body.cf-theme-forge .cf-rail::-webkit-scrollbar-thumb,
-body.cf-theme-forge .cf-preview-pane::-webkit-scrollbar-thumb {
-  background: var(--forge-line2);
-  border-radius: 3px;
-}
-body.cf-theme-forge .cf-rail::-webkit-scrollbar-track,
-body.cf-theme-forge .cf-preview-pane::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Mid-viewport responsive guard: below ~1100px the center min-width collapses
-   the grid. Kill the old cf-responsive.css `cf-main-pane { min-width: 520px }`
-   + `cf-preview-pane { min-width: 460px }` when our theme is active — we already
-   use minmax(0, 1fr) + 360px which handles narrow screens gracefully. */
-@media (max-width: 1279px) {
-  body.cf-theme-forge .cf-main-pane,
-  body.cf-theme-forge .cf-preview-pane {
-    min-width: 0 !important;
-  }
 }
 
 /* Rail tabs — match the forge style-chip / stage-row aesthetic */
