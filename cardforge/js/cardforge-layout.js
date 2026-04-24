@@ -291,3 +291,37 @@
     });
   }
 })();
+
+/**
+ * Handle ?start=X param from splash "ways-to-start" tiles.
+ *   quick  → auto-open Quick Build wizard
+ *   preset → activate Presets nav (default state; telemetry-only signal)
+ *   blank  → activate Presets nav, leave card at default state
+ */
+(function handleStartParam() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+  function run() {
+    var params = new URLSearchParams(window.location.search);
+    var start = params.get('start');
+    if (!start) return;
+
+    setTimeout(function () {
+      if (start === 'quick') {
+        var qb = document.getElementById('quick-build-btn');
+        if (qb) qb.click();
+      } else if (start === 'preset') {
+        if (window.CardForgeNav) window.CardForgeNav.activateById('presets');
+      } else if (start === 'blank') {
+        if (window.CardForgeNav) window.CardForgeNav.activateById('presets');
+      }
+
+      if (window.ProductAnalytics && typeof window.ProductAnalytics.track === 'function') {
+        try { window.ProductAnalytics.track('cardforge.editor.start_param', { start: start }); } catch (_) {}
+      }
+    }, 150);
+  }
+})();
