@@ -3921,16 +3921,12 @@ opacity: 1;
   box-shadow: none;
 }
 
-.card-preview-zone {
-  background: radial-gradient(ellipse at center, #0e131a 0%, var(--cf-ob-bg-0) 70%);
-  border: 1px solid var(--cf-ob-line-1);
-  position: relative;
-}
-
-.card-preview-zone::before {
+/* Ember floor-glow — attaches to .cf-preview-pane so it persists
+   even when .card-preview-zone is flattened to transparent. */
+.cf-preview-pane::after {
   content: '';
   position: absolute;
-  bottom: 40px;
+  bottom: 48px;
   left: 50%;
   transform: translateX(-50%);
   width: 340px;

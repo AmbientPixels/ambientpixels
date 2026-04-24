@@ -249,4 +249,45 @@ body.cf-rail-collapsed .cf-rail {
 .cf-rail-collapsed .cf-rail-nav .step-btn { justify-content: center; padding: 10px; }
 .cf-rail-collapsed .cf-rail-footer__action { padding: 10px; }
 
+/* ================================================================
+   Preview-column interior flatten — kill legacy panel chrome so the
+   card floats on the obsidian preview-pane bg. This rule block loads
+   AFTER cardforge-ui.css + cardforge-ui-components.css, so it wins
+   source-order even at matching ID specificity.
+
+   Card-preview-canvas (the card art itself) and its interior are
+   intentionally untouched — cardforge-card.css owns that surface.
+   ================================================================ */
+#card-preview-container {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.5rem 0;
+  box-shadow: none;
+}
+
+.card-preview-zone {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0.5rem;
+  box-shadow: none;
+}
+
+.sticky-preview-wrapper {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.preview-header,
+.preview-toolbar,
+.cf-preview-toolbar {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 /* Responsive behavior — see cardforge-responsive.css for all breakpoints */
