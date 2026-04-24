@@ -3962,4 +3962,500 @@ opacity: 1;
 .cf-main-pane .cf-section-description {
   color: var(--cf-ob-text-1);
 }
+
+/* Click-to-edit affordance on rendered card. */
+.cf-preview-pane .cf-card-clickable { cursor: pointer; }
+.cf-preview-pane .cf-card-clickable .card-avatar,
+.cf-preview-pane .cf-card-clickable .card-avatar-container,
+.cf-preview-pane .cf-card-clickable .hero-image-container,
+.cf-preview-pane .cf-card-clickable .card-portrait,
+.cf-preview-pane .cf-card-clickable .card-name,
+.cf-preview-pane .cf-card-clickable .card-class,
+.cf-preview-pane .cf-card-clickable .card-quote,
+.cf-preview-pane .cf-card-clickable .card-stats,
+.cf-preview-pane .cf-card-clickable .stat-row,
+.cf-preview-pane .cf-card-clickable .card-badges,
+.cf-preview-pane .cf-card-clickable .card-attributes {
+  transition: outline 0.12s ease, background-color 0.12s ease;
+}
+.cf-preview-pane .cf-card-clickable .card-avatar:hover,
+.cf-preview-pane .cf-card-clickable .card-avatar-container:hover,
+.cf-preview-pane .cf-card-clickable .hero-image-container:hover,
+.cf-preview-pane .cf-card-clickable .card-portrait:hover,
+.cf-preview-pane .cf-card-clickable .card-name:hover,
+.cf-preview-pane .cf-card-clickable .card-class:hover,
+.cf-preview-pane .cf-card-clickable .card-quote:hover,
+.cf-preview-pane .cf-card-clickable .card-stats:hover,
+.cf-preview-pane .cf-card-clickable .stat-row:hover,
+.cf-preview-pane .cf-card-clickable .card-badges:hover,
+.cf-preview-pane .cf-card-clickable .card-attributes:hover {
+  outline: 1px dashed var(--cf-ob-ember-33);
+  outline-offset: 2px;
+  background-color: var(--cf-ob-ember-dim);
+}
+
+/* =========================================================
+   Fixed-height main pane + force tiers open + compact layout
+   User requires: no scroll, everything above the fold.
+   ========================================================= */
+
+/* 1. Main pane is fixed to viewport-below-topbar height. */
+.cf-main-pane {
+  height: calc(100vh - 80px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.cf-main-pane .cf-left-column,
+.cf-main-pane .cardforge-editor,
+.cf-main-pane #card-editor-form {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cf-main-pane .cf-section {
+  flex: 1;
+  min-height: 0;
+  padding: 4px 8px !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+.cf-main-pane .cf-section.active { display: flex !important; }
+.cf-main-pane .cf-section-title {
+  margin: 0 0 4px !important;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.cf-main-pane .cf-section-description {
+  margin: 0 0 4px !important;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+/* 2. Force all collapsible tiers OPEN, hide expand arrows. */
+.cf-main-pane .tier-content,
+.cf-main-pane .craft-row-body {
+  max-height: none !important;
+  overflow: visible !important;
+}
+.cf-main-pane .collapsible-tier,
+.cf-main-pane .craft-row { padding: 0 !important; }
+.cf-main-pane .tier-expand-icon,
+.cf-main-pane .craft-row-chevron { display: none !important; }
+.cf-main-pane .tier-header,
+.cf-main-pane .craft-row-header {
+  cursor: default;
+  padding: 0 0 4px 0 !important;
+  min-height: 0 !important;
+}
+.cf-main-pane .tier-title,
+.cf-main-pane .craft-row-title {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-2);
+}
+
+/* 3. Shrink preset cards — 11 presets should fit in ~2-3 rows. */
+.cf-main-pane .presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 6px !important;
+}
+.cf-main-pane .preset-btn {
+  padding: 4px !important;
+  min-height: 0 !important;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 6px;
+  align-items: center;
+  text-align: left;
+}
+.cf-main-pane .preset-btn .preset-image {
+  width: 32px;
+  height: 32px;
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+.cf-main-pane .preset-btn .preset-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cf-main-pane .preset-btn .preset-info { min-width: 0; overflow: hidden; }
+.cf-main-pane .preset-btn .preset-name {
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-main-pane .preset-btn .preset-character,
+.cf-main-pane .preset-btn .preset-type {
+  font-size: 9px;
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 4. Compact AI / Random panels. */
+.cf-main-pane .cf-ai-creator-section,
+.cf-main-pane .random-section,
+.cf-main-pane .presets-section,
+.cf-main-pane .modular-tier,
+.cf-main-pane .artwork-section,
+.cf-main-pane .forge-panel {
+  padding: 4px 6px !important;
+  margin: 0 0 3px !important;
+}
+.cf-main-pane .presets-title,
+.cf-main-pane .random-title,
+.cf-main-pane .cf-ai-creator-section h4 {
+  font-size: 11px;
+  margin: 0 0 4px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.cf-main-pane .presets-helper,
+.cf-main-pane .random-helper {
+  font-size: 10px;
+  margin: 0 0 4px !important;
+  line-height: 1.2;
+}
+.cf-main-pane .cf-ai-prompt,
+.cf-main-pane textarea {
+  min-height: 40px !important;
+  font-size: 12px !important;
+  padding: 6px 8px !important;
+}
+.cf-main-pane .roll-btn {
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+}
+.cf-main-pane .roll-btn .roll-icon { font-size: 14px !important; }
+.cf-main-pane .roll-btn .roll-subtitle { font-size: 9px !important; margin: 0 !important; }
+.cf-main-pane .roll-btn .roll-label { font-size: 12px !important; }
+
+/* 5. Compact Basics — Class/Type + Rarity side-by-side, small icon grids. */
+.cf-main-pane [data-step-section="2"] label {
+  font-size: 10px !important;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin: 0 0 2px !important;
+  color: var(--cf-ob-text-2);
+}
+.cf-main-pane [data-step-section="2"] input[type="text"],
+.cf-main-pane [data-step-section="2"] select,
+.cf-main-pane [data-step-section="2"] textarea {
+  padding: 6px 8px !important;
+  font-size: 12px !important;
+}
+.cf-main-pane [data-step-section="2"] .stat-row {
+  margin: 0 0 4px !important;
+}
+.cf-main-pane .tier-options-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px !important;
+  padding: 0 !important;
+  margin: 4px 0 0 !important;
+}
+.cf-main-pane .tier-option {
+  padding: 4px !important;
+  min-height: 0 !important;
+  font-size: 10px !important;
+  text-align: center;
+}
+.cf-main-pane .tier-option .option-label {
+  font-size: 9px !important;
+  line-height: 1;
+}
+.cf-main-pane .tier-option .option-preview,
+.cf-main-pane .tier-option .container-icon {
+  width: 22px !important;
+  height: 22px !important;
+  margin: 0 auto !important;
+}
+.cf-main-pane .level-title {
+  font-size: 10px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 6px 0 2px !important;
+  color: var(--cf-ob-text-2);
+}
+.cf-main-pane .container-section,
+.cf-main-pane .container-level { margin: 0 !important; }
+
+/* 6. Compact form labels / stat rows across the board. */
+.cf-main-pane .cardforge-form label { margin-top: 4px !important; }
+.cf-main-pane .stat-row { margin-bottom: 4px !important; gap: 6px !important; }
+
+/* Combat stat rows (Stats section). */
+.cf-main-pane .combat-stat-row {
+  padding: 2px 4px !important;
+  margin: 0 0 2px !important;
+  min-height: 0 !important;
+}
+.cf-main-pane .combat-stat-header {
+  padding: 0 !important;
+  min-height: 0 !important;
+  font-size: 11px !important;
+}
+.cf-main-pane .combat-stat-header label { font-size: 11px !important; margin: 0 !important; }
+.cf-main-pane .combat-stat-row input[type="number"],
+.cf-main-pane .combat-stat-row input[type="range"] {
+  padding: 2px 4px !important;
+  font-size: 11px !important;
+  height: 22px !important;
+}
+.cf-main-pane .arena-combat-stats,
+.cf-main-pane .arena-custom-stats {
+  padding: 4px 6px !important;
+  margin: 0 0 4px !important;
+}
+.cf-main-pane .arena-combat-stats__header,
+.cf-main-pane .arena-custom-stats__label {
+  padding: 0 !important;
+  margin: 0 0 2px !important;
+  font-size: 10px !important;
+}
+.cf-main-pane .stats-panel { padding: 0 !important; gap: 4px !important; }
+
+/* Attributes / buffs / badges — similar row compaction. */
+.cf-main-pane .attribute-row,
+.cf-main-pane .micro-row,
+.cf-main-pane .badge-row {
+  padding: 2px 4px !important;
+  min-height: 0 !important;
+  margin-bottom: 2px !important;
+}
+.cf-main-pane .badge-section { padding: 4px 6px !important; margin: 0 0 3px !important; }
+
+/* 7. Step-nav prev/next at bottom stays visible, doesn't eat height. */
+.cf-main-pane .cf-step-nav {
+  margin-top: auto !important;
+  padding-top: 8px !important;
+  flex-shrink: 0;
+}
+
+/* 8. Compact Card Effects (tier 5) — dense 9-col effect-chips grid. */
+.cf-main-pane .card-effects-section { padding: 0 !important; }
+.cf-main-pane .effect-control {
+  margin: 0 0 6px !important;
+}
+.cf-main-pane .effect-control h5,
+.cf-main-pane .effect-control label {
+  font-size: 10px !important;
+  margin: 0 0 4px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-2);
+}
+.cf-main-pane .effect-chips {
+  display: grid !important;
+  grid-template-columns: repeat(9, 1fr) !important;
+  gap: 2px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  grid-auto-rows: 22px;
+  max-height: 68px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.cf-main-pane .effect-chips > * {
+  padding: 4px 2px !important;
+  font-size: 9px !important;
+  min-height: 0 !important;
+  line-height: 1.1;
+  text-align: center;
+}
+.cf-main-pane .effect-chips > * i {
+  font-size: 12px !important;
+  margin: 0 0 2px !important;
+  display: block;
+}
+.cf-main-pane .effect-category-label,
+.cf-main-pane .variant-subtitle {
+  display: none !important;
+}
+.cf-main-pane .effect-chips > button {
+  height: 24px !important;
+  min-height: 0 !important;
+  padding: 1px !important;
+  font-size: 8px !important;
+  line-height: 1;
+}
+.cf-main-pane .effect-control { margin: 0 0 4px !important; }
+.cf-main-pane .effect-control h5,
+.cf-main-pane .effect-control label { margin: 0 0 2px !important; }
+
+/* Compact palette families + variant toggles (tier 3 / tier 4). */
+.cf-main-pane .palette-families {
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 3px !important;
+}
+.cf-main-pane .palette-family {
+  padding: 4px !important;
+  min-height: 0 !important;
+  font-size: 9px !important;
+}
+.cf-main-pane .palette-family .palette-name { font-size: 9px !important; }
+.cf-main-pane .palette-family .palette-swatches {
+  gap: 1px !important;
+  margin-top: 2px !important;
+}
+.cf-main-pane .palette-family .palette-swatch {
+  width: 8px !important;
+  height: 8px !important;
+}
+.cf-main-pane .palette-level { margin: 0 0 4px !important; }
+.cf-main-pane .palette-level > h5,
+.cf-main-pane .palette-level > label { margin: 0 0 2px !important; font-size: 9px !important; }
+.cf-main-pane .variant-toggles {
+  display: flex;
+  gap: 4px !important;
+  margin: 0 !important;
+}
+.cf-main-pane .variant-toggle {
+  flex: 1;
+  padding: 4px 6px !important;
+  min-height: 0 !important;
+  font-size: 10px !important;
+}
+/* Container variants (tier 2) + effects grids — compact grid rows. */
+.cf-main-pane .variant-options {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important;
+  gap: 3px !important;
+}
+.cf-main-pane .variant-option {
+  padding: 4px !important;
+  min-height: 0 !important;
+  font-size: 9px !important;
+  text-align: center;
+}
+.cf-main-pane .variant-option .variant-preview,
+.cf-main-pane .variant-option .container-icon {
+  width: 24px !important;
+  height: 24px !important;
+  margin: 0 auto 2px !important;
+}
+.cf-main-pane .variant-option .variant-label,
+.cf-main-pane .variant-option .option-label { font-size: 9px !important; line-height: 1; }
+.cf-main-pane .container-section { padding: 0 !important; }
+.cf-main-pane .container-level { margin: 0 0 4px !important; padding: 0 !important; }
+.cf-main-pane .effects-level { margin-top: 4px !important; }
+.cf-main-pane .effects-type-section { margin: 0 0 4px !important; }
+.cf-main-pane .container-variants { margin: 0 !important; }
+.cf-main-pane .effect-chips > button i {
+  font-size: 10px !important;
+  margin-bottom: 1px !important;
+}
+.cf-main-pane .clear-effects-btn {
+  padding: 4px 8px !important;
+  font-size: 10px !important;
+}
+
+/* 9. Compact artwork picker (Artwork tier). */
+.cf-main-pane #inline-image-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)) !important;
+  gap: 3px !important;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.cf-main-pane #inline-image-grid > * {
+  width: 56px !important;
+  height: 56px !important;
+}
+.cf-main-pane .image-pagination {
+  padding: 4px !important;
+  font-size: 10px !important;
+}
+.cf-main-pane .image-chooser-section {
+  margin: 0 !important;
+}
+.cf-main-pane .cf-ai-image-section {
+  margin: 4px 0 0 !important;
+}
+.cf-main-pane .custom-url-toggle-section {
+  margin: 4px 0 0 !important;
+}
+.cf-main-pane .cf-url-toggle {
+  padding: 4px 8px !important;
+  font-size: 10px !important;
+}
+
+/* 10. Compact intensity slider row inside cardfx. */
+.cf-main-pane .effect-intensity-control {
+  margin: 0 !important;
+}
+.cf-main-pane .intensity-label-row {
+  font-size: 10px !important;
+  margin: 0 !important;
+}
+
+/* 11. Basics compaction — cap class/rarity icon pickers so the
+      section fits in-viewport. Inner pickers scroll if needed;
+      the section itself does not. */
+.cf-main-pane .basics-identity { margin: 0 0 6px !important; }
+.cf-main-pane .basics-classification {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+.cf-main-pane .basics-classification .badge-section {
+  padding: 6px !important;
+  margin: 0 !important;
+}
+.cf-main-pane .basics-classification .section-header {
+  padding: 0 0 4px !important;
+  min-height: 0 !important;
+  font-size: 10px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.cf-main-pane .basics-classification .section-content {
+  padding: 0 !important;
+}
+.cf-main-pane .basics-classification .styling-options { margin: 0 !important; }
+.cf-main-pane .basics-classification .icon-picker-container {
+  max-height: 180px !important;
+  overflow-y: auto !important;
+  padding: 2px !important;
+}
+.cf-main-pane .basics-classification .icon-picker {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 2px !important;
+  padding: 0 !important;
+}
+.cf-main-pane .basics-classification .icon-picker > * {
+  padding: 4px !important;
+  min-height: 0 !important;
+  font-size: 14px !important;
+}
+.cf-main-pane .basics-classification .icon-section-header,
+.cf-main-pane .basics-classification h5 {
+  font-size: 9px !important;
+  margin: 2px 0 !important;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.cf-main-pane .basics-classification select,
+.cf-main-pane .basics-classification input {
+  padding: 4px 6px !important;
+  font-size: 11px !important;
+}
+.cf-main-pane .cf-ai-quick-inline {
+  padding: 0 !important;
+}
 .cf-main-pane .cf-section-description { color: var(--cf-ob-text-2); }

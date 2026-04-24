@@ -20,7 +20,60 @@
     initTabs();
     wireStepNav();
     wireQuickPublish();
+    wireCardClickToEdit();
     initMobilePreviewToggle();
+  }
+
+  /* ---------------- Card click-to-edit ----------------
+   * Click a region of the rendered card → jump to the rail entry
+   * that edits it. Click zones map to nav-ids:
+   *   portrait/avatar     → artwork
+   *   name/class/quote    → basics
+   *   stats / stat-bars   → stats
+   *   badges / buffs      → buffs
+   *   attributes          → attributes
+   *   rarity text/badge   → basics (rarity input lives there)
+   *   empty card surface  → cardfx (rarity border / effects)
+   */
+  function wireCardClickToEdit() {
+    const canvas = document.querySelector('.card-preview-canvas');
+    if (!canvas) return;
+    // Delegate — card DOM re-renders a lot, so attach on the canvas.
+    canvas.addEventListener('click', function (e) {
+      const nav = window.CardForgeNav;
+      if (!nav || typeof nav.activateById !== 'function') return;
+
+      const zone = e.target.closest(
+        '.card-avatar, .card-avatar-container, .hero-image-container, ' +
+        '.card-portrait, .card-image-container, .image-wrapper, ' +
+        '.card-name, .card-class, .card-quote, ' +
+        '.card-stats, .stat-row, .stat-item, .stat-bar, .stat-progress, .stat-name, .stat-value, ' +
+        '.card-badges, .badge-row, .micro-row, [data-badge-key], .badge-card-header, ' +
+        '.card-attributes, .attribute-row, [data-attr-key], ' +
+        '.card-rarity, [data-rarity-tag]'
+      );
+      if (!zone) {
+        // Clicked empty card surface → card effects
+        e.stopPropagation();
+        nav.activateById('cardfx');
+        return;
+      }
+      e.stopPropagation();
+      if (zone.matches('.card-avatar, .card-avatar-container, .hero-image-container, .card-portrait, .card-image-container, .image-wrapper')) {
+        nav.activateById('artwork');
+      } else if (zone.matches('.card-stats, .stat-row, .stat-item, .stat-bar, .stat-progress, .stat-name, .stat-value') || zone.closest('.card-stats')) {
+        nav.activateById('stats');
+      } else if (zone.matches('.card-badges, .badge-row, .micro-row, [data-badge-key], .badge-card-header') || zone.closest('.card-badges')) {
+        nav.activateById('buffs');
+      } else if (zone.matches('.card-attributes, .attribute-row, [data-attr-key]') || zone.closest('.card-attributes')) {
+        nav.activateById('attributes');
+      } else {
+        // name / class / quote / rarity → basics
+        nav.activateById('basics');
+      }
+    });
+    // Visual affordance — cursor pointer on hoverable regions.
+    canvas.classList.add('cf-card-clickable');
   }
 
   /* ---------------- Quick Publish ----------------
