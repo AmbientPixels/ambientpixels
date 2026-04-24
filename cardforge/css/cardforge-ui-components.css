@@ -2387,7 +2387,7 @@ body.cf-ui--clean [data-save-state] {
 .mini-card-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.1); }
 .mini-card-btn.edit { color: #fbbf24; }
 .mini-card-btn.duplicate { color: #22c55e; }
-.mini-card-btn.publish { color: #3b82f6; }
+.mini-card-btn.publish { color: #e86816; }
 .mini-card-btn.deck-add { color: #ff9a4e; }
 .mini-card-btn.delete { color: #ef4444; }
 .mini-card-btn.remove { color: #ef4444; }

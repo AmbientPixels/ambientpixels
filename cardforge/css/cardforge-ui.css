@@ -1735,7 +1735,7 @@ body.cf-ui--neon .zone-header h3 i {
 
 /* Secondary generator — same purple family, lower intensity */
 [data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn) {
-  background: linear-gradient(135deg, rgba(255, 122, 26, 0.08), rgba(59, 130, 246, 0.08));
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.08), rgba(255, 154, 78, 0.08));
   border: 1px solid rgba(255, 122, 26, 0.25);
   color: #ffb477;
   box-shadow: none;
@@ -1747,7 +1747,7 @@ body.cf-ui--neon .zone-header h3 i {
   color: var(--cf-text-muted, #808099);
 }
 [data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn):hover {
-  background: linear-gradient(135deg, rgba(255, 122, 26, 0.18), rgba(59, 130, 246, 0.18));
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.18), rgba(255, 154, 78, 0.18));
   border-color: rgba(255, 122, 26, 0.6);
   color: #e0d4ff;
   transform: none;

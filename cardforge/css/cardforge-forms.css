@@ -743,7 +743,7 @@
   margin-top: 12px;
   border: 1px solid rgba(255, 122, 26, 0.4);
   border-radius: 6px;
-  background: linear-gradient(135deg, rgba(255, 122, 26, 0.15), rgba(59, 130, 246, 0.15));
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.15), rgba(255, 154, 78, 0.15));
   color: #ffb477;
   font-family: inherit;
   font-size: 0.85rem;
@@ -757,14 +757,14 @@
 
 .roll-btn.cf-ai-generate-btn:hover {
   border-color: rgba(255, 122, 26, 0.9);
-  background: linear-gradient(135deg, rgba(255, 122, 26, 0.3), rgba(59, 130, 246, 0.3));
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.3), rgba(255, 154, 78, 0.3));
   color: #f0eaff;
   box-shadow: 0 0 10px rgba(255, 122, 26, 0.2);
   transform: none;
 }
 
 .roll-btn.cf-ai-generate-btn:active {
-  background: linear-gradient(135deg, rgba(255, 122, 26, 0.4), rgba(59, 130, 246, 0.4));
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.4), rgba(255, 154, 78, 0.4));
   transform: none;
 }
 
@@ -780,7 +780,7 @@
 /* Loading state */
 .roll-btn.cf-ai-generate-btn.cf-ai-loading {
   border-color: rgba(255, 122, 26, 0.5);
-  background: linear-gradient(135deg, rgba(255, 122, 26, 0.1), rgba(59, 130, 246, 0.1));
+  background: linear-gradient(135deg, rgba(255, 122, 26, 0.1), rgba(255, 154, 78, 0.1));
 }
 
 /* Success state */

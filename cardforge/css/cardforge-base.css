@@ -1961,12 +1961,12 @@ body[data-theme="light"] [data-step-section="0"] .roll-btn:not(.cf-ai-generate-b
 
 /* ── Light: AI Generate button ── */
 body[data-theme="light"] .roll-btn.cf-ai-generate-btn {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.08));
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(255, 154, 78, 0.08));
   border-color: rgba(124, 58, 237, 0.35);
   color: #e86816;
 }
 body[data-theme="light"] .roll-btn.cf-ai-generate-btn:hover {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(59, 130, 246, 0.15));
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(255, 154, 78, 0.15));
   border-color: rgba(124, 58, 237, 0.6);
   color: #6d28d9;
 }
@@ -2198,6 +2198,30 @@ body::before {
 .card-preview-zone,
 .cf-preview-toolbar,
 .preview-toolbar,
-.toolbar-btn {
+.toolbar-btn,
+/* ID-scoped elements — same ID specificity, loaded later, so these
+   win source-order against the legacy rules. */
+#card-preview-container,
+#cardforge-main-container,
+#quick-build-btn,
+#cf-ai-prompt,
+#cf-ai-full-generate-btn,
+#cf-ai-image-btn,
+#cf-ai-image-prompt,
+#roll-random-preset,
+#toolbar-save-btn,
+#toolbar-reset-btn,
+#toolbar-new-card-btn,
+#flip-btn,
+#cf-compare-btn,
+#cf-undo-btn,
+#cf-redo-btn,
+#preview-summary,
+#forge-publish-nav-btn,
+#craft-completion-cta,
+.cf-main-pane .glass-button,
+.cf-main-pane .cf-tool-btn,
+.cf-preview-pane .glass-button,
+.cf-preview-pane .cf-tool-btn {
   border-radius: 0;
 }

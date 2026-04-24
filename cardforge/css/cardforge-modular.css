@@ -410,7 +410,7 @@
 }
 
 .corporate-preview {
-  background: linear-gradient(45deg, #2563eb, #60a5fa, #f4f6f8);
+  background: linear-gradient(45deg, #e86816, #ff9a4e, #f4f6f8);
 }
 
 .royal-preview {
@@ -422,7 +422,7 @@
 }
 
 .frost-preview {
-  background: linear-gradient(45deg, #0f1e2a, #7dd3fc, #38bdf8);
+  background: linear-gradient(45deg, #0f1e2a, #ffb477, #ff9a4e);
 }
 
 .arcane-preview {
@@ -664,7 +664,7 @@
 }
 
 .preset-corporate .card-badge {
-  background: #60a5fa;
+  background: #ff9a4e;
 }
 
 .preset-corporate .card-text {
