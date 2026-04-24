@@ -999,6 +999,20 @@ body.cf-ui--clean [data-save-state] {
   font-size: 0.75rem;
 }
 
+/* Primary variant — used by the quick-publish button under the card. */
+.cf-tool-btn.cf-tool-btn--primary {
+  background: var(--cf-ob-ember);
+  border-color: var(--cf-ob-ember);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 14px var(--cf-ob-ember-33);
+}
+.cf-tool-btn.cf-tool-btn--primary:hover {
+  background: var(--cf-ob-ember-soft);
+  border-color: var(--cf-ob-ember-soft);
+  color: #fff;
+}
+
 /* Card Preview Container */
 #card-preview-container {
   position: sticky;

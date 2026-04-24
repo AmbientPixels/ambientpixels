@@ -19,7 +19,27 @@
     initStepper();
     initTabs();
     wireStepNav();
+    wireQuickPublish();
     initMobilePreviewToggle();
+  }
+
+  /* ---------------- Quick Publish ----------------
+   * #cf-publish-quick-btn in the preview toolbar (under the card)
+   * just proxies to the Forge-section publish button that wireStepNav
+   * injects. Same auth / deck-tab / publish handling — zero logic
+   * duplication. */
+  function wireQuickPublish() {
+    const quickBtn = document.getElementById('cf-publish-quick-btn');
+    if (!quickBtn) return;
+    quickBtn.addEventListener('click', function () {
+      const forgeBtn = document.getElementById('forge-publish-nav-btn');
+      if (forgeBtn) {
+        forgeBtn.click();
+      } else if (window.cardForgeActions && window.cardForgeActions.handlePublishCard) {
+        // Fallback if wireStepNav hasn't run yet
+        window.cardForgeActions.handlePublishCard();
+      }
+    });
   }
 
 
