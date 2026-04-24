@@ -2096,6 +2096,23 @@ body[data-theme="light"] .cf-summary-value {
   --cf-ob-text-mute: #6b7381;
   --cf-ob-radius-md: 8px;
   --cf-ob-radius-lg: 12px;
+
+  /* Re-route legacy aura/mood tokens to obsidian equivalents so
+     every existing rule that uses var(--aura-*) / var(--mood-*)
+     inherits obsidian colors without needing a selector-by-selector
+     paint pass. Fallback defaults in old rules (e.g. #1a1a2e) only
+     fire if the variable is undefined — defining here prevents that. */
+  --aura-bg-color: var(--cf-ob-bg-2);
+  --aura-bg-secondary: var(--cf-ob-bg-1);
+  --aura-bg-hover: var(--cf-ob-bg-3);
+  --aura-bg-active: var(--cf-ob-bg-3);
+  --aura-glow: var(--cf-ob-ember);
+  --mood-text-primary: var(--cf-ob-text-1);
+  --mood-text-secondary: var(--cf-ob-text-2);
+  --mood-primary-color: var(--cf-ob-ember);
+  --mood-accent-color: var(--cf-ob-line-2);
+  --mood-secondary-color: var(--cf-ob-text-2);
+  --card-bg-primary: var(--cf-ob-bg-2);
 }
 
 body {
