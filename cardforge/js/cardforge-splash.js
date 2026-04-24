@@ -115,8 +115,13 @@
     var characterClass = cd.characterClass || entry.characterClass || '';
     var avatar = cd.avatar || entry.avatar || entry.image || '';
     var id = entry.id || cd.id || cd.shareId || '';
-    if (!name || !avatar) return null;
-    return { name: name, characterClass: characterClass, avatar: avatar, id: id };
+    var renderedFront = cd.renderedFront || null;
+    var frontClasses = cd.frontClasses || null;
+    if (!name && !renderedFront) return null;
+    return {
+      name: name, characterClass: characterClass, avatar: avatar, id: id,
+      renderedFront: renderedFront, frontClasses: frontClasses
+    };
   }
 
   async function fetchPublishedCards() {
@@ -130,8 +135,16 @@
       var res = await fetch(API_LOAD_CARDS, { headers: headers, credentials: 'omit' });
       if (!res.ok) return [];
       var data = await res.json();
-      var list = Array.isArray(data) ? data : (data && Array.isArray(data.cards) ? data.cards : []);
-      return list.map(normalizeCard).filter(Boolean);
+      // API response shape: { userCards, galleryCards, defaultCards, diagnostics }
+      var pool = [];
+      if (Array.isArray(data)) pool = data;
+      else if (data) {
+        pool = []
+          .concat(data.galleryCards || [])
+          .concat(data.defaultCards || [])
+          .concat(data.userCards || []);
+      }
+      return pool.map(normalizeCard).filter(Boolean);
     } catch (_) {
       return [];
     }
@@ -147,9 +160,25 @@
   }
 
   function cssUrl(src) {
-    // Safe single-quoted url() for inline style attributes. Escape any
-    // stray single quotes or backslashes in the source URL.
     return "url('" + String(src).replace(/\\/g, '\\\\').replace(/'/g, "%27") + "')";
+  }
+
+  function renderCardContent(c) {
+    // Use the full-fidelity rendered card HTML when the API provides it
+    // (galleryCards / defaultCards from /api/cardforgeloadcards).
+    // Fall back to portrait-only mini card for preset/local fallbacks.
+    if (c.renderedFront && c.frontClasses) {
+      return '<div class="mini-card-scaler"><div class="' + escHtml(c.frontClasses) + '">' + c.renderedFront + '</div></div>';
+    }
+    return (
+      '<div class="cf-mini-fallback">' +
+        '<div class="cf-mini-fallback__portrait" style="background-image: ' + cssUrl(c.avatar || '') + ';"></div>' +
+        '<div class="cf-mini-fallback__label">' +
+          '<span class="cf-mini-fallback__name">' + escHtml(c.name) + '</span>' +
+          (c.characterClass ? '<span class="cf-mini-fallback__class">' + escHtml(c.characterClass) + '</span>' : '') +
+        '</div>' +
+      '</div>'
+    );
   }
 
   function renderFan(cards) {
@@ -157,12 +186,8 @@
     if (!fan) return;
     var picks = cards.slice(0, 5);
     fan.innerHTML = picks.map(function (c, i) {
-      return '<a class="cf-hero-fan__card" data-fan-pos="' + i + '" href="/cardforge/gallery.html" data-splash-cta="fan-card">' +
-               '<div class="cf-hero-fan__portrait" style="background-image: ' + cssUrl(c.avatar) + ';"></div>' +
-               '<div class="cf-hero-fan__label">' +
-                 '<span class="cf-hero-fan__name">' + escHtml(c.name) + '</span>' +
-                 (c.characterClass ? '<span class="cf-hero-fan__class">' + escHtml(c.characterClass) + '</span>' : '') +
-               '</div>' +
+      return '<a class="cf-hero-fan__card mini-card" data-fan-pos="' + i + '" href="/cardforge/gallery.html" data-splash-cta="fan-card" aria-label="' + escHtml(c.name || 'Card') + '">' +
+               renderCardContent(c) +
              '</a>';
     }).join('');
   }
@@ -172,12 +197,8 @@
     if (!strip) return;
     var picks = cards.slice(0, 10);
     strip.innerHTML = picks.map(function (c) {
-      return '<a class="cf-showcase-card" href="/cardforge/gallery.html" data-splash-cta="showcase-card">' +
-               '<div class="cf-showcase-card__portrait" style="background-image: ' + cssUrl(c.avatar) + ';"></div>' +
-               '<div class="cf-showcase-card__label">' +
-                 '<span class="cf-showcase-card__name">' + escHtml(c.name) + '</span>' +
-                 (c.characterClass ? '<span class="cf-showcase-card__class">' + escHtml(c.characterClass) + '</span>' : '') +
-               '</div>' +
+      return '<a class="cf-showcase-card mini-card" href="/cardforge/gallery.html" data-splash-cta="showcase-card" aria-label="' + escHtml(c.name || 'Card') + '">' +
+               renderCardContent(c) +
              '</a>';
     }).join('');
   }
