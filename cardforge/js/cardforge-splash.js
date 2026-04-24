@@ -203,43 +203,33 @@
     }).join('');
   }
 
-  function renderSkeletons() {
-    // Render empty card-shaped skeletons while the API is in flight.
-    // Obviously-loading state avoids the jarring "plain portrait → real
-    // card" flicker that happens when presets render first.
+  function fadeInRenderedCards() {
     var fan = document.getElementById('cf-hero-fan');
     var strip = document.getElementById('cf-showcase-strip');
-    var skel = function () {
-      return '<div class="mini-card cf-splash-skeleton"><div class="cf-splash-skeleton__inner"></div></div>';
-    };
-    if (fan) {
-      fan.innerHTML = [0,1,2,3,4].map(function (i) {
-        return '<div class="cf-hero-fan__card mini-card cf-splash-skeleton" data-fan-pos="' + i + '"><div class="cf-splash-skeleton__inner"></div></div>';
-      }).join('');
-    }
-    if (strip) {
-      strip.innerHTML = [0,1,2,3,4,5,6,7,8,9].map(skel).join('');
-    }
+    if (fan) fan.classList.add('cf-splash-loaded');
+    if (strip) strip.classList.add('cf-splash-loaded');
   }
 
   async function initGallery() {
-    renderSkeletons();
-
-    // Fetch real cards. Prefer cards with renderedFront so the splash
-    // always shows full-fidelity CardForge cards when any exist.
+    // Leave fan/showcase empty — no placeholder/skeleton cards. Empty
+    // hero space is better than visible placeholder cards that get
+    // replaced.
     var cards = await fetchPublishedCards();
 
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
     var otherCards = cards.filter(function (c) { return !(c.renderedFront && c.frontClasses); });
 
-    // If nothing came back at all, fall through to presets so the hero
-    // isn't empty. (Real cards come first; presets only fill.)
     var pool = realCards.concat(otherCards);
     if (pool.length === 0) pool = PRESET_FALLBACK.slice();
     else pool = pool.concat(PRESET_FALLBACK);
 
     renderFan(pool.slice(0, 5));
     renderShowcase(pool.slice(0, 10));
+    // Next frame so the .cf-splash-loaded transition fires after
+    // the new card DOM is painted.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(fadeInRenderedCards);
+    });
   }
 
   function init() {

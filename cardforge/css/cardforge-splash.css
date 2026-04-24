@@ -299,30 +299,17 @@ body.cf-splash {
 .cf-hero-fan__card:hover[data-fan-pos="3"] { transform: translate(-50%, -50%) rotate(8deg) translate(80px, -10px) scale(1.04); }
 .cf-hero-fan__card:hover[data-fan-pos="4"] { transform: translate(-50%, -50%) rotate(16deg) translate(160px, 10px) scale(1); }
 
-/* Loading skeleton — placeholder while the API fetch is in flight,
-   so visitors see "something is coming" rather than a plain portrait
-   that gets replaced by a real card a second later. */
-.cf-splash-skeleton {
-  background: var(--cf-ob-bg-2);
-  border: 1px solid var(--cf-ob-line-1);
-  overflow: hidden;
-  position: relative;
+/* Fade-in when JS injects the real card DOM — no skeletons, just a
+   clean reveal once the API-fetched cards arrive. */
+.cf-hero-fan > .cf-hero-fan__card,
+.cf-splash-showcase__strip > .cf-showcase-card {
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
-.cf-splash-skeleton__inner {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, transparent 0%, rgba(255, 122, 26, 0.05) 50%, transparent 100%),
-    linear-gradient(180deg, var(--cf-ob-bg-3) 0%, var(--cf-ob-bg-2) 100%);
-  background-size: 220% 100%, 100% 100%;
-  background-position: -60% 0, 0 0;
-  animation: cf-splash-shimmer 1.6s ease-in-out infinite;
+.cf-hero-fan.cf-splash-loaded > .cf-hero-fan__card,
+.cf-splash-showcase__strip.cf-splash-loaded > .cf-showcase-card {
+  opacity: 1;
 }
-@keyframes cf-splash-shimmer {
-  0% { background-position: -60% 0, 0 0; }
-  100% { background-position: 160% 0, 0 0; }
-}
-.cf-splash-skeleton:hover { transform: none; }
 
 /* Portrait-only fallback (.cf-mini-fallback) for preset cards that
    don't have a renderedFront payload from the API. */
