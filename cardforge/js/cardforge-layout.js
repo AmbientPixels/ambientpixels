@@ -60,47 +60,67 @@
   /* ---------------- Stepper ---------------- */
 
   function initStepper() {
-    const sections = document.querySelectorAll('.cf-section');
-    const stepButtons = document.querySelectorAll('.step-btn');
-    if (!stepButtons.length || !sections.length) return;
+    const navButtons = document.querySelectorAll('.cf-rail-nav .step-btn');
+    const sections = document.querySelectorAll('[data-step-section]');
+    const cardDesignSection = document.querySelector('[data-step-section="1"]');
+    if (!navButtons.length || !sections.length) return;
 
-    stepButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const step = btn.dataset.step;
-        const targetSection = document.querySelector(`[data-step-section="${step}"]`);
-        if (targetSection) {
-          // Hide all sections then show target with enter animation
-          sections.forEach(sec=>{sec.classList.remove('active','cf-section-entering'); sec.style.display='none';});
-          targetSection.classList.add('active');
-          targetSection.style.display='block';
-          // Trigger enter animation (reflow trick to restart)
-          void targetSection.offsetWidth;
-          targetSection.classList.add('cf-section-entering');
-          // Scroll so the active section is visible below the chrome
-          requestAnimationFrame(() => {
-            targetSection.scrollIntoView({ behavior: 'instant', block: 'start' });
-          });
-        }
-        stepButtons.forEach((b) => {
-          b.classList.remove('active');
-          // Reset Forge button active background when deselected
-          if (b.classList.contains('step-btn--forge')) {
-            b.style.background = '';
-          }
-        });
-        btn.classList.add('active');
-        // Apply gold active background for Forge tab (inline to beat CSS specificity)
-        if (btn.classList.contains('step-btn--forge')) {
-          btn.style.background = 'rgba(240, 192, 64, 0.14)';
-        }
-        // auto-flip card on section change: flip for sections > 3 (Social, Badges, Attributes)
-        const cardInner = document.querySelector('.card-inner');
-        if (cardInner) {
-          if (parseInt(step, 10) > 3) cardInner.classList.add('flipped');
-          else cardInner.classList.remove('flipped');
-        }
+    function activate(btn) {
+      const sectionIndex = btn.dataset.targetSection;
+      const tierId = btn.dataset.targetTier;
+
+      sections.forEach(sec => {
+        sec.classList.remove('active', 'cf-section-entering');
+        sec.style.display = 'none';
       });
-    });
+      const target = document.querySelector(`[data-step-section="${sectionIndex}"]`);
+      if (target) {
+        target.classList.add('active');
+        target.style.display = 'block';
+        void target.offsetWidth;
+        target.classList.add('cf-section-entering');
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: 'instant', block: 'start' });
+        });
+      }
+
+      if (tierId && cardDesignSection) {
+        cardDesignSection.dataset.activeTier = tierId;
+      }
+
+      navButtons.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      const cardInner = document.querySelector('.card-inner');
+      if (cardInner) {
+        if (parseInt(sectionIndex, 10) > 3) cardInner.classList.add('flipped');
+        else cardInner.classList.remove('flipped');
+      }
+
+      if (window.ProductAnalytics && typeof window.ProductAnalytics.track === 'function') {
+        try {
+          window.ProductAnalytics.track('cardforge.nav.select', {
+            navId: btn.dataset.navId,
+            section: sectionIndex,
+            tier: tierId || null
+          });
+        } catch (_) {}
+      }
+    }
+
+    navButtons.forEach(btn => btn.addEventListener('click', () => activate(btn)));
+
+    window.CardForgeNav = {
+      activate,
+      activateById: (id) => {
+        const b = document.querySelector(`.cf-rail-nav .step-btn[data-nav-id="${id}"]`);
+        if (b) activate(b);
+      }
+    };
   }
 
   /* ---------------- Tabs ---------------- */
@@ -153,39 +173,43 @@
   /* ---------------- Section Prev / Next Nav ---------------- */
 
   function wireStepNav() {
-    const stepBtns = Array.from(document.querySelectorAll('.step-btn'));
-    if (!stepBtns.length) return;
+    const navBtns = Array.from(document.querySelectorAll('.cf-rail-nav .step-btn'));
+    if (!navBtns.length) return;
 
-    // Build ordered list of { step, label } from left rail
-    const steps = stepBtns.map(btn => ({
-      step: btn.dataset.step,
-      label: (btn.querySelector('.step-label') || {}).textContent || 'Step ' + btn.dataset.step
-    }));
-
-    // Remove existing "Next: Basics →" CTA (superseded by standardized nav)
     const legacyCta = document.getElementById('craft-completion-cta');
     if (legacyCta) legacyCta.remove();
 
-    // Navigate to a step by triggering the corresponding left rail button
-    function goToStep(stepId) {
-      const btn = document.querySelector('.step-btn[data-step="' + stepId + '"]');
+    const sectionEntries = [];
+    const seen = new Set();
+    navBtns.forEach(btn => {
+      const sec = btn.dataset.targetSection;
+      if (sec && !seen.has(sec)) {
+        seen.add(sec);
+        sectionEntries.push({
+          section: sec,
+          label: (btn.querySelector('.step-btn__label') || {}).textContent || ('Section ' + sec),
+          navId: btn.dataset.navId
+        });
+      }
+    });
+
+    function goToNavId(navId) {
+      const btn = document.querySelector('.cf-rail-nav .step-btn[data-nav-id="' + navId + '"]');
       if (btn) btn.click();
     }
 
-    steps.forEach((current, idx) => {
-      const section = document.querySelector('[data-step-section="' + current.step + '"]');
+    sectionEntries.forEach((current, idx) => {
+      const section = document.querySelector('[data-step-section="' + current.section + '"]');
       if (!section) return;
 
       const isFirst = idx === 0;
-      const isLast = idx === steps.length - 1;
-      const prev = isFirst ? null : steps[idx - 1];
-      const next = isLast ? null : steps[idx + 1];
+      const isLast = idx === sectionEntries.length - 1;
+      const prev = isFirst ? null : sectionEntries[idx - 1];
+      const next = isLast ? null : sectionEntries[idx + 1];
 
-      // Build nav row
       const row = document.createElement('div');
       row.className = 'cf-step-nav';
 
-      // Previous button
       const prevBtn = document.createElement('button');
       prevBtn.type = 'button';
       prevBtn.className = 'cf-step-nav-btn cf-step-nav-prev';
@@ -194,10 +218,9 @@
       if (isFirst) {
         prevBtn.style.display = 'none';
       } else {
-        prevBtn.addEventListener('click', function() { goToStep(prev.step); });
+        prevBtn.addEventListener('click', function() { goToNavId(prev.navId); });
       }
 
-      // Next button
       const nextBtn = document.createElement('button');
       nextBtn.type = 'button';
       nextBtn.className = 'cf-step-nav-btn cf-step-nav-next';
@@ -206,10 +229,8 @@
         nextBtn.innerHTML = '<span>Publish</span> <i class="fas fa-share"></i>';
         nextBtn.setAttribute('aria-label', 'Publish card to gallery');
         nextBtn.addEventListener('click', function() {
-          // Check which forge tab is active
           var deckTab = document.querySelector('.forge-sidebar-tab[data-forge-tab="deck"].active');
           if (deckTab) {
-            // On deck tab — check if decks exist and one is selected
             if (!window.cardForgeActions) return;
             var decks = window.cardForgeActions.getSavedDecks();
             if (!decks || decks.length === 0) {
@@ -220,7 +241,6 @@
               window.cardForgeActions.publishDeck(window.cardForgeActions._selectedDeckId);
             }
           } else {
-            // On cards tab — publish the current card
             if (window.cardForgeActions && window.cardForgeActions.handlePublishCard) {
               window.cardForgeActions.handlePublishCard();
             } else if (window.publishCard) {
@@ -231,7 +251,7 @@
       } else {
         nextBtn.innerHTML = '<span>' + next.label + '</span> <i class="fas fa-chevron-right"></i>';
         nextBtn.setAttribute('aria-label', 'Go to ' + next.label);
-        nextBtn.addEventListener('click', function() { goToStep(next.step); });
+        nextBtn.addEventListener('click', function() { goToNavId(next.navId); });
       }
 
       row.appendChild(prevBtn);
