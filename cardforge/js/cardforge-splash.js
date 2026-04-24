@@ -87,33 +87,21 @@
 
   var API_LOAD_CARDS = 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
 
-  // Synthetic preset cards — used as padding to complete the fan when
-  // the gallery has fewer than 5 real cards, or as fallback when the
-  // gallery API is unreachable. Each preset carries CardForge palette +
-  // rarity class combinations so the synthesized card HTML picks up
-  // full CardForge styling from cardforge-card.css (borders, glow,
-  // rarity effects) rather than looking like a portrait thumbnail.
+  // Preset fallbacks — used as initial placeholders before the API
+  // resolves. Once real cards arrive they replace these. Each entry is
+  // just a portrait + name + class — no synthesized CardForge card
+  // styling (that collides with cardforge-card.css rules).
   var PRESET_FALLBACK = [
-    { name: 'Aria Stormwind',     characterClass: 'Fantasy Ranger',    rarity: 'Legendary', avatar: '/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg',
-      palette: 'earth',     variant: 'dark',  rarityStyle: 'ornate',  stats: [68, 82, 74, 61, 90] },
-    { name: 'Zara-7',             characterClass: 'Cyberpunk Runner',  rarity: 'Epic',      avatar: '/images/image-packs/characters/cyber-erenity.jpg',
-      palette: 'neon',      variant: 'dark',  rarityStyle: 'ribbon',  stats: [58, 95, 88, 52, 78] },
-    { name: 'Dr. Elena Voss',     characterClass: 'Arcane Scholar',    rarity: 'Rare',      avatar: '/images/image-packs/characters/ethereal-enigma.jpg',
-      palette: 'frost',     variant: 'light', rarityStyle: 'border',  stats: [42, 64, 96, 70, 81] },
-    { name: 'Commander Rex',      characterClass: 'Space Marine',      rarity: 'Legendary', avatar: '/images/image-packs/characters/guardian-of-the-gilded-halls.jpg',
-      palette: 'inferno',   variant: 'dark',  rarityStyle: 'thick',   stats: [92, 58, 62, 88, 70] },
-    { name: 'Kenji Nakamura',     characterClass: 'Corporate Ronin',   rarity: 'Epic',      avatar: '/images/image-packs/characters/the-enigmatic-neuromancer.jpg',
-      palette: 'monochrome',variant: 'dark',  rarityStyle: 'double',  stats: [75, 84, 72, 66, 83] },
-    { name: 'Captain Nova',       characterClass: 'Legendary Hero',    rarity: 'Legendary', avatar: '/images/image-packs/characters-03-super-heroes/nova-rivera.png',
-      palette: 'fire',      variant: 'dark',  rarityStyle: 'inset',   stats: [89, 72, 80, 76, 92] },
-    { name: 'Divine Protector',   characterClass: 'Titan Guardian',    rarity: 'Legendary', avatar: '/images/image-packs/characters/twilight-titan.jpg',
-      palette: 'aurora',    variant: 'dark',  rarityStyle: 'ornate',  stats: [96, 48, 70, 92, 74] },
-    { name: 'Stealth Specialist', characterClass: 'Shadow Operative',  rarity: 'Rare',      avatar: '/images/image-packs/characters/navigator-kairo.jpg',
-      palette: 'shadow',    variant: 'dark',  rarityStyle: 'dashed',  stats: [52, 98, 76, 55, 86] },
-    { name: 'Seraphina',          characterClass: 'Celestial Warden',  rarity: 'Legendary', avatar: '/images/image-packs/characters/seraphina.jpg',
-      palette: 'aurora',    variant: 'light', rarityStyle: 'ornate',  stats: [70, 78, 90, 82, 88] },
-    { name: 'Ember Gaze',         characterClass: 'Flame Oracle',      rarity: 'Epic',      avatar: '/images/image-packs/characters/ember-gaze.jpg',
-      palette: 'inferno',   variant: 'dark',  rarityStyle: 'ribbon',  stats: [66, 80, 94, 58, 72] }
+    { name: 'Aria Stormwind',     characterClass: 'Fantasy Ranger',    avatar: '/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg' },
+    { name: 'Zara-7',             characterClass: 'Cyberpunk Runner',  avatar: '/images/image-packs/characters/cyber-erenity.jpg' },
+    { name: 'Dr. Elena Voss',     characterClass: 'Arcane Scholar',    avatar: '/images/image-packs/characters/ethereal-enigma.jpg' },
+    { name: 'Commander Rex',      characterClass: 'Space Marine',      avatar: '/images/image-packs/characters/guardian-of-the-gilded-halls.jpg' },
+    { name: 'Kenji Nakamura',     characterClass: 'Corporate Ronin',   avatar: '/images/image-packs/characters/the-enigmatic-neuromancer.jpg' },
+    { name: 'Captain Nova',       characterClass: 'Legendary Hero',    avatar: '/images/image-packs/characters-03-super-heroes/nova-rivera.png' },
+    { name: 'Divine Protector',   characterClass: 'Titan Guardian',    avatar: '/images/image-packs/characters/twilight-titan.jpg' },
+    { name: 'Stealth Specialist', characterClass: 'Shadow Operative',  avatar: '/images/image-packs/characters/navigator-kairo.jpg' },
+    { name: 'Seraphina',          characterClass: 'Celestial Warden',  avatar: '/images/image-packs/characters/seraphina.jpg' },
+    { name: 'Ember Gaze',         characterClass: 'Flame Oracle',      avatar: '/images/image-packs/characters/ember-gaze.jpg' }
   ];
 
   function escHtml(s) {
@@ -177,62 +165,25 @@
     return "url('" + String(src).replace(/\\/g, '\\\\').replace(/'/g, "%27") + "')";
   }
 
-  function buildSyntheticFront(c) {
-    // Mimic the cardforge-card.css structure so the preset renders
-    // with real CardForge chrome (border, rarity frame, palette
-    // colors, stat bars) instead of a portrait-only thumbnail.
-    var STAT_LABELS = ['STR', 'AGI', 'INT', 'END', 'LCK'];
-    var palette = c.palette || 'earth';
-    var variant = c.variant || 'dark';
-    var rarityStyle = c.rarityStyle || 'border';
-    var classes = [
-      'card-preview-canvas',
-      'card-front',
-      'align-center',
-      'align-vertical-bottom',
-      'align-style-bold',
-      'palette-' + palette,
-      'variant-' + variant,
-      'container-fullbleed',
-      'container-variant-standard',
-      'effect-none',
-      'rarity-style-' + rarityStyle,
-      'stat-color-ember'
-    ].join(' ');
-    var stats = c.stats || [70, 70, 70, 70, 70];
-    var statsHtml = STAT_LABELS.map(function (label, i) {
-      var v = stats[i] != null ? stats[i] : 70;
-      return '<div class="stat-item stat-item--combat">' +
-               '<div class="stat-bar"><div class="stat-progress" style="width:' + v + '%;"></div></div>' +
-               '<span class="stat-name">' + label + '</span>' +
-               '<span class="stat-value">' + v + '</span>' +
-             '</div>';
-    }).join('');
-
-    return '<div class="' + classes + '">' +
-             '<div class="card-body">' +
-               '<div class="card-portrait" style="background-image: ' + cssUrl(c.avatar) + '; background-size: cover; background-position: center; position: absolute; inset: 0;"></div>' +
-               '<div class="card-hud" style="position: relative; z-index: 2;">' +
-                 '<div class="card-header">' +
-                   '<div class="card-name">' + escHtml(c.name) + '</div>' +
-                   '<div class="card-rarity">' + escHtml((c.rarity || 'Rare').toUpperCase()) + '</div>' +
-                 '</div>' +
-                 '<div class="card-class">' + escHtml(c.characterClass || '') + '</div>' +
-                 '<div class="card-stats">' + statsHtml + '</div>' +
-               '</div>' +
-             '</div>' +
-           '</div>';
-  }
-
   function renderCardContent(c) {
-    // Full-fidelity API cards use their renderedFront HTML + frontClasses
-    // (galleryCards / defaultCards from /api/cardforgeloadcards).
+    // Only render API-returned cards with full renderedFront HTML —
+    // synthesizing a CardForge-styled card client-side collides with
+    // cardforge-card.css's own .card-body / .card-header / .card-stats
+    // rules and produces a broken "stacked panels" look. Preset cards
+    // (no renderedFront) fall back to the portrait-only mini card,
+    // which is only used on initial page load before the API resolves.
     if (c.renderedFront && c.frontClasses) {
       return '<div class="mini-card-scaler"><div class="' + escHtml(c.frontClasses) + '">' + c.renderedFront + '</div></div>';
     }
-    // Preset cards synthesize a CardForge-styled card at runtime so
-    // they match the real-card aesthetic — no portrait thumbnails.
-    return '<div class="mini-card-scaler">' + buildSyntheticFront(c) + '</div>';
+    return (
+      '<div class="cf-mini-fallback">' +
+        '<div class="cf-mini-fallback__portrait" style="background-image: ' + cssUrl(c.avatar || '') + ';"></div>' +
+        '<div class="cf-mini-fallback__label">' +
+          '<span class="cf-mini-fallback__name">' + escHtml(c.name) + '</span>' +
+          (c.characterClass ? '<span class="cf-mini-fallback__class">' + escHtml(c.characterClass) + '</span>' : '') +
+        '</div>' +
+      '</div>'
+    );
   }
 
   // Centered fan-position map by card count, so a 4-card fan looks
@@ -300,16 +251,7 @@
     //    cards (not portrait thumbnails).
     var cards = await fetchPublishedCards();
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
-    if (realCards.length === 0) return; // initial presets already look right.
-
-    var fanCards = realCards.slice(0, 5);
-    while (fanCards.length < 5 && fanCards.length < 5) {
-      fanCards.push(PRESET_FALLBACK[fanCards.length % PRESET_FALLBACK.length]);
-    }
-    var showcaseCards = realCards.slice(0, 10);
-    while (showcaseCards.length < 10) {
-      showcaseCards.push(PRESET_FALLBACK[showcaseCards.length % PRESET_FALLBACK.length]);
-    }
+    if (realCards.length === 0) return; // initial presets stay.
 
     var fan = document.getElementById('cf-hero-fan');
     var strip = document.getElementById('cf-showcase-strip');
@@ -317,8 +259,10 @@
     if (strip) strip.classList.remove('cf-splash-loaded');
 
     setTimeout(function () {
-      renderFan(fanCards);
-      renderShowcase(showcaseCards);
+      // Render ONLY real cards. Fewer than 5 renders a symmetric fan
+      // via FAN_POS_BY_COUNT. No synthetic padding.
+      renderFan(realCards.slice(0, 5));
+      renderShowcase(realCards.slice(0, 10));
       revealAfterPaint();
     }, 240);
   }
