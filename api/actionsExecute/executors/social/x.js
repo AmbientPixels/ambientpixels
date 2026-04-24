@@ -84,6 +84,15 @@ function contentHash(text) {
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
+function _log(event, data) {
+  var entry = Object.assign({
+    _source: 'x-adapter',
+    event: event,
+    ts: new Date().toISOString()
+  }, data || {});
+  console.log('[X]', JSON.stringify(entry));
+}
+
 const X_MAX_MEDIA_BYTES = 15 * 1024 * 1024; // 15 MB cap for X
 
 /**

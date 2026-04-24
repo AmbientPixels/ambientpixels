@@ -32,6 +32,15 @@ function contentHash(text) {
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
+function _log(event, data) {
+  var entry = Object.assign({
+    _source: 'bluesky-adapter',
+    event: event,
+    ts: new Date().toISOString()
+  }, data || {});
+  console.log('[Bluesky]', JSON.stringify(entry));
+}
+
 /**
  * Make an HTTPS request and return parsed JSON
  */
