@@ -3027,3 +3027,104 @@ body.cf-ui--clean [data-save-state] {
   .cf-tour-tooltip,
   .cf-tour-highlight { animation: none; }
 }
+
+/* ================================================================
+   Obsidian paint — chips, tier options, panels, primary buttons,
+   preset cards. All scoped to .cf-main-pane (editor) to avoid
+   collisions with splash page.
+   ================================================================ */
+
+.cf-main-pane .presets-section,
+.cf-main-pane .random-section,
+.cf-main-pane .cf-ai-creator-section,
+.cf-main-pane .artwork-section,
+.cf-main-pane .modular-tier,
+.cf-main-pane .forge-panel,
+.cf-main-pane .cf-panel {
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-1);
+  border-radius: var(--cf-ob-radius-lg);
+  color: var(--cf-ob-text-1);
+}
+
+.cf-main-pane .presets-title,
+.cf-main-pane .random-title,
+.cf-main-pane .tier-title,
+.cf-main-pane .craft-row-title { color: var(--cf-ob-text-1); }
+
+.cf-main-pane .tier-option,
+.cf-main-pane .cf-chip,
+.cf-main-pane .preset-btn {
+  background: var(--cf-ob-bg-3);
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-text-2);
+  border-radius: var(--cf-ob-radius-md);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.cf-main-pane .tier-option:hover,
+.cf-main-pane .cf-chip:hover,
+.cf-main-pane .preset-btn:hover {
+  background: var(--cf-ob-bg-2);
+  border-color: var(--cf-ob-ember-33);
+  color: var(--cf-ob-text-1);
+}
+.cf-main-pane .tier-option.selected,
+.cf-main-pane .tier-option.active,
+.cf-main-pane .cf-chip.active,
+.cf-main-pane .preset-btn.selected,
+.cf-main-pane .preset-btn.active {
+  background: var(--cf-ob-ember-dim);
+  border-color: var(--cf-ob-ember);
+  color: var(--cf-ob-ember);
+}
+
+.cf-main-pane .preset-name,
+.cf-main-pane .preset-character { color: var(--cf-ob-text-1); }
+.cf-main-pane .preset-type { color: var(--cf-ob-text-2); }
+
+/* Primary / publish / forge buttons */
+.cf-main-pane #forge-publish-nav-btn,
+.cf-main-pane .btn-primary,
+.cf-main-pane .roll-btn {
+  background: var(--cf-ob-ember);
+  border: 1px solid var(--cf-ob-ember);
+  color: #fff;
+  box-shadow: 0 0 18px var(--cf-ob-ember-33);
+}
+.cf-main-pane #forge-publish-nav-btn:hover,
+.cf-main-pane .btn-primary:hover,
+.cf-main-pane .roll-btn:hover {
+  background: var(--cf-ob-ember-soft);
+  border-color: var(--cf-ob-ember-soft);
+}
+
+/* Step-nav row (prev / next buttons inside each section) */
+.cf-step-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cf-ob-line-1);
+}
+.cf-step-nav-btn {
+  background: var(--cf-ob-bg-3);
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-text-1);
+  padding: 8px 14px;
+  border-radius: var(--cf-ob-radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.cf-step-nav-btn:hover {
+  border-color: var(--cf-ob-ember-33);
+  background: var(--cf-ob-bg-2);
+}
+.cf-step-nav-btn#forge-publish-nav-btn {
+  background: var(--cf-ob-ember);
+  border-color: var(--cf-ob-ember);
+  color: #fff;
+  box-shadow: 0 0 18px var(--cf-ob-ember-33);
+}

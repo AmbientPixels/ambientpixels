@@ -1256,3 +1256,40 @@
     display: none;
   }
 }
+
+/* ================================================================
+   Obsidian form controls — scoped to .cf-main-pane so splash and
+   other cardforge pages don't collide.
+   ================================================================ */
+.cf-main-pane input[type="text"],
+.cf-main-pane input[type="url"],
+.cf-main-pane input[type="number"],
+.cf-main-pane input[type="email"],
+.cf-main-pane input[type="search"],
+.cf-main-pane input:not([type]),
+.cf-main-pane select,
+.cf-main-pane textarea {
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-2);
+  border-radius: var(--cf-ob-radius-md);
+  color: var(--cf-ob-text-1);
+  padding: 8px 10px;
+  font-size: 13px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.cf-main-pane input:focus,
+.cf-main-pane select:focus,
+.cf-main-pane textarea:focus {
+  border-color: var(--cf-ob-ember);
+  outline: none;
+  background: var(--cf-ob-bg-3);
+}
+.cf-main-pane label,
+.cf-main-pane h2,
+.cf-main-pane h3,
+.cf-main-pane h4,
+.cf-main-pane h5 { color: var(--cf-ob-text-1); }
+.cf-main-pane ::placeholder { color: var(--cf-ob-text-mute); }
+.cf-main-pane .presets-helper,
+.cf-main-pane .random-helper,
+.cf-main-pane .cf-section-description { color: var(--cf-ob-text-2); }
