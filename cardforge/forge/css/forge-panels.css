@@ -55,17 +55,27 @@
   border-color: var(--forge-ember-55);
 }
 
-.forge-panel-select {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Native <select> styling — custom chevron via sibling pseudo on wrap */
+select.forge-panel-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 28px;
   cursor: pointer;
-  user-select: none;
 }
 
-.forge-panel-select i {
+.forge-select-wrap {
+  position: relative;
+}
+
+.forge-select-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 8px;
   color: var(--forge-mute);
+  pointer-events: none;
 }
 
 /* ---------------------------------------------------------------
@@ -239,18 +249,41 @@
   height: 3px;
   background: var(--forge-bg3);
   border-radius: 2px;
+  cursor: ew-resize;
+  margin: 6px 0; /* visual breathing room — hit area extends via ::before */
+}
+
+/* Expanded hit area — invisible 10px top/bottom so the 3px visual track
+   is actually clickable. Clicks on this area bubble up to the track. */
+.forge-vital-track::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: -4px;
+  right: -4px;
+  z-index: 0;
+}
+
+.forge-vital-track:focus-visible {
+  outline: 2px solid var(--forge-ember);
+  outline-offset: 6px;
 }
 
 .forge-vital-fill {
+  position: relative;
+  z-index: 1;
   height: 100%;
   background: var(--forge-ember);
   border-radius: 2px;
   box-shadow: 0 0 6px var(--forge-ember-88);
   transition: width 0.15s ease;
+  pointer-events: none;
 }
 
 .forge-vital-thumb {
   position: absolute;
+  z-index: 2;
   top: -3px;
   width: 8px;
   height: 8px;
@@ -259,6 +292,17 @@
   box-shadow: 0 0 8px var(--forge-ember);
   transform: translateX(-4px);
   transition: left 0.15s ease;
+  cursor: grab;
+  pointer-events: none; /* don't swallow the drag from the track */
+}
+
+body.forge-dragging .forge-vital-thumb {
+  cursor: grabbing;
+  transition: none;
+}
+
+body.forge-dragging .forge-vital-fill {
+  transition: none;
 }
 
 /* ---------------------------------------------------------------

@@ -35,7 +35,34 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  function getClassOptions() {
+    if (window.ForgePortrait && Array.isArray(window.ForgePortrait.CHARACTERS)) {
+      var seen = {};
+      var list = [];
+      window.ForgePortrait.CHARACTERS.forEach(function (c) {
+        if (c && c.class && !seen[c.class]) { seen[c.class] = true; list.push(c.class); }
+      });
+      if (list.length) return list;
+    }
+    // Fallback if portrait module didn't load
+    return [
+      'Fantasy Ranger', 'Cyberpunk Runner', 'Arcane Scholar', 'Space Marine',
+      'Corporate Ronin', 'Legendary Hero', 'Titan Guardian', 'Shadow Operative',
+      'Celestial Warden', 'Flame Oracle', 'Deep Current Oracle', 'Void Mystic'
+    ];
+  }
+
   function renderIdentity(state) {
+    var classOptions = getClassOptions();
+    var current = state.classLabel || classOptions[0];
+    // Ensure current is in the list (edge case: state has a class not in options)
+    if (classOptions.indexOf(current) < 0) classOptions = [current].concat(classOptions);
+
+    var options = classOptions.map(function (c) {
+      var sel = c === current ? ' selected' : '';
+      return '<option value="' + escapeHtml(c) + '"' + sel + '>' + escapeHtml(c) + '</option>';
+    }).join('');
+
     return '' +
       '<div class="forge-section">' +
         '<div class="forge-section-label">◈ IDENTITY</div>' +
@@ -45,9 +72,9 @@
         '</div>' +
         '<div>' +
           '<div class="forge-input-label">CLASS</div>' +
-          '<div class="forge-panel-select" role="button" tabindex="0" id="forge-left-class">' +
-            '<span>' + escapeHtml(state.classLabel || 'Fantasy Ranger') + '</span>' +
-            '<i class="fa-solid fa-chevron-down"></i>' +
+          '<div class="forge-select-wrap">' +
+            '<select class="forge-panel-select" id="forge-left-class">' + options + '</select>' +
+            '<i class="fa-solid fa-chevron-down forge-select-chevron"></i>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -150,6 +177,13 @@
     root.addEventListener('input', function (ev) {
       if (ev.target && ev.target.id === 'forge-left-name') {
         window.ForgeState.set({ name: ev.target.value });
+      }
+    });
+
+    // Class <select> — change event fires on option select
+    root.addEventListener('change', function (ev) {
+      if (ev.target && ev.target.id === 'forge-left-class') {
+        window.ForgeState.set({ classLabel: ev.target.value });
       }
     });
   }

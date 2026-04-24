@@ -125,28 +125,52 @@
   // ---------------------------------------------------------------
   // Wire interactions — delegate on root
   // ---------------------------------------------------------------
-  function setStatFromClick(track, clientX) {
-    var key = track.dataset.statTrack;
-    if (!key) return;
-    var rect = track.getBoundingClientRect();
+  function setStatAt(key, clientX, rect) {
+    if (!key || !rect) return;
     var rel = (clientX - rect.left) / rect.width;
     var val = Math.round(clamp(rel * 100));
     var stats = Object.assign({}, window.ForgeState.get().stats);
+    if (stats[key] === val) return;
     stats[key] = val;
     window.ForgeState.set({ stats: stats });
+  }
+
+  function startStatDrag(track, startEv) {
+    var key = track.dataset.statTrack;
+    if (!key) return;
+    // Cache the rect so re-renders mid-drag don't invalidate our math.
+    // Geometry is stable — the re-render produces an equivalent track at
+    // the same position, so the cached rect stays correct.
+    var rect = track.getBoundingClientRect();
+
+    document.body.classList.add('forge-dragging');
+    setStatAt(key, startEv.clientX, rect);
+
+    function onMove(ev) { ev.preventDefault(); setStatAt(key, ev.clientX, rect); }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.body.classList.remove('forge-dragging');
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   }
 
   function wire(root) {
     if (!root) return;
 
-    // Click handling — track clicks (slider), overlay toggles, forge-next
-    root.addEventListener('click', function (ev) {
+    // Slider drag — mousedown on track (or its expanded hit area) starts drag.
+    // mousedown fires before click, so we handle both single-click and drag here.
+    root.addEventListener('mousedown', function (ev) {
+      if (ev.button !== 0) return;
       var track = ev.target.closest('.forge-vital-track');
-      if (track) {
-        setStatFromClick(track, ev.clientX);
-        return;
-      }
+      if (!track) return;
+      ev.preventDefault();
+      startStatDrag(track, ev);
+    });
 
+    // Click handling — overlay toggles, forge-next (tracks handled via mousedown above)
+    root.addEventListener('click', function (ev) {
       var toggle = ev.target.closest('.forge-overlay-toggle');
       if (toggle && toggle.dataset.overlayId) {
         var id = toggle.dataset.overlayId;
