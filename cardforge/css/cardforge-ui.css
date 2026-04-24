@@ -3863,3 +3863,102 @@ opacity: 1;
   background: rgba(0, 0, 0, 0.08);
   color: #1a1a2e;
 }
+
+/* ================================================================
+   Obsidian paint — chrome (page-bar, preview pane, card zone, main-pane)
+   ================================================================ */
+.cf-page-bar {
+  background: var(--cf-ob-bg-0);
+  border-bottom: 1px solid var(--cf-ob-line-1);
+  color: var(--cf-ob-text-1);
+  position: relative;
+  z-index: 1;
+}
+.cf-page-bar__titles,
+.cf-page-bar__titles * { color: var(--cf-ob-text-1); }
+
+.cf-page-bar .cf-decks-link {
+  color: var(--cf-ob-text-2);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: var(--cf-ob-radius-md);
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.cf-page-bar .cf-decks-link:hover {
+  color: var(--cf-ob-text-1);
+  border-color: var(--cf-ob-ember-33);
+  background: var(--cf-ob-ember-dim);
+}
+
+.cf-page-bar .cf-auth-link {
+  color: var(--cf-ob-text-2);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: var(--cf-ob-radius-md);
+  border: 1px solid var(--cf-ob-line-2);
+  background: var(--cf-ob-bg-2);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.cf-page-bar .cf-auth-link:hover {
+  border-color: var(--cf-ob-ember-33);
+  color: var(--cf-ob-text-1);
+}
+
+.cf-preview-pane {
+  background: transparent;
+  border-left: none;
+  position: relative;
+  z-index: 1;
+}
+
+/* The outer right-column wrapper inside preview-pane was styled with
+   legacy --aura-bg-color — make it transparent so the card floats
+   over the obsidian background. */
+.cf-preview-pane .cardforge-preview.right-column {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.card-preview-zone {
+  background: radial-gradient(ellipse at center, #0e131a 0%, var(--cf-ob-bg-0) 70%);
+  border: 1px solid var(--cf-ob-line-1);
+  position: relative;
+}
+
+.card-preview-zone::before {
+  content: '';
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 40px;
+  background: radial-gradient(ellipse, var(--cf-ob-ember-33), transparent 70%);
+  filter: blur(18px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-preview-zone .card-preview-canvas { position: relative; z-index: 1; }
+
+.cf-main-pane {
+  background: var(--cf-ob-bg-1);
+  border-left: 1px solid var(--cf-ob-line-1);
+  color: var(--cf-ob-text-1);
+}
+
+/* Section panels (Presets / Card Design / Basics / etc.) sit inside
+   main-pane. Legacy bg: rgb(26,26,46) — replace with obsidian. */
+.cf-main-pane .cf-section,
+.cf-main-pane .cardforge-editor,
+.cf-main-pane .cf-left-column {
+  background: transparent;
+  color: var(--cf-ob-text-1);
+}
+.cf-main-pane .cf-section-title,
+.cf-main-pane .cf-section-description {
+  color: var(--cf-ob-text-1);
+}
+.cf-main-pane .cf-section-description { color: var(--cf-ob-text-2); }
