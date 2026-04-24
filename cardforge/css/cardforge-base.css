@@ -2074,3 +2074,43 @@ body[data-theme="light"] .cf-summary-label {
 body[data-theme="light"] .cf-summary-value {
   color: #1E293B !important;
 }
+
+/* ================================================================
+   OBSIDIAN / EMBER THEME — Single theme, no variants.
+   Tokens available at :root for all cardforge pages.
+   ================================================================ */
+:root {
+  --cf-ob-bg-0: #07090c;
+  --cf-ob-bg-1: #0c1117;
+  --cf-ob-bg-2: #141b24;
+  --cf-ob-bg-3: #1a2230;
+  --cf-ob-line-1: rgba(255, 255, 255, 0.06);
+  --cf-ob-line-2: rgba(255, 255, 255, 0.12);
+  --cf-ob-ember: #ff7a1a;
+  --cf-ob-ember-soft: #ff9a4e;
+  --cf-ob-ember-dim: rgba(255, 122, 26, 0.08);
+  --cf-ob-ember-22: rgba(255, 122, 26, 0.22);
+  --cf-ob-ember-33: rgba(255, 122, 26, 0.33);
+  --cf-ob-text-1: #e7ebf1;
+  --cf-ob-text-2: #a6aeb9;
+  --cf-ob-text-mute: #6b7381;
+  --cf-ob-radius-md: 8px;
+  --cf-ob-radius-lg: 12px;
+}
+
+body {
+  background: var(--cf-ob-bg-0);
+  color: var(--cf-ob-text-1);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -90px;
+  right: -140px;
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, var(--cf-ob-ember-22), transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
