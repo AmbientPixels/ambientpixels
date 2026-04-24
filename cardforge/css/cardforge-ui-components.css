@@ -41,7 +41,7 @@
   background: none;
   border: none;
   border-radius: 8px;
-  color: var(--mood-text-primary, #e1e1ff);
+  color: var(--mood-text-primary, #e7ebf1);
   font-size: 1rem;
   font-family: inherit;
   cursor: pointer;
@@ -219,7 +219,7 @@
 .cf-rail-header__title {
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   white-space: nowrap;
   overflow: hidden;
   opacity: 1;
@@ -244,7 +244,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   background: transparent;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   font-size: 0.75rem;
   cursor: pointer;
   flex-shrink: 0;
@@ -254,7 +254,7 @@
 .cf-rail-toggle:hover {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 122, 26, 0.3);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .cf-rail-toggle:focus-visible {
@@ -289,7 +289,7 @@ body.cf-rail-collapsed .cf-rail-header__title {
   background: transparent;
   border: none;
   padding: 0.45rem 0.85rem;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   font-family: inherit;
   cursor: pointer;
   border-radius: 12px;
@@ -480,7 +480,7 @@ body.cf-ui--clean .step-btn.active .cf-icon-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .cf-section-icon .cf-icon-chip {
@@ -575,7 +575,7 @@ body.cf-ui--clean [data-save-state] {
 
 .cardforge-dialog h3 {
   margin-top: 0;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .cardforge-dialog-input {
@@ -584,7 +584,7 @@ body.cf-ui--clean [data-save-state] {
   background: var(--aura-bg-secondary, #2a2a3e);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
   font-size: 0.95rem;
   box-sizing: border-box;
@@ -636,7 +636,7 @@ body.cf-ui--clean [data-save-state] {
 .cardforge-dialog .dialog-buttons .filter-pill#cardforge-dialog-cancel {
   background: var(--cf-btn-nav-bg, rgba(255, 255, 255, 0.04));
   border: 1px solid var(--cf-btn-nav-border, rgba(255, 255, 255, 0.12));
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
 }
 .cardforge-dialog .dialog-buttons .filter-pill#cardforge-dialog-cancel:hover {
   background: var(--cf-btn-inline-hover-bg, rgba(255, 122, 26, 0.1));
@@ -691,7 +691,7 @@ body.cf-ui--clean [data-save-state] {
 
 /* Modal Message */
 .modal-message {
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-size: 0.9rem;
   margin: 16px 0;
   text-align: center;
@@ -718,7 +718,7 @@ body.cf-ui--clean [data-save-state] {
   padding: 16px;
   width: 90%;
   max-width: 600px;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -728,7 +728,7 @@ body.cf-ui--clean [data-save-state] {
   align-self: flex-end;
   font-size: 1.5rem;
   cursor: pointer;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
 }
 
 .image-modal .image-grid {
@@ -750,7 +750,7 @@ body.cf-ui--clean [data-save-state] {
 }
 
 .image-modal .image-grid img:hover {
-  border-color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e7ebf1);
 }
 
 .image-modal .modal-pagination {
@@ -780,7 +780,7 @@ body.cf-ui--clean [data-save-state] {
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
 }
 
@@ -842,7 +842,7 @@ body.cf-ui--clean [data-save-state] {
   max-width: 96vw;
   box-shadow: 0 8px 40px rgba(0,0,0,0.38);
   text-align: center;
-  color: var(--mood-text-primary, #e1e1ff);
+  color: var(--mood-text-primary, #e7ebf1);
   position: relative;
 }
 .mini-card-gallery {
@@ -878,7 +878,7 @@ body.cf-ui--clean [data-save-state] {
 }
 .mini-card .mini-card-name {
   font-size: 0.7rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   margin-bottom: 7px;
   max-width: 54px;
   overflow: hidden;
@@ -946,7 +946,7 @@ body.cf-ui--clean [data-save-state] {
 .toolbar-btn {
   background: var(--cf-btn-nav-bg, rgba(255, 255, 255, 0.04));
   border: 1px solid var(--cf-btn-nav-border, rgba(255, 255, 255, 0.12));
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   font-size: 1.25rem;
   width: 36px;
   height: 36px;
@@ -980,7 +980,7 @@ body.cf-ui--clean [data-save-state] {
   padding: 0.35rem 0.75rem;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   background: var(--cf-btn-nav-bg, rgba(255, 255, 255, 0.04));
   border: 1px solid var(--cf-btn-nav-border, rgba(255, 255, 255, 0.12));
   border-radius: 6px;
@@ -1022,7 +1022,7 @@ body.cf-ui--clean [data-save-state] {
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
 }
 
@@ -1031,7 +1031,7 @@ body.cf-ui--clean [data-save-state] {
 }
 
 .search-input-group input::placeholder {
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
 }
 
 /* Tool Buttons */
@@ -2703,7 +2703,7 @@ body.cf-ui--clean [data-save-state] {
   background: rgba(26, 26, 46, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  color: var(--mood-text-primary, #e1e1ff);
+  color: var(--mood-text-primary, #e7ebf1);
   font-size: 0.92rem;
   line-height: 1.4;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.06);
@@ -2841,7 +2841,7 @@ body.cf-ui--clean [data-save-state] {
 
 .cf-tour-welcome {
   background: #141428;
-  border: 1px solid rgba(124, 58, 237, 0.3);
+  border: 1px solid rgba(255, 122, 26, 0.3);
   border-radius: 16px;
   padding: 2.5rem 2rem;
   text-align: center;
@@ -2859,12 +2859,12 @@ body.cf-ui--clean [data-save-state] {
 .cf-tour-welcome h2 {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #e1e1ff;
+  color: #e7ebf1;
   margin-bottom: 0.5rem;
 }
 
 .cf-tour-welcome p {
-  color: #a0a0c0;
+  color: #a6aeb9;
   font-size: 0.9rem;
   line-height: 1.5;
   margin-bottom: 1.5rem;
@@ -2894,7 +2894,7 @@ body.cf-ui--clean [data-save-state] {
 .cf-tour-btn:active { transform: scale(0.97); }
 
 .cf-tour-btn--primary {
-  background: linear-gradient(135deg, #e86816, #6d28d9);
+  background: linear-gradient(135deg, #e86816, #e86816);
   color: #fff;
 }
 
@@ -2904,13 +2904,13 @@ body.cf-ui--clean [data-save-state] {
 
 .cf-tour-btn--ghost {
   background: transparent;
-  color: #a0a0c0;
+  color: #a6aeb9;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cf-tour-btn--ghost:hover {
   background: rgba(255, 255, 255, 0.05);
-  color: #e1e1ff;
+  color: #e7ebf1;
 }
 
 .cf-tour-btn--sm {
@@ -2923,18 +2923,18 @@ body.cf-ui--clean [data-save-state] {
   position: absolute;
   z-index: 9001;
   background: #1e1e38;
-  border: 1px solid rgba(124, 58, 237, 0.4);
+  border: 1px solid rgba(255, 122, 26, 0.4);
   border-radius: 12px;
   padding: 1rem 1.15rem;
   max-width: 320px;
   width: max-content;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 122, 26, 0.15);
   animation: cf-tour-pulse 2s ease-in-out infinite;
 }
 
 @keyframes cf-tour-pulse {
-  0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(124, 58, 237, 0.15); }
-  50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 28px rgba(124, 58, 237, 0.35); }
+  0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(255, 122, 26, 0.15); }
+  50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 28px rgba(255, 122, 26, 0.35); }
 }
 
 .cf-tour-tooltip__step {
@@ -2949,7 +2949,7 @@ body.cf-ui--clean [data-save-state] {
 .cf-tour-tooltip__text {
   font-size: 0.82rem;
   line-height: 1.55;
-  color: #e1e1ff;
+  color: #e7ebf1;
   margin-bottom: 0.75rem;
 }
 
@@ -2967,7 +2967,7 @@ body.cf-ui--clean [data-save-state] {
   width: 12px;
   height: 12px;
   background: #1e1e38;
-  border: 1px solid rgba(124, 58, 237, 0.4);
+  border: 1px solid rgba(255, 122, 26, 0.4);
 }
 
 .cf-tour-arrow--top {
@@ -3003,8 +3003,8 @@ body.cf-ui--clean [data-save-state] {
 }
 
 @keyframes cf-tour-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(124, 58, 237, 0.3), 0 0 0 2px rgba(124, 58, 237, 0.15); }
-  50% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.6), 0 0 0 3px rgba(124, 58, 237, 0.3); }
+  0%, 100% { box-shadow: 0 0 8px rgba(255, 122, 26, 0.3), 0 0 0 2px rgba(255, 122, 26, 0.15); }
+  50% { box-shadow: 0 0 20px rgba(255, 122, 26, 0.6), 0 0 0 3px rgba(255, 122, 26, 0.3); }
 }
 
 /* Responsive */

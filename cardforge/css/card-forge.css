@@ -39,8 +39,8 @@
   --cf-gold: #ffd700;
 
   /* Text Hierarchy */
-  --cf-text-primary: var(--mood-text-primary, #e1e1ff);
-  --cf-text-secondary: var(--mood-text-secondary, #a0a0c0);
+  --cf-text-primary: var(--mood-text-primary, #e7ebf1);
+  --cf-text-secondary: var(--mood-text-secondary, #a6aeb9);
   --cf-text-muted: #808099;
   --cf-text-dim: #606080;
 
@@ -76,10 +76,10 @@
   /* T5 Navigation/Utility — preview controls, pagination, subtle actions */
   --cf-btn-nav-bg: rgba(255, 255, 255, 0.04);
   --cf-btn-nav-border: rgba(255, 255, 255, 0.12);
-  --cf-btn-nav-text: var(--cf-text-secondary, #a0a0c0);
+  --cf-btn-nav-text: var(--cf-text-secondary, #a6aeb9);
   --cf-btn-nav-hover-bg: rgba(255, 255, 255, 0.08);
   --cf-btn-nav-hover-border: rgba(255, 255, 255, 0.25);
-  --cf-btn-nav-hover-text: var(--cf-text-primary, #e1e1ff);
+  --cf-btn-nav-hover-text: var(--cf-text-primary, #e7ebf1);
 
   /* Arena Design Tokens — Retro-Futurism */
   --arena-bg: #020617;
@@ -195,7 +195,7 @@
 
 .cf-section-title {
   margin-bottom: 0.75rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-size: var(--cf-text-lg, 1.125rem);
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -237,7 +237,7 @@
 .cf-section[data-step-section="6"] label {
   display: block;
   margin-bottom: 4px;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-weight: 500;
 }
 
@@ -258,7 +258,7 @@
 .image-style-controls label {
   margin-bottom: 4px;
   font-weight: 500;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .image-style-controls select {
@@ -266,13 +266,13 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
   transition: border-color 0.2s ease;
 }
 
 .image-style-controls select:focus-visible {
-  border-color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e7ebf1);
 }
 
 /* Inline Image Chooser Styling */
@@ -382,7 +382,7 @@
 }
 
 .inline-image-grid img.selected {
-  border-color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e7ebf1);
 }
 
 .coming-soon {
@@ -417,7 +417,7 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a) !important;
   border-radius: 4px !important;
   background: var(--aura-bg-color, #1a1a2e) !important;
-  color: var(--mood-primary-color, #e1e1ff) !important;
+  color: var(--mood-primary-color, #e7ebf1) !important;
   font-family: inherit !important;
 }
 
@@ -426,7 +426,7 @@
 .cardforge-form .remove-micro {
   background: transparent !important;
   border: none !important;
-  color: var(--mood-secondary-color, #a0a0c0) !important;
+  color: var(--mood-secondary-color, #a6aeb9) !important;
   font-size: 1.2rem !important;
   cursor: pointer !important;
   padding: 4px 8px !important;

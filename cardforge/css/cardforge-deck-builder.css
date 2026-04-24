@@ -9,7 +9,7 @@
   flex-direction: column;
   min-height: 100vh;
   background: #0e0e1a;
-  color: #e1e1ff;
+  color: #e7ebf1;
   font-family: 'Inter', sans-serif;
 }
 
@@ -20,7 +20,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: rgba(20, 20, 36, 0.95);
+  background: rgba(20, 27, 36, 0.95);
   border-bottom: 1px solid rgba(255,255,255,0.06);
   backdrop-filter: blur(12px);
   position: sticky;
@@ -31,7 +31,7 @@
 .db-bar-brand {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #a0a0c0;
+  color: #a6aeb9;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -43,7 +43,7 @@
 .db-bar-title {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #e1e1ff;
+  color: #e7ebf1;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -65,7 +65,7 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   background: rgba(255,255,255,0.04);
-  color: #e1e1ff;
+  color: #e7ebf1;
   font-size: 0.78rem;
   font-weight: 500;
   font-family: inherit;
@@ -76,7 +76,7 @@
 
 .db-btn:hover {
   background: rgba(255,255,255,0.08);
-  border-color: rgba(124, 58, 237, 0.3);
+  border-color: rgba(255, 122, 26, 0.3);
   color: #ffb477;
 }
 
@@ -86,14 +86,14 @@
 }
 
 .db-btn-primary {
-  background: linear-gradient(135deg, #e86816, #6d28d9);
-  border-color: rgba(124, 58, 237, 0.4);
+  background: linear-gradient(135deg, #e86816, #e86816);
+  border-color: rgba(255, 122, 26, 0.4);
   color: #fff;
 }
 
 .db-btn-primary:hover {
   background: linear-gradient(135deg, #ff7a1a, #e86816);
-  box-shadow: 0 0 12px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.3);
 }
 
 .db-btn-primary:disabled {
@@ -128,7 +128,7 @@
 /* ── Metadata bar ── */
 .db-meta {
   padding: 1rem 1.5rem;
-  background: rgba(20, 20, 36, 0.6);
+  background: rgba(20, 27, 36, 0.6);
   border-bottom: 1px solid rgba(255,255,255,0.04);
   display: flex;
   align-items: center;
@@ -140,8 +140,8 @@
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: rgba(124, 58, 237, 0.12);
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  background: rgba(255, 122, 26, 0.12);
+  border: 1px solid rgba(255, 122, 26, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,8 +153,8 @@
 }
 
 .db-meta-icon:hover {
-  background: rgba(124, 58, 237, 0.2);
-  border-color: rgba(124, 58, 237, 0.4);
+  background: rgba(255, 122, 26, 0.2);
+  border-color: rgba(255, 122, 26, 0.4);
 }
 
 .db-meta-name {
@@ -163,7 +163,7 @@
   background: none;
   border: 1px solid transparent;
   border-radius: 6px;
-  color: #e1e1ff;
+  color: #e7ebf1;
   padding: 0.3rem 0.5rem;
   font-family: inherit;
   min-width: 160px;
@@ -174,7 +174,7 @@
 .db-meta-name:hover { border-color: rgba(255,255,255,0.1); }
 .db-meta-name:focus {
   outline: none;
-  border-color: rgba(124, 58, 237, 0.4);
+  border-color: rgba(255, 122, 26, 0.4);
   background: rgba(255,255,255,0.04);
 }
 
@@ -183,7 +183,7 @@
   background: none;
   border: 1px solid transparent;
   border-radius: 6px;
-  color: #a0a0c0;
+  color: #a6aeb9;
   padding: 0.3rem 0.5rem;
   font-family: inherit;
   flex: 1;
@@ -193,15 +193,15 @@
 .db-meta-desc:hover { border-color: rgba(255,255,255,0.08); }
 .db-meta-desc:focus {
   outline: none;
-  border-color: rgba(124, 58, 237, 0.3);
+  border-color: rgba(255, 122, 26, 0.3);
   background: rgba(255,255,255,0.03);
-  color: #e1e1ff;
+  color: #e7ebf1;
 }
 
 .db-meta-capacity {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #a0a0c0;
+  color: #a6aeb9;
   padding: 0.25rem 0.6rem;
   background: rgba(255,255,255,0.04);
   border-radius: 12px;
@@ -226,7 +226,7 @@
   border-right: 1px solid rgba(255,255,255,0.06);
   display: flex;
   flex-direction: column;
-  background: rgba(15, 15, 28, 0.6);
+  background: rgba(12, 17, 23, 0.6);
 }
 
 .db-collection-header {
@@ -240,14 +240,14 @@
 .db-collection-title {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #a0a0c0;
+  color: #a6aeb9;
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
 .db-collection-title .count {
-  background: rgba(124, 58, 237, 0.15);
+  background: rgba(255, 122, 26, 0.15);
   color: #ffb477;
   padding: 0.1rem 0.45rem;
   border-radius: 8px;
@@ -265,7 +265,7 @@
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.04);
-  color: #e1e1ff;
+  color: #e7ebf1;
   font-size: 0.78rem;
   font-family: inherit;
   transition: border-color 0.15s;
@@ -273,7 +273,7 @@
 
 .db-collection-search input:focus {
   outline: none;
-  border-color: rgba(124, 58, 237, 0.4);
+  border-color: rgba(255, 122, 26, 0.4);
 }
 
 .db-collection-search i {
@@ -281,7 +281,7 @@
   left: 0.6rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #6a6a8a;
+  color: #6b7381;
   font-size: 0.72rem;
   pointer-events: none;
 }
@@ -297,7 +297,7 @@
   border-radius: 5px;
   border: 1px solid rgba(255,255,255,0.08);
   background: rgba(255,255,255,0.04);
-  color: #a0a0c0;
+  color: #a6aeb9;
   font-size: 0.72rem;
   font-family: inherit;
   cursor: pointer;
@@ -305,7 +305,7 @@
 
 .db-collection-filters select:focus {
   outline: none;
-  border-color: rgba(124, 58, 237, 0.3);
+  border-color: rgba(255, 122, 26, 0.3);
 }
 
 /* Collection card grid */
@@ -336,7 +336,7 @@
 .db-coll-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  border-color: rgba(124, 58, 237, 0.3);
+  border-color: rgba(255, 122, 26, 0.3);
 }
 
 .db-coll-card.in-deck {
@@ -392,7 +392,7 @@
 /* ── Card info section below card visual ── */
 .db-coll-card-info {
   padding: 0.4rem 0.5rem 0.45rem;
-  background: rgba(15, 15, 28, 0.9);
+  background: rgba(12, 17, 23, 0.9);
   border-top: 1px solid rgba(255,255,255,0.04);
 }
 .db-coll-card-name {
@@ -450,7 +450,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #e1e1ff;
+  color: #e7ebf1;
 }
 .db-fallback-card-art {
   flex: 1;
@@ -475,7 +475,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(15, 15, 28, 0.9);
+  background: rgba(12, 17, 23, 0.9);
   border-top: 1px solid rgba(255,255,255,0.04);
 }
 .db-fallback-card-class {
@@ -493,7 +493,7 @@
 .db-collection-empty {
   text-align: center;
   padding: 2rem 1rem;
-  color: #6a6a8a;
+  color: #6b7381;
   grid-column: 1 / -1;
 }
 
@@ -522,14 +522,14 @@
 .db-deck-title {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #a0a0c0;
+  color: #a6aeb9;
 }
 
 .db-deck-stats {
   display: flex;
   gap: 0.75rem;
   font-size: 0.7rem;
-  color: #6a6a8a;
+  color: #6b7381;
 }
 
 .db-deck-stat {
@@ -570,17 +570,17 @@
 
 .db-deck-item:hover {
   background: rgba(26, 26, 46, 1);
-  border-color: rgba(124, 58, 237, 0.2);
+  border-color: rgba(255, 122, 26, 0.2);
 }
 
 .db-deck-item.drag-over {
-  border-color: rgba(124, 58, 237, 0.5);
-  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(255, 122, 26, 0.5);
+  background: rgba(255, 122, 26, 0.08);
 }
 
 .db-deck-item-num {
   font-size: 0.65rem;
-  color: #6a6a8a;
+  color: #6b7381;
   font-weight: 600;
   min-width: 18px;
   text-align: center;
@@ -623,7 +623,7 @@
 
 .db-deck-item-meta {
   font-size: 0.65rem;
-  color: #6a6a8a;
+  color: #6b7381;
   margin-top: 0.1rem;
   display: flex;
   align-items: center;
@@ -656,7 +656,7 @@
 .db-stat-pill {
   font-size: 0.55rem;
   font-weight: 500;
-  color: #a0a0c0;
+  color: #a6aeb9;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
   padding: 0.06rem 0.3rem;
@@ -670,7 +670,7 @@
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: #6a6a8a;
+  color: #6b7381;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -688,7 +688,7 @@
 .db-deck-empty {
   text-align: center;
   padding: 3rem 1.5rem;
-  color: #6a6a8a;
+  color: #6b7381;
 }
 
 .db-deck-empty i {
@@ -727,7 +727,7 @@
 }
 
 .db-view-desc {
-  color: #a0a0c0;
+  color: #a6aeb9;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   max-width: 600px;
@@ -746,8 +746,8 @@
 .db-view-tag {
   padding: 0.15rem 0.55rem;
   border-radius: 9px;
-  background: rgba(124, 58, 237, 0.08);
-  border: 1px solid rgba(124, 58, 237, 0.15);
+  background: rgba(255, 122, 26, 0.08);
+  border: 1px solid rgba(255, 122, 26, 0.15);
   color: #ffb477;
   font-size: 0.68rem;
   font-weight: 500;
@@ -755,7 +755,7 @@
 
 .db-view-meta {
   font-size: 0.75rem;
-  color: #6a6a8a;
+  color: #6b7381;
 }
 
 .db-view-grid {
@@ -790,7 +790,7 @@
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: #a0a0c0;
+  color: #a6aeb9;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -800,12 +800,12 @@
 }
 
 .db-icon-picker button:hover {
-  background: rgba(124, 58, 237, 0.15);
+  background: rgba(255, 122, 26, 0.15);
   color: #ffb477;
 }
 
 .db-icon-picker button.selected {
-  background: rgba(124, 58, 237, 0.2);
+  background: rgba(255, 122, 26, 0.2);
   color: #e86816;
 }
 
@@ -816,7 +816,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(120%);
   background: #1e1e32;
-  border: 1px solid rgba(124, 58, 237, 0.25);
+  border: 1px solid rgba(255, 122, 26, 0.25);
   border-radius: 8px;
   padding: 0.6rem 1.2rem;
   color: #ffb477;
@@ -856,7 +856,7 @@
 
 .db-loading i { color: #e86816; }
 .db-error i { color: #ef4444; }
-.db-error p { color: #a0a0c0; margin-bottom: 1rem; }
+.db-error p { color: #a6aeb9; margin-bottom: 1rem; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
@@ -922,8 +922,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background: rgba(124, 58, 237, 0.08);
-  border: 1px solid rgba(124, 58, 237, 0.15);
+  background: rgba(255, 122, 26, 0.08);
+  border: 1px solid rgba(255, 122, 26, 0.15);
   border-radius: 6px;
   font-size: 0.72rem;
   color: #ffb477;
@@ -949,7 +949,7 @@
 
 .db-tip span { flex: 1; }
 .db-tip span i { font-size: 0.65rem; opacity: 0.7; }
-.db-tip span strong { color: #e1e1ff; font-weight: 600; }
+.db-tip span strong { color: #e7ebf1; font-weight: 600; }
 
 .db-tip-close {
   width: 22px;

@@ -9,7 +9,7 @@
   display: block;
   font-weight: 500;
   margin-top: 1rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 /* Form Inputs - Base Styling */
@@ -21,7 +21,7 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -33,7 +33,7 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-size: 0.9rem;
 }
 
@@ -41,7 +41,7 @@
 .cardforge-form input:focus-visible,
 .cardforge-form textarea:focus-visible,
 .cardforge-form select:focus-visible {
-  border-color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e7ebf1);
   box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
 }
 
@@ -102,7 +102,7 @@
 .clear-superpower {
   background: transparent;
   border: none;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   font-size: 1.2rem;
   cursor: pointer;
   padding: 4px 8px;
@@ -120,7 +120,7 @@
 .remove-attribute:hover,
 .clear-achievement:hover,
 .clear-superpower:hover {
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -162,7 +162,7 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
 }
 .micro-row .badge-card-body {
@@ -175,7 +175,7 @@
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   font-family: inherit;
   font-size: 0.78rem;
   cursor: default;
@@ -216,12 +216,12 @@
 }
 .buff-empty-state__text {
   font-size: 0.85rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   margin: 0 0 0.3rem;
 }
 .buff-empty-state__hint {
   font-size: 0.72rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   margin: 0 0 0.6rem;
   line-height: 1.4;
 }
@@ -238,7 +238,7 @@
   padding: 3px 8px;
   font-size: 0.68rem;
   font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   background: rgba(123, 47, 255, 0.1);
   border: 1px solid rgba(123, 47, 255, 0.2);
   border-radius: 12px;
@@ -271,7 +271,7 @@
 }
 .buff-progression-banner__text {
   font-size: 0.72rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   line-height: 1.4;
 }
 .buff-progression-banner__stats {
@@ -299,7 +299,7 @@
 }
 .effect-progression-banner__text {
   font-size: 0.72rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
 }
 .effect-progression-banner__stats {
   display: flex;
@@ -316,7 +316,7 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
 }
 
@@ -333,11 +333,11 @@
   padding: 4px;
   border-radius: 4px;
   cursor: pointer;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .icon-option.active {
-  background: var(--mood-primary-color, #e1e1ff);
+  background: var(--mood-primary-color, #e7ebf1);
   color: var(--aura-bg-color, #1a1a2e);
 }
 
@@ -355,7 +355,7 @@
   width: 24px;
   text-align: center;
   font-size: 0.9rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 /* Micro Badges Display */
@@ -377,7 +377,7 @@
   display: block;
   margin-bottom: 4px;
   font-weight: 500;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 /* Badge Section Styling */
@@ -401,7 +401,7 @@
   margin: 0;
   font-size: var(--cf-text-md, 1rem);
   font-weight: 600;
-  color: var(--cf-text-primary, #e1e1ff);
+  color: var(--cf-text-primary, #e7ebf1);
   flex-shrink: 0;
 }
 
@@ -430,7 +430,7 @@
   gap: 0.75rem;
   cursor: pointer;
   font-size: 0.9rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .section-toggle {
@@ -475,7 +475,7 @@
 }
 
 .section-toggle:checked + .toggle-switch:hover {
-  background: var(--mood-primary-color, #e1e1ff);
+  background: var(--mood-primary-color, #e7ebf1);
   box-shadow: 0 0 12px rgba(225, 225, 255, 0.3);
 }
 
@@ -508,7 +508,7 @@
   border: 2px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 6px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -519,14 +519,14 @@
 }
 
 .icon-picker-container .icon-option:hover {
-  border-color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e7ebf1);
   background: var(--mood-accent-color, #4a4a6a);
   transform: scale(1.05);
 }
 
 .icon-picker-container .icon-option.selected {
-  border-color: var(--mood-primary-color, #e1e1ff);
-  background: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e7ebf1);
+  background: var(--mood-primary-color, #e7ebf1);
   color: var(--aura-bg-color, #1a1a2e);
   box-shadow: 0 0 8px rgba(225, 225, 255, 0.3);
 }
@@ -585,7 +585,7 @@
 .section-header h4 {
   margin: 0;
   font-size: 1rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-weight: 500;
 }
 
@@ -610,7 +610,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .icon-section .icon-picker {
@@ -639,13 +639,13 @@
   background: var(--aura-bg-secondary, #16213e);
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .style-selector:focus-visible {
-  border-color: var(--mood-primary-color, #e1e1ff);
+  border-color: var(--mood-primary-color, #e7ebf1);
   box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
 }
 
@@ -676,20 +676,20 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
 }
 
 .remove-stat {
   background: transparent;
   border: none;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   font-size: 1.2rem;
   cursor: pointer;
 }
 
 .remove-stat:hover {
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .add-stat-btn {
@@ -713,7 +713,7 @@
 /* Biography Character Counter */
 .bio-char-counter {
   font-size: 0.75rem;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   text-align: right;
   margin-top: 0.25rem;
   opacity: 0.7;
@@ -812,7 +812,7 @@
 /* AI helper text */
 .cf-ai-helper {
   font-size: 0.75rem;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   margin-top: 4px;
   opacity: 0.7;
 }
@@ -828,7 +828,7 @@
   border: 1px solid rgba(255, 122, 26, 0.3);
   border-radius: 6px;
   background: rgba(255, 122, 26, 0.06);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
   font-size: 0.85rem;
   line-height: 1.4;
@@ -893,7 +893,7 @@
 .cf-url-toggle {
   background: none;
   border: none;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   font-size: 0.75rem;
   cursor: pointer;
   padding: 4px 0;
@@ -932,13 +932,13 @@
 
 .cf-slider-row label {
   font-size: 0.78rem;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   white-space: nowrap;
 }
 
 .cf-slider-value {
   font-size: 0.72rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -983,7 +983,7 @@
   align-self: flex-start;
   background: none;
   border: 1px solid var(--mood-accent-color, #4a4a6a);
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   font-size: 0.72rem;
   padding: 3px 10px;
   border-radius: 4px;
@@ -995,7 +995,7 @@
 
 .cf-slider-reset:hover {
   border-color: var(--mood-primary-color, #ff7a1a);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 /* ===== Combat Stats Editor ===== */
@@ -1018,7 +1018,7 @@
 .arena-combat-stats__label {
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1069,7 +1069,7 @@
   width: 80px;
   font-size: 0.78rem;
   font-weight: 500;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   flex-shrink: 0;
 }
 
@@ -1114,7 +1114,7 @@
   text-align: right;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   flex-shrink: 0;
 }
 
@@ -1127,7 +1127,7 @@
 .arena-custom-stats__label {
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   margin-bottom: 8px;
 }
 
@@ -1172,7 +1172,7 @@
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-family: inherit;
   font-size: 0.78rem;
   cursor: pointer;
@@ -1191,7 +1191,7 @@
 
 .badge-category-select option {
   background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 /* ===== Auth UI in Header ===== */
@@ -1233,7 +1233,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.78rem;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   white-space: nowrap;
 }
 

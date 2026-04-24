@@ -9,7 +9,7 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 20px;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
 }
 
 /* Card List Improvements */
@@ -53,7 +53,7 @@
 
 .card-palette {
   font-size: 11px;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   font-style: italic;
   margin: 2px 0;
 }
@@ -106,13 +106,13 @@
 .my-cards-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   margin: 0;
 }
 
 .my-cards-count {
   font-size: 0.875rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   background: var(--aura-bg-color, #1a1a2e);
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -144,7 +144,7 @@
 
 .card-list-subtitle {
   font-size: 12px;
-  color: var(--mood-secondary-color, #a0a0c0);
+  color: var(--mood-secondary-color, #a6aeb9);
   margin: 0;
 }
 
@@ -191,7 +191,7 @@
 .gallery-card-count {
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   background: var(--aura-bg-color, #1a1a2e);
   padding: 0.2rem 0.6rem;
   border-radius: 12px;
@@ -287,7 +287,7 @@
 }
 
 .gallery-description {
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   margin-bottom: 1.5rem;
 }
 
@@ -296,7 +296,7 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 3rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
 }
 
 .gallery-empty i,
@@ -353,20 +353,20 @@
   border-color: #ff7a1a;
 }
 .gallery-search i {
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   font-size: 0.8rem;
 }
 .gallery-search input {
   background: none;
   border: none;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   font-size: 0.85rem;
   font-family: 'Inter', sans-serif;
   width: 100%;
   outline: none;
 }
 .gallery-search input::placeholder {
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   opacity: 0.7;
 }
 
@@ -378,7 +378,7 @@
 .gallery-filters select,
 .gallery-sort select {
   background: var(--aura-bg-color, #14142a);
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 8px;
   padding: 0.4rem 0.6rem;
@@ -395,7 +395,7 @@
 
 .gallery-results-count {
   font-size: 0.8rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   margin-left: auto;
   white-space: nowrap;
 }
@@ -440,7 +440,7 @@
   gap: 0.5rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   margin: 2rem 0 0.75rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -497,7 +497,7 @@
 .gallery-deck-tile-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -505,7 +505,7 @@
 
 .gallery-deck-tile-meta {
   font-size: 0.72rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   opacity: 0.7;
   margin-top: 0.1rem;
 }
@@ -682,7 +682,7 @@
 .deck-form-image-library-title {
   font-size: 0.68rem;
   font-weight: 600;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -700,7 +700,7 @@
 
 .deck-form-image-library-pager span {
   font-size: 0.65rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   opacity: 0.7;
 }
 
@@ -713,7 +713,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   background: transparent;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   font-size: 0.65rem;
   cursor: pointer;
   transition: all 0.1s ease;
@@ -793,7 +793,7 @@
 
 .deck-modal-desc {
   font-size: 0.78rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   margin-bottom: 0.35rem;
   line-height: 1.4;
 }
@@ -807,7 +807,7 @@
 
 .deck-modal-meta {
   font-size: 0.7rem;
-  color: var(--mood-text-secondary, #a0a0c0);
+  color: var(--mood-text-secondary, #a6aeb9);
   opacity: 0.6;
 }
 
@@ -853,7 +853,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--mood-primary-color, #e7ebf1);
 }
 
 .deck-modal-actions {
@@ -969,7 +969,7 @@
 
 .deck-viewer-desc {
   font-size: 0.85rem;
-  color: #a0a0c0;
+  color: #a6aeb9;
   margin: 0 0 0.4rem 0;
   line-height: 1.4;
 }
@@ -983,7 +983,7 @@
 
 .deck-viewer-meta {
   font-size: 0.75rem;
-  color: #a0a0c0;
+  color: #a6aeb9;
   opacity: 0.6;
 }
 
@@ -1130,7 +1130,7 @@
   padding: 0.4rem 0.25rem;
   font-size: 0.78rem;
   font-weight: 600;
-  color: #e1e1ff;
+  color: #e7ebf1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1168,7 +1168,7 @@
 .deck-viewer-counter {
   text-align: center;
   font-size: 0.75rem;
-  color: #a0a0c0;
+  color: #a6aeb9;
   opacity: 0.6;
   margin-bottom: 1rem;
 }
@@ -1219,7 +1219,7 @@ body.cf-ui--clean .cardforge-gallery-container::before {
   box-shadow: none;
 }
 body.cf-ui--clean .cardforge-gallery-container h2 {
-  color: var(--mood-text-primary, #e1e1ff);
+  color: var(--mood-text-primary, #e7ebf1);
   text-shadow: none;
 }
 body.cf-ui--clean .gallery-deck-tile:hover {
