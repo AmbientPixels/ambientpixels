@@ -51,7 +51,7 @@
 
   <section class="cf-splash-hero">
     <div class="cf-splash-hero__text">
-      <div class="cf-splash-hero__eyebrow">&#x25C8; RPG CARD CREATOR</div>
+      <div class="cf-splash-hero__eyebrow">SYSTEM ACTIVE &middot; v2.47</div>
 
       <div id="cf-continue-banner" class="cf-continue-banner" hidden>
         <div class="cf-continue-banner__text">
@@ -62,23 +62,40 @@
         </a>
       </div>
 
-      <h1 class="cf-splash-hero__title">Design. Customize.<br>Share.</h1>
+      <h1 class="cf-splash-hero__title">Forge one of <span class="cf-splash-hero__title__count">14,158,624</span> possible heroes.</h1>
       <p class="cf-splash-hero__tagline">
-        Modular design across eight tiers. Forty million style combinations.
-        AI-generated cards in seconds. Build decks, publish to the public
-        gallery, trade shareable URLs &mdash; all from one editor.
+        Every dial you turn branches the tree. Class, pose, palette, overlays,
+        stat distribution, rarity &mdash; the forge multiplies them into
+        something no one else has made.
       </p>
+
+      <div class="cf-combo-ticker" aria-label="Total possible combinations">
+        <div class="cf-combo-ticker__label">Total &middot; Combos</div>
+        <div class="cf-combo-ticker__digits" id="cf-combo-digits">
+          <span class="cf-combo-ticker__digit">1</span>
+          <span class="cf-combo-ticker__digit">4</span>
+          <span class="cf-combo-ticker__digit">1</span>
+          <span class="cf-combo-ticker__digit">5</span>
+          <span class="cf-combo-ticker__digit">8</span>
+          <span class="cf-combo-ticker__digit">6</span>
+          <span class="cf-combo-ticker__digit">2</span>
+          <span class="cf-combo-ticker__digit">4</span>
+        </div>
+      </div>
+
       <div class="cf-splash-hero__ctas">
         <a class="cf-btn cf-btn--primary" href="/cardforge/editor.html" data-splash-cta="hero-open-editor">
-          <i class="fas fa-hammer"></i> Open Editor
+          <i class="fas fa-hammer"></i> Enter the Forge
         </a>
         <a class="cf-btn cf-btn--ghost" href="/cardforge/gallery.html" data-splash-cta="hero-gallery">
-          <i class="fas fa-images"></i> View Gallery
+          See Gallery <i class="fas fa-arrow-right"></i>
         </a>
       </div>
     </div>
     <div class="cf-splash-hero__visual">
-      <!-- Ember glow sits behind via ::before. Future: sample card artwork can drop in here. -->
+      <div class="cf-hero-fan" id="cf-hero-fan">
+        <!-- Populated by cardforge-splash.js; falls back to static presets if API empty. -->
+      </div>
     </div>
   </section>
 
@@ -107,12 +124,8 @@
     <h2 class="cf-splash-showcase__title">Recently forged</h2>
     <p class="cf-splash-showcase__sub">A taste of what the community has published.</p>
     <div class="cf-splash-showcase__strip" id="cf-showcase-strip">
-      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #1a2230, #0c1117);"></div>
-      <div class="cf-showcase-card" style="background: linear-gradient(135deg, rgba(255, 122, 26, 0.2), #1a2230);"></div>
-      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #141b24, #07090c);"></div>
-      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #0c1117, rgba(255, 154, 78, 0.2));"></div>
-      <div class="cf-showcase-card" style="background: linear-gradient(135deg, #1a2230, #141b24);"></div>
-      <div class="cf-showcase-card" style="background: linear-gradient(135deg, rgba(255, 122, 26, 0.14), #0c1117);"></div>
+      <!-- Populated by cardforge-splash.js from /api/cardforgeloadcards.
+           Falls back to static preset cards if API empty or unreachable. -->
     </div>
   </section>
 
