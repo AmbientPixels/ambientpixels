@@ -2114,3 +2114,24 @@ body::before {
   pointer-events: none;
   z-index: 0;
 }
+
+/* ================================================================
+   Card Design tier scoping — show only the active tier block inside
+   section[data-step-section="1"]. Rail nav entries set the
+   data-active-tier attribute on the section via initStepper (Task 6).
+   Five tier blocks exist: 2, 3, typo, 4, 5.
+   ================================================================ */
+[data-step-section="1"][data-active-tier="artwork"] [data-tier] { display: none; }
+[data-step-section="1"][data-active-tier="2"] [data-tier]:not([data-tier="2"]) { display: none; }
+[data-step-section="1"][data-active-tier="3"] [data-tier]:not([data-tier="3"]) { display: none; }
+[data-step-section="1"][data-active-tier="typo"] [data-tier]:not([data-tier="typo"]) { display: none; }
+[data-step-section="1"][data-active-tier="4"] [data-tier]:not([data-tier="4"]) { display: none; }
+[data-step-section="1"][data-active-tier="5"] [data-tier]:not([data-tier="5"]) { display: none; }
+
+/* Artwork picker visibility: show only when active-tier="artwork" */
+[data-step-section="1"] .artwork-section { display: block; }
+[data-step-section="1"][data-active-tier="2"] .artwork-section,
+[data-step-section="1"][data-active-tier="3"] .artwork-section,
+[data-step-section="1"][data-active-tier="typo"] .artwork-section,
+[data-step-section="1"][data-active-tier="4"] .artwork-section,
+[data-step-section="1"][data-active-tier="5"] .artwork-section { display: none; }

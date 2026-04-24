@@ -113,4 +113,140 @@ body.cf-rail-collapsed .cf-rail {
   background: var(--mood-primary-color, #7a7aaa);
 }
 
+/* ================================================================
+   Rail nav — 12 entries in 4 workflow groups (obsidian paint)
+   ================================================================ */
+.cf-rail {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: var(--cf-ob-bg-1);
+  border-right: 1px solid var(--cf-ob-line-1);
+  color: var(--cf-ob-text-2);
+}
+.cf-rail::-webkit-scrollbar { display: none; }
+
+.cf-rail-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1 0 auto;
+}
+
+.cf-rail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cf-rail-group__label {
+  padding: 0 14px 6px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-mute);
+  user-select: none;
+}
+
+.cf-rail-nav .step-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+  width: 100%;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: var(--cf-ob-text-2);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.cf-rail-nav .step-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cf-ob-text-1);
+}
+
+.cf-rail-nav .step-btn.active {
+  background: var(--cf-ob-ember-dim);
+  color: var(--cf-ob-ember);
+  border-left-color: var(--cf-ob-ember);
+  font-weight: 600;
+}
+
+.cf-rail-nav .step-btn i {
+  width: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--cf-ob-text-mute);
+}
+.cf-rail-nav .step-btn:hover i { color: var(--cf-ob-text-2); }
+.cf-rail-nav .step-btn.active i { color: var(--cf-ob-ember); }
+
+.cf-rail-nav .step-btn__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cf-rail-nav .step-btn__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.cf-rail-nav .step-btn__dot.is-done {
+  background: var(--cf-ob-ember);
+  box-shadow: 0 0 8px var(--cf-ob-ember-33);
+}
+
+.cf-rail-footer {
+  margin-top: auto;
+  padding: 12px 10px 4px;
+  border-top: 1px solid var(--cf-ob-line-1);
+}
+
+.cf-rail-footer__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-2);
+  border-radius: var(--cf-ob-radius-md);
+  color: var(--cf-ob-text-1);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cf-rail-footer__action:hover {
+  background: var(--cf-ob-bg-3);
+  border-color: var(--cf-ob-ember-33);
+}
+
+/* Rail collapsed state */
+.cf-rail-collapsed .cf-rail-nav .step-btn__label,
+.cf-rail-collapsed .cf-rail-nav .step-btn__dot,
+.cf-rail-collapsed .cf-rail-group__label,
+.cf-rail-collapsed .cf-rail-footer__action span { display: none; }
+.cf-rail-collapsed .cf-rail-nav .step-btn { justify-content: center; padding: 10px; }
+.cf-rail-collapsed .cf-rail-footer__action { padding: 10px; }
+
 /* Responsive behavior — see cardforge-responsive.css for all breakpoints */

@@ -153,12 +153,6 @@
   </div>
 </header>
 
-<!-- Quick Build button: hidden holder pending relocation to rail footer in Task 5.
-     window.QuickBuild?.open() is preserved so existing JS lookups by id still work. -->
-<button type="button" id="quick-build-btn" title="Quick Build Wizard" onclick="window.QuickBuild?.open()" style="display:none;">
-  <i class="fas fa-bolt"></i> Quick Build
-</button>
-
 <main>
 
   <!-- CardForge Editor UI -->
@@ -170,65 +164,102 @@
             <i class="fas fa-angles-left"></i>
           </button>
         </div>
-        <nav class="cf-stepper" role="tablist" aria-orientation="vertical">
-          <button data-step="0" class="step-btn active" title="Presets + Random">
-            <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" aria-hidden="true">
-                <i class="cf-icon fas fa-dice-d6"></i>
-              </span>
-            </span>
-            <span class="step-label">Presets + Random</span>
-          </button>
-          <button data-step="1" class="step-btn" title="Card Design">
-            <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" aria-hidden="true">
-                <i class="cf-icon fas fa-layer-group"></i>
-              </span>
-            </span>
-            <span class="step-label">Card Design</span>
-          </button>
-          <button data-step="2" class="step-btn" title="Basics">
-            <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" aria-hidden="true">
-                <i class="cf-icon fas fa-clipboard-list"></i>
-              </span>
-            </span>
-            <span class="step-label">Basics</span>
-          </button>
-          <button data-step="3" class="step-btn" title="Stats">
-            <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" aria-hidden="true">
-                <i class="cf-icon fas fa-chart-line"></i>
-              </span>
-            </span>
-            <span class="step-label">Stats</span>
-          </button>
-          <button data-step="4" class="step-btn" title="Buffs & Traits">
-            <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" aria-hidden="true">
-                <i class="cf-icon fas fa-award"></i>
-              </span>
-            </span>
-            <span class="step-label">Buffs & Traits</span>
-          </button>
-          <button data-step="5" class="step-btn" title="Attributes">
-            <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" aria-hidden="true">
-                <i class="cf-icon fas fa-atom"></i>
-              </span>
-            </span>
-            <span class="step-label">Attributes</span>
-          </button>
-          <hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:0.35rem 0.6rem;" aria-hidden="true">
-          <button data-step="6" class="step-btn step-btn--forge" title="Forge" style="color: #FBBF24 !important;">
-            <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" style="background: rgba(251,191,36,0.15) !important; border-color: rgba(251,191,36,0.3) !important;" aria-hidden="true">
-                <i class="cf-icon fas fa-hammer"></i>
-              </span>
-            </span>
-            <span class="step-label">Forge</span>
-          </button>
+        <nav class="cf-rail-nav" role="tablist" aria-label="Card editor sections">
+          <div class="cf-rail-group" data-group="start">
+            <div class="cf-rail-group__label" aria-hidden="true">◈ START</div>
+            <button class="step-btn active" type="button" role="tab" aria-selected="true"
+                    data-nav-id="presets" data-target-section="0">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
+              <span class="step-btn__label">Presets</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="artwork" data-target-section="1" data-target-tier="artwork">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-image" aria-hidden="true"></i>
+              <span class="step-btn__label">Artwork</span>
+            </button>
+          </div>
+
+          <div class="cf-rail-group" data-group="style">
+            <div class="cf-rail-group__label" aria-hidden="true">◈ STYLE</div>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="effects" data-target-section="1" data-target-tier="2">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-wand-sparkles" aria-hidden="true"></i>
+              <span class="step-btn__label">Image Effects</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="mood" data-target-section="1" data-target-tier="3">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-palette" aria-hidden="true"></i>
+              <span class="step-btn__label">Style &amp; Mood</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="typography" data-target-section="1" data-target-tier="typo">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-font" aria-hidden="true"></i>
+              <span class="step-btn__label">Typography</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="composition" data-target-section="1" data-target-tier="4">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-align-center" aria-hidden="true"></i>
+              <span class="step-btn__label">Composition</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="cardfx" data-target-section="1" data-target-tier="5">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-sparkles" aria-hidden="true"></i>
+              <span class="step-btn__label">Card Effects</span>
+            </button>
+          </div>
+
+          <div class="cf-rail-group" data-group="content">
+            <div class="cf-rail-group__label" aria-hidden="true">◈ CONTENT</div>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="basics" data-target-section="2">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-id-badge" aria-hidden="true"></i>
+              <span class="step-btn__label">Basics</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="stats" data-target-section="3">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-chart-simple" aria-hidden="true"></i>
+              <span class="step-btn__label">Stats</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="buffs" data-target-section="4">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-shield-halved" aria-hidden="true"></i>
+              <span class="step-btn__label">Buffs &amp; Traits</span>
+            </button>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="attributes" data-target-section="5">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-atom" aria-hidden="true"></i>
+              <span class="step-btn__label">Attributes</span>
+            </button>
+          </div>
+
+          <div class="cf-rail-group" data-group="ship">
+            <div class="cf-rail-group__label" aria-hidden="true">◈ SHIP</div>
+            <button class="step-btn" type="button" role="tab" aria-selected="false"
+                    data-nav-id="forge" data-target-section="6">
+              <span class="step-btn__dot" aria-hidden="true"></span>
+              <i class="fas fa-hammer" aria-hidden="true"></i>
+              <span class="step-btn__label">Forge</span>
+            </button>
+          </div>
         </nav>
+
+        <div class="cf-rail-footer">
+          <button id="quick-build-btn" class="cf-rail-footer__action" type="button" title="Quick Build — AI-generated card" onclick="window.QuickBuild?.open()">
+            <i class="fas fa-bolt" aria-hidden="true"></i>
+            <span>Quick Build</span>
+          </button>
+        </div>
       </aside>
       <main class="cf-main-pane">
         <div class="cf-left-column form-pane">
@@ -389,7 +420,7 @@
           </div>
         </div>
       </div>
-      <div class="cf-section" data-step-section="1">
+      <div class="cf-section" data-step-section="1" data-active-tier="artwork">
         <h3 class="cf-section-title">Card Design</h3>
         <!-- Hidden field for card ID when editing existing cards -->
         <input type="hidden" id="card-id" value="" />
