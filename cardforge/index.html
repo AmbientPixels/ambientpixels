@@ -140,23 +140,9 @@
     <a href="https://ambientpixels.ai" class="cf-page-bar__subtitle cf-brand-link">by AmbientPixels</a>
   </div>
   <div class="cf-page-bar__actions" aria-label="Page controls">
-    <button type="button" id="clear-all-btn" class="cf-new-card-btn" title="New Card">
-      <i class="fas fa-plus"></i> New Card
-    </button>
-    <button type="button" id="quick-build-btn" class="cf-new-card-btn" title="Quick Build Wizard" onclick="window.QuickBuild?.open()">
-      <i class="fas fa-bolt"></i> Quick Build
-    </button>
-    <a href="/cardforge/deck.html" class="cf-new-card-btn" title="Deck Builder" style="text-decoration:none;">
+    <a href="/cardforge/deck.html" class="cf-decks-link" title="Deck Builder">
       <i class="fas fa-layer-group"></i> Decks
     </a>
-    <div class="cf-variant-toggle" role="group" aria-label="UI Accent Mode">
-      <button type="button" class="cf-variant-btn" data-cf-variant="clean">Clean</button>
-      <button type="button" class="cf-variant-btn active" data-cf-variant="neon">Neon</button>
-    </div>
-    <span class="cf-status-pill" data-state="ready">
-      <span class="cf-status-pill__dot"></span>
-      <span class="cf-status-pill__label">Ready</span>
-    </span>
     <a id="cf-login-btn" class="cf-auth-link" href="/cardforge/login.html?redirect=/cardforge/">
       <i class="fas fa-sign-in-alt"></i> <span class="cf-auth-link__text">Sign In</span>
     </a>
@@ -165,16 +151,14 @@
       <span id="cf-user-name"></span>
       <a id="cf-logout-btn" class="cf-auth-link cf-auth-link--logout" href="#"><i class="fas fa-sign-out-alt"></i></a>
     </span>
-    <div class="cf-page-bar__icon-buttons">
-      <button class="cf-icon-btn" onclick="showInfoPopup()" title="Info &amp; Help" aria-label="Info &amp; Help">
-        <i class="fas fa-info-circle"></i>
-      </button>
-      <button class="cf-icon-btn" onclick="openSettings()" title="Settings" aria-label="Settings">
-        <i class="fas fa-cog"></i>
-      </button>
-    </div>
   </div>
 </header>
+
+<!-- Quick Build button: hidden holder pending relocation to rail footer in Task 5.
+     window.QuickBuild?.open() is preserved so existing JS lookups by id still work. -->
+<button type="button" id="quick-build-btn" title="Quick Build Wizard" onclick="window.QuickBuild?.open()" style="display:none;">
+  <i class="fas fa-bolt"></i> Quick Build
+</button>
 
 <main>
 
