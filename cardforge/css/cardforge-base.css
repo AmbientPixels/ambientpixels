@@ -2126,6 +2126,16 @@ body[data-theme="light"] .cf-summary-value {
   --dark-accent: var(--cf-ob-ember);
   --dark-purple: var(--cf-ob-ember);
   --dark-shadow: rgba(0, 0, 0, 0.5);
+
+  /* Legacy cf-* tokens (card-forge.css) re-routed to obsidian */
+  --cf-text-muted: var(--cf-ob-text-mute);
+  --cf-text-primary: var(--cf-ob-text-1);
+  --cf-text-secondary: var(--cf-ob-text-2);
+  --cf-border: var(--cf-ob-line-2);
+  --cf-bg-primary: var(--cf-ob-bg-0);
+  --cf-bg-secondary: var(--cf-ob-bg-1);
+  --cf-bg-tertiary: var(--cf-ob-bg-2);
+  --cf-accent: var(--cf-ob-ember);
 }
 
 /* Match the site-wide body[data-theme="dark"] specificity so source
