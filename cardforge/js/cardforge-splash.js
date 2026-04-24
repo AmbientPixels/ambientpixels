@@ -210,26 +210,44 @@
     if (strip) strip.classList.add('cf-splash-loaded');
   }
 
+  function revealAfterPaint() {
+    // Double-rAF so the new card DOM is painted BEFORE the opacity
+    // transition starts; otherwise the transition state is the same
+    // tick as insertion and no animation runs.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(fadeInRenderedCards);
+    });
+  }
+
   async function initGallery() {
-    // Leave fan/showcase empty — no placeholder/skeleton cards. Empty
-    // hero space is better than visible placeholder cards that get
-    // replaced.
+    // 1. Render preset fallbacks immediately so there's something
+    //    visible from the first frame. Dissolve them in.
+    var fallbackPool = PRESET_FALLBACK.slice();
+    renderFan(fallbackPool.slice(0, 5));
+    renderShowcase(fallbackPool.slice(0, 10));
+    revealAfterPaint();
+
+    // 2. Fetch real cards in parallel. When they arrive, fade the fan
+    //    down, swap in real cards, fade back up — crossfade.
     var cards = await fetchPublishedCards();
 
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
     var otherCards = cards.filter(function (c) { return !(c.renderedFront && c.frontClasses); });
-
     var pool = realCards.concat(otherCards);
-    if (pool.length === 0) pool = PRESET_FALLBACK.slice();
-    else pool = pool.concat(PRESET_FALLBACK);
+    if (pool.length === 0) return; // presets already shown; nothing to upgrade.
+    pool = pool.concat(PRESET_FALLBACK);
 
-    renderFan(pool.slice(0, 5));
-    renderShowcase(pool.slice(0, 10));
-    // Next frame so the .cf-splash-loaded transition fires after
-    // the new card DOM is painted.
-    requestAnimationFrame(function () {
-      requestAnimationFrame(fadeInRenderedCards);
-    });
+    var fan = document.getElementById('cf-hero-fan');
+    var strip = document.getElementById('cf-showcase-strip');
+    if (fan) fan.classList.remove('cf-splash-loaded');
+    if (strip) strip.classList.remove('cf-splash-loaded');
+
+    // Wait for the fade-out to complete before swapping DOM.
+    setTimeout(function () {
+      renderFan(pool.slice(0, 5));
+      renderShowcase(pool.slice(0, 10));
+      revealAfterPaint();
+    }, 240);
   }
 
   function init() {

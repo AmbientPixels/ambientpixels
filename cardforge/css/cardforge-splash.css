@@ -329,12 +329,15 @@ body.cf-splash {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px var(--cf-ob-ember-22);
 }
 
-/* Fade-in when JS injects the real card DOM — no skeletons, just a
-   clean reveal once the API-fetched cards arrive. */
+/* Dissolve-in / crossfade. Cards start at opacity 0; when the
+   parent container gets .cf-splash-loaded they fade up. When real
+   cards arrive after the API resolves, the class is briefly removed
+   (cards fade out), the DOM is swapped, and the class is re-added
+   (real cards fade in). */
 .cf-hero-fan > .cf-hero-fan__card,
 .cf-splash-showcase__strip > .cf-showcase-card {
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.25s ease-out;
 }
 .cf-hero-fan.cf-splash-loaded > .cf-hero-fan__card,
 .cf-splash-showcase__strip.cf-splash-loaded > .cf-showcase-card {
