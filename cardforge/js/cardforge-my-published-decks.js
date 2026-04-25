@@ -178,7 +178,10 @@
    */
   async function mount(container) {
     if (!container) return;
-    bindActions(container);
+    if (!container._mpdBound) {
+      container._mpdBound = true;
+      bindActions(container);
+    }
     // Render cache instantly.
     var cached = readCache();
     if (cached && cached.length) {
