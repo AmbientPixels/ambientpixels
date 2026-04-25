@@ -1,0 +1,215 @@
+/* ================================================================
+   CardForge content pages (FAQ, Roadmap, future docs). Loaded after
+   cardforge-splash.css so the splash nav/footer chrome is reused
+   and only the body content needs new rules. Tokens inherited from
+   cardforge-base.css :root.
+   ================================================================ */
+
+/* ---- Page wrapper ---- */
+.cf-content {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 64px 32px 80px;
+}
+
+.cf-content__hero {
+  margin-bottom: 48px;
+}
+
+.cf-content__hero h1 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(36px, 4.6vw, 56px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  margin: 0 0 12px;
+}
+
+.cf-content__hero p {
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--cf-ob-text-2);
+  max-width: 600px;
+  margin: 0 0 8px;
+}
+
+.cf-content__hero-note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--cf-ob-text-mute);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 14px;
+}
+
+/* ---- FAQ ---- */
+.cf-faq__group {
+  border-top: 1px solid var(--cf-ob-line-1);
+  padding: 32px 0 8px;
+}
+.cf-faq__group:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.cf-faq__group-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cf-ob-ember);
+  margin: 0 0 20px;
+}
+
+.cf-faq__item {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--cf-ob-line-1);
+}
+.cf-faq__item:last-child {
+  border-bottom: none;
+}
+
+.cf-faq__q {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--cf-ob-text-1);
+  margin: 0 0 10px;
+  line-height: 1.3;
+}
+
+.cf-faq__a {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--cf-ob-text-2);
+  margin: 0;
+}
+.cf-faq__a + .cf-faq__a {
+  margin-top: 10px;
+}
+.cf-faq__a a {
+  color: var(--cf-ob-ember);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+.cf-faq__a a:hover {
+  border-bottom-color: var(--cf-ob-ember-33);
+}
+
+/* ---- Roadmap ---- */
+.cf-roadmap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.cf-roadmap__col {
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-2);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cf-roadmap__col-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.cf-roadmap__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-text-mute);
+}
+.cf-roadmap__pill--now {
+  border-color: var(--cf-ob-ember-33);
+  background: var(--cf-ob-ember-dim);
+  color: var(--cf-ob-ember);
+}
+.cf-roadmap__pill--next {
+  border-color: var(--cf-ob-line-2);
+  color: var(--cf-ob-text-2);
+}
+.cf-roadmap__pill--later {
+  border-color: var(--cf-ob-line-1);
+  color: var(--cf-ob-text-mute);
+}
+
+.cf-roadmap__col-sub {
+  font-size: 12px;
+  color: var(--cf-ob-text-mute);
+}
+
+.cf-roadmap__item {
+  padding: 14px 0;
+  border-top: 1px solid var(--cf-ob-line-1);
+}
+.cf-roadmap__item:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.cf-roadmap__item-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cf-ob-text-1);
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+.cf-roadmap__item-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cf-ob-text-2);
+  margin: 0;
+}
+
+.cf-roadmap__cta {
+  margin-top: 48px;
+  padding: 24px 28px;
+  background: var(--cf-ob-bg-1);
+  border: 1px solid var(--cf-ob-line-1);
+  text-align: center;
+}
+.cf-roadmap__cta p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--cf-ob-text-2);
+  margin: 0;
+}
+.cf-roadmap__cta a {
+  color: var(--cf-ob-ember);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+.cf-roadmap__cta a:hover {
+  border-bottom-color: var(--cf-ob-ember-33);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 880px) {
+  .cf-content { padding: 48px 24px 64px; }
+  .cf-roadmap { grid-template-columns: 1fr; gap: 16px; }
+}
+
+@media (max-width: 520px) {
+  .cf-content { padding: 36px 20px 56px; }
+  .cf-content__hero { margin-bottom: 32px; }
+  .cf-faq__q { font-size: 15px; }
+  .cf-faq__a { font-size: 14px; }
+  .cf-roadmap__col { padding: 20px 16px; }
+}
