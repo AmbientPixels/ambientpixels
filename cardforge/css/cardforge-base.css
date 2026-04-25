@@ -309,7 +309,8 @@
   text-align: center;
 }
 
-/* Buffs & Traits Section - Glass Panel Grid — 2-col × 2 rows (max 4) */
+/* Buffs & Traits Section - Glass Panel Grid — 2-col, up to 3 rows (max 6).
+   5-trait variant keeps a special full-span 5th tile (see rule below). */
 .badges-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -649,12 +650,13 @@
   word-break: break-word;
 }
 
-/* Relaxed badge labels — 2-line when ≤5 badges (≤2 rows in 2-col grid + 1 wide row) */
+/* Relaxed badge labels — 2-line when ≤6 badges (3 rows in 2-col grid; 5-tile variant uses a wide row) */
 .badges-container[data-badge-count="1"] .badge-label,
 .badges-container[data-badge-count="2"] .badge-label,
 .badges-container[data-badge-count="3"] .badge-label,
 .badges-container[data-badge-count="4"] .badge-label,
-.badges-container[data-badge-count="5"] .badge-label {
+.badges-container[data-badge-count="5"] .badge-label,
+.badges-container[data-badge-count="6"] .badge-label {
   -webkit-line-clamp: 2;
   line-clamp: 2;
 }
