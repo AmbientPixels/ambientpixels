@@ -9,6 +9,7 @@
   --cf-rail-width-collapsed: 64px;
   --cf-controls-width: 620px;
   --cf-preview-min: 520px;
+  --cf-footer-h: 28px;
 }
 
 /* Main container layout */
@@ -30,7 +31,7 @@
      match it for a unified, square-edged editor. */
   align-items: stretch;
   width: 100%;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 80px - var(--cf-footer-h));
 }
 .cf-app-grid > .cf-rail          { grid-column: 1; grid-row: 1; }
 .cf-app-grid > .cf-preview-pane  { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
@@ -303,9 +304,13 @@ body.cf-rail-collapsed .cf-rail {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   align-self: center;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 8px;
+  padding-top: 14px;
   width: 100%;
   max-width: 520px;
 }
@@ -313,8 +318,8 @@ body.cf-rail-collapsed .cf-rail {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex: 1;
+  justify-content: flex-start;
+  flex: 0 0 auto;
   min-height: 0;
   width: 100%;
   max-width: 100%;
@@ -324,6 +329,9 @@ body.cf-rail-collapsed .cf-rail {
 .cf-preview-pane #card-preview-container .cf-tools-bar,
 .cf-preview-pane #card-preview-container .cf-preview-summary {
   margin: 0 auto;
+}
+.cf-preview-pane #card-preview-container .cf-preview-summary {
+  margin-top: -4px;
 }
 
 /* Responsive behavior — see cardforge-responsive.css for all breakpoints */

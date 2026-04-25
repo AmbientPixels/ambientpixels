@@ -3069,10 +3069,10 @@
     var bgE = document.getElementById('card-bg-effect');
     var brE = document.getElementById('card-border-effect');
     var glE = document.getElementById('card-glow-effect');
-    if (bgE && bgE.value !== 'none') effects.push(bgE.value);
-    if (brE && brE.value !== 'none') effects.push(brE.value);
-    if (glE && glE.value !== 'none') effects.push(glE.value);
-    if (ModularState.imageEffect !== 'none') effects.push(ModularState.imageEffect);
+    if (bgE && bgE.value && bgE.value !== 'none') effects.push(bgE.value);
+    if (brE && brE.value && brE.value !== 'none') effects.push(brE.value);
+    if (glE && glE.value && glE.value !== 'none') effects.push(glE.value);
+    if (ModularState.imageEffect && ModularState.imageEffect !== 'none') effects.push(ModularState.imageEffect);
     s('summary-effects', effects.length ? effects.join(', ') : 'None');
   }
 

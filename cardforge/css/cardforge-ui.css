@@ -40,29 +40,30 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* Minimal footer. Note: site-wide /css/base.css sets
-   p a:not(.btn):not(.card-image-link):not(.no-underline) { color: #87ceeb }
-   for "dark theme cyan" links, which beats .cf-footer a on specificity.
-   Match that selector shape here to override scoped to the cf footer. */
+/* App-chrome footer — fixed strip at viewport bottom. Site-wide /css/base.css
+   sets p a:not(.btn):not(.card-image-link):not(.no-underline) { color: #87ceeb }
+   for "dark theme cyan" links, but the new footer has no <p> wrappers so the
+   site-wide rule no longer matches. Plain .cf-footer a is sufficient. */
 .cf-footer {
-  padding: 24px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 6px 16px;
+  background: var(--cf-ob-bg-1);
+  border-top: 1px solid var(--cf-ob-line-1);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--cf-ob-text-mute);
   text-align: center;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.35);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
-.cf-footer a,
-.cf-footer p a:not(.btn):not(.card-image-link):not(.no-underline) {
-  color: rgba(255, 255, 255, 0.5);
+.cf-footer a {
+  color: var(--cf-ob-text-2);
   text-decoration: none;
 }
-.cf-footer a:hover,
-.cf-footer p a:not(.btn):not(.card-image-link):not(.no-underline):hover {
+.cf-footer a:hover {
   color: var(--cf-ob-ember);
-}
-.cf-footer__links {
-  margin-top: 0.35rem;
-  font-size: 12px;
 }
 
 /* Empty state text */

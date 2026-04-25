@@ -1681,23 +1681,6 @@
           <!-- CARD PREVIEW ZONE (Always Visible) -->
           <div class="sticky-preview-wrapper">
             <div class="card-preview-zone">
-            <div class="preview-header">
-              <div class="card-toolbar-minimal" role="toolbar" aria-label="Card Actions">
-                <button id="toolbar-save-btn" title="No changes to save" aria-label="No changes to save" aria-disabled="true" data-save-state="ready" class="toolbar-btn"><i class="fas fa-check"></i></button>
-                
-                <button id="toolbar-reset-btn" title="Reset Card" aria-label="Reset Card" class="toolbar-btn"><i class="fas fa-undo"></i></button>
-                <button id="toolbar-new-card-btn" title="Random card" aria-label="Random card" class="toolbar-btn"><i class="fas fa-dice"></i></button>
-              </div>
-              <h2>Card Preview</h2>
-              <div class="preview-controls">
-                <button type="button" id="flip-btn" class="glass-button">
-                  <i class="fas fa-sync-alt"></i>
-                  <span>Flip Card</span>
-                </button>
-
-              </div>
-            </div>
-            
             <div class="card-preview-canvas">
               <div class="card-inner">
                 <div class="card-front">
@@ -1731,6 +1714,7 @@
             <button type="button" class="cf-tool-btn" onclick="window.CardForge.undo()" title="Undo (Ctrl+Z)"><i class="fas fa-rotate-left"></i> Undo</button>
             <button type="button" class="cf-tool-btn" onclick="window.CardForge.redo()" title="Redo (Ctrl+Y)"><i class="fas fa-rotate-right"></i> Redo</button>
             <button type="button" id="cf-compare-btn" class="cf-tool-btn" title="Compare with snapshot"><i class="fas fa-columns"></i> Compare</button>
+            <button type="button" id="flip-btn" class="cf-tool-btn" title="Flip card front/back"><i class="fas fa-sync-alt"></i> Flip</button>
             <button type="button" id="cf-publish-quick-btn" class="cf-tool-btn cf-tool-btn--primary" title="Publish to gallery (Ctrl+Enter)"><i class="fas fa-share"></i> Publish</button>
           </div>
           <!-- Design summary below card -->
@@ -1753,8 +1737,9 @@
 </main>
 
   <footer class="cf-footer">
-    <p>&copy; 2026 CardForge by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
-    <p class="cf-footer__links">More from AmbientPixels: <a href="https://ambientpixels.ai/storyforge/">StoryForge</a></p>
+    &copy; 2026 CardForge by <a href="https://ambientpixels.ai">AmbientPixels</a>
+    <span aria-hidden="true">&middot;</span>
+    More: <a href="https://ambientpixels.ai/storyforge/">StoryForge</a>
   </footer>
 
   <!-- Onboarding Tour Overlay -->
