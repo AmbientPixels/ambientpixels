@@ -25,25 +25,25 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Orbitron:wght@400;500;600;700&family=MedievalSharp&family=Pirata+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=20260425k">
-  <link rel="stylesheet" href="/css/grid.css?v=20260425k">
-  <link rel="stylesheet" href="/css/components.css?v=20260425k">
-  <link rel="stylesheet" href="/css/theme.css?v=20260425k">
-  <link rel="stylesheet" href="/cardforge/css/card-forge.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-forms.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-modular.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-gallery.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-ui.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-card.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-layout.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260425k">
-  <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260425k"> <!-- Responsive design — MUST be last CSS to override all -->
+  <link rel="stylesheet" href="/css/base.css?v=20260425l">
+  <link rel="stylesheet" href="/css/grid.css?v=20260425l">
+  <link rel="stylesheet" href="/css/components.css?v=20260425l">
+  <link rel="stylesheet" href="/css/theme.css?v=20260425l">
+  <link rel="stylesheet" href="/cardforge/css/card-forge.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-forms.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-modular.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-gallery.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-ui.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-card.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-layout.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260425l">
+  <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260425l"> <!-- Responsive design — MUST be last CSS to override all -->
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
@@ -1458,19 +1458,32 @@
       
       <div class="cf-section" data-step-section="3">
         <h3 class="cf-section-title">Stats</h3>
-        <div class="stats-panel">
-          <!-- Custom Stats (freeform). Combat stats removed —
-               CardForge no longer ships the fixed STR/AGI/INT/END/LCK
-               picker that was tied to Blindspot game integration. -->
-          <div class="arena-custom-stats">
-            <div class="arena-custom-stats__label">Card Stats</div>
-            <div id="stats-editor">
-              <!-- Freeform custom stats here -->
+
+        <div class="cf-tabs" role="tablist" aria-label="Stats mode">
+          <button type="button" class="cf-tab cf-tab--active" role="tab"
+                  data-tab-target="stats-list" aria-selected="true">Stats</button>
+          <button type="button" class="cf-tab" role="tab"
+                  data-tab-target="stats-style" aria-selected="false">Style</button>
+        </div>
+
+        <div class="cf-tab-panel cf-tab-panel--active" data-tab-id="stats-list" role="tabpanel">
+          <div class="stats-panel">
+            <!-- Custom Stats (freeform). Combat stats removed —
+                 CardForge no longer ships the fixed STR/AGI/INT/END/LCK
+                 picker that was tied to Blindspot game integration. -->
+            <div class="arena-custom-stats">
+              <div class="arena-custom-stats__label">Card Stats</div>
+              <div id="stats-editor">
+                <!-- Freeform custom stats here -->
+              </div>
+              <button type="button" id="add-stat-btn" class="add-stat-btn">+ Add Stat</button>
             </div>
-            <button type="button" id="add-stat-btn" class="add-stat-btn">+ Add Stat</button>
           </div>
+        </div>
+
+        <div class="cf-tab-panel" data-tab-id="stats-style" role="tabpanel" hidden>
           <!-- Stat Bar Color — native picker for solid hex, chips for multi-color effects -->
-          <div class="container-level" style="margin-top:1rem">
+          <div class="container-level">
             <h5 class="level-title">Stat Bar Color</h5>
             <div class="stat-bar-color-row">
               <label class="stat-bar-color-picker">
@@ -1769,36 +1782,36 @@
   <div class="cf-tour-backdrop" id="cf-tour-backdrop" style="display:none;"></div>
 
   <!-- CardForge Core — bump ?v= to bust CDN cache on deploy -->
-  <script src="/cardforge/js/config.js?v=20260425k"></script>
-  <script src="js/cardforge-published-events.js?v=20260425k" defer></script>
-  <script src="js/cardforge-my-published-cards.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/csrf-protection.js?v=20260425k"></script>
-  <script src="/cardforge/js/validation-utils.js?v=20260425k"></script>
-  <script src="/cardforge/js/ui-utils.js?v=20260425k"></script>
-  <script>if(location.hostname!=='ambientpixels.ai'){document.write('<scr'+'ipt src="/cardforge/js/debug-utils.js?v=20260425k"><\/scr'+'ipt>')}</script>
-  <script src="/cardforge/js/entitlements.js?v=20260425k"></script>
-  <script src="/cardforge/js/card-forge.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/cardforge-template-loader.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/cardforge-presets.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/card-forge-editor.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/cardforge-publish.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/right-column.js?v=20260425k" defer></script>
+  <script src="/cardforge/js/config.js?v=20260425l"></script>
+  <script src="js/cardforge-published-events.js?v=20260425l" defer></script>
+  <script src="js/cardforge-my-published-cards.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/csrf-protection.js?v=20260425l"></script>
+  <script src="/cardforge/js/validation-utils.js?v=20260425l"></script>
+  <script src="/cardforge/js/ui-utils.js?v=20260425l"></script>
+  <script>if(location.hostname!=='ambientpixels.ai'){document.write('<scr'+'ipt src="/cardforge/js/debug-utils.js?v=20260425l"><\/scr'+'ipt>')}</script>
+  <script src="/cardforge/js/entitlements.js?v=20260425l"></script>
+  <script src="/cardforge/js/card-forge.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/cardforge-template-loader.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/cardforge-presets.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/card-forge-editor.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/cardforge-publish.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/right-column.js?v=20260425l" defer></script>
 
   <!-- === Application Insights (Production Only) === -->
   <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous" defer></script>
-  <script src="/cardforge/js/cardforge-layout.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/cardforge-completion-dots.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/cardforge-keyboard.js?v=20260425k" defer></script>
-  <script src="js/cardforge-modals.js?v=20260425k" defer></script>
-  <script src="js/cardforge-forge-actions.js?v=20260425k" defer></script>
-  <script src="js/cardforge-lightbox.js?v=20260425k" defer></script>
-  <script src="js/cardforge-card-helpers.js?v=20260425k" defer></script>
-  <script src="js/cardforge-ai.js?v=20260425k" defer></script>
-  <script src="js/cardforge-quick-build.js?v=20260425k" defer></script>
-  <script src="js/cardforge-image-sliders.js?v=20260425k" defer></script>
-  <script src="js/cardforge-image-drag.js?v=20260425k" defer></script>
-  <script src="js/cardforge-tabs.js?v=20260425k" defer></script>
-  <script src="/cardforge/js/app-insights.js?v=20260425k"></script>
+  <script src="/cardforge/js/cardforge-layout.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/cardforge-completion-dots.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/cardforge-keyboard.js?v=20260425l" defer></script>
+  <script src="js/cardforge-modals.js?v=20260425l" defer></script>
+  <script src="js/cardforge-forge-actions.js?v=20260425l" defer></script>
+  <script src="js/cardforge-lightbox.js?v=20260425l" defer></script>
+  <script src="js/cardforge-card-helpers.js?v=20260425l" defer></script>
+  <script src="js/cardforge-ai.js?v=20260425l" defer></script>
+  <script src="js/cardforge-quick-build.js?v=20260425l" defer></script>
+  <script src="js/cardforge-image-sliders.js?v=20260425l" defer></script>
+  <script src="js/cardforge-image-drag.js?v=20260425l" defer></script>
+  <script src="js/cardforge-tabs.js?v=20260425l" defer></script>
+  <script src="/cardforge/js/app-insights.js?v=20260425l"></script>
 
   <!-- Lightbox — Gallery Card Viewer -->
   <div id="cardforge-lightbox">
