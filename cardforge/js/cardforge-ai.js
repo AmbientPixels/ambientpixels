@@ -184,7 +184,7 @@
       '- quote: A punchy tagline (max 120 chars)',
       '- biography: A vivid backstory hint (max 220 chars)',
       '- stats: An array of 3-10 objects with "name" (string, e.g. "Attack", "Defense", "Speed") and "value" (number 0-100)',
-      '- attributes: An array of 3-5 objects with "name" (string, e.g. "Element", "Faction", "Origin") and "value" (string). Do NOT use "Level", "Experience", "XP", "Rank", "Wins", or "Losses" as attribute names — those come from the arena system.',
+      '- attributes: An array of 3-10 objects with "name" (string, e.g. "Element", "Faction", "Origin") and "value" (string). Do NOT use "Level", "Experience", "XP", "Rank", "Wins", or "Losses" as attribute names — those come from the arena system.',
       '- imagePrompt: A detailed visual description for generating the card artwork (max 200 chars). Describe the character\'s appearance, pose, and mood. Do NOT include text or card frames.',
       '',
       'Do NOT include a "badges" field — buffs are assigned by the game progression system.',
@@ -433,7 +433,7 @@
       if (Array.isArray(card.attributes) && window.CardForge?.createAttributeRow) {
         const attrContainer = document.getElementById('attribute-editor');
         const attrCap = (window.EffectTiers && window.EffectTiers.getSlotCap)
-          ? window.EffectTiers.getSlotCap('attributes') : 4;
+          ? window.EffectTiers.getSlotCap('attributes') : 10;
         if (attrContainer) {
           attrContainer.innerHTML = '';
           card.attributes.slice(0, attrCap).forEach(function (a) {

@@ -93,8 +93,15 @@ window._cfGetAuthHeaders = (function () {
 // EffectTiers shim — all effects unlocked (arena removed, no rank gating)
 // Covers every method the editor calls on window.EffectTiers
 window.EffectTiers = {
-  // Slot caps — return max (Traits cap raised to 6; 5-trait variant keeps the full-span 5th badge layout via CSS data-badge-count rules)
-  getSlotCap: function () { return 6; },
+  // Slot caps — category-aware so traits and attributes can have
+  // different effective caps. Buffs/traits cap at 6 (matches
+  // BADGE_CAP_MAX in card-forge-editor.js), attributes cap at 10
+  // (matches ATTRIBUTE_CAP_MAX). Anything else falls through to 10.
+  getSlotCap: function (category) {
+    if (category === 'buffs') return 6;
+    if (category === 'attributes') return 10;
+    return 10;
+  },
   getMaxBuffQty: function () { return 3; },
   // Unlock checks — always true
   isEffectUnlocked: function () { return true; },

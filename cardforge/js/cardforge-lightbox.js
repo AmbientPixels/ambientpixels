@@ -73,7 +73,7 @@
     return html;
   }
 
-  const ATTRIBUTE_CAP = 6; // Max visible attributes on card face
+  const ATTRIBUTE_CAP = 10; // Max visible attributes on card face
   // Attribute names already covered by the arena stats bar
   const ARENA_OVERLAP_NAMES = ['level', 'experience', 'xp', 'rank', 'wins', 'losses', 'win', 'loss', 'record'];
 
