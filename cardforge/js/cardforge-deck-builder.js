@@ -309,13 +309,34 @@
         const loadUrl = window.buildApiPath('loadCards');
         const authHeaders = window._cfGetAuthHeaders
           ? await window._cfGetAuthHeaders() : {};
+        // Pull our userId out of the principal so we can also surface
+        // any cards we PUBLISHED that aren't in this device's userCards
+        // bucket (cross-browser / re-install case).
+        let myUserId = null;
+        try {
+          const principalJson = authHeaders['X-CF-Auth-Principal'];
+          if (principalJson) myUserId = JSON.parse(principalJson).userId || null;
+        } catch (e) {}
         const resp = await fetch(loadUrl, {
           method: 'GET',
           headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)
         });
         if (resp.ok) {
           const data = await resp.json();
-          cards = Array.isArray(data?.userCards) ? data.userCards : [];
+          const userCards = Array.isArray(data?.userCards) ? data.userCards : [];
+          const galleryMine = (Array.isArray(data?.galleryCards) && myUserId)
+            ? data.galleryCards.filter(function (c) {
+                if (!c) return false;
+                const cd = c.cardData || c;
+                return c.publishedBy === myUserId || cd.publishedBy === myUserId || c.userId === myUserId || cd.userId === myUserId;
+              })
+            : [];
+          // Dedupe by id, prefer userCards over galleryCards.
+          const seen = {};
+          cards = [];
+          userCards.concat(galleryMine).forEach(function (c) {
+            if (c && c.id && !seen[c.id]) { seen[c.id] = true; cards.push(c); }
+          });
         }
       } catch (err) {
         console.warn('[DeckBuilder] Cloud load failed, using localStorage:', err);
