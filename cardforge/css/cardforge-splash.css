@@ -276,6 +276,10 @@ body.cf-splash {
 /* Stagger — outer cards move first, inner follow. Only applies when
    the fan is hovered (otherwise delays would slow the mouseleave
    snap-back identically, which still reads smooth). */
+/* Per-card stagger on the opacity reveal so the fan dissolves in
+   from the outside cards first, settling at the center last. The
+   second value (transform delay) stays at 0ms so the hover fan-out
+   cascade isn't perturbed. */
 .cf-hero-fan__card[data-fan-pos="2"] { transition-delay: 140ms, 0ms; }
 .cf-hero-fan__card[data-fan-pos="1"],
 .cf-hero-fan__card[data-fan-pos="3"] { transition-delay: 70ms, 0ms; }
@@ -335,13 +339,39 @@ body.cf-splash {
 .cf-splash-showcase__strip > .cf-showcase-card {
   opacity: 0;
   transition:
-    opacity 0.25s ease-out,
+    opacity 0.4s ease-out,
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.4s ease;
 }
 .cf-hero-fan.cf-splash-loaded > .cf-hero-fan__card,
 .cf-splash-showcase__strip.cf-splash-loaded > .cf-showcase-card {
   opacity: 1;
+}
+
+/* Ember loader — shown while the API resolves on first visit (no
+   localStorage cache). Hidden once cards are rendered. Sits over
+   the empty fan center; small + subtle so it reads as "the forge is
+   firing up" rather than as the main UI. */
+.cf-hero-fan__loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 2px solid var(--cf-ob-line-2);
+  border-top-color: var(--cf-ob-ember);
+  border-radius: 50%;
+  animation: cf-fan-loader-spin 0.9s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 0 16px var(--cf-ob-ember-22);
+}
+@keyframes cf-fan-loader-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-hero-fan__loader { animation: none; }
 }
 
 /* Portrait-only fallback (.cf-mini-fallback) for preset cards that

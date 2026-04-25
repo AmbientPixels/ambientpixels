@@ -220,6 +220,47 @@
     }).join('');
   }
 
+  // Cache the gallery so return visitors see cards instantly on page
+  // load instead of waiting for the API roundtrip. Cache is overwritten
+  // by every successful fetch, so it stays fresh.
+  var GALLERY_CACHE_KEY = 'cf_splash_gallery_v1';
+
+  function readGalleryCache() {
+    try {
+      var raw = localStorage.getItem(GALLERY_CACHE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.cards) || !parsed.cards.length) return null;
+      return parsed.cards;
+    } catch (_) { return null; }
+  }
+
+  function writeGalleryCache(cards) {
+    try {
+      localStorage.setItem(GALLERY_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), cards: cards }));
+    } catch (_) {}
+  }
+
+  function gallerySignature(cards) {
+    return cards.map(function (c) { return c.id || c.name; }).join('|');
+  }
+
+  function showFanLoader() {
+    var fan = document.getElementById('cf-hero-fan');
+    if (!fan || fan.querySelector('.cf-hero-fan__loader')) return;
+    var loader = document.createElement('div');
+    loader.className = 'cf-hero-fan__loader';
+    loader.setAttribute('aria-label', 'Loading gallery');
+    fan.appendChild(loader);
+  }
+
+  function hideFanLoader() {
+    var fan = document.getElementById('cf-hero-fan');
+    if (!fan) return;
+    var loader = fan.querySelector('.cf-hero-fan__loader');
+    if (loader) loader.remove();
+  }
+
   function fadeInRenderedCards() {
     var fan = document.getElementById('cf-hero-fan');
     var strip = document.getElementById('cf-showcase-strip');
@@ -236,20 +277,48 @@
     });
   }
 
+  function clearLoadedClass() {
+    var fan = document.getElementById('cf-hero-fan');
+    var strip = document.getElementById('cf-showcase-strip');
+    if (fan) fan.classList.remove('cf-splash-loaded');
+    if (strip) strip.classList.remove('cf-splash-loaded');
+  }
+
   async function initGallery() {
-    // Real CardForge cards only — no preset-portrait fallback. The
-    // hero has enough anchor content (title, ticker, CTAs, ember
-    // glow) that a brief empty fan reads as "loading" rather than
-    // "empty". Showing fake portrait thumbnails first and then
-    // swapping to real cards would undermine the "look what the
-    // forge produces" story.
+    // 1) Render from cache instantly — kills the perceived API delay
+    //    on every visit after the first. If no cache exists, show a
+    //    small ember loader in the fan center so the user knows the
+    //    forge is firing up rather than seeing an empty hero.
+    var cached = readGalleryCache();
+    if (cached && cached.length) {
+      renderFan(cached.slice(0, 5));
+      renderShowcase(cached.slice(0, 10));
+      revealAfterPaint();
+    } else {
+      showFanLoader();
+    }
+
+    // 2) Refresh from the API and re-render only if the response
+    //    differs from cache (avoids unnecessary DOM rebuild + flash).
     var cards = await fetchPublishedCards();
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
-    if (realCards.length === 0) return; // API empty / unreachable → fan stays empty.
+    if (realCards.length === 0) {
+      hideFanLoader();
+      return;
+    }
 
-    renderFan(realCards.slice(0, 5));
-    renderShowcase(realCards.slice(0, 10));
-    revealAfterPaint();
+    hideFanLoader();
+    var top10 = realCards.slice(0, 10);
+    var prevSig = cached ? gallerySignature(cached.slice(0, 10)) : '';
+    var nextSig = gallerySignature(top10);
+    if (nextSig !== prevSig) {
+      // Reset opacity-loaded state so the new render fades in fresh.
+      clearLoadedClass();
+      renderFan(realCards.slice(0, 5));
+      renderShowcase(top10);
+      revealAfterPaint();
+    }
+    writeGalleryCache(top10);
   }
 
   function init() {

@@ -2001,18 +2001,14 @@ body.cf-ui--neon .zone-header h3 i {
   overflow: visible;
 }
 
-/* Badges grid — 3-col default for 3×2 layout */
+/* Badges grid — 2-col default for 2×N layout (room is plentiful in the
+   right pane after the rail/preview redesign; wider tiles read better
+   than three cramped ones). */
 [data-step-section="4"] #micro-editor {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
   overflow: visible;
-}
-
-@media (max-width: 768px) {
-  [data-step-section="4"] #micro-editor {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 @media (max-width: 520px) {
@@ -3983,7 +3979,15 @@ opacity: 1;
 .cf-preview-pane .cf-card-clickable .card-stats,
 .cf-preview-pane .cf-card-clickable .stat-row,
 .cf-preview-pane .cf-card-clickable .card-badges,
-.cf-preview-pane .cf-card-clickable .card-attributes {
+.cf-preview-pane .cf-card-clickable .card-attributes,
+.cf-preview-pane .cf-card-clickable .back-header,
+.cf-preview-pane .cf-card-clickable .biography-section,
+.cf-preview-pane .cf-card-clickable .biography-text,
+.cf-preview-pane .cf-card-clickable .bio-read-more,
+.cf-preview-pane .cf-card-clickable .badges-container,
+.cf-preview-pane .cf-card-clickable .badges-section,
+.cf-preview-pane .cf-card-clickable .attributes-container,
+.cf-preview-pane .cf-card-clickable .attributes-section {
   transition: background-color 0.12s ease;
 }
 .cf-preview-pane .cf-card-clickable .card-avatar:hover,
@@ -3996,7 +4000,14 @@ opacity: 1;
 .cf-preview-pane .cf-card-clickable .card-stats:hover,
 .cf-preview-pane .cf-card-clickable .stat-row:hover,
 .cf-preview-pane .cf-card-clickable .card-badges:hover,
-.cf-preview-pane .cf-card-clickable .card-attributes:hover {
+.cf-preview-pane .cf-card-clickable .card-attributes:hover,
+.cf-preview-pane .cf-card-clickable .back-header:hover,
+.cf-preview-pane .cf-card-clickable .biography-section:hover,
+.cf-preview-pane .cf-card-clickable .bio-read-more:hover,
+.cf-preview-pane .cf-card-clickable .badges-container:hover,
+.cf-preview-pane .cf-card-clickable .badges-section:hover,
+.cf-preview-pane .cf-card-clickable .attributes-container:hover,
+.cf-preview-pane .cf-card-clickable .attributes-section:hover {
   background-color: var(--cf-ob-ember-dim);
 }
 
@@ -4042,6 +4053,46 @@ opacity: 1;
      Inner content can still grow naturally; sections that don't
      fill the height get empty space below the prev/next nav. */
   min-height: calc(100vh - 100px);
+  /* Particle ember field fills the dead space — see .cf-ember-field rules
+     below. Contained via isolation:isolate so the embers' stacking
+     context stays scoped to the active section. */
+  position: relative;
+  isolation: isolate;
+}
+
+/* Ember particle field — rendered behind section content (z-index:-1),
+   clipped to the section box, ignored by pointer events. Embers are
+   seeded by cardforge-layout.js, one absolute span each with inline
+   custom properties driving size / duration / delay / drift. */
+.cf-main-pane .cf-section .cf-ember-field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cf-main-pane .cf-ember {
+  position: absolute;
+  top: 100%;
+  width: var(--cf-ember-size, 2px);
+  height: var(--cf-ember-size, 2px);
+  border-radius: 50%;
+  background: rgba(255, 168, 80, 0.65);
+  box-shadow: 0 0 6px rgba(255, 122, 26, 0.30);
+  filter: blur(0.4px);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: cf-ember-rise var(--cf-ember-dur, 9s) linear infinite;
+  animation-delay: var(--cf-ember-delay, 0s);
+}
+@keyframes cf-ember-rise {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  10%  { opacity: var(--cf-ember-peak, 0.35); }
+  85%  { opacity: var(--cf-ember-peak, 0.35); }
+  100% { transform: translate3d(var(--cf-ember-drift, 0px), -110vh, 0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cf-main-pane .cf-ember { animation: none; opacity: 0; }
 }
 .cf-main-pane .cf-section.active { display: flex !important; }
 .cf-main-pane .cf-section-title {
@@ -4302,25 +4353,59 @@ opacity: 1;
 
 /* Stat row = one horizontal line: icon | name | slider | value | remove.
    .stat-header + .stat-control wrappers use display:contents so their
-   children flow directly into the parent .stat-row grid. */
+   children flow directly into the parent .stat-row grid.
+   Every column is forced to the same 24px baseline for pixel alignment. */
 .cf-main-pane #stats-editor .stat-row {
   display: grid !important;
-  grid-template-columns: 28px 1fr 2fr 36px 24px;
+  grid-template-columns: 28px minmax(70px, 1fr) minmax(80px, 2fr) 40px 24px;
   grid-auto-flow: dense;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
+  padding: 6px 4px !important;
 }
 .cf-main-pane #stats-editor .stat-row .stat-header,
 .cf-main-pane #stats-editor .stat-row .stat-control {
   display: contents;
 }
 .cf-main-pane #stats-editor .stat-row .stat-icon-btn { grid-column: 1; }
-.cf-main-pane #stats-editor .stat-row input[name="stat-name"] { grid-column: 2; }
-.cf-main-pane #stats-editor .stat-row .stat-slider { grid-column: 3; width: 100%; height: 4px; margin: 0; }
-.cf-main-pane #stats-editor .stat-row .stat-value-display { grid-column: 4; }
-.cf-main-pane #stats-editor .stat-row .remove-attribute { grid-column: 5; }
+.cf-main-pane #stats-editor .stat-row input[name="stat-name"] {
+  grid-column: 2;
+  height: 24px !important;
+  line-height: 22px;
+  padding: 0 6px !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+}
+.cf-main-pane #stats-editor .stat-row .stat-slider {
+  grid-column: 3;
+  width: 100%;
+  height: 24px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent;
+}
+.cf-main-pane #stats-editor .stat-row .stat-value-display {
+  grid-column: 4;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cf-ob-ember);
+}
+.cf-main-pane #stats-editor .stat-row .remove-attribute {
+  grid-column: 5;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
 .cf-main-pane #stats-editor .stat-icon-btn {
-  width: 26px;
+  width: 28px;
   height: 24px;
   padding: 0;
   background: var(--cf-ob-bg-3);
@@ -4330,6 +4415,7 @@ opacity: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   transition: border-color 0.12s ease, background 0.12s ease;
 }
 .cf-main-pane #stats-editor .stat-icon-btn:hover {
@@ -4379,6 +4465,57 @@ opacity: 1;
 .cf-main-pane #stats-editor .stat-icon-option i { font-size: 12px; }
 .cf-main-pane #stats-editor .stat-row { position: relative; }
 
+/* Stat bar color — hybrid picker (custom hex + preset effect chips).
+   Row 1: native <input type="color"> + Default reset chip.
+   Row 2: multi-color effect chips (Rainbow / Gradient / Neon / Frost / Ember). */
+.cf-main-pane .stat-bar-color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.cf-main-pane .stat-bar-color-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 3px;
+  background: var(--cf-ob-bg-3);
+  border: 1px solid var(--cf-ob-line-2);
+  cursor: pointer;
+  transition: border-color 0.12s ease;
+}
+.cf-main-pane .stat-bar-color-picker:hover {
+  border-color: var(--cf-ob-ember-33);
+}
+.cf-main-pane .stat-bar-color-picker.is-active {
+  border-color: var(--cf-ob-ember);
+  background: var(--cf-ob-ember-dim);
+}
+.cf-main-pane .stat-bar-color-picker input[type="color"] {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--cf-ob-line-2);
+  background: transparent;
+  cursor: pointer;
+}
+.cf-main-pane .stat-bar-color-picker input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.cf-main-pane .stat-bar-color-picker input[type="color"]::-webkit-color-swatch { border: none; }
+.cf-main-pane .stat-bar-color-picker__label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-2);
+}
+.cf-main-pane .stat-bar-color-picker.is-active .stat-bar-color-picker__label {
+  color: var(--cf-ob-ember);
+}
+.cf-main-pane .stat-bar-color-row .tier-option {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
 /* Attributes / buffs / badges — similar row compaction. */
 .cf-main-pane .attribute-row,
 .cf-main-pane .micro-row,
@@ -4394,6 +4531,39 @@ opacity: 1;
   margin-top: auto !important;
   padding-top: 8px !important;
   flex-shrink: 0;
+}
+
+/* 7b. Let each section's primary content blocks absorb the vertical flex
+   space so short sections (Stats/Buffs/Typography/Effects) fill the
+   pane height instead of crowding at the top with a big gap above
+   the prev/next nav. Title/description stay natural-size; step-nav
+   remains pinned bottom via margin-top:auto above. */
+.cf-main-pane .cf-section > *:not(.cf-section-title):not(.cf-section-description):not(.cf-step-nav):not(script) {
+  flex: 1 1 auto;
+}
+
+/* Stats section — redistribute so stat rows breathe and the Stat Bar
+   Color block anchors to the bottom of the pane. */
+.cf-main-pane [data-step-section="3"] .stats-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cf-main-pane [data-step-section="3"] .arena-custom-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+.cf-main-pane [data-step-section="3"] .arena-custom-stats #stats-editor {
+  flex: 1 1 auto;
+  gap: 8px !important;
+}
+.cf-main-pane [data-step-section="3"] .stats-panel > .container-level {
+  margin-top: auto !important;
+}
+.cf-main-pane [data-step-section="3"] #stats-editor .stat-row {
+  padding: 10px 6px !important;
 }
 
 /* 8. Compact Card Effects (tier 5) — sub-sections in 2-col layout

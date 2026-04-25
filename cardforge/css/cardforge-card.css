@@ -2314,6 +2314,15 @@
   color: #FF6B35;
 }
 
+/* Custom solid color — driven by --cf-stat-bar-custom set inline by the
+   editor (or persisted via renderedFront inline style for published cards). */
+.card-preview-canvas.stat-color-custom .stat-progress {
+  background: var(--cf-stat-bar-custom, var(--mood-primary-color, var(--cf-ob-ember, #ff7a1a)));
+}
+.card-preview-canvas.stat-color-custom .stat-value {
+  color: var(--cf-stat-bar-custom, var(--mood-primary-color, var(--cf-ob-ember, #ff7a1a)));
+}
+
 /* --- POWER RATING BADGE --- */
 .cf-power-badge {
   position: absolute;

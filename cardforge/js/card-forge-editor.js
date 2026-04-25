@@ -1172,18 +1172,22 @@
       });
     }
     
-    // Auto flip on tab clicks
+    // Legacy auto-flip on tab clicks — only applies to old-style step-btn
+    // elements that still carry a numeric data-step attribute. The new
+    // rail uses data-target-section/data-nav-id instead, and its flip
+    // logic lives in cardforge-layout.js activate() (which honours
+    // suppressFlip for back-face click-to-edit). Guard against firing
+    // on new-rail buttons — a null data-step would otherwise fall into
+    // the else branch and force the card back to the front on every click.
     document.addEventListener('click', function(e) {
       const stepBtn = e.target.closest('.step-btn');
-      if (stepBtn && cardInner) {
-        const step = stepBtn.getAttribute('data-step');
-        // Steps 4, 5 show back face (Badges, Attributes)
-        if (['4', '5'].includes(step)) {
-          cardInner.classList.add('flipped');
-        } else {
-          // Steps 1, 2, 3 show front face (Card Design, Basics, Stats)
-          cardInner.classList.remove('flipped');
-        }
+      if (!stepBtn || !cardInner) return;
+      const step = stepBtn.getAttribute('data-step');
+      if (step === null) return;
+      if (['4', '5'].includes(step)) {
+        cardInner.classList.add('flipped');
+      } else {
+        cardInner.classList.remove('flipped');
       }
     });
     
@@ -1351,7 +1355,7 @@
       quoteFont: ['default', 'serif', 'cursive'][Math.floor(Math.random() * 3)],
       cardBackStyle: ['default', 'parchment', 'dark'][Math.floor(Math.random() * 3)],
       borderRadius: ['default', 'sharp', 'rounded', 'pill'][Math.floor(Math.random() * 4)],
-      statBarColor: ['default', 'red', 'green', 'blue', 'gold'][Math.floor(Math.random() * 5)]
+      statBarColor: ['default', 'rainbow', 'gradient', 'neon', 'frost', 'ember'][Math.floor(Math.random() * 6)]
     });
     syncExtrasUI();
     
@@ -2129,7 +2133,7 @@
 
   // ===== CARD EXTRAS SYSTEM =====
   function initExtras() {
-    // Option buttons (quote font, card back style, border radius)
+    // Option buttons (quote font, card back style, border radius, stat bar color)
     document.querySelectorAll('[data-extra]').forEach(function(option) {
       option.addEventListener('click', function() {
         var key = this.dataset.extra;
@@ -2142,6 +2146,8 @@
             opt.classList.toggle('selected', opt.dataset.value === value);
           });
         }
+        // Stat bar color has a second surface (custom picker row) — keep it in sync.
+        if (key === 'statBarColor') syncStatBarColorUI();
         updateExtrasSummary();
         updatePreview();
         // Auto-flip to show card back when changing back style
@@ -2162,6 +2168,18 @@
         var val = parseFloat(this.value) / 100;
         ModularState.effectIntensity = val;
         if (intensityVal) intensityVal.textContent = this.value + '%';
+        updatePreview();
+      });
+    }
+
+    // Stat bar custom color picker — sets statBarColor to a hex value so the
+    // preview canvas picks up .stat-color-custom + CSS var for the fill.
+    var colorInput = document.getElementById('stat-bar-color-custom');
+    if (colorInput) {
+      colorInput.addEventListener('input', function() {
+        ModularState.statBarColor = this.value;
+        syncStatBarColorUI();
+        updateExtrasSummary();
         updatePreview();
       });
     }
@@ -2198,7 +2216,12 @@
     if (ModularState.quoteFont !== 'default') parts.push(ModularState.quoteFont);
     if (ModularState.cardBackStyle !== 'default') parts.push('Back: ' + ModularState.cardBackStyle);
     if (ModularState.borderRadius !== 'default') parts.push(ModularState.borderRadius);
-    if (ModularState.statBarColor !== 'default') parts.push('Bars: ' + ModularState.statBarColor);
+    if (ModularState.statBarColor !== 'default') {
+      var barsLabel = typeof ModularState.statBarColor === 'string' && ModularState.statBarColor.charAt(0) === '#'
+        ? 'Bars: ' + ModularState.statBarColor.toUpperCase()
+        : 'Bars: ' + ModularState.statBarColor;
+      parts.push(barsLabel);
+    }
     if (ModularState.effectIntensity !== 1.0) parts.push(Math.round(ModularState.effectIntensity * 100) + '%');
     var summary = document.getElementById('extras-summary');
     if (summary) summary.textContent = parts.length ? parts.join(' · ') : 'Default';
@@ -2218,10 +2241,8 @@
     document.querySelectorAll('#border-radius-options .variant-toggle').forEach(function(opt) {
       opt.classList.toggle('selected', opt.dataset.value === ModularState.borderRadius);
     });
-    // Stat bar color
-    document.querySelectorAll('#stat-bar-color-options .tier-option').forEach(function(opt) {
-      opt.classList.toggle('selected', opt.dataset.value === ModularState.statBarColor);
-    });
+    // Stat bar color — preset chips + hybrid picker
+    syncStatBarColorUI();
     // Effect intensity slider
     var slider = document.getElementById('cf-effect-intensity');
     var val = document.getElementById('cf-effect-intensity-val');
@@ -2230,6 +2251,30 @@
       if (val) val.textContent = slider.value + '%';
     }
     updateExtrasSummary();
+  }
+
+  // Keep every stat-bar-color surface in sync with ModularState.statBarColor.
+  // Values fall into three buckets: 'default' | preset effect name | hex string.
+  function syncStatBarColorUI() {
+    var value = ModularState.statBarColor || 'default';
+    var isHex = typeof value === 'string' && value.charAt(0) === '#';
+
+    // Preset chips in the grid — only one can be selected; hex/default select none.
+    document.querySelectorAll('#stat-bar-color-options .tier-option').forEach(function(opt) {
+      opt.classList.toggle('selected', !isHex && opt.dataset.value === value);
+    });
+
+    // Default reset chip lives outside the grid on the picker row.
+    var defaultChip = document.querySelector('.stat-bar-color-row .tier-option[data-value="default"]');
+    if (defaultChip) defaultChip.classList.toggle('selected', value === 'default');
+
+    // Custom color picker — active when value is a hex string.
+    var picker = document.querySelector('.stat-bar-color-picker');
+    var colorInput = document.getElementById('stat-bar-color-custom');
+    if (picker) picker.classList.toggle('is-active', isHex);
+    if (isHex && colorInput && colorInput.value !== value) {
+      colorInput.value = value;
+    }
   }
 
   // ===== SECTION RANDOMIZE =====
@@ -2255,7 +2300,7 @@
       quoteFonts: ['default', 'serif', 'cursive'],
       backStyles: ['default', 'parchment', 'dark'],
       radii: ['default', 'sharp', 'rounded', 'pill'],
-      statColors: ['default', 'red', 'green', 'blue', 'gold', 'rainbow', 'gradient', 'neon', 'frost', 'ember']
+      statColors: ['default', 'rainbow', 'gradient', 'neon', 'frost', 'ember']
     };
 
     if (section === 'container') {
@@ -2848,6 +2893,12 @@
       if (avatarUrl) resolveAutoPalette(avatarUrl);
     }
 
+    // Stat bar color — hex values become a 'custom' class + CSS variable so
+    // cardforge-card.css presets stay untouched.
+    const statColorValue = ModularState.statBarColor;
+    const isCustomStatColor = typeof statColorValue === 'string' && statColorValue.charAt(0) === '#';
+    const statColorClass = isCustomStatColor ? 'stat-color-custom' : `stat-color-${statColorValue}`;
+
     // Shared classes — palette, container, effects (apply to both faces)
     const sharedClasses = [
       `palette-${effectivePalette}`,
@@ -2860,12 +2911,21 @@
       `quote-font-${ModularState.quoteFont}`,
       `card-back-${ModularState.cardBackStyle}`,
       `card-radius-${ModularState.borderRadius}`,
-      `stat-color-${ModularState.statBarColor}`
+      statColorClass
     ];
 
     // Apply effect intensity as CSS variable
     if (front) front.style.setProperty('--cf-effect-intensity', ModularState.effectIntensity);
     if (back) back.style.setProperty('--cf-effect-intensity', ModularState.effectIntensity);
+
+    // Custom stat bar color — set/clear CSS variable on both faces.
+    if (isCustomStatColor) {
+      if (front) front.style.setProperty('--cf-stat-bar-custom', statColorValue);
+      if (back) back.style.setProperty('--cf-stat-bar-custom', statColorValue);
+    } else {
+      if (front) front.style.removeProperty('--cf-stat-bar-custom');
+      if (back) back.style.removeProperty('--cf-stat-bar-custom');
+    }
 
     // Front-only classes — alignment, weight, style (these resize elements)
     const frontOnlyClasses = [

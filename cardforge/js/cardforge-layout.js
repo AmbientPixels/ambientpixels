@@ -22,57 +22,137 @@
     wireQuickPublish();
     wireCardClickToEdit();
     initMobilePreviewToggle();
+    seedEmberFields();
+  }
+
+  /* ---------------- Ember particle field ----------------
+   * Inject a .cf-ember-field into each .cf-section in the right pane.
+   * Each ember is a span with randomized inline CSS custom properties
+   * driving size, duration, delay, and horizontal drift. CSS owns the
+   * animation; this just plants the DOM seeds.
+   * Runs once at init — sections that exist after this point get
+   * tagged via the MutationObserver below so dynamically-injected
+   * panes still get embers. */
+  function seedEmberFields() {
+    document.querySelectorAll('.cf-main-pane .cf-section').forEach(seedSection);
+
+    const mainPane = document.querySelector('.cf-main-pane');
+    if (!mainPane) return;
+    const obs = new MutationObserver(function (mutations) {
+      mutations.forEach(function (m) {
+        m.addedNodes.forEach(function (node) {
+          if (node.nodeType !== 1) return;
+          if (node.matches && node.matches('.cf-section')) seedSection(node);
+          if (node.querySelectorAll) {
+            node.querySelectorAll('.cf-section').forEach(seedSection);
+          }
+        });
+      });
+    });
+    obs.observe(mainPane, { childList: true, subtree: true });
+  }
+
+  function seedSection(section) {
+    if (!section || section.querySelector(':scope > .cf-ember-field')) return;
+    const field = document.createElement('div');
+    field.className = 'cf-ember-field';
+    field.setAttribute('aria-hidden', 'true');
+    const count = 16;
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      const e = document.createElement('span');
+      e.className = 'cf-ember';
+      const left = Math.random() * 100;
+      const size = 1.5 + Math.random() * 2.5;
+      const dur = 7 + Math.random() * 7;            // 7–14s
+      const delay = -Math.random() * dur;           // negative = pre-distributed
+      const drift = -25 + Math.random() * 50;       // -25..+25 px sway
+      const peak = 0.20 + Math.random() * 0.25;     // 0.20..0.45
+      e.style.cssText =
+        'left:' + left.toFixed(1) + '%;' +
+        '--cf-ember-size:' + size.toFixed(1) + 'px;' +
+        '--cf-ember-dur:' + dur.toFixed(1) + 's;' +
+        '--cf-ember-delay:' + delay.toFixed(1) + 's;' +
+        '--cf-ember-drift:' + drift.toFixed(1) + 'px;' +
+        '--cf-ember-peak:' + peak.toFixed(2) + ';';
+      frag.appendChild(e);
+    }
+    field.appendChild(frag);
+    section.appendChild(field);
   }
 
   /* ---------------- Card click-to-edit ----------------
    * Click a region of the rendered card → jump to the rail entry
-   * that edits it. Click zones map to nav-ids:
-   *   portrait/avatar     → artwork
-   *   name/class/quote    → basics
-   *   stats / stat-bars   → stats
-   *   badges / buffs      → buffs
-   *   attributes          → attributes
-   *   rarity text/badge   → basics (rarity input lives there)
-   *   empty card surface  → cardfx (rarity border / effects)
+   * that edits it. Both faces are clickable. When the click originates
+   * from the back face we suppress the auto-flip in activate() so the
+   * card stays where the user was looking.
+   *
+   * Zone → nav-id routing:
+   *   portrait/avatar                        → artwork
+   *   name/class/quote (front or back)       → basics
+   *   biography / read-more / back-header    → basics
+   *   stats / stat-bars                      → stats
+   *   badges-container / badge-row / buffs   → buffs
+   *   attributes-container / attribute-row   → attributes
+   *   rarity text/badge                      → basics
+   *   empty card surface                     → cardfx
    */
   function wireCardClickToEdit() {
     const canvas = document.querySelector('.card-preview-canvas');
     if (!canvas) return;
-    // Delegate — card DOM re-renders a lot, so attach on the canvas.
     canvas.addEventListener('click', function (e) {
       const nav = window.CardForgeNav;
       if (!nav || typeof nav.activateById !== 'function') return;
 
+      const fromBack = !!e.target.closest('.card-back');
+      const opts = { suppressFlip: fromBack };
+
       const zone = e.target.closest(
+        // Artwork
         '.card-avatar, .card-avatar-container, .hero-image-container, ' +
         '.card-portrait, .card-image-container, .image-wrapper, ' +
+        // Basics (text on front + back, plus back-only biography)
         '.card-name, .card-class, .card-quote, ' +
+        '.back-header, .biography-section, .biography-text, .bio-read-more, ' +
+        // Stats (front)
         '.card-stats, .stat-row, .stat-item, .stat-bar, .stat-progress, .stat-name, .stat-value, ' +
+        // Badges / buffs (front + back)
         '.card-badges, .badge-row, .micro-row, [data-badge-key], .badge-card-header, ' +
+        '.badges-container, .badges-section, ' +
+        // Attributes (back)
         '.card-attributes, .attribute-row, [data-attr-key], ' +
+        '.attributes-container, .attributes-section, ' +
+        // Rarity
         '.card-rarity, [data-rarity-tag]'
       );
       if (!zone) {
-        // Clicked empty card surface → card effects
         e.stopPropagation();
-        nav.activateById('cardfx');
+        nav.activateById('cardfx', opts);
         return;
       }
       e.stopPropagation();
       if (zone.matches('.card-avatar, .card-avatar-container, .hero-image-container, .card-portrait, .card-image-container, .image-wrapper')) {
-        nav.activateById('artwork');
-      } else if (zone.matches('.card-stats, .stat-row, .stat-item, .stat-bar, .stat-progress, .stat-name, .stat-value') || zone.closest('.card-stats')) {
-        nav.activateById('stats');
-      } else if (zone.matches('.card-badges, .badge-row, .micro-row, [data-badge-key], .badge-card-header') || zone.closest('.card-badges')) {
-        nav.activateById('buffs');
-      } else if (zone.matches('.card-attributes, .attribute-row, [data-attr-key]') || zone.closest('.card-attributes')) {
-        nav.activateById('attributes');
+        nav.activateById('artwork', opts);
+      } else if (
+        zone.matches('.card-stats, .stat-row, .stat-item, .stat-bar, .stat-progress, .stat-name, .stat-value') ||
+        zone.closest('.card-stats')
+      ) {
+        nav.activateById('stats', opts);
+      } else if (
+        zone.matches('.card-badges, .badge-row, .micro-row, [data-badge-key], .badge-card-header, .badges-container, .badges-section') ||
+        zone.closest('.card-badges, .badges-container, .badges-section')
+      ) {
+        nav.activateById('buffs', opts);
+      } else if (
+        zone.matches('.card-attributes, .attribute-row, [data-attr-key], .attributes-container, .attributes-section') ||
+        zone.closest('.card-attributes, .attributes-container, .attributes-section')
+      ) {
+        nav.activateById('attributes', opts);
       } else {
-        // name / class / quote / rarity → basics
-        nav.activateById('basics');
+        // name / class / quote / bio / rarity → basics
+        nav.activateById('basics', opts);
       }
     });
-    // Visual affordance — cursor pointer on hoverable regions.
     canvas.classList.add('cf-card-clickable');
   }
 
@@ -148,7 +228,8 @@
     const cardDesignSection = document.querySelector('[data-step-section="1"]');
     if (!navButtons.length || !sections.length) return;
 
-    function activate(btn) {
+    function activate(btn, opts) {
+      opts = opts || {};
       const sectionIndex = btn.dataset.targetSection;
       const tierId = btn.dataset.targetTier;
 
@@ -178,8 +259,10 @@
       btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
 
+      // Auto-flip based on section — unless caller suppressed it, e.g. when
+      // the user clicked a back-face element and should stay on the back.
       const cardInner = document.querySelector('.card-inner');
-      if (cardInner) {
+      if (cardInner && !opts.suppressFlip) {
         if (parseInt(sectionIndex, 10) > 3) cardInner.classList.add('flipped');
         else cardInner.classList.remove('flipped');
       }
@@ -199,9 +282,9 @@
 
     window.CardForgeNav = {
       activate,
-      activateById: (id) => {
+      activateById: (id, opts) => {
         const b = document.querySelector(`.cf-rail-nav .step-btn[data-nav-id="${id}"]`);
-        if (b) activate(b);
+        if (b) activate(b, opts);
       }
     };
   }
