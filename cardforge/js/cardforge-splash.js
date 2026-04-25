@@ -186,8 +186,22 @@
   }
 
   function timeOf(card) {
-    var cd = (card && card.cardData) || card || {};
-    return Number(cd.createdAt || cd.publishedAt || cd.savedAt || cd.updatedAt || cd.timestamp || card.createdAt || 0) || 0;
+    if (!card) return 0;
+    var cd = card.cardData || {};
+    // Real published cards carry publishDate/lastModified at the TOP level
+    // as ISO strings (e.g. "2026-04-25T06:11:56.723Z"). Date.parse handles
+    // those; Number() does not. Numeric epochs in cardData also work.
+    var candidates = [
+      card.publishDate, card.lastModified, card.createdAt, card.updatedAt, card.savedAt, card.timestamp,
+      cd.publishDate, cd.lastModified, cd.createdAt, cd.updatedAt, cd.savedAt, cd.timestamp
+    ];
+    for (var i = 0; i < candidates.length; i++) {
+      var v = candidates[i];
+      if (v == null) continue;
+      var t = (typeof v === 'number') ? v : Date.parse(v);
+      if (!isNaN(t) && t > 0) return t;
+    }
+    return 0;
   }
 
   function applyHeroMode(cards, config) {
