@@ -2108,6 +2108,92 @@ body.cf-ui--neon .zone-header h3 i {
   color: #fff !important;
 }
 
+/* New trait row chrome — icon picker button + freeform name input.
+   Replaces the old dropdown + static icon preview. Mirrors the stat
+   icon picker pattern. */
+[data-step-section="4"] .micro-row { position: relative; }
+[data-step-section="4"] .trait-icon-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  flex-shrink: 0;
+  background: var(--cf-ob-bg-3);
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-ember);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+[data-step-section="4"] .trait-icon-btn:hover {
+  border-color: var(--cf-ob-ember-33);
+  background: var(--cf-ob-bg-2);
+}
+[data-step-section="4"] .trait-icon-btn i { font-size: 12px; }
+
+[data-step-section="4"] .badge-name-input {
+  flex: 1 !important;
+  min-width: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 5px 8px;
+  background: var(--cf-ob-bg-1);
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-text-1);
+  font-family: inherit;
+}
+[data-step-section="4"] .badge-name-input:focus {
+  border-color: var(--cf-ob-ember-33);
+  outline: none;
+}
+[data-step-section="4"] .badge-name-input::placeholder {
+  color: var(--cf-ob-text-mute);
+  font-style: italic;
+}
+
+/* Trait icon picker popover — sits below the row, 6-col grid of
+   FontAwesome glyphs. Hidden by default; toggled via [hidden]. */
+[data-step-section="4"] .trait-icon-picker {
+  position: absolute;
+  top: calc(100% - 8px);
+  left: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(6, 28px);
+  gap: 3px;
+  padding: 8px;
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-2);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
+}
+[data-step-section="4"] .trait-icon-picker[hidden] { display: none; }
+[data-step-section="4"] .trait-icon-option {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--cf-ob-text-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+[data-step-section="4"] .trait-icon-option i { font-size: 12px; }
+[data-step-section="4"] .trait-icon-option:hover {
+  background: var(--cf-ob-bg-3);
+  border-color: var(--cf-ob-ember-33);
+  color: var(--cf-ob-ember);
+}
+[data-step-section="4"] .trait-icon-option.selected {
+  background: var(--cf-ob-ember-dim);
+  border-color: var(--cf-ob-ember);
+  color: var(--cf-ob-ember);
+}
+
 /* ── Body: Icon Grid + Description ── */
 [data-step-section="4"] .badge-card-body {
   display: flex;

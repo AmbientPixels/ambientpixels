@@ -605,66 +605,108 @@
     return (window.EffectTiers && window.EffectTiers.BUFF_DEFS) || [];
   }
 
-  function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
-    const defs = getBuffDefs();
-    const ET = window.EffectTiers;
+  // 30 FontAwesome icons usable as trait glyphs. Stored verbatim — no
+  // "fa-" stripping — so the picker output drops directly into class
+  // strings like `fas fa-shield-halved`.
+  const TRAIT_ICON_OPTIONS = [
+    'fa-shield-halved', 'fa-bolt', 'fa-fire', 'fa-star', 'fa-crown',
+    'fa-trophy', 'fa-medal', 'fa-gem', 'fa-skull', 'fa-eye',
+    'fa-heart', 'fa-bullseye', 'fa-snowflake', 'fa-leaf', 'fa-feather',
+    'fa-anchor', 'fa-dragon', 'fa-wand-sparkles', 'fa-flask', 'fa-scroll',
+    'fa-key', 'fa-paw', 'fa-mask', 'fa-tower-observation', 'fa-chess-king',
+    'fa-hand-fist', 'fa-magnifying-glass', 'fa-moon', 'fa-sun', 'fa-award'
+  ];
 
-    // Build dropdown — only unlocked buffs are selectable, locked ones disabled
-    const categoryOptions = defs.map(def => {
-      const selected = (category.toLowerCase() === def.key) ? 'selected' : '';
-      const locked = (ET && !ET.isBuffUnlocked(def.key)) ? ' disabled' : '';
-      const lockLabel = locked ? ' [Locked]' : '';
-      return `<option value="${def.key}" ${selected}${locked}>${def.label}${lockLabel}</option>`;
+  function buildTraitIconPicker(currentIcon) {
+    return TRAIT_ICON_OPTIONS.map(name => {
+      const sel = (name === currentIcon) ? ' selected' : '';
+      const label = name.replace('fa-', '').replace(/-/g, ' ');
+      return '<button type="button" class="trait-icon-option' + sel + '" data-icon="' + name + '" title="' + label + '" aria-label="' + label + '"><i class="fas ' + name + '"></i></button>';
     }).join('');
+  }
 
-    // Resolve icon from category
-    const matchedDef = defs.find(d => d.key === category.toLowerCase());
-    const resolvedIcon = matchedDef ? matchedDef.icon : icon;
-    const displayDesc = description || (matchedDef ? matchedDef.description : '');
+  // Document-level dismiss for any open trait icon picker. Bound once.
+  if (!window._cfTraitPickerInit) {
+    window._cfTraitPickerInit = true;
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.trait-icon-picker') || e.target.closest('.trait-icon-btn')) return;
+      document.querySelectorAll('.trait-icon-picker').forEach(function (p) {
+        p.setAttribute('hidden', '');
+      });
+    });
+  }
 
-    // Qty tooltip — explains multiplier progression
-    const qtyTooltip = (ET && ET.getQtyTooltip) ? ET.getQtyTooltip() : '';
+  // Normalize legacy icon values ("star", "fire") into FA classes
+  // ("fa-star") so the new picker output and saved-card payloads
+  // share one format downstream.
+  function normalizeTraitIcon(icon) {
+    if (!icon) return 'fa-shield-halved';
+    if (icon.indexOf('fa-') === 0) return icon;
+    // Legacy shield → modern shield-halved
+    if (icon === 'shield') return 'fa-shield-halved';
+    return 'fa-' + icon;
+  }
+
+  function createBadgeRow(category = '', icon = '', description = '', quantity = 1) {
+    // Defaults are prefilled (visible placeholder text) — no dropdown,
+    // no read-only fields. User can edit name + description freely and
+    // pick from a 30-icon palette.
+    const iconClass = normalizeTraitIcon(icon);
+    const safeName = (category || 'New Trait');
+    const safeDesc = (description || 'A standout trait of this card.');
 
     const badgeRow = document.createElement('div');
     badgeRow.className = 'micro-row';
     badgeRow.innerHTML = `
       <div class="badge-card-header">
-        <span class="badge-icon-preview"><i class="fas fa-${resolvedIcon}"></i></span>
-        <select name="micro-category" class="badge-category-select" aria-label="Buff type">
-          ${categoryOptions}
-        </select>
-        <input type="hidden" name="micro-icon" value="${resolvedIcon}">
+        <button type="button" class="trait-icon-btn" aria-label="Pick trait icon" title="Pick icon">
+          <i class="fas ${iconClass}"></i>
+        </button>
+        <input type="hidden" name="micro-icon" value="${iconClass}">
+        <input type="text" name="micro-category" class="badge-name-input" placeholder="Trait name" value="${safeName.replace(/"/g, '&quot;')}" aria-label="Trait name">
         <input type="hidden" name="micro-quantity" value="${quantity}">
+        <button type="button" class="remove-micro" aria-label="Remove trait">&times;</button>
       </div>
       <div class="badge-card-body">
-        <input type="text" name="micro-desc" class="badge-desc-input" value="${displayDesc.replace(/"/g, '&quot;')}" readonly aria-label="Buff description">
+        <input type="text" name="micro-desc" class="badge-desc-input" placeholder="Description" value="${safeDesc.replace(/"/g, '&quot;')}" aria-label="Trait description">
       </div>
-      <div class="badge-card-count">
-        <span class="badge-qty-display" title="${qtyTooltip}">&times;${quantity}</span>
-      </div>
-      <button type="button" class="remove-micro" aria-label="Remove buff">&times;</button>
+      <div class="trait-icon-picker" hidden>${buildTraitIconPicker(iconClass)}</div>
     `;
 
-    const categorySelect = badgeRow.querySelector('select[name="micro-category"]');
-    const hiddenIconInput = badgeRow.querySelector('input[name="micro-icon"]');
+    const iconBtn = badgeRow.querySelector('.trait-icon-btn');
+    const iconHidden = badgeRow.querySelector('input[name="micro-icon"]');
+    const iconPreview = iconBtn.querySelector('i');
+    const picker = badgeRow.querySelector('.trait-icon-picker');
+    const nameInput = badgeRow.querySelector('input[name="micro-category"]');
     const descInput = badgeRow.querySelector('input[name="micro-desc"]');
-    const iconPreview = badgeRow.querySelector('.badge-icon-preview i');
     const removeBtn = badgeRow.querySelector('.remove-micro');
 
-    // Update icon + pre-fill description when user changes buff type
-    categorySelect.addEventListener('change', function() {
-      const def = getBuffDefs().find(d => d.key === this.value);
-      if (def) {
-        hiddenIconInput.value = def.icon;
-        iconPreview.className = `fas fa-${def.icon}`;
-        // Pre-fill description from def (user can still overwrite)
-        descInput.value = def.description;
-      }
+    iconBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const isHidden = picker.hasAttribute('hidden');
+      // Close every other open picker first
+      document.querySelectorAll('.trait-icon-picker').forEach(function (p) { p.setAttribute('hidden', ''); });
+      if (isHidden) picker.removeAttribute('hidden');
+    });
+
+    picker.addEventListener('click', function (e) {
+      const opt = e.target.closest('.trait-icon-option');
+      if (!opt) return;
+      e.stopPropagation();
+      const newIcon = opt.dataset.icon;
+      iconHidden.value = newIcon;
+      iconPreview.className = 'fas ' + newIcon;
+      picker.querySelectorAll('.trait-icon-option').forEach(function (o) {
+        o.classList.toggle('selected', o === opt);
+      });
+      picker.setAttribute('hidden', '');
       updatePreview();
     });
 
-    // Remove button
-    removeBtn.addEventListener('click', function() {
+    nameInput.addEventListener('input', updatePreview);
+    descInput.addEventListener('input', updatePreview);
+
+    removeBtn.addEventListener('click', function () {
       badgeRow.remove();
       updateBuffBtnState();
       updateBuffEmptyState();
@@ -3568,28 +3610,35 @@
   
   function generateBadgesHTML(badges) {
     if (!badges || badges.length === 0) {
-      return '<div class="no-badges">No buffs assigned</div>';
+      return '<div class="no-badges">No traits assigned</div>';
     }
 
-    // Build icon map from unified BUFF_DEFS + fallback for legacy values
-    const iconMap = {
-      star: 'fas fa-star', trophy: 'fas fa-trophy', medal: 'fas fa-medal',
-      crown: 'fas fa-crown', shield: 'fas fa-shield-alt', gem: 'fas fa-gem',
-      fire: 'fas fa-fire', heart: 'fas fa-heart', bolt: 'fas fa-bolt',
-      bullseye: 'fas fa-bullseye', target: 'fas fa-bullseye', book: 'fas fa-book'
+    // Legacy short-name → FA class fallback for previously-saved cards.
+    // New trait rows store `fa-something` directly, so most paths just
+    // pass through the `'fas ' + icon` branch below.
+    const legacyIconMap = {
+      star: 'fa-star', trophy: 'fa-trophy', medal: 'fa-medal',
+      crown: 'fa-crown', shield: 'fa-shield-halved', gem: 'fa-gem',
+      fire: 'fa-fire', heart: 'fa-heart', bolt: 'fa-bolt',
+      bullseye: 'fa-bullseye', target: 'fa-bullseye', book: 'fa-book'
     };
 
     const visible = badges.slice(0, BADGE_CAP_MAX);
     const overflow = badges.length - BADGE_CAP_MAX;
-    
+
     let html = visible.map(badge => {
-      const iconClass = iconMap[badge.icon] || 'fas fa-award';
+      const rawIcon = badge.icon || '';
+      const faName = (rawIcon.indexOf('fa-') === 0) ? rawIcon : (legacyIconMap[rawIcon] || 'fa-award');
+      const iconClass = 'fas ' + faName;
       const quantity = badge.quantity || 1;
 
-      // Resolve display label from unified BUFF_DEFS (category may be a key like 'fury')
+      // Display label: legacy cards may store category as a BUFF_DEFS
+      // key (e.g. 'fury') — look that up so the rendered chip shows
+      // the canonical "Fury" label. New cards store the raw user
+      // string and render it as-is.
       const defs = getBuffDefs();
-      const def = defs.find(d => d.key === badge.category.toLowerCase());
-      const displayLabel = def ? def.label : (badge.category.charAt(0).toUpperCase() + badge.category.slice(1));
+      const def = defs.find(d => d.key === (badge.category || '').toLowerCase());
+      const displayLabel = def ? def.label : (badge.category || '');
 
       return `
         <div class="badge-item" title="${badge.description || displayLabel}">
