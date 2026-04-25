@@ -141,7 +141,7 @@ body.cf-rail-collapsed .cf-rail {
 .cf-rail-group {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 0;
 }
 
 .cf-rail-group__label {
@@ -184,6 +184,7 @@ body.cf-rail-collapsed .cf-rail {
   border-left-color: var(--cf-ob-ember);
   font-weight: 600;
 }
+.cf-rail-nav .step-btn.active::before { content: none; }
 
 .cf-rail-nav .step-btn i {
   width: 16px;
@@ -217,8 +218,11 @@ body.cf-rail-collapsed .cf-rail {
 
 .cf-rail-footer {
   margin-top: auto;
-  padding: 12px 10px 4px;
+  padding: 12px 10px 8px;
   border-top: 1px solid var(--cf-ob-line-1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .cf-rail-footer__action {

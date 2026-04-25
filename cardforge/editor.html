@@ -177,7 +177,7 @@
         </div>
         <nav class="cf-rail-nav" role="tablist" aria-label="Card editor sections">
           <div class="cf-rail-group" data-group="start">
-            <div class="cf-rail-group__label" aria-hidden="true">◈ START</div>
+            <div class="cf-rail-group__label" aria-hidden="true">START</div>
             <button class="step-btn active" type="button" role="tab" aria-selected="true"
                     data-nav-id="presets" data-target-section="0">
               <span class="step-btn__dot" aria-hidden="true"></span>
@@ -193,7 +193,7 @@
           </div>
 
           <div class="cf-rail-group" data-group="style">
-            <div class="cf-rail-group__label" aria-hidden="true">◈ STYLE</div>
+            <div class="cf-rail-group__label" aria-hidden="true">STYLE</div>
             <button class="step-btn" type="button" role="tab" aria-selected="false"
                     data-nav-id="effects" data-target-section="1" data-target-tier="2">
               <span class="step-btn__dot" aria-hidden="true"></span>
@@ -227,7 +227,7 @@
           </div>
 
           <div class="cf-rail-group" data-group="content">
-            <div class="cf-rail-group__label" aria-hidden="true">◈ CONTENT</div>
+            <div class="cf-rail-group__label" aria-hidden="true">CONTENT</div>
             <button class="step-btn" type="button" role="tab" aria-selected="false"
                     data-nav-id="basics" data-target-section="2">
               <span class="step-btn__dot" aria-hidden="true"></span>
@@ -254,18 +254,16 @@
             </button>
           </div>
 
-          <div class="cf-rail-group" data-group="ship">
-            <div class="cf-rail-group__label" aria-hidden="true">◈ SHIP</div>
-            <button class="step-btn" type="button" role="tab" aria-selected="false"
-                    data-nav-id="forge" data-target-section="6">
-              <span class="step-btn__dot" aria-hidden="true"></span>
-              <i class="fas fa-hammer" aria-hidden="true"></i>
-              <span class="step-btn__label">Forge</span>
-            </button>
-          </div>
         </nav>
 
         <div class="cf-rail-footer">
+          <button id="forge-action-btn" class="cf-rail-footer__action" type="button"
+                  data-nav-id="forge" data-target-section="6"
+                  title="Forge — save & publish"
+                  onclick="window.CardForgeNav?.activateById('forge')">
+            <i class="fas fa-hammer" aria-hidden="true"></i>
+            <span>Forge</span>
+          </button>
           <button id="quick-build-btn" class="cf-rail-footer__action" type="button" title="Quick Build — AI-generated card" onclick="window.QuickBuild?.open()">
             <i class="fas fa-bolt" aria-hidden="true"></i>
             <span>Quick Build</span>
