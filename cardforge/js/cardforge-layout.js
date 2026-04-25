@@ -259,11 +259,16 @@
       btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
 
-      // Auto-flip based on section — unless caller suppressed it, e.g. when
-      // the user clicked a back-face element and should stay on the back.
+      // Auto-flip based on which face the section's content lives on.
+      // Stats (3) and Attributes (5) live on the back; everything else
+      // (presets/design/basics/buffs/forge) lives on the front. The
+      // suppressFlip flag is honored so back-face click-to-edit stays
+      // on the back when the user clicks something the rail maps to a
+      // front-face section (e.g. clicking name on back → basics).
+      const BACK_FACE_SECTIONS = { '3': 1, '5': 1 };
       const cardInner = document.querySelector('.card-inner');
       if (cardInner && !opts.suppressFlip) {
-        if (parseInt(sectionIndex, 10) > 3) cardInner.classList.add('flipped');
+        if (BACK_FACE_SECTIONS[sectionIndex]) cardInner.classList.add('flipped');
         else cardInner.classList.remove('flipped');
       }
 

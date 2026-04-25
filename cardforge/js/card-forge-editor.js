@@ -3729,6 +3729,22 @@
   }
 
   // ===== LAYOUT GENERATORS =====
+  // Front face now renders Traits (badges) where stats used to live.
+  // Stats moved to the back face — see updateBackFace below. The wrapper
+  // keeps `.card-stats` for positioning continuity (each layout's CSS
+  // already places that slot correctly), with `.badges-section` added so
+  // the badges-container grid picks up its existing back-face styling.
+  function frontTraitsBlock(data) {
+    var badgeCount = data.badges ? Math.min(data.badges.length, BADGE_CAP_MAX) : 0;
+    return (
+      '<div class="card-stats badges-section card-front-traits">' +
+        '<div class="badges-container" data-badge-count="' + badgeCount + '">' +
+          generateBadgesHTML(data.badges) +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   function generateHeroLayout(data) {
     return `
       <div class="card-hero-header">
@@ -3745,9 +3761,7 @@
         <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
         <div class="card-rarity">${data.rarity}</div>
         <div class="card-quote">"${data.quote}"</div>
-        <div class="card-stats">
-          ${generateStatsHTML(data.stats)}
-        </div>
+        ${frontTraitsBlock(data)}
       </div>
     `;
   }
@@ -3766,9 +3780,7 @@
         <div class="card-body">
           <div class="card-rarity">${data.rarity}</div>
           <div class="card-quote">"${data.quote}"</div>
-          <div class="card-stats">
-            ${generateStatsHTML(data.stats)}
-          </div>
+          ${frontTraitsBlock(data)}
         </div>
       </div>
     `;
@@ -3788,9 +3800,7 @@
       </div>
       <div class="card-body">
         <div class="card-quote">"${data.quote}"</div>
-        <div class="card-stats">
-          ${generateStatsHTML(data.stats)}
-        </div>
+        ${frontTraitsBlock(data)}
       </div>
     `;
   }
@@ -3804,9 +3814,7 @@
           <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
           <div class="card-rarity">${data.rarity}</div>
           <div class="card-quote">"${data.quote}"</div>
-          <div class="card-stats">
-            ${generateStatsHTML(data.stats)}
-          </div>
+          ${frontTraitsBlock(data)}
         </div>
       </div>
     `;
@@ -3824,9 +3832,7 @@
       <div class="card-body">
         <div class="card-rarity">${data.rarity}</div>
         <div class="card-quote">"${data.quote}"</div>
-        <div class="card-stats">
-          ${generateStatsHTML(data.stats)}
-        </div>
+        ${frontTraitsBlock(data)}
       </div>
     `;
   }
@@ -3843,9 +3849,7 @@
             <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
             <div class="card-rarity">${data.rarity}</div>
             <div class="card-quote">"${data.quote}"</div>
-            <div class="card-stats">
-              ${generateStatsHTML(data.stats)}
-            </div>
+            ${frontTraitsBlock(data)}
           </div>
         </div>
       </div>
@@ -3853,12 +3857,14 @@
   }
 
   // ===== BACK FACE UPDATE =====
+  // Stats moved here from the front (Traits ↔ Stats swap). Attributes
+  // stay on the back. Wrapper is `.back-section card-stats-back-section`
+  // so it picks up the back-section chrome styling, with the inner
+  // `.card-stats` div carrying the stats-bar layout rules.
   function updateBackFace(data) {
     const back = document.querySelector('.card-preview-zone .card-back');
     if (!back) return;
 
-    const badgeCount = data.badges ? Math.min(data.badges.length, BADGE_CAP_MAX) : 0;
-    
     back.innerHTML = `
     <div class="card-back-content">
       <div class="back-header">
@@ -3877,10 +3883,10 @@
         ${generateArenaRecordHTML(window._arenaProfile)}
 
         <div class="info-grid">
-          <div class="back-section badges-section">
-            <h4 class="section-title">Traits</h4>
-            <div class="badges-container" data-badge-count="${badgeCount}">
-              ${generateBadgesHTML(data.badges)}
+          <div class="back-section card-stats-back-section">
+            <h4 class="section-title">Stats</h4>
+            <div class="card-stats">
+              ${generateStatsHTML(data.stats)}
             </div>
           </div>
 
