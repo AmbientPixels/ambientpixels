@@ -152,10 +152,18 @@
     var id = entry.id || cd.id || cd.shareId || '';
     var renderedFront = cd.renderedFront || null;
     var frontClasses = cd.frontClasses || null;
+    // Preserve date fields from the wrapper so timeOf() can sort by recency.
+    // Real published cards carry publishDate/lastModified at the TOP level
+    // (not inside cardData) — without copying them through, the showcase
+    // sort silently degrades to API order (oldest first).
+    var publishDate = entry.publishDate || cd.publishDate || null;
+    var lastModified = entry.lastModified || cd.lastModified || null;
+    var createdAt = entry.createdAt || cd.createdAt || null;
     if (!name && !renderedFront) return null;
     return {
       name: name, characterClass: characterClass, avatar: avatar, id: id,
-      renderedFront: renderedFront, frontClasses: frontClasses
+      renderedFront: renderedFront, frontClasses: frontClasses,
+      publishDate: publishDate, lastModified: lastModified, createdAt: createdAt
     };
   }
 
