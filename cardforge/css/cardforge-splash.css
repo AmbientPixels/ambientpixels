@@ -652,6 +652,59 @@ body.cf-splash {
   color: inherit;
 }
 
+/* ---- Showcase carousel nav (prev/next overlay buttons) ----
+   The viewport wraps the scrolling strip + its prev/next buttons.
+   Buttons are hidden by default (the JS reveals them only when
+   there's content to scroll to in that direction). */
+.cf-splash-showcase__viewport {
+  position: relative;
+  /* Narrow the strip so it doesn't fit an integer number of cards —
+     the next card peeks ~30% on the right at scroll start, and on
+     the left once the user has scrolled. The peek signals there's
+     more content to scroll to without relying solely on the nav
+     buttons. */
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.cf-showcase-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(13, 16, 21, 0.78);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-ember);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, opacity 0.2s ease;
+}
+.cf-showcase-nav:hover,
+.cf-showcase-nav:focus-visible {
+  background: var(--cf-ob-bg-3);
+  border-color: var(--cf-ob-ember-33);
+  outline: none;
+}
+.cf-showcase-nav:active {
+  transform: translateY(-50%) scale(0.94);
+}
+.cf-showcase-nav[hidden] { display: none; }
+.cf-showcase-nav--prev { left: 12px; }
+.cf-showcase-nav--next { right: 12px; }
+@media (max-width: 520px) {
+  /* On phones the native swipe scroll is enough — overlay buttons
+     would only crowd the strip. */
+  .cf-showcase-nav { display: none; }
+}
+
 /* ---- Footer ---- */
 .cf-splash-footer {
   padding: 48px 80px 32px;

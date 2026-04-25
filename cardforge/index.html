@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425i">
   <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425i">
   <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425i">
-  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425m">
+  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425o">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
 </head>
 <body class="cf-splash" data-theme="dark">
@@ -144,9 +144,17 @@
   <section class="cf-splash-showcase">
     <h2 class="cf-splash-showcase__title">From the gallery</h2>
     <p class="cf-splash-showcase__sub">A curated cross-section of cards published by the community.</p>
-    <div class="cf-splash-showcase__strip" id="cf-showcase-strip">
-      <!-- Populated by cardforge-splash.js from /api/cardforgeloadcards.
-           Falls back to static preset cards if API empty or unreachable. -->
+    <div class="cf-splash-showcase__viewport">
+      <button type="button" class="cf-showcase-nav cf-showcase-nav--prev" id="cf-showcase-prev" aria-label="Scroll gallery left" hidden>
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <div class="cf-splash-showcase__strip" id="cf-showcase-strip">
+        <!-- Populated by cardforge-splash.js from /api/cardforgeloadcards.
+             Falls back to static preset cards if API empty or unreachable. -->
+      </div>
+      <button type="button" class="cf-showcase-nav cf-showcase-nav--next" id="cf-showcase-next" aria-label="Scroll gallery right" hidden>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </button>
     </div>
   </section>
 
@@ -183,6 +191,6 @@
     }
   </script>
 
-  <script src="js/cardforge-splash.js?v=20260425i" defer></script>
+  <script src="js/cardforge-splash.js?v=20260425n" defer></script>
 </body>
 </html>

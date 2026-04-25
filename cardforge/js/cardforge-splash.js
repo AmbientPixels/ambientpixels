@@ -321,6 +321,59 @@
                renderCardContent(c) +
              '</a>';
     }).join('');
+    updateShowcaseNav();
+  }
+
+  // ---- Showcase carousel (prev/next) ---------------------------------
+  // Buttons start hidden; this toggles them based on scroll position.
+  // 4px tolerance avoids flicker near edges from sub-pixel scroll values.
+  function updateShowcaseNav() {
+    var strip = document.getElementById('cf-showcase-strip');
+    var prev = document.getElementById('cf-showcase-prev');
+    var next = document.getElementById('cf-showcase-next');
+    if (!strip || !prev || !next) return;
+    var canScroll = strip.scrollWidth - strip.clientWidth > 4;
+    if (!canScroll) {
+      prev.hidden = true;
+      next.hidden = true;
+      return;
+    }
+    prev.hidden = strip.scrollLeft <= 4;
+    next.hidden = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 4;
+  }
+
+  function setupShowcaseCarousel() {
+    var strip = document.getElementById('cf-showcase-strip');
+    var prev = document.getElementById('cf-showcase-prev');
+    var next = document.getElementById('cf-showcase-next');
+    if (!strip || !prev || !next) return;
+
+    function pageScroll(direction) {
+      // 75% of the viewport so users see a chunk of new content while
+      // keeping ~one card of context from the previous page.
+      var amount = Math.max(240, Math.round(strip.clientWidth * 0.75));
+      strip.scrollBy({ left: direction * amount, behavior: 'smooth' });
+    }
+    prev.addEventListener('click', function () { pageScroll(-1); });
+    next.addEventListener('click', function () { pageScroll(1); });
+
+    // Throttle scroll updates with rAF — scroll fires at high frequency.
+    var scrollPending = false;
+    strip.addEventListener('scroll', function () {
+      if (scrollPending) return;
+      scrollPending = true;
+      requestAnimationFrame(function () {
+        scrollPending = false;
+        updateShowcaseNav();
+      });
+    });
+
+    // Resize can change clientWidth/scrollWidth → recompute visibility.
+    var resizeTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(updateShowcaseNav, 120);
+    });
   }
 
   // Cache the gallery so return visitors see cards instantly on page
@@ -459,6 +512,7 @@
     if (continueBtn) continueBtn.addEventListener('click', trackContinue);
 
     initAuth();
+    setupShowcaseCarousel();
     initGallery();
   }
 
