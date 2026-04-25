@@ -4260,11 +4260,17 @@ opacity: 1;
   margin: 0 !important;
   min-width: 0;
 }
-/* Effect intensity (last effect-control containing the slider) spans
-   the full 2-col grid. Using :has() so we don't depend on nth-of-type
-   which the hidden <select> elements throw off. */
+/* Both Card Glow and Effect Intensity span the full 2-col grid.
+   Background + Border stay 2-col on row 1. Using :has() to target
+   the right effect-control by content (data-target attribute on
+   the inner .effect-chips, or the intensity slider id). */
+.cf-main-pane .card-effects-section > .effect-control:has(.effect-chips[data-target="card-glow-effect"]),
 .cf-main-pane .card-effects-section > .effect-control:has(#cf-effect-intensity) {
   grid-column: 1 / -1;
+}
+/* Card Glow grid expands to 10-col since it has the full container width. */
+.cf-main-pane .card-effects-section > .effect-control:has(.effect-chips[data-target="card-glow-effect"]) .effect-chips {
+  grid-template-columns: repeat(10, 1fr) !important;
 }
 .cf-main-pane .effect-control h5,
 .cf-main-pane .effect-control label {
