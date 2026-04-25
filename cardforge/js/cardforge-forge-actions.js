@@ -102,7 +102,11 @@ class CardForgeActions {
         CardForgeActions.setPublishNavState('default');
         const pubNavBtn = document.getElementById('forge-publish-nav-btn');
         if (pubNavBtn) {
-          if (target === 'deck') {
+          if (target === 'published') {
+            // No publish action makes sense from the read-only view.
+            pubNavBtn.style.display = 'none';
+          } else if (target === 'deck') {
+            pubNavBtn.style.display = '';
             const decks = this.getSavedDecks();
             const hasDeck = decks && decks.length > 0 && this._selectedDeckId;
             pubNavBtn.innerHTML = '<span>Publish Deck</span> <i class="fas fa-share"></i>';
@@ -114,6 +118,7 @@ class CardForgeActions {
               pubNavBtn.style.cursor = 'not-allowed';
             }
           } else {
+            pubNavBtn.style.display = '';
             pubNavBtn.innerHTML = '<span>Publish</span> <i class="fas fa-share"></i>';
             pubNavBtn.setAttribute('aria-label', 'Publish card to gallery');
             pubNavBtn.disabled = false;
@@ -593,6 +598,7 @@ class CardForgeActions {
       if (okBtn) {
         observer.disconnect();
         CardForgeActions.setPublishNavState('published');
+        if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'card', action: 'publish' });
       }
     });
     observer.observe(document.body, { childList: true, subtree: true });
@@ -1852,6 +1858,7 @@ const resp = await fetch(loadUrl, {
           const dialog = document.getElementById('cardforge-dialog');
           if (dialog && dialog.classList.contains('active')) dialog.classList.remove('active');
           this.refreshGalleryDecks();
+          if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'deck', action: 'unpublish' });
         } else {
           const errData = await resp.json().catch(() => ({}));
           this.showNotification(errData.error || 'Failed to remove deck', 'error');
@@ -2410,6 +2417,7 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
       deck.shareId = shareId;
       deck.lastModified = new Date().toISOString();
       localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+      if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'deck', action: 'publish' });
 
       // Re-render deck detail so publish button updates to "Update" state
       self.renderDeckDetail(deck.id);

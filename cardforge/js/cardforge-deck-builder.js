@@ -780,6 +780,7 @@
       if (deck) {
         deck.shareId = result.shareId;
         localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+        if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'deck', action: 'publish' });
       }
 
       showToast('Deck published! Share link copied.');
