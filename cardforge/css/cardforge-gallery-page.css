@@ -1,0 +1,232 @@
+/* CardForge Gallery Page — standalone /cardforge/gallery.html.
+   Reuses the splash nav + footer chrome (cardforge-splash.css) and the
+   card render chain (cardforge-card.css + bg/border/glow/icons +
+   ui-components). Page-specific styles only — hero, filter pills,
+   card grid, loader, empty state. */
+
+.cf-gallery-page {
+  background: var(--cf-ob-bg-0, #07090c);
+  color: var(--cf-ob-text-1, #e7ebf1);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+.cf-gallery {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+}
+
+/* ── Hero ── */
+.cf-gallery__hero {
+  margin: 16px 0 32px;
+}
+.cf-gallery__title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  margin: 0 0 12px;
+}
+.cf-gallery__sub {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--cf-ob-text-2, #a6aeb9);
+  max-width: 640px;
+  margin: 0;
+}
+
+/* ── Filter pills ── */
+.cf-gallery__filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 28px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--cf-ob-line-1, rgba(255,255,255,0.05));
+}
+.cf-gallery__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  color: var(--cf-ob-text-2, #a6aeb9);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.cf-gallery__filter:hover {
+  border-color: var(--cf-ob-ember-33, rgba(255,122,26,0.33));
+  color: var(--cf-ob-text-1, #e7ebf1);
+}
+.cf-gallery__filter.is-active {
+  background: var(--cf-ob-ember-dim, rgba(255,122,26,0.12));
+  border-color: var(--cf-ob-ember, #ff7a1a);
+  color: var(--cf-ob-ember, #ff7a1a);
+}
+.cf-gallery__filter i { font-size: 11px; }
+.cf-gallery__filter__hint {
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-mute, #6b7280);
+  font-weight: 600;
+  margin-left: 4px;
+}
+.cf-gallery__count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--cf-ob-text-mute, #6b7280);
+  letter-spacing: 0.4px;
+}
+
+/* ── Loader ── */
+.cf-gallery__loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 80px 0;
+}
+.cf-gallery__loader[hidden] { display: none; }
+.cf-gallery__loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  border-top-color: var(--cf-ob-ember, #ff7a1a);
+  border-radius: 50%;
+  animation: cf-gallery-spin 0.9s linear infinite;
+  box-shadow: 0 0 18px var(--cf-ob-ember-22, rgba(255,122,26,0.22));
+}
+.cf-gallery__loader-label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-mute, #6b7280);
+}
+@keyframes cf-gallery-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .cf-gallery__loader-spinner { animation: none; }
+}
+
+/* ── Grid ── */
+.cf-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+.cf-gallery__grid[hidden] { display: none; }
+.cf-gallery__card {
+  background: transparent;
+  border: 1px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 380px;
+  transition: border-color 0.18s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+}
+.cf-gallery__card:hover,
+.cf-gallery__card:focus-visible {
+  border-color: var(--cf-ob-ember-33, rgba(255,122,26,0.33));
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 24px var(--cf-ob-ember-22, rgba(255,122,26,0.18));
+  outline: none;
+}
+.cf-gallery__card:focus-visible {
+  border-color: var(--cf-ob-ember, #ff7a1a);
+}
+
+/* Mini-card scaler — shrinks the full-size card render to fit the grid
+   tile. The card-render chain assumes ~375px width; we scale to ~80%. */
+.cf-gallery__card .mini-card-scaler {
+  --mini-card-scale: 0.78;
+  transform: scale(var(--mini-card-scale));
+  transform-origin: top center;
+  width: calc(375px * var(--mini-card-scale));
+  height: calc(525px * var(--mini-card-scale));
+}
+.cf-gallery__card .mini-card-scaler > .card-preview-canvas,
+.cf-gallery__card .mini-card-scaler > .card-front {
+  transform: none;
+  width: 375px;
+  pointer-events: none;
+}
+
+/* Fallback portrait tile for cards lacking renderedFront */
+.cf-gallery__card .cf-mini-fallback {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--cf-ob-bg-2, #1a1a2e);
+}
+.cf-gallery__card .cf-mini-fallback__portrait {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background-size: cover;
+  background-position: center top;
+}
+.cf-gallery__card .cf-mini-fallback__label {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cf-gallery__card .cf-mini-fallback__name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--cf-ob-text-1, #e7ebf1);
+}
+.cf-gallery__card .cf-mini-fallback__class {
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-mute, #6b7280);
+}
+
+/* ── Empty state ── */
+.cf-gallery__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 0;
+  text-align: center;
+}
+.cf-gallery__empty[hidden] { display: none; }
+.cf-gallery__empty-icon {
+  font-size: 48px;
+  color: var(--cf-ob-ember, #ff7a1a);
+  opacity: 0.6;
+}
+.cf-gallery__empty p {
+  font-size: 16px;
+  color: var(--cf-ob-text-2, #a6aeb9);
+  margin: 0;
+}
+
+/* Active page indicator on the nav */
+.cf-splash-nav__links a.cf-nav-active:not(.cf-btn) {
+  color: var(--cf-ob-ember, #ff7a1a);
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .cf-gallery { padding: 24px 16px 60px; }
+  .cf-gallery__grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .cf-gallery__card { min-height: 320px; padding: 12px; }
+  .cf-gallery__card .mini-card-scaler { --mini-card-scale: 0.6; }
+  .cf-gallery__count { width: 100%; margin-left: 0; }
+}

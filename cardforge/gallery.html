@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CardForge Gallery — Cards Forged by the Community</title>
+  <meta name="description" content="Browse cards forged by the CardForge community. Sort by most recent or highest rated. Click any card to inspect.">
+
+  <link rel="canonical" href="https://ambientpixels.ai/cardforge/gallery.html">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ambientpixels.ai/cardforge/gallery.html">
+  <meta property="og:title" content="CardForge Gallery">
+  <meta property="og:description" content="Cards forged by the CardForge community.">
+  <meta property="og:image" content="https://ambientpixels.ai/cardforge/images/cardforge-og.png">
+  <meta property="og:site_name" content="AmbientPixels">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#07090c">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260424v">
+  <!-- Card render chain — gallery cards use renderedFront + frontClasses
+       from the API payload, same pipeline as the splash showcase. -->
+  <link rel="stylesheet" href="css/cardforge-card.css?v=20260424v">
+  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260424v">
+  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260424v">
+  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260424v">
+  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260424v">
+  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260424v">
+  <!-- Splash CSS provides nav/footer chrome + mini-card scaler reused here. -->
+  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260424v">
+  <link rel="stylesheet" href="css/cardforge-gallery-page.css?v=20260424v">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body class="cf-gallery-page" data-theme="dark">
+
+  <header class="cf-splash-nav">
+    <a class="cf-splash-nav__brand" href="/cardforge/">CardForge</a>
+    <div class="cf-splash-nav__links">
+      <a href="/cardforge/gallery.html" class="cf-nav-active" aria-current="page">Gallery</a>
+      <a href="/cardforge/deck.html">Decks</a>
+      <button id="cf-login-btn" class="cf-splash-nav__auth cf-splash-nav__auth--login" type="button" hidden>
+        <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
+        <span>Sign in</span>
+      </button>
+      <div id="cf-user-status" class="cf-splash-nav__auth cf-splash-nav__auth--user" hidden>
+        <i class="fas fa-user-circle" aria-hidden="true"></i>
+        <span class="cf-splash-nav__user-name"></span>
+      </div>
+      <a href="/cardforge/editor.html" class="cf-btn cf-btn--primary">
+        <i class="fas fa-hammer"></i> Open Editor
+      </a>
+    </div>
+  </header>
+
+  <main class="cf-gallery">
+    <section class="cf-gallery__hero">
+      <h1 class="cf-gallery__title">Gallery</h1>
+      <p class="cf-gallery__sub">Cards forged by the community. Click any card to inspect, flip, share, or open in the editor.</p>
+    </section>
+
+    <div class="cf-gallery__filters" role="tablist" aria-label="Sort gallery">
+      <button class="cf-gallery__filter is-active" data-sort="recent" role="tab" aria-selected="true" type="button">
+        <i class="fas fa-clock" aria-hidden="true"></i> Most Recent
+      </button>
+      <button class="cf-gallery__filter" data-sort="rated" role="tab" aria-selected="false" type="button">
+        <i class="fas fa-star" aria-hidden="true"></i> Highest Rated
+        <span class="cf-gallery__filter__hint">soon</span>
+      </button>
+      <button class="cf-gallery__filter" data-sort="all" role="tab" aria-selected="false" type="button">
+        <i class="fas fa-grip" aria-hidden="true"></i> All Cards
+      </button>
+      <span class="cf-gallery__count" id="cf-gallery-count" aria-live="polite"></span>
+    </div>
+
+    <div id="cf-gallery-loader" class="cf-gallery__loader" aria-label="Loading gallery">
+      <div class="cf-gallery__loader-spinner"></div>
+      <span class="cf-gallery__loader-label">Firing up the forge…</span>
+    </div>
+
+    <div id="cf-gallery-grid" class="cf-gallery__grid" role="tabpanel" hidden>
+      <!-- Populated by cardforge-gallery-page.js -->
+    </div>
+
+    <div id="cf-gallery-empty" class="cf-gallery__empty" hidden>
+      <i class="fas fa-hammer cf-gallery__empty-icon" aria-hidden="true"></i>
+      <p>No cards forged yet.</p>
+      <a class="cf-btn cf-btn--primary" href="/cardforge/editor.html">Forge the first one</a>
+    </div>
+  </main>
+
+  <footer class="cf-splash-footer">
+    <div>&copy; 2026 AmbientPixels &middot; CardForge</div>
+    <div>
+      <a href="/cardforge/gallery.html">Gallery</a>
+      <a href="/cardforge/deck.html">Decks</a>
+      <a href="/cardforge/editor.html">Editor</a>
+    </div>
+  </footer>
+
+  <!-- Lightbox markup — required by cardforge-lightbox.js. Mirrors editor.html. -->
+  <div id="cardforge-lightbox">
+    <div class="lightbox-inner">
+      <button id="lightbox-close" class="lightbox-btn close-btn" title="Close (Esc)">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="lightbox-card-toolbar">
+        <span id="lightbox-card-title" class="lightbox-card-title"></span>
+        <span id="lightbox-counter" class="lightbox-counter"></span>
+        <button id="lightbox-flip" class="lightbox-btn flip-btn" title="Flip Card (F)">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      <div class="lightbox-card-row">
+        <div class="lightbox-nav prev">
+          <button id="lightbox-prev" class="lightbox-btn" title="Previous (←)">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </div>
+        <div id="lightbox-card-container"></div>
+        <div class="lightbox-nav next">
+          <button id="lightbox-next" class="lightbox-btn" title="Next (→)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="lightbox-actions">
+        <div class="cf-share-panel" id="lightbox-share-panel">
+          <button id="lightbox-copy-link" class="cf-share-btn cf-share-btn--copy" title="Copy Link">
+            <i class="fas fa-link"></i> Copy Link
+          </button>
+          <button id="lightbox-share-x" class="cf-share-btn cf-share-btn--x" title="Share on X">
+            <i class="fab fa-x-twitter"></i> X
+          </button>
+          <button id="lightbox-share-reddit" class="cf-share-btn cf-share-btn--reddit" title="Share on Reddit">
+            <i class="fab fa-reddit-alien"></i> Reddit
+          </button>
+          <button id="lightbox-share-discord" class="cf-share-btn cf-share-btn--discord" title="Copy for Discord">
+            <i class="fab fa-discord"></i> Discord
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Telemetry -->
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
+  <script>
+    if (window.ProductAnalytics && typeof window.ProductAnalytics.init === 'function') {
+      window.ProductAnalytics.init('cardforge-gallery');
+    }
+  </script>
+
+  <!-- Card config + lightbox + page logic -->
+  <script src="js/config.js?v=20260424v" defer></script>
+  <script src="js/cardforge-lightbox.js?v=20260424v" defer></script>
+  <script src="js/cardforge-gallery-page.js?v=20260424v" defer></script>
+</body>
+</html>
