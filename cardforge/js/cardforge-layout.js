@@ -104,8 +104,10 @@
       const nav = window.CardForgeNav;
       if (!nav || typeof nav.activateById !== 'function') return;
 
-      const fromBack = !!e.target.closest('.card-back');
-      const opts = { suppressFlip: fromBack };
+      // Click-to-edit always suppresses the rail's auto-flip — the user
+      // clicked something they could see, flipping away from that face
+      // is disorienting. (Rail nav clicks still auto-flip as usual.)
+      const opts = { suppressFlip: true };
 
       const zone = e.target.closest(
         // Artwork
@@ -114,11 +116,14 @@
         // Basics (text on front + back, plus back-only biography)
         '.card-name, .card-class, .card-quote, ' +
         '.back-header, .biography-section, .biography-text, .bio-read-more, ' +
+        // Badges / buffs (front + back) — checked BEFORE stats because the
+        // .badges-container on the front face is wrapped in a div that
+        // also carries .card-stats (.card-stats.badges-section.card-front-traits),
+        // which would otherwise match the stats branch first.
+        '.card-badges, .badge-row, .badge-item, .micro-row, [data-badge-key], .badge-card-header, ' +
+        '.badges-container, .badges-section, ' +
         // Stats (front)
         '.card-stats, .stat-row, .stat-item, .stat-bar, .stat-progress, .stat-name, .stat-value, ' +
-        // Badges / buffs (front + back)
-        '.card-badges, .badge-row, .micro-row, [data-badge-key], .badge-card-header, ' +
-        '.badges-container, .badges-section, ' +
         // Attributes (back)
         '.card-attributes, .attribute-row, [data-attr-key], ' +
         '.attributes-container, .attributes-section, ' +
@@ -134,15 +139,16 @@
       if (zone.matches('.card-avatar, .card-avatar-container, .hero-image-container, .card-portrait, .card-image-container, .image-wrapper')) {
         nav.activateById('artwork', opts);
       } else if (
+        // Badges first — overlapping ancestor with .card-stats wrapper
+        zone.matches('.card-badges, .badge-row, .badge-item, .micro-row, [data-badge-key], .badge-card-header, .badges-container, .badges-section') ||
+        zone.closest('.card-badges, .badges-container, .badges-section')
+      ) {
+        nav.activateById('buffs', opts);
+      } else if (
         zone.matches('.card-stats, .stat-row, .stat-item, .stat-bar, .stat-progress, .stat-name, .stat-value') ||
         zone.closest('.card-stats')
       ) {
         nav.activateById('stats', opts);
-      } else if (
-        zone.matches('.card-badges, .badge-row, .micro-row, [data-badge-key], .badge-card-header, .badges-container, .badges-section') ||
-        zone.closest('.card-badges, .badges-container, .badges-section')
-      ) {
-        nav.activateById('buffs', opts);
       } else if (
         zone.matches('.card-attributes, .attribute-row, [data-attr-key], .attributes-container, .attributes-section') ||
         zone.closest('.card-attributes, .attributes-container, .attributes-section')
