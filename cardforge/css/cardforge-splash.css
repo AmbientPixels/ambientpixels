@@ -33,16 +33,31 @@ body.cf-splash {
 }
 
 .cf-splash-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: 'Unbounded', sans-serif;
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--cf-ob-ember);
+}
+.cf-splash-nav__brand > span {
   background: linear-gradient(135deg, var(--cf-ob-ember), var(--cf-ob-ember-soft));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  text-transform: uppercase;
-  text-decoration: none;
+}
+.cf-splash-nav__brand-mark {
+  font-size: 22px;
+  color: var(--cf-ob-ember);
+  filter: drop-shadow(0 0 8px var(--cf-ob-ember-33, rgba(255, 122, 26, 0.33)));
+  transition: filter 0.2s ease;
+}
+.cf-splash-nav__brand:hover .cf-splash-nav__brand-mark {
+  filter: drop-shadow(0 0 14px var(--cf-ob-ember-33, rgba(255, 122, 26, 0.55)));
 }
 
 .cf-splash-nav__links {
