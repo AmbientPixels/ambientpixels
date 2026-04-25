@@ -50,7 +50,7 @@ body.cf-splash {
   gap: 18px;
   align-items: center;
 }
-.cf-splash-nav__links a {
+.cf-splash-nav__links a:not(.cf-btn) {
   color: var(--cf-ob-text-2);
   text-decoration: none;
   font-size: 13px;
@@ -58,7 +58,7 @@ body.cf-splash {
   padding: 6px 10px;
   transition: color 0.15s, background 0.15s;
 }
-.cf-splash-nav__links a:hover { color: var(--cf-ob-text-1); background: rgba(255, 255, 255, 0.04); }
+.cf-splash-nav__links a:not(.cf-btn):hover { color: var(--cf-ob-text-1); background: rgba(255, 255, 255, 0.04); }
 
 .cf-splash-nav__auth {
   display: inline-flex;
