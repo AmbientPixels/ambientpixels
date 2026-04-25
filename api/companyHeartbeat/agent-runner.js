@@ -1074,6 +1074,61 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
+  // REVIEW LOOP CONVERGENCE ESCALATION: tasks stuck in 'review' status with 5+ deliverables.
+  // The peer-review injection (line 1037) excludes tasks with >=5 deliverables to prevent
+  // infinite revision loops. Without this scan those tasks become unreviewable AND invisible
+  // to the todo/in-progress convergence escalation above (which never sees 'review' status).
+  // Each agent catches their own stuck-in-review tasks; AQ + comment dedup prevents repeats.
+  {
+    var _reviewStuck = (agentTasks || []).filter(function (t) {
+      if (t.status !== 'review') return false;
+      var _rsCount = (t.comments || []).filter(function (c) { return c.type === 'deliverable'; }).length;
+      return _rsCount >= 5;
+    });
+    for (var _rsi = 0; _rsi < _reviewStuck.length; _rsi++) {
+      var _rsTask = _reviewStuck[_rsi];
+      var _rsDels = (_rsTask.comments || []).filter(function (c) { return c.type === 'deliverable'; });
+      if (!_rsTask.comments) _rsTask.comments = [];
+      var _rsAlreadyEscalated = _rsTask.comments.some(function (c) {
+        return (c.text || '').indexOf('Review loop detected') !== -1 && c.type === 'system';
+      });
+      if (!_rsAlreadyEscalated) {
+        _rsTask.comments.push({
+          id: 'cmt-revloopesc-' + Date.now() + '-' + _rsi,
+          author: 'system',
+          type: 'system',
+          createdAt: new Date().toISOString(),
+          text: '[SYSTEM] Review loop detected: ' + _rsDels.length + ' deliverables stuck in review without convergence. Peer reviewers are no longer eligible to inject (>=5 deliverables). CEO must approve the latest draft, provide direction, or close this task.'
+        });
+        _rsTask.updatedAt = new Date().toISOString();
+        context.log('[Heartbeat] REVIEW LOOP ESCALATION:', _rsTask.id, '—', _rsDels.length, 'deliverables, stuck in review, escalating to CEO');
+        try {
+          var _rsAQ = (await storage.getState('approvalQueue')) || [];
+          var _rsAlreadyInQueue = _rsAQ.some(function (q) {
+            return q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending';
+          });
+          if (!_rsAlreadyInQueue) {
+            _rsAQ.push({
+              id: 'aq-revloopesc-' + _rsTask.id + '-' + Date.now(),
+              type: 'convergence_escalation',
+              taskId: _rsTask.id,
+              taskTitle: _rsTask.title || _rsTask.id,
+              originAgent: _rsTask.assignee || agentId,
+              attempts: _rsDels.length,
+              status: 'pending',
+              createdAt: new Date().toISOString()
+            });
+            if (_rsAQ.length > 100) _rsAQ.splice(0, _rsAQ.length - 100);
+            await storage.setState('approvalQueue', _rsAQ);
+            context.log('[Heartbeat] REVIEW LOOP ESCALATION: added to approvalQueue for task', _rsTask.id);
+          }
+        } catch (_rsErr) {
+          context.log('[Heartbeat] REVIEW LOOP ESCALATION: approvalQueue write failed (non-fatal):', String(_rsErr).substring(0, 200));
+        }
+      }
+    }
+  }
+
   // ECHO DONE-TASK SOCIAL INJECTION: for done Echo social tasks,
   // inject create-social-action so the post reaches CEO approval queue.
   // If no reviewed_copy exists, the copy review gate creates a Scribe task.
