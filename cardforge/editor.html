@@ -1447,22 +1447,15 @@
       <div class="cf-section" data-step-section="3">
         <h3 class="cf-section-title">Stats</h3>
         <div class="stats-panel">
-          <!-- Combat Stats (fixed, always present) -->
-          <div class="arena-combat-stats">
-            <div class="arena-combat-stats__header">
-              <span class="arena-combat-stats__label"><i class="fas fa-shield-halved"></i> Combat Stats</span>
-            </div>
-            <div id="combat-stats-editor">
-              <!-- 5 fixed combat stat rows injected by JS -->
-            </div>
-          </div>
-          <!-- Custom Stats (freeform, optional) -->
+          <!-- Custom Stats (freeform). Combat stats removed —
+               CardForge no longer ships the fixed STR/AGI/INT/END/LCK
+               picker that was tied to Blindspot game integration. -->
           <div class="arena-custom-stats">
-            <div class="arena-custom-stats__label">Custom Stats <span class="arena-custom-stats__hint">(visual only, no combat effect)</span></div>
+            <div class="arena-custom-stats__label">Card Stats</div>
             <div id="stats-editor">
               <!-- Freeform custom stats here -->
             </div>
-            <button type="button" id="add-stat-btn" class="add-stat-btn">+ Add Custom Stat</button>
+            <button type="button" id="add-stat-btn" class="add-stat-btn">+ Add Stat</button>
           </div>
           <!-- Stat Bar Color -->
           <div class="container-level" style="margin-top:1rem">

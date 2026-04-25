@@ -284,7 +284,7 @@
           const migrated = migrateLegacyStats(prefillData.stats);
           setCombatStatValues(migrated.combat);
           migrated.custom.forEach(stat => {
-            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+            statsContainer.appendChild(createStatRow(stat.name, stat.value, stat.icon || ''));
           });
         } else {
           // Only load custom stats (filter out combat stat names)
@@ -292,7 +292,7 @@
             const nameLower = (s.name || '').toLowerCase().trim();
             return !COMBAT_STAT_DEFS.some(d => d.label.toLowerCase() === nameLower);
           }).forEach(stat => {
-            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+            statsContainer.appendChild(createStatRow(stat.name, stat.value, stat.icon || ''));
           });
         }
       }
@@ -354,12 +354,35 @@
     }
   }
   
+  // ===== STAT ICON PICKER =====
+  // Common FontAwesome icons users can pick per stat. Keep small —
+  // a curated set is more usable than the full FA library.
+  const STAT_ICON_OPTIONS = [
+    'fa-star', 'fa-bolt', 'fa-fire', 'fa-snowflake', 'fa-droplet', 'fa-leaf',
+    'fa-shield-halved', 'fa-gavel', 'fa-hammer', 'fa-crosshairs', 'fa-bullseye',
+    'fa-heart', 'fa-heart-pulse', 'fa-brain', 'fa-eye', 'fa-skull',
+    'fa-wand-magic-sparkles', 'fa-dragon', 'fa-paw', 'fa-feather',
+    'fa-gem', 'fa-coins', 'fa-key', 'fa-anchor', 'fa-compass',
+    'fa-hourglass', 'fa-mountain', 'fa-wind', 'fa-sun', 'fa-moon'
+  ];
+
+  function buildStatIconPicker(currentIcon) {
+    return STAT_ICON_OPTIONS.map(ic =>
+      `<button type="button" class="stat-icon-option${ic === currentIcon ? ' selected' : ''}" data-icon="${ic}" title="${ic.replace('fa-','').replace(/-/g,' ')}">` +
+        `<i class="fas ${ic}"></i>` +
+      `</button>`
+    ).join('');
+  }
+
   // ===== DYNAMIC ROW CREATION HELPERS =====
-  function createStatRow(name = '', value = 0) {
+  function createStatRow(name = '', value = 0, icon = '') {
     const statRow = document.createElement('div');
     statRow.className = 'stat-row';
     statRow.innerHTML = `
       <div class="stat-header">
+        <button type="button" class="stat-icon-btn" aria-label="Pick stat icon" title="Pick stat icon">
+          <i class="fas ${icon || 'fa-star'}"></i>
+        </button>
         <input type="text" name="stat-name" placeholder="Stat name" value="${name}" />
         <span class="stat-value-display">${value}</span>
         <button type="button" class="remove-attribute">&times;</button>
@@ -367,13 +390,21 @@
       <div class="stat-control">
         <input type="range" name="stat-value" min="0" max="100" value="${value}" class="stat-slider" aria-label="Stat value" />
       </div>
+      <input type="hidden" name="stat-icon" value="${icon || ''}" />
+      <div class="stat-icon-picker" hidden>
+        ${buildStatIconPicker(icon)}
+      </div>
     `;
-    
+
     // Add event listeners for the new row
     const slider = statRow.querySelector('.stat-slider');
     const display = statRow.querySelector('.stat-value-display');
     const removeBtn = statRow.querySelector('.remove-attribute');
-    
+    const iconBtn = statRow.querySelector('.stat-icon-btn');
+    const iconBtnIcon = iconBtn.querySelector('i');
+    const iconHidden = statRow.querySelector('input[name="stat-icon"]');
+    const iconPicker = statRow.querySelector('.stat-icon-picker');
+
     slider.style.setProperty('--fill', value + '%');
 
     slider.addEventListener('input', function() {
@@ -381,19 +412,46 @@
       this.style.setProperty('--fill', this.value + '%');
       updatePreview();
     });
-    
-    // Name edits: no animation needed — just re-render and snap (debounced for typing)
+
     statRow.querySelector('input[name="stat-name"]').addEventListener('input', updatePreviewDebounced);
-    
+
     removeBtn.addEventListener('click', function() {
       statRow.remove();
       _statAnimationNeeded = true;
       updatePreview();
       updateStatBtnState();
     });
-    
+
+    // Icon picker — toggle popover, pick an icon, close on outside click.
+    iconBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      // Close all other open pickers first
+      document.querySelectorAll('.stat-icon-picker:not([hidden])').forEach(el => {
+        if (el !== iconPicker) el.hidden = true;
+      });
+      iconPicker.hidden = !iconPicker.hidden;
+    });
+
+    iconPicker.addEventListener('click', function (e) {
+      const opt = e.target.closest('.stat-icon-option');
+      if (!opt) return;
+      const newIcon = opt.dataset.icon;
+      iconHidden.value = newIcon;
+      iconBtnIcon.className = 'fas ' + newIcon;
+      iconPicker.querySelectorAll('.stat-icon-option.selected').forEach(el => el.classList.remove('selected'));
+      opt.classList.add('selected');
+      iconPicker.hidden = true;
+      updatePreview();
+    });
+
     return statRow;
   }
+
+  // Close any open icon picker when clicking outside
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.stat-icon-picker, .stat-icon-btn')) return;
+    document.querySelectorAll('.stat-icon-picker:not([hidden])').forEach(el => { el.hidden = true; });
+  });
 
   // ===== COMBAT STAT SYSTEM (Arena) =====
   const COMBAT_STAT_DEFS = [
@@ -934,7 +992,7 @@
         return !COMBAT_STAT_DEFS.some(d => d.label.toLowerCase() === nameLower);
       });
       customStats.forEach(stat => {
-        statsContainer.appendChild(createStatRow(stat.name, stat.value));
+        statsContainer.appendChild(createStatRow(stat.name, stat.value, stat.icon || ''));
       });
     }
 
@@ -1855,14 +1913,14 @@
           const migrated = migrateLegacyStats(sampleData.stats);
           setCombatStatValues(migrated.combat);
           migrated.custom.forEach(stat => {
-            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+            statsContainer.appendChild(createStatRow(stat.name, stat.value, stat.icon || ''));
           });
         } else {
           sampleData.stats.filter(s => {
             const nameLower = (s.name || '').toLowerCase().trim();
             return !COMBAT_STAT_DEFS.some(d => d.label.toLowerCase() === nameLower);
           }).forEach(stat => {
-            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+            statsContainer.appendChild(createStatRow(stat.name, stat.value, stat.icon || ''));
           });
         }
       }
@@ -2972,24 +3030,18 @@
 
   // ===== CARD CONTENT UPDATE =====
   function updateCardContent() {
-    // Collect all data first
-    const combatStatsData = collectCombatStatsData();
+    // Collect all data first. Combat-stats path removed: CardForge
+    // no longer ships fixed STR/AGI/INT/END/LCK. Stats are now
+    // user-authored only.
     const customStatsData = collectStatsData();
     const badgesData = collectBadgesData();
     const attributesData = collectAttributesData();
-
-    // Build combined stats array: combat stats (with fixed names) + custom stats
-    const combatStatsArray = COMBAT_STAT_DEFS.map(def => ({
-      name: def.label,
-      value: combatStatsData[def.key] || COMBAT_DEFAULT_VALUE
-    }));
-    const allStats = combatStatsArray.concat(customStatsData);
 
     // Collect biography separately
     const biographyField = document.getElementById('card-bio');
     const biography = biographyField?.value?.trim() || '';
 
-    // Build complete card data object
+    // Build complete card data object — combatStats field omitted.
     const cardData = {
       name: document.getElementById('card-name')?.value || 'Aria Shadowbane',
       characterClass: document.getElementById('card-class')?.value || '',
@@ -2998,8 +3050,7 @@
       quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
       avatar: document.getElementById('card-avatar')?.value || '',
       biography: biography,
-      combatStats: combatStatsData,
-      stats: allStats,
+      stats: customStatsData,
       badges: badgesData,
       attributes: attributesData
     };
@@ -3219,18 +3270,21 @@
   function collectStatsData() {
     const statsContainer = document.getElementById('stats-editor');
     const stats = [];
-    
+
     if (statsContainer) {
       const statRows = statsContainer.querySelectorAll('.stat-row');
       statRows.forEach(row => {
         const nameInput = row.querySelector('input[name="stat-name"]');
         const valueInput = row.querySelector('input[name="stat-value"]');
-        
+        const iconInput = row.querySelector('input[name="stat-icon"]');
+
         if (nameInput && valueInput && nameInput.value.trim()) {
-          stats.push({
+          const entry = {
             name: nameInput.value.trim(),
             value: parseInt(valueInput.value) || 0
-          });
+          };
+          if (iconInput && iconInput.value) entry.icon = iconInput.value;
+          stats.push(entry);
         }
       });
     }
@@ -3422,65 +3476,31 @@
       return '<div class="no-stats">No stats available</div>';
     }
 
-    // Separate combat stats from custom stats
-    const combatNames = COMBAT_STAT_DEFS.map(d => d.label.toLowerCase());
-    const combatStats = [];
-    const customStats = [];
+    // Combat-stats path removed — render only user-authored stats.
+    // Each stat is { name, value, icon? }. The optional icon is a
+    // FontAwesome class string (set by the per-stat icon picker).
+    const visible = stats.slice(0, CUSTOM_STAT_CAP);
+    const overflow = stats.length - CUSTOM_STAT_CAP;
 
-    stats.forEach(stat => {
-      const nameLower = (stat.name || '').toLowerCase().trim();
-      const combatDef = COMBAT_STAT_DEFS.find(d => d.label.toLowerCase() === nameLower);
-      if (combatDef) {
-        combatStats.push({ ...stat, icon: combatDef.icon, color: combatDef.color });
-      } else {
-        customStats.push(stat);
-      }
-    });
-
-    let html = '';
-
-    // Render combat stats first (all 5, with icons)
-    if (combatStats.length > 0) {
-      html += combatStats.map(stat => {
-        const raw = Number(stat.value);
-        const v = Number.isFinite(raw) ? raw : 0;
-        const percentage = Math.max(0, Math.min(100, v));
-        return `
-          <div class="stat-item stat-item--combat">
-            <div class="stat-label"><i class="fas ${stat.icon}" style="color:${stat.color};margin-right:4px"></i>${stat.name} <span class="stat-value">${Math.round(v)}</span></div>
-            <div class="stat-bar">
-              <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
-            </div>
+    let html = visible.map(stat => {
+      const raw = Number(stat.value);
+      const v = Number.isFinite(raw) ? raw : 0;
+      const percentage = Math.max(0, Math.min(100, v));
+      const iconHtml = stat.icon
+        ? `<i class="fas ${stat.icon}" style="margin-right:4px;color:var(--cf-ob-ember,#ff7a1a)"></i>`
+        : '';
+      return `
+        <div class="stat-item">
+          <div class="stat-label">${iconHtml}${stat.name} <span class="stat-value">${Math.round(v)}</span></div>
+          <div class="stat-bar">
+            <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
           </div>
-        `;
-      }).join('');
-    }
+        </div>
+      `;
+    }).join('');
 
-    // Render custom stats with separator
-    if (customStats.length > 0) {
-      if (combatStats.length > 0) {
-        html += '<div class="stats-separator"><span>Custom</span></div>';
-      }
-      const visible = customStats.slice(0, CUSTOM_STAT_CAP);
-      const overflow = customStats.length - CUSTOM_STAT_CAP;
-
-      html += visible.map(stat => {
-        const raw = Number(stat.value);
-        const v = Number.isFinite(raw) ? raw : 0;
-        const percentage = Math.max(0, Math.min(100, v));
-        return `
-          <div class="stat-item">
-            <div class="stat-label">${stat.name} <span class="stat-value">${Math.round(v)}</span></div>
-            <div class="stat-bar">
-              <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      if (overflow > 0) {
-        html += `<div class="stats-overflow-indicator">+${overflow} more</div>`;
-      }
+    if (overflow > 0) {
+      html += `<div class="stats-overflow-indicator">+${overflow} more</div>`;
     }
 
     return html;
