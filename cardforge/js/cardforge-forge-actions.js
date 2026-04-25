@@ -230,7 +230,32 @@ class CardForgeActions {
   // ===================
   // SAVE CARD
   // ===================
-  
+
+  /**
+   * Returns a clone of the savedCard with cardData.avatar replaced by a
+   * tiny placeholder if it's a large data URI (typical of AI-generated
+   * images with embedded C2PA signatures — 2-4 MB each). Cloud storage
+   * always gets the full image; this stripped version is what we cache
+   * in localStorage so we don't blow the 5-10 MB per-origin quota.
+   *
+   * Threshold: 100 KB. AI-gen avatars are typically 1-4 MB; user-uploaded
+   * images via URL stay tiny because they're URLs not base64.
+   */
+  _stripLargeAvatar(savedCard) {
+    if (!savedCard || !savedCard.cardData) return savedCard;
+    var avatar = savedCard.cardData.avatar;
+    if (!avatar || typeof avatar !== 'string') return savedCard;
+    if (!avatar.startsWith('data:')) return savedCard;
+    if (avatar.length < 100 * 1024) return savedCard;
+    var clone = Object.assign({}, savedCard);
+    clone.cardData = Object.assign({}, savedCard.cardData, {
+      avatar: '',
+      _avatarStripped: true,
+      _avatarStrippedAt: new Date().toISOString()
+    });
+    return clone;
+  }
+
   async handleSaveCard() {
     
     try {
@@ -302,10 +327,14 @@ class CardForgeActions {
           if (!response.ok) throw new Error('Azure save failed');
           await response.json().catch(() => ({}));
           this.showNotification(`Card "${savedCard.name}" saved to cloud`, 'success');
-          // Also cache locally for offline
+          // Also cache locally for offline. Strip large AI-generated avatars
+          // — cloud has the full image, local just needs metadata for the
+          // My Cards list. Otherwise a few AI cards blow the localStorage
+          // quota (typically 5-10 MB per origin).
+          const cacheCard = this._stripLargeAvatar(savedCard);
           const existingIndex = savedCards.findIndex(card => card.id === cardId);
-          if (existingIndex >= 0) savedCards[existingIndex] = savedCard;
-          else savedCards.unshift(savedCard);
+          if (existingIndex >= 0) savedCards[existingIndex] = cacheCard;
+          else savedCards.unshift(cacheCard);
           try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards)); } catch (_) {}
           // Clear card-id so the next save creates a new card
           if (idField) idField.value = '';
@@ -315,13 +344,15 @@ class CardForgeActions {
           }
         })
         .catch(() => {
-          // Cloud failed — fall back to local
+          // Cloud failed — fall back to local. Strip large avatars to
+          // avoid blowing localStorage quota (see note above).
+          const cacheCard = this._stripLargeAvatar(savedCard);
           const existingIndex = savedCards.findIndex(card => card.id === cardId);
           if (existingIndex >= 0) {
-            savedCards[existingIndex] = savedCard;
+            savedCards[existingIndex] = cacheCard;
             this.showNotification(`Card "${savedCard.name}" updated locally`, 'warning');
           } else {
-            savedCards.unshift(savedCard);
+            savedCards.unshift(cacheCard);
             this.showNotification(`Card "${savedCard.name}" saved locally`, 'warning');
           }
           try {
@@ -340,13 +371,18 @@ class CardForgeActions {
           }
         });
       } else {
-        // Signed-out experience: local-only save
+        // Signed-out experience: local-only save. Note: stripping avatars
+        // here means signed-out users CAN'T re-edit AI-generated cards
+        // after they're stripped (the source data is gone). Trade-off
+        // accepted — without stripping a single AI card fills the quota.
+        // Signed-in users can re-fetch the full card from cloud on load.
+        const cacheCard = this._stripLargeAvatar(savedCard);
         const existingIndex = savedCards.findIndex(card => card.id === cardId);
         if (existingIndex >= 0) {
-          savedCards[existingIndex] = savedCard;
+          savedCards[existingIndex] = cacheCard;
           this.showNotification(`Card "${savedCard.name}" saved locally (sign in to sync)`, 'info');
         } else {
-          savedCards.unshift(savedCard);
+          savedCards.unshift(cacheCard);
           this.showNotification(`Card "${savedCard.name}" saved locally (sign in to sync)`, 'info');
         }
         try {
@@ -555,12 +591,12 @@ class CardForgeActions {
         cardId = match ? match.id : null;
       }
       if (!cardId) {
-        // Auto-save SYNCHRONOUSLY to localStorage so we have a stable ID
-        // immediately, then publish. handleSaveCard() still fires for the
-        // cloud sync, but we don't race its async fetch — publish only
-        // needs the local entry to exist. Previous flow used a 500ms
-        // setTimeout which lost the race when the cloud POST took longer
-        // (always, with multi-MB base64 avatars).
+        // Auto-save: write a stripped (avatar-less) version to localStorage
+        // for the My Cards UI, but stash the FULL cardData on the global
+        // window.cardForgeActions._publishingFullCard so cardforge-publish.js
+        // can send the full payload inline to the publish API. This avoids
+        // the localStorage quota wall (multi-MB AI avatars don't fit) AND
+        // the race against the background cloud sync.
         cardId = this.generateCardId();
         if (idField) idField.value = cardId;
         const newSavedCard = {
@@ -572,20 +608,24 @@ class CardForgeActions {
           isPublished: false,
           deckIds: []
         };
-        savedCards.unshift(newSavedCard);
+        // Stash the FULL card so publishCard can send it inline.
+        this._publishingFullCard = { id: cardId, savedCard: newSavedCard };
+        // Strip large avatars before localStorage write — cloud has the full.
+        const cacheCard = this._stripLargeAvatar(newSavedCard);
+        savedCards.unshift(cacheCard);
         try {
           localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
         } catch (storageErr) {
-          // Quota exceeded — prune oldest and retry once. Mirrors handleSaveCard's pattern.
           console.warn('[CardForge] localStorage quota exceeded during auto-save-on-publish, pruning oldest cards');
           while (savedCards.length > 20) savedCards.pop();
           try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards)); }
           catch (_) {
-            this.showNotification('Storage full — please delete some saved cards', 'error');
-            return;
+            // Even with stripping + pruning, quota is full. Publish can
+            // still proceed via the in-memory stash, so continue.
+            console.warn('[CardForge] localStorage still full after stripping + pruning; publish will use in-memory stash only');
           }
         }
-        // Fire the cloud sync in the background (don't await — publish proceeds immediately).
+        // Fire the cloud sync in the background (full data goes to cloud).
         try { this.handleSaveCard(); } catch (_) {}
         this._doPublishCard(cardId);
         return;

@@ -67,9 +67,17 @@ async function publishCard() {
                 return userInfo.userId || 'anonymous';
               } catch { return 'anonymous'; }
             })(),
-            // Include card data so API can publish even when card isn't in blob storage yet
+            // Include card data so API can publish even when card isn't in
+            // blob storage yet. Prefer the in-memory stash set by
+            // handlePublishCard's auto-save-on-publish flow — it has the
+            // FULL avatar; localStorage may have a stripped version
+            // because AI-generated avatars exceed the per-origin quota.
             cardData: (() => {
               try {
+                var stash = window.cardForgeActions && window.cardForgeActions._publishingFullCard;
+                if (stash && stash.id === cardId && stash.savedCard) {
+                  return stash.savedCard;
+                }
                 const saved = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]');
                 return saved.find(c => c.id === cardId) || null;
               } catch { return null; }
