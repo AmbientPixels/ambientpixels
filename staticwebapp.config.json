@@ -193,6 +193,13 @@
    ]
   },
   {
+   "route": "/api/cardforgeheroconfig",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeheroconfig",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
    "route": "/cardforge/arena.html",
    "redirect": "/blindspot/",
    "statusCode": 301

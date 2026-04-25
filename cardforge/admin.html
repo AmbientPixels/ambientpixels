@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CardForge Admin — Hero Configuration</title>
+  <meta name="description" content="Configure the CardForge splash hero fan — recent, random, or curated card selection.">
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="canonical" href="https://ambientpixels.ai/cardforge/admin.html">
+  <meta name="theme-color" content="#07090c">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260424y">
+  <!-- Card render chain — preview cards use renderedFront + frontClasses
+       from the gallery payload, same pipeline as the splash showcase. -->
+  <link rel="stylesheet" href="css/cardforge-card.css?v=20260424y">
+  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260424y">
+  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260424y">
+  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260424y">
+  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260424y">
+  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260424y">
+  <!-- Splash CSS provides nav/footer chrome + mini-card scaler reused here. -->
+  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260424y">
+  <link rel="stylesheet" href="css/cardforge-admin.css?v=20260424y">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body class="cf-admin-page" data-theme="dark">
+
+  <header class="cf-splash-nav">
+    <a class="cf-splash-nav__brand" href="/cardforge/">
+      <i class="fas fa-fire-flame-curved cf-splash-nav__brand-mark" aria-hidden="true"></i>
+      <span>CardForge</span>
+    </a>
+    <div class="cf-splash-nav__links">
+      <a href="/cardforge/gallery.html">Gallery</a>
+      <a href="/cardforge/deck.html">Decks</a>
+      <a href="/cardforge/admin.html" class="cf-nav-active" aria-current="page">Admin</a>
+      <button id="cf-login-btn" class="cf-splash-nav__auth cf-splash-nav__auth--login" type="button" hidden>
+        <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
+        <span>Sign in</span>
+      </button>
+      <div id="cf-user-status" class="cf-splash-nav__auth cf-splash-nav__auth--user" hidden>
+        <i class="fas fa-user-circle" aria-hidden="true"></i>
+        <span class="cf-splash-nav__user-name"></span>
+      </div>
+      <a href="/cardforge/editor.html" class="cf-btn cf-btn--primary">
+        <i class="fas fa-hammer"></i> Open Editor
+      </a>
+    </div>
+  </header>
+
+  <main class="cf-admin">
+    <section class="cf-admin__hero">
+      <h1 class="cf-admin__title">Hero Configuration</h1>
+      <p class="cf-admin__sub">Control the 5-card fan on the CardForge splash. Pick "Most Recent" for freshness, "Random" for variety, or "Curated" to feature specific cards.</p>
+    </section>
+
+    <div id="cf-admin-loading" class="cf-admin__forbidden">
+      <h2 class="cf-admin__forbidden-title">Loading…</h2>
+      <p class="cf-admin__forbidden-msg">Checking authentication.</p>
+    </div>
+
+    <div id="cf-admin-forbidden" class="cf-admin__forbidden" hidden>
+      <h2 class="cf-admin__forbidden-title">Not authorized</h2>
+      <p class="cf-admin__forbidden-msg">Hero configuration is restricted to admin users.</p>
+    </div>
+
+    <form id="cf-admin-form" class="cf-admin__form" hidden>
+      <label class="cf-admin__field">
+        <span class="cf-admin__label">Mode</span>
+        <select id="cf-admin-mode" class="cf-admin__select">
+          <option value="recent">Most Recent — newest 5 cards</option>
+          <option value="random">Random — shuffle 5 from full pool</option>
+          <option value="curated">Curated — admin-picked card IDs</option>
+        </select>
+      </label>
+
+      <label class="cf-admin__field">
+        <span class="cf-admin__label">Curated card IDs</span>
+        <textarea id="cf-admin-curated" class="cf-admin__textarea" placeholder="card_1770958297208_nijszmuth&#10;card_1770958297209_abcdefgh"></textarea>
+        <span class="cf-admin__hint">Up to 5 IDs. Separate with newlines or commas. Allowed characters: letters, digits, underscore, hyphen (max 64 chars per ID). Only used when Mode = Curated.</span>
+      </label>
+
+      <div id="cf-admin-error" class="cf-admin__error" hidden></div>
+
+      <div class="cf-admin__actions">
+        <button type="submit" id="cf-admin-save" class="cf-btn cf-btn--primary">
+          <i class="fas fa-floppy-disk"></i> Save
+        </button>
+        <div class="cf-admin__meta" id="cf-admin-meta"></div>
+      </div>
+
+      <div id="cf-admin-toast" class="cf-admin__toast" hidden></div>
+    </form>
+
+    <section class="cf-admin__preview" id="cf-admin-preview" hidden>
+      <h2 class="cf-admin__preview-title">Live preview</h2>
+      <p class="cf-admin__preview-sub">The 5 cards the splash will show with the current form state.</p>
+      <div class="cf-admin__preview-grid" id="cf-admin-preview-grid"></div>
+      <div class="cf-admin__preview-empty" id="cf-admin-preview-empty" hidden>
+        No cards match this configuration. The splash will fall back to most-recent cards.
+      </div>
+    </section>
+  </main>
+
+  <footer class="cf-splash-footer">
+    <div>&copy; 2026 AmbientPixels &middot; CardForge Admin</div>
+    <div>
+      <a href="/cardforge/">Splash</a>
+      <a href="/cardforge/gallery.html">Gallery</a>
+      <a href="/cardforge/editor.html">Editor</a>
+    </div>
+  </footer>
+
+  <script src="js/config.js?v=20260424y"></script>
+  <script src="js/cardforge-admin-hero.js?v=20260424y" defer></script>
+</body>
+</html>

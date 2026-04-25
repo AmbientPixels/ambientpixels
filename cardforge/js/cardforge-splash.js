@@ -86,6 +86,8 @@
   // ---- Gallery fetch + render ----------------------------------------
 
   var API_LOAD_CARDS = 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
+  var API_HERO_CONFIG = '/api/cardforgeheroconfig';
+  var DEFAULT_HERO_CONFIG = { mode: 'recent', curatedIds: [], updatedAt: null, updatedBy: null };
 
   // Preset fallbacks — used as initial placeholders before the API
   // resolves. Once real cards arrive they replace these. Each entry is
@@ -161,6 +163,54 @@
     return copy.slice(0, n);
   }
 
+  async function fetchHeroConfig() {
+    try {
+      var res = await fetch(API_HERO_CONFIG, { credentials: 'omit' });
+      if (!res.ok) return Object.assign({}, DEFAULT_HERO_CONFIG);
+      var data = await res.json();
+      if (!data || typeof data !== 'object') return Object.assign({}, DEFAULT_HERO_CONFIG);
+      return {
+        mode: (data.mode === 'random' || data.mode === 'curated') ? data.mode : 'recent',
+        curatedIds: Array.isArray(data.curatedIds) ? data.curatedIds : [],
+        updatedAt: data.updatedAt || null,
+        updatedBy: data.updatedBy || null
+      };
+    } catch (_) {
+      return Object.assign({}, DEFAULT_HERO_CONFIG);
+    }
+  }
+
+  function timeOf(card) {
+    var cd = (card && card.cardData) || card || {};
+    return Number(cd.createdAt || cd.publishedAt || cd.savedAt || cd.updatedAt || cd.timestamp || card.createdAt || 0) || 0;
+  }
+
+  function applyHeroMode(cards, config) {
+    var mode = (config && config.mode) || 'recent';
+    if (mode === 'random') {
+      return pickRandom(cards, 5);
+    }
+    var recentSorted = cards.slice().sort(function (a, b) { return timeOf(b) - timeOf(a); });
+    if (mode === 'curated') {
+      var ids = (config && Array.isArray(config.curatedIds)) ? config.curatedIds : [];
+      var byId = {};
+      cards.forEach(function (c) { if (c && c.id) byId[c.id] = c; });
+      var picked = [];
+      var seen = {};
+      ids.forEach(function (id) {
+        if (byId[id] && !seen[id]) { picked.push(byId[id]); seen[id] = true; }
+      });
+      // Pad from recent sort to fill up to 5, skipping already-picked.
+      for (var i = 0; i < recentSorted.length && picked.length < 5; i++) {
+        var c = recentSorted[i];
+        if (c && c.id && !seen[c.id]) { picked.push(c); seen[c.id] = true; }
+      }
+      return picked.slice(0, 5);
+    }
+    // recent (default)
+    return recentSorted.slice(0, 5);
+  }
+
   function cssUrl(src) {
     return "url('" + String(src).replace(/\\/g, '\\\\').replace(/'/g, "%27") + "')";
   }
@@ -224,6 +274,7 @@
   // load instead of waiting for the API roundtrip. Cache is overwritten
   // by every successful fetch, so it stays fresh.
   var GALLERY_CACHE_KEY = 'cf_splash_gallery_v1';
+  var HERO_CONFIG_CACHE_KEY = 'cf_splash_hero_config_v1';
 
   function readGalleryCache() {
     try {
@@ -243,6 +294,22 @@
 
   function gallerySignature(cards) {
     return cards.map(function (c) { return c.id || c.name; }).join('|');
+  }
+
+  function readHeroConfigCache() {
+    try {
+      var raw = localStorage.getItem(HERO_CONFIG_CACHE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (!parsed || !parsed.config) return null;
+      return parsed.config;
+    } catch (_) { return null; }
+  }
+
+  function writeHeroConfigCache(config) {
+    try {
+      localStorage.setItem(HERO_CONFIG_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), config: config }));
+    } catch (_) {}
   }
 
   function showFanLoader() {
@@ -289,18 +356,20 @@
     //    on every visit after the first. If no cache exists, show a
     //    small ember loader in the fan center so the user knows the
     //    forge is firing up rather than seeing an empty hero.
-    var cached = readGalleryCache();
-    if (cached && cached.length) {
-      renderFan(cached.slice(0, 5));
-      renderShowcase(cached.slice(0, 10));
+    var cachedCards = readGalleryCache();
+    var cachedConfig = readHeroConfigCache() || Object.assign({}, DEFAULT_HERO_CONFIG);
+    if (cachedCards && cachedCards.length) {
+      renderFan(applyHeroMode(cachedCards, cachedConfig));
+      renderShowcase(cachedCards.slice(0, 10));
       revealAfterPaint();
     } else {
       showFanLoader();
     }
 
-    // 2) Refresh from the API and re-render only if the response
-    //    differs from cache (avoids unnecessary DOM rebuild + flash).
-    var cards = await fetchPublishedCards();
+    // 2) Refresh cards + hero config in parallel — both are independent.
+    var results = await Promise.all([fetchPublishedCards(), fetchHeroConfig()]);
+    var cards = results[0];
+    var config = results[1];
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
     if (realCards.length === 0) {
       hideFanLoader();
@@ -309,16 +378,20 @@
 
     hideFanLoader();
     var top10 = realCards.slice(0, 10);
-    var prevSig = cached ? gallerySignature(cached.slice(0, 10)) : '';
+    var fanPicks = applyHeroMode(realCards, config);
+    var prevSig = cachedCards ? gallerySignature(cachedCards.slice(0, 10)) : '';
     var nextSig = gallerySignature(top10);
-    if (nextSig !== prevSig) {
+    var prevConfigStamp = cachedConfig ? (cachedConfig.updatedAt || '') + '|' + (cachedConfig.mode || '') : '';
+    var nextConfigStamp = (config.updatedAt || '') + '|' + (config.mode || '');
+    if (nextSig !== prevSig || nextConfigStamp !== prevConfigStamp) {
       // Reset opacity-loaded state so the new render fades in fresh.
       clearLoadedClass();
-      renderFan(realCards.slice(0, 5));
+      renderFan(fanPicks);
       renderShowcase(top10);
       revealAfterPaint();
     }
     writeGalleryCache(top10);
+    writeHeroConfigCache(config);
   }
 
   function init() {
