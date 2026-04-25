@@ -5007,3 +5007,54 @@ opacity: 1;
   padding: 0 !important;
 }
 .cf-main-pane .cf-section-description { color: var(--cf-ob-text-2); }
+/* ── My Published Cards tab (editor Forge sidebar) ── */
+.cf-mpc-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  background: var(--cf-ob-bg-1, #0d1015);
+  margin-bottom: 10px;
+}
+.cf-mpc-thumb {
+  flex: 0 0 auto;
+  width: 110px;
+  height: 154px;
+  position: relative;
+  overflow: hidden;
+}
+.cf-mpc-meta {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cf-mpc-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--cf-ob-text-1, #e7ebf1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-mpc-sub {
+  font-size: 11px;
+  color: var(--cf-ob-text-mute, #6b7280);
+  margin: 4px 0 12px;
+}
+.cf-mpc-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+.cf-mpc-actions .forge-action-btn { font-size: 11px; padding: 6px 10px; }
+.cf-mpc-unpub {
+  color: #ff8888;
+  border-color: rgba(220, 60, 60, 0.4);
+}
+.cf-mpc-unpub:hover {
+  background: rgba(220, 60, 60, 0.12);
+  color: #ffaaaa;
+}
