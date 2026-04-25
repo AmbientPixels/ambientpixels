@@ -351,11 +351,14 @@ body.cf-splash {
    from the outside cards first, settling at the center last. The
    second value (transform delay) stays at 0ms so the hover fan-out
    cascade isn't perturbed. */
-.cf-hero-fan__card[data-fan-pos="2"] { transition-delay: 140ms, 0ms; }
+/* Four delays — one per transition property (opacity, transform,
+   box-shadow, border-color). Only opacity gets the reveal stagger;
+   the other three must stay at 0ms or hover crossfade lags. */
+.cf-hero-fan__card[data-fan-pos="2"] { transition-delay: 140ms, 0ms, 0ms, 0ms; }
 .cf-hero-fan__card[data-fan-pos="1"],
-.cf-hero-fan__card[data-fan-pos="3"] { transition-delay: 70ms, 0ms; }
+.cf-hero-fan__card[data-fan-pos="3"] { transition-delay: 70ms, 0ms, 0ms, 0ms; }
 .cf-hero-fan__card[data-fan-pos="0"],
-.cf-hero-fan__card[data-fan-pos="4"] { transition-delay: 0ms, 0ms; }
+.cf-hero-fan__card[data-fan-pos="4"] { transition-delay: 0ms, 0ms, 0ms, 0ms; }
 /* Ensure .mini-card bg/border don't fight our fan styles */
 .cf-hero-fan__card.mini-card { border-color: var(--cf-ob-line-2); }
 .cf-hero-fan__card.mini-card:hover { border-color: var(--cf-ob-ember-33); }
@@ -395,10 +398,30 @@ body.cf-splash {
 .cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="4"] {
   transform: translate(-50%, -50%) rotate(22deg) translate(290px, 40px) scale(0.88);
 }
-/* Single-card hover still gets a subtle glow/elevation, no scaling. */
+/* Single-card hover gets a glow + a subtle vertical lift. The lift
+   is what makes the z-stack flip read as smooth motion instead of
+   a snap when moving from card to card — z-index changes are
+   instant, but the transform crossfade gives the eye continuous
+   motion to track. Each position keeps its rotation; only Y
+   translate and scale shift on hover. */
 .cf-hero-fan__card:hover {
   z-index: 10;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 40px var(--cf-ob-ember-22);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="0"]:hover {
+  transform: translate(-50%, -50%) rotate(-22deg) translate(-290px, 18px) scale(0.94);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="1"]:hover {
+  transform: translate(-50%, -50%) rotate(-12deg) translate(-165px, -16px) scale(1.0);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="2"]:hover {
+  transform: translate(-50%, -50%) rotate(0deg) translate(0, -34px) scale(1.04);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="3"]:hover {
+  transform: translate(-50%, -50%) rotate(12deg) translate(165px, -16px) scale(1.0);
+}
+.cf-hero-fan:hover .cf-hero-fan__card[data-fan-pos="4"]:hover {
+  transform: translate(-50%, -50%) rotate(22deg) translate(290px, 18px) scale(0.94);
 }
 
 /* Dissolve-in / crossfade + smooth fan-out. This rule has higher
@@ -417,7 +440,7 @@ body.cf-splash {
   opacity: 0;
   transition:
     opacity 0.7s ease-out,
-    transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1),
     box-shadow 320ms ease,
     border-color 280ms ease;
   will-change: transform;
