@@ -25,8 +25,12 @@
   display: grid;
   grid-template-columns: var(--cf-rail-width) minmax(var(--cf-preview-min), 1fr) var(--cf-controls-width);
   gap: 16px;
-  align-items: start;
+  /* All three columns stretch to the same height — the controls
+     pane drives row height (calc(100vh - 80px)); rail + preview
+     match it for a unified, square-edged editor. */
+  align-items: stretch;
   width: 100%;
+  height: calc(100vh - 80px);
 }
 .cf-app-grid > .cf-rail          { grid-column: 1; grid-row: 1; }
 .cf-app-grid > .cf-preview-pane  { grid-column: 2; grid-row: 1; display: flex; justify-content: center; align-items: flex-start; }
@@ -39,9 +43,8 @@ body.cf-rail-collapsed .cf-app-grid {
 .cf-rail {
   width: var(--cf-rail-width);
   transition: width 180ms ease, min-width 180ms ease;
-  position: sticky;
-  top: var(--cf-chrome-h);
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
 }
 
 body.cf-rail-collapsed .cf-rail {
@@ -54,9 +57,8 @@ body.cf-rail-collapsed .cf-rail {
 
 .cf-preview-pane {
   min-width: 460px;
-  position: sticky;
-  top: var(--cf-chrome-h);
-  align-self: start;
+  height: 100%;
+  align-self: stretch;
 }
 
 /* Left column (form pane) — ~55% of viewport */

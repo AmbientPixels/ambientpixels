@@ -3911,10 +3911,17 @@ opacity: 1;
 }
 
 .cf-preview-pane {
-  background: transparent;
-  border-left: none;
+  /* Match the obsidian panel chrome of the rail + main-pane so the
+     three columns read as one unified surface. */
+  background: var(--cf-ob-bg-1);
+  border-left: 1px solid var(--cf-ob-line-1);
+  border-right: 1px solid var(--cf-ob-line-1);
   position: relative;
   z-index: 1;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* The outer right-column wrapper inside preview-pane was styled with
