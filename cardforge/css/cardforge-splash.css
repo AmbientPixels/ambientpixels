@@ -188,33 +188,6 @@ body.cf-splash {
   overflow: hidden;
 }
 
-.cf-splash-hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  background: var(--cf-ob-ember-dim);
-  border: 1px solid var(--cf-ob-ember-33);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: var(--cf-ob-ember);
-  text-transform: uppercase;
-  margin-bottom: 24px;
-}
-.cf-splash-hero__eyebrow::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: var(--cf-ob-ember);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--cf-ob-ember);
-  animation: cf-splash-pulse 1.8s ease-in-out infinite;
-}
-@keyframes cf-splash-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--cf-ob-ember); }
-  50% { opacity: 0.55; box-shadow: 0 0 4px var(--cf-ob-ember); }
-}
 
 .cf-splash-hero__title {
   font-family: 'Unbounded', sans-serif;
