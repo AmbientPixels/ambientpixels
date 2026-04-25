@@ -3334,23 +3334,117 @@ body.cf-ui--clean [data-save-state] {
   height: 100%;
   min-height: 0;
 }
-.modular-tier .tier-content > .container-section {
+/* All modular-tier section wrappers stretch to fill tier-content. Each
+   tier uses its own section class name (.container-section for tier 2,
+   .palette-section for 3, .card-effects-section for typo + 5,
+   .alignment-section for 4). Same flex behavior across all. */
+.modular-tier .tier-content > .container-section,
+.modular-tier .tier-content > .palette-section,
+.modular-tier .tier-content > .card-effects-section,
+.modular-tier .tier-content > .alignment-section {
   flex: 1;
   align-content: start;
   min-height: 0;
 }
-.modular-tier .container-level .tier-options-grid {
+/* Generic option-grid row sizing — applies regardless of which level
+   wrapper (.container-level / .alignment-level / etc.) holds it. */
+.modular-tier .tier-options-grid,
+.modular-tier .variant-options {
   grid-auto-rows: minmax(130px, auto);
 }
-.modular-tier .container-level .variant-options {
-  grid-auto-rows: minmax(130px, auto);
-}
-/* Bigger preview icon inside each option button — fills more of the
-   taller button so the visual hierarchy stays balanced. */
 .modular-tier .tier-option .option-preview,
 .modular-tier .variant-option .variant-preview {
   width: 60px;
   height: 60px;
+}
+
+/* Style & Mood (tier 3) — palette-section/level structure */
+.modular-tier .palette-section {
+  display: flex;
+  flex-direction: column;
+}
+.modular-tier .palette-level {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+.modular-tier .palette-level .palette-families {
+  grid-auto-rows: minmax(80px, auto);
+}
+.modular-tier .palette-level .variant-toggles .variant-toggle {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+/* Typography (tier typo) + Card Effects (tier 5) — card-effects-section
+   wraps multiple .effect-control groups, each holding an .effect-chips
+   row. Bump font-chip / effect-chip min-height so they don't look
+   cramped at the top of an otherwise-empty panel. */
+.modular-tier .card-effects-section {
+  display: flex;
+  flex-direction: column;
+}
+.modular-tier .effect-control {
+  display: flex;
+  flex-direction: column;
+}
+.modular-tier .effect-chips.font-chips .font-chip {
+  min-height: 70px;
+}
+
+/* Composition (tier 4) — alignment-section/alignment-level */
+.modular-tier .alignment-section {
+  display: flex;
+  flex-direction: column;
+}
+.modular-tier .alignment-level {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   Non-modular sections — Stats / Traits / Attributes — get the
+   same fill treatment so their lists / grids stretch to use the
+   panel min-height instead of clustering at top.
+   ============================================================ */
+.cf-main-pane .cf-section[data-step-section="3"] .stats-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.cf-main-pane .cf-section[data-step-section="3"] .stats-panel > .arena-custom-stats {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.cf-main-pane .cf-section[data-step-section="3"] #stats-editor {
+  flex: 1;
+  min-height: 0;
+}
+
+.cf-main-pane .cf-section[data-step-section="4"] .badges-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.cf-main-pane .cf-section[data-step-section="4"] #micro-editor {
+  flex: 1;
+  min-height: 0;
+}
+
+.cf-main-pane .cf-section[data-step-section="5"] {
+  /* attributes section already has min-height from cf-section rule;
+     ensure inner content can flex to fill */
+}
+.cf-main-pane .cf-section[data-step-section="5"] #attributes-editor {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Tile typography clamps — apply to all 3 text slots on every tile */
