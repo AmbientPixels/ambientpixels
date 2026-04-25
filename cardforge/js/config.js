@@ -93,8 +93,8 @@ window._cfGetAuthHeaders = (function () {
 // EffectTiers shim — all effects unlocked (arena removed, no rank gating)
 // Covers every method the editor calls on window.EffectTiers
 window.EffectTiers = {
-  // Slot caps — return max
-  getSlotCap: function () { return 4; },
+  // Slot caps — return max (Traits cap raised to 5 with full-span 5th badge)
+  getSlotCap: function () { return 5; },
   getMaxBuffQty: function () { return 3; },
   // Unlock checks — always true
   isEffectUnlocked: function () { return true; },

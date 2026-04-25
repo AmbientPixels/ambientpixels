@@ -649,13 +649,34 @@
   word-break: break-word;
 }
 
-/* Relaxed badge labels — 2-line when ≤4 badges (≤2 rows in 2-col grid) */
+/* Relaxed badge labels — 2-line when ≤5 badges (≤2 rows in 2-col grid + 1 wide row) */
 .badges-container[data-badge-count="1"] .badge-label,
 .badges-container[data-badge-count="2"] .badge-label,
 .badges-container[data-badge-count="3"] .badge-label,
-.badges-container[data-badge-count="4"] .badge-label {
+.badges-container[data-badge-count="4"] .badge-label,
+.badges-container[data-badge-count="5"] .badge-label {
   -webkit-line-clamp: 2;
   line-clamp: 2;
+}
+
+/* 5-badge layout — first 4 in 2x2, 5th spans full width as a banner row to
+   balance the card's visual weight. Switches the 5th tile to a horizontal
+   icon+label layout since the row is now ~2x wider than tall. */
+.badges-container[data-badge-count="5"] .badge-item:nth-child(5) {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  gap: 0.5rem;
+  min-height: 36px;
+  padding: 0.3rem 0.5rem;
+}
+.badges-container[data-badge-count="5"] .badge-item:nth-child(5) .badge-icon {
+  margin-bottom: 0;
+  flex: 0 0 auto;
+}
+.badges-container[data-badge-count="5"] .badge-item:nth-child(5) .badge-label {
+  text-align: left;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
 }
 
 .badge-count {

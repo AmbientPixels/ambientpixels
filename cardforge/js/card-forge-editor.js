@@ -230,7 +230,7 @@
 
   // ===== CARD DISPLAY CAPS =====
   const STAT_CAP = 5;            // Max visible stats on card face
-  const BADGE_CAP_MAX = 4;      // Absolute max buffs (Gold+ / Pro)
+  const BADGE_CAP_MAX = 5;      // Absolute max traits (5th renders full-span via CSS)
   const ATTRIBUTE_CAP_MAX = 4;  // Absolute max attributes (Gold+ / Pro)
 
   // Dynamic caps based on arena rank — falls back to max if EffectTiers not loaded
@@ -937,7 +937,7 @@
 
     progressEl.innerHTML =
       '<span class="buff-progress-chip"><i class="fas fa-shield-halved"></i> ' + rankLabel + '</span>' +
-      '<span class="buff-progress-chip"><i class="fas fa-layer-group"></i> ' + slots + '/4 slots</span>' +
+      '<span class="buff-progress-chip"><i class="fas fa-layer-group"></i> ' + slots + '/5 slots</span>' +
       '<span class="buff-progress-chip"><i class="fas fa-xmark"></i> &times;' + maxQty + ' max qty</span>' +
       '<span class="buff-progress-chip"><i class="fas fa-unlock"></i> ' + unlocked + '/' + total + ' buffs</span>';
   }
@@ -973,7 +973,7 @@
       statsEl.innerHTML =
         '<span class="buff-progress-chip"><i class="fas fa-shield-halved"></i> ' + rankLabel + '</span>' +
         '<span class="buff-progress-chip"><i class="fas fa-unlock"></i> ' + unlocked + '/' + total + ' buffs</span>' +
-        '<span class="buff-progress-chip"><i class="fas fa-layer-group"></i> ' + slots + '/4 slots</span>' +
+        '<span class="buff-progress-chip"><i class="fas fa-layer-group"></i> ' + slots + '/5 slots</span>' +
         '<span class="buff-progress-chip"><i class="fas fa-xmark"></i> &times;' + maxQty + ' max</span>';
     }
   }
