@@ -283,17 +283,16 @@ Exact content:
     if (!confirm('Unpublish this card? It will be removed from the public gallery. Your saved card is not affected.')) return;
     var myUserId = await window.CardForgePublished.getMyUserId();
     if (!myUserId) { alert('Sign in required.'); return; }
-    var headers = { 'Content-Type': 'application/json' };
-    try {
-      var auth = await window._cfGetAuthHeaders();
-      Object.keys(auth || {}).forEach(function (k) { headers[k] = auth[k]; });
-    } catch (_) {}
+    // Direct call to the Function App (cross-origin). SWA does NOT proxy POSTs
+    // on rewrite routes (returns 405) and won't inject x-ms-client-principal —
+    // so we pass userId in the body and use credentials:'omit'. Same pattern
+    // as cardforgedeckdelete and the corrected hero-config admin flow.
     var res;
     try {
       res = await fetch(API_DELETE_CARD, {
         method: 'POST',
-        credentials: 'include',
-        headers: headers,
+        credentials: 'omit',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cardId: cardId, userId: myUserId })
       });
     } catch (_) { alert('Network error — try again.'); return; }
@@ -795,17 +794,14 @@ Exact content:
     if (!confirm('Unpublish this deck? It will be removed from the public gallery. Your local deck (if any) is not affected.')) return;
     var myUserId = await window.CardForgePublished.getMyUserId();
     if (!myUserId) { alert('Sign in required.'); return; }
-    var headers = { 'Content-Type': 'application/json' };
-    try {
-      var auth = await window._cfGetAuthHeaders();
-      Object.keys(auth || {}).forEach(function (k) { headers[k] = auth[k]; });
-    } catch (_) {}
+    // Direct call to the Function App (cross-origin). Same userId-in-body
+    // pattern as cardforgedeckdelete and the hero-config admin flow.
     var res;
     try {
       res = await fetch(API_DECK_DELETE, {
         method: 'POST',
-        credentials: 'include',
-        headers: headers,
+        credentials: 'omit',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shareId: shareId, userId: myUserId })
       });
     } catch (_) { alert('Network error — try again.'); return; }
