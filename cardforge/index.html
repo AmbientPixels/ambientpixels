@@ -24,17 +24,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425f">
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425g">
   <!-- Card render chain: needed to display real CardForge cards in
        the hero fan and showcase strip using renderedFront + frontClasses
        from the /api/cardforgeloadcards gallery payload. -->
-  <link rel="stylesheet" href="css/cardforge-card.css?v=20260425f">
-  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260425f">
-  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260425f">
-  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425f">
-  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425f">
-  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425f">
-  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425f">
+  <link rel="stylesheet" href="css/cardforge-card.css?v=20260425g">
+  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260425g">
+  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260425g">
+  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425g">
+  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425g">
+  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425g">
+  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425g">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
 </head>
 <body class="cf-splash" data-theme="dark">
@@ -51,9 +51,19 @@
         <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
         <span>Sign in</span>
       </button>
-      <div id="cf-user-status" class="cf-splash-nav__auth cf-splash-nav__auth--user" hidden>
-        <i class="fas fa-user-circle" aria-hidden="true"></i>
-        <span class="cf-splash-nav__user-name"></span>
+      <div class="cf-splash-nav__user-wrap" id="cf-user-wrap" hidden>
+        <button class="cf-splash-nav__avatar" id="cf-user-avatar" type="button" title="Account" aria-label="Account menu" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-user" aria-hidden="true"></i>
+        </button>
+        <div class="cf-splash-nav__menu" id="cf-user-menu" hidden role="menu">
+          <div class="cf-splash-nav__menu-meta">
+            Signed in as <strong class="cf-splash-nav__user-name"></strong>
+          </div>
+          <a class="cf-splash-nav__menu-item" href="/.auth/logout?post_logout_redirect_uri=/cardforge/" role="menuitem">
+            <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
+            <span>Sign out</span>
+          </a>
+        </div>
       </div>
       <a href="/cardforge/editor.html" class="cf-btn cf-btn--primary" data-splash-cta="nav-open-editor">
         <i class="fas fa-hammer"></i> Open Editor
@@ -159,6 +169,6 @@
     }
   </script>
 
-  <script src="js/cardforge-splash.js?v=20260425f" defer></script>
+  <script src="js/cardforge-splash.js?v=20260425g" defer></script>
 </body>
 </html>

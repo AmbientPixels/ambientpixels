@@ -93,6 +93,89 @@ body.cf-splash {
 .cf-splash-nav__auth[hidden] { display: none; }
 .cf-splash-nav__user-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* ---- Signed-in avatar + popover menu (mirrors pixel-agents pa-avatar pattern) ---- */
+.cf-splash-nav__user-wrap {
+  position: relative;
+  display: inline-block;
+}
+.cf-splash-nav__user-wrap[hidden] { display: none; }
+
+.cf-splash-nav__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--cf-ob-ember-dim, rgba(255, 122, 26, 0.12));
+  border: 1.5px solid var(--cf-ob-ember-33);
+  color: var(--cf-ob-ember);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.cf-splash-nav__avatar:hover,
+.cf-splash-nav__avatar:focus-visible {
+  background: var(--cf-ob-ember);
+  border-color: var(--cf-ob-ember);
+  color: var(--cf-ob-bg-0, #07090c);
+  outline: none;
+}
+
+.cf-splash-nav__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  background: var(--cf-ob-bg-1, #0d1015);
+  border: 1px solid var(--cf-ob-line-2);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+}
+.cf-splash-nav__menu[hidden] { display: none; }
+
+.cf-splash-nav__menu-meta {
+  padding: 8px 10px 10px;
+  font-size: 11px;
+  color: var(--cf-ob-text-mute, #6b7280);
+  border-bottom: 1px solid var(--cf-ob-line-1);
+  margin-bottom: 4px;
+}
+.cf-splash-nav__menu-meta strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--cf-ob-text-1);
+  font-weight: 600;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.cf-splash-nav__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cf-ob-text-2);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.cf-splash-nav__menu-item:hover,
+.cf-splash-nav__menu-item:focus-visible {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--cf-ob-text-1);
+  outline: none;
+}
+.cf-splash-nav__menu-item i {
+  font-size: 12px;
+  color: var(--cf-ob-ember);
+}
+
 /* ---- Hero section ---- */
 .cf-splash-hero {
   min-height: calc(100vh - 65px);

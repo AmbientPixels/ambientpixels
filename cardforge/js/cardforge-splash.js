@@ -53,8 +53,10 @@
 
   async function initAuth() {
     var loginBtn = document.getElementById('cf-login-btn');
-    var userStatus = document.getElementById('cf-user-status');
-    if (!loginBtn || !userStatus) return;
+    var userWrap = document.getElementById('cf-user-wrap');
+    var avatarBtn = document.getElementById('cf-user-avatar');
+    var menu = document.getElementById('cf-user-menu');
+    if (!loginBtn || !userWrap) return;
 
     try {
       var res = await fetch('/.auth/me', { credentials: 'include' });
@@ -65,22 +67,46 @@
         : ((data && data.clientPrincipal) || null);
 
       if (principal && principal.userDetails) {
-        var nameEl = userStatus.querySelector('.cf-splash-nav__user-name');
+        var nameEl = userWrap.querySelector('.cf-splash-nav__user-name');
         if (nameEl) nameEl.textContent = principal.userDetails;
-        userStatus.hidden = false;
+        userWrap.hidden = false;
         loginBtn.hidden = true;
       } else {
         loginBtn.hidden = false;
-        userStatus.hidden = true;
+        userWrap.hidden = true;
       }
     } catch (_) {
       loginBtn.hidden = false;
-      userStatus.hidden = true;
+      userWrap.hidden = true;
     }
 
     loginBtn.addEventListener('click', function () {
       window.location.href = '/.auth/login/aadB2C?post_login_redirect_uri=/cardforge/';
     });
+
+    // Avatar click → toggle popover. Document click outside → close.
+    if (avatarBtn && menu) {
+      avatarBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = !menu.hidden;
+        menu.hidden = open;
+        avatarBtn.setAttribute('aria-expanded', String(!open));
+      });
+      document.addEventListener('click', function (e) {
+        if (menu.hidden) return;
+        if (e.target === avatarBtn || avatarBtn.contains(e.target)) return;
+        if (menu.contains(e.target)) return;
+        menu.hidden = true;
+        avatarBtn.setAttribute('aria-expanded', 'false');
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !menu.hidden) {
+          menu.hidden = true;
+          avatarBtn.setAttribute('aria-expanded', 'false');
+          avatarBtn.focus();
+        }
+      });
+    }
   }
 
   // ---- Gallery fetch + render ----------------------------------------
