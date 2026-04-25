@@ -3969,9 +3969,36 @@ opacity: 1;
   color: var(--cf-ob-text-1);
 }
 
-/* Click-to-edit — cursor pointer only, no dashed outline flash on
-   hover (was distracting per user feedback). */
+/* Click-to-edit — cursor pointer + subtle ember-tint highlight
+   on the hovered region (no dashed outline; just a soft fill so
+   users see the area is interactive). */
 .cf-preview-pane .cf-card-clickable { cursor: pointer; }
+.cf-preview-pane .cf-card-clickable .card-avatar,
+.cf-preview-pane .cf-card-clickable .card-avatar-container,
+.cf-preview-pane .cf-card-clickable .hero-image-container,
+.cf-preview-pane .cf-card-clickable .card-portrait,
+.cf-preview-pane .cf-card-clickable .card-name,
+.cf-preview-pane .cf-card-clickable .card-class,
+.cf-preview-pane .cf-card-clickable .card-quote,
+.cf-preview-pane .cf-card-clickable .card-stats,
+.cf-preview-pane .cf-card-clickable .stat-row,
+.cf-preview-pane .cf-card-clickable .card-badges,
+.cf-preview-pane .cf-card-clickable .card-attributes {
+  transition: background-color 0.12s ease;
+}
+.cf-preview-pane .cf-card-clickable .card-avatar:hover,
+.cf-preview-pane .cf-card-clickable .card-avatar-container:hover,
+.cf-preview-pane .cf-card-clickable .hero-image-container:hover,
+.cf-preview-pane .cf-card-clickable .card-portrait:hover,
+.cf-preview-pane .cf-card-clickable .card-name:hover,
+.cf-preview-pane .cf-card-clickable .card-class:hover,
+.cf-preview-pane .cf-card-clickable .card-quote:hover,
+.cf-preview-pane .cf-card-clickable .card-stats:hover,
+.cf-preview-pane .cf-card-clickable .stat-row:hover,
+.cf-preview-pane .cf-card-clickable .card-badges:hover,
+.cf-preview-pane .cf-card-clickable .card-attributes:hover {
+  background-color: var(--cf-ob-ember-dim);
+}
 
 /* Drag-to-position affordance — card-avatar-container and
    hero-image-container are draggable; wheel zooms. */
