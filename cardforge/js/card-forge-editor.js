@@ -3365,6 +3365,69 @@
         updatePreview();
       });
     });
+
+    // Wire compact picker trigger buttons + popovers (Basics class + rarity).
+    // The .icon-option click handlers above still fire and update the hidden
+    // input; this wires the trigger button to (a) sync to current value on
+    // init, (b) toggle popover visibility, (c) refresh + close popover after
+    // any .icon-option inside is clicked.
+    function wireCfIconPicker(triggerId, popoverId, hiddenId) {
+      const btn = document.getElementById(triggerId);
+      const pop = document.getElementById(popoverId);
+      const hid = document.getElementById(hiddenId);
+      if (!btn || !pop || !hid) return;
+
+      const setBtnIcon = (val) => {
+        if (!val || val === 'none') {
+          btn.innerHTML = 'NONE';
+          btn.dataset.empty = 'true';
+        } else {
+          btn.innerHTML = '<i class="fas fa-' + val + '"></i>';
+          btn.dataset.empty = 'false';
+        }
+      };
+      setBtnIcon(hid.value);
+
+      // Guard against double-binding — initIconPickers() is called from
+      // multiple init paths (line 1118 + line 4368), so without this the
+      // click handler would fire twice and immediately toggle the popover
+      // closed.
+      if (btn.dataset.cfPickerBound === 'true') return;
+      btn.dataset.cfPickerBound = 'true';
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.cf-icon-picker-popover:not([hidden])').forEach(p => {
+          if (p !== pop) p.hidden = true;
+        });
+        const willOpen = pop.hidden;
+        pop.hidden = !willOpen;
+        btn.setAttribute('aria-expanded', String(willOpen));
+      });
+
+      pop.addEventListener('click', (e) => {
+        if (!e.target.closest('.icon-option')) return;
+        // Existing .icon-option handler has already updated hid.value; sync btn.
+        setBtnIcon(hid.value);
+        pop.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    }
+    wireCfIconPicker('class-icon-trigger', 'class-icon-popover', 'class-icon-value');
+    wireCfIconPicker('rarity-icon-trigger', 'rarity-icon-popover', 'rarity-icon-value');
+
+    // One-time outside-click dismiss for cf-icon-picker popovers.
+    if (!window._cfIconPickerInit) {
+      window._cfIconPickerInit = true;
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.cf-icon-picker-popover, .cf-icon-picker-btn')) return;
+        document.querySelectorAll('.cf-icon-picker-popover:not([hidden])').forEach(p => {
+          p.hidden = true;
+          const trig = document.querySelector('[aria-controls="' + p.id + '"]');
+          if (trig) trig.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
   }
   
   

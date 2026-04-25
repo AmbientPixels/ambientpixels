@@ -3447,6 +3447,63 @@ body.cf-ui--clean [data-save-state] {
   min-height: 0;
 }
 
+/* ============================================================
+   Generic icon picker primitive — trigger button + popover.
+   Used by Basics class + rarity icon pickers. Stat + trait icon
+   pickers keep their own implementations (separate selectors).
+   ============================================================ */
+.cf-icon-picker-wrap {
+  position: relative;
+  display: inline-block;
+}
+.cf-icon-picker-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--cf-ob-bg-2);
+  border: 1px solid var(--cf-ob-line-2);
+  border-radius: var(--cf-ob-radius-md);
+  color: var(--cf-ob-text-1);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.cf-icon-picker-btn:hover {
+  border-color: var(--cf-ob-ember);
+  color: var(--cf-ob-ember);
+}
+.cf-icon-picker-btn i { font-size: 18px; }
+.cf-icon-picker-btn[data-empty="true"] {
+  color: var(--cf-ob-text-mute);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.cf-icon-picker-popover {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 60;
+  background: var(--cf-ob-bg-1);
+  border: 1px solid var(--cf-ob-line-2);
+  border-radius: var(--cf-ob-radius-md);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  padding: 10px;
+  min-width: 280px;
+}
+/* Inner .icon-picker grid keeps its existing styling but is
+   constrained to 5 columns inside the popover for compactness. */
+.cf-icon-picker-popover .icon-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
 /* Tile typography clamps — apply to all 3 text slots on every tile */
 .preset-btn .preset-character,
 .cf-random-tile .preset-character,
