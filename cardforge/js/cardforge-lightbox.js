@@ -28,7 +28,7 @@
   };
 
   // ===== HTML GENERATORS =====
-  const STAT_CAP = 5; // Max visible stats on card face
+  const STAT_CAP = 10; // Max visible stats on card face
 
   function statsHTML(stats) {
     if (!stats || stats.length === 0) return '';

@@ -183,7 +183,7 @@
       '- level: A number 1-100 appropriate to the rarity',
       '- quote: A punchy tagline (max 120 chars)',
       '- biography: A vivid backstory hint (max 220 chars)',
-      '- stats: An array of 3-5 objects with "name" (string, e.g. "Attack", "Defense", "Speed") and "value" (number 0-100)',
+      '- stats: An array of 3-10 objects with "name" (string, e.g. "Attack", "Defense", "Speed") and "value" (number 0-100)',
       '- attributes: An array of 3-5 objects with "name" (string, e.g. "Element", "Faction", "Origin") and "value" (string). Do NOT use "Level", "Experience", "XP", "Rank", "Wins", or "Losses" as attribute names — those come from the arena system.',
       '- imagePrompt: A detailed visual description for generating the card artwork (max 200 chars). Describe the character\'s appearance, pose, and mood. Do NOT include text or card frames.',
       '',
@@ -416,12 +416,12 @@
       setField(fields.quote, card.quote);
       setField(fields.bio, card.biography);
 
-      // Populate stats (capped to 5)
+      // Populate stats (capped to 10)
       if (Array.isArray(card.stats) && window.CardForge?.createStatRow) {
         const statsContainer = document.getElementById('stats-editor');
         if (statsContainer) {
           statsContainer.innerHTML = '';
-          card.stats.slice(0, 5).forEach(function (s) {
+          card.stats.slice(0, 10).forEach(function (s) {
             statsContainer.appendChild(
               window.CardForge.createStatRow(s.name || '', s.value || 0)
             );

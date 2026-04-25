@@ -229,7 +229,7 @@
   window.CardForgeChrome = ChromeUI;
 
   // ===== CARD DISPLAY CAPS =====
-  const STAT_CAP = 5;            // Max visible stats on card face
+  const STAT_CAP = 10;           // Max visible stats on card face
   const BADGE_CAP_MAX = 6;      // Absolute max traits (renders as 2-col × 3-row grid; 5-trait special case spans full width on 5th tile)
   const ATTRIBUTE_CAP_MAX = 4;  // Absolute max attributes (Gold+ / Pro)
 
@@ -808,7 +808,7 @@
     updateCounter();
   }
   
-  const CUSTOM_STAT_CAP = 5;
+  const CUSTOM_STAT_CAP = 10;
 
   function updateStatBtnState() {
     const addStatBtn = document.getElementById('add-stat-btn');
