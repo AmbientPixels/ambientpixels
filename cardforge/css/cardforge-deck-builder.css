@@ -1107,3 +1107,15 @@
   background: rgba(220, 60, 60, 0.12);
   color: #ffaaaa;
 }
+.db-msd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  color: var(--cf-ob-ember, #ff7a1a);
+  background: var(--cf-ob-ember-22, rgba(255,122,26,0.14));
+  border: 1px solid var(--cf-ob-ember-33, rgba(255,122,26,0.33));
+}

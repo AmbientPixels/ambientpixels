@@ -19,6 +19,7 @@
   const view = params.get('view') || '';
   const isViewMode = !!shareId;
   const isMyPublishedMode = !shareId && view === 'published';
+  const isMySavedMode = !shareId && view === 'saved';
 
   let _allCards = [];
   let _deckCards = [];   // ordered array of card objects in the deck
@@ -31,6 +32,8 @@
       bootViewMode();
     } else if (isMyPublishedMode) {
       bootMyPublishedMode();
+    } else if (isMySavedMode) {
+      bootMySavedMode();
     } else {
       bootBuilderMode();
     }
@@ -172,6 +175,7 @@
         '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-tabs">' +
           '<a href="/cardforge/deck.html" class="db-bar-tab"><i class="fas fa-hammer"></i> Builder</a>' +
+          '<a href="/cardforge/deck.html?view=saved" class="db-bar-tab"><i class="fas fa-floppy-disk"></i> My Saved</a>' +
           '<a href="/cardforge/deck.html?view=published" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-share-from-square"></i> My Published</a>' +
         '</div>' +
         '<div class="db-bar-actions"></div>' +
@@ -188,6 +192,35 @@
 
     if (window.CardForgeMyPublishedDecks && window.CardForgeMyPublishedDecks.mount) {
       window.CardForgeMyPublishedDecks.mount(document.getElementById('cf-mpd-grid'));
+    }
+  }
+
+  // ================================================================
+  //  MY SAVED MODE — list of decks saved in this browser (localStorage)
+  // ================================================================
+  function bootMySavedMode() {
+    const app = document.getElementById('db-app');
+    app.innerHTML =
+      '<div class="db-bar">' +
+        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
+        '<div class="db-bar-tabs">' +
+          '<a href="/cardforge/deck.html" class="db-bar-tab"><i class="fas fa-hammer"></i> Builder</a>' +
+          '<a href="/cardforge/deck.html?view=saved" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-floppy-disk"></i> My Saved</a>' +
+          '<a href="/cardforge/deck.html?view=published" class="db-bar-tab"><i class="fas fa-share-from-square"></i> My Published</a>' +
+        '</div>' +
+        '<div class="db-bar-actions">' +
+          '<a href="/cardforge/deck.html" class="db-btn db-btn-primary"><i class="fas fa-plus"></i> New Deck</a>' +
+        '</div>' +
+      '</div>' +
+      '<main class="db-mpd-main">' +
+        '<h1 class="db-mpd-title">My Saved Decks</h1>' +
+        '<div class="db-mpd-grid" id="cf-msd-grid">' +
+          '<div class="db-mpd-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading…</p></div>' +
+        '</div>' +
+      '</main>';
+
+    if (window.CardForgeMySavedDecks && window.CardForgeMySavedDecks.mount) {
+      window.CardForgeMySavedDecks.mount(document.getElementById('cf-msd-grid'));
     }
   }
 
@@ -233,6 +266,7 @@
         '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-tabs">' +
           '<a href="/cardforge/deck.html" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-hammer"></i> Builder</a>' +
+          '<a href="/cardforge/deck.html?view=saved" class="db-bar-tab"><i class="fas fa-floppy-disk"></i> My Saved</a>' +
           '<a href="/cardforge/deck.html?view=published" class="db-bar-tab"><i class="fas fa-share-from-square"></i> My Published</a>' +
         '</div>' +
         '<div class="db-bar-actions">' +

@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="css/cardforge-modular.css">
   <link rel="stylesheet" href="css/cardforge-ui-components.css">
   <!-- Deck builder CSS -->
-  <link rel="stylesheet" href="css/cardforge-deck-builder.css?v=20260425a">
+  <link rel="stylesheet" href="css/cardforge-deck-builder.css?v=20260425b">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
@@ -52,8 +52,9 @@
   </div>
 
   <script src="/cardforge/js/config.js"></script>
-  <script src="/cardforge/js/cardforge-published-events.js?v=20260425a"></script>
-  <script src="/cardforge/js/cardforge-my-published-decks.js?v=20260425a"></script>
+  <script src="/cardforge/js/cardforge-published-events.js?v=20260425b"></script>
+  <script src="/cardforge/js/cardforge-my-published-decks.js?v=20260425b"></script>
+  <script src="/cardforge/js/cardforge-my-saved-decks.js?v=20260425b"></script>
   <script>
     // Bootstrap auth state for deck builder (mirrors index.html auth check)
     // Stores promise so deck builder can await it before loading collection
@@ -73,6 +74,6 @@
       } catch (e) { /* not authenticated */ }
     })();
   </script>
-  <script src="/cardforge/js/cardforge-deck-builder.js?v=20260425a"></script>
+  <script src="/cardforge/js/cardforge-deck-builder.js?v=20260425b"></script>
 </body>
 </html>
