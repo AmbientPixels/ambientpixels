@@ -4378,10 +4378,64 @@ opacity: 1;
 }
 .cf-main-pane .variant-option .variant-label,
 .cf-main-pane .variant-option .option-label { font-size: 9px !important; line-height: 1; }
-.cf-main-pane .container-section { padding: 0 !important; }
-.cf-main-pane .container-level { margin: 0 0 4px !important; padding: 0 !important; }
-.cf-main-pane .effects-level { margin-top: 4px !important; }
-.cf-main-pane .effects-type-section { margin: 0 0 4px !important; }
+.cf-main-pane .container-section {
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  align-items: start;
+}
+/* Container Type (first container-level) left; Variant (2nd) right. */
+.cf-main-pane .container-section > .container-level:nth-of-type(1) {
+  grid-column: 1;
+}
+.cf-main-pane .container-section > .container-level:nth-of-type(2) {
+  grid-column: 2;
+}
+/* Effects chooser + filters span the full container, 10-col chips. */
+.cf-main-pane .container-section > .effects-level,
+.cf-main-pane .container-section > .effects-type-section {
+  grid-column: 1 / -1;
+}
+.cf-main-pane .effects-grid,
+.cf-main-pane .tier-options-grid.effects-grid {
+  grid-template-columns: repeat(10, 1fr) !important;
+}
+/* Position sliders row — 3 sliders side-by-side, not stacked. */
+.cf-main-pane .position-level {
+  grid-column: 1 / -1;
+}
+.cf-main-pane .position-level .cf-image-sliders,
+.cf-main-pane .position-level .position-sliders {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.cf-main-pane .position-level .cf-slider-row {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+  margin: 0 !important;
+}
+.cf-main-pane .position-level .cf-slider-row label {
+  font-size: 10px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 !important;
+}
+.cf-main-pane .position-level .cf-slider-row input[type="range"] {
+  width: 100%;
+}
+.cf-main-pane .position-level .cf-slider-value {
+  font-size: 10px !important;
+  min-width: 32px;
+  text-align: right;
+}
+.cf-main-pane .container-level { margin: 0 !important; padding: 0 !important; }
+.cf-main-pane .effects-level { margin: 0 !important; }
+.cf-main-pane .effects-type-section { margin: 0 !important; }
 .cf-main-pane .container-variants { margin: 0 !important; }
 .cf-main-pane .effect-chips > button i {
   font-size: 10px !important;
