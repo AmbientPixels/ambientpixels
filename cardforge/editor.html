@@ -25,25 +25,25 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Orbitron:wght@400;500;600;700&family=MedievalSharp&family=Pirata+One&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/base.css?v=20260425g">
-  <link rel="stylesheet" href="/css/grid.css?v=20260425g">
-  <link rel="stylesheet" href="/css/components.css?v=20260425g">
-  <link rel="stylesheet" href="/css/theme.css?v=20260425g">
-  <link rel="stylesheet" href="/cardforge/css/card-forge.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-forms.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-modular.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-gallery.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-ui.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-card.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-layout.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260425g">
-  <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260425g"> <!-- Responsive design — MUST be last CSS to override all -->
+  <link rel="stylesheet" href="/css/base.css?v=20260425i">
+  <link rel="stylesheet" href="/css/grid.css?v=20260425i">
+  <link rel="stylesheet" href="/css/components.css?v=20260425i">
+  <link rel="stylesheet" href="/css/theme.css?v=20260425i">
+  <link rel="stylesheet" href="/cardforge/css/card-forge.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-forms.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-modular.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-gallery.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-ui.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-card.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-layout.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260425i"> <!-- Responsive design — MUST be last CSS to override all -->
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
@@ -275,13 +275,17 @@
       <div class="cardforge-editor">
       <form id="card-editor-form" class="cardforge-form">
       <div class="cf-section active" data-step-section="0">
-        <h3 class="cf-section-title">Presets + Random</h3>
-        <p class="cf-section-description">Choose a curated template or roll for a surprise combo.</p>
+        <h3 class="cf-section-title">Quick Start</h3>
+        <p class="cf-section-description">Pick a template or describe your card.</p>
 
-        <!-- Quick Start Presets -->
-        <div class="presets-section">
-          <h4 class="presets-title">Quick Start Presets</h4>
-          <p class="presets-helper">Pick a template to populate all fields instantly.</p>
+        <div class="cf-tabs" role="tablist" aria-label="Quick start mode">
+          <button type="button" class="cf-tab cf-tab--active" role="tab"
+                  data-tab-target="templates" aria-selected="true">Templates</button>
+          <button type="button" class="cf-tab" role="tab"
+                  data-tab-target="ai-generate" aria-selected="false">Generate</button>
+        </div>
+
+        <div class="cf-tab-panel cf-tab-panel--active" data-tab-id="templates" role="tabpanel">
           <div class="presets-grid">
             <button type="button" class="preset-btn" data-preset="hero-classic">
               <div class="preset-image">
@@ -293,7 +297,7 @@
                 <div class="preset-type">Center Balanced • Framed Ornate</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="split-modern">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/cyber-erenity.jpg" alt="Zara-7" />
@@ -304,7 +308,7 @@
                 <div class="preset-type">Left Top-heavy • Framed Modern</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="minimal-glow">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/ethereal-enigma.jpg" alt="Dr. Elena Voss" />
@@ -315,7 +319,7 @@
                 <div class="preset-type">Center Balanced • Raw Rounded</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="fullbleed-cinematic">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/guardian-of-the-gilded-halls.jpg" alt="Commander Rex" />
@@ -326,7 +330,7 @@
                 <div class="preset-type">Center Top-heavy • Masked Circle</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="framed-ornate">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/the-enigmatic-neuromancer.jpg" alt="Kenji Nakamura" />
@@ -337,7 +341,7 @@
                 <div class="preset-type">Center Top-heavy • Framed Ornate</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="hero-fullbleed">
               <div class="preset-image">
                 <img src="/images/image-packs/characters-03-super-heroes/nova-rivera.png" alt="Captain Nova" />
@@ -348,7 +352,7 @@
                 <div class="preset-type">Center Balanced • Full Bleed</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="hero-large">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/twilight-titan.jpg" alt="Titan Guardian" />
@@ -359,7 +363,7 @@
                 <div class="preset-type">Center Balanced • Hero Large</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="raw-rounded">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/navigator-kairo.jpg" alt="Shadow Operative" />
@@ -370,7 +374,7 @@
                 <div class="preset-type">Left Top-heavy • Raw Rounded</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="celestial-warden">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/seraphina.jpg" alt="Seraphina" />
@@ -381,7 +385,7 @@
                 <div class="preset-type">Center Balanced • Framed Ornate</div>
               </div>
             </button>
-            
+
             <button type="button" class="preset-btn" data-preset="flame-oracle">
               <div class="preset-image">
                 <img src="/images/image-packs/characters/ember-gaze.jpg" alt="Ember Gaze" />
@@ -392,40 +396,35 @@
                 <div class="preset-type">Center Bottom-heavy • Full Bleed</div>
               </div>
             </button>
-          </div>
-        </div>
 
-        <!-- AI Card Creator -->
-        <div class="random-section cf-ai-creator-section">
-          <h4 class="random-title"><i class="fas fa-bolt"></i> AI Card Creator <span id="cf-ai-remaining" class="cf-ai-counter"></span></h4>
-          <p class="random-helper">Describe any character and AI will generate the entire card — name, stats, attributes, badges, lore, and artwork.</p>
-          <div class="cf-ai-prompt-wrapper">
-            <textarea id="cf-ai-prompt" class="cf-ai-prompt" rows="2" placeholder="e.g. A cyberpunk samurai who controls lightning..." aria-label="AI character description"></textarea>
-          </div>
-          <div class="roll-button-container">
-            <button type="button" id="cf-ai-full-generate-btn" class="roll-btn cf-ai-generate-btn" title="Generate a complete card from your description">
-              <div class="roll-icon"><span class="cf-ai-btn-icon"><i class="fas fa-bolt"></i></span></div>
-              <div class="roll-text">
-                <div class="roll-label cf-ai-btn-label">Create Full Card</div>
-                <div class="roll-subtitle">Name + Stats + Attributes + Buffs & Traits + Lore + Artwork</div>
+            <button type="button" class="cf-random-tile" id="cf-tile-random">
+              <div class="preset-image cf-random-tile__icon">
+                <i class="fas fa-shuffle" aria-hidden="true"></i>
+              </div>
+              <div class="preset-info">
+                <div class="preset-character"><i class="fas fa-dice"></i> Wildcard</div>
+                <div class="preset-name">Roll the Dice</div>
+                <div class="preset-type">Random style • Random class • Random rarity</div>
               </div>
             </button>
           </div>
         </div>
 
-
-        <!-- Random Generator -->
-        <div class="random-section">
-          <h4 class="random-title">Random Generator</h4>
-          <p class="random-helper">Generate a completely random card with one click.</p>
-          <div class="roll-button-container">
-            <button type="button" id="roll-random-preset" class="roll-btn">
-              <div class="roll-icon"><i class="fas fa-shuffle"></i></div>
-              <div class="roll-text">
-                <div class="roll-label">Roll Random Card</div>
-                <div class="roll-subtitle">Generate surprise combination</div>
-              </div>
-            </button>
+        <div class="cf-tab-panel" data-tab-id="ai-generate" role="tabpanel" hidden>
+          <div class="random-section cf-ai-creator-section">
+            <h4 class="random-title"><i class="fas fa-bolt"></i> Describe your card <span id="cf-ai-remaining" class="cf-ai-counter"></span></h4>
+            <div class="cf-ai-prompt-wrapper">
+              <textarea id="cf-ai-prompt" class="cf-ai-prompt" rows="3" placeholder="e.g. A cyberpunk samurai who controls lightning..." aria-label="AI character description"></textarea>
+            </div>
+            <div class="roll-button-container">
+              <button type="button" id="cf-ai-full-generate-btn" class="roll-btn cf-ai-generate-btn" title="Generate a complete card from your description">
+                <div class="roll-icon"><span class="cf-ai-btn-icon"><i class="fas fa-bolt"></i></span></div>
+                <div class="roll-text">
+                  <div class="roll-label cf-ai-btn-label">Create Full Card</div>
+                  <div class="roll-subtitle">Name + Stats + Attributes + Buffs & Traits + Lore + Artwork</div>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -446,45 +445,59 @@
               <span class="craft-row-chevron">›</span>
             </div>
             <div class="craft-row-body" id="craft-artwork-body">
-            
+
             <!-- Hidden field to store selected image URL -->
             <input type="hidden" id="card-avatar" value="" />
-            
-            <div class="image-chooser-section">
-              <label>Choose from Gallery:</label>
-              <div class="image-chooser-controls">
-                <div class="image-pagination">
-                  <button type="button" id="prev-page">« Prev</button>
-                  <span id="page-info">Page 1</span>
-                  <button type="button" id="next-page">Next »</button>
-                </div>
-              </div>
-              <div id="inline-image-grid" class="inline-image-grid">
-                <span class="cf-empty-state">No images yet</span>
-              </div>
+
+            <div class="cf-tabs" role="tablist" aria-label="Artwork source">
+              <button type="button" class="cf-tab cf-tab--active" role="tab"
+                      data-tab-target="artwork-gallery" aria-selected="true">Gallery</button>
+              <button type="button" class="cf-tab" role="tab"
+                      data-tab-target="artwork-generate" aria-selected="false">Generate</button>
+              <button type="button" class="cf-tab" role="tab"
+                      data-tab-target="artwork-url" aria-selected="false">URL</button>
             </div>
-            
-            <div class="cf-ai-image-section">
-              <label for="cf-ai-image-prompt">Generate with AI:</label>
-              <div class="cf-ai-prompt-wrapper">
-                <textarea id="cf-ai-image-prompt" class="cf-ai-prompt" rows="2" placeholder="e.g. A glowing elven warrior with crystal armor..."></textarea>
-              </div>
-              <div class="cf-ai-quick-inline">
-                <button type="button" id="cf-ai-image-btn" class="roll-btn cf-ai-generate-btn cf-ai-inline-btn" title="Generate card artwork using AI">
-                  <span class="cf-ai-btn-icon"><i class="fas fa-image"></i></span>
-                  <span class="cf-ai-btn-label">AI Generate Artwork</span>
-                </button>
+
+            <div class="cf-tab-panel cf-tab-panel--active" data-tab-id="artwork-gallery" role="tabpanel">
+              <div class="image-chooser-section">
+                <div class="image-chooser-controls">
+                  <div class="image-pagination">
+                    <button type="button" id="prev-page">« Prev</button>
+                    <span id="page-info">Page 1</span>
+                    <button type="button" id="next-page">Next »</button>
+                  </div>
+                </div>
+                <div id="inline-image-grid" class="inline-image-grid">
+                  <span class="cf-empty-state">No images yet</span>
+                </div>
               </div>
             </div>
 
-            <div class="custom-url-toggle-section">
-              <button type="button" class="cf-url-toggle" id="cf-url-toggle-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                <i class="fas fa-link"></i> Use a URL instead
-              </button>
-              <div class="custom-url-section" style="display:none;">
+            <div class="cf-tab-panel" data-tab-id="artwork-generate" role="tabpanel" hidden>
+              <div class="cf-ai-image-section">
+                <label for="cf-ai-image-prompt">Describe the artwork:</label>
+                <div class="cf-ai-prompt-wrapper">
+                  <textarea id="cf-ai-image-prompt" class="cf-ai-prompt" rows="3" placeholder="e.g. A glowing elven warrior with crystal armor..."></textarea>
+                </div>
+                <div class="cf-ai-quick-inline">
+                  <button type="button" id="cf-ai-image-btn" class="roll-btn cf-ai-generate-btn cf-ai-inline-btn" title="Generate card artwork from your description">
+                    <span class="cf-ai-btn-icon"><i class="fas fa-image"></i></span>
+                    <span class="cf-ai-btn-label">Generate Artwork</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="cf-tab-panel" data-tab-id="artwork-url" role="tabpanel" hidden>
+              <div class="custom-url-section">
+                <label for="custom-url-input">Paste an image URL:</label>
                 <div class="url-input-group">
                   <input type="url" id="custom-url-input" placeholder="https://..." aria-label="Custom image URL" />
                   <button type="button" id="use-custom-url" class="use-url-btn">Use URL</button>
+                </div>
+                <div class="cf-url-preview-wrap" id="cf-url-preview-wrap">
+                  <p class="cf-url-preview-empty">Paste a URL above to preview the image.</p>
+                  <img class="cf-url-preview" id="cf-url-preview" alt="URL preview" hidden />
                 </div>
               </div>
             </div>
@@ -1270,17 +1283,7 @@
             </div>
           </div>
 
-          <!-- DESIGN SNAPSHOT STRIP -->
           <div class="craft-snapshot" id="craft-completion">
-            <span class="craft-snapshot-label">Design</span>
-            <div class="craft-snapshot-chips" id="craft-snapshot-chips">
-              <span class="snap-chip" data-snap="artwork">—</span>
-              <span class="snap-chip" data-snap="frame">Masked · Circle</span>
-              <span class="snap-chip" data-snap="mood">Neon Light</span>
-              <span class="snap-chip" data-snap="comp">Center · Balanced</span>
-              <span class="snap-chip" data-snap="effects">—</span>
-              <span class="snap-chip" data-snap="font">Inter</span>
-            </div>
             <button type="button" class="craft-completion-btn" id="craft-completion-cta">Next: Basics →</button>
           </div>
 
@@ -1766,35 +1769,36 @@
   <div class="cf-tour-backdrop" id="cf-tour-backdrop" style="display:none;"></div>
 
   <!-- CardForge Core — bump ?v= to bust CDN cache on deploy -->
-  <script src="/cardforge/js/config.js?v=20260425g"></script>
-  <script src="js/cardforge-published-events.js?v=20260425g" defer></script>
-  <script src="js/cardforge-my-published-cards.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/csrf-protection.js?v=20260425g"></script>
-  <script src="/cardforge/js/validation-utils.js?v=20260425g"></script>
-  <script src="/cardforge/js/ui-utils.js?v=20260425g"></script>
-  <script>if(location.hostname!=='ambientpixels.ai'){document.write('<scr'+'ipt src="/cardforge/js/debug-utils.js?v=20260425g"><\/scr'+'ipt>')}</script>
-  <script src="/cardforge/js/entitlements.js?v=20260425g"></script>
-  <script src="/cardforge/js/card-forge.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/cardforge-template-loader.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/cardforge-presets.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/card-forge-editor.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/cardforge-publish.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/right-column.js?v=20260425g" defer></script>
+  <script src="/cardforge/js/config.js?v=20260425i"></script>
+  <script src="js/cardforge-published-events.js?v=20260425i" defer></script>
+  <script src="js/cardforge-my-published-cards.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/csrf-protection.js?v=20260425i"></script>
+  <script src="/cardforge/js/validation-utils.js?v=20260425i"></script>
+  <script src="/cardforge/js/ui-utils.js?v=20260425i"></script>
+  <script>if(location.hostname!=='ambientpixels.ai'){document.write('<scr'+'ipt src="/cardforge/js/debug-utils.js?v=20260425i"><\/scr'+'ipt>')}</script>
+  <script src="/cardforge/js/entitlements.js?v=20260425i"></script>
+  <script src="/cardforge/js/card-forge.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/cardforge-template-loader.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/cardforge-presets.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/card-forge-editor.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/cardforge-publish.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/right-column.js?v=20260425i" defer></script>
 
   <!-- === Application Insights (Production Only) === -->
   <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous" defer></script>
-  <script src="/cardforge/js/cardforge-layout.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/cardforge-completion-dots.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/cardforge-keyboard.js?v=20260425g" defer></script>
-  <script src="js/cardforge-modals.js?v=20260425g" defer></script>
-  <script src="js/cardforge-forge-actions.js?v=20260425g" defer></script>
-  <script src="js/cardforge-lightbox.js?v=20260425g" defer></script>
-  <script src="js/cardforge-card-helpers.js?v=20260425g" defer></script>
-  <script src="js/cardforge-ai.js?v=20260425g" defer></script>
-  <script src="js/cardforge-quick-build.js?v=20260425g" defer></script>
-  <script src="js/cardforge-image-sliders.js?v=20260425g" defer></script>
-  <script src="js/cardforge-image-drag.js?v=20260425g" defer></script>
-  <script src="/cardforge/js/app-insights.js?v=20260425g"></script>
+  <script src="/cardforge/js/cardforge-layout.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/cardforge-completion-dots.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/cardforge-keyboard.js?v=20260425i" defer></script>
+  <script src="js/cardforge-modals.js?v=20260425i" defer></script>
+  <script src="js/cardforge-forge-actions.js?v=20260425i" defer></script>
+  <script src="js/cardforge-lightbox.js?v=20260425i" defer></script>
+  <script src="js/cardforge-card-helpers.js?v=20260425i" defer></script>
+  <script src="js/cardforge-ai.js?v=20260425i" defer></script>
+  <script src="js/cardforge-quick-build.js?v=20260425i" defer></script>
+  <script src="js/cardforge-image-sliders.js?v=20260425i" defer></script>
+  <script src="js/cardforge-image-drag.js?v=20260425i" defer></script>
+  <script src="js/cardforge-tabs.js?v=20260425i" defer></script>
+  <script src="/cardforge/js/app-insights.js?v=20260425i"></script>
 
   <!-- Lightbox — Gallery Card Viewer -->
   <div id="cardforge-lightbox">

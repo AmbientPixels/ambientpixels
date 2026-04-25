@@ -1193,46 +1193,15 @@ body.cf-ui--neon .zone-header h3 i {
   border-color: var(--mood-primary-color, #ff9a4e);
 }
 
-/* ── Design Snapshot Strip ── */
+/* ── Design Section Footer (next-step CTA wrapper) ──
+   Was the "Design Snapshot" strip with summary chips; pills were
+   dropped as inert read-only noise. Container now just right-aligns
+   the next-step button at the bottom of the design section. */
 .craft-snapshot {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  justify-content: flex-end;
+  padding: 0.5rem 0;
   margin-top: 0.5rem;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.craft-snapshot-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--mood-text-secondary, #a6aeb9);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
-
-.craft-snapshot-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.snap-chip {
-  display: inline-block;
-  padding: 0.15rem 0.45rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  font-size: 0.65rem;
-  color: var(--mood-text-secondary, #a6aeb9);
-  white-space: nowrap;
-  line-height: 1.3;
 }
 
 .craft-completion-btn {
@@ -4730,7 +4699,7 @@ opacity: 1;
    pane height instead of crowding at the top with a big gap above
    the prev/next nav. Title/description stay natural-size; step-nav
    remains pinned bottom via margin-top:auto above. */
-.cf-main-pane .cf-section > *:not(.cf-section-title):not(.cf-section-description):not(.cf-step-nav):not(script) {
+.cf-main-pane .cf-section > *:not(.cf-section-title):not(.cf-section-description):not(.cf-step-nav):not(.cf-tabs):not(script) {
   flex: 1 1 auto;
 }
 
@@ -4996,16 +4965,9 @@ opacity: 1;
   font-size: 10px !important;
 }
 
-/* 9. Compact artwork picker (Artwork tier). */
-.cf-main-pane #inline-image-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)) !important;
-  gap: 3px !important;
-}
-.cf-main-pane #inline-image-grid > * {
-  width: 56px !important;
-  height: 56px !important;
-}
+/* 9. Artwork picker — gallery grid now sized by the tab-panel rule
+   in cardforge-ui-components.css. The legacy compact-grid override
+   that cramped thumbs to 56px was removed during the tabbed refactor. */
 .cf-main-pane .image-pagination {
   padding: 4px !important;
   font-size: 10px !important;

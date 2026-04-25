@@ -3142,3 +3142,213 @@ body.cf-ui--clean [data-save-state] {
   color: #fff;
   box-shadow: 0 0 18px var(--cf-ob-ember-33);
 }
+
+/* ============================================================
+   Generic tab primitive — first introduced for Quick Start.
+   Reusable across editor sections. Selectors are deliberately
+   compound (e.g., .cf-tabs .cf-tab) so they outrank the
+   .cardforge-form button rule in cardforge-forms.css that styles
+   any <button> inside the form pane. */
+.cf-tabs {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  border-bottom: 1px solid var(--cf-ob-line-1);
+  margin: 0 0 12px;
+}
+.cf-tabs .cf-tab {
+  flex: 1;
+  padding: 10px 14px;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--cf-ob-text-mute);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.cf-tabs .cf-tab:hover {
+  background: transparent;
+  color: var(--cf-ob-text-2);
+  border-color: transparent;
+  border-bottom-color: transparent;
+}
+.cf-tabs .cf-tab.cf-tab--active {
+  background: transparent;
+  color: var(--cf-ob-ember);
+  border-bottom-color: var(--cf-ob-ember);
+  font-weight: 600;
+}
+.cf-tab-panel { display: none; }
+.cf-tab-panel.cf-tab-panel--active { display: block; }
+
+/* Templates tab: pin the grid at 4 columns (overrides auto-fit).
+   minmax(0, 1fr) prevents min-content from inflating any column.
+   Panel becomes a flex column so the grid can stretch vertically and
+   distribute its 3 rows across the available section height. */
+.cf-tab-panel[data-tab-id="templates"] {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.cf-tab-panel[data-tab-id="templates"] .presets-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  flex: 1;
+  align-content: stretch;
+  max-width: none;
+  min-height: 0;
+}
+/* Templates-tab tiles use a vertical card layout (image top, text below)
+   so they read well at the larger row height. Default .preset-btn rules
+   in cardforge-base.css use a horizontal flex; this scoped override only
+   reshapes tiles inside the templates panel. Other uses of .preset-btn
+   (gallery thumbs etc.) keep the original horizontal layout. */
+.cf-tab-panel[data-tab-id="templates"] .preset-btn,
+.cf-tab-panel[data-tab-id="templates"] .cf-random-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+.cf-tab-panel[data-tab-id="templates"] .preset-btn .preset-image,
+.cf-tab-panel[data-tab-id="templates"] .cf-random-tile .cf-random-tile__icon {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  margin: 0;
+  border-radius: 0;
+  border: none;
+}
+.cf-tab-panel[data-tab-id="templates"] .preset-btn .preset-info,
+.cf-tab-panel[data-tab-id="templates"] .cf-random-tile .preset-info {
+  padding: 8px 10px 10px;
+  flex: 1;
+  justify-content: center;
+}
+.cf-tab-panel[data-tab-id="templates"] .cf-random-tile .cf-random-tile__icon {
+  font-size: 36px;
+}
+
+/* ============================================================
+   Artwork tier tabs (Gallery / Generate / URL).
+   The artwork craft-row body is a normal block; opt the panels
+   into flex-column so the gallery grid can stretch vertically.
+   ============================================================ */
+#craft-artwork-body .cf-tab-panel.cf-tab-panel--active {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Gallery panel: stretch grid to fill available height. Bigger
+   thumbnails (auto-fill at 110px min) so the grid uses the space
+   without needing a JS pagination rewrite. */
+.cf-tab-panel[data-tab-id="artwork-gallery"] .image-chooser-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.cf-tab-panel[data-tab-id="artwork-gallery"] #inline-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+  flex: 1;
+  align-content: start;
+  min-height: 0;
+}
+.cf-tab-panel[data-tab-id="artwork-gallery"] #inline-image-grid img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, outline-color 0.15s ease;
+  outline: 2px solid transparent;
+}
+.cf-tab-panel[data-tab-id="artwork-gallery"] #inline-image-grid img:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  outline-color: var(--cf-ob-ember-33);
+}
+.cf-tab-panel[data-tab-id="artwork-gallery"] #inline-image-grid img.selected {
+  outline-color: var(--cf-ob-ember);
+}
+
+/* URL tab: preview area below the input row */
+.cf-tab-panel[data-tab-id="artwork-url"] .cf-url-preview-wrap {
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px dashed var(--cf-ob-line-2);
+  border-radius: var(--cf-ob-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  flex: 1;
+}
+.cf-tab-panel[data-tab-id="artwork-url"] .cf-url-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: var(--cf-ob-radius-md);
+}
+.cf-tab-panel[data-tab-id="artwork-url"] .cf-url-preview-empty {
+  color: var(--cf-ob-text-mute);
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Tile typography clamps — apply to all 3 text slots on every tile */
+.preset-btn .preset-character,
+.cf-random-tile .preset-character,
+.preset-btn .preset-type,
+.cf-random-tile .preset-type {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.preset-btn .preset-name,
+.cf-random-tile .preset-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Random tile — composes onto .preset-btn structure (duplicated values, see plan) */
+.cf-random-tile {
+  background: var(--glass-bg);
+  border: 1px dashed var(--mood-accent-color);
+  border-radius: 12px;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  color: var(--text-primary);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.cf-random-tile:hover {
+  border-color: var(--cf-ob-ember);
+  background: var(--glass-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+.cf-random-tile .cf-random-tile__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--mood-accent-color);
+  background: transparent;
+  border-color: transparent;
+}
+.cf-random-tile:hover .cf-random-tile__icon { color: var(--cf-ob-ember); }
