@@ -3305,6 +3305,54 @@ body.cf-ui--clean [data-save-state] {
   margin: 0;
 }
 
+/* ============================================================
+   Modular design tiers (Image Effects, Style & Mood, Typography,
+   Composition, Card Effects) — make the active tier and its inner
+   level grids fill the panel height instead of clustering at top.
+   ============================================================ */
+.cf-main-pane .cf-section[data-step-section="1"] .modular-system {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.cf-main-pane .cf-section[data-step-section="1"] .modular-system > .modular-tier,
+.cf-main-pane .cf-section[data-step-section="1"] .modular-system > .artwork-section {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.cf-main-pane .cf-section[data-step-section="1"] .modular-system > .craft-snapshot {
+  flex: 0 0 auto;
+}
+/* tier-content fills the modular-tier height via height:100% so the
+   level grids inside have something to size against. Buttons keep
+   their natural sizes (no aggressive stretch); we just give them more
+   vertical breathing room with grid-auto-rows on the inner option
+   grids and a generous gap on the container-section. */
+.modular-tier .tier-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.modular-tier .tier-content > .container-section {
+  flex: 1;
+  align-content: start;
+  min-height: 0;
+}
+.modular-tier .container-level .tier-options-grid {
+  grid-auto-rows: minmax(130px, auto);
+}
+.modular-tier .container-level .variant-options {
+  grid-auto-rows: minmax(130px, auto);
+}
+/* Bigger preview icon inside each option button — fills more of the
+   taller button so the visual hierarchy stays balanced. */
+.modular-tier .tier-option .option-preview,
+.modular-tier .variant-option .variant-preview {
+  width: 60px;
+  height: 60px;
+}
+
 /* Tile typography clamps — apply to all 3 text slots on every tile */
 .preset-btn .preset-character,
 .cf-random-tile .preset-character,
