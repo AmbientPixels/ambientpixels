@@ -4031,7 +4031,12 @@ opacity: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  /* Section grows to fit its content — no clipping. */
+  /* Each section fills the main-pane vertically so the right rail
+     stays a consistent height across nav switches — no jarring
+     resize between Typography (short) and Card Effects (tall).
+     Inner content can still grow naturally; sections that don't
+     fill the height get empty space below the prev/next nav. */
+  min-height: calc(100vh - 100px);
 }
 .cf-main-pane .cf-section.active { display: flex !important; }
 .cf-main-pane .cf-section-title {
