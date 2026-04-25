@@ -555,21 +555,39 @@ class CardForgeActions {
         cardId = match ? match.id : null;
       }
       if (!cardId) {
-        // Auto-save the card first
-        this.handleSaveCard();
-        // Wait briefly for save to complete, then retry
-        const self = this;
-        setTimeout(function() {
-          // After save, the card should now be in localStorage
-          const freshCards = self.getSavedCards();
-          const saved = freshCards.find(c => (c.cardData || c).name === cardData.name);
-          if (saved) {
-            if (idField) idField.value = saved.id;
-            self._doPublishCard(saved.id);
-          } else {
-            self.showNotification('Could not save card — please save manually first', 'error');
+        // Auto-save SYNCHRONOUSLY to localStorage so we have a stable ID
+        // immediately, then publish. handleSaveCard() still fires for the
+        // cloud sync, but we don't race its async fetch — publish only
+        // needs the local entry to exist. Previous flow used a 500ms
+        // setTimeout which lost the race when the cloud POST took longer
+        // (always, with multi-MB base64 avatars).
+        cardId = this.generateCardId();
+        if (idField) idField.value = cardId;
+        const newSavedCard = {
+          id: cardId,
+          name: cardData.name.trim(),
+          createdAt: new Date().toISOString(),
+          lastModified: new Date().toISOString(),
+          cardData: cardData,
+          isPublished: false,
+          deckIds: []
+        };
+        savedCards.unshift(newSavedCard);
+        try {
+          localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+        } catch (storageErr) {
+          // Quota exceeded — prune oldest and retry once. Mirrors handleSaveCard's pattern.
+          console.warn('[CardForge] localStorage quota exceeded during auto-save-on-publish, pruning oldest cards');
+          while (savedCards.length > 20) savedCards.pop();
+          try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards)); }
+          catch (_) {
+            this.showNotification('Storage full — please delete some saved cards', 'error');
+            return;
           }
-        }, 500);
+        }
+        // Fire the cloud sync in the background (don't await — publish proceeds immediately).
+        try { this.handleSaveCard(); } catch (_) {}
+        this._doPublishCard(cardId);
         return;
       }
 
