@@ -3999,30 +3999,28 @@ opacity: 1;
    User requires: no scroll, everything above the fold.
    ========================================================= */
 
-/* 1. Main pane is fixed to viewport-below-topbar height. */
+/* 1. Main pane: fixed viewport height, silent vertical overflow.
+      Scrollbars are hidden globally below — content can scroll if it
+      exceeds height, but the user never sees scroll chrome. */
 .cf-main-pane {
   height: calc(100vh - 80px);
-  overflow: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 .cf-main-pane .cf-left-column,
 .cf-main-pane .cardforge-editor,
 .cf-main-pane #card-editor-form {
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 .cf-main-pane .cf-section {
-  flex: 1;
-  min-height: 0;
   padding: 4px 8px !important;
   margin: 0 !important;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  overflow: hidden;
+  /* Section grows to fit its content — no clipping. */
 }
 .cf-main-pane .cf-section.active { display: flex !important; }
 .cf-main-pane .cf-section-title {
@@ -4260,14 +4258,15 @@ opacity: 1;
 .cf-main-pane .effect-chips {
   display: grid !important;
   grid-template-columns: repeat(9, 1fr) !important;
-  gap: 2px !important;
+  gap: 4px !important;
   padding: 0 !important;
   margin: 0 !important;
-  grid-auto-rows: 22px;
-  max-height: 68px;
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
+
+/* Hide scrollbars on all inner scrollable child containers in the
+   main pane. User wants no visible scroll chrome anywhere. */
+.cf-main-pane *::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.cf-main-pane * { scrollbar-width: none; -ms-overflow-style: none; }
 .cf-main-pane .effect-chips > * {
   padding: 4px 2px !important;
   font-size: 9px !important;
@@ -4285,11 +4284,16 @@ opacity: 1;
   display: none !important;
 }
 .cf-main-pane .effect-chips > button {
-  height: 24px !important;
-  min-height: 0 !important;
-  padding: 1px !important;
-  font-size: 8px !important;
-  line-height: 1;
+  min-height: 44px !important;
+  height: auto !important;
+  padding: 4px 2px !important;
+  font-size: 9px !important;
+  line-height: 1.15;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 }
 .cf-main-pane .effect-control { margin: 0 0 4px !important; }
 .cf-main-pane .effect-control h5,
@@ -4368,8 +4372,6 @@ opacity: 1;
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)) !important;
   gap: 3px !important;
-  max-height: 180px;
-  overflow-y: auto;
 }
 .cf-main-pane #inline-image-grid > * {
   width: 56px !important;
@@ -4428,8 +4430,6 @@ opacity: 1;
 }
 .cf-main-pane .basics-classification .styling-options { margin: 0 !important; }
 .cf-main-pane .basics-classification .icon-picker-container {
-  max-height: 180px !important;
-  overflow-y: auto !important;
   padding: 2px !important;
 }
 .cf-main-pane .basics-classification .icon-picker {
