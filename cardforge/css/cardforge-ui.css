@@ -4393,7 +4393,7 @@ opacity: 1;
   padding: 0 !important;
   display: grid !important;
   grid-template-columns: 1fr 1fr;
-  gap: 6px 10px;
+  gap: 10px 12px;
   align-items: start;
 }
 /* Container Type (first container-level) left; Variant (2nd) right. */
@@ -4403,46 +4403,75 @@ opacity: 1;
 .cf-main-pane .container-section > .container-level:nth-of-type(2) {
   grid-column: 2;
 }
-/* Effects chooser + filters span the full container, 10-col chips. */
+/* Effects chooser + filters span the full container with bigger chips
+   now that POSITION & ZOOM is gone (drag/wheel handles those). */
 .cf-main-pane .container-section > .effects-level,
 .cf-main-pane .container-section > .effects-type-section {
   grid-column: 1 / -1;
 }
 .cf-main-pane .effects-grid,
 .cf-main-pane .tier-options-grid.effects-grid {
-  grid-template-columns: repeat(10, 1fr) !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 6px !important;
 }
-/* Position sliders row — 3 sliders side-by-side, not stacked. */
+.cf-main-pane .effects-grid > .tier-option,
+.cf-main-pane .tier-options-grid.effects-grid > .tier-option {
+  min-height: 56px !important;
+  padding: 8px 4px !important;
+  font-size: 10px !important;
+}
+.cf-main-pane .effects-grid > .tier-option .option-preview,
+.cf-main-pane .tier-options-grid.effects-grid > .tier-option .option-preview {
+  width: 28px !important;
+  height: 28px !important;
+}
+.cf-main-pane .effects-grid > .tier-option .option-label,
+.cf-main-pane .tier-options-grid.effects-grid > .tier-option .option-label {
+  font-size: 10px !important;
+  margin-top: 4px !important;
+}
+
+/* Container Type chips — bigger now too. */
+.cf-main-pane .container-grid > .tier-option {
+  min-height: 64px !important;
+  padding: 8px 4px !important;
+}
+.cf-main-pane .container-grid > .tier-option .option-preview {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* Container Variant chips — bigger. */
+.cf-main-pane .variant-options > .variant-option {
+  min-height: 64px !important;
+  padding: 8px 4px !important;
+}
+.cf-main-pane .variant-options > .variant-option .variant-preview,
+.cf-main-pane .variant-options > .variant-option .container-icon {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* None/Filters/Overlays toggle pills — give them room. */
+.cf-main-pane .effects-type-section .effects-type-options,
+.cf-main-pane .effects-type-section .tier-options-grid {
+  display: flex !important;
+  gap: 6px !important;
+}
+.cf-main-pane .effects-type-section .tier-option,
+.cf-main-pane .effects-type-section .effects-type-option {
+  flex: 1;
+  min-height: 48px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+}
+/* IMAGE POSITION & ZOOM section — hidden in the Image Effects tier
+   because grab-and-drag on the card image + mousewheel-to-zoom
+   replace it. The underlying inputs (#cf-img-pos-x/y/zoom) stay in
+   the DOM so cardforge-image-sliders.js still applies CSS vars and
+   cardforge-image-drag.js writes to them. */
 .cf-main-pane .position-level {
-  grid-column: 1 / -1;
-}
-.cf-main-pane .position-level .cf-image-sliders,
-.cf-main-pane .position-level .position-sliders {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1fr auto;
-  gap: 10px;
-  align-items: center;
-}
-.cf-main-pane .position-level .cf-slider-row {
-  display: grid !important;
-  grid-template-columns: auto 1fr auto;
-  gap: 6px;
-  align-items: center;
-  margin: 0 !important;
-}
-.cf-main-pane .position-level .cf-slider-row label {
-  font-size: 10px !important;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin: 0 !important;
-}
-.cf-main-pane .position-level .cf-slider-row input[type="range"] {
-  width: 100%;
-}
-.cf-main-pane .position-level .cf-slider-value {
-  font-size: 10px !important;
-  min-width: 32px;
-  text-align: right;
+  display: none !important;
 }
 .cf-main-pane .container-level { margin: 0 !important; padding: 0 !important; }
 .cf-main-pane .effects-level { margin: 0 !important; }
