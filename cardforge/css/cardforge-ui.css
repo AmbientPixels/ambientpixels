@@ -4476,7 +4476,12 @@ opacity: 1;
 .cf-main-pane .container-level { margin: 0 !important; padding: 0 !important; }
 .cf-main-pane .effects-level { margin: 0 !important; }
 .cf-main-pane .effects-type-section { margin: 0 !important; }
-.cf-main-pane .container-variants { margin: 0 !important; }
+.cf-main-pane .container-variants {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
 .cf-main-pane .effect-chips > button i {
   font-size: 10px !important;
   margin-bottom: 1px !important;
