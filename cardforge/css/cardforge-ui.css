@@ -4246,12 +4246,12 @@ opacity: 1;
 }
 .cf-main-pane .stats-panel { padding: 0 !important; gap: 4px !important; }
 
-/* Custom stats — 2-col grid so 6+ rows fit comfortably; each row
-   tight + horizontal (label | input | remove btn). */
+/* Custom stats — single column, each stat row is one horizontal
+   line: icon | name input | slider (flex) | value | remove. */
 .cf-main-pane #stats-editor {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 8px !important;
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px !important;
 }
 .cf-main-pane #stats-editor .stat-row {
   display: block !important;
@@ -4300,14 +4300,25 @@ opacity: 1;
   font-size: 11px !important;
 }
 
-/* Per-stat icon picker. The little icon button left of the stat
-   name. Clicking it opens a small popover with curated FA icons. */
-.cf-main-pane #stats-editor .stat-row .stat-header {
+/* Stat row = one horizontal line: icon | name | slider | value | remove.
+   .stat-header + .stat-control wrappers use display:contents so their
+   children flow directly into the parent .stat-row grid. */
+.cf-main-pane #stats-editor .stat-row {
   display: grid !important;
-  grid-template-columns: 28px 1fr 36px 24px;
-  gap: 4px;
+  grid-template-columns: 28px 1fr 2fr 36px 24px;
+  grid-auto-flow: dense;
+  gap: 6px;
   align-items: center;
 }
+.cf-main-pane #stats-editor .stat-row .stat-header,
+.cf-main-pane #stats-editor .stat-row .stat-control {
+  display: contents;
+}
+.cf-main-pane #stats-editor .stat-row .stat-icon-btn { grid-column: 1; }
+.cf-main-pane #stats-editor .stat-row input[name="stat-name"] { grid-column: 2; }
+.cf-main-pane #stats-editor .stat-row .stat-slider { grid-column: 3; width: 100%; height: 4px; margin: 0; }
+.cf-main-pane #stats-editor .stat-row .stat-value-display { grid-column: 4; }
+.cf-main-pane #stats-editor .stat-row .remove-attribute { grid-column: 5; }
 .cf-main-pane #stats-editor .stat-icon-btn {
   width: 26px;
   height: 24px;
