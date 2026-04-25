@@ -382,7 +382,10 @@
     }
 
     hideFanLoader();
-    var top10 = realCards.slice(0, 10);
+    // Sort by createdAt desc so the "Recently forged" showcase actually
+    // reflects recency, not API response order. Hero fan handles its own
+    // sort inside applyHeroMode (recent/random/curated).
+    var top10 = realCards.slice().sort(function (a, b) { return timeOf(b) - timeOf(a); }).slice(0, 10);
     var fanPicks = applyHeroMode(realCards, config);
     var prevSig = cachedCards ? gallerySignature(cachedCards.slice(0, 10)) : '';
     var nextSig = gallerySignature(top10);
