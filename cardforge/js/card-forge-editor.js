@@ -3878,7 +3878,7 @@
 
         <div class="info-grid">
           <div class="back-section badges-section">
-            <h4 class="section-title">Buffs & Traits</h4>
+            <h4 class="section-title">Traits</h4>
             <div class="badges-container" data-badge-count="${badgeCount}">
               ${generateBadgesHTML(data.badges)}
             </div>

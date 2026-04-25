@@ -286,7 +286,7 @@
             <div class="info-grid">
               ${badges.length ? `
               <div class="back-section badges-section">
-                <h4 class="section-title">Buffs & Traits</h4>
+                <h4 class="section-title">Traits</h4>
                 <div class="badges-container" data-badge-count="${Math.min(badges.length, BADGE_CAP)}">${badgesHTML(badges)}</div>
               </div>` : ''}
               ${attributes.length ? `
