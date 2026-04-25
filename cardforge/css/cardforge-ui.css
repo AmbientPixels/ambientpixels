@@ -4242,10 +4242,29 @@ opacity: 1;
   flex-shrink: 0;
 }
 
-/* 8. Compact Card Effects (tier 5) — dense 9-col effect-chips grid. */
-.cf-main-pane .card-effects-section { padding: 0 !important; }
+/* 8. Compact Card Effects (tier 5) — sub-sections in 2-col layout
+      so Background + Border + Glow + Intensity all fit above the
+      fold; chips inside each control go 5-col. */
+.cf-main-pane .card-effects-section {
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+  align-items: start;
+}
+.cf-main-pane .card-effects-section > .clear-effects-btn {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
 .cf-main-pane .effect-control {
-  margin: 0 0 6px !important;
+  margin: 0 !important;
+  min-width: 0;
+}
+/* Effect intensity (last effect-control containing the slider) spans
+   the full 2-col grid. Using :has() so we don't depend on nth-of-type
+   which the hidden <select> elements throw off. */
+.cf-main-pane .card-effects-section > .effect-control:has(#cf-effect-intensity) {
+  grid-column: 1 / -1;
 }
 .cf-main-pane .effect-control h5,
 .cf-main-pane .effect-control label {
@@ -4257,7 +4276,7 @@ opacity: 1;
 }
 .cf-main-pane .effect-chips {
   display: grid !important;
-  grid-template-columns: repeat(9, 1fr) !important;
+  grid-template-columns: repeat(5, 1fr) !important;
   gap: 4px !important;
   padding: 0 !important;
   margin: 0 !important;
