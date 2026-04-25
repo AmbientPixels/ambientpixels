@@ -24,7 +24,8 @@ window._config = {
     entitlements: 'cardforge-entitlements',
     checkout: 'cardforge-checkout',
     billingPortal: 'cardforge-billing-portal',
-    blindspotProfile: 'blindspotprofile'
+    blindspotProfile: 'blindspotprofile',
+    heroConfig: 'cardforgeheroconfig'
   },
   
   // Application Insights - Disabled in production until 400 errors are resolved

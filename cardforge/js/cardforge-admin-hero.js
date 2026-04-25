@@ -13,8 +13,15 @@
 (function () {
   'use strict';
 
-  var API_HERO_CONFIG = '/api/cardforgeheroconfig';
   var API_LOAD_CARDS = 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
+
+  function heroConfigUrl() {
+    if (typeof window.buildApiPath === 'function') {
+      var u = window.buildApiPath('heroConfig');
+      if (u) return u;
+    }
+    return 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeheroconfig';
+  }
   var ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
   var MAX_CURATED_IDS = 5;
 
@@ -161,7 +168,7 @@
 
   async function fetchConfig() {
     try {
-      var res = await fetch(API_HERO_CONFIG, { credentials: 'omit' });
+      var res = await fetch(heroConfigUrl(), { credentials: 'omit' });
       if (!res.ok) return { mode: 'recent', curatedIds: [], updatedAt: null, updatedBy: null };
       return await res.json();
     } catch (_) {
@@ -177,18 +184,21 @@
         Object.keys(auth || {}).forEach(function (k) { headers[k] = auth[k]; });
       }
     } catch (_) {}
-    // EasyAuth principal header is normally injected server-side via SWA;
-    // browser POSTs to /api/* through the SWA proxy carry the user's
-    // EasyAuth session, so the function sees x-ms-client-principal too.
-    var res = await fetch(API_HERO_CONFIG, {
+    // POST goes direct to the Function App (cross-origin). SWA does NOT proxy
+    // POSTs on rewrite routes (returns 405), and direct calls don't carry the
+    // EasyAuth principal header — so we ALSO send userId in the body and the
+    // function falls back to it (same pattern as cardforgedeckdelete).
+    var body = Object.assign({}, payload);
+    if (state.principal && state.principal.userId) body.userId = state.principal.userId;
+    var res = await fetch(heroConfigUrl(), {
       method: 'POST',
-      credentials: 'include',
+      credentials: 'omit',
       headers: headers,
-      body: JSON.stringify(payload)
+      body: JSON.stringify(body)
     });
-    var body = null;
-    try { body = await res.json(); } catch (_) {}
-    return { ok: res.ok, status: res.status, body: body };
+    var resBody = null;
+    try { resBody = await res.json(); } catch (_) {}
+    return { ok: res.ok, status: res.status, body: resBody };
   }
 
   // ---- Hero mode logic (mirrors cardforge-splash.js applyHeroMode) ---

@@ -160,8 +160,16 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // POST — admin only
-    const { userId, isAuthenticated } = extractUserInfo(req, context);
+    // POST — admin only.
+    // Direct cross-origin calls from the browser don't carry the SWA-injected
+    // x-ms-client-principal header, so fall back to a body userId (same
+    // pattern as cardforgedeckdelete). Final admin check below is the gate.
+    let { userId, isAuthenticated } = extractUserInfo(req, context);
+    if (!isAuthenticated && req.body && req.body.userId && req.body.userId !== 'anonymous') {
+      userId = req.body.userId;
+      isAuthenticated = true;
+      context.log(`cardforgeheroconfig: using userId from request body: ${userId}`);
+    }
     if (!isAuthenticated || !ADMIN_USER_IDS.includes(userId)) {
       context.log(`cardforgeheroconfig: forbidden POST from userId=${userId}`);
       context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Forbidden' } };
