@@ -3911,11 +3911,10 @@ opacity: 1;
 }
 
 .cf-preview-pane {
-  /* Match the obsidian panel chrome of the rail + main-pane so the
-     three columns read as one unified surface. */
-  background: var(--cf-ob-bg-1);
-  border-left: 1px solid var(--cf-ob-line-1);
-  border-right: 1px solid var(--cf-ob-line-1);
+  /* Transparent — the body's obsidian bg shows through. The card
+     floats centered in the column with no panel chrome around it. */
+  background: transparent;
+  border: none;
   position: relative;
   z-index: 1;
   display: flex !important;
