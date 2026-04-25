@@ -3994,6 +3994,17 @@ opacity: 1;
   background-color: var(--cf-ob-ember-dim);
 }
 
+/* Drag-to-position affordance — card-avatar-container and
+   hero-image-container are draggable; wheel zooms. */
+.cf-image-draggable {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.cf-image-draggable.cf-image-dragging { cursor: grabbing; }
+.cf-image-draggable:hover { outline: 1px dashed var(--cf-ob-ember-33); outline-offset: 2px; }
+.cf-image-draggable img { pointer-events: none; user-select: none; }
+
 /* =========================================================
    Fixed-height main pane + force tiers open + compact layout
    User requires: no scroll, everything above the fold.
