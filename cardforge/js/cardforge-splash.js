@@ -86,7 +86,12 @@
   // ---- Gallery fetch + render ----------------------------------------
 
   var API_LOAD_CARDS = 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
-  var API_HERO_CONFIG = '/api/cardforgeheroconfig';
+  // Direct Function App URL — SWA's /api/* rewrite to the external Function
+  // App is not actually proxying (returns the home page HTML for unknown
+  // routes via navigationFallback). All other CardForge modules use the
+  // direct URL for the same reason. Keep this in sync with the admin's
+  // heroConfigUrl() in cardforge-admin-hero.js.
+  var API_HERO_CONFIG = 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeheroconfig';
   var DEFAULT_HERO_CONFIG = { mode: 'recent', curatedIds: [], updatedAt: null, updatedBy: null };
 
   // Preset fallbacks — used as initial placeholders before the API
