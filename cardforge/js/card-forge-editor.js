@@ -34,7 +34,8 @@
     cardBackStyle: 'default',     // default | parchment | dark
     borderRadius: 'default',      // default | sharp | rounded | pill
     effectIntensity: 1.0,          // 0.25 – 1.5
-    statBarColor: 'default'        // default | red | green | blue | gold | rainbow
+    statBarColor: 'default',       // default | red | green | blue | gold | rainbow
+    frontPrimary: 'traits'         // traits (default — badges on front, stats on back) | stats (stats on front, traits on back)
   };
   
   // Make ModularState globally accessible for event handlers
@@ -3841,12 +3842,20 @@
   }
 
   // ===== LAYOUT GENERATORS =====
-  // Front face now renders Traits (badges) where stats used to live.
-  // Stats moved to the back face — see updateBackFace below. The wrapper
-  // keeps `.card-stats` for positioning continuity (each layout's CSS
-  // already places that slot correctly), with `.badges-section` added so
-  // the badges-container grid picks up its existing back-face styling.
+  // The front face slot is shared by Traits (badges) and Stats — user
+  // toggles which renders on the front via ModularState.frontPrimary
+  // ('traits' | 'stats'). Whichever isn't on the front lives on the
+  // back face — see updateBackFace below. Wrapper class stays
+  // .card-stats for positioning continuity across layouts; the inner
+  // structure swaps based on the toggle.
   function frontTraitsBlock(data) {
+    if (ModularState.frontPrimary === 'stats') {
+      return (
+        '<div class="card-stats card-front-stats">' +
+          generateStatsHTML(data.stats) +
+        '</div>'
+      );
+    }
     var badgeCount = data.badges ? Math.min(data.badges.length, BADGE_CAP_MAX) : 0;
     return (
       '<div class="card-stats badges-section card-front-traits">' +
@@ -3969,10 +3978,10 @@
   }
 
   // ===== BACK FACE UPDATE =====
-  // Stats moved here from the front (Traits ↔ Stats swap). Attributes
-  // stay on the back. Wrapper is `.back-section card-stats-back-section`
-  // so it picks up the back-section chrome styling, with the inner
-  // `.card-stats` div carrying the stats-bar layout rules.
+  // Whichever of (Stats, Traits) isn't on the front lives here.
+  // Default: Stats on back, Traits on front (frontPrimary='traits').
+  // Swapped:  Traits on back, Stats on front  (frontPrimary='stats').
+  // Attributes always live on the back regardless of the swap.
   function updateBackFace(data) {
     const back = document.querySelector('.card-preview-zone .card-back');
     if (!back) return;
@@ -3995,12 +4004,21 @@
         ${generateArenaRecordHTML(window._arenaProfile)}
 
         <div class="info-grid">
+          ${ModularState.frontPrimary === 'stats' ? `
+          <div class="back-section card-traits-back-section">
+            <h4 class="section-title">Traits</h4>
+            <div class="badges-container" data-badge-count="${data.badges ? Math.min(data.badges.length, BADGE_CAP_MAX) : 0}">
+              ${generateBadgesHTML(data.badges)}
+            </div>
+          </div>
+          ` : `
           <div class="back-section card-stats-back-section">
             <h4 class="section-title">Stats</h4>
             <div class="card-stats">
               ${generateStatsHTML(data.stats)}
             </div>
           </div>
+          `}
 
           <div class="back-section attributes-section">
             <h4 class="section-title">Attributes</h4>
