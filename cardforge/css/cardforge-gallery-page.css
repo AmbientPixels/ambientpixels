@@ -9,6 +9,15 @@
   color: var(--cf-ob-text-1, #e7ebf1);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
+
+  /* Mini-card scaler vars — picked up by the global .mini-card +
+     .mini-card-scaler rules in cardforge-ui-components.css. The scaler
+     renders the card at full canonical 375px width and transforms it
+     down to --mini-card-scale, clipped by the .mini-card parent's
+     overflow:hidden. Keep the height ratio at 525/375 = 1.4. */
+  --mini-card-scale: 0.78;
+  --mini-card-width: 293px;
+  --mini-card-height: 410px;
 }
 
 .cf-gallery {
@@ -119,24 +128,30 @@
 /* ── Grid ── */
 .cf-gallery__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* auto-fill at the mini-card width keeps tiles snapped to that width
+     so the absolutely-positioned .mini-card-scaler inside lines up. */
+  grid-template-columns: repeat(auto-fill, var(--mini-card-width, 293px));
+  justify-content: center;
   gap: 24px;
   align-items: start;
 }
 .cf-gallery__grid[hidden] { display: none; }
+
+/* Each card tile uses the global .mini-card pattern (position:relative,
+   fixed dims, overflow:hidden) — see cardforge-ui-components.css. We
+   only override the surface chrome: transparent bg, ember border on
+   hover, button reset for the <button> wrapper. No padding — the
+   scaler is absolute-positioned at top:0,left:0 of this element. */
 .cf-gallery__card {
+  padding: 0;
   background: transparent;
   border: 1px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
-  padding: 16px;
+  border-radius: 8px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 380px;
-  transition: border-color 0.18s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
   font-family: inherit;
   color: inherit;
   text-align: left;
+  transition: border-color 0.18s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
 }
 .cf-gallery__card:hover,
 .cf-gallery__card:focus-visible {
@@ -149,32 +164,19 @@
   border-color: var(--cf-ob-ember, #ff7a1a);
 }
 
-/* Mini-card scaler — shrinks the full-size card render to fit the grid
-   tile. The card-render chain assumes ~375px width; we scale to ~80%. */
-.cf-gallery__card .mini-card-scaler {
-  --mini-card-scale: 0.78;
-  transform: scale(var(--mini-card-scale));
-  transform-origin: top center;
-  width: calc(375px * var(--mini-card-scale));
-  height: calc(525px * var(--mini-card-scale));
-}
-.cf-gallery__card .mini-card-scaler > .card-preview-canvas,
-.cf-gallery__card .mini-card-scaler > .card-front {
-  transform: none;
-  width: 375px;
-  pointer-events: none;
-}
-
-/* Fallback portrait tile for cards lacking renderedFront */
+/* Fallback portrait tile for cards lacking renderedFront. Sized to the
+   same mini-card box so it sits flush in the grid alongside rendered
+   cards. */
 .cf-gallery__card .cf-mini-fallback {
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
   background: var(--cf-ob-bg-2, #1a1a2e);
 }
 .cf-gallery__card .cf-mini-fallback__portrait {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  flex: 1;
   background-size: cover;
   background-position: center top;
 }
@@ -183,6 +185,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  border-top: 1px solid var(--cf-ob-line-1, rgba(255,255,255,0.05));
 }
 .cf-gallery__card .cf-mini-fallback__name {
   font-weight: 600;
@@ -222,11 +225,15 @@
   color: var(--cf-ob-ember, #ff7a1a);
 }
 
-/* Responsive */
+/* Responsive — shrink the mini-card vars on narrow viewports so the
+   grid stays at 2 cols on tablet and 1 col on phone. */
 @media (max-width: 720px) {
+  .cf-gallery-page {
+    --mini-card-scale: 0.6;
+    --mini-card-width: 225px;
+    --mini-card-height: 315px;
+  }
   .cf-gallery { padding: 24px 16px 60px; }
-  .cf-gallery__grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-  .cf-gallery__card { min-height: 320px; padding: 12px; }
-  .cf-gallery__card .mini-card-scaler { --mini-card-scale: 0.6; }
+  .cf-gallery__grid { gap: 16px; }
   .cf-gallery__count { width: 100%; margin-left: 0; }
 }
