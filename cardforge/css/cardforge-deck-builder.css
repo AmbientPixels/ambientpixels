@@ -28,17 +28,36 @@
   z-index: 100;
 }
 
+/* Brand mark — matches the splash/gallery style: ember flame icon
+   plus uppercase wordmark with ember gradient. Replaces the old
+   "back arrow + CardForge" navigation button. */
 .db-bar-brand {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #a6aeb9;
-  text-decoration: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 10px;
+  font-family: 'Unbounded', 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--cf-ob-ember, #ff7a1a);
 }
-
-.db-bar-brand:hover { color: #00d4ff; }
+.db-bar-brand > span {
+  background: linear-gradient(135deg, var(--cf-ob-ember, #ff7a1a), var(--cf-ob-ember-soft, #ffa050));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.db-bar-brand__mark {
+  font-size: 20px;
+  color: var(--cf-ob-ember, #ff7a1a);
+  filter: drop-shadow(0 0 8px rgba(255, 122, 26, 0.33));
+  transition: filter 0.2s ease;
+}
+.db-bar-brand:hover .db-bar-brand__mark {
+  filter: drop-shadow(0 0 14px rgba(255, 122, 26, 0.55));
+}
 
 .db-bar-title {
   font-size: 0.9rem;

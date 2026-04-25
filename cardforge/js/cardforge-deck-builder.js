@@ -39,7 +39,7 @@
     const app = document.getElementById('db-app');
     app.innerHTML =
       '<div class="db-bar">' +
-        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-arrow-left"></i> CardForge</a>' +
+        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-actions">' +
           '<button type="button" class="db-btn" id="dv-copy-link"><i class="fas fa-link"></i> Copy Link</button>' +
           '<button type="button" class="db-btn db-btn-primary" id="dv-clone-deck"><i class="fas fa-clone"></i> Clone to My Decks</button>' +
@@ -197,7 +197,7 @@
     return '' +
       '<!-- Top bar -->' +
       '<div class="db-bar">' +
-        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-arrow-left"></i> CardForge</a>' +
+        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-title"><i class="fas fa-hammer"></i> Deck Builder</div>' +
         '<div class="db-bar-actions">' +
           '<button type="button" class="db-btn" id="db-save-btn"><i class="fas fa-save"></i> Save</button>' +
