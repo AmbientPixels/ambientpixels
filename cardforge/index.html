@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425i">
   <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425i">
   <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425i">
-  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425k">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
 </head>
 <body class="cf-splash" data-theme="dark">
@@ -65,9 +65,7 @@
           </a>
         </div>
       </div>
-      <a href="/cardforge/editor.html" class="cf-btn cf-btn--primary" data-splash-cta="nav-open-editor">
-        <i class="fas fa-hammer"></i> Open Editor
-      </a>
+      <a href="/cardforge/editor.html" data-splash-cta="nav-open-editor">Editor</a>
     </div>
   </header>
 
@@ -126,16 +124,19 @@
         <div class="cf-way__icon"><i class="fas fa-bolt"></i></div>
         <h3 class="cf-way__title">Quick Build</h3>
         <p class="cf-way__desc">Describe a character in a sentence. Get a finished card in ten seconds.</p>
+        <i class="fas fa-arrow-right cf-way__arrow" aria-hidden="true"></i>
       </a>
       <a class="cf-way" href="/cardforge/editor.html?start=preset" data-splash-cta="way-preset">
         <div class="cf-way__icon"><i class="fas fa-palette"></i></div>
         <h3 class="cf-way__title">From a Preset</h3>
         <p class="cf-way__desc">Eleven curated starting points &mdash; character, cinematic, minimal, celestial, and more.</p>
+        <i class="fas fa-arrow-right cf-way__arrow" aria-hidden="true"></i>
       </a>
       <a class="cf-way" href="/cardforge/editor.html?start=blank" data-splash-cta="way-blank">
         <div class="cf-way__icon"><i class="fas fa-square"></i></div>
         <h3 class="cf-way__title">Blank Canvas</h3>
         <p class="cf-way__desc">Start from zero. Tune every layer &mdash; image, palette, layout, effects, typography.</p>
+        <i class="fas fa-arrow-right cf-way__arrow" aria-hidden="true"></i>
       </a>
     </div>
   </section>
@@ -150,12 +151,27 @@
   </section>
 
   <footer class="cf-splash-footer">
-    <div>&copy; 2026 AmbientPixels &middot; CardForge</div>
-    <div>
-      <a href="/cardforge/gallery.html">Gallery</a>
-      <a href="/cardforge/deck.html">Decks</a>
-      <a href="/cardforge/editor.html">Editor</a>
+    <div class="cf-splash-footer__cols">
+      <div class="cf-splash-footer__col">
+        <h4 class="cf-splash-footer__heading">Product</h4>
+        <a href="/cardforge/gallery.html">Gallery</a>
+        <a href="/cardforge/deck.html">Decks</a>
+        <a href="/cardforge/editor.html">Editor</a>
+      </div>
+      <div class="cf-splash-footer__col">
+        <h4 class="cf-splash-footer__heading">About</h4>
+        <a href="/">AmbientPixels</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="cf-splash-footer__col">
+        <h4 class="cf-splash-footer__heading">Connect</h4>
+        <a href="#" rel="noopener" target="_blank">X / Twitter</a>
+        <a href="#" rel="noopener" target="_blank">Bluesky</a>
+        <a href="#" rel="noopener" target="_blank">LinkedIn</a>
+      </div>
     </div>
+    <div class="cf-splash-footer__bottom">&copy; 2026 AmbientPixels &middot; CardForge</div>
   </footer>
 
   <script src="/js/telemetry-config.js"></script>

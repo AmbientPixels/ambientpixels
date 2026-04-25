@@ -417,9 +417,10 @@ body.cf-splash {
   opacity: 0;
   transition:
     opacity 0.7s ease-out,
-    transform 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95),
+    transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1),
     box-shadow 320ms ease,
     border-color 280ms ease;
+  will-change: transform;
 }
 .cf-hero-fan.cf-splash-loaded > .cf-hero-fan__card,
 .cf-splash-showcase__strip.cf-splash-loaded > .cf-showcase-card {
@@ -542,16 +543,21 @@ body.cf-splash {
   margin: 0 auto;
 }
 .cf-way {
-  padding: 28px;
+  position: relative;
+  display: block;
+  padding: 28px 28px 52px;
   background: var(--cf-ob-bg-2);
   border: 1px solid var(--cf-ob-line-2);
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, transform 0.2s;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s, background 0.2s, box-shadow 0.2s;
 }
 .cf-way:hover {
   border-color: var(--cf-ob-ember-33);
+  background: var(--cf-ob-bg-3);
   transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--cf-ob-ember-22);
 }
 .cf-way__icon {
   width: 42px;
@@ -563,7 +569,9 @@ body.cf-splash {
   justify-content: center;
   font-size: 18px;
   margin-bottom: 16px;
+  transition: background 0.2s ease;
 }
+.cf-way:hover .cf-way__icon { background: var(--cf-ob-ember-33); }
 .cf-way__title {
   font-family: 'Unbounded', sans-serif;
   font-size: 17px;
@@ -575,6 +583,18 @@ body.cf-splash {
   line-height: 1.5;
   color: var(--cf-ob-text-2);
   margin: 0;
+}
+.cf-way__arrow {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  font-size: 13px;
+  color: var(--cf-ob-text-mute);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.cf-way:hover .cf-way__arrow {
+  color: var(--cf-ob-ember);
+  transform: translateX(3px);
 }
 
 /* ---- Showcase ---- */
@@ -611,16 +631,50 @@ body.cf-splash {
 
 /* ---- Footer ---- */
 .cf-splash-footer {
-  padding: 40px 80px;
+  padding: 48px 80px 32px;
   border-top: 1px solid var(--cf-ob-line-1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   color: var(--cf-ob-text-mute);
   font-size: 12px;
 }
-.cf-splash-footer a { color: var(--cf-ob-text-2); text-decoration: none; margin-right: 18px; }
-.cf-splash-footer a:hover { color: var(--cf-ob-text-1); }
+.cf-splash-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--cf-ob-line-1);
+}
+.cf-splash-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cf-splash-footer__heading {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-mute);
+  margin: 0 0 8px;
+}
+.cf-splash-footer__col a {
+  color: var(--cf-ob-text-2);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.15s ease;
+}
+.cf-splash-footer__col a:hover { color: var(--cf-ob-text-1); }
+.cf-splash-footer__bottom {
+  padding-top: 20px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--cf-ob-text-mute);
+}
 
 /* ---- Responsive ---- */
 @media (max-width: 980px) {
@@ -640,7 +694,8 @@ body.cf-splash {
   .cf-splash-ways__grid { grid-template-columns: 1fr; }
   .cf-splash-nav { padding: 14px 20px; }
   .cf-splash-showcase { padding: 48px 0; }
-  .cf-splash-footer { flex-direction: column; gap: 16px; padding: 32px 24px; text-align: center; }
+  .cf-splash-footer { padding: 32px 24px; }
+  .cf-splash-footer__cols { grid-template-columns: 1fr; gap: 28px; padding-bottom: 24px; text-align: center; }
 }
 
 @media (max-width: 980px) {
