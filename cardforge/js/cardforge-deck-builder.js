@@ -16,7 +16,9 @@
 
   const params = new URLSearchParams(window.location.search);
   const shareId = params.get('deck') || '';
+  const view = params.get('view') || '';
   const isViewMode = !!shareId;
+  const isMyPublishedMode = !shareId && view === 'published';
 
   let _allCards = [];
   let _deckCards = [];   // ordered array of card objects in the deck
@@ -27,6 +29,8 @@
   document.addEventListener('DOMContentLoaded', function () {
     if (isViewMode) {
       bootViewMode();
+    } else if (isMyPublishedMode) {
+      bootMyPublishedMode();
     } else {
       bootBuilderMode();
     }
@@ -159,6 +163,35 @@
   }
 
   // ================================================================
+  //  MY PUBLISHED MODE — list of decks I've published
+  // ================================================================
+  async function bootMyPublishedMode() {
+    const app = document.getElementById('db-app');
+    app.innerHTML =
+      '<div class="db-bar">' +
+        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
+        '<div class="db-bar-tabs">' +
+          '<a href="/cardforge/deck.html" class="db-bar-tab"><i class="fas fa-hammer"></i> Builder</a>' +
+          '<a href="/cardforge/deck.html?view=published" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-share-from-square"></i> My Published</a>' +
+        '</div>' +
+        '<div class="db-bar-actions"></div>' +
+      '</div>' +
+      '<main class="db-mpd-main">' +
+        '<h1 class="db-mpd-title">My Published Decks</h1>' +
+        '<div class="db-mpd-grid" id="cf-mpd-grid">' +
+          '<div class="db-mpd-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading…</p></div>' +
+        '</div>' +
+      '</main>';
+
+    // Wait for auth bootstrap (matches builder mode pattern).
+    if (window._authReady) { try { await window._authReady; } catch (e) {} }
+
+    if (window.CardForgeMyPublishedDecks && window.CardForgeMyPublishedDecks.mount) {
+      window.CardForgeMyPublishedDecks.mount(document.getElementById('cf-mpd-grid'));
+    }
+  }
+
+  // ================================================================
   //  BUILDER MODE — full deck composition
   // ================================================================
   async function bootBuilderMode() {
@@ -198,7 +231,10 @@
       '<!-- Top bar -->' +
       '<div class="db-bar">' +
         '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
-        '<div class="db-bar-title"><i class="fas fa-hammer"></i> Deck Builder</div>' +
+        '<div class="db-bar-tabs">' +
+          '<a href="/cardforge/deck.html" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-hammer"></i> Builder</a>' +
+          '<a href="/cardforge/deck.html?view=published" class="db-bar-tab"><i class="fas fa-share-from-square"></i> My Published</a>' +
+        '</div>' +
         '<div class="db-bar-actions">' +
           '<button type="button" class="db-btn" id="db-save-btn"><i class="fas fa-save"></i> Save</button>' +
           '<button type="button" class="db-btn db-btn-primary" id="db-publish-btn" disabled><i class="fas fa-share-from-square"></i> Publish</button>' +
