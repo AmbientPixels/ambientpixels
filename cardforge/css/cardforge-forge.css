@@ -3,6 +3,17 @@
    brought forward from the editor's right-sidebar bundle so the page
    doesn't have to load the entire cardforge-ui.css to render four panels. */
 
+/* Page-level font + background — without this the body default applies
+   and any element without an explicit font-family (e.g. .cf-forge__sub)
+   inherits the browser default and renders in Times New Roman. */
+body.cf-forge-page {
+  margin: 0;
+  background: var(--cf-ob-bg-0);
+  color: var(--cf-ob-text-1);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
 .cf-forge {
   max-width: 1240px;
   margin: 0 auto;
