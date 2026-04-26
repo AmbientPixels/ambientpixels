@@ -148,9 +148,17 @@
   function loadIntoEditor(cardId) {
     if (!cardId) return;
     // forge.html (and any non-editor host): cardForgeActions isn't loaded.
-    // Navigate to the editor with ?edit= so the editor's URL handler can
-    // resolve and populate the form.
+    // Stash the card data in sessionStorage so the editor's URL handler
+    // can read it directly — avoids a re-fetch through the App Insights /
+    // CSRF-wrapped fetch chain that was hanging on resp.json().
     if (!window.cardForgeActions) {
+      var cached = state.items.find(function (x) {
+        return (x.id || (x.cardData && x.cardData.id)) === cardId;
+      });
+      if (cached) {
+        try { sessionStorage.setItem('cf_edit_card_' + cardId, JSON.stringify(cached)); }
+        catch (_) {}
+      }
       window.location.href = '/cardforge/editor.html?edit=' + encodeURIComponent(cardId);
       return;
     }

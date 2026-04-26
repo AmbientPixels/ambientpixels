@@ -3194,59 +3194,50 @@ async function handleEditUrlParam() {
     } catch (_) {}
   }
 
+  // Try sessionStorage first — forge.html stashes the card object before
+  // navigating here. Skips the cross-origin fetch entirely (Application
+  // Insights wraps window.fetch and was either throwing TypeError from
+  // inside its instrumentation or hanging on resp.json() with a half-
+  // consumed body stream). Falls back to a fetch only when arriving via
+  // a direct URL paste with no stash.
+  var card = null;
+  var stashKey = 'cf_edit_card_' + editId;
   try {
-    var loadUrl = (typeof window.buildApiPath === 'function')
-      ? window.buildApiPath('loadCards')
-      : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
-    // Match cardforge-gallery-page.js fetchPublishedCards verbatim — it's
-    // the proven-working pattern for hitting this endpoint in-page. Any
-    // deviation (no Content-Type, credentials:'omit', etc.) ran into a
-    // hang where resp.json()/text() never resolved, even with status=200.
-    var authHeaders = {};
-    if (typeof window._cfGetAuthHeaders === 'function') {
-      try { authHeaders = await window._cfGetAuthHeaders(); } catch (_) {}
+    var stored = sessionStorage.getItem(stashKey);
+    if (stored) {
+      card = JSON.parse(stored);
+      sessionStorage.removeItem(stashKey);
+      console.log('[CardForge edit] using stashed card from sessionStorage');
     }
-    console.log('[CardForge edit] fetching loadCards');
-    var resp = await fetch(loadUrl, {
-      method: 'GET',
-      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)
-    });
-    console.log('[CardForge edit] fetch response status=' + resp.status);
-    if (!resp.ok) { fallbackToRandom('http_' + resp.status); return; }
+  } catch (_) {}
 
-    // resp.json() was observed hanging indefinitely in some real browsers
-    // even after a 200 response. The likely cause is a global fetch
-    // wrapper (CSRF/App Insights/EasyAuth) reading the body stream first
-    // and leaving us with a locked one. resp.clone() produces an
-    // independent body stream we can read freely. Wrap the read in a
-    // race against a 5-second timeout so we never hang forever.
-    var data;
+  if (!card) {
     try {
-      console.log('[CardForge edit] reading body');
-      var bodyPromise = resp.clone().text().then(function (txt) {
-        console.log('[CardForge edit] body bytes=' + (txt && txt.length));
-        return JSON.parse(txt);
+      var loadUrl = (typeof window.buildApiPath === 'function')
+        ? window.buildApiPath('loadCards')
+        : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
+      console.log('[CardForge edit] no stash; fetching loadCards');
+      var resp = await fetch(loadUrl);
+      console.log('[CardForge edit] fetch response status=' + resp.status);
+      if (!resp.ok) { fallbackToRandom('http_' + resp.status); return; }
+      var rawText = await resp.clone().text();
+      console.log('[CardForge edit] body bytes=' + (rawText && rawText.length));
+      var data = JSON.parse(rawText);
+      var pool = []
+        .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
+        .concat(Array.isArray(data && data.galleryCards) ? data.galleryCards : [])
+        .concat(Array.isArray(data && data.defaultCards) ? data.defaultCards : []);
+      console.log('[CardForge edit] pool size=' + pool.length);
+      card = pool.find(function (c) {
+        return (c && (c.id || (c.cardData && c.cardData.id))) === editId;
       });
-      var timeoutPromise = new Promise(function (_, reject) {
-        setTimeout(function () { reject(new Error('body_read_timeout')); }, 5000);
-      });
-      data = await Promise.race([bodyPromise, timeoutPromise]);
-    } catch (bodyErr) {
-      console.warn('[CardForge edit] body read failed:', bodyErr && bodyErr.message);
-      fallbackToRandom('body_' + ((bodyErr && bodyErr.message) || 'unknown'));
-      return;
+    } catch (e) {
+      console.error('[CardForge edit] fetch threw:', e);
     }
-    var pool = []
-      .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
-      .concat(Array.isArray(data && data.galleryCards) ? data.galleryCards : [])
-      .concat(Array.isArray(data && data.defaultCards) ? data.defaultCards : []);
-    console.log('[CardForge edit] pool size=' + pool.length);
-    var card = pool.find(function (c) {
-      return (c && (c.id || (c.cardData && c.cardData.id))) === editId;
-    });
     if (!card) { fallbackToRandom('card_not_found'); return; }
-    console.log('[CardForge edit] card found in pool');
+  }
 
+  try {
     // Wait briefly for the editor's loadCardData hook to be wired.
     var deadline = Date.now() + 3000;
     while (!(window.cardForgeEditor && typeof window.cardForgeEditor.loadCardData === 'function')) {
@@ -3254,10 +3245,10 @@ async function handleEditUrlParam() {
       await new Promise(function (r) { setTimeout(r, 50); });
     }
 
-    // Bypass cardForgeActions.loadCard's localStorage/_mergedCards lookup
-    // chain — we already have the card in hand. Set the hidden card-id
-    // field manually so subsequent Save/Publish picks it up. Mirrors
-    // loadCard()'s flag handling and image-slider restoration.
+    // Bypass cardForgeActions.loadCard's lookup chain — we already have
+    // the card in hand. Set the hidden card-id field manually so
+    // subsequent Save/Publish picks it up. Mirrors loadCard()'s flag
+    // handling and image-slider restoration.
     if (window.cardForgeActions) cardForgeActions._isLoadingCard = true;
     var idField = document.getElementById('card-id');
     if (idField) idField.value = card.id || (card.cardData && card.cardData.id) || editId;
@@ -3309,7 +3300,7 @@ async function handleEditUrlParam() {
 
     console.log('[CardForge edit] loaded successfully');
   } catch (e) {
-    console.error('[CardForge edit] threw:', e);
+    console.error('[CardForge edit] populate threw:', e);
     fallbackToRandom((e && e.message) || 'unknown');
   }
 }

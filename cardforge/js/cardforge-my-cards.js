@@ -154,6 +154,15 @@
 
   function editCard(cardId) {
     if (!cardId) return;
+    // Stash the card data in sessionStorage so the editor's URL handler
+    // can read it directly without re-fetching through wrapped fetch.
+    var cached = state.items.find(function (x) {
+      return (x.id || (x.cardData && x.cardData.id)) === cardId;
+    });
+    if (cached) {
+      try { sessionStorage.setItem('cf_edit_card_' + cardId, JSON.stringify(cached)); }
+      catch (_) {}
+    }
     // ?edit= triggers the editor's auto-load handler.
     // ?card= is reserved for the lightbox overlay deep-link on editor.html
     // and gallery.html, so we deliberately pick a different param here.
