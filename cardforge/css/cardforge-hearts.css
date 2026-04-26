@@ -123,10 +123,11 @@
    Hosted on .cf-gallery__card-wrap (a positioned <div> that wraps the
    card button + heart as siblings, since nested <button>s are invalid
    HTML and the browser would otherwise flatten them into siblings in
-   different grid cells). */
-.cf-heart {
-  position: relative;
-}
+   different grid cells). The wrap is the positioning anchor; the heart
+   itself is absolute via the descendant rule below. Do NOT add a base
+   `.cf-heart { position: relative }` here — it would override the
+   splash variant (same specificity, later source order) and break the
+   hero fan + showcase strip overlay. */
 .cf-gallery__card-wrap {
   position: relative;
   display: block;
