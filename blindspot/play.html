@@ -476,6 +476,12 @@
       <div class="arena-battle">
         <div class="arena-battle__header">
           <span class="arena-battle__round" id="arena-round-label" aria-live="polite">Round 1</span>
+          <!-- Boss intent moved here from inside the opponent column to match
+               the design's HUD layout. JS still finds it via getElementById. -->
+          <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
+            <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
+            <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
+          </div>
           <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide" style="font-size:0.8rem;"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
           <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">
             <i class="fas fa-flag" aria-hidden="true"></i> Forfeit
@@ -524,10 +530,6 @@
               </div>
             </div>
             <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
-              <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
-                <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
-                <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
-              </div>
               <div class="arena-combatant__frame">
                 <div class="arena-combatant__card" id="arena-opponent-card"></div>
               </div>
@@ -556,6 +558,10 @@
         <div class="bs-battle-hint" id="bs-battle-hint" style="display:none;" role="status" aria-live="polite"></div>
         <div class="arena-items-row" id="arena-items-row" role="group" aria-label="Items and charms"></div>
         <div class="bs-move-select-prompt" id="bs-move-select-prompt" style="display:none;" role="status">Pick second move</div>
+        <div class="blindspot-battle__hand-rail" aria-hidden="true">
+          <i class="fas fa-bolt" aria-hidden="true"></i>
+          <span>Choose your move</span>
+        </div>
         <div class="arena-battle__moves" id="arena-moves" role="group" aria-label="Combat moves">
           <button class="arena-move-btn arena-move-btn--strike bs-move-card" data-move="strike" aria-label="Strike — physical attack using STR">
             <div class="bs-move-card__header">
