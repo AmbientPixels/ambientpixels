@@ -2,15 +2,20 @@
  * CardForge Hearts — shared client module for the rating + favorites system.
  * Loaded on splash, gallery, lightbox, editor (My Favorites tab).
  *
- * Single primitive: a heart is signed-in, binary, idempotent.
- *  - aggregate count (public)  → drives gallery "Highest Rated" sort
- *  - per-user list (private)   → powers the My Favorites tab
+ * Hybrid model:
+ *  - Anonymous viewers can heart cards (count bumps; "hearted" state
+ *    lives only in their browser localStorage).
+ *  - Authenticated users get full favorites: cross-device sync via
+ *    server blob, plus the My Favorites tab in the editor.
+ *  - Aggregate count (`card-ratings.json`) reflects votes from BOTH
+ *    audiences and drives the gallery "Highest Rated" sort + the
+ *    splash "highest-rated" hero mode.
  *
  * The module exposes window.CardForgeHearts:
  *   init()                            — boot; parallel-fetch aggregate + favorites
  *   getCount(cardId)                  — sync, returns int (0 if unknown)
- *   isFavorited(cardId)               — sync, returns bool
- *   toggle(cardId, opts)              — async, optimistic; anonymous → login redirect
+ *   isFavorited(cardId)               — sync, union of auth + anon sets
+ *   toggle(cardId, opts)              — async, optimistic; anon stays anon
  *   renderButton(cardId, options)     — returns HTML for a heart button
  *   bindContainer(rootEl)             — delegated click handler on rootEl
  *   EVENT_CHANGED                     — 'cardforge:hearts-changed' for cross-component sync
@@ -26,13 +31,14 @@
   var EVENT_CHANGED = 'cardforge:hearts-changed';
   var AGG_CACHE_KEY = 'cf_hearts_agg_v1';
   var AGG_CACHE_TTL_MS = 30 * 1000; // 30 seconds — see plan
-  var PENDING_HEART_KEY = 'cf_pending_heart';
+  var ANON_FAVORITES_KEY = 'cf_anon_hearts'; // localStorage — anon "I hearted this" state
   var CLICK_DEBOUNCE_MS = 500;
 
   // ---- State ----
-  var ratings = {};        // { cardId: count }
-  var favorites = new Set(); // current user's hearted cardIds
-  var inFlight = new Set();  // cardIds currently mid-toggle
+  var ratings = {};            // { cardId: count } — public aggregate
+  var favorites = new Set();   // authenticated user's hearted cardIds (server-backed)
+  var anonFavorites = new Set(); // anonymous user's hearted cardIds (localStorage-backed)
+  var inFlight = new Set();    // cardIds currently mid-toggle
   var lastClickAt = 0;
   var booted = false;
 
@@ -137,14 +143,28 @@
     } catch (_) { return false; }
   }
 
-  function redirectToLogin(cardId) {
-    try { sessionStorage.setItem(PENDING_HEART_KEY, cardId); } catch (_) {}
-    track('cardforge.heart.signin_redirect', { cardId: cardId });
-    var here = window.location.pathname + window.location.search;
-    // Route through the CardForge-themed login chooser. login.html reads
-    // the `redirect` param and forwards it as post_login_redirect_uri to
-    // whichever provider the user picks (Google or Microsoft).
-    window.location.href = '/cardforge/login.html?redirect=' + encodeURIComponent(here);
+  // ---- Anonymous favorites (localStorage-backed) ----
+  // Anonymous viewers don't have a server blob, so we track their
+  // hearted state per-browser only. Clearing localStorage forgets the
+  // state but doesn't decrement the public aggregate (server has no
+  // way to dedup anon actions, so it trusts the client). The aggregate
+  // count therefore ratchets monotonically forward for anon — that's
+  // expected and matches every other anon-vote system.
+  function loadAnonFavorites() {
+    try {
+      var raw = localStorage.getItem(ANON_FAVORITES_KEY);
+      if (!raw) return new Set();
+      var parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.cardIds)) return new Set();
+      return new Set(parsed.cardIds);
+    } catch (_) { return new Set(); }
+  }
+
+  function persistAnonFavorites() {
+    try {
+      var payload = { cardIds: Array.from(anonFavorites), updatedAt: Date.now() };
+      localStorage.setItem(ANON_FAVORITES_KEY, JSON.stringify(payload));
+    } catch (_) {}
   }
 
   // ---- Public API ----
@@ -155,11 +175,16 @@
 
   function isFavorited(cardId) {
     if (!cardId) return false;
-    return favorites.has(cardId);
+    return favorites.has(cardId) || anonFavorites.has(cardId);
   }
 
-  // Optimistic toggle. UI updates instantly; on failure we revert and emit
-  // an error event so any subscribed component can re-sync.
+  // Optimistic toggle. UI updates instantly; on failure we revert and
+  // emit an error event so any subscribed component can re-sync.
+  // Hybrid auth model:
+  //   - Signed in: server tracks user blob + aggregate. Cross-device sync.
+  //   - Anonymous: localStorage tracks "I hearted this" state; server
+  //     just bumps/decrements the aggregate. Per-IP rate limit on the
+  //     server gates abuse.
   async function toggle(cardId, opts) {
     if (!cardId) return;
     var now = Date.now();
@@ -168,38 +193,42 @@
     if (inFlight.has(cardId)) return;
 
     var signedIn = await isSignedIn();
-    if (!signedIn) {
-      redirectToLogin(cardId);
-      return;
-    }
-
-    var hadBefore = favorites.has(cardId);
+    var activeSet = signedIn ? favorites : anonFavorites;
+    var hadBefore = activeSet.has(cardId);
     var action = hadBefore ? 'remove' : 'add';
     var prevCount = getCount(cardId);
     var optimisticCount = Math.max(0, prevCount + (action === 'add' ? 1 : -1));
 
-    // Optimistic UI update.
-    if (action === 'add') favorites.add(cardId); else favorites.delete(cardId);
+    // Optimistic UI update on the appropriate set.
+    if (action === 'add') activeSet.add(cardId); else activeSet.delete(cardId);
+    if (!signedIn) persistAnonFavorites();
     ratings[cardId] = optimisticCount;
     dispatchChanged(cardId, optimisticCount, action === 'add');
 
     inFlight.add(cardId);
     try {
       var result = await postRate(cardId, action);
-      // Server is authoritative — sync exact count.
+      // Server is authoritative on the aggregate count. For auth users
+      // it's also authoritative on hearted state (`result.hearted`);
+      // for anon, server just echoes our action — we keep client truth.
       var serverCount = Number(result.count || 0);
       ratings[cardId] = serverCount;
-      if (result.hearted) favorites.add(cardId); else favorites.delete(cardId);
+      if (signedIn) {
+        if (result.hearted) favorites.add(cardId); else favorites.delete(cardId);
+      }
       // Refresh cache so other tabs see the new count within TTL.
       writeCache(AGG_CACHE_KEY, { ratings: ratings });
-      track('cardforge.heart.' + (action === 'add' ? 'add' : 'remove'), { cardId: cardId, count: serverCount });
-      dispatchChanged(cardId, serverCount, !!result.hearted);
+      track('cardforge.heart.' + (action === 'add' ? 'add' : 'remove'),
+        { cardId: cardId, count: serverCount, anonymous: !signedIn });
+      dispatchChanged(cardId, serverCount, action === 'add');
     } catch (err) {
-      // Revert optimistic update.
-      if (hadBefore) favorites.add(cardId); else favorites.delete(cardId);
+      // Revert optimistic update on the active set.
+      if (hadBefore) activeSet.add(cardId); else activeSet.delete(cardId);
+      if (!signedIn) persistAnonFavorites();
       ratings[cardId] = prevCount;
       dispatchChanged(cardId, prevCount, hadBefore);
-      track('cardforge.heart.error', { cardId: cardId, action: action, status: err && err.status });
+      track('cardforge.heart.error',
+        { cardId: cardId, action: action, status: err && err.status, anonymous: !signedIn });
       console.warn('[CardForgeHearts] toggle failed:', err);
     } finally {
       inFlight.delete(cardId);
@@ -290,21 +319,13 @@
   async function init() {
     if (booted) return;
     booted = true;
+    // Load anon favorites from localStorage synchronously so the heart
+    // UI reflects state immediately on first paint, even before the
+    // server fetches resolve.
+    anonFavorites = loadAnonFavorites();
     var results = await Promise.all([fetchRatings(), fetchFavorites()]);
     ratings = results[0] || {};
     favorites = new Set(results[1] || []);
-
-    // Consume pending heart from sign-in redirect, if any.
-    var pending = null;
-    try { pending = sessionStorage.getItem(PENDING_HEART_KEY); } catch (_) {}
-    if (pending) {
-      try { sessionStorage.removeItem(PENDING_HEART_KEY); } catch (_) {}
-      var signedIn = await isSignedIn();
-      if (signedIn && !favorites.has(pending)) {
-        // Defer to next tick so consumers have a chance to bind containers.
-        setTimeout(function () { toggle(pending); }, 80);
-      }
-    }
   }
 
   window.CardForgeHearts = {

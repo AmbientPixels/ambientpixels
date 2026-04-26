@@ -1,4 +1,5 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
+const crypto = require('crypto');
 
 const STORAGE_ACCOUNT_NAME = "cardforgeblobdata";
 const CONTAINER_NAME = "cardforge";
@@ -16,6 +17,32 @@ const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const VALID_ACTIONS = ['add', 'remove'];
 const FAVORITES_HARD_CAP = 2000;
 const ETAG_RETRY_MAX = 5;
+
+// Per-IP rate limit for anonymous abuse protection. Lives in module
+// scope and resets on Azure Function cold start (workers recycle every
+// ~20 min idle on Consumption plan). For a hobby gallery this is
+// sufficient — a determined attacker rotating IPs gets nothing of
+// value, and the cold-start reset means short bursts go unnoticed.
+const RATE_BUCKETS = new Map(); // ipHash → number[] of timestamp ms
+const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const RATE_MAX_PER_WINDOW = 30;
+
+function checkRateLimit(req, context) {
+  const fwd = (req.headers['x-forwarded-for'] || '').toString();
+  const ip = fwd.split(',')[0].trim() || req.headers['x-azure-clientip'] || 'unknown';
+  const ipHash = crypto.createHash('sha1').update(ip).digest('hex').slice(0, 16);
+  const now = Date.now();
+  const prev = RATE_BUCKETS.get(ipHash) || [];
+  const bucket = prev.filter(t => now - t < RATE_WINDOW_MS);
+  if (bucket.length >= RATE_MAX_PER_WINDOW) {
+    const retryAfter = Math.ceil((RATE_WINDOW_MS - (now - bucket[0])) / 1000);
+    context.log(`cardforgerate rate-limited ipHash=${ipHash} count=${bucket.length}`);
+    return { ok: false, retryAfter };
+  }
+  bucket.push(now);
+  RATE_BUCKETS.set(ipHash, bucket);
+  return { ok: true };
+}
 
 async function createBlobServiceClient() {
   if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
@@ -208,10 +235,6 @@ module.exports = async function (context, req) {
     isAuthenticated = true;
     context.log(`cardforgerate: using userId from request body: ${userId}`);
   }
-  if (!isAuthenticated) {
-    context.res = { status: 401, headers: CORS_HEADERS, body: { error: 'Sign-in required to rate cards' } };
-    return;
-  }
 
   const cardId = req.body && req.body.cardId;
   const action = req.body && req.body.action;
@@ -225,6 +248,21 @@ module.exports = async function (context, req) {
     return;
   }
 
+  // Per-IP rate limit applies to BOTH anonymous and authenticated paths.
+  // Authenticated users have their own server-side idempotency guard, so
+  // they should rarely hit this — but a misbehaving client shouldn't be
+  // exempt either. Anonymous users have no other dedup, so this is the
+  // primary anti-abuse layer for that path.
+  const rate = checkRateLimit(req, context);
+  if (!rate.ok) {
+    context.res = {
+      status: 429,
+      headers: Object.assign({}, CORS_HEADERS, { 'Retry-After': String(rate.retryAfter) }),
+      body: { error: 'Too many heart actions. Please slow down.', retryAfter: rate.retryAfter }
+    };
+    return;
+  }
+
   try {
     const blobServiceClient = await createBlobServiceClient();
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
@@ -235,6 +273,23 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // ---------------- Anonymous path ----------------
+    // No user blob, no idempotency dedup — the client tracks its own
+    // hearted state in localStorage and only sends the action it
+    // intends. Aggregate count moves by the requested delta. Per-IP
+    // rate limit above is the primary anti-abuse gate.
+    if (!isAuthenticated) {
+      const delta = action === 'add' ? 1 : -1;
+      const count = await applyRatingDelta(containerClient, cardId, delta, context);
+      context.res = {
+        status: 200,
+        headers: CORS_HEADERS,
+        body: { cardId, count, hearted: action === 'add', anonymous: true }
+      };
+      return;
+    }
+
+    // ---------------- Authenticated path (existing) ----------------
     const fav = await readUserFavorites(containerClient, userId, context);
     const had = fav.cardIds.indexOf(cardId) !== -1;
 
