@@ -362,6 +362,57 @@
     els.preview = $('cf-admin-preview');
     els.previewGrid = $('cf-admin-preview-grid');
     els.previewEmpty = $('cf-admin-preview-empty');
+    els.kpis = $('cf-admin-kpis');
+    els.kpisError = $('cf-admin-kpis-error');
+    els.kpiNodes = {};
+    if (els.kpis) {
+      var nodes = els.kpis.querySelectorAll('[data-kpi]');
+      for (var i = 0; i < nodes.length; i++) {
+        els.kpiNodes[nodes[i].getAttribute('data-kpi')] = nodes[i];
+      }
+    }
+  }
+
+  // ---- KPIs -----------------------------------------------------------
+
+  function setKpi(key, value) {
+    var node = els.kpiNodes && els.kpiNodes[key];
+    if (!node) return;
+    var n = Number(value);
+    node.textContent = (Number.isFinite(n)) ? n.toLocaleString() : '—';
+  }
+
+  function adminStatsUrl() {
+    if (typeof window.buildApiPath === 'function') {
+      var u = window.buildApiPath('adminStats');
+      if (u) return u;
+    }
+    return 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeadminstats';
+  }
+
+  async function loadKpis() {
+    if (!els.kpis) return;
+    els.kpis.hidden = false;
+    if (els.kpisError) els.kpisError.hidden = true;
+    try {
+      var headers = {};
+      if (typeof window._cfGetAuthHeaders === 'function') {
+        headers = (await window._cfGetAuthHeaders()) || {};
+      }
+      var resp = await fetch(adminStatsUrl(), { headers: headers, credentials: 'omit' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var data = await resp.json();
+      setKpi('cardsPublished', data.cardsPublished);
+      setKpi('users', data.users);
+      setKpi('hearts', data.hearts);
+      setKpi('favorites', data.favorites);
+    } catch (e) {
+      console.warn('[Admin] KPI load failed:', e.message);
+      if (els.kpisError) {
+        els.kpisError.textContent = 'Failed to load KPIs: ' + e.message;
+        els.kpisError.hidden = false;
+      }
+    }
   }
 
   async function init() {
@@ -394,6 +445,10 @@
     fillFormFromConfig(state.config);
     bindForm();
     renderPreview();
+
+    // KPI strip — independent fire-and-forget; failure doesn't block the
+    // rest of the admin page.
+    loadKpis();
   }
 
   if (document.readyState === 'loading') {

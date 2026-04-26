@@ -26,7 +26,7 @@
   <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260424y">
   <!-- Splash CSS provides nav/footer chrome + mini-card scaler reused here. -->
   <link rel="stylesheet" href="css/cardforge-splash.css?v=20260424y">
-  <link rel="stylesheet" href="css/cardforge-admin.css?v=20260424y">
+  <link rel="stylesheet" href="css/cardforge-admin.css?v=20260425a">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
 </head>
 <body class="cf-admin-page" data-theme="dark">
@@ -58,6 +58,26 @@
     <section class="cf-admin__hero">
       <h1 class="cf-admin__title">Hero Configuration</h1>
       <p class="cf-admin__sub">Control the 5-card fan on the CardForge splash. Pick "Most Recent" for freshness, "Random" for variety, or "Curated" to feature specific cards.</p>
+    </section>
+
+    <section id="cf-admin-kpis" class="cf-admin__kpis" hidden>
+      <div class="cf-admin__kpi-tile">
+        <div class="cf-admin__kpi-label">Cards published</div>
+        <div class="cf-admin__kpi-value" data-kpi="cardsPublished">&mdash;</div>
+      </div>
+      <div class="cf-admin__kpi-tile">
+        <div class="cf-admin__kpi-label">Users</div>
+        <div class="cf-admin__kpi-value" data-kpi="users">&mdash;</div>
+      </div>
+      <div class="cf-admin__kpi-tile">
+        <div class="cf-admin__kpi-label">Hearts</div>
+        <div class="cf-admin__kpi-value" data-kpi="hearts">&mdash;</div>
+      </div>
+      <div class="cf-admin__kpi-tile">
+        <div class="cf-admin__kpi-label">Favorites</div>
+        <div class="cf-admin__kpi-value" data-kpi="favorites">&mdash;</div>
+      </div>
+      <div id="cf-admin-kpis-error" class="cf-admin__kpis-error" hidden></div>
     </section>
 
     <div id="cf-admin-loading" class="cf-admin__forbidden">
@@ -118,8 +138,8 @@
     </div>
   </footer>
 
-  <script src="js/config.js?v=20260425a"></script>
+  <script src="js/config.js?v=20260425b"></script>
   <script src="js/cardforge-hearts.js?v=20260425e" defer></script>
-  <script src="js/cardforge-admin-hero.js?v=20260425b" defer></script>
+  <script src="js/cardforge-admin-hero.js?v=20260425c" defer></script>
 </body>
 </html>
