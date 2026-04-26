@@ -1111,8 +1111,17 @@
     
     initPresets();
     initDynamicEditors();
-    loadPrefillData();
-    
+
+    // Skip prefill (the Aria Shadowbane sample card) when ?edit= is present —
+    // the forge-actions handleEditUrlParam will fetch and populate the
+    // requested card. Without this skip, prefill races our fetch and we
+    // can end up showing the sample card if our load fails or is slow.
+    var hasEditParamForPrefill = false;
+    try { hasEditParamForPrefill = !!new URLSearchParams(window.location.search).get('edit'); } catch (_) {}
+    if (!hasEditParamForPrefill) {
+      loadPrefillData();
+    }
+
     // Initialize modular tier system
     initModularSystem();
     

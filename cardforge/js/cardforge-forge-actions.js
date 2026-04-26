@@ -3176,6 +3176,7 @@ async function handleEditUrlParam() {
   var params = new URLSearchParams(window.location.search);
   var editId = params.get('edit');
   if (!editId) return;
+  console.log('[CardForge edit] handler started, editId=' + editId);
 
   // Strip ?edit= from the URL immediately so a refresh doesn't re-trigger.
   try {
@@ -3197,39 +3198,93 @@ async function handleEditUrlParam() {
     var loadUrl = (typeof window.buildApiPath === 'function')
       ? window.buildApiPath('loadCards')
       : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
-    var headers = { 'Content-Type': 'application/json' };
+    var headers = {};
     if (typeof window._cfGetAuthHeaders === 'function') {
       try { Object.assign(headers, await window._cfGetAuthHeaders()); } catch (_) {}
     }
-    var resp = await fetch(loadUrl, { method: 'GET', headers: headers, credentials: 'omit' });
+    // GET requests don't need Content-Type. Sending it on cross-origin GET
+    // forces a CORS preflight; the response Allow-Headers does cover it,
+    // but skipping the header keeps the request "simple" and avoids one
+    // round-trip plus any preflight quirks.
+    console.log('[CardForge edit] fetching loadCards');
+    var resp = await fetch(loadUrl, { method: 'GET', headers: headers });
+    console.log('[CardForge edit] fetch response status=' + resp.status);
     if (!resp.ok) { fallbackToRandom('http_' + resp.status); return; }
     var data = await resp.json();
     var pool = []
       .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
       .concat(Array.isArray(data && data.galleryCards) ? data.galleryCards : [])
       .concat(Array.isArray(data && data.defaultCards) ? data.defaultCards : []);
+    console.log('[CardForge edit] pool size=' + pool.length);
     var card = pool.find(function (c) {
       return (c && (c.id || (c.cardData && c.cardData.id))) === editId;
     });
     if (!card) { fallbackToRandom('card_not_found'); return; }
+    console.log('[CardForge edit] card found in pool');
 
-    cardForgeActions._mergedCards = cardForgeActions._mergedCards || [];
-    if (!cardForgeActions._mergedCards.find(function (c) { return c.id === editId; })) {
-      cardForgeActions._mergedCards.push(card);
-    }
-
-    // Ensure the editor's loadCardData hook is wired before calling. Both
-    // card-forge-editor.js and this file are deferred so the hook should
-    // already exist, but we poll briefly as a defensive guard.
+    // Wait briefly for the editor's loadCardData hook to be wired.
     var deadline = Date.now() + 3000;
     while (!(window.cardForgeEditor && typeof window.cardForgeEditor.loadCardData === 'function')) {
       if (Date.now() > deadline) { fallbackToRandom('editor_not_ready'); return; }
       await new Promise(function (r) { setTimeout(r, 50); });
     }
 
-    console.log('[CardForge edit] loading card', editId);
-    cardForgeActions.loadCard(editId);
+    // Bypass cardForgeActions.loadCard's localStorage/_mergedCards lookup
+    // chain — we already have the card in hand. Set the hidden card-id
+    // field manually so subsequent Save/Publish picks it up. Mirrors
+    // loadCard()'s flag handling and image-slider restoration.
+    if (window.cardForgeActions) cardForgeActions._isLoadingCard = true;
+    var idField = document.getElementById('card-id');
+    if (idField) idField.value = card.id || (card.cardData && card.cardData.id) || editId;
+
+    var cardData = card.data || card.cardData || card;
+    console.log('[CardForge edit] calling loadCardData');
+    window.cardForgeEditor.loadCardData(cardData);
+
+    // Restore image slider positions (lifted from loadCard)
+    var design = (cardData && cardData.design) || {};
+    var posXSlider = document.getElementById('cf-img-pos-x');
+    var posYSlider = document.getElementById('cf-img-pos-y');
+    var zoomSlider = document.getElementById('cf-img-zoom');
+    var savedX = design.imagePosX != null ? design.imagePosX : 50;
+    var savedY = design.imagePosY != null ? design.imagePosY : 50;
+    var savedZoom = design.imageZoom != null ? design.imageZoom : 100;
+    if (posXSlider) posXSlider.value = savedX;
+    if (posYSlider) posYSlider.value = savedY;
+    if (zoomSlider) zoomSlider.value = savedZoom;
+    var posXVal = document.getElementById('cf-img-pos-x-val');
+    var posYVal = document.getElementById('cf-img-pos-y-val');
+    var zoomVal = document.getElementById('cf-img-zoom-val');
+    if (posXVal) posXVal.textContent = savedX + '%';
+    if (posYVal) posYVal.textContent = savedY + '%';
+    if (zoomVal) zoomVal.textContent = savedZoom + '%';
+    var previewZone = document.querySelector('.card-preview-zone');
+    if (previewZone) {
+      previewZone.style.setProperty('--cf-avatar-pos-x', savedX + '%');
+      previewZone.style.setProperty('--cf-avatar-pos-y', savedY + '%');
+      previewZone.style.setProperty('--cf-avatar-scale', savedZoom / 100);
+    }
+
+    // Sync publish nav to reflect published-or-not state
+    var isPublished = !!(card.isPublished || card.published ||
+      (card.cardData && (card.cardData.published || card.cardData.isPublished)));
+    if (window.CardForgeActions && typeof window.CardForgeActions.setPublishNavState === 'function') {
+      window.CardForgeActions.setPublishNavState(isPublished ? 'published' : 'default');
+    }
+
+    // Also push to _mergedCards so other code paths that look it up there
+    // (publish/duplicate/etc.) can find it.
+    if (window.cardForgeActions) {
+      cardForgeActions._mergedCards = cardForgeActions._mergedCards || [];
+      if (!cardForgeActions._mergedCards.find(function (c) { return c.id === card.id; })) {
+        cardForgeActions._mergedCards.push(card);
+      }
+      setTimeout(function () { cardForgeActions._isLoadingCard = false; }, 800);
+    }
+
+    console.log('[CardForge edit] loaded successfully');
   } catch (e) {
+    console.error('[CardForge edit] threw:', e);
     fallbackToRandom((e && e.message) || 'unknown');
   }
 }
