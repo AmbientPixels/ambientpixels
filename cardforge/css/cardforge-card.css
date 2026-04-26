@@ -2420,3 +2420,26 @@
   transform-origin: top left;
   width: 153.8%;  /* 1 / 0.65 = ~153.8% to fill the container */
 }
+
+/* ============================================================
+   Name Shadow — opt-in drop shadow on the card name (Typography
+   tier). Applies to both the front .card-name and the back
+   .back-header .card-name so the choice carries across faces.
+   Appended at end of file so the specificity tie with
+   .align-style-* rules (also 2 classes) is broken by source order
+   in our favor — selecting a shadow override always wins.
+   ============================================================ */
+.card-preview-canvas.name-shadow-soft .card-name,
+.card-preview-canvas.name-shadow-soft .back-header .card-name {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.card-preview-canvas.name-shadow-strong .card-name,
+.card-preview-canvas.name-shadow-strong .back-header .card-name {
+  text-shadow: 0 3px 8px rgba(0, 0, 0, 0.7);
+}
+.card-preview-canvas.name-shadow-glow .card-name,
+.card-preview-canvas.name-shadow-glow .back-header .card-name {
+  text-shadow:
+    0 0 8px var(--card-accent, #ff7a1a),
+    0 0 18px var(--card-accent, #ff7a1a);
+}

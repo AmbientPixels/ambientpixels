@@ -35,6 +35,7 @@
     borderRadius: 'default',      // default | sharp | rounded | pill
     effectIntensity: 1.0,          // 0.25 – 1.5
     statBarColor: 'default',       // default | red | green | blue | gold | rainbow
+    nameShadow: 'none',            // none | soft | strong | glow
     frontPrimary: 'traits'         // traits (default — badges on front, stats on back) | stats (stats on front, traits on back)
   };
   
@@ -1081,6 +1082,7 @@
         quoteFont: 'default',
         cardBackStyle: 'default',
         borderRadius: 'default',
+        nameShadow: 'none',
         effectIntensity: 1.0,
         statBarColor: 'default'
       };
@@ -1382,6 +1384,7 @@
       quoteFont: 'default',
       cardBackStyle: 'default',
       borderRadius: 'default',
+      nameShadow: 'none',
       effectIntensity: 1.0,
       statBarColor: 'default'
     };
@@ -1398,6 +1401,7 @@
       quoteFont: ['default', 'serif', 'cursive'][Math.floor(Math.random() * 3)],
       cardBackStyle: ['default', 'parchment', 'dark'][Math.floor(Math.random() * 3)],
       borderRadius: ['default', 'sharp', 'rounded', 'pill'][Math.floor(Math.random() * 4)],
+      nameShadow: ['none', 'soft', 'strong', 'glow'][Math.floor(Math.random() * 4)],
       statBarColor: ['default', 'rainbow', 'gradient', 'neon', 'frost', 'ember'][Math.floor(Math.random() * 6)]
     });
     syncExtrasUI();
@@ -2259,6 +2263,7 @@
     if (ModularState.quoteFont !== 'default') parts.push(ModularState.quoteFont);
     if (ModularState.cardBackStyle !== 'default') parts.push('Back: ' + ModularState.cardBackStyle);
     if (ModularState.borderRadius !== 'default') parts.push(ModularState.borderRadius);
+    if (ModularState.nameShadow !== 'none') parts.push('Shadow: ' + ModularState.nameShadow);
     if (ModularState.statBarColor !== 'default') {
       var barsLabel = typeof ModularState.statBarColor === 'string' && ModularState.statBarColor.charAt(0) === '#'
         ? 'Bars: ' + ModularState.statBarColor.toUpperCase()
@@ -2283,6 +2288,10 @@
     // Border radius
     document.querySelectorAll('#border-radius-options .variant-toggle').forEach(function(opt) {
       opt.classList.toggle('selected', opt.dataset.value === ModularState.borderRadius);
+    });
+    // Name shadow
+    document.querySelectorAll('#name-shadow-options .effect-chip').forEach(function(opt) {
+      opt.classList.toggle('selected', opt.dataset.value === ModularState.nameShadow);
     });
     // Stat bar color — preset chips + hybrid picker
     syncStatBarColorUI();
@@ -2954,6 +2963,7 @@
       `quote-font-${ModularState.quoteFont}`,
       `card-back-${ModularState.cardBackStyle}`,
       `card-radius-${ModularState.borderRadius}`,
+      `name-shadow-${ModularState.nameShadow}`,
       statColorClass
     ];
 
