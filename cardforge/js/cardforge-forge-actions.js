@@ -654,16 +654,19 @@ class CardForgeActions {
     // Watch for publish success modal to appear, then set Published state
     // and fire-and-forget the OG image capture.
     const self = this;
+    console.log('[CardForge OG] observer armed for cardId=' + cardId);
     const observer = new MutationObserver(function(mutations) {
       const okBtn = document.getElementById('publish-success-ok-btn');
       if (okBtn) {
         observer.disconnect();
+        console.log('[CardForge OG] success modal detected; firing capture');
         CardForgeActions.setPublishNavState('published');
         if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'card', action: 'publish' });
         // Fire-and-forget OG capture. Failures are logged inside the
         // method and never thrown — publish is already complete.
         try {
           const cardData = self._collectCardDataForOg();
+          console.log('[CardForge OG] collected cardData, hasRenderedFront=' + !!(cardData && cardData.renderedFront));
           self._captureAndUploadOgImage(cardId, cardData);
         } catch (err) {
           console.warn('[CardForge OG] failed to kick off capture:', err);
@@ -672,7 +675,10 @@ class CardForgeActions {
     });
     observer.observe(document.body, { childList: true, subtree: true });
     // Auto-disconnect after 30s to prevent leaks
-    setTimeout(function() { observer.disconnect(); }, 30000);
+    setTimeout(function() {
+      observer.disconnect();
+      console.log('[CardForge OG] observer disconnect (30s timeout reached)');
+    }, 30000);
   }
 
   /**
@@ -706,6 +712,7 @@ class CardForgeActions {
    * and must never block or fail the publish flow.
    */
   async _captureAndUploadOgImage(cardId, cardData) {
+    console.log('[CardForge OG] _captureAndUploadOgImage entered, cardId=' + cardId);
     if (!window.buildOgComposition) {
       console.warn('[CardForge OG] buildOgComposition not loaded; skipping capture');
       return;
@@ -723,6 +730,7 @@ class CardForgeActions {
     wrapper.className = 'cf-og-offscreen';
     let composition = null;
     try {
+      console.log('[CardForge OG] building composition');
       composition = window.buildOgComposition(cardData);
       wrapper.appendChild(composition);
       document.body.appendChild(wrapper);
@@ -732,12 +740,15 @@ class CardForgeActions {
       // otherwise capture mid-load images as blank.
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
       const imgs = composition.querySelectorAll('img');
+      console.log('[CardForge OG] decoding ' + imgs.length + ' images');
       await Promise.all(Array.from(imgs).map(i => i.decode().catch(() => {})));
 
+      console.log('[CardForge OG] capturing dom-to-blob');
       const blob = await window.modernScreenshot.domToBlob(composition, {
         width: 1200,
         height: 630
       });
+      console.log('[CardForge OG] blob size=' + (blob && blob.size) + ' bytes');
 
       const base = (window.buildApiPath && typeof window.buildApiPath === 'function')
         ? window.buildApiPath('saveOgImage')
@@ -751,6 +762,7 @@ class CardForgeActions {
         }
       } catch (_) {}
       headers['Content-Type'] = 'image/png';
+      console.log('[CardForge OG] POSTing to ' + url + ', hasAuthHeader=' + !!headers['X-CF-Auth-Principal']);
 
       const res = await fetch(url, {
         method: 'POST',
@@ -760,13 +772,15 @@ class CardForgeActions {
       });
 
       if (!res.ok) {
-        console.warn(`[CardForge OG] save failed: HTTP ${res.status}`);
+        var errBody = '';
+        try { errBody = await res.text(); } catch (_) {}
+        console.warn('[CardForge OG] save failed: HTTP ' + res.status + ' body=' + errBody);
         if (window.ProductAnalytics && typeof window.ProductAnalytics.track === 'function') {
           try { window.ProductAnalytics.track('og_capture_failed', { cardId, reason: 'http_' + res.status }); } catch (_) {}
         }
         return;
       }
-      console.log(`[CardForge OG] captured + uploaded for cardId=${cardId}`);
+      console.log('[CardForge OG] captured + uploaded for cardId=' + cardId);
     } catch (err) {
       console.warn('[CardForge OG] capture failed:', err);
       if (window.ProductAnalytics && typeof window.ProductAnalytics.track === 'function') {
