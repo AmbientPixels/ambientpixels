@@ -141,7 +141,10 @@
     try { sessionStorage.setItem(PENDING_HEART_KEY, cardId); } catch (_) {}
     track('cardforge.heart.signin_redirect', { cardId: cardId });
     var here = window.location.pathname + window.location.search;
-    window.location.href = '/.auth/login/aadB2C?post_login_redirect_uri=' + encodeURIComponent(here);
+    // Route through the CardForge-themed login chooser. login.html reads
+    // the `redirect` param and forwards it as post_login_redirect_uri to
+    // whichever provider the user picks (Google or Microsoft).
+    window.location.href = '/cardforge/login.html?redirect=' + encodeURIComponent(here);
   }
 
   // ---- Public API ----

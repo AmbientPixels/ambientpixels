@@ -244,7 +244,10 @@
       userWrap.hidden = true;
     }
     loginBtn.addEventListener('click', function () {
-      window.location.href = '/.auth/login/aadB2C?post_login_redirect_uri=/cardforge/gallery.html';
+      // Route through the CardForge-themed login page so the user picks
+      // Google vs Microsoft. The login page's redirect param sends them
+      // back to the gallery after auth.
+      window.location.href = '/cardforge/login.html?redirect=' + encodeURIComponent('/cardforge/gallery.html');
     });
 
     if (avatarBtn && menu) {

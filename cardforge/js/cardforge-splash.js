@@ -81,7 +81,11 @@
     }
 
     loginBtn.addEventListener('click', function () {
-      window.location.href = '/.auth/login/aadB2C?post_login_redirect_uri=/cardforge/';
+      // Route through the CardForge-themed login page (Google + Microsoft
+      // chooser). The legacy `/.auth/login/aadB2C` URL doesn't match the
+      // `azureActiveDirectory` provider declared in staticwebapp.config.json
+      // and was redirecting to the AmbientPixels root.
+      window.location.href = '/cardforge/login.html?redirect=/cardforge/';
     });
 
     // Avatar click → toggle popover. Document click outside → close.

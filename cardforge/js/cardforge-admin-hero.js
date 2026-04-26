@@ -117,7 +117,7 @@
       if (loginBtn) {
         loginBtn.hidden = false;
         loginBtn.addEventListener('click', function () {
-          window.location.href = '/.auth/login/aadB2C?post_login_redirect_uri=/cardforge/admin.html';
+          window.location.href = '/cardforge/login.html?redirect=' + encodeURIComponent('/cardforge/admin.html');
         });
       }
       if (userStatus) userStatus.hidden = true;
