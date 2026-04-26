@@ -78,6 +78,7 @@ body.cf-splash {
   transition: color 0.15s, background 0.15s;
 }
 .cf-splash-nav__links a:not(.cf-btn):hover { color: var(--cf-ob-text-1); background: rgba(255, 255, 255, 0.04); }
+.cf-splash-nav__links a.cf-nav-active { color: var(--cf-ob-ember, #ff7a1a); }
 
 .cf-splash-nav__auth {
   display: inline-flex;

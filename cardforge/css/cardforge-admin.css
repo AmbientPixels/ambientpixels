@@ -217,10 +217,9 @@
 }
 .cf-admin__preview-empty[hidden] { display: none; }
 
-/* Active nav indicator for "Admin" link in cf-splash-nav */
-.cf-splash-nav__links a.cf-nav-active {
-  color: var(--cf-ob-ember, #ff7a1a);
-}
+/* Active nav indicator moved to cardforge-splash.css so every page that
+   uses the cf-splash-nav chrome (via cardforge-nav.js) gets the highlight,
+   not just admin. */
 
 /* ── KPI strip ── */
 .cf-admin__kpis {
