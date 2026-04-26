@@ -1153,9 +1153,16 @@
       window.CardForgeChrome.init();
     }
     
-    // Roll a random card for better initial experience
-    // Note: Using direct call since we're inside the IIFE closure
-    rollRandomCard();
+    // Roll a random card for better initial experience.
+    // Skip when ?edit={cardId} is present — cardforge-forge-actions.js
+    // handleEditUrlParam will fetch the requested card and populate the
+    // form. Rolling a random card first would either flash or lose the
+    // race against the async fetch.
+    var hasEditParam = false;
+    try { hasEditParam = !!new URLSearchParams(window.location.search).get('edit'); } catch (_) {}
+    if (!hasEditParam) {
+      rollRandomCard();
+    }
 
     // Fetch arena profile for Battle Record (non-blocking)
     loadArenaStats().then(function (profile) {

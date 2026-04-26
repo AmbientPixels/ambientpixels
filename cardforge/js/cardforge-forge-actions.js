@@ -3167,6 +3167,11 @@ function initializeForgeActions() {
 // cardforge-lightbox.js to open the gallery overlay — keeping the two
 // param names separate prevents the editor from popping the lightbox on
 // top of the form during an edit-load.
+//
+// card-forge-editor.js skips rollRandomCard() when ?edit= is present, so
+// if this handler fails to find a card the form stays empty. We fall back
+// to rollRandomCard in that case so the user isn't left with a blank
+// editor (worse UX than a placeholder).
 async function handleEditUrlParam() {
   var params = new URLSearchParams(window.location.search);
   var editId = params.get('edit');
@@ -3179,6 +3184,15 @@ async function handleEditUrlParam() {
     history.replaceState(null, '', url.toString());
   } catch (_) {}
 
+  function fallbackToRandom(reason) {
+    console.warn('[CardForge edit] auto-load failed (' + reason + '); rolling random card');
+    try {
+      if (window.CardForge && typeof window.CardForge.rollRandomCard === 'function') {
+        window.CardForge.rollRandomCard();
+      }
+    } catch (_) {}
+  }
+
   try {
     var loadUrl = (typeof window.buildApiPath === 'function')
       ? window.buildApiPath('loadCards')
@@ -3188,7 +3202,7 @@ async function handleEditUrlParam() {
       try { Object.assign(headers, await window._cfGetAuthHeaders()); } catch (_) {}
     }
     var resp = await fetch(loadUrl, { method: 'GET', headers: headers, credentials: 'omit' });
-    if (!resp.ok) return;
+    if (!resp.ok) { fallbackToRandom('http_' + resp.status); return; }
     var data = await resp.json();
     var pool = []
       .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
@@ -3197,14 +3211,26 @@ async function handleEditUrlParam() {
     var card = pool.find(function (c) {
       return (c && (c.id || (c.cardData && c.cardData.id))) === editId;
     });
-    if (!card) return;
+    if (!card) { fallbackToRandom('card_not_found'); return; }
+
     cardForgeActions._mergedCards = cardForgeActions._mergedCards || [];
     if (!cardForgeActions._mergedCards.find(function (c) { return c.id === editId; })) {
       cardForgeActions._mergedCards.push(card);
     }
+
+    // Ensure the editor's loadCardData hook is wired before calling. Both
+    // card-forge-editor.js and this file are deferred so the hook should
+    // already exist, but we poll briefly as a defensive guard.
+    var deadline = Date.now() + 3000;
+    while (!(window.cardForgeEditor && typeof window.cardForgeEditor.loadCardData === 'function')) {
+      if (Date.now() > deadline) { fallbackToRandom('editor_not_ready'); return; }
+      await new Promise(function (r) { setTimeout(r, 50); });
+    }
+
+    console.log('[CardForge edit] loading card', editId);
     cardForgeActions.loadCard(editId);
-  } catch (_) {
-    // Silent — broken auto-load shouldn't surface a blocking error to the user.
+  } catch (e) {
+    fallbackToRandom((e && e.message) || 'unknown');
   }
 }
 
