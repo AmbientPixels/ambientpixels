@@ -1,0 +1,635 @@
+/* ============================================================
+   BLINDSPOT REDESIGN — Phase 4b: Battle (Vein theme)
+   Faithful static mock of the design's battle screen. JS hooks
+   (arena-*, bs-*-bar, bs-move-card) are stashed offscreen so
+   bs-arena-battle-ui.js etc. don't error when writing to them.
+   This screen is visually faithful but non-functional.
+   ============================================================ */
+
+/* ---------- SCREEN SHELL ----------
+   Beats legacy `#bs-screen-battle { ... }` rules and the parent
+   `.bs-screen { max-width: 720px }` constraint. */
+#bs-screen-battle.blindspot-battle {
+  position: relative;
+  min-height: calc(100vh - 60px);
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: block;
+  font-family: var(--blindspot-font-body);
+  color: var(--blindspot-text);
+}
+#bs-screen-battle.blindspot-battle.active { display: block; }
+
+/* ---------- ARENA BG ---------- */
+.blindspot-battle__arena {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(2px) brightness(0.4) saturate(0.8);
+}
+.blindspot-battle__arena-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.85) 80%);
+}
+
+.blindspot-battle__shell {
+  position: relative;
+  z-index: 1;
+  padding: 1rem 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: calc(100vh - 60px);
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+/* ---------- HUD TOP ---------- */
+.blindspot-battle__hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  padding: 0.6rem 1rem;
+  backdrop-filter: blur(8px);
+}
+.blindspot-battle__round {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+.blindspot-battle__round-num {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  color: var(--blindspot-accent);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.blindspot-battle__intent {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 0.9em;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border-2);
+  border-left: 3px solid var(--blindspot-epic);
+  border-radius: var(--blindspot-radius-button);
+  font-size: 0.9rem;
+  color: var(--blindspot-text-dim);
+  font-style: italic;
+}
+.blindspot-battle__intent i {
+  color: var(--blindspot-epic);
+  flex-shrink: 0;
+}
+.blindspot-battle__top-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.blindspot-icon-btn {
+  background: transparent;
+  border: 1px solid var(--blindspot-border);
+  color: var(--blindspot-text-dim);
+  border-radius: var(--blindspot-radius-button);
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--blindspot-transition-fast),
+              border-color var(--blindspot-transition-fast);
+}
+.blindspot-icon-btn:hover {
+  color: var(--blindspot-accent);
+  border-color: var(--blindspot-accent-dim);
+}
+
+/* ---------- STAGE: 3-col ---------- */
+.blindspot-battle__stage {
+  display: grid;
+  grid-template-columns: 1fr 240px 1fr;
+  gap: 1.2rem;
+  align-items: stretch;
+}
+@media (max-width: 1100px) {
+  .blindspot-battle__stage {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+  .blindspot-battle__center {
+    grid-column: 1 / -1;
+    order: -1;
+    flex-direction: row !important;
+  }
+}
+
+/* ---------- COMBATANT ---------- */
+.blindspot-combatant {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  backdrop-filter: blur(6px);
+  position: relative;
+  overflow: hidden;
+}
+.blindspot-combatant--you  { border-left: 2px solid var(--blindspot-accent); }
+.blindspot-combatant--them { border-right: 2px solid var(--blindspot-danger); }
+
+.blindspot-combatant__plate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.blindspot-combatant__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--blindspot-text);
+}
+.blindspot-combatant__sub {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.blindspot-combatant__sub i {
+  color: var(--blindspot-text-dim);
+}
+
+.blindspot-combatant__portrait {
+  aspect-ratio: 16 / 10;
+  background-size: cover;
+  background-position: center top;
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-tile);
+}
+
+.blindspot-combatant__hp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  margin-bottom: 0.2rem;
+}
+.blindspot-combatant__hp-row .blindspot-eyebrow,
+.blindspot-combatant__hp-row .blindspot-num {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.blindspot-combatant__hp-row .blindspot-num {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  font-weight: 600;
+  color: var(--blindspot-accent);
+  font-size: 0.95rem;
+}
+.blindspot-combatant--them .blindspot-combatant__hp-row .blindspot-num {
+  color: var(--blindspot-danger);
+}
+
+/* HP bar variants — block-style */
+.blindspot-bar--hp .blindspot-bar__fill {
+  background: linear-gradient(90deg, var(--blindspot-accent-dim), var(--blindspot-accent));
+}
+.blindspot-bar--hp.blindspot-bar--enemy .blindspot-bar__fill {
+  background: linear-gradient(90deg, var(--blindspot-danger), #ff8a6a);
+}
+.blindspot-bar--hype .blindspot-bar__fill {
+  background: linear-gradient(90deg, var(--blindspot-epic), #d8a9ff);
+}
+
+/* Stamina pips */
+.blindspot-stam-pips {
+  display: flex;
+  gap: 4px;
+}
+.blindspot-stam-pip {
+  flex: 1;
+  height: 8px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+}
+.blindspot-stam-pip.is-on {
+  background: linear-gradient(180deg, var(--blindspot-accent-gold), var(--blindspot-accent));
+  border-color: var(--blindspot-accent);
+}
+
+/* Buffs */
+.blindspot-combatant__buffs {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+.blindspot-buff {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  padding: 0.25em 0.65em;
+  border-radius: 999px;
+  border: 1px solid;
+  text-transform: uppercase;
+}
+.blindspot-buff--good {
+  color: var(--blindspot-accent);
+  border-color: var(--blindspot-accent-dim);
+  background: rgba(200, 48, 44, 0.08);
+}
+.blindspot-buff--bad {
+  color: var(--blindspot-danger);
+  border-color: rgba(200, 48, 44, 0.45);
+  background: rgba(200, 48, 44, 0.08);
+}
+.blindspot-buff--combo {
+  color: var(--blindspot-epic);
+  border-color: rgba(142, 93, 171, 0.55);
+  background: rgba(142, 93, 171, 0.12);
+  animation: blindspot-pulse 1.5s ease-in-out infinite;
+}
+@keyframes blindspot-pulse {
+  0%, 100% { opacity: 0.65; }
+  50%      { opacity: 1; }
+}
+
+/* ---------- CENTER ---------- */
+.blindspot-battle__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+.blindspot-battle__vs {
+  font-family: var(--blindspot-font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 2.6rem;
+  color: var(--blindspot-accent);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 40px rgba(200, 48, 44, 0.5);
+}
+.blindspot-battle__hype {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.blindspot-battle__hype-label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-epic);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.blindspot-battle__hype-hint {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-muted);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.blindspot-battle__stances {
+  display: flex;
+  gap: 0.4rem;
+  width: 100%;
+  justify-content: space-around;
+}
+.blindspot-stance-btn {
+  flex: 1;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  padding: 0.55rem 0.3rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.6rem;
+  color: var(--blindspot-text-muted);
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color var(--blindspot-transition-fast),
+              border-color var(--blindspot-transition-fast),
+              background var(--blindspot-transition-fast);
+}
+.blindspot-stance-btn__g {
+  font-size: 1.15rem;
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  color: inherit;
+}
+.blindspot-stance-btn:hover {
+  border-color: var(--blindspot-accent-dim);
+  color: var(--blindspot-text);
+}
+.blindspot-stance-btn.is-active {
+  border-color: var(--blindspot-accent);
+  color: var(--blindspot-accent);
+  background: rgba(200, 48, 44, 0.1);
+}
+
+/* ---------- LOG ---------- */
+.blindspot-battle__log {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(8px);
+  max-height: 130px;
+  overflow-y: auto;
+}
+.blindspot-battle__log-head {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  margin-bottom: 0.5rem;
+}
+.blindspot-battle__log-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.blindspot-log-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 0.7rem;
+  align-items: baseline;
+  padding: 0.15rem 0;
+}
+.blindspot-log-row__round {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+.blindspot-log-row__text {
+  color: var(--blindspot-text-dim);
+}
+.blindspot-log-row__dmg {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  color: var(--blindspot-accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.blindspot-log-row__dmg.is-crit { color: var(--blindspot-danger); }
+.blindspot-log-row--reflect .blindspot-log-row__text { color: var(--blindspot-info); }
+.blindspot-log-row--crit    .blindspot-log-row__text { color: var(--blindspot-text); }
+
+/* ---------- HAND ---------- */
+.blindspot-battle__hand-wrap { margin-top: auto; }
+.blindspot-battle__hand-rail {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  color: var(--blindspot-text-muted);
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.blindspot-battle__hand-rail .blindspot-num {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  color: var(--blindspot-accent);
+  font-weight: 600;
+}
+.blindspot-battle__hand-rail-combo {
+  margin-left: auto;
+  color: var(--blindspot-accent);
+}
+.blindspot-battle__hand {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.7rem;
+}
+@media (max-width: 1100px) {
+  .blindspot-battle__hand { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .blindspot-battle__hand { grid-template-columns: 1fr; }
+}
+
+/* ---------- MOVE CARD ---------- */
+.blindspot-move-card {
+  background: linear-gradient(180deg, var(--blindspot-surface), var(--blindspot-bg-2));
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  padding: 0.75rem;
+  text-align: left;
+  color: var(--blindspot-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  position: relative;
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 200ms,
+              box-shadow 200ms;
+  overflow: hidden;
+  font-family: var(--blindspot-font-body);
+}
+.blindspot-move-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--blindspot-accent);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8),
+              0 0 30px -8px rgba(200, 48, 44, 0.4);
+}
+.blindspot-move-card.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.blindspot-move-card.is-selected {
+  border-color: var(--blindspot-accent);
+  box-shadow: 0 0 60px -10px var(--blindspot-accent);
+}
+.blindspot-move-card.is-combo {
+  border-color: var(--blindspot-accent);
+  animation: blindspot-glow 1.6s ease-in-out infinite;
+}
+@keyframes blindspot-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 48, 44, 0); }
+  50%      { box-shadow: 0 0 28px 4px rgba(200, 48, 44, 0.55); }
+}
+
+/* Per-move accent (--mc) */
+.blindspot-move-card[data-move="strike"]  { --mc: #ff7a3a; }
+.blindspot-move-card[data-move="guard"]   { --mc: #6cc4ff; }
+.blindspot-move-card[data-move="ability"] { --mc: #b47cf5; }
+.blindspot-move-card[data-move="heal"]    { --mc: #6cffb0; }
+.blindspot-move-card[data-move="counter"] { --mc: #ffd97a; }
+
+.blindspot-move-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.blindspot-move-card__type {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mc);
+}
+.blindspot-move-card__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  margin-top: 0.15rem;
+}
+.blindspot-move-card__energy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  background: #000;
+  border: 1px solid var(--blindspot-border-2);
+  padding: 0.25rem 0.45rem;
+  min-width: 40px;
+  border-radius: 2px;
+}
+.blindspot-move-card__energy-num {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--blindspot-text);
+  font-weight: 600;
+}
+.blindspot-move-card__energy-lbl {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  margin-top: 2px;
+}
+.blindspot-move-card__art {
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--blindspot-radius-tile);
+  position: relative;
+  border: 1px solid var(--blindspot-border);
+}
+.blindspot-move-card__art-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0, 0, 0, 0.5));
+  border-radius: inherit;
+}
+.blindspot-move-card__tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+.blindspot-move-card__tag {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.22em 0.55em;
+  background: var(--blindspot-surface-2);
+  border: 1px solid var(--blindspot-border-2);
+  color: var(--blindspot-text-muted);
+  border-radius: 999px;
+}
+.blindspot-move-card__tag--hl {
+  background: var(--mc);
+  color: #0E0A06;
+  border-color: var(--mc);
+}
+.blindspot-move-card__num {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.72rem;
+  color: var(--mc);
+  letter-spacing: 0.08em;
+}
+.blindspot-move-card__desc {
+  font-size: 0.85rem;
+  color: var(--blindspot-text-dim);
+  line-height: 1.4;
+  font-style: italic;
+}
+.blindspot-move-card__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--blindspot-border);
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-move-card__charge {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-epic);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+.blindspot-move-card__combo {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--blindspot-accent);
+  color: #FFF6E8;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  padding: 0.25em 0.55em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  font-weight: 700;
+}
