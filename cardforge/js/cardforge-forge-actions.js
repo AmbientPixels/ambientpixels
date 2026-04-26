@@ -3237,18 +3237,17 @@ async function handleEditUrlParam() {
     if (!card) { fallbackToRandom('card_not_found'); return; }
   }
 
-  try {
-    // Wait briefly for the editor's loadCardData hook to be wired.
-    var deadline = Date.now() + 3000;
-    while (!(window.cardForgeEditor && typeof window.cardForgeEditor.loadCardData === 'function')) {
-      if (Date.now() > deadline) { fallbackToRandom('editor_not_ready'); return; }
-      await new Promise(function (r) { setTimeout(r, 50); });
-    }
+  // Wait briefly for the editor's loadCardData hook to be wired.
+  var deadline = Date.now() + 3000;
+  while (!(window.cardForgeEditor && typeof window.cardForgeEditor.loadCardData === 'function')) {
+    if (Date.now() > deadline) { fallbackToRandom('editor_not_ready'); return; }
+    await new Promise(function (r) { setTimeout(r, 50); });
+  }
 
-    // Bypass cardForgeActions.loadCard's lookup chain — we already have
-    // the card in hand. Set the hidden card-id field manually so
-    // subsequent Save/Publish picks it up. Mirrors loadCard()'s flag
-    // handling and image-slider restoration.
+  // === Critical step: actually populate the form ===
+  // Wrap separately so the post-load cleanup below cannot throw and
+  // trigger fallbackToRandom on top of an already-loaded card.
+  try {
     if (window.cardForgeActions) cardForgeActions._isLoadingCard = true;
     var idField = document.getElementById('card-id');
     if (idField) idField.value = card.id || (card.cardData && card.cardData.id) || editId;
@@ -3256,9 +3255,20 @@ async function handleEditUrlParam() {
     var cardData = card.data || card.cardData || card;
     console.log('[CardForge edit] calling loadCardData');
     window.cardForgeEditor.loadCardData(cardData);
+    console.log('[CardForge edit] loaded successfully');
+  } catch (e) {
+    console.error('[CardForge edit] loadCardData threw:', e);
+    fallbackToRandom((e && e.message) || 'unknown');
+    return;
+  }
 
-    // Restore image slider positions (lifted from loadCard)
-    var design = (cardData && cardData.design) || {};
+  // === Best-effort cleanup ===
+  // Errors here are logged but MUST NOT fallback — the card is already
+  // in the form and overwriting it with a random card would be worse
+  // than leaving the slider/publish-nav state slightly inconsistent.
+  try {
+    var cardDataForCleanup = card.data || card.cardData || card;
+    var design = (cardDataForCleanup && cardDataForCleanup.design) || {};
     var posXSlider = document.getElementById('cf-img-pos-x');
     var posYSlider = document.getElementById('cf-img-pos-y');
     var zoomSlider = document.getElementById('cf-img-zoom');
@@ -3281,15 +3291,15 @@ async function handleEditUrlParam() {
       previewZone.style.setProperty('--cf-avatar-scale', savedZoom / 100);
     }
 
-    // Sync publish nav to reflect published-or-not state
     var isPublished = !!(card.isPublished || card.published ||
       (card.cardData && (card.cardData.published || card.cardData.isPublished)));
-    if (window.CardForgeActions && typeof window.CardForgeActions.setPublishNavState === 'function') {
-      window.CardForgeActions.setPublishNavState(isPublished ? 'published' : 'default');
+    // Reference the class via lexical scope; window.CardForgeActions is
+    // not exposed (only the lowercase instance is).
+    if (typeof CardForgeActions !== 'undefined' &&
+        typeof CardForgeActions.setPublishNavState === 'function') {
+      CardForgeActions.setPublishNavState(isPublished ? 'published' : 'default');
     }
 
-    // Also push to _mergedCards so other code paths that look it up there
-    // (publish/duplicate/etc.) can find it.
     if (window.cardForgeActions) {
       cardForgeActions._mergedCards = cardForgeActions._mergedCards || [];
       if (!cardForgeActions._mergedCards.find(function (c) { return c.id === card.id; })) {
@@ -3297,11 +3307,8 @@ async function handleEditUrlParam() {
       }
       setTimeout(function () { cardForgeActions._isLoadingCard = false; }, 800);
     }
-
-    console.log('[CardForge edit] loaded successfully');
-  } catch (e) {
-    console.error('[CardForge edit] populate threw:', e);
-    fallbackToRandom((e && e.message) || 'unknown');
+  } catch (cleanupErr) {
+    console.warn('[CardForge edit] cleanup threw (card still loaded):', cleanupErr);
   }
 }
 
