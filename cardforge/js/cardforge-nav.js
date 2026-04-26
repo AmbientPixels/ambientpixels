@@ -23,16 +23,36 @@
   'use strict';
 
   var ADMIN_USER_IDS = ['5bb115c5-9077-4049-8af0-ce5085a9c315'];
+  var AUTH_HINT_KEY = 'cfAuthHint';
 
   // Registry of nav links — order matters (rendered left to right).
-  // Each entry: { key, label, href, splashCta? } — `key` matches the
-  // page's data-cf-nav value for active-state highlighting.
+  // Each entry: { key, label, href, splashCta?, requireAuth? }.
+  // `requireAuth: true` hides the link from anonymous users — both Decks
+  // and Forge are effectively empty without a per-user collection
+  // (cf-deck-builder.js#379 gates cloud cards on auth, Forge panels are
+  // 100% sign-in content).
   var LINKS = [
     { key: 'gallery', label: 'Gallery', href: '/cardforge/gallery.html' },
-    { key: 'decks',   label: 'Decks',   href: '/cardforge/deck.html' },
-    { key: 'forge',   label: 'Forge',   href: '/cardforge/forge.html' },
+    { key: 'decks',   label: 'Decks',   href: '/cardforge/deck.html', requireAuth: true },
+    { key: 'forge',   label: 'Forge',   href: '/cardforge/forge.html', requireAuth: true },
     { key: 'editor',  label: 'Editor',  href: '/cardforge/editor.html', splashCta: 'nav-open-editor' }
   ];
+
+  // Synchronous auth hint — set by loadPrincipal() after /.auth/me resolves
+  // signed-in. Lets requireAuth links render in their final state on first
+  // paint for any returning signed-in user (no FOUC). First-ever visit
+  // while signed-in still flashes briefly, but every subsequent navigation
+  // in the session is clean.
+  function readAuthHint() {
+    try { return sessionStorage.getItem(AUTH_HINT_KEY) === '1'; }
+    catch (_) { return false; }
+  }
+  function writeAuthHint(on) {
+    try {
+      if (on) sessionStorage.setItem(AUTH_HINT_KEY, '1');
+      else sessionStorage.removeItem(AUTH_HINT_KEY);
+    } catch (_) {}
+  }
 
   function escAttr(s) {
     return String(s == null ? '' : s)
@@ -74,6 +94,10 @@
     var attrs = ' href="' + escAttr(link.href) + '"';
     if (link.splashCta) attrs += ' data-splash-cta="' + escAttr(link.splashCta) + '"';
     if (link.key === activeKey) attrs += ' class="cf-nav-active" aria-current="page"';
+    if (link.requireAuth) {
+      attrs += ' data-cf-require-auth';
+      if (!readAuthHint()) attrs += ' hidden';
+    }
     return '<a' + attrs + '>' + escAttr(link.label) + '</a>';
   }
 
@@ -153,7 +177,8 @@
     }
 
     loadPrincipal().then(function (principal) {
-      if (principal && principal.userDetails) {
+      var signedIn = !!(principal && principal.userId);
+      if (signedIn && principal.userDetails) {
         var nameEl = userWrap && userWrap.querySelector('.cf-splash-nav__user-name');
         if (nameEl) nameEl.textContent = principal.userDetails;
         if (userWrap) userWrap.hidden = false;
@@ -165,6 +190,13 @@
       // Admin link visibility — only show to admins. Markup is hidden
       // by default at injection time; we flip it on after auth resolves.
       if (adminLink && isAdminPrincipal(principal)) adminLink.hidden = false;
+
+      // Auth-gated nav links (Decks, Forge): flip hidden state based on
+      // /.auth/me truth, and update the synchronous sessionStorage hint
+      // so the next page in this session paints them in the correct state.
+      var gated = headerEl.querySelectorAll('[data-cf-require-auth]');
+      for (var i = 0; i < gated.length; i++) gated[i].hidden = !signedIn;
+      writeAuthHint(signedIn);
     });
 
     if (avatarBtn && menu) {

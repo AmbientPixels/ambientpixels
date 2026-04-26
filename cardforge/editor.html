@@ -142,10 +142,10 @@
     </a>
   </div>
   <div class="cf-page-bar__actions" aria-label="Page controls">
-    <a href="/cardforge/forge.html" class="cf-decks-link" title="My Forge">
+    <a href="/cardforge/forge.html" class="cf-decks-link" title="My Forge" data-cf-require-auth hidden>
       <i class="fas fa-fire-flame-curved"></i> Forge
     </a>
-    <a href="/cardforge/deck.html" class="cf-decks-link" title="Deck Builder">
+    <a href="/cardforge/deck.html" class="cf-decks-link" title="Deck Builder" data-cf-require-auth hidden>
       <i class="fas fa-layer-group"></i> Decks
     </a>
     <a id="cf-login-btn" class="cf-auth-link" href="/cardforge/login.html?redirect=/cardforge/">
@@ -167,6 +167,20 @@
     </div>
   </div>
 </header>
+<script>
+  // Synchronous reveal of auth-gated nav links (Decks, Forge) for returning
+  // signed-in users — paired with the cardforge-nav.js cfAuthHint that any
+  // other CardForge page in this session writes after /.auth/me confirms.
+  // Without this the links would flash hidden, then visible, on every editor
+  // load for a returning signed-in user. The async checkAuth() below is the
+  // source of truth and re-hides them if /.auth/me actually returns anon.
+  try {
+    if (sessionStorage.getItem('cfAuthHint') === '1') {
+      var _gated = document.querySelectorAll('[data-cf-require-auth]');
+      for (var _i = 0; _i < _gated.length; _i++) _gated[_i].hidden = false;
+    }
+  } catch (_) {}
+</script>
 
 <main>
 
@@ -1932,27 +1946,42 @@
 <script>
 (function() {
   async function checkAuth() {
+    var signedIn = false;
     try {
       const resp = await fetch('/.auth/me');
-      if (!resp.ok) return;
-      const { clientPrincipal } = await resp.json();
-      if (!clientPrincipal) return;
+      if (resp.ok) {
+        const data = await resp.json();
+        const clientPrincipal = data && data.clientPrincipal;
+        if (clientPrincipal && clientPrincipal.userId) {
+          signedIn = true;
 
-      const name = (clientPrincipal.userDetails || '').split('@')[0] || 'User';
-      sessionStorage.setItem('isAuthenticated', 'true');
-      sessionStorage.setItem('userInfo', JSON.stringify({
-        userId: clientPrincipal.userId, name: name,
-        email: clientPrincipal.userDetails
-      }));
-      document.body.setAttribute('data-auth-state', 'signed-in');
+          const name = (clientPrincipal.userDetails || '').split('@')[0] || 'User';
+          sessionStorage.setItem('isAuthenticated', 'true');
+          sessionStorage.setItem('userInfo', JSON.stringify({
+            userId: clientPrincipal.userId, name: name,
+            email: clientPrincipal.userDetails
+          }));
+          document.body.setAttribute('data-auth-state', 'signed-in');
 
-      var loginBtn = document.getElementById('cf-login-btn');
-      var userStatus = document.getElementById('cf-user-status');
-      var userName = document.getElementById('cf-user-name');
-      if (loginBtn) loginBtn.style.display = 'none';
-      if (userStatus) userStatus.style.display = '';  // CSS sets inline-block via .cf-splash-nav__user-wrap
-      if (userName) userName.textContent = clientPrincipal.userDetails || name;
-    } catch (e) { /* not authenticated */ }
+          var loginBtn = document.getElementById('cf-login-btn');
+          var userStatus = document.getElementById('cf-user-status');
+          var userName = document.getElementById('cf-user-name');
+          if (loginBtn) loginBtn.style.display = 'none';
+          if (userStatus) userStatus.style.display = '';  // CSS sets inline-block via .cf-splash-nav__user-wrap
+          if (userName) userName.textContent = clientPrincipal.userDetails || name;
+        }
+      }
+    } catch (_) { /* network error → treat as anon */ }
+
+    // Flip auth-gated page-bar links + persist the cfAuthHint that other
+    // CardForge pages in this session will read for FOUC-free first paint.
+    try {
+      var gated = document.querySelectorAll('[data-cf-require-auth]');
+      for (var i = 0; i < gated.length; i++) gated[i].hidden = !signedIn;
+      if (signedIn) sessionStorage.setItem('cfAuthHint', '1');
+      else sessionStorage.removeItem('cfAuthHint');
+    } catch (_) {}
+
   }
 
   // Avatar dropdown wiring (mirrors splash pattern). The Sign-out anchor
