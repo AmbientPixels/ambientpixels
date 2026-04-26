@@ -9,8 +9,9 @@
 /* ---------- SCREEN SHELL ----------
    Beats legacy `.bs-screen.active#bs-screen-battle { max-width: 860px }`
    at blindspot.css:5676 — that rule has specificity (0,1,2,0); ours
-   needs to be at least equal and load later. */
-.bs-screen#bs-screen-battle.blindspot-battle,
+   needs to be at least equal and load later.
+   Only `.active` shows; legacy `.bs-screen { display: none }` keeps
+   the inactive state hidden. */
 .bs-screen.active#bs-screen-battle.blindspot-battle {
   position: relative;
   min-height: calc(100vh - 60px);
@@ -23,7 +24,6 @@
   color: var(--blindspot-text);
   flex: unset;
 }
-.bs-screen.active#bs-screen-battle.blindspot-battle { display: block; }
 
 /* ---------- ARENA BG ---------- */
 .blindspot-battle__arena {

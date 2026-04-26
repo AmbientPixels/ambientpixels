@@ -86,95 +86,38 @@
 
       <div class="blindspot-lobby__grid">
 
-        <!-- LEFT: fighter card column (static designed mock; data is illustrative).
-             JS card hooks are stashed offscreen below so bs-card-renderer.js
-             still finds them without rendering legacy markup over the design. -->
+        <!-- LEFT: fighter card column (functional — bs-card-renderer.js
+             populates #bs-player-card with the player's real card.
+             Vein styling is layered via blindspot-lobby.css. -->
         <div class="blindspot-lobby__col blindspot-lobby__col--card">
-          <div class="blindspot-fighter-card">
-            <div class="blindspot-fighter-card__art" style="background-image: url('img/fighters/knight.webp');">
-              <span class="blindspot-fighter-card__chip blindspot-fighter-card__chip--rarity">Epic</span>
-              <span class="blindspot-fighter-card__chip blindspot-fighter-card__chip--title">Shadow Walker</span>
-              <div class="blindspot-fighter-card__name-overlay">
-                <h2 class="blindspot-fighter-card__name">Cyberpunk Runner</h2>
-                <span class="blindspot-fighter-card__class">Guardian <span aria-hidden="true">&middot;</span> <i class="fas fa-mountain" aria-hidden="true"></i> Earth</span>
-              </div>
+          <div class="bs-lobby__card-wrapper">
+            <div class="bs-lobby__card-display" id="bs-player-card">
+              <div class="bs-loading" style="flex-direction:column; padding:1rem;"><div class="bs-spinner" role="status"></div><span style="font-size:0.7rem; margin-top:0.5rem;">Loading...</span></div>
             </div>
-            <div class="blindspot-fighter-card__stats">
-              <div class="blindspot-stat-row">
-                <span class="blindspot-stat-row__label">STR</span>
-                <div class="blindspot-stat-row__track"><div class="blindspot-stat-row__fill" style="width:60%"></div></div>
-                <span class="blindspot-stat-row__num">72</span>
-              </div>
-              <div class="blindspot-stat-row">
-                <span class="blindspot-stat-row__label">AGI</span>
-                <div class="blindspot-stat-row__track"><div class="blindspot-stat-row__fill" style="width:54%"></div></div>
-                <span class="blindspot-stat-row__num">65</span>
-              </div>
-              <div class="blindspot-stat-row">
-                <span class="blindspot-stat-row__label">INT</span>
-                <div class="blindspot-stat-row__track"><div class="blindspot-stat-row__fill" style="width:42%"></div></div>
-                <span class="blindspot-stat-row__num">50</span>
-              </div>
-              <div class="blindspot-stat-row">
-                <span class="blindspot-stat-row__label">END</span>
-                <div class="blindspot-stat-row__track"><div class="blindspot-stat-row__fill" style="width:83%"></div></div>
-                <span class="blindspot-stat-row__num">100</span>
-              </div>
-              <div class="blindspot-stat-row">
-                <span class="blindspot-stat-row__label">LCK</span>
-                <div class="blindspot-stat-row__track"><div class="blindspot-stat-row__fill" style="width:50%"></div></div>
-                <span class="blindspot-stat-row__num">60</span>
-              </div>
+            <div class="bs-card-switcher" id="bs-card-switcher" style="display:none;" role="navigation" aria-label="Switch cards">
+              <button class="bs-card-switcher__btn" id="bs-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+              <span class="bs-card-switcher__count" id="bs-card-count">1 / 1</span>
+              <button class="bs-card-switcher__btn" id="bs-card-next" aria-label="Next card"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
             </div>
-            <div class="blindspot-fighter-card__foot">
-              <div class="blindspot-fighter-card__foot-cell">
-                <span class="blindspot-fighter-card__foot-label">Power</span>
-                <span class="blindspot-fighter-card__foot-value">386</span>
-              </div>
-              <div class="blindspot-fighter-card__foot-cell">
-                <span class="blindspot-fighter-card__foot-label">Sparks</span>
-                <span class="blindspot-fighter-card__foot-value">412</span>
-              </div>
-              <div class="blindspot-fighter-card__foot-cell">
-                <span class="blindspot-fighter-card__foot-label">Record</span>
-                <span class="blindspot-fighter-card__foot-value">31&ndash;12</span>
+            <div class="bs-forge-progress" id="bs-forge-progress">
+              <div class="bs-forge-progress__label" id="bs-forge-label">FORGE &middot; 0 / 3</div>
+              <div class="bs-forge-progress__hint" id="bs-forge-hint">Win campaign fights to customize your card</div>
+              <div class="bs-forge-progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Forge unlock progress">
+                <div class="bs-forge-progress__bar-fill" id="bs-forge-fill"></div>
               </div>
             </div>
           </div>
 
           <div class="blindspot-lobby__card-actions">
-            <button class="blindspot-btn blindspot-btn--block" type="button" id="bs-forge-progress-btn">
-              <i class="fas fa-pen-to-square" aria-hidden="true"></i> Forge (3/3)
+            <button class="blindspot-btn blindspot-btn--block" id="bs-new-card-btn" style="display:none;" aria-label="Create a new card">
+              <i class="fas fa-plus" aria-hidden="true"></i> New Card
             </button>
-            <button class="blindspot-btn blindspot-btn--block" type="button" id="bs-btn-deck-redesign">
-              <i class="fas fa-bars" aria-hidden="true"></i> Manage Deck
+            <button class="blindspot-btn blindspot-btn--block" id="bs-btn-deck" style="display:none;" aria-label="Manage your deck">
+              <i class="fas fa-layer-group" aria-hidden="true"></i> Manage Deck
             </button>
-            <button class="blindspot-btn blindspot-btn--ghost blindspot-btn--block" type="button" id="bs-share-card-btn-redesign">
-              <i class="fas fa-share-nodes" aria-hidden="true"></i> Share
+            <button class="blindspot-btn blindspot-btn--ghost blindspot-btn--block" id="bs-share-card-btn" style="display:none;" aria-label="Share your card">
+              <i class="fas fa-share-nodes" aria-hidden="true"></i> Share Card
             </button>
-          </div>
-
-          <!-- JS card hooks stashed offscreen — bs-card-renderer.js etc. still
-               find these IDs but they don't render legacy markup on top. -->
-          <div class="blindspot-lobby__legacy-stash" aria-hidden="true" style="display:none;">
-            <div class="bs-lobby__card-wrapper">
-              <div class="bs-lobby__card-display" id="bs-player-card"></div>
-              <div class="bs-card-switcher" id="bs-card-switcher" role="navigation" aria-label="Switch cards">
-                <button class="bs-card-switcher__btn" id="bs-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
-                <span class="bs-card-switcher__count" id="bs-card-count">1 / 1</span>
-                <button class="bs-card-switcher__btn" id="bs-card-next" aria-label="Next card"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
-              </div>
-              <div class="bs-forge-progress" id="bs-forge-progress">
-                <div class="bs-forge-progress__label" id="bs-forge-label">FORGE &middot; 0 / 3</div>
-                <div class="bs-forge-progress__hint" id="bs-forge-hint">Win campaign fights to customize your card</div>
-                <div class="bs-forge-progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Forge unlock progress">
-                  <div class="bs-forge-progress__bar-fill" id="bs-forge-fill"></div>
-                </div>
-              </div>
-              <button id="bs-new-card-btn"></button>
-              <button id="bs-btn-deck"></button>
-              <button id="bs-share-card-btn"></button>
-            </div>
           </div>
         </div>
 
@@ -525,352 +468,224 @@
       </div>
     </div>
 
-    <!-- SCREEN: BATTLE — Phase 4b faithful Vein rebuild.
-         Static mock per design (Round 4, Void Harbinger vs Cyberpunk
-         Runner). Legacy arena-* / bs-move-card JS hooks are stashed
-         offscreen at the bottom so bs-arena-battle-ui.js doesn't error.
-         The screen is non-functional in this state — purely visual. -->
+    <!-- SCREEN: BATTLE — functional. Legacy arena-* markup is restored
+         and styled via blindspot-battle.css scope-overrides. -->
     <div id="bs-screen-battle" class="bs-screen blindspot-battle" role="region" aria-label="Battle">
       <div class="blindspot-battle__arena" aria-hidden="true" style="background-image: url('img/arena/arena-shadow-pit.webp');"></div>
       <div class="blindspot-battle__arena-veil" aria-hidden="true"></div>
-
-      <div class="blindspot-battle__shell">
-
-        <!-- HUD top -->
-        <div class="blindspot-battle__hud-top">
-          <div class="blindspot-battle__round">
-            <span class="blindspot-eyebrow">Round</span>
-            <span class="blindspot-battle__round-num">04</span>
-          </div>
-          <div class="blindspot-battle__intent">
-            <i class="fas fa-shield" aria-hidden="true"></i>
-            <span>The Harbinger gathers shadows. Phase Cloak imminent&hellip;</span>
-          </div>
-          <div class="blindspot-battle__top-actions">
-            <button class="blindspot-icon-btn" type="button" aria-label="Combat guide"><i class="fas fa-question" aria-hidden="true"></i></button>
-            <button class="blindspot-icon-btn" type="button" aria-label="Forfeit"><i class="fas fa-flag" aria-hidden="true"></i></button>
-          </div>
+      <div class="arena-battle">
+        <div class="arena-battle__header">
+          <span class="arena-battle__round" id="arena-round-label" aria-live="polite">Round 1</span>
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide" style="font-size:0.8rem;"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">
+            <i class="fas fa-flag" aria-hidden="true"></i> Forfeit
+          </button>
+          <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
+            <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo" aria-hidden="true"></i> Again</button>
+            <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button>
+          </span>
         </div>
-
-        <!-- Stage: 3-col -->
-        <div class="blindspot-battle__stage">
-
-          <!-- YOU -->
-          <div class="blindspot-combatant blindspot-combatant--you">
-            <div class="blindspot-combatant__plate">
-              <div class="blindspot-combatant__name">Cyberpunk Runner</div>
-              <div class="blindspot-combatant__sub"><i class="fas fa-mountain" aria-hidden="true"></i> Guardian &middot; LV 386</div>
-            </div>
-            <div class="blindspot-combatant__portrait" style="background-image: url('img/fighters/knight.webp');"></div>
-            <div>
-              <div class="blindspot-combatant__hp-row">
-                <span class="blindspot-eyebrow">HP</span>
-                <span class="blindspot-num">138 / 175</span>
+        <div class="arena-battle__stage">
+          <div class="arena-battle__field">
+            <div class="arena-combatant arena-combatant--player" id="arena-player-side">
+              <div class="arena-combatant__frame">
+                <div class="arena-combatant__card" id="arena-player-card"></div>
               </div>
-              <div class="blindspot-bar blindspot-bar--hp" role="progressbar" aria-valuenow="79" aria-valuemin="0" aria-valuemax="100"><div class="blindspot-bar__fill" style="width:79%"></div></div>
-            </div>
-            <div>
-              <div class="blindspot-combatant__hp-row">
-                <span class="blindspot-eyebrow">Stamina</span>
-                <span class="blindspot-num">5 / 6</span>
+              <div class="arena-combatant__nameplate">
+                <span class="arena-combatant__name" id="arena-player-name">You</span>
+                <span class="arena-element-badge" id="arena-player-element"></span>
               </div>
-              <div class="blindspot-stam-pips" aria-hidden="true">
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip"></span>
+              <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Your health">
+                <div class="arena-hp-bar__track">
+                  <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div>
+                </div>
+                <div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div>
               </div>
-            </div>
-            <div class="blindspot-combatant__buffs">
-              <span class="blindspot-buff blindspot-buff--good">+20 STR</span>
-              <span class="blindspot-buff blindspot-buff--good">+10 AGI</span>
-              <span class="blindspot-buff blindspot-buff--good">+5 LCK</span>
-              <span class="blindspot-buff blindspot-buff--combo">&#9654; FLURRY 2/3</span>
-            </div>
-          </div>
-
-          <!-- CENTER -->
-          <div class="blindspot-battle__center">
-            <div class="blindspot-battle__vs">VS</div>
-            <div class="blindspot-battle__hype">
-              <div class="blindspot-battle__hype-label"><i class="fas fa-fire" aria-hidden="true"></i> Hype</div>
-              <div class="blindspot-bar blindspot-bar--hype" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><div class="blindspot-bar__fill" style="width:72%"></div></div>
-              <div class="blindspot-battle__hype-hint">Crit boost at 100% &middot; 28% to go</div>
-            </div>
-            <div class="blindspot-battle__stances" role="group" aria-label="Stance selector">
-              <button class="blindspot-stance-btn" type="button">
-                <span class="blindspot-stance-btn__g">&#9650;</span>
-                <span>Aggressive</span>
-              </button>
-              <button class="blindspot-stance-btn is-active" type="button" aria-pressed="true">
-                <span class="blindspot-stance-btn__g">&#9678;</span>
-                <span>Balanced</span>
-              </button>
-              <button class="blindspot-stance-btn" type="button">
-                <span class="blindspot-stance-btn__g">&#9632;</span>
-                <span>Defensive</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- THEM -->
-          <div class="blindspot-combatant blindspot-combatant--them">
-            <div class="blindspot-combatant__plate">
-              <div class="blindspot-combatant__name">Void Harbinger</div>
-              <div class="blindspot-combatant__sub"><i class="fas fa-ghost" aria-hidden="true"></i> Boss 09 &middot; Diff 9</div>
-            </div>
-            <div class="blindspot-combatant__portrait" style="background-image: url('img/bosses/Void-Harbinger-01.webp');"></div>
-            <div>
-              <div class="blindspot-combatant__hp-row">
-                <span class="blindspot-eyebrow">HP</span>
-                <span class="blindspot-num">92 / 159</span>
+              <div class="arena-stamina-bar" id="arena-player-stamina-bar" role="progressbar" aria-label="Your stamina">
+                <div class="arena-stamina-bar__fill" id="arena-player-stamina-fill" style="width:100%"></div>
+                <span class="arena-stamina-bar__text" id="arena-player-stamina-text"></span>
               </div>
-              <div class="blindspot-bar blindspot-bar--hp blindspot-bar--enemy" role="progressbar" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100"><div class="blindspot-bar__fill" style="width:58%"></div></div>
+              <div class="arena-player-items" id="arena-player-items"></div>
+              <div class="arena-player-buffs" id="arena-player-buffs"></div>
+              <div class="arena-status-row" id="arena-player-status" aria-live="polite"></div>
             </div>
-            <div>
-              <div class="blindspot-combatant__hp-row">
-                <span class="blindspot-eyebrow">Stamina</span>
-                <span class="blindspot-num">3 / 6</span>
+            <div class="arena-battle__vs" aria-hidden="true"><span class="arena-battle__vs-text">VS</span></div>
+            <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
+              <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
+                <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
+                <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
               </div>
-              <div class="blindspot-stam-pips" aria-hidden="true">
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip is-on"></span>
-                <span class="blindspot-stam-pip"></span>
-                <span class="blindspot-stam-pip"></span>
-                <span class="blindspot-stam-pip"></span>
+              <div class="arena-combatant__frame">
+                <div class="arena-combatant__card" id="arena-opponent-card"></div>
               </div>
-            </div>
-            <div class="blindspot-combatant__buffs">
-              <span class="blindspot-buff blindspot-buff--bad">Phase 2/3</span>
-              <span class="blindspot-buff blindspot-buff--bad">Vengeance</span>
+              <div class="arena-combatant__nameplate">
+                <span class="arena-combatant__name" id="arena-opponent-name">Enemy</span>
+                <span class="arena-element-badge" id="arena-opponent-element"></span>
+                <span class="arena-boss-stance" id="arena-boss-stance"><i class="fas fa-circle-nodes"></i></span>
+              </div>
+              <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Enemy health">
+                <div class="arena-hp-bar__track">
+                  <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div>
+                </div>
+                <div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div>
+              </div>
+              <div class="arena-stamina-bar" id="arena-opponent-stamina-bar" role="progressbar" aria-label="Enemy stamina">
+                <div class="arena-stamina-bar__fill" id="arena-opponent-stamina-fill" style="width:100%"></div>
+                <span class="arena-stamina-bar__text" id="arena-opponent-stamina-text"></span>
+              </div>
+              <div class="arena-status-row" id="arena-opponent-status" aria-live="polite"></div>
             </div>
           </div>
         </div>
-
-        <!-- LOG -->
-        <div class="blindspot-battle__log" role="log" aria-label="Combat log">
-          <div class="blindspot-battle__log-head"><i class="fas fa-scroll" aria-hidden="true"></i> Battle Log</div>
-          <div class="blindspot-battle__log-rows">
-            <div class="blindspot-log-row blindspot-log-row--reflect">
-              <span class="blindspot-log-row__round">R4</span>
-              <span class="blindspot-log-row__text">Flash Counter &mdash; reflected 28 damage.</span>
-              <span class="blindspot-log-row__dmg">-28</span>
-            </div>
-            <div class="blindspot-log-row blindspot-log-row--crit">
-              <span class="blindspot-log-row__round">R3</span>
-              <span class="blindspot-log-row__text">Focused Strike pierced the guard. CRIT.</span>
-              <span class="blindspot-log-row__dmg is-crit">CRIT -56</span>
-            </div>
-            <div class="blindspot-log-row">
-              <span class="blindspot-log-row__round">R2</span>
-              <span class="blindspot-log-row__text">Heavy Strike interrupted the heal. STR 72 &gt; END 60.</span>
-              <span class="blindspot-log-row__dmg">-32</span>
-            </div>
-            <div class="blindspot-log-row">
-              <span class="blindspot-log-row__round">R1</span>
-              <span class="blindspot-log-row__text">You braced. Strike blocked &mdash; 60% reduction.</span>
-              <span class="blindspot-log-row__dmg">-4</span>
-            </div>
+        <div class="arena-battle__log" id="arena-battle-log" role="log" aria-label="Combat log" aria-live="polite">
+          <div class="arena-log-entry">Battle started!</div>
+        </div>
+        <div class="arena-hype-bar" id="arena-hype-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Hype meter">
+          <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved" aria-hidden="true"></i> HYPE</div>
+          <div class="arena-hype-bar__track">
+            <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
           </div>
         </div>
-
-        <!-- HAND -->
-        <div class="blindspot-battle__hand-wrap">
-          <div class="blindspot-battle__hand-rail">
-            <i class="fas fa-bolt" aria-hidden="true"></i> Choose your move &mdash; Stamina <span class="blindspot-num">5</span>/<span class="blindspot-num">6</span>
-            <span class="blindspot-battle__hand-rail-combo">&#9654; Flurry ready &middot; Strike &rarr; +30% damage</span>
-          </div>
-          <div class="blindspot-battle__hand">
-            <!-- Heavy Strike -->
-            <button class="blindspot-move-card is-combo" type="button" data-move="strike">
-              <div class="blindspot-move-card__top">
-                <div>
-                  <div class="blindspot-move-card__type">Offensive Action</div>
-                  <div class="blindspot-move-card__name">Heavy Strike</div>
-                </div>
-                <div class="blindspot-move-card__energy">
-                  <span class="blindspot-move-card__energy-num">4</span>
-                  <span class="blindspot-move-card__energy-lbl">EN</span>
-                </div>
-              </div>
-              <div class="blindspot-move-card__art" style="background-image: url('img/moves/strike.webp');">
-                <div class="blindspot-move-card__art-veil"></div>
-              </div>
-              <div class="blindspot-move-card__tags">
-                <span class="blindspot-move-card__tag">STR</span>
-                <span class="blindspot-move-card__tag blindspot-move-card__tag--hl">Melee</span>
-              </div>
-              <div class="blindspot-move-card__num">16-32 DMG</div>
-              <p class="blindspot-move-card__desc">Forged intent made kinetic. Hit first, hit hardest.</p>
-              <div class="blindspot-move-card__foot">
-                <span>Type: Attack</span>
-              </div>
-              <div class="blindspot-move-card__combo">&#9654; Flurry</div>
-            </button>
-
-            <!-- Iron Guard -->
-            <button class="blindspot-move-card" type="button" data-move="guard">
-              <div class="blindspot-move-card__top">
-                <div>
-                  <div class="blindspot-move-card__type">Defensive Stance</div>
-                  <div class="blindspot-move-card__name">Iron Guard</div>
-                </div>
-                <div class="blindspot-move-card__energy">
-                  <span class="blindspot-move-card__energy-num">1</span>
-                  <span class="blindspot-move-card__energy-lbl">EN</span>
-                </div>
-              </div>
-              <div class="blindspot-move-card__art" style="background-image: url('img/moves/guard.webp');">
-                <div class="blindspot-move-card__art-veil"></div>
-              </div>
-              <div class="blindspot-move-card__tags">
-                <span class="blindspot-move-card__tag">END</span>
-                <span class="blindspot-move-card__tag blindspot-move-card__tag--hl">Reduce</span>
-              </div>
-              <div class="blindspot-move-card__num">BLOCK 60%</div>
-              <p class="blindspot-move-card__desc">Brace against the incoming. Weather the storm.</p>
-              <div class="blindspot-move-card__foot">
-                <span>Type: Defense</span>
-              </div>
-            </button>
-
-            <!-- Focused Strike (ability) -->
-            <button class="blindspot-move-card" type="button" data-move="ability">
-              <div class="blindspot-move-card__top">
-                <div>
-                  <div class="blindspot-move-card__type">Signature Move</div>
-                  <div class="blindspot-move-card__name">Focused Strike</div>
-                </div>
-                <div class="blindspot-move-card__energy">
-                  <span class="blindspot-move-card__energy-num">5</span>
-                  <span class="blindspot-move-card__energy-lbl">EN</span>
-                </div>
-              </div>
-              <div class="blindspot-move-card__art" style="background-image: url('img/moves/ability.webp');">
-                <div class="blindspot-move-card__art-veil"></div>
-              </div>
-              <div class="blindspot-move-card__tags">
-                <span class="blindspot-move-card__tag">INT</span>
-                <span class="blindspot-move-card__tag blindspot-move-card__tag--hl">Class Power</span>
-              </div>
-              <div class="blindspot-move-card__num">INT &times; 4</div>
-              <p class="blindspot-move-card__desc">The move only you can pull off.</p>
-              <div class="blindspot-move-card__foot">
-                <span>Type: Ultimate</span>
-                <span class="blindspot-move-card__charge">0/2</span>
-              </div>
-            </button>
-
-            <!-- Fortified Heal -->
-            <button class="blindspot-move-card" type="button" data-move="heal">
-              <div class="blindspot-move-card__top">
-                <div>
-                  <div class="blindspot-move-card__type">Recovery Protocol</div>
-                  <div class="blindspot-move-card__name">Fortified Heal</div>
-                </div>
-                <div class="blindspot-move-card__energy">
-                  <span class="blindspot-move-card__energy-num">2</span>
-                  <span class="blindspot-move-card__energy-lbl">EN</span>
-                </div>
-              </div>
-              <div class="blindspot-move-card__art" style="background-image: url('img/moves/heal.webp');">
-                <div class="blindspot-move-card__art-veil"></div>
-              </div>
-              <div class="blindspot-move-card__tags">
-                <span class="blindspot-move-card__tag">END</span>
-                <span class="blindspot-move-card__tag blindspot-move-card__tag--hl">Restore</span>
-              </div>
-              <div class="blindspot-move-card__num">+30-40 HP</div>
-              <p class="blindspot-move-card__desc">Mend what the battle broke. Buy another round.</p>
-              <div class="blindspot-move-card__foot">
-                <span>Type: Support</span>
-              </div>
-            </button>
-
-            <!-- Flash Counter -->
-            <button class="blindspot-move-card" type="button" data-move="counter">
-              <div class="blindspot-move-card__top">
-                <div>
-                  <div class="blindspot-move-card__type">Tactical Response</div>
-                  <div class="blindspot-move-card__name">Flash Counter</div>
-                </div>
-                <div class="blindspot-move-card__energy">
-                  <span class="blindspot-move-card__energy-num">4</span>
-                  <span class="blindspot-move-card__energy-lbl">EN</span>
-                </div>
-              </div>
-              <div class="blindspot-move-card__art" style="background-image: url('img/moves/counter.webp');">
-                <div class="blindspot-move-card__art-veil"></div>
-              </div>
-              <div class="blindspot-move-card__tags">
-                <span class="blindspot-move-card__tag">AGI</span>
-                <span class="blindspot-move-card__tag blindspot-move-card__tag--hl">Deflect Strike</span>
-              </div>
-              <div class="blindspot-move-card__num">REFLECT</div>
-              <p class="blindspot-move-card__desc">Wait for the precise moment. Redirect momentum.</p>
-              <div class="blindspot-move-card__foot">
-                <span>Type: Reaction</span>
-              </div>
-            </button>
-          </div>
+        <div class="bs-battle-hint" id="bs-battle-hint" style="display:none;" role="status" aria-live="polite"></div>
+        <div class="arena-stance-row" id="arena-stance-row" role="group" aria-label="Stance selector">
+          <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced" title="Balanced"><i class="fas fa-circle-nodes"></i></button>
+          <button class="arena-stance-btn" data-stance="aggressive" title="Aggressive — +25% dmg, -20% def, +1 stamina cost"><i class="fas fa-fire"></i></button>
+          <button class="arena-stance-btn" data-stance="defensive" title="Defensive — -20% dmg, Guard 80%, Heal +30%, -1 stamina cost"><i class="fas fa-shield-halved"></i></button>
         </div>
-      </div>
-
-      <!-- Legacy JS hooks stashed offscreen — bs-arena-battle-ui.js,
-           bs-arena-results.js, etc. still find these IDs but they
-           don't render legacy markup over the redesign. -->
-      <div class="blindspot-battle__legacy-stash" aria-hidden="true" style="display:none;">
-        <span id="arena-round-label" aria-live="polite">Round 1</span>
-        <button id="bs-combat-help-btn"><i class="fas fa-question-circle"></i></button>
-        <button id="arena-forfeit-btn"><i class="fas fa-flag"></i></button>
-        <span id="arena-battle-post">
-          <button id="arena-battle-again"></button>
-          <button id="arena-battle-back"></button>
-        </span>
-        <div id="arena-player-side">
-          <div id="arena-player-card"></div>
-          <span id="arena-player-name">You</span>
-          <span id="arena-player-element"></span>
-          <div><div id="arena-player-hp-fill" style="width:100%"></div></div>
-          <div id="arena-player-hp-text">100 / 100</div>
-          <div id="arena-player-stamina-bar"><div id="arena-player-stamina-fill" style="width:100%"></div><span id="arena-player-stamina-text"></span></div>
-          <div id="arena-player-items"></div>
-          <div id="arena-player-buffs"></div>
-          <div id="arena-player-status" aria-live="polite"></div>
-        </div>
-        <div id="arena-opponent-side">
-          <div id="arena-boss-intent" aria-live="polite">
-            <span id="arena-boss-intent-icon"></span>
-            <span id="arena-boss-intent-text"></span>
-          </div>
-          <div id="arena-opponent-card"></div>
-          <span id="arena-opponent-name">Enemy</span>
-          <span id="arena-opponent-element"></span>
-          <span id="arena-boss-stance"><i class="fas fa-circle-nodes"></i></span>
-          <div><div id="arena-opponent-hp-fill" style="width:100%"></div></div>
-          <div id="arena-opponent-hp-text">100 / 100</div>
-          <div id="arena-opponent-stamina-bar"><div id="arena-opponent-stamina-fill" style="width:100%"></div><span id="arena-opponent-stamina-text"></span></div>
-          <div id="arena-opponent-status" aria-live="polite"></div>
-        </div>
-        <div id="arena-battle-log" aria-live="polite"><div class="arena-log-entry">Battle started!</div></div>
-        <div id="arena-hype-bar"><div id="arena-hype-fill" style="width:0%"></div></div>
-        <div id="bs-battle-hint" aria-live="polite"></div>
-        <div id="arena-stance-row">
-          <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced"></button>
-          <button class="arena-stance-btn" data-stance="aggressive"></button>
-          <button class="arena-stance-btn" data-stance="defensive"></button>
-        </div>
-        <div id="arena-items-row"></div>
-        <div id="bs-move-select-prompt"></div>
-        <div id="arena-moves">
-          <button class="arena-move-btn" data-move="strike"><span class="arena-move-btn__label">Strike</span><span class="arena-move-btn__cost">4</span><span class="arena-move-btn__desc"></span><span id="arena-move-str">STR</span></button>
-          <button class="arena-move-btn" data-move="guard"><span class="arena-move-btn__label">Guard</span><span class="arena-move-btn__cost">1</span><span class="arena-move-btn__desc"></span></button>
-          <button class="arena-move-btn" data-move="ability"><span class="arena-move-btn__label" id="arena-ability-label">Ability</span><span class="arena-move-btn__cost">5</span><span class="arena-move-btn__desc" id="arena-ability-desc"></span><span id="arena-move-int">INT</span><span id="arena-ability-charge">0/2</span></button>
-          <button class="arena-move-btn" data-move="heal"><span class="arena-move-btn__label">Heal</span><span class="arena-move-btn__cost">2</span><span class="arena-move-btn__desc"></span><span id="arena-move-end">END</span></button>
-          <button class="arena-move-btn" data-move="counter"><span class="arena-move-btn__label">Counter</span><span class="arena-move-btn__cost">4</span><span class="arena-move-btn__desc"></span></button>
+        <div class="arena-items-row" id="arena-items-row" role="group" aria-label="Items and charms"></div>
+        <div class="bs-move-select-prompt" id="bs-move-select-prompt" style="display:none;" role="status">Pick second move</div>
+        <div class="arena-battle__moves" id="arena-moves" role="group" aria-label="Combat moves">
+          <button class="arena-move-btn arena-move-btn--strike bs-move-card" data-move="strike" aria-label="Strike — physical attack using STR">
+            <div class="bs-move-card__header">
+              <div class="bs-move-card__titles">
+                <div class="bs-move-card__type-label">OFFENSIVE ACTION</div>
+                <div class="bs-move-card__name arena-move-btn__label">Strike</div>
+              </div>
+              <div class="bs-move-card__energy">
+                <div class="bs-move-card__energy-num arena-move-btn__cost">4</div>
+                <div class="bs-move-card__energy-label">ENERGY</div>
+              </div>
+            </div>
+            <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/strike.webp')"></div>
+            <div class="bs-move-card__tags">
+              <span class="bs-move-card__tag" id="arena-move-str">STR SCALING</span>
+              <span class="bs-move-card__tag bs-move-card__tag--active">MELEE</span>
+            </div>
+            <p class="bs-move-card__desc arena-move-btn__desc">Forged intent made kinetic. Hit first, hit hardest.</p>
+            <div class="bs-move-card__footer">
+              <div class="bs-move-card__badge"><i class="fas fa-hand-fist" aria-hidden="true"></i> TYPE: ATTACK</div>
+              <div class="bs-move-card__dots">
+                <span class="bs-move-card__dot bs-move-card__dot--active"></span>
+                <span class="bs-move-card__dot"></span>
+                <span class="bs-move-card__dot"></span>
+              </div>
+            </div>
+          </button>
+          <button class="arena-move-btn arena-move-btn--guard bs-move-card" data-move="guard" aria-label="Guard — reduce incoming damage">
+            <div class="bs-move-card__header">
+              <div class="bs-move-card__titles">
+                <div class="bs-move-card__type-label">DEFENSIVE STANCE</div>
+                <div class="bs-move-card__name arena-move-btn__label">Guard</div>
+              </div>
+              <div class="bs-move-card__energy">
+                <div class="bs-move-card__energy-num arena-move-btn__cost">1</div>
+                <div class="bs-move-card__energy-label">ENERGY</div>
+              </div>
+            </div>
+            <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/guard.webp')"></div>
+            <div class="bs-move-card__tags">
+              <span class="bs-move-card__tag">BLOCK 60%</span>
+              <span class="bs-move-card__tag bs-move-card__tag--active">REDUCE</span>
+            </div>
+            <p class="bs-move-card__desc arena-move-btn__desc">Brace against the incoming. Weather the storm.</p>
+            <div class="bs-move-card__footer">
+              <div class="bs-move-card__badge"><i class="fas fa-shield-halved" aria-hidden="true"></i> TYPE: DEFENSE</div>
+              <div class="bs-move-card__dots">
+                <span class="bs-move-card__dot bs-move-card__dot--active"></span>
+                <span class="bs-move-card__dot"></span>
+                <span class="bs-move-card__dot"></span>
+              </div>
+            </div>
+          </button>
+          <button class="arena-move-btn arena-move-btn--ability bs-move-card" data-move="ability" aria-label="Ability — class power using INT">
+            <div class="bs-move-card__header">
+              <div class="bs-move-card__titles">
+                <div class="bs-move-card__type-label">SIGNATURE MOVE</div>
+                <div class="bs-move-card__name arena-move-btn__label" id="arena-ability-label">Ability</div>
+              </div>
+              <div class="bs-move-card__energy">
+                <div class="bs-move-card__energy-num arena-move-btn__cost">5</div>
+                <div class="bs-move-card__energy-label">ENERGY</div>
+              </div>
+            </div>
+            <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/ability.webp')"></div>
+            <div class="bs-move-card__tags">
+              <span class="bs-move-card__tag" id="arena-move-int">INT SCALING</span>
+              <span class="bs-move-card__tag bs-move-card__tag--active">CLASS POWER</span>
+            </div>
+            <p class="bs-move-card__desc arena-move-btn__desc" id="arena-ability-desc">The move only you can pull off.</p>
+            <div class="bs-move-card__footer">
+              <div class="bs-move-card__badge"><i class="fas fa-bolt" aria-hidden="true"></i> TYPE: ULTIMATE</div>
+              <div class="bs-move-card__dots">
+                <span class="bs-move-card__dot bs-move-card__dot--active"></span>
+                <span class="bs-move-card__dot"></span>
+                <span class="bs-move-card__dot"></span>
+              </div>
+            </div>
+            <span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span>
+          </button>
+          <button class="arena-move-btn arena-move-btn--heal bs-move-card" data-move="heal" aria-label="Heal — recover HP using END">
+            <div class="bs-move-card__header">
+              <div class="bs-move-card__titles">
+                <div class="bs-move-card__type-label">RECOVERY PROTOCOL</div>
+                <div class="bs-move-card__name arena-move-btn__label">Heal</div>
+              </div>
+              <div class="bs-move-card__energy">
+                <div class="bs-move-card__energy-num arena-move-btn__cost">2</div>
+                <div class="bs-move-card__energy-label">ENERGY</div>
+              </div>
+            </div>
+            <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/heal.webp')"></div>
+            <div class="bs-move-card__tags">
+              <span class="bs-move-card__tag" id="arena-move-end">END SCALING</span>
+              <span class="bs-move-card__tag bs-move-card__tag--active">RESTORE</span>
+            </div>
+            <p class="bs-move-card__desc arena-move-btn__desc">Mend what the battle broke. Buy another round.</p>
+            <div class="bs-move-card__footer">
+              <div class="bs-move-card__badge"><i class="fas fa-heart-pulse" aria-hidden="true"></i> TYPE: SUPPORT</div>
+              <div class="bs-move-card__dots">
+                <span class="bs-move-card__dot bs-move-card__dot--active"></span>
+                <span class="bs-move-card__dot"></span>
+                <span class="bs-move-card__dot"></span>
+              </div>
+            </div>
+          </button>
+          <button class="arena-move-btn arena-move-btn--counter bs-move-card" data-move="counter" aria-label="Counter — deflect strike back at enemy">
+            <div class="bs-move-card__header">
+              <div class="bs-move-card__titles">
+                <div class="bs-move-card__type-label">TACTICAL RESPONSE</div>
+                <div class="bs-move-card__name arena-move-btn__label">Counter</div>
+              </div>
+              <div class="bs-move-card__energy">
+                <div class="bs-move-card__energy-num arena-move-btn__cost">4</div>
+                <div class="bs-move-card__energy-label">ENERGY</div>
+              </div>
+            </div>
+            <div class="bs-move-card__art" aria-hidden="true" style="background-image:url('/blindspot/img/moves/counter.webp')"></div>
+            <div class="bs-move-card__tags">
+              <span class="bs-move-card__tag">REFLECT</span>
+              <span class="bs-move-card__tag bs-move-card__tag--active">DEFLECT STRIKE</span>
+            </div>
+            <p class="bs-move-card__desc arena-move-btn__desc">Wait for the precise moment. Redirect the incoming momentum.</p>
+            <div class="bs-move-card__footer">
+              <div class="bs-move-card__badge"><i class="fas fa-shield" aria-hidden="true"></i> TYPE: REACTION</div>
+              <div class="bs-move-card__dots">
+                <span class="bs-move-card__dot bs-move-card__dot--active"></span>
+                <span class="bs-move-card__dot"></span>
+                <span class="bs-move-card__dot"></span>
+              </div>
+            </div>
+          </button>
         </div>
       </div>
     </div>
