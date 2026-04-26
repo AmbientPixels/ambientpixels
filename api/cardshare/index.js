@@ -79,8 +79,12 @@ module.exports = async function (context, req) {
   const cardType = escapeHtml((card && card.type) || '');
   const subtitle = [cardClass, cardType].filter(Boolean).join(' · ');
 
-  // og:image — use card avatar if it's an HTTP URL, otherwise fallback to site logo
-  let ogImage = `${SITE_ORIGIN}/images/ambient-pixel-logo-rainbow.png`;
+  // og:image — use card avatar if it's an HTTP URL, otherwise fallback to
+  // the CardForge brand OG (cards with data-URI avatars can't serve their
+  // portrait directly; the per-card capture pipeline is the long-term fix
+  // for those — for now they at least get CardForge branding instead of
+  // the generic AmbientPixels logo).
+  let ogImage = `${SITE_ORIGIN}/cardforge/images/cardforge-og.png`;
   if (card && card.avatar && typeof card.avatar === 'string') {
     if (card.avatar.startsWith('http://') || card.avatar.startsWith('https://')) {
       ogImage = card.avatar;
