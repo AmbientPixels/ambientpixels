@@ -641,15 +641,19 @@
     const cardId = params.get('card');
     if (!cardId) return;
 
-    // Wait for gallery to load, then open the card
-    const tryOpen = (attempts) => {
-      if (attempts <= 0) return;
-      const grid = document.getElementById('gallery-cards-grid');
-      if (!grid || grid.querySelector('.gallery-loading')) {
-        setTimeout(() => tryOpen(attempts - 1), 500);
+    // Two consumers run this handler today:
+    //   - editor.html (legacy path): cards live on window.cardForgeActions._galleryCards
+    //   - gallery.html (cardforge-gallery-page.js): cards aren't exposed globally,
+    //     so we always need the API fallback below
+    // Don't depend on a specific grid DOM id — the gallery page uses
+    // cf-gallery-grid, the editor used a different id, and either may
+    // change. Just try the in-page cache for a short window, then load
+    // direct from the API.
+    const tryInPage = (attempts) => {
+      if (attempts <= 0) {
+        loadAndOpenCard(cardId);
         return;
       }
-      // Gallery cards should be cached on the actions instance
       if (window.cardForgeActions && window.cardForgeActions._galleryCards) {
         const cards = window.cardForgeActions._galleryCards;
         const idx = cards.findIndex(c => c.id === cardId);
@@ -658,19 +662,29 @@
           return;
         }
       }
-      // Fallback: try loading from API
-      loadAndOpenCard(cardId);
+      setTimeout(() => tryInPage(attempts - 1), 500);
     };
-    tryOpen(10);
+    tryInPage(6); // ~3s of retries before API fallback
   }
 
   async function loadAndOpenCard(cardId) {
     try {
       const loadUrl = window.buildApiPath('loadCards');
-      const resp = await fetch(loadUrl, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+      const headers = { 'Content-Type': 'application/json' };
+      try {
+        if (typeof window._cfGetAuthHeaders === 'function') {
+          Object.assign(headers, await window._cfGetAuthHeaders());
+        }
+      } catch (_) {}
+      const resp = await fetch(loadUrl, { method: 'GET', headers, credentials: 'omit' });
       if (!resp.ok) return;
       const data = await resp.json();
-      const cards = Array.isArray(data?.galleryCards) ? data.galleryCards : [];
+      // Merge every bucket the load endpoint returns — gallery-page.js
+      // does the same. The shared card may live in any of them.
+      const cards = []
+        .concat(Array.isArray(data?.galleryCards) ? data.galleryCards : [])
+        .concat(Array.isArray(data?.defaultCards) ? data.defaultCards : [])
+        .concat(Array.isArray(data?.userCards) ? data.userCards : []);
       const idx = cards.findIndex(c => c.id === cardId);
       if (idx >= 0) open(cards, idx);
     } catch (e) {
