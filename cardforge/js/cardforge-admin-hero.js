@@ -105,24 +105,9 @@
     return admins.indexOf(principal.userId) !== -1;
   }
 
-  function renderNavAuth(principal) {
-    var loginBtn = $('cf-login-btn');
-    var userStatus = $('cf-user-status');
-    if (principal && principal.userDetails) {
-      var nameEl = userStatus && userStatus.querySelector('.cf-splash-nav__user-name');
-      if (nameEl) nameEl.textContent = principal.userDetails;
-      if (userStatus) userStatus.hidden = false;
-      if (loginBtn) loginBtn.hidden = true;
-    } else {
-      if (loginBtn) {
-        loginBtn.hidden = false;
-        loginBtn.addEventListener('click', function () {
-          window.location.href = '/cardforge/login.html?redirect=' + encodeURIComponent('/cardforge/admin.html');
-        });
-      }
-      if (userStatus) userStatus.hidden = true;
-    }
-  }
+  // Header auth/dropdown moved to cardforge-nav.js. fetchPrincipal()
+  // above is still used here to drive the admin gate + carry userId
+  // into POST bodies.
 
   // ---- Cards + config fetch ------------------------------------------
 
@@ -420,7 +405,6 @@
 
     var principal = await fetchPrincipal();
     state.principal = principal;
-    renderNavAuth(principal);
 
     if (!isAdmin(principal)) {
       if (els.loading) els.loading.hidden = true;

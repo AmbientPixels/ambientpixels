@@ -40,35 +40,7 @@
 </head>
 <body class="cf-splash" data-theme="dark">
 
-  <header class="cf-splash-nav">
-    <a class="cf-splash-nav__brand" href="/cardforge/">
-      <i class="fas fa-fire-flame-curved cf-splash-nav__brand-mark" aria-hidden="true"></i>
-      <span>CardForge</span>
-    </a>
-    <div class="cf-splash-nav__links">
-      <a href="/cardforge/gallery.html">Gallery</a>
-      <a href="/cardforge/deck.html">Decks</a>
-      <button id="cf-login-btn" class="cf-splash-nav__auth cf-splash-nav__auth--login" type="button" hidden>
-        <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
-        <span>Sign in</span>
-      </button>
-      <div class="cf-splash-nav__user-wrap" id="cf-user-wrap" hidden>
-        <button class="cf-splash-nav__avatar" id="cf-user-avatar" type="button" title="Account" aria-label="Account menu" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user" aria-hidden="true"></i>
-        </button>
-        <div class="cf-splash-nav__menu" id="cf-user-menu" hidden role="menu">
-          <div class="cf-splash-nav__menu-meta">
-            Signed in as <strong class="cf-splash-nav__user-name"></strong>
-          </div>
-          <a class="cf-splash-nav__menu-item" href="/.auth/logout?post_logout_redirect_uri=/cardforge/" role="menuitem">
-            <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
-            <span>Sign out</span>
-          </a>
-        </div>
-      </div>
-      <a href="/cardforge/editor.html" data-splash-cta="nav-open-editor">Editor</a>
-    </div>
-  </header>
+  <header data-cf-nav></header>
 
   <section class="cf-splash-hero">
     <div class="cf-splash-hero__text">
@@ -196,8 +168,9 @@
        module needs to identify signed-in users. Without this loaded
        BEFORE hearts.js, every heart click falls through to anonymous
        and bounces to the login page. -->
-  <script src="js/config.js?v=20260425a" defer></script>
+  <script src="js/config.js?v=20260425b" defer></script>
+  <script src="js/cardforge-nav.js?v=20260425a" defer></script>
   <script src="js/cardforge-hearts.js?v=20260425e" defer></script>
-  <script src="js/cardforge-splash.js?v=20260425c" defer></script>
+  <script src="js/cardforge-splash.js?v=20260425d" defer></script>
 </body>
 </html>

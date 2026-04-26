@@ -26,78 +26,11 @@
   let _deckMeta = { id: '', name: 'New Deck', icon: DECK_ICONS[0], description: '', tags: '' };
   let _dragIdx = -1;
 
-  // ── Auth bar (mirrors splash + gallery cf-splash-nav__* avatar/popover) ──
-  function buildAuthMarkup() {
-    return '' +
-      '<button id="cf-login-btn" class="cf-splash-nav__auth cf-splash-nav__auth--login" type="button" hidden>' +
-        '<i class="fas fa-right-to-bracket" aria-hidden="true"></i><span>Sign in</span>' +
-      '</button>' +
-      '<div class="cf-splash-nav__user-wrap" id="cf-user-wrap" hidden>' +
-        '<button class="cf-splash-nav__avatar" id="cf-user-avatar" type="button" title="Account" aria-label="Account menu" aria-haspopup="true" aria-expanded="false">' +
-          '<i class="fas fa-user" aria-hidden="true"></i>' +
-        '</button>' +
-        '<div class="cf-splash-nav__menu" id="cf-user-menu" hidden role="menu">' +
-          '<div class="cf-splash-nav__menu-meta">Signed in as <strong class="cf-splash-nav__user-name"></strong></div>' +
-          '<a class="cf-splash-nav__menu-item" href="/.auth/logout?post_logout_redirect_uri=' + encodeURIComponent(window.location.pathname + window.location.search) + '" role="menuitem">' +
-            '<i class="fas fa-right-from-bracket" aria-hidden="true"></i><span>Sign out</span>' +
-          '</a>' +
-        '</div>' +
-      '</div>';
-  }
-
-  async function wireAuthBar() {
-    var loginBtn = document.getElementById('cf-login-btn');
-    var userWrap = document.getElementById('cf-user-wrap');
-    var avatarBtn = document.getElementById('cf-user-avatar');
-    var menu = document.getElementById('cf-user-menu');
-    if (!loginBtn || !userWrap) return;
-    try {
-      var res = await fetch('/.auth/me', { credentials: 'include' });
-      if (!res.ok) throw new Error('auth fetch failed');
-      var data = await res.json();
-      var principal = Array.isArray(data && data.clientPrincipal)
-        ? data.clientPrincipal[0]
-        : ((data && data.clientPrincipal) || null);
-      if (principal && principal.userDetails) {
-        var nameEl = userWrap.querySelector('.cf-splash-nav__user-name');
-        if (nameEl) nameEl.textContent = principal.userDetails;
-        userWrap.hidden = false;
-        loginBtn.hidden = true;
-      } else {
-        loginBtn.hidden = false;
-        userWrap.hidden = true;
-      }
-    } catch (_) {
-      loginBtn.hidden = false;
-      userWrap.hidden = true;
-    }
-    loginBtn.addEventListener('click', function () {
-      var here = window.location.pathname + window.location.search;
-      window.location.href = '/cardforge/login.html?redirect=' + encodeURIComponent(here);
-    });
-    if (avatarBtn && menu) {
-      avatarBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var open = !menu.hidden;
-        menu.hidden = open;
-        avatarBtn.setAttribute('aria-expanded', String(!open));
-      });
-      document.addEventListener('click', function (e) {
-        if (menu.hidden) return;
-        if (e.target === avatarBtn || avatarBtn.contains(e.target)) return;
-        if (menu.contains(e.target)) return;
-        menu.hidden = true;
-        avatarBtn.setAttribute('aria-expanded', 'false');
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !menu.hidden) {
-          menu.hidden = true;
-          avatarBtn.setAttribute('aria-expanded', 'false');
-          avatarBtn.focus();
-        }
-      });
-    }
-  }
+  // Header auth/dropdown moved to cardforge-nav.js (single owner across
+  // every CardForge page that uses <header data-cf-nav>). The deck.html
+  // global header lives outside #db-app so SPA re-renders below don't
+  // disturb it. The db-bar below carries only sub-nav tabs + view-specific
+  // action buttons.
 
   // ── Boot ──
   document.addEventListener('DOMContentLoaded', function () {
@@ -119,11 +52,9 @@
     const app = document.getElementById('db-app');
     app.innerHTML =
       '<div class="db-bar">' +
-        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-actions">' +
           '<button type="button" class="db-btn" id="dv-copy-link"><i class="fas fa-link"></i> Copy Link</button>' +
           '<button type="button" class="db-btn db-btn-primary" id="dv-clone-deck"><i class="fas fa-clone"></i> Clone to My Decks</button>' +
-          buildAuthMarkup() +
         '</div>' +
       '</div>' +
       '<div class="db-view-container" id="dv-content">' +
@@ -136,7 +67,6 @@
     });
 
     document.getElementById('dv-clone-deck').addEventListener('click', cloneDeck);
-    wireAuthBar();
 
     try {
       const endpoint = window.buildApiPath('deckLoad', { shareId: shareId });
@@ -248,13 +178,11 @@
     const app = document.getElementById('db-app');
     app.innerHTML =
       '<div class="db-bar">' +
-        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-tabs">' +
           '<a href="/cardforge/deck.html" class="db-bar-tab"><i class="fas fa-hammer"></i> Builder</a>' +
           '<a href="/cardforge/deck.html?view=saved" class="db-bar-tab"><i class="fas fa-floppy-disk"></i> My Saved</a>' +
           '<a href="/cardforge/deck.html?view=published" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-share-from-square"></i> My Published</a>' +
         '</div>' +
-        '<div class="db-bar-actions">' + buildAuthMarkup() + '</div>' +
       '</div>' +
       '<main class="db-mpd-main">' +
         '<h1 class="db-mpd-title">My Published Decks</h1>' +
@@ -263,7 +191,6 @@
         '</div>' +
       '</main>';
 
-    wireAuthBar();
     // Wait for auth bootstrap (matches builder mode pattern).
     if (window._authReady) { try { await window._authReady; } catch (e) {} }
 
@@ -279,7 +206,6 @@
     const app = document.getElementById('db-app');
     app.innerHTML =
       '<div class="db-bar">' +
-        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-tabs">' +
           '<a href="/cardforge/deck.html" class="db-bar-tab"><i class="fas fa-hammer"></i> Builder</a>' +
           '<a href="/cardforge/deck.html?view=saved" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-floppy-disk"></i> My Saved</a>' +
@@ -287,7 +213,6 @@
         '</div>' +
         '<div class="db-bar-actions">' +
           '<a href="/cardforge/deck.html" class="db-btn db-btn-primary"><i class="fas fa-plus"></i> New Deck</a>' +
-          buildAuthMarkup() +
         '</div>' +
       '</div>' +
       '<main class="db-mpd-main">' +
@@ -297,7 +222,6 @@
         '</div>' +
       '</main>';
 
-    wireAuthBar();
     if (window.CardForgeMySavedDecks && window.CardForgeMySavedDecks.mount) {
       window.CardForgeMySavedDecks.mount(document.getElementById('cf-msd-grid'));
     }
@@ -314,7 +238,6 @@
 
     app.innerHTML = buildBuilderHTML();
     bindBuilderEvents();
-    wireAuthBar();
 
     // Load existing deck if editing
     if (editId) {
@@ -341,9 +264,8 @@
 
   function buildBuilderHTML() {
     return '' +
-      '<!-- Top bar -->' +
+      '<!-- Top bar (sub-nav for the deck builder; global header is in deck.html) -->' +
       '<div class="db-bar">' +
-        '<a href="/cardforge/" class="db-bar-brand"><i class="fas fa-fire-flame-curved db-bar-brand__mark" aria-hidden="true"></i><span>CardForge</span></a>' +
         '<div class="db-bar-tabs">' +
           '<a href="/cardforge/deck.html" class="db-bar-tab is-active" aria-current="page"><i class="fas fa-hammer"></i> Builder</a>' +
           '<a href="/cardforge/deck.html?view=saved" class="db-bar-tab"><i class="fas fa-floppy-disk"></i> My Saved</a>' +
@@ -352,7 +274,6 @@
         '<div class="db-bar-actions">' +
           '<button type="button" class="db-btn" id="db-save-btn"><i class="fas fa-save"></i> Save</button>' +
           '<button type="button" class="db-btn db-btn-primary" id="db-publish-btn" disabled><i class="fas fa-share-from-square"></i> Publish</button>' +
-          buildAuthMarkup() +
         '</div>' +
       '</div>' +
 

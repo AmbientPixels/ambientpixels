@@ -51,67 +51,9 @@
     }
   }
 
-  async function initAuth() {
-    var loginBtn = document.getElementById('cf-login-btn');
-    var userWrap = document.getElementById('cf-user-wrap');
-    var avatarBtn = document.getElementById('cf-user-avatar');
-    var menu = document.getElementById('cf-user-menu');
-    if (!loginBtn || !userWrap) return;
-
-    try {
-      var res = await fetch('/.auth/me', { credentials: 'include' });
-      if (!res.ok) throw new Error('auth fetch failed: ' + res.status);
-      var data = await res.json();
-      var principal = Array.isArray(data && data.clientPrincipal)
-        ? data.clientPrincipal[0]
-        : ((data && data.clientPrincipal) || null);
-
-      if (principal && principal.userDetails) {
-        var nameEl = userWrap.querySelector('.cf-splash-nav__user-name');
-        if (nameEl) nameEl.textContent = principal.userDetails;
-        userWrap.hidden = false;
-        loginBtn.hidden = true;
-      } else {
-        loginBtn.hidden = false;
-        userWrap.hidden = true;
-      }
-    } catch (_) {
-      loginBtn.hidden = false;
-      userWrap.hidden = true;
-    }
-
-    loginBtn.addEventListener('click', function () {
-      // Route through the CardForge-themed login page (Google + Microsoft
-      // chooser). The legacy `/.auth/login/aadB2C` URL doesn't match the
-      // `azureActiveDirectory` provider declared in staticwebapp.config.json
-      // and was redirecting to the AmbientPixels root.
-      window.location.href = '/cardforge/login.html?redirect=/cardforge/';
-    });
-
-    // Avatar click → toggle popover. Document click outside → close.
-    if (avatarBtn && menu) {
-      avatarBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var open = !menu.hidden;
-        menu.hidden = open;
-        avatarBtn.setAttribute('aria-expanded', String(!open));
-      });
-      document.addEventListener('click', function (e) {
-        if (menu.hidden) return;
-        if (e.target === avatarBtn || avatarBtn.contains(e.target)) return;
-        if (menu.contains(e.target)) return;
-        menu.hidden = true;
-        avatarBtn.setAttribute('aria-expanded', 'false');
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !menu.hidden) {
-          menu.hidden = true;
-          avatarBtn.setAttribute('aria-expanded', 'false');
-          avatarBtn.focus();
-        }
-      });
-    }
-  }
+  // Header auth/dropdown moved to cardforge-nav.js (single owner across
+  // every CardForge page that uses <header data-cf-nav>). This module
+  // no longer touches the nav.
 
   // ---- Gallery fetch + render ----------------------------------------
 
@@ -558,7 +500,6 @@
     var continueBtn = document.getElementById('cf-continue-btn');
     if (continueBtn) continueBtn.addEventListener('click', trackContinue);
 
-    initAuth();
     setupShowcaseCarousel();
     // Boot hearts module in parallel with the gallery fetch — getCount /
     // isFavorited inside renderFan/renderShowcase will fall back to 0/false

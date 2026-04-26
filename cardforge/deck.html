@@ -46,6 +46,7 @@
 </head>
 <body>
   <h1 class="sr-only">Deck Builder — CardForge</h1>
+  <header data-cf-nav="decks"></header>
   <div id="db-app" class="db-app">
     <div class="db-loading">
       <i class="fas fa-spinner fa-spin"></i>
@@ -54,6 +55,7 @@
   </div>
 
   <script src="/cardforge/js/config.js?v=20260425f"></script>
+  <script src="/cardforge/js/cardforge-nav.js?v=20260425a" defer></script>
   <script src="/cardforge/js/cardforge-deck-store.js?v=20260425a" defer></script>
   <script src="/cardforge/js/cardforge-publish-gate-ui.js?v=20260425a" defer></script>
   <script src="/cardforge/js/cardforge-published-events.js?v=20260425b"></script>
@@ -81,6 +83,6 @@
       } catch (e) { /* not authenticated */ }
     })();
   </script>
-  <script src="/cardforge/js/cardforge-deck-builder.js?v=20260425d"></script>
+  <script src="/cardforge/js/cardforge-deck-builder.js?v=20260425e"></script>
 </body>
 </html>

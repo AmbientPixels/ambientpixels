@@ -19,7 +19,10 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>CardForge — Dev Log | Ambient Pixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- CardForge nav chrome — token system + cf-splash-nav rules. -->
+  <link rel="stylesheet" href="/cardforge/css/cardforge-base.css?v=20260425a" />
+  <link rel="stylesheet" href="/cardforge/css/cardforge-splash.css?v=20260425q" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
@@ -41,8 +44,8 @@
   </script>
 </head>
 <body data-theme="dark">
-  <!-- Dynamic Navigation Header -->
-  <header id="nav-header"></header>
+  <!-- CardForge global nav (injected by cardforge-nav.js) -->
+  <header data-cf-nav="devlog"></header>
 
   <section class="mini-hero">
     <img src="/images/hero/hero-02.jpg" alt="CardForge Dev Log" class="mini-hero-img" loading="lazy">
@@ -400,6 +403,7 @@
   <div id="contact-modal-container"></div>
 
   <!-- Scripts -->
+  <script src="/cardforge/js/cardforge-nav.js?v=20260425a" defer></script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/main.js" defer></script>

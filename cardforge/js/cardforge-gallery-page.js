@@ -212,71 +212,12 @@
     });
   }
 
-  async function initAuth() {
-    // Mirrors the splash auth pattern (cardforge-splash.js initAuth):
-    // login button when signed out, avatar with popover menu when
-    // signed in. Popover toggles on avatar click, closes on outside
-    // click or Escape. Sign-out link inside the popover preserves
-    // current page via post_logout_redirect_uri.
-    var loginBtn = document.getElementById('cf-login-btn');
-    var userWrap = document.getElementById('cf-user-wrap');
-    var avatarBtn = document.getElementById('cf-user-avatar');
-    var menu = document.getElementById('cf-user-menu');
-    if (!loginBtn || !userWrap) return;
-    try {
-      var res = await fetch('/.auth/me', { credentials: 'include' });
-      if (!res.ok) throw new Error('auth fetch failed');
-      var data = await res.json();
-      var principal = Array.isArray(data && data.clientPrincipal)
-        ? data.clientPrincipal[0]
-        : ((data && data.clientPrincipal) || null);
-      if (principal && principal.userDetails) {
-        var nameEl = userWrap.querySelector('.cf-splash-nav__user-name');
-        if (nameEl) nameEl.textContent = principal.userDetails;
-        userWrap.hidden = false;
-        loginBtn.hidden = true;
-      } else {
-        loginBtn.hidden = false;
-        userWrap.hidden = true;
-      }
-    } catch (_) {
-      loginBtn.hidden = false;
-      userWrap.hidden = true;
-    }
-    loginBtn.addEventListener('click', function () {
-      // Route through the CardForge-themed login page so the user picks
-      // Google vs Microsoft. The login page's redirect param sends them
-      // back to the gallery after auth.
-      window.location.href = '/cardforge/login.html?redirect=' + encodeURIComponent('/cardforge/gallery.html');
-    });
-
-    if (avatarBtn && menu) {
-      avatarBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var open = !menu.hidden;
-        menu.hidden = open;
-        avatarBtn.setAttribute('aria-expanded', String(!open));
-      });
-      document.addEventListener('click', function (e) {
-        if (menu.hidden) return;
-        if (e.target === avatarBtn || avatarBtn.contains(e.target)) return;
-        if (menu.contains(e.target)) return;
-        menu.hidden = true;
-        avatarBtn.setAttribute('aria-expanded', 'false');
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && !menu.hidden) {
-          menu.hidden = true;
-          avatarBtn.setAttribute('aria-expanded', 'false');
-          avatarBtn.focus();
-        }
-      });
-    }
-  }
+  // Header auth/dropdown moved to cardforge-nav.js (single owner across
+  // every CardForge page that uses <header data-cf-nav>). This module
+  // no longer touches the nav.
 
   async function init() {
     wireFilters();
-    initAuth();
     showLoader();
     // Run hearts boot + cards fetch in parallel so we don't serialize
     // network roundtrips. Hearts module fetches /cardforgeratings and

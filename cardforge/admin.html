@@ -31,28 +31,7 @@
 </head>
 <body class="cf-admin-page" data-theme="dark">
 
-  <header class="cf-splash-nav">
-    <a class="cf-splash-nav__brand" href="/cardforge/">
-      <i class="fas fa-fire-flame-curved cf-splash-nav__brand-mark" aria-hidden="true"></i>
-      <span>CardForge</span>
-    </a>
-    <div class="cf-splash-nav__links">
-      <a href="/cardforge/gallery.html">Gallery</a>
-      <a href="/cardforge/deck.html">Decks</a>
-      <a href="/cardforge/admin.html" class="cf-nav-active" aria-current="page">Admin</a>
-      <button id="cf-login-btn" class="cf-splash-nav__auth cf-splash-nav__auth--login" type="button" hidden>
-        <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
-        <span>Sign in</span>
-      </button>
-      <div id="cf-user-status" class="cf-splash-nav__auth cf-splash-nav__auth--user" hidden>
-        <i class="fas fa-user-circle" aria-hidden="true"></i>
-        <span class="cf-splash-nav__user-name"></span>
-      </div>
-      <a href="/cardforge/editor.html" class="cf-btn cf-btn--primary">
-        <i class="fas fa-hammer"></i> Open Editor
-      </a>
-    </div>
-  </header>
+  <header data-cf-nav="admin" data-cf-nav-extras="admin"></header>
 
   <main class="cf-admin">
     <section class="cf-admin__hero">
@@ -139,7 +118,8 @@
   </footer>
 
   <script src="js/config.js?v=20260425b"></script>
+  <script src="js/cardforge-nav.js?v=20260425a" defer></script>
   <script src="js/cardforge-hearts.js?v=20260425e" defer></script>
-  <script src="js/cardforge-admin-hero.js?v=20260425c" defer></script>
+  <script src="js/cardforge-admin-hero.js?v=20260425d" defer></script>
 </body>
 </html>
