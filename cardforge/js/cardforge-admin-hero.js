@@ -216,6 +216,17 @@
     var mode = (config && config.mode) || 'recent';
     if (mode === 'random') return pickRandom(cards, 5);
     var recentSorted = cards.slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    if (mode === 'highest-rated') {
+      // Mirror of the splash's branch: sort by community heart count
+      // desc, tiebreak by recency. Falls back to recent ordering when
+      // CardForgeHearts hasn't booted yet.
+      var H = window.CardForgeHearts;
+      return cards.slice().sort(function (a, b) {
+        var ca = (H && a.id) ? (H.getCount(a.id) || 0) : 0;
+        var cb = (H && b.id) ? (H.getCount(b.id) || 0) : 0;
+        return (cb - ca) || ((b.createdAt || 0) - (a.createdAt || 0));
+      }).slice(0, 5);
+    }
     if (mode === 'curated') {
       var ids = (config && Array.isArray(config.curatedIds)) ? config.curatedIds : [];
       var byId = {};
@@ -369,8 +380,14 @@
     if (els.loading) els.loading.hidden = true;
     if (els.form) els.form.hidden = false;
 
-    // Fetch cards + current config in parallel.
-    var results = await Promise.all([fetchCards(), fetchConfig()]);
+    // Fetch cards + current config + hearts data in parallel. Hearts
+    // is included so the live preview's "highest-rated" mode renders
+    // with real counts on first paint instead of falling back to
+    // recency. CardForgeHearts.init is idempotent.
+    var heartsBoot = (window.CardForgeHearts && typeof window.CardForgeHearts.init === 'function')
+      ? window.CardForgeHearts.init()
+      : Promise.resolve();
+    var results = await Promise.all([fetchCards(), fetchConfig(), heartsBoot]);
     state.cards = results[0] || [];
     state.config = results[1] || { mode: 'recent', curatedIds: [], updatedAt: null, updatedBy: null };
 

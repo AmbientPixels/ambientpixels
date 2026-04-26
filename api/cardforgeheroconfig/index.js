@@ -14,7 +14,7 @@ const CORS_HEADERS = {
 // Admin userIds who can edit the hero config
 const ADMIN_USER_IDS = ['5bb115c5-9077-4049-8af0-ce5085a9c315'];
 
-const VALID_MODES = ['recent', 'random', 'curated'];
+const VALID_MODES = ['recent', 'random', 'curated', 'highest-rated'];
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const MAX_CURATED_IDS = 5;
 

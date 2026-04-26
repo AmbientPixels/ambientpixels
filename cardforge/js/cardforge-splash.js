@@ -208,8 +208,12 @@
       if (!res.ok) return Object.assign({}, DEFAULT_HERO_CONFIG);
       var data = await res.json();
       if (!data || typeof data !== 'object') return Object.assign({}, DEFAULT_HERO_CONFIG);
+      var requested = data.mode;
+      var validMode = (requested === 'random' || requested === 'curated' || requested === 'highest-rated')
+        ? requested
+        : 'recent';
       return {
-        mode: (data.mode === 'random' || data.mode === 'curated') ? data.mode : 'recent',
+        mode: validMode,
         curatedIds: Array.isArray(data.curatedIds) ? data.curatedIds : [],
         updatedAt: data.updatedAt || null,
         updatedBy: data.updatedBy || null
@@ -244,6 +248,19 @@
       return pickRandom(cards, 5);
     }
     var recentSorted = cards.slice().sort(function (a, b) { return timeOf(b) - timeOf(a); });
+    if (mode === 'highest-rated') {
+      // Sort by community heart count desc, tiebreak by recency so the
+      // day-zero state (everything at count=0) doesn't look randomized.
+      // Falls back to recent ordering when CardForgeHearts hasn't booted
+      // yet — the cached splash render hits this path before hearts data
+      // has resolved; the subsequent fresh render fixes it.
+      var H = window.CardForgeHearts;
+      return cards.slice().sort(function (a, b) {
+        var ca = (H && a.id) ? (H.getCount(a.id) || 0) : 0;
+        var cb = (H && b.id) ? (H.getCount(b.id) || 0) : 0;
+        return (cb - ca) || (timeOf(b) - timeOf(a));
+      }).slice(0, 5);
+    }
     if (mode === 'curated') {
       var ids = (config && Array.isArray(config.curatedIds)) ? config.curatedIds : [];
       var byId = {};
@@ -486,8 +503,16 @@
       showFanLoader();
     }
 
-    // 2) Refresh cards + hero config in parallel — both are independent.
-    var results = await Promise.all([fetchPublishedCards(), fetchHeroConfig()]);
+    // 2) Refresh cards + hero config + hearts data in parallel — all
+    //    independent. Hearts is included so highest-rated mode has real
+    //    counts when the fresh render fires (CardForgeHearts.init is
+    //    idempotent — the standalone init() call earlier only kicks it
+    //    off; awaiting it here gates the fresh fan render on its
+    //    completion).
+    var heartsBoot = (window.CardForgeHearts && typeof window.CardForgeHearts.init === 'function')
+      ? window.CardForgeHearts.init()
+      : Promise.resolve();
+    var results = await Promise.all([fetchPublishedCards(), fetchHeroConfig(), heartsBoot]);
     var cards = results[0];
     var config = results[1];
     var realCards = cards.filter(function (c) { return c.renderedFront && c.frontClasses; });
@@ -506,7 +531,11 @@
     var nextSig = gallerySignature(top10);
     var prevConfigStamp = cachedConfig ? (cachedConfig.updatedAt || '') + '|' + (cachedConfig.mode || '') : '';
     var nextConfigStamp = (config.updatedAt || '') + '|' + (config.mode || '');
-    if (nextSig !== prevSig || nextConfigStamp !== prevConfigStamp) {
+    // Highest-rated mode is order-sensitive to hearts data, which loads
+    // AFTER the cached render — force a re-render in that mode so the
+    // fan reflects real counts even when card list + config are unchanged.
+    var forceRender = (config.mode === 'highest-rated');
+    if (forceRender || nextSig !== prevSig || nextConfigStamp !== prevConfigStamp) {
       // Reset opacity-loaded state so the new render fades in fresh.
       clearLoadedClass();
       renderFan(fanPicks);
