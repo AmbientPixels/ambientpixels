@@ -54,6 +54,8 @@
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="css/blindspot-cards.css">
   <link rel="stylesheet" href="css/blindspot.css">
+  <link rel="stylesheet" href="css/blindspot-tokens.css">
+  <link rel="stylesheet" href="css/blindspot-landing.css">
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
@@ -64,40 +66,59 @@
   <canvas id="bs-particles" class="bs-particles" aria-hidden="true"></canvas>
 
   <!-- LANDING SCREEN -->
-  <main id="bs-landing" class="bs-landing" role="main">
-    <div class="bs-landing__content">
-      <h1 class="bs-wordmark bs-anim-fade-down" style="animation-delay: 0.2s;">Blindspot</h1>
+  <main id="bs-landing" class="blindspot-landing" role="main">
+    <div class="blindspot-landing__frame blindspot-fade-up" style="animation-delay: 0.1s;">
+      <span class="blindspot-landing__corner blindspot-landing__corner--tl" aria-hidden="true"></span>
+      <span class="blindspot-landing__corner blindspot-landing__corner--tr" aria-hidden="true"></span>
+      <span class="blindspot-landing__corner blindspot-landing__corner--bl" aria-hidden="true"></span>
+      <span class="blindspot-landing__corner blindspot-landing__corner--br" aria-hidden="true"></span>
 
-      <div class="bs-stranger-card bs-anim-fade-up" aria-hidden="true" style="animation-delay: 0.5s;">
-        <div class="bs-stranger-card__inner">
-          <div class="bs-stranger-card__glow"></div>
-          <i class="fas fa-fire bs-stranger-card__icon"></i>
-          <div class="bs-stranger-card__edge"></div>
+      <div class="blindspot-landing__chapter blindspot-fade-up" style="animation-delay: 0.3s;">— Chapter Zero · The Stranger —</div>
+
+      <div class="blindspot-landing__layout">
+        <div class="blindspot-landing__art blindspot-fade-up" style="animation-delay: 0.5s;" aria-hidden="true">
+          <div class="blindspot-landing__portrait" style="background-image: url('img/fighters/knight.webp');"></div>
+          <div class="blindspot-landing__portrait-veil"></div>
+          <div class="blindspot-landing__sigil-wrap">
+            <svg viewBox="0 0 200 200" class="blindspot-landing__sigil" aria-hidden="true">
+              <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" stroke-width="0.5"/>
+              <circle cx="100" cy="100" r="60" fill="none" stroke="currentColor" stroke-width="0.5"/>
+              <polygon points="100,20 173,160 27,160" fill="none" stroke="currentColor" stroke-width="0.5"/>
+              <polygon points="100,180 27,40 173,40" fill="none" stroke="currentColor" stroke-width="0.5"/>
+            </svg>
+          </div>
+          <span class="blindspot-landing__card-tag">Stranger · 0001</span>
         </div>
-      </div>
 
-      <p class="bs-landing__headline bs-anim-fade-up" style="animation-delay: 0.9s;">Every fighter starts with someone else's card.</p>
-      <p class="bs-landing__subline bs-anim-fade-up" style="animation-delay: 1.2s;">Yours is waiting.</p>
+        <div class="blindspot-landing__text">
+          <h1 class="blindspot-landing__title blindspot-fade-up" style="animation-delay: 0.7s;">Blindspot</h1>
 
-      <button class="bs-btn bs-btn--full bs-btn--glow bs-anim-fade-up" id="bs-fight-btn" aria-label="Start your first fight" style="animation-delay: 1.6s;">Fight</button>
+          <p class="blindspot-landing__verse blindspot-fade-up" style="animation-delay: 0.9s;">
+            <span class="blindspot-landing__drop">E</span>very fighter begins with someone else's card. A stranger's wounds, a stranger's strengths, a stranger's name. Win &mdash; and you earn the right to forge one of your own.
+          </p>
+          <p class="blindspot-landing__verse blindspot-landing__verse--small blindspot-fade-up" style="animation-delay: 1.1s;">
+            Yours is waiting at the gate.
+          </p>
 
-      <div class="bs-social-proof bs-anim-fade-up" id="bs-social-proof" style="animation-delay: 1.8s;" aria-label="Game statistics">
-        <span class="bs-social-proof__stat"><i class="fas fa-shield-halved" aria-hidden="true"></i> <strong id="bs-proof-battles">0</strong> battles fought</span>
-        <span class="bs-social-proof__dot" aria-hidden="true">&middot;</span>
-        <span class="bs-social-proof__stat"><i class="fas fa-hammer" aria-hidden="true"></i> <strong id="bs-proof-cards">0</strong> cards forged</span>
-      </div>
+          <div class="blindspot-landing__cta-row blindspot-fade-up" style="animation-delay: 1.3s;">
+            <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-fight-btn" aria-label="Start your first fight">
+              <i class="fas fa-fire" aria-hidden="true"></i> Begin
+            </button>
+          </div>
 
-      <div class="bs-landing__footer bs-anim-fade-up" style="animation-delay: 2s;">
-        <span class="bs-landing__badge"><i class="fas fa-dragon" aria-hidden="true"></i> 10 Bosses</span>
-        <span class="bs-landing__badge"><i class="fas fa-book-open" aria-hidden="true"></i> Story Adventures</span>
-        <span class="bs-landing__badge"><i class="fas fa-fire" aria-hidden="true"></i> Forge System</span>
-        <span class="bs-landing__badge"><i class="fas fa-users" aria-hidden="true"></i> PvP Arena</span>
-      </div>
-      <div class="bs-landing__auth bs-anim-fade-up" style="animation-delay: 2.3s;" id="bs-auth-area">
-        <a href="/blindspot/login.html?redirect=/blindspot/" class="bs-landing__signin" id="bs-signin-link">
-          <i class="fas fa-user-shield" aria-hidden="true"></i> Sign in to save your card
-        </a>
-        <span style="display:block; font-size:0.55rem; color:var(--bs-text-muted); margin-top:0.3rem;">Or play as a guest — no account needed</span>
+          <div class="blindspot-landing__footer blindspot-fade-up" id="bs-social-proof" style="animation-delay: 1.5s;" aria-label="Game statistics">
+            <div><strong id="bs-proof-battles">0</strong> have entered.</div>
+            <div><strong id="bs-proof-cards">0</strong> have forged a card.</div>
+            <div><span class="blindspot-landing__pulse-dot" aria-hidden="true"></span> <strong>10</strong> bosses await.</div>
+          </div>
+
+          <div class="blindspot-landing__signin-row blindspot-fade-up" id="bs-auth-area" style="animation-delay: 1.7s;">
+            <a href="/blindspot/login.html?redirect=/blindspot/" id="bs-signin-link">
+              <i class="fas fa-user-shield" aria-hidden="true"></i> Sign in to save your card
+            </a>
+            <span class="blindspot-landing__signin-or">&mdash; or play as guest, no account needed</span>
+          </div>
+        </div>
       </div>
     </div>
   </main>
