@@ -10,44 +10,79 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <!-- Obsidian token system + token re-routes used across the rest of CardForge. -->
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425a" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
-    :root {
-      --cf-bg:           #1B1F2E;
-      --cf-bg-deep:      #141827;
-      --cf-surface:      #2D3348;
-      --cf-surface-2:    #353B52;
-      --cf-accent:       #7B8FE0;
-      --cf-accent-glow:  rgba(123, 143, 224, 0.35);
-      --cf-accent-dim:   rgba(123, 143, 224, 0.12);
-      --cf-accent-deep:  #5E72C4;
-      --cf-text:         #E8ECF5;
-      --cf-text-muted:   #9AA0B8;
-      --cf-text-faint:   #6B7190;
-      --cf-border:       rgba(123, 143, 224, 0.18);
-      --cf-border-hover: rgba(123, 143, 224, 0.45);
-      --cf-border-soft:  rgba(255, 255, 255, 0.06);
-    }
-
     html, body {
       height: 100%;
       margin: 0;
-      background: var(--cf-bg);
-      color: var(--cf-text);
+      background: var(--cf-ob-bg-0);
+      color: var(--cf-ob-text-1);
       font-family: 'Inter', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
+    /* Page wrapper — centers the login card and hosts the ember radial
+       glow behind it so the page has a hint of the splash atmosphere
+       without copying the full hero visual treatment. */
     .cf-login-wrap {
+      position: relative;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 2rem 1.25rem;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .cf-login-wrap::before {
+      content: '';
+      position: absolute;
+      width: 720px;
+      height: 720px;
+      background: radial-gradient(circle, var(--cf-ob-ember-22), transparent 65%);
+      filter: blur(60px);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Brand strip at the top of the page — matches the splash nav brand
+       treatment so the user knows they're still in CardForge during the
+       sign-in detour. Just the wordmark, no nav items. */
+    .cf-login-brand {
+      position: absolute;
+      top: 1.25rem;
+      left: 1.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--cf-ob-ember);
+      z-index: 1;
+    }
+    .cf-login-brand i {
+      font-size: 20px;
+      color: var(--cf-ob-ember);
+      filter: drop-shadow(0 0 8px var(--cf-ob-ember-33));
+      transition: filter 0.2s ease;
+    }
+    .cf-login-brand:hover i { filter: drop-shadow(0 0 14px var(--cf-ob-ember-33)); }
+    .cf-login-brand > span {
+      background: linear-gradient(135deg, var(--cf-ob-ember), var(--cf-ob-ember-soft));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .cf-login {
@@ -57,47 +92,45 @@
     }
 
     .cf-login__logo {
-      font-family: 'Cinzel', serif;
-      font-weight: 700;
-      font-size: clamp(32px, 4.2vw, 42px);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--cf-accent);
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 800;
+      font-size: clamp(36px, 5vw, 52px);
+      letter-spacing: -1px;
+      line-height: 1.05;
+      color: var(--cf-ob-text-1);
       margin: 0 0 0.5rem;
-      text-shadow: 0 2px 20px var(--cf-accent-glow);
+    }
+    .cf-login__logo span {
+      font-style: italic;
+      color: var(--cf-ob-ember);
     }
 
     .cf-login__subtitle {
-      font-family: 'Inter', sans-serif;
       font-size: 0.95rem;
-      color: var(--cf-text-muted);
+      color: var(--cf-ob-text-2);
       margin: 0 0 2.25rem;
       line-height: 1.5;
-      letter-spacing: 0.01em;
     }
 
     .cf-login__card {
-      background: var(--cf-surface);
-      border: 1px solid var(--cf-border);
-      border-radius: 12px;
+      background: var(--cf-ob-bg-2);
+      border: 1px solid var(--cf-ob-line-2);
       padding: 2rem 1.75rem;
       text-align: left;
-      box-shadow: 0 0 40px rgba(123, 143, 224, 0.1);
     }
 
     .cf-login__heading {
-      font-family: 'Cinzel', serif;
-      font-weight: 600;
-      font-size: 1.2rem;
-      letter-spacing: 0.04em;
-      color: var(--cf-text);
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+      color: var(--cf-ob-text-1);
       margin: 0 0 0.5rem;
     }
 
     .cf-login__desc {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.88rem;
-      color: var(--cf-text-muted);
+      font-size: 0.9rem;
+      color: var(--cf-ob-text-2);
       line-height: 1.55;
       margin: 0 0 1.5rem;
     }
@@ -109,41 +142,43 @@
       gap: 0.65rem;
       width: 100%;
       padding: 0.85rem 1.25rem;
-      border-radius: 8px;
       font-family: 'Inter', sans-serif;
       font-weight: 600;
       font-size: 0.92rem;
+      letter-spacing: 0.02em;
       text-decoration: none;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
     }
-
     .cf-login__btn i { font-size: 1rem; }
 
+    /* Primary — ember-bordered, transparent dark fill. Most users will
+       click this one (Google). Hover bumps to ember-dim fill + glow. */
     .cf-login__btn--primary {
-      background: linear-gradient(135deg, #141827, #1E2336);
-      border: 1px solid var(--cf-accent);
-      color: var(--cf-accent);
-      box-shadow: 0 0 15px rgba(123, 143, 224, 0.15);
-      letter-spacing: 0.04em;
+      background: var(--cf-ob-bg-3);
+      border: 1px solid var(--cf-ob-ember);
+      color: var(--cf-ob-ember);
+      box-shadow: 0 0 18px var(--cf-ob-ember-22);
     }
     .cf-login__btn--primary:hover,
     .cf-login__btn--primary:focus-visible {
-      background: linear-gradient(135deg, #1E2336, #2A3048);
-      box-shadow: 0 0 25px rgba(123, 143, 224, 0.3);
+      background: var(--cf-ob-ember-dim);
+      box-shadow: 0 0 28px var(--cf-ob-ember-33);
       transform: translateY(-1px);
+      outline: none;
     }
 
+    /* Ghost — neutral border, secondary signal (Microsoft). */
     .cf-login__btn--ghost {
-      background: linear-gradient(135deg, #171A28, #1F2334);
-      border: 1px solid var(--cf-border-soft);
-      color: var(--cf-text-muted);
-      font-size: 0.85rem;
+      background: transparent;
+      border: 1px solid var(--cf-ob-line-2);
+      color: var(--cf-ob-text-2);
     }
     .cf-login__btn--ghost:hover,
     .cf-login__btn--ghost:focus-visible {
-      background: linear-gradient(135deg, #1F2334, #2A3048);
-      color: var(--cf-text);
+      border-color: var(--cf-ob-ember-33);
+      color: var(--cf-ob-text-1);
+      outline: none;
     }
 
     .cf-login__divider {
@@ -153,54 +188,52 @@
       margin: 0.9rem 0;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.7rem;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--cf-text-faint);
+      color: var(--cf-ob-text-mute);
     }
     .cf-login__divider::before,
     .cf-login__divider::after {
       content: '';
       flex: 1;
       height: 1px;
-      background: var(--cf-border-soft);
+      background: var(--cf-ob-line-1);
     }
 
     .cf-login__benefits {
       display: flex;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.6rem;
       margin-top: 1.5rem;
       padding-top: 1.25rem;
-      border-top: 1px solid var(--cf-border-soft);
+      border-top: 1px solid var(--cf-ob-line-1);
     }
 
     .cf-login__benefit {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.82rem;
-      color: var(--cf-text-muted);
+      gap: 0.65rem;
+      font-size: 0.85rem;
+      color: var(--cf-ob-text-2);
     }
-
     .cf-login__benefit i {
-      color: var(--cf-accent);
+      color: var(--cf-ob-ember);
       width: 16px;
       text-align: center;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       flex-shrink: 0;
     }
 
     .cf-login__footer {
-      margin-top: 1.5rem;
+      margin-top: 1.75rem;
       display: flex;
       justify-content: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--cf-text-faint);
+      color: var(--cf-ob-text-mute);
     }
 
     .cf-login__footer a {
@@ -208,28 +241,35 @@
       text-decoration: none;
       transition: color 0.2s ease;
     }
-    .cf-login__footer a:hover { color: var(--cf-accent); }
+    .cf-login__footer a:hover { color: var(--cf-ob-ember); }
 
     @media (max-width: 480px) {
+      .cf-login-brand { left: 1rem; top: 1rem; font-size: 14px; }
       .cf-login__card { padding: 1.5rem 1.25rem; }
       .cf-login__footer { flex-direction: column; gap: 0.5rem; align-items: center; }
     }
   </style>
 </head>
-<body>
+<body data-theme="dark">
+
+  <a class="cf-login-brand" href="/cardforge/" aria-label="Back to CardForge">
+    <i class="fas fa-fire-flame-curved" aria-hidden="true"></i>
+    <span>CardForge</span>
+  </a>
+
   <main class="cf-login-wrap">
     <div class="cf-login">
-      <h1 class="cf-login__logo">CardForge</h1>
+      <h1 class="cf-login__logo">Sign in to <span>CardForge</span></h1>
       <p class="cf-login__subtitle">Forge your collection. Build your deck.</p>
 
       <div class="cf-login__card">
-        <h2 class="cf-login__heading">Sign in to continue</h2>
+        <h2 class="cf-login__heading">Pick your sign-in</h2>
         <p class="cf-login__desc">Save your cards to the cloud, build decks, and share creations with the public gallery.</p>
 
         <a href="/.auth/login/google?post_login_redirect_uri=/cardforge/"
            class="cf-login__btn cf-login__btn--primary"
            id="cf-login-google">
-          <i class="fab fa-google"></i> Sign in with Google
+          <i class="fab fa-google" aria-hidden="true"></i> Sign in with Google
         </a>
 
         <div class="cf-login__divider">or</div>
@@ -237,19 +277,19 @@
         <a href="/.auth/login/aad?post_login_redirect_uri=/cardforge/"
            class="cf-login__btn cf-login__btn--ghost"
            id="cf-login-ms">
-          <i class="fab fa-microsoft"></i> Sign in with Microsoft
+          <i class="fab fa-microsoft" aria-hidden="true"></i> Sign in with Microsoft
         </a>
 
         <div class="cf-login__benefits">
-          <div class="cf-login__benefit"><i class="fas fa-cloud"></i> Your cards save to the cloud</div>
-          <div class="cf-login__benefit"><i class="fas fa-layer-group"></i> Build and save decks</div>
-          <div class="cf-login__benefit"><i class="fas fa-images"></i> Share on the public gallery</div>
-          <div class="cf-login__benefit"><i class="fas fa-wand-magic-sparkles"></i> AI-powered card generation</div>
+          <div class="cf-login__benefit"><i class="fas fa-cloud" aria-hidden="true"></i> Your cards save to the cloud</div>
+          <div class="cf-login__benefit"><i class="fas fa-layer-group" aria-hidden="true"></i> Build and save decks</div>
+          <div class="cf-login__benefit"><i class="fas fa-heart" aria-hidden="true"></i> Heart cards in the gallery</div>
+          <div class="cf-login__benefit"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> AI-powered card generation</div>
         </div>
       </div>
 
       <div class="cf-login__footer">
-        <a href="/cardforge/"><i class="fas fa-arrow-left"></i> Back to CardForge</a>
+        <a href="/cardforge/"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back to CardForge</a>
         <span aria-hidden="true">&middot;</span>
         <a href="/cardforge/editor.html">Browse as guest</a>
       </div>
@@ -257,7 +297,7 @@
   </main>
 
   <script>
-    (function() {
+    (function () {
       var params = new URLSearchParams(window.location.search);
       var redirect = params.get('redirect') || '/cardforge/';
       var encoded = encodeURIComponent(redirect);
