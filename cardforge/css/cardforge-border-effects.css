@@ -132,18 +132,33 @@
 /* Shared: suppress default border + glow, add overlay via ::after */
 .card-preview-canvas.rarity-style-img-gold,
 .card-preview-canvas.rarity-style-img-arcane,
-.card-preview-canvas.rarity-style-img-royal {
+.card-preview-canvas.rarity-style-img-royal,
+.card-preview-canvas.rarity-style-img-frost,
+.card-preview-canvas.rarity-style-img-ember,
+.card-preview-canvas.rarity-style-img-shadow,
+.card-preview-canvas.rarity-style-img-nature,
+.card-preview-canvas.rarity-style-img-circuit {
   border: none !important;
 }
 .card-preview-canvas.rarity-style-img-gold::before,
 .card-preview-canvas.rarity-style-img-arcane::before,
-.card-preview-canvas.rarity-style-img-royal::before {
+.card-preview-canvas.rarity-style-img-royal::before,
+.card-preview-canvas.rarity-style-img-frost::before,
+.card-preview-canvas.rarity-style-img-ember::before,
+.card-preview-canvas.rarity-style-img-shadow::before,
+.card-preview-canvas.rarity-style-img-nature::before,
+.card-preview-canvas.rarity-style-img-circuit::before {
   opacity: 0 !important;
   animation: none !important;
 }
 .card-preview-canvas.rarity-style-img-gold::after,
 .card-preview-canvas.rarity-style-img-arcane::after,
-.card-preview-canvas.rarity-style-img-royal::after {
+.card-preview-canvas.rarity-style-img-royal::after,
+.card-preview-canvas.rarity-style-img-frost::after,
+.card-preview-canvas.rarity-style-img-ember::after,
+.card-preview-canvas.rarity-style-img-shadow::after,
+.card-preview-canvas.rarity-style-img-nature::after,
+.card-preview-canvas.rarity-style-img-circuit::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -162,4 +177,19 @@
 }
 .card-preview-canvas.rarity-style-img-royal::after {
   background-image: url('/cardforge/images/borders/border-royal.png');
+}
+.card-preview-canvas.rarity-style-img-frost::after {
+  background-image: url('/cardforge/images/borders/border-frost.png');
+}
+.card-preview-canvas.rarity-style-img-ember::after {
+  background-image: url('/cardforge/images/borders/border-ember.png');
+}
+.card-preview-canvas.rarity-style-img-shadow::after {
+  background-image: url('/cardforge/images/borders/border-shadow.png');
+}
+.card-preview-canvas.rarity-style-img-nature::after {
+  background-image: url('/cardforge/images/borders/border-nature.png');
+}
+.card-preview-canvas.rarity-style-img-circuit::after {
+  background-image: url('/cardforge/images/borders/border-circuit.png');
 }
