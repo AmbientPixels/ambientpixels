@@ -156,13 +156,21 @@
       var heartHtml = (window.CardForgeHearts && c.id)
         ? window.CardForgeHearts.renderButton(c.id, { withCount: true, variant: 'gallery' })
         : '';
+      // Wrap card button + heart as siblings inside a positioned wrapper.
+      // Nesting <button> inside <button> is invalid HTML — browsers
+      // auto-close the outer button when they parse the inner one,
+      // which would render the heart as a SIBLING of the card in the
+      // grid. The wrapper makes the sibling layout intentional and
+      // gives the heart an absolute-positioning anchor.
       return (
-        '<button type="button" class="cf-gallery__card mini-card" ' +
-                'data-card-index="' + i + '" ' +
-                'aria-label="' + escHtml('View ' + (c.name || 'card')) + '">' +
-          renderCardContent(c) +
+        '<div class="cf-gallery__card-wrap">' +
+          '<button type="button" class="cf-gallery__card mini-card" ' +
+                  'data-card-index="' + i + '" ' +
+                  'aria-label="' + escHtml('View ' + (c.name || 'card')) + '">' +
+            renderCardContent(c) +
+          '</button>' +
           heartHtml +
-        '</button>'
+        '</div>'
       );
     }).join('');
 

@@ -120,13 +120,18 @@
 }
 
 /* Gallery variant — overlay button, top-right corner of the tile.
-   The host (.cf-gallery__card) is a button with position: relative.
-   z-index: 2 sits above the card art, below any hover overlays the
-   gallery may add later. */
+   Hosted on .cf-gallery__card-wrap (a positioned <div> that wraps the
+   card button + heart as siblings, since nested <button>s are invalid
+   HTML and the browser would otherwise flatten them into siblings in
+   different grid cells). */
 .cf-heart {
   position: relative;
 }
-.cf-gallery__card .cf-heart {
+.cf-gallery__card-wrap {
+  position: relative;
+  display: block;
+}
+.cf-gallery__card-wrap .cf-heart {
   position: absolute;
   top: 10px;
   right: 10px;
