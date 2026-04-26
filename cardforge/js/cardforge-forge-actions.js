@@ -3198,26 +3198,22 @@ async function handleEditUrlParam() {
     var loadUrl = (typeof window.buildApiPath === 'function')
       ? window.buildApiPath('loadCards')
       : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
-    var headers = {};
+    // Match cardforge-gallery-page.js fetchPublishedCards verbatim — it's
+    // the proven-working pattern for hitting this endpoint in-page. Any
+    // deviation (no Content-Type, credentials:'omit', etc.) ran into a
+    // hang where resp.json()/text() never resolved, even with status=200.
+    var authHeaders = {};
     if (typeof window._cfGetAuthHeaders === 'function') {
-      try { Object.assign(headers, await window._cfGetAuthHeaders()); } catch (_) {}
+      try { authHeaders = await window._cfGetAuthHeaders(); } catch (_) {}
     }
-    // GET requests don't need Content-Type. Sending it on cross-origin GET
-    // forces a CORS preflight; the response Allow-Headers does cover it,
-    // but skipping the header keeps the request "simple" and avoids one
-    // round-trip plus any preflight quirks.
     console.log('[CardForge edit] fetching loadCards');
-    var resp = await fetch(loadUrl, { method: 'GET', headers: headers });
+    var resp = await fetch(loadUrl, {
+      method: 'GET',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)
+    });
     console.log('[CardForge edit] fetch response status=' + resp.status);
     if (!resp.ok) { fallbackToRandom('http_' + resp.status); return; }
-    // resp.json() was observed hanging in some browsers (likely a stream
-    // already half-consumed by a global fetch wrapper). Reading text first
-    // then parsing avoids the stream API entirely.
-    var rawText = await resp.text();
-    console.log('[CardForge edit] body bytes=' + (rawText && rawText.length));
-    var data;
-    try { data = JSON.parse(rawText); }
-    catch (parseErr) { fallbackToRandom('parse_error'); return; }
+    var data = await resp.json();
     var pool = []
       .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
       .concat(Array.isArray(data && data.galleryCards) ? data.galleryCards : [])
