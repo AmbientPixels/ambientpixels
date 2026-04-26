@@ -30,6 +30,10 @@ body.cf-splash {
   background: rgba(7, 9, 12, 0.8);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--cf-ob-line-1);
+  /* Self-contained font — pages that don't set body { font-family: Inter }
+     (e.g. deck.html) would otherwise inherit the browser default and the
+     nav links would render in Times New Roman. */
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 .cf-splash-nav__brand {
