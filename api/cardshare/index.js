@@ -48,8 +48,11 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // Redirect URL — where the user lands after social preview
-  const viewUrl = `${SITE_ORIGIN}/cardforge/?card=${encodeURIComponent(cardId)}`;
+  // Redirect URL — where the user lands after social preview.
+  // Must be gallery.html (not the splash) because that's where
+  // cardforge-lightbox.js's checkDeepLink() runs and finds the
+  // #gallery-cards-grid it needs to open the shared card.
+  const viewUrl = `${SITE_ORIGIN}/cardforge/gallery.html?card=${encodeURIComponent(cardId)}`;
 
   let card = null;
   try {
