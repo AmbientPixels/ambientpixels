@@ -294,7 +294,14 @@
     window.CardForgeNav = {
       activate,
       activateById: (id, opts) => {
-        const b = document.querySelector(`.cf-rail-nav .step-btn[data-nav-id="${id}"]`);
+        // Search rail-nav step-btns first; fall back to rail-footer
+        // action buttons (Forge, Quick Build) which carry their own
+        // data-nav-id + data-target-section but live outside the nav
+        // group. Without this fallback the Forge button at the bottom
+        // of the rail is dead — its onclick calls activateById('forge')
+        // but no .step-btn[data-nav-id="forge"] exists.
+        const b = document.querySelector(`.cf-rail-nav .step-btn[data-nav-id="${id}"]`)
+              || document.querySelector(`.cf-rail-footer__action[data-nav-id="${id}"]`);
         if (b) activate(b, opts);
       }
     };
