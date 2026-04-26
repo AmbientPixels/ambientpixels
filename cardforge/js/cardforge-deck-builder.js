@@ -876,7 +876,18 @@
 
     var isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
                    (document.body?.getAttribute('data-auth-state') === 'signed-in');
-    if (!isAuthed) { showToast('Sign in to publish decks'); return; }
+    if (!isAuthed) {
+      // Server (cardforgedeckpublish) now rejects anonymous with 401.
+      // Send the user through the CardForge login page so they land
+      // back on this deck-builder URL after sign-in.
+      var here = window.location.pathname + window.location.search;
+      var loginUrl = '/cardforge/login.html?redirect=' + encodeURIComponent(here);
+      var msg = 'Sign in to publish your deck to the public gallery. Your in-progress deck is saved on this browser and will be here when you return.';
+      if (window.confirm(msg + '\n\nGo to sign-in?')) {
+        window.location.href = loginUrl;
+      }
+      return;
+    }
 
     // Save first
     saveDeck();

@@ -119,6 +119,12 @@ module.exports = async function (context, req) {
     }
     context.log(`User: ${userId}, authenticated: ${isAuthenticated}`);
 
+    // Gate: deck publish requires a real account (mirrors cardforgepublish).
+    if (!isAuthenticated) {
+      context.res = { status: 401, headers: CORS_HEADERS, body: { error: 'Authentication required to publish decks' } };
+      return;
+    }
+
     // Connect to blob storage
     const blobServiceClient = await createBlobServiceClient();
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);

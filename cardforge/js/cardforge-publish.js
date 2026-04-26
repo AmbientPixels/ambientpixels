@@ -9,11 +9,16 @@ async function publishCard() {
                    (document.body?.getAttribute('data-auth-state') === 'signed-in');
 
   if (!isAuthed) {
-    // Prefer CardForge modal system over native alerts
-    if (window.UIUtils && typeof UIUtils.showAlertDialog === 'function') {
-      UIUtils.showAlertDialog('Sign in required', 'Please sign in to publish cards');
-    } else {
-      alert('Please sign in to publish cards');
+    // Server-side gate (cardforgepublish) returns 401 for anonymous —
+    // bounce the user to the CardForge login page with a redirect back
+    // to the editor so they don't lose their work-in-progress.
+    var here = window.location.pathname + window.location.search;
+    var loginUrl = '/cardforge/login.html?redirect=' + encodeURIComponent(here);
+    var msg = 'Sign in to publish your card to the public gallery. Your draft is saved on this browser and will be here when you return.';
+    if (window.UIUtils && typeof UIUtils.showConfirmDialog === 'function') {
+      UIUtils.showConfirmDialog('Sign in required', msg, function () { window.location.href = loginUrl; }, null, { confirmLabel: 'Sign in' });
+    } else if (window.confirm(msg + '\n\nGo to sign-in?')) {
+      window.location.href = loginUrl;
     }
     return;
   }

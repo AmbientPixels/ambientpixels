@@ -182,6 +182,24 @@ module.exports = async function (context, req) {
       context.log(`Using userId from request body: ${userId}`);
     }
 
+    // Gate: publishing to the public gallery requires a real account.
+    // Anonymous publish was a quality + abuse vector — every published
+    // card now ties to a userId (matches what published-cards.json
+    // already exposes via publishedBy / authorName).
+    if (!isAuthenticated) {
+      context.res = {
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+        },
+        body: { error: 'Authentication required to publish cards' }
+      };
+      return;
+    }
+
     // Get the card ID from the request body
     const { cardId } = req.body;
     context.log(`Publishing card ID: ${cardId} for user: ${userId}`);

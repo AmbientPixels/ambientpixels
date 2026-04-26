@@ -2179,7 +2179,25 @@ CardForgeActions.prototype.requireAuth = function(action) {
   if (isLocal) return true;
 
   if (!this.isAuthenticated()) {
-    this.showNotification(`Sign in to ${action}`, 'error');
+    // Publish-class actions get a redirect-to-login dialog so the user
+    // doesn't hit the server's 401 cold (cardforgepublish +
+    // cardforgedeckpublish now reject anonymous). For other actions
+    // (manage decks, etc.) we still surface a toast — those don't hit
+    // the server and the toast is enough.
+    var isPublishLike = /publish/i.test(String(action || ''));
+    if (isPublishLike) {
+      var here = window.location.pathname + window.location.search;
+      var loginUrl = '/cardforge/login.html?redirect=' + encodeURIComponent(here);
+      var msg = 'Sign in to ' + action + '. Your work is saved on this browser and will be here when you return.';
+      var go = function () { window.location.href = loginUrl; };
+      if (window.UIUtils && typeof window.UIUtils.showConfirmDialog === 'function') {
+        window.UIUtils.showConfirmDialog('Sign in required', msg, go, null, { confirmLabel: 'Sign in' });
+      } else if (window.confirm(msg + '\n\nGo to sign-in?')) {
+        go();
+      }
+    } else {
+      this.showNotification(`Sign in to ${action}`, 'error');
+    }
     return false;
   }
   return true;
