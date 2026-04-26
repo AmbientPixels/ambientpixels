@@ -7,9 +7,11 @@
    ============================================================ */
 
 /* ---------- SCREEN SHELL ----------
-   Beats legacy `#bs-screen-battle { ... }` rules and the parent
-   `.bs-screen { max-width: 720px }` constraint. */
-#bs-screen-battle.blindspot-battle {
+   Beats legacy `.bs-screen.active#bs-screen-battle { max-width: 860px }`
+   at blindspot.css:5676 — that rule has specificity (0,1,2,0); ours
+   needs to be at least equal and load later. */
+.bs-screen#bs-screen-battle.blindspot-battle,
+.bs-screen.active#bs-screen-battle.blindspot-battle {
   position: relative;
   min-height: calc(100vh - 60px);
   max-width: none;
@@ -19,8 +21,9 @@
   display: block;
   font-family: var(--blindspot-font-body);
   color: var(--blindspot-text);
+  flex: unset;
 }
-#bs-screen-battle.blindspot-battle.active { display: block; }
+.bs-screen.active#bs-screen-battle.blindspot-battle { display: block; }
 
 /* ---------- ARENA BG ---------- */
 .blindspot-battle__arena {
