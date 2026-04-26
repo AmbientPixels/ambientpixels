@@ -1,0 +1,707 @@
+/* ============================================================
+   BLINDSPOT REDESIGN — Phase 3: Lobby (Vein theme)
+   Two-column layout: fighter card on left, sections stacked on right.
+   Vein accent: red is the primary accent for data viz, bars, stars,
+   icons. Gold is reserved for the brand wordmark only (legacy chrome).
+   ============================================================ */
+
+/* ---------- BODY BACKGROUND ----------
+   Override legacy `.bs-page { background: var(--bs-bg); }` so the page
+   gets the redesign's warm-dark + layered red/gold radial pattern.
+   `body.bs-page` (specificity 0,0,1,1) beats `.bs-page` (0,0,1,0). */
+body.bs-page {
+  background-color: var(--blindspot-bg);
+  background-image: var(--blindspot-bg-pattern);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: var(--blindspot-text);
+}
+
+/* ---------- SHELL ----------
+   ID + class selector beats legacy `#bs-screen-lobby { max-width: 900px }` */
+#bs-screen-lobby.blindspot-lobby {
+  font-family: var(--blindspot-font-body);
+  color: var(--blindspot-text);
+  padding: 2.5rem 1.5rem 5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  background: transparent;
+}
+
+/* ---------- HEAD ---------- */
+.blindspot-lobby__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.blindspot-lobby__head-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.blindspot-lobby__title {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  line-height: 1.05;
+  margin: 0.4rem 0;
+  color: var(--blindspot-text);
+}
+.blindspot-lobby__sub {
+  font-size: 1rem;
+  color: var(--blindspot-text-dim);
+  margin: 0;
+}
+.blindspot-lobby__sub strong {
+  color: var(--blindspot-accent);
+  font-weight: 600;
+  margin: 0 0.15em;
+}
+
+/* ---------- GRID ---------- */
+.blindspot-lobby__grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .blindspot-lobby__grid { grid-template-columns: 1fr; }
+  .blindspot-lobby__col--card { max-width: 360px; margin: 0 auto; width: 100%; }
+}
+
+/* ---------- FIGHTER CARD (static designed) ---------- */
+.blindspot-fighter-card {
+  background: linear-gradient(180deg, var(--blindspot-surface), var(--blindspot-bg-2));
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  overflow: hidden;
+  box-shadow: var(--blindspot-shadow-card);
+}
+.blindspot-fighter-card__art {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background-size: cover;
+  background-position: center top;
+  background-color: var(--blindspot-bg-2);
+  filter: contrast(1.05) saturate(1.05);
+}
+.blindspot-fighter-card__chip {
+  position: absolute;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.3em 0.6em;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--blindspot-accent-dim);
+  color: var(--blindspot-accent);
+  border-radius: 2px;
+}
+.blindspot-fighter-card__chip--rarity { top: 12px; left: 12px; }
+.blindspot-fighter-card__chip--title  { top: 12px; right: 12px; }
+
+.blindspot-fighter-card__name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem 1rem 1rem;
+  background: linear-gradient(180deg, transparent, rgba(13, 8, 7, 0.9));
+}
+.blindspot-fighter-card__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1.4rem;
+  line-height: 1.05;
+  color: var(--blindspot-text);
+  margin: 0 0 0.25rem;
+}
+.blindspot-fighter-card__class {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+.blindspot-fighter-card__class i {
+  color: var(--blindspot-success);
+}
+
+.blindspot-fighter-card__stats {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid var(--blindspot-border);
+  background: var(--blindspot-surface-2);
+}
+.blindspot-stat-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.blindspot-stat-row__label {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-muted);
+  letter-spacing: 0.12em;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+.blindspot-stat-row__num {
+  font-family: var(--blindspot-font-numeric);
+  color: var(--blindspot-text);
+  text-align: right;
+  font-weight: 600;
+}
+.blindspot-stat-row__track {
+  height: 6px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.blindspot-stat-row__fill {
+  height: 100%;
+  background: var(--blindspot-accent);
+  border-radius: inherit;
+}
+
+.blindspot-fighter-card__foot {
+  padding: 0.85rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  border-top: 1px solid var(--blindspot-border);
+  font-size: 0.8rem;
+  text-align: center;
+}
+.blindspot-fighter-card__foot-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.blindspot-fighter-card__foot-label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-fighter-card__foot-value {
+  font-family: var(--blindspot-font-numeric);
+  color: var(--blindspot-accent);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.blindspot-lobby__card-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ---------- RANK STRIP ----------
+   Single horizontal pill: shield icon, "Bronze → SILVER", XP number,
+   then a tall red gradient progress bar underneath. */
+.blindspot-rank-strip {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  margin-bottom: 1.5rem;
+}
+.blindspot-rank-strip__icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blindspot-accent);
+  color: #FFF6E8;
+  border-radius: 4px;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+.blindspot-rank-strip__body { min-width: 0; }
+.blindspot-rank-strip__row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  flex-wrap: wrap;
+}
+.blindspot-rank-strip__row .blindspot-display {
+  color: var(--blindspot-accent);
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+.blindspot-rank-strip__arrow {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-rank-strip__xp {
+  margin-left: auto;
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  color: var(--blindspot-text-dim);
+  font-size: 0.95rem;
+}
+
+/* ---------- BAR (XP, bounty) ---------- */
+.blindspot-bar {
+  height: 12px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.blindspot-bar__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--blindspot-accent-dim), var(--blindspot-accent));
+  transition: width 0.4s ease;
+}
+.blindspot-bar--thin {
+  height: 6px;
+}
+
+/* ---------- SECTION ---------- */
+.blindspot-lobby-section { margin-bottom: 1.6rem; }
+.blindspot-lobby-section__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.7rem;
+  gap: 1rem;
+}
+.blindspot-lobby-section__head h2 {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin: 0;
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
+}
+.blindspot-lobby-section__head-meta {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent);
+}
+
+/* ---------- BOUNTIES ---------- */
+.blindspot-bounties {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.blindspot-bounty {
+  display: grid;
+  grid-template-columns: 36px max-content 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.65rem 0.9rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  font-size: 0.95rem;
+}
+.blindspot-bounty.is-done {
+  border-color: var(--blindspot-success);
+  opacity: 0.8;
+}
+.blindspot-bounty__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.75rem;
+  color: var(--blindspot-text-dim);
+}
+.blindspot-bounty.is-done .blindspot-bounty__check { color: var(--blindspot-success); }
+.blindspot-bounty__name { color: var(--blindspot-text); }
+.blindspot-bounty__bar { width: 100%; min-width: 120px; }
+.blindspot-bounty__reward {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-accent);
+  font-size: 0.7rem;
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+@media (max-width: 600px) {
+  .blindspot-bounty {
+    grid-template-columns: 36px 1fr;
+    grid-row-gap: 0.4rem;
+  }
+  .blindspot-bounty__bar { grid-column: 1 / -1; width: 100%; }
+  .blindspot-bounty__reward { grid-column: 2 / -1; text-align: left; }
+}
+
+/* ---------- BOSS RAIL ---------- */
+.blindspot-boss-rail {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.4rem 0 0.8rem;
+  scrollbar-width: thin;
+}
+.blindspot-boss-pip {
+  flex-shrink: 0;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.blindspot-boss-pip__img {
+  width: 64px;
+  height: 64px;
+  background-size: cover;
+  background-position: center top;
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-tile);
+  position: relative;
+  filter: grayscale(0.6) brightness(0.6);
+  transition: transform 200ms,
+              border-color 200ms,
+              filter 200ms;
+}
+.blindspot-boss-pip.is-done .blindspot-boss-pip__img {
+  filter: none;
+  border-color: var(--blindspot-success);
+}
+.blindspot-boss-pip:hover .blindspot-boss-pip__img,
+.blindspot-boss-pip:focus-visible .blindspot-boss-pip__img {
+  transform: translateY(-2px);
+  border-color: var(--blindspot-accent);
+  filter: none;
+}
+.blindspot-boss-pip__check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: var(--blindspot-success);
+  color: #0E0A06;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+}
+.blindspot-boss-pip__num {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-boss-pip--asc .blindspot-boss-pip__img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blindspot-accent);
+  background: var(--blindspot-surface);
+  border-color: var(--blindspot-accent-dim);
+  filter: none;
+  font-size: 1.2rem;
+}
+
+/* ---------- CHALLENGES ---------- */
+.blindspot-challenges {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+@media (max-width: 600px) {
+  .blindspot-challenges { grid-template-columns: 1fr; }
+}
+.blindspot-chal {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.7rem 0.9rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+}
+.blindspot-chal__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: var(--blindspot-surface-2);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-tile);
+  color: var(--blindspot-accent);
+}
+.blindspot-chal__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.1rem;
+  color: var(--blindspot-text);
+}
+.blindspot-chal__desc {
+  font-size: 0.8rem;
+  color: var(--blindspot-text-dim);
+}
+.blindspot-chal__stars {
+  display: flex;
+  gap: 0.15rem;
+}
+.blindspot-chal__stars .star {
+  color: var(--blindspot-text-muted);
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.blindspot-chal__stars .star.is-on { color: var(--blindspot-accent); }
+
+/* ---------- QUICK LINKS ---------- */
+.blindspot-quick-links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+@media (max-width: 600px) {
+  .blindspot-quick-links { grid-template-columns: 1fr; }
+}
+.blindspot-ql {
+  display: grid;
+  grid-template-columns: 24px 1fr 16px;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  text-align: left;
+  cursor: pointer;
+  color: var(--blindspot-text);
+  font: inherit;
+  transition: border-color var(--blindspot-transition-fast),
+              transform var(--blindspot-transition-fast);
+}
+.blindspot-ql:hover:not(:disabled),
+.blindspot-ql:focus-visible {
+  border-color: var(--blindspot-accent-dim);
+  transform: translateX(2px);
+  outline: none;
+}
+.blindspot-ql:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.blindspot-ql > i:first-child,
+.blindspot-ql > svg:first-child {
+  color: var(--blindspot-accent);
+  font-size: 1rem;
+}
+.blindspot-ql__body { min-width: 0; }
+.blindspot-ql__title {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1rem;
+}
+.blindspot-ql__desc {
+  font-size: 0.85rem;
+  color: var(--blindspot-text-dim);
+  line-height: 1.35;
+}
+.blindspot-ql__lock {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+.blindspot-ql__chev {
+  color: var(--blindspot-text-muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- LOOT ZONE ---------- */
+.blindspot-lobby #bs-loot-zone {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  padding: 0.85rem 1rem;
+  margin: 1.5rem 0;
+}
+.blindspot-lobby #bs-loot-zone .bs-loot-zone__header {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--blindspot-text);
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.blindspot-lobby #bs-loot-zone .bs-loot-zone__header i {
+  color: var(--blindspot-accent);
+  margin-right: 0.4em;
+}
+
+/* ============================================================
+   JS-OUTPUT OVERRIDES — restyle legacy markup that bs-rewards.js
+   injects into #bs-bounties and #bs-challenges.
+   ============================================================ */
+
+/* Hide JS-rendered duplicate inner headers */
+.blindspot-lobby #bs-bounties .bs-bounties__header,
+.blindspot-lobby #bs-challenges .bs-challenges__header {
+  display: none;
+}
+
+/* JS-rendered .bs-bounty rows */
+.blindspot-lobby #bs-bounties {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.blindspot-lobby #bs-bounties .bs-bounty {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.65rem 0.9rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  font-family: var(--blindspot-font-body);
+  font-size: 0.95rem;
+  color: var(--blindspot-text);
+  box-shadow: none;
+}
+.blindspot-lobby #bs-bounties .bs-bounty--done {
+  border-color: var(--blindspot-success);
+  opacity: 0.8;
+}
+.blindspot-lobby #bs-bounties .bs-bounty i {
+  color: var(--blindspot-text-dim);
+  font-size: 0.95rem;
+}
+.blindspot-lobby #bs-bounties .bs-bounty--done i { color: var(--blindspot-success); }
+.blindspot-lobby #bs-bounties .bs-bounty__reward {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-accent);
+  font-size: 0.7rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  text-align: right;
+  letter-spacing: 0.05em;
+}
+
+/* JS-rendered .bs-challenge — 2-col grid */
+.blindspot-lobby #bs-challenges {
+  display: block;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.blindspot-lobby #bs-challenges .bs-challenges__list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+@media (max-width: 600px) {
+  .blindspot-lobby #bs-challenges .bs-challenges__list { grid-template-columns: 1fr; }
+}
+.blindspot-lobby #bs-challenges .bs-challenge {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.7rem 0.9rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  box-shadow: none;
+  margin: 0;
+}
+.blindspot-lobby #bs-challenges .bs-challenge:hover {
+  border-color: var(--blindspot-accent-dim);
+}
+.blindspot-lobby #bs-challenges .bs-challenge__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: var(--blindspot-surface-2);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-tile);
+  color: var(--blindspot-accent);
+}
+.blindspot-lobby #bs-challenges .bs-challenge__info { min-width: 0; }
+.blindspot-lobby #bs-challenges .bs-challenge__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--blindspot-text);
+  margin-bottom: 0.1rem;
+}
+.blindspot-lobby #bs-challenges .bs-challenge__desc {
+  font-size: 0.8rem;
+  color: var(--blindspot-text-dim);
+}
+.blindspot-lobby #bs-challenges .bs-challenge__bar,
+.blindspot-lobby #bs-challenges .bs-challenge__fill {
+  display: none;
+}
+.blindspot-lobby #bs-challenges .bs-challenge__stars {
+  display: flex;
+  gap: 0.15rem;
+  color: var(--blindspot-text-muted);
+  font-size: 0.95rem;
+}
+.blindspot-lobby #bs-challenges .bs-challenge__stars .is-on,
+.blindspot-lobby #bs-challenges .bs-challenge__stars i.fa-star,
+.blindspot-lobby #bs-challenges .bs-challenge__stars i.fas.fa-star {
+  color: var(--blindspot-accent);
+}

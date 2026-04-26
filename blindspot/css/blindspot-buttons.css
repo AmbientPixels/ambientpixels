@@ -1,0 +1,63 @@
+/* ============================================================
+   BLINDSPOT REDESIGN — shared button component
+   Used across landing, lobby, prefight, battle, results.
+   Class names are prefixed `blindspot-` to coexist with legacy `.bs-btn`.
+   ============================================================ */
+
+.blindspot-btn {
+  font-family: var(--blindspot-font-display);
+  font-weight: var(--blindspot-display-weight);
+  letter-spacing: var(--blindspot-display-tracking);
+  text-transform: var(--blindspot-display-case);
+  font-size: 0.85rem;
+  padding: 0.95em 2em;
+  border: 1px solid var(--blindspot-border-2);
+  background: var(--blindspot-surface-2);
+  color: var(--blindspot-text);
+  cursor: pointer;
+  border-radius: var(--blindspot-radius-button);
+  transition: background var(--blindspot-transition-fast),
+              border-color var(--blindspot-transition-fast),
+              color var(--blindspot-transition-fast),
+              box-shadow var(--blindspot-transition-fast),
+              transform var(--blindspot-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  text-decoration: none;
+  line-height: 1;
+}
+.blindspot-btn:hover:not(:disabled) {
+  background: var(--blindspot-surface);
+  border-color: var(--blindspot-accent);
+  color: var(--blindspot-accent);
+}
+.blindspot-btn:focus-visible {
+  outline: 2px solid var(--blindspot-accent);
+  outline-offset: 2px;
+}
+.blindspot-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.blindspot-btn--primary {
+  background: var(--blindspot-accent);
+  border-color: var(--blindspot-accent);
+  color: #FFF6E8;
+}
+.blindspot-btn--primary:hover:not(:disabled) {
+  background: var(--blindspot-accent-hover);
+  border-color: var(--blindspot-accent-hover);
+  color: #FFF6E8;
+  box-shadow: var(--blindspot-shadow-glow);
+}
+
+.blindspot-btn--ghost {
+  background: transparent;
+}
+
+.blindspot-btn--lg { font-size: 1rem;   padding: 1.1em 2.4em; }
+.blindspot-btn--xl { font-size: 1.15rem; padding: 1.3em 3em; }
+.blindspot-btn--block { width: 100%; }
