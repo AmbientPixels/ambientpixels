@@ -40,16 +40,12 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* App-chrome footer — fixed strip at viewport bottom. Site-wide /css/base.css
-   sets p a:not(.btn):not(.card-image-link):not(.no-underline) { color: #87ceeb }
-   for "dark theme cyan" links, but the new footer has no <p> wrappers so the
-   site-wide rule no longer matches. Plain .cf-footer a is sufficient. */
+/* App-chrome footer — flows at the end of the page (grid above already reserves
+   --cf-footer-h so the footer sits at the viewport bottom without overlaying).
+   Site-wide /css/base.css sets p a:not(...) { color: #87ceeb } for "dark theme
+   cyan" links, but the new footer has no <p> wrappers so the site-wide rule no
+   longer matches. Plain .cf-footer a is sufficient. */
 .cf-footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 5;
   padding: 6px 16px;
   background: var(--cf-ob-bg-1);
   border-top: 1px solid var(--cf-ob-line-1);
