@@ -509,7 +509,20 @@
               <div class="arena-player-buffs" id="arena-player-buffs"></div>
               <div class="arena-status-row" id="arena-player-status" aria-live="polite"></div>
             </div>
-            <div class="arena-battle__vs" aria-hidden="true"><span class="arena-battle__vs-text">VS</span></div>
+            <div class="blindspot-battle__center" aria-hidden="false">
+              <div class="arena-battle__vs"><span class="arena-battle__vs-text">VS</span></div>
+              <div class="arena-hype-bar" id="arena-hype-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Hype meter">
+                <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved" aria-hidden="true"></i> HYPE</div>
+                <div class="arena-hype-bar__track">
+                  <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
+                </div>
+              </div>
+              <div class="arena-stance-row" id="arena-stance-row" role="group" aria-label="Stance selector">
+                <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced" title="Balanced"><i class="fas fa-circle-nodes"></i></button>
+                <button class="arena-stance-btn" data-stance="aggressive" title="Aggressive — +25% dmg, -20% def, +1 stamina cost"><i class="fas fa-fire"></i></button>
+                <button class="arena-stance-btn" data-stance="defensive" title="Defensive — -20% dmg, Guard 80%, Heal +30%, -1 stamina cost"><i class="fas fa-shield-halved"></i></button>
+              </div>
+            </div>
             <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
               <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
                 <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
@@ -540,18 +553,7 @@
         <div class="arena-battle__log" id="arena-battle-log" role="log" aria-label="Combat log" aria-live="polite">
           <div class="arena-log-entry">Battle started!</div>
         </div>
-        <div class="arena-hype-bar" id="arena-hype-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Hype meter">
-          <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved" aria-hidden="true"></i> HYPE</div>
-          <div class="arena-hype-bar__track">
-            <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
-          </div>
-        </div>
         <div class="bs-battle-hint" id="bs-battle-hint" style="display:none;" role="status" aria-live="polite"></div>
-        <div class="arena-stance-row" id="arena-stance-row" role="group" aria-label="Stance selector">
-          <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced" title="Balanced"><i class="fas fa-circle-nodes"></i></button>
-          <button class="arena-stance-btn" data-stance="aggressive" title="Aggressive — +25% dmg, -20% def, +1 stamina cost"><i class="fas fa-fire"></i></button>
-          <button class="arena-stance-btn" data-stance="defensive" title="Defensive — -20% dmg, Guard 80%, Heal +30%, -1 stamina cost"><i class="fas fa-shield-halved"></i></button>
-        </div>
         <div class="arena-items-row" id="arena-items-row" role="group" aria-label="Items and charms"></div>
         <div class="bs-move-select-prompt" id="bs-move-select-prompt" style="display:none;" role="status">Pick second move</div>
         <div class="arena-battle__moves" id="arena-moves" role="group" aria-label="Combat moves">
