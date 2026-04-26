@@ -1119,3 +1119,28 @@
   background: var(--cf-ob-ember-22, rgba(255,122,26,0.14));
   border: 1px solid var(--cf-ob-ember-33, rgba(255,122,26,0.33));
 }
+
+.db-msd-migrate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  margin: 0 0 16px;
+  border: 1px solid var(--cf-ob-ember-33, rgba(255,122,26,0.33));
+  background: var(--cf-ob-ember-22, rgba(255,122,26,0.10));
+  border-radius: 10px;
+  color: var(--cf-ob-text-1, #e6eaf2);
+}
+.db-msd-migrate__text {
+  flex: 1 1 240px;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.db-msd-migrate__text strong { color: var(--cf-ob-ember, #ff7a1a); }
+.db-msd-migrate__actions {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

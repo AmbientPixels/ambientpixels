@@ -552,6 +552,7 @@ class CardForgeActions {
         const decks = this.getSavedDecks();
         decks.push(newDeck);
         localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+        if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(newDeck);
 
         const msg = autoAddCardId
           ? `Created deck "${formData.name}" and added card`
@@ -1960,6 +1961,7 @@ const resp = await fetch(loadUrl, {
 
       existing.push(newDeck);
       localStorage.setItem('cardforge_decks', JSON.stringify(existing));
+      if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(newDeck);
       this.showNotification('Deck saved! Open Deck Manager to view it.', 'success');
       this.refreshDeckList();
     } catch (e) {
@@ -2325,6 +2327,7 @@ CardForgeActions.prototype.renameDeck = function(deckId) {
     deck.deckImage = formData.deckImage || '';
     deck.lastModified = new Date().toISOString();
     localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+    if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(deck);
     this.showNotification(`Deck updated: "${deck.name}"`, 'success');
     this.refreshDeckList();
   });
@@ -2362,6 +2365,7 @@ CardForgeActions.prototype.deleteDeck = function(deckId) {
 
     const updated = decks.filter(d => d.id !== deckId);
     localStorage.setItem('cardforge_decks', JSON.stringify(updated));
+    if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushDelete(deckId);
     if (self._selectedDeckId === deckId) {
       self._selectedDeckId = updated.length > 0 ? updated[0].id : null;
     }
@@ -2475,6 +2479,7 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
       deck.shareId = shareId;
       deck.lastModified = new Date().toISOString();
       localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+      if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(deck);
       if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'deck', action: 'publish' });
 
       // Re-render deck detail so publish button updates to "Update" state
@@ -2604,6 +2609,7 @@ CardForgeActions.prototype.addCardToDeck = function(cardId, deckId) {
   deck.cardIds.push(cardId);
   deck.lastModified = new Date().toISOString();
   localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+  if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(deck);
   this.showNotification(`Card added to "${deck.name}"`, 'success');
   this.refreshDeckList();
 
@@ -2625,6 +2631,7 @@ CardForgeActions.prototype.removeCardFromDeck = function(cardId, deckId) {
   deck.cardIds = deck.cardIds.filter(id => id !== cardId);
   deck.lastModified = new Date().toISOString();
   localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+  if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(deck);
   this.showNotification('Card removed from deck', 'success');
   this.refreshDeckList();
 };
@@ -2637,14 +2644,21 @@ CardForgeActions.prototype.cleanupDeckCardIds = function() {
   const validIds = new Set(savedCards.map(c => c.id));
   let changed = false;
 
+  const dirtyDecks = [];
   decks.forEach(deck => {
     const before = deck.cardIds.length;
     deck.cardIds = deck.cardIds.filter(id => validIds.has(id));
-    if (deck.cardIds.length !== before) changed = true;
+    if (deck.cardIds.length !== before) {
+      changed = true;
+      dirtyDecks.push(deck);
+    }
   });
 
   if (changed) {
     localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+    if (window.CardForgeDeckStore) {
+      dirtyDecks.forEach(d => window.CardForgeDeckStore.pushSave(d));
+    }
   }
 };
 

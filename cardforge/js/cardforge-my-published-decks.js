@@ -93,6 +93,7 @@
       var decks = JSON.parse(localStorage.getItem('cardforge_decks') || '[]');
       decks.unshift(synthetic);
       localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+      if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(synthetic);
     } catch (_) {}
     window.location.href = '/cardforge/deck.html?edit=' + encodeURIComponent(newId);
   }

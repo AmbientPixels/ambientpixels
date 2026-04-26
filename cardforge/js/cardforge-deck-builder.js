@@ -153,6 +153,7 @@
 
     existing.push(newDeck);
     localStorage.setItem('cardforge_decks', JSON.stringify(existing));
+    if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(newDeck);
     showToast('Deck cloned to your collection!');
   }
 
@@ -774,6 +775,10 @@
     }
 
     localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+    if (window.CardForgeDeckStore) {
+      var saved = decks.find(function (d) { return d.id === _deckMeta.id; });
+      if (saved) window.CardForgeDeckStore.pushSave(saved);
+    }
     showToast('Deck saved!');
 
     // Update URL to include edit param for future saves
@@ -850,6 +855,7 @@
       if (deck) {
         deck.shareId = result.shareId;
         localStorage.setItem('cardforge_decks', JSON.stringify(decks));
+        if (window.CardForgeDeckStore) window.CardForgeDeckStore.pushSave(deck);
         if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'deck', action: 'publish' });
       }
 
