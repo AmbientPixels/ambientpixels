@@ -452,6 +452,14 @@
     window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(info.url) + '&text=' + text, '_blank', 'width=550,height=420');
   }
 
+  function shareToBluesky() {
+    const info = getShareInfo();
+    if (!info) return;
+    // Bluesky has no separate url param — body is one combined text field.
+    const body = 'Check out "' + info.name + '" on CardForge! ' + info.url;
+    window.open('https://bsky.app/intent/compose?text=' + encodeURIComponent(body), '_blank', 'width=550,height=520');
+  }
+
   function shareToReddit() {
     const info = getShareInfo();
     if (!info) return;
@@ -681,6 +689,7 @@
 
     const copyLinkBtn = el('lightbox-copy-link');
     const shareXBtn = el('lightbox-share-x');
+    const shareBlueskyBtn = el('lightbox-share-bluesky');
     const shareRedditBtn = el('lightbox-share-reddit');
     const shareDiscordBtn = el('lightbox-share-discord');
 
@@ -690,6 +699,7 @@
     if (flipBtn) flipBtn.addEventListener('click', flip);
     if (copyLinkBtn) copyLinkBtn.addEventListener('click', shareCopyLink);
     if (shareXBtn) shareXBtn.addEventListener('click', shareToX);
+    if (shareBlueskyBtn) shareBlueskyBtn.addEventListener('click', shareToBluesky);
     if (shareRedditBtn) shareRedditBtn.addEventListener('click', shareToReddit);
     if (shareDiscordBtn) shareDiscordBtn.addEventListener('click', shareToDiscord);
 

@@ -2675,8 +2675,16 @@ body.cf-ui--clean [data-save-state] {
 
 /* Platform colors on hover */
 .cf-share-btn--x:hover { border-color: rgba(255, 255, 255, 0.3); }
+.cf-share-btn--bluesky:hover { border-color: #0085ff; color: #4ba3ff; }
 .cf-share-btn--reddit:hover { border-color: #ff4500; color: #ff6633; }
 .cf-share-btn--discord:hover { border-color: #5865f2; color: #7289da; }
+/* Bluesky uses an inline SVG icon (FA 6.5.1 doesn't include fa-bluesky;
+   added in 6.6.0). Size-match the adjacent .fab icons. */
+.cf-share-btn--bluesky svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
 .cf-share-btn--copy:hover { border-color: rgba(255, 122, 26, 0.4); color: #ffb477; }
 .cf-share-btn--export:hover { border-color: rgba(255, 122, 26, 0.4); color: #ffb477; }
 
