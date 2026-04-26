@@ -50,13 +50,21 @@
         <i class="fas fa-right-to-bracket" aria-hidden="true"></i>
         <span>Sign in</span>
       </button>
-      <div id="cf-user-status" class="cf-splash-nav__auth cf-splash-nav__auth--user" hidden>
-        <i class="fas fa-user-circle" aria-hidden="true"></i>
-        <span class="cf-splash-nav__user-name"></span>
+      <div class="cf-splash-nav__user-wrap" id="cf-user-wrap" hidden>
+        <button class="cf-splash-nav__avatar" id="cf-user-avatar" type="button" title="Account" aria-label="Account menu" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-user" aria-hidden="true"></i>
+        </button>
+        <div class="cf-splash-nav__menu" id="cf-user-menu" hidden role="menu">
+          <div class="cf-splash-nav__menu-meta">
+            Signed in as <strong class="cf-splash-nav__user-name"></strong>
+          </div>
+          <a class="cf-splash-nav__menu-item" href="/.auth/logout?post_logout_redirect_uri=/cardforge/gallery.html" role="menuitem">
+            <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
+            <span>Sign out</span>
+          </a>
+        </div>
       </div>
-      <a href="/cardforge/editor.html" class="cf-btn cf-btn--primary">
-        <i class="fas fa-hammer"></i> Open Editor
-      </a>
+      <a href="/cardforge/editor.html">Editor</a>
     </div>
   </header>
 
@@ -163,6 +171,6 @@
   <script src="js/config.js?v=20260424y" defer></script>
   <script src="js/cardforge-hearts.js?v=20260425a" defer></script>
   <script src="js/cardforge-lightbox.js?v=20260425a" defer></script>
-  <script src="js/cardforge-gallery-page.js?v=20260425b" defer></script>
+  <script src="js/cardforge-gallery-page.js?v=20260425c" defer></script>
 </body>
 </html>

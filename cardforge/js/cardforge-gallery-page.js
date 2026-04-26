@@ -213,30 +213,62 @@
   }
 
   async function initAuth() {
+    // Mirrors the splash auth pattern (cardforge-splash.js initAuth):
+    // login button when signed out, avatar with popover menu when
+    // signed in. Popover toggles on avatar click, closes on outside
+    // click or Escape. Sign-out link inside the popover preserves
+    // current page via post_logout_redirect_uri.
     var loginBtn = document.getElementById('cf-login-btn');
-    var userStatus = document.getElementById('cf-user-status');
-    if (!loginBtn || !userStatus) return;
+    var userWrap = document.getElementById('cf-user-wrap');
+    var avatarBtn = document.getElementById('cf-user-avatar');
+    var menu = document.getElementById('cf-user-menu');
+    if (!loginBtn || !userWrap) return;
     try {
       var res = await fetch('/.auth/me', { credentials: 'include' });
       if (!res.ok) throw new Error('auth fetch failed');
       var data = await res.json();
-      var principal = Array.isArray(data && data.clientPrincipal) ? data.clientPrincipal[0] : ((data && data.clientPrincipal) || null);
+      var principal = Array.isArray(data && data.clientPrincipal)
+        ? data.clientPrincipal[0]
+        : ((data && data.clientPrincipal) || null);
       if (principal && principal.userDetails) {
-        var nameEl = userStatus.querySelector('.cf-splash-nav__user-name');
+        var nameEl = userWrap.querySelector('.cf-splash-nav__user-name');
         if (nameEl) nameEl.textContent = principal.userDetails;
-        userStatus.hidden = false;
+        userWrap.hidden = false;
         loginBtn.hidden = true;
       } else {
         loginBtn.hidden = false;
-        userStatus.hidden = true;
+        userWrap.hidden = true;
       }
     } catch (_) {
       loginBtn.hidden = false;
-      userStatus.hidden = true;
+      userWrap.hidden = true;
     }
     loginBtn.addEventListener('click', function () {
       window.location.href = '/.auth/login/aadB2C?post_login_redirect_uri=/cardforge/gallery.html';
     });
+
+    if (avatarBtn && menu) {
+      avatarBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = !menu.hidden;
+        menu.hidden = open;
+        avatarBtn.setAttribute('aria-expanded', String(!open));
+      });
+      document.addEventListener('click', function (e) {
+        if (menu.hidden) return;
+        if (e.target === avatarBtn || avatarBtn.contains(e.target)) return;
+        if (menu.contains(e.target)) return;
+        menu.hidden = true;
+        avatarBtn.setAttribute('aria-expanded', 'false');
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !menu.hidden) {
+          menu.hidden = true;
+          avatarBtn.setAttribute('aria-expanded', 'false');
+          avatarBtn.focus();
+        }
+      });
+    }
   }
 
   async function init() {
