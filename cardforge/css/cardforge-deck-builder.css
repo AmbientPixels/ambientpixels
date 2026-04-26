@@ -72,8 +72,21 @@
 
 .db-bar-actions {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
+
+/* Auth fragment from cardforge-splash.css sits inside db-bar-actions.
+   Match the deck builder's button radius + give a subtle separator so
+   Sign in / avatar visually peel off from Save / Publish on its left. */
+.db-bar-actions .cf-splash-nav__auth--login {
+  border-radius: 6px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  min-height: 36px;
+  margin-left: 4px;
+}
+.db-bar-actions .cf-splash-nav__user-wrap { margin-left: 4px; }
 
 /* ── Shared button ── */
 .db-btn {
