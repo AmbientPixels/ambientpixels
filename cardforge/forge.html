@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Forge — CardForge</title>
+  <meta name="description" content="Your CardForge dashboard — drafts, published cards, favorites, and decks all in one place.">
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="canonical" href="https://ambientpixels.ai/cardforge/forge.html">
+  <meta name="theme-color" content="#07090c">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/cardforge-base.css?v=20260425k">
+  <!-- Card render chain — mini-cards use renderedFront + frontClasses from
+       the cardforgeloadcards payload, same pipeline as splash + gallery. -->
+  <link rel="stylesheet" href="css/cardforge-card.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-bg-effects.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-border-effects.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-icons.css?v=20260425i">
+  <link rel="stylesheet" href="css/cardforge-ui-components.css?v=20260425i">
+  <!-- Splash CSS provides nav/footer chrome. -->
+  <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425r">
+  <!-- Deck builder CSS supplies db-mpd-grid + tile styles used by the
+       saved/published deck modules we mount inside the My Decks panel. -->
+  <link rel="stylesheet" href="css/cardforge-deck-builder.css?v=20260425d">
+  <link rel="stylesheet" href="css/cardforge-forge.css?v=20260425a">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body class="cf-forge-page" data-theme="dark">
+
+  <header data-cf-nav="forge"></header>
+
+  <main class="cf-forge">
+    <header class="cf-forge__hero">
+      <h1 class="cf-forge__title">My Forge</h1>
+      <p class="cf-forge__sub">Everything you've drafted, published, hearted, and decked up &mdash; in one place.</p>
+    </header>
+
+    <div id="cf-forge-anon-cta" class="cf-forge__anon" hidden>
+      <p>Sign in to see your cards, decks, and favorites.</p>
+      <button id="cf-forge-signin" class="cf-btn cf-btn--primary" type="button">
+        <i class="fas fa-right-to-bracket"></i> Sign in
+      </button>
+    </div>
+
+    <section id="cf-forge-grid" class="cf-forge__grid" hidden>
+
+      <article class="cf-forge__panel">
+        <header class="cf-forge__panel-head">
+          <h2>My Cards</h2>
+          <span id="my-cards-count" class="cf-forge__count"></span>
+        </header>
+        <div class="cf-forge__panel-scroll">
+          <div class="my-cards-list" id="my-cards-list">
+            <div class="my-cards-empty">
+              <i class="fas fa-spinner fa-spin"></i>
+              <p>Loading&hellip;</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cf-forge__panel">
+        <header class="cf-forge__panel-head">
+          <h2>My Published Cards</h2>
+          <span id="cf-mpc-count" class="cf-forge__count"></span>
+        </header>
+        <!-- Hidden tab proxy: the existing my-published-cards module
+             auto-binds to this tab + section pair and lazy-loads on click.
+             cardforge-forge-page.js triggers the click on init. -->
+        <button class="forge-sidebar-tab" data-forge-tab="published" tabindex="-1" aria-hidden="true">__</button>
+        <div class="forge-tab-content active" data-forge-content="published">
+          <div class="cf-forge__panel-scroll">
+            <div class="my-cards-list" id="cf-mpc-list">
+              <div class="my-cards-empty">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading&hellip;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cf-forge__panel">
+        <header class="cf-forge__panel-head">
+          <h2>My Favorites</h2>
+          <span id="cf-fav-count" class="cf-forge__count"></span>
+        </header>
+        <button class="forge-sidebar-tab" data-forge-tab="favorites" tabindex="-1" aria-hidden="true">__</button>
+        <div class="forge-tab-content active" data-forge-content="favorites">
+          <div class="cf-forge__panel-scroll">
+            <div class="my-cards-list" id="cf-fav-list">
+              <div class="my-cards-empty">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading&hellip;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="cf-forge__panel cf-forge__panel--wide">
+        <header class="cf-forge__panel-head">
+          <h2>My Decks</h2>
+        </header>
+        <div class="cf-forge__deck-row">
+          <div class="cf-forge__deck-col">
+            <h3>Saved</h3>
+            <div class="db-mpd-grid" id="cf-msd-grid">
+              <div class="db-mpd-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading&hellip;</p></div>
+            </div>
+          </div>
+          <div class="cf-forge__deck-col">
+            <h3>Published</h3>
+            <div class="db-mpd-grid" id="cf-mpd-grid">
+              <div class="db-mpd-empty"><i class="fas fa-spinner fa-spin"></i><p>Loading&hellip;</p></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <footer class="cf-splash-footer">
+    <div>&copy; 2026 AmbientPixels &middot; CardForge</div>
+    <div>
+      <a href="/cardforge/">Splash</a>
+      <a href="/cardforge/gallery.html">Gallery</a>
+      <a href="/cardforge/deck.html">Decks</a>
+      <a href="/cardforge/editor.html">Editor</a>
+    </div>
+  </footer>
+
+  <script src="js/config.js?v=20260425b"></script>
+  <script src="js/cardforge-nav.js?v=20260425b" defer></script>
+  <script src="js/cardforge-published-events.js?v=20260425b" defer></script>
+  <script src="js/cardforge-hearts.js?v=20260425e" defer></script>
+  <script src="js/cardforge-deck-store.js?v=20260425a" defer></script>
+  <script src="js/cardforge-my-saved-decks.js?v=20260425c" defer></script>
+  <script src="js/cardforge-my-published-decks.js?v=20260425c" defer></script>
+  <script src="js/cardforge-my-published-cards.js?v=20260425a" defer></script>
+  <script src="js/cardforge-my-favorites.js?v=20260425a" defer></script>
+  <script src="js/cardforge-my-cards.js?v=20260425a" defer></script>
+  <script src="js/cardforge-forge-page.js?v=20260425a" defer></script>
+</body>
+</html>

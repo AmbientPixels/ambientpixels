@@ -1,0 +1,251 @@
+/* CardForge — /cardforge/forge.html (My Forge dashboard).
+   Page layout, panel grid, anon CTA, and the row/empty-state styles
+   brought forward from the editor's right-sidebar bundle so the page
+   doesn't have to load the entire cardforge-ui.css to render four panels. */
+
+.cf-forge {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 32px 32px 80px;
+
+  --mini-card-scale: 0.4;
+  --mini-card-width: 150px;
+  --mini-card-height: 210px;
+}
+
+.cf-forge__hero {
+  margin: 16px 0 32px;
+}
+.cf-forge__title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0 0 10px;
+}
+.cf-forge__sub {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--cf-ob-text-2, #a6aeb9);
+  max-width: 640px;
+  margin: 0;
+}
+
+/* ── Anonymous CTA ── */
+.cf-forge__anon {
+  margin-top: 24px;
+  padding: 36px 28px;
+  background: var(--cf-ob-bg-1, #0d1015);
+  border: 1px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  border-radius: 10px;
+  text-align: center;
+}
+.cf-forge__anon[hidden] { display: none; }
+.cf-forge__anon p {
+  margin: 0 0 18px;
+  font-size: 14px;
+  color: var(--cf-ob-text-2, #a6aeb9);
+}
+
+/* ── Panel grid ── */
+.cf-forge__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.cf-forge__grid[hidden] { display: none; }
+
+.cf-forge__panel {
+  background: var(--cf-ob-bg-1, #0d1015);
+  border: 1px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  border-radius: 10px;
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cf-forge__panel--wide {
+  grid-column: 1 / -1;
+}
+
+.cf-forge__panel-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--cf-ob-line-1, rgba(255,255,255,0.05));
+}
+.cf-forge__panel-head h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-2, #a6aeb9);
+  margin: 0;
+}
+.cf-forge__count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--cf-ob-text-mute, #6b7280);
+  padding: 2px 8px;
+  border: 1px solid var(--cf-ob-line-1, rgba(255,255,255,0.05));
+  border-radius: 999px;
+}
+.cf-forge__count:empty { display: none; }
+
+.cf-forge__panel-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.cf-forge__panel-scroll::-webkit-scrollbar { width: 6px; }
+.cf-forge__panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+}
+
+/* ── Hidden tab proxies — present so existing modules' ensureBound() finds
+      them; visually invisible but still clickable from JS. ── */
+.cf-forge .forge-sidebar-tab {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+.cf-forge .forge-tab-content {
+  display: block;
+}
+
+/* ── Deck row (saved + published side-by-side in the wide panel) ── */
+.cf-forge__deck-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.cf-forge__deck-col h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--cf-ob-text-mute, #6b7280);
+  margin: 0 0 12px;
+}
+
+/* ── Card list (rows) — brought forward from cardforge-ui.css#5054 so the
+      Forge page doesn't have to load the full editor stylesheet. Selectors
+      are scoped to .cf-forge so we don't collide with the editor sidebar. ── */
+.cf-forge .my-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cf-forge .cf-mpc-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  background: var(--cf-ob-bg-2, #11141a);
+}
+.cf-forge .cf-mpc-thumb {
+  flex: 0 0 auto;
+  width: 90px;
+  height: 126px;
+  position: relative;
+  overflow: hidden;
+}
+.cf-forge .cf-mpc-meta {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cf-forge .cf-mpc-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--cf-ob-text-1, #e7ebf1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-forge .cf-mpc-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--cf-ob-ember, #ff7a1a);
+  border: 1px solid var(--cf-ob-ember-33, rgba(255,122,26,0.33));
+  border-radius: 999px;
+  vertical-align: middle;
+}
+.cf-forge .cf-mpc-sub {
+  font-size: 11px;
+  color: var(--cf-ob-text-mute, #6b7280);
+  margin: 4px 0 12px;
+}
+.cf-forge .cf-mpc-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+.cf-forge .cf-mpc-actions .forge-action-btn { font-size: 11px; padding: 6px 10px; }
+.cf-forge .cf-mpc-unpub {
+  color: #ff8888;
+  border-color: rgba(220, 60, 60, 0.4);
+}
+.cf-forge .cf-mpc-unpub:hover {
+  background: rgba(220, 60, 60, 0.12);
+  color: #ffaaaa;
+}
+
+/* ── Empty state ── */
+.cf-forge .my-cards-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 16px;
+  text-align: center;
+  color: var(--cf-ob-text-mute, #6b7280);
+  border: 1px dashed var(--cf-ob-line-2, rgba(255,255,255,0.08));
+  border-radius: 8px;
+}
+.cf-forge .my-cards-empty i {
+  font-size: 22px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+.cf-forge .my-cards-empty p {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cf-ob-text-2, #a6aeb9);
+}
+.cf-forge .my-cards-empty small {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 880px) {
+  .cf-forge { padding: 24px 18px 60px; }
+  .cf-forge__grid { grid-template-columns: 1fr; gap: 14px; }
+  .cf-forge__deck-row { grid-template-columns: 1fr; gap: 14px; }
+  .cf-forge__panel { padding: 16px; }
+}
+
+@media (max-width: 520px) {
+  .cf-forge .cf-mpc-thumb { width: 70px; height: 98px; }
+  .cf-forge .cf-mpc-actions { flex-direction: column; align-items: stretch; }
+}

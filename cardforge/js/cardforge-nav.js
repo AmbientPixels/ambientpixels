@@ -30,6 +30,7 @@
   var LINKS = [
     { key: 'gallery', label: 'Gallery', href: '/cardforge/gallery.html' },
     { key: 'decks',   label: 'Decks',   href: '/cardforge/deck.html' },
+    { key: 'forge',   label: 'Forge',   href: '/cardforge/forge.html' },
     { key: 'editor',  label: 'Editor',  href: '/cardforge/editor.html', splashCta: 'nav-open-editor' }
   ];
 
