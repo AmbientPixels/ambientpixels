@@ -1,0 +1,508 @@
+/* ============================================================
+   BLINDSPOT REDESIGN — Phase 4a: Pre-Fight (Vein theme)
+   The legacy `.bs-overlay` modal is hijacked: still position:fixed
+   inset:0 (so showOverlay/hideOverlay continues to work), but laid
+   out as a full-page screen with topline / 3-col / arena rail / CTAs.
+   JS still writes into bs-prefight-{title,flavor,comparison,...}.
+   We style its output classes to match the design.
+   ============================================================ */
+
+/* ---------- OVERRIDE LEGACY .bs-overlay ----------
+   Keep position:fixed inset:0 (full viewport coverage) but unwind
+   the modal-centering and dim background so it reads as a page.
+   When `bs-overlay--hidden` is present, legacy `display:none !important`
+   continues to win. */
+.bs-overlay.blindspot-prefight {
+  display: block;
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 0;
+  padding: 0;
+  background: var(--blindspot-bg);
+  background-image: var(--blindspot-bg-pattern);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  overflow-y: auto;
+  font-family: var(--blindspot-font-body);
+  color: var(--blindspot-text);
+}
+
+/* Atmospheric arena bg behind everything */
+.blindspot-prefight__atmo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--blindspot-prefight-arena-bg, url('img/arena/arena-shadow-pit.webp'));
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.32) saturate(0.7);
+  opacity: 0.85;
+}
+.blindspot-prefight__atmo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0%, transparent 30%, var(--blindspot-bg) 80%),
+    linear-gradient(180deg, transparent, var(--blindspot-bg));
+}
+
+.blindspot-prefight__inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ---------- TOP LINE ---------- */
+.blindspot-prefight__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.blindspot-prefight__chapter {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  text-align: center;
+  flex: 1 1 auto;
+}
+.blindspot-prefight__chapter-dots {
+  color: var(--blindspot-accent);
+  letter-spacing: 0.05em;
+}
+.blindspot-prefight__pager {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.78rem;
+  color: var(--blindspot-text-dim);
+}
+.blindspot-prefight__pager-btn {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-button);
+  width: 32px;
+  height: 32px;
+  color: var(--blindspot-text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--blindspot-transition-fast),
+              border-color var(--blindspot-transition-fast);
+}
+.blindspot-prefight__pager-btn:hover {
+  color: var(--blindspot-accent);
+  border-color: var(--blindspot-accent-dim);
+}
+
+/* ---------- 3-COL LAYOUT ---------- */
+.blindspot-prefight__layout {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .blindspot-prefight__layout { grid-template-columns: 1fr; }
+}
+
+.blindspot-prefight__boss,
+.blindspot-prefight__you {
+  text-align: center;
+}
+
+/* Portrait + element badge */
+.blindspot-prefight__portrait {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+  background-position: center top;
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  box-shadow: var(--blindspot-shadow-card);
+  overflow: hidden;
+}
+.blindspot-prefight__portrait-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(13, 8, 7, 0.85));
+}
+.blindspot-prefight__el-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.3em 0.6em;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--blindspot-border-2);
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blindspot-text);
+  border-radius: var(--blindspot-radius-button);
+}
+
+.blindspot-prefight__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin: 1rem 0 0.2rem;
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
+}
+.blindspot-prefight__flavor {
+  color: var(--blindspot-text-dim);
+  font-size: 0.95rem;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Intel rows */
+.blindspot-prefight__intel {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: left;
+}
+.blindspot-intel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  font-size: 0.85rem;
+}
+.blindspot-intel-row__k {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-intel-row__v {
+  color: var(--blindspot-text);
+  text-align: right;
+}
+.blindspot-intel-row__v--good     { color: var(--blindspot-success); }
+.blindspot-intel-row__v--bad      { color: var(--blindspot-danger); }
+.blindspot-intel-row__v--accent   { color: var(--blindspot-accent); }
+.blindspot-intel-row__v--epic     { color: var(--blindspot-epic); }
+.blindspot-intel-row__v--gold     { color: var(--blindspot-accent-gold); }
+
+/* ---------- VS CENTER ---------- */
+.blindspot-prefight__vs {
+  text-align: center;
+  padding: 1.5rem 0 0;
+}
+.blindspot-prefight__vs-line {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-prefight__vs-glyph {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  font-style: italic;
+  font-size: clamp(3rem, 6vw, 4.5rem);
+  color: var(--blindspot-accent);
+  margin: 0.3rem 0;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 30px rgba(200, 48, 44, 0.45);
+}
+
+/* Stat comparison rows (static + JS-output) */
+.blindspot-cmp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.blindspot-cmp {
+  display: grid;
+  grid-template-columns: 1fr 50px 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+.blindspot-cmp__lbl {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-cmp__l,
+.blindspot-cmp__r {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.blindspot-cmp__l { justify-content: flex-end; }
+.blindspot-cmp__r { justify-content: flex-start; }
+.blindspot-cmp__num {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  min-width: 30px;
+}
+.blindspot-cmp__l .blindspot-cmp__num { color: var(--blindspot-accent); text-align: right; }
+.blindspot-cmp__r .blindspot-cmp__num { color: var(--blindspot-danger); }
+.blindspot-cmp__track {
+  flex: 1;
+  height: 6px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.blindspot-cmp__track--l { display: flex; justify-content: flex-end; }
+.blindspot-cmp__fill { height: 100%; }
+.blindspot-cmp__fill--you  { background: linear-gradient(90deg, transparent, var(--blindspot-accent)); }
+.blindspot-cmp__fill--them { background: linear-gradient(90deg, var(--blindspot-danger), transparent); }
+
+/* ---------- ARENAS ---------- */
+.blindspot-prefight__arenas { margin-top: 2rem; }
+.blindspot-prefight__arenas-label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent);
+  margin-bottom: 0.7rem;
+  display: inline-flex;
+  gap: 0.4em;
+  align-items: center;
+}
+.blindspot-arena-rail {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.3rem 0 0.5rem;
+  scrollbar-width: thin;
+}
+.blindspot-arena-pip {
+  flex-shrink: 0;
+  width: 110px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: center;
+  font: inherit;
+  color: inherit;
+}
+.blindspot-arena-pip__img {
+  width: 110px;
+  height: 70px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-tile);
+  filter: brightness(0.6);
+  transition: filter 200ms,
+              border-color 200ms,
+              box-shadow 200ms;
+}
+.blindspot-arena-pip:hover .blindspot-arena-pip__img,
+.blindspot-arena-pip:focus-visible .blindspot-arena-pip__img {
+  filter: none;
+}
+.blindspot-arena-pip.is-active .blindspot-arena-pip__img {
+  border-color: var(--blindspot-accent);
+  filter: none;
+  box-shadow: 0 0 24px -4px rgba(200, 48, 44, 0.55);
+}
+.blindspot-arena-pip__name {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-dim);
+}
+
+/* ---------- CTA ROW ---------- */
+.blindspot-prefight__ctas {
+  margin-top: 2rem;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.blindspot-prefight__retreat {
+  background: transparent;
+  border: 1px solid var(--blindspot-border-2);
+  color: var(--blindspot-text-dim);
+  font-family: var(--blindspot-font-display);
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.7em 1.4em;
+  border-radius: var(--blindspot-radius-button);
+  cursor: pointer;
+  transition: color var(--blindspot-transition-fast),
+              border-color var(--blindspot-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.blindspot-prefight__retreat:hover {
+  color: var(--blindspot-accent);
+  border-color: var(--blindspot-accent-dim);
+}
+
+/* ============================================================
+   JS-OUTPUT OVERRIDES — restyle legacy markup that bs-strategy.js
+   and bs-pvp.js inject into bs-prefight-comparison and the arena
+   selector. Scoped to .blindspot-prefight.
+   ============================================================ */
+
+/* JS overwrites #bs-prefight-comparison with header + 5 stat rows.
+   Make its output match the design's compare layout. */
+.blindspot-prefight #bs-prefight-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.blindspot-prefight .bs-prefight-comparison__header {
+  display: grid;
+  grid-template-columns: 1fr 50px 1fr;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  margin-bottom: 0.5rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.blindspot-prefight .bs-prefight-comparison__you   { text-align: right; color: var(--blindspot-accent); }
+.blindspot-prefight .bs-prefight-comparison__vs    {
+  text-align: center;
+  font-family: var(--blindspot-font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--blindspot-accent);
+  letter-spacing: 0.05em;
+}
+.blindspot-prefight .bs-prefight-comparison__boss  { text-align: left; color: var(--blindspot-danger); }
+
+.blindspot-prefight .bs-prefight-stat-row {
+  display: grid;
+  grid-template-columns: 30px 1fr 50px 1fr 30px;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.blindspot-prefight .bs-prefight-stat-row__pval {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--blindspot-accent);
+  text-align: right;
+}
+.blindspot-prefight .bs-prefight-stat-row__bval {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--blindspot-danger);
+  text-align: left;
+}
+.blindspot-prefight .bs-prefight-stat-row__bar {
+  height: 6px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.blindspot-prefight .bs-prefight-stat-row__fill {
+  height: 100%;
+}
+.blindspot-prefight .bs-prefight-stat-row__fill--player {
+  background: linear-gradient(90deg, transparent, var(--blindspot-accent));
+  margin-left: auto;
+}
+.blindspot-prefight .bs-prefight-stat-row__fill--boss {
+  background: linear-gradient(90deg, var(--blindspot-danger), transparent);
+}
+.blindspot-prefight .bs-prefight-stat-row__label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-prefight .bs-prefight-stat-row__label i {
+  margin-right: 0.3em;
+  color: var(--blindspot-text-dim);
+}
+
+/* JS overwrites #bs-arena-selector with a labeled rail. Restyle. */
+.blindspot-prefight #bs-arena-selector {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin-top: 2rem;
+}
+.blindspot-prefight .bs-arena-selector__label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent);
+  margin: 0 0 0.7rem;
+  display: inline-flex;
+  gap: 0.4em;
+  align-items: center;
+}
+
+/* Charm selector — keep functional but restyled */
+.blindspot-prefight #bs-charm-selector {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  padding: 0.85rem 1rem;
+  margin-top: 1rem;
+  color: var(--blindspot-text);
+}

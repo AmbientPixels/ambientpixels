@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="css/blindspot-tokens.css">
   <link rel="stylesheet" href="css/blindspot-buttons.css">
   <link rel="stylesheet" href="css/blindspot-lobby.css">
+  <link rel="stylesheet" href="css/blindspot-prefight.css">
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
@@ -831,16 +832,211 @@
 
 
 
-  <!-- Pre-fight overlay -->
-  <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden bs-prefight" role="dialog" aria-label="Pre-fight">
-    <div class="bs-boss-avatar" id="bs-prefight-avatar" aria-hidden="true" style="width:64px;height:64px;font-size:1.5rem;border-color:var(--bs-accent);color:var(--bs-accent);"></div>
-    <p class="bs-overlay__title" id="bs-prefight-title" style="margin-top:0.25rem;"></p>
-    <p class="bs-prefight__flavor" id="bs-prefight-flavor"></p>
-    <div id="bs-prefight-comparison" class="bs-prefight-comparison" aria-label="Stat comparison"></div>
-    <div id="bs-charm-selector" class="bs-charm-selector" style="display:none;" aria-label="Equip a charm"></div>
-    <div id="bs-arena-selector" class="bs-arena-selector" style="display:none;" aria-label="Choose arena"></div>
-    <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-prefight-go">Fight</button>
-    <button class="bs-prefight__retreat" id="bs-prefight-retreat"><i class="fas fa-chevron-left"></i> Retreat to Lobby</button>
+  <!-- Pre-fight screen (still wrapped in .bs-overlay so legacy
+       showOverlay/hideOverlay JS keeps working; visually it's a full
+       page via blindspot-prefight class). Mock data is Void Harbinger
+       vs Cyberpunk Runner; JS overwrites bs-prefight-{title,flavor,
+       avatar,comparison} and bs-arena-selector with live data when a
+       real fight is initiated. -->
+  <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden blindspot-prefight" role="dialog" aria-label="Pre-fight" style="--blindspot-prefight-arena-bg: url('img/arena/arena-shadow-pit.webp');">
+    <div class="blindspot-prefight__atmo" aria-hidden="true"></div>
+    <div class="blindspot-prefight__inner">
+
+      <!-- Top line -->
+      <div class="blindspot-prefight__topline">
+        <button class="blindspot-prefight__retreat" id="bs-prefight-retreat" type="button">
+          <i class="fas fa-chevron-left" aria-hidden="true"></i> Retreat to Lobby
+        </button>
+        <div class="blindspot-prefight__chapter">
+          Chapter 9 of 10 &middot; Difficulty
+          <span class="blindspot-prefight__chapter-dots" aria-label="Difficulty 5">&#9679;&#9679;&#9679;&#9679;&#9679;</span>
+        </div>
+        <div class="blindspot-prefight__pager">
+          <button class="blindspot-prefight__pager-btn" type="button" aria-label="Previous boss">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+          </button>
+          <span>09 / 10</span>
+          <button class="blindspot-prefight__pager-btn" type="button" aria-label="Next boss">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3-col layout -->
+      <div class="blindspot-prefight__layout">
+
+        <!-- BOSS column -->
+        <div class="blindspot-prefight__boss">
+          <div class="blindspot-prefight__portrait" style="background-image: url('img/bosses/Void-Harbinger-01.webp');">
+            <div class="blindspot-prefight__portrait-veil" aria-hidden="true"></div>
+            <span class="blindspot-prefight__el-badge" id="bs-prefight-avatar"><i class="fas fa-ghost" aria-hidden="true"></i> Shadow</span>
+          </div>
+          <h1 class="blindspot-prefight__name" id="bs-prefight-title">Void Harbinger</h1>
+          <p class="blindspot-prefight__flavor" id="bs-prefight-flavor">"He goes invisible every third round."</p>
+          <div class="blindspot-prefight__intel">
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Weakness</span>
+              <span class="blindspot-intel-row__v blindspot-intel-row__v--good">LCK attacks +25%</span>
+            </div>
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Resists</span>
+              <span class="blindspot-intel-row__v blindspot-intel-row__v--bad">COUNTER, ABILITY -25%</span>
+            </div>
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Vs Your Elem</span>
+              <span class="blindspot-intel-row__v">You are strong (+25%)</span>
+            </div>
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Signature</span>
+              <span class="blindspot-intel-row__v blindspot-intel-row__v--epic">&#9733; Phase Cloak &mdash; invisible every 3rd round</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- VS center -->
+        <div class="blindspot-prefight__vs">
+          <div class="blindspot-prefight__vs-line">You</div>
+          <div class="blindspot-prefight__vs-glyph">VS</div>
+          <div class="blindspot-prefight__vs-line">Void Harbinger</div>
+
+          <!-- Stat comparison: JS overwrites this container's innerHTML.
+               Static fallback shows when no fight is initiated. -->
+          <div id="bs-prefight-comparison" class="blindspot-cmp-list" aria-label="Stat comparison">
+            <div class="blindspot-cmp">
+              <div class="blindspot-cmp__l">
+                <span class="blindspot-cmp__num">72</span>
+                <div class="blindspot-cmp__track blindspot-cmp__track--l"><div class="blindspot-cmp__fill blindspot-cmp__fill--you" style="width:60%"></div></div>
+              </div>
+              <div class="blindspot-cmp__lbl">STR</div>
+              <div class="blindspot-cmp__r">
+                <div class="blindspot-cmp__track"><div class="blindspot-cmp__fill blindspot-cmp__fill--them" style="width:93%"></div></div>
+                <span class="blindspot-cmp__num">112</span>
+              </div>
+            </div>
+            <div class="blindspot-cmp">
+              <div class="blindspot-cmp__l">
+                <span class="blindspot-cmp__num">65</span>
+                <div class="blindspot-cmp__track blindspot-cmp__track--l"><div class="blindspot-cmp__fill blindspot-cmp__fill--you" style="width:48%"></div></div>
+              </div>
+              <div class="blindspot-cmp__lbl">AGI</div>
+              <div class="blindspot-cmp__r">
+                <div class="blindspot-cmp__track"><div class="blindspot-cmp__fill blindspot-cmp__fill--them" style="width:100%"></div></div>
+                <span class="blindspot-cmp__num">136</span>
+              </div>
+            </div>
+            <div class="blindspot-cmp">
+              <div class="blindspot-cmp__l">
+                <span class="blindspot-cmp__num">50</span>
+                <div class="blindspot-cmp__track blindspot-cmp__track--l"><div class="blindspot-cmp__fill blindspot-cmp__fill--you" style="width:39%"></div></div>
+              </div>
+              <div class="blindspot-cmp__lbl">INT</div>
+              <div class="blindspot-cmp__r">
+                <div class="blindspot-cmp__track"><div class="blindspot-cmp__fill blindspot-cmp__fill--them" style="width:100%"></div></div>
+                <span class="blindspot-cmp__num">128</span>
+              </div>
+            </div>
+            <div class="blindspot-cmp">
+              <div class="blindspot-cmp__l">
+                <span class="blindspot-cmp__num">100</span>
+                <div class="blindspot-cmp__track blindspot-cmp__track--l"><div class="blindspot-cmp__fill blindspot-cmp__fill--you" style="width:100%"></div></div>
+              </div>
+              <div class="blindspot-cmp__lbl">END</div>
+              <div class="blindspot-cmp__r">
+                <div class="blindspot-cmp__track"><div class="blindspot-cmp__fill blindspot-cmp__fill--them" style="width:96%"></div></div>
+                <span class="blindspot-cmp__num">96</span>
+              </div>
+            </div>
+            <div class="blindspot-cmp">
+              <div class="blindspot-cmp__l">
+                <span class="blindspot-cmp__num">60</span>
+                <div class="blindspot-cmp__track blindspot-cmp__track--l"><div class="blindspot-cmp__fill blindspot-cmp__fill--you" style="width:68%"></div></div>
+              </div>
+              <div class="blindspot-cmp__lbl">LCK</div>
+              <div class="blindspot-cmp__r">
+                <div class="blindspot-cmp__track"><div class="blindspot-cmp__fill blindspot-cmp__fill--them" style="width:100%"></div></div>
+                <span class="blindspot-cmp__num">88</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- YOU column -->
+        <div class="blindspot-prefight__you">
+          <div class="blindspot-prefight__portrait" style="background-image: url('img/fighters/knight.webp');">
+            <div class="blindspot-prefight__portrait-veil" aria-hidden="true"></div>
+            <span class="blindspot-prefight__el-badge"><i class="fas fa-mountain" aria-hidden="true"></i> Earth</span>
+          </div>
+          <h1 class="blindspot-prefight__name">Cyberpunk Runner</h1>
+          <p class="blindspot-prefight__flavor"><em>Guardian &middot; Shadow Walker</em></p>
+          <div class="blindspot-prefight__intel">
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Power</span>
+              <span class="blindspot-intel-row__v">386</span>
+            </div>
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Streak</span>
+              <span class="blindspot-intel-row__v blindspot-intel-row__v--accent">4 wins &middot; +10% spark bonus at 5</span>
+            </div>
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Deck</span>
+              <span class="blindspot-intel-row__v">6 / 8 cards</span>
+            </div>
+            <div class="blindspot-intel-row">
+              <span class="blindspot-intel-row__k">Signature</span>
+              <span class="blindspot-intel-row__v blindspot-intel-row__v--gold">&#9733; Tank &mdash; Outlast Everything</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arena rail. JS may overwrite this container with its own
+           rail; styles in blindspot-prefight.css cover both. -->
+      <div id="bs-arena-selector" class="blindspot-prefight__arenas" aria-label="Choose arena">
+        <p class="blindspot-prefight__arenas-label"><i class="fas fa-map-location-dot" aria-hidden="true"></i> Choose Arena</p>
+        <div class="blindspot-arena-rail">
+          <button class="blindspot-arena-pip is-active" type="button">
+            <span class="blindspot-arena-pip__img" style="background-image:url('img/arena/arena-colosseum.webp');"></span>
+            <span class="blindspot-arena-pip__name">Colosseum</span>
+          </button>
+          <button class="blindspot-arena-pip" type="button">
+            <span class="blindspot-arena-pip__img" style="background-image:url('img/arena/arena-throne.webp');"></span>
+            <span class="blindspot-arena-pip__name">Throne</span>
+          </button>
+          <button class="blindspot-arena-pip" type="button">
+            <span class="blindspot-arena-pip__img" style="background-image:url('img/arena/arena-forge-grounds.webp');"></span>
+            <span class="blindspot-arena-pip__name">Forge Grounds</span>
+          </button>
+          <button class="blindspot-arena-pip" type="button">
+            <span class="blindspot-arena-pip__img" style="background-image:url('img/arena/arena-shadow-pit.webp');"></span>
+            <span class="blindspot-arena-pip__name">Shadow Pit</span>
+          </button>
+          <button class="blindspot-arena-pip" type="button">
+            <span class="blindspot-arena-pip__img" style="background-image:url('img/arena/arena-void-rift.webp');"></span>
+            <span class="blindspot-arena-pip__name">Void Rift</span>
+          </button>
+          <button class="blindspot-arena-pip" type="button">
+            <span class="blindspot-arena-pip__img" style="background-image:url('img/arena/arena-crystal-sanctum.webp');"></span>
+            <span class="blindspot-arena-pip__name">Crystal Sanctum</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Charm selector — JS-driven, visible only when populated -->
+      <div id="bs-charm-selector" class="bs-charm-selector" style="display:none;" aria-label="Equip a charm"></div>
+
+      <!-- CTA row -->
+      <div class="blindspot-prefight__ctas">
+        <button class="blindspot-btn blindspot-btn--ghost blindspot-btn--lg" type="button">
+          <i class="fas fa-book-open" aria-hidden="true"></i> Adventure Mode
+        </button>
+        <button class="blindspot-btn blindspot-btn--ghost blindspot-btn--lg" type="button">
+          <i class="fas fa-eye" aria-hidden="true"></i> Scout (-10% reward)
+        </button>
+        <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-prefight-go" type="button">
+          <i class="fas fa-bolt" aria-hidden="true"></i> Begin Fight
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- CYOA Adventure overlay (pre-boss narrative) -->
