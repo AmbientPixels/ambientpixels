@@ -55,9 +55,11 @@ module.exports = async function (context, req) {
   const viewUrl = `${SITE_ORIGIN}/cardforge/gallery.html?card=${encodeURIComponent(cardId)}`;
 
   let card = null;
+  // Hoisted so the og:image HEAD probe below can reuse the same client.
+  let containerClient = null;
   try {
     const blobServiceClient = await createBlobServiceClient();
-    const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+    containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
     const publishedBlobClient = containerClient.getBlockBlobClient('published-cards.json');
 
     const exists = await publishedBlobClient.exists();
@@ -82,18 +84,34 @@ module.exports = async function (context, req) {
   const cardType = escapeHtml((card && card.type) || '');
   const subtitle = [cardClass, cardType].filter(Boolean).join(' · ');
 
-  // og:image — use card avatar if it's an HTTP URL, otherwise fallback to
-  // the CardForge brand OG (cards with data-URI avatars can't serve their
-  // portrait directly; the per-card capture pipeline is the long-term fix
-  // for those — for now they at least get CardForge branding instead of
-  // the generic AmbientPixels logo).
-  let ogImage = `${SITE_ORIGIN}/cardforge/images/cardforge-og.png`;
-  if (card && card.avatar && typeof card.avatar === 'string') {
-    if (card.avatar.startsWith('http://') || card.avatar.startsWith('https://')) {
-      ogImage = card.avatar;
-    } else if (card.avatar.startsWith('data:image/')) {
-      // data URIs don't work for og:image — keep fallback
+  // og:image precedence:
+  //   1. Per-card composition PNG at og-cards/{cardId}.png (rendered at
+  //      publish-time via cardforge-og-composition.js, captured by
+  //      modern-screenshot, uploaded by cardforgesaveogimage). HEAD-probe
+  //      the blob so we don't 404 social crawlers.
+  //   2. Static CardForge brand OG (cardforge/images/cardforge-og.png).
+  //   3. Card's HTTP avatar URL — kept as a soft fallback for very old
+  //      cards predating the composition pipeline. Skipped for data URIs
+  //      (they can't be served as og:image URLs).
+  const STATIC_BRAND_OG = `${SITE_ORIGIN}/cardforge/images/cardforge-og.png`;
+  const PER_CARD_BLOB_PATH = `og-cards/${cardId}.png`;
+  let ogImage = STATIC_BRAND_OG;
+  try {
+    if (containerClient) {
+      const ogBlobClient = containerClient.getBlockBlobClient(PER_CARD_BLOB_PATH);
+      const ogExists = await ogBlobClient.exists();
+      if (ogExists) {
+        const cacheBust = (card && (card.updatedAt || card.publishedAt)) || cardId;
+        ogImage = `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${CONTAINER_NAME}/${PER_CARD_BLOB_PATH}?v=${encodeURIComponent(cacheBust)}`;
+      } else if (card && card.avatar && typeof card.avatar === 'string' &&
+                 (card.avatar.startsWith('http://') || card.avatar.startsWith('https://'))) {
+        // Legacy fallback for old cards with HTTP avatars and no per-card OG yet
+        ogImage = card.avatar;
+      }
     }
+  } catch (err) {
+    context.log.warn(`cardshare: og blob probe failed for ${cardId}: ${err.message}`);
+    // Fall through to static brand OG
   }
 
   const html = `<!DOCTYPE html>
@@ -107,6 +125,8 @@ module.exports = async function (context, req) {
   <meta property="og:title" content="${title}${subtitle ? ' — ' + subtitle : ''}">
   <meta property="og:description" content="${description}">
   <meta property="og:image" content="${escapeHtml(ogImage)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:url" content="${escapeHtml(viewUrl)}">
   <meta property="og:site_name" content="CardForge by Ambient Pixels">
 

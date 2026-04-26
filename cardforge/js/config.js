@@ -29,7 +29,8 @@ window._config = {
     billingPortal: 'cardforge-billing-portal',
     blindspotProfile: 'blindspotprofile',
     heroConfig: 'cardforgeheroconfig',
-    adminStats: 'cardforgeadminstats'
+    adminStats: 'cardforgeadminstats',
+    saveOgImage: 'cardforgesaveogimage'
   },
   
   // Application Insights - Disabled in production until 400 errors are resolved

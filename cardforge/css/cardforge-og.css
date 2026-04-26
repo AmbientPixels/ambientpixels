@@ -1,0 +1,191 @@
+/* CardForge OG composition — 1200x630 social-share canvas.
+   Scoped under .cf-og-canvas so it never bleeds onto editor or gallery.
+   Used by the publish-time capture path: build composition off-screen,
+   capture via modern-screenshot, upload PNG to og-cards/{cardId}.png. */
+
+.cf-og-canvas {
+  width: 1200px;
+  height: 630px;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--cf-ob-text-1, #e7ebf1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  background:
+    radial-gradient(1100px 700px at 100% 0%, rgba(255, 122, 26, 0.16) 0%, transparent 55%),
+    linear-gradient(135deg, var(--cf-ob-bg-0, #07090c) 0%, var(--cf-ob-bg-1, #0c1117) 65%, #1a1218 100%);
+}
+
+/* Decorative ember dots in the negative space */
+.cf-og-canvas::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 78% 22%, rgba(255, 122, 26, 0.34) 0, transparent 2px),
+    radial-gradient(circle at 92% 64%, rgba(255, 122, 26, 0.34) 0, transparent 1.5px),
+    radial-gradient(circle at 64% 88%, rgba(255, 122, 26, 0.34) 0, transparent 1.5px),
+    radial-gradient(circle at 86% 11%, rgba(255, 122, 26, 0.34) 0, transparent 1px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hairline ember separator between left and right zones */
+.cf-og-canvas::after {
+  content: '';
+  position: absolute;
+  top: 60px;
+  bottom: 60px;
+  right: 720px;
+  width: 1px;
+  background: var(--cf-ob-ember, #ff7a1a);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.cf-og-canvas__left {
+  width: 480px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 32px 20px 32px 60px;
+}
+
+/* Card wrapper — scales the captured renderedFront markup to fit
+   ~400x560 inside the 480px left zone. The renderedFront is injected
+   verbatim, so it carries its own .card-front classes (palette,
+   container, effects, glow, name shadow). cardforge-card.css resolves
+   them. */
+.cf-og-canvas__card {
+  width: 400px;
+  height: 560px;
+  position: relative;
+  filter: drop-shadow(0 16px 40px rgba(0, 0, 0, 0.55));
+}
+
+/* Make the injected card-front fill the wrapper so any size baked in
+   the renderedFront snapshot scales to our 400x560 slot. */
+.cf-og-canvas__card > .card-front,
+.cf-og-canvas__card > .card-preview-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.cf-og-canvas__right {
+  flex: 1;
+  padding: 60px 60px 60px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.cf-og-canvas__eyebrow {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--cf-ob-ember, #ff7a1a);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0 0 12px 0;
+}
+
+.cf-og-canvas__wordmark {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 800;
+  font-size: 44px;
+  color: var(--cf-ob-text-1, #e7ebf1);
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.cf-og-canvas__wordmark .ember-text {
+  color: var(--cf-ob-ember, #ff7a1a);
+  text-shadow: 0 0 24px rgba(255, 122, 26, 0.45);
+}
+
+.cf-og-canvas__name {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 700;
+  font-size: 52px;
+  color: var(--cf-ob-text-1, #e7ebf1);
+  margin: 0 0 14px 0;
+  line-height: 1.05;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.cf-og-canvas__author {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  color: var(--cf-ob-text-mute, #6b7381);
+  margin: 0 0 22px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 480px;
+}
+
+.cf-og-canvas__stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cf-og-canvas__stat {
+  background: rgba(255, 122, 26, 0.12);
+  border: 1px solid rgba(255, 122, 26, 0.32);
+  color: var(--cf-ob-text-1, #e7ebf1);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.cf-og-canvas__stat .cf-og-canvas__stat-name {
+  color: var(--cf-ob-ember, #ff7a1a);
+  margin-right: 8px;
+}
+
+.cf-og-canvas__tagline {
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--cf-ob-text-1, #e7ebf1);
+  opacity: 0.78;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cf-og-canvas__url {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: var(--cf-ob-ember, #ff7a1a);
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 12px rgba(255, 122, 26, 0.4);
+}
+
+/* Off-screen mounting wrapper used by the capture path. The composition
+   needs to be in the DOM (not just detached) for fonts/images to render
+   correctly. Position it far off-screen, never visible to the user. */
+.cf-og-offscreen {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  pointer-events: none;
+  z-index: -1;
+}

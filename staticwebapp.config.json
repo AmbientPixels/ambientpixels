@@ -317,6 +317,13 @@
    ]
   },
   {
+   "route": "/api/cardforgesaveogimage",
+   "methods": ["POST", "OPTIONS"],
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
    "route": "/api/geminiproxy",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy",
    "allowedRoles": [

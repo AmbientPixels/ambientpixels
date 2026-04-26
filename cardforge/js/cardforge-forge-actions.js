@@ -652,17 +652,129 @@ class CardForgeActions {
     this.refreshMyCardsList();
 
     // Watch for publish success modal to appear, then set Published state
+    // and fire-and-forget the OG image capture.
+    const self = this;
     const observer = new MutationObserver(function(mutations) {
       const okBtn = document.getElementById('publish-success-ok-btn');
       if (okBtn) {
         observer.disconnect();
         CardForgeActions.setPublishNavState('published');
         if (window.CardForgePublished) window.CardForgePublished.notifyChanged({ kind: 'card', action: 'publish' });
+        // Fire-and-forget OG capture. Failures are logged inside the
+        // method and never thrown — publish is already complete.
+        try {
+          const cardData = self._collectCardDataForOg();
+          self._captureAndUploadOgImage(cardId, cardData);
+        } catch (err) {
+          console.warn('[CardForge OG] failed to kick off capture:', err);
+        }
       }
     });
     observer.observe(document.body, { childList: true, subtree: true });
     // Auto-disconnect after 30s to prevent leaks
     setTimeout(function() { observer.disconnect(); }, 30000);
+  }
+
+  /**
+   * Snapshot just-enough card data for the OG composition. The
+   * renderedFront/frontClasses pair is the visual-truth source the
+   * lightbox already uses — same pattern as line ~927 in this file
+   * where save flow grabs them. Stats + name come from the live DOM.
+   */
+  _collectCardDataForOg() {
+    const frontEl = document.querySelector('.card-preview-zone .card-front');
+    const nameEl = document.getElementById('card-name');
+    let stats = [];
+    try {
+      if (typeof window.collectStatsData === 'function') {
+        const s = window.collectStatsData();
+        if (Array.isArray(s)) stats = s;
+      }
+    } catch (_) {}
+    return {
+      name: nameEl ? (nameEl.value || '').trim() : '',
+      stats,
+      renderedFront: frontEl ? frontEl.innerHTML : null,
+      frontClasses: frontEl ? frontEl.className : null
+    };
+  }
+
+  /**
+   * Build the OG composition off-screen, capture as PNG, POST to the
+   * save endpoint. Failures are logged (and tracked via product
+   * analytics if available) but never thrown — capture is best-effort
+   * and must never block or fail the publish flow.
+   */
+  async _captureAndUploadOgImage(cardId, cardData) {
+    if (!window.buildOgComposition) {
+      console.warn('[CardForge OG] buildOgComposition not loaded; skipping capture');
+      return;
+    }
+    if (!window.modernScreenshot || !window.modernScreenshot.domToBlob) {
+      console.warn('[CardForge OG] modern-screenshot not loaded; skipping capture');
+      return;
+    }
+    if (!cardData || !cardData.renderedFront) {
+      console.warn('[CardForge OG] no renderedFront available; skipping capture');
+      return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'cf-og-offscreen';
+    let composition = null;
+    try {
+      composition = window.buildOgComposition(cardData);
+      wrapper.appendChild(composition);
+      document.body.appendChild(wrapper);
+
+      // Wait two animation frames so glow/filter effects settle, then
+      // wait for any nested <img> to decode. modern-screenshot will
+      // otherwise capture mid-load images as blank.
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const imgs = composition.querySelectorAll('img');
+      await Promise.all(Array.from(imgs).map(i => i.decode().catch(() => {})));
+
+      const blob = await window.modernScreenshot.domToBlob(composition, {
+        width: 1200,
+        height: 630
+      });
+
+      const base = (window.buildApiPath && typeof window.buildApiPath === 'function')
+        ? window.buildApiPath('saveOgImage')
+        : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgesaveogimage';
+      const url = base + '?cardId=' + encodeURIComponent(cardId);
+
+      const headers = {};
+      try {
+        if (typeof window._cfGetAuthHeaders === 'function') {
+          Object.assign(headers, await window._cfGetAuthHeaders());
+        }
+      } catch (_) {}
+      headers['Content-Type'] = 'image/png';
+
+      const res = await fetch(url, {
+        method: 'POST',
+        credentials: 'omit',
+        headers,
+        body: blob
+      });
+
+      if (!res.ok) {
+        console.warn(`[CardForge OG] save failed: HTTP ${res.status}`);
+        if (window.ProductAnalytics && typeof window.ProductAnalytics.track === 'function') {
+          try { window.ProductAnalytics.track('og_capture_failed', { cardId, reason: 'http_' + res.status }); } catch (_) {}
+        }
+        return;
+      }
+      console.log(`[CardForge OG] captured + uploaded for cardId=${cardId}`);
+    } catch (err) {
+      console.warn('[CardForge OG] capture failed:', err);
+      if (window.ProductAnalytics && typeof window.ProductAnalytics.track === 'function') {
+        try { window.ProductAnalytics.track('og_capture_failed', { cardId, reason: (err && err.message) || 'unknown' }); } catch (_) {}
+      }
+    } finally {
+      if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+    }
   }
 
   // ===================
