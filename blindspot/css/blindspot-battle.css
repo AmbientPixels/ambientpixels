@@ -636,3 +636,257 @@
   border-radius: 999px;
   font-weight: 700;
 }
+
+/* ============================================================
+   SCOPE-RESTYLE — legacy arena-* / bs-move-card markup
+   `bs-arena-battle-ui.js` writes into the legacy arena-* DOM. Rather
+   than replacing it (which broke gameplay), we recolor the legacy
+   styles in place within #bs-screen-battle.blindspot-battle scope.
+   Selectors are at least 0,1,2,0 to beat `.bs-page .arena-*` (0,0,2,0).
+   ============================================================ */
+
+/* HP bar — recolor from amber to red gradient */
+#bs-screen-battle.blindspot-battle .arena-hp-bar__track {
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-pill);
+}
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill {
+  border-radius: inherit;
+  transition: width 0.4s ease;
+}
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--player {
+  background: linear-gradient(90deg, var(--blindspot-accent-dim), var(--blindspot-accent));
+}
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--opponent {
+  background: linear-gradient(90deg, var(--blindspot-danger), #ff8a6a);
+}
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--low {
+  background: linear-gradient(90deg, #8e2220, var(--blindspot-danger));
+}
+#bs-screen-battle.blindspot-battle .arena-hp-bar__text,
+#bs-screen-battle.blindspot-battle .arena-hp-text {
+  font-family: var(--blindspot-font-numeric);
+  color: var(--blindspot-text);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stamina bar — recolor */
+#bs-screen-battle.blindspot-battle .arena-stamina-bar {
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-pill);
+}
+#bs-screen-battle.blindspot-battle .arena-stamina-bar__fill {
+  background: linear-gradient(90deg, var(--blindspot-accent-gold-dim), var(--blindspot-accent-gold));
+  border-radius: inherit;
+}
+#bs-screen-battle.blindspot-battle .arena-stamina-bar--exhausted .arena-stamina-bar__fill {
+  background: linear-gradient(90deg, #6e3a1a, var(--blindspot-accent-dim));
+}
+#bs-screen-battle.blindspot-battle .arena-stamina-bar__text {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text);
+}
+
+/* Hype bar — recolor to epic purple */
+#bs-screen-battle.blindspot-battle .arena-hype-bar {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-epic);
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__track {
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-pill);
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__fill {
+  background: linear-gradient(90deg, var(--blindspot-epic), #d8a9ff);
+  border-radius: inherit;
+}
+
+/* Stance buttons — red active state */
+#bs-screen-battle.blindspot-battle .arena-stance-btn {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  color: var(--blindspot-text-muted);
+}
+#bs-screen-battle.blindspot-battle .arena-stance-btn:hover {
+  border-color: var(--blindspot-accent-dim);
+  color: var(--blindspot-text);
+}
+#bs-screen-battle.blindspot-battle .arena-stance-btn--active {
+  border-color: var(--blindspot-accent);
+  color: var(--blindspot-accent);
+  background: rgba(200, 48, 44, 0.1);
+}
+#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="aggressive"].arena-stance-btn--active {
+  border-color: var(--blindspot-accent);
+  color: var(--blindspot-accent);
+}
+#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="defensive"].arena-stance-btn--active {
+  border-color: var(--blindspot-info);
+  color: var(--blindspot-info);
+  background: rgba(102, 136, 170, 0.1);
+}
+
+/* Move cards (legacy bs-move-card) — Vein restyle */
+#bs-screen-battle.blindspot-battle .arena-move-btn,
+#bs-screen-battle.blindspot-battle .bs-move-card {
+  background: linear-gradient(180deg, var(--blindspot-surface), var(--blindspot-bg-2));
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  color: var(--blindspot-text);
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 200ms,
+              box-shadow 200ms;
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn:hover,
+#bs-screen-battle.blindspot-battle .bs-move-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--blindspot-accent);
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8),
+              0 0 30px -8px rgba(200, 48, 44, 0.4);
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__type-label {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-accent);
+  letter-spacing: 0.18em;
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__energy {
+  background: #000;
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: 2px;
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__energy-num {
+  font-family: var(--blindspot-font-numeric);
+  color: var(--blindspot-text);
+  font-weight: 600;
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__energy-label {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-muted);
+  letter-spacing: 0.16em;
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__tag {
+  font-family: var(--blindspot-font-mono);
+  background: var(--blindspot-surface-2);
+  border: 1px solid var(--blindspot-border-2);
+  color: var(--blindspot-text-muted);
+  border-radius: 999px;
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__tag--active {
+  background: var(--blindspot-accent);
+  color: #FFF6E8;
+  border-color: var(--blindspot-accent);
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__desc {
+  font-family: var(--blindspot-font-body);
+  font-style: italic;
+  color: var(--blindspot-text-dim);
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__footer {
+  border-top: 1px solid var(--blindspot-border);
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-muted);
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__badge {
+  color: var(--blindspot-text-muted);
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__dot {
+  background: var(--blindspot-border-2);
+}
+#bs-screen-battle.blindspot-battle .bs-move-card__dot--active {
+  background: var(--blindspot-accent);
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-epic);
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina,
+#bs-screen-battle.blindspot-battle .arena-move-btn--exhausted {
+  opacity: 0.45;
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost {
+  color: var(--blindspot-danger);
+}
+
+/* Battle header (round + forfeit bar) */
+#bs-screen-battle.blindspot-battle .arena-battle__header {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  backdrop-filter: blur(8px);
+}
+#bs-screen-battle.blindspot-battle .arena-battle__round {
+  font-family: var(--blindspot-font-display);
+  color: var(--blindspot-accent);
+  font-weight: 600;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__vs-text {
+  font-family: var(--blindspot-font-display);
+  font-style: italic;
+  color: var(--blindspot-accent);
+  text-shadow: 0 0 24px rgba(200, 48, 44, 0.4);
+}
+
+/* Combatant frame and nameplate */
+#bs-screen-battle.blindspot-battle .arena-combatant {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  backdrop-filter: blur(6px);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--player {
+  border-left: 2px solid var(--blindspot-accent);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent {
+  border-right: 2px solid var(--blindspot-danger);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  color: var(--blindspot-text);
+}
+#bs-screen-battle.blindspot-battle .arena-element-badge {
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-dim);
+}
+
+/* Boss intent */
+#bs-screen-battle.blindspot-battle .arena-boss-intent {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border-2);
+  border-left: 3px solid var(--blindspot-epic);
+  border-radius: var(--blindspot-radius-button);
+  color: var(--blindspot-text-dim);
+  font-style: italic;
+}
+
+/* Battle log */
+#bs-screen-battle.blindspot-battle .arena-battle__log {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  backdrop-filter: blur(8px);
+  font-family: var(--blindspot-font-body);
+}
+#bs-screen-battle.blindspot-battle .arena-log-entry {
+  color: var(--blindspot-text-dim);
+}

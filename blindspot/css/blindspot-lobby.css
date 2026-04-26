@@ -556,6 +556,123 @@ body.bs-page {
   font-size: 0.85rem;
 }
 
+/* ============================================================
+   SCOPE-RESTYLE — legacy bs-rendered-card / bs-rc-* markup
+   bs-card-renderer.js writes the player's card into #bs-player-card.
+   Recolor its parts within .blindspot-lobby scope to match the Vein
+   palette. Selectors at 0,0,2,0+ to beat legacy `.bs-rc-*` rules.
+   ============================================================ */
+.blindspot-lobby .bs-rendered-card {
+  background: linear-gradient(180deg, var(--blindspot-surface), var(--blindspot-bg-2));
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  box-shadow: var(--blindspot-shadow-card);
+  color: var(--blindspot-text);
+}
+.blindspot-lobby .bs-rc__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
+}
+.blindspot-lobby .bs-rc__class {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-dim);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+.blindspot-lobby .bs-rc__title-badge {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--blindspot-accent-dim);
+  color: var(--blindspot-accent);
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.blindspot-lobby .bs-rc__power {
+  color: var(--blindspot-accent);
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.blindspot-lobby .bs-rc__element {
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.blindspot-lobby .bs-rc-stat__bar {
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+}
+.blindspot-lobby .bs-rc-stat__fill {
+  border-radius: inherit;
+}
+.blindspot-lobby .bs-rc-stat__label {
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+.blindspot-lobby .bs-rc-stat__val {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  color: var(--blindspot-text);
+  font-weight: 600;
+}
+
+/* Forge progress meter — recolor */
+.blindspot-lobby #bs-forge-progress {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+}
+.blindspot-lobby .bs-forge-progress__label,
+.blindspot-lobby #bs-forge-label {
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.18em;
+  color: var(--blindspot-accent-gold);
+}
+.blindspot-lobby .bs-forge-progress__hint,
+.blindspot-lobby #bs-forge-hint {
+  font-family: var(--blindspot-font-body);
+  color: var(--blindspot-text-dim);
+}
+.blindspot-lobby .bs-forge-progress__bar {
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+}
+.blindspot-lobby .bs-forge-progress__bar-fill,
+.blindspot-lobby #bs-forge-fill {
+  background: linear-gradient(90deg, var(--blindspot-accent-gold-dim), var(--blindspot-accent-gold));
+}
+
+/* Card switcher arrows */
+.blindspot-lobby .bs-card-switcher {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-pill);
+  color: var(--blindspot-text-dim);
+}
+.blindspot-lobby .bs-card-switcher__btn {
+  background: transparent;
+  border: 0;
+  color: var(--blindspot-text-dim);
+  cursor: pointer;
+  transition: color var(--blindspot-transition-fast);
+}
+.blindspot-lobby .bs-card-switcher__btn:hover {
+  color: var(--blindspot-accent);
+}
+.blindspot-lobby .bs-card-switcher__count {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text);
+}
+
 /* ---------- LOOT ZONE ---------- */
 .blindspot-lobby #bs-loot-zone {
   background: var(--blindspot-surface);
