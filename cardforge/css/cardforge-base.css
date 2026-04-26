@@ -2171,6 +2171,11 @@ body[data-theme="dark"] {
 body {
   background: var(--cf-ob-bg-0);
   color: var(--cf-ob-text-1);
+  /* Default font for every CardForge page that loads cardforge-base.css.
+     Without this, any element that doesn't declare its own font-family
+     inherits the browser default and renders in Times New Roman. Bit us
+     twice (deck.html nav, forge subhead) before this defensive default. */
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 body::before {
