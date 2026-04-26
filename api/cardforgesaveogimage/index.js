@@ -14,7 +14,7 @@ const { BlobServiceClient } = require('@azure/storage-blob');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
-const MAX_BYTES = 500 * 1024; // 500KB hard cap
+const MAX_BYTES = 2 * 1024 * 1024; // 2MB hard cap (1200x630 PNG with full-bleed art runs ~600-900KB)
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const CARD_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
@@ -81,18 +81,36 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const body = req.body;
+  // Azure Functions binary dataType usually delivers req.body as a Buffer,
+  // but in some configs the body arrives as a base64-encoded string instead.
+  // Normalise to Buffer so the rest of the validation works either way.
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = Buffer.from(body, 'base64'); }
+    catch (decErr) {
+      context.log.warn(`[saveogimage] base64 decode failed: ${decErr.message}`);
+    }
+  }
   if (!Buffer.isBuffer(body) || body.length === 0) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: JSON.stringify({ error: 'empty_body' }) };
+    const bodyType = body === null ? 'null' : (Array.isArray(body) ? 'array' : typeof body);
+    const bodyLen = body && (body.length != null ? body.length : (body.byteLength != null ? body.byteLength : '?'));
+    context.log.warn(`[saveogimage] empty_body: type=${bodyType} len=${bodyLen} cardId=${cardId}`);
+    context.res = {
+      status: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'empty_body', received_type: bodyType, received_len: bodyLen })
+    };
     return;
   }
 
   if (body.length > MAX_BYTES) {
-    context.res = { status: 413, headers: CORS_HEADERS, body: JSON.stringify({ error: 'too_large', maxBytes: MAX_BYTES }) };
+    context.log.warn(`[saveogimage] too_large: ${body.length} > ${MAX_BYTES} bytes cardId=${cardId}`);
+    context.res = { status: 413, headers: CORS_HEADERS, body: JSON.stringify({ error: 'too_large', maxBytes: MAX_BYTES, received: body.length }) };
     return;
   }
 
   if (body.length < 8 || !body.subarray(0, 8).equals(PNG_MAGIC)) {
+    context.log.warn(`[saveogimage] not_a_png: first8=${body.subarray(0, 8).toString('hex')} cardId=${cardId}`);
     context.res = { status: 415, headers: CORS_HEADERS, body: JSON.stringify({ error: 'not_a_png' }) };
     return;
   }
