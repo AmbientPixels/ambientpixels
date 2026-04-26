@@ -672,15 +672,17 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Stamina bar — match HP geometry (12px tall, pill radius, overflow
-   hidden) so HP and stamina read as the same component, just different
-   colors. Legacy is 5px / 2px radius which made them look unrelated. */
+/* Stamina bar — render as 6 pips per the design (one per stamina
+   point). The legacy markup is a single continuous bar, so we fake
+   the pip look with vertical dividers via a ::after overlay.
+   Assumes default stamMax of 6; non-default cards will look slightly
+   off but the visual intent reads correctly. */
 #bs-screen-battle.blindspot-battle .arena-stamina-bar {
   width: 100%;
-  height: 12px;
+  height: 10px;
   background: var(--blindspot-bg-2);
   border: 1px solid var(--blindspot-border);
-  border-radius: var(--blindspot-radius-pill);
+  border-radius: 2px;
   overflow: hidden;
   margin: 0;
   padding: 0;
@@ -688,25 +690,38 @@
 }
 #bs-screen-battle.blindspot-battle .arena-stamina-bar__fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--blindspot-accent-gold-dim), var(--blindspot-accent-gold));
-  border-radius: inherit;
-  box-shadow: none;
+  background: linear-gradient(180deg, var(--blindspot-accent-gold), var(--blindspot-accent-gold-dim));
+  border-radius: 0;
+  box-shadow: 0 0 4px rgba(245, 192, 120, 0.3);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+#bs-screen-battle.blindspot-battle .arena-stamina-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent calc(100% / 6 - 1.5px),
+    var(--blindspot-bg) calc(100% / 6 - 1.5px),
+    var(--blindspot-bg) calc(100% / 6 + 0.5px)
+  );
+  pointer-events: none;
+  z-index: 2;
+}
 #bs-screen-battle.blindspot-battle .arena-stamina-bar--exhausted .arena-stamina-bar__fill {
-  background: linear-gradient(90deg, #6e3a1a, var(--blindspot-accent-dim));
+  background: linear-gradient(180deg, var(--blindspot-accent-dim), #6e3a1a);
 }
 #bs-screen-battle.blindspot-battle .arena-stamina-bar__text {
   font-family: var(--blindspot-font-mono);
   color: var(--blindspot-text-muted);
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.65rem;
-  pointer-events: none;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-align: right;
+  display: block;
+  margin-top: 0.15rem;
+  position: static;
+  inset: auto;
 }
 
 /* Hype bar — recolor to epic purple */
