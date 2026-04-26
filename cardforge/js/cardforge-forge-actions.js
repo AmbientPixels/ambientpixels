@@ -3210,7 +3210,14 @@ async function handleEditUrlParam() {
     var resp = await fetch(loadUrl, { method: 'GET', headers: headers });
     console.log('[CardForge edit] fetch response status=' + resp.status);
     if (!resp.ok) { fallbackToRandom('http_' + resp.status); return; }
-    var data = await resp.json();
+    // resp.json() was observed hanging in some browsers (likely a stream
+    // already half-consumed by a global fetch wrapper). Reading text first
+    // then parsing avoids the stream API entirely.
+    var rawText = await resp.text();
+    console.log('[CardForge edit] body bytes=' + (rawText && rawText.length));
+    var data;
+    try { data = JSON.parse(rawText); }
+    catch (parseErr) { fallbackToRandom('parse_error'); return; }
     var pool = []
       .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
       .concat(Array.isArray(data && data.galleryCards) ? data.galleryCards : [])
