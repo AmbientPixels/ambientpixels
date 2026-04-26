@@ -3155,6 +3155,57 @@ window.showSavedCardsModal = showSavedCardsModal;
 // Initialize when DOM is ready with multiple fallbacks
 function initializeForgeActions() {
   cardForgeActions.init();
+  handleEditUrlParam();
+}
+
+// ?edit={cardId} on editor.html → fetch the card from the load endpoint,
+// stash it on _mergedCards, and call loadCard so the editor form populates.
+// Used by the Edit buttons on forge.html (My Cards drafts and My Published
+// Cards) which navigate here when cardForgeActions isn't loaded in-page.
+//
+// Param name is intentionally distinct from ?card= which is consumed by
+// cardforge-lightbox.js to open the gallery overlay — keeping the two
+// param names separate prevents the editor from popping the lightbox on
+// top of the form during an edit-load.
+async function handleEditUrlParam() {
+  var params = new URLSearchParams(window.location.search);
+  var editId = params.get('edit');
+  if (!editId) return;
+
+  // Strip ?edit= from the URL immediately so a refresh doesn't re-trigger.
+  try {
+    var url = new URL(window.location.href);
+    url.searchParams.delete('edit');
+    history.replaceState(null, '', url.toString());
+  } catch (_) {}
+
+  try {
+    var loadUrl = (typeof window.buildApiPath === 'function')
+      ? window.buildApiPath('loadCards')
+      : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
+    var headers = { 'Content-Type': 'application/json' };
+    if (typeof window._cfGetAuthHeaders === 'function') {
+      try { Object.assign(headers, await window._cfGetAuthHeaders()); } catch (_) {}
+    }
+    var resp = await fetch(loadUrl, { method: 'GET', headers: headers, credentials: 'omit' });
+    if (!resp.ok) return;
+    var data = await resp.json();
+    var pool = []
+      .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
+      .concat(Array.isArray(data && data.galleryCards) ? data.galleryCards : [])
+      .concat(Array.isArray(data && data.defaultCards) ? data.defaultCards : []);
+    var card = pool.find(function (c) {
+      return (c && (c.id || (c.cardData && c.cardData.id))) === editId;
+    });
+    if (!card) return;
+    cardForgeActions._mergedCards = cardForgeActions._mergedCards || [];
+    if (!cardForgeActions._mergedCards.find(function (c) { return c.id === editId; })) {
+      cardForgeActions._mergedCards.push(card);
+    }
+    cardForgeActions.loadCard(editId);
+  } catch (_) {
+    // Silent — broken auto-load shouldn't surface a blocking error to the user.
+  }
 }
 
 // Multiple initialization strategies to ensure it works

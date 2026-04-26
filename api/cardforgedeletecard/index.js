@@ -109,118 +109,139 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const { userId, isAuthenticated } = extractUserInfo(req, context);
-  // Allow anonymous access: set userId to 'anonymous' if not authenticated
-  // (No blocking, no 401 response)
-  // userId is already set by extractUserInfo; proceed with delete
+  let { userId, isAuthenticated } = extractUserInfo(req, context);
+  // SWA does NOT inject x-ms-client-principal on cross-origin POSTs to the
+  // Function App, so the in-app callers (cardforge-my-published-cards.js,
+  // cardforge-my-cards.js) pass userId in the body. Same fallback pattern
+  // as cardforgedeckdelete/index.js.
+  if (!isAuthenticated && req.body && req.body.userId && req.body.userId !== 'anonymous') {
+    userId = req.body.userId;
+  }
 
-
-  const cardId = req.body && req.body.id;
+  // Accept either field — older callers send `id`, newer ones send `cardId`.
+  const cardId = (req.body && (req.body.cardId || req.body.id)) || null;
   if (!cardId) {
     context.res = { status: 400, body: 'Missing card id' };
     return;
   }
 
+  // mode='unpublish' → only remove from published gallery, keep the user's draft.
+  // Default (omitted or anything else) preserves the legacy "delete everything" behavior.
+  const isUnpublishOnly = req.body && req.body.mode === 'unpublish';
+
   const blobServiceClient = await createBlobServiceClient();
   const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
 
   try {
-    const path = getUserCardsPath(userId);
-    context.log(`Deleting card ${cardId} from path: ${path}`);
-    
-    let userCardsData = await downloadJsonBlobWithRetry(containerClient, path, context);
-    
-    // Handle the { cards: [...] } structure used by save API
-    let cards = [];
-    if (Array.isArray(userCardsData)) {
-      cards = userCardsData;
-    } else if (userCardsData && Array.isArray(userCardsData.cards)) {
-      cards = userCardsData.cards;
-    }
-    
-    // Wager/lock guard: prevent deletion of locked or wagered cards
-    const targetCard = cards.find(c => c.id === cardId);
-    if (targetCard) {
-      if (targetCard.inActiveWager) {
-        context.res = {
-          status: 400,
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-          body: { error: 'Cannot delete a card that is in an active wager' }
-        };
-        return;
+    let remainingCards = null;
+    if (!isUnpublishOnly) {
+      const path = getUserCardsPath(userId);
+      context.log(`Deleting card ${cardId} from path: ${path}`);
+
+      let userCardsData = await downloadJsonBlobWithRetry(containerClient, path, context);
+
+      // Handle the { cards: [...] } structure used by save API
+      let cards = [];
+      if (Array.isArray(userCardsData)) {
+        cards = userCardsData;
+      } else if (userCardsData && Array.isArray(userCardsData.cards)) {
+        cards = userCardsData.cards;
       }
-      // Check if card is locked on Blindspot profile
-      try {
-        const bsProfilePath = `blindspot/profiles/${userId}.json`;
-        const bsProfile = await downloadJsonBlobWithRetry(containerClient, bsProfilePath, context);
-        if (bsProfile && Array.isArray(bsProfile.lockedCards) && bsProfile.lockedCards.includes(cardId)) {
+
+      // Wager/lock guard: prevent deletion of locked or wagered cards
+      const targetCard = cards.find(c => c.id === cardId);
+      if (targetCard) {
+        if (targetCard.inActiveWager) {
           context.res = {
             status: 400,
             headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-            body: { error: 'Cannot delete a locked card. Unlock it first.' }
+            body: { error: 'Cannot delete a card that is in an active wager' }
           };
           return;
         }
-      } catch (profileErr) {
-        context.log.warn(`Could not check lock status: ${profileErr.message}`);
-        // Continue with deletion if profile check fails — fail-open for backwards compat
+        // Check if card is locked on Blindspot profile
+        try {
+          const bsProfilePath = `blindspot/profiles/${userId}.json`;
+          const bsProfile = await downloadJsonBlobWithRetry(containerClient, bsProfilePath, context);
+          if (bsProfile && Array.isArray(bsProfile.lockedCards) && bsProfile.lockedCards.includes(cardId)) {
+            context.res = {
+              status: 400,
+              headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+              body: { error: 'Cannot delete a locked card. Unlock it first.' }
+            };
+            return;
+          }
+        } catch (profileErr) {
+          context.log.warn(`Could not check lock status: ${profileErr.message}`);
+          // Continue with deletion if profile check fails — fail-open for backwards compat
+        }
       }
-    }
 
-    const originalCount = cards.length;
-    const filtered = cards.filter(c => c.id !== cardId);
+      const originalCount = cards.length;
+      const filtered = cards.filter(c => c.id !== cardId);
 
-    if (filtered.length === originalCount) {
-      context.log.warn(`Card ${cardId} not found in user's cards`);
+      if (filtered.length === originalCount) {
+        context.log.warn(`Card ${cardId} not found in user's cards`);
+      } else {
+        context.log(`Removed card ${cardId}, ${originalCount} -> ${filtered.length} cards`);
+      }
+
+      // Save back in the same structure
+      const dataToSave = Array.isArray(userCardsData) ? filtered : { cards: filtered };
+      await uploadJsonBlob(containerClient, path, dataToSave);
+      remainingCards = filtered.length;
     } else {
-      context.log(`Removed card ${cardId}, ${originalCount} -> ${filtered.length} cards`);
+      context.log(`Unpublish-only request for card ${cardId} (user ${userId}); draft retained`);
     }
-    
-    // Save back in the same structure
-    const dataToSave = Array.isArray(userCardsData) ? filtered : { cards: filtered };
-    await uploadJsonBlob(containerClient, path, dataToSave);
-    
-    // Also remove from published gallery if the card was published
+
+    // Always sweep the published gallery — the gate above is for the user's
+    // draft blob only, not for the gallery copy.
     let unpublishedFromGallery = false;
     try {
       const publishedPath = 'published-cards.json';
       const publishedData = await downloadJsonBlobWithRetry(containerClient, publishedPath, context);
-      
+
       if (publishedData && Array.isArray(publishedData.publishedCards)) {
         const originalPublishedCount = publishedData.publishedCards.length;
         publishedData.publishedCards = publishedData.publishedCards.filter(c => c.id !== cardId);
-        
+
         if (publishedData.publishedCards.length < originalPublishedCount) {
           await uploadJsonBlob(containerClient, publishedPath, publishedData);
           unpublishedFromGallery = true;
-          context.log(`Also removed card ${cardId} from published gallery`);
+          context.log(`Removed card ${cardId} from published gallery`);
         }
       }
     } catch (pubErr) {
       context.log.warn(`Could not check/update published gallery: ${pubErr.message}`);
     }
 
-    // Best-effort cleanup of the ratings aggregate. If this fails the card
-    // is still successfully deleted — orphaned rating entries are harmless
-    // and the gallery resolves favorites against currently-published cards
-    // so users won't see stale data.
-    try {
-      const ratingsPath = 'card-ratings.json';
-      const ratingsData = await downloadJsonBlobWithRetry(containerClient, ratingsPath, context);
-      if (ratingsData && ratingsData.ratings && ratingsData.ratings[cardId]) {
-        delete ratingsData.ratings[cardId];
-        ratingsData.updatedAt = new Date().toISOString();
-        await uploadJsonBlob(containerClient, ratingsPath, ratingsData);
-        context.log(`Removed ratings entry for ${cardId}`);
+    // Best-effort cleanup of the ratings aggregate. Skip when only unpublishing —
+    // the draft is still alive and might be re-published, in which case
+    // accumulated ratings should persist.
+    if (!isUnpublishOnly) {
+      try {
+        const ratingsPath = 'card-ratings.json';
+        const ratingsData = await downloadJsonBlobWithRetry(containerClient, ratingsPath, context);
+        if (ratingsData && ratingsData.ratings && ratingsData.ratings[cardId]) {
+          delete ratingsData.ratings[cardId];
+          ratingsData.updatedAt = new Date().toISOString();
+          await uploadJsonBlob(containerClient, ratingsPath, ratingsData);
+          context.log(`Removed ratings entry for ${cardId}`);
+        }
+      } catch (ratingsErr) {
+        context.log.warn(`Could not clean ratings entry for ${cardId}: ${ratingsErr.message}`);
       }
-    } catch (ratingsErr) {
-      context.log.warn(`Could not clean ratings entry for ${cardId}: ${ratingsErr.message}`);
     }
 
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: { success: true, remainingCards: filtered.length, unpublishedFromGallery }
+      body: {
+        success: true,
+        mode: isUnpublishOnly ? 'unpublish' : 'delete',
+        remainingCards,
+        unpublishedFromGallery
+      }
     };
   } catch (e) {
     context.log.error(`Delete card error: ${e.message}`);

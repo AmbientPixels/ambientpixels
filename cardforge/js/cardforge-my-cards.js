@@ -154,7 +154,10 @@
 
   function editCard(cardId) {
     if (!cardId) return;
-    window.location.href = '/cardforge/editor.html?card=' + encodeURIComponent(cardId);
+    // ?edit= triggers the editor's auto-load handler.
+    // ?card= is reserved for the lightbox overlay deep-link on editor.html
+    // and gallery.html, so we deliberately pick a different param here.
+    window.location.href = '/cardforge/editor.html?edit=' + encodeURIComponent(cardId);
   }
 
   async function deleteCard(cardId) {

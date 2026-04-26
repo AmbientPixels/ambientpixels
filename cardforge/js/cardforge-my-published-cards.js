@@ -146,7 +146,15 @@
   }
 
   function loadIntoEditor(cardId) {
-    if (!cardId || !window.cardForgeActions) return;
+    if (!cardId) return;
+    // forge.html (and any non-editor host): cardForgeActions isn't loaded.
+    // Navigate to the editor with ?edit= so the editor's URL handler can
+    // resolve and populate the form.
+    if (!window.cardForgeActions) {
+      window.location.href = '/cardforge/editor.html?edit=' + encodeURIComponent(cardId);
+      return;
+    }
+    // Editor sidebar path: load directly into the current session.
     // Push the published card into _mergedCards so loadCard() can find it
     // even if it isn't in localStorage cardforge_saved_cards.
     var c = state.items.find(function (x) { return (x.id || (x.cardData && x.cardData.id)) === cardId; });
@@ -177,7 +185,8 @@
         method: 'POST',
         credentials: 'omit',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cardId: cardId, userId: myUserId })
+        // mode:'unpublish' = remove from gallery only; the user's draft stays.
+        body: JSON.stringify({ cardId: cardId, userId: myUserId, mode: 'unpublish' })
       });
     } catch (_) { alert('Network error — try again.'); return; }
     if (!res.ok) {
