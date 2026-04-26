@@ -3213,7 +3213,29 @@ async function handleEditUrlParam() {
     });
     console.log('[CardForge edit] fetch response status=' + resp.status);
     if (!resp.ok) { fallbackToRandom('http_' + resp.status); return; }
-    var data = await resp.json();
+
+    // resp.json() was observed hanging indefinitely in some real browsers
+    // even after a 200 response. The likely cause is a global fetch
+    // wrapper (CSRF/App Insights/EasyAuth) reading the body stream first
+    // and leaving us with a locked one. resp.clone() produces an
+    // independent body stream we can read freely. Wrap the read in a
+    // race against a 5-second timeout so we never hang forever.
+    var data;
+    try {
+      console.log('[CardForge edit] reading body');
+      var bodyPromise = resp.clone().text().then(function (txt) {
+        console.log('[CardForge edit] body bytes=' + (txt && txt.length));
+        return JSON.parse(txt);
+      });
+      var timeoutPromise = new Promise(function (_, reject) {
+        setTimeout(function () { reject(new Error('body_read_timeout')); }, 5000);
+      });
+      data = await Promise.race([bodyPromise, timeoutPromise]);
+    } catch (bodyErr) {
+      console.warn('[CardForge edit] body read failed:', bodyErr && bodyErr.message);
+      fallbackToRandom('body_' + ((bodyErr && bodyErr.message) || 'unknown'));
+      return;
+    }
     var pool = []
       .concat(Array.isArray(data && data.userCards) ? data.userCards : [])
       .concat(Array.isArray(data && data.galleryCards) ? data.galleryCards : [])
