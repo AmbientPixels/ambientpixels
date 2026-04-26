@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/cardforge-base.css?v=20260425k">
   <link rel="stylesheet" href="css/cardforge-splash.css?v=20260425r">
-  <link rel="stylesheet" href="css/cardforge-content.css?v=20260425k">
+  <link rel="stylesheet" href="css/cardforge-content.css?v=20260425l">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
 </head>
 <body class="cf-splash" data-theme="dark">
@@ -34,40 +34,38 @@
     <header class="cf-content__hero">
       <h1>Roadmap</h1>
       <p>What's in flight, what's queued, and what we're exploring next. We ship in small increments, so this list shifts often.</p>
-      <p class="cf-content__hero-note">Snapshot &middot; updated April 2026</p>
+      <p class="cf-content__hero-note">Snapshot &middot; updated 2026-04-25</p>
     </header>
+
+    <section class="cf-roadmap__shipped">
+      <header class="cf-roadmap__col-head">
+        <span class="cf-roadmap__pill cf-roadmap__pill--shipped">Recently shipped</span>
+        <span class="cf-roadmap__col-sub">Last ~30 days</span>
+      </header>
+      <ul class="cf-roadmap__shipped-list">
+        <li><strong>Admin KPI strip</strong> &mdash; cards published, users, hearts, and favorites tiles on the admin panel.</li>
+        <li><strong>Unified global header</strong> &mdash; one nav across every CardForge page, auth-aware out of the box.</li>
+        <li><strong>Hearts: ratings &amp; favorites</strong> &mdash; anonymous can heart cards; signed-in users get persistent favorites.</li>
+        <li><strong>Hero fan admin</strong> &mdash; recent / random / curated / highest-rated splash modes.</li>
+        <li><strong>Highest-rated splash mode</strong> &mdash; community hearts now drive a hero-fan option.</li>
+        <li><strong>Five new border frames</strong> &mdash; frost, ember, shadow, nature, circuit.</li>
+        <li><strong>3-panel obsidian editor</strong> &mdash; rail nav, click-to-edit on both card faces, ember field, drag-to-pan portraits.</li>
+        <li><strong>Splash landing polish</strong> &mdash; real-card hero fan, combo ticker, clickable "ways to start" tiles.</li>
+        <li><strong>My Published tabs</strong> &mdash; see your published cards and decks alongside drafts in editor + deck builder.</li>
+      </ul>
+    </section>
 
     <section class="cf-roadmap">
 
       <div class="cf-roadmap__col">
         <header class="cf-roadmap__col-head">
           <span class="cf-roadmap__pill cf-roadmap__pill--now">Now</span>
-          <span class="cf-roadmap__col-sub">In flight / just shipped</span>
+          <span class="cf-roadmap__col-sub">In flight / immediate next</span>
         </header>
 
         <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">Hearts: ratings &amp; favorites</h3>
-          <p class="cf-roadmap__item-desc">Heart any published card to bookmark it and bump its community rating. Drives the new "Highest Rated" gallery sort and powers the My Favorites tab in the editor sidebar.</p>
-        </article>
-
-        <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">Splash landing polish</h3>
-          <p class="cf-roadmap__item-desc">Hero card fan with real published cards, animated combo ticker, clickable "ways to start" tiles, smoother card-to-card hover handovers.</p>
-        </article>
-
-        <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">3-panel obsidian editor</h3>
-          <p class="cf-roadmap__item-desc">New rail navigation, click-to-edit on both card faces, ember field background, drag-to-pan portraits.</p>
-        </article>
-
-        <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">My Published tabs</h3>
-          <p class="cf-roadmap__item-desc">Editor sidebar and deck builder both surface your published cards and decks alongside drafts &mdash; no more hunting through the gallery.</p>
-        </article>
-
-        <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">Hero fan admin</h3>
-          <p class="cf-roadmap__item-desc">Behind-the-scenes control over which cards land in the splash hero fan: most recent, random, or hand-curated.</p>
+          <h3 class="cf-roadmap__item-title">Visual card-picker for curated splash</h3>
+          <p class="cf-roadmap__item-desc">Replace the ID-paste curated mode in the hero-fan admin with a visual grid where admins can click to feature cards directly.</p>
         </article>
       </div>
 
@@ -78,23 +76,8 @@
         </header>
 
         <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">Highest-rated splash mode</h3>
-          <p class="cf-roadmap__item-desc">A fourth hero-fan mode that surfaces the most-loved cards from the community. Hearts data is now flowing &mdash; this just wires it into the splash + admin form.</p>
-        </article>
-
-        <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">Visual card-picker for curated splash</h3>
-          <p class="cf-roadmap__item-desc">Replace the ID-paste curated mode with a visual grid where admins can click to feature cards directly.</p>
-        </article>
-
-        <article class="cf-roadmap__item">
-          <h3 class="cf-roadmap__item-title">Five more border frames</h3>
-          <p class="cf-roadmap__item-desc">Frost, ember, shadow, nature, and circuit border designs &mdash; PNG art ready, wiring in progress.</p>
-        </article>
-
-        <article class="cf-roadmap__item">
           <h3 class="cf-roadmap__item-title">Gallery filters &amp; theme tags</h3>
-          <p class="cf-roadmap__item-desc">Browse published cards by class, palette, rarity, or theme &mdash; with shareable filtered views.</p>
+          <p class="cf-roadmap__item-desc">Browse published cards by class, palette, rarity, or theme &mdash; with shareable filtered views. Sort filters (recent / rated / all) already live; this layers on faceted filters.</p>
         </article>
       </div>
 
@@ -106,7 +89,7 @@
 
         <article class="cf-roadmap__item">
           <h3 class="cf-roadmap__item-title">Hearts-driven ROI signals</h3>
-          <p class="cf-roadmap__item-desc">Feed the new ratings data into our finance dashboards so the platform can tell which campaigns and creators actually resonate with the community.</p>
+          <p class="cf-roadmap__item-desc">Feed ratings data into the finance dashboards so the platform can tell which campaigns and creators actually resonate with the community.</p>
         </article>
 
         <article class="cf-roadmap__item">

@@ -177,6 +177,49 @@
   margin: 0;
 }
 
+/* Recently shipped band — sits above the now/next/later columns and
+   collapses the noise of a long completed list into a single panel. */
+.cf-roadmap__shipped {
+  margin-bottom: 28px;
+  padding: 22px 24px;
+  background: var(--cf-ob-bg-1);
+  border: 1px solid var(--cf-ob-line-2);
+}
+.cf-roadmap__pill--shipped {
+  border-color: rgba(80, 200, 120, 0.4);
+  background: rgba(80, 200, 120, 0.08);
+  color: #77dd99;
+}
+.cf-roadmap__shipped-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 10px 24px;
+}
+.cf-roadmap__shipped-list li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cf-ob-text-2);
+  padding-left: 22px;
+  position: relative;
+}
+.cf-roadmap__shipped-list li::before {
+  content: '\f00c'; /* fa-check */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-size: 11px;
+  color: #77dd99;
+}
+.cf-roadmap__shipped-list strong {
+  color: var(--cf-ob-text-1);
+  font-weight: 600;
+}
+
 .cf-roadmap__cta {
   margin-top: 48px;
   padding: 24px 28px;
