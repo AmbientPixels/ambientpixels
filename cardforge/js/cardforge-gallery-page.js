@@ -84,12 +84,13 @@
   function sortCards(cards, sort) {
     var copy = cards.slice();
     if (sort === 'rated') {
-      // Placeholder ranking — no real rating data yet. Prioritize curated
-      // default cards, then recency. Replace this when a rating endpoint
-      // ships (see project_blindspot_async_pvp pattern for inspiration).
+      // Real rating-driven sort. Tiebreak by recency so the gallery
+      // doesn't look randomized at day-zero when most cards have count=0.
+      var H = window.CardForgeHearts;
       copy.sort(function (a, b) {
-        if (b.isDefault !== a.isDefault) return (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0);
-        return timeOf(b) - timeOf(a);
+        var ca = (H && a.id) ? (H.getCount(a.id) || 0) : 0;
+        var cb = (H && b.id) ? (H.getCount(b.id) || 0) : 0;
+        return (cb - ca) || (timeOf(b) - timeOf(a));
       });
     } else {
       // recent + all → newest first
@@ -152,17 +153,25 @@
     grid.hidden = false;
 
     grid.innerHTML = sorted.map(function (c, i) {
+      var heartHtml = (window.CardForgeHearts && c.id)
+        ? window.CardForgeHearts.renderButton(c.id, { withCount: true, variant: 'gallery' })
+        : '';
       return (
         '<button type="button" class="cf-gallery__card mini-card" ' +
                 'data-card-index="' + i + '" ' +
                 'aria-label="' + escHtml('View ' + (c.name || 'card')) + '">' +
           renderCardContent(c) +
+          heartHtml +
         '</button>'
       );
     }).join('');
 
-    // Wire clicks → lightbox. Pass the raw entries (lightbox knows how
-    // to unwrap cardData / use renderedFront).
+    // Heart clicks must NOT bubble into the lightbox-open handler. Bind
+    // the hearts module first (it stops propagation on its own clicks),
+    // then wire card clicks → lightbox.
+    if (window.CardForgeHearts && typeof window.CardForgeHearts.bindContainer === 'function') {
+      window.CardForgeHearts.bindContainer(grid);
+    }
     grid.querySelectorAll('.cf-gallery__card').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var idx = parseInt(btn.dataset.cardIndex, 10);
@@ -226,9 +235,25 @@
     wireFilters();
     initAuth();
     showLoader();
-    allCards = await fetchPublishedCards();
+    // Run hearts boot + cards fetch in parallel so we don't serialize
+    // network roundtrips. Hearts module fetches /cardforgeratings and
+    // /cardforgefavorites; cards fetch hits /cardforgeloadcards.
+    var heartsBoot = (window.CardForgeHearts && typeof window.CardForgeHearts.init === 'function')
+      ? window.CardForgeHearts.init()
+      : Promise.resolve();
+    var results = await Promise.all([fetchPublishedCards(), heartsBoot]);
+    allCards = results[0];
     hideLoader();
     render(currentSort);
+
+    // When a heart toggles anywhere (here, in the lightbox, in the
+    // editor favorites tab), refresh count badges in place. We don't
+    // re-render the grid — the heart button refreshes itself via
+    // CardForgeHearts.refreshButtons, and only the rated-sort needs a
+    // re-sort. Skip the re-sort if we're not on the rated tab.
+    document.addEventListener(window.CardForgeHearts && window.CardForgeHearts.EVENT_CHANGED || 'cardforge:hearts-changed', function () {
+      if (currentSort === 'rated') render(currentSort);
+    });
   }
 
   if (document.readyState === 'loading') {

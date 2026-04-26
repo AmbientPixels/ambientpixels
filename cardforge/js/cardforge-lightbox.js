@@ -349,6 +349,25 @@
     // Update card title in header
     const title = el('lightbox-card-title');
     if (title) title.textContent = name;
+
+    // Heart button — inject into the actions row alongside the share panel.
+    // Re-rendered each time the lightbox switches cards so it reflects the
+    // new cardId. Cross-surface sync (gallery, splash, favorites tab) is
+    // handled by CardForgeHearts.refreshButtons via EVENT_CHANGED.
+    const cardId = d.id || card.id || '';
+    if (cardId && window.CardForgeHearts && typeof window.CardForgeHearts.renderButton === 'function') {
+      const actionsRow = document.querySelector('#cardforge-lightbox .lightbox-actions');
+      if (actionsRow) {
+        let slot = actionsRow.querySelector('.cf-heart-slot');
+        if (!slot) {
+          slot = document.createElement('div');
+          slot.className = 'cf-heart-slot';
+          actionsRow.insertBefore(slot, actionsRow.firstChild);
+        }
+        slot.innerHTML = window.CardForgeHearts.renderButton(cardId, { withCount: true, variant: 'lightbox' });
+        window.CardForgeHearts.bindContainer(actionsRow);
+      }
+    }
   }
 
   // ===== NAVIGATION =====

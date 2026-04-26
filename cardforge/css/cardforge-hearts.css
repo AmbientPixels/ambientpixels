@@ -1,0 +1,134 @@
+/* ================================================================
+   CardForge Hearts — heart button used across splash, gallery,
+   lightbox, and editor sidebar (My Favorites tab). Tokens inherited
+   from cardforge-base.css :root (obsidian system).
+   ================================================================ */
+
+.cf-heart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(13, 16, 21, 0.78);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--cf-ob-line-2);
+  color: var(--cf-ob-text-2);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cf-heart i {
+  font-size: 13px;
+  color: inherit;
+  transition: color 0.15s ease, transform 0.2s ease-out;
+}
+
+.cf-heart:hover,
+.cf-heart:focus-visible {
+  border-color: var(--cf-ob-ember-33);
+  color: var(--cf-ob-text-1);
+  outline: none;
+}
+.cf-heart:hover i {
+  color: var(--cf-ob-ember);
+}
+
+.cf-heart:active {
+  transform: scale(0.94);
+}
+
+/* Filled / hearted state — ember red, slight glow. */
+.cf-heart.is-active {
+  background: var(--cf-ob-ember-dim);
+  border-color: var(--cf-ob-ember-33);
+  color: var(--cf-ob-ember);
+}
+.cf-heart.is-active i {
+  color: var(--cf-ob-ember);
+  /* Subtle bounce on toggle-on. The keyframe runs once each time the
+     class is added; CSS doesn't re-trigger on toggle-off, which is fine. */
+  animation: cf-heart-pop 220ms ease-out;
+}
+
+@keyframes cf-heart-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-heart,
+  .cf-heart i { transition: none; }
+  .cf-heart.is-active i { animation: none; }
+}
+
+/* Count digit — only present when withCount: true. */
+.cf-heart__count {
+  font-variant-numeric: tabular-nums;
+  min-width: 8px;
+  text-align: left;
+}
+.cf-heart__count:empty {
+  display: none;
+}
+
+/* Lightbox variant uses a label instead of just an icon. */
+.cf-heart--lightbox {
+  padding: 8px 14px;
+  font-size: 13px;
+}
+.cf-heart-slot {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.cf-heart__label {
+  /* Same family as the rest of the lightbox toolbar buttons. */
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Splash variant — smaller, no count, sits over a card image. Uses
+   absolute positioning so the host can place it relative to the card
+   tile. The host (.cf-hero-fan__card / .cf-showcase-card) already has
+   position: relative via the .mini-card base styles. */
+.cf-heart--splash {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 6px 8px;
+  z-index: 4;
+  /* Slightly transparent at rest so it doesn't fight the card art;
+     pops to full opacity on hover. */
+  opacity: 0.85;
+}
+.cf-heart--splash:hover,
+.cf-heart--splash:focus-visible,
+.cf-heart--splash.is-active {
+  opacity: 1;
+}
+
+/* Gallery variant — overlay button, top-right corner of the tile.
+   The host (.cf-gallery__card) is a button with position: relative.
+   z-index: 2 sits above the card art, below any hover overlays the
+   gallery may add later. */
+.cf-heart {
+  position: relative;
+}
+.cf-gallery__card .cf-heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}

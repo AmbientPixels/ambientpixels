@@ -43,6 +43,7 @@
   <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260425s">
   <link rel="stylesheet" href="css/cardforge-layout.css?v=20260425s">
   <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260425s">
+  <link rel="stylesheet" href="css/cardforge-hearts.css?v=20260425a">
   <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260425s"> <!-- Responsive design — MUST be last CSS to override all -->
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
@@ -1602,6 +1603,11 @@
                 <span class="tab-label">Published</span>
                 <span class="tab-badge" id="cf-mpc-count"></span>
               </button>
+              <button class="forge-sidebar-tab" data-forge-tab="favorites" aria-selected="false" tabindex="-1" title="My Favorites">
+                <i class="fas fa-heart"></i>
+                <span class="tab-label">Favorites</span>
+                <span class="tab-badge" id="cf-fav-count"></span>
+              </button>
               <button class="forge-sidebar-tab" data-forge-tab="deck" aria-selected="false" tabindex="-1" title="Deck Manager">
                 <span class="tab-pip" id="deck-pip"></span>
                 <i class="fas fa-th-large"></i>
@@ -1636,6 +1642,18 @@
                 <h4 class="forge-section-title"><i class="fas fa-share-from-square"></i> My Published Cards</h4>
                 <div class="my-cards-scroll">
                   <div class="my-cards-list" id="cf-mpc-list">
+                    <div class="my-cards-empty">
+                      <i class="fas fa-spinner fa-spin"></i>
+                      <p>Loading…</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <!-- My Favorites Tab Content -->
+              <section class="forge-tab-content" data-forge-content="favorites" role="tabpanel" aria-labelledby="tab-favorites">
+                <h4 class="forge-section-title"><i class="fas fa-heart"></i> My Favorites</h4>
+                <div class="my-cards-scroll">
+                  <div class="my-cards-list" id="cf-fav-list">
                     <div class="my-cards-empty">
                       <i class="fas fa-spinner fa-spin"></i>
                       <p>Loading…</p>
@@ -1792,7 +1810,9 @@
   <!-- CardForge Core — bump ?v= to bust CDN cache on deploy -->
   <script src="/cardforge/js/config.js?v=20260425s"></script>
   <script src="js/cardforge-published-events.js?v=20260425s" defer></script>
+  <script src="js/cardforge-hearts.js?v=20260425a" defer></script>
   <script src="js/cardforge-my-published-cards.js?v=20260425s" defer></script>
+  <script src="js/cardforge-my-favorites.js?v=20260425a" defer></script>
   <script src="/cardforge/js/csrf-protection.js?v=20260425s"></script>
   <script src="/cardforge/js/validation-utils.js?v=20260425s"></script>
   <script src="/cardforge/js/ui-utils.js?v=20260425s"></script>
@@ -1812,7 +1832,7 @@
   <script src="/cardforge/js/cardforge-keyboard.js?v=20260425s" defer></script>
   <script src="js/cardforge-modals.js?v=20260425s" defer></script>
   <script src="js/cardforge-forge-actions.js?v=20260425s" defer></script>
-  <script src="js/cardforge-lightbox.js?v=20260425s" defer></script>
+  <script src="js/cardforge-lightbox.js?v=20260425a" defer></script>
   <script src="js/cardforge-card-helpers.js?v=20260425s" defer></script>
   <script src="js/cardforge-ai.js?v=20260425s" defer></script>
   <script src="js/cardforge-quick-build.js?v=20260425s" defer></script>

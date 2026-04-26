@@ -199,7 +199,24 @@ module.exports = async function (context, req) {
     } catch (pubErr) {
       context.log.warn(`Could not check/update published gallery: ${pubErr.message}`);
     }
-    
+
+    // Best-effort cleanup of the ratings aggregate. If this fails the card
+    // is still successfully deleted — orphaned rating entries are harmless
+    // and the gallery resolves favorites against currently-published cards
+    // so users won't see stale data.
+    try {
+      const ratingsPath = 'card-ratings.json';
+      const ratingsData = await downloadJsonBlobWithRetry(containerClient, ratingsPath, context);
+      if (ratingsData && ratingsData.ratings && ratingsData.ratings[cardId]) {
+        delete ratingsData.ratings[cardId];
+        ratingsData.updatedAt = new Date().toISOString();
+        await uploadJsonBlob(containerClient, ratingsPath, ratingsData);
+        context.log(`Removed ratings entry for ${cardId}`);
+      }
+    } catch (ratingsErr) {
+      context.log.warn(`Could not clean ratings entry for ${cardId}: ${ratingsErr.message}`);
+    }
+
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },

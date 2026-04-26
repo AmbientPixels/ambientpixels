@@ -299,6 +299,12 @@
     5: [0, 1, 2, 3, 4]
   };
 
+  function heartHtml(c) {
+    if (!c || !c.id) return '';
+    if (!window.CardForgeHearts || typeof window.CardForgeHearts.renderButton !== 'function') return '';
+    return window.CardForgeHearts.renderButton(c.id, { withCount: false, variant: 'splash' });
+  }
+
   function renderFan(cards) {
     var fan = document.getElementById('cf-hero-fan');
     if (!fan) return;
@@ -308,8 +314,12 @@
       var pos = positions[i];
       return '<a class="cf-hero-fan__card mini-card" data-fan-pos="' + pos + '" href="/cardforge/gallery.html" data-splash-cta="fan-card" aria-label="' + escHtml(c.name || 'Card') + '">' +
                renderCardContent(c) +
+               heartHtml(c) +
              '</a>';
     }).join('');
+    if (window.CardForgeHearts && typeof window.CardForgeHearts.bindContainer === 'function') {
+      window.CardForgeHearts.bindContainer(fan);
+    }
   }
 
   function renderShowcase(cards) {
@@ -319,8 +329,12 @@
     strip.innerHTML = picks.map(function (c) {
       return '<a class="cf-showcase-card mini-card" href="/cardforge/gallery.html" data-splash-cta="showcase-card" aria-label="' + escHtml(c.name || 'Card') + '">' +
                renderCardContent(c) +
+               heartHtml(c) +
              '</a>';
     }).join('');
+    if (window.CardForgeHearts && typeof window.CardForgeHearts.bindContainer === 'function') {
+      window.CardForgeHearts.bindContainer(strip);
+    }
     updateShowcaseNav();
   }
 
@@ -513,6 +527,13 @@
 
     initAuth();
     setupShowcaseCarousel();
+    // Boot hearts module in parallel with the gallery fetch — getCount /
+    // isFavorited inside renderFan/renderShowcase will fall back to 0/false
+    // until init() resolves, after which the next render or an
+    // EVENT_CHANGED event refreshes the buttons in place.
+    if (window.CardForgeHearts && typeof window.CardForgeHearts.init === 'function') {
+      window.CardForgeHearts.init();
+    }
     initGallery();
   }
 
