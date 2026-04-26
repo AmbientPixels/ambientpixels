@@ -2278,3 +2278,36 @@ body::before {
 .cf-preview-pane .cf-tool-btn {
   border-radius: 0;
 }
+
+/* Publish gate — visual ghost for publish-class buttons when signed out.
+   Click handlers stay attached; they redirect to the CardForge login
+   page. Server-side gate (cardforgepublish + cardforgedeckpublish) is
+   the source of truth — this is a discoverability / honesty cue. */
+.cf-publish-locked {
+  opacity: 0.55;
+  filter: saturate(0.45);
+  cursor: pointer;
+  position: relative;
+}
+.cf-publish-locked:hover {
+  opacity: 0.75;
+}
+.cf-publish-locked::after {
+  content: '\f023'; /* fa-lock */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  margin-left: 6px;
+  font-size: 0.85em;
+  vertical-align: 1px;
+  opacity: 0.85;
+}
+/* Forge rail-footer button is a column flex with icon + label stacked.
+   Drop the inline lock badge there and overlay it in the corner so the
+   layout doesn't shift. */
+.cf-rail-footer__action.cf-publish-locked::after {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin: 0;
+  font-size: 0.75em;
+}
