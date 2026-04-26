@@ -1,0 +1,139 @@
+/* ============================================================
+   BLINDSPOT REDESIGN — design tokens + base typography
+   Phase 1: tokens only. No layout, no components, no global resets.
+   Source: claude-design redesign bundle (vein palette + reliquary typography hybrid).
+   Single direction; theme toggling not exposed.
+   Coexists with legacy `--bs-*` tokens in blindspot.css.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ---------- SURFACES ---------- */
+  --blindspot-bg:           #0D0807;
+  --blindspot-bg-2:         #170D0B;
+  --blindspot-surface:      #1C100D;
+  --blindspot-surface-2:    #251512;
+  --blindspot-border:       #3A1F1A;
+  --blindspot-border-2:     #4F2A23;
+
+  /* ---------- TEXT ---------- */
+  --blindspot-text:         #EFE3D2;
+  --blindspot-text-dim:     #B89A82;
+  --blindspot-text-muted:   #7A5E4C;
+
+  /* ---------- ACCENTS ----------
+     Red is for primary CTAs only.
+     Gold is for brand/wordmark, highlights, secondary affordances. */
+  --blindspot-accent:           #C8302C;
+  --blindspot-accent-hover:     #E04540;
+  --blindspot-accent-dim:       #8E2220;
+  --blindspot-accent-gold:      #F5C078;
+  --blindspot-accent-gold-2:    #FFD89A;
+  --blindspot-accent-gold-dim:  #B97417;
+
+  /* ---------- SEMANTIC ---------- */
+  --blindspot-danger:   #C8302C;
+  --blindspot-success:  #6E9F4A;
+  --blindspot-info:     #6688AA;
+  --blindspot-epic:     #8E5DAB;
+
+  /* ---------- COMBAT BARS ---------- */
+  --blindspot-hp:    #C8302C;
+  --blindspot-stam:  #C8923B;
+  --blindspot-hype:  #8E5DAB;
+
+  /* ---------- TYPOGRAPHY ---------- */
+  --blindspot-font-display: 'Cinzel', 'Times New Roman', serif;
+  --blindspot-font-body:    'Space Grotesk', system-ui, sans-serif;
+  --blindspot-font-mono:    'JetBrains Mono', ui-monospace, monospace;
+  --blindspot-font-numeric: 'JetBrains Mono', ui-monospace, monospace;
+
+  --blindspot-display-tracking: 0.18em;
+  --blindspot-display-weight:   700;
+  --blindspot-display-case:     uppercase;
+
+  /* ---------- GEOMETRY ---------- */
+  --blindspot-radius-card:   4px;
+  --blindspot-radius-button: 2px;
+  --blindspot-radius-tile:   4px;
+  --blindspot-radius-pill:   999px;
+
+  /* ---------- SHADOWS ---------- */
+  --blindspot-shadow-card:
+    0 30px 80px -20px rgba(0, 0, 0, 0.9),
+    0 0 0 1px var(--blindspot-border-2),
+    inset 0 1px 0 rgba(245, 192, 120, 0.06);
+  --blindspot-shadow-glow:
+    0 0 80px -10px rgba(200, 48, 44, 0.5);
+  --blindspot-shadow-glow-gold:
+    0 0 60px -10px rgba(245, 192, 120, 0.4);
+
+  /* ---------- BACKGROUND PATTERN ----------
+     Layered radial: red ember from below, gold halo from above. */
+  --blindspot-bg-pattern:
+    radial-gradient(ellipse 100% 60% at 50% 100%, rgba(200, 48, 44, 0.10), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(245, 192, 120, 0.04), transparent 60%);
+
+  /* ---------- SPACING (standard density) ---------- */
+  --blindspot-space-xs:   0.4rem;
+  --blindspot-space-s:    0.75rem;
+  --blindspot-space-m:    1.25rem;
+  --blindspot-space-l:    2rem;
+  --blindspot-space-xl:   3.25rem;
+  --blindspot-content-pad: 2.5rem;
+
+  /* ---------- TYPE SCALE ---------- */
+  --blindspot-type-scale: 1;
+
+  /* ---------- MOTION ---------- */
+  --blindspot-transition-fast: 160ms ease;
+  --blindspot-transition-med:  280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ============================================================
+   BASE TYPOGRAPHY UTILITIES
+   Class-based and opt-in. No global element resets — these only
+   apply where the class is present, so legacy Blindspot pages
+   are untouched until they migrate.
+   ============================================================ */
+
+.blindspot-display {
+  font-family: var(--blindspot-font-display);
+  font-weight: var(--blindspot-display-weight);
+  letter-spacing: var(--blindspot-display-tracking);
+  text-transform: var(--blindspot-display-case);
+}
+
+.blindspot-body {
+  font-family: var(--blindspot-font-body);
+  font-weight: 400;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.blindspot-mono {
+  font-family: var(--blindspot-font-mono);
+}
+
+.blindspot-eyebrow {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+
+.blindspot-num {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --blindspot-transition-fast: 0ms;
+    --blindspot-transition-med:  0ms;
+  }
+}
