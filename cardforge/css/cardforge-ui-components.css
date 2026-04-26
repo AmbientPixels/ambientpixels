@@ -3189,8 +3189,12 @@ body.cf-ui--clean [data-save-state] {
 /* Templates tab: pin the grid at 4 columns (overrides auto-fit).
    minmax(0, 1fr) prevents min-content from inflating any column.
    Panel becomes a flex column so the grid can stretch vertically and
-   distribute its 3 rows across the available section height. */
-.cf-tab-panel[data-tab-id="templates"] {
+   distribute its 3 rows across the available section height.
+   Scoped to .cf-tab-panel--active so the bare .cf-tab-panel { display:none }
+   still applies when this panel is inactive (otherwise the attribute
+   selector here outranks the bare class and the templates grid leaks
+   through to other tabs). */
+.cf-tab-panel.cf-tab-panel--active[data-tab-id="templates"] {
   display: flex;
   flex-direction: column;
   min-height: 0;

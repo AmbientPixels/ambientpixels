@@ -861,6 +861,55 @@
   margin-right: 6px;
 }
 
+/* Inline AI result slot — fills the space below the prompt/button after
+   the user generates a card. Empty state shows a placeholder hint; filled
+   state swaps in the generated artwork at a 4:3 portrait aspect. */
+.cf-ai-result {
+  margin-top: 16px;
+  border: 1px dashed var(--cf-ob-line-1);
+  border-radius: var(--cf-ob-radius-md);
+  background: var(--cf-ob-bg-1);
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cf-ai-result[data-state="filled"] {
+  border-style: solid;
+  border-color: rgba(255, 122, 26, 0.35);
+  box-shadow: 0 0 12px rgba(255, 122, 26, 0.1);
+}
+.cf-ai-result__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  color: var(--cf-ob-text-mute);
+  text-align: center;
+}
+.cf-ai-result__empty i {
+  font-size: 28px;
+  color: rgba(255, 122, 26, 0.35);
+}
+.cf-ai-result__empty p {
+  margin: 0;
+  font-size: 13px;
+}
+.cf-ai-result[data-state="filled"] .cf-ai-result__empty {
+  display: none;
+}
+.cf-ai-result__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+.cf-ai-result[data-state="filled"] .cf-ai-result__img {
+  display: block;
+}
+
 /* AI Quick Generate inline button (inside form sections) */
 .cf-ai-quick-inline {
   margin: 10px 0 16px;

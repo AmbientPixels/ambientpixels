@@ -253,6 +253,15 @@
     }
   }
 
+  function updateAIResultSlot(dataUrl) {
+    const slot = document.getElementById('cf-ai-result');
+    const img = document.getElementById('cf-ai-result-img');
+    if (!slot || !img) return;
+    img.src = dataUrl;
+    img.hidden = false;
+    slot.dataset.state = 'filled';
+  }
+
   // ===== HANDLER: Generate Quote Only =====
   async function handleGenerateQuote(btn) {
     const fields = getFields();
@@ -345,6 +354,7 @@
         if (previewImg) {
           previewImg.src = dataUrl;
         }
+        updateAIResultSlot(dataUrl);
         triggerPreviewUpdate();
         console.log('[CardForge AI] Artwork generated successfully');
         setButtonState(btn, 'success', 'Artwork Applied!');
@@ -491,6 +501,7 @@
             if (previewImg) {
               previewImg.src = dataUrl;
             }
+            updateAIResultSlot(dataUrl);
             triggerPreviewUpdate();
             console.log('[CardForge AI] Artwork generated successfully');
           } else {
