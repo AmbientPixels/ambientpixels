@@ -192,6 +192,11 @@
     }
   </script>
 
+  <!-- config.js exposes window._cfGetAuthHeaders, which the hearts
+       module needs to identify signed-in users. Without this loaded
+       BEFORE hearts.js, every heart click falls through to anonymous
+       and bounces to the login page. -->
+  <script src="js/config.js?v=20260425a" defer></script>
   <script src="js/cardforge-hearts.js?v=20260425d" defer></script>
   <script src="js/cardforge-splash.js?v=20260425c" defer></script>
 </body>

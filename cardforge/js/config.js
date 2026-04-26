@@ -80,7 +80,15 @@ window._cfGetAuthHeaders = (function () {
       var resp = await fetch('/.auth/me');
       if (!resp.ok) return {};
       var data = await resp.json();
-      var principal = data.clientPrincipal;
+      // SWA's /.auth/me returns clientPrincipal in two shapes depending
+      // on configuration / version: a plain object or a single-element
+      // array. The splash + gallery initAuth handlers handle both; this
+      // helper used to only handle the object case, leaving the hearts
+      // module (and any other consumer that relies on this header) to
+      // think the user was anonymous on deployments that return an array.
+      var principal = Array.isArray(data && data.clientPrincipal)
+        ? data.clientPrincipal[0]
+        : ((data && data.clientPrincipal) || null);
       if (principal && principal.userId) {
         _cached = { 'X-CF-Auth-Principal': JSON.stringify(principal) };
         return _cached;
