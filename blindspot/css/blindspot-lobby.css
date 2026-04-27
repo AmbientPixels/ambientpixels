@@ -835,8 +835,10 @@ body.bs-page {
      the moody serif aesthetic.
    ============================================================ */
 
-/* #4 Red palette demotion (lobby-scoped) */
-.blindspot-lobby__sub strong { color: var(--blindspot-text-dim); }
+/* #4 Red palette demotion (lobby-scoped). The headline streak/best/
+   xp-remaining values keep the red accent on the CEO's request — they
+   read as live data points, not chrome. */
+.blindspot-lobby__sub strong { color: var(--blindspot-accent); }
 .blindspot-lobby-section__head-meta { color: var(--blindspot-accent-gold); }
 .blindspot-lobby #bs-bounties .bs-bounty__reward { color: var(--blindspot-accent-gold); }
 .blindspot-lobby .blindspot-boss-pip--asc .blindspot-boss-pip__img {

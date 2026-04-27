@@ -982,27 +982,37 @@
   margin: 0 auto;
   width: 100%;
 }
+/* Stage hosts the arena background-image (set by ArenaBackgrounds JS as
+   `arena-stage--<id>` per blindspot.css:1747-1752). The Vein theme used
+   to suppress this entirely because the legacy overlay let amber bleed
+   through the field; instead, we now keep the image and apply a
+   stronger top-to-bottom darkening overlay so combatant portraits +
+   HUD stay legible against any arena. */
 #bs-screen-battle.blindspot-battle .arena-battle__stage {
-  background: transparent;
-  background-image: none;
+  background-color: var(--blindspot-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 0;
   border: 0;
   box-shadow: none;
   outline: 0;
+  position: relative;
 }
-/* Defeat the [class*="arena-stage--"] selector too — it sets a
-   background-image per arena variant (colosseum/shadow-pit/etc.) which
-   bleeds an amber/sandy tint through the field. We don't want any
-   stage backdrop while the design uses combatant portraits as the
-   hero visuals. */
-#bs-screen-battle.blindspot-battle .arena-battle__stage[class*="arena-stage--"] {
-  background-image: none;
+#bs-screen-battle.blindspot-battle .arena-battle__stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg,
+    rgba(10, 8, 6, 0.72) 0%,
+    rgba(10, 8, 6, 0.55) 45%,
+    rgba(10, 8, 6, 0.88) 100%);
 }
-#bs-screen-battle.blindspot-battle .arena-battle__stage::before,
-#bs-screen-battle.blindspot-battle .arena-battle__stage::after {
-  content: none;
-  background: none;
-}
+#bs-screen-battle.blindspot-battle .arena-battle__stage::after { content: none; }
+#bs-screen-battle.blindspot-battle .arena-battle__field { position: relative; z-index: 1; }
 #bs-screen-battle.blindspot-battle .arena-battle__field {
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(220px, 300px) minmax(320px, 1fr);
