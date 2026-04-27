@@ -356,7 +356,9 @@ window.BsCardShare = (function () {
         preview.innerHTML = '';
         canvas.style.width = '100%';
         canvas.style.height = 'auto';
-        canvas.style.borderRadius = '8px';
+        // Border radius handled by CSS (.bs-share-modal__preview canvas) so
+        // theme overrides (Vein 4px square vs legacy 8px) win without
+        // !important.
         preview.appendChild(canvas);
       } else {
         preview.innerHTML = '<span style="color:var(--bs-text-muted);">Failed to render card</span>';

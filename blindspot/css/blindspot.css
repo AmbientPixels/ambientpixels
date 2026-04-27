@@ -501,6 +501,15 @@
   color: var(--blindspot-accent-gold, #F5C078);
   letter-spacing: 0;
   text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.bs-topbar__brand-icon {
+  font-size: 0.95em;
+  color: var(--blindspot-accent-gold, #F5C078);
+  text-shadow: 0 0 12px rgba(245, 192, 120, 0.4);
+  transform: translateY(-1px);
 }
 
 .bs-topbar__actions {
@@ -10983,4 +10992,181 @@ body.bs-adventure-active {
 .bs-page .bs-forge-screen input[type="range"],
 .bs-page .bs-forge-screen .bs-forge-stat input[type="range"] {
   accent-color: var(--blindspot-accent-gold);
+}
+
+/* ============================================================
+   DECK MANAGEMENT (#bs-screen-deck) — Vein theme override
+   Same scoped pattern as the other screens.
+   ============================================================ */
+#bs-screen-deck {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+
+/* "My Deck" header in italic Cormorant gold (matches campaign / shop / etc). */
+#bs-screen-deck .bs-campaign__header h2 {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: var(--blindspot-accent-gold);
+}
+
+/* Card count chip → mono uppercase eyebrow. */
+#bs-screen-deck .bs-deck__count {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+
+/* Sort toolbar — square pills, italic Cormorant, gold active state. */
+#bs-screen-deck .bs-deck-sort__btn {
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  border-radius: 2px;
+  padding: 0.45rem 1rem;
+  border-color: var(--bs-border-2);
+  color: var(--bs-text-dim);
+}
+#bs-screen-deck .bs-deck-sort__btn:hover {
+  border-color: var(--blindspot-accent-gold);
+  color: var(--bs-text);
+}
+#bs-screen-deck .bs-deck-sort__btn--active {
+  border-color: var(--blindspot-accent-gold);
+  color: var(--blindspot-accent-gold);
+  background: rgba(245, 192, 120, 0.08);
+}
+
+/* Deck card tiles — square Vein corners, gold active highlight. */
+#bs-screen-deck .bs-deck-card {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border-2);
+  border-radius: 4px;
+}
+#bs-screen-deck .bs-deck-card:hover,
+#bs-screen-deck .bs-deck-card:focus-visible {
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 24px -8px rgba(245, 192, 120, 0.35);
+}
+#bs-screen-deck .bs-deck-card--active {
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 24px -6px rgba(245, 192, 120, 0.45);
+}
+
+/* Locked card overlay — Vein-tinted (was using --bs-accent ember). */
+#bs-screen-deck .bs-deck-card--locked {
+  border-color: var(--blindspot-accent-dim);
+}
+
+/* Confirm overlay (delete card) — Vein dark with gold rim. */
+#bs-screen-deck ~ .bs-deck-confirm-overlay,
+.bs-page .bs-deck-confirm-overlay .bs-deck-confirm {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: 4px;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.9),
+    0 0 0 1px var(--blindspot-border),
+    inset 0 1px 0 rgba(245, 192, 120, 0.06);
+}
+.bs-page .bs-deck-confirm-overlay .bs-deck-confirm__title {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  color: var(--blindspot-accent-gold);
+}
+
+/* ============================================================
+   SHARE CARD MODAL — Vein theme override
+   Created dynamically by bs-card-share.js. Same scoped pattern.
+   ============================================================ */
+#bs-share-modal {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+
+  /* Slightly darker backdrop + blur to match the how-to-play modal. */
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+#bs-share-modal .bs-share-modal {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border-2);
+  border-radius: 4px;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.9),
+    0 0 0 1px var(--bs-border),
+    inset 0 1px 0 rgba(245, 192, 120, 0.06);
+  padding: 1.25rem;
+}
+
+/* Preview frame around the rendered card canvas. */
+#bs-share-modal .bs-share-modal__preview {
+  background: var(--bs-bg-2);
+  border: 1px solid var(--bs-border);
+  border-radius: 4px;
+  padding: 0.75rem;
+}
+#bs-share-modal .bs-share-modal__preview canvas {
+  border-radius: 4px;
+}
+
+/* Action buttons inside the share modal — square Vein corners. */
+#bs-share-modal .bs-share-modal__actions .bs-btn {
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-weight: 600;
+  font-style: italic;
+}
+#bs-share-modal .bs-share-modal__actions .bs-btn--primary {
+  background: var(--blindspot-accent);
+  border-color: var(--blindspot-accent);
+  color: #FFF6E8;
+}
+#bs-share-modal .bs-share-modal__actions .bs-btn--primary:hover:not(:disabled) {
+  background: var(--blindspot-accent-hover, #E04540);
+  border-color: var(--blindspot-accent-hover, #E04540);
+  box-shadow: 0 0 60px -10px rgba(200, 48, 44, 0.5);
+}
+#bs-share-modal .bs-share-modal__actions .bs-btn--secondary {
+  background: transparent;
+  border: 1px solid var(--blindspot-accent-gold);
+  color: var(--blindspot-accent-gold);
+}
+#bs-share-modal .bs-share-modal__actions .bs-btn--secondary:hover:not(:disabled) {
+  background: rgba(245, 192, 120, 0.08);
+  box-shadow: 0 0 24px -8px rgba(245, 192, 120, 0.45);
+}
+#bs-share-modal .bs-share-modal__actions .bs-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--bs-border-2);
+  color: var(--bs-text-dim);
+}
+#bs-share-modal .bs-share-modal__actions .bs-btn--ghost:hover:not(:disabled) {
+  border-color: var(--blindspot-accent-gold);
+  color: var(--bs-text);
 }

@@ -75,6 +75,13 @@
       letter-spacing: 0;
       margin-bottom: 0.4rem;
       text-shadow: 0 0 40px rgba(245, 192, 120, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .bs-login__logo-icon {
+      font-size: 0.85em;
+      transform: translateY(-2px);
     }
 
     .bs-login__subtitle {
@@ -220,7 +227,7 @@
   <div class="bs-login-bg" id="bs-embers"></div>
 
   <div class="bs-login">
-    <div class="bs-login__logo">Blindspot</div>
+    <div class="bs-login__logo"><i class="fas fa-eye-slash bs-login__logo-icon" aria-hidden="true"></i>Blindspot</div>
     <div class="bs-login__subtitle">The arena remembers those who sign in.</div>
 
     <div class="bs-login__card">
