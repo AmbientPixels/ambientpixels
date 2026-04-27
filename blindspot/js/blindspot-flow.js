@@ -731,6 +731,7 @@
       });
       if (_Rew.setCallbacks) _Rew.setCallbacks({
         getHighestBoss: getHighestBossDefeated, getBestStreak: getBestStreak,
+        getCurrentStreak: getWinStreak,
         getForgeVisits: getForgeVisitCount, getAscension: getAscension,
         getCardPower: function() { return _selectedCard ? getCardPower(_selectedCard) : 0; },
         getPvPRecord: getPvPRecord, getPvPElo: getPvPElo, getPvPRank: getPvPRank,
@@ -1399,12 +1400,6 @@
       `;
     }
 
-    // Update campaign button description when tower is unlocked
-    const campaignDescEl = document.querySelector('#bs-btn-campaign .bs-mode-btn__desc');
-    if (campaignDescEl && isTowerUnlocked()) {
-      campaignDescEl.textContent = 'Campaign + Infinite Tower';
-    }
-
     // Stat bar breakdown with damage/heal estimates
     const statBarEl = document.getElementById('bs-stat-bars');
     if (statBarEl && _selectedCard && _selectedCard.combatStats) {
@@ -1560,21 +1555,15 @@
       }
     }
 
-    // Update quick-fight button label to show next boss
-    const playBtnLabel = document.getElementById('bs-play-btn-label');
-    if (playBtnLabel) {
-      const nextBoss = _bossesByNumber[highestBoss + 1];
-      if (nextBoss) {
-        playBtnLabel.textContent = 'FIGHT ' + nextBoss.name.toUpperCase();
-      } else if (highestBoss >= 10) {
-        playBtnLabel.textContent = 'CAMPAIGN COMPLETE';
-      }
-    }
+    // Campaign progress (count + boss-rail pips + lobby CTA all derive from
+    // getHighestBossDefeated — single source of truth).
+    renderCampaignProgress(highestBoss);
 
     // Apply equipped cosmetics to card display
     applyEquippedCosmetics();
 
-    // Update collection badge
+    // Update collection badge + render up to 3 thumbnail previews of owned
+    // cosmetics (most recent first). Hides the whole row when nothing owned.
     var collBadge = document.getElementById('bs-collection-count');
     var owned = getOwnedCosmetics();
     if (collBadge) {
@@ -1582,6 +1571,116 @@
       var collBtn = document.getElementById('bs-btn-collection');
       if (collBtn) collBtn.style.display = owned.length > 0 ? '' : 'none';
     }
+    var collPreview = document.getElementById('bs-collection-previews');
+    if (collPreview) {
+      var rarityColor = {
+        common: 'var(--bs-text-muted, #8a8a8a)',
+        uncommon: '#4ade80',
+        rare: '#60a5fa',
+        epic: '#c084fc',
+        legendary: '#FFD89A'
+      };
+      var recent = owned.slice(-3).reverse();
+      var thumbHtml = '';
+      for (var ti = 0; ti < recent.length; ti++) {
+        var def = (_Cos.find && _Cos.find(recent[ti])) || null;
+        if (!def) continue;
+        var iconClass = def.icon || 'fa-gem';
+        var color = rarityColor[(def.rarity || 'common').toLowerCase()] || rarityColor.common;
+        var labelAttr = ' title="' + escHtml((def.name || '') + ' — ' + (def.rarity || 'common')) + '"';
+        thumbHtml += '<span class="bs-collection-panel__thumb" style="color:' + color + '"' + labelAttr + '><i class="fas ' + escHtml(iconClass) + '"></i></span>';
+      }
+      collPreview.innerHTML = thumbHtml;
+    }
+  }
+
+  // Single source of truth for campaign progress \u2014 drives the count meta,
+  // boss-rail checkmark state on each pip, and the lobby Fight CTA label.
+  function renderCampaignProgress(highestBoss) {
+    const beaten = Math.max(0, Math.min(10, Number(highestBoss) || 0));
+
+    // Count meta (X / 10 BOSSES)
+    const countEl = document.getElementById('bs-campaign-count');
+    if (countEl) countEl.textContent = beaten + ' / 10 BOSSES';
+
+    // Per-pip is-done state
+    const pips = document.querySelectorAll('.blindspot-boss-pip[data-boss-index]');
+    pips.forEach(function (pip) {
+      const idx = Number(pip.getAttribute('data-boss-index')) || 0;
+      pip.classList.toggle('is-done', idx > 0 && idx <= beaten);
+    });
+
+    // CTA label \u2014 derive from the SAME source as the count + pips
+    const playBtnLabel = document.getElementById('bs-play-btn-label');
+    if (playBtnLabel) {
+      if (beaten >= 10) {
+        playBtnLabel.textContent = 'CAMPAIGN COMPLETE';
+      } else {
+        const nextBoss = _bossesByNumber[beaten + 1];
+        playBtnLabel.textContent = nextBoss
+          ? 'FIGHT ' + nextBoss.name.toUpperCase()
+          : 'FIGHT NEXT BOSS';
+      }
+    }
+  }
+
+  // Boss Codex modal — renders all campaign bosses as a list. Defeated
+  // bosses show full intel; locked bosses show a teaser silhouette.
+  function renderBossCodex() {
+    var listEl = document.getElementById('bs-codex-list');
+    if (!listEl) return;
+
+    var beaten = getHighestBossDefeated() || 0;
+    // Pull only campaign bosses, ordered by their boss number.
+    var entries = [];
+    for (var n = 1; n <= 10; n++) {
+      var b = _bossesByNumber[n];
+      if (b) entries.push({ n: n, boss: b });
+    }
+    if (!entries.length) {
+      listEl.innerHTML = '<div class="bs-codex-empty">Codex unavailable — boss data not loaded.</div>';
+      return;
+    }
+
+    var html = entries.map(function(entry) {
+      var b = entry.boss;
+      var defeated = entry.n <= beaten;
+      var statusClass = defeated ? 'bs-codex-row--defeated' : 'bs-codex-row--locked';
+      var statusBadge = defeated
+        ? '<span class="bs-codex-row__status"><i class="fas fa-check-circle"></i> Defeated</span>'
+        : '<span class="bs-codex-row__status bs-codex-row__status--locked"><i class="fas fa-lock"></i> Locked</span>';
+
+      var detailHtml;
+      if (defeated) {
+        var weakness = b.weakness ? String(b.weakness).toUpperCase() : '—';
+        var sigName = (b.signaturePassive && b.signaturePassive.name) || '—';
+        var sigDesc = (b.signaturePassive && b.signaturePassive.desc) || '';
+        var element = b.element ? String(b.element).replace(/^./, function(c){ return c.toUpperCase(); }) : '—';
+        var rewardLabel = (b.reward && b.reward.label) || '—';
+        detailHtml =
+            '<p class="bs-codex-row__flavor">' + escHtml(b.flavor || '') + '</p>'
+          + '<dl class="bs-codex-row__intel">'
+            + '<dt>Element</dt><dd>' + escHtml(element) + '</dd>'
+            + '<dt>Weakness</dt><dd>' + escHtml(weakness) + '</dd>'
+            + '<dt>Signature</dt><dd>' + escHtml(sigName) + (sigDesc ? ' &mdash; ' + escHtml(sigDesc) : '') + '</dd>'
+            + '<dt>First-kill reward</dt><dd>' + escHtml(rewardLabel) + '</dd>'
+          + '</dl>';
+      } else {
+        detailHtml = '<p class="bs-codex-row__flavor bs-codex-row__flavor--locked">Defeat to reveal lore, weakness, and signature move.</p>';
+      }
+
+      var pad = String(entry.n).padStart(2, '0');
+      return '<div class="bs-codex-row ' + statusClass + '" role="listitem">'
+        + '<div class="bs-codex-row__head">'
+          + '<span class="bs-codex-row__num">' + pad + '</span>'
+          + '<h3 class="bs-codex-row__name">' + escHtml(defeated ? (b.name || 'Boss ' + entry.n) : '???') + '</h3>'
+          + statusBadge
+        + '</div>'
+        + detailHtml
+        + '</div>';
+    }).join('');
+
+    listEl.innerHTML = html;
   }
 
   function updateRankDisplay() {
@@ -1589,6 +1688,10 @@
     const badge = document.getElementById('bs-rank-badge');
     const xpFill = document.getElementById('bs-xp-fill');
     const xpText = document.getElementById('bs-xp-text');
+    const xpBar = xpFill && xpFill.parentElement;
+    const remainEl = document.getElementById('bs-xp-remaining');
+    const streakEl = document.getElementById('bs-streak');
+    const bestEl = document.getElementById('bs-best');
 
     const rank = _profile.rank || 'bronze';
     const rankInfo = RANKS[rank] || RANKS.bronze;
@@ -1597,15 +1700,28 @@
 
     if (badge) badge.innerHTML = `<i class="fas ${rankInfo.icon}" style="color:${rankInfo.color}"></i> <span>${rankInfo.label}</span>`;
 
+    // Single computed XP object \u2014 all three (label, fill, headline) read from this.
     const currentXp = _profile.xp || 0;
+    let xp;
     if (nextRank) {
-      const progress = ((currentXp - rankInfo.xp) / (nextRank.xp - rankInfo.xp)) * 100;
-      if (xpFill) xpFill.style.setProperty('--bar-pct', Math.min(100, Math.max(0, progress)) / 100);
-      if (xpText) xpText.textContent = `${currentXp} / ${nextRank.xp} XP`;
+      const span = nextRank.xp - rankInfo.xp;
+      const into = Math.max(0, currentXp - rankInfo.xp);
+      const required = Math.max(0, span);
+      const remaining = Math.max(0, nextRank.xp - currentXp);
+      const percent = required > 0 ? Math.min(100, Math.max(0, (into / required) * 100)) : 0;
+      xp = { current: into, required: required, remaining: remaining, percent: percent, atMax: false };
     } else {
-      if (xpFill) xpFill.style.setProperty('--bar-pct', '1');
-      if (xpText) xpText.textContent = `${currentXp} XP \u2014 Max Rank`;
+      xp = { current: currentXp, required: currentXp, remaining: 0, percent: 100, atMax: true };
     }
+
+    if (xpFill) xpFill.style.width = xp.percent + '%';
+    if (xpBar && xpBar.classList.contains('blindspot-bar')) xpBar.setAttribute('aria-valuenow', String(Math.round(xp.percent)));
+    if (xpText) xpText.textContent = xp.atMax ? `${xp.current} XP \u2014 Max Rank` : `${xp.current} / ${xp.required} XP`;
+    if (remainEl) remainEl.textContent = xp.atMax ? 'Max rank' : `${xp.remaining} XP`;
+
+    // Streak / best \u2014 wired to live progress (was hardcoded mock markup).
+    if (streakEl) streakEl.textContent = String(getWinStreak() || 0);
+    if (bestEl) bestEl.textContent = String(getBestStreak() || 0);
   }
 
   function updateForgeProgress() {
@@ -1626,7 +1742,7 @@
     const displayWins = Math.min(Math.floor(wins), needed);
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
     if (label) label.textContent = 'CARD FORGE \u00b7 ' + displayWins + '/' + needed;
-    if (hint) hint.textContent = ready ? 'Tap to customize your card' : 'Win campaign fights to unlock';
+    if (hint) hint.textContent = ready ? 'Customize your card' : 'Win campaign fights to unlock';
     if (fill) fill.style.setProperty('--bar-pct', pct / 100);
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
@@ -1702,7 +1818,8 @@
     initPvPTabs: function() { if (_Pvp.initPvPTabs) _Pvp.initPvPTabs(); },
     renderDefenseQueue: function() { if (_Pvp.renderDefenseQueue) _Pvp.renderDefenseQueue(); },
     pollInboxCount: function() { if (_Pvp.pollInboxCount) _Pvp.pollInboxCount(); },
-    getPvpUnlockRequirement: function() { return _config && _config.pvpUnlock ? _config.pvpUnlock.requireBossDefeated : 3; }
+    getPvpUnlockRequirement: function() { return _config && _config.pvpUnlock ? _config.pvpUnlock.requireBossDefeated : 3; },
+    renderBossCodex: function() { renderBossCodex(); }
   });
 
   // ============================================================

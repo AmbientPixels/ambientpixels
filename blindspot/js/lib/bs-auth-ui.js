@@ -24,7 +24,7 @@
         sessionStorage.setItem('isAuthenticated', 'true');
         document.body.setAttribute('data-auth-state', 'signed-in');
 
-        var name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';
+        var name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'fighter';
         el.innerHTML = '<i class="fas fa-user-check" style="color:var(--bs-accent); font-size:0.6rem;"></i> '
           + escHtml(name)
           + ' <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" style="color:var(--bs-text-muted); margin-left:0.5rem; font-size:0.65rem;" title="Sign out"><i class="fas fa-sign-out-alt"></i></a>';
@@ -32,12 +32,12 @@
       } else {
         // Not logged in — show sign in link
         el.innerHTML = '<a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>';
-        if (lobbyNameEl) lobbyNameEl.textContent = 'Player';
+        if (lobbyNameEl) lobbyNameEl.textContent = 'fighter';
       }
     }).catch(function () {
       // Auth check failed — show sign in link
       el.innerHTML = '<a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>';
-      if (lobbyNameEl) lobbyNameEl.textContent = 'Player';
+      if (lobbyNameEl) lobbyNameEl.textContent = 'fighter';
     });
   }
 

@@ -415,11 +415,12 @@ body.bs-page {
   background: var(--blindspot-success);
   color: #0E0A06;
   border-radius: 50%;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   font-size: 0.6rem;
 }
+.blindspot-boss-pip.is-done .blindspot-boss-pip__check { display: flex; }
 .blindspot-boss-pip__num {
   font-family: var(--blindspot-font-mono);
   font-size: 0.6rem;
@@ -822,3 +823,196 @@ body.bs-page {
 .blindspot-lobby #bs-challenges .bs-challenge__stars i.fas.fa-star {
   color: var(--blindspot-accent);
 }
+
+/* ============================================================
+   POST-REVIEW POLISH
+   - Demote red to CTA + active progress only; warm tan for chips, meta,
+     ascension, lock states.
+   - Wire up new selectors (ROSTER label, bounty progress chip, reset
+     timer, MASTERED chip).
+   - Vertical-center the left card column on desktop.
+   - Lobby-scoped stat-bar desaturation so card stat colors don't fight
+     the moody serif aesthetic.
+   ============================================================ */
+
+/* #4 Red palette demotion (lobby-scoped) */
+.blindspot-lobby__sub strong { color: var(--blindspot-text-dim); }
+.blindspot-lobby-section__head-meta { color: var(--blindspot-accent-gold); }
+.blindspot-lobby #bs-bounties .bs-bounty__reward { color: var(--blindspot-accent-gold); }
+.blindspot-lobby .blindspot-boss-pip--asc .blindspot-boss-pip__img {
+  color: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold-dim);
+}
+.blindspot-lobby .blindspot-ql__lock { color: var(--blindspot-text-muted); }
+.blindspot-lobby .blindspot-ql__lock i { color: var(--blindspot-accent-gold); }
+
+/* #14 NOTE: vertical centering tried, reverted — the right column stacks
+   tall (rank, bounties, campaign, challenges, loot, quick links) so
+   centering the left column dropped the card well below the header,
+   leaving a worse gap above than the original gap below. Keeping the
+   default `align-items: start` from the grid parent. Pinning a small
+   module below the action buttons is the right follow-up, but out of
+   scope for this targeted-fix pass.
+   Killing the wrapper's 12px top padding in lobby scope so the card
+   tops align with the rank strip on the right. */
+.blindspot-lobby .bs-lobby__card-wrapper { padding-top: 0; }
+
+/* #7 Roster label above the card pager */
+.bs-card-switcher__label {
+  display: block;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+/* #9 Bounty progress chip + reset countdown.
+   Widen the JS-rendered grid to 4 cols so the progress chip has its own
+   slot. Reward stays last. */
+.blindspot-lobby #bs-bounties .bs-bounty {
+  grid-template-columns: 36px 1fr auto auto;
+  column-gap: 0.7rem;
+}
+.blindspot-lobby #bs-bounties .bs-bounty__text { color: var(--blindspot-text); }
+.blindspot-lobby #bs-bounties .bs-bounty__progress {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--blindspot-text-dim);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--blindspot-border);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.blindspot-lobby #bs-bounties .bs-bounty--done .bs-bounty__progress {
+  color: var(--blindspot-success);
+  border-color: var(--blindspot-success);
+}
+.blindspot-lobby-section__head .blindspot-lobby-section__head-meta {
+  /* Section meta already styled; let the bounty meta render its full string
+     (e.g. "1/3 · Resets in 4h 22m") without truncation. */
+  white-space: nowrap;
+}
+
+/* #10 Maxed challenge — subtle gold treatment + MASTERED chip */
+.blindspot-lobby #bs-challenges .bs-challenge--maxed {
+  border-color: var(--blindspot-accent-gold-dim);
+  background: linear-gradient(180deg, var(--blindspot-surface), rgba(245, 192, 120, 0.06));
+}
+.bs-challenge__mastered {
+  display: inline-block;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  border: 1px solid var(--blindspot-accent-gold-dim);
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(245, 192, 120, 0.06);
+}
+
+/* #5 Stat-bar desaturation (lobby-scoped). The shared card renderer writes
+   stat colors inline on .bs-rc-stat__label and .bs-rc-stat__fill, so we
+   filter the bar container only. Avatar art, element badge, and border
+   tier glow stay at full saturation. PvP + share-modal cards untouched. */
+.blindspot-lobby #bs-player-card .bs-rc-stats { filter: saturate(0.6); }
+
+/* #12 Boss Codex modal — list of bosses with locked/defeated state */
+.bs-codex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.bs-codex-row {
+  background: var(--bs-bg-2, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--bs-border, rgba(255, 255, 255, 0.08));
+  border-radius: 6px;
+  padding: 0.75rem 0.9rem;
+}
+.bs-codex-row--defeated { border-color: var(--blindspot-success); }
+.bs-codex-row--locked { opacity: 0.7; }
+.bs-codex-row__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+.bs-codex-row__num {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--blindspot-text-muted);
+}
+.bs-codex-row__name {
+  font-family: var(--blindspot-font-display);
+  font-size: 1rem;
+  margin: 0;
+  flex: 1;
+  color: var(--blindspot-text);
+}
+.bs-codex-row__status {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blindspot-success);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.bs-codex-row__status--locked { color: var(--blindspot-text-muted); }
+.bs-codex-row__flavor {
+  font-size: 0.85rem;
+  color: var(--blindspot-text-dim);
+  margin: 0 0 0.5rem;
+  font-style: italic;
+}
+.bs-codex-row__flavor--locked { font-style: normal; }
+.bs-codex-row__intel {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 0.7rem;
+  margin: 0;
+  font-size: 0.8rem;
+}
+.bs-codex-row__intel dt {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.bs-codex-row__intel dd { margin: 0; color: var(--blindspot-text); }
+.bs-codex-empty {
+  text-align: center;
+  color: var(--blindspot-text-muted);
+  padding: 1rem;
+  font-size: 0.85rem;
+}
+
+/* #11 Collection thumbnails — up to 3 mini icons inline in the row */
+.bs-collection-panel__previews {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+}
+.bs-collection-panel__thumb {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 50%;
+  font-size: 0.7rem;
+}
+.bs-collection-panel__previews + .bs-collection-panel__count { margin-left: 0.4rem; }

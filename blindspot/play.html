@@ -76,8 +76,8 @@
       <div class="blindspot-lobby__head">
         <div class="blindspot-lobby__head-meta">
           <div class="blindspot-eyebrow">Lobby &middot; Fighter Status</div>
-          <h1 class="blindspot-lobby__title">Welcome back, <span id="bs-lobby-username">Player</span>.</h1>
-          <p class="blindspot-lobby__sub">Streak <strong>4</strong> &middot; Best <strong>7</strong> &middot; Next rank in <strong>190 XP</strong></p>
+          <h1 class="blindspot-lobby__title">Welcome back, <span id="bs-lobby-username">fighter</span>.</h1>
+          <p class="blindspot-lobby__sub">Streak <strong id="bs-streak">0</strong> &middot; Best <strong id="bs-best">0</strong> &middot; Next rank in <strong id="bs-xp-remaining">&mdash;</strong></p>
         </div>
         <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-play-btn" aria-label="Fight next boss">
           <i class="fas fa-bolt" aria-hidden="true"></i> <span id="bs-play-btn-label">Fight Next Boss</span>
@@ -95,13 +95,14 @@
               <div class="bs-loading" style="flex-direction:column; padding:1rem;"><div class="bs-spinner" role="status"></div><span style="font-size:0.7rem; margin-top:0.5rem;">Loading...</span></div>
             </div>
             <div class="bs-card-switcher" id="bs-card-switcher" style="display:none;" role="navigation" aria-label="Switch cards">
+              <span class="bs-card-switcher__label">Roster</span>
               <button class="bs-card-switcher__btn" id="bs-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
               <span class="bs-card-switcher__count" id="bs-card-count">1 / 1</span>
               <button class="bs-card-switcher__btn" id="bs-card-next" aria-label="Next card"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
             </div>
             <div class="bs-forge-progress" id="bs-forge-progress">
               <div class="bs-forge-progress__label" id="bs-forge-label">FORGE &middot; 0 / 3</div>
-              <div class="bs-forge-progress__hint" id="bs-forge-hint">Win campaign fights to customize your card</div>
+              <div class="bs-forge-progress__hint" id="bs-forge-hint">Win campaign fights to unlock</div>
               <div class="bs-forge-progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Forge unlock progress">
                 <div class="bs-forge-progress__bar-fill" id="bs-forge-fill"></div>
               </div>
@@ -131,10 +132,10 @@
               <div class="blindspot-rank-strip__row">
                 <span class="blindspot-display" id="bs-rank-badge">Bronze</span>
                 <span class="blindspot-rank-strip__arrow">&rarr; Silver</span>
-                <span class="blindspot-rank-strip__xp" id="bs-xp-text">310 / 500 XP</span>
+                <span class="blindspot-rank-strip__xp" id="bs-xp-text">0 / 0 XP</span>
               </div>
-              <div class="blindspot-bar" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Experience progress">
-                <div class="blindspot-bar__fill" id="bs-xp-fill" style="width:62%"></div>
+              <div class="blindspot-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Experience progress">
+                <div class="blindspot-bar__fill" id="bs-xp-fill" style="width:0%"></div>
               </div>
             </div>
           </div>
@@ -160,51 +161,54 @@
             <div class="blindspot-bounties bs-bounties" id="bs-bounties" role="region" aria-label="Daily bounties"></div>
           </div>
 
-          <!-- Campaign rail -->
+          <!-- Campaign rail.
+               JS (renderCampaignProgress in blindspot-flow.js) toggles
+               .is-done on each pip + writes the X / 10 BOSSES count from
+               getHighestBossDefeated(). Same source feeds the lobby CTA. -->
           <div class="blindspot-lobby-section">
             <div class="blindspot-lobby-section__head">
               <h2>Campaign</h2>
-              <span class="blindspot-lobby-section__head-meta">4 / 10 BOSSES</span>
+              <span class="blindspot-lobby-section__head-meta" id="bs-campaign-count">0 / 10 BOSSES</span>
             </div>
             <div class="blindspot-boss-rail" role="list" aria-label="Boss roster">
-              <button class="blindspot-boss-pip is-done" type="button" data-nav-target="campaign" title="The Gatekeeper" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Gatekeeper-01.webp');"><span class="blindspot-boss-pip__check"><i class="fas fa-check" aria-hidden="true"></i></span></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="1" title="The Gatekeeper" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Gatekeeper-01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">01</span>
               </button>
-              <button class="blindspot-boss-pip is-done" type="button" data-nav-target="campaign" title="Gutter Rat" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Gutter-Rat01.webp');"><span class="blindspot-boss-pip__check"><i class="fas fa-check" aria-hidden="true"></i></span></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="2" title="Gutter Rat" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Gutter-Rat01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">02</span>
               </button>
-              <button class="blindspot-boss-pip is-done" type="button" data-nav-target="campaign" title="Shadow Stalker" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Shadow-Stalker-01.webp');"><span class="blindspot-boss-pip__check"><i class="fas fa-check" aria-hidden="true"></i></span></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="3" title="Shadow Stalker" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Shadow-Stalker-01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">03</span>
               </button>
-              <button class="blindspot-boss-pip is-done" type="button" data-nav-target="campaign" title="Arcane Scholar" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Arcane-Scholar-01.webp');"><span class="blindspot-boss-pip__check"><i class="fas fa-check" aria-hidden="true"></i></span></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="4" title="Arcane Scholar" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Arcane-Scholar-01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">04</span>
               </button>
-              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" title="Warlord Grax" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Warlord-Grax01.webp');"></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="5" title="Warlord Grax" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Warlord-Grax01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">05</span>
               </button>
-              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" title="Ironclad Sentinel" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Ironclad-Sentinel-01.webp');"></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="6" title="Ironclad Sentinel" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Ironclad-Sentinel-01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">06</span>
               </button>
-              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" title="Titanium Aegis" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Titanium-Aegis-01.webp');"></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="7" title="Titanium Aegis" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Titanium-Aegis-01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">07</span>
               </button>
-              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" title="The Forge King" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/The-Forge-King-01.webp');"></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="8" title="The Forge King" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/The-Forge-King-01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">08</span>
               </button>
-              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" title="Void Harbinger" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Void-Harbinger-01.webp');"></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="9" title="Void Harbinger" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Void-Harbinger-01.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">09</span>
               </button>
-              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" title="Crystal Weaver" role="listitem">
-                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Crystal-Weaver-10.webp');"></span>
+              <button class="blindspot-boss-pip" type="button" data-nav-target="campaign" data-boss-index="10" title="Crystal Weaver" role="listitem">
+                <span class="blindspot-boss-pip__img" style="background-image:url('img/bosses/Crystal-Weaver-10.webp');"><span class="blindspot-boss-pip__check" aria-hidden="true"><i class="fas fa-check"></i></span></span>
                 <span class="blindspot-boss-pip__num">10</span>
               </button>
               <button class="blindspot-boss-pip blindspot-boss-pip--asc" type="button" data-nav-target="campaign" title="Ascension" role="listitem">
@@ -238,7 +242,10 @@
             </div>
             <div class="bs-loot-row">
               <button class="bs-collection-panel" id="bs-btn-collection" style="display:none;" aria-label="Open collection">
-                <i class="fas fa-gem"></i> <span>Collection</span> <span class="bs-collection-panel__count" id="bs-collection-count">0</span>
+                <i class="fas fa-gem"></i>
+                <span>Collection</span>
+                <span class="bs-collection-panel__previews" id="bs-collection-previews" aria-hidden="true"></span>
+                <span class="bs-collection-panel__count" id="bs-collection-count">0</span>
               </button>
               <div class="bs-sparks-shop" id="bs-sparks-shop" style="display:none;" role="region" aria-label="Sparks shop">
                 <button class="bs-sparks-shop__buy" id="bs-buy-ember-crate" aria-label="Buy Ember Crate for 50 Sparks">
@@ -256,11 +263,11 @@
 
           <!-- Quick Links (replaces .bs-modes; same JS hooks) -->
           <nav class="blindspot-quick-links" aria-label="Game modes">
-            <button class="blindspot-ql" id="bs-btn-campaign" type="button">
-              <i class="fas fa-dragon" aria-hidden="true"></i>
+            <button class="blindspot-ql" id="bs-btn-codex" type="button">
+              <i class="fas fa-book-skull" aria-hidden="true"></i>
               <span class="blindspot-ql__body">
-                <span class="blindspot-ql__title">Campaign</span>
-                <span class="blindspot-ql__desc">Fight 10 bosses. Evolve your card.</span>
+                <span class="blindspot-ql__title">Boss Codex</span>
+                <span class="blindspot-ql__desc">Lore, weaknesses, signature moves.</span>
               </span>
               <i class="fas fa-chevron-right blindspot-ql__chev" aria-hidden="true"></i>
             </button>
@@ -1141,6 +1148,23 @@
       </div>
 
       <button class="bs-btn bs-btn--primary bs-btn--full" id="bs-howtoplay-gotit" style="margin-top:1rem;">Got It</button>
+    </div>
+  </div>
+
+  <!-- Boss Codex modal — populated by renderBossCodex() in blindspot-flow.js
+       from _bosses + getHighestBossDefeated(). Defeated bosses surface full
+       stats; locked bosses show silhouette + "Defeat to reveal". -->
+  <div id="bs-codex" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="Boss Codex" aria-modal="true">
+    <div class="bs-modal" style="max-width:680px;">
+      <button class="bs-modal__close" id="bs-codex-close" aria-label="Close"><i class="fas fa-times"></i></button>
+      <h2 class="bs-modal__title"><i class="fas fa-book-skull"></i> Boss Codex</h2>
+      <p class="bs-text-sm" style="color:var(--bs-text-muted); margin:0 0 1rem;">Defeat a boss to unlock their full entry — weaknesses, signature, and reward.</p>
+      <div class="bs-modal__body">
+        <div id="bs-codex-list" class="bs-codex-list" role="list">
+          <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading codex…</div>
+        </div>
+      </div>
+      <button class="bs-btn bs-btn--primary bs-btn--full" id="bs-codex-gotit" style="margin-top:1rem;">Close</button>
     </div>
   </div>
 

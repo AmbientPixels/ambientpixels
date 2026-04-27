@@ -97,11 +97,11 @@ window.BsRewards = (function () {
   // ── Bounty Pool ──
 
   var BOUNTY_POOL = [
-    { id: 'win_3_streak', text: 'Win 3 fights in a row', check: 'streak3', reward: { xp: 25, stat: 'str', amount: 3, label: '+25 XP, +3 STR' } },
-    { id: 'beat_new_boss', text: 'Defeat a new boss', check: 'newBoss', reward: { xp: 50, label: '+50 XP' } },
-    { id: 'play_3', text: 'Play 3 fights today', check: 'play3', reward: { xp: 15, forgePoints: 1, label: '+15 XP, +1 Forge' } },
-    { id: 'win_2', text: 'Win 2 fights today', check: 'win2', reward: { xp: 20, stat: 'agi', amount: 2, label: '+20 XP, +2 AGI' } },
-    { id: 'forge_card', text: 'Visit the Forge', check: 'forgeVisit', reward: { xp: 10, label: '+10 XP' } }
+    { id: 'win_3_streak', text: 'Win 3 fights in a row', check: 'streak3', target: 3, reward: { xp: 25, stat: 'str', amount: 3, label: '+25 XP, +3 STR' } },
+    { id: 'beat_new_boss', text: 'Defeat a new boss', check: 'newBoss', target: 1, hint: 'New = a boss you haven’t beaten before.', reward: { xp: 50, label: '+50 XP' } },
+    { id: 'play_3', text: 'Play 3 fights today', check: 'play3', target: 3, reward: { xp: 15, forgePoints: 1, label: '+15 XP, +1 Forge' } },
+    { id: 'win_2', text: 'Win 2 fights today', check: 'win2', target: 2, reward: { xp: 20, stat: 'agi', amount: 2, label: '+20 XP, +2 AGI' } },
+    { id: 'forge_card', text: 'Visit the Forge', check: 'forgeVisit', target: 1, reward: { xp: 10, label: '+10 XP' } }
   ];
 
   // ── Challenge Data Access ──
@@ -191,11 +191,17 @@ window.BsRewards = (function () {
         pct = 100;
       }
 
-      return '<div class="bs-challenge" role="listitem">'
+      var maxed = claimed >= 3;
+      var rowClass = 'bs-challenge' + (maxed ? ' bs-challenge--maxed' : '');
+      var descHtml = maxed
+        ? '<span class="bs-challenge__mastered">Mastered</span>'
+        : escHtml(nextDesc);
+
+      return '<div class="' + rowClass + '" role="listitem">'
         + '<div class="bs-challenge__icon"><i class="fas ' + ch.icon + '" aria-hidden="true"></i></div>'
         + '<div class="bs-challenge__info">'
         + '<div class="bs-challenge__name">' + escHtml(ch.name) + '</div>'
-        + '<div class="bs-challenge__desc">' + escHtml(claimed < 3 ? nextDesc : 'All tiers complete!') + '</div>'
+        + '<div class="bs-challenge__desc">' + descHtml + '</div>'
         + '<div class="bs-challenge__bar"><div class="bs-challenge__fill" style="width:' + pct + '%;"></div></div>'
         + '</div>'
         + '<div class="bs-challenge__stars">' + stars + '</div>'
@@ -208,6 +214,11 @@ window.BsRewards = (function () {
         '<span class="bs-challenges__count" aria-label="' + claimedTiers + ' of ' + totalTiers + ' tiers complete">' + claimedTiers + '/' + totalTiers + '</span>' +
       '</div>' +
       '<div class="bs-challenges__list" id="bs-challenges-list" role="list">' + rows + '</div>';
+
+    // Mirror the count to the visible lobby section head meta (the JS-
+    // rendered inner header is hidden in lobby).
+    var lobbyHead = document.getElementById('bs-challenges-headcount');
+    if (lobbyHead) lobbyHead.textContent = claimedTiers + ' / ' + totalTiers;
 
     el.style.display = '';
 
@@ -239,6 +250,61 @@ window.BsRewards = (function () {
     return stored;
   }
 
+  // Reset timer machinery — single interval shared across renders.
+  var _resetTimerHandle = null;
+
+  function _msUntilNextDailyReset() {
+    var now = new Date();
+    var next = new Date(Date.UTC(
+      now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0, 0
+    ));
+    return Math.max(0, next.getTime() - now.getTime());
+  }
+
+  function _formatResetCountdown(ms) {
+    if (ms <= 0) return 'Resetting…';
+    var totalMin = Math.floor(ms / 60000);
+    var hours = Math.floor(totalMin / 60);
+    var mins = totalMin % 60;
+    if (hours >= 1) return 'Resets in ' + hours + 'h ' + mins + 'm';
+    if (mins >= 1) return 'Resets in ' + mins + 'm';
+    return 'Resets in <1m';
+  }
+
+  function _writeResetCountdown() {
+    // Lobby section meta (visible) — preferred target.
+    var headEl = document.getElementById('bs-bounties-headcount');
+    var inEl = document.getElementById('bs-bounties-resetin');
+    var label = _formatResetCountdown(_msUntilNextDailyReset());
+    if (headEl) {
+      // Compose "X/3 · Resets in Yh Zm" into the section head meta. Read the
+      // done-count off the legacy hidden inner header so we don't recompute.
+      var data = progress().bounties || { bounties: [] };
+      var bounties = data.bounties || [];
+      var done = bounties.filter(function (b) { return b.done; }).length;
+      headEl.textContent = done + '/3 · ' + label;
+    }
+    if (inEl) inEl.textContent = label;
+    return !!(headEl || inEl);
+  }
+
+  // Live current value per bounty — drives the N/M progress chip.
+  function _bountyCurrent(b, data) {
+    if (b.done) return b.target || 1;
+    var cb = _callbacks;
+    switch (b.check) {
+      case 'streak3':
+        var streak = cb.getCurrentStreak ? cb.getCurrentStreak() : 0;
+        return Math.min(b.target, streak || 0);
+      case 'play3': return Math.min(b.target, data.fights || 0);
+      case 'win2': return Math.min(b.target, data.wins || 0);
+      case 'newBoss':
+      case 'forgeVisit':
+        return 0;
+      default: return 0;
+    }
+  }
+
   function renderBounties() {
     var el = document.getElementById('bs-bounties');
     if (!el) return;
@@ -249,16 +315,36 @@ window.BsRewards = (function () {
     el.innerHTML =
       '<div class="bs-bounties__header">'
       + '<span><i class="fas fa-scroll" aria-hidden="true"></i> Daily Bounties</span>'
+      + '<span class="bs-bounties__resetin" id="bs-bounties-resetin" aria-live="polite"></span>'
       + '<span class="bs-bounties__count" aria-label="' + doneCount + ' of 3 bounties complete">' + doneCount + '/3</span>'
       + '</div>'
       + data.bounties.map(function(b) {
-          return '<div class="bs-bounty ' + (b.done ? 'bs-bounty--done' : '') + '" role="listitem">'
+          var target = b.target || 1;
+          var current = _bountyCurrent(b, data);
+          var showProgress = target > 1;
+          var titleAttr = b.hint ? ' title="' + escHtml(b.hint) + '"' : '';
+          return '<div class="bs-bounty ' + (b.done ? 'bs-bounty--done' : '') + '" role="listitem"' + titleAttr + '>'
             + '<i class="fas ' + (b.done ? 'fa-check-circle' : 'fa-circle') + '" aria-hidden="true"></i>'
-            + '<span>' + escHtml(b.text) + '</span>'
+            + '<span class="bs-bounty__text">' + escHtml(b.text) + '</span>'
+            + (showProgress
+                ? '<span class="bs-bounty__progress" aria-label="' + current + ' of ' + target + '">' + current + '/' + target + '</span>'
+                : '')
             + (b.reward ? '<span class="bs-bounty__reward">' + escHtml(b.reward.label) + '</span>' : '')
             + '</div>';
         }).join('');
     el.style.display = '';
+
+    // Render countdown immediately + start a 60s tick. Replace any prior tick
+    // (e.g. when the lobby re-renders).
+    _writeResetCountdown();
+    if (_resetTimerHandle) { clearInterval(_resetTimerHandle); _resetTimerHandle = null; }
+    _resetTimerHandle = setInterval(function () {
+      // If the element is gone (lobby unmounted), stop ticking.
+      if (!_writeResetCountdown()) {
+        clearInterval(_resetTimerHandle);
+        _resetTimerHandle = null;
+      }
+    }, 60000);
   }
 
   // ── Public API ──
