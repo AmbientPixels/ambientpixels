@@ -971,7 +971,7 @@ body.bs-page .qb-overlay .qb-panel-title {
   margin-bottom: 0.5rem;
 }
 body.bs-page .qb-overlay .qb-panel-desc {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 1rem;
   line-height: 1.55;
   color: var(--bs-text-dim);
@@ -983,7 +983,7 @@ body.bs-page .qb-overlay .qb-vibe-card {
   border-radius: 4px;
   border-color: var(--bs-border-2);
   background: var(--bs-surface);
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 body.bs-page .qb-overlay .qb-vibe-card:hover {
   border-color: var(--blindspot-accent-gold);

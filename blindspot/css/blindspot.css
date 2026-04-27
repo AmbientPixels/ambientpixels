@@ -10798,7 +10798,7 @@ body.bs-adventure-active {
   padding-bottom: 0;
 }
 #bs-howtoplay .bs-modal__section p {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 0.95rem;
   line-height: 1.55;
   color: var(--blindspot-text-dim);
@@ -10919,7 +10919,7 @@ body.bs-adventure-active {
   background: var(--bs-surface);
   border: 1px solid var(--bs-border-2);
   border-radius: 4px;
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 .bs-page .bs-class-picker-overlay .bs-class-picker-btn:hover {
   border-color: var(--blindspot-accent-gold);
@@ -11033,7 +11033,7 @@ body.bs-adventure-active {
 
 /* Sort toolbar — square pills, italic Cormorant, gold active state. */
 #bs-screen-deck .bs-deck-sort__btn {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-size: 0.95rem;
   letter-spacing: 0.02em;
   border-radius: 2px;

@@ -6,7 +6,7 @@
    Coexists with legacy `--bs-*` tokens in blindspot.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* ---------- SURFACES ---------- */
@@ -43,11 +43,15 @@
   --blindspot-stam:  #C8923B;
   --blindspot-hype:  #8E5DAB;
 
-  /* ---------- TYPOGRAPHY (Vein) ---------- */
+  /* ---------- TYPOGRAPHY (Vein) ----------
+     Display = Cormorant Garamond (italic for wordmark + page titles —
+     painterly editorial brand voice). Body = Inter (high-x-height
+     neutral sans, scan-readable down to 0.7rem in dense info layouts
+     like prefight intel rows, shop cards, deck tiles). */
   --blindspot-font-display: 'Cormorant Garamond', 'Times New Roman', serif;
-  --blindspot-font-body:    'Cormorant Garamond', 'Georgia', serif;
+  --blindspot-font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --blindspot-font-mono:    'JetBrains Mono', ui-monospace, monospace;
-  --blindspot-font-numeric: 'Cormorant Garamond', serif;
+  --blindspot-font-numeric: 'Inter', system-ui, sans-serif;
 
   --blindspot-display-tracking: 0.02em;
   --blindspot-display-weight:   600;
