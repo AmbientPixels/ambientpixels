@@ -544,3 +544,273 @@
   margin-top: 1rem;
   color: var(--blindspot-text);
 }
+
+/* ============================================================
+   POST-REVIEW POLISH (Phase 4a follow-up)
+   - Selected card now driven into YOU column (intel rows, deck thumbs,
+     element badge, flavor quote).
+   - Boss intel re-rendered as grouped sub-sections (Advantages / Threats /
+     Properties) instead of a flat <br>-separated string.
+   - Pull the arena rail up so the CTAs aren't floating in dead space.
+   - Single elemental matchup callout (placed once between flavor + intel).
+   - VS column eyebrow labels + larger stat-row icons.
+   ============================================================ */
+
+/* #7 Tighten the gap between the 3-col layout and the arena rail.
+   Was 2rem; the YOU column is now denser so the rail can sit closer. */
+.blindspot-prefight .blindspot-prefight__arenas { margin-top: 0.75rem; }
+.blindspot-prefight #bs-arena-selector { margin-top: 0.75rem; }
+.blindspot-prefight .blindspot-prefight__inner { padding-bottom: 2rem; }
+
+/* #11 VS column eyebrow labels (Fighter / Opponent) above each name */
+.blindspot-prefight__vs-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+.blindspot-prefight__vs-eyebrow {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-prefight__vs-name {
+  font-family: var(--blindspot-font-display);
+  font-size: 1rem;
+  color: var(--blindspot-text);
+  letter-spacing: 0.04em;
+}
+
+/* #12 Difficulty separator + numeric */
+.blindspot-prefight__chapter-sep {
+  margin: 0 0.4em;
+  color: var(--blindspot-text-muted);
+  opacity: 0.6;
+}
+.blindspot-prefight__chapter-num {
+  margin-left: 0.4em;
+  color: var(--blindspot-text-dim);
+  font-feature-settings: "tnum" on, "lnum" on;
+}
+
+/* #18 Bump stat-row icon size by ~25%, restore visibility */
+.blindspot-prefight .bs-prefight-stat-row__label { font-size: 0.7rem; }
+.blindspot-prefight .bs-prefight-stat-row__label i {
+  font-size: 0.85rem;
+  color: var(--blindspot-text-dim);
+}
+
+/* #10 Stat-bar treatment to match the lobby — mute the rainbow.
+   Player + boss fills already use accent/danger gradients (not rainbow),
+   but the diff text colors were vivid. Soften to the same warm tan
+   accents the lobby uses for chips, then keep red-vs-green only on the
+   player/boss bar fills themselves. */
+.blindspot-prefight .bs-stat-advantage  { color: var(--blindspot-success); }
+.blindspot-prefight .bs-stat-disadvantage { color: var(--blindspot-accent-gold); }
+.blindspot-prefight .bs-stat-even       { color: var(--blindspot-text-muted); }
+
+/* Boss intel groupings (#19) — labeled sub-sections */
+.blindspot-intel-group { margin-top: 0.85rem; }
+.blindspot-intel-group:first-child { margin-top: 0; }
+.blindspot-intel-group__label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  margin-bottom: 0.35rem;
+  padding-left: 0.2rem;
+}
+
+/* Single matchup callout (#5) — one band, three states */
+.blindspot-prefight__matchup-row {
+  text-align: center;
+  font-size: 0.85rem;
+  margin: 0.35rem 0 0.6rem;
+}
+.blindspot-prefight__matchup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.blindspot-prefight__matchup--good {
+  background: rgba(110, 159, 74, 0.12);
+  border: 1px solid var(--blindspot-success);
+  color: var(--blindspot-success);
+}
+.blindspot-prefight__matchup--bad {
+  background: rgba(200, 48, 44, 0.12);
+  border: 1px solid var(--blindspot-accent);
+  color: var(--blindspot-accent);
+}
+.blindspot-prefight__matchup--neutral {
+  background: rgba(184, 154, 130, 0.08);
+  border: 1px solid var(--blindspot-border);
+  color: var(--blindspot-text-dim);
+}
+
+/* YOU-column deck thumbnail strip (#15) */
+.blindspot-prefight__deck { margin-top: 0.75rem; }
+.blindspot-prefight__deck-label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  margin-bottom: 0.35rem;
+  text-align: center;
+}
+.blindspot-prefight__deck-thumbs {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.blindspot-prefight__deck-thumb {
+  width: 36px;
+  height: 50px;
+  background-size: cover;
+  background-position: center top;
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: 4px;
+  background-color: var(--blindspot-surface);
+}
+.blindspot-prefight__deck-thumb--empty {
+  background: linear-gradient(135deg, var(--blindspot-surface), var(--blindspot-bg-2));
+}
+
+/* Arena tiles: image-filled pills with a nameplate at the bottom (#13, #14).
+   The button itself is the image; the nameplate is an absolute-positioned
+   band hosting the icon, name, and (when locked) the unlock requirement.
+   Lock badge centers on top of the dimmed image; checkmark sits top-left
+   when active. Renders the same JS output as the pip variant — these
+   rules win because they're scoped under `#bs-arena-selector`. */
+.blindspot-prefight #bs-arena-selector .bs-arena-options {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option {
+  position: relative;
+  width: 150px;
+  aspect-ratio: 4 / 3;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-tile);
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 200ms ease, border-color 200ms ease, filter 200ms ease, box-shadow 200ms ease;
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option:hover:not([disabled]) {
+  transform: translateY(-2px);
+  border-color: var(--blindspot-accent);
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option--selected,
+.blindspot-prefight #bs-arena-selector .bs-arena-option--selected:hover {
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 0 1px var(--blindspot-accent-gold), 0 0 14px rgba(245, 192, 120, 0.35);
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option--locked {
+  filter: grayscale(0.8) brightness(0.55);
+  cursor: not-allowed;
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option--locked:hover { transform: none; border-color: var(--blindspot-border-2); }
+
+/* Hide the legacy <img>/img-block rules in case any survives — the new
+   structure has no <img> child; the button itself carries the image. */
+.blindspot-prefight #bs-arena-selector .bs-arena-option__img { display: none; }
+
+/* Nameplate band */
+.blindspot-prefight #bs-arena-selector .bs-arena-option__plate {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.45rem 0.5rem 0.4rem;
+  background: linear-gradient(180deg, rgba(10, 8, 6, 0) 0%, rgba(10, 8, 6, 0.78) 45%, rgba(10, 8, 6, 0.94) 100%);
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option__name {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blindspot-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option__name i {
+  color: var(--blindspot-accent-gold);
+  font-size: 0.7rem;
+}
+.blindspot-prefight #bs-arena-selector .bs-arena-option__req {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+}
+
+/* Active checkmark — top-left badge */
+.blindspot-prefight #bs-arena-selector .bs-arena-option__check {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--blindspot-accent-gold);
+  color: #0E0A06;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  z-index: 2;
+  box-shadow: 0 0 6px rgba(245, 192, 120, 0.55);
+}
+
+/* Locked padlock — centered, layered above the dimmed image but below
+   the nameplate band so the unlock requirement is still readable. */
+.blindspot-prefight #bs-arena-selector .bs-arena-option__lock {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(10, 8, 6, 0.7);
+  border: 1px solid var(--blindspot-border-2);
+  color: var(--blindspot-text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  z-index: 1;
+}
+
+/* Mobile: shrink pills so two fit per row at narrow widths. */
+@media (max-width: 600px) {
+  .blindspot-prefight #bs-arena-selector .bs-arena-option { width: calc(50% - 0.5rem); }
+}
+
+/* Player element badge: hide chrome when empty so the portrait corner
+   doesn't show a stray empty pill before card load. */
+.blindspot-prefight__el-badge:empty { display: none; }

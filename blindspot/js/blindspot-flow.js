@@ -90,7 +90,16 @@
   var BOSS_ICONS = _Str.BOSS_ICONS, BATTLE_HINTS = _Str.BATTLE_HINTS, MOVE_BEATS = _Str.MOVE_BEATS;
   var PALETTE_UNLOCK_BOSSES = _C.PALETTE_UNLOCK_BOSSES, STREAK_MILESTONES = _C.STREAK_MILESTONES;
 
-  function populatePrefightOverlay(boss) { ensureCombatStats(_selectedCard); if (_Str.populatePrefightOverlay) _Str.populatePrefightOverlay(boss, _selectedCard); }
+  function populatePrefightOverlay(boss) {
+    ensureCombatStats(_selectedCard);
+    if (_Str.populatePrefightOverlay) {
+      _Str.populatePrefightOverlay(boss, _selectedCard, {
+        deck: getDeck(),
+        winStreak: getWinStreak(),
+        bestStreak: getBestStreak()
+      });
+    }
+  }
   function buildPrefightInfo(boss) { return _Str.buildPrefightInfo ? _Str.buildPrefightInfo(boss) : ''; }
   function detectArchetype(stats) { return _Str.detectArchetype ? _Str.detectArchetype(stats) : { id: 'balanced', name: 'Generalist' }; }
   function getActivePassives(stats) { return _Str.getActivePassives ? _Str.getActivePassives(stats) : []; }
@@ -356,14 +365,13 @@
     if (!container || !window.ArenaBackgrounds) return;
     var highestBoss = getHighestBossDefeated();
     var arenas = window.ArenaBackgrounds.ARENAS;
-    var unlocked = window.ArenaBackgrounds.getUnlockedArenas(highestBoss);
 
-    // Only show picker if player has more than 1 arena unlocked
-    if (unlocked.length <= 1) {
-      container.style.display = 'none';
-      return;
-    }
-
+    // Always render the rail — locked tiles surface what's still ahead
+    // (each one shows its "Beat X" requirement inline, see the
+    // bs-arena-option__req block below). Used to early-return + hide when
+    // only the default arena was unlocked, but that left a blank slot
+    // mid-prefight every time a new player or post-ascension player
+    // opened the overlay. `unlocked` is no longer needed here.
     var selected = window.ArenaBackgrounds.getSelected();
     container.style.display = '';
     container.innerHTML = '<p class="bs-arena-selector__label"><i class="fas fa-map"></i> Choose Arena:</p>'
@@ -374,13 +382,22 @@
           var cls = 'bs-arena-option'
             + (isActive ? ' bs-arena-option--selected' : '')
             + (!isOpen ? ' bs-arena-option--locked' : '');
+          var lockReq = !isOpen && arena.bossName ? 'Beat ' + arena.bossName : '';
+          // Pill = arena image (button background); nameplate band sits at
+          // the bottom of the pill, hosting the icon + name + lock req.
+          // Lock badge centered on top of the dimmed image when locked;
+          // checkmark top-left when active.
+          var bgUrl = String(arena.image).replace(/'/g, '%27');
           return '<button class="' + cls + '" data-arena="' + escHtml(arena.id) + '"'
             + (!isOpen ? ' disabled' : '')
-            + ' title="' + escHtml(arena.name) + (!isOpen ? ' (Beat ' + escHtml(arena.bossName) + ')' : '') + '">'
-            + '<img class="bs-arena-option__img" src="' + escHtml(arena.image) + '" alt="' + escHtml(arena.name) + '" loading="lazy">'
-            + '<div class="bs-arena-option__name"><i class="fas ' + arena.icon + '"></i></div>'
-            + (isActive ? '<div class="bs-arena-option__check"><i class="fas fa-check"></i></div>' : '')
-            + (!isOpen ? '<div class="bs-arena-option__lock"><i class="fas fa-lock"></i></div>' : '')
+            + ' title="' + escHtml(arena.name) + (lockReq ? ' (' + escHtml(lockReq) + ')' : '') + '"'
+            + ' style="background-image:url(\'' + bgUrl + '\');">'
+            + (isActive ? '<span class="bs-arena-option__check" aria-hidden="true"><i class="fas fa-check"></i></span>' : '')
+            + (!isOpen ? '<span class="bs-arena-option__lock" aria-hidden="true"><i class="fas fa-lock"></i></span>' : '')
+            + '<span class="bs-arena-option__plate">'
+              + '<span class="bs-arena-option__name"><i class="fas ' + arena.icon + '" aria-hidden="true"></i> ' + escHtml(arena.name) + '</span>'
+              + (lockReq ? '<span class="bs-arena-option__req">' + escHtml(lockReq) + '</span>' : '')
+            + '</span>'
             + '</button>';
         }).join('')
       + '</div>';

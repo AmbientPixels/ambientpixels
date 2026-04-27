@@ -824,11 +824,17 @@
       <!-- Top line -->
       <div class="blindspot-prefight__topline">
         <button class="blindspot-prefight__retreat" id="bs-prefight-retreat" type="button">
-          <i class="fas fa-chevron-left" aria-hidden="true"></i> Retreat to Lobby
+          <i class="fas fa-chevron-left" aria-hidden="true"></i> Lobby
         </button>
+        <!-- Chapter + difficulty: JS (populatePrefightOverlay) writes the
+             chapter number from the boss index and renders the difficulty
+             dots from the boss's tier so this matches the pager (#bs-prefight-pager-count). -->
         <div class="blindspot-prefight__chapter">
-          Chapter 9 of 10 &middot; Difficulty
-          <span class="blindspot-prefight__chapter-dots" aria-label="Difficulty 5">&#9679;&#9679;&#9679;&#9679;&#9679;</span>
+          <span id="bs-prefight-chapter">Chapter &mdash; of 10</span>
+          <span class="blindspot-prefight__chapter-sep" aria-hidden="true">&middot;</span>
+          Difficulty
+          <span class="blindspot-prefight__chapter-dots" id="bs-prefight-difficulty" aria-label="Difficulty"></span>
+          <span class="blindspot-prefight__chapter-num" id="bs-prefight-difficulty-num" aria-hidden="true"></span>
         </div>
         <div class="blindspot-prefight__pager">
           <button class="blindspot-prefight__pager-btn" id="bs-prefight-pager-prev" type="button" aria-label="Previous boss">
@@ -844,39 +850,30 @@
       <!-- 3-col layout -->
       <div class="blindspot-prefight__layout">
 
-        <!-- BOSS column -->
+        <!-- BOSS column. JS (populatePrefightOverlay) writes the portrait
+             background, element badge, name, flavor, and intel rows
+             grouped into Advantages / Threats / Properties sub-sections. -->
         <div class="blindspot-prefight__boss">
-          <div class="blindspot-prefight__portrait" style="background-image: url('img/bosses/Void-Harbinger-01.webp');">
+          <div class="blindspot-prefight__portrait" id="bs-prefight-boss-portrait">
             <div class="blindspot-prefight__portrait-veil" aria-hidden="true"></div>
-            <span class="blindspot-prefight__el-badge" id="bs-prefight-avatar"><i class="fas fa-ghost" aria-hidden="true"></i> Shadow</span>
+            <span class="blindspot-prefight__el-badge" id="bs-prefight-avatar"></span>
           </div>
-          <h1 class="blindspot-prefight__name" id="bs-prefight-title">Void Harbinger</h1>
-          <p class="blindspot-prefight__flavor" id="bs-prefight-flavor">"He goes invisible every third round."</p>
-          <div class="blindspot-prefight__intel">
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Weakness</span>
-              <span class="blindspot-intel-row__v blindspot-intel-row__v--good">LCK attacks +25%</span>
-            </div>
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Resists</span>
-              <span class="blindspot-intel-row__v blindspot-intel-row__v--bad">COUNTER, ABILITY -25%</span>
-            </div>
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Vs Your Elem</span>
-              <span class="blindspot-intel-row__v">You are strong (+25%)</span>
-            </div>
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Signature</span>
-              <span class="blindspot-intel-row__v blindspot-intel-row__v--epic">&#9733; Phase Cloak &mdash; invisible every 3rd round</span>
-            </div>
-          </div>
+          <h1 class="blindspot-prefight__name" id="bs-prefight-title">&mdash;</h1>
+          <p class="blindspot-prefight__flavor" id="bs-prefight-flavor">&nbsp;</p>
+          <div class="blindspot-prefight__intel" id="bs-prefight-boss-intel"></div>
         </div>
 
         <!-- VS center -->
         <div class="blindspot-prefight__vs">
-          <div class="blindspot-prefight__vs-line">You</div>
+          <div class="blindspot-prefight__vs-line">
+            <span class="blindspot-prefight__vs-eyebrow">Fighter</span>
+            <span class="blindspot-prefight__vs-name" id="bs-prefight-you-vs-name">You</span>
+          </div>
           <div class="blindspot-prefight__vs-glyph">VS</div>
-          <div class="blindspot-prefight__vs-line">Void Harbinger</div>
+          <div class="blindspot-prefight__vs-line">
+            <span class="blindspot-prefight__vs-eyebrow">Opponent</span>
+            <span class="blindspot-prefight__vs-name" id="bs-prefight-boss-vs-name">Void Harbinger</span>
+          </div>
 
           <!-- Stat comparison: JS overwrites this container's innerHTML.
                Static fallback shows when no fight is initiated. -->
@@ -950,32 +947,20 @@
           </div>
         </div>
 
-        <!-- YOU column -->
+        <!-- YOU column. Mock data shown until populatePrefightOverlay()
+             in bs-strategy.js wires the selected card in. JS targets:
+             #bs-prefight-you-portrait (background-image), #bs-prefight-you-el-badge,
+             #bs-prefight-you-name, #bs-prefight-you-flavor, #bs-prefight-you-intel.
+             Deck thumbnail strip rendered into #bs-prefight-you-deck. -->
         <div class="blindspot-prefight__you">
-          <div class="blindspot-prefight__portrait" style="background-image: url('img/fighters/knight.webp');">
+          <div class="blindspot-prefight__portrait" id="bs-prefight-you-portrait">
             <div class="blindspot-prefight__portrait-veil" aria-hidden="true"></div>
-            <span class="blindspot-prefight__el-badge"><i class="fas fa-mountain" aria-hidden="true"></i> Earth</span>
+            <span class="blindspot-prefight__el-badge" id="bs-prefight-you-el-badge"></span>
           </div>
-          <h1 class="blindspot-prefight__name">Cyberpunk Runner</h1>
-          <p class="blindspot-prefight__flavor"><em>Guardian &middot; Shadow Walker</em></p>
-          <div class="blindspot-prefight__intel">
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Power</span>
-              <span class="blindspot-intel-row__v">386</span>
-            </div>
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Streak</span>
-              <span class="blindspot-intel-row__v blindspot-intel-row__v--accent">4 wins &middot; +10% spark bonus at 5</span>
-            </div>
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Deck</span>
-              <span class="blindspot-intel-row__v">6 / 8 cards</span>
-            </div>
-            <div class="blindspot-intel-row">
-              <span class="blindspot-intel-row__k">Signature</span>
-              <span class="blindspot-intel-row__v blindspot-intel-row__v--gold">&#9733; Tank &mdash; Outlast Everything</span>
-            </div>
-          </div>
+          <h1 class="blindspot-prefight__name" id="bs-prefight-you-name">&mdash;</h1>
+          <p class="blindspot-prefight__flavor" id="bs-prefight-you-flavor">&nbsp;</p>
+          <div class="blindspot-prefight__intel" id="bs-prefight-you-intel"></div>
+          <div class="blindspot-prefight__deck" id="bs-prefight-you-deck" aria-label="Active deck"></div>
         </div>
       </div>
 

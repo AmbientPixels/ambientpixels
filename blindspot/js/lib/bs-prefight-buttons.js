@@ -24,9 +24,23 @@ window.BsPrefightButtons = (function () {
     wrapper.style.cssText = 'display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;';
 
     if (hasAdv) {
-      // Adventure button
+      // Fight button — primary affordance (Blindspot is fight-first).
+      // Rendered before Adventure so Fight is the leftmost / default
+      // focus target as well as the visually heavier button.
+      var fightBtn = document.createElement('button');
+      fightBtn.className = 'bs-btn bs-btn--primary bs-btn--large bs-btn--glow';
+      fightBtn.innerHTML = '<i class="fas fa-bolt"></i> Fight';
+      wrapper.appendChild(fightBtn);
+
+      fightBtn.addEventListener('click', function () {
+        if (_cb.hideOverlay) _cb.hideOverlay('bs-prefight-overlay');
+        if (_cb.setAdventureItems) _cb.setAdventureItems([]);
+        if (_cb.startCampaignBattle) _cb.startCampaignBattle(bossId, {});
+      }, { once: true });
+
+      // Adventure button — secondary affordance.
       var advBtn = document.createElement('button');
-      advBtn.className = 'bs-btn bs-btn--primary bs-btn--large bs-btn--glow';
+      advBtn.className = 'bs-btn bs-btn--secondary bs-btn--large';
       advBtn.innerHTML = '<i class="fas fa-book-open"></i> Adventure';
       wrapper.appendChild(advBtn);
 
@@ -63,18 +77,6 @@ window.BsPrefightButtons = (function () {
         }).then(function () {
           if (_cb.startCampaignBattle) _cb.startCampaignBattle(bossId, advBuffs);
         });
-      }, { once: true });
-
-      // Fight button (skip adventure)
-      var fightBtn = document.createElement('button');
-      fightBtn.className = 'bs-btn bs-btn--secondary bs-btn--large';
-      fightBtn.innerHTML = '<i class="fas fa-swords"></i> Fight';
-      wrapper.appendChild(fightBtn);
-
-      fightBtn.addEventListener('click', function () {
-        if (_cb.hideOverlay) _cb.hideOverlay('bs-prefight-overlay');
-        if (_cb.setAdventureItems) _cb.setAdventureItems([]);
-        if (_cb.startCampaignBattle) _cb.startCampaignBattle(bossId, {});
       }, { once: true });
 
     } else {
