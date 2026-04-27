@@ -481,31 +481,36 @@
       <div class="blindspot-battle__arena" aria-hidden="true" style="background-image: url('img/arena/arena-shadow-pit.webp');"></div>
       <div class="blindspot-battle__arena-veil" aria-hidden="true"></div>
       <div class="arena-battle">
-        <div class="arena-battle__header">
-          <div class="arena-battle__round" aria-live="polite">
-            <span class="arena-battle__round-eyebrow">Round</span>
-            <span class="arena-battle__round-num" id="arena-round-num">01</span>
-          </div>
-          <!-- Boss intent moved here from inside the opponent column to match
-               the design's HUD layout. JS still finds it via getElementById. -->
-          <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
-            <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
-            <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
-          </div>
-          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
-          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn" title="Forfeit" aria-label="Forfeit">
-            <i class="fas fa-flag" aria-hidden="true"></i>
-          </button>
-          <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
-            <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo" aria-hidden="true"></i> Again</button>
-            <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button>
-          </span>
-        </div>
+        <!-- Boss-intent banner moved INTO the center column (see VS section
+             below) so it sits between VS glyph and HYPE bar — a stable,
+             predictable home rather than a free-floating "random centered"
+             banner. The DOM placeholder is gone; the live element is below
+             alongside the round pill / matchup chip / hype / stances. -->
+        <!-- Bare #arena-round-num span kept off-screen so updateRoundLabel()
+             (bs-arena-battle-ui.js) can keep writing to it without changes.
+             The visible round counter lives in the .bs-vs-round pill in
+             the center column. .arena-battle__round wrapper was removed
+             because a Slice 4 CSS rule (display:inline-flex) was overriding
+             the [hidden] attribute and re-surfacing the legacy header. -->
+        <span id="arena-round-num" aria-hidden="true" style="position:absolute;width:1px;height:1px;clip:rect(0 0 0 0);overflow:hidden;">01</span>
         <div class="arena-battle__stage">
           <div class="arena-battle__field">
             <div class="arena-combatant arena-combatant--player" id="arena-player-side">
+              <div class="arena-combatant__backdrop" id="arena-player-backdrop" aria-hidden="true"></div>
               <div class="arena-combatant__frame">
+                <!-- HP rail (vertical, left edge of card) -->
+                <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Your health">
+                  <div class="arena-hp-bar__track">
+                    <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%;height:100%"></div>
+                  </div>
+                </div>
                 <div class="arena-combatant__card" id="arena-player-card"></div>
+                <!-- Stamina rail (vertical, right edge of card — sits to the
+                     left of the item-tray which still occupies the inner-right
+                     gutter for items/charms). -->
+                <div class="arena-stamina-bar" id="arena-player-stamina-bar" role="progressbar" aria-label="Your stamina">
+                  <div class="arena-stamina-bar__fill" id="arena-player-stamina-fill" style="width:100%;height:100%"></div>
+                </div>
                 <div class="arena-combatant__item-tray" id="arena-player-item-tray" role="group" aria-label="Items and charms"></div>
               </div>
               <div class="arena-combatant__nameplate">
@@ -513,28 +518,37 @@
                 <span class="arena-element-badge" id="arena-player-element"></span>
                 <span class="arena-combatant__sub" id="arena-player-sub"></span>
               </div>
-              <div class="arena-combatant__hp-meta">
+              <!-- Compact HP / Stamina readout pills under the nameplate
+                   (vertical bars are visual; numeric values stay legible
+                   here as small pills). JS targets the same element ids. -->
+              <div class="arena-combatant__readout">
+                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--hp"><i class="fas fa-heart" aria-hidden="true"></i> <span id="arena-player-hp-text">100 / 100</span></span>
+                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--stam"><i class="fas fa-bolt" aria-hidden="true"></i> <span id="arena-player-stamina-text">0 / 0</span></span>
+              </div>
+              <!-- Hidden meta wrappers preserved for back-compat with any
+                   selectors still referencing them. -->
+              <div class="arena-combatant__hp-meta" hidden>
                 <span class="arena-combatant__meta-lbl">HP</span>
-                <span class="arena-combatant__meta-val" id="arena-player-hp-text">100 / 100</span>
+                <span class="arena-combatant__meta-val"></span>
               </div>
-              <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Your health">
-                <div class="arena-hp-bar__track">
-                  <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div>
-                </div>
-              </div>
-              <div class="arena-combatant__stam-meta">
+              <div class="arena-combatant__stam-meta" hidden>
                 <span class="arena-combatant__meta-lbl">Stamina</span>
-                <span class="arena-combatant__meta-val" id="arena-player-stamina-text"></span>
-              </div>
-              <div class="arena-stamina-bar" id="arena-player-stamina-bar" role="progressbar" aria-label="Your stamina">
-                <div class="arena-stamina-bar__fill" id="arena-player-stamina-fill" style="width:100%"></div>
+                <span class="arena-combatant__meta-val"></span>
               </div>
               <div class="arena-player-items" id="arena-player-items"></div>
               <div class="arena-player-buffs" id="arena-player-buffs"></div>
               <div class="arena-status-row" id="arena-player-status" aria-live="polite"></div>
             </div>
             <div class="blindspot-battle__center" aria-hidden="false">
+              <div class="bs-vs-round" id="bs-vs-round" aria-live="polite">Round 01</div>
               <div class="arena-battle__vs"><span class="arena-battle__vs-text">VS</span></div>
+              <!-- Boss-intent banner — predictable placement between VS
+                   glyph and matchup chip. JS still finds it by id. -->
+              <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
+                <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
+                <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
+              </div>
+              <div class="bs-vs-matchup" id="bs-vs-matchup" hidden></div>
               <div class="arena-hype-bar" id="arena-hype-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Hype meter">
                 <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved" aria-hidden="true"></i> HYPE</div>
                 <div class="arena-hype-bar__track">
@@ -547,10 +561,33 @@
                 <button class="arena-stance-btn" data-stance="aggressive" title="Aggressive — +25% dmg, -20% def, +1 stamina cost"><i class="fas fa-fire"></i></button>
                 <button class="arena-stance-btn" data-stance="defensive" title="Defensive — -20% dmg, Guard 80%, Heal +30%, -1 stamina cost"><i class="fas fa-shield-halved"></i></button>
               </div>
+              <!-- Utility cluster — relocated from the legacy
+                   .arena-battle__header above the field. Help / Forfeit
+                   sit centered below the stance row; arena-battle-post
+                   (Again / Back) takes over the same slot when the
+                   battle ends. JS targets all of these by id, so the
+                   move is DOM-safe. -->
+              <div class="bs-vs-utils" id="bs-vs-utils" role="group" aria-label="Battle controls">
+                <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
+                <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn" title="Forfeit" aria-label="Forfeit"><i class="fas fa-flag" aria-hidden="true"></i></button>
+                <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
+                  <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo" aria-hidden="true"></i> Again</button>
+                  <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button>
+                </span>
+              </div>
             </div>
             <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
+              <div class="arena-combatant__backdrop" id="arena-opponent-backdrop" aria-hidden="true"></div>
               <div class="arena-combatant__frame">
+                <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Enemy health">
+                  <div class="arena-hp-bar__track">
+                    <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%;height:100%"></div>
+                  </div>
+                </div>
                 <div class="arena-combatant__card" id="arena-opponent-card"></div>
+                <div class="arena-stamina-bar" id="arena-opponent-stamina-bar" role="progressbar" aria-label="Enemy stamina">
+                  <div class="arena-stamina-bar__fill" id="arena-opponent-stamina-fill" style="width:100%;height:100%"></div>
+                </div>
               </div>
               <div class="arena-combatant__nameplate">
                 <span class="arena-combatant__name" id="arena-opponent-name">Enemy</span>
@@ -558,22 +595,12 @@
                 <span class="arena-boss-stance" id="arena-boss-stance"><i class="fas fa-circle-nodes"></i></span>
                 <span class="arena-combatant__sub" id="arena-opponent-sub"></span>
               </div>
-              <div class="arena-combatant__hp-meta">
-                <span class="arena-combatant__meta-lbl">HP</span>
-                <span class="arena-combatant__meta-val" id="arena-opponent-hp-text">100 / 100</span>
+              <div class="arena-combatant__readout">
+                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--hp"><i class="fas fa-heart" aria-hidden="true"></i> <span id="arena-opponent-hp-text">100 / 100</span></span>
+                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--stam"><i class="fas fa-bolt" aria-hidden="true"></i> <span id="arena-opponent-stamina-text">0 / 0</span></span>
               </div>
-              <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Enemy health">
-                <div class="arena-hp-bar__track">
-                  <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div>
-                </div>
-              </div>
-              <div class="arena-combatant__stam-meta">
-                <span class="arena-combatant__meta-lbl">Stamina</span>
-                <span class="arena-combatant__meta-val" id="arena-opponent-stamina-text"></span>
-              </div>
-              <div class="arena-stamina-bar" id="arena-opponent-stamina-bar" role="progressbar" aria-label="Enemy stamina">
-                <div class="arena-stamina-bar__fill" id="arena-opponent-stamina-fill" style="width:100%"></div>
-              </div>
+              <div class="arena-combatant__hp-meta" hidden><span class="arena-combatant__meta-lbl">HP</span><span class="arena-combatant__meta-val"></span></div>
+              <div class="arena-combatant__stam-meta" hidden><span class="arena-combatant__meta-lbl">Stamina</span><span class="arena-combatant__meta-val"></span></div>
               <div class="arena-status-row" id="arena-opponent-status" aria-live="polite"></div>
             </div>
           </div>

@@ -162,6 +162,16 @@ window.ArenaBattleUI = (function () {
         ? `<img src="${data.opponent.avatar}" alt="${data.opponent.name}" class="arena-combatant__img">`
         : `<div class="arena-combatant__placeholder"><i class="fas fa-skull"></i></div>`;
     }
+
+    // Atmospheric backdrop — same pattern as the player column. Boss
+    // avatar gets blurred + tinted behind the foreground portrait so
+    // both columns share the cinematic treatment.
+    const opponentBackdrop = document.getElementById('arena-opponent-backdrop');
+    if (opponentBackdrop) {
+      opponentBackdrop.style.backgroundImage = data.opponent.avatar
+        ? `url("${String(data.opponent.avatar).replace(/"/g, '\\"')}")`
+        : '';
+    }
     if (playerName) playerName.textContent = data.player.name || 'You';
     if (opponentName) opponentName.textContent = data.opponent.name || 'Enemy';
 
@@ -201,6 +211,39 @@ window.ArenaBattleUI = (function () {
       oElBadge.innerHTML = '<i class="fas ' + _ED[oEl].icon + '" style="color:' + _ED[oEl].color + ';"></i>';
       oElBadge.title = _ED[oEl].label + ' element';
     }
+
+    // VS-column matchup chip — always render when both elements are
+    // known so the slot fills usefully even on a neutral matchup. The
+    // chip switches color/copy based on the relationship: strong (good
+    // green), weak (bad red glow), mirror (neutral), or even (subtle).
+    // Only stays hidden if either element is missing/unknown.
+    var matchupEl = document.getElementById('bs-vs-matchup');
+    if (matchupEl) {
+      var _EC = _Const.ELEMENT_CHART || {};
+      var html = '';
+      var modClass = '';
+      if (pEl && oEl && _ED[pEl] && _ED[oEl]) {
+        var pIcon = '<i class="fas ' + _ED[pEl].icon + '" style="color:' + _ED[pEl].color + ';"></i>';
+        var oIcon = '<i class="fas ' + _ED[oEl].icon + '" style="color:' + _ED[oEl].color + ';"></i>';
+        var chart = _EC[pEl] || {};
+        if (chart.strong === oEl) {
+          html = pIcon + ' Strong vs ' + oIcon + ' <span>+25% dmg</span>';
+          modClass = 'bs-vs-matchup--good';
+        } else if (chart.weak === oEl) {
+          html = pIcon + ' Weak vs ' + oIcon + ' <span>-25% dmg</span>';
+          modClass = 'bs-vs-matchup--bad';
+        } else if (pEl === oEl) {
+          html = pIcon + ' Mirror match <span>no bonus</span>';
+          modClass = 'bs-vs-matchup--neutral';
+        } else {
+          html = pIcon + ' vs ' + oIcon + ' <span>even matchup</span>';
+          modClass = 'bs-vs-matchup--neutral';
+        }
+      }
+      matchupEl.className = 'bs-vs-matchup' + (modClass ? ' ' + modClass : '');
+      matchupEl.innerHTML = html;
+      matchupEl.hidden = !html;
+    }
   }
 
   function updateHpBars(playerHp, playerMax, opponentHp, opponentMax) {
@@ -212,8 +255,17 @@ window.ArenaBattleUI = (function () {
     const playerPct = Math.max(0, Math.min(100, (playerHp / playerMax) * 100));
     const opponentPct = Math.max(0, Math.min(100, (opponentHp / opponentMax) * 100));
 
-    if (playerFill) playerFill.style.width = playerPct + '%';
-    if (opponentFill) opponentFill.style.width = opponentPct + '%';
+    // Set both width and height so the same element can render as either
+    // a horizontal bar (CSS uses width, height stays 100%) or a vertical
+    // bar (CSS pins width:100% + uses inline height for the fill amount).
+    if (playerFill) {
+      playerFill.style.width = playerPct + '%';
+      playerFill.style.height = playerPct + '%';
+    }
+    if (opponentFill) {
+      opponentFill.style.width = opponentPct + '%';
+      opponentFill.style.height = opponentPct + '%';
+    }
     if (playerText) playerText.textContent = `${Math.max(0, playerHp)} / ${playerMax}`;
     if (opponentText) opponentText.textContent = `${Math.max(0, opponentHp)} / ${opponentMax}`;
 
@@ -234,8 +286,13 @@ window.ArenaBattleUI = (function () {
     var pPct = pMax > 0 ? Math.max(0, Math.min(100, (pStam / pMax) * 100)) : 0;
     var oPct = oMax > 0 ? Math.max(0, Math.min(100, (oStam / oMax) * 100)) : 0;
 
-    if (pFill) pFill.style.width = pPct + '%';
-    if (oFill) oFill.style.width = oPct + '%';
+    if (pFill) { pFill.style.width = pPct + '%'; pFill.style.height = pPct + '%'; }
+    if (oFill) { oFill.style.width = oPct + '%'; oFill.style.height = oPct + '%'; }
+    // Drive the vertical pip dividers off max-stamina so each pip
+    // represents one stamina point. Capped at 12 pips so very high
+    // max values don't make the dividers visually disappear.
+    if (pBar && pMax > 0) pBar.style.setProperty('--pip-count', String(Math.min(12, Math.max(1, pMax))));
+    if (oBar && oMax > 0) oBar.style.setProperty('--pip-count', String(Math.min(12, Math.max(1, oMax))));
     if (pText) pText.textContent = pStam + ' / ' + pMax;
     if (oText) oText.textContent = oStam + ' / ' + oMax;
     if (pBar) pBar.classList.toggle('arena-stamina-bar--exhausted', pStam < threshold);
@@ -387,6 +444,9 @@ window.ArenaBattleUI = (function () {
     // Backward compat for any legacy reader of the old element id
     const legacyEl = document.getElementById('arena-round-label');
     if (legacyEl) legacyEl.textContent = `Round ${round}`;
+    // VS-column round pill — Vein center-column treatment
+    const vsRoundEl = document.getElementById('bs-vs-round');
+    if (vsRoundEl) vsRoundEl.textContent = `Round ${String(round).padStart(2, '0')}`;
   }
 
   function clearLog() {
