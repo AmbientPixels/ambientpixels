@@ -42,7 +42,7 @@
   <!-- Loading gate — hides UI until JS initializes -->
   <div id="bs-loading-gate" class="bs-loading-gate" aria-live="polite">
     <div class="bs-loading-gate__inner">
-      <span class="bs-loading-gate__text"><i class="fas fa-fire" style="color:var(--bs-accent);margin-right:0.4em;"></i>Summoning your fighter<span class="bs-ellipsis-pulse">...</span></span>
+      <span class="bs-loading-gate__text"><i class="fas fa-fire bs-loading-gate__icon" aria-hidden="true"></i>Summoning your fighter<span class="bs-ellipsis-pulse">...</span></span>
       <div class="bs-loading-gate__bar">
         <div class="bs-loading-gate__fill" id="bs-loading-fill"></div>
       </div>
@@ -76,7 +76,7 @@
       <div class="blindspot-lobby__head">
         <div class="blindspot-lobby__head-meta">
           <div class="blindspot-eyebrow">Lobby &middot; Fighter Status</div>
-          <h1 class="blindspot-lobby__title">Welcome back, Cyberpunk.</h1>
+          <h1 class="blindspot-lobby__title">Welcome back, <span id="bs-lobby-username">Player</span>.</h1>
           <p class="blindspot-lobby__sub">Streak <strong>4</strong> &middot; Best <strong>7</strong> &middot; Next rank in <strong>190 XP</strong></p>
         </div>
         <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-play-btn" aria-label="Fight next boss">
@@ -475,16 +475,19 @@
       <div class="blindspot-battle__arena-veil" aria-hidden="true"></div>
       <div class="arena-battle">
         <div class="arena-battle__header">
-          <span class="arena-battle__round" id="arena-round-label" aria-live="polite">Round 1</span>
+          <div class="arena-battle__round" aria-live="polite">
+            <span class="arena-battle__round-eyebrow">Round</span>
+            <span class="arena-battle__round-num" id="arena-round-num">01</span>
+          </div>
           <!-- Boss intent moved here from inside the opponent column to match
                the design's HUD layout. JS still finds it via getElementById. -->
           <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
             <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
             <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
           </div>
-          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide" style="font-size:0.8rem;"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
-          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">
-            <i class="fas fa-flag" aria-hidden="true"></i> Forfeit
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn" title="Forfeit" aria-label="Forfeit">
+            <i class="fas fa-flag" aria-hidden="true"></i>
           </button>
           <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
             <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo" aria-hidden="true"></i> Again</button>
@@ -500,16 +503,23 @@
               <div class="arena-combatant__nameplate">
                 <span class="arena-combatant__name" id="arena-player-name">You</span>
                 <span class="arena-element-badge" id="arena-player-element"></span>
+                <span class="arena-combatant__sub" id="arena-player-sub"></span>
+              </div>
+              <div class="arena-combatant__hp-meta">
+                <span class="arena-combatant__meta-lbl">HP</span>
+                <span class="arena-combatant__meta-val" id="arena-player-hp-text">100 / 100</span>
               </div>
               <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Your health">
                 <div class="arena-hp-bar__track">
                   <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div>
                 </div>
-                <div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div>
+              </div>
+              <div class="arena-combatant__stam-meta">
+                <span class="arena-combatant__meta-lbl">Stamina</span>
+                <span class="arena-combatant__meta-val" id="arena-player-stamina-text"></span>
               </div>
               <div class="arena-stamina-bar" id="arena-player-stamina-bar" role="progressbar" aria-label="Your stamina">
                 <div class="arena-stamina-bar__fill" id="arena-player-stamina-fill" style="width:100%"></div>
-                <span class="arena-stamina-bar__text" id="arena-player-stamina-text"></span>
               </div>
               <div class="arena-player-items" id="arena-player-items"></div>
               <div class="arena-player-buffs" id="arena-player-buffs"></div>
@@ -522,6 +532,7 @@
                 <div class="arena-hype-bar__track">
                   <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
                 </div>
+                <div class="arena-hype-bar__hint" id="arena-hype-hint"></div>
               </div>
               <div class="arena-stance-row" id="arena-stance-row" role="group" aria-label="Stance selector">
                 <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced" title="Balanced"><i class="fas fa-circle-nodes"></i></button>
@@ -537,31 +548,35 @@
                 <span class="arena-combatant__name" id="arena-opponent-name">Enemy</span>
                 <span class="arena-element-badge" id="arena-opponent-element"></span>
                 <span class="arena-boss-stance" id="arena-boss-stance"><i class="fas fa-circle-nodes"></i></span>
+                <span class="arena-combatant__sub" id="arena-opponent-sub"></span>
+              </div>
+              <div class="arena-combatant__hp-meta">
+                <span class="arena-combatant__meta-lbl">HP</span>
+                <span class="arena-combatant__meta-val" id="arena-opponent-hp-text">100 / 100</span>
               </div>
               <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Enemy health">
                 <div class="arena-hp-bar__track">
                   <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div>
                 </div>
-                <div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div>
+              </div>
+              <div class="arena-combatant__stam-meta">
+                <span class="arena-combatant__meta-lbl">Stamina</span>
+                <span class="arena-combatant__meta-val" id="arena-opponent-stamina-text"></span>
               </div>
               <div class="arena-stamina-bar" id="arena-opponent-stamina-bar" role="progressbar" aria-label="Enemy stamina">
                 <div class="arena-stamina-bar__fill" id="arena-opponent-stamina-fill" style="width:100%"></div>
-                <span class="arena-stamina-bar__text" id="arena-opponent-stamina-text"></span>
               </div>
               <div class="arena-status-row" id="arena-opponent-status" aria-live="polite"></div>
             </div>
           </div>
         </div>
         <div class="arena-battle__log" id="arena-battle-log" role="log" aria-label="Combat log" aria-live="polite">
+          <div class="arena-battle__log-head"><i class="fas fa-scroll" aria-hidden="true"></i> Battle Log</div>
           <div class="arena-log-entry">Battle started!</div>
         </div>
         <div class="bs-battle-hint" id="bs-battle-hint" style="display:none;" role="status" aria-live="polite"></div>
         <div class="arena-items-row" id="arena-items-row" role="group" aria-label="Items and charms"></div>
         <div class="bs-move-select-prompt" id="bs-move-select-prompt" style="display:none;" role="status">Pick second move</div>
-        <div class="blindspot-battle__hand-rail" aria-hidden="true">
-          <i class="fas fa-bolt" aria-hidden="true"></i>
-          <span>Choose your move</span>
-        </div>
         <div class="arena-battle__moves" id="arena-moves" role="group" aria-label="Combat moves">
           <button class="arena-move-btn arena-move-btn--strike bs-move-card" data-move="strike" aria-label="Strike — physical attack using STR">
             <div class="bs-move-card__header">

@@ -736,6 +736,14 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--blindspot-epic);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  text-shadow: 0 0 12px rgba(142, 93, 171, 0.6);
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__label i {
+  line-height: 1;
+  margin: 0;
 }
 #bs-screen-battle.blindspot-battle .arena-hype-bar__track {
   background: var(--blindspot-bg-2);
@@ -762,6 +770,11 @@
   border-color: var(--blindspot-accent);
   color: var(--blindspot-accent);
   background: rgba(200, 48, 44, 0.1);
+}
+#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="balanced"].arena-stance-btn--active {
+  border-color: var(--blindspot-accent-gold);
+  color: var(--blindspot-accent-gold);
+  background: rgba(245, 192, 120, 0.1);
 }
 #bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="aggressive"].arena-stance-btn--active {
   border-color: var(--blindspot-accent);
@@ -859,12 +872,42 @@
   color: var(--blindspot-danger);
 }
 
-/* Battle header (round + forfeit bar) */
+/* Battle header (round + intent + forfeit bar) — round and intent
+   group tight on the left, action buttons pushed to the right. */
 #bs-screen-battle.blindspot-battle .arena-battle__header {
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
   backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  padding: 0.4rem 0.85rem;
+}
+/* First action button picks up margin-left: auto to flush the right group. */
+#bs-screen-battle.blindspot-battle .arena-battle__header #bs-combat-help-btn,
+#bs-screen-battle.blindspot-battle .arena-battle__header #arena-forfeit-btn {
+  margin-left: 0;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__header #bs-combat-help-btn {
+  margin-left: auto;
+}
+
+/* Square icon-only header buttons (Help + Forfeit) — bundle-style. */
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 0;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-btn i {
+  font-size: 0.9rem;
 }
 #bs-screen-battle.blindspot-battle .arena-battle__round {
   font-family: var(--blindspot-font-display);
@@ -903,27 +946,20 @@
   color: var(--blindspot-text-dim);
 }
 
-/* Boss intent */
-#bs-screen-battle.blindspot-battle .arena-boss-intent {
-  background: var(--blindspot-surface);
-  border: 1px solid var(--blindspot-border-2);
-  border-left: 3px solid var(--blindspot-epic);
-  border-radius: var(--blindspot-radius-button);
-  color: var(--blindspot-text-dim);
-  font-style: italic;
-}
+/* (Boss intent banner styling consolidated below into the
+    `.arena-battle__header .arena-boss-intent` rule — single source of truth.) */
 
 /* Battle log */
 #bs-screen-battle.blindspot-battle .arena-battle__log {
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid var(--blindspot-border);
-  border-radius: var(--blindspot-radius-tile);
+  border-radius: 2px;
   backdrop-filter: blur(8px);
   font-family: var(--blindspot-font-body);
-  padding: 0.7rem 1rem;
-  max-height: 130px;
+  padding: 0.45rem 0.85rem;
+  max-height: 90px;
   overflow-y: auto;
-  margin: 1rem 0;
+  margin: 0;
 }
 #bs-screen-battle.blindspot-battle .arena-log-entry {
   color: var(--blindspot-text-dim);
@@ -938,8 +974,8 @@
 #bs-screen-battle.blindspot-battle .arena-battle {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem 2rem 1.5rem;
+  gap: 0.5rem;
+  padding: 0.5rem 2rem 0.75rem;
   background: transparent;
   border: 0;
   max-width: 1480px;
@@ -948,15 +984,29 @@
 }
 #bs-screen-battle.blindspot-battle .arena-battle__stage {
   background: transparent;
+  background-image: none;
   padding: 0;
+  border: 0;
+  box-shadow: none;
+  outline: 0;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__stage::before {
+/* Defeat the [class*="arena-stage--"] selector too — it sets a
+   background-image per arena variant (colosseum/shadow-pit/etc.) which
+   bleeds an amber/sandy tint through the field. We don't want any
+   stage backdrop while the design uses combatant portraits as the
+   hero visuals. */
+#bs-screen-battle.blindspot-battle .arena-battle__stage[class*="arena-stage--"] {
+  background-image: none;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__stage::before,
+#bs-screen-battle.blindspot-battle .arena-battle__stage::after {
   content: none;
+  background: none;
 }
 #bs-screen-battle.blindspot-battle .arena-battle__field {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(220px, 320px) minmax(320px, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: minmax(320px, 1fr) minmax(220px, 300px) minmax(320px, 1fr);
+  gap: 0.75rem;
   align-items: stretch;
   padding: 0;
   background: transparent;
@@ -975,38 +1025,54 @@
 }
 
 /* Combatant column — flex column with nameplate first (per design),
-   then a portrait-shaped frame, then HP / stamina pips / buffs. */
+   then a portrait-shaped frame, then HP / stamina pips / buffs.
+   Tight vertical budget so the card never overlaps the log/move-hand
+   below — total card height target ≤ 440px on a 900px viewport. */
 #bs-screen-battle.blindspot-battle .arena-combatant {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  padding: 1rem;
+  gap: 0.4rem;
+  padding: 0.65rem;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(6px);
   border-radius: var(--blindspot-radius-card);
   position: relative;
   overflow: hidden;
   min-width: 0;
+  /* Width: fill the grid column edge-to-edge — no horizontal gaps. */
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  /* Height: hard cap so card can't push log off-screen even with multiple
+     buff pills wrapping. Use min() so smaller viewports compress further. */
+  max-height: min(60vh, 460px);
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__nameplate {
   order: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.15rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45em;
+  row-gap: 0.15rem;
   text-align: left;
   border: 0;
   padding: 0;
   background: transparent;
 }
-/* Portrait frame — clamp to 16/10 aspect, centered, max ~280px wide
-   so the rendered card inside acts more like a portrait than a card. */
+/* Name takes the full first row; element badge / boss stance / subtitle
+   all flow on the second row inline. */
+#bs-screen-battle.blindspot-battle .arena-combatant__nameplate .arena-combatant__name {
+  flex-basis: 100%;
+  margin: 0;
+}
+/* Portrait frame — fills column width, fixed height so card geometry
+   doesn't bloat as the combatant column gets wider on big viewports. */
 #bs-screen-battle.blindspot-battle .arena-combatant__frame {
   order: 1;
   width: 100%;
-  max-width: 320px;
-  margin: 0 auto;
-  aspect-ratio: 16 / 10;
+  margin: 0;
+  height: 200px;
   border: 1px solid var(--blindspot-border-2);
   border-radius: var(--blindspot-radius-tile);
   overflow: hidden;
@@ -1015,6 +1081,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__card {
   width: 100%;
@@ -1045,29 +1112,38 @@
 }
 #bs-screen-battle.blindspot-battle .arena-status-row { order: 6; }
 
-/* Boss intent — now lives in HUD top, not column. Style as inline pill. */
+/* Boss intent — banner inside HUD top, between Round and the action
+   buttons. Mirrors the bundle's `.battle__intent`: subtle dark surface,
+   uniform 1px border (no left accent stripe), italic text, icon picks up
+   the move's dynamic color via `--intent-color` (set on the container by
+   JS in showBossIntent). */
 #bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent {
   flex: 1;
   display: inline-flex;
   align-items: center;
-  gap: 0.5em;
-  padding: 0.45em 0.85em;
+  gap: 0.6em;
+  padding: 0.5em 0.9em;
   background: var(--blindspot-surface);
-  border: 1px solid var(--blindspot-border-2);
-  border-left: 3px solid var(--blindspot-epic);
+  border: 1px solid var(--blindspot-epic);
   border-radius: var(--blindspot-radius-button);
   font-family: var(--blindspot-font-body);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   color: var(--blindspot-text-dim);
   font-style: italic;
   min-width: 0;
 }
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent:has(.arena-boss-intent__text:empty),
 #bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent:empty {
   display: none;
 }
 #bs-screen-battle.blindspot-battle .arena-boss-intent__icon {
-  color: var(--blindspot-epic);
+  color: var(--intent-color, var(--blindspot-epic));
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+#bs-screen-battle.blindspot-battle .arena-boss-intent__icon i {
+  color: inherit;
 }
 #bs-screen-battle.blindspot-battle .arena-boss-intent__text {
   white-space: nowrap;
@@ -1166,8 +1242,10 @@
 #bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
   gap: 0.5em;
-  padding: 0.4rem 0.2rem 0.6rem;
+  padding: 0.25rem 0.2rem 0.4rem;
   font-family: var(--blindspot-font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.18em;
@@ -1182,7 +1260,7 @@
 #bs-screen-battle.blindspot-battle .arena-battle__moves {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.7rem;
+  gap: 0.5rem;
   margin-top: 0;
   padding: 0;
   background: transparent;
@@ -1201,4 +1279,209 @@
 #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card {
   width: auto;
   margin: 0;
+}
+
+/* ============================================================
+   SLICE 1 — bundle alignment (Apr 2026)
+   Move-card color coding, hype hint, log header/grid, hand-rail
+   readout. Purely additive; no existing rules modified.
+   ============================================================ */
+
+/* ---------- MOVE CARDS — color code per move (mirrors bundle's --mc) ---------- */
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="strike"]   { --bs-move-color: #ff7a3a; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="guard"]    { --bs-move-color: #6cc4ff; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="ability"]  { --bs-move-color: #b47cf5; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="heal"]     { --bs-move-color: #6cffb0; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="counter"]  { --bs-move-color: #ffd97a; }
+
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__type-label {
+  color: var(--bs-move-color, var(--blindspot-accent));
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__tag--active {
+  background: var(--bs-move-color, var(--blindspot-accent));
+  border-color: var(--bs-move-color, var(--blindspot-accent));
+  color: #0E0A06;
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move]:hover {
+  border-color: var(--bs-move-color, var(--blindspot-accent));
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8),
+              0 0 30px -8px var(--bs-move-color, rgba(200, 48, 44, 0.4));
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__dot--active {
+  background: var(--bs-move-color, var(--blindspot-accent));
+}
+
+/* ---------- HYPE HINT (under the hype bar) ---------- */
+#bs-screen-battle.blindspot-battle .arena-hype-bar__hint {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-epic);
+  text-align: center;
+  margin-top: 0.25rem;
+  display: block;
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__hint:empty {
+  display: none;
+}
+
+/* ---------- BATTLE LOG (header + grid rows when JS injects structured spans) ---------- */
+#bs-screen-battle.blindspot-battle .arena-battle__log-head {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: 0.45rem;
+}
+/* Grid layout activates only when JS injects __round/__text/__dmg children
+   so flat-string log entries written by older code stay readable. */
+#bs-screen-battle.blindspot-battle .arena-log-entry:has(.arena-log-entry__round) {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.18rem 0;
+  font-size: 0.82rem;
+}
+#bs-screen-battle.blindspot-battle .arena-log-entry__round {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  color: var(--blindspot-text-muted);
+  letter-spacing: 0.08em;
+}
+#bs-screen-battle.blindspot-battle .arena-log-entry__text {
+  color: var(--blindspot-text-dim);
+}
+#bs-screen-battle.blindspot-battle .arena-log-entry__dmg {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--blindspot-accent);
+  white-space: nowrap;
+}
+#bs-screen-battle.blindspot-battle .arena-log-entry__dmg--crit {
+  color: var(--blindspot-danger);
+}
+#bs-screen-battle.blindspot-battle .arena-log-entry__dmg--reflect {
+  color: var(--blindspot-info);
+}
+
+/* ---------- HAND RAIL — stamina readout + combo hint ---------- */
+#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail-stamina {
+  color: var(--blindspot-text-muted);
+  letter-spacing: 0.14em;
+}
+#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail-combo:empty {
+  display: none;
+}
+
+/* ============================================================
+   SLICE 2 — Combatant HP/Stamina meta rows (Apr 2026)
+   Adds a label-and-value row above each bar so the layout matches
+   the bundle's combatant card. The IDs (#arena-player-hp-text etc.)
+   moved here from inside the bars; JS still finds them by ID.
+   Reorders flex children so meta sits between portrait and bar.
+   ============================================================ */
+#bs-screen-battle.blindspot-battle .arena-combatant__hp-meta,
+#bs-screen-battle.blindspot-battle .arena-combatant__stam-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: -0.2rem;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__meta-lbl {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__meta-val {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--blindspot-accent);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-combatant__meta-val {
+  color: var(--blindspot-danger);
+}
+
+/* Re-order flex children so meta rows sit immediately above their bars.
+   Existing rules set hp-bar=2, stamina-bar=3, items=4, buffs=5; we shift
+   bars/items/buffs down by one each to make room for the meta rows. */
+#bs-screen-battle.blindspot-battle .arena-combatant__hp-meta   { order: 2; }
+#bs-screen-battle.blindspot-battle .arena-hp-bar               { order: 3; margin-top: 0; }
+#bs-screen-battle.blindspot-battle .arena-combatant__stam-meta { order: 4; margin-top: 0.25rem; }
+#bs-screen-battle.blindspot-battle .arena-stamina-bar          { order: 5; }
+#bs-screen-battle.blindspot-battle .arena-player-items,
+#bs-screen-battle.blindspot-battle .arena-opponent-items       { order: 6; }
+#bs-screen-battle.blindspot-battle .arena-player-buffs,
+#bs-screen-battle.blindspot-battle .arena-opponent-buffs       { order: 7; }
+#bs-screen-battle.blindspot-battle .arena-status-row           { order: 8; }
+
+/* ============================================================
+   SLICE 4 — Round indicator polish (Apr 2026)
+   The boxed treatment was stripped from `.bs-page .arena-battle__round`
+   in blindspot.css. New structure: eyebrow "Round" + accent-coloured
+   mono number. JS updates the `#arena-round-num` span directly with a
+   zero-padded value (01, 02, …).
+   ============================================================ */
+#bs-screen-battle.blindspot-battle .arena-battle__round {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__round-eyebrow {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+#bs-screen-battle.blindspot-battle .arena-battle__round-num {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 1.3rem;
+  color: var(--blindspot-accent);
+  line-height: 1;
+}
+
+/* ============================================================
+   SLICE 5 — Combatant subtitle line (Apr 2026)
+   GUARDIAN · LV 386 / BOSS 9 · DIFF 9 — eyebrow row under name.
+   JS populates via renderCombatants. Hidden when empty.
+   ============================================================ */
+#bs-screen-battle.blindspot-battle .arena-combatant__sub {
+  display: block;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  margin-top: 0.1rem;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__sub:empty {
+  display: none;
+}
+
+/* Hide empty content rows so they don't reserve vertical space. JS only
+   populates these when there's something to show (items in inventory,
+   active buffs, status messages). Blank rows otherwise = wasted height. */
+#bs-screen-battle.blindspot-battle .arena-player-items:empty,
+#bs-screen-battle.blindspot-battle .arena-opponent-items:empty,
+#bs-screen-battle.blindspot-battle .arena-player-buffs:empty,
+#bs-screen-battle.blindspot-battle .arena-opponent-buffs:empty,
+#bs-screen-battle.blindspot-battle .arena-status-row:empty {
+  display: none;
 }

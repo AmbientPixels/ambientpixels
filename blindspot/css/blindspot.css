@@ -37,12 +37,12 @@
   overflow-x: hidden;
 }
 
-/* --- Loading Gate (play.html) --- */
+/* --- Loading Gate (play.html) — Vein palette --- */
 .bs-loading-gate {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--bs-bg);
+  background: var(--blindspot-bg, #0D0807);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,10 +54,11 @@
   gap: 0.75rem;
 }
 .bs-loading-gate__text {
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  color: var(--bs-text-muted);
-  letter-spacing: 0.05em;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--blindspot-text-dim, #B89A82);
+  letter-spacing: 0.02em;
 }
 .bs-ellipsis-pulse {
   display: inline-block;
@@ -75,7 +76,8 @@
 .bs-loading-gate__bar {
   width: 200px;
   height: 4px;
-  background: var(--bs-surface-2, #1a1510);
+  background: var(--blindspot-bg-2, #170D0B);
+  border: 1px solid var(--blindspot-border, #3A1F1A);
   border-radius: 2px;
   overflow: hidden;
   margin-top: 0.25rem;
@@ -83,15 +85,23 @@
 .bs-loading-gate__fill {
   height: 100%;
   width: 0%;
-  background: var(--bs-accent);
+  background: linear-gradient(90deg, var(--blindspot-accent-gold-dim, #B97417), var(--blindspot-accent-gold, #F5C078));
   border-radius: 2px;
   transition: width 0.3s ease;
 }
 .bs-loading-gate__step {
-  font-size: 0.65rem;
-  color: var(--bs-text-muted);
-  opacity: 0.6;
-  margin-top: 0.1rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted, #7A5E4C);
+  opacity: 0.7;
+  margin-top: 0.15rem;
+}
+.bs-loading-gate__icon {
+  color: var(--blindspot-accent-gold, #F5C078);
+  margin-right: 0.4em;
+  text-shadow: 0 0 12px rgba(245, 192, 120, 0.45);
 }
 .bs-loading-gate--fade {
   opacity: 0;
@@ -471,23 +481,26 @@
   min-height: 100vh;
 }
 
-/* Top bar */
+/* Top bar — Vein palette, glassy translucent */
 .bs-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid var(--bs-border);
-  background: var(--bs-surface);
+  border-bottom: 1px solid var(--blindspot-border, #3A1F1A);
+  background: rgba(13, 8, 7, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .bs-topbar__brand {
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: var(--bs-accent);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-weight: 600;
+  font-style: italic;
+  font-size: 1.4rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .bs-topbar__actions {
@@ -1694,10 +1707,6 @@
   color: var(--bs-accent);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.2rem 0.6rem;
-  background: rgba(239, 159, 39, 0.06);
-  border: 1px solid rgba(239, 159, 39, 0.12);
-  border-radius: 6px;
 }
 
 /* --- Stage & Field --- */
@@ -1747,7 +1756,7 @@
   position: relative;
   z-index: 1;
   border-radius: 14px;
-  border: 1px solid var(--bs-border);
+  border: 0;
   background: linear-gradient(180deg, rgba(26, 20, 16, 0.4), rgba(16, 12, 8, 0.7));
 }
 
@@ -1768,12 +1777,13 @@
   transition: box-shadow 0.4s ease;
 }
 .bs-page .arena-combatant--player {
-  border-color: rgba(239, 159, 39, 0.15);
-  box-shadow: 0 0 24px rgba(239, 159, 39, 0.06);
+  /* Tinted amber border/glow removed — inherits the default
+     .arena-combatant border. The accent left-stripe in
+     blindspot-battle.css is enough side-differentiation. */
+  box-shadow: none;
 }
 .bs-page .arena-combatant--opponent {
-  border-color: rgba(216, 90, 48, 0.15);
-  box-shadow: 0 0 24px rgba(216, 90, 48, 0.06);
+  box-shadow: none;
 }
 .bs-page .arena-combatant--hit { animation: arena-hit-shake 0.4s ease-out; }
 .bs-page .arena-combatant__frame { position: relative; }
@@ -1790,8 +1800,8 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.bs-page .arena-combatant--player .arena-combatant__card { box-shadow: 0 2px 12px rgba(239, 159, 39, 0.15); }
-.bs-page .arena-combatant--opponent .arena-combatant__card { box-shadow: 0 2px 12px rgba(216, 90, 48, 0.15); }
+.bs-page .arena-combatant--player .arena-combatant__card { box-shadow: none; }
+.bs-page .arena-combatant--opponent .arena-combatant__card { box-shadow: none; }
 .bs-page .arena-combatant__card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .bs-page .arena-combatant__nameplate { text-align: center; }
 .bs-page .arena-combatant__name {
@@ -1948,33 +1958,21 @@
 .bs-page .arena-boss-stance--aggressive { color: #ef4444; border-color: #ef4444; }
 .bs-page .arena-boss-stance--defensive { color: #3b82f6; border-color: #3b82f6; }
 
-/* --- Boss Telegraph Intent (absolute — no layout shift) --- */
+/* --- Boss Telegraph Intent ---
+   In-flow banner that lives inside .arena-battle__header next to the
+   round indicator. Layout / surface styling is owned by the scoped
+   `#bs-screen-battle.blindspot-battle .arena-boss-intent` rule in
+   blindspot-battle.css. Here we just keep the entrance-animation hook
+   and the default-hidden state. */
 .bs-page .arena-boss-intent {
-  position: absolute;
-  top: -2rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(-8px);
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.7rem;
-  background: rgba(0, 0, 0, 0.75);
-  border: 1px solid var(--intent-color, var(--bs-text-muted));
-  border-radius: 6px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 0.72rem;
-  color: var(--bs-text);
-  white-space: nowrap;
   opacity: 0;
-  pointer-events: none;
 }
 .bs-page .arena-boss-intent--enter {
   animation: bossIntentEnter 0.4s ease-out forwards;
 }
 @keyframes bossIntentEnter {
-  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .bs-page .arena-boss-intent__icon {
   font-size: 1rem;
@@ -2410,7 +2408,10 @@
 .bs-page .bs-move-card {
   position: relative;
   display: grid !important;
-  grid-template-rows: auto auto auto 1fr auto;
+  /* All rows auto so the description takes only the space its text needs;
+     no fr-unit slot expanding to fill the card and pushing the footer down
+     with dead space under the desc. */
+  grid-template-rows: repeat(5, auto);
   align-items: stretch !important;
   gap: 0.45rem;
   padding: 0.7rem 0.65rem 0.6rem !important;
@@ -2423,7 +2424,7 @@
   color: var(--bs-text);
   font-family: 'Share Tech Mono', monospace;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  min-height: 280px;
+  min-height: 0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(239, 159, 39, 0.05);
 }
 .bs-page .bs-move-card:hover:not(:disabled) {
@@ -2548,7 +2549,7 @@
   50%      { box-shadow: 0 0 0 4px rgba(239, 159, 39, 0); }
 }
 
-/* ── Flavor text — plain wrapping, explicit min-height for 3 lines ──
+/* ── Flavor text — plain wrapping, no reserved space.
    Note: !important needed to defeat .arena-move-btn__desc which has
    white-space:nowrap + text-overflow:ellipsis from the old button styles.
 */
@@ -2559,7 +2560,6 @@
   font-size: 0.7rem !important;
   line-height: 1.4;
   color: var(--bs-text-muted);
-  min-height: calc(0.7rem * 1.4 * 3);
   overflow: hidden;
   word-wrap: break-word;
   hyphens: auto;
@@ -3930,7 +3930,6 @@
 
 .bs-bounties {
   width: 100%;
-  max-width: 360px;
   background: var(--bs-surface);
   border: 1px solid var(--bs-border);
   border-radius: 8px;
@@ -7347,11 +7346,10 @@ body.bs-battle-active .bs-play {
 
 .bs-challenges {
   width: 100%;
-  max-width: 420px;
-  margin: 0.5rem auto;
+  margin: 0.5rem 0;
   background: var(--bs-bg-card, rgba(255,255,255,0.04));
   border: 1px solid var(--bs-border, rgba(255,255,255,0.08));
-  border-radius: 12px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
@@ -7383,6 +7381,12 @@ body.bs-battle-active .bs-play {
 
 .bs-challenges__list {
   padding: 0.3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem;
+}
+@media (max-width: 600px) {
+  .bs-challenges__list { grid-template-columns: 1fr; }
 }
 
 .bs-challenge {
@@ -7390,7 +7394,7 @@ body.bs-battle-active .bs-play {
   align-items: center;
   gap: 0.6rem;
   padding: 0.5rem 0.6rem;
-  border-radius: 8px;
+  border-radius: 2px;
   transition: background 0.2s;
 }
 

@@ -54,6 +54,14 @@
   box-shadow: var(--blindspot-shadow-glow);
 }
 
+/* Fight Next Boss CTA — gold hover (per CEO request). */
+#bs-play-btn.blindspot-btn--primary:hover:not(:disabled) {
+  background: #C8923B;
+  border-color: #C8923B;
+  color: #1C100D;
+  box-shadow: 0 0 60px -10px rgba(200, 146, 59, 0.55);
+}
+
 .blindspot-btn--ghost {
   background: transparent;
 }

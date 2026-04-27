@@ -48,6 +48,8 @@ window.ArenaBattleUI = (function () {
     var hypeFill = document.getElementById('arena-hype-fill');
     if (hypeBar) hypeBar.classList.remove('arena-hype-bar--near-full');
     if (hypeFill) hypeFill.style.width = '0%';
+    var hypeHint = document.getElementById('arena-hype-hint');
+    if (hypeHint) hypeHint.textContent = 'CRIT BOOST AT 100% · 100% TO GO';
 
     // Reset status chips
     ['arena-player-status', 'arena-opponent-status'].forEach(function (id) {
@@ -126,15 +128,20 @@ window.ArenaBattleUI = (function () {
       hp_regen: 'fa-heart-pulse', xp_bonus: 'fa-star', all_stats: 'fa-chart-line'
     };
     var labelMap = {
-      crit_chance: 'Crit', damage_reduction: 'Armor', ability_power: 'AP',
+      crit_chance: 'CRIT', damage_reduction: 'DR', ability_power: 'AP',
       str_bonus: 'STR', int_bonus: 'INT', end_bonus: 'END',
-      hp_regen: 'Regen', xp_bonus: 'XP', all_stats: 'All'
+      hp_regen: 'REGEN', xp_bonus: 'XP', all_stats: 'ALL',
+      // Stat-threshold passives + signatures emitted by the server engine
+      guard_pierce: 'PIERCE', crit_damage: 'CRIT DMG', dodge: 'DODGE',
+      heal_dr: 'HEAL DR', ability_cost_red: 'AP COST', ability_dmg_boost: 'AP DMG',
+      speed_priority: 'SPEED', wild_card: 'WILD', auto_heal: 'REGEN'
     };
     container.innerHTML = passives.map(function (p) {
       var icon = iconMap[p.effect] || 'fa-circle';
-      var label = labelMap[p.effect] || p.effect;
+      // Fallback for unmapped effects: snake_case → SNAKE CASE
+      var label = labelMap[p.effect] || (p.effect ? String(p.effect).replace(/_/g, ' ').toUpperCase() : '');
       return '<span class="arena-buff-chip" title="' + label + ' +' + p.value + '">' +
-        '<i class="fas ' + icon + '"></i> +' + p.value +
+        '<i class="fas ' + icon + '"></i> +' + p.value + ' ' + label +
         '</span>';
     }).join('');
   }
@@ -157,6 +164,25 @@ window.ArenaBattleUI = (function () {
     }
     if (playerName) playerName.textContent = data.player.name || 'You';
     if (opponentName) opponentName.textContent = data.opponent.name || 'Enemy';
+
+    // Subtitle: GUARDIAN · LV 386 / BOSS 9 · DIFF 9 — eyebrow row under name
+    const playerSub = document.getElementById('arena-player-sub');
+    const opponentSub = document.getElementById('arena-opponent-sub');
+    if (playerSub) {
+      const cls = String(data.player.class || 'fighter').toUpperCase();
+      const lv = data.player.power || data.player.level || data.player.totalPower;
+      playerSub.textContent = lv ? cls + ' · LV ' + lv : cls;
+    }
+    if (opponentSub) {
+      const oId = data.opponent.bossId || data.opponent.id;
+      const oNum = oId ? String(oId).match(/\d+/) : null;
+      const diff = data.opponent.difficulty;
+      if (oNum && diff) {
+        opponentSub.textContent = 'BOSS ' + oNum[0] + ' · DIFF ' + diff;
+      } else {
+        opponentSub.textContent = String(data.opponent.class || 'enemy').toUpperCase();
+      }
+    }
 
     // Element badges on nameplates
     var _Const = window.BsConst || {};
@@ -356,13 +382,18 @@ window.ArenaBattleUI = (function () {
   }
 
   function updateRoundLabel(round) {
-    const el = document.getElementById('arena-round-label');
-    if (el) el.textContent = `Round ${round}`;
+    const numEl = document.getElementById('arena-round-num');
+    if (numEl) numEl.textContent = String(round).padStart(2, '0');
+    // Backward compat for any legacy reader of the old element id
+    const legacyEl = document.getElementById('arena-round-label');
+    if (legacyEl) legacyEl.textContent = `Round ${round}`;
   }
 
   function clearLog() {
     const log = document.getElementById('arena-battle-log');
-    if (log) log.innerHTML = '';
+    if (!log) return;
+    // Preserve the static `.arena-battle__log-head` header — only drop entries.
+    log.querySelectorAll('.arena-log-entry').forEach(function (e) { e.remove(); });
   }
 
   function addLogEntry(text, type = '') {
@@ -370,7 +401,40 @@ window.ArenaBattleUI = (function () {
     if (!log) return;
     const entry = document.createElement('div');
     entry.className = 'arena-log-entry' + (type ? ` arena-log-entry--${type}` : '');
-    entry.textContent = text;
+
+    // Structured row: R# | text | (optional) damage column.
+    // CSS only switches to grid layout when `.arena-log-entry__round` is
+    // present (`:has()`), so flat-string entries from older callers stay
+    // readable if anything still uses the legacy signature.
+    const dmgMatch = text.match(/for (\d+) (?:damage|HP)/i)
+      || text.match(/healed (\d+)/i)
+      || text.match(/(\d+)\s*damage/i);
+    const dmg = dmgMatch ? parseInt(dmgMatch[1], 10) : null;
+    const isCrit = /\bcrit/i.test(text) || type === 'crit';
+    const isReflect = /\breflect/i.test(text) || /counter/i.test(text) || type === 'reflect';
+    const isHeal = /heal/i.test(text) && !/healed (\d+) damage/i.test(text);
+
+    const round = document.createElement('span');
+    round.className = 'arena-log-entry__round';
+    round.textContent = 'R' + _currentRound;
+
+    const txt = document.createElement('span');
+    txt.className = 'arena-log-entry__text';
+    txt.textContent = text;
+
+    entry.appendChild(round);
+    entry.appendChild(txt);
+
+    if (dmg !== null) {
+      const dmgEl = document.createElement('span');
+      let dmgClass = 'arena-log-entry__dmg';
+      if (isCrit) dmgClass += ' arena-log-entry__dmg--crit';
+      else if (isReflect) dmgClass += ' arena-log-entry__dmg--reflect';
+      dmgEl.className = dmgClass;
+      dmgEl.textContent = (isCrit ? 'CRIT ' : '') + (isHeal ? '+' : '-') + dmg;
+      entry.appendChild(dmgEl);
+    }
+
     log.appendChild(entry);
     log.scrollTop = log.scrollHeight;
   }
@@ -586,14 +650,19 @@ window.ArenaBattleUI = (function () {
     _hype = Math.min(100, _hype + points);
     var fill = document.getElementById('arena-hype-fill');
     var bar  = document.getElementById('arena-hype-bar');
+    var hint = document.getElementById('arena-hype-hint');
     if (fill) fill.style.width = _hype + '%';
     if (bar)  bar.classList.toggle('arena-hype-bar--near-full', _hype >= 75);
+    if (hint) hint.textContent = _hype >= 100
+      ? 'CRIT BOOST READY'
+      : 'CRIT BOOST AT 100% · ' + (100 - _hype) + '% TO GO';
     if (_hype >= 100) {
       showCrowdErupts();
       _crowdBoostPending = true;
       _hype = 0;
       if (fill) fill.style.width = '0%';
       if (bar)  bar.classList.remove('arena-hype-bar--near-full');
+      if (hint) hint.textContent = 'CRIT BOOST AT 100% · 100% TO GO';
     }
   }
 
