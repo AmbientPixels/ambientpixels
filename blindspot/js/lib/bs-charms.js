@@ -62,9 +62,13 @@ window.BsCharms = (function () {
   function renderCharmSelector() {
     var container = document.getElementById('bs-charm-selector');
     if (!container) return;
+    var metaEl = document.getElementById('bs-charm-meta');
+    var emptyEl = document.getElementById('bs-charm-empty');
     var allOwned = getOwnedCharms();
     if (allOwned.length === 0) {
       container.style.display = 'none';
+      if (metaEl) metaEl.textContent = '';
+      if (emptyEl) emptyEl.style.display = '';
       _equippedCharm = null;
       _selectedInventoryItems = [];
       return;
@@ -81,22 +85,38 @@ window.BsCharms = (function () {
 
     if (itemIds.length === 0) {
       container.style.display = 'none';
+      if (metaEl) metaEl.textContent = '';
+      if (emptyEl) emptyEl.style.display = '';
       _equippedCharm = null;
       _selectedInventoryItems = [];
       return;
     }
 
     container.style.display = '';
+    if (emptyEl) emptyEl.style.display = 'none';
 
     // Count selections
     var selCounts = {};
     _selectedInventoryItems.forEach(function(id) { selCounts[id] = (selCounts[id] || 0) + 1; });
     var totalSelected = _selectedInventoryItems.length;
 
-    var html = '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.4rem;">'
-      + '<i class="fas fa-box-open"></i> Bring items (up to ' + MAX_INVENTORY_ITEMS + '):'
-      + (totalSelected > 0 ? ' <span style="color:var(--bs-accent);">' + totalSelected + '/' + MAX_INVENTORY_ITEMS + ' selected</span>' : '')
-      + '</p>'
+    // Meta count goes into the section label (#bs-charm-meta) — the JS no
+    // longer emits its own inline header. Falls back to inline emit when
+    // the container is rendered without the prefight section wrapper
+    // (e.g. legacy contexts).
+    if (metaEl) {
+      metaEl.innerHTML = totalSelected > 0
+        ? totalSelected + ' / ' + MAX_INVENTORY_ITEMS + ' selected'
+        : 'Pick up to ' + MAX_INVENTORY_ITEMS;
+    }
+
+    var fallbackHeader = metaEl
+      ? ''
+      : '<p class="bs-charm-selector__legacy-header"><i class="fas fa-box-open"></i> Bring items (up to ' + MAX_INVENTORY_ITEMS + '):'
+        + (totalSelected > 0 ? ' <span class="bs-charm-selector__legacy-count">' + totalSelected + '/' + MAX_INVENTORY_ITEMS + ' selected</span>' : '')
+        + '</p>';
+
+    var html = fallbackHeader
       + '<div class="bs-charm-options">'
       + itemIds.map(function(id) {
           var def = getCharmDef(id);

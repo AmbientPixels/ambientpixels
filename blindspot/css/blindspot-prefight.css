@@ -535,14 +535,20 @@
   align-items: center;
 }
 
-/* Charm selector — keep functional but restyled */
+/* Charm/item selector inside the loadout strip — no longer a popup-style
+   bordered card; sits flush as the section content under the section
+   label. The legacy `.bs-charm-selector { max-width: 360px }` from
+   blindspot.css (used in non-prefight contexts) is overridden here so
+   the items spread the full width of the loadout column. */
 .blindspot-prefight #bs-charm-selector {
-  background: var(--blindspot-surface);
-  border: 1px solid var(--blindspot-border);
-  border-radius: var(--blindspot-radius-tile);
-  padding: 0.85rem 1rem;
-  margin-top: 1rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  max-width: none;
   color: var(--blindspot-text);
+  text-align: left;
 }
 
 /* ============================================================
@@ -814,3 +820,110 @@
 /* Player element badge: hide chrome when empty so the portrait corner
    doesn't show a stray empty pill before card load. */
 .blindspot-prefight__el-badge:empty { display: none; }
+
+/* ============================================================
+   LOADOUT STRIP — Bring Items + Choose Arena
+   Two labeled peer sections that sit below the 3-col layout. Both
+   use the same section-label treatment for visual rhythm.
+   ============================================================ */
+.blindspot-prefight__loadout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  margin-top: 1rem;
+}
+
+.blindspot-prefight__loadout-section {
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  padding: 1rem 1.25rem 1.1rem;
+}
+
+.blindspot-prefight__section-label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent);
+  margin: 0 0 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+}
+.blindspot-prefight__section-label i { color: var(--blindspot-accent-gold); }
+
+.blindspot-prefight__section-meta {
+  margin-left: auto;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--blindspot-text-dim);
+}
+
+/* Empty-state copy when the player has no consumables yet */
+.blindspot-prefight__loadout-empty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--blindspot-text-muted);
+  font-style: italic;
+}
+
+/* Inline arenas-label is redundant once the section provides its own;
+   hide it inside the loadout section so we don't double up the heading. */
+.blindspot-prefight__loadout-section--arenas .blindspot-prefight__arenas { margin-top: 0; }
+.blindspot-prefight__loadout-section--arenas .blindspot-prefight__arenas-label { display: none; }
+.blindspot-prefight__loadout-section--arenas .bs-arena-selector__label { display: none; }
+
+/* Item buttons — bigger tap targets, mono caps, restored chrome.
+   The base .bs-charm-option from blindspot.css is fine; we just upsize
+   inside the prefight scope so they read as loadout choices, not chips. */
+.blindspot-prefight__loadout-section--items .bs-charm-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.5rem;
+  justify-content: stretch;
+}
+.blindspot-prefight__loadout-section--items .bs-charm-option {
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.55rem 0.5rem 0.5rem;
+  border-color: var(--blindspot-border);
+  background: var(--blindspot-bg-2, var(--blindspot-surface));
+  border-radius: 6px;
+  font-family: var(--blindspot-font-body);
+  font-size: 0.7rem;
+  text-align: center;
+  gap: 0.25rem;
+}
+.blindspot-prefight__loadout-section--items .bs-charm-option i {
+  font-size: 1.05rem;
+  color: var(--blindspot-accent-gold);
+}
+.blindspot-prefight__loadout-section--items .bs-charm-option > span:not(.bs-charm-count) {
+  color: var(--blindspot-text);
+  font-weight: 600;
+}
+.blindspot-prefight__loadout-section--items .bs-charm-count {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-prefight__loadout-section--items .bs-charm-option--selected {
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 0 1px var(--blindspot-accent-gold), 0 0 10px rgba(245, 192, 120, 0.25);
+}
+.blindspot-prefight__loadout-section--items .bs-charm-option--selected i {
+  color: var(--blindspot-accent);
+}
+
+/* Hide the JS legacy header inside the prefight scope — the section
+   label already names the panel. */
+.blindspot-prefight .bs-charm-selector__legacy-header { display: none; }
+
+@media (max-width: 600px) {
+  .blindspot-prefight__loadout-section { padding: 0.75rem 0.85rem 0.9rem; }
+  .blindspot-prefight__loadout-section--items .bs-charm-options {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+}

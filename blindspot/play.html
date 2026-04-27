@@ -964,8 +964,32 @@
         </div>
       </div>
 
-      <!-- Arena rail. JS may overwrite this container with its own
-           rail; styles in blindspot-prefight.css cover both. -->
+      <!-- Loadout: items first (the bigger gameplay choice), arena
+           second. Both render as labeled peer sections styled in
+           blindspot-prefight.css so they read as a single "loadout"
+           strip below the layout. -->
+      <div class="blindspot-prefight__loadout">
+
+        <!-- Bring Items section. JS (bs-charms.js → renderCharmSelector)
+             writes the per-item buttons into #bs-charm-selector and
+             toggles its display based on inventory. -->
+        <section class="blindspot-prefight__loadout-section blindspot-prefight__loadout-section--items">
+          <p class="blindspot-prefight__section-label">
+            <i class="fas fa-box-open" aria-hidden="true"></i> Bring Items
+            <span class="blindspot-prefight__section-meta" id="bs-charm-meta" aria-live="polite"></span>
+          </p>
+          <div id="bs-charm-selector" class="bs-charm-selector" style="display:none;" aria-label="Equip items"></div>
+          <p class="blindspot-prefight__loadout-empty" id="bs-charm-empty">No consumables in inventory yet — open crates to earn charms and items.</p>
+        </section>
+
+        <!-- Arena rail. JS (renderArenaSelector) overwrites
+             #bs-arena-selector's content with image-filled pills + the
+             nameplate band. The section-level label below provides the
+             heading so the legacy inner label can be hidden. -->
+        <section class="blindspot-prefight__loadout-section blindspot-prefight__loadout-section--arenas">
+          <p class="blindspot-prefight__section-label">
+            <i class="fas fa-map-location-dot" aria-hidden="true"></i> Choose Arena
+          </p>
       <div id="bs-arena-selector" class="blindspot-prefight__arenas" aria-label="Choose arena">
         <p class="blindspot-prefight__arenas-label"><i class="fas fa-map-location-dot" aria-hidden="true"></i> Choose Arena</p>
         <div class="blindspot-arena-rail">
@@ -995,9 +1019,10 @@
           </button>
         </div>
       </div>
+        </section>
 
-      <!-- Charm selector — JS-driven, visible only when populated -->
-      <div id="bs-charm-selector" class="bs-charm-selector" style="display:none;" aria-label="Equip a charm"></div>
+      </div><!-- /.blindspot-prefight__loadout -->
+
     </div>
   </div>
 
