@@ -12,6 +12,12 @@
    needs to be at least equal and load later.
    Only `.active` shows; legacy `.bs-screen { display: none }` keeps
    the inactive state hidden. */
+/* play.html: ID-qualified to beat legacy `.bs-screen.active#bs-screen-battle`
+   index.html: separate selector — has the same Vein wrapper class but
+   uses #bs-battle-container as ID, no .bs-screen / .active class
+   (visibility is toggled via inline style.display, not a screen router).
+   Display property kept on play.html only since the inline-style model
+   on index.html would fight it. */
 .bs-screen.active#bs-screen-battle.blindspot-battle {
   position: relative;
   min-height: calc(100vh - 60px);
@@ -23,6 +29,23 @@
   font-family: var(--blindspot-font-body);
   color: var(--blindspot-text);
   flex: unset;
+  /* Solid background covers gutters on wide viewports where the
+     centered .arena-battle (1480px max) doesn't fill horizontally. */
+  background: var(--blindspot-bg);
+}
+#bs-battle-container.blindspot-battle {
+  position: relative;
+  min-height: calc(100vh - 60px);
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: var(--blindspot-font-body);
+  color: var(--blindspot-text);
+  flex: unset;
+  /* On index.html the page particles canvas would show through the
+     gutters otherwise. */
+  background: var(--blindspot-bg);
 }
 
 /* ---------- ARENA BG ---------- */
@@ -646,26 +669,26 @@
    ============================================================ */
 
 /* HP bar — recolor from amber to red gradient */
-#bs-screen-battle.blindspot-battle .arena-hp-bar__track {
+#bs-screen-battle.blindspot-battle .arena-hp-bar__track , #bs-battle-container.blindspot-battle .arena-hp-bar__track  {
   background: var(--blindspot-bg-2);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-pill);
 }
-#bs-screen-battle.blindspot-battle .arena-hp-bar__fill {
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill , #bs-battle-container.blindspot-battle .arena-hp-bar__fill  {
   border-radius: inherit;
   transition: width 0.4s ease;
 }
-#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--player {
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--player , #bs-battle-container.blindspot-battle .arena-hp-bar__fill--player  {
   background: linear-gradient(90deg, var(--blindspot-accent-dim), var(--blindspot-accent));
 }
-#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--opponent {
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--opponent , #bs-battle-container.blindspot-battle .arena-hp-bar__fill--opponent  {
   background: linear-gradient(90deg, var(--blindspot-danger), #ff8a6a);
 }
-#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--low {
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--low , #bs-battle-container.blindspot-battle .arena-hp-bar__fill--low  {
   background: linear-gradient(90deg, #8e2220, var(--blindspot-danger));
 }
-#bs-screen-battle.blindspot-battle .arena-hp-bar__text,
-#bs-screen-battle.blindspot-battle .arena-hp-text {
+#bs-screen-battle.blindspot-battle .arena-hp-bar__text, #bs-battle-container.blindspot-battle .arena-hp-bar__text,
+#bs-screen-battle.blindspot-battle .arena-hp-text , #bs-battle-container.blindspot-battle .arena-hp-text  {
   font-family: var(--blindspot-font-numeric);
   color: var(--blindspot-text);
   font-feature-settings: "tnum" on, "lnum" on;
@@ -677,7 +700,7 @@
    the pip look with vertical dividers via a ::after overlay.
    Assumes default stamMax of 6; non-default cards will look slightly
    off but the visual intent reads correctly. */
-#bs-screen-battle.blindspot-battle .arena-stamina-bar {
+#bs-screen-battle.blindspot-battle .arena-stamina-bar , #bs-battle-container.blindspot-battle .arena-stamina-bar  {
   width: 100%;
   height: 10px;
   background: var(--blindspot-bg-2);
@@ -688,14 +711,14 @@
   padding: 0;
   position: relative;
 }
-#bs-screen-battle.blindspot-battle .arena-stamina-bar__fill {
+#bs-screen-battle.blindspot-battle .arena-stamina-bar__fill , #bs-battle-container.blindspot-battle .arena-stamina-bar__fill  {
   height: 100%;
   background: linear-gradient(180deg, var(--blindspot-accent-gold), var(--blindspot-accent-gold-dim));
   border-radius: 0;
   box-shadow: 0 0 4px rgba(245, 192, 120, 0.3);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
-#bs-screen-battle.blindspot-battle .arena-stamina-bar::after {
+#bs-screen-battle.blindspot-battle .arena-stamina-bar::after , #bs-battle-container.blindspot-battle .arena-stamina-bar::after  {
   content: "";
   position: absolute;
   inset: 0;
@@ -709,10 +732,10 @@
   pointer-events: none;
   z-index: 2;
 }
-#bs-screen-battle.blindspot-battle .arena-stamina-bar--exhausted .arena-stamina-bar__fill {
+#bs-screen-battle.blindspot-battle .arena-stamina-bar--exhausted .arena-stamina-bar__fill , #bs-battle-container.blindspot-battle .arena-stamina-bar--exhausted .arena-stamina-bar__fill  {
   background: linear-gradient(180deg, var(--blindspot-accent-dim), #6e3a1a);
 }
-#bs-screen-battle.blindspot-battle .arena-stamina-bar__text {
+#bs-screen-battle.blindspot-battle .arena-stamina-bar__text , #bs-battle-container.blindspot-battle .arena-stamina-bar__text  {
   font-family: var(--blindspot-font-mono);
   color: var(--blindspot-text-muted);
   font-size: 0.6rem;
@@ -725,12 +748,12 @@
 }
 
 /* Hype bar — recolor to epic purple */
-#bs-screen-battle.blindspot-battle .arena-hype-bar {
+#bs-screen-battle.blindspot-battle .arena-hype-bar , #bs-battle-container.blindspot-battle .arena-hype-bar  {
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
 }
-#bs-screen-battle.blindspot-battle .arena-hype-bar__label {
+#bs-screen-battle.blindspot-battle .arena-hype-bar__label , #bs-battle-container.blindspot-battle .arena-hype-bar__label  {
   font-family: var(--blindspot-font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.18em;
@@ -741,54 +764,54 @@
   gap: 0.35em;
   text-shadow: 0 0 12px rgba(142, 93, 171, 0.6);
 }
-#bs-screen-battle.blindspot-battle .arena-hype-bar__label i {
+#bs-screen-battle.blindspot-battle .arena-hype-bar__label i , #bs-battle-container.blindspot-battle .arena-hype-bar__label i  {
   line-height: 1;
   margin: 0;
 }
-#bs-screen-battle.blindspot-battle .arena-hype-bar__track {
+#bs-screen-battle.blindspot-battle .arena-hype-bar__track , #bs-battle-container.blindspot-battle .arena-hype-bar__track  {
   background: var(--blindspot-bg-2);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-pill);
 }
-#bs-screen-battle.blindspot-battle .arena-hype-bar__fill {
+#bs-screen-battle.blindspot-battle .arena-hype-bar__fill , #bs-battle-container.blindspot-battle .arena-hype-bar__fill  {
   background: linear-gradient(90deg, var(--blindspot-epic), #d8a9ff);
   border-radius: inherit;
 }
 
 /* Stance buttons — red active state */
-#bs-screen-battle.blindspot-battle .arena-stance-btn {
+#bs-screen-battle.blindspot-battle .arena-stance-btn , #bs-battle-container.blindspot-battle .arena-stance-btn  {
   background: var(--blindspot-surface);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
   color: var(--blindspot-text-muted);
 }
-#bs-screen-battle.blindspot-battle .arena-stance-btn:hover {
+#bs-screen-battle.blindspot-battle .arena-stance-btn:hover , #bs-battle-container.blindspot-battle .arena-stance-btn:hover  {
   border-color: var(--blindspot-accent-dim);
   color: var(--blindspot-text);
 }
-#bs-screen-battle.blindspot-battle .arena-stance-btn--active {
+#bs-screen-battle.blindspot-battle .arena-stance-btn--active , #bs-battle-container.blindspot-battle .arena-stance-btn--active  {
   border-color: var(--blindspot-accent);
   color: var(--blindspot-accent);
   background: rgba(200, 48, 44, 0.1);
 }
-#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="balanced"].arena-stance-btn--active {
+#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="balanced"].arena-stance-btn--active , #bs-battle-container.blindspot-battle .arena-stance-btn[data-stance="balanced"].arena-stance-btn--active  {
   border-color: var(--blindspot-accent-gold);
   color: var(--blindspot-accent-gold);
   background: rgba(245, 192, 120, 0.1);
 }
-#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="aggressive"].arena-stance-btn--active {
+#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="aggressive"].arena-stance-btn--active , #bs-battle-container.blindspot-battle .arena-stance-btn[data-stance="aggressive"].arena-stance-btn--active  {
   border-color: var(--blindspot-accent);
   color: var(--blindspot-accent);
 }
-#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="defensive"].arena-stance-btn--active {
+#bs-screen-battle.blindspot-battle .arena-stance-btn[data-stance="defensive"].arena-stance-btn--active , #bs-battle-container.blindspot-battle .arena-stance-btn[data-stance="defensive"].arena-stance-btn--active  {
   border-color: var(--blindspot-info);
   color: var(--blindspot-info);
   background: rgba(102, 136, 170, 0.1);
 }
 
 /* Move cards (legacy bs-move-card) — Vein restyle */
-#bs-screen-battle.blindspot-battle .arena-move-btn,
-#bs-screen-battle.blindspot-battle .bs-move-card {
+#bs-screen-battle.blindspot-battle .arena-move-btn, #bs-battle-container.blindspot-battle .arena-move-btn,
+#bs-screen-battle.blindspot-battle .bs-move-card , #bs-battle-container.blindspot-battle .bs-move-card  {
   background: linear-gradient(180deg, var(--blindspot-surface), var(--blindspot-bg-2));
   border: 1px solid var(--blindspot-border-2);
   border-radius: var(--blindspot-radius-card);
@@ -797,84 +820,84 @@
               border-color 200ms,
               box-shadow 200ms;
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn:hover,
-#bs-screen-battle.blindspot-battle .bs-move-card:hover {
+#bs-screen-battle.blindspot-battle .arena-move-btn:hover, #bs-battle-container.blindspot-battle .arena-move-btn:hover,
+#bs-screen-battle.blindspot-battle .bs-move-card:hover , #bs-battle-container.blindspot-battle .bs-move-card:hover  {
   transform: translateY(-4px);
   border-color: var(--blindspot-accent);
   box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8),
               0 0 30px -8px rgba(200, 48, 44, 0.4);
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__type-label {
+#bs-screen-battle.blindspot-battle .bs-move-card__type-label , #bs-battle-container.blindspot-battle .bs-move-card__type-label  {
   font-family: var(--blindspot-font-mono);
   color: var(--blindspot-accent);
   letter-spacing: 0.18em;
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__name {
+#bs-screen-battle.blindspot-battle .bs-move-card__name , #bs-battle-container.blindspot-battle .bs-move-card__name  {
   font-family: var(--blindspot-font-display);
   font-weight: 600;
   letter-spacing: 0.01em;
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__energy {
+#bs-screen-battle.blindspot-battle .bs-move-card__energy , #bs-battle-container.blindspot-battle .bs-move-card__energy  {
   background: #000;
   border: 1px solid var(--blindspot-border-2);
   border-radius: 2px;
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__energy-num {
+#bs-screen-battle.blindspot-battle .bs-move-card__energy-num , #bs-battle-container.blindspot-battle .bs-move-card__energy-num  {
   font-family: var(--blindspot-font-numeric);
   color: var(--blindspot-text);
   font-weight: 600;
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__energy-label {
+#bs-screen-battle.blindspot-battle .bs-move-card__energy-label , #bs-battle-container.blindspot-battle .bs-move-card__energy-label  {
   font-family: var(--blindspot-font-mono);
   color: var(--blindspot-text-muted);
   letter-spacing: 0.16em;
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__tag {
+#bs-screen-battle.blindspot-battle .bs-move-card__tag , #bs-battle-container.blindspot-battle .bs-move-card__tag  {
   font-family: var(--blindspot-font-mono);
   background: var(--blindspot-surface-2);
   border: 1px solid var(--blindspot-border-2);
   color: var(--blindspot-text-muted);
   border-radius: 999px;
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__tag--active {
+#bs-screen-battle.blindspot-battle .bs-move-card__tag--active , #bs-battle-container.blindspot-battle .bs-move-card__tag--active  {
   background: var(--blindspot-accent);
   color: #FFF6E8;
   border-color: var(--blindspot-accent);
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__desc {
+#bs-screen-battle.blindspot-battle .bs-move-card__desc , #bs-battle-container.blindspot-battle .bs-move-card__desc  {
   font-family: var(--blindspot-font-body);
   font-style: italic;
   color: var(--blindspot-text-dim);
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__footer {
+#bs-screen-battle.blindspot-battle .bs-move-card__footer , #bs-battle-container.blindspot-battle .bs-move-card__footer  {
   border-top: 1px solid var(--blindspot-border);
   font-family: var(--blindspot-font-mono);
   color: var(--blindspot-text-muted);
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__badge {
+#bs-screen-battle.blindspot-battle .bs-move-card__badge , #bs-battle-container.blindspot-battle .bs-move-card__badge  {
   color: var(--blindspot-text-muted);
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__dot {
+#bs-screen-battle.blindspot-battle .bs-move-card__dot , #bs-battle-container.blindspot-battle .bs-move-card__dot  {
   background: var(--blindspot-border-2);
 }
-#bs-screen-battle.blindspot-battle .bs-move-card__dot--active {
+#bs-screen-battle.blindspot-battle .bs-move-card__dot--active , #bs-battle-container.blindspot-battle .bs-move-card__dot--active  {
   background: var(--blindspot-accent);
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn__charge {
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge , #bs-battle-container.blindspot-battle .arena-move-btn__charge  {
   font-family: var(--blindspot-font-mono);
   color: var(--blindspot-epic);
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina,
-#bs-screen-battle.blindspot-battle .arena-move-btn--exhausted {
+#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina, #bs-battle-container.blindspot-battle .arena-move-btn--no-stamina,
+#bs-screen-battle.blindspot-battle .arena-move-btn--exhausted , #bs-battle-container.blindspot-battle .arena-move-btn--exhausted  {
   opacity: 0.45;
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost {
+#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost , #bs-battle-container.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost  {
   color: var(--blindspot-danger);
 }
 
 /* Battle header (round + intent + forfeit bar) — round and intent
    group tight on the left, action buttons pushed to the right. */
-#bs-screen-battle.blindspot-battle .arena-battle__header {
+#bs-screen-battle.blindspot-battle .arena-battle__header , #bs-battle-container.blindspot-battle .arena-battle__header  {
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
@@ -886,16 +909,16 @@
   padding: 0.4rem 0.85rem;
 }
 /* First action button picks up margin-left: auto to flush the right group. */
-#bs-screen-battle.blindspot-battle .arena-battle__header #bs-combat-help-btn,
-#bs-screen-battle.blindspot-battle .arena-battle__header #arena-forfeit-btn {
+#bs-screen-battle.blindspot-battle .arena-battle__header #bs-combat-help-btn, #bs-battle-container.blindspot-battle .arena-battle__header #bs-combat-help-btn,
+#bs-screen-battle.blindspot-battle .arena-battle__header #arena-forfeit-btn , #bs-battle-container.blindspot-battle .arena-battle__header #arena-forfeit-btn  {
   margin-left: 0;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__header #bs-combat-help-btn {
+#bs-screen-battle.blindspot-battle .arena-battle__header #bs-combat-help-btn , #bs-battle-container.blindspot-battle .arena-battle__header #bs-combat-help-btn  {
   margin-left: auto;
 }
 
 /* Square icon-only header buttons (Help + Forfeit) — bundle-style. */
-#bs-screen-battle.blindspot-battle .arena-battle__header .arena-btn {
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-btn , #bs-battle-container.blindspot-battle .arena-battle__header .arena-btn  {
   width: 36px;
   height: 36px;
   min-width: 36px;
@@ -906,15 +929,15 @@
   flex-shrink: 0;
   gap: 0;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__header .arena-btn i {
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-btn i , #bs-battle-container.blindspot-battle .arena-battle__header .arena-btn i  {
   font-size: 0.9rem;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__round {
+#bs-screen-battle.blindspot-battle .arena-battle__round , #bs-battle-container.blindspot-battle .arena-battle__round  {
   font-family: var(--blindspot-font-display);
   color: var(--blindspot-accent);
   font-weight: 600;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__vs-text {
+#bs-screen-battle.blindspot-battle .arena-battle__vs-text , #bs-battle-container.blindspot-battle .arena-battle__vs-text  {
   font-family: var(--blindspot-font-display);
   font-style: italic;
   color: var(--blindspot-accent);
@@ -922,24 +945,24 @@
 }
 
 /* Combatant frame and nameplate */
-#bs-screen-battle.blindspot-battle .arena-combatant {
+#bs-screen-battle.blindspot-battle .arena-combatant , #bs-battle-container.blindspot-battle .arena-combatant  {
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid var(--blindspot-border-2);
   border-radius: var(--blindspot-radius-card);
   backdrop-filter: blur(6px);
 }
-#bs-screen-battle.blindspot-battle .arena-combatant--player {
+#bs-screen-battle.blindspot-battle .arena-combatant--player , #bs-battle-container.blindspot-battle .arena-combatant--player  {
   border-left: 2px solid var(--blindspot-accent);
 }
-#bs-screen-battle.blindspot-battle .arena-combatant--opponent {
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent , #bs-battle-container.blindspot-battle .arena-combatant--opponent  {
   border-right: 2px solid var(--blindspot-danger);
 }
-#bs-screen-battle.blindspot-battle .arena-combatant__name {
+#bs-screen-battle.blindspot-battle .arena-combatant__name , #bs-battle-container.blindspot-battle .arena-combatant__name  {
   font-family: var(--blindspot-font-display);
   font-weight: 600;
   color: var(--blindspot-text);
 }
-#bs-screen-battle.blindspot-battle .arena-element-badge {
+#bs-screen-battle.blindspot-battle .arena-element-badge , #bs-battle-container.blindspot-battle .arena-element-badge  {
   font-family: var(--blindspot-font-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -950,7 +973,7 @@
     `.arena-battle__header .arena-boss-intent` rule — single source of truth.) */
 
 /* Battle log */
-#bs-screen-battle.blindspot-battle .arena-battle__log {
+#bs-screen-battle.blindspot-battle .arena-battle__log , #bs-battle-container.blindspot-battle .arena-battle__log  {
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid var(--blindspot-border);
   border-radius: 2px;
@@ -961,7 +984,7 @@
   overflow-y: auto;
   margin: 0;
 }
-#bs-screen-battle.blindspot-battle .arena-log-entry {
+#bs-screen-battle.blindspot-battle .arena-log-entry , #bs-battle-container.blindspot-battle .arena-log-entry  {
   color: var(--blindspot-text-dim);
   font-size: 0.9rem;
 }
@@ -971,7 +994,7 @@
    each combatant into a column with nameplate above portrait, and
    the move grid into a 5-card hand below. */
 
-#bs-screen-battle.blindspot-battle .arena-battle {
+#bs-screen-battle.blindspot-battle .arena-battle , #bs-battle-container.blindspot-battle .arena-battle  {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -988,7 +1011,7 @@
    through the field; instead, we now keep the image and apply a
    stronger top-to-bottom darkening overlay so combatant portraits +
    HUD stay legible against any arena. */
-#bs-screen-battle.blindspot-battle .arena-battle__stage {
+#bs-screen-battle.blindspot-battle .arena-battle__stage , #bs-battle-container.blindspot-battle .arena-battle__stage  {
   background-color: var(--blindspot-bg);
   background-size: cover;
   background-position: center;
@@ -999,7 +1022,7 @@
   outline: 0;
   position: relative;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__stage::before {
+#bs-screen-battle.blindspot-battle .arena-battle__stage::before , #bs-battle-container.blindspot-battle .arena-battle__stage::before  {
   content: '';
   position: absolute;
   inset: 0;
@@ -1011,9 +1034,9 @@
     rgba(10, 8, 6, 0.55) 45%,
     rgba(10, 8, 6, 0.88) 100%);
 }
-#bs-screen-battle.blindspot-battle .arena-battle__stage::after { content: none; }
-#bs-screen-battle.blindspot-battle .arena-battle__field { position: relative; z-index: 1; }
-#bs-screen-battle.blindspot-battle .arena-battle__field {
+#bs-screen-battle.blindspot-battle .arena-battle__stage::after , #bs-battle-container.blindspot-battle .arena-battle__stage::after  { content: none; }
+#bs-screen-battle.blindspot-battle .arena-battle__field , #bs-battle-container.blindspot-battle .arena-battle__field  { position: relative; z-index: 1; }
+#bs-screen-battle.blindspot-battle .arena-battle__field , #bs-battle-container.blindspot-battle .arena-battle__field  {
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(220px, 300px) minmax(320px, 1fr);
   gap: 0.75rem;
@@ -1038,7 +1061,7 @@
    then a portrait-shaped frame, then HP / stamina pips / buffs.
    Tight vertical budget so the card never overlaps the log/move-hand
    below — total card height target ≤ 440px on a 900px viewport. */
-#bs-screen-battle.blindspot-battle .arena-combatant {
+#bs-screen-battle.blindspot-battle .arena-combatant , #bs-battle-container.blindspot-battle .arena-combatant  {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -1057,7 +1080,7 @@
      buff pills wrapping. Use min() so smaller viewports compress further. */
   max-height: min(60vh, 460px);
 }
-#bs-screen-battle.blindspot-battle .arena-combatant__nameplate {
+#bs-screen-battle.blindspot-battle .arena-combatant__nameplate , #bs-battle-container.blindspot-battle .arena-combatant__nameplate  {
   order: 0;
   display: flex;
   flex-direction: row;
@@ -1072,13 +1095,13 @@
 }
 /* Name takes the full first row; element badge / boss stance / subtitle
    all flow on the second row inline. */
-#bs-screen-battle.blindspot-battle .arena-combatant__nameplate .arena-combatant__name {
+#bs-screen-battle.blindspot-battle .arena-combatant__nameplate .arena-combatant__name , #bs-battle-container.blindspot-battle .arena-combatant__nameplate .arena-combatant__name  {
   flex-basis: 100%;
   margin: 0;
 }
 /* Portrait frame — fills column width, fixed height so card geometry
    doesn't bloat as the combatant column gets wider on big viewports. */
-#bs-screen-battle.blindspot-battle .arena-combatant__frame {
+#bs-screen-battle.blindspot-battle .arena-combatant__frame , #bs-battle-container.blindspot-battle .arena-combatant__frame  {
   order: 1;
   width: 100%;
   margin: 0;
@@ -1093,7 +1116,7 @@
   justify-content: center;
   flex-shrink: 0;
 }
-#bs-screen-battle.blindspot-battle .arena-combatant__card {
+#bs-screen-battle.blindspot-battle .arena-combatant__card , #bs-battle-container.blindspot-battle .arena-combatant__card  {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -1102,32 +1125,32 @@
   justify-content: center;
 }
 /* Make the rendered card scale to fit the portrait frame */
-#bs-screen-battle.blindspot-battle .arena-combatant__card .bs-rendered-card {
+#bs-screen-battle.blindspot-battle .arena-combatant__card .bs-rendered-card , #bs-battle-container.blindspot-battle .arena-combatant__card .bs-rendered-card  {
   width: auto;
   height: 100%;
   max-width: 100%;
   border-radius: 0;
   box-shadow: none;
 }
-#bs-screen-battle.blindspot-battle .arena-hp-bar { order: 2; margin-top: 0.5rem; }
-#bs-screen-battle.blindspot-battle .arena-stamina-bar { order: 3; }
-#bs-screen-battle.blindspot-battle .arena-player-items { order: 4; }
-#bs-screen-battle.blindspot-battle .arena-player-buffs,
-#bs-screen-battle.blindspot-battle .arena-opponent-buffs {
+#bs-screen-battle.blindspot-battle .arena-hp-bar , #bs-battle-container.blindspot-battle .arena-hp-bar  { order: 2; margin-top: 0.5rem; }
+#bs-screen-battle.blindspot-battle .arena-stamina-bar , #bs-battle-container.blindspot-battle .arena-stamina-bar  { order: 3; }
+#bs-screen-battle.blindspot-battle .arena-player-items , #bs-battle-container.blindspot-battle .arena-player-items  { order: 4; }
+#bs-screen-battle.blindspot-battle .arena-player-buffs, #bs-battle-container.blindspot-battle .arena-player-buffs,
+#bs-screen-battle.blindspot-battle .arena-opponent-buffs , #bs-battle-container.blindspot-battle .arena-opponent-buffs  {
   order: 5;
   display: flex;
   gap: 0.3rem;
   flex-wrap: wrap;
   margin-top: 0.3rem;
 }
-#bs-screen-battle.blindspot-battle .arena-status-row { order: 6; }
+#bs-screen-battle.blindspot-battle .arena-status-row , #bs-battle-container.blindspot-battle .arena-status-row  { order: 6; }
 
 /* Boss intent — banner inside HUD top, between Round and the action
    buttons. Mirrors the bundle's `.battle__intent`: subtle dark surface,
    uniform 1px border (no left accent stripe), italic text, icon picks up
    the move's dynamic color via `--intent-color` (set on the container by
    JS in showBossIntent). */
-#bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent {
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent , #bs-battle-container.blindspot-battle .arena-battle__header .arena-boss-intent  {
   flex: 1;
   display: inline-flex;
   align-items: center;
@@ -1142,20 +1165,20 @@
   font-style: italic;
   min-width: 0;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent:has(.arena-boss-intent__text:empty),
-#bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent:empty {
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent:has(.arena-boss-intent__text:empty), #bs-battle-container.blindspot-battle .arena-battle__header .arena-boss-intent:has(.arena-boss-intent__text:empty),
+#bs-screen-battle.blindspot-battle .arena-battle__header .arena-boss-intent:empty , #bs-battle-container.blindspot-battle .arena-battle__header .arena-boss-intent:empty  {
   display: none;
 }
-#bs-screen-battle.blindspot-battle .arena-boss-intent__icon {
+#bs-screen-battle.blindspot-battle .arena-boss-intent__icon , #bs-battle-container.blindspot-battle .arena-boss-intent__icon  {
   color: var(--intent-color, var(--blindspot-epic));
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
 }
-#bs-screen-battle.blindspot-battle .arena-boss-intent__icon i {
+#bs-screen-battle.blindspot-battle .arena-boss-intent__icon i , #bs-battle-container.blindspot-battle .arena-boss-intent__icon i  {
   color: inherit;
 }
-#bs-screen-battle.blindspot-battle .arena-boss-intent__text {
+#bs-screen-battle.blindspot-battle .arena-boss-intent__text , #bs-battle-container.blindspot-battle .arena-boss-intent__text  {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1163,7 +1186,7 @@
 }
 
 /* Center column — VS glyph + hype + stances */
-#bs-screen-battle.blindspot-battle .blindspot-battle__center {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center , #bs-battle-container.blindspot-battle .blindspot-battle__center  {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1171,7 +1194,7 @@
   gap: 1rem;
   padding: 1rem 0;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-battle__vs  {
   position: static;
   background: transparent;
   border: 0;
@@ -1180,7 +1203,7 @@
   width: auto;
   height: auto;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs-text {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs-text , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-battle__vs-text  {
   font-family: var(--blindspot-font-display);
   font-style: italic;
   font-weight: 600;
@@ -1190,11 +1213,11 @@
   text-shadow: 0 0 40px rgba(200, 48, 44, 0.5);
   line-height: 1;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs::before,
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs::after {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs::before, #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-battle__vs::before,
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs::after , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-battle__vs::after  {
   content: none;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-hype-bar {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-hype-bar , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-hype-bar  {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -1203,11 +1226,11 @@
   border: 0;
   padding: 0;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-hype-bar__track {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-hype-bar__track , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-hype-bar__track  {
   width: 100%;
   margin: 0;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-row {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-row , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-row  {
   width: 100%;
   display: flex;
   gap: 0.4rem;
@@ -1218,7 +1241,7 @@
   position: static;
   flex-direction: row;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn  {
   flex: 1;
   width: auto;
   height: auto;
@@ -1231,16 +1254,16 @@
   font-family: var(--blindspot-font-mono);
 }
 /* Add text labels via ::after pseudo-content (avoids markup change) */
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="balanced"]::after {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="balanced"]::after , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="balanced"]::after  {
   content: "Balanced";
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="aggressive"]::after {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="aggressive"]::after , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="aggressive"]::after  {
   content: "Aggressive";
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="defensive"]::after {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="defensive"]::after , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn[data-stance="defensive"]::after  {
   content: "Defensive";
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn::after {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn::after , #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn::after  {
   font-size: 0.55rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1249,7 +1272,7 @@
 }
 
 /* Hand rail — eyebrow above the move grid */
-#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail {
+#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail , #bs-battle-container.blindspot-battle .blindspot-battle__hand-rail  {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
@@ -1262,12 +1285,12 @@
   text-transform: uppercase;
   color: var(--blindspot-text-muted);
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail i {
+#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail i , #bs-battle-container.blindspot-battle .blindspot-battle__hand-rail i  {
   color: var(--blindspot-accent);
 }
 
 /* Move hand — 5-card grid */
-#bs-screen-battle.blindspot-battle .arena-battle__moves {
+#bs-screen-battle.blindspot-battle .arena-battle__moves , #bs-battle-container.blindspot-battle .arena-battle__moves  {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 0.5rem;
@@ -1285,8 +1308,8 @@
     grid-template-columns: 1fr;
   }
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn,
-#bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card {
+#bs-screen-battle.blindspot-battle .arena-move-btn, #bs-battle-container.blindspot-battle .arena-move-btn,
+#bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card , #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card  {
   width: auto;
   margin: 0;
 }
@@ -1298,31 +1321,31 @@
    ============================================================ */
 
 /* ---------- MOVE CARDS — color code per move (mirrors bundle's --mc) ---------- */
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="strike"]   { --bs-move-color: #ff7a3a; }
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="guard"]    { --bs-move-color: #6cc4ff; }
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="ability"]  { --bs-move-color: #b47cf5; }
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="heal"]     { --bs-move-color: #6cffb0; }
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="counter"]  { --bs-move-color: #ffd97a; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="strike"]   , #bs-battle-container.blindspot-battle .arena-move-btn[data-move="strike"]    { --bs-move-color: #ff7a3a; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="guard"]    , #bs-battle-container.blindspot-battle .arena-move-btn[data-move="guard"]     { --bs-move-color: #6cc4ff; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="ability"]  , #bs-battle-container.blindspot-battle .arena-move-btn[data-move="ability"]   { --bs-move-color: #b47cf5; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="heal"]     , #bs-battle-container.blindspot-battle .arena-move-btn[data-move="heal"]      { --bs-move-color: #6cffb0; }
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move="counter"]  , #bs-battle-container.blindspot-battle .arena-move-btn[data-move="counter"]   { --bs-move-color: #ffd97a; }
 
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__type-label {
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__type-label , #bs-battle-container.blindspot-battle .arena-move-btn[data-move] .bs-move-card__type-label  {
   color: var(--bs-move-color, var(--blindspot-accent));
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__tag--active {
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__tag--active , #bs-battle-container.blindspot-battle .arena-move-btn[data-move] .bs-move-card__tag--active  {
   background: var(--bs-move-color, var(--blindspot-accent));
   border-color: var(--bs-move-color, var(--blindspot-accent));
   color: #0E0A06;
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move]:hover {
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move]:hover , #bs-battle-container.blindspot-battle .arena-move-btn[data-move]:hover  {
   border-color: var(--bs-move-color, var(--blindspot-accent));
   box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8),
               0 0 30px -8px var(--bs-move-color, rgba(200, 48, 44, 0.4));
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__dot--active {
+#bs-screen-battle.blindspot-battle .arena-move-btn[data-move] .bs-move-card__dot--active , #bs-battle-container.blindspot-battle .arena-move-btn[data-move] .bs-move-card__dot--active  {
   background: var(--bs-move-color, var(--blindspot-accent));
 }
 
 /* ---------- HYPE HINT (under the hype bar) ---------- */
-#bs-screen-battle.blindspot-battle .arena-hype-bar__hint {
+#bs-screen-battle.blindspot-battle .arena-hype-bar__hint , #bs-battle-container.blindspot-battle .arena-hype-bar__hint  {
   font-family: var(--blindspot-font-mono);
   font-size: 0.55rem;
   letter-spacing: 0.16em;
@@ -1332,12 +1355,12 @@
   margin-top: 0.25rem;
   display: block;
 }
-#bs-screen-battle.blindspot-battle .arena-hype-bar__hint:empty {
+#bs-screen-battle.blindspot-battle .arena-hype-bar__hint:empty , #bs-battle-container.blindspot-battle .arena-hype-bar__hint:empty  {
   display: none;
 }
 
 /* ---------- BATTLE LOG (header + grid rows when JS injects structured spans) ---------- */
-#bs-screen-battle.blindspot-battle .arena-battle__log-head {
+#bs-screen-battle.blindspot-battle .arena-battle__log-head , #bs-battle-container.blindspot-battle .arena-battle__log-head  {
   font-family: var(--blindspot-font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.18em;
@@ -1350,7 +1373,7 @@
 }
 /* Grid layout activates only when JS injects __round/__text/__dmg children
    so flat-string log entries written by older code stay readable. */
-#bs-screen-battle.blindspot-battle .arena-log-entry:has(.arena-log-entry__round) {
+#bs-screen-battle.blindspot-battle .arena-log-entry:has(.arena-log-entry__round) , #bs-battle-container.blindspot-battle .arena-log-entry:has(.arena-log-entry__round)  {
   display: grid;
   grid-template-columns: 32px 1fr auto;
   gap: 0.6rem;
@@ -1358,16 +1381,16 @@
   padding: 0.18rem 0;
   font-size: 0.82rem;
 }
-#bs-screen-battle.blindspot-battle .arena-log-entry__round {
+#bs-screen-battle.blindspot-battle .arena-log-entry__round , #bs-battle-container.blindspot-battle .arena-log-entry__round  {
   font-family: var(--blindspot-font-mono);
   font-size: 0.65rem;
   color: var(--blindspot-text-muted);
   letter-spacing: 0.08em;
 }
-#bs-screen-battle.blindspot-battle .arena-log-entry__text {
+#bs-screen-battle.blindspot-battle .arena-log-entry__text , #bs-battle-container.blindspot-battle .arena-log-entry__text  {
   color: var(--blindspot-text-dim);
 }
-#bs-screen-battle.blindspot-battle .arena-log-entry__dmg {
+#bs-screen-battle.blindspot-battle .arena-log-entry__dmg , #bs-battle-container.blindspot-battle .arena-log-entry__dmg  {
   font-family: var(--blindspot-font-numeric);
   font-feature-settings: "tnum" on, "lnum" on;
   font-variant-numeric: tabular-nums;
@@ -1375,19 +1398,19 @@
   color: var(--blindspot-accent);
   white-space: nowrap;
 }
-#bs-screen-battle.blindspot-battle .arena-log-entry__dmg--crit {
+#bs-screen-battle.blindspot-battle .arena-log-entry__dmg--crit , #bs-battle-container.blindspot-battle .arena-log-entry__dmg--crit  {
   color: var(--blindspot-danger);
 }
-#bs-screen-battle.blindspot-battle .arena-log-entry__dmg--reflect {
+#bs-screen-battle.blindspot-battle .arena-log-entry__dmg--reflect , #bs-battle-container.blindspot-battle .arena-log-entry__dmg--reflect  {
   color: var(--blindspot-info);
 }
 
 /* ---------- HAND RAIL — stamina readout + combo hint ---------- */
-#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail-stamina {
+#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail-stamina , #bs-battle-container.blindspot-battle .blindspot-battle__hand-rail-stamina  {
   color: var(--blindspot-text-muted);
   letter-spacing: 0.14em;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail-combo:empty {
+#bs-screen-battle.blindspot-battle .blindspot-battle__hand-rail-combo:empty , #bs-battle-container.blindspot-battle .blindspot-battle__hand-rail-combo:empty  {
   display: none;
 }
 
@@ -1398,22 +1421,22 @@
    moved here from inside the bars; JS still finds them by ID.
    Reorders flex children so meta sits between portrait and bar.
    ============================================================ */
-#bs-screen-battle.blindspot-battle .arena-combatant__hp-meta,
-#bs-screen-battle.blindspot-battle .arena-combatant__stam-meta {
+#bs-screen-battle.blindspot-battle .arena-combatant__hp-meta, #bs-battle-container.blindspot-battle .arena-combatant__hp-meta,
+#bs-screen-battle.blindspot-battle .arena-combatant__stam-meta , #bs-battle-container.blindspot-battle .arena-combatant__stam-meta  {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: -0.2rem;
 }
-#bs-screen-battle.blindspot-battle .arena-combatant__meta-lbl {
+#bs-screen-battle.blindspot-battle .arena-combatant__meta-lbl , #bs-battle-container.blindspot-battle .arena-combatant__meta-lbl  {
   font-family: var(--blindspot-font-mono);
   font-size: 0.65rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--blindspot-text-muted);
 }
-#bs-screen-battle.blindspot-battle .arena-combatant__meta-val {
+#bs-screen-battle.blindspot-battle .arena-combatant__meta-val , #bs-battle-container.blindspot-battle .arena-combatant__meta-val  {
   font-family: var(--blindspot-font-numeric);
   font-feature-settings: "tnum" on, "lnum" on;
   font-variant-numeric: tabular-nums;
@@ -1421,22 +1444,22 @@
   font-weight: 600;
   color: var(--blindspot-accent);
 }
-#bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-combatant__meta-val {
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-combatant__meta-val , #bs-battle-container.blindspot-battle .arena-combatant--opponent .arena-combatant__meta-val  {
   color: var(--blindspot-danger);
 }
 
 /* Re-order flex children so meta rows sit immediately above their bars.
    Existing rules set hp-bar=2, stamina-bar=3, items=4, buffs=5; we shift
    bars/items/buffs down by one each to make room for the meta rows. */
-#bs-screen-battle.blindspot-battle .arena-combatant__hp-meta   { order: 2; }
-#bs-screen-battle.blindspot-battle .arena-hp-bar               { order: 3; margin-top: 0; }
-#bs-screen-battle.blindspot-battle .arena-combatant__stam-meta { order: 4; margin-top: 0.25rem; }
-#bs-screen-battle.blindspot-battle .arena-stamina-bar          { order: 5; }
-#bs-screen-battle.blindspot-battle .arena-player-items,
-#bs-screen-battle.blindspot-battle .arena-opponent-items       { order: 6; }
-#bs-screen-battle.blindspot-battle .arena-player-buffs,
-#bs-screen-battle.blindspot-battle .arena-opponent-buffs       { order: 7; }
-#bs-screen-battle.blindspot-battle .arena-status-row           { order: 8; }
+#bs-screen-battle.blindspot-battle .arena-combatant__hp-meta   , #bs-battle-container.blindspot-battle .arena-combatant__hp-meta    { order: 2; }
+#bs-screen-battle.blindspot-battle .arena-hp-bar               , #bs-battle-container.blindspot-battle .arena-hp-bar                { order: 3; margin-top: 0; }
+#bs-screen-battle.blindspot-battle .arena-combatant__stam-meta , #bs-battle-container.blindspot-battle .arena-combatant__stam-meta  { order: 4; margin-top: 0.25rem; }
+#bs-screen-battle.blindspot-battle .arena-stamina-bar          , #bs-battle-container.blindspot-battle .arena-stamina-bar           { order: 5; }
+#bs-screen-battle.blindspot-battle .arena-player-items, #bs-battle-container.blindspot-battle .arena-player-items,
+#bs-screen-battle.blindspot-battle .arena-opponent-items       , #bs-battle-container.blindspot-battle .arena-opponent-items        { order: 6; }
+#bs-screen-battle.blindspot-battle .arena-player-buffs, #bs-battle-container.blindspot-battle .arena-player-buffs,
+#bs-screen-battle.blindspot-battle .arena-opponent-buffs       , #bs-battle-container.blindspot-battle .arena-opponent-buffs        { order: 7; }
+#bs-screen-battle.blindspot-battle .arena-status-row           , #bs-battle-container.blindspot-battle .arena-status-row            { order: 8; }
 
 /* ============================================================
    SLICE 4 — Round indicator polish (Apr 2026)
@@ -1445,19 +1468,19 @@
    mono number. JS updates the `#arena-round-num` span directly with a
    zero-padded value (01, 02, …).
    ============================================================ */
-#bs-screen-battle.blindspot-battle .arena-battle__round {
+#bs-screen-battle.blindspot-battle .arena-battle__round , #bs-battle-container.blindspot-battle .arena-battle__round  {
   display: inline-flex;
   align-items: baseline;
   gap: 0.55rem;
 }
-#bs-screen-battle.blindspot-battle .arena-battle__round-eyebrow {
+#bs-screen-battle.blindspot-battle .arena-battle__round-eyebrow , #bs-battle-container.blindspot-battle .arena-battle__round-eyebrow  {
   font-family: var(--blindspot-font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--blindspot-text-muted);
 }
-#bs-screen-battle.blindspot-battle .arena-battle__round-num {
+#bs-screen-battle.blindspot-battle .arena-battle__round-num , #bs-battle-container.blindspot-battle .arena-battle__round-num  {
   font-family: var(--blindspot-font-numeric);
   font-feature-settings: "tnum" on, "lnum" on;
   font-variant-numeric: tabular-nums;
@@ -1472,7 +1495,7 @@
    GUARDIAN · LV 386 / BOSS 9 · DIFF 9 — eyebrow row under name.
    JS populates via renderCombatants. Hidden when empty.
    ============================================================ */
-#bs-screen-battle.blindspot-battle .arena-combatant__sub {
+#bs-screen-battle.blindspot-battle .arena-combatant__sub , #bs-battle-container.blindspot-battle .arena-combatant__sub  {
   display: block;
   font-family: var(--blindspot-font-mono);
   font-size: 0.65rem;
@@ -1481,17 +1504,17 @@
   color: var(--blindspot-text-muted);
   margin-top: 0.1rem;
 }
-#bs-screen-battle.blindspot-battle .arena-combatant__sub:empty {
+#bs-screen-battle.blindspot-battle .arena-combatant__sub:empty , #bs-battle-container.blindspot-battle .arena-combatant__sub:empty  {
   display: none;
 }
 
 /* Hide empty content rows so they don't reserve vertical space. JS only
    populates these when there's something to show (items in inventory,
    active buffs, status messages). Blank rows otherwise = wasted height. */
-#bs-screen-battle.blindspot-battle .arena-player-items:empty,
-#bs-screen-battle.blindspot-battle .arena-opponent-items:empty,
-#bs-screen-battle.blindspot-battle .arena-player-buffs:empty,
-#bs-screen-battle.blindspot-battle .arena-opponent-buffs:empty,
-#bs-screen-battle.blindspot-battle .arena-status-row:empty {
+#bs-screen-battle.blindspot-battle .arena-player-items:empty, #bs-battle-container.blindspot-battle .arena-player-items:empty,
+#bs-screen-battle.blindspot-battle .arena-opponent-items:empty, #bs-battle-container.blindspot-battle .arena-opponent-items:empty,
+#bs-screen-battle.blindspot-battle .arena-player-buffs:empty, #bs-battle-container.blindspot-battle .arena-player-buffs:empty,
+#bs-screen-battle.blindspot-battle .arena-opponent-buffs:empty, #bs-battle-container.blindspot-battle .arena-opponent-buffs:empty,
+#bs-screen-battle.blindspot-battle .arena-status-row:empty , #bs-battle-container.blindspot-battle .arena-status-row:empty  {
   display: none;
 }
