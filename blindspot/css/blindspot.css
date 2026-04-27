@@ -3525,20 +3525,20 @@
 /* Step dots — active (current step) */
 .bs-page .qb-step-dot.active {
   color: #fff;
-  background: var(--bs-accent) !important;
-  border-color: var(--bs-accent) !important;
+  background: var(--bs-accent);
+  border-color: var(--bs-accent);
   box-shadow: 0 0 14px rgba(239, 159, 39, 0.5);
 }
 /* Step dots — completed */
 .bs-page .qb-step-dot.completed {
   color: #fff;
-  background: var(--bs-accent-dim) !important;
-  border-color: var(--bs-accent-dim) !important;
+  background: var(--bs-accent-dim);
+  border-color: var(--bs-accent-dim);
   box-shadow: 0 0 8px rgba(239, 159, 39, 0.2);
 }
 /* Step lines — completed */
 .bs-page .qb-step-line.completed {
-  background: var(--bs-accent-dim) !important;
+  background: var(--bs-accent-dim);
 }
 
 /* Nav buttons — warm theme */
@@ -10623,4 +10623,364 @@ body.bs-adventure-active {
 
   /* Play button — full width touch friendly */
   .bs-play-btn { min-height: 48px; }
+}
+
+/* ============================================================
+   SPARKS SHOP — Vein theme override
+   Re-aliases the legacy --bs-* tokens within #bs-screen-shop so the
+   existing shop CSS rules (which reference --bs-accent, --bs-accent-glow,
+   etc.) resolve to Vein palette values. Avoids surgically editing 100+
+   shop rules. Also bumps a few small font-sizes for legibility.
+   ============================================================ */
+#bs-screen-shop {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+
+/* Swap Cinzel → Cormorant for shop display chrome (matches topbar/wordmark). */
+#bs-screen-shop .bs-shop__sparks-badge,
+#bs-screen-shop .bs-shop__tab,
+#bs-screen-shop .bs-shop__section-title,
+#bs-screen-shop .bs-shop-card__name,
+#bs-screen-shop .bs-shop-card__price,
+#bs-screen-shop .bs-campaign__header h2 {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+}
+
+/* Square the legacy rounded shop corners to match Vein geometry. */
+#bs-screen-shop .bs-shop__tab          { border-radius: 2px; min-height: 40px; font-size: 0.85rem; }
+#bs-screen-shop .bs-shop-card          { border-radius: 4px; }
+#bs-screen-shop .bs-shop__sparks-badge { border-radius: 2px; font-size: 1rem; }
+#bs-screen-shop .bs-shop-card__qty     { border-radius: 2px; font-size: 0.7rem; }
+
+/* Bump shop card text legibility. */
+#bs-screen-shop .bs-shop-card__name    { font-size: 0.9rem; font-style: italic; font-weight: 600; }
+#bs-screen-shop .bs-shop-card__rarity  { font-size: 0.65rem; letter-spacing: 0.18em; }
+#bs-screen-shop .bs-shop-card__desc    { font-size: 0.75rem; max-width: none; line-height: 1.4; }
+#bs-screen-shop .bs-shop-card__price   { font-size: 0.95rem; font-weight: 700; }
+#bs-screen-shop .bs-shop__section-title{ font-size: 1.1rem; font-style: italic; font-weight: 600; }
+#bs-screen-shop .bs-shop__section-desc { font-size: 0.85rem; line-height: 1.4; }
+
+/* ============================================================
+   LEADERBOARD — Vein theme override
+   Same pattern as shop: re-alias legacy --bs-* tokens and swap
+   Cinzel display for italic Cormorant. Scoped to #bs-screen-
+   leaderboard so other screens are untouched.
+   ============================================================ */
+#bs-screen-leaderboard {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+
+/* Cormorant for header + leaderboard row chrome. */
+#bs-screen-leaderboard .bs-campaign__header h2,
+#bs-screen-leaderboard .bs-boss-card__name,
+#bs-screen-leaderboard .bs-boss-card__class {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+}
+#bs-screen-leaderboard .bs-campaign__header h2 {
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: var(--blindspot-accent-gold);
+}
+
+/* Square corners + bigger readable type on rows. */
+#bs-screen-leaderboard .bs-boss-card { border-radius: 4px; }
+#bs-screen-leaderboard .bs-boss-card__name { font-size: 1.05rem; font-weight: 600; }
+#bs-screen-leaderboard .bs-boss-card__class { font-size: 0.85rem; }
+#bs-screen-leaderboard .bs-boss-card__number {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  border-radius: 2px;
+}
+#bs-screen-leaderboard .bs-boss-card--current {
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 24px -8px rgba(245, 192, 120, 0.35);
+}
+
+/* ============================================================
+   HOW TO PLAY MODAL — Vein theme override
+   Same pattern as shop / leaderboard: re-alias --bs-* tokens within
+   #bs-howtoplay, swap Cinzel display for italic Cormorant, square the
+   corners, bump body copy for legibility.
+   ============================================================ */
+#bs-howtoplay {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+
+/* Backdrop — slightly darker so the modal pops on the Vein bg. */
+#bs-howtoplay.bs-modal-backdrop {
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
+}
+
+/* Square the modal corners to match Vein geometry. */
+#bs-howtoplay .bs-modal {
+  border-radius: 4px;
+  border-color: var(--blindspot-border-2);
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.9),
+    0 0 0 1px var(--blindspot-border),
+    inset 0 1px 0 rgba(245, 192, 120, 0.06);
+}
+#bs-howtoplay .bs-modal__close {
+  border-radius: 2px;
+}
+
+/* Italic Cormorant title in gold + matching section headings. */
+#bs-howtoplay .bs-modal__title {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: var(--blindspot-accent-gold);
+}
+#bs-howtoplay .bs-modal__section h3 {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.15rem;
+  color: var(--blindspot-text);
+  margin: 0 0 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* Legible body copy — was 0.72rem (~11.5px), now 0.95rem (~15px). */
+#bs-howtoplay .bs-modal__section {
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--blindspot-border);
+}
+#bs-howtoplay .bs-modal__section:last-of-type {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+#bs-howtoplay .bs-modal__section p {
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--blindspot-text-dim);
+  margin: 0 0 0.4rem;
+}
+#bs-howtoplay .bs-modal__section p em {
+  color: var(--blindspot-text-muted);
+}
+#bs-howtoplay .bs-modal__section .bs-text-sm {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   CAMPAIGN SCREEN — Vein theme override
+   Same scoped pattern: re-alias --bs-* tokens within
+   #bs-screen-campaign, swap Cinzel display for italic Cormorant,
+   square the corners, bump boss-card readability.
+   ============================================================ */
+#bs-screen-campaign {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+
+/* Cormorant for header + boss-row chrome. */
+#bs-screen-campaign .bs-campaign__header h2,
+#bs-screen-campaign .bs-boss-card__name,
+#bs-screen-campaign .bs-boss-card__class {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+}
+#bs-screen-campaign .bs-campaign__header h2 {
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: var(--blindspot-accent-gold);
+}
+
+/* Square the boss-card corners + bump readability. */
+#bs-screen-campaign .bs-boss-card { border-radius: 4px; }
+#bs-screen-campaign .bs-boss-card__name { font-size: 1.05rem; font-weight: 600; }
+#bs-screen-campaign .bs-boss-card__class { font-size: 0.85rem; }
+#bs-screen-campaign .bs-boss-card__number {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  border-radius: 2px;
+}
+
+/* "Current boss" highlight — gold ember outline (was red). */
+#bs-screen-campaign .bs-boss-card--current {
+  border-color: var(--blindspot-accent-gold);
+  background: linear-gradient(135deg, var(--blindspot-surface-2), var(--blindspot-surface));
+  box-shadow: 0 0 24px -8px rgba(245, 192, 120, 0.35);
+}
+#bs-screen-campaign .bs-boss-card--current::before {
+  background: var(--blindspot-accent-gold);
+  box-shadow: 0 0 8px rgba(245, 192, 120, 0.45);
+}
+#bs-screen-campaign .bs-boss-card--current[data-boss-class] .bs-boss-avatar {
+  border-color: var(--blindspot-accent-gold);
+}
+#bs-screen-campaign .bs-boss-card--current .bs-boss-card__here {
+  color: var(--blindspot-accent-gold);
+}
+
+/* Defeated boss left-stripe stays Vein success. */
+#bs-screen-campaign .bs-boss-card--defeated::before {
+  background: var(--blindspot-success, #6E9F4A);
+}
+
+/* Campaign progress text/labels. */
+#bs-screen-campaign .bs-campaign__progress {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  font-size: 0.7rem;
+}
+
+/* ============================================================
+   CLASS PICKER (New Card) — Vein theme override
+   Element is created dynamically by bs-class-picker.js with class
+   `bs-overlay bs-class-picker-overlay`. Same scoped pattern.
+   ============================================================ */
+.bs-page .bs-class-picker-overlay {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+.bs-page .bs-class-picker-overlay h2,
+.bs-page .bs-class-picker-overlay .bs-overlay__title {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 2rem;
+  color: var(--blindspot-accent-gold);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.bs-page .bs-class-picker-overlay .bs-class-picker-btn {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border-2);
+  border-radius: 4px;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+.bs-page .bs-class-picker-overlay .bs-class-picker-btn:hover {
+  border-color: var(--blindspot-accent-gold);
+  background: var(--bs-surface-2);
+}
+.bs-page .bs-class-picker-overlay .bs-class-picker-btn i {
+  color: var(--blindspot-accent-gold);
+}
+
+/* ============================================================
+   CARD FORGE — Vein theme override
+   Container is `.bs-forge-screen` inside `#bs-forge-screen` overlay.
+   ============================================================ */
+#bs-forge-screen,
+.bs-page .bs-forge-screen {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+.bs-page .bs-forge-screen .bs-forge-screen__title {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 2rem;
+  color: var(--blindspot-accent-gold);
+  letter-spacing: 0;
+  text-transform: none;
+}
+/* Forge tabs (Stats / Look / Details) */
+.bs-page .bs-forge-screen .bs-forge-tab,
+.bs-page .bs-forge-screen .bs-forge__tab {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 2px;
+}
+.bs-page .bs-forge-screen .bs-forge-tab--active,
+.bs-page .bs-forge-screen .bs-forge__tab--active {
+  color: var(--blindspot-accent-gold);
+  border-bottom-color: var(--blindspot-accent-gold);
+}
+/* Forge buttons (Cancel / Forge primary CTA) */
+.bs-page .bs-forge-screen .bs-forge-btn,
+.bs-page .bs-forge-screen .bs-btn--primary {
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-weight: 600;
+}
+.bs-page #bs-forge-screen .bs-btn--primary {
+  background: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold);
+  color: #1C100D;
+}
+.bs-page #bs-forge-screen .bs-btn--primary:hover:not(:disabled) {
+  background: #FFD89A;
+  border-color: #FFD89A;
+  box-shadow: 0 0 60px -10px rgba(245, 192, 120, 0.45);
+}
+/* Stat sliders / fills inside the forge — gold accent. */
+.bs-page .bs-forge-screen input[type="range"],
+.bs-page .bs-forge-screen .bs-forge-stat input[type="range"] {
+  accent-color: var(--blindspot-accent-gold);
 }

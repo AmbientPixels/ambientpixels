@@ -98,14 +98,14 @@
     }
 
     _overlayEl.innerHTML = `
-      <div class="qb-modal" role="dialog" aria-label="Build Your Card" style="background:var(--bs-surface,#1E1812); border:1px solid var(--bs-border,#2A2018); color:var(--bs-text,#F5F0E8);">
+      <div class="qb-modal" role="dialog" aria-label="Build Your Card">
         <div class="qb-header">
-          <h2 style="font-family:'Cinzel',serif; color:var(--bs-accent,#EF9F27);"><i class="fas fa-fire" style="margin-right:0.5rem;"></i>${STEP_TITLES[_state.step]}</h2>
+          <h2><i class="fas fa-fire" style="margin-right:0.5rem;"></i>${STEP_TITLES[_state.step]}</h2>
         </div>
         <div class="qb-steps">
           ${STEP_TITLES.map((_, i) => `
-            <div class="qb-step-dot ${i < _state.step ? 'completed' : ''} ${i === _state.step ? 'active' : ''}" style="${i === _state.step ? 'background:var(--bs-accent);border-color:var(--bs-accent);' : i < _state.step ? 'background:var(--bs-accent-dim);border-color:var(--bs-accent-dim);' : ''}">${i < _state.step ? '<i class="fas fa-check" style="font-size:0.7rem;"></i>' : (i + 1)}</div>
-            ${i < STEP_TITLES.length - 1 ? `<div class="qb-step-line ${i < _state.step ? 'completed' : ''}" style="${i < _state.step ? 'background:var(--bs-accent-dim);' : ''}"></div>` : ''}
+            <div class="qb-step-dot ${i < _state.step ? 'completed' : ''} ${i === _state.step ? 'active' : ''}">${i < _state.step ? '<i class="fas fa-check" style="font-size:0.7rem;"></i>' : (i + 1)}</div>
+            ${i < STEP_TITLES.length - 1 ? `<div class="qb-step-line ${i < _state.step ? 'completed' : ''}"></div>` : ''}
           `).join('')}
         </div>
         <div class="qb-body">
@@ -365,9 +365,9 @@
   function _renderNavButton() {
     if (_state.step === 5) {
       if (!_cardFlipped) {
-        return `<button class="qb-nav-btn qb-nav-btn--next" id="bs-reveal-btn" style="background:var(--bs-accent);border-color:var(--bs-accent);color:var(--bs-bg,#100C08);font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;">Reveal</button>`;
+        return `<button class="qb-nav-btn qb-nav-btn--next" id="bs-reveal-btn">Reveal</button>`;
       } else {
-        return `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena" style="background:var(--bs-accent);border-color:var(--bs-accent);font-family:'Cinzel',serif;font-weight:700;">Continue</button>`;
+        return `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena">Continue</button>`;
       }
     }
 
@@ -376,7 +376,7 @@
                      : _state.step === 2 ? !!_state.element
                      : _state.step === 3 ? !!_state.artworkUrl
                      : true;
-    return `<button class="qb-nav-btn qb-nav-btn--next" id="qb-next" ${canAdvance ? '' : 'disabled'} style="background:var(--bs-accent);border-color:var(--bs-accent);color:var(--bs-bg,#100C08);">Next <i class="fas fa-arrow-right"></i></button>`;
+    return `<button class="qb-nav-btn qb-nav-btn--next" id="qb-next" ${canAdvance ? '' : 'disabled'}>Next <i class="fas fa-arrow-right"></i></button>`;
   }
 
   // ===== EVENT BINDING =====
@@ -616,7 +616,7 @@
       if (navEl) {
         const backBtn = navEl.querySelector('.qb-nav-btn--back');
         navEl.innerHTML = (backBtn ? backBtn.outerHTML : '<div></div>') +
-          `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena" style="background:var(--bs-accent);border-color:var(--bs-accent);font-family:'Cinzel',serif;font-weight:700;">Continue</button>`;
+          `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena">Continue</button>`;
         document.getElementById('bs-enter-arena')?.addEventListener('click', _handleSaveAndEnter);
         document.getElementById('qb-back')?.addEventListener('click', () => { _state.step--; _cardFlipped = false; _render(); });
       }

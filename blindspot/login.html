@@ -7,37 +7,55 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
   <style>
+    /* Vein palette (matches blindspot-tokens.css). Inlined here so the
+       login page stays self-contained and doesn't pull the full
+       Blindspot stylesheet bundle. */
     :root {
-      --bs-bg: #100C08;
-      --bs-surface: #1a1612;
-      --bs-accent: #EF9F27;
-      --bs-accent-glow: #f0b040;
-      --bs-text: #F5F0E8;
-      --bs-text-muted: #A09888;
-      --bs-border: #2a2420;
+      --bs-bg:        #0D0807;
+      --bs-bg-2:      #170D0B;
+      --bs-surface:   #1C100D;
+      --bs-surface-2: #251512;
+      --bs-border:    #3A1F1A;
+      --bs-border-2:  #4F2A23;
+      --bs-text:      #EFE3D2;
+      --bs-text-dim:  #B89A82;
+      --bs-text-muted:#7A5E4C;
+      --bs-accent:        #C8302C;
+      --bs-accent-hover:  #E04540;
+      --bs-accent-gold:   #F5C078;
+      --bs-accent-gold-2: #FFD89A;
+      --bs-accent-gold-dim: #B97417;
+      --bs-font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+      --bs-font-body:    'Cormorant Garamond', 'Georgia', serif;
+      --bs-font-mono:    'JetBrains Mono', ui-monospace, monospace;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       background: var(--bs-bg);
+      background-image:
+        radial-gradient(ellipse 100% 60% at 50% 100%, rgba(200, 48, 44, 0.10), transparent 70%),
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(245, 192, 120, 0.04), transparent 60%);
       color: var(--bs-text);
-      font-family: 'Share Tech Mono', monospace;
+      font-family: var(--bs-font-body);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     .bs-login {
       text-align: center;
-      max-width: 400px;
+      max-width: 420px;
       width: 90%;
       padding: 2rem;
       animation: fadeIn 0.6s ease;
@@ -49,42 +67,52 @@
     }
 
     .bs-login__logo {
-      font-family: 'Cinzel', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--bs-accent);
-      letter-spacing: 0.15em;
-      margin-bottom: 0.5rem;
-      text-shadow: 0 0 30px rgba(239, 159, 39, 0.3);
+      font-family: var(--bs-font-display);
+      font-size: 2.6rem;
+      font-style: italic;
+      font-weight: 600;
+      color: var(--bs-accent-gold);
+      letter-spacing: 0;
+      margin-bottom: 0.4rem;
+      text-shadow: 0 0 40px rgba(245, 192, 120, 0.35);
     }
 
     .bs-login__subtitle {
-      font-size: 0.8rem;
-      color: var(--bs-text-muted);
+      font-family: var(--bs-font-body);
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--bs-text-dim);
       margin-bottom: 2.5rem;
+      line-height: 1.4;
     }
 
     .bs-login__card {
       background: var(--bs-surface);
-      border: 1px solid var(--bs-border);
-      border-radius: 16px;
+      border: 1px solid var(--bs-border-2);
+      border-radius: 4px;
       padding: 2rem 1.5rem;
       margin-bottom: 1.5rem;
-      box-shadow: 0 0 40px rgba(239, 159, 39, 0.05);
+      box-shadow:
+        0 30px 80px -20px rgba(0, 0, 0, 0.9),
+        0 0 0 1px var(--bs-border),
+        inset 0 1px 0 rgba(245, 192, 120, 0.06);
     }
 
     .bs-login__heading {
-      font-family: 'Cinzel', serif;
-      font-size: 1rem;
+      font-family: var(--bs-font-display);
+      font-style: italic;
+      font-weight: 600;
+      font-size: 1.5rem;
       color: var(--bs-text);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
 
     .bs-login__desc {
-      font-size: 0.75rem;
-      color: var(--bs-text-muted);
-      margin-bottom: 1.5rem;
-      line-height: 1.5;
+      font-family: var(--bs-font-body);
+      font-size: 1.05rem;
+      color: var(--bs-text-dim);
+      margin-bottom: 1.6rem;
+      line-height: 1.55;
     }
 
     .bs-login__btn {
@@ -94,72 +122,76 @@
       gap: 0.75rem;
       width: 100%;
       padding: 0.9rem 1.5rem;
-      background: linear-gradient(135deg, #2a2015, #3a2a18);
+      background: var(--bs-accent);
       border: 1px solid var(--bs-accent);
-      border-radius: 10px;
-      color: var(--bs-accent);
-      font-family: 'Cinzel', serif;
-      font-size: 0.9rem;
+      border-radius: 2px;
+      color: #FFF6E8;
+      font-family: var(--bs-font-display);
+      font-size: 0.95rem;
       font-weight: 600;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.04em;
       text-decoration: none;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 15px rgba(239, 159, 39, 0.15);
+      transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
     }
 
     .bs-login__btn:hover {
-      background: linear-gradient(135deg, #3a2a18, #4a3a22);
-      box-shadow: 0 0 25px rgba(239, 159, 39, 0.3);
+      background: var(--bs-accent-hover);
+      border-color: var(--bs-accent-hover);
+      box-shadow: 0 0 60px -10px rgba(200, 48, 44, 0.5);
       transform: translateY(-1px);
     }
 
     .bs-login__btn i {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
     }
 
     .bs-login__benefits {
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
-      margin-top: 1.25rem;
-      padding-top: 1.25rem;
+      gap: 0.55rem;
+      margin-top: 1.4rem;
+      padding-top: 1.4rem;
       border-top: 1px solid var(--bs-border);
     }
 
     .bs-login__benefit {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      font-size: 0.7rem;
-      color: var(--bs-text-muted);
+      gap: 0.7rem;
+      font-family: var(--bs-font-body);
+      font-size: 1rem;
+      color: var(--bs-text-dim);
       text-align: left;
     }
 
     .bs-login__benefit i {
-      color: var(--bs-accent);
+      color: var(--bs-accent-gold);
       width: 16px;
       text-align: center;
-      font-size: 0.65rem;
+      font-size: 0.75rem;
     }
 
     .bs-login__guest {
-      font-size: 0.75rem;
-      color: var(--bs-text-muted);
+      font-family: var(--bs-font-body);
+      font-size: 0.95rem;
+      color: var(--bs-text-dim);
     }
 
     .bs-login__guest a {
-      color: var(--bs-accent);
+      color: var(--bs-accent-gold);
       text-decoration: none;
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     .bs-login__guest a:hover {
       opacity: 1;
       text-decoration: underline;
+      text-underline-offset: 0.25em;
     }
 
-    /* Background particles */
+    /* Background embers — switched from amber to muted gold so they
+       complement the Vein red bottom-glow without overwhelming it. */
     .bs-login-bg {
       position: fixed;
       inset: 0;
@@ -171,7 +203,7 @@
       position: absolute;
       width: 3px;
       height: 3px;
-      background: var(--bs-accent);
+      background: var(--bs-accent-gold);
       border-radius: 50%;
       opacity: 0;
       animation: ember 4s ease-in-out infinite;
@@ -179,7 +211,7 @@
 
     @keyframes ember {
       0% { opacity: 0; transform: translateY(0) scale(0.5); }
-      30% { opacity: 0.6; }
+      30% { opacity: 0.5; }
       100% { opacity: 0; transform: translateY(-120px) scale(0); }
     }
   </style>
@@ -188,7 +220,7 @@
   <div class="bs-login-bg" id="bs-embers"></div>
 
   <div class="bs-login">
-    <div class="bs-login__logo">BLINDSPOT</div>
+    <div class="bs-login__logo">Blindspot</div>
     <div class="bs-login__subtitle">The arena remembers those who sign in.</div>
 
     <div class="bs-login__card">

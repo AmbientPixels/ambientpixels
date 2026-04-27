@@ -894,3 +894,144 @@
     transform: none;
   }
 }
+
+/* ============================================================
+   QUICK BUILD WIZARD — Vein theme override
+   Selectors prefixed with `.bs-page` (specificity 0,3,0) to beat the
+   ~56 `.bs-page .qb-*` rules in blindspot.css that ship the legacy
+   ember palette. Without this prefix, source order picks the legacy
+   rules on index.html (where blindspot-cards.css loads BEFORE
+   blindspot.css) and the override silently no-ops.
+   ============================================================ */
+body.bs-page .qb-overlay,
+.qb-overlay {
+  --bs-bg:          #0D0807;
+  --bs-bg-2:        #170D0B;
+  --bs-surface:     #1C100D;
+  --bs-surface-2:   #251512;
+  --bs-border:      #3A1F1A;
+  --bs-border-2:    #4F2A23;
+  --bs-text:        #EFE3D2;
+  --bs-text-dim:    #B89A82;
+  --bs-text-muted:  #7A5E4C;
+  --bs-accent:      #C8302C;
+  --bs-accent-glow: #F5C078;
+  --bs-accent-dim:  #8E2220;
+}
+
+/* Modal frame — square Vein corners, deep shadow + thin gold rim. */
+body.bs-page .qb-overlay .qb-modal {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border-2);
+  border-radius: 4px;
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.9),
+    0 0 0 1px var(--bs-border),
+    inset 0 1px 0 rgba(245, 192, 120, 0.06);
+}
+
+/* Italic Cormorant header in gold (matches login / how-to-play / leaderboard). */
+body.bs-page .qb-overlay .qb-header h2 {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.6rem;
+  color: var(--blindspot-accent-gold);
+}
+body.bs-page .qb-overlay .qb-close {
+  border-radius: 2px;
+}
+body.bs-page .qb-overlay .qb-close:hover {
+  color: var(--bs-text);
+  background: rgba(200, 48, 44, 0.1);
+}
+
+/* Step dots — gold active ring matches campaign / leaderboard pattern. */
+body.bs-page .qb-overlay .qb-step-dot.active {
+  background: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold);
+  color: #1C100D;
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.45);
+}
+body.bs-page .qb-overlay .qb-step-dot.completed {
+  background: var(--blindspot-success, #6E9F4A);
+  border-color: var(--blindspot-success, #6E9F4A);
+}
+body.bs-page .qb-overlay .qb-step-line.completed {
+  background: var(--blindspot-success, #6E9F4A);
+}
+
+/* Panel headings — italic Cormorant (was small Cinzel orange). */
+body.bs-page .qb-overlay .qb-panel-title {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--bs-text);
+  margin-bottom: 0.5rem;
+}
+body.bs-page .qb-overlay .qb-panel-desc {
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--bs-text-dim);
+  margin-bottom: 1.25rem;
+}
+
+/* Vibe / class cards — square corners, vein border accent on hover. */
+body.bs-page .qb-overlay .qb-vibe-card {
+  border-radius: 4px;
+  border-color: var(--bs-border-2);
+  background: var(--bs-surface);
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+body.bs-page .qb-overlay .qb-vibe-card:hover {
+  border-color: var(--blindspot-accent-gold);
+  background: var(--bs-surface-2);
+}
+body.bs-page .qb-overlay .qb-vibe-card.selected {
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 24px -8px rgba(245, 192, 120, 0.45);
+  background: var(--bs-surface-2);
+}
+body.bs-page .qb-overlay .qb-vibe-card .qb-vibe-label {
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+body.bs-page .qb-overlay .qb-vibe-card .qb-vibe-desc {
+  font-size: 0.85rem;
+  color: var(--bs-text-dim);
+}
+
+/* Surprise-me CTA — keep playful but Vein-tinted. */
+body.bs-page .qb-overlay .qb-surprise-btn {
+  border-radius: 2px;
+  border-color: var(--bs-border-2);
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-style: italic;
+}
+
+/* Stat sliders — gold fill matches the active step dot. */
+body.bs-page .qb-overlay .qb-stat-slider {
+  --stat-color: var(--blindspot-accent-gold);
+}
+
+/* Wizard nav buttons — square corners, primary uses Vein red. */
+body.bs-page .qb-overlay .qb-nav-btn {
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+body.bs-page .qb-overlay .qb-nav-btn--next {
+  background: var(--bs-accent);
+  border-color: var(--bs-accent);
+  color: #FFF6E8;
+}
+body.bs-page .qb-overlay .qb-nav-btn--next:hover:not(:disabled) {
+  background: var(--blindspot-accent-hover, #E04540);
+  border-color: var(--blindspot-accent-hover, #E04540);
+  box-shadow: 0 0 60px -10px rgba(200, 48, 44, 0.5);
+}
