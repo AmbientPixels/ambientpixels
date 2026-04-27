@@ -161,18 +161,25 @@ window.BsCharms = (function () {
     var def = getCharmDef(_equippedCharm);
     if (!def) return;
     _charmUsedThisBattle = false;
-    var movesEl = document.getElementById('arena-items-row') || document.getElementById('arena-moves');
+    var tray = document.getElementById('arena-player-item-tray');
+    var movesEl = tray || document.getElementById('arena-items-row') || document.getElementById('arena-moves');
     if (!movesEl) return;
     if (movesEl.querySelector('[data-move="charm"]')) return;
+    var compact = !!tray;
     var btn = document.createElement('button');
     btn.className = 'arena-move-btn arena-move-btn--charm';
     btn.dataset.move = 'charm';
+    btn.title = def.name + (def.description ? ' — ' + def.description : '');
     btn.setAttribute('aria-label', def.name + ' — ' + def.description);
-    btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
-      + '<i class="fas ' + (def.icon || 'fa-flask') + '" aria-hidden="true"></i>'
-      + '<span class="arena-move-btn__label">' + escHtml(def.name) + '</span>'
-      + '<span class="arena-move-btn__stat">1 use</span>'
-      + '<span class="arena-move-btn__desc">' + escHtml(def.description || '') + '</span>';
+    if (compact) {
+      btn.innerHTML = '<i class="fas ' + (def.icon || 'fa-flask') + '" aria-hidden="true"></i>';
+    } else {
+      btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
+        + '<i class="fas ' + (def.icon || 'fa-flask') + '" aria-hidden="true"></i>'
+        + '<span class="arena-move-btn__label">' + escHtml(def.name) + '</span>'
+        + '<span class="arena-move-btn__stat">1 use</span>'
+        + '<span class="arena-move-btn__desc">' + escHtml(def.description || '') + '</span>';
+    }
     movesEl.appendChild(btn);
 
     btn.addEventListener('click', function() {
@@ -254,8 +261,10 @@ window.BsCharms = (function () {
     }).filter(Boolean);
     var allBattleItems = _adventureItems.concat(invItems);
     if (allBattleItems.length === 0) return;
-    var movesEl = document.getElementById('arena-items-row') || document.getElementById('arena-moves');
+    var tray = document.getElementById('arena-player-item-tray');
+    var movesEl = tray || document.getElementById('arena-items-row') || document.getElementById('arena-moves');
     if (!movesEl) return;
+    var compact = !!tray;
 
     allBattleItems.forEach(function(item, idx) {
       if (movesEl.querySelector('[data-item-idx="' + idx + '"]')) return;
@@ -263,12 +272,17 @@ window.BsCharms = (function () {
       btn.className = 'arena-move-btn arena-move-btn--item';
       btn.dataset.itemIdx = idx;
       btn.dataset.itemId = item.id;
-      btn.setAttribute('aria-label', item.name + ' \u2014 ' + item.description);
-      btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
-        + '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>'
-        + '<span class="arena-move-btn__label">' + escHtml(item.name) + '</span>'
-        + '<span class="arena-move-btn__stat">1 use</span>'
-        + '<span class="arena-move-btn__desc">' + escHtml(item.description || '') + '</span>';
+      btn.title = item.name + (item.description ? ' \u2014 ' + item.description : '');
+      btn.setAttribute('aria-label', item.name + ' \u2014 ' + (item.description || ''));
+      if (compact) {
+        btn.innerHTML = '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>';
+      } else {
+        btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
+          + '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>'
+          + '<span class="arena-move-btn__label">' + escHtml(item.name) + '</span>'
+          + '<span class="arena-move-btn__stat">1 use</span>'
+          + '<span class="arena-move-btn__desc">' + escHtml(item.description || '') + '</span>';
+      }
       movesEl.appendChild(btn);
 
       btn.addEventListener('click', function() {
@@ -312,6 +326,8 @@ window.BsCharms = (function () {
     // Clear item/charm buttons from DOM
     var itemsRow = document.getElementById('arena-items-row');
     if (itemsRow) itemsRow.innerHTML = '';
+    var itemTray = document.getElementById('arena-player-item-tray');
+    if (itemTray) itemTray.innerHTML = '';
     var playerItems = document.getElementById('arena-player-items');
     if (playerItems) playerItems.innerHTML = '';
   }

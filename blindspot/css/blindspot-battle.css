@@ -1145,6 +1145,102 @@
 }
 #bs-screen-battle.blindspot-battle .arena-status-row , #bs-battle-container.blindspot-battle .arena-status-row  { order: 6; }
 
+/* ---------- ITEM / CHARM TRAY ----------
+   Vertical strip of compact hoverable icons overlaying the right edge
+   of the player portrait. Replaces the legacy `.arena-items-row` strip
+   that sat between battle log and move grid (pushed moves below the
+   fold once the player brought 3+ items in). Lives inside
+   .arena-combatant__frame which is already position:relative +
+   overflow:hidden, so we stay inside the portrait box. Hover/title
+   gives the full name + description as a native browser tooltip. */
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 3;
+  pointer-events: none;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray:empty,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray:empty {
+  display: none;
+}
+
+/* Compact icon button inside the tray. Re-enable pointer-events on
+   the button itself; container stays click-through so the portrait
+   underneath remains interactive everywhere else. */
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn {
+  pointer-events: auto;
+  position: relative;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  min-height: 0;
+  max-width: 32px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
+  border-radius: var(--blindspot-radius-button, 2px);
+  background: rgba(28, 16, 13, 0.85);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 160ms ease,
+              background 160ms ease,
+              transform 160ms ease,
+              box-shadow 160ms ease;
+  cursor: pointer;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn i,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn i {
+  font-size: 0.95rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+  text-shadow: 0 0 6px rgba(245, 192, 120, 0.4);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn:hover:not(:disabled),
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn:hover:not(:disabled) {
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  background: rgba(245, 192, 120, 0.14);
+  transform: translateX(-1px);
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.25);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn:focus-visible,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn:focus-visible {
+  outline: 2px solid var(--blindspot-accent-gold, #F5C078);
+  outline-offset: 2px;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn--used,
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn:disabled,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn--used,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: var(--blindspot-border, #3A1F1A);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Defensive: hide any legacy text spans if the JS path renders the
+   non-compact markup (shouldn't happen since compact is true whenever
+   the tray exists, but cheap insurance against markup drift). */
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn__label,
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn__stat,
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn__desc,
+#bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn__glow,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn__label,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn__stat,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn__desc,
+#bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn__glow {
+  display: none;
+}
+
 /* Boss intent — banner inside HUD top, between Round and the action
    buttons. Mirrors the bundle's `.battle__intent`: subtle dark surface,
    uniform 1px border (no left accent stripe), italic text, icon picks up

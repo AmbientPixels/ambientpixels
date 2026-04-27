@@ -347,8 +347,8 @@
     if (existing) existing.remove();
 
     var overlay = document.createElement('div');
-    overlay.className = 'bs-overlay bs-reveal-celebration';
-    overlay.innerHTML = '<div class="bs-reveal-loading"><div class="bs-spinner"></div><p style="color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;margin-top:1rem;font-size:0.85rem;"><i class="fas fa-hammer" style="color:var(--bs-accent);margin-right:0.4em;"></i>Forging your card\u2026</p></div>';
+    overlay.className = 'bs-overlay bs-reveal-celebration blindspot-reveal';
+    overlay.innerHTML = '<div class="bs-reveal-loading"><div class="bs-spinner"></div><p class="bs-reveal-loading__text"><i class="fas fa-hammer"></i>Forging your card\u2026</p></div>';
     document.body.appendChild(overlay);
     requestAnimationFrame(function () { overlay.classList.add('bs-reveal-celebration--active'); });
 
@@ -396,19 +396,19 @@
 
     overlay.innerHTML =
       '<div class="bs-reveal-particles">' + particles + '</div>' +
-      '<div class="bs-reveal-card-wrap" style="display:flex;justify-content:center;">' + cardHtml + '</div>' +
+      '<div class="bs-reveal-card-wrap">' + cardHtml + '</div>' +
       '<p class="bs-reveal-title">Your card is ready</p>' +
       '<p class="bs-reveal-subtitle">The arena awaits.</p>' +
       (isDemoUser ?
-        '<a href="/blindspot/login.html?redirect=/blindspot/play.html" class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">' +
-          '<i class="fas fa-sign-in-alt"></i> Sign In & Enter the Arena' +
+        '<a href="/blindspot/login.html?redirect=/blindspot/play.html" class="blindspot-btn blindspot-btn--primary blindspot-btn--xl bs-reveal-enter">' +
+          '<i class="fas fa-sign-in-alt"></i> Sign In &amp; Enter the Arena' +
         '</a>' +
-        '<button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-reveal-enter">' +
+        '<button class="blindspot-btn blindspot-btn--ghost blindspot-btn--lg bs-reveal-enter bs-reveal-enter--ghost" id="bs-reveal-enter">' +
           '<i class="fas fa-play"></i> Continue as Guest' +
         '</button>' +
-        '<p style="font-size:0.65rem; color:var(--bs-text-muted); margin-top:0.5rem;">Guest progress won\'t sync across devices</p>'
+        '<p class="bs-reveal-caption">Guest progress won&rsquo;t sync across devices</p>'
       :
-        '<button class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" id="bs-reveal-enter">' +
+        '<button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl bs-reveal-enter" id="bs-reveal-enter">' +
           '<i class="fas fa-shield-halved"></i> Enter the Arena' +
         '</button>'
       );

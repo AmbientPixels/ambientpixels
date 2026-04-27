@@ -276,12 +276,12 @@
     ];
 
     return `
-      <p class="qb-panel-desc">Give your card a face. Pick from the gallery, generate with AI, or paste a URL.</p>
+      <p class="qb-panel-desc">Give your card a face. Pick from the gallery, generate one, or paste a URL.</p>
       <div class="qb-artwork-options">
         ${['gallery', 'ai', 'url'].map(m => `
           <div class="qb-artwork-tile ${artMode === m ? 'selected' : ''}" data-art-mode="${m}">
             <i class="fas ${m === 'gallery' ? 'fa-images' : m === 'ai' ? 'fa-wand-magic-sparkles' : 'fa-link'}"></i>
-            <span>${m === 'gallery' ? 'Gallery' : m === 'ai' ? 'AI Generate' : 'Paste URL'}</span>
+            <span>${m === 'gallery' ? 'Gallery' : m === 'ai' ? 'Generate' : 'Paste URL'}</span>
           </div>
         `).join('')}
       </div>

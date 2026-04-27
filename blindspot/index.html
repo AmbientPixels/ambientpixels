@@ -152,14 +152,32 @@
   </div>
 
   <!-- STRANGER WIN OVERLAY -->
-  <div id="bs-stranger-win" class="bs-overlay bs-overlay--hidden" role="dialog" aria-label="Victory">
-    <div class="bs-stranger-card" aria-hidden="true" style="opacity: 0.35; filter: grayscale(0.7); transform: scale(0.9);">
-      <div class="bs-stranger-card__inner">
-        <i class="fas fa-fire bs-stranger-card__icon"></i>
-      </div>
+  <div id="bs-stranger-win" class="bs-overlay bs-overlay--hidden blindspot-stranger-win" role="dialog" aria-label="Victory">
+    <div class="blindspot-stranger-win__embers" aria-hidden="true">
+      <span class="blindspot-stranger-win__ember" style="left:8%;animation-delay:0s;animation-duration:5.2s"></span>
+      <span class="blindspot-stranger-win__ember" style="left:18%;animation-delay:0.8s;animation-duration:4.6s"></span>
+      <span class="blindspot-stranger-win__ember" style="left:30%;animation-delay:1.6s;animation-duration:5.8s"></span>
+      <span class="blindspot-stranger-win__ember" style="left:44%;animation-delay:0.4s;animation-duration:5s"></span>
+      <span class="blindspot-stranger-win__ember" style="left:58%;animation-delay:2.2s;animation-duration:4.8s"></span>
+      <span class="blindspot-stranger-win__ember" style="left:70%;animation-delay:1.2s;animation-duration:5.4s"></span>
+      <span class="blindspot-stranger-win__ember" style="left:82%;animation-delay:2.8s;animation-duration:5.2s"></span>
+      <span class="blindspot-stranger-win__ember" style="left:92%;animation-delay:0.6s;animation-duration:4.4s"></span>
     </div>
-    <p class="bs-overlay__title">You won. But that card wasn't you.</p>
-    <button class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" id="bs-build-btn" aria-label="Build your card">Build Your Card</button>
+    <div class="blindspot-stranger-win__frame">
+      <span class="blindspot-stranger-win__corner blindspot-stranger-win__corner--tl" aria-hidden="true"></span>
+      <span class="blindspot-stranger-win__corner blindspot-stranger-win__corner--tr" aria-hidden="true"></span>
+      <span class="blindspot-stranger-win__corner blindspot-stranger-win__corner--bl" aria-hidden="true"></span>
+      <span class="blindspot-stranger-win__corner blindspot-stranger-win__corner--br" aria-hidden="true"></span>
+      <div class="bs-stranger-card" aria-hidden="true">
+        <div class="bs-stranger-card__inner">
+          <i class="fas fa-fire bs-stranger-card__icon"></i>
+        </div>
+      </div>
+      <h2 class="bs-overlay__title">You won. <em>But that card wasn&rsquo;t you.</em></h2>
+      <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-build-btn" aria-label="Build your card">
+        <i class="fas fa-hammer" aria-hidden="true"></i> Build Your Card
+      </button>
+    </div>
   </div>
 
   <!-- STRANGER LOSS OVERLAY -->

@@ -6829,6 +6829,103 @@ body.bs-battle-active .bs-play {
 }
 
 /* ============================================================
+   CARD REVEAL — Vein theme
+   Painterly post-creation moment shown after a card is forged.
+   Replaces legacy gold-on-black amber treatment with the Vein
+   language: red-ember bg pattern, Cormorant italic title in
+   gold, Inter body subtitle, blood-red primary CTA + ghost
+   secondary, gold-tinted particle burst.
+   Scoped under .blindspot-reveal so the legacy .bs-reveal-*
+   rules above keep working anywhere they're used outside the
+   celebration overlay.
+   ============================================================ */
+.blindspot-reveal {
+  background: var(--blindspot-bg, #0D0807);
+  background-image: var(--blindspot-bg-pattern);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: var(--blindspot-font-body);
+  color: var(--blindspot-text);
+  z-index: 200;
+  gap: 1.1rem;
+  padding: 2rem 1.5rem;
+}
+
+.blindspot-reveal .bs-reveal-card-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.blindspot-reveal .bs-reveal-loading__text {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--blindspot-text-muted);
+  margin-top: 1rem;
+}
+.blindspot-reveal .bs-reveal-loading__text i {
+  color: var(--blindspot-accent-gold, #F5C078);
+  margin-right: 0.4em;
+}
+
+.blindspot-reveal .bs-reveal-title {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  letter-spacing: 0.01em;
+  color: var(--blindspot-accent-gold, #F5C078);
+  text-shadow: 0 2px 30px rgba(245, 192, 120, 0.25);
+  margin: 0.5rem 0 0;
+}
+
+.blindspot-reveal .bs-reveal-subtitle {
+  font-family: var(--blindspot-font-body);
+  font-size: 1rem;
+  color: var(--blindspot-text-dim, #B89A82);
+  margin: 0.1rem 0 0.6rem;
+}
+
+/* Reset legacy .bs-reveal-enter font/padding so the blindspot-btn
+   classes win cleanly, but keep the staggered fade-in animation. */
+.blindspot-reveal .bs-reveal-enter {
+  font-family: var(--blindspot-font-display);
+  font-weight: var(--blindspot-display-weight);
+  margin-top: 0.25rem;
+  max-width: 360px;
+  width: 100%;
+  text-decoration: none;
+}
+.blindspot-reveal .bs-reveal-enter--ghost {
+  animation-delay: 1.6s;
+}
+
+.blindspot-reveal .bs-reveal-caption {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--blindspot-text-muted);
+  margin: 0.4rem 0 0;
+  text-align: center;
+  max-width: 360px;
+  opacity: 0;
+  animation: bs-reveal-fade-up 0.6s ease 1.8s forwards;
+}
+
+/* Particle burst — gold instead of legacy amber */
+.blindspot-reveal .bs-reveal-particle {
+  background: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: 0 0 6px rgba(245, 192, 120, 0.45);
+}
+
+@media (max-width: 480px) {
+  .blindspot-reveal { gap: 0.85rem; padding: 1.5rem 1rem; }
+  .blindspot-reveal .bs-reveal-title { font-size: 1.55rem; }
+  .blindspot-reveal .bs-reveal-subtitle { font-size: 0.9rem; }
+}
+
+/* ============================================================
    PVP MATCHMAKING OVERLAY
    ============================================================ */
 .bs-matchmaking {
@@ -7018,6 +7115,137 @@ body.bs-battle-active .bs-play {
   .bs-stranger-intro__line { font-size: 1.2rem; }
   .bs-stranger-intro__line[data-line="1"] { font-size: 1.4rem; }
   .bs-stranger-intro__lines { gap: 1.2rem; padding: 1.5rem; }
+}
+
+/* ============================================================
+   STRANGER WIN — Vein theme
+   Onboarding moment immediately after the player wins their
+   first fight with the borrowed Stranger card. Painterly,
+   illuminated, ritual — same Vein language as the landing /
+   prefight / login pages (Cormorant italic title, blood-red
+   CTA, gold corner brackets, floating gold embers).
+   Scoped under .blindspot-stranger-win so the legacy bs-overlay
+   centering still works and bs-stranger-card responsive rules
+   above are overridden by higher specificity.
+   ============================================================ */
+.blindspot-stranger-win {
+  background: var(--blindspot-bg, #0D0807);
+  background-image: var(--blindspot-bg-pattern);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: var(--blindspot-font-body);
+  color: var(--blindspot-text);
+  z-index: 200;
+  gap: 0;
+  padding: 1.5rem;
+}
+
+.blindspot-stranger-win__embers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.blindspot-stranger-win__ember {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  background: var(--blindspot-accent-gold, #F5C078);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 8px rgba(245, 192, 120, 0.55);
+  animation: blindspot-stranger-win-ember 5s ease-in-out infinite;
+}
+@keyframes blindspot-stranger-win-ember {
+  0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+  35%  { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-220px) scale(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blindspot-stranger-win__ember { animation: none; opacity: 0; }
+}
+
+.blindspot-stranger-win__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 3.5rem 2.5rem;
+  max-width: 540px;
+  width: 100%;
+}
+
+/* Illuminated corner brackets — gold rim, mirrors landing frame */
+.blindspot-stranger-win__corner {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.blindspot-stranger-win__corner--tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.blindspot-stranger-win__corner--tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.blindspot-stranger-win__corner--bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.blindspot-stranger-win__corner--br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+/* Ghost stranger card — square Vein corners, gold rim, dim/grayscale */
+.blindspot-stranger-win .bs-stranger-card {
+  width: 180px;
+  height: 260px;
+  opacity: 0.32;
+  filter: grayscale(0.75);
+  transform: scale(0.92);
+}
+.blindspot-stranger-win .bs-stranger-card__inner {
+  background: var(--blindspot-surface, #1C100D);
+  border: 1px solid var(--blindspot-border-2, #4F2A23);
+  border-radius: var(--blindspot-radius-card, 4px);
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(245, 192, 120, 0.06);
+}
+.blindspot-stranger-win .bs-stranger-card__icon {
+  color: var(--blindspot-accent-gold, #F5C078);
+  opacity: 0.55;
+  font-size: 2.6rem;
+}
+
+/* Vein-styled headline — Cormorant italic, painterly */
+.blindspot-stranger-win .bs-overlay__title {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-weight: 600;
+  font-style: normal;
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  color: var(--blindspot-text, #EFE3D2);
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.6);
+  max-width: 22ch;
+  text-align: center;
+  margin: 0;
+}
+.blindspot-stranger-win .bs-overlay__title em {
+  display: block;
+  margin-top: 0.4rem;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+
+@media (max-width: 600px) {
+  .blindspot-stranger-win__frame { padding: 2.5rem 1.5rem; gap: 1.4rem; }
+  .blindspot-stranger-win .bs-stranger-card { width: 150px; height: 220px; }
+  .blindspot-stranger-win .bs-stranger-card__icon { font-size: 2.2rem; }
+}
+@media (max-width: 480px) {
+  .blindspot-stranger-win__corner { width: 22px; height: 22px; }
+  .blindspot-stranger-win .bs-stranger-card { width: 130px; height: 190px; }
 }
 
 /* ============================================================
