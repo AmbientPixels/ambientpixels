@@ -498,18 +498,19 @@
             <div class="arena-combatant arena-combatant--player" id="arena-player-side">
               <div class="arena-combatant__backdrop" id="arena-player-backdrop" aria-hidden="true"></div>
               <div class="arena-combatant__frame">
-                <!-- HP rail (vertical, left edge of card) -->
+                <!-- HP rail (vertical) — numeric value sits directly
+                     under the rail via .arena-bar-readout. -->
                 <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Your health">
                   <div class="arena-hp-bar__track">
                     <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%;height:100%"></div>
                   </div>
+                  <span class="arena-bar-readout arena-bar-readout--hp" id="arena-player-hp-text">100 / 100</span>
                 </div>
                 <div class="arena-combatant__card" id="arena-player-card"></div>
-                <!-- Stamina rail (vertical, right edge of card — sits to the
-                     left of the item-tray which still occupies the inner-right
-                     gutter for items/charms). -->
+                <!-- Stamina rail (vertical) with numeric value below. -->
                 <div class="arena-stamina-bar" id="arena-player-stamina-bar" role="progressbar" aria-label="Your stamina">
                   <div class="arena-stamina-bar__fill" id="arena-player-stamina-fill" style="width:100%;height:100%"></div>
+                  <span class="arena-bar-readout arena-bar-readout--stam" id="arena-player-stamina-text">0 / 0</span>
                 </div>
                 <div class="arena-combatant__item-tray" id="arena-player-item-tray" role="group" aria-label="Items and charms"></div>
               </div>
@@ -517,13 +518,6 @@
                 <span class="arena-combatant__name" id="arena-player-name">You</span>
                 <span class="arena-element-badge" id="arena-player-element"></span>
                 <span class="arena-combatant__sub" id="arena-player-sub"></span>
-              </div>
-              <!-- Compact HP / Stamina readout pills under the nameplate
-                   (vertical bars are visual; numeric values stay legible
-                   here as small pills). JS targets the same element ids. -->
-              <div class="arena-combatant__readout">
-                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--hp"><i class="fas fa-heart" aria-hidden="true"></i> <span id="arena-player-hp-text">100 / 100</span></span>
-                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--stam"><i class="fas fa-bolt" aria-hidden="true"></i> <span id="arena-player-stamina-text">0 / 0</span></span>
               </div>
               <!-- Hidden meta wrappers preserved for back-compat with any
                    selectors still referencing them. -->
@@ -583,10 +577,12 @@
                   <div class="arena-hp-bar__track">
                     <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%;height:100%"></div>
                   </div>
+                  <span class="arena-bar-readout arena-bar-readout--hp" id="arena-opponent-hp-text">100 / 100</span>
                 </div>
                 <div class="arena-combatant__card" id="arena-opponent-card"></div>
                 <div class="arena-stamina-bar" id="arena-opponent-stamina-bar" role="progressbar" aria-label="Enemy stamina">
                   <div class="arena-stamina-bar__fill" id="arena-opponent-stamina-fill" style="width:100%;height:100%"></div>
+                  <span class="arena-bar-readout arena-bar-readout--stam" id="arena-opponent-stamina-text">0 / 0</span>
                 </div>
               </div>
               <div class="arena-combatant__nameplate">
@@ -594,10 +590,6 @@
                 <span class="arena-element-badge" id="arena-opponent-element"></span>
                 <span class="arena-boss-stance" id="arena-boss-stance"><i class="fas fa-circle-nodes"></i></span>
                 <span class="arena-combatant__sub" id="arena-opponent-sub"></span>
-              </div>
-              <div class="arena-combatant__readout">
-                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--hp"><i class="fas fa-heart" aria-hidden="true"></i> <span id="arena-opponent-hp-text">100 / 100</span></span>
-                <span class="arena-combatant__readout-pill arena-combatant__readout-pill--stam"><i class="fas fa-bolt" aria-hidden="true"></i> <span id="arena-opponent-stamina-text">0 / 0</span></span>
               </div>
               <div class="arena-combatant__hp-meta" hidden><span class="arena-combatant__meta-lbl">HP</span><span class="arena-combatant__meta-val"></span></div>
               <div class="arena-combatant__stam-meta" hidden><span class="arena-combatant__meta-lbl">Stamina</span><span class="arena-combatant__meta-val"></span></div>
@@ -1340,6 +1332,7 @@
   <script src="js/lib/bs-auth-ui.js"></script>
   <script src="js/lib/bs-storage-cleanup.js"></script>
   <script src="js/lib/bs-battle-palette.js"></script>
+  <script src="js/lib/bs-boss-card.js"></script>
   <script src="js/lib/bs-card-switcher.js"></script>
   <script src="js/lib/bs-card-rarity.js"></script>
   <script src="js/lib/bs-sparks-shop.js"></script>

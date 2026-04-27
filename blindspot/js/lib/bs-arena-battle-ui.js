@@ -146,6 +146,33 @@ window.ArenaBattleUI = (function () {
     }).join('');
   }
 
+  // Resolve the campaign-boss id for a battle opponent. The PvE server
+  // response shape is { name, class, avatar, combatStats, maxHp, hp,
+  // bossLevel, ... } — no explicit id. Mock/test paths sometimes use
+  // `bossId` or `id`. Try id-first, then derive from bossLevel
+  // (101..110 → bs-boss-1..10), then fall back to name match. Returns
+  // a `bs-boss-N` string or null (PvP / weekly / unknown).
+  var BOSS_NAME_MAP = {
+    'the gatekeeper': 'bs-boss-1', 'the warden':    'bs-boss-2',
+    'the ghost':      'bs-boss-3', 'the cipher':    'bs-boss-4',
+    'the brute':      'bs-boss-5', 'the sage':      'bs-boss-6',
+    'the iron':       'bs-boss-7', 'the trickster': 'bs-boss-8',
+    'the feral':      'bs-boss-9', 'the architect': 'bs-boss-10'
+  };
+  function deriveBossId(opp) {
+    if (!opp) return null;
+    var direct = opp.bossId || opp.id;
+    if (direct && /^bs-boss-\d+$/.test(direct)) return direct;
+    if (typeof opp.bossLevel === 'number' && opp.bossLevel >= 101 && opp.bossLevel <= 110) {
+      return 'bs-boss-' + (opp.bossLevel - 100);
+    }
+    if (opp.name) {
+      var key = String(opp.name).toLowerCase().trim();
+      if (BOSS_NAME_MAP[key]) return BOSS_NAME_MAP[key];
+    }
+    return null;
+  }
+
   function renderCombatants(data) {
     const playerCard = document.getElementById('arena-player-card');
     const opponentCard = document.getElementById('arena-opponent-card');
@@ -158,9 +185,28 @@ window.ArenaBattleUI = (function () {
         : `<div class="arena-combatant__placeholder"><i class="fas fa-user-shield"></i></div>`;
     }
     if (opponentCard) {
-      opponentCard.innerHTML = data.opponent.avatar
-        ? `<img src="${data.opponent.avatar}" alt="${data.opponent.name}" class="arena-combatant__img">`
-        : `<div class="arena-combatant__placeholder"><i class="fas fa-skull"></i></div>`;
+      // Boss-card pass: when the opponent is a recognised campaign
+      // boss, hand off to BsBossCard for a full mirrored card render
+      // (matches the player card structure with redacted stats /
+      // locked traits). The real PvE battle response from the server
+      // returns NEITHER `id` NOR `bossId` on opponent — it has
+      // `bossLevel: 101..110`. Derive the boss id from that, with
+      // direct id and name as additional fallbacks. PvP / unknown
+      // opponents fall through to the legacy avatar fill.
+      var _bossId = deriveBossId(data.opponent);
+      if (_bossId && window.BsBossCard) {
+        window.BsBossCard.renderInto(opponentCard, _bossId).then(function (bc) {
+          if (!bc) {
+            opponentCard.innerHTML = data.opponent.avatar
+              ? '<img src="' + data.opponent.avatar + '" alt="' + data.opponent.name + '" class="arena-combatant__img">'
+              : '<div class="arena-combatant__placeholder"><i class="fas fa-skull"></i></div>';
+          }
+        });
+      } else {
+        opponentCard.innerHTML = data.opponent.avatar
+          ? `<img src="${data.opponent.avatar}" alt="${data.opponent.name}" class="arena-combatant__img">`
+          : `<div class="arena-combatant__placeholder"><i class="fas fa-skull"></i></div>`;
+      }
     }
 
     // Atmospheric backdrop — same pattern as the player column. Boss
@@ -274,6 +320,36 @@ window.ArenaBattleUI = (function () {
     if (opponentFill) opponentFill.classList.toggle('arena-hp-bar__fill--low', opponentPct < 30);
   }
 
+  // Generate / refresh the stamina pip elements inside a bar. Each
+  // pip represents 1 stamina point; bottom-up the first `current`
+  // are marked filled, the rest empty. Max pip count is capped at 12
+  // so very high stamina ceilings (rare) don't shrink pips below
+  // legibility. The legacy fill + ::after overlay are display:none in
+  // CSS so they don't compete with these.
+  function renderStaminaPips(barEl, current, max) {
+    if (!barEl) return;
+    var capped = Math.min(12, Math.max(1, max | 0));
+    var existing = barEl.querySelectorAll('.arena-stamina-pip');
+    // Rebuild only when pip count changes; otherwise just toggle classes
+    // for fast updates on every round.
+    if (existing.length !== capped) {
+      for (var k = 0; k < existing.length; k++) existing[k].remove();
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < capped; i++) {
+        var pip = document.createElement('div');
+        pip.className = 'arena-stamina-pip';
+        frag.appendChild(pip);
+      }
+      barEl.appendChild(frag);
+      existing = barEl.querySelectorAll('.arena-stamina-pip');
+    }
+    var clamped = Math.max(0, Math.min(capped, current | 0));
+    for (var j = 0; j < existing.length; j++) {
+      existing[j].classList.toggle('arena-stamina-pip--filled', j < clamped);
+      existing[j].classList.toggle('arena-stamina-pip--empty', j >= clamped);
+    }
+  }
+
   function updateStaminaBars(pStam, pMax, oStam, oMax) {
     var pFill = document.getElementById('arena-player-stamina-fill');
     var oFill = document.getElementById('arena-opponent-stamina-fill');
@@ -288,11 +364,12 @@ window.ArenaBattleUI = (function () {
 
     if (pFill) { pFill.style.width = pPct + '%'; pFill.style.height = pPct + '%'; }
     if (oFill) { oFill.style.width = oPct + '%'; oFill.style.height = oPct + '%'; }
-    // Drive the vertical pip dividers off max-stamina so each pip
-    // represents one stamina point. Capped at 12 pips so very high
-    // max values don't make the dividers visually disappear.
-    if (pBar && pMax > 0) pBar.style.setProperty('--pip-count', String(Math.min(12, Math.max(1, pMax))));
-    if (oBar && oMax > 0) oBar.style.setProperty('--pip-count', String(Math.min(12, Math.max(1, oMax))));
+    // True pips: render N discrete pip divs into each bar (one per
+    // max-stamina, bottom N marked filled). Replaces the continuous
+    // gold fill + line-overlay illusion. Capped at 12 to keep pips
+    // tall enough to read on extreme max values.
+    if (pBar) renderStaminaPips(pBar, pStam, pMax);
+    if (oBar) renderStaminaPips(oBar, oStam, oMax);
     if (pText) pText.textContent = pStam + ' / ' + pMax;
     if (oText) oText.textContent = oStam + ' / ' + oMax;
     if (pBar) pBar.classList.toggle('arena-stamina-bar--exhausted', pStam < threshold);

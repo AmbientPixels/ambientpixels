@@ -678,14 +678,20 @@
   border-radius: inherit;
   transition: width 0.4s ease;
 }
-#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--player , #bs-battle-container.blindspot-battle .arena-hp-bar__fill--player  {
-  background: linear-gradient(90deg, var(--blindspot-accent-dim), var(--blindspot-accent));
-}
-#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--opponent , #bs-battle-container.blindspot-battle .arena-hp-bar__fill--opponent  {
-  background: linear-gradient(90deg, var(--blindspot-danger), #ff8a6a);
+/* Phase 1 unification: HP fill is the SAME red on both player and
+   opponent so the bar reads as "HP" regardless of side, matching the
+   heart pill color (#ef4444). The legacy --player / --opponent
+   modifiers are neutralised; only --low (critical state) retains a
+   distinct treatment for high-contrast feedback. */
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--player,
+#bs-screen-battle.blindspot-battle .arena-hp-bar__fill--opponent,
+#bs-battle-container.blindspot-battle .arena-hp-bar__fill--player,
+#bs-battle-container.blindspot-battle .arena-hp-bar__fill--opponent {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
 }
 #bs-screen-battle.blindspot-battle .arena-hp-bar__fill--low , #bs-battle-container.blindspot-battle .arena-hp-bar__fill--low  {
-  background: linear-gradient(90deg, #8e2220, var(--blindspot-danger));
+  background: linear-gradient(180deg, #fb923c 0%, #b91c1c 100%);
+  box-shadow: 0 0 12px rgba(251, 146, 60, 0.55);
 }
 #bs-screen-battle.blindspot-battle .arena-hp-bar__text, #bs-battle-container.blindspot-battle .arena-hp-bar__text,
 #bs-screen-battle.blindspot-battle .arena-hp-text , #bs-battle-container.blindspot-battle .arena-hp-text  {
@@ -1205,8 +1211,10 @@
    neutralized via !important. */
 #bs-screen-battle.blindspot-battle .arena-combatant__frame,
 #bs-battle-container.blindspot-battle .arena-combatant__frame {
-  /* Reserve gutters for the side rails. */
-  padding: 0.4rem 22px !important;
+  /* Reserve gutters for the side rails. Now 32px (was 26) — rails
+     are inset 8px from the frame edge, so the inner edge of each
+     rail lands at 20px; +12px gap clears the card art at 32px. */
+  padding: 0.4rem 32px !important;
 }
 
 #bs-screen-battle.blindspot-battle .arena-hp-bar,
@@ -1214,42 +1222,77 @@
 #bs-screen-battle.blindspot-battle .arena-stamina-bar,
 #bs-battle-container.blindspot-battle .arena-stamina-bar {
   position: absolute;
-  top: 0.4rem;
-  bottom: 0.4rem;
+  /* Shorter than the full frame, vertically centered. Uses top:50% +
+     translateY(-50%) so the height stays proportional to the frame
+     height (no need to redefine per breakpoint). */
+  top: 50%;
+  bottom: auto;
   width: 12px;
-  height: auto;
-  border-radius: var(--blindspot-radius-pill, 999px);
-  background: var(--blindspot-surface-2, #251512);
+  height: 60%;
+  transform: translateY(-50%);
+  /* Squared-frame look matching the stamina pip rail — thin radius,
+     dark padded inner area, soft inner shadow. */
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--blindspot-border-2, #4F2A23);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  padding: 2px;
   z-index: 4;
   display: flex;
   align-items: flex-end;
-  overflow: hidden;
+  /* overflow:visible so the heart/bolt glyph pseudo-element above
+     the bar doesn't get clipped. Fill + pip elements clip themselves
+     via their own positioning. */
+  overflow: visible;
   margin: 0;
 }
-/* Mirror the rails so HP faces inward on BOTH columns (toward the VS
-   center) and stamina faces outward — classic fighting-game HUD.
-   Player column: HP on RIGHT (toward center), stamina on LEFT.
-   Opponent column: HP on LEFT (toward center), stamina on RIGHT. */
+
+/* HP track wrapper — fills the padded inner frame area. Acts as the
+   clip context for the single thermometer fill so the fill doesn't
+   bleed past the rounded corners. */
+#bs-screen-battle.blindspot-battle .arena-hp-bar__track,
+#bs-battle-container.blindspot-battle .arena-hp-bar__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--blindspot-bg-2, #170D0B);
+  border: 0;
+  border-radius: 1px;
+  overflow: hidden;
+}
+/* Stamina has no track wrapper — apply overflow clipping to the
+   bar itself via a dedicated pseudo so the glyph stays exempt.
+   We use a clipped inner via the fill + ::after pip overlay both
+   border-radius:inherit which keeps them visually contained even
+   without overflow:hidden on the parent. The pip overlay's
+   gradient terminates at the bar's box edges naturally. */
+/* Mirror the rails so HP faces inward on both columns (toward the VS
+   center) and stamina faces outward — fighting-game HUD convention.
+   Rails sit 8px inset from the frame edges (was flush 0; CEO flagged
+   too cramped). The frame side padding picks up extra breathing room
+   for the card art past the rails. */
 #bs-screen-battle.blindspot-battle .arena-combatant--player .arena-hp-bar,
 #bs-battle-container.blindspot-battle .arena-combatant--player .arena-hp-bar {
-  right: 4px;
+  /* Player HP — inner (right edge of left column = toward VS) */
+  right: 18px;
   left: auto;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant--player .arena-stamina-bar,
 #bs-battle-container.blindspot-battle .arena-combatant--player .arena-stamina-bar {
-  left: 4px;
+  /* Player stamina — outer (left edge of left column = far-left of screen) */
+  left: 18px;
   right: auto;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-hp-bar,
 #bs-battle-container.blindspot-battle .arena-combatant--opponent .arena-hp-bar {
-  left: 4px;
+  /* Opponent HP — inner (left edge of right column = toward VS) */
+  left: 18px;
   right: auto;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-stamina-bar,
 #bs-battle-container.blindspot-battle .arena-combatant--opponent .arena-stamina-bar {
-  right: 4px;
+  /* Opponent stamina — outer (right edge of right column = far-right of screen) */
+  right: 18px;
   left: auto;
 }
 
@@ -1268,54 +1311,121 @@
   align-items: flex-end;
 }
 
-/* Vertical fill — JS sets both width: N% and height: N% inline.
-   Force width to 100% so the inline width is ignored, and let the
-   inline height drive the fill amount. Pin to bottom so the fill
-   grows up like a thermometer. */
+/* HP fill — gradient + outline border, matching pip style. Single
+   continuous block (NOT pip-segmented), grows bottom-up. */
 #bs-screen-battle.blindspot-battle .arena-hp-bar__fill,
-#bs-battle-container.blindspot-battle .arena-hp-bar__fill,
-#bs-screen-battle.blindspot-battle .arena-stamina-bar__fill,
-#bs-battle-container.blindspot-battle .arena-stamina-bar__fill {
+#bs-battle-container.blindspot-battle .arena-hp-bar__fill {
   width: 100% !important;
-  /* height comes from inline JS-set value */
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  border-radius: inherit;
+  border-radius: 1px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
   transition: height 0.4s ease;
-}
-#bs-screen-battle.blindspot-battle .arena-hp-bar__fill,
-#bs-battle-container.blindspot-battle .arena-hp-bar__fill {
   background: linear-gradient(180deg, #ef4444, #b91c1c);
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.45);
 }
+/* Stamina fill is hidden (pips replace it) but keep the rule defined
+   for any consumer that might still reference the element. */
 #bs-screen-battle.blindspot-battle .arena-stamina-bar__fill,
 #bs-battle-container.blindspot-battle .arena-stamina-bar__fill {
-  background: linear-gradient(180deg, var(--blindspot-accent-gold), var(--blindspot-accent-gold-dim));
-  box-shadow: 0 0 8px rgba(245, 192, 120, 0.45);
+  display: none !important;
 }
 
-/* Vertical pip overlay on the stamina rail. JS sets --pip-count on
-   the bar from max-stamina; CSS draws horizontal divider lines at
-   every (100% / pip-count) of the rail height, slicing the gold fill
-   into discrete vertical pips. The legacy horizontal pip overlay
-   (90deg gradient) is replaced with a 0deg (top-to-bottom) gradient. */
+/* ---------- STAT GLYPHS ABOVE THE RAILS ----------
+   Phase 1: small icon above each rail so HP / stamina is identifiable
+   without relying on color alone (heart for HP, lightning for
+   stamina). Uses Font Awesome 6 unicode via pseudo-elements so no
+   HTML edit is needed. The bars are already position: relative
+   (anchor) → wait, they're position: absolute inside the frame, so
+   our pseudo-element resolves to the bar's box. We nudge the icon
+   above the rail with negative top.
+
+   Tightened position-context: pseudo `position: absolute` resolves to
+   the bar's containing block (the frame) rather than the bar itself
+   when the bar is also `position: absolute` — so we explicitly anchor
+   relative to the bar's own coordinate space. */
+/* Plain heart / bolt glyphs above each rail. No circular badge — just
+   the colored icon floating above the rail top with a soft glow. */
+#bs-screen-battle.blindspot-battle .arena-hp-bar::before,
+#bs-battle-container.blindspot-battle .arena-hp-bar::before {
+  content: '\f004';                          /* fa-heart */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #ef4444;
+  font-size: 0.7rem;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(239, 68, 68, 0.55);
+  pointer-events: none;
+  z-index: 5;
+}
+#bs-screen-battle.blindspot-battle .arena-stamina-bar::before,
+#bs-battle-container.blindspot-battle .arena-stamina-bar::before {
+  content: '\f0e7';                          /* fa-bolt */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--blindspot-accent-gold, #F5C078);
+  font-size: 0.7rem;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(245, 192, 120, 0.55);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* True pips — JS renders N discrete .arena-stamina-pip divs into
+   each stamina bar (one per max-stamina point). The legacy
+   continuous gold fill + line-overlay illusion is hidden so only
+   the new pips render. */
+#bs-screen-battle.blindspot-battle .arena-stamina-bar__fill,
+#bs-battle-container.blindspot-battle .arena-stamina-bar__fill {
+  display: none !important;
+}
 #bs-screen-battle.blindspot-battle .arena-stamina-bar::after,
 #bs-battle-container.blindspot-battle .arena-stamina-bar::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    180deg,
-    transparent 0,
-    transparent calc(100% / var(--pip-count, 6) - 1px),
-    var(--blindspot-bg, #0D0807) calc(100% / var(--pip-count, 6) - 1px),
-    var(--blindspot-bg, #0D0807) calc(100% / var(--pip-count, 6))
-  );
-  pointer-events: none;
-  z-index: 2;
-  border-radius: inherit;
+  content: none;
+}
+
+/* The bar becomes a flex column of pips, stacked bottom-up so the
+   first filled pip is at the bottom (intuitive: stamina drains from
+   the top down as you spend it). */
+#bs-screen-battle.blindspot-battle .arena-stamina-bar,
+#bs-battle-container.blindspot-battle .arena-stamina-bar {
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 2px;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+#bs-screen-battle.blindspot-battle .arena-stamina-pip,
+#bs-battle-container.blindspot-battle .arena-stamina-pip {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 4px;
+  border-radius: 1px;
+  transition: background 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+}
+#bs-screen-battle.blindspot-battle .arena-stamina-pip--filled,
+#bs-battle-container.blindspot-battle .arena-stamina-pip--filled {
+  background: linear-gradient(180deg, var(--blindspot-accent-gold, #F5C078), var(--blindspot-accent-gold-dim, #B97417));
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+#bs-screen-battle.blindspot-battle .arena-stamina-pip--empty,
+#bs-battle-container.blindspot-battle .arena-stamina-pip--empty {
+  background: var(--blindspot-bg-2, #170D0B);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__hp-meta,
 #bs-screen-battle.blindspot-battle .arena-combatant__stam-meta,
@@ -1324,19 +1434,34 @@
   display: none;
 }
 
-/* Compact HP / Stamina readout pills under the nameplate — show the
-   numeric values that used to live in the meta rows now that the
-   bars are visual-only on the side rails. */
-#bs-screen-battle.blindspot-battle .arena-combatant__readout,
-#bs-battle-container.blindspot-battle .arena-combatant__readout {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0.15rem 0 0;
+/* Numeric value below each vertical rail. The text spans live
+   inside the bar element (last child) so they inherit the bar's
+   `position: relative` + `overflow: visible` and can float just
+   below the rail with absolute positioning. JS targets them by id
+   (#arena-player-hp-text etc.) — same ids that used to live in the
+   readout pill row, just relocated. */
+#bs-screen-battle.blindspot-battle .arena-bar-readout,
+#bs-battle-container.blindspot-battle .arena-bar-readout {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: var(--blindspot-font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  color: var(--blindspot-text-dim, #B89A82);
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+  z-index: 5;
+}
+#bs-screen-battle.blindspot-battle .arena-bar-readout--hp,
+#bs-battle-container.blindspot-battle .arena-bar-readout--hp {
+  color: #ef4444;
+}
+#bs-screen-battle.blindspot-battle .arena-bar-readout--stam,
+#bs-battle-container.blindspot-battle .arena-bar-readout--stam {
+  color: var(--blindspot-accent-gold, #F5C078);
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__readout-pill,
 #bs-battle-container.blindspot-battle .arena-combatant__readout-pill {
@@ -1412,7 +1537,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 360px;
+  height: 520px;
   z-index: 0;
   background-size: cover;
   background-position: center top;
@@ -1448,10 +1573,11 @@
   order: 1;
   width: 100%;
   margin: 0;
-  /* Frame grew from 270 → 360 because HP + stamina moved into vertical
-     rails on the sides (no longer eating column flow space below). */
-  height: 360px;
-  padding: 0.4rem 22px;
+  /* Frame keeps growing — 360 → 520 total (+44%). 1080p+ has lots of
+     headroom; pushing the card art harder uses that real estate.
+     Smaller viewports are clamped via the responsive tiers below. */
+  height: 520px;
+  padding: 0.4rem 32px;
   border: 0;
   border-radius: 0;
   overflow: visible;
@@ -1483,22 +1609,176 @@
   margin: 0 auto;
   filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.75));
 }
-/* Opponent column doesn't render a forged card — boss avatar fills the
-   frame as a tall portrait inside a Vein-rimmed card-shaped box so the
-   two sides share visual weight. Locked to the same 5:7 portrait
-   ratio as the player's card. */
+/* Opponent now renders a full boss card via BsBossCard.render — the
+   markup matches `.bs-rendered-card` so it inherits the player card
+   styling. The card-frame wrapper just centers + sizes it, no longer
+   draws its own border (the inner card brings its own chrome). */
 #bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-combatant__card,
 #bs-battle-container.blindspot-battle .arena-combatant--opponent .arena-combatant__card {
+  height: 100%;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- BOSS CARD — REDACTED MIRROR ----------
+   `.bs-rc--boss` shares all the player-card styling and adds a few
+   boss-only treatments: a tier badge in the art slot, redacted stat
+   bars (silhouette fill + "???" value) when the data's `revealed`
+   flag is false, and a locked trait chip row at the bottom. */
+
+/* Element badge inside the card — icon-only AND inline with the
+   class label on the same row, mirroring the legacy nameplate
+   layout above the card (which had name on row 1, then class +
+   element-icon together on row 2). The shared player card renderer
+   adds a text label after the icon (visible elsewhere — forge,
+   lobby, gallery); we suppress that label here without forking the
+   render path by zeroing font-size on the container and restoring
+   it on the icon. Applies to both player and boss cards. */
+#bs-screen-battle.blindspot-battle .arena-combatant .bs-rc__class,
+#bs-battle-container.blindspot-battle .arena-combatant .bs-rc__class {
+  display: inline-block;
+  vertical-align: middle;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant .bs-rc__element,
+#bs-battle-container.blindspot-battle .arena-combatant .bs-rc__element {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.5em;
+  font-size: 0;
+  letter-spacing: 0;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant .bs-rc__element i,
+#bs-battle-container.blindspot-battle .arena-combatant .bs-rc__element i {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* Tier badge — top-right of the art slot, mirrors the player title
+   badge position. Colour escalates with tier 1→5 from neutral grey
+   to blood-red Vein accent. */
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc__tier-badge,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc__tier-badge {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 0.45rem;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  border-radius: var(--blindspot-radius-pill, 999px);
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--blindspot-border-2, #4F2A23);
+  color: var(--blindspot-text-dim, #B89A82);
+  backdrop-filter: blur(4px);
+}
+#bs-screen-battle.blindspot-battle .bs-rc--boss[data-tier="1"] .bs-rc__tier-badge,
+#bs-battle-container.blindspot-battle .bs-rc--boss[data-tier="1"] .bs-rc__tier-badge { color: #B89A82; border-color: #B89A82; }
+#bs-screen-battle.blindspot-battle .bs-rc--boss[data-tier="2"] .bs-rc__tier-badge,
+#bs-battle-container.blindspot-battle .bs-rc--boss[data-tier="2"] .bs-rc__tier-badge { color: var(--blindspot-accent-gold, #F5C078); border-color: var(--blindspot-accent-gold, #F5C078); }
+#bs-screen-battle.blindspot-battle .bs-rc--boss[data-tier="3"] .bs-rc__tier-badge,
+#bs-battle-container.blindspot-battle .bs-rc--boss[data-tier="3"] .bs-rc__tier-badge { color: #f59e0b; border-color: #f59e0b; }
+#bs-screen-battle.blindspot-battle .bs-rc--boss[data-tier="4"] .bs-rc__tier-badge,
+#bs-battle-container.blindspot-battle .bs-rc--boss[data-tier="4"] .bs-rc__tier-badge { color: #ef4444; border-color: #ef4444; }
+#bs-screen-battle.blindspot-battle .bs-rc--boss[data-tier="5"] .bs-rc__tier-badge,
+#bs-battle-container.blindspot-battle .bs-rc--boss[data-tier="5"] .bs-rc__tier-badge {
+  color: #fff;
+  border-color: var(--blindspot-accent, #C8302C);
+  background: linear-gradient(180deg, var(--blindspot-accent, #C8302C), var(--blindspot-accent-dim, #8E2220));
+  box-shadow: 0 0 12px rgba(200, 48, 44, 0.55);
+}
+
+/* Redacted stat bar — dim silhouette, no fill colour. The track is
+   visible but the fill is a low-opacity dashed pattern hinting at
+   "unknown amount". */
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-stat__bar--redacted,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-stat__bar--redacted {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0,
+    transparent 4px,
+    rgba(255, 255, 255, 0.05) 4px,
+    rgba(255, 255, 255, 0.05) 8px
+  );
+}
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-stat__val--redacted,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-stat__val--redacted {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-muted, #7A5E4C);
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+/* Trait chip row at bottom of card. Revealed traits get a coloured
+   border, locked traits show a lock icon + "???". */
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-traits,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.4rem 0.5rem 0.5rem;
+  margin: 0;
+  border-top: 1px solid var(--blindspot-border, #3A1F1A);
+  background: rgba(0, 0, 0, 0.35);
+}
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-trait,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-trait {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  padding: 0.18rem 0.5rem;
+  border-radius: var(--blindspot-radius-pill, 999px);
+  border: 1px solid var(--blindspot-border-2, #4F2A23);
+  background: rgba(13, 8, 7, 0.55);
+  color: var(--blindspot-text-dim, #B89A82);
+  white-space: nowrap;
+}
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-trait--revealed,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-trait--revealed {
+  border-color: var(--blindspot-accent, #C8302C);
+  color: var(--blindspot-accent, #C8302C);
+}
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-trait--locked,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-trait--locked {
+  opacity: 0.65;
+}
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-trait--locked i,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-trait--locked i {
+  color: var(--blindspot-text-muted, #7A5E4C);
+}
+
+/* Boss card itself — share the player card aspect but accommodate the
+   trait row at the bottom. Inherits .bs-rendered-card layout from
+   blindspot.css. The combatant frame already sets the size context. */
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent .bs-rendered-card,
+#bs-battle-container.blindspot-battle .arena-combatant--opponent .bs-rendered-card {
   height: 100%;
   width: auto;
   aspect-ratio: 5 / 7;
   max-width: 100%;
   margin: 0 auto;
-  border: 1px solid var(--blindspot-border-2);
-  border-radius: var(--blindspot-radius-card, 4px);
-  overflow: hidden;
-  background: var(--blindspot-bg-2);
-  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.75);
+  filter: drop-shadow(0 18px 32px rgba(0, 0, 0, 0.75));
 }
 #bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-combatant__img,
 #bs-battle-container.blindspot-battle .arena-combatant--opponent .arena-combatant__img {
@@ -1508,16 +1788,18 @@
   object-position: center top;
   display: block;
 }
-/* HUD elements (nameplate, item tray) sit above the backdrop. Keep
-   their stacking explicit. HP / stamina bars REMOVED from this rule
-   because they are now absolute-positioned vertical rails inside the
-   frame (see VERTICAL HP / STAMINA RAILS section above) — that rule
-   needs `position: absolute` to win on the cascade. */
+/* HUD elements (readout pills, buffs, status) sit above the backdrop.
+   Keep their stacking explicit. The combatant nameplate is hidden —
+   name + class are now rendered inside the card itself (player card +
+   boss card both have built-in name/class labels) so the row above
+   the card was redundant. */
 #bs-screen-battle.blindspot-battle .arena-combatant__nameplate,
+#bs-battle-container.blindspot-battle .arena-combatant__nameplate {
+  display: none;
+}
 #bs-screen-battle.blindspot-battle .arena-combatant__readout,
 #bs-screen-battle.blindspot-battle .arena-player-buffs,
 #bs-screen-battle.blindspot-battle .arena-status-row,
-#bs-battle-container.blindspot-battle .arena-combatant__nameplate,
 #bs-battle-container.blindspot-battle .arena-combatant__readout,
 #bs-battle-container.blindspot-battle .arena-player-buffs,
 #bs-battle-container.blindspot-battle .arena-status-row {
@@ -1893,11 +2175,12 @@
 @media (max-height: 949px) {
   #bs-screen-battle.blindspot-battle .arena-combatant__frame,
   #bs-battle-container.blindspot-battle .arena-combatant__frame {
-    height: 280px;
+    /* 280 → 380 — uses the spare ~113px of headroom at 1440×900. */
+    height: 380px;
   }
   #bs-screen-battle.blindspot-battle .arena-combatant__backdrop,
   #bs-battle-container.blindspot-battle .arena-combatant__backdrop {
-    height: 280px;
+    height: 380px;
   }
   #bs-screen-battle.blindspot-battle .arena-combatant,
   #bs-battle-container.blindspot-battle .arena-combatant {
@@ -1930,11 +2213,12 @@
 @media (max-height: 800px) {
   #bs-screen-battle.blindspot-battle .arena-combatant__frame,
   #bs-battle-container.blindspot-battle .arena-combatant__frame {
-    height: 220px;
+    /* 220 → 250 (+14%). Uses most of the 43px headroom at 1366×768. */
+    height: 250px;
   }
   #bs-screen-battle.blindspot-battle .arena-combatant__backdrop,
   #bs-battle-container.blindspot-battle .arena-combatant__backdrop {
-    height: 220px;
+    height: 250px;
   }
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__art,
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__art {
@@ -2056,26 +2340,20 @@
 }
 
 /* ============================================================
-   SLICE 2 — Combatant HP/Stamina meta rows (Apr 2026)
-   Adds a label-and-value row above each bar so the layout matches
-   the bundle's combatant card. The IDs (#arena-player-hp-text etc.)
-   moved here from inside the bars; JS still finds them by ID.
-   Reorders flex children so meta sits between portrait and bar.
+   SLICE 2 — Combatant HP/Stamina meta rows (Apr 2026) [RETIRED]
+   Originally rendered "HP 132/132" and "Stamina 4/6" label-and-value
+   rows above each horizontal bar. The Phase-1 vertical-rail redesign
+   moved numeric values to the readout pills below the card frame, so
+   the meta rows are now hidden in HTML. This rule was forcing them
+   back to display:flex regardless and breaking the [hidden] attribute
+   — kill them all so the HTML hidden attribute wins.
    ============================================================ */
 #bs-screen-battle.blindspot-battle .arena-combatant__hp-meta, #bs-battle-container.blindspot-battle .arena-combatant__hp-meta,
 #bs-screen-battle.blindspot-battle .arena-combatant__stam-meta , #bs-battle-container.blindspot-battle .arena-combatant__stam-meta  {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: -0.2rem;
+  display: none !important;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__meta-lbl , #bs-battle-container.blindspot-battle .arena-combatant__meta-lbl  {
-  font-family: var(--blindspot-font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--blindspot-text-muted);
+  display: none !important;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__meta-val , #bs-battle-container.blindspot-battle .arena-combatant__meta-val  {
   font-family: var(--blindspot-font-numeric);
