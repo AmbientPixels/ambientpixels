@@ -810,6 +810,8 @@
        real fight is initiated. -->
   <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden blindspot-prefight" role="dialog" aria-label="Pre-fight" style="--blindspot-prefight-arena-bg: url('img/arena/arena-shadow-pit.webp');">
     <div class="blindspot-prefight__atmo" aria-hidden="true"></div>
+    <!-- Floating gold embers — populated once on play-page boot by bs-nav.js. -->
+    <div class="blindspot-prefight__embers" id="bs-prefight-embers" aria-hidden="true"></div>
     <div class="blindspot-prefight__inner">
 
       <!-- Top line -->
@@ -822,11 +824,11 @@
           <span class="blindspot-prefight__chapter-dots" aria-label="Difficulty 5">&#9679;&#9679;&#9679;&#9679;&#9679;</span>
         </div>
         <div class="blindspot-prefight__pager">
-          <button class="blindspot-prefight__pager-btn" type="button" aria-label="Previous boss">
+          <button class="blindspot-prefight__pager-btn" id="bs-prefight-pager-prev" type="button" aria-label="Previous boss">
             <i class="fas fa-chevron-left" aria-hidden="true"></i>
           </button>
-          <span>09 / 10</span>
-          <button class="blindspot-prefight__pager-btn" type="button" aria-label="Next boss">
+          <span id="bs-prefight-pager-count">01 / 10</span>
+          <button class="blindspot-prefight__pager-btn" id="bs-prefight-pager-next" type="button" aria-label="Next boss">
             <i class="fas fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
@@ -928,6 +930,17 @@
               </div>
             </div>
           </div>
+
+          <!-- CTA row — `bs-prefight-buttons.js` replaces #bs-prefight-go at
+               runtime with the working Adventure + Fight pair (or just Fight
+               when the boss has no adventure or is the weekly). Sits under
+               the stat bars, pinned to the bottom of the VS column via
+               margin-top: auto in blindspot-prefight.css. -->
+          <div class="blindspot-prefight__ctas">
+            <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-prefight-go" type="button">
+              <i class="fas fa-bolt" aria-hidden="true"></i> Begin Fight
+            </button>
+          </div>
         </div>
 
         <!-- YOU column -->
@@ -993,19 +1006,6 @@
 
       <!-- Charm selector — JS-driven, visible only when populated -->
       <div id="bs-charm-selector" class="bs-charm-selector" style="display:none;" aria-label="Equip a charm"></div>
-
-      <!-- CTA row -->
-      <div class="blindspot-prefight__ctas">
-        <button class="blindspot-btn blindspot-btn--ghost blindspot-btn--lg" type="button">
-          <i class="fas fa-book-open" aria-hidden="true"></i> Adventure Mode
-        </button>
-        <button class="blindspot-btn blindspot-btn--ghost blindspot-btn--lg" type="button">
-          <i class="fas fa-eye" aria-hidden="true"></i> Scout (-10% reward)
-        </button>
-        <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-prefight-go" type="button">
-          <i class="fas fa-bolt" aria-hidden="true"></i> Begin Fight
-        </button>
-      </div>
     </div>
   </div>
 

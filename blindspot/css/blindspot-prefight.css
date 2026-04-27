@@ -29,25 +29,44 @@
   color: var(--blindspot-text);
 }
 
-/* Atmospheric arena bg behind everything */
+/* Atmospheric arena bg removed — was a blurred arena image that
+   obscured the standard Vein bg-pattern (red ember from below + gold
+   halo from above) defined on `.bs-overlay.blindspot-prefight` via
+   `background-image: var(--blindspot-bg-pattern)`. Hiding the atmo
+   div so the Vein gradient is what reads behind the prefight content,
+   matching login / shop / leaderboard / how-to-play. */
 .blindspot-prefight__atmo {
+  display: none;
+}
+
+/* Floating gold embers — same pattern as the login page. JS (bs-nav.js)
+   spawns ~20 child <span>s with randomised left / bottom / delay /
+   duration. Container is position:absolute behind content, pointer-
+   events:none so it never blocks clicks. */
+.blindspot-prefight__embers {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: var(--blindspot-prefight-arena-bg, url('img/arena/arena-shadow-pit.webp'));
-  background-size: cover;
-  background-position: center;
-  filter: blur(4px) brightness(0.32) saturate(0.7);
-  opacity: 0.85;
+  overflow: hidden;
 }
-.blindspot-prefight__atmo::after {
-  content: "";
+.blindspot-prefight__ember {
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 50% 0%, transparent 30%, var(--blindspot-bg) 80%),
-    linear-gradient(180deg, transparent, var(--blindspot-bg));
+  width: 3px;
+  height: 3px;
+  background: var(--blindspot-accent-gold, #F5C078);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 8px rgba(245, 192, 120, 0.55);
+  animation: blindspot-prefight-ember 4s ease-in-out infinite;
+}
+@keyframes blindspot-prefight-ember {
+  0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+  30%  { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-160px) scale(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blindspot-prefight__ember { animation: none; opacity: 0; }
 }
 
 .blindspot-prefight__inner {
@@ -122,6 +141,14 @@
 .blindspot-prefight__you {
   text-align: center;
 }
+
+/* Visual column order — player (YOU) on the left, boss on the right.
+   The HTML is authored Boss | VS | You for editorial reasons; flip via
+   `order` so the layout matches the lobby/battle screen convention
+   (your card always on the left, opponent on the right). */
+.blindspot-prefight__you  { order: 1; }
+.blindspot-prefight__vs   { order: 2; }
+.blindspot-prefight__boss { order: 3; }
 
 /* Portrait + element badge */
 .blindspot-prefight__portrait {
@@ -213,6 +240,12 @@
 .blindspot-prefight__vs {
   text-align: center;
   padding: 1.5rem 0 0;
+  /* Flex column so the CTA row at the bottom can use margin-top: auto
+     and pin to the bottom of the column (which stretches to match the
+     tallest sibling — boss / you — via the parent grid's
+     align-items: stretch). */
+  display: flex;
+  flex-direction: column;
 }
 .blindspot-prefight__vs-line {
   font-family: var(--blindspot-font-mono);
@@ -347,9 +380,14 @@
   color: var(--blindspot-text-dim);
 }
 
-/* ---------- CTA ROW ---------- */
+/* ---------- CTA ROW ----------
+   Pinned to the bottom of the VS column via margin-top: auto. The VS
+   column is `display: flex; flex-direction: column` and the parent
+   grid uses `align-items: stretch`, so the CTA row sits flush with the
+   bottom of whichever column (boss / you) is tallest. */
 .blindspot-prefight__ctas {
-  margin-top: 2rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
   display: flex;
   gap: 0.6rem;
   align-items: center;

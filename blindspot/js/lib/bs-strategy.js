@@ -124,21 +124,51 @@ window.BsStrategy = (function () {
     var avatarEl = document.getElementById('bs-prefight-avatar');
     if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(boss);
     if (titleEl) titleEl.textContent = boss.name;
-    if (avatarEl) {
-      if (boss.avatar) {
-        avatarEl.innerHTML = '<img src="' + escHtml(boss.avatar) + '" alt="' + escHtml(boss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        avatarEl.style.width = '96px';
-        avatarEl.style.height = '96px';
-      } else {
-        var icon = BOSS_ICONS[boss.class] || 'fa-skull';
-        avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
-      }
+
+    // Pager count + data-attr — needed by the prev/next chevrons in
+    // the prefight topline (handlers live in bs-nav.js, they read
+    // data-boss-num to compute prev/next).
+    var bossIdMatch = boss.id ? String(boss.id).match(/(\d+)$/) : null;
+    var bossNum = bossIdMatch ? parseInt(bossIdMatch[1], 10) : 0;
+    var overlay = document.getElementById('bs-prefight-overlay');
+    if (overlay && bossNum) overlay.setAttribute('data-boss-num', String(bossNum));
+    var pagerCount = document.getElementById('bs-prefight-pager-count');
+    if (pagerCount && bossNum) {
+      pagerCount.textContent = String(bossNum).padStart(2, '0') + ' / 10';
     }
+    var prevBtn = document.getElementById('bs-prefight-pager-prev');
+    var nextBtn = document.getElementById('bs-prefight-pager-next');
+    if (prevBtn) prevBtn.disabled = bossNum <= 1;
+    if (nextBtn) nextBtn.disabled = bossNum >= 10;
+
+    // Big boss portrait — update the background-image so the full
+    // hero portrait actually matches the current boss instead of
+    // staying on the static Void-Harbinger fallback baked into the
+    // play.html markup.
+    var bossPortrait = document.querySelector('#bs-prefight-overlay .blindspot-prefight__boss .blindspot-prefight__portrait');
+    if (bossPortrait && boss.avatar) {
+      bossPortrait.style.backgroundImage = 'url("' + String(boss.avatar).replace(/"/g, '\\"') + '")';
+    }
+
     // Element matchup indicator
     var _ED = _C.ELEMENT_DEFS || {};
     var _EC = _C.ELEMENT_CHART || {};
     var _CDE = _C.CLASS_DEFAULT_ELEMENT || {};
     var bossEl = boss.element || _CDE[boss.class] || '';
+
+    // Element badge in the portrait corner — icon + element label
+    // (matches the bundle's `prefight__el-badge` treatment, not a
+    // duplicate of the boss face).
+    if (avatarEl) {
+      avatarEl.style.width = '';
+      avatarEl.style.height = '';
+      if (bossEl && _ED[bossEl]) {
+        avatarEl.innerHTML = '<i class="fas ' + _ED[bossEl].icon + '" style="color:' + _ED[bossEl].color + ';"></i> ' + _ED[bossEl].label;
+      } else {
+        var icon = BOSS_ICONS[boss.class] || 'fa-skull';
+        avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
+      }
+    }
     var playerEl = selectedCard ? (selectedCard.element || _CDE[selectedCard.class || selectedCard.characterClass] || '') : '';
     var matchupEl = document.getElementById('bs-prefight-matchup');
     if (!matchupEl) {

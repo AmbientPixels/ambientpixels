@@ -42,6 +42,64 @@
     document.getElementById('bs-play-btn')?.addEventListener('click', enterArena);
     document.getElementById('bs-btn-campaign')?.addEventListener('click', openCampaign);
 
+    // Campaign rail (lobby) — boss pip clicks. The static markup uses
+    // data-nav-target="campaign" but no JS read it; routing here by
+    // progression state instead:
+    //   - defeated OR next-available  → open pre-fight overlay
+    //   - locked                      → land on Campaign so the player
+    //                                   can see the unlock requirement
+    document.querySelector('.blindspot-boss-rail')?.addEventListener('click', function (e) {
+      const pip = e.target.closest('.blindspot-boss-pip');
+      if (!pip) return;
+      const numEl = pip.querySelector('.blindspot-boss-pip__num');
+      const bossNum = numEl ? parseInt(numEl.textContent.trim(), 10) : NaN;
+      if (!bossNum) return;
+      const highest = _cb.getHighestBossDefeated ? _cb.getHighestBossDefeated() : 0;
+      const boss = _cb.getBossByNumber ? _cb.getBossByNumber(bossNum) : null;
+      if (boss && bossNum <= highest + 1) {
+        _cb.populatePrefightOverlay(boss);
+        _cb.showOverlay('bs-prefight-overlay');
+        _cb.setupPrefightButtons(boss.id);
+      } else {
+        _cb.showScreen('campaign');
+        _cb.renderCampaignLadder();
+      }
+    });
+
+    // Prefight pager (< 09 / 10 >) — flip between bosses without
+    // leaving the prefight overlay. Reads current boss from
+    // data-boss-num set by populatePrefightOverlay; clamped 1-10.
+    function pagerStep(delta) {
+      const overlay = document.getElementById('bs-prefight-overlay');
+      const cur = overlay ? parseInt(overlay.getAttribute('data-boss-num') || '0', 10) : 0;
+      if (!cur) return;
+      const next = Math.max(1, Math.min(10, cur + delta));
+      if (next === cur) return;
+      const boss = _cb.getBossByNumber ? _cb.getBossByNumber(next) : null;
+      if (!boss) return;
+      _cb.populatePrefightOverlay(boss);
+      _cb.setupPrefightButtons(boss.id);
+    }
+    document.getElementById('bs-prefight-pager-prev')?.addEventListener('click', function () { pagerStep(-1); });
+    document.getElementById('bs-prefight-pager-next')?.addEventListener('click', function () { pagerStep(1); });
+
+    // Floating gold embers in the prefight overlay — same approach as
+    // the login page: 20 child <span>s with randomised left / bottom /
+    // animation-delay / animation-duration. CSS handles the fade-up
+    // animation. Idempotent — only spawn if container is empty.
+    var emberHost = document.getElementById('bs-prefight-embers');
+    if (emberHost && !emberHost.children.length) {
+      for (var ei = 0; ei < 20; ei++) {
+        var ember = document.createElement('span');
+        ember.className = 'blindspot-prefight__ember';
+        ember.style.left = (Math.random() * 100) + '%';
+        ember.style.bottom = (Math.random() * 30) + '%';
+        ember.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+        ember.style.animationDuration = (3 + Math.random() * 3).toFixed(2) + 's';
+        emberHost.appendChild(ember);
+      }
+    }
+
     document.getElementById('bs-btn-pvp')?.addEventListener('click', () => {
       _cb.showScreen('pvp');
       _cb.renderPvPGallery();
