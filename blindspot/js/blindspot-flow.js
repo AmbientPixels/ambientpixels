@@ -547,6 +547,7 @@
       var t = MASTERY_TIERS[i];
       if (record.wins >= t.wins && !claimed[bossId][t.tier]) {
         claimed[bossId][t.tier] = true;
+        addXp(75); // +75 XP per mastery tier-up — skill milestone
 
         // Bronze: +1 to boss weakness stat
         if (t.statBonus && boss.weakness && _selectedCard && _selectedCard.combatStats) {
@@ -1918,6 +1919,11 @@
       setTowerFloor(newFloor);
       setTowerBest(newFloor);
 
+      // Tower XP scales with floor difficulty: +10 × floor, capped at +200
+      // (so floor 20+ runs all reward the same — keeps high-floor grinding
+      // from dominating the ladder).
+      addXp(Math.min(200, newFloor * 10));
+
       // Check milestone rewards
       var milestone = getTowerMilestoneReward(newFloor);
       if (milestone && !getTowerClaimedFloors().includes(newFloor)) {
@@ -2618,6 +2624,7 @@
     }
     if (completed) {
       incrementTotalBounties();
+      addXp(50); // +50 XP per bounty completion (rank progression feed)
       const completedBounty = data.bounties.find(b => b.check === checkType && b.done);
       if (completedBounty && completedBounty.reward) {
         const r = completedBounty.reward;

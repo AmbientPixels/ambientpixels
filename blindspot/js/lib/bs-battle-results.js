@@ -221,9 +221,10 @@
       addSparks(3); // Small consolation for losing
     }
 
-    // PvP wins grant forge progress
+    // PvP wins grant forge progress + XP toward the rank ladder.
     if (_battleType === 'pvp' && isWin) {
       setForgeWins(getForgeWins() + 0.5);
+      addXp(30);
     }
 
     // PvP Elo update
