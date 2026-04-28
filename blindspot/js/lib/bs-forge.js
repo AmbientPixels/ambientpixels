@@ -118,7 +118,8 @@
           <span class="bs-forge-stat__base">${currentStats[d.key]}</span>
           <span class="bs-forge-stat__arrow">\u2192</span>
           <input type="range" class="bs-forge-stat__slider" data-stat="${d.key}"
-                 min="0" max="100" value="${currentStats[d.key]}">
+                 min="0" max="100" value="${currentStats[d.key]}"
+                 style="--fill-color: ${d.color}; --fill-pct: ${currentStats[d.key]};">
           <span class="bs-forge-stat__value" data-stat="${d.key}">${currentStats[d.key]}</span>
         </div>
       `).join('')}
@@ -321,7 +322,7 @@
     statDefs.forEach(d => {
       allocations[d.key] = 0;
       const slider = panel.querySelector(`.bs-forge-stat__slider[data-stat="${d.key}"]`);
-      if (slider) { slider.min = 0; slider.value = 0; }
+      if (slider) { slider.min = 0; slider.value = 0; slider.style.setProperty('--fill-pct', 0); }
       const display = panel.querySelector(`.bs-forge-stat__value[data-stat="${d.key}"]`);
       if (display) { display.textContent = '0'; display.style.color = 'var(--bs-accent)'; }
       const base = slider?.parentElement?.querySelector('.bs-forge-stat__base');
@@ -405,6 +406,7 @@
 
       allocations[key] = clamped;
       slider.value = clampedVal;
+      slider.style.setProperty('--fill-pct', clampedVal);
 
       const display = panel.querySelector(`.bs-forge-stat__value[data-stat="${key}"]`);
       if (display) {

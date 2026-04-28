@@ -1438,10 +1438,23 @@
   flex: 1;
   -webkit-appearance: none;
   appearance: none;
-  height: 5px;
-  background: var(--bs-surface-2);
-  border-radius: 3px;
+  height: 8px;
+  border-radius: 4px;
   outline: none;
+  /* Fill bar — left half is the colored fill (per-stat hue), right half
+     is the empty track. Driven by two CSS variables that the JS sets:
+     --fill-pct  (0..100, written on every slider input)
+     --fill-color (per-stat hex, written once at render time)
+     A subtle inner shadow gives the empty track depth. */
+  background: linear-gradient(
+    to right,
+    var(--fill-color, var(--bs-accent)) 0%,
+    var(--fill-color, var(--bs-accent)) calc(var(--fill-pct, 0) * 1%),
+    var(--bs-surface-2) calc(var(--fill-pct, 0) * 1%),
+    var(--bs-surface-2) 100%
+  );
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: background 80ms linear;
 }
 .bs-forge-stat__slider::-webkit-slider-thumb {
   -webkit-appearance: none;
