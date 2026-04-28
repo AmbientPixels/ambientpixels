@@ -40,6 +40,15 @@ window.BsBattlePalette = (function () {
         var buffsEl = document.getElementById('arena-player-buffs');
         if (buffsEl) renderedCard.appendChild(buffsEl);
       }
+      // Relocate the equipped item tray (charms + adventure / inventory
+      // items the player brought into this fight) from the frame's
+      // right-edge vertical strip into a horizontal strip in the panel
+      // space below the card. Same #arena-player-item-tray id, so the
+      // existing writers (BsCharms.addCharmButtonToBattle /
+      // addItemButtonsToBattle) keep working without changes.
+      var panel = document.getElementById('arena-player-side');
+      var itemTray = document.getElementById('arena-player-item-tray');
+      if (panel && itemTray) panel.appendChild(itemTray);
       playerCard.style.backgroundImage = '';
     } else if (avatar) {
       // Fallback when the card renderer isn't loaded — older avatar fill.

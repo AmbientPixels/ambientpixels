@@ -760,7 +760,7 @@
    (#8E5DAB, too washed out against the dark surface) to a brighter
    purple with bolder weight + a tighter glow for readability. */
 #bs-screen-battle.blindspot-battle .arena-hype-bar , #bs-battle-container.blindspot-battle .arena-hype-bar  {
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.85);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
   /* Phase 2: ambient purple glow so the meter reads as the dynamic
@@ -779,7 +779,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
-  text-shadow: 0 0 8px rgba(201, 163, 232, 0.5),
+  /* Dark drop shadow first (legibility on light arena bgs) +
+     purple glow (mood / brand) layered on top. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95),
+               0 0 8px rgba(201, 163, 232, 0.5),
                0 0 2px rgba(201, 163, 232, 0.8);
 }
 #bs-screen-battle.blindspot-battle .arena-hype-bar__label i , #bs-battle-container.blindspot-battle .arena-hype-bar__label i  {
@@ -806,7 +809,8 @@
 /* Hint caption ("CRIT BOOST AT 100% • 100% TO GO") — was unstyled in the
    arena scope (only the legacy .blindspot-battle__hype-hint base rule
    targeted it). Now mono, dim, with tighter letter-spacing so it reads
-   as flavor text under the meter. */
+   as flavor text under the meter. Drop shadow added so the small dim
+   text stays legible on lighter arena backgrounds. */
 #bs-screen-battle.blindspot-battle .arena-hype-bar__hint,
 #bs-battle-container.blindspot-battle .arena-hype-bar__hint {
   font-family: var(--blindspot-font-mono);
@@ -816,6 +820,7 @@
   color: var(--blindspot-text-muted, #B89A82);
   margin-top: 0.35rem;
   text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
 }
 
 /* Stance buttons — red active state. Default state was reading as
@@ -1036,9 +1041,20 @@
   backdrop-filter: blur(8px);
   font-family: var(--blindspot-font-body);
   padding: 0.45rem 0.85rem;
-  max-height: 90px;
+  /* Bumped 90 → 140 so the log shows ~5 entries without scrolling.
+     Hidden scrollbars (below) keep the chrome out of the way when
+     more entries do exist. */
+  max-height: 140px;
   overflow-y: auto;
   margin: 0;
+  /* Hide scrollbars cross-browser. Firefox uses scrollbar-width,
+     WebKit uses ::-webkit-scrollbar. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__log::-webkit-scrollbar,
+#bs-battle-container.blindspot-battle .arena-battle__log::-webkit-scrollbar {
+  display: none;
 }
 #bs-screen-battle.blindspot-battle .arena-log-entry , #bs-battle-container.blindspot-battle .arena-log-entry  {
   color: var(--blindspot-text-dim);
@@ -1242,6 +1258,11 @@
   box-shadow: none;
   outline: 0;
   position: relative;
+  /* Top corners squared (stage meets the topbar cleanly); bottom
+     corners sharpened to 2px for a chiseled silhouette. The bg image
+     clips to this shape automatically; the ::before scrim inherits
+     via `border-radius: inherit` already set on it. */
+  border-radius: 0 0 2px 2px;
   /* Legacy `.bs-page .arena-battle__stage { max-height: 420px }` was
      capping the stage box even when the field columns grew taller
      (frame 270 + nameplate + HP + stamina + items + buffs + status =
@@ -1949,6 +1970,17 @@
   margin-top: 0;
 }
 
+/* Title badge — repositioned to the TOP-LEFT corner of the card in
+   battle context so it doesn't collide with the power badge that
+   sits in the top-right. Battle-scope only — lobby / gallery / forge
+   keep the original top-right placement. */
+#bs-screen-battle.blindspot-battle .arena-combatant .bs-rc__title-badge,
+#bs-battle-container.blindspot-battle .arena-combatant .bs-rc__title-badge {
+  top: 6px;
+  left: 6px;
+  right: auto;
+}
+
 /* Power readout (⚡ 60) — repositioned to the top-right corner of the
    player card in battle context, mirroring the boss card's tier
    badge slot. Card has `position: relative` so absolute positioning
@@ -2156,6 +2188,34 @@
 #bs-screen-battle.blindspot-battle .arena-combatant__item-tray:empty,
 #bs-battle-container.blindspot-battle .arena-combatant__item-tray:empty {
   display: none;
+}
+
+/* When BsBattlePalette.apply() relocates the item tray from inside
+   the frame to be a direct child of the panel, override the
+   right-edge vertical layout above with a horizontal strip below the
+   card. Direct-child selector ensures only the moved tray gets these
+   rules; any tray that's still inside a frame (legacy code path)
+   keeps the original right-edge treatment.
+   `order: 10` sits the strip after every other panel child (frame=1,
+   items=4, buffs=5, status=6) — without it, the default `order: 0`
+   would shove the tray to the TOP of the panel, above the card. */
+#bs-screen-battle.blindspot-battle .arena-combatant > .arena-combatant__item-tray,
+#bs-battle-container.blindspot-battle .arena-combatant > .arena-combatant__item-tray {
+  position: static;
+  order: 10;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+  padding: 0.35rem 0.5rem;
+  pointer-events: auto;
+  width: auto;
+  inset: auto;
+  background: rgba(0, 0, 0, 0.45);
+  border-top: 1px solid var(--blindspot-border, #3A1F1A);
+  border-radius: var(--blindspot-radius-tile, 4px);
 }
 
 /* Compact icon button inside the tray. Re-enable pointer-events on
