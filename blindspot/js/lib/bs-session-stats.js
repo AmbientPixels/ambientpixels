@@ -33,6 +33,17 @@
   function showBossDialogue(bossId, phase) {
     var d = BOSS_DIALOGUE[bossId];
     if (!d || !d[phase]) return;
+    // Start line goes into the center-column flavor slot (next to VS /
+    // matchup) so the boss reveal isn't orphaned at the bottom of the log.
+    // Loss line stays in the log — defeat lines belong in combat history.
+    if (phase === 'start') {
+      var flavorEl = document.getElementById('bs-vs-flavor');
+      if (flavorEl) {
+        flavorEl.textContent = d[phase];
+        flavorEl.hidden = false;
+        return;
+      }
+    }
     var logEl = document.getElementById('arena-battle-log');
     if (!logEl) return;
     var entry = document.createElement('div');

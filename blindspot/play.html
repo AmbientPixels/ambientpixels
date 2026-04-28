@@ -534,40 +534,50 @@
               <div class="arena-status-row" id="arena-player-status" aria-live="polite"></div>
             </div>
             <div class="blindspot-battle__center" aria-hidden="false">
-              <div class="bs-vs-round" id="bs-vs-round" aria-live="polite">Round 01</div>
-              <div class="arena-battle__vs"><span class="arena-battle__vs-text">VS</span></div>
-              <!-- Boss-intent banner — predictable placement between VS
-                   glyph and matchup chip. JS still finds it by id. -->
-              <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
-                <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
-                <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
+              <!-- Phase 2 hierarchy: 3 zones — top (identity), mid (state),
+                   bottom (controls). Parent column uses justify-content:
+                   space-between so zones push to top / middle / bottom. -->
+              <div class="bs-vs-zone bs-vs-zone--top">
+                <div class="bs-vs-round" id="bs-vs-round" aria-live="polite">Round 01</div>
+                <div class="arena-battle__vs"><span class="arena-battle__vs-text">VS</span></div>
               </div>
-              <div class="bs-vs-matchup" id="bs-vs-matchup" hidden></div>
-              <div class="arena-hype-bar" id="arena-hype-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Hype meter">
-                <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved" aria-hidden="true"></i> HYPE</div>
-                <div class="arena-hype-bar__track">
-                  <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
+              <div class="bs-vs-zone bs-vs-zone--mid">
+                <!-- Boss-intent banner — predictable placement between VS
+                     glyph and matchup chip. JS still finds it by id. -->
+                <div class="arena-boss-intent" id="arena-boss-intent" role="status" aria-live="polite">
+                  <span class="arena-boss-intent__icon" id="arena-boss-intent-icon"></span>
+                  <span class="arena-boss-intent__text" id="arena-boss-intent-text"></span>
                 </div>
-                <div class="arena-hype-bar__hint" id="arena-hype-hint"></div>
+                <div class="bs-vs-matchup" id="bs-vs-matchup" hidden></div>
+                <!-- Boss flavor / opening line. Populated by bs-session-stats.js
+                     showBossDialogue('start'). Hidden until JS fills it. -->
+                <div class="bs-vs-flavor" id="bs-vs-flavor" hidden></div>
+                <div class="arena-hype-bar" id="arena-hype-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Hype meter">
+                  <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved" aria-hidden="true"></i> HYPE</div>
+                  <div class="arena-hype-bar__track">
+                    <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
+                  </div>
+                  <div class="arena-hype-bar__hint" id="arena-hype-hint"></div>
+                </div>
               </div>
-              <div class="arena-stance-row" id="arena-stance-row" role="group" aria-label="Stance selector">
-                <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced" title="Balanced"><i class="fas fa-circle-nodes"></i></button>
-                <button class="arena-stance-btn" data-stance="aggressive" title="Aggressive — +25% dmg, -20% def, +1 stamina cost"><i class="fas fa-fire"></i></button>
-                <button class="arena-stance-btn" data-stance="defensive" title="Defensive — -20% dmg, Guard 80%, Heal +30%, -1 stamina cost"><i class="fas fa-shield-halved"></i></button>
-              </div>
-              <!-- Utility cluster — relocated from the legacy
-                   .arena-battle__header above the field. Help / Forfeit
-                   sit centered below the stance row; arena-battle-post
-                   (Again / Back) takes over the same slot when the
-                   battle ends. JS targets all of these by id, so the
-                   move is DOM-safe. -->
-              <div class="bs-vs-utils" id="bs-vs-utils" role="group" aria-label="Battle controls">
-                <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
-                <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn" title="Forfeit" aria-label="Forfeit"><i class="fas fa-flag" aria-hidden="true"></i></button>
-                <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
-                  <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo" aria-hidden="true"></i> Again</button>
-                  <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button>
-                </span>
+              <div class="bs-vs-zone bs-vs-zone--bottom">
+                <div class="arena-stance-row" id="arena-stance-row" role="group" aria-label="Stance selector">
+                  <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced" title="Balanced"><i class="fas fa-circle-nodes"></i></button>
+                  <button class="arena-stance-btn" data-stance="aggressive" title="Aggressive — +25% dmg, -20% def, +1 stamina cost"><i class="fas fa-fire"></i></button>
+                  <button class="arena-stance-btn" data-stance="defensive" title="Defensive — -20% dmg, Guard 80%, Heal +30%, -1 stamina cost"><i class="fas fa-shield-halved"></i></button>
+                </div>
+                <!-- Utility cluster — Help / Forfeit centered below the stance
+                     row; arena-battle-post (Again / Back) takes over the same
+                     slot when the battle ends. JS targets all of these by id,
+                     so the wrapper move is DOM-safe. -->
+                <div class="bs-vs-utils" id="bs-vs-utils" role="group" aria-label="Battle controls">
+                  <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" aria-label="Open combat guide"><i class="fas fa-question-circle" aria-hidden="true"></i></button>
+                  <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn" title="Forfeit" aria-label="Forfeit"><i class="fas fa-flag" aria-hidden="true"></i></button>
+                  <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
+                    <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo" aria-hidden="true"></i> Again</button>
+                    <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button>
+                  </span>
+                </div>
               </div>
             </div>
             <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">

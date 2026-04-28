@@ -52,10 +52,15 @@ window.BsBossCard = (function () {
   // Stat row: revealed → coloured fill, value visible. Unrevealed →
   // dim silhouette bar, "???" instead of the number. The label always
   // shows so the player can still tell which stat slot is which.
-  var STAT_DEFS = [
-    { key: 'str', label: 'STR', color: '#ef4444' },
-    { key: 'agi', label: 'AGI', color: '#22c55e' },
-    { key: 'int', label: 'INT', color: '#a855f7' }
+  // Pulls the 5-stat list from the shared player-card defs so colors
+  // and order stay in lockstep. Fallback in case BsConst hasn't loaded
+  // yet (boss-card.js can be evaluated before bs-constants.js).
+  var STAT_DEFS = (window.BsConst && window.BsConst.RC_STAT_DEFS) || [
+    { key: 'str', label: 'STR', color: '#ff5252' },
+    { key: 'agi', label: 'AGI', color: '#00e676' },
+    { key: 'int', label: 'INT', color: '#7b2fff' },
+    { key: 'end', label: 'END', color: '#ff9100' },
+    { key: 'lck', label: 'LCK', color: '#ffd740' }
   ];
 
   function renderStatRow(stat, def) {

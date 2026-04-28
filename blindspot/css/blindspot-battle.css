@@ -763,6 +763,11 @@
   background: rgba(0, 0, 0, 0.55);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
+  /* Phase 2: ambient purple glow so the meter reads as the dynamic
+     element in the center column. Inside-out lift, low alpha so it
+     doesn't compete with the ::after fill shadow when filling. */
+  box-shadow: 0 0 14px rgba(216, 169, 255, 0.22);
+  padding: 0.45rem 0.6rem;
 }
 #bs-screen-battle.blindspot-battle .arena-hype-bar__label , #bs-battle-container.blindspot-battle .arena-hype-bar__label  {
   font-family: var(--blindspot-font-mono);
@@ -783,28 +788,57 @@
   color: #D8A9FF;
 }
 #bs-screen-battle.blindspot-battle .arena-hype-bar__track , #bs-battle-container.blindspot-battle .arena-hype-bar__track  {
-  height: 10px;
+  height: 14px;
   background: var(--blindspot-surface-2, #251512);
   border: 1px solid var(--blindspot-border-2, #4F2A23);
   border-radius: var(--blindspot-radius-pill);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5),
+              inset 0 0 8px rgba(0, 0, 0, 0.4);
+  margin-top: 0.3rem;
 }
 #bs-screen-battle.blindspot-battle .arena-hype-bar__fill , #bs-battle-container.blindspot-battle .arena-hype-bar__fill  {
   background: linear-gradient(90deg, var(--blindspot-epic), #D8A9FF);
-  box-shadow: 0 0 10px rgba(216, 169, 255, 0.45);
+  box-shadow: 0 0 12px rgba(216, 169, 255, 0.55),
+              inset 0 1px 1px rgba(255, 255, 255, 0.18);
   border-radius: inherit;
+  height: 100%;
+}
+/* Hint caption ("CRIT BOOST AT 100% • 100% TO GO") — was unstyled in the
+   arena scope (only the legacy .blindspot-battle__hype-hint base rule
+   targeted it). Now mono, dim, with tighter letter-spacing so it reads
+   as flavor text under the meter. */
+#bs-screen-battle.blindspot-battle .arena-hype-bar__hint,
+#bs-battle-container.blindspot-battle .arena-hype-bar__hint {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted, #B89A82);
+  margin-top: 0.35rem;
+  text-align: center;
 }
 
-/* Stance buttons — red active state */
+/* Stance buttons — red active state. Default state was reading as
+   "disabled" (text-muted is very dim); bumped to text-dim + explicit
+   opacity so unselected stances feel selectable. */
 #bs-screen-battle.blindspot-battle .arena-stance-btn , #bs-battle-container.blindspot-battle .arena-stance-btn  {
   background: var(--blindspot-surface);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
-  color: var(--blindspot-text-muted);
+  color: var(--blindspot-text-dim);
+  opacity: 0.85;
+  transition: opacity var(--blindspot-transition-fast),
+              color var(--blindspot-transition-fast),
+              border-color var(--blindspot-transition-fast),
+              background var(--blindspot-transition-fast);
 }
 #bs-screen-battle.blindspot-battle .arena-stance-btn:hover , #bs-battle-container.blindspot-battle .arena-stance-btn:hover  {
   border-color: var(--blindspot-accent-dim);
   color: var(--blindspot-text);
+  opacity: 1;
+}
+#bs-screen-battle.blindspot-battle .arena-stance-btn--active , #bs-battle-container.blindspot-battle .arena-stance-btn--active  {
+  opacity: 1;
 }
 #bs-screen-battle.blindspot-battle .arena-stance-btn--active , #bs-battle-container.blindspot-battle .arena-stance-btn--active  {
   border-color: var(--blindspot-accent);
@@ -968,11 +1002,16 @@
   border-radius: var(--blindspot-radius-card);
   backdrop-filter: blur(6px);
 }
+/* Panels both use the same accent token + identical inner glow weight.
+   Player gets the border on the right (toward VS), opponent on the left
+   (toward VS) — same visual language; both edges face the centerline. */
 #bs-screen-battle.blindspot-battle .arena-combatant--player , #bs-battle-container.blindspot-battle .arena-combatant--player  {
   border-left: 2px solid var(--blindspot-accent);
+  box-shadow: inset 4px 0 16px -10px rgba(200, 48, 44, 0.45);
 }
 #bs-screen-battle.blindspot-battle .arena-combatant--opponent , #bs-battle-container.blindspot-battle .arena-combatant--opponent  {
-  border-right: 2px solid var(--blindspot-danger);
+  border-right: 2px solid var(--blindspot-accent);
+  box-shadow: inset -4px 0 16px -10px rgba(200, 48, 44, 0.45);
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__name , #bs-battle-container.blindspot-battle .arena-combatant__name  {
   font-family: var(--blindspot-font-display);
@@ -1015,13 +1054,17 @@
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  padding: 0.3rem 2rem 0;
+  padding: 0 2rem 0;
   background: transparent;
   border: 0;
   max-width: 1480px;
   margin: 0 auto;
   width: 100%;
   position: relative;
+  /* Fill the screen so the log can use margin-top: auto to anchor to the
+     bottom edge instead of floating mid-screen. Matches the screen wrapper's
+     min-height so the flex column actually has space to distribute. */
+  min-height: calc(100vh - 60px);
 }
 
 /* ---------- UTILITY CLUSTER — INLINE BELOW STANCES ----------
@@ -1061,6 +1104,21 @@
 #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn i {
   font-size: 0.9rem;
   line-height: 1;
+  transition: transform var(--blindspot-transition-fast),
+              color var(--blindspot-transition-fast);
+}
+/* Hover treatment — these buttons read as flat icons by default. Gold
+   shift + soft glow + 1.05x icon scale signals they're interactive. */
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn:hover,
+#bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn:hover {
+  color: var(--blindspot-accent-gold, #F5C078);
+  border-color: var(--blindspot-accent-gold-dim, #B97417);
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.3);
+}
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn:hover i,
+#bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn:hover i {
+  transform: scale(1.08);
+  color: inherit;
 }
 /* Post-battle pair (Again, Back) needs to lay out as a compact inline
    group when its parent span is shown. Default of the surrounding
@@ -1085,8 +1143,8 @@
    top-center of .arena-battle and overlapping the round pill). When
    empty (no boss intent active), the inline element collapses to
    nothing because its inner spans are empty. */
-#bs-screen-battle.blindspot-battle .blindspot-battle__center > .arena-boss-intent,
-#bs-battle-container.blindspot-battle .blindspot-battle__center > .arena-boss-intent {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-boss-intent,
+#bs-battle-container.blindspot-battle .blindspot-battle__center .arena-boss-intent {
   position: static;
   align-self: center;
   width: 100%;
@@ -1097,9 +1155,64 @@
   white-space: normal;
   overflow: hidden;
 }
-#bs-screen-battle.blindspot-battle .blindspot-battle__center > .arena-boss-intent:empty,
-#bs-battle-container.blindspot-battle .blindspot-battle__center > .arena-boss-intent:empty {
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-boss-intent:empty,
+#bs-battle-container.blindspot-battle .blindspot-battle__center .arena-boss-intent:empty {
   display: none;
+}
+
+/* Boss flavor / opening line — sits inside the .bs-vs-zone--mid wrapper.
+   Italic Cinzel, gold-tinted. Borders moved up to the mid-zone wrapper in
+   Phase 2 so the entire "state of the fight" group reads as one unit. */
+#bs-screen-battle.blindspot-battle .bs-vs-flavor,
+#bs-battle-container.blindspot-battle .bs-vs-flavor {
+  align-self: center;
+  width: 100%;
+  max-width: 280px;
+  margin: 0;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--blindspot-font-display, 'Cinzel', serif);
+  font-style: italic;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--bs-accent-glow, #f5c078);
+  text-align: center;
+  text-shadow: 0 0 8px rgba(245, 192, 120, 0.25);
+}
+#bs-screen-battle.blindspot-battle .bs-vs-flavor:empty,
+#bs-battle-container.blindspot-battle .bs-vs-flavor:empty,
+#bs-screen-battle.blindspot-battle .bs-vs-flavor[hidden],
+#bs-battle-container.blindspot-battle .bs-vs-flavor[hidden] {
+  display: none;
+}
+
+/* ---------- CENTER COLUMN — 3-ZONE HIERARCHY (Phase 2) ----------
+   Children of .blindspot-battle__center wrap into 3 zones (top / mid /
+   bottom). Parent's justify-content: space-between pushes them to the
+   column edges; within each zone, items stack tight via gap: 0.4rem.
+   The mid zone gets thin gold dividers above + below so the "state of
+   the fight" cluster (intent, matchup, flavor, Hype) reads as a unit. */
+#bs-screen-battle.blindspot-battle .bs-vs-zone,
+#bs-battle-container.blindspot-battle .bs-vs-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+#bs-screen-battle.blindspot-battle .bs-vs-zone--mid,
+#bs-battle-container.blindspot-battle .bs-vs-zone--mid {
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(245, 192, 120, 0.18);
+  border-bottom: 1px solid rgba(245, 192, 120, 0.18);
+}
+/* Collapse the mid-zone divider treatment when every child inside it is
+   empty/hidden (e.g. before any boss data resolves) so the dividers don't
+   render as a floating pair of lines. */
+#bs-screen-battle.blindspot-battle .bs-vs-zone--mid:not(:has(:not([hidden]):not(:empty))),
+#bs-battle-container.blindspot-battle .bs-vs-zone--mid:not(:has(:not([hidden]):not(:empty))) {
+  border-top: 0;
+  border-bottom: 0;
+  padding: 0;
 }
 
 @media (max-width: 600px) {
@@ -1161,7 +1274,7 @@
   padding: 0;
   background: transparent;
   max-width: 1320px;
-  margin: 0 auto;
+  margin: 25px auto;
   width: 100%;
 }
 @media (max-width: 1100px) {
@@ -1186,8 +1299,8 @@
 #bs-screen-battle.blindspot-battle .arena-combatant , #bs-battle-container.blindspot-battle .arena-combatant  {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.45rem;
+  gap: 0.15rem;
+  padding: 0.3rem 0.45rem;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(6px);
   border-radius: var(--blindspot-radius-card);
@@ -1197,7 +1310,7 @@
   max-width: none;
   width: 100%;
   margin: 0;
-  max-height: min(78vh, 580px);
+  max-height: min(82vh, 560px);
 }
 
 /* ---------- VERTICAL HP / STAMINA RAILS ----------
@@ -1211,10 +1324,7 @@
    neutralized via !important. */
 #bs-screen-battle.blindspot-battle .arena-combatant__frame,
 #bs-battle-container.blindspot-battle .arena-combatant__frame {
-  /* Reserve gutters for the side rails. Now 32px (was 26) — rails
-     are inset 8px from the frame edge, so the inner edge of each
-     rail lands at 20px; +12px gap clears the card art at 32px. */
-  padding: 0.4rem 32px !important;
+  padding: 0.25rem 32px !important;
 }
 
 #bs-screen-battle.blindspot-battle .arena-hp-bar,
@@ -1222,13 +1332,12 @@
 #bs-screen-battle.blindspot-battle .arena-stamina-bar,
 #bs-battle-container.blindspot-battle .arena-stamina-bar {
   position: absolute;
-  /* Shorter than the full frame, vertically centered. Uses top:50% +
-     translateY(-50%) so the height stays proportional to the frame
-     height (no need to redefine per breakpoint). */
+  /* Anchored to the card frame. Reserve 32px above for the heart/bolt
+     glyph + breathing room, and 32px below for the readout pill. */
   top: 50%;
   bottom: auto;
   width: 12px;
-  height: 60%;
+  height: calc(100% - 64px);
   transform: translateY(-50%);
   /* Squared-frame look matching the stamina pip rail — thin radius,
      dark padded inner area, soft inner shadow. */
@@ -1537,7 +1646,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 520px;
+  height: 516px;
   z-index: 0;
   background-size: cover;
   background-position: center top;
@@ -1573,11 +1682,9 @@
   order: 1;
   width: 100%;
   margin: 0;
-  /* Frame keeps growing — 360 → 520 total (+44%). 1080p+ has lots of
-     headroom; pushing the card art harder uses that real estate.
-     Smaller viewports are clamped via the responsive tiers below. */
-  height: 520px;
-  padding: 0.4rem 32px;
+  /* 516px at 1080p+. */
+  height: 516px;
+  padding: 0.25rem 32px;
   border: 0;
   border-radius: 0;
   overflow: visible;
@@ -1734,10 +1841,23 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-  padding: 0.4rem 0.5rem 0.5rem;
+  /* Padding-top trimmed (was 0.4rem) so the trait row sits flush against
+     the bottom of the stats block without a visible gap. The 1px divider
+     does the visual separation. */
+  padding: 0.3rem 0.5rem 0.5rem;
   margin: 0;
   border-top: 1px solid var(--blindspot-border, #3A1F1A);
   background: rgba(0, 0, 0, 0.35);
+}
+/* Boss card has 3 stat rows vs the player's 5. To eliminate the dead
+   space between stats and traits inside the boss card body, let the
+   stats container grow to fill the remaining vertical space. Stat rows
+   stay anchored to the top via flex-direction: column + flex-start. */
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-stats,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-stats {
+  flex: 1;
+  justify-content: flex-start;
+  padding-bottom: 0;
 }
 #bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc-trait,
 #bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc-trait {
@@ -1815,9 +1935,94 @@
   display: flex;
   gap: 0.3rem;
   flex-wrap: wrap;
-  margin-top: 0.3rem;
+  /* Tight against the frame so the strip reads as "attached to the card",
+     mirroring how the boss traits sit flush below the boss card stats. */
+  margin-top: 0;
+  justify-content: center;
 }
-#bs-screen-battle.blindspot-battle .arena-status-row , #bs-battle-container.blindspot-battle .arena-status-row  { order: 6; }
+#bs-screen-battle.blindspot-battle .arena-status-row , #bs-battle-container.blindspot-battle .arena-status-row  {
+  order: 6;
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0;
+}
+
+/* Power readout (⚡ 60) — repositioned to the top-right corner of the
+   player card in battle context, mirroring the boss card's tier
+   badge slot. Card has `position: relative` so absolute positioning
+   resolves to the card box. Battle-scope only — lobby / gallery /
+   forge keep the bottom-of-card placement. */
+#bs-screen-battle.blindspot-battle .arena-combatant--player .bs-rendered-card .bs-rc__power,
+#bs-battle-container.blindspot-battle .arena-combatant--player .bs-rendered-card .bs-rc__power {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 3;
+  padding: 0.22rem 0.55rem;
+  background: rgba(13, 8, 7, 0.7);
+  border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
+  border-radius: var(--blindspot-radius-pill, 999px);
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--blindspot-accent-gold, #F5C078);
+  text-shadow: 0 0 6px rgba(245, 192, 120, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  width: auto;
+  text-align: center;
+}
+
+/* Relocated player buff strip — BsBattlePalette.apply() moves
+   #arena-player-buffs into the rendered card AT THE BOTTOM (after the
+   power footer in DOM, but power is now absolute-positioned to the
+   top-right corner — see rule above). Pills sit at the very bottom of
+   the card, mirroring boss traits. */
+#bs-screen-battle.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs,
+#bs-battle-container.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs {
+  order: initial;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs:empty,
+#bs-battle-container.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs:empty {
+  display: none;
+}
+/* Player buff / status pills — match the boss trait pill aesthetic so
+   both sides read as the same visual language. Selectors target the
+   common pill child markup (span or div) inside the buff/status rows. */
+#bs-screen-battle.blindspot-battle .arena-player-buffs > *,
+#bs-screen-battle.blindspot-battle .arena-opponent-buffs > *,
+#bs-screen-battle.blindspot-battle .arena-status-row > *,
+#bs-battle-container.blindspot-battle .arena-player-buffs > *,
+#bs-battle-container.blindspot-battle .arena-opponent-buffs > *,
+#bs-battle-container.blindspot-battle .arena-status-row > * {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  padding: 0.18rem 0.5rem;
+  border-radius: var(--blindspot-radius-pill, 999px);
+  border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
+  background: rgba(13, 8, 7, 0.55);
+  color: var(--blindspot-accent-gold, #F5C078);
+  white-space: nowrap;
+}
+
 
 /* Move the battle log to the bottom of the .arena-battle flex
    column — under the abilities/move grid instead of between the
@@ -1827,6 +2032,9 @@
 #bs-screen-battle.blindspot-battle .arena-battle__log,
 #bs-battle-container.blindspot-battle .arena-battle__log {
   order: 99;
+  /* Phase 5: moves now stretch (flex: 1) to absorb leftover vertical, so
+     the auto-margin from Phase 1.5 is no longer needed and would create
+     inverse spacing. Natural small gap below moves. */
   margin-top: 0.4rem;
 }
 
@@ -1844,18 +2052,20 @@
 #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-round,
 #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-round {
   font-family: var(--blindspot-font-mono);
-  font-size: 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--blindspot-accent-gold, #F5C078);
-  padding: 0.3rem 0.85rem;
+  padding: 0.4rem 1.1rem;
   border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
   border-radius: var(--blindspot-radius-pill, 999px);
   background: rgba(28, 16, 13, 0.6);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   align-self: center;
-  text-shadow: 0 0 10px rgba(245, 192, 120, 0.35);
+  text-shadow: 0 0 12px rgba(245, 192, 120, 0.5);
+  box-shadow: 0 0 16px rgba(245, 192, 120, 0.18);
 }
 
 #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-matchup,
@@ -1865,12 +2075,13 @@
   justify-content: center;
   gap: 0.5em;
   font-family: var(--blindspot-font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 0.4rem 0.85rem;
+  padding: 0.55rem 1rem;
   border-radius: var(--blindspot-radius-pill, 999px);
-  background: rgba(28, 16, 13, 0.65);
+  background: rgba(28, 16, 13, 0.7);
   border: 1px solid var(--blindspot-border-2, #4F2A23);
   color: var(--blindspot-text-dim, #B89A82);
   align-self: center;
@@ -1889,18 +2100,37 @@
 #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-matchup--good,
 #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-matchup--good {
   color: var(--blindspot-success, #6E9F4A);
-  border-color: rgba(110, 159, 74, 0.5);
-  box-shadow: 0 0 18px rgba(110, 159, 74, 0.2);
+  border-color: rgba(110, 159, 74, 0.55);
+  text-shadow: 0 0 6px rgba(110, 159, 74, 0.45);
+  animation: bs-vs-matchup-pulse-good 2.4s ease-in-out infinite;
 }
 #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-matchup--bad,
 #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-matchup--bad {
   color: var(--blindspot-accent, #C8302C);
-  border-color: rgba(200, 48, 44, 0.5);
-  box-shadow: 0 0 18px rgba(200, 48, 44, 0.2);
+  border-color: rgba(200, 48, 44, 0.55);
+  text-shadow: 0 0 6px rgba(200, 48, 44, 0.45);
+  animation: bs-vs-matchup-pulse-bad 2.4s ease-in-out infinite;
 }
 #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-matchup--neutral,
 #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-matchup--neutral {
   color: var(--blindspot-text-dim, #B89A82);
+}
+@keyframes bs-vs-matchup-pulse-good {
+  0%, 100% { box-shadow: 0 0 14px rgba(110, 159, 74, 0.18); }
+  50%      { box-shadow: 0 0 24px rgba(110, 159, 74, 0.42); }
+}
+@keyframes bs-vs-matchup-pulse-bad {
+  0%, 100% { box-shadow: 0 0 14px rgba(200, 48, 44, 0.18); }
+  50%      { box-shadow: 0 0 24px rgba(200, 48, 44, 0.42); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-matchup--good,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-matchup--good,
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-matchup--bad,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-matchup--bad {
+    animation: none;
+    box-shadow: 0 0 18px currentColor;
+  }
 }
 
 /* ---------- ITEM / CHARM TRAY ----------
@@ -2143,11 +2373,17 @@
   color: var(--blindspot-accent);
 }
 
-/* Move hand — 5-card grid */
+/* Move hand — 5 cards centered horizontally at a fixed width. Reverted
+   from `repeat(5, 1fr) + flex: 1` (Phase 5) which stretched cards to
+   fill leftover vertical and triggered a 100%-zoom render bug where
+   the card grid (grid-template-rows: repeat(5, auto)) collapsed and
+   clipped the energy column + left-side text. Smaller centered cards
+   read as a tighter "hand" and avoid the bug entirely. */
 #bs-screen-battle.blindspot-battle .arena-battle__moves , #bs-battle-container.blindspot-battle .arena-battle__moves  {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(5, 240px);
+  gap: 0.6rem;
+  justify-content: center;
   margin-top: 0;
   padding: 0;
   background: transparent;
@@ -2167,10 +2403,10 @@
   width: auto;
   margin: 0;
 }
-/* Trim move-card art aspect ratio in the battle grid so the whole
-   field + log + move row fits inside a 900px viewport without
-   triggering body overflow:hidden clipping. Default 16/9 was making
-   each art ~154px tall, pushing 17px off the bottom. */
+/* Move-card art aspect ratio. Reverted from Phase 5's 3/2 back to 2/1
+   — the taller art at 3/2 caused horizontal text clipping on the
+   second move card at exact 100% zoom. The 949p / 800p tiers below
+   stay at 3/1 / 4/1 for laptop viewport compaction. */
 #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__art,
 #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__art {
   aspect-ratio: 2 / 1;

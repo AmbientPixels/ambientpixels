@@ -6160,7 +6160,7 @@ body.bs-battle-active .bs-play {
 .bs-rc-stat__val {
   font-size: 0.55rem;
   color: var(--bs-text-muted);
-  width: 18px;
+  width: 24px;
   text-align: right;
   flex-shrink: 0;
 }

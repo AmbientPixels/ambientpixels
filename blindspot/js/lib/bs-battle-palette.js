@@ -30,6 +30,16 @@ window.BsBattlePalette = (function () {
     // below) shows the character art behind it as a blurred halo.
     if (typeof _cb.renderCardHTML === 'function') {
       playerCard.innerHTML = _cb.renderCardHTML(card, 'full');
+      // Relocate the dynamic buff strip into the rendered card AT THE
+      // BOTTOM (after the power footer) so the stack reads: art → info
+      // → stats → power → buffs. Buffs sit at the very bottom of the
+      // card, mirroring how boss traits anchor the bottom of the boss
+      // card. IDs stay intact — every writer targets by id.
+      var renderedCard = playerCard.querySelector('.bs-rendered-card');
+      if (renderedCard) {
+        var buffsEl = document.getElementById('arena-player-buffs');
+        if (buffsEl) renderedCard.appendChild(buffsEl);
+      }
       playerCard.style.backgroundImage = '';
     } else if (avatar) {
       // Fallback when the card renderer isn't loaded — older avatar fill.
