@@ -646,7 +646,16 @@ window.ArenaBattleUI = (function () {
 
   function updateChargeDisplay() {
     const chargeEl = document.getElementById('arena-ability-charge');
-    if (chargeEl) chargeEl.textContent = `${Math.floor(_playerCharges)}/${_abilityCost}`;
+    if (!chargeEl) return;
+    chargeEl.textContent = `${Math.floor(_playerCharges)}/${_abilityCost}`;
+    // Two-pip CSS indicator (battle scope): 0 charges → empty,
+    // halfway → 1 filled, ≥cost → both filled & ability ready.
+    let filled = 0;
+    if (_abilityCost > 0) {
+      if (_playerCharges >= _abilityCost) filled = 2;
+      else if (_playerCharges >= _abilityCost / 2) filled = 1;
+    }
+    chargeEl.setAttribute('data-filled', String(filled));
   }
 
   function enableMoves(enabled) {

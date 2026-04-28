@@ -30,16 +30,13 @@ window.BsBattlePalette = (function () {
     // below) shows the character art behind it as a blurred halo.
     if (typeof _cb.renderCardHTML === 'function') {
       playerCard.innerHTML = _cb.renderCardHTML(card, 'full');
-      // Relocate the dynamic buff strip into the rendered card AT THE
-      // BOTTOM (after the power footer) so the stack reads: art → info
-      // → stats → power → buffs. Buffs sit at the very bottom of the
-      // card, mirroring how boss traits anchor the bottom of the boss
-      // card. IDs stay intact — every writer targets by id.
-      var renderedCard = playerCard.querySelector('.bs-rendered-card');
-      if (renderedCard) {
-        var buffsEl = document.getElementById('arena-player-buffs');
-        if (buffsEl) renderedCard.appendChild(buffsEl);
-      }
+      // Active buff strip stays at panel level (its native home in
+      // play.html / index.html). Mirrors the boss-side architecture:
+      // permanent traits live inside the card chrome, transient buffs
+      // live outside in the panel's chip strip below the frame. The
+      // earlier "move buffs into the rendered card" was abandoned
+      // 2026-04-28 — it cramped the card bottom and was asymmetric
+      // with the opponent column.
       // Relocate the equipped item tray (charms + adventure / inventory
       // items the player brought into this fight) from the frame's
       // right-edge vertical strip into a horizontal strip in the panel

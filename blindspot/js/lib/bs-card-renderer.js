@@ -178,6 +178,49 @@ window.BsCardRenderer = (function () {
       elementBadge = '<span class="bs-rc__element" style="color:' + ed.color + '"><i class="fas ' + ed.icon + '"></i> ' + ed.label + '</span>';
     }
 
+    // Class trait chips — surface the class signature ability + play
+    // pattern as two trait pills mirroring the boss-card trait row.
+    // Pulls from CLASS_PATTERNS and CLASS_SIGNATURE_MOVES (case-insensitive
+    // class lookup since card.class can be lowercased "rogue assassin"
+    // while the dictionaries key on "Rogue"). Full-size only — micro/small
+    // / preview renders skip the row to stay compact.
+    var traitsHTML = '';
+    if (size === 'full' && cls) {
+      var sig = _C.CLASS_SIGNATURE_MOVES;
+      var pat = _C.CLASS_PATTERNS;
+      // Find the matching dictionary key by case-insensitive prefix match
+      // ("rogue assassin" → "Rogue", "Caster" → "Caster").
+      var matchKey = null;
+      var clsLower = String(cls).toLowerCase();
+      var dict = sig || pat || {};
+      for (var k in dict) {
+        if (Object.prototype.hasOwnProperty.call(dict, k)
+            && clsLower.indexOf(String(k).toLowerCase()) !== -1) {
+          matchKey = k;
+          break;
+        }
+      }
+      if (matchKey) {
+        var sigEntry = sig && sig[matchKey];
+        var patEntry = pat && pat[matchKey];
+        var chips = '';
+        // Show one trait chip (the class signature ability) to mirror
+        // boss-card identity without overflowing the player card chrome.
+        // Play-pattern goes into the chip's title attribute as a hover
+        // tooltip so the info isn't lost.
+        if (sigEntry && sigEntry.name) {
+          var tip = patEntry ? ('Plays as: ' + patEntry) : 'Signature ability';
+          chips += '<span class="bs-rc-trait bs-rc-trait--revealed bs-rc-trait--player" title="' + escHtml(tip) + '">'
+            + '<i class="fas ' + escHtml(sigEntry.icon || 'fa-bolt') + '" aria-hidden="true"></i> '
+            + escHtml(sigEntry.name)
+            + '</span>';
+        }
+        if (chips) {
+          traitsHTML = '<div class="bs-rc-traits bs-rc-traits--player">' + chips + '</div>';
+        }
+      }
+    }
+
     return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '" data-element="' + escHtml(element) + '"' + borderAttr + '>'
       + '<div class="bs-rc__art">' + avatarHTML + titleHTML + '</div>'
       + '<div class="bs-rc__info">'
@@ -186,6 +229,7 @@ window.BsCardRenderer = (function () {
       + elementBadge
       + '</div>'
       + statsHTML
+      + traitsHTML
       + powerHTML
       + '</div>';
   }

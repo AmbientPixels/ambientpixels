@@ -2162,27 +2162,12 @@
   text-align: center;
 }
 
-/* Relocated player buff strip — BsBattlePalette.apply() moves
-   #arena-player-buffs into the rendered card AT THE BOTTOM (after the
-   power footer in DOM, but power is now absolute-positioned to the
-   top-right corner — see rule above). Pills sit at the very bottom of
-   the card, mirroring boss traits. */
-#bs-screen-battle.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs,
-#bs-battle-container.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs {
-  order: initial;
-  margin: 0;
-  padding: 0.25rem 0.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  justify-content: center;
-  background: transparent;
-  border: 0;
-}
-#bs-screen-battle.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs:empty,
-#bs-battle-container.blindspot-battle .arena-combatant__card .bs-rendered-card .arena-player-buffs:empty {
-  display: none;
-}
+/* Player buff strip stays at panel level (Option B reconciliation,
+   2026-04-28): both sides display permanent identity inside the
+   card chrome and transient active buffs in the panel space below.
+   The "move buffs into rendered card" override was removed from
+   BsBattlePalette.apply() — buffs now sit naturally in the panel
+   stack between the card frame and the status row. */
 /* Player buff / status pills — match the boss trait pill aesthetic so
    both sides read as the same visual language. Selectors target the
    common pill child markup (span or div) inside the buff/status rows. */
@@ -3077,3 +3062,341 @@
   font-family: var(--blindspot-font-mono);
   letter-spacing: 0.14em;
 }
+
+/* ============================================================
+   2026-04-28 POLISH PASS — battle screen craft refinements
+   Scope: battle context only (#bs-screen-battle.blindspot-battle
+   + #bs-battle-container.blindspot-battle). Lobby / index / forge
+   keep their current chrome. Each block is numbered to match the
+   polish triage so future-you can find the intent.
+   ============================================================ */
+
+/* #1 — Move type-label is decorative + redundant with the footer
+   `TYPE: ATTACK` badge. Hide in battle scope only. Lobby / index
+   keep the eyebrow because there's no footer badge there. */
+#bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__type-label,
+#bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__type-label {
+  display: none;
+}
+
+/* #2 — Energy badge: drop the "ENERGY" sub-label, keep just the
+   number with a lightning glyph above. Tighter, less shouty,
+   and the cost is the only thing that matters at a glance. */
+#bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy-label,
+#bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__energy-label {
+  display: none;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy,
+#bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__energy {
+  width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 8px;
+  position: relative;
+  background: linear-gradient(180deg, #100806, #0a0604);
+}
+#bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy::before,
+#bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__energy::before {
+  content: '\f0e7'; /* fa-bolt */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+  opacity: 0.55;
+  line-height: 1;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy-num,
+#bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__energy-num {
+  font-size: 1.05rem;
+  margin-top: 0.4rem;
+}
+
+/* #4 — Battle log heading was kissing the top border. The
+   `0.45rem` top padding was set when there was no head element;
+   now that `<div class="arena-battle__log-head">Battle Log</div>`
+   sits inside the scroll area, the head needs breathing room
+   above OR sticky-top treatment so it doesn't scroll out with
+   entries. We pin it to the top, opaque, and pad it. */
+#bs-screen-battle.blindspot-battle .arena-battle__log,
+#bs-battle-container.blindspot-battle .arena-battle__log {
+  padding: 0 0.85rem 1rem;
+  position: relative;
+}
+#bs-screen-battle.blindspot-battle .arena-battle__log-head,
+#bs-battle-container.blindspot-battle .arena-battle__log-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 -0.85rem 0.5rem;
+  padding: 0.6rem 0.85rem 0.4rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.92) 60%, rgba(0, 0, 0, 0) 100%);
+  border-bottom: 1px solid rgba(245, 192, 120, 0.12);
+}
+
+/* #5 — Help / Forfeit utility buttons get visible mono-caps
+   labels under each so they read as proper utility actions
+   instead of mystery icons. Stack icon-over-label without
+   blowing up the click target. */
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils,
+#bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils {
+  gap: 1rem;
+}
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn,
+#bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn {
+  flex-direction: column;
+  width: 52px;
+  height: 48px;
+  min-width: 52px;
+  gap: 0.18rem;
+  padding: 0.3rem 0;
+}
+#bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after,
+#bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after {
+  content: attr(aria-label);
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.46rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: inherit;
+  opacity: 0.7;
+  line-height: 1;
+}
+#bs-screen-battle.blindspot-battle #bs-combat-help-btn::after,
+#bs-battle-container.blindspot-battle #bs-combat-help-btn::after {
+  content: 'Guide';
+}
+#bs-screen-battle.blindspot-battle #arena-forfeit-btn::after,
+#bs-battle-container.blindspot-battle #arena-forfeit-btn::after {
+  content: 'Forfeit';
+}
+
+/* #6 — Dead space above the field. `.arena-battle__field` had
+   25px top margin from the topbar. The round-counter pill +
+   VS glyph already provide the breathing room; cut to 12px. */
+#bs-screen-battle.blindspot-battle .arena-battle__field,
+#bs-battle-container.blindspot-battle .arena-battle__field {
+  margin-top: 12px;
+}
+
+/* #7 — Ability charge "0/2" text pip read like a notification
+   badge. Replace with a 2-pip dot row that mirrors the existing
+   `bs-move-card__dot` motif used in the move-card footer. JS
+   keeps writing to the span (back-compat); CSS hides the text
+   and renders pips via data attributes set by the JS update.
+
+   Visual: two stacked dots, top-right corner of the ability
+   move card. Filled when charge available, hollow when used. */
+#bs-screen-battle.blindspot-battle .arena-move-btn--ability,
+#bs-battle-container.blindspot-battle .arena-move-btn--ability {
+  position: relative;
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge,
+#bs-battle-container.blindspot-battle .arena-move-btn__charge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  font-size: 0;
+  color: transparent;
+  pointer-events: none;
+  z-index: 2;
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge::before,
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge::after,
+#bs-battle-container.blindspot-battle .arena-move-btn__charge::before,
+#bs-battle-container.blindspot-battle .arena-move-btn__charge::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--blindspot-epic, #b47cf5);
+  background: transparent;
+  transition: background 200ms ease, box-shadow 200ms ease;
+}
+/* Filled state — JS toggles data-charge="N/N" via existing
+   updateAbilityCharges; we read the leading digit. Default
+   to empty (no fill) until JS writes the attribute. */
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge[data-filled="1"]::before,
+#bs-battle-container.blindspot-battle .arena-move-btn__charge[data-filled="1"]::before,
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge[data-filled="2"]::before,
+#bs-battle-container.blindspot-battle .arena-move-btn__charge[data-filled="2"]::before {
+  background: var(--blindspot-epic, #b47cf5);
+  box-shadow: 0 0 8px rgba(180, 124, 245, 0.55);
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn__charge[data-filled="2"]::after,
+#bs-battle-container.blindspot-battle .arena-move-btn__charge[data-filled="2"]::after {
+  background: var(--blindspot-epic, #b47cf5);
+  box-shadow: 0 0 8px rgba(180, 124, 245, 0.55);
+}
+
+/* #8 — Hype meter at 0%. The empty track read as static. Add
+   a slow diagonal sheen that sweeps across the empty track so
+   the meter signals "this is alive but unfilled" instead of
+   "broken UI." Stops once any fill exists. */
+@keyframes bs-hype-empty-sheen {
+  0%   { transform: translateX(-30%); opacity: 0; }
+  35%  { opacity: 0.5; }
+  65%  { opacity: 0.5; }
+  100% { transform: translateX(130%); opacity: 0; }
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__track,
+#bs-battle-container.blindspot-battle .arena-hype-bar__track {
+  position: relative;
+  overflow: hidden;
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__track::after,
+#bs-battle-container.blindspot-battle .arena-hype-bar__track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg,
+    transparent 30%,
+    rgba(216, 169, 255, 0.22) 48%,
+    rgba(216, 169, 255, 0.4) 50%,
+    rgba(216, 169, 255, 0.22) 52%,
+    transparent 70%);
+  animation: bs-hype-empty-sheen 3.6s ease-in-out infinite;
+  z-index: 1;
+}
+/* Hide the sheen as soon as any real fill exists. The fill
+   element gets inline width:%; we key on width != "0%" via
+   a sibling selector. */
+#bs-screen-battle.blindspot-battle .arena-hype-bar__track:has(.arena-hype-bar__fill[style*="width: 0"])::after,
+#bs-battle-container.blindspot-battle .arena-hype-bar__track:has(.arena-hype-bar__fill[style*="width: 0"])::after {
+  /* Only animate when fill is at 0% */
+}
+#bs-screen-battle.blindspot-battle .arena-hype-bar__track:not(:has(.arena-hype-bar__fill[style*="width: 0%"]))::after,
+#bs-battle-container.blindspot-battle .arena-hype-bar__track:not(:has(.arena-hype-bar__fill[style*="width: 0%"]))::after {
+  display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  #bs-screen-battle.blindspot-battle .arena-hype-bar__track::after,
+  #bs-battle-container.blindspot-battle .arena-hype-bar__track::after {
+    animation: none;
+    opacity: 0.18;
+  }
+}
+
+/* #9 — HP/stamina rails read as floating dark slabs decoupled
+   from the gold-bordered card frame. Match the rail border to
+   the frame's gold-border color (lighter than border-2) so
+   the rails feel like part of the same chrome. Keeps the
+   dynamic HP-tier panel border (red/amber/green) on the
+   panel itself untouched; just polishes the rail container. */
+#bs-screen-battle.blindspot-battle .arena-hp-bar,
+#bs-battle-container.blindspot-battle .arena-hp-bar,
+#bs-screen-battle.blindspot-battle .arena-stamina-bar,
+#bs-battle-container.blindspot-battle .arena-stamina-bar {
+  border-color: rgba(245, 192, 120, 0.32);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+/* #10 (revised) — Active buff chips (`+5 XP`, `+3 CRIT`, `+3 AP`)
+   live below the player card. Boss card has trait chips
+   (`Fortified Start`, `First Blood`) inside the rendered card.
+   They're both "passive effects active during fight" but read
+   as different UI categories. Restyle the buff chips to match
+   the boss trait chip family — same bordered pill, same gold
+   tint, same mono-caps treatment — so the player reads both
+   sides as one system. */
+#bs-screen-battle.blindspot-battle .arena-buff-chip,
+#bs-battle-container.blindspot-battle .arena-buff-chip {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(245, 192, 120, 0.08);
+  border: 1px solid rgba(245, 192, 120, 0.32);
+  color: var(--blindspot-accent-gold, #F5C078);
+  line-height: 1;
+  white-space: nowrap;
+}
+#bs-screen-battle.blindspot-battle .arena-buff-chip i,
+#bs-battle-container.blindspot-battle .arena-buff-chip i {
+  font-size: 0.7rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+  opacity: 0.85;
+}
+#bs-screen-battle.blindspot-battle .arena-player-buffs,
+#bs-battle-container.blindspot-battle .arena-player-buffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  margin: 0.5rem 0 0.25rem;
+  padding: 0 0.5rem;
+}
+#bs-screen-battle.blindspot-battle .arena-player-buffs:empty,
+#bs-battle-container.blindspot-battle .arena-player-buffs:empty {
+  display: none;
+}
+
+/* #3 — Boss-card stat values get a subtle "/10" suffix so the
+   player reads them as tier values, not direct comparisons to
+   their own 0-100 stats. The renderer in bs-boss-card.js wraps
+   the suffix in `.bs-rc-stat__val-max`. */
+#bs-screen-battle.blindspot-battle .bs-rc-stat__val-max,
+#bs-battle-container.blindspot-battle .bs-rc-stat__val-max {
+  font-size: 0.7em;
+  opacity: 0.5;
+  margin-left: 0.05em;
+  font-weight: 400;
+}
+
+/* #11 — Player trait chips (sketch). bs-card-renderer renders two
+   trait pills inside the player card: signature ability + play
+   pattern. Mirrors the boss-card .bs-rc-traits pattern but
+   gold-tinted to harmonize with the player card's gold chrome
+   (boss uses red — same shape, side-appropriate color). The
+   panel-level buff chip strip stays gold-outlined too but is
+   content-distinguished by the leading `+N` numeric prefix. */
+#bs-screen-battle.blindspot-battle .bs-rc-traits--player,
+#bs-battle-container.blindspot-battle .bs-rc-traits--player {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem 0.5rem;
+  margin: 0;
+  border-top: 1px solid var(--blindspot-border, #3A1F1A);
+  background: rgba(0, 0, 0, 0.25);
+}
+#bs-screen-battle.blindspot-battle .bs-rc-traits--player:empty,
+#bs-battle-container.blindspot-battle .bs-rc-traits--player:empty {
+  display: none;
+}
+#bs-screen-battle.blindspot-battle .bs-rc-trait--player,
+#bs-battle-container.blindspot-battle .bs-rc-trait--player {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  padding: 0.18rem 0.5rem;
+  border-radius: var(--blindspot-radius-pill, 999px);
+  border: 1px solid rgba(245, 192, 120, 0.5);
+  background: rgba(13, 8, 7, 0.55);
+  color: var(--blindspot-accent-gold, #F5C078);
+  white-space: nowrap;
+}
+#bs-screen-battle.blindspot-battle .bs-rc-trait--player i,
+#bs-battle-container.blindspot-battle .bs-rc-trait--player i {
+  color: var(--blindspot-accent-gold, #F5C078);
+  opacity: 0.85;
+  font-size: 0.7em;
+}
+

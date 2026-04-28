@@ -67,10 +67,12 @@ window.BsBossCard = (function () {
     var s = stat || { value: 0, revealed: false };
     var pct = Math.max(0, Math.min(100, ((s.value || 0) / 20) * 100));
     if (s.revealed) {
+      // Display "/10" suffix so the player reads boss stats as tier
+      // values rather than mistaking 8 for "much weaker than my 100."
       return '<div class="bs-rc-stat bs-rc-stat--revealed">'
         + '<span class="bs-rc-stat__label" style="color:' + def.color + '">' + def.label + '</span>'
         + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + pct + '%;background:' + def.color + '"></div></div>'
-        + '<span class="bs-rc-stat__val">' + (s.value || 0) + '</span>'
+        + '<span class="bs-rc-stat__val">' + (s.value || 0) + '<span class="bs-rc-stat__val-max">/10</span></span>'
         + '</div>';
     }
     // Redacted: silhouette bar (low opacity, no colour), "???" value.
