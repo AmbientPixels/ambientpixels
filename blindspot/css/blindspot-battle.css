@@ -791,6 +791,12 @@
   color: #D8A9FF;
 }
 #bs-screen-battle.blindspot-battle .arena-hype-bar__track , #bs-battle-container.blindspot-battle .arena-hype-bar__track  {
+  /* `flex: 0 0 14px` overrides the legacy `flex: 1` from the .bs-page
+     hype-bar__track rule that was making the track collapse to 2px
+     because the parent bar's flex-column layout gave it almost no
+     leftover vertical space. Locks the track to 14px regardless of
+     parent flex behaviour. */
+  flex: 0 0 14px;
   height: 14px;
   background: var(--blindspot-surface-2, #251512);
   border: 1px solid var(--blindspot-border-2, #4F2A23);
@@ -2043,6 +2049,17 @@
   color: var(--blindspot-text-muted, #7A5E4C);
 }
 
+/* Boss avatar art — top-align so faces / heads aren't clipped at the
+   top of the card. The legacy `.bs-rc__avatar` rule uses `object-fit:
+   cover` with default `object-position: center` (= center center)
+   which crops both top and bottom equally. Boss portraits are
+   composed with the head near the top of the source image, so
+   `center top` preserves the face. */
+#bs-screen-battle.blindspot-battle .bs-rc--boss .bs-rc__avatar,
+#bs-battle-container.blindspot-battle .bs-rc--boss .bs-rc__avatar {
+  object-position: center top;
+}
+
 /* Boss card itself — share the player card aspect but accommodate the
    trait row at the bottom. Inherits .bs-rendered-card layout from
    blindspot.css. The combatant frame already sets the size context. */
@@ -2883,4 +2900,180 @@
 #bs-screen-battle.blindspot-battle .arena-opponent-buffs:empty, #bs-battle-container.blindspot-battle .arena-opponent-buffs:empty,
 #bs-screen-battle.blindspot-battle .arena-status-row:empty , #bs-battle-container.blindspot-battle .arena-status-row:empty  {
   display: none;
+}
+
+/* ---------- VICTORY / DEFEAT RESULTS MODAL — VEIN PASS ----------
+   Restyles the .arena-results-overlay with the same Vein language used
+   on the stranger-win + prefight overlays:
+   - Floating gold embers behind the modal
+   - Gold corner brackets on the modal frame
+   - Cormorant italic title
+   - Blood-red primary CTA, gold ghost CTA
+   - Dark deep bg + subtle gold inner glow
+   These rules are scoped to .arena-results-overlay so other modals on
+   the page are unaffected. */
+
+.arena-results-overlay {
+  background: rgba(10, 8, 6, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Ember layer — full-overlay, rises behind the modal */
+.arena-results__embers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.arena-results__ember {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  background: var(--blindspot-accent-gold, #F5C078);
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 8px rgba(245, 192, 120, 0.55);
+  animation: arena-results-ember 5s ease-in-out infinite;
+}
+@keyframes arena-results-ember {
+  0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+  35%  { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-260px) scale(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arena-results__ember { animation: none; opacity: 0; }
+}
+
+/* Modal frame — keep the existing layout but swap colors + chrome */
+.bs-page .arena-results-overlay .arena-results,
+.arena-results-overlay .arena-results {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(28, 16, 13, 0.92) 0%,
+    rgba(13, 8, 7, 0.96) 100%);
+  border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
+  border-radius: 2px;
+  box-shadow:
+    0 0 32px rgba(245, 192, 120, 0.18),
+    inset 0 0 24px rgba(245, 192, 120, 0.05);
+  padding: 2.25rem 1.75rem 1.5rem;
+}
+
+/* Gold corner brackets — same treatment as stranger-win */
+.arena-results__corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 2;
+}
+.arena-results__corner--tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.arena-results__corner--tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.arena-results__corner--bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.arena-results__corner--br { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+/* Title — italic Cinzel with gold glow, matches Vein voice */
+.bs-page .arena-results-overlay .arena-results__banner h2,
+.bs-page .arena-results-overlay .arena-results__banner h1,
+.arena-results-overlay .arena-results__banner h2,
+.arena-results-overlay .arena-results__banner h1 {
+  font-family: 'Cormorant Garamond', 'Cinzel', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  color: var(--blindspot-accent-gold, #F5C078);
+  text-shadow: 0 0 18px rgba(245, 192, 120, 0.4);
+  margin: 0.5rem 0 0.4rem;
+}
+.bs-page .arena-results-overlay .arena-results__banner p,
+.arena-results-overlay .arena-results__banner p {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-dim, #B89A82);
+}
+
+/* XP amount — same gold accent, weightier */
+.bs-page .arena-results-overlay .arena-results__xp-amount,
+.arena-results-overlay .arena-results__xp-amount {
+  color: var(--blindspot-accent-gold, #F5C078);
+  text-shadow: 0 0 12px rgba(245, 192, 120, 0.35);
+  font-family: var(--blindspot-font-display, 'Cinzel', serif);
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+}
+
+/* Close button — gold hover */
+.arena-results-overlay .arena-results__close {
+  color: var(--blindspot-text-dim, #B89A82);
+  transition: color 200ms ease;
+}
+.arena-results-overlay .arena-results__close:hover {
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+
+/* CTAs — primary blood-red, ghost gold-rim */
+.arena-results-overlay .arena-results__actions .arena-btn--primary,
+.arena-results-overlay #arena-results-again {
+  background: linear-gradient(180deg, var(--blindspot-accent, #C8302C), #8E211E);
+  border: 1px solid var(--blindspot-accent, #C8302C);
+  color: #ffffff;
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.65rem 1.4rem;
+  border-radius: 2px;
+  box-shadow: 0 0 18px rgba(200, 48, 44, 0.4);
+  transition: all 200ms ease;
+}
+.arena-results-overlay .arena-results__actions .arena-btn--primary:hover,
+.arena-results-overlay #arena-results-again:hover {
+  box-shadow: 0 0 26px rgba(200, 48, 44, 0.6);
+  transform: translateY(-1px);
+}
+.arena-results-overlay .arena-results__actions .arena-btn--ghost,
+.arena-results-overlay #arena-results-lobby {
+  background: transparent;
+  border: 1px solid var(--blindspot-accent-gold-dim, #B97417);
+  color: var(--blindspot-accent-gold, #F5C078);
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0.65rem 1.4rem;
+  border-radius: 2px;
+  transition: all 200ms ease;
+}
+.arena-results-overlay .arena-results__actions .arena-btn--ghost:hover,
+.arena-results-overlay #arena-results-lobby:hover {
+  background: rgba(245, 192, 120, 0.08);
+  border-color: var(--blindspot-accent-gold, #F5C078);
+}
+
+/* XP bar — gold fill on dark track */
+.arena-results-overlay .arena-progress__bar {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--blindspot-border-2, #4F2A23);
+  border-radius: 2px;
+  height: 10px;
+}
+.arena-results-overlay .arena-progress__bar-fill {
+  background: linear-gradient(90deg, var(--blindspot-accent-gold-dim, #B97417), var(--blindspot-accent-gold, #F5C078));
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.4);
+}
+
+/* Stat readouts — keep numbers but tint labels in mono */
+.arena-results-overlay .arena-results__stat-label,
+.arena-results-overlay [class*="arena-results__stat"] {
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.14em;
 }
