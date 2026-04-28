@@ -1470,6 +1470,60 @@
 }
 .bs-forge-stat__desc { display: none; }
 
+/* ── Forge stat radar ──
+   Hero-size 250px square SVG below the stat sliders.
+   Two polygons: current baseline (gold outline, hollow) +
+   projected stats after allocation (gold fill). Updates live
+   from the slider input handler — read-only, no mouse input. */
+.bs-forge-radar {
+  display: flex;
+  justify-content: center;
+  margin: 1rem auto 0.75rem;
+  max-width: 250px;
+}
+.bs-forge-radar__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.bs-forge-radar__ring {
+  fill: rgba(20, 12, 8, 0.4);
+  stroke: rgba(239, 159, 39, 0.12);
+  stroke-width: 1;
+}
+.bs-forge-radar__ring[data-ring="100"] {
+  stroke: rgba(239, 159, 39, 0.28);
+  stroke-width: 1.2;
+}
+.bs-forge-radar__axes line {
+  stroke: rgba(239, 159, 39, 0.18);
+  stroke-width: 1;
+}
+.bs-forge-radar__poly--current {
+  fill: none;
+  stroke: rgba(245, 192, 120, 0.55);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+  transition: none;
+}
+.bs-forge-radar__poly--projected {
+  fill: rgba(239, 159, 39, 0.22);
+  stroke: var(--bs-accent, #EF9F27);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgba(239, 159, 39, 0.45));
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bs-forge-radar__labels text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  letter-spacing: 0.08em;
+}
+
 .bs-unlock-teaser {
   margin-top: 0.75rem;
   padding: 0.5rem 0.75rem;

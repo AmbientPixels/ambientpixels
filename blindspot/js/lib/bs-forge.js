@@ -123,6 +123,20 @@
         </div>
       `).join('')}
       </div>
+      <div class="bs-forge-radar" aria-hidden="true">
+        <svg class="bs-forge-radar__svg" viewBox="0 0 250 250" role="img" aria-label="Stat profile">
+          <g class="bs-forge-radar__rings">
+            <polygon class="bs-forge-radar__ring" data-ring="100"></polygon>
+            <polygon class="bs-forge-radar__ring" data-ring="75"></polygon>
+            <polygon class="bs-forge-radar__ring" data-ring="50"></polygon>
+            <polygon class="bs-forge-radar__ring" data-ring="25"></polygon>
+          </g>
+          <g class="bs-forge-radar__axes"></g>
+          <polygon class="bs-forge-radar__poly bs-forge-radar__poly--current"></polygon>
+          <polygon class="bs-forge-radar__poly bs-forge-radar__poly--projected"></polygon>
+          <g class="bs-forge-radar__labels"></g>
+        </svg>
+      </div>
       <div class="bs-unlock-teaser" id="bs-forge-teaser"></div>
     </div>
     <div class="bs-forge-tab-content" id="bs-forge-tab-look">
@@ -322,8 +336,61 @@
       respecBtn.style.color = 'var(--bs-bg)';
     }
     updateBudget();
+    updateRadar();
     _cb.showSuccessToast(`Respec active! Redistribute ${Math.min(totalBefore + bonusPoints, FORGE_POWER_CAP)} points.`);
   }
+
+  // ── Radar / spider chart (visual only) ──
+  // Two polygons over 5 axes (one per stat). Current = baseline outline,
+  // Projected = where stats land after the in-progress allocations.
+  // Updates from the slider input handler so it tracks live as the
+  // player drags. Read-only — no input wiring on the SVG itself.
+  const RADAR_CENTER = 125;
+  const RADAR_RADIUS = 92;
+  function radarPoint(statIndex, value) {
+    // Axis 0 (STR) at top, then clockwise around.
+    const angle = (statIndex * (Math.PI * 2 / 5)) - (Math.PI / 2);
+    const r = (Math.max(0, Math.min(100, value)) / 100) * RADAR_RADIUS;
+    const x = RADAR_CENTER + Math.cos(angle) * r;
+    const y = RADAR_CENTER + Math.sin(angle) * r;
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  }
+  function buildRadar() {
+    const ringsG = panel.querySelector('.bs-forge-radar__rings');
+    const axesG = panel.querySelector('.bs-forge-radar__axes');
+    const labelsG = panel.querySelector('.bs-forge-radar__labels');
+    if (!ringsG || !axesG || !labelsG) return;
+    // Concentric rings — pre-compute polygon points for 25/50/75/100%.
+    const ringEls = ringsG.querySelectorAll('.bs-forge-radar__ring');
+    ringEls.forEach(ring => {
+      const pct = parseInt(ring.dataset.ring, 10) || 100;
+      const pts = statDefs.map((_, i) => radarPoint(i, pct)).join(' ');
+      ring.setAttribute('points', pts);
+    });
+    // Axes — line from center to each 100% point.
+    axesG.innerHTML = statDefs.map((_, i) => {
+      const [ax, ay] = radarPoint(i, 100).split(',');
+      return '<line x1="' + RADAR_CENTER + '" y1="' + RADAR_CENTER + '" x2="' + ax + '" y2="' + ay + '" />';
+    }).join('');
+    // Stat labels — slightly outside the 100% ring so the polygon fill doesn't overlap them.
+    labelsG.innerHTML = statDefs.map((d, i) => {
+      const angle = (i * (Math.PI * 2 / 5)) - (Math.PI / 2);
+      const lr = RADAR_RADIUS + 18;
+      const lx = RADAR_CENTER + Math.cos(angle) * lr;
+      const ly = RADAR_CENTER + Math.sin(angle) * lr;
+      return '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" fill="' + d.color + '">' + d.label + '</text>';
+    }).join('');
+  }
+  function updateRadar() {
+    const cur = panel.querySelector('.bs-forge-radar__poly--current');
+    const proj = panel.querySelector('.bs-forge-radar__poly--projected');
+    if (!cur || !proj) return;
+    const baseline = _respecActive ? { str: 0, agi: 0, int: 0, end: 0, lck: 0 } : currentStats;
+    cur.setAttribute('points', statDefs.map((d, i) => radarPoint(i, baseline[d.key] || 0)).join(' '));
+    proj.setAttribute('points', statDefs.map((d, i) => radarPoint(i, (baseline[d.key] || 0) + (allocations[d.key] || 0))).join(' '));
+  }
+  buildRadar();
+  updateRadar();
 
   panel.querySelectorAll('.bs-forge-stat__slider').forEach(slider => {
     slider.addEventListener('input', () => {
@@ -346,6 +413,7 @@
       }
       updateBudget();
       updateForgeTeaser();
+      updateRadar();
     });
   });
 
