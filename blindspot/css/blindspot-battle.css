@@ -1819,6 +1819,17 @@
 }
 #bs-screen-battle.blindspot-battle .arena-status-row , #bs-battle-container.blindspot-battle .arena-status-row  { order: 6; }
 
+/* Move the battle log to the bottom of the .arena-battle flex
+   column — under the abilities/move grid instead of between the
+   field and the moves. The arena-battle is already
+   `display: flex; flex-direction: column` so a high `order` value
+   sinks the log without touching DOM order. */
+#bs-screen-battle.blindspot-battle .arena-battle__log,
+#bs-battle-container.blindspot-battle .arena-battle__log {
+  order: 99;
+  margin-top: 0.4rem;
+}
+
 /* ---------- VS CENTER COLUMN — round pill + matchup chip ----------
    The center column had a lot of empty space between the VS glyph and
    the HYPE bar. Two new elements fill it usefully:

@@ -287,7 +287,7 @@
     ];
 
     return `
-      <p class="qb-panel-desc">Pick artwork for your card from the gallery, generate with AI, or paste a URL.</p>
+      <p class="qb-panel-desc">Pick artwork for your card from the gallery, generate one, or paste a URL.</p>
       <div class="qb-artwork-options">
         <div class="qb-artwork-tile ${artMode === 'gallery' ? 'selected' : ''}" data-art-mode="gallery">
           <i class="fas fa-images"></i>
@@ -295,7 +295,7 @@
         </div>
         <div class="qb-artwork-tile ${artMode === 'ai' ? 'selected' : ''}" data-art-mode="ai">
           <i class="fas fa-wand-magic-sparkles"></i>
-          <span>AI Generate</span>
+          <span>Generate</span>
         </div>
         <div class="qb-artwork-tile ${artMode === 'url' ? 'selected' : ''}" data-art-mode="url">
           <i class="fas fa-link"></i>

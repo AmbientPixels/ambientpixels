@@ -33,7 +33,11 @@ window.BsBossCard = (function () {
   function load(url) {
     if (_data) return Promise.resolve(_data);
     if (_loadPromise) return _loadPromise;
-    _loadPromise = fetch(url || DEFAULT_URL, { cache: 'force-cache' })
+    // `default` cache mode honours HTTP cache headers; we don't want
+    // `force-cache` here because boss-card data does change between
+    // schema revisions and force-cache returns stale entries even
+    // after they expire.
+    _loadPromise = fetch(url || DEFAULT_URL, { cache: 'default' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) { _data = j; return j; })
       .catch(function () { return null; });

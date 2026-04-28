@@ -114,11 +114,21 @@ window.BsCardRenderer = (function () {
 
     var statsHTML = '';
     if (size === 'full') {
+      // Stat range auto-detect — CardForge editor produces stats in
+      // 0-100 (free-form numeric input), `ensureCombatStats` clamps to
+      // 0-20 when migrating from a `card.stats` array. Pick the
+      // divisor by inspecting the actual stat values so bars render
+      // proportionally for either range.
+      var statMax = 20;
+      for (var _i = 0; _i < RC_STAT_DEFS.length; _i++) {
+        if ((cs[RC_STAT_DEFS[_i].key] || 0) > 20) { statMax = 100; break; }
+      }
       statsHTML = '<div class="bs-rc-stats">' + RC_STAT_DEFS.map(function(d) {
         var val = cs[d.key] || 0;
+        var pct = Math.max(0, Math.min(100, (val / statMax) * 100));
         return '<div class="bs-rc-stat">'
           + '<span class="bs-rc-stat__label" style="color:' + d.color + '">' + d.label + '</span>'
-          + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + (val / 20 * 100) + '%;background:' + d.color + '"></div></div>'
+          + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + pct + '%;background:' + d.color + '"></div></div>'
           + '<span class="bs-rc-stat__val">' + val + '</span>'
           + '</div>';
       }).join('') + '</div>';

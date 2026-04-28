@@ -1,7 +1,7 @@
 {
   "_meta": {
-    "description": "Boss-card display schema. Mirrors the player card structure so the battle layout reads symmetrically. Each stat and trait carries a `revealed` flag; default false renders a redacted '???' placeholder. Reveal triggers are wired in a later phase.",
-    "schema_version": 1
+    "description": "Boss-card display schema. Mirrors the player card structure so the battle layout reads symmetrically. Stat values are synced to bosses.json combatStats so the card shows real fight data. `revealed` flags ship as true for now (real values visible) — the redaction layer will be re-engaged when reveal-trigger mechanics are wired up in a later phase.",
+    "schema_version": 2
   },
   "bosses": {
     "bs-boss-1": {
@@ -13,13 +13,13 @@
       "hp": 153,
       "stamina": 6,
       "stats": {
-        "str": { "value": 14, "revealed": false },
-        "agi": { "value": 8,  "revealed": false },
-        "int": { "value": 6,  "revealed": false }
+        "str": { "value": 8, "revealed": true },
+        "agi": { "value": 6, "revealed": true },
+        "int": { "value": 5, "revealed": true }
       },
       "traits": [
-        { "id": "fortified-start",  "name": "Fortified Start",  "desc": "Starts with light armor that fades each round", "revealed": false },
-        { "id": "first-blood",      "name": "First Blood",      "desc": "+10% damage on the opening strike",            "revealed": false }
+        { "id": "fortified-start", "name": "Fortified Start", "desc": "Starts with light armor that fades each round", "revealed": true },
+        { "id": "first-blood",     "name": "First Blood",     "desc": "+10% damage on the opening strike",            "revealed": true }
       ],
       "flavor": "Everyone passes through here once.",
       "portrait": "/blindspot/img/bosses/Gatekeeper-01.webp"
@@ -33,13 +33,13 @@
       "hp": 178,
       "stamina": 6,
       "stats": {
-        "str": { "value": 13, "revealed": false },
-        "agi": { "value": 7,  "revealed": false },
-        "int": { "value": 8,  "revealed": false }
+        "str": { "value": 11, "revealed": true },
+        "agi": { "value": 7,  "revealed": true },
+        "int": { "value": 6,  "revealed": true }
       },
       "traits": [
-        { "id": "vengeance",   "name": "Vengeance",   "desc": "Hits harder after being crit",                "revealed": false },
-        { "id": "rule-keeper", "name": "Rule Keeper", "desc": "Resists abilities by 15%",                    "revealed": false }
+        { "id": "vengeance",   "name": "Vengeance",   "desc": "Hits harder after being crit", "revealed": true },
+        { "id": "rule-keeper", "name": "Rule Keeper", "desc": "Resists abilities by 15%",     "revealed": true }
       ],
       "flavor": "Rules exist for a reason.",
       "portrait": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp"
@@ -53,13 +53,13 @@
       "hp": 164,
       "stamina": 7,
       "stats": {
-        "str": { "value": 9,  "revealed": false },
-        "agi": { "value": 16, "revealed": false },
-        "int": { "value": 10, "revealed": false }
+        "str": { "value": 8,  "revealed": true },
+        "agi": { "value": 12, "revealed": true },
+        "int": { "value": 7,  "revealed": true }
       },
       "traits": [
-        { "id": "phase",        "name": "Phase",        "desc": "Phases out every 3rd round, ignoring damage", "revealed": false },
-        { "id": "evasion",      "name": "Evasion",      "desc": "Counters land 25% less often",                "revealed": false }
+        { "id": "phase",   "name": "Phase",   "desc": "Phases out every 3rd round, ignoring damage", "revealed": true },
+        { "id": "evasion", "name": "Evasion", "desc": "Counters land 25% less often",                "revealed": true }
       ],
       "flavor": "You never see them coming.",
       "portrait": "/blindspot/img/bosses/Shadow-Stalker-01.webp"
@@ -73,13 +73,13 @@
       "hp": 158,
       "stamina": 8,
       "stats": {
-        "str": { "value": 8,  "revealed": false },
-        "agi": { "value": 11, "revealed": false },
-        "int": { "value": 17, "revealed": false }
+        "str": { "value": 6,  "revealed": true },
+        "agi": { "value": 9,  "revealed": true },
+        "int": { "value": 12, "revealed": true }
       },
       "traits": [
-        { "id": "hack",         "name": "Hack",         "desc": "Steals one of your charges on hit",            "revealed": false },
-        { "id": "exploit",      "name": "Exploit",      "desc": "Strikes deal 20% less damage to it",           "revealed": false }
+        { "id": "hack",    "name": "Hack",    "desc": "Steals one of your charges on hit",  "revealed": true },
+        { "id": "exploit", "name": "Exploit", "desc": "Strikes deal 20% less damage to it", "revealed": true }
       ],
       "flavor": "Every system has a flaw.",
       "portrait": "/blindspot/img/bosses/Crystal-Weaver-10.webp"
@@ -93,13 +93,13 @@
       "hp": 198,
       "stamina": 6,
       "stats": {
-        "str": { "value": 19, "revealed": false },
-        "agi": { "value": 10, "revealed": false },
-        "int": { "value": 5,  "revealed": false }
+        "str": { "value": 17, "revealed": true },
+        "agi": { "value": 10, "revealed": true },
+        "int": { "value": 5,  "revealed": true }
       },
       "traits": [
-        { "id": "rage",         "name": "Rage",         "desc": "+40% damage below 30% HP",                    "revealed": false },
-        { "id": "thick-skin",   "name": "Thick Skin",   "desc": "Resists abilities and counters",              "revealed": false }
+        { "id": "rage",       "name": "Rage",       "desc": "+40% damage below 30% HP",       "revealed": true },
+        { "id": "thick-skin", "name": "Thick Skin", "desc": "Resists abilities and counters", "revealed": true }
       ],
       "flavor": "Subtlety is for cowards.",
       "portrait": "/blindspot/img/bosses/Warlord-Grax01.webp"
@@ -113,13 +113,13 @@
       "hp": 175,
       "stamina": 8,
       "stats": {
-        "str": { "value": 7,  "revealed": false },
-        "agi": { "value": 11, "revealed": false },
-        "int": { "value": 19, "revealed": false }
+        "str": { "value": 6,  "revealed": true },
+        "agi": { "value": 9,  "revealed": true },
+        "int": { "value": 17, "revealed": true }
       },
       "traits": [
-        { "id": "leech",        "name": "Leech",        "desc": "Drains 15% of damage dealt as HP",            "revealed": false },
-        { "id": "wisdom",       "name": "Accumulated Wisdom", "desc": "INT scales with rounds elapsed",        "revealed": false }
+        { "id": "leech",  "name": "Leech",              "desc": "Drains 15% of damage dealt as HP", "revealed": true },
+        { "id": "wisdom", "name": "Accumulated Wisdom", "desc": "INT scales with rounds elapsed",   "revealed": true }
       ],
       "flavor": "Knowledge compounds.",
       "portrait": "/blindspot/img/bosses/Arcane-Scholar-01.webp"
@@ -133,13 +133,13 @@
       "hp": 215,
       "stamina": 5,
       "stats": {
-        "str": { "value": 13, "revealed": false },
-        "agi": { "value": 6,  "revealed": false },
-        "int": { "value": 9,  "revealed": false }
+        "str": { "value": 11, "revealed": true },
+        "agi": { "value": 7,  "revealed": true },
+        "int": { "value": 8,  "revealed": true }
       },
       "traits": [
-        { "id": "fortress",     "name": "Fortress",     "desc": "Heavy armor reduces strike damage by 25%",    "revealed": false },
-        { "id": "unbreakable",  "name": "Unbreakable",  "desc": "Cannot be staggered",                          "revealed": false }
+        { "id": "fortress",    "name": "Fortress",    "desc": "Heavy armor reduces strike damage by 25%", "revealed": true },
+        { "id": "unbreakable", "name": "Unbreakable", "desc": "Cannot be staggered",                       "revealed": true }
       ],
       "flavor": "Nothing gets through.",
       "portrait": "/blindspot/img/bosses/Titanium-Aegis-01.webp"
@@ -153,13 +153,13 @@
       "hp": 188,
       "stamina": 8,
       "stats": {
-        "str": { "value": 14, "revealed": false },
-        "agi": { "value": 15, "revealed": false },
-        "int": { "value": 14, "revealed": false }
+        "str": { "value": 12, "revealed": true },
+        "agi": { "value": 13, "revealed": true },
+        "int": { "value": 12, "revealed": true }
       },
       "traits": [
-        { "id": "mirror",       "name": "Mirror",       "desc": "25% chance to copy your last move",           "revealed": false },
-        { "id": "fortune",      "name": "Fortune",      "desc": "Higher crit rate on streak",                  "revealed": false }
+        { "id": "mirror",  "name": "Mirror",  "desc": "25% chance to copy your last move", "revealed": true },
+        { "id": "fortune", "name": "Fortune", "desc": "Higher crit rate on streak",         "revealed": true }
       ],
       "flavor": "Probability is just a suggestion.",
       "portrait": "/blindspot/img/bosses/Void-Harbinger-01.webp"
@@ -173,13 +173,13 @@
       "hp": 230,
       "stamina": 7,
       "stats": {
-        "str": { "value": 20, "revealed": false },
-        "agi": { "value": 14, "revealed": false },
-        "int": { "value": 6,  "revealed": false }
+        "str": { "value": 18, "revealed": true },
+        "agi": { "value": 12, "revealed": true },
+        "int": { "value": 6,  "revealed": true }
       },
       "traits": [
-        { "id": "enrage",       "name": "Enrage",       "desc": "Damage rises 5% per round elapsed",           "revealed": false },
-        { "id": "consumed",     "name": "Consumed",     "desc": "Was once a champion. Pain stopped registering long ago.", "revealed": false }
+        { "id": "enrage",   "name": "Enrage",   "desc": "Damage rises 5% per round elapsed",                              "revealed": true },
+        { "id": "consumed", "name": "Consumed", "desc": "Was once a champion. Pain stopped registering long ago.",         "revealed": true }
       ],
       "flavor": "Pain stopped mattering long ago.",
       "portrait": "/blindspot/img/bosses/Gutter-Rat01.webp"
@@ -193,14 +193,14 @@
       "hp": 245,
       "stamina": 9,
       "stats": {
-        "str": { "value": 12, "revealed": false },
-        "agi": { "value": 13, "revealed": false },
-        "int": { "value": 22, "revealed": false }
+        "str": { "value": 10, "revealed": true },
+        "agi": { "value": 11, "revealed": true },
+        "int": { "value": 19, "revealed": true }
       },
       "traits": [
-        { "id": "leech-mk-ii",  "name": "Leech Mk II",  "desc": "Drains 10% of damage dealt as HP",            "revealed": false },
-        { "id": "design",       "name": "Design",       "desc": "Adapts to repeated player moves",             "revealed": false },
-        { "id": "succession",   "name": "Succession",   "desc": "The arena was built to forge his replacement.", "revealed": false }
+        { "id": "leech-mk-ii", "name": "Leech Mk II", "desc": "Drains 10% of damage dealt as HP",                "revealed": true },
+        { "id": "design",      "name": "Design",      "desc": "Adapts to repeated player moves",                  "revealed": true },
+        { "id": "succession",  "name": "Succession",  "desc": "The arena was built to forge his replacement.",    "revealed": true }
       ],
       "flavor": "This is what a Forger becomes when they never stop.",
       "portrait": "/blindspot/img/bosses/The-Forge-King-01.webp"
