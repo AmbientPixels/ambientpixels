@@ -9,11 +9,11 @@ window.ArenaBackgrounds = (function () {
 
   var ARENAS = [
     { id: 'colosseum',       name: 'Stone Colosseum',    bossRequired: null, bossName: null,             icon: 'fa-chess-rook', image: '/blindspot/img/arena/arena-colosseum.webp',       variants: [] },
-    { id: 'shadow-pit',      name: 'Shadow Pit',         bossRequired: 2,    bossName: 'The Warden',     icon: 'fa-ghost',      image: '/blindspot/img/arena/arena-shadow-pit.webp',      variants: [] },
-    { id: 'forge-grounds',   name: 'Forge Grounds',      bossRequired: 4,    bossName: 'The Cipher',     icon: 'fa-fire',       image: '/blindspot/img/arena/arena-forge-grounds.webp',   variants: [] },
-    { id: 'crystal-sanctum', name: 'Crystal Sanctum',    bossRequired: 6,    bossName: 'The Sage',       icon: 'fa-gem',        image: '/blindspot/img/arena/arena-crystal-sanctum.webp', variants: [] },
-    { id: 'void-rift',       name: 'Void Rift',          bossRequired: 8,    bossName: 'The Trickster',  icon: 'fa-burst',      image: '/blindspot/img/arena/arena-void-rift.webp',       variants: [] },
-    { id: 'throne',          name: 'Throne of the King', bossRequired: 10,   bossName: 'The Architect',  icon: 'fa-crown',      image: '/blindspot/img/arena/arena-throne.webp',          variants: [] }
+    { id: 'shadow-pit',      name: 'Shadow Pit',         bossRequired: 2,    bossName: 'Gutter Rat',          icon: 'fa-ghost',      image: '/blindspot/img/arena/arena-shadow-pit.webp',      variants: [] },
+    { id: 'forge-grounds',   name: 'Forge Grounds',      bossRequired: 4,    bossName: 'Arcane Scholar',      icon: 'fa-fire',       image: '/blindspot/img/arena/arena-forge-grounds.webp',   variants: [] },
+    { id: 'crystal-sanctum', name: 'Crystal Sanctum',    bossRequired: 6,    bossName: 'Ironclad Sentinel',   icon: 'fa-gem',        image: '/blindspot/img/arena/arena-crystal-sanctum.webp', variants: [] },
+    { id: 'void-rift',       name: 'Void Rift',          bossRequired: 8,    bossName: 'The Forge King',      icon: 'fa-burst',      image: '/blindspot/img/arena/arena-void-rift.webp',       variants: [] },
+    { id: 'throne',          name: 'Throne of the King', bossRequired: 10,   bossName: 'Crystal Weaver',      icon: 'fa-crown',      image: '/blindspot/img/arena/arena-throne.webp',          variants: [] }
   ];
 
   function isUnlocked(arena, highestBoss) {

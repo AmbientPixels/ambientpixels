@@ -153,11 +153,11 @@ window.ArenaBattleUI = (function () {
   // (101..110 → bs-boss-1..10), then fall back to name match. Returns
   // a `bs-boss-N` string or null (PvP / weekly / unknown).
   var BOSS_NAME_MAP = {
-    'the gatekeeper': 'bs-boss-1', 'the warden':    'bs-boss-2',
-    'the ghost':      'bs-boss-3', 'the cipher':    'bs-boss-4',
-    'the brute':      'bs-boss-5', 'the sage':      'bs-boss-6',
-    'the iron':       'bs-boss-7', 'the trickster': 'bs-boss-8',
-    'the feral':      'bs-boss-9', 'the architect': 'bs-boss-10'
+    'the gatekeeper':    'bs-boss-1', 'gutter rat':         'bs-boss-2',
+    'shadow stalker':    'bs-boss-3', 'arcane scholar':     'bs-boss-4',
+    'warlord grax':      'bs-boss-5', 'ironclad sentinel':  'bs-boss-6',
+    'titanium aegis':    'bs-boss-7', 'the forge king':     'bs-boss-8',
+    'void harbinger':    'bs-boss-9', 'crystal weaver':     'bs-boss-10'
   };
   function deriveBossId(opp) {
     if (!opp) return null;

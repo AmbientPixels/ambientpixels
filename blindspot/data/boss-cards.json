@@ -53,7 +53,7 @@
     },
     "bs-boss-2": {
       "id": "bs-boss-2",
-      "name": "The Warden",
+      "name": "Gutter Rat",
       "archetype": "Bulwark",
       "element": "shadow",
       "tier": 1,
@@ -96,11 +96,11 @@
         }
       ],
       "flavor": "Rules exist for a reason.",
-      "portrait": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp"
+      "portrait": "/blindspot/img/bosses/Gutter-Rat01.webp"
     },
     "bs-boss-3": {
       "id": "bs-boss-3",
-      "name": "The Ghost",
+      "name": "Shadow Stalker",
       "archetype": "Phantom",
       "element": "arcane",
       "tier": 2,
@@ -147,7 +147,7 @@
     },
     "bs-boss-4": {
       "id": "bs-boss-4",
-      "name": "The Cipher",
+      "name": "Arcane Scholar",
       "archetype": "Hacker",
       "element": "chaos",
       "tier": 2,
@@ -190,11 +190,11 @@
         }
       ],
       "flavor": "Every system has a flaw.",
-      "portrait": "/blindspot/img/bosses/Crystal-Weaver-10.webp"
+      "portrait": "/blindspot/img/bosses/Arcane-Scholar-01.webp"
     },
     "bs-boss-5": {
       "id": "bs-boss-5",
-      "name": "The Brute",
+      "name": "Warlord Grax",
       "archetype": "Berserker",
       "element": "earth",
       "tier": 3,
@@ -241,7 +241,7 @@
     },
     "bs-boss-6": {
       "id": "bs-boss-6",
-      "name": "The Sage",
+      "name": "Ironclad Sentinel",
       "archetype": "Scholar",
       "element": "arcane",
       "tier": 3,
@@ -284,11 +284,11 @@
         }
       ],
       "flavor": "Knowledge compounds.",
-      "portrait": "/blindspot/img/bosses/Arcane-Scholar-01.webp"
+      "portrait": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp"
     },
     "bs-boss-7": {
       "id": "bs-boss-7",
-      "name": "The Iron",
+      "name": "Titanium Aegis",
       "archetype": "Guardian",
       "element": "fire",
       "tier": 4,
@@ -335,7 +335,7 @@
     },
     "bs-boss-8": {
       "id": "bs-boss-8",
-      "name": "The Trickster",
+      "name": "The Forge King",
       "archetype": "Trickster",
       "element": "chaos",
       "tier": 4,
@@ -378,11 +378,11 @@
         }
       ],
       "flavor": "Probability is just a suggestion.",
-      "portrait": "/blindspot/img/bosses/Void-Harbinger-01.webp"
+      "portrait": "/blindspot/img/bosses/The-Forge-King-01.webp"
     },
     "bs-boss-9": {
       "id": "bs-boss-9",
-      "name": "The Feral",
+      "name": "Void Harbinger",
       "archetype": "Feral",
       "element": "shadow",
       "tier": 5,
@@ -425,11 +425,11 @@
         }
       ],
       "flavor": "Pain stopped mattering long ago.",
-      "portrait": "/blindspot/img/bosses/Gutter-Rat01.webp"
+      "portrait": "/blindspot/img/bosses/Void-Harbinger-01.webp"
     },
     "bs-boss-10": {
       "id": "bs-boss-10",
-      "name": "The Architect",
+      "name": "Crystal Weaver",
       "archetype": "Forger Apex",
       "element": "fire",
       "tier": 5,
@@ -478,7 +478,7 @@
         }
       ],
       "flavor": "This is what a Forger becomes when they never stop.",
-      "portrait": "/blindspot/img/bosses/The-Forge-King-01.webp"
+      "portrait": "/blindspot/img/bosses/Crystal-Weaver-10.webp"
     }
   }
 }

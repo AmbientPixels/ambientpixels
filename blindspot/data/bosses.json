@@ -7,207 +7,460 @@
     "class": "Enforcer",
     "element": "earth",
     "flavor": "Everyone passes through here once.",
-    "combatStats": { "str": 8, "agi": 6, "int": 5, "end": 10, "lck": 4 },
-    "reward": { "type": "stat_bonus", "stat": "str", "amount": 1, "label": "+1 STR" },
+    "combatStats": {
+      "str": 8,
+      "agi": 6,
+      "int": 5,
+      "end": 10,
+      "lck": 4
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "str",
+      "amount": 1,
+      "label": "+1 STR"
+    },
     "avatar": "/blindspot/img/bosses/Gatekeeper-01.webp",
     "weakness": "int",
     "resistances": {},
-    "moveWeaknesses": { "ability": 20, "strike": 10 },
-    "signaturePassive": { "name": "Fortified Start", "desc": "Starts with light armor that fades each round" },
+    "moveWeaknesses": {
+      "ability": 20,
+      "strike": 10
+    },
+    "signaturePassive": {
+      "name": "Fortified Start",
+      "desc": "Starts with light armor that fades each round"
+    },
     "bossTip": "Weak to strikes and abilities. Light armor fades fast — press the attack."
   },
   {
     "boss": 2,
     "id": "bs-boss-2",
     "bossLevel": 102,
-    "name": "The Warden",
+    "name": "Gutter Rat",
     "class": "Fighter",
     "element": "shadow",
     "flavor": "Rules exist for a reason.",
-    "combatStats": { "str": 11, "agi": 7, "int": 6, "end": 11, "lck": 6 },
-    "reward": { "type": "visual", "unlock": "palette_ocean", "label": "Ocean Palette" },
+    "combatStats": {
+      "str": 11,
+      "agi": 7,
+      "int": 6,
+      "end": 11,
+      "lck": 6
+    },
+    "reward": {
+      "type": "visual",
+      "unlock": "palette_ocean",
+      "label": "Ocean Palette"
+    },
     "arenaUnlock": "shadow-pit",
-    "avatar": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp",
+    "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp",
     "weakness": "agi",
-    "resistances": { "ability": 15 },
-    "moveWeaknesses": { "counter": 20 },
-    "signaturePassive": { "name": "Vengeance", "desc": "Hits harder after being crit" },
+    "resistances": {
+      "ability": 15
+    },
+    "moveWeaknesses": {
+      "counter": 20
+    },
+    "signaturePassive": {
+      "name": "Vengeance",
+      "desc": "Hits harder after being crit"
+    },
     "bossTip": "Resists abilities. Counter his strikes for bonus damage. Avoid critting — it enrages him."
   },
   {
     "boss": 3,
     "id": "bs-boss-3",
     "bossLevel": 103,
-    "name": "The Ghost",
+    "name": "Shadow Stalker",
     "class": "Scout",
     "element": "arcane",
     "flavor": "You never see them coming.",
-    "combatStats": { "str": 8, "agi": 12, "int": 7, "end": 9, "lck": 8 },
-    "reward": { "type": "stat_bonus", "stat": "agi", "amount": 1, "label": "+1 AGI" },
+    "combatStats": {
+      "str": 8,
+      "agi": 12,
+      "int": 7,
+      "end": 9,
+      "lck": 8
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "agi",
+      "amount": 1,
+      "label": "+1 AGI"
+    },
     "avatar": "/blindspot/img/bosses/Shadow-Stalker-01.webp",
     "weakness": "lck",
-    "resistances": { "counter": 25 },
-    "moveWeaknesses": { "strike": 15 },
-    "signaturePassive": { "name": "Phase", "desc": "Phases out every 3rd round" },
+    "resistances": {
+      "counter": 25
+    },
+    "moveWeaknesses": {
+      "strike": 15
+    },
+    "signaturePassive": {
+      "name": "Phase",
+      "desc": "Phases out every 3rd round"
+    },
     "bossTip": "Weak to strikes. Counters won't work well. Every 3rd round he phases out — save your big hits."
   },
   {
     "boss": 4,
     "id": "bs-boss-4",
     "bossLevel": 104,
-    "name": "The Cipher",
+    "name": "Arcane Scholar",
     "class": "Hacker",
     "element": "chaos",
     "flavor": "Every system has a flaw.",
-    "combatStats": { "str": 6, "agi": 9, "int": 12, "end": 9, "lck": 9 },
-    "reward": { "type": "visual", "unlock": "palette_neon", "label": "Neon Palette" },
+    "combatStats": {
+      "str": 6,
+      "agi": 9,
+      "int": 12,
+      "end": 9,
+      "lck": 9
+    },
+    "reward": {
+      "type": "visual",
+      "unlock": "palette_neon",
+      "label": "Neon Palette"
+    },
     "arenaUnlock": "forge-grounds",
-    "avatar": "/blindspot/img/bosses/Crystal-Weaver-10.webp",
+    "avatar": "/blindspot/img/bosses/Arcane-Scholar-01.webp",
     "weakness": "str",
-    "resistances": { "strike": 20 },
-    "moveWeaknesses": { "ability": 15 },
-    "signaturePassive": { "name": "Hack", "desc": "Steals your charges when hitting you" },
+    "resistances": {
+      "strike": 20
+    },
+    "moveWeaknesses": {
+      "ability": 15
+    },
+    "signaturePassive": {
+      "name": "Hack",
+      "desc": "Steals your charges when hitting you"
+    },
     "bossTip": "Steals your charges on hit. Guard to avoid losing charges. Abilities deal bonus damage."
   },
   {
     "boss": 5,
     "id": "bs-boss-5",
     "bossLevel": 105,
-    "name": "The Brute",
+    "name": "Warlord Grax",
     "class": "Berserker",
     "element": "earth",
     "flavor": "Subtlety is for cowards.",
-    "combatStats": { "str": 17, "agi": 10, "int": 5, "end": 14, "lck": 8 },
-    "reward": { "type": "title", "title": "Proven", "label": "Title: Proven" },
+    "combatStats": {
+      "str": 17,
+      "agi": 10,
+      "int": 5,
+      "end": 14,
+      "lck": 8
+    },
+    "reward": {
+      "type": "title",
+      "title": "Proven",
+      "label": "Title: Proven"
+    },
     "avatar": "/blindspot/img/bosses/Warlord-Grax01.webp",
     "weakness": "end",
-    "resistances": { "ability": 15, "counter": 15 },
+    "resistances": {
+      "ability": 15,
+      "counter": 15
+    },
     "moveWeaknesses": {},
-    "signaturePassive": { "name": "Rage", "desc": "Deals +40% damage below 30% HP" },
+    "signaturePassive": {
+      "name": "Rage",
+      "desc": "Deals +40% damage below 30% HP"
+    },
     "bossTip": "No move weakness. Resists abilities and counters. Kill fast — Rage below 30% HP is brutal."
   },
   {
     "boss": 6,
     "id": "bs-boss-6",
     "bossLevel": 106,
-    "name": "The Sage",
+    "name": "Ironclad Sentinel",
     "class": "Scholar",
     "element": "arcane",
     "flavor": "Knowledge compounds.",
-    "combatStats": { "str": 6, "agi": 9, "int": 17, "end": 12, "lck": 12 },
-    "reward": { "type": "visual", "unlock": "container_fullbleed", "label": "Full Art Layout" },
+    "combatStats": {
+      "str": 6,
+      "agi": 9,
+      "int": 17,
+      "end": 12,
+      "lck": 12
+    },
+    "reward": {
+      "type": "visual",
+      "unlock": "container_fullbleed",
+      "label": "Full Art Layout"
+    },
     "arenaUnlock": "crystal-sanctum",
-    "avatar": "/blindspot/img/bosses/Arcane-Scholar-01.webp",
+    "avatar": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp",
     "weakness": "str",
-    "resistances": { "strike": 20 },
-    "moveWeaknesses": { "counter": 20 },
-    "signaturePassive": { "name": "Leech", "desc": "Drains HP equal to 15% of damage dealt" },
+    "resistances": {
+      "strike": 20
+    },
+    "moveWeaknesses": {
+      "counter": 20
+    },
+    "signaturePassive": {
+      "name": "Leech",
+      "desc": "Drains HP equal to 15% of damage dealt"
+    },
     "bossTip": "Heals from damage dealt. Counter his attacks for bonus damage. Strikes are resisted."
   },
   {
     "boss": 7,
     "id": "bs-boss-7",
     "bossLevel": 107,
-    "name": "The Iron",
+    "name": "Titanium Aegis",
     "class": "Guardian",
     "element": "fire",
     "flavor": "Nothing gets through.",
-    "combatStats": { "str": 11, "agi": 7, "int": 8, "end": 18, "lck": 10 },
-    "reward": { "type": "stat_bonus", "stat": "end", "amount": 2, "label": "+2 END" },
+    "combatStats": {
+      "str": 11,
+      "agi": 7,
+      "int": 8,
+      "end": 18,
+      "lck": 10
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "end",
+      "amount": 2,
+      "label": "+2 END"
+    },
     "avatar": "/blindspot/img/bosses/Titanium-Aegis-01.webp",
     "weakness": "int",
-    "resistances": { "strike": 25, "ability": 10 },
-    "moveWeaknesses": { "counter": 15 },
-    "signaturePassive": { "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round" },
+    "resistances": {
+      "strike": 25,
+      "ability": 10
+    },
+    "moveWeaknesses": {
+      "counter": 15
+    },
+    "signaturePassive": {
+      "name": "Fortified Start",
+      "desc": "Starts with heavy armor that fades each round"
+    },
     "bossTip": "Heavily resists strikes. Counter is your best option. Armor fades — survive the early rounds."
   },
   {
     "boss": 8,
     "id": "bs-boss-8",
     "bossLevel": 108,
-    "name": "The Trickster",
+    "name": "The Forge King",
     "class": "Trickster",
     "element": "chaos",
     "flavor": "Probability is just a suggestion.",
-    "combatStats": { "str": 12, "agi": 13, "int": 12, "end": 11, "lck": 16 },
-    "reward": { "type": "visual", "unlock": "palette_fire", "label": "Fire Palette" },
+    "combatStats": {
+      "str": 12,
+      "agi": 13,
+      "int": 12,
+      "end": 11,
+      "lck": 16
+    },
+    "reward": {
+      "type": "visual",
+      "unlock": "palette_fire",
+      "label": "Fire Palette"
+    },
     "arenaUnlock": "void-rift",
-    "avatar": "/blindspot/img/bosses/Void-Harbinger-01.webp",
+    "avatar": "/blindspot/img/bosses/The-Forge-King-01.webp",
     "weakness": "lck",
-    "resistances": { "counter": 20 },
-    "moveWeaknesses": { "strike": 10, "ability": 10 },
-    "signaturePassive": { "name": "Mirror", "desc": "25% chance to copy your last move" },
+    "resistances": {
+      "counter": 20
+    },
+    "moveWeaknesses": {
+      "strike": 10,
+      "ability": 10
+    },
+    "signaturePassive": {
+      "name": "Mirror",
+      "desc": "25% chance to copy your last move"
+    },
     "bossTip": "Copies your moves. Mix up your strategy. Strikes and abilities both deal bonus damage."
   },
   {
     "boss": 9,
     "id": "bs-boss-9",
     "bossLevel": 109,
-    "name": "The Feral",
+    "name": "Void Harbinger",
     "class": "Berserker",
     "element": "shadow",
     "flavor": "Pain stopped mattering long ago.",
-    "combatStats": { "str": 18, "agi": 12, "int": 6, "end": 16, "lck": 10 },
-    "reward": { "type": "stat_bonus", "stat": "str", "amount": 2, "label": "+2 STR" },
-    "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp",
+    "combatStats": {
+      "str": 18,
+      "agi": 12,
+      "int": 6,
+      "end": 16,
+      "lck": 10
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "str",
+      "amount": 2,
+      "label": "+2 STR"
+    },
+    "avatar": "/blindspot/img/bosses/Void-Harbinger-01.webp",
     "weakness": "agi",
-    "resistances": { "ability": 10 },
-    "moveWeaknesses": { "counter": 15 },
-    "signaturePassive": { "name": "Enrage", "desc": "Damage increases 5% every round" },
+    "resistances": {
+      "ability": 10
+    },
+    "moveWeaknesses": {
+      "counter": 15
+    },
+    "signaturePassive": {
+      "name": "Enrage",
+      "desc": "Damage increases 5% every round"
+    },
     "bossTip": "Gets stronger every round. Counter his strikes. End the fight fast before Enrage stacks."
   },
   {
     "boss": 10,
     "id": "bs-boss-10",
     "bossLevel": 110,
-    "name": "The Architect",
+    "name": "Crystal Weaver",
     "class": "Caster",
     "element": "fire",
     "flavor": "This is what a Forger becomes when they never stop.",
-    "combatStats": { "str": 10, "agi": 11, "int": 19, "end": 15, "lck": 15 },
-    "reward": { "type": "title", "title": "Forged", "label": "Title: Forged" },
+    "combatStats": {
+      "str": 10,
+      "agi": 11,
+      "int": 19,
+      "end": 15,
+      "lck": 15
+    },
+    "reward": {
+      "type": "title",
+      "title": "Forged",
+      "label": "Title: Forged"
+    },
     "arenaUnlock": "throne",
-    "avatar": "/blindspot/img/bosses/The-Forge-King-01.webp",
+    "avatar": "/blindspot/img/bosses/Crystal-Weaver-10.webp",
     "weakness": "end",
-    "resistances": { "strike": 15, "counter": 20 },
+    "resistances": {
+      "strike": 15,
+      "counter": 20
+    },
     "moveWeaknesses": {},
-    "signaturePassive": { "name": "Leech", "desc": "Drains HP equal to 10% of damage dealt" },
+    "signaturePassive": {
+      "name": "Leech",
+      "desc": "Drains HP equal to 10% of damage dealt"
+    },
     "bossTip": "No move weakness. Resists strikes and counters. Heals from damage. Outlast him with endurance."
   },
   {
-    "boss": 0, "id": "bs-weekly-1", "bossLevel": 201, "name": "The Revenant", "class": "Berserker", "element": "fire",
+    "boss": 0,
+    "id": "bs-weekly-1",
+    "bossLevel": 201,
+    "name": "The Revenant",
+    "class": "Berserker",
+    "element": "fire",
     "flavor": "I keep coming back.",
-    "combatStats": { "str": 16, "agi": 9, "int": 7, "end": 17, "lck": 11 },
-    "reward": { "type": "stat_bonus", "stat": "str", "amount": 2, "label": "+2 STR" },
-    "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp", "weekly": true,
-    "signaturePassive": { "name": "Rage", "desc": "Deals +40% damage below 30% HP" },
+    "combatStats": {
+      "str": 16,
+      "agi": 9,
+      "int": 7,
+      "end": 17,
+      "lck": 11
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "str",
+      "amount": 2,
+      "label": "+2 STR"
+    },
+    "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp",
+    "weekly": true,
+    "signaturePassive": {
+      "name": "Rage",
+      "desc": "Deals +40% damage below 30% HP"
+    },
     "bossTip": "Berserker with Rage. Kill fast before he drops below 30% HP."
   },
   {
-    "boss": 0, "id": "bs-weekly-2", "bossLevel": 202, "name": "The Mirage", "class": "Trickster", "element": "chaos",
+    "boss": 0,
+    "id": "bs-weekly-2",
+    "bossLevel": 202,
+    "name": "The Mirage",
+    "class": "Trickster",
+    "element": "chaos",
     "flavor": "Was I ever really here?",
-    "combatStats": { "str": 8, "agi": 17, "int": 10, "end": 9, "lck": 18 },
-    "reward": { "type": "stat_bonus", "stat": "lck", "amount": 2, "label": "+2 LCK" },
-    "avatar": "/blindspot/img/bosses/Void-Harbinger-01.webp", "weekly": true,
-    "signaturePassive": { "name": "Phase", "desc": "Phases out every 3rd round" },
+    "combatStats": {
+      "str": 8,
+      "agi": 17,
+      "int": 10,
+      "end": 9,
+      "lck": 18
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "lck",
+      "amount": 2,
+      "label": "+2 LCK"
+    },
+    "avatar": "/blindspot/img/bosses/Void-Harbinger-01.webp",
+    "weekly": true,
+    "signaturePassive": {
+      "name": "Phase",
+      "desc": "Phases out every 3rd round"
+    },
     "bossTip": "Phases out every 3rd round. Time your strikes. Counter his attacks for bonus damage."
   },
   {
-    "boss": 0, "id": "bs-weekly-3", "bossLevel": 203, "name": "The Colossus", "class": "Guardian", "element": "earth",
+    "boss": 0,
+    "id": "bs-weekly-3",
+    "bossLevel": 203,
+    "name": "The Colossus",
+    "class": "Guardian",
+    "element": "earth",
     "flavor": "You'll need more than that.",
-    "combatStats": { "str": 10, "agi": 6, "int": 9, "end": 19, "lck": 12 },
-    "reward": { "type": "stat_bonus", "stat": "end", "amount": 2, "label": "+2 END" },
-    "avatar": "/blindspot/img/bosses/Titanium-Aegis-01.webp", "weekly": true,
-    "signaturePassive": { "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round" },
+    "combatStats": {
+      "str": 10,
+      "agi": 6,
+      "int": 9,
+      "end": 19,
+      "lck": 12
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "end",
+      "amount": 2,
+      "label": "+2 END"
+    },
+    "avatar": "/blindspot/img/bosses/Titanium-Aegis-01.webp",
+    "weekly": true,
+    "signaturePassive": {
+      "name": "Fortified Start",
+      "desc": "Starts with heavy armor that fades each round"
+    },
     "bossTip": "Heavily resists strikes. Use abilities to pierce. Armor fades over time."
   },
   {
-    "boss": 0, "id": "bs-weekly-4", "bossLevel": 204, "name": "The Oracle", "class": "Caster", "element": "arcane",
+    "boss": 0,
+    "id": "bs-weekly-4",
+    "bossLevel": 204,
+    "name": "The Oracle",
+    "class": "Caster",
+    "element": "arcane",
     "flavor": "I already know your next move.",
-    "combatStats": { "str": 7, "agi": 11, "int": 18, "end": 11, "lck": 14 },
-    "reward": { "type": "stat_bonus", "stat": "int", "amount": 2, "label": "+2 INT" },
-    "avatar": "/blindspot/img/bosses/Crystal-Weaver-10.webp", "weekly": true,
-    "signaturePassive": { "name": "Hack", "desc": "Steals your charges when hitting you" },
+    "combatStats": {
+      "str": 7,
+      "agi": 11,
+      "int": 18,
+      "end": 11,
+      "lck": 14
+    },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "int",
+      "amount": 2,
+      "label": "+2 INT"
+    },
+    "avatar": "/blindspot/img/bosses/Crystal-Weaver-10.webp",
+    "weekly": true,
+    "signaturePassive": {
+      "name": "Hack",
+      "desc": "Steals your charges when hitting you"
+    },
     "bossTip": "Steals charges on hit. Guard often. Strike for bonus damage."
   }
 ]
