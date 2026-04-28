@@ -118,7 +118,7 @@
           <span class="bs-forge-stat__base">${currentStats[d.key]}</span>
           <span class="bs-forge-stat__arrow">\u2192</span>
           <input type="range" class="bs-forge-stat__slider" data-stat="${d.key}"
-                 min="${currentStats[d.key]}" max="100" value="${currentStats[d.key]}">
+                 min="0" max="100" value="${currentStats[d.key]}">
           <span class="bs-forge-stat__value" data-stat="${d.key}">${currentStats[d.key]}</span>
         </div>
       `).join('')}
