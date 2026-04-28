@@ -710,9 +710,13 @@
 
     _selectedCard.combatStats = newStats;
 
-    // Apply visual selections from Look tab
-    const selectedPalette = panel.querySelector('.bs-forge-option--selected[data-palette]');
-    const selectedContainer = panel.querySelector('.bs-forge-option--selected[data-container]');
+    // Apply visual selections from Look tab. Click handlers tag the
+    // chosen swatch/card with `bs-forge-palette-swatch--selected` and
+    // `bs-forge-container-card--selected`. The legacy query for
+    // `.bs-forge-option--selected` matched neither, so palette /
+    // container changes silently dropped on save (toast still fired).
+    const selectedPalette = panel.querySelector('.bs-forge-palette-swatch--selected[data-palette]');
+    const selectedContainer = panel.querySelector('.bs-forge-container-card--selected[data-container]');
     if (selectedPalette) _selectedCard.palette = selectedPalette.dataset.palette;
     if (selectedContainer) _selectedCard.imageContainer = selectedContainer.dataset.container;
 
