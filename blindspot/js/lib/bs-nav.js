@@ -40,6 +40,11 @@
       }
     };
     document.getElementById('bs-play-btn')?.addEventListener('click', enterArena);
+    // Lobby Campaign entry points — both wire to the same openCampaign handler.
+    // - bs-campaign-viewall: inline "View all →" link in the Campaign section header
+    // - bs-btn-campaign: quicklinks card between Sparks Shop and How to Play
+    document.getElementById('bs-campaign-viewall')?.addEventListener('click', openCampaign);
+    document.getElementById('bs-btn-campaign')?.addEventListener('click', openCampaign);
     // The lower nav 'Boss Codex' card replaced the redundant 'Campaign' card —
     // the boss rail above already serves as the campaign destination, so the
     // codex repurposes this slot as a lore/intel overview.

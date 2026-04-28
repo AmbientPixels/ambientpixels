@@ -313,6 +313,36 @@ body.bs-page {
   color: var(--blindspot-accent);
 }
 
+/* Inline "View all →" link in section headers — pinned to the right of
+   the count meta. Mono-caps to match the meta, gold to match the
+   campaign call-to-action. Background-less button so it reads as a
+   text link, not a primary CTA. */
+.blindspot-section-link {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  background: transparent;
+  border: 0;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold, #F5C078);
+  transition: color 160ms ease, transform 160ms ease;
+}
+.blindspot-section-link:hover,
+.blindspot-section-link:focus-visible {
+  color: var(--blindspot-text);
+  transform: translateX(2px);
+}
+.blindspot-section-link i {
+  font-size: 0.8em;
+  opacity: 0.85;
+}
+
 /* ---------- BOUNTIES ---------- */
 .blindspot-bounties {
   display: flex;
