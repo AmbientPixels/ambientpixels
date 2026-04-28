@@ -1780,7 +1780,10 @@
 
     const displayWins = Math.min(Math.floor(wins), needed);
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
-    if (label) label.textContent = 'CARD FORGE \u00b7 ' + displayWins + '/' + needed;
+    // Once unlocked, the wins/needed count is misleading (it looks like
+    // progress toward an unlock that's already been granted). Swap the
+    // label to a "ready" state instead.
+    if (label) label.textContent = ready ? 'CARD FORGE READY' : 'CARD FORGE \u00b7 ' + displayWins + '/' + needed;
     if (hint) hint.textContent = ready ? 'Customize your card' : 'Win campaign fights to unlock';
     if (fill) fill.style.setProperty('--bar-pct', pct / 100);
     if (container) {
