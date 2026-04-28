@@ -355,10 +355,23 @@ window.ArenaBattleUI = (function () {
       barEl.appendChild(frag);
       existing = barEl.querySelectorAll('.arena-stamina-pip');
     }
-    var clamped = Math.max(0, Math.min(capped, current | 0));
+    // When max ≤ pip cap, each pip = 1 stamina unit (direct mapping).
+    // When max > pip cap (e.g. 38), pips represent fractions of the
+    // pool and we render proportionally — otherwise current stays
+    // clamped to the cap and pips never visually deplete.
+    var filled;
+    if ((max | 0) <= capped) {
+      filled = Math.max(0, Math.min(capped, current | 0));
+    } else {
+      var frac = (max > 0) ? Math.max(0, Math.min(1, current / max)) : 0;
+      filled = Math.round(frac * capped);
+      // Clamp so 1 stamina still shows at least 1 pip and < max never shows full.
+      if (current > 0 && filled === 0) filled = 1;
+      if (current < max && filled >= capped) filled = capped - 1;
+    }
     for (var j = 0; j < existing.length; j++) {
-      existing[j].classList.toggle('arena-stamina-pip--filled', j < clamped);
-      existing[j].classList.toggle('arena-stamina-pip--empty', j >= clamped);
+      existing[j].classList.toggle('arena-stamina-pip--filled', j < filled);
+      existing[j].classList.toggle('arena-stamina-pip--empty', j >= filled);
     }
   }
 
