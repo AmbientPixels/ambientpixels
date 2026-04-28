@@ -187,7 +187,7 @@
         <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Avatar</label>
         <div class="bs-forge-avatar-tabs" style="display:flex; gap:0.25rem; margin-bottom:0.5rem;">
           <button class="bs-forge-avt-tab bs-forge-avt-tab--active" data-avt-tab="gallery" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text); cursor:pointer;"><i class="fas fa-images"></i> Gallery</button>
-          <button class="bs-forge-avt-tab" data-avt-tab="ai" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-wand-magic-sparkles"></i> AI Generate</button>
+          <button class="bs-forge-avt-tab" data-avt-tab="ai" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>
           <button class="bs-forge-avt-tab" data-avt-tab="url" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-link"></i> URL</button>
         </div>
         <div id="bs-forge-avt-gallery" class="bs-forge-avt-content">
@@ -594,7 +594,7 @@
       { src: '/images/image-packs/characters/hero03.jpg', label: 'Hero III' }
     ].forEach(function(a) { if (!avatars.find(function(x) { return x.src === a.src; })) avatars.push(a); });
     if (avatars.length === 0) {
-      grid.innerHTML = '<div style="text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;">No cards yet. Use AI Generate or paste a URL.</div>';
+      grid.innerHTML = '<div style="text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;">No cards yet. Use Generate or paste a URL.</div>';
       return;
     }
     // Paginated gallery — 8 per page
