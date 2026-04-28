@@ -1633,11 +1633,20 @@
     const countEl = document.getElementById('bs-campaign-count');
     if (countEl) countEl.textContent = beaten + ' / 10 BOSSES';
 
-    // Per-pip is-done state
+    // Per-pip three-state visual: defeated / current (next-up) / locked.
+    // Defeated pips render with the green check; current pip gets a gold
+    // call-to-action treatment; locked pips dim further with a lock badge
+    // and don't lie on hover. Click routing in bs-nav.js mirrors this
+    // (defeated + current → prefight, locked → toast, no navigation).
     const pips = document.querySelectorAll('.blindspot-boss-pip[data-boss-index]');
     pips.forEach(function (pip) {
       const idx = Number(pip.getAttribute('data-boss-index')) || 0;
-      pip.classList.toggle('is-done', idx > 0 && idx <= beaten);
+      const defeated = idx > 0 && idx <= beaten;
+      const current = idx === beaten + 1;
+      const locked = idx > beaten + 1;
+      pip.classList.toggle('is-done', defeated);
+      pip.classList.toggle('blindspot-boss-pip--current', current);
+      pip.classList.toggle('blindspot-boss-pip--locked', locked);
     });
 
     // CTA label \u2014 derive from the SAME source as the count + pips

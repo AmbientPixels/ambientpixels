@@ -421,6 +421,54 @@ body.bs-page {
   font-size: 0.6rem;
 }
 .blindspot-boss-pip.is-done .blindspot-boss-pip__check { display: flex; }
+
+/* Current — your next-up boss, the call-to-action.
+   Bright + amber border + soft glow so the player reads it as
+   "click here next" without confusion. Outranks the default dim
+   filter via a more specific selector. */
+.blindspot-boss-pip--current .blindspot-boss-pip__img {
+  filter: none;
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.45);
+}
+.blindspot-boss-pip--current .blindspot-boss-pip__num {
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+
+/* Locked — beyond your progression. Dimmed past the default state +
+   small lock badge mirroring the green check slot. Critically: hover
+   does NOT clear the filter, so the visual matches the click result
+   (which now toasts instead of navigating). */
+.blindspot-boss-pip--locked {
+  cursor: not-allowed;
+}
+.blindspot-boss-pip--locked .blindspot-boss-pip__img {
+  filter: grayscale(0.95) brightness(0.45);
+}
+.blindspot-boss-pip--locked:hover .blindspot-boss-pip__img,
+.blindspot-boss-pip--locked:focus-visible .blindspot-boss-pip__img {
+  filter: grayscale(0.95) brightness(0.45);
+  transform: none;
+  border-color: var(--blindspot-border-2);
+}
+/* Lock icon overlay — same slot as the green check (top-right corner). */
+.blindspot-boss-pip--locked .blindspot-boss-pip__img::after {
+  content: '\f023'; /* fa-lock */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--blindspot-text-muted, #7A5E4C);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+}
 .blindspot-boss-pip__num {
   font-family: var(--blindspot-font-mono);
   font-size: 0.6rem;

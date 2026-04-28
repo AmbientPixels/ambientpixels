@@ -73,8 +73,12 @@
         _cb.showOverlay('bs-prefight-overlay');
         _cb.setupPrefightButtons(boss.id);
       } else {
-        _cb.showScreen('campaign');
-        _cb.renderCampaignLadder();
+        // Locked — toast feedback instead of an unexpected screen change.
+        // Players were getting silently dropped on the campaign page
+        // when they clicked a boss that's beyond their progression.
+        if (_cb.showErrorToast) {
+          _cb.showErrorToast('Defeat boss ' + (highest + 1) + ' to unlock this fight');
+        }
       }
     });
 
