@@ -318,6 +318,18 @@ window.ArenaBattleUI = (function () {
     // Color shifts at low HP
     if (playerFill) playerFill.classList.toggle('arena-hp-bar__fill--low', playerPct < 30);
     if (opponentFill) opponentFill.classList.toggle('arena-hp-bar__fill--low', opponentPct < 30);
+
+    // Dynamic panel border color tracks HP — high/mid/low. CSS handles
+    // the actual border colors + smooth transition; JS just toggles the
+    // class so the right rule wins. Symmetric for player + opponent.
+    function setPanelHpClass(panel, pct) {
+      if (!panel) return;
+      panel.classList.toggle('arena-combatant--hp-high', pct >= 66);
+      panel.classList.toggle('arena-combatant--hp-mid', pct >= 33 && pct < 66);
+      panel.classList.toggle('arena-combatant--hp-low', pct < 33);
+    }
+    setPanelHpClass(document.getElementById('arena-player-side'), playerPct);
+    setPanelHpClass(document.getElementById('arena-opponent-side'), opponentPct);
   }
 
   // Generate / refresh the stamina pip elements inside a bar. Each

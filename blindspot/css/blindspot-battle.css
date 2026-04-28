@@ -20,7 +20,7 @@
    on index.html would fight it. */
 .bs-screen.active#bs-screen-battle.blindspot-battle {
   position: relative;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 69px);
   max-width: none;
   margin: 0;
   padding: 0;
@@ -35,7 +35,7 @@
 }
 #bs-battle-container.blindspot-battle {
   position: relative;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 69px);
   max-width: none;
   margin: 0;
   padding: 0;
@@ -71,7 +71,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 69px);
   max-width: 1480px;
   margin: 0 auto;
 }
@@ -1007,16 +1007,57 @@
   border-radius: var(--blindspot-radius-card);
   backdrop-filter: blur(6px);
 }
-/* Panels both use the same accent token + identical inner glow weight.
-   Player gets the border on the right (toward VS), opponent on the left
-   (toward VS) — same visual language; both edges face the centerline. */
+/* Panels both use a dynamic accent that tracks HP — green at high
+   health, gold at mid, red at low. JS (updateHpBars) toggles the
+   --hp-high / --hp-mid / --hp-low class on each panel; rules below
+   set border + glow per state with a smooth transition. The default
+   (no class) renders red so an unstarted battle still reads as
+   "danger" before the first HP write. */
 #bs-screen-battle.blindspot-battle .arena-combatant--player , #bs-battle-container.blindspot-battle .arena-combatant--player  {
   border-left: 2px solid var(--blindspot-accent);
   box-shadow: inset 4px 0 16px -10px rgba(200, 48, 44, 0.45);
+  transition: border-color 600ms ease, box-shadow 600ms ease;
 }
 #bs-screen-battle.blindspot-battle .arena-combatant--opponent , #bs-battle-container.blindspot-battle .arena-combatant--opponent  {
   border-right: 2px solid var(--blindspot-accent);
   box-shadow: inset -4px 0 16px -10px rgba(200, 48, 44, 0.45);
+  transition: border-color 600ms ease, box-shadow 600ms ease;
+}
+
+/* HP tier 1 — high (≥66%): green */
+#bs-screen-battle.blindspot-battle .arena-combatant--player.arena-combatant--hp-high,
+#bs-battle-container.blindspot-battle .arena-combatant--player.arena-combatant--hp-high {
+  border-left-color: #6E9F4A;
+  box-shadow: inset 4px 0 16px -10px rgba(110, 159, 74, 0.5);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent.arena-combatant--hp-high,
+#bs-battle-container.blindspot-battle .arena-combatant--opponent.arena-combatant--hp-high {
+  border-right-color: #6E9F4A;
+  box-shadow: inset -4px 0 16px -10px rgba(110, 159, 74, 0.5);
+}
+
+/* HP tier 2 — mid (33–65%): gold */
+#bs-screen-battle.blindspot-battle .arena-combatant--player.arena-combatant--hp-mid,
+#bs-battle-container.blindspot-battle .arena-combatant--player.arena-combatant--hp-mid {
+  border-left-color: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: inset 4px 0 16px -10px rgba(245, 192, 120, 0.5);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent.arena-combatant--hp-mid,
+#bs-battle-container.blindspot-battle .arena-combatant--opponent.arena-combatant--hp-mid {
+  border-right-color: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: inset -4px 0 16px -10px rgba(245, 192, 120, 0.5);
+}
+
+/* HP tier 3 — low (<33%): red, slightly stronger glow for urgency */
+#bs-screen-battle.blindspot-battle .arena-combatant--player.arena-combatant--hp-low,
+#bs-battle-container.blindspot-battle .arena-combatant--player.arena-combatant--hp-low {
+  border-left-color: #ef4444;
+  box-shadow: inset 4px 0 18px -8px rgba(239, 68, 68, 0.65);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--opponent.arena-combatant--hp-low,
+#bs-battle-container.blindspot-battle .arena-combatant--opponent.arena-combatant--hp-low {
+  border-right-color: #ef4444;
+  box-shadow: inset -4px 0 18px -8px rgba(239, 68, 68, 0.65);
 }
 #bs-screen-battle.blindspot-battle .arena-combatant__name , #bs-battle-container.blindspot-battle .arena-combatant__name  {
   font-family: var(--blindspot-font-display);
@@ -1041,10 +1082,19 @@
   backdrop-filter: blur(8px);
   font-family: var(--blindspot-font-body);
   padding: 0.45rem 0.85rem;
-  /* Bumped 90 → 140 so the log shows ~5 entries without scrolling.
-     Hidden scrollbars (below) keep the chrome out of the way when
-     more entries do exist. */
-  max-height: 140px;
+  /* flex: 1 so the log grows to fill any leftover vertical inside
+     the .arena-battle flex column (stage + moves at content height,
+     log absorbs the rest) — without pushing past the viewport
+     because the parent caps at calc(100vh - 69px). min-height keeps
+     a sensible floor when there's not much room.
+     `height: auto; max-height: none` explicitly override the legacy
+     `.bs-page .arena-battle__log { height: 56px; max-height: 56px }`
+     rule in blindspot.css:3048 (desktop @media block) which would
+     otherwise lock the log at 56px regardless of flex-grow. */
+  flex: 1;
+  height: auto;
+  min-height: 80px;
+  max-height: none;
   overflow-y: auto;
   margin: 0;
   /* Hide scrollbars cross-browser. Firefox uses scrollbar-width,
@@ -1080,7 +1130,7 @@
   /* Fill the screen so the log can use margin-top: auto to anchor to the
      bottom edge instead of floating mid-screen. Matches the screen wrapper's
      min-height so the flex column actually has space to distribute. */
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 69px);
 }
 
 /* ---------- UTILITY CLUSTER — INLINE BELOW STANCES ----------
