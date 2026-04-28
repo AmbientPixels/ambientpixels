@@ -84,6 +84,7 @@ function createDefaultProfile(userId) {
   return {
     userId,
     sparks: 0,
+    xp: 0,
     highestBoss: 0,
     totalWins: 0,
     totalBounties: 0,
@@ -133,7 +134,7 @@ function mergeProfiles(server, client) {
 
   // Numeric fields — keep higher value
   const numericKeys = [
-    'sparks', 'highestBoss', 'totalWins', 'totalBounties',
+    'sparks', 'xp', 'highestBoss', 'totalWins', 'totalBounties',
     'bestStreak', 'ascension', 'towerBest', 'forgeVisits'
   ];
   for (const key of numericKeys) {
@@ -315,6 +316,20 @@ module.exports = async function (context, req) {
         await uploadJsonBlob(containerClient, profilePath, profile);
         isNew = true;
         context.log(`[Blindspot] Created new profile for user ${userId}`);
+      }
+
+      // Backfill xp for existing players whose profile predates the field.
+      // Derive a reasonable starting value from their existing progress so the
+      // rank bar isn't artificially zeroed out on first load post-deploy.
+      // Formula: 100 per campaign boss defeated + 25 per non-first-kill win + 25 per best streak.
+      if (typeof profile.xp !== 'number') {
+        const derivedXp =
+          (profile.highestBoss || 0) * 100 +
+          Math.max(0, (profile.totalWins || 0) - (profile.highestBoss || 0)) * 25 +
+          (profile.bestStreak || 0) * 25;
+        profile.xp = derivedXp;
+        await uploadJsonBlob(containerClient, profilePath, profile);
+        context.log(`[Blindspot] Backfilled xp to ${derivedXp} for user ${userId} (boss=${profile.highestBoss}, wins=${profile.totalWins}, streak=${profile.bestStreak})`);
       }
 
       // Backfill peakRank for existing players who don't have it yet

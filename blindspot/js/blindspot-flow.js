@@ -310,6 +310,18 @@
   // Sparks — universal currency earned from all activities, spent on cosmetics
   function getSparks() { return _progress.sparks; }
   function addSparks(n) { _progress.sparks += Math.max(0, n); }
+
+  // XP — rank progression. Awarded on PvE wins (and PvP / bounties later).
+  // _progress.xp is the client mirror (synced to server via syncProfile).
+  // _profile.xp is what updateRankDisplay reads, so we keep both in sync.
+  function getXp() { return _progress.xp || 0; }
+  function addXp(n) {
+    var amount = Math.max(0, n | 0);
+    if (amount === 0) return;
+    _progress.xp = (_progress.xp || 0) + amount;
+    if (_profile) _profile.xp = _progress.xp;
+    if (typeof updateRankDisplay === 'function') updateRankDisplay();
+  }
   function spendSparks(n) {
     if (n > _progress.sparks) return false;
     _progress.sparks -= n;
@@ -847,7 +859,7 @@
         getProgress: function() { return _progress; }
       });
       if (_Br.setCallbacks) _Br.setCallbacks({
-        playSfx: playSfx, addSparks: addSparks, showSuccessToast: showSuccessToast,
+        playSfx: playSfx, addSparks: addSparks, addXp: addXp, showSuccessToast: showSuccessToast,
         showOverlay: showOverlay, safeLSSet: safeLSSet, syncProgressToServer: syncProgressToServer,
         getCardPower: getCardPower,
         // State accessors

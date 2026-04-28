@@ -39,7 +39,7 @@ window.BsState = (function () {
   // ============================================================
 
   var _progress = {
-    sparks: 0, highestBoss: 0, totalWins: 0, totalBounties: 0,
+    sparks: 0, xp: 0, highestBoss: 0, totalWins: 0, totalBounties: 0,
     winStreak: 0, bestStreak: 0, ascension: 0,
     towerFloor: 0, towerBest: 0, forgeWins: 0, forgeVisits: 0,
     cardTitle: '', selectedCardId: null,
@@ -135,6 +135,7 @@ window.BsState = (function () {
     function gi(k, d) { return parseInt(localStorage.getItem(k) || String(d), 10); }
     function gj(k, d) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch (e) { return d; } }
     _progress.sparks = gi('bs-sparks', 0);
+    _progress.xp = gi('bs-xp', 0);
     _progress.highestBoss = gi('bs-highest-boss', 0);
     _progress.totalWins = gi('bs-total-wins', 0);
     _progress.totalBounties = gi('bs-total-bounties', 0);

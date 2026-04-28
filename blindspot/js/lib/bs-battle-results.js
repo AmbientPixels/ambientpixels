@@ -19,6 +19,7 @@
 
   function playSfx(n) { if (_cb.playSfx) _cb.playSfx(n); }
   function addSparks(n) { if (_cb.addSparks) _cb.addSparks(n); }
+  function addXp(n) { if (_cb.addXp) _cb.addXp(n); }
   function showSuccessToast(m) { if (_cb.showSuccessToast) _cb.showSuccessToast(m); }
   function showOverlay(id) { if (_cb.showOverlay) _cb.showOverlay(id); }
   function safeLSSet(k, v) { if (_cb.safeLSSet) _cb.safeLSSet(k, v); }
@@ -400,6 +401,19 @@
       var isNewBossDefeat = !isWeekly && boss && boss.boss > prevHighest;
 
       if (boss && !isWeekly) setHighestBossDefeated(boss.boss);
+
+      // XP award — feeds the lobby rank bar (Bronze → Diamond, 0..7000).
+      // New campaign boss: 100 | Replay: 25 | Weekly first-kill: 200
+      // Plus streak bonus: 5 × current streak, capped at 50.
+      // isWeeklyRewardClaimed() is still false at this point on the first
+      // weekly kill — the existing weekly block (below) is what marks it
+      // claimed, so the +200 only fires on first kill of the week.
+      var xpDelta = 0;
+      if (isNewBossDefeat) xpDelta += 100;
+      else if (!isWeekly) xpDelta += 25;
+      if (isWeekly && !isWeeklyRewardClaimed()) xpDelta += 200;
+      xpDelta += Math.min(50, getWinStreak() * 5);
+      addXp(xpDelta);
 
       // Forge progression: any win grants progress, new bosses give more
       if (isNewBossDefeat) {
