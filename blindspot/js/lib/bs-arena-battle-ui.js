@@ -429,9 +429,24 @@ window.ArenaBattleUI = (function () {
     });
   }
 
+  // Tag a panel with its current stance so CSS can color the border
+  // accordingly. Strips any prior stance class first, then adds the
+  // new one. Symmetric for player + opponent panels.
+  function setPanelStanceClass(panel, stance) {
+    if (!panel) return;
+    panel.classList.remove(
+      'arena-combatant--stance-balanced',
+      'arena-combatant--stance-aggressive',
+      'arena-combatant--stance-defensive'
+    );
+    if (stance) panel.classList.add('arena-combatant--stance-' + stance);
+  }
+
   function initStanceButtons() {
     var row = document.getElementById('arena-stance-row');
     if (!row) return;
+    var playerPanel = document.getElementById('arena-player-side');
+    setPanelStanceClass(playerPanel, _playerStance);
     row.querySelectorAll('.arena-stance-btn').forEach(function(btn) {
       var stance = btn.getAttribute('data-stance');
       btn.classList.toggle('arena-stance-btn--active', stance === _playerStance);
@@ -442,6 +457,7 @@ window.ArenaBattleUI = (function () {
         row.querySelectorAll('.arena-stance-btn').forEach(function(b) {
           b.classList.toggle('arena-stance-btn--active', b.getAttribute('data-stance') === stance);
         });
+        setPanelStanceClass(playerPanel, stance);
         // Update stamina cost badges to reflect stance adjustment
         if (_battleData.stamina) updateMoveCosts(_battleData.stamina.player);
       };
@@ -458,6 +474,27 @@ window.ArenaBattleUI = (function () {
     el.className = 'arena-boss-stance';
     if (stance === 'aggressive') el.classList.add('arena-boss-stance--aggressive');
     if (stance === 'defensive') el.classList.add('arena-boss-stance--defensive');
+    // Mirror the boss's stance onto the opponent panel so its border
+    // color reflects the boss's current posture (same dynamic the
+    // player panel gets from setPanelStanceClass on stance click).
+    setPanelStanceClass(document.getElementById('arena-opponent-side'), stance);
+    // Update the boss-stance indicator in the bottom zone above the
+    // player's own stance buttons — gives the player a clear, always
+    // visible read on what posture the boss is in this round.
+    var indicator = document.getElementById('bs-boss-stance-indicator');
+    var indicatorIcon = document.getElementById('bs-boss-stance-indicator-icon');
+    var indicatorName = document.getElementById('bs-boss-stance-indicator-name');
+    if (indicator) {
+      indicator.classList.remove('bs-boss-stance-indicator--balanced',
+                                 'bs-boss-stance-indicator--aggressive',
+                                 'bs-boss-stance-indicator--defensive');
+      indicator.classList.add('bs-boss-stance-indicator--' + stance);
+    }
+    if (indicatorIcon) indicatorIcon.innerHTML = '<i class="fas ' + def.icon + '"></i>';
+    if (indicatorName) {
+      var lbl = (def.label || stance);
+      indicatorName.textContent = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+    }
     if (stance !== _lastBossStance && _lastBossStance) {
       var label = (def.label || stance).charAt(0).toUpperCase() + (def.label || stance).slice(1);
       addLogEntry('\u2694\uFE0F Boss shifts to ' + label + ' stance!', 'event');

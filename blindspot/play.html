@@ -561,6 +561,15 @@
                 </div>
               </div>
               <div class="bs-vs-zone bs-vs-zone--bottom">
+                <!-- Boss stance indicator — sits above the player's
+                     stance buttons. JS (updateBossStance in
+                     bs-arena-battle-ui.js) writes the icon + label
+                     and toggles a stance class for color. -->
+                <div class="bs-boss-stance-indicator" id="bs-boss-stance-indicator" aria-live="polite">
+                  <span class="bs-boss-stance-indicator__lbl">Boss</span>
+                  <span class="bs-boss-stance-indicator__icon" id="bs-boss-stance-indicator-icon"><i class="fas fa-circle-nodes"></i></span>
+                  <span class="bs-boss-stance-indicator__name" id="bs-boss-stance-indicator-name">Balanced</span>
+                </div>
                 <div class="arena-stance-row" id="arena-stance-row" role="group" aria-label="Stance selector">
                   <button class="arena-stance-btn arena-stance-btn--active" data-stance="balanced" title="Balanced"><i class="fas fa-circle-nodes"></i></button>
                   <button class="arena-stance-btn" data-stance="aggressive" title="Aggressive — +25% dmg, -20% def, +1 stamina cost"><i class="fas fa-fire"></i></button>

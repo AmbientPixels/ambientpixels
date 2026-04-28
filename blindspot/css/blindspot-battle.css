@@ -806,18 +806,18 @@
   border-radius: inherit;
   height: 100%;
 }
-/* Hint caption ("CRIT BOOST AT 100% • 100% TO GO") — was unstyled in the
-   arena scope (only the legacy .blindspot-battle__hype-hint base rule
-   targeted it). Now mono, dim, with tighter letter-spacing so it reads
-   as flavor text under the meter. Drop shadow added so the small dim
-   text stays legible on lighter arena backgrounds. */
+/* Hint caption ("CRIT BOOST AT 100% • 100% TO GO") — was unstyled in
+   the arena scope. White text with a dark drop shadow so it stays
+   legible on top of the dark Hype bar bg AND on lighter arena
+   backgrounds (was muted text-muted color which got lost behind the
+   purple HYPE label). */
 #bs-screen-battle.blindspot-battle .arena-hype-bar__hint,
 #bs-battle-container.blindspot-battle .arena-hype-bar__hint {
   font-family: var(--blindspot-font-mono);
   font-size: 0.6rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--blindspot-text-muted, #B89A82);
+  color: #ffffff;
   margin-top: 0.35rem;
   text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
@@ -1059,6 +1059,86 @@
   border-right-color: #ef4444;
   box-shadow: inset -4px 0 18px -8px rgba(239, 68, 68, 0.65);
 }
+
+/* Stance colors the rendered card's own border (NOT the panel — the
+   panel border is the HP indicator). Card chrome reflects current
+   stance: gold = balanced, red = aggressive, blue = defensive. The
+   stance class lives on the panel; descendant selector picks up the
+   .bs-rendered-card inside. Smooth transition for stance shifts. */
+#bs-screen-battle.blindspot-battle .arena-combatant .bs-rendered-card,
+#bs-battle-container.blindspot-battle .arena-combatant .bs-rendered-card {
+  transition: border-color 600ms ease, box-shadow 600ms ease;
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--stance-balanced .bs-rendered-card,
+#bs-battle-container.blindspot-battle .arena-combatant--stance-balanced .bs-rendered-card {
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: 0 0 12px -2px rgba(245, 192, 120, 0.35);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--stance-aggressive .bs-rendered-card,
+#bs-battle-container.blindspot-battle .arena-combatant--stance-aggressive .bs-rendered-card {
+  border-color: var(--blindspot-accent, #C8302C);
+  box-shadow: 0 0 12px -2px rgba(200, 48, 44, 0.4);
+}
+#bs-screen-battle.blindspot-battle .arena-combatant--stance-defensive .bs-rendered-card,
+#bs-battle-container.blindspot-battle .arena-combatant--stance-defensive .bs-rendered-card {
+  border-color: var(--blindspot-info, #6688AA);
+  box-shadow: 0 0 12px -2px rgba(102, 136, 170, 0.4);
+}
+
+/* Boss stance indicator — small chip in the bottom zone above the
+   player stance buttons. Color tracks the boss's current stance so
+   the player always sees what posture they're up against. */
+#bs-screen-battle.blindspot-battle .bs-boss-stance-indicator,
+#bs-battle-container.blindspot-battle .bs-boss-stance-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--blindspot-radius-pill, 999px);
+  background: rgba(13, 8, 7, 0.7);
+  border: 1px solid var(--blindspot-border-2, #4F2A23);
+  color: var(--blindspot-text-dim, #B89A82);
+  align-self: center;
+  transition: border-color 600ms ease, color 600ms ease, box-shadow 600ms ease;
+  margin-bottom: 0.3rem;
+}
+#bs-screen-battle.blindspot-battle .bs-boss-stance-indicator__lbl,
+#bs-battle-container.blindspot-battle .bs-boss-stance-indicator__lbl {
+  opacity: 0.7;
+  font-weight: 600;
+}
+#bs-screen-battle.blindspot-battle .bs-boss-stance-indicator__icon,
+#bs-battle-container.blindspot-battle .bs-boss-stance-indicator__icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+#bs-screen-battle.blindspot-battle .bs-boss-stance-indicator__name,
+#bs-battle-container.blindspot-battle .bs-boss-stance-indicator__name {
+  font-weight: 700;
+}
+/* Stance variants — gold balanced, red aggressive, blue defensive */
+#bs-screen-battle.blindspot-battle .bs-boss-stance-indicator--balanced,
+#bs-battle-container.blindspot-battle .bs-boss-stance-indicator--balanced {
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  color: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: 0 0 10px -2px rgba(245, 192, 120, 0.3);
+}
+#bs-screen-battle.blindspot-battle .bs-boss-stance-indicator--aggressive,
+#bs-battle-container.blindspot-battle .bs-boss-stance-indicator--aggressive {
+  border-color: var(--blindspot-accent, #C8302C);
+  color: var(--blindspot-accent, #C8302C);
+  box-shadow: 0 0 10px -2px rgba(200, 48, 44, 0.4);
+}
+#bs-screen-battle.blindspot-battle .bs-boss-stance-indicator--defensive,
+#bs-battle-container.blindspot-battle .bs-boss-stance-indicator--defensive {
+  border-color: var(--blindspot-info, #6688AA);
+  color: var(--blindspot-info, #6688AA);
+  box-shadow: 0 0 10px -2px rgba(102, 136, 170, 0.4);
+}
 #bs-screen-battle.blindspot-battle .arena-combatant__name , #bs-battle-container.blindspot-battle .arena-combatant__name  {
   font-family: var(--blindspot-font-display);
   font-weight: 600;
@@ -1081,7 +1161,9 @@
   border-radius: 2px;
   backdrop-filter: blur(8px);
   font-family: var(--blindspot-font-body);
-  padding: 0.45rem 0.85rem;
+  /* Extra bottom padding so the last log entry has breathing room
+     above the log's bottom border. */
+  padding: 0.45rem 0.85rem 1rem;
   /* flex: 1 so the log grows to fill any leftover vertical inside
      the .arena-battle flex column (stage + moves at content height,
      log absorbs the rest) — without pushing past the viewport
@@ -1345,7 +1427,9 @@
   padding: 0;
   background: transparent;
   max-width: 1320px;
-  margin: 25px auto;
+  /* Field bottom margin trimmed to 0 — action buttons sit tight
+     below the cards row. Top stays 25 for topbar headroom. */
+  margin: 25px auto 0;
   width: 100%;
 }
 @media (max-width: 1100px) {
@@ -1717,7 +1801,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 516px;
+  height: 360px;
   z-index: 0;
   background-size: cover;
   background-position: center top;
@@ -1753,8 +1837,8 @@
   order: 1;
   width: 100%;
   margin: 0;
-  /* 516px at 1080p+. */
-  height: 516px;
+  /* Trimmed 400 → 360 to shrink the field row another notch. */
+  height: 360px;
   padding: 0.25rem 32px;
   border: 0;
   border-radius: 0;
@@ -2373,9 +2457,15 @@
   color: inherit;
 }
 #bs-screen-battle.blindspot-battle .arena-boss-intent__text , #bs-battle-container.blindspot-battle .arena-boss-intent__text  {
-  white-space: nowrap;
+  /* Allow up to 2 lines of wrapped text before ellipsing — was
+     `white-space: nowrap` which forced everything onto one line. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
   min-width: 0;
 }
 
@@ -2632,7 +2722,11 @@
   font-size: 0.55rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--blindspot-epic);
+  /* White (was --blindspot-epic purple, which got lost behind the
+     purple HYPE label above). Dark drop shadow keeps it legible on
+     lighter arena backgrounds. */
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   text-align: center;
   margin-top: 0.25rem;
   display: block;
