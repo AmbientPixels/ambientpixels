@@ -342,8 +342,12 @@
 
 .qb-artwork-preview {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   padding: 0.5rem 0;
+  position: relative;
 }
 
 .qb-artwork-preview img {
@@ -356,6 +360,32 @@
 
 .qb-artwork-preview:empty {
   display: none;
+}
+
+/* Generated / pasted preview is auto-applied to the card — make that
+   explicit with an accent border + check badge so players don't think
+   they need to click the preview to "lock it in." */
+.qb-artwork-preview--applied img {
+  border: 2px solid var(--bs-accent, #EF9F27);
+  box-shadow: 0 0 14px rgba(239, 159, 39, 0.45);
+}
+.qb-artwork-preview__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bs-accent, #EF9F27);
+  background: rgba(239, 159, 39, 0.12);
+  border: 1px solid rgba(239, 159, 39, 0.4);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+.qb-artwork-preview__badge i {
+  color: var(--bs-success, #6acf6a);
+  font-size: 0.85em;
 }
 
 .qb-ai-counter {

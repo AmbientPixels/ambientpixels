@@ -257,12 +257,12 @@
           </button>
         </div>
         <div class="qb-ai-counter">${remaining} summon${remaining !== 1 ? 's' : ''} remaining</div>
-        ${_state.artworkUrl ? `<div class="qb-artwork-preview"><img src="${_state.artworkUrl}" alt="Preview"></div>` : ''}
+        ${_state.artworkUrl ? `<div class="qb-artwork-preview qb-artwork-preview--applied"><img src="${_state.artworkUrl}" alt="Preview"><span class="qb-artwork-preview__badge"><i class="fas fa-check"></i> Applied to your card</span></div>` : ''}
       </div>`;
     } else if (artMode === 'url') {
       panelHTML = `<div class="qb-artwork-panel">
         <input type="url" class="qb-url-input" id="qb-url-input" placeholder="https://example.com/image.jpg" value="${_state.artworkUrl || ''}">
-        ${_state.artworkUrl ? `<div class="qb-artwork-preview"><img src="${_state.artworkUrl}" alt="Preview"></div>` : ''}
+        ${_state.artworkUrl ? `<div class="qb-artwork-preview qb-artwork-preview--applied"><img src="${_state.artworkUrl}" alt="Preview"><span class="qb-artwork-preview__badge"><i class="fas fa-check"></i> Applied to your card</span></div>` : ''}
       </div>`;
     }
 
