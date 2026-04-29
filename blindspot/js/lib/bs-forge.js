@@ -596,6 +596,18 @@
     });
   });
 
+  // Publish-to-gallery checkbox — toggling it counts as a saveable change
+  // so the Forge button unlocks even when no stat points are allocated and
+  // no other visual was touched. Mirrors how palette / container clicks
+  // flip _hasVisualChange to enable the save flow.
+  var publishCheckbox = document.getElementById('bs-forge-publish');
+  if (publishCheckbox) {
+    publishCheckbox.addEventListener('change', function() {
+      _hasVisualChange = true;
+      updateBudget();
+    });
+  }
+
   // Avatar sub-tabs (Gallery / AI / URL)
   panel.querySelectorAll('.bs-forge-avt-tab').forEach(tab => {
     tab.addEventListener('click', () => {
