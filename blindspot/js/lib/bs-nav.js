@@ -249,6 +249,7 @@
           if (campaignDone || _cb.getForgeWins() >= needed || _cb.isForgePending()) { _cb.openForgeScreen(false, true); }
           else { _cb.showErrorToast('Win ' + Math.ceil(needed - _cb.getForgeWins()) + ' more fights to unlock the Forge'); }
         }
+        else if (nav === 'gallery') { _cb.showScreen('gallery'); if (_cb.renderGallery) _cb.renderGallery(); }
         else if (nav === 'leaderboard') { _cb.showScreen('leaderboard'); _cb.renderLeaderboard(); }
         else if (nav === 'pvp') {
           var pvpReq = _cb.getPvpUnlockRequirement ? _cb.getPvpUnlockRequirement() : 3;

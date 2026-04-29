@@ -1827,6 +1827,7 @@
     renderLobby: function() { renderLobby(); },
     renderCampaignLadder: function() { renderCampaignLadder(); },
     renderPvPGallery: function() { renderPvPGallery(); },
+    renderGallery: function() { renderGallery(); },
     renderLeaderboard: function() { renderLeaderboard(); },
     renderCollection: function() { renderCollection(); },
     renderDeckManagement: function() { renderDeckManagement(); },
@@ -2698,6 +2699,84 @@
   // ── Leaderboard — delegated to bs-leaderboard.js (window.BsLeaderboard) ──
   var _Lb = window.BsLeaderboard || {};
   function renderLeaderboard() { if (_Lb.render) _Lb.render(); }
+
+  // ── Gallery — read-only browse of cards published to the public gallery.
+  // Pulls galleryCards from the existing loadCards endpoint (already used
+  // by the PvP screen). Click a card to open the detail modal.
+  // Cards opt in via the publishedToGallery flag (set in the forge editor's
+  // Details tab) — server-side cardforgepublish keeps published-cards.json
+  // in sync, so this just consumes whatever's there.
+  async function renderGallery() {
+    const grid = document.getElementById('bs-gallery-grid');
+    const countEl = document.getElementById('bs-gallery-count');
+    if (!grid) return;
+    grid.innerHTML = '<div class="bs-gallery__loading"><i class="fas fa-spinner fa-spin"></i> Loading cards…</div>';
+    if (countEl) countEl.textContent = '';
+    try {
+      const data = await window.ArenaAPI.loadCards();
+      const cards = (data.galleryCards || []).filter(function(c) {
+        // Defensive: if a card explicitly opted out, hide it even if the
+        // server has it (handles eventual-consistency between user blob
+        // and published-cards.json).
+        return c && c.publishedToGallery !== false;
+      });
+      if (countEl) countEl.textContent = cards.length + (cards.length === 1 ? ' card' : ' cards');
+      if (cards.length === 0) {
+        grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-inbox"></i><p>No public cards yet. Publish your card from the forge to start the gallery.</p></div>';
+        return;
+      }
+      grid.innerHTML = cards.map(function(c, i) {
+        ensureCombatStats(c);
+        return '<button class="bs-gallery-tile" data-gallery-idx="' + i + '" type="button" role="listitem" aria-label="View ' + escHtml(c.name || 'card') + '">'
+          + renderCardHTML(c, 'full')
+          + '</button>';
+      }).join('');
+      grid.querySelectorAll('.bs-gallery-tile').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          const idx = parseInt(btn.dataset.galleryIdx, 10);
+          const card = cards[idx];
+          if (card) openGalleryDetail(card);
+        });
+      });
+    } catch (e) {
+      console.warn('[Blindspot] Gallery load failed:', e);
+      grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-triangle-exclamation"></i><p>Couldn\'t load gallery. Try again later.</p></div>';
+    }
+  }
+
+  function openGalleryDetail(card) {
+    const modal = document.getElementById('bs-gallery-detail');
+    const cardEl = document.getElementById('bs-gallery-detail-card');
+    const metaEl = document.getElementById('bs-gallery-detail-meta');
+    if (!modal || !cardEl) return;
+    ensureCombatStats(card);
+    cardEl.innerHTML = renderCardHTML(card, 'full');
+    if (metaEl) {
+      const power = (card.combatStats ? Object.values(card.combatStats).reduce(function(a,b){return a+(b||0)},0) : 0);
+      const dateStr = card.publishDate ? new Date(card.publishDate).toLocaleDateString() : '';
+      // publishedBy is a userId — opaque to other players. We surface a
+      // truncated form as a creator handle until we wire actual display
+      // names (creator profile work is in option C).
+      const creator = card.publishedBy ? ('Forged by ' + String(card.publishedBy).slice(0, 8) + '…') : '';
+      metaEl.innerHTML = '<div class="bs-gallery-detail__row"><i class="fas fa-bolt"></i> Power ' + power + '</div>'
+        + (creator ? '<div class="bs-gallery-detail__row"><i class="fas fa-hammer"></i> ' + escHtml(creator) + '</div>' : '')
+        + (dateStr ? '<div class="bs-gallery-detail__row"><i class="fas fa-calendar"></i> Published ' + escHtml(dateStr) + '</div>' : '');
+    }
+    modal.classList.remove('bs-modal-backdrop--hidden');
+  }
+  function closeGalleryDetail() {
+    const modal = document.getElementById('bs-gallery-detail');
+    if (modal) modal.classList.add('bs-modal-backdrop--hidden');
+  }
+  // Wire close button + backdrop click + back-to-lobby
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'bs-gallery-detail-close') closeGalleryDetail();
+    if (e.target && e.target.id === 'bs-gallery-detail') closeGalleryDetail();
+    if (e.target && e.target.closest && e.target.closest('#bs-gallery-back')) {
+      showScreen('lobby');
+      renderLobby();
+    }
+  });
 
   // ── Loot Choice — delegated to bs-loot-choice.js (window.BsLootChoice) ──
   var _Loot = window.BsLootChoice || {};

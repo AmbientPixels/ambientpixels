@@ -414,6 +414,32 @@
     </div>
 
 
+    <!-- SCREEN: GALLERY — public card showcase. Renders cards from
+         galleryCards (loadCards response) into a grid; click a card to
+         open a detail modal. Read-only, gated by per-card publishedToGallery
+         flag set in the forge editor. -->
+    <div id="bs-screen-gallery" class="bs-screen" role="region" aria-label="Card Gallery">
+      <div class="bs-gallery">
+        <div class="bs-gallery__header">
+          <button class="bs-campaign__back" id="bs-gallery-back" aria-label="Back to lobby"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+          <h2 class="bs-gallery__title"><i class="fas fa-images" style="color:var(--bs-accent);"></i> Gallery</h2>
+          <span class="bs-gallery__meta" id="bs-gallery-count">&nbsp;</span>
+        </div>
+        <p class="bs-gallery__sub">Cards published by other fighters. Browse for inspiration; nothing here changes your roster.</p>
+        <div class="bs-gallery__grid" id="bs-gallery-grid" role="list" aria-label="Public cards"></div>
+      </div>
+    </div>
+
+    <!-- Gallery card detail modal -->
+    <div id="bs-gallery-detail" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="Card detail" aria-modal="true">
+      <div class="bs-modal bs-gallery-detail">
+        <button class="bs-modal__close" id="bs-gallery-detail-close" aria-label="Close"><i class="fas fa-xmark"></i></button>
+        <div class="bs-gallery-detail__card" id="bs-gallery-detail-card"></div>
+        <div class="bs-gallery-detail__meta" id="bs-gallery-detail-meta"></div>
+      </div>
+    </div>
+
+
     <!-- SCREEN: LEADERBOARD -->
     <div id="bs-screen-leaderboard" class="bs-screen" role="region" aria-label="Leaderboard">
       <div class="bs-campaign">
@@ -1323,6 +1349,10 @@
     <button class="bs-bottom-nav__item" data-nav="forge" id="bs-nav-forge">
       <i class="fas fa-fire" aria-hidden="true"></i>
       <span>Forge</span>
+    </button>
+    <button class="bs-bottom-nav__item" data-nav="gallery">
+      <i class="fas fa-images" aria-hidden="true"></i>
+      <span>Gallery</span>
     </button>
     <button class="bs-bottom-nav__item" data-nav="leaderboard">
       <i class="fas fa-crown" aria-hidden="true"></i>

@@ -200,17 +200,89 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Get the card ID from the request body
+    // Get the card ID from the request body. `action` (default 'publish')
+    // controls whether we add to or remove from the public gallery.
+    // 'unpublish' was added 2026-04-28 to support the Blindspot forge
+    // editor's "Show in gallery" toggle going off — rather than fork a
+    // separate endpoint we accept the inverse action here.
     const { cardId } = req.body;
-    context.log(`Publishing card ID: ${cardId} for user: ${userId}`);
-    
+    const action = req.body.action === 'unpublish' ? 'unpublish' : 'publish';
+    context.log(`${action === 'unpublish' ? 'Unpublishing' : 'Publishing'} card ID: ${cardId} for user: ${userId}`);
+
     // Create authenticated blob service client with managed identity
     const blobServiceClient = await createBlobServiceClient();
     context.log(`Connected to Blob Storage account: ${STORAGE_ACCOUNT_NAME}`);
-    
+
     // Get container client
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
     context.log(`Using container: ${CONTAINER_NAME}`);
+
+    // ── Unpublish branch ──────────────────────────────────────────────
+    // Reads published-cards.json, filters out the card by id, writes it
+    // back. Then flips the user-blob `published` flag to false. We
+    // require the card to be owned by the requester (publishedBy ===
+    // userId) so a user can only unpublish their own cards.
+    if (action === 'unpublish') {
+      const publishedBlobPath = 'published-cards.json';
+      const publishedBlobClient = containerClient.getBlockBlobClient(publishedBlobPath);
+      const exists = await withRetry(() => publishedBlobClient.exists(), 'check published blob exists', context);
+      if (!exists) {
+        context.res = { status: 200, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }, body: { success: true, alreadyAbsent: true } };
+        return;
+      }
+      const dl = await withRetry(() => publishedBlobClient.download(), 'download published blob', context);
+      const txt = await streamToText(dl.readableStreamBody);
+      let pubData;
+      try { pubData = JSON.parse(txt); } catch (e) { pubData = { publishedCards: [] }; }
+      if (!Array.isArray(pubData.publishedCards)) pubData.publishedCards = [];
+      const beforeCount = pubData.publishedCards.length;
+      pubData.publishedCards = pubData.publishedCards.filter(c => {
+        if (c.id !== cardId) return true;
+        // Ownership gate: only the card's owner can unpublish it
+        if (c.publishedBy && c.publishedBy !== userId) {
+          context.log.warn(`Unpublish denied: card ${cardId} belongs to ${c.publishedBy}, not requester ${userId}`);
+          return true;
+        }
+        return false;
+      });
+      const removed = beforeCount - pubData.publishedCards.length;
+      if (removed > 0) {
+        const buf = Buffer.from(JSON.stringify(pubData), 'utf8');
+        await withRetry(
+          () => publishedBlobClient.upload(buf, buf.byteLength, { blobHTTPHeaders: { blobContentType: 'application/json' } }),
+          'upload published blob (unpublish)',
+          context
+        );
+        context.log(`Removed card ${cardId} from gallery (${removed} entry/entries)`);
+      }
+      // Best-effort: flip the user-blob's published flag off
+      try {
+        const userBlobPath = `user/${userId}/cards.json`;
+        const userClient = containerClient.getBlockBlobClient(userBlobPath);
+        if (await userClient.exists()) {
+          const userDl = await userClient.download();
+          const userTxt = await streamToText(userDl.readableStreamBody);
+          const userData = JSON.parse(userTxt);
+          if (Array.isArray(userData.cards)) {
+            const idx = userData.cards.findIndex(c => c.id === cardId);
+            if (idx >= 0) {
+              userData.cards[idx].published = false;
+              userData.cards[idx].publishedToGallery = false;
+              const userBuf = Buffer.from(JSON.stringify(userData), 'utf8');
+              await userClient.upload(userBuf, userBuf.byteLength, { blobHTTPHeaders: { blobContentType: 'application/json' }, overwrite: true });
+            }
+          }
+        }
+      } catch (uerr) {
+        context.log.warn(`Unpublish: user-blob flag update failed (non-fatal): ${uerr.message}`);
+      }
+      context.res = {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: { success: true, removed, action: 'unpublish' }
+      };
+      return;
+    }
     
     // Path to user's cards file - try authenticated user first, then fallback to anonymous
     let userBlobPath = `user/${userId}/cards.json`;

@@ -242,6 +242,15 @@
                  style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.8rem;">
         </div>
       </div>
+      <div class="bs-forge-gallery-toggle" style="margin-top:0.75rem; padding:0.6rem 0.75rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; display:flex; align-items:center; gap:0.6rem;">
+        <input type="checkbox" id="bs-forge-publish" ${(_selectedCard.publishedToGallery === true || _selectedCard.published === true) ? 'checked' : ''}
+               style="width:18px; height:18px; cursor:pointer; accent-color:var(--bs-accent);">
+        <label for="bs-forge-publish" style="flex:1; cursor:pointer; font-size:0.78rem; line-height:1.4;">
+          <strong style="color:var(--bs-text);"><i class="fas fa-eye" style="color:var(--bs-accent); margin-right:0.4em;"></i>Show this card in the public gallery</strong>
+          <br>
+          <span style="font-size:0.7rem; color:var(--bs-text-muted);">Other players can browse and view your card. You can toggle this off any time.</span>
+        </label>
+      </div>
     </div>
     </div>
       </div>
@@ -794,11 +803,17 @@
     const nameInput = document.getElementById('bs-forge-name');
     const quoteInput = document.getElementById('bs-forge-quote');
     const avatarInput = document.getElementById('bs-forge-avatar');
+    const publishCheckbox = document.getElementById('bs-forge-publish');
     if (nameInput && nameInput.value.trim()) _selectedCard.name = nameInput.value.trim();
     if (quoteInput) _selectedCard.quote = quoteInput.value.trim();
     if (avatarInput && avatarInput.value.trim()) _selectedCard.avatar = avatarInput.value.trim();
     var elementBtn = panel.querySelector('.bs-forge-element-btn--selected');
     if (elementBtn) _selectedCard.element = elementBtn.dataset.element;
+    // Capture gallery-publish intent BEFORE save so we can sync gallery
+    // membership after the save persists.
+    const wasPublished = (_selectedCard.publishedToGallery === true) || (_selectedCard.published === true);
+    const wantsPublished = publishCheckbox ? publishCheckbox.checked : wasPublished;
+    _selectedCard.publishedToGallery = wantsPublished;
 
     // Save via API
     try {
@@ -810,6 +825,7 @@
       if (quoteInput) cardToSave.quote = quoteInput.value.trim();
       if (avatarInput && avatarInput.value.trim()) cardToSave.avatar = avatarInput.value.trim();
       if (elementBtn) cardToSave.element = elementBtn.dataset.element;
+      cardToSave.publishedToGallery = wantsPublished;
       cardToSave.stats = [
         { name: 'Strength', value: newStats.str },
         { name: 'Agility', value: newStats.agi },
@@ -827,6 +843,23 @@
       if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
       const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
       if (!resp.ok) throw new Error('Save failed: ' + resp.status);
+
+      // Sync gallery membership if the publish toggle changed. Best-
+      // effort — failures here don't block the forge save success path,
+      // since the user blob is already persisted with the new state.
+      if (wantsPublished !== wasPublished) {
+        try {
+          var pubUrl = window.buildApiPath('publish');
+          if (pubUrl) {
+            var pubBody = wantsPublished
+              ? { cardId: _selectedCard.id, cardData: cardToSave }
+              : { cardId: _selectedCard.id, action: 'unpublish' };
+            await fetch(pubUrl, { method: 'POST', headers, body: JSON.stringify(pubBody) });
+          }
+        } catch (pubErr) {
+          console.warn('[Blindspot] Gallery sync failed (non-fatal):', pubErr);
+        }
+      }
 
       // Mark forge as permanently unlocked (no more win-gating)
       _cb.setForgeUnlocked();
