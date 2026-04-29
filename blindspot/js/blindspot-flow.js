@@ -1589,6 +1589,10 @@
     // getHighestBossDefeated — single source of truth).
     renderCampaignProgress(highestBoss);
 
+    // Stats strip — high-level glance tiles in the lobby's right column.
+    // Click any tile or "View all" → opens the dedicated stats screen.
+    renderStatsStrip();
+
     // Apply equipped cosmetics to card display
     applyEquippedCosmetics();
 
@@ -1828,6 +1832,7 @@
     renderCampaignLadder: function() { renderCampaignLadder(); },
     renderPvPGallery: function() { renderPvPGallery(); },
     renderGallery: function() { renderGallery(); },
+    renderStatsScreen: function() { renderStatsScreen(); },
     renderLeaderboard: function() { renderLeaderboard(); },
     renderCollection: function() { renderCollection(); },
     renderDeckManagement: function() { renderDeckManagement(); },
@@ -2699,6 +2704,163 @@
   // ── Leaderboard — delegated to bs-leaderboard.js (window.BsLeaderboard) ──
   var _Lb = window.BsLeaderboard || {};
   function renderLeaderboard() { if (_Lb.render) _Lb.render(); }
+
+  // ── Player stats — read-only progression panel.
+  // Two surfaces:
+  //   - Lobby strip (4 tile glance: wins / best streak / bosses / forged)
+  //   - Dedicated screen (#bs-screen-stats) with grouped sections
+  // Both pull from _profile + a few derivations (losses summed from
+  // bossRecords, cards published from the user blob). No new tracking.
+  function _statsAggregateLosses() {
+    if (!_profile || !_profile.bossRecords) return 0;
+    var total = 0;
+    for (var k in _profile.bossRecords) {
+      if (_profile.bossRecords[k] && typeof _profile.bossRecords[k].losses === 'number') {
+        total += _profile.bossRecords[k].losses;
+      }
+    }
+    return total;
+  }
+  function _statsCountPublishedCards() {
+    if (!_profileData || !Array.isArray(_profileData.userCards)) return 0;
+    return _profileData.userCards.filter(function(c) {
+      return c && (c.publishedToGallery === true || c.published === true);
+    }).length;
+  }
+  function _statsCountMasteryTiers() {
+    if (!_profile || !_profile.masteryClaimed) return 0;
+    var n = 0;
+    for (var k in _profile.masteryClaimed) {
+      var rec = _profile.masteryClaimed[k];
+      if (rec && typeof rec === 'object') n += Object.keys(rec).length;
+      else if (typeof rec === 'number') n += rec;
+    }
+    return n;
+  }
+  function _statsDaysActive() {
+    if (!_profile || !_profile.createdAt) return 0;
+    var ms = Date.now() - new Date(_profile.createdAt).getTime();
+    return Math.max(1, Math.floor(ms / (1000 * 60 * 60 * 24)));
+  }
+  function _statsFmtDate(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString(); } catch (e) { return '—'; }
+  }
+  function _statsTile(label, value, sub) {
+    var subHtml = sub ? '<span class="bs-stats-tile__sub">' + escHtml(sub) + '</span>' : '';
+    return '<div class="bs-stats-tile">'
+      + '<span class="bs-stats-tile__label">' + escHtml(label) + '</span>'
+      + '<span class="bs-stats-tile__value">' + escHtml(String(value)) + '</span>'
+      + subHtml
+      + '</div>';
+  }
+
+  function renderStatsStrip() {
+    if (!_profile) return;
+    var winsEl = document.getElementById('bs-stat-wins');
+    var streakEl = document.getElementById('bs-stat-streak');
+    var bossesEl = document.getElementById('bs-stat-bosses');
+    var forgeEl = document.getElementById('bs-stat-forge');
+    if (winsEl) winsEl.textContent = String(_profile.totalWins || 0);
+    if (streakEl) streakEl.textContent = String(_profile.bestStreak || 0);
+    if (bossesEl) bossesEl.textContent = (_profile.highestBoss || 0) + '/10';
+    if (forgeEl) forgeEl.textContent = String(_profile.forgeVisits || 0);
+  }
+
+  function renderStatsScreen() {
+    if (!_profile) return;
+    var rank = _profile.rank || 'bronze';
+    var rankInfo = (RANKS && RANKS[rank]) || (RANKS && RANKS.bronze) || { label: 'Bronze', icon: 'fa-shield-halved', color: '#CD7F32' };
+    var nextIdx = (RANK_ORDER || []).indexOf(rank) + 1;
+    var nextRank = nextIdx > 0 && nextIdx < (RANK_ORDER || []).length ? RANKS[RANK_ORDER[nextIdx]] : null;
+    var currentXp = _profile.xp || 0;
+
+    // Identity
+    var rankIconEl = document.getElementById('bs-stats-rank-icon');
+    var rankNameEl = document.getElementById('bs-stats-rank-name');
+    var rankXpEl = document.getElementById('bs-stats-rank-xp');
+    var prestigeEl = document.getElementById('bs-stats-prestige');
+    var ageEl = document.getElementById('bs-stats-account-age');
+    if (rankIconEl) { rankIconEl.className = 'fas ' + rankInfo.icon; rankIconEl.style.color = rankInfo.color; }
+    if (rankNameEl) rankNameEl.textContent = rankInfo.label;
+    if (rankXpEl) {
+      if (nextRank) {
+        var into = Math.max(0, currentXp - rankInfo.xp);
+        var span = Math.max(1, nextRank.xp - rankInfo.xp);
+        rankXpEl.textContent = into + ' / ' + span + ' XP';
+      } else {
+        rankXpEl.textContent = currentXp + ' XP — Max Rank';
+      }
+    }
+    if (prestigeEl) prestigeEl.textContent = String(_profile.ascension || 0);
+    if (ageEl) ageEl.textContent = _statsDaysActive() + ' DAYS ACTIVE';
+
+    // Combat
+    var totalWins = _profile.totalWins || 0;
+    var totalLosses = _statsAggregateLosses();
+    var totalFights = totalWins + totalLosses;
+    var winRate = totalFights > 0 ? Math.round((totalWins / totalFights) * 100) + '%' : '—';
+    var pvpW = (_profile.pvpRecord && _profile.pvpRecord.w) || 0;
+    var pvpL = (_profile.pvpRecord && _profile.pvpRecord.l) || 0;
+    var combatGrid = document.getElementById('bs-stats-grid-combat');
+    if (combatGrid) {
+      combatGrid.innerHTML =
+        _statsTile('Total Wins', totalWins) +
+        _statsTile('Total Losses', totalLosses) +
+        _statsTile('Win Rate', winRate, totalFights + ' fights') +
+        _statsTile('Current Streak', _profile.winStreak || 0) +
+        _statsTile('Best Streak', _profile.bestStreak || 0) +
+        _statsTile('PvP Record', pvpW + 'W / ' + pvpL + 'L', 'Elo ' + (_profile.pvpElo || 0)) +
+        _statsTile('Trophy Kills', _profile.trophyKills || 0) +
+        _statsTile('Scars', _profile.scars || 0);
+    }
+
+    // Progression
+    var progGrid = document.getElementById('bs-stats-grid-progression');
+    if (progGrid) {
+      progGrid.innerHTML =
+        _statsTile('Bosses Defeated', (_profile.highestBoss || 0) + ' / 10') +
+        _statsTile('Mastery Tiers', _statsCountMasteryTiers()) +
+        _statsTile('Tower Best Floor', _profile.towerBest || 0) +
+        _statsTile('Tower Current Floor', _profile.towerFloor || 0) +
+        _statsTile('Bounties Done', _profile.totalBounties || 0) +
+        _statsTile('Peak PvP Rank', _profile.peakRank || 'Iron');
+    }
+
+    // Forge & Gallery
+    var forgeGrid = document.getElementById('bs-stats-grid-forge');
+    if (forgeGrid) {
+      forgeGrid.innerHTML =
+        _statsTile('Cards Forged', _profile.forgeVisits || 0) +
+        _statsTile('Cards Published', _statsCountPublishedCards()) +
+        _statsTile('Forge Wins', Math.floor(_profile.forgeWins || 0)) +
+        _statsTile('Crates Earned', _profile.crateWinCounter || 0);
+    }
+
+    // Cosmetics
+    var cosmeticsCount = Array.isArray(_profile.cosmetics) ? _profile.cosmetics.length : 0;
+    var palettes = Array.isArray(_profile.visualUnlocks) ? _profile.visualUnlocks.filter(function(u){ return /^palette/.test(u); }).length : 0;
+    var containers = Array.isArray(_profile.visualUnlocks) ? _profile.visualUnlocks.filter(function(u){ return /^container/.test(u); }).length : 0;
+    var charms = Array.isArray(_profile.charms) ? _profile.charms.length : 0;
+    var cosGrid = document.getElementById('bs-stats-grid-cosmetics');
+    if (cosGrid) {
+      cosGrid.innerHTML =
+        _statsTile('Cosmetics Owned', cosmeticsCount) +
+        _statsTile('Palettes Unlocked', palettes) +
+        _statsTile('Containers Unlocked', containers) +
+        _statsTile('Charms Owned', charms);
+    }
+
+    // Account
+    var acctGrid = document.getElementById('bs-stats-grid-account');
+    if (acctGrid) {
+      acctGrid.innerHTML =
+        _statsTile('Joined', _statsFmtDate(_profile.createdAt)) +
+        _statsTile('Last Played', _statsFmtDate(_profile.lastPlayedAt)) +
+        _statsTile('Sparks', _profile.sparks || 0) +
+        _statsTile('Lifetime Spent', _profile.lifetimeSparksSpent || 0);
+    }
+  }
 
   // ── Gallery — read-only browse of cards published to the public gallery.
   // Pulls galleryCards from the existing loadCards endpoint (already used

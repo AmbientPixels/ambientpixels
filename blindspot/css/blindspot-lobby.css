@@ -313,6 +313,57 @@ body.bs-page {
   color: var(--blindspot-accent);
 }
 
+/* Lobby stats strip — high-level glance tiles. Compact 4-up grid that
+   collapses to 2-up on narrow lobbies. Each tile is a button so tapping
+   anywhere on it opens the dedicated stats screen. */
+.blindspot-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+@media (max-width: 600px) {
+  .blindspot-stats-strip { grid-template-columns: repeat(2, 1fr); }
+}
+.blindspot-stat-tile {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--blindspot-border-2, #4F2A23);
+  border-radius: var(--blindspot-radius-tile, 8px);
+  padding: 0.55rem 0.6rem 0.65rem;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 160ms,
+              box-shadow 160ms;
+  font: inherit;
+  color: inherit;
+}
+.blindspot-stat-tile:hover,
+.blindspot-stat-tile:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: 0 0 14px rgba(245, 192, 120, 0.3);
+  outline: none;
+}
+.blindspot-stat-tile__label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-stat-tile__value {
+  font-family: var(--blindspot-font-display, 'Cinzel', serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--blindspot-accent-gold, #F5C078);
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
 /* Inline "View all →" link in section headers — pinned to the right of
    the count meta. Mono-caps to match the meta, gold to match the
    campaign call-to-action. Background-less button so it reads as a

@@ -161,6 +161,35 @@
             <div class="blindspot-bounties bs-bounties" id="bs-bounties" role="region" aria-label="Daily bounties"></div>
           </div>
 
+          <!-- Stats strip — high-level glance. JS (renderStatsStrip in
+               blindspot-flow.js) populates the four tile values from the
+               loaded profile. Click "View all" or any tile to open the
+               full stats screen. -->
+          <div class="blindspot-lobby-section">
+            <div class="blindspot-lobby-section__head">
+              <h2>Stats</h2>
+              <button type="button" class="blindspot-section-link" id="bs-stats-viewall" aria-label="Open full stats">View all <i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+            </div>
+            <div class="blindspot-stats-strip" id="bs-stats-strip" role="list" aria-label="Player stats summary">
+              <button class="blindspot-stat-tile" type="button" data-stat-tile="wins" role="listitem">
+                <span class="blindspot-stat-tile__label">Wins</span>
+                <span class="blindspot-stat-tile__value" id="bs-stat-wins">0</span>
+              </button>
+              <button class="blindspot-stat-tile" type="button" data-stat-tile="streak" role="listitem">
+                <span class="blindspot-stat-tile__label">Best Streak</span>
+                <span class="blindspot-stat-tile__value" id="bs-stat-streak">0</span>
+              </button>
+              <button class="blindspot-stat-tile" type="button" data-stat-tile="bosses" role="listitem">
+                <span class="blindspot-stat-tile__label">Bosses</span>
+                <span class="blindspot-stat-tile__value" id="bs-stat-bosses">0/10</span>
+              </button>
+              <button class="blindspot-stat-tile" type="button" data-stat-tile="forge" role="listitem">
+                <span class="blindspot-stat-tile__label">Forged</span>
+                <span class="blindspot-stat-tile__value" id="bs-stat-forge">0</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Campaign rail.
                JS (renderCampaignProgress in blindspot-flow.js) toggles
                .is-done on each pip + writes the X / 10 BOSSES count from
@@ -312,6 +341,14 @@
               </span>
               <i class="fas fa-chevron-right blindspot-ql__chev" aria-hidden="true"></i>
             </button>
+            <button class="blindspot-ql" id="bs-btn-stats" type="button">
+              <i class="fas fa-chart-line" aria-hidden="true"></i>
+              <span class="blindspot-ql__body">
+                <span class="blindspot-ql__title">Stats</span>
+                <span class="blindspot-ql__desc">Win record, progression, mastery, account age.</span>
+              </span>
+              <i class="fas fa-chevron-right blindspot-ql__chev" aria-hidden="true"></i>
+            </button>
             <button class="blindspot-ql" id="bs-btn-howtoplay" type="button">
               <i class="fas fa-book-open" aria-hidden="true"></i>
               <span class="blindspot-ql__body">
@@ -435,6 +472,68 @@
         </div>
         <p class="bs-gallery__sub">Cards published by other fighters. Browse for inspiration; nothing here changes your roster.</p>
         <div class="bs-gallery__grid" id="bs-gallery-grid" role="list" aria-label="Public cards"></div>
+      </div>
+    </div>
+
+    <!-- SCREEN: STATS — full player progression panel. renderStatsScreen
+         in blindspot-flow.js populates each section from the loaded
+         profile + derived numbers (losses summed from bossRecords,
+         cards published counted from user blob). Read-only. -->
+    <div id="bs-screen-stats" class="bs-screen" role="region" aria-label="Player Stats">
+      <div class="bs-stats">
+        <div class="bs-stats__header">
+          <button class="bs-campaign__back" id="bs-stats-back" aria-label="Back to lobby"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+          <h2 class="bs-stats__title"><i class="fas fa-chart-line" style="color:var(--bs-accent);"></i> Player Stats</h2>
+          <span class="bs-stats__meta" id="bs-stats-account-age">&nbsp;</span>
+        </div>
+
+        <!-- Identity card -->
+        <section class="bs-stats-section bs-stats-section--identity">
+          <div class="bs-stats-identity">
+            <div class="bs-stats-identity__rank">
+              <i class="fas fa-shield-halved" id="bs-stats-rank-icon"></i>
+              <div class="bs-stats-identity__rank-body">
+                <span class="bs-stats-identity__rank-name" id="bs-stats-rank-name">Bronze</span>
+                <span class="bs-stats-identity__rank-xp" id="bs-stats-rank-xp">0 / 500 XP</span>
+              </div>
+            </div>
+            <div class="bs-stats-identity__divider"></div>
+            <div class="bs-stats-identity__prestige">
+              <span class="bs-stats-identity__label">Prestige</span>
+              <span class="bs-stats-identity__value" id="bs-stats-prestige">0</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Combat -->
+        <section class="bs-stats-section">
+          <h3 class="bs-stats-section__title"><i class="fas fa-swords"></i> Combat</h3>
+          <div class="bs-stats-grid" id="bs-stats-grid-combat"></div>
+        </section>
+
+        <!-- Progression -->
+        <section class="bs-stats-section">
+          <h3 class="bs-stats-section__title"><i class="fas fa-mountain"></i> Progression</h3>
+          <div class="bs-stats-grid" id="bs-stats-grid-progression"></div>
+        </section>
+
+        <!-- Forge & Gallery -->
+        <section class="bs-stats-section">
+          <h3 class="bs-stats-section__title"><i class="fas fa-fire"></i> Forge &amp; Gallery</h3>
+          <div class="bs-stats-grid" id="bs-stats-grid-forge"></div>
+        </section>
+
+        <!-- Cosmetics -->
+        <section class="bs-stats-section">
+          <h3 class="bs-stats-section__title"><i class="fas fa-shirt"></i> Cosmetics</h3>
+          <div class="bs-stats-grid" id="bs-stats-grid-cosmetics"></div>
+        </section>
+
+        <!-- Account -->
+        <section class="bs-stats-section">
+          <h3 class="bs-stats-section__title"><i class="fas fa-user-clock"></i> Account</h3>
+          <div class="bs-stats-grid" id="bs-stats-grid-account"></div>
+        </section>
       </div>
     </div>
 

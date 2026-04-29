@@ -49,6 +49,21 @@
     // Gallery button (mobile). Using the same single openGallery handler.
     const openGallery = () => { _cb.showScreen('gallery'); if (_cb.renderGallery) _cb.renderGallery(); };
     document.getElementById('bs-btn-gallery')?.addEventListener('click', openGallery);
+
+    // Stats screen entry points: lobby strip "View all" link, any of the
+    // four stat tiles (clicking a tile opens the same full screen — no
+    // per-tile drill yet), the Stats quicklinks card, and the back
+    // button on the screen itself.
+    const openStats = () => { _cb.showScreen('stats'); if (_cb.renderStatsScreen) _cb.renderStatsScreen(); };
+    document.getElementById('bs-stats-viewall')?.addEventListener('click', openStats);
+    document.getElementById('bs-btn-stats')?.addEventListener('click', openStats);
+    document.querySelectorAll('.blindspot-stat-tile').forEach(function(tile) {
+      tile.addEventListener('click', openStats);
+    });
+    document.getElementById('bs-stats-back')?.addEventListener('click', function() {
+      _cb.showScreen('lobby');
+      if (_cb.renderLobby) _cb.renderLobby();
+    });
     // The lower nav 'Boss Codex' card replaced the redundant 'Campaign' card —
     // the boss rail above already serves as the campaign destination, so the
     // codex repurposes this slot as a lore/intel overview.

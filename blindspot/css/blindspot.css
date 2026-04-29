@@ -1644,6 +1644,170 @@
   text-align: center;
 }
 
+/* ── Stats screen ──
+   Full player progression panel. Identity card up top, then sectioned
+   tile grids below for combat / progression / forge & gallery /
+   cosmetics / account. Read-only — no interaction beyond the back
+   button. */
+.bs-screen.active#bs-screen-stats {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 4rem;
+}
+.bs-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.bs-stats__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.bs-stats__title {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin: 0;
+  flex: 1;
+  letter-spacing: 0.02em;
+  color: var(--bs-text);
+}
+.bs-stats__meta {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bs-accent);
+}
+.bs-stats-section {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--bs-border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem 1.1rem;
+}
+.bs-stats-section__title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--bs-text);
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bs-stats-section__title i {
+  color: var(--bs-accent);
+  font-size: 0.9em;
+}
+
+/* Identity section — wider layout, rank icon + xp on the left, prestige on the right */
+.bs-stats-section--identity {
+  background: linear-gradient(135deg, rgba(239, 159, 39, 0.08), rgba(0, 0, 0, 0.4));
+  border-color: rgba(239, 159, 39, 0.35);
+}
+.bs-stats-identity {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.bs-stats-identity__rank {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex: 1;
+}
+.bs-stats-identity__rank > i {
+  font-size: 2.4rem;
+  filter: drop-shadow(0 0 8px rgba(239, 159, 39, 0.4));
+}
+.bs-stats-identity__rank-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.bs-stats-identity__rank-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--bs-text);
+  letter-spacing: 0.02em;
+}
+.bs-stats-identity__rank-xp {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+}
+.bs-stats-identity__divider {
+  width: 1px;
+  height: 50px;
+  background: var(--bs-border);
+}
+.bs-stats-identity__prestige {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0 0.75rem;
+}
+.bs-stats-identity__label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+}
+.bs-stats-identity__value {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--bs-accent);
+  line-height: 1;
+}
+
+/* Tile grids — auto-fit so they collapse responsively */
+.bs-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+.bs-stats-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.7rem 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  text-align: center;
+}
+.bs-stats-tile__label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+}
+.bs-stats-tile__value {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--bs-accent-gold, var(--bs-accent));
+  line-height: 1;
+}
+.bs-stats-tile__sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+  opacity: 0.85;
+}
+
 .bs-unlock-teaser {
   margin-top: 0.75rem;
   padding: 0.5rem 0.75rem;
