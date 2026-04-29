@@ -121,7 +121,7 @@ module.exports = async function (context, req) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
       },
       body: ''
     };
@@ -147,7 +147,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
         },
         body: { status: 'ok', message: 'CardForge publish service is online' }
       };
@@ -164,7 +164,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
         },
         body: { error: 'Card ID is required' }
       };
@@ -193,7 +193,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
         },
         body: { error: 'Authentication required to publish cards' }
       };
@@ -315,7 +315,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
         },
         body: { error: 'No cards found for this user' }
       };
@@ -364,7 +364,7 @@ module.exports = async function (context, req) {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
           },
           body: { error: `Card with ID ${cardId} not found` }
         };
@@ -505,7 +505,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
         },
         body: {
           success: true,
@@ -544,7 +544,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
       },
       body: {
         error: `Failed to publish card: ${error.message}`,
