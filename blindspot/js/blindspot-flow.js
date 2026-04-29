@@ -2715,10 +2715,19 @@
     try {
       const data = await window.ArenaAPI.loadCards();
       const cards = (data.galleryCards || []).filter(function(c) {
+        if (!c) return false;
         // Defensive: if a card explicitly opted out, hide it even if the
         // server has it (handles eventual-consistency between user blob
         // and published-cards.json).
-        return c && c.publishedToGallery !== false;
+        if (c.publishedToGallery === false) return false;
+        // Hide artless legacy cards — published-cards.json contains
+        // ~24 entries from a pre-avatar schema (no `avatar` / `image` /
+        // `imageUrl` / `art`), which render as anonymous silhouettes
+        // and just look broken in a showcase. Real cleanup is a server-
+        // side prune of those entries; this filter is the visible fix.
+        const hasArt = c.avatar || c.image || c.imageUrl || c.art;
+        if (!hasArt) return false;
+        return true;
       });
       if (countEl) countEl.textContent = cards.length + (cards.length === 1 ? ' card' : ' cards');
       if (cards.length === 0) {

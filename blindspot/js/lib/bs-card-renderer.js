@@ -104,7 +104,11 @@ window.BsCardRenderer = (function () {
     var rarity = (card.rarity || 'Common').toLowerCase();
     var name = card.name || 'Unknown';
     var cls = card.class || card.characterClass || '';
-    var avatar = card.avatar || '';
+    // Avatar field has drifted across schemas — `avatar` is canonical, but
+    // some legacy / external sources use `image`, `imageUrl`, or `art`.
+    // Try them in order so cards from different eras still render their
+    // art instead of falling back to the silhouette placeholder.
+    var avatar = card.avatar || card.image || card.imageUrl || card.art || '';
     var element = card.element || (card.cardData && card.cardData.element)
       || (_C.CLASS_DEFAULT_ELEMENT && _C.CLASS_DEFAULT_ELEMENT[cls]) || '';
 
