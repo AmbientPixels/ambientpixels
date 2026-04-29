@@ -45,6 +45,10 @@
     // - bs-btn-campaign: quicklinks card between Sparks Shop and How to Play
     document.getElementById('bs-campaign-viewall')?.addEventListener('click', openCampaign);
     document.getElementById('bs-btn-campaign')?.addEventListener('click', openCampaign);
+    // Gallery quicklink (desktop) — same destination as the bottom-nav
+    // Gallery button (mobile). Using the same single openGallery handler.
+    const openGallery = () => { _cb.showScreen('gallery'); if (_cb.renderGallery) _cb.renderGallery(); };
+    document.getElementById('bs-btn-gallery')?.addEventListener('click', openGallery);
     // The lower nav 'Boss Codex' card replaced the redundant 'Campaign' card —
     // the boss rail above already serves as the campaign destination, so the
     // codex repurposes this slot as a lore/intel overview.
