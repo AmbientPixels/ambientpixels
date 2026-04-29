@@ -859,14 +859,29 @@
       // Sync gallery membership if the publish toggle changed. Best-
       // effort — failures here don't block the forge save success path,
       // since the user blob is already persisted with the new state.
+      // Auth pattern mirrors cardforge-publish.js — the publish endpoint
+      // accepts `userId` in the body as a fallback because the
+      // X-CF-Auth-Principal header doesn't survive the cross-origin hop
+      // to the Function App. We grab the userId from /.auth/me directly.
       if (wantsPublished !== wasPublished) {
         try {
           var pubUrl = window.buildApiPath('publish');
           if (pubUrl) {
+            var meResp = await fetch('/.auth/me').then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
+            var bodyUserId = (meResp && meResp.clientPrincipal && meResp.clientPrincipal.userId) || 'anonymous';
             var pubBody = wantsPublished
-              ? { cardId: _selectedCard.id, cardData: cardToSave }
-              : { cardId: _selectedCard.id, action: 'unpublish' };
-            await fetch(pubUrl, { method: 'POST', headers, body: JSON.stringify(pubBody) });
+              ? { cardId: _selectedCard.id, userId: bodyUserId, cardData: cardToSave }
+              : { cardId: _selectedCard.id, userId: bodyUserId, action: 'unpublish' };
+            var pubResp = await fetch(pubUrl, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify(pubBody),
+              credentials: 'include'
+            });
+            if (!pubResp.ok) {
+              var errText = await pubResp.text().catch(function() { return ''; });
+              console.warn('[Blindspot] Gallery sync failed: ' + pubResp.status + ' ' + errText);
+            }
           }
         } catch (pubErr) {
           console.warn('[Blindspot] Gallery sync failed (non-fatal):', pubErr);
