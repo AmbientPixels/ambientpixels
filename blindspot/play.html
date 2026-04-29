@@ -438,16 +438,6 @@
       </div>
     </div>
 
-    <!-- Gallery card detail modal -->
-    <div id="bs-gallery-detail" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="Card detail" aria-modal="true">
-      <div class="bs-modal bs-gallery-detail">
-        <button class="bs-modal__close" id="bs-gallery-detail-close" aria-label="Close"><i class="fas fa-xmark"></i></button>
-        <div class="bs-gallery-detail__card" id="bs-gallery-detail-card"></div>
-        <div class="bs-gallery-detail__meta" id="bs-gallery-detail-meta"></div>
-      </div>
-    </div>
-
-
     <!-- SCREEN: LEADERBOARD -->
     <div id="bs-screen-leaderboard" class="bs-screen" role="region" aria-label="Leaderboard">
       <div class="bs-campaign">
@@ -1171,6 +1161,18 @@
   <div id="bs-forge-unlock" class="bs-overlay bs-overlay--hidden" role="dialog" aria-label="Forge unlocked">
     <p class="bs-overlay__title">Card Forge is yours. You've earned this.</p>
     <button class="bs-btn bs-btn--primary bs-btn--large" id="bs-forge-unlock-btn">Enter Card Forge</button>
+  </div>
+
+  <!-- Gallery card detail modal — sits OUTSIDE <main> alongside the other
+       modals so .bs-modal-backdrop's `position: fixed` is viewport-relative
+       (some main-tree ancestors create stacking contexts via transform/
+       filter that break fixed positioning). -->
+  <div id="bs-gallery-detail" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="Card detail" aria-modal="true">
+    <div class="bs-modal bs-gallery-detail">
+      <button class="bs-modal__close" id="bs-gallery-detail-close" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div class="bs-gallery-detail__card" id="bs-gallery-detail-card"></div>
+      <div class="bs-gallery-detail__meta" id="bs-gallery-detail-meta"></div>
+    </div>
   </div>
 
   <!-- How to Play modal -->
