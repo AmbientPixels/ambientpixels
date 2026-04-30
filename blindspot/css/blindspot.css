@@ -4764,7 +4764,11 @@
 
 /* Crate opener — vertical tile. Was a horizontal row (icon | text); now
    a square-ish stack with a large chest icon on top and the count + hint
-   centered beneath. Pulsing border + wobble animation preserved. */
+   centered beneath. Painterly chest illustration sits behind the gradient
+   stack: a bottom-darkening overlay keeps the count + hint legible
+   against the art; an amber tint gradient preserves the warm "treasure"
+   feel and hover boosts both layers without hiding the painting.
+   Pulsing border + wobble animation preserved. */
 .bs-crate-opener {
   display: flex;
   flex-direction: column;
@@ -4773,7 +4777,10 @@
   text-align: center;
   gap: 0.5rem;
   padding: 1.25rem 1rem;
-  background: linear-gradient(135deg, rgba(239, 159, 39, 0.15), rgba(239, 159, 39, 0.05));
+  background:
+    linear-gradient(180deg, rgba(13, 8, 7, 0.15) 0%, rgba(13, 8, 7, 0.6) 100%),
+    linear-gradient(135deg, rgba(239, 159, 39, 0.18), rgba(239, 159, 39, 0.04) 60%),
+    url('../img/lobby/crate-tile.webp') center/cover;
   border: 1px solid var(--bs-accent);
   border-radius: 12px;
   cursor: pointer;
@@ -4781,7 +4788,10 @@
   box-shadow: 0 0 12px rgba(239, 159, 39, 0.2);
 }
 .bs-crate-opener:hover {
-  background: linear-gradient(135deg, rgba(239, 159, 39, 0.25), rgba(239, 159, 39, 0.1));
+  background:
+    linear-gradient(180deg, rgba(13, 8, 7, 0.05) 0%, rgba(13, 8, 7, 0.45) 100%),
+    linear-gradient(135deg, rgba(239, 159, 39, 0.28), rgba(239, 159, 39, 0.08) 60%),
+    url('../img/lobby/crate-tile.webp') center/cover;
   box-shadow: 0 0 20px rgba(239, 159, 39, 0.35);
   transform: scale(1.02);
 }
@@ -4852,8 +4862,10 @@
 /* Collection tile — vertical layout, big gem icon on top, label below,
    thumbnail previews at the bottom. Count badge sits absolute in the
    top-right corner so it reads as a "X cosmetics owned" notification
-   instead of competing with the centered tile content. Was horizontal
-   row of icon + text + count. */
+   instead of competing with the centered tile content. Painterly gem
+   spread sits behind a bottom-darkening overlay so the gem icon + label
+   stay legible at any art state. Hover lifts the overlay and adds a
+   subtle gold halo. Was horizontal row of icon + text + count. */
 .bs-collection-panel {
   flex: 1;
   position: relative;
@@ -4864,7 +4876,9 @@
   text-align: center;
   gap: 0.45rem;
   padding: 1.25rem 1rem;
-  background: var(--bs-surface);
+  background:
+    linear-gradient(180deg, rgba(13, 8, 7, 0.15) 0%, rgba(13, 8, 7, 0.65) 100%),
+    url('../img/lobby/collection-tile.webp') center/cover;
   border: 1px solid var(--bs-border);
   border-radius: 12px;
   color: var(--bs-text);
@@ -4876,8 +4890,10 @@
 }
 .bs-collection-panel:hover {
   border-color: var(--bs-accent);
-  background: var(--bs-card-bg);
-  box-shadow: 0 0 14px rgba(239, 159, 39, 0.18);
+  background:
+    linear-gradient(180deg, rgba(13, 8, 7, 0.05) 0%, rgba(13, 8, 7, 0.5) 100%),
+    url('../img/lobby/collection-tile.webp') center/cover;
+  box-shadow: 0 0 14px rgba(239, 159, 39, 0.2);
 }
 /* Big gem icon — first child <i> in the panel. Bumped to match the
    crate icon's visual weight. */
