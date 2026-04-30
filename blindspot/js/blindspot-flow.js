@@ -1046,7 +1046,8 @@
     isForgeUnlocked: isForgeUnlocked, isForgePending: isForgePending,
     getForgeWins: getForgeWins, getHighestBossDefeated: getHighestBossDefeated,
     showNewCardClassPicker: function() { showNewCardClassPicker(); },
-    showScreen: function(name) { showScreen(name); }
+    showScreen: function(name) { showScreen(name); },
+    renderDeckManagement: function() { renderDeckManagement(); }
   });
   function renderCardSwitcher() { if (_Sw.renderSwitcher) _Sw.renderSwitcher(); }
   function renderNewCardButton() { if (_Sw.renderNewCardBtn) _Sw.renderNewCardBtn(); }

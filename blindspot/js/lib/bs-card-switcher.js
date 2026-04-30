@@ -111,7 +111,12 @@ window.BsCardSwitcher = (function () {
         // any card add/remove without rebinding the handler.
         var size = _cb.getDeckSize ? _cb.getDeckSize() : 0;
         if (size >= MAX_DECK_SIZE && _cb.showScreen) {
+          // Mirror bs-nav.js's Manage Deck handler — showScreen alone
+          // just switches the view; renderDeckManagement populates the
+          // grid. Skipping the render leaves the player on a blank
+          // screen.
           _cb.showScreen('deck');
+          if (_cb.renderDeckManagement) _cb.renderDeckManagement();
         } else if (_cb.showNewCardClassPicker) {
           _cb.showNewCardClassPicker();
         }
