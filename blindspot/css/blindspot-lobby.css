@@ -1035,6 +1035,10 @@ body.bs-page {
    xp-remaining values keep the red accent on the CEO's request — they
    read as live data points, not chrome. */
 .blindspot-lobby__sub strong { color: var(--blindspot-accent); }
+/* Zero-state demotion — red on a `0` reads as "this is bad" when it's
+   actually just "you haven't got any yet." JS toggles .is-zero on
+   #bs-streak / #bs-best when their value === 0. */
+.blindspot-lobby__sub strong.is-zero { color: var(--blindspot-text-muted); }
 .blindspot-lobby-section__head-meta { color: var(--blindspot-accent-gold); }
 .blindspot-lobby #bs-bounties .bs-bounty__reward { color: var(--blindspot-accent-gold); }
 .blindspot-lobby .blindspot-boss-pip--asc .blindspot-boss-pip__img {

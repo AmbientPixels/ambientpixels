@@ -1796,8 +1796,19 @@
     if (remainEl) remainEl.textContent = xp.atMax ? 'Max rank' : `${xp.remaining} XP`;
 
     // Streak / best \u2014 wired to live progress (was hardcoded mock markup).
-    if (streakEl) streakEl.textContent = String(getWinStreak() || 0);
-    if (bestEl) bestEl.textContent = String(getBestStreak() || 0);
+    // Zero-state class so CSS can demote the red emphasis: red on
+    // a `0` reads as "this is bad / dangerous" when it's actually
+    // just "you don't have any yet."
+    if (streakEl) {
+      const streakVal = getWinStreak() || 0;
+      streakEl.textContent = String(streakVal);
+      streakEl.classList.toggle('is-zero', streakVal === 0);
+    }
+    if (bestEl) {
+      const bestVal = getBestStreak() || 0;
+      bestEl.textContent = String(bestVal);
+      bestEl.classList.toggle('is-zero', bestVal === 0);
+    }
   }
 
   function updateForgeProgress() {
