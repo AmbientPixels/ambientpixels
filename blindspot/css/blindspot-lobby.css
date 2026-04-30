@@ -1129,9 +1129,9 @@ body.bs-page {
   overflow-y: auto;
 }
 .bs-codex-row {
-  background: var(--bs-bg-2, rgba(255, 255, 255, 0.02));
-  border: 1px solid var(--bs-border, rgba(255, 255, 255, 0.08));
-  border-radius: 6px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-card, 4px);
   padding: 0.75rem 0.9rem;
 }
 .bs-codex-row--defeated { border-color: var(--blindspot-success); }
