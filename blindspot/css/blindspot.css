@@ -1018,14 +1018,23 @@
   color: var(--bs-text);
 }
 
+/* ============================================================
+   CAMPAIGN LADDER — Vein palette migration
+   The vertical "side-stripe" indicator on .bs-boss-card::before
+   is a pre-existing structural pattern (3px-wide left strip that
+   greys when locked, golds when current, greens when defeated).
+   It's not ideal per the design rules — full-border / leading-
+   number patterns are preferred — but staying in palette-swap
+   scope here. Restructuring the ladder card is a follow-up.
+   ============================================================ */
 .bs-boss-card {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: var(--bs-surface);
-  border: 1px solid var(--bs-border);
-  border-radius: 8px;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-card, 4px);
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
@@ -1038,19 +1047,19 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background: var(--bs-border);
+  background: var(--blindspot-border);
   transition: background 0.25s ease;
 }
 
 .bs-boss-card--current {
-  border-color: var(--bs-accent);
-  background: linear-gradient(135deg, var(--bs-surface-2), var(--bs-surface));
-  box-shadow: 0 0 20px rgba(239, 159, 39, 0.08);
+  border-color: var(--blindspot-accent-gold);
+  background: linear-gradient(135deg, var(--blindspot-surface-2), var(--blindspot-surface));
+  box-shadow: 0 0 20px rgba(245, 192, 120, 0.1);
 }
 
 .bs-boss-card--current::before {
-  background: var(--bs-accent);
-  box-shadow: 0 0 8px var(--bs-accent);
+  background: var(--blindspot-accent-gold);
+  box-shadow: 0 0 8px var(--blindspot-accent-gold);
 }
 
 .bs-boss-card--locked {
@@ -1059,19 +1068,19 @@
 }
 
 .bs-boss-card--defeated::before {
-  background: var(--bs-success);
+  background: var(--blindspot-success);
 }
 
 .bs-boss-card:not(.bs-boss-card--locked):hover {
-  border-color: var(--bs-accent-dim);
+  border-color: var(--blindspot-accent-gold-dim);
   transform: translateX(4px);
 }
 
 .bs-boss-card__number {
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--bs-accent-dim);
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--blindspot-accent-gold-dim);
   width: 32px;
   text-align: center;
   flex-shrink: 0;
@@ -1083,20 +1092,24 @@
 }
 
 .bs-boss-card__name {
-  font-family: 'Cinzel', serif;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
   font-weight: 600;
-  font-size: 1rem;
-  color: var(--bs-text);
+  font-size: 1.05rem;
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
 }
 
 .bs-boss-card__class {
-  font-size: 0.8rem;
-  color: var(--bs-text-muted);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
 }
 
 .bs-boss-card__flavor {
-  font-size: 0.75rem;
-  color: var(--bs-text-muted);
+  font-size: 0.78rem;
+  color: var(--blindspot-text-dim);
   font-style: italic;
   margin-top: 0.25rem;
 }
@@ -1106,27 +1119,32 @@
 }
 
 .bs-boss-card__wins {
-  font-size: 0.75rem;
-  color: var(--bs-success);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--blindspot-success);
 }
 
 .bs-boss-card__record {
   font-size: 0.65rem;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
   font-weight: 400;
   margin-left: 0.5rem;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
 }
 
 .bs-boss-card__reward {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.65rem;
-  color: var(--bs-accent);
-  padding: 0.15rem 0.5rem;
-  border: 1px solid var(--bs-accent-dim);
-  border-radius: 100px;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  padding: 0.18rem 0.55rem;
+  border: 1px solid var(--blindspot-accent-gold-dim);
+  border-radius: var(--blindspot-radius-pill, 999px);
   margin-top: 0.2rem;
 }
 
@@ -1135,8 +1153,8 @@
 }
 
 .bs-boss-card__reward--claimed {
-  color: var(--bs-success);
-  border-color: var(--bs-success);
+  color: var(--blindspot-success);
+  border-color: var(--blindspot-success);
   opacity: 0.6;
 }
 
@@ -1149,6 +1167,42 @@
   gap: 0.15rem;
   margin-left: 0.3rem;
   vertical-align: middle;
+}
+
+/* Scoped Vein header override for the Campaign screen — same pattern
+   as Collection / Deck. Other legacy screens that share .bs-campaign__
+   header (Stats, Sparks Shop, Forge) stay on legacy until each migrates. */
+#bs-screen-campaign {
+  background: var(--blindspot-bg);
+  background-image: var(--blindspot-bg-pattern);
+}
+#bs-screen-campaign .bs-campaign__header {
+  border-bottom: 1px solid var(--blindspot-border-2);
+}
+#bs-screen-campaign .bs-campaign__header h2 {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  color: var(--blindspot-text);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+#bs-screen-campaign .bs-campaign__back {
+  color: var(--blindspot-text-dim);
+  border: 1px solid var(--blindspot-border);
+  background: transparent;
+  border-radius: var(--blindspot-radius-button, 2px);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#bs-screen-campaign .bs-campaign__back:hover {
+  color: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold-dim);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 5%, transparent);
+}
+#bs-screen-campaign .bs-campaign__progress {
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
 }
 
 /* ============================================================
