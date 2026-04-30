@@ -1211,7 +1211,7 @@
   gap: 0;
   overflow: hidden;
   cursor: pointer;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 1 / 2.2;
   transition: border-color 0.25s, transform 0.18s, box-shadow 0.25s;
 }
 /* Kill the legacy left side-stripe on this scope. */
@@ -1239,10 +1239,11 @@
 }
 
 /* Avatar — full-bleed top portion. Img inside loses its circular
-   crop and fills as a cover-fit hero. */
+   crop and fills as a cover-fit hero. Bumped to 78% so the boss art
+   dominates the card; info strip below shrinks to a compact 22%. */
 #bs-boss-ladder > .bs-boss-card .bs-boss-avatar {
   width: 100%;
-  height: 65%;
+  height: 78%;
   border: 0;
   border-radius: 0;
   background: var(--blindspot-bg-2);
