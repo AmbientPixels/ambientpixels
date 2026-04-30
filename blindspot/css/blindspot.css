@@ -9083,6 +9083,17 @@ body.bs-battle-active .bs-play {
 }
 
 /* Collection tabs */
+/* ============================================================
+   COLLECTION — Vein palette migration
+   Was using legacy --bs-* tokens (amber). Now uses the Vein
+   --blindspot-* tokens (oxblood-black + gold halo) so navigating
+   from the lobby's Loot Zone tile (Vein) into the Collection
+   screen no longer switches color worlds. Other legacy screens
+   (Deck, Stats, Codex, Campaign ladder, Sparks Shop, Forge) still
+   share .bs-campaign__header — left untouched here, scoped Vein
+   override for Collection's header lives at the bottom of this
+   block under #bs-screen-collection.
+   ============================================================ */
 .bs-collection__tabs {
   display: flex;
   gap: 0.25rem;
@@ -9094,26 +9105,29 @@ body.bs-battle-active .bs-play {
 .bs-collection__tab {
   flex: 1;
   min-width: 0;
-  padding: 0.5rem 0.25rem;
+  padding: 0.55rem 0.25rem;
   background: transparent;
-  border: 1px solid var(--bs-border);
-  border-radius: 6px;
-  color: var(--bs-text-muted);
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
+  border: 0;
+  border-bottom: 1px solid var(--blindspot-border);
+  border-radius: 0;
+  color: var(--blindspot-text-muted);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
   font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s, background 0.2s;
   white-space: nowrap;
 }
 .bs-collection__tab:hover {
-  color: var(--bs-text);
-  border-color: var(--bs-accent-dim);
+  color: var(--blindspot-text);
+  border-bottom-color: var(--blindspot-accent-gold-dim);
 }
 .bs-collection__tab--active {
-  color: var(--bs-accent);
-  border-color: var(--bs-accent);
-  background: var(--bs-surface);
+  color: var(--blindspot-accent-gold);
+  border-bottom-color: var(--blindspot-accent-gold);
+  background: transparent;
 }
 
 /* Collection grid */
@@ -9131,23 +9145,23 @@ body.bs-battle-active .bs-play {
   align-items: center;
   gap: 0.35rem;
   padding: 0.75rem 0.5rem;
-  background: var(--bs-surface);
-  border: 1px solid var(--bs-border);
-  border-radius: 10px;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile, 4px);
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   position: relative;
   min-height: 100px;
 }
 .bs-collection-item:hover:not(:disabled) {
-  border-color: var(--bs-item-rarity, var(--bs-accent));
+  border-color: var(--bs-item-rarity, var(--blindspot-accent-gold));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 .bs-collection-item--equipped {
-  border-color: var(--bs-item-rarity, var(--bs-accent));
-  background: linear-gradient(to bottom, var(--bs-surface), rgba(0, 0, 0, 0.2));
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2), inset 0 0 12px rgba(255, 255, 255, 0.03);
+  border-color: var(--bs-item-rarity, var(--blindspot-accent-gold));
+  background: linear-gradient(to bottom, var(--blindspot-surface), var(--blindspot-bg-2));
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(245, 192, 120, 0.06);
 }
 .bs-collection-item--locked {
   opacity: 0.35;
@@ -9155,38 +9169,42 @@ body.bs-battle-active .bs-play {
 }
 .bs-collection-item__icon {
   font-size: 1.4rem;
-  color: var(--bs-item-rarity, var(--bs-text-muted));
+  color: var(--bs-item-rarity, var(--blindspot-text-muted));
   width: 44px;
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--bs-card-bg);
+  background: var(--blindspot-bg-2);
 }
 .bs-collection-item__name {
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--bs-text);
+  color: var(--blindspot-text);
   text-align: center;
   line-height: 1.2;
 }
 .bs-collection-item__rarity {
-  font-size: 0.6rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.58rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
 }
 .bs-collection-item__badge {
   position: absolute;
   top: 0.3rem;
   right: 0.3rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.55rem;
-  color: var(--bs-accent);
-  background: var(--bs-bg);
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
-  border: 1px solid var(--bs-accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  background: var(--blindspot-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--blindspot-radius-button, 2px);
+  border: 1px solid var(--blindspot-accent-gold);
 }
 .bs-collection-item__lock {
   position: absolute;
@@ -9194,40 +9212,42 @@ body.bs-battle-active .bs-play {
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 1.2rem;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
   opacity: 0.5;
 }
 
 /* Consumable tab: description + quantity + buy */
 .bs-collection-item__desc {
-  font-size: 0.55rem;
-  color: var(--bs-text-muted);
+  font-size: 0.6rem;
+  color: var(--blindspot-text-muted);
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .bs-collection-item__qty {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-dim);
 }
 .bs-collection-item__buy {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.6rem;
-  color: var(--bs-accent);
-  background: color-mix(in srgb, var(--bs-accent) 10%, transparent);
-  border: 1px solid var(--bs-accent-dim);
-  border-radius: 4px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 10%, transparent);
+  border: 1px solid var(--blindspot-accent-gold-dim);
+  border-radius: var(--blindspot-radius-button, 2px);
   padding: 0.2rem 0.5rem;
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
   min-height: 28px;
 }
 .bs-collection-item__buy:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--bs-accent) 25%, transparent);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 25%, transparent);
   transform: scale(1.05);
 }
 .bs-collection-item__buy:disabled {
@@ -9237,10 +9257,12 @@ body.bs-battle-active .bs-play {
 
 /* Equipped summary strip */
 .bs-collection-equipped__title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.7rem;
-  color: var(--bs-text-muted);
-  margin-bottom: 0.3rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  margin-bottom: 0.4rem;
   padding: 0 0.5rem;
 }
 .bs-collection-equipped__items {
@@ -9253,24 +9275,52 @@ body.bs-battle-active .bs-play {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--bs-border);
-  border-radius: 12px;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-pill, 999px);
   font-size: 0.65rem;
-  color: var(--bs-text);
-  background: var(--bs-surface);
+  color: var(--blindspot-text);
+  background: var(--blindspot-surface);
 }
 
 /* Empty state */
 .bs-collection-empty {
   text-align: center;
   padding: 2rem 1rem;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
 }
 .bs-collection-empty i {
   font-size: 2rem;
   margin-bottom: 0.5rem;
   display: block;
+  color: var(--blindspot-accent-gold-dim);
+}
+
+/* Scoped Vein override for the shared .bs-campaign__header shell —
+   only the Collection screen. Deck / Codex / Campaign / Stats keep
+   their legacy header styling until they're migrated too. */
+#bs-screen-collection {
+  background: var(--blindspot-bg);
+  background-image: var(--blindspot-bg-pattern);
+}
+#bs-screen-collection .bs-campaign__header {
+  border-bottom: 1px solid var(--blindspot-border-2);
+}
+#bs-screen-collection .bs-campaign__header h2 {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
+}
+#bs-screen-collection .bs-campaign__back {
+  color: var(--blindspot-text-dim);
+  border: 1px solid var(--blindspot-border);
+  background: transparent;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#bs-screen-collection .bs-campaign__back:hover {
+  color: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold-dim);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 5%, transparent);
 }
 
 /* ============================================================
