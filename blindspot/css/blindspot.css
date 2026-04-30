@@ -1169,6 +1169,237 @@
   vertical-align: middle;
 }
 
+/* ============================================================
+   CAMPAIGN LADDER — art-forward tall card redesign
+   Was a vertical stack of horizontal rows with a 3px side-stripe,
+   tiny round avatar, and a Fight button on the right. Now a grid
+   of tall narrow cards (2:3 aspect) with the boss portrait as a
+   full-bleed hero on the top 65% and a compact info strip below.
+   Same JS, same DOM — the entire boss-card markup is restructured
+   purely via CSS.
+
+   Click target: the .bs-boss-card__action wrapper is repositioned
+   to absolute fill the card; the button inside loses its visible
+   styling (transparent, font-size 0) so the whole card surface
+   still triggers the existing data-fight-boss handler.
+
+   Side-stripe + connector + flavor + weakness + W/L record + "you
+   are here" chip + mastery stars are hidden on this scope — they
+   add up to 6 small details that all live (or should live) in the
+   pre-fight overlay where the player has room to read them. The
+   weekly section keeps its full-width horizontal layout via
+   grid-column: 1 / -1. */
+#bs-boss-ladder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.85rem;
+  padding: 0.5rem 0 2rem;
+}
+#bs-boss-ladder > .bs-weekly-challenge {
+  grid-column: 1 / -1;
+}
+#bs-boss-ladder > .bs-ladder-connector { display: none; }
+
+#bs-boss-ladder > .bs-boss-card {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-card, 4px);
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  cursor: pointer;
+  aspect-ratio: 2 / 3;
+  transition: border-color 0.25s, transform 0.18s, box-shadow 0.25s;
+}
+/* Kill the legacy left side-stripe on this scope. */
+#bs-boss-ladder > .bs-boss-card::before { content: none; }
+
+/* Number — small mono chip overlaid bottom-left of the avatar. */
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__number {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: auto;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  font-weight: 600;
+  color: var(--blindspot-text-dim);
+  background: rgba(13, 8, 7, 0.7);
+  padding: 0.18rem 0.45rem;
+  border-radius: var(--blindspot-radius-button, 2px);
+  z-index: 2;
+}
+#bs-boss-ladder > .bs-boss-card--current .bs-boss-card__number {
+  color: var(--blindspot-bg);
+  background: var(--blindspot-accent-gold);
+}
+
+/* Avatar — full-bleed top portion. Img inside loses its circular
+   crop and fills as a cover-fit hero. */
+#bs-boss-ladder > .bs-boss-card .bs-boss-avatar {
+  width: 100%;
+  height: 65%;
+  border: 0;
+  border-radius: 0;
+  background: var(--blindspot-bg-2);
+  flex: none;
+  position: relative;
+  overflow: hidden;
+  box-shadow: none;
+}
+#bs-boss-ladder > .bs-boss-card .bs-boss-avatar > img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 0 !important;
+  filter: grayscale(0.7) brightness(0.6);
+  transition: filter 0.3s, transform 0.3s;
+}
+#bs-boss-ladder > .bs-boss-card--defeated .bs-boss-avatar > img,
+#bs-boss-ladder > .bs-boss-card--current .bs-boss-avatar > img {
+  filter: none;
+}
+#bs-boss-ladder > .bs-boss-card--locked .bs-boss-avatar > img {
+  filter: grayscale(1) brightness(0.35);
+}
+
+/* Status badge — top-right of the avatar. Defeated → green check;
+   locked → grey lock; current → no badge (the gold border carries it). */
+#bs-boss-ladder > .bs-boss-card .bs-boss-avatar::after {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.7rem;
+  z-index: 2;
+}
+#bs-boss-ladder > .bs-boss-card--defeated .bs-boss-avatar::after {
+  content: '\f00c';
+  display: flex;
+  background: var(--blindspot-success);
+  color: var(--blindspot-bg);
+}
+#bs-boss-ladder > .bs-boss-card--locked .bs-boss-avatar::after {
+  content: '\f023';
+  display: flex;
+  background: rgba(13, 8, 7, 0.85);
+  color: var(--blindspot-text-muted);
+}
+
+/* Current state — gold border + soft glow on the whole card. */
+#bs-boss-ladder > .bs-boss-card--current {
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 18px rgba(245, 192, 120, 0.35);
+}
+
+/* Hover — only on unlocked. Clears the dim filter, lifts slightly. */
+#bs-boss-ladder > .bs-boss-card:not(.bs-boss-card--locked):hover {
+  border-color: var(--blindspot-accent-gold);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 12px rgba(245, 192, 120, 0.2);
+}
+#bs-boss-ladder > .bs-boss-card:not(.bs-boss-card--locked):hover .bs-boss-avatar > img {
+  filter: none;
+  transform: scale(1.04);
+}
+#bs-boss-ladder > .bs-boss-card--locked {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+/* Info area — bottom 35% of card. Compact name + class. */
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__info {
+  flex: 1;
+  padding: 0.5rem 0.7rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  background: var(--blindspot-bg-2);
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Hide details that belong in the pre-fight overlay, not on the
+   card surface. */
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__flavor,
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__here,
+#bs-boss-ladder > .bs-boss-card .bs-boss-weakness,
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__record,
+#bs-boss-ladder > .bs-boss-card .bs-mastery-stars {
+  display: none;
+}
+
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__name {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--blindspot-text);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__class {
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__reward {
+  align-self: flex-start;
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  padding: 0.1rem 0.4rem;
+  margin-top: 0.2rem;
+}
+
+/* Action element becomes an invisible click overlay covering the
+   whole card. The button inside keeps its existing data-fight-boss
+   binding; we just strip its visible styling so the card art reads
+   as the click target. Locked variant has a lock icon (no button) —
+   hide that since the avatar badge already shows the lock state. */
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__action {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__action > button {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-size: 0;
+  color: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+#bs-boss-ladder > .bs-boss-card .bs-boss-card__action > i.fa-lock {
+  display: none;
+}
+
 /* Scoped Vein header override for the Campaign screen — same pattern
    as Collection / Deck. Other legacy screens that share .bs-campaign__
    header (Stats, Sparks Shop, Forge) stay on legacy until each migrates. */
