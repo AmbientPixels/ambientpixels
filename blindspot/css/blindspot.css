@@ -4450,6 +4450,26 @@
   75% { transform: rotate(3deg); }
 }
 
+/* Loot zone split — crate opener and loot row side by side as two equal columns.
+   Either child can be display:none (e.g. crate opener when no crates) and the
+   other will flex to fill the full width. Stacks back to a single column on
+   narrow phones so the panels stay tappable. */
+.bs-loot-zone__row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.bs-loot-zone__row > .bs-crate-opener,
+.bs-loot-zone__row > .bs-loot-row {
+  flex: 1;
+  min-width: 0;
+}
+@media (max-width: 480px) {
+  .bs-loot-zone__row {
+    flex-direction: column;
+  }
+}
+
 /* Loot row — collection + shop side by side */
 .bs-loot-row {
   display: flex;
