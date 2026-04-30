@@ -12432,6 +12432,95 @@ body.bs-adventure-active {
   color: var(--blindspot-accent-gold);
 }
 
+/* ── Deck-scoped rendered cards — Vein typography + chrome.
+   The cards rendered inside .bs-deck-grid use the shared
+   .bs-rendered-card / .bs-rc-* markup. The legacy rules (line 6926+
+   of this file) set Cinzel + amber accents, so without scoped
+   overrides the deck cards read "legacy yellow" even though the
+   deck shell is Vein. Mirrors the .blindspot-lobby scope-restyle
+   block (blindspot-lobby.css:719+). ── */
+#bs-screen-deck .bs-rendered-card {
+  background: linear-gradient(180deg, var(--blindspot-surface), var(--blindspot-bg-2));
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card);
+  box-shadow: var(--blindspot-shadow-card);
+  color: var(--blindspot-text);
+}
+#bs-screen-deck .bs-rc__name {
+  font-family: var(--blindspot-font-display);
+  font-weight: 600;
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
+}
+#bs-screen-deck .bs-rc__class {
+  font-family: var(--blindspot-font-mono);
+  color: var(--blindspot-text-dim);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+#bs-screen-deck .bs-rc__title-badge {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--blindspot-accent-gold-dim);
+  color: var(--blindspot-accent-gold);
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+#bs-screen-deck .bs-rc__power {
+  color: var(--blindspot-accent-gold);
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+#bs-screen-deck .bs-rc__element {
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+#bs-screen-deck .bs-rc__info {
+  background: linear-gradient(to top, rgba(13, 8, 7, 0.95), rgba(13, 8, 7, 0.6));
+}
+#bs-screen-deck .bs-rc-stat__bar {
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: 2px;
+}
+#bs-screen-deck .bs-rc-stat__fill { border-radius: inherit; }
+#bs-screen-deck .bs-rc-stat__label {
+  font-family: var(--blindspot-font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+#bs-screen-deck .bs-rc-stat__val {
+  font-family: var(--blindspot-font-numeric);
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
+  color: var(--blindspot-text);
+  font-weight: 600;
+}
+
+/* Active card — gold accent on the rendered card itself, not just the
+   container. Mirrors the .bs-deck-card--active outer ring + glow. */
+#bs-screen-deck .bs-deck-card--active .bs-rendered-card {
+  border-color: var(--blindspot-accent-gold);
+}
+
+/* Lock toggle / delete button styling — already cosmetic but with
+   amber from the variable remap; pin them to gold/red explicitly. */
+#bs-screen-deck .bs-deck-card__lock-toggle--locked {
+  color: var(--blindspot-success);
+}
+#bs-screen-deck .bs-deck-card__delete {
+  color: var(--blindspot-danger);
+}
+#bs-screen-deck .bs-deck-card__delete:hover {
+  border-color: var(--blindspot-danger);
+  background: color-mix(in srgb, var(--blindspot-danger) 12%, var(--blindspot-surface-2));
+}
+
 /* ============================================================
    SHARE CARD MODAL — Vein theme override
    Created dynamically by bs-card-share.js. Same scoped pattern.
