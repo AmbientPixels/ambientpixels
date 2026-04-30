@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blindspot — OG card</title>
+  <!--
+    Source-of-truth template for the Blindspot Open Graph card.
+    Renders at exactly 1200x630 (the spec social platforms expect).
+
+    Pipeline:
+      headless-render this page at 1200x630 → save as img/og-blindspot.png
+      → reference from <meta property="og:image"> on index.html / play.html
+
+    Style brief (Apr 2026):
+    Mirror the landing splash (index.html + blindspot-landing.css) so the
+    OG asset reads as the same brand — Vein-style "illuminated reliquary":
+      * Cormorant Garamond italic display (NOT Cinzel — Cinzel reads
+        gym-fight, Cormorant reads editorial / forged-relic)
+      * One restrained gold halo on the wordmark, no triple-stack shadow
+      * Background = the splash's --blindspot-bg-pattern (subtle red ember
+        from below, faint gold halo above) WITHOUT the heavy mid-frame red
+        radial that was bleeding magenta/pink into the card halo
+      * 1px gold border + 32px L-corner brackets, matching landing frame
+      * Sigil watermark behind the card mirrors the splash portrait sigil
+      * Single soft drop-shadow on the card host (gold rim, not red flare)
+
+    Tweaking the look? Edit here, re-render, ship the new PNG.
+  -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="css/blindspot.css" rel="stylesheet">
+  <style>
+    /* Vein palette — synced with css/blindspot-tokens.css. */
+    :root {
+      --bg:          #0D0807;   /* --blindspot-bg */
+      --bg-2:        #170D0B;   /* --blindspot-bg-2 */
+      --surface:     #1C100D;   /* --blindspot-surface */
+      --gold:        #F5C078;   /* --blindspot-accent-gold */
+      --gold-2:      #FFD89A;   /* --blindspot-accent-gold-2 */
+      --gold-dim:    #B97417;   /* --blindspot-accent-gold-dim */
+      --red:         #C8302C;   /* --blindspot-accent */
+      --red-hot:     #E04540;   /* --blindspot-accent-hover */
+      --red-dim:     #8E2220;   /* --blindspot-accent-dim */
+      --text:        #EFE3D2;   /* --blindspot-text */
+      --text-dim:    #B89A82;   /* --blindspot-text-dim */
+      --text-muted:  #7A5E4C;   /* --blindspot-text-muted */
+      --border:      #3A1F1A;   /* --blindspot-border */
+      --border-2:    #4F2A23;   /* --blindspot-border-2 */
+
+      --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+      --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+    }
+
+    .og {
+      position: relative;
+      width: 1200px;
+      height: 630px;
+      /* Velvet base — the splash's oxblood-black, ramped toward deep
+         wine in the lower half so the cloth has somewhere to catch the
+         light. The bottom red ember is dialled WAY back from before;
+         most of the red presence now comes from the gradient itself
+         plus the texture overlay, not from a glowing radial. */
+      background:
+        radial-gradient(ellipse 1100px 480px at 50% 112%,
+          rgba(160, 36, 32, 0.10) 0%,
+          rgba(160, 36, 32, 0.03) 40%,
+          rgba(160, 36, 32, 0.0)  72%),
+        radial-gradient(ellipse 800px 320px at 50% -10%,
+          rgba(245, 192, 120, 0.025) 0%,
+          rgba(245, 192, 120, 0.0)   65%),
+        linear-gradient(165deg, #100806 0%, #1C0A08 45%, #270C0A 78%, #2D0E0B 100%);
+      overflow: hidden;
+    }
+
+    /* Velvet texture — three layers, all subtle, painting from bottom
+       up: (1) directional sheen (light upper-left, deep lower-right),
+       (2) a soft vignette to seat the cloth, (3) fine woven nap.
+       Together they read as crushed velvet rather than a flat gradient.
+       All three sit BELOW positioned children (z-index 2+), so the
+       frame, corners, embers, and card paint cleanly on top. */
+    .og::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        /* directional sheen — the way a strip of velvet catches light */
+        linear-gradient(132deg,
+          rgba(245, 192, 120, 0.035) 0%,
+          rgba(245, 192, 120, 0.012) 22%,
+          transparent 45%,
+          transparent 60%,
+          rgba(40, 6, 4, 0.22) 100%),
+        /* soft vignette to deepen the corners and centre the focus */
+        radial-gradient(ellipse 130% 100% at 50% 50%,
+          transparent 0%,
+          transparent 55%,
+          rgba(0, 0, 0, 0.30) 100%);
+      mix-blend-mode: overlay;
+    }
+    .og::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      /* Fine woven nap — high-frequency turbulence reads more like
+         fabric warp/weft than the previous fractal grain. Slightly
+         heavier opacity than before so the texture is felt, not just
+         present. */
+      opacity: 0.10;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    }
+
+    /* Hairline gold framing (1px) — mirrors the splash's
+       `.blindspot-landing__frame` border-2 line, not a chunky bracket. */
+    .og-frame {
+      position: absolute;
+      top: 28px;
+      left: 28px;
+      right: 28px;
+      bottom: 28px;
+      border: 1px solid var(--border-2);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* L-shaped corner brackets, 32px arms — copy of the landing frame
+       `.blindspot-landing__corner` rule (border-{side}: 0). */
+    .og-corner {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--gold);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .og-corner--tl { top: 27px; left: 27px;  border-right: 0; border-bottom: 0; }
+    .og-corner--tr { top: 27px; right: 27px; border-left: 0;  border-bottom: 0; }
+    .og-corner--bl { bottom: 27px; left: 27px;  border-right: 0; border-top: 0; }
+    .og-corner--br { bottom: 27px; right: 27px; border-left: 0;  border-top: 0; }
+
+    /* Sigil watermark behind the card — same SVG as the splash's
+       `.blindspot-landing__sigil`. Faint gold geometric mandala anchors
+       the right half visually without adding more red glow. */
+    .og-sigil {
+      position: absolute;
+      right: 80px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 460px;
+      height: 460px;
+      color: var(--gold);
+      opacity: 0.10;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .og-sigil svg { width: 100%; height: 100%; display: block; }
+
+    /* Floating ember motes — sparse, low-opacity, hand-placed.
+       Reproducible (no random) so re-renders are identical. */
+    .og-embers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .og-embers span {
+      position: absolute;
+      background: var(--red-hot);
+      border-radius: 50%;
+      /* Glow cut ~80% — embers should read as motes, not lens flares. */
+      box-shadow: 0 0 3px rgba(232, 56, 48, 0.18);
+      opacity: 0.4;
+    }
+
+    /* Hero text (left two-thirds) */
+    .og-hero {
+      position: absolute;
+      left: 96px;
+      top: 50%;
+      transform: translateY(-50%);
+      max-width: 660px;
+      z-index: 4;
+    }
+    /* Eyebrow — matches `.blindspot-landing__chapter`: gold mono, wide
+       letter-spacing, treated as an illuminated chapter label. */
+    .og-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.85;
+      margin-bottom: 32px;
+    }
+    /* Wordmark — italic Cormorant Garamond 700, the splash's display
+       voice. Halo cut ~80%: a near-imperceptible gold lift instead of
+       the previous glow ring. Forged gold leaf on velvet, not a sign. */
+    .og-wordmark {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 138px;
+      line-height: 0.92;
+      letter-spacing: 0.005em;
+      color: var(--gold);
+      text-shadow: 0 0 40px rgba(245, 192, 120, 0.06);
+      margin-bottom: 28px;
+    }
+    /* Tagline — Cormorant italic, dimmed text colour, mirrors the
+       landing's `.blindspot-landing__verse--small` voice. */
+    .og-tagline {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 32px;
+      line-height: 1.28;
+      color: var(--text-dim);
+      margin-bottom: 26px;
+      max-width: 580px;
+    }
+    .og-rule {
+      width: 84px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.7;
+      margin-bottom: 22px;
+    }
+    /* Pitch — JetBrains Mono (matches `--blindspot-font-mono`), warm
+       text-dim instead of hot red so the only red note in the layout is
+       the card halo on the right. */
+    .og-pitch {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .og-pitch__sep {
+      color: var(--gold);
+      opacity: 0.55;
+      margin: 0 0.6em;
+    }
+
+    /* Right-side card host — wraps a live BsCardRenderer output.
+       Glow cut ~80%: keep the cast shadow for depth + product-photo
+       grounding, drop the gold and red halos to a faint trace. The card
+       should look LAID on the velvet, not floating in a light show. */
+    .og-card-host {
+      position: absolute;
+      right: 158px;
+      top: 50%;
+      transform: translateY(-50%) rotate(1.5deg);
+      width: 280px;
+      z-index: 5;
+      filter:
+        drop-shadow(0 16px 24px rgba(0, 0, 0, 0.6))
+        drop-shadow(0 0 14px rgba(245, 192, 120, 0.05))
+        drop-shadow(0 0 28px rgba(200, 48, 44, 0.06));
+    }
+    /* Override the renderer's max-width cap so the card sizes to its host */
+    .og-card-host .bs-rendered-card.bs-rc--full {
+      max-width: 280px;
+      width: 280px;
+    }
+    .og-card-host .bs-rc__avatar { object-fit: cover; }
+
+    /* Tier chip on the card — neutralised oxblood + thin gold rim.
+       No glow halo, since the card host filter handles ambient light. */
+    .og-card-tier {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 9px;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold-2);
+      background: rgba(28, 16, 13, 0.92);
+      border: 1px solid rgba(245, 192, 120, 0.55);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    /* Bottom-right corner: brand attribution */
+    .og-attribution {
+      position: absolute;
+      bottom: 56px;
+      right: 80px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      z-index: 4;
+    }
+
+    /* Bottom-left corner: chapter ledger — mirrors the splash's
+       "Chapter Zero · The Stranger" label so the OG carries the same
+       editorial trim. */
+    .og-ledger {
+      position: absolute;
+      bottom: 56px;
+      left: 96px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.75;
+      z-index: 4;
+    }
+  </style>
+</head>
+<body>
+  <div class="og">
+
+    <!-- Hairline gold frame + L corner brackets (splash style) -->
+    <div class="og-frame"></div>
+    <div class="og-corner og-corner--tl"></div>
+    <div class="og-corner og-corner--tr"></div>
+    <div class="og-corner og-corner--bl"></div>
+    <div class="og-corner og-corner--br"></div>
+
+    <!-- Sigil watermark behind the card (same geometry as the landing
+         portrait sigil — circles + intersecting triangles). -->
+    <div class="og-sigil" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" stroke-width="0.35"/>
+        <circle cx="100" cy="100" r="72" fill="none" stroke="currentColor" stroke-width="0.35"/>
+        <circle cx="100" cy="100" r="48" fill="none" stroke="currentColor" stroke-width="0.35"/>
+        <polygon points="100,16 178,164 22,164" fill="none" stroke="currentColor" stroke-width="0.4"/>
+        <polygon points="100,184 22,36 178,36" fill="none" stroke="currentColor" stroke-width="0.4"/>
+      </svg>
+    </div>
+
+    <!-- Floating embers — sparse, lower right where the card halo lives.
+         Hand-placed for reproducibility. -->
+    <div class="og-embers" aria-hidden="true">
+      <span style="left: 60%; top: 14%; width: 4px; height: 4px;"></span>
+      <span style="left: 73%; top: 24%; width: 2px; height: 2px; opacity: 0.35;"></span>
+      <span style="left: 88%; top: 20%; width: 3px; height: 3px;"></span>
+      <span style="left: 66%; top: 40%; width: 2px; height: 2px; opacity: 0.3;"></span>
+      <span style="left: 82%; top: 52%; width: 4px; height: 4px; opacity: 0.5;"></span>
+      <span style="left: 92%; top: 64%; width: 2px; height: 2px; opacity: 0.4;"></span>
+      <span style="left: 56%; top: 62%; width: 3px; height: 3px; opacity: 0.4;"></span>
+      <span style="left: 70%; top: 80%; width: 4px; height: 4px;"></span>
+      <span style="left: 86%; top: 88%; width: 2px; height: 2px; opacity: 0.3;"></span>
+      <span style="left: 30%; top: 84%; width: 2px; height: 2px; opacity: 0.35;"></span>
+    </div>
+
+    <!-- Hero text — left two-thirds -->
+    <div class="og-hero">
+      <div class="og-eyebrow">— Chapter Zero · The Stranger —</div>
+      <div class="og-wordmark">Blindspot</div>
+      <div class="og-tagline">Forge your card. Master the arena&rsquo;s blindspot.</div>
+      <div class="og-rule"></div>
+      <div class="og-pitch">10 Bosses<span class="og-pitch__sep">·</span>1 Card<span class="og-pitch__sep">·</span>No Respawns</div>
+    </div>
+
+    <!-- Right-side card — rendered via live BsCardRenderer at page load -->
+    <div class="og-card-host" aria-hidden="true">
+      <div id="og-card-mount"></div>
+      <div class="og-card-tier">EPIC · LV 12</div>
+    </div>
+
+    <!-- Editorial trim -->
+    <div class="og-ledger">Card Arena Combat</div>
+    <div class="og-attribution">ambientpixels.ai/blindspot</div>
+
+  </div>
+
+  <!-- Live card renderer — same path the in-game UI uses -->
+  <script src="js/lib/bs-constants.js"></script>
+  <script src="js/lib/bs-card-renderer.js"></script>
+  <script>
+    // Featured marketing card — forged mid-game player card on a fire
+    // palette so the OG previews what a real Blindspot card looks like.
+    var featuredCard = {
+      id: 'og-featured-stranger',
+      name: 'The Stranger',
+      class: 'Berserker',
+      characterClass: 'Berserker',
+      rarity: 'Epic',
+      element: 'fire',
+      avatar: 'img/demo/demo-knight.webp',
+      palette: 'fire',
+      design: { palette: 'fire', imageContainer: 'fullbleed' },
+      imageContainer: 'fullbleed',
+      combatStats: { str: 18, agi: 14, int: 8, end: 16, lck: 12 },
+      quote: 'Forged in the blindspot.'
+    };
+    var mount = document.getElementById('og-card-mount');
+    if (mount && window.BsCardRenderer) {
+      mount.innerHTML = window.BsCardRenderer.render(featuredCard, 'full');
+      // Headless capture races image decode — force eager + flag readiness
+      // once the avatar bitmap is in.
+      var img = mount.querySelector('.bs-rc__avatar');
+      if (img) {
+        img.loading = 'eager';
+        img.decoding = 'sync';
+        if (img.complete) {
+          window.__ogCardReady = true;
+        } else {
+          img.addEventListener('load', function () { window.__ogCardReady = true; });
+          img.addEventListener('error', function () { window.__ogCardReady = true; });
+        }
+      } else {
+        window.__ogCardReady = true;
+      }
+    } else {
+      window.__ogCardReady = true;
+    }
+  </script>
+</body>
+</html>
