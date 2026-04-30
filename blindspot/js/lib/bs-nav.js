@@ -52,11 +52,11 @@
 
     // Stats screen entry points: lobby strip "View all" link, any of the
     // four stat tiles (clicking a tile opens the same full screen — no
-    // per-tile drill yet), the Stats quicklinks card, and the back
-    // button on the screen itself.
+    // per-tile drill yet), and the back button on the screen itself.
+    // The redundant "Stats" quicklinks card was removed — five other
+    // routes already exist on the lobby alone.
     const openStats = () => { _cb.showScreen('stats'); if (_cb.renderStatsScreen) _cb.renderStatsScreen(); };
     document.getElementById('bs-stats-viewall')?.addEventListener('click', openStats);
-    document.getElementById('bs-btn-stats')?.addEventListener('click', openStats);
     document.querySelectorAll('.blindspot-stat-tile').forEach(function(tile) {
       tile.addEventListener('click', openStats);
     });

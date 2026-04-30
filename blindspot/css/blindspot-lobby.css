@@ -883,6 +883,29 @@ body.bs-page {
   font-size: 0.95rem;
   color: var(--blindspot-text);
   box-shadow: none;
+  /* Anchor + clip the in-row progress strip rendered by ::before. */
+  position: relative;
+  overflow: hidden;
+}
+/* In-row progress fill — width is set per-row via the --bounty-pct
+   custom property written by renderBounties (bs-rewards.js). Sits on
+   the bottom edge so it reads as a row "filling up" rather than a
+   separate bar. Single-target bounties (target=1, no chip shown)
+   render at 0% or 100% so the toggle still visually completes. */
+.blindspot-lobby #bs-bounties .bs-bounty::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: var(--bounty-pct, 0%);
+  background: linear-gradient(90deg, var(--blindspot-accent-dim, #8E2220), var(--blindspot-accent-gold, #F5C078));
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+.blindspot-lobby #bs-bounties .bs-bounty--done::before {
+  background: var(--blindspot-success);
+  box-shadow: 0 0 6px rgba(72, 187, 120, 0.4);
 }
 .blindspot-lobby #bs-bounties .bs-bounty--done {
   border-color: var(--blindspot-success);

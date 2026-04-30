@@ -322,8 +322,13 @@ window.BsRewards = (function () {
           var target = b.target || 1;
           var current = _bountyCurrent(b, data);
           var showProgress = target > 1;
+          // Fill % drives the in-row progress strip via the --bounty-pct
+          // CSS custom property. Done bounties always read 100% even for
+          // single-target toggles (target=1, no chip shown) so the row
+          // visually completes.
+          var pct = b.done ? 100 : (target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0);
           var titleAttr = b.hint ? ' title="' + escHtml(b.hint) + '"' : '';
-          return '<div class="bs-bounty ' + (b.done ? 'bs-bounty--done' : '') + '" role="listitem"' + titleAttr + '>'
+          return '<div class="bs-bounty ' + (b.done ? 'bs-bounty--done' : '') + '" role="listitem"' + titleAttr + ' style="--bounty-pct:' + pct + '%">'
             + '<i class="fas ' + (b.done ? 'fa-check-circle' : 'fa-circle') + '" aria-hidden="true"></i>'
             + '<span class="bs-bounty__text">' + escHtml(b.text) + '</span>'
             + (showProgress
