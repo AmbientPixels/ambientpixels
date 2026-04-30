@@ -945,11 +945,43 @@
     }
   }
 
+  // Per-user localStorage keys that hold session state (cards, active
+   // selection). These leak across accounts on the same browser if not
+  // cleared when a different user logs in. List is intentionally
+  // narrow — keys that are public/static (rank thresholds, ui prefs)
+  // don't need to be cleared.
+  var _PER_USER_KEYS = ['bs-deck', 'bs-selected-card-id'];
+
+  function _clearPerUserCache() {
+    _PER_USER_KEYS.forEach(function (k) {
+      try { localStorage.removeItem(k); } catch (_) {}
+    });
+  }
+
+  // Detect a user-switch on the same browser. If the cached "last user"
+  // differs from the principal that just logged in, the old user's
+  // deck + selected-card-id are about to leak into this session — wipe
+  // them before any code reads getDeck() or pulls a stale card id.
+  function _checkUserSwitch(userId) {
+    if (!userId) return;
+    var prior;
+    try { prior = localStorage.getItem('bs-last-user'); } catch (_) { prior = null; }
+    if (prior && prior !== userId) {
+      console.log('[Blindspot] User switch detected (' + prior + ' -> ' + userId + ') — clearing per-user cache');
+      _clearPerUserCache();
+    }
+    safeLSSet('bs-last-user', userId);
+  }
+
   async function loadProfile() {
     try {
       const data = await window.ArenaAPI.loadProfile();
       _profileData = data;
       _profile = data.profile || null;
+      // Clear stale per-user cache if the logged-in user has changed
+      // since the last session on this browser. Has to happen before
+      // loadUserCards / renderLobby read getDeck().
+      if (_profile && _profile.userId) _checkUserSwitch(_profile.userId);
       return _profile;
     } catch (e) {
       console.warn('[Blindspot] Could not load profile:', e);
@@ -966,12 +998,18 @@
         new Promise(function(_, reject) { setTimeout(function() { reject(new Error('loadCards timeout')); }, 8000); })
       ]);
       var cards = (data.userCards || []).filter(function(c) { return !c.isDefault; });
-      // Cache deck to localStorage for quick access
-      if (cards.length > 0) setDeck(cards);
+      // Always overwrite the cache with what the server returned — even an
+      // empty list. Skipping the empty case let the prior user's cards
+      // persist when a new player with zero cards logged in on the same
+      // browser (cross-account leak).
+      setDeck(cards);
       return cards;
     } catch (e) {
       console.warn('[Blindspot] Could not load cards:', e);
-      // Fall back to cached deck
+      // Fall back to cached deck only if the cache belongs to the current
+      // user. getDeck() validates the namespace; if the cache is from a
+      // prior account it returns []. Avoids leaking the prior user's
+      // cards into this session on API failure.
       var cached = getDeck();
       if (cached.length > 0) return cached;
       return [];
