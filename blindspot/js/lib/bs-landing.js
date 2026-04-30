@@ -60,13 +60,27 @@
         return;
       }
 
-      // Returning authenticated players skip landing
-      var isDemo = _cb.isDemo ? _cb.isDemo() : true;
+      // Returning authenticated players skip landing.
+      // Verify the auth cookie directly via /.auth/me before redirecting —
+      // _profileData.isDemo can lag the actual cookie state (stale cache,
+      // CDN hit, prior session). A logged-out visitor should always see
+      // the landing page regardless of what the cached profile says.
       var isNew = _cb.isNewPlayer ? _cb.isNewPlayer(profile) : true;
-      if (!isDemo && !isNew) {
-        document.getElementById('bs-landing').style.opacity = '0';
-        window.location.href = '/blindspot/play.html';
-        return;
+      if (!isNew) {
+        fetch('/.auth/me')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            var authed = data && data.clientPrincipal && data.clientPrincipal.userId;
+            if (authed) {
+              document.getElementById('bs-landing').style.opacity = '0';
+              window.location.href = '/blindspot/play.html';
+            }
+            // No principal → truly logged out → stay on landing.
+          })
+          .catch(function () { /* fetch failed → stay on landing */ });
+        // Don't return — let the rest of init wire up landing UI in
+        // case the auth check resolves to "stay" (more common than
+        // "redirect" for this branch now).
       }
 
       // Auth UI
