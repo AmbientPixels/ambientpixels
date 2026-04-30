@@ -251,6 +251,43 @@ window.BsStrategy = (function () {
 
   // ── Prefight overlay population (needs card + DOM) ──
 
+  // Set the boss portrait — static .webp goes on as a CSS background
+  // (also serves as the poster while a video buffers), and if the
+  // boss-card data has a .mp4/.webm portrait we layer a <video> on top.
+  // The veil + element badge come after the video in DOM order so they
+  // paint above it without needing z-index.
+  function applyBossPortrait(bossPortraitEl, boss) {
+    if (boss.avatar) {
+      bossPortraitEl.style.backgroundImage = 'url("' + String(boss.avatar).replace(/"/g, '\\"') + '")';
+    }
+    var priorVid = bossPortraitEl.querySelector('video.blindspot-prefight__portrait-video');
+    if (priorVid) priorVid.remove();
+    if (!window.BsBossCard) return;
+    bossPortraitEl._activeBossId = boss.id;
+    var inject = function () {
+      var bcData = window.BsBossCard.get && window.BsBossCard.get(boss.id);
+      var portrait = bcData && bcData.portrait;
+      if (!portrait || !/\.(mp4|webm)(\?|$)/i.test(portrait)) return;
+      // Boss could have changed during the async load (rapid pager nav).
+      if (bossPortraitEl._activeBossId !== boss.id) return;
+      if (bossPortraitEl.querySelector('video.blindspot-prefight__portrait-video')) return;
+      var vid = document.createElement('video');
+      vid.className = 'blindspot-prefight__portrait-video';
+      vid.src = portrait;
+      vid.autoplay = true;
+      vid.loop = true;
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.setAttribute('preload', 'metadata');
+      bossPortraitEl.insertBefore(vid, bossPortraitEl.firstChild);
+    };
+    if (window.BsBossCard.load) {
+      window.BsBossCard.load().then(inject);
+    } else {
+      inject();
+    }
+  }
+
   function populatePrefightOverlay(boss, selectedCard, opts) {
     if (!boss) return;
     opts = opts || {};
@@ -274,9 +311,7 @@ window.BsStrategy = (function () {
 
     if (titleEl) titleEl.textContent = boss.name || '';
     if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(boss);
-    if (bossPortraitEl && boss.avatar) {
-      bossPortraitEl.style.backgroundImage = 'url("' + String(boss.avatar).replace(/"/g, '\\"') + '")';
-    }
+    if (bossPortraitEl) applyBossPortrait(bossPortraitEl, boss);
     if (avatarEl) {
       avatarEl.style.width = '';
       avatarEl.style.height = '';

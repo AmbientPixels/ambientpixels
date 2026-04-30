@@ -162,6 +162,14 @@
   box-shadow: var(--blindspot-shadow-card);
   overflow: hidden;
 }
+.blindspot-prefight__portrait-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
 .blindspot-prefight__portrait-veil {
   position: absolute;
   inset: 0;
