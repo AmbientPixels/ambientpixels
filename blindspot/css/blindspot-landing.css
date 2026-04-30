@@ -80,6 +80,15 @@
   background-position: center top;
   filter: sepia(0.3) saturate(0.85) contrast(1.1);
 }
+.blindspot-landing__portrait-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  pointer-events: none;
+}
 .blindspot-landing__portrait-veil {
   position: absolute;
   inset: 0;
