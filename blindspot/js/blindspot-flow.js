@@ -1726,6 +1726,18 @@
     listEl.innerHTML = html;
   }
 
+  // Derive rank from lifetime XP. Self-heals legacy accounts whose stored
+  // profile.rank lagged the threshold table — server-side rank-up wasn't
+  // applied retroactively, so we recompute every render rather than trust
+  // _profile.rank alone.
+  function deriveRankFromXp(xp) {
+    var n = Number(xp) || 0;
+    for (var i = RANK_ORDER.length - 1; i >= 0; i--) {
+      if (n >= RANKS[RANK_ORDER[i]].xp) return RANK_ORDER[i];
+    }
+    return 'bronze';
+  }
+
   function updateRankDisplay() {
     if (!_profile) return;
     const badge = document.getElementById('bs-rank-badge');
@@ -1736,7 +1748,7 @@
     const streakEl = document.getElementById('bs-streak');
     const bestEl = document.getElementById('bs-best');
 
-    const rank = _profile.rank || 'bronze';
+    const rank = deriveRankFromXp(_profile.xp);
     const rankInfo = RANKS[rank] || RANKS.bronze;
     const nextIdx = RANK_ORDER.indexOf(rank) + 1;
     const nextRank = nextIdx < RANK_ORDER.length ? RANKS[RANK_ORDER[nextIdx]] : null;
@@ -2769,7 +2781,7 @@
 
   function renderStatsScreen() {
     if (!_profile) return;
-    var rank = _profile.rank || 'bronze';
+    var rank = deriveRankFromXp(_profile.xp);
     var rankInfo = (RANKS && RANKS[rank]) || (RANKS && RANKS.bronze) || { label: 'Bronze', icon: 'fa-shield-halved', color: '#CD7F32' };
     var nextIdx = (RANK_ORDER || []).indexOf(rank) + 1;
     var nextRank = nextIdx > 0 && nextIdx < (RANK_ORDER || []).length ? RANKS[RANK_ORDER[nextIdx]] : null;
