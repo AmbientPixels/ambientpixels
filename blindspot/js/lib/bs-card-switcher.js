@@ -93,8 +93,12 @@ window.BsCardSwitcher = (function () {
 
     btn.style.display = '';
     if (deckSize >= MAX_DECK_SIZE) {
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-layer-group" aria-hidden="true"></i> Deck Full (' + MAX_DECK_SIZE + '/' + MAX_DECK_SIZE + ')';
+      // Don't disable. A disabled button is a closed door — give the
+      // player a path forward by routing through Manage Deck so they
+      // can swap a card out before forging. Copy tells them what the
+      // click is about to do.
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> Forge New (swap a card)';
     } else {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New Card';
@@ -103,7 +107,14 @@ window.BsCardSwitcher = (function () {
     if (!_newCardBound) {
       _newCardBound = true;
       btn.addEventListener('click', function () {
-        if (_cb.showNewCardClassPicker) _cb.showNewCardClassPicker();
+        // Read deck size at click time so the fork stays correct after
+        // any card add/remove without rebinding the handler.
+        var size = _cb.getDeckSize ? _cb.getDeckSize() : 0;
+        if (size >= MAX_DECK_SIZE && _cb.showScreen) {
+          _cb.showScreen('deck');
+        } else if (_cb.showNewCardClassPicker) {
+          _cb.showNewCardClassPicker();
+        }
       });
     }
 

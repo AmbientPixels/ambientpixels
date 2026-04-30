@@ -1045,7 +1045,8 @@
     renderLobby: function() { renderLobby(); },
     isForgeUnlocked: isForgeUnlocked, isForgePending: isForgePending,
     getForgeWins: getForgeWins, getHighestBossDefeated: getHighestBossDefeated,
-    showNewCardClassPicker: function() { showNewCardClassPicker(); }
+    showNewCardClassPicker: function() { showNewCardClassPicker(); },
+    showScreen: function(name) { showScreen(name); }
   });
   function renderCardSwitcher() { if (_Sw.renderSwitcher) _Sw.renderSwitcher(); }
   function renderNewCardButton() { if (_Sw.renderNewCardBtn) _Sw.renderNewCardBtn(); }
@@ -1657,7 +1658,17 @@
     const playBtnLabel = document.getElementById('bs-play-btn-label');
     if (playBtnLabel) {
       if (beaten >= 10) {
-        playBtnLabel.textContent = 'CAMPAIGN COMPLETE';
+        // Veteran branch: prefer the weekly boss if there's an unbeaten
+        // one this week, otherwise point at the campaign screen for
+        // replay/ascend. enterArena() already routes to the campaign
+        // screen at end-state \u2014 only the label changes here so the
+        // CTA reads as a verb instead of a passive status sticker.
+        var weeklyBoss = getWeeklyBoss();
+        var weeklyRec = weeklyBoss ? getWeeklyRecord() : null;
+        var weeklyOpen = weeklyBoss && (!weeklyRec || (weeklyRec.wins || 0) === 0);
+        playBtnLabel.textContent = weeklyOpen
+          ? 'FIGHT ' + (weeklyBoss.name || 'Weekly Boss').toUpperCase()
+          : 'REPLAY CAMPAIGN';
       } else {
         const nextBoss = _bossesByNumber[beaten + 1];
         playBtnLabel.textContent = nextBoss
