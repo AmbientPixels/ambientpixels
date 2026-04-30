@@ -313,40 +313,46 @@ body.bs-page {
   color: var(--blindspot-accent);
 }
 
-/* Lobby stats strip — high-level glance tiles. Compact 4-up grid that
-   collapses to 2-up on narrow lobbies. Each tile is a button so tapping
-   anywhere on it opens the dedicated stats screen. */
+/* Lobby stats strip — borderless ledger row. Was four boxed tiles in a
+   grid; that read as a third "panel grid" on the right column alongside
+   Challenges and Quick Links. Now a single inline strip with hairline
+   separators between siblings so the eye reads it as one piece, not four.
+   Each segment is still a button (clicks the whole stats screen open).
+   Wraps to two rows of 2 on narrow lobbies. */
 .blindspot-stats-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-}
-@media (max-width: 600px) {
-  .blindspot-stats-strip { grid-template-columns: repeat(2, 1fr); }
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  background: transparent;
+  border: 0;
 }
 .blindspot-stat-tile {
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid var(--blindspot-border-2, #4F2A23);
-  border-radius: var(--blindspot-radius-tile, 8px);
-  padding: 0.55rem 0.6rem 0.65rem;
+  flex: 1 1 0;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0.5rem 0.85rem 0.55rem;
   text-align: center;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1),
-              border-color 160ms,
-              box-shadow 160ms;
+  gap: 0.3rem;
+  transition: color 160ms;
   font: inherit;
   color: inherit;
 }
+.blindspot-stat-tile + .blindspot-stat-tile {
+  border-left: 1px solid var(--blindspot-border, #3A1F1A);
+}
 .blindspot-stat-tile:hover,
 .blindspot-stat-tile:focus-visible {
-  transform: translateY(-2px);
-  border-color: var(--blindspot-accent-gold, #F5C078);
-  box-shadow: 0 0 14px rgba(245, 192, 120, 0.3);
   outline: none;
+}
+.blindspot-stat-tile:hover .blindspot-stat-tile__value,
+.blindspot-stat-tile:focus-visible .blindspot-stat-tile__value {
+  color: var(--blindspot-accent-gold-2, #FFD89A);
 }
 .blindspot-stat-tile__label {
   font-family: var(--blindspot-font-mono);
@@ -357,11 +363,18 @@ body.bs-page {
 }
 .blindspot-stat-tile__value {
   font-family: var(--blindspot-font-display, 'Cinzel', serif);
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--blindspot-accent-gold, #F5C078);
   line-height: 1;
   letter-spacing: 0.01em;
+  transition: color 160ms;
+}
+@media (max-width: 600px) {
+  .blindspot-stat-tile { flex: 1 1 50%; }
+  /* Reset per-row separators so the wrap looks tidy at 2-up. */
+  .blindspot-stat-tile + .blindspot-stat-tile { border-left: 0; }
+  .blindspot-stat-tile:nth-child(2n) { border-left: 1px solid var(--blindspot-border, #3A1F1A); }
 }
 
 /* Inline "View all →" link in section headers — pinned to the right of
@@ -629,27 +642,36 @@ body.bs-page {
 @media (max-width: 600px) {
   .blindspot-quick-links { grid-template-columns: 1fr; }
 }
+/* Quick Links are navigation, not panels. Stripped the surface bg and
+   per-tile rounded border so they read as a list of destinations rather
+   than another grid of cards alongside Stats and Challenges. Kept a
+   1px hairline bottom-border so the rows have visual separation; columns
+   stay aligned because the grid forces equal row heights. */
 .blindspot-ql {
   display: grid;
-  grid-template-columns: 24px 1fr auto;
-  gap: 0.9rem;
+  grid-template-columns: 22px 1fr auto;
+  gap: 0.75rem;
   align-items: center;
-  padding: 0.9rem 1rem;
-  background: var(--blindspot-surface);
-  border: 1px solid var(--blindspot-border);
-  border-radius: var(--blindspot-radius-tile);
+  padding: 0.65rem 0.5rem;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--blindspot-border);
+  border-radius: 0;
   text-align: left;
   cursor: pointer;
   color: var(--blindspot-text);
   font: inherit;
-  transition: border-color var(--blindspot-transition-fast),
-              transform var(--blindspot-transition-fast);
+  transition: background-color var(--blindspot-transition-fast),
+              color var(--blindspot-transition-fast);
 }
 .blindspot-ql:hover:not(:disabled),
 .blindspot-ql:focus-visible {
-  border-color: var(--blindspot-accent-dim);
-  transform: translateX(2px);
+  background-color: rgba(245, 192, 120, 0.04);
   outline: none;
+}
+.blindspot-ql:hover:not(:disabled) .blindspot-ql__title,
+.blindspot-ql:focus-visible .blindspot-ql__title {
+  color: var(--blindspot-accent-gold, #F5C078);
 }
 .blindspot-ql:disabled {
   opacity: 0.55;
@@ -658,22 +680,24 @@ body.bs-page {
 .blindspot-ql > i:first-child,
 .blindspot-ql > svg:first-child {
   color: var(--blindspot-accent);
-  font-size: 1rem;
+  font-size: 0.9rem;
+  justify-self: center;
 }
 .blindspot-ql__body { min-width: 0; }
 .blindspot-ql__title {
   font-family: var(--blindspot-font-display);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  transition: color var(--blindspot-transition-fast);
 }
 .blindspot-ql__desc {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--blindspot-text-dim);
-  line-height: 1.35;
+  line-height: 1.3;
 }
 .blindspot-ql__lock {
   font-family: var(--blindspot-font-mono);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--blindspot-text-muted);
@@ -683,7 +707,7 @@ body.bs-page {
 }
 .blindspot-ql__chev {
   color: var(--blindspot-text-muted);
-  font-size: 0.85rem;
+  font-size: 0.7rem;
 }
 
 /* ============================================================
@@ -937,9 +961,29 @@ body.bs-page {
   font-size: 0.8rem;
   color: var(--blindspot-text-dim);
 }
-.blindspot-lobby #bs-challenges .bs-challenge__bar,
+/* Per-row progress bar — was `display: none` in the lobby, so the row
+   only signalled progress via the trailing star icons. Reveal it as a
+   thin gold-accent fill that sits under the description so the eye can
+   read in-flight progress without parsing the stars. JS already writes
+   the correct width (renderChallenges in bs-rewards.js). */
+.blindspot-lobby #bs-challenges .bs-challenge__bar {
+  display: block;
+  height: 3px;
+  margin-top: 0.4rem;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 2px;
+  overflow: hidden;
+}
 .blindspot-lobby #bs-challenges .bs-challenge__fill {
-  display: none;
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--blindspot-accent-dim, #8E2220), var(--blindspot-accent-gold, #F5C078));
+  border-radius: 2px;
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.blindspot-lobby #bs-challenges .bs-challenge--maxed .bs-challenge__fill {
+  background: var(--blindspot-accent-gold, #F5C078);
+  box-shadow: 0 0 6px rgba(245, 192, 120, 0.45);
 }
 .blindspot-lobby #bs-challenges .bs-challenge__stars {
   display: flex;
