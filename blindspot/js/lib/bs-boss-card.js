@@ -98,9 +98,20 @@ window.BsBossCard = (function () {
   function render(bc) {
     if (!bc) return '';
     var portrait = bc.portrait || '';
-    var avatarHTML = portrait
-      ? '<img src="' + escHtml(portrait) + '" alt="' + escHtml(bc.name || '') + '" class="bs-rc__avatar" loading="lazy">'
-      : '<div class="bs-rc__avatar-placeholder"><i class="fas fa-skull"></i></div>';
+    var avatarHTML;
+    if (!portrait) {
+      avatarHTML = '<div class="bs-rc__avatar-placeholder"><i class="fas fa-skull"></i></div>';
+    } else if (/\.(mp4|webm)(\?|$)/i.test(portrait)) {
+      // Animated portrait — autoplay/loop/muted, playsinline so iOS
+      // doesn't fullscreen it. Same .bs-rc__avatar class as the <img>
+      // path so object-fit and container variants (masked/fullbleed/
+      // framed/hero) cover it without extra CSS.
+      avatarHTML = '<video class="bs-rc__avatar" src="' + escHtml(portrait) + '"'
+        + ' autoplay loop muted playsinline preload="metadata"'
+        + ' aria-label="' + escHtml(bc.name || '') + '"></video>';
+    } else {
+      avatarHTML = '<img src="' + escHtml(portrait) + '" alt="' + escHtml(bc.name || '') + '" class="bs-rc__avatar" loading="lazy">';
+    }
 
     // Tier badge sits inside the art slot, top-right corner — like
     // the player's title badge but indicates threat level instead.
