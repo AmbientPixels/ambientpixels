@@ -4402,12 +4402,17 @@
   margin-right: 0.3rem;
 }
 
-/* Crate opener — glowing treasure chest */
+/* Crate opener — vertical tile. Was a horizontal row (icon | text); now
+   a square-ish stack with a large chest icon on top and the count + hint
+   centered beneath. Pulsing border + wobble animation preserved. */
 .bs-crate-opener {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
   background: linear-gradient(135deg, rgba(239, 159, 39, 0.15), rgba(239, 159, 39, 0.05));
   border: 1px solid var(--bs-accent);
   border-radius: 12px;
@@ -4421,24 +4426,27 @@
   transform: scale(1.02);
 }
 .bs-crate-opener__icon {
-  font-size: 1.5rem;
+  font-size: 2.75rem;
   color: var(--bs-accent);
   animation: bs-crate-wobble 3s ease-in-out infinite;
 }
 .bs-crate-opener__info {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
 }
 .bs-crate-opener__count {
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   color: var(--bs-accent-glow);
 }
 .bs-crate-opener__hint {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: var(--bs-text-muted);
   font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 0.08em;
 }
 @keyframes bs-crate-pulse {
   0%, 100% { box-shadow: 0 0 12px rgba(239, 159, 39, 0.2); }
@@ -4450,19 +4458,21 @@
   75% { transform: rotate(3deg); }
 }
 
-/* Loot zone split — crate opener and loot row side by side as two equal columns.
-   Either child can be display:none (e.g. crate opener when no crates) and the
-   other will flex to fill the full width. Stacks back to a single column on
-   narrow phones so the panels stay tappable. */
+/* Loot zone split — two square-ish tiles side by side (Crates on left,
+   Collection on right). Each tile is min-height: 140px so it reads as a
+   destination card, not a thin status bar. Either child can be
+   display:none (no crates yet) and the other flexes to fill the full
+   width. Stacks back to a single column on narrow phones. */
 .bs-loot-zone__row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-items: stretch;
 }
 .bs-loot-zone__row > .bs-crate-opener,
 .bs-loot-zone__row > .bs-loot-row {
   flex: 1;
   min-width: 0;
+  min-height: 140px;
 }
 @media (max-width: 480px) {
   .bs-loot-zone__row {
@@ -4470,41 +4480,62 @@
   }
 }
 
-/* Loot row — collection + shop side by side */
+/* Loot row holds the Collection tile on top and the optional Sparks
+   Shop "Buy Crate" button below as a secondary chip. Stacks vertically
+   so the Collection tile takes the lion's share of the height. */
 .bs-loot-row {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
-/* Collection panel */
+/* Collection tile — vertical layout, big gem icon on top, label below,
+   thumbnail previews at the bottom. Count badge sits absolute in the
+   top-right corner so it reads as a "X cosmetics owned" notification
+   instead of competing with the centered tile content. Was horizontal
+   row of icon + text + count. */
 .bs-collection-panel {
   flex: 1;
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  justify-content: center;
+  text-align: center;
+  gap: 0.45rem;
+  padding: 1.25rem 1rem;
   background: var(--bs-surface);
   border: 1px solid var(--bs-border);
-  border-radius: 10px;
+  border-radius: 12px;
   color: var(--bs-text);
   font-family: 'Cinzel', serif;
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 .bs-collection-panel:hover {
   border-color: var(--bs-accent);
   background: var(--bs-card-bg);
+  box-shadow: 0 0 14px rgba(239, 159, 39, 0.18);
+}
+/* Big gem icon — first child <i> in the panel. Bumped to match the
+   crate icon's visual weight. */
+.bs-collection-panel > i:first-child {
+  font-size: 2.4rem;
+  color: var(--bs-accent);
 }
 .bs-collection-panel__count {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   background: var(--bs-accent);
   color: var(--bs-bg);
-  font-size: 0.6rem;
-  padding: 0.1rem 0.4rem;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 10px;
   font-family: system-ui, sans-serif;
-  margin-left: auto;
+  margin-left: 0;
 }
 
 /* ============================================================
