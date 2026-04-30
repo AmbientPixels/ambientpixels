@@ -9956,25 +9956,34 @@ body.bs-battle-active .bs-play {
    SPARKS SHOP SCREEN
    ============================================================ */
 
+/* ============================================================
+   SPARKS SHOP — Vein palette migration
+   Token-swap pass over .bs-shop__*, .bs-shop-card*, .bs-shop-
+   preview*, and the loyalty / sell / empty states. Tabs stay
+   pill-style here (instead of the lobby's chip-with-underline)
+   because they're scrollable and need a contained click target.
+   Hardcoded greens/reds for owned/error states routed through
+   the Vein semantic tokens.
+   ============================================================ */
 .bs-shop__sparks-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--bs-accent-glow);
+  color: var(--blindspot-accent-gold-2);
   margin-left: auto;
-  padding: 0.25rem 0.6rem;
-  background: color-mix(in srgb, var(--bs-accent) 12%, transparent);
-  border: 1px solid var(--bs-accent-dim);
-  border-radius: 20px;
+  padding: 0.3rem 0.75rem;
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 12%, transparent);
+  border: 1px solid var(--blindspot-accent-gold-dim);
+  border-radius: var(--blindspot-radius-pill, 999px);
 }
 
 /* Shop tabs */
 .bs-shop__tabs {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.35rem;
   padding: 0 1rem;
   margin-bottom: 1rem;
   overflow-x: auto;
@@ -9986,15 +9995,17 @@ body.bs-battle-active .bs-play {
 .bs-shop__tab {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
+  gap: 0.4rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.65rem;
   font-weight: 600;
-  color: var(--bs-text-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
   background: transparent;
-  border: 1px solid var(--bs-border);
-  border-radius: 8px;
-  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-button, 2px);
+  padding: 0.55rem 0.9rem;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s, background 0.2s;
   white-space: nowrap;
@@ -10002,14 +10013,14 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-shop__tab:hover {
-  color: var(--bs-text);
-  border-color: var(--bs-accent-dim);
+  color: var(--blindspot-text);
+  border-color: var(--blindspot-accent-gold-dim);
 }
 
 .bs-shop__tab--active {
-  color: var(--bs-accent-glow);
-  border-color: var(--bs-accent);
-  background: color-mix(in srgb, var(--bs-accent) 10%, transparent);
+  color: var(--blindspot-accent-gold-2);
+  border-color: var(--blindspot-accent-gold);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 10%, transparent);
 }
 
 /* Shop content area */
@@ -10018,20 +10029,21 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-shop__section-title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--bs-text);
-  margin: 1.25rem 0 0.5rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--blindspot-text);
+  margin: 1.25rem 0 0.4rem;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
+  letter-spacing: 0.01em;
 }
-.bs-shop__section-title i { color: var(--bs-accent-glow); }
+.bs-shop__section-title i { color: var(--blindspot-accent-gold); }
 
 .bs-shop__section-desc {
-  font-size: 0.68rem;
-  color: var(--bs-text-muted);
+  font-size: 0.7rem;
+  color: var(--blindspot-text-muted);
   margin: -0.25rem 0 0.75rem;
 }
 
@@ -10049,20 +10061,20 @@ body.bs-battle-active .bs-play {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.25rem;
-  padding: 0.75rem 0.5rem;
-  background: color-mix(in srgb, var(--bs-surface) 60%, transparent);
-  border: 1px solid var(--bs-border);
-  border-radius: 10px;
+  gap: 0.3rem;
+  padding: 0.85rem 0.55rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-card, 4px);
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   position: relative;
 }
 
 .bs-shop-card:hover {
-  border-color: var(--bs-shop-rarity, var(--bs-accent-dim));
+  border-color: var(--bs-shop-rarity, var(--blindspot-accent-gold-dim));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .bs-shop-card--owned {
@@ -10070,29 +10082,30 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-shop-card__icon {
-  font-size: 1.5rem;
-  color: var(--bs-shop-rarity, var(--bs-text));
+  font-size: 1.55rem;
+  color: var(--bs-shop-rarity, var(--blindspot-text));
   margin-bottom: 0.15rem;
 }
 
 .bs-shop-card__name {
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--bs-text);
+  color: var(--blindspot-text);
   line-height: 1.2;
 }
 
 .bs-shop-card__rarity {
-  font-size: 0.58rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.56rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
 }
 
 .bs-shop-card__desc {
-  font-size: 0.58rem;
-  color: var(--bs-text-muted);
+  font-size: 0.62rem;
+  color: var(--blindspot-text-muted);
   line-height: 1.3;
   max-width: 120px;
 }
@@ -10100,35 +10113,40 @@ body.bs-battle-active .bs-play {
 .bs-shop-card__price {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
+  gap: 0.3rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--bs-accent-glow);
+  letter-spacing: 0.04em;
+  color: var(--blindspot-accent-gold-2);
   margin-top: 0.25rem;
 }
 
 .bs-shop-card__price--cant {
-  color: #ef4444;
+  color: var(--blindspot-danger);
 }
 
 .bs-shop-card__owned {
-  font-size: 0.65rem;
-  color: #4ade80;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-success);
   font-weight: 600;
   margin-top: 0.2rem;
 }
 
 .bs-shop-card__qty {
   position: absolute;
-  top: 0.35rem;
-  right: 0.4rem;
+  top: 0.4rem;
+  right: 0.45rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.6rem;
   font-weight: 700;
-  color: var(--bs-accent-glow);
-  background: color-mix(in srgb, var(--bs-bg) 80%, transparent);
-  padding: 0.1rem 0.35rem;
-  border-radius: 4px;
+  color: var(--blindspot-accent-gold-2);
+  background: color-mix(in srgb, var(--blindspot-bg) 80%, transparent);
+  padding: 0.12rem 0.4rem;
+  border-radius: var(--blindspot-radius-button, 2px);
 }
 
 /* Wishlist heart */
@@ -10138,7 +10156,7 @@ body.bs-battle-active .bs-play {
   left: 0.35rem;
   background: none;
   border: none;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
   font-size: 0.75rem;
   cursor: pointer;
   padding: 0.2rem;
@@ -10151,24 +10169,24 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-shop-card__wish:hover {
-  color: #f87171;
+  color: var(--blindspot-accent-hover);
   transform: scale(1.2);
 }
 
 .bs-shop-card__wish--active {
-  color: #ef4444;
+  color: var(--blindspot-danger);
 }
 
 /* Sell tab */
 .bs-shop-sell__art {
   width: 100%;
   aspect-ratio: 3 / 4;
-  border-radius: 0.5rem;
+  border-radius: var(--blindspot-radius-card, 4px);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bs-surface-2, #1a1a2e);
+  background: var(--blindspot-surface-2);
   margin-bottom: 0.25rem;
 }
 .bs-shop-sell__art img {
@@ -10178,12 +10196,12 @@ body.bs-battle-active .bs-play {
 }
 .bs-shop-sell__art i {
   font-size: 2rem;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
 }
 .bs-shop__empty {
   text-align: center;
   padding: 2rem 1rem;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
   font-size: 0.85rem;
 }
 
@@ -10191,28 +10209,34 @@ body.bs-battle-active .bs-play {
 .bs-shop__loyalty {
   margin-top: 1.5rem;
   padding: 1rem;
-  background: color-mix(in srgb, var(--bs-surface) 40%, transparent);
-  border: 1px solid var(--bs-border);
-  border-radius: 10px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-card, 4px);
 }
 
 .bs-shop__loyalty-label {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.7rem;
-  color: var(--bs-text-muted);
-  margin-bottom: 0.4rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+  margin-bottom: 0.5rem;
 }
 .bs-shop__loyalty-label span:first-child {
-  font-family: 'Cinzel', serif;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
   font-weight: 600;
-  color: var(--bs-text);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--blindspot-text);
 }
 
 .bs-shop__loyalty-bar {
   height: 8px;
-  background: var(--bs-border);
+  background: var(--blindspot-border);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -10220,7 +10244,7 @@ body.bs-battle-active .bs-play {
 
 .bs-shop__loyalty-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent-glow));
+  background: linear-gradient(90deg, var(--blindspot-accent-gold-dim), var(--blindspot-accent-gold-2));
   border-radius: 4px;
   transition: width 0.5s ease;
 }
@@ -10233,20 +10257,22 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-shop__milestone {
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.58rem;
-  color: var(--bs-text-muted);
+  letter-spacing: 0.1em;
+  color: var(--blindspot-text-muted);
   font-weight: 600;
 }
 
 .bs-shop__milestone--reached {
-  color: #4ade80;
+  color: var(--blindspot-success);
 }
 
 .bs-shop__loyalty-hint {
-  font-size: 0.58rem;
-  color: var(--bs-text-muted);
+  font-size: 0.6rem;
+  color: var(--blindspot-text-muted);
   text-align: center;
-  opacity: 0.6;
+  opacity: 0.7;
   font-style: italic;
 }
 
@@ -10255,20 +10281,21 @@ body.bs-battle-active .bs-play {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(13, 8, 7, 0.78);
   z-index: 100;
 }
 
 .bs-shop-preview__card {
-  background: var(--bs-bg);
-  border: 1px solid var(--bs-border);
-  border-radius: 14px;
-  padding: 1.5rem;
-  max-width: 320px;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card, 4px);
+  padding: 1.75rem 1.5rem;
+  max-width: 340px;
   width: 90%;
   text-align: center;
   position: relative;
   animation: bs-shop-preview-in 0.2s ease;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(245, 192, 120, 0.1);
 }
 
 @keyframes bs-shop-preview-in {
@@ -10282,13 +10309,15 @@ body.bs-battle-active .bs-play {
   right: 0.75rem;
   background: none;
   border: none;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
   font-size: 1rem;
   cursor: pointer;
   padding: 0.25rem;
   min-width: 32px;
   min-height: 32px;
+  transition: color 0.2s;
 }
+.bs-shop-preview__close:hover { color: var(--blindspot-accent-gold); }
 
 .bs-shop-preview__icon {
   font-size: 2.5rem;
@@ -10296,25 +10325,27 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-shop-preview__name {
-  font-family: 'Cinzel', serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--bs-text);
-  margin-bottom: 0.2rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--blindspot-text);
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.01em;
 }
 
 .bs-shop-preview__rarity {
-  font-size: 0.7rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.6rem;
 }
 
 .bs-shop-preview__desc {
-  font-size: 0.78rem;
-  color: var(--bs-text-muted);
-  line-height: 1.4;
+  font-size: 0.82rem;
+  color: var(--blindspot-text-dim);
+  line-height: 1.5;
   margin-bottom: 1rem;
 }
 
@@ -10322,21 +10353,23 @@ body.bs-battle-active .bs-play {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--bs-bg);
-  background: var(--bs-accent-glow);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blindspot-bg);
+  background: var(--blindspot-accent-gold);
   border: none;
-  border-radius: 8px;
-  padding: 0.65rem 1.5rem;
+  border-radius: var(--blindspot-radius-button, 2px);
+  padding: 0.7rem 1.5rem;
   cursor: pointer;
   transition: background 0.2s, transform 0.15s;
   min-height: 44px;
 }
 
 .bs-shop-preview__buy:hover:not(:disabled) {
-  background: var(--bs-accent);
+  background: var(--blindspot-accent-gold-2);
   transform: scale(1.03);
 }
 
@@ -10351,15 +10384,18 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-shop-preview__owned {
-  font-size: 0.85rem;
-  color: #4ade80;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-success);
   font-weight: 600;
   margin: 0.5rem 0;
 }
 
 .bs-shop-preview__need {
-  font-size: 0.68rem;
-  color: #ef4444;
+  font-size: 0.7rem;
+  color: var(--blindspot-danger);
   margin-top: 0.3rem;
 }
 
@@ -10367,22 +10403,53 @@ body.bs-battle-active .bs-play {
   display: block;
   width: 100%;
   margin-top: 0.75rem;
-  font-family: 'Cinzel', serif;
-  font-size: 0.72rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   font-weight: 600;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
   background: transparent;
-  border: 1px solid var(--bs-border);
-  border-radius: 8px;
-  padding: 0.5rem;
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-button, 2px);
+  padding: 0.55rem;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
   min-height: 44px;
 }
 
 .bs-shop-preview__cancel:hover {
-  color: var(--bs-text);
-  border-color: var(--bs-text-muted);
+  color: var(--blindspot-text);
+  border-color: var(--blindspot-text-muted);
+}
+
+/* Scoped Vein header override — Sparks Shop uses the shared
+   .bs-campaign__header. Other legacy screens that share it stay
+   on amber until each migrates. */
+#bs-screen-shop {
+  background: var(--blindspot-bg);
+  background-image: var(--blindspot-bg-pattern);
+}
+#bs-screen-shop .bs-campaign__header {
+  border-bottom: 1px solid var(--blindspot-border-2);
+}
+#bs-screen-shop .bs-campaign__header h2 {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  color: var(--blindspot-text);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+#bs-screen-shop .bs-campaign__back {
+  color: var(--blindspot-text-dim);
+  border: 1px solid var(--blindspot-border);
+  background: transparent;
+  border-radius: var(--blindspot-radius-button, 2px);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#bs-screen-shop .bs-campaign__back:hover {
+  color: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold-dim);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 5%, transparent);
 }
 
 /* Shop responsive */
