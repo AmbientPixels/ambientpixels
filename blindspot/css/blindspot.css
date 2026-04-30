@@ -10287,10 +10287,23 @@ body.bs-battle-active .bs-play {
    DECK MANAGEMENT SCREEN
    ============================================================ */
 
+/* ============================================================
+   DECK MANAGEMENT — Vein palette migration
+   Was using legacy --bs-* tokens. Now uses --blindspot-* so the
+   "Forge New (swap a card)" deck-full path lands the player on
+   a screen that matches the lobby they came from. Confirmation
+   modal (.bs-deck-confirm) stays Vein-themed too — danger uses
+   --blindspot-danger (the brand red, same hue as the legacy
+   danger). Other shared-shell screens (Codex, Campaign, Stats,
+   Sparks Shop, Forge) still ride the legacy palette until they
+   each migrate.
+   ============================================================ */
 .bs-deck__count {
-  font-size: 0.75rem;
-  color: var(--bs-text-muted);
-  font-family: 'Cinzel', serif;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
 }
 
 .bs-deck-sort {
@@ -10302,21 +10315,27 @@ body.bs-battle-active .bs-play {
 
 .bs-deck-sort__btn {
   background: transparent;
-  border: 1px solid var(--bs-border);
-  color: var(--bs-text-muted);
-  font-size: 0.7rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
+  border: 0;
+  border-bottom: 1px solid var(--blindspot-border);
+  color: var(--blindspot-text-muted);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0;
   cursor: pointer;
-  font-family: 'Cinzel', serif;
   min-height: 44px;
   min-width: 44px;
   transition: border-color 0.2s, color 0.2s;
 }
-
+.bs-deck-sort__btn:hover {
+  color: var(--blindspot-text);
+  border-bottom-color: var(--blindspot-accent-gold-dim);
+}
 .bs-deck-sort__btn--active {
-  border-color: var(--bs-accent);
-  color: var(--bs-accent);
+  border-bottom-color: var(--blindspot-accent-gold);
+  color: var(--blindspot-accent-gold);
 }
 
 .bs-deck-grid {
@@ -10327,12 +10346,12 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-deck-card {
-  background: var(--bs-surface);
-  border: 1px solid var(--bs-border);
-  border-radius: 0.5rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-card, 4px);
   overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.15s;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   position: relative;
 }
 /* Consistent image height across all deck cards */
@@ -10348,14 +10367,14 @@ body.bs-battle-active .bs-play {
 
 .bs-deck-card:hover,
 .bs-deck-card:focus-visible {
-  border-color: var(--bs-accent-dim);
+  border-color: var(--blindspot-accent-gold-dim);
   transform: translateY(-2px);
   outline: none;
 }
 
 .bs-deck-card--active {
-  border-color: var(--bs-accent);
-  box-shadow: 0 0 12px color-mix(in srgb, var(--bs-accent) 30%, transparent);
+  border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--blindspot-accent-gold) 28%, transparent);
 }
 
 .bs-deck-card__preview {
@@ -10364,7 +10383,7 @@ body.bs-battle-active .bs-play {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bs-surface-2);
+  background: var(--blindspot-surface-2);
   overflow: hidden;
 }
 
@@ -10376,7 +10395,7 @@ body.bs-battle-active .bs-play {
 
 .bs-deck-card__icon {
   font-size: 2rem;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
 }
 
 .bs-deck-card__info {
@@ -10387,48 +10406,52 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-deck-card__name {
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--bs-text);
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--blindspot-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .bs-deck-card__class {
-  font-size: 0.65rem;
-  color: var(--bs-text-muted);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.6rem;
+  color: var(--blindspot-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
 }
 
 .bs-deck-card__power {
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.65rem;
-  color: var(--bs-accent);
+  letter-spacing: 0.06em;
+  color: var(--blindspot-accent-gold);
 }
 
 .bs-deck-card__badge {
   position: absolute;
   top: 0.35rem;
   right: 0.35rem;
-  background: var(--bs-accent);
-  color: var(--bs-bg);
+  background: var(--blindspot-accent-gold);
+  color: var(--blindspot-bg);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.55rem;
   font-weight: 700;
-  padding: 0.15rem 0.4rem;
-  border-radius: 999px;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--blindspot-radius-pill, 999px);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.12em;
 }
 
 .bs-deck-card__delete {
   position: absolute;
   bottom: 0.35rem;
   right: 0.35rem;
-  background: var(--bs-surface-2);
-  border: 1px solid var(--bs-border);
-  color: var(--bs-danger);
+  background: var(--blindspot-surface-2);
+  border: 1px solid var(--blindspot-border);
+  color: var(--blindspot-danger);
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -10438,7 +10461,11 @@ body.bs-battle-active .bs-play {
   justify-content: center;
   font-size: 0.75rem;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, border-color 0.2s, background 0.2s;
+}
+.bs-deck-card__delete:hover {
+  border-color: var(--blindspot-danger);
+  background: color-mix(in srgb, var(--blindspot-danger) 12%, var(--blindspot-surface-2));
 }
 
 .bs-deck-card:hover .bs-deck-card__delete,
@@ -10446,16 +10473,17 @@ body.bs-battle-active .bs-play {
   opacity: 1;
 }
 
-/* Lock system */
+/* Lock system — green-tinted because "locked" = "safe", distinct from
+   the gold "active" state and the red "delete" affordance. */
 .bs-deck-card--locked {
-  box-shadow: 0 0 0 2px var(--bs-accent-dim, #4ade80);
+  box-shadow: 0 0 0 2px var(--blindspot-success);
 }
 .bs-deck-card__lock-badge {
   position: absolute;
   top: 0.35rem;
   left: 0.35rem;
-  background: var(--bs-surface-2, rgba(0,0,0,0.7));
-  color: var(--bs-accent-dim, #4ade80);
+  background: var(--blindspot-surface-2);
+  color: var(--blindspot-success);
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -10469,9 +10497,9 @@ body.bs-battle-active .bs-play {
   position: absolute;
   top: 0.35rem;
   right: 0.35rem;
-  background: var(--bs-surface-2);
-  border: 1px solid var(--bs-border);
-  color: var(--bs-text-muted);
+  background: var(--blindspot-surface-2);
+  border: 1px solid var(--blindspot-border);
+  color: var(--blindspot-text-muted);
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -10481,10 +10509,14 @@ body.bs-battle-active .bs-play {
   justify-content: center;
   font-size: 0.65rem;
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.bs-deck-card__lock-toggle:hover {
+  color: var(--blindspot-success);
+  border-color: var(--blindspot-success);
 }
 .bs-deck-card__lock-toggle--locked {
-  color: var(--bs-accent-dim, #4ade80);
+  color: var(--blindspot-success);
   opacity: 1;
 }
 .bs-deck-card:hover .bs-deck-card__lock-toggle,
@@ -10497,7 +10529,7 @@ body.bs-battle-active .bs-play {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(13, 8, 7, 0.78);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10505,27 +10537,30 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-deck-confirm {
-  background: var(--bs-surface);
-  border: 1px solid var(--bs-border);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  max-width: 320px;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border-2);
+  border-radius: var(--blindspot-radius-card, 4px);
+  padding: 1.75rem 1.5rem;
+  max-width: 340px;
   width: 100%;
   text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(200, 48, 44, 0.18);
 }
 
 .bs-deck-confirm__title {
-  font-family: 'Cinzel', serif;
-  font-size: 1rem;
-  color: var(--bs-danger);
-  margin: 0 0 0.75rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--blindspot-danger);
+  margin: 0 0 0.6rem;
+  letter-spacing: 0.01em;
 }
 
 .bs-deck-confirm__text {
-  font-size: 0.8rem;
-  color: var(--bs-text-muted);
-  margin: 0 0 1.25rem;
-  line-height: 1.4;
+  font-size: 0.85rem;
+  color: var(--blindspot-text-dim);
+  margin: 0 0 1.4rem;
+  line-height: 1.5;
 }
 
 .bs-deck-confirm__actions {
@@ -10540,15 +10575,48 @@ body.bs-battle-active .bs-play {
 }
 
 .bs-deck-confirm__delete-btn {
-  background: var(--bs-danger);
-  color: var(--bs-text);
+  background: var(--blindspot-danger);
+  color: var(--blindspot-text);
   border: none;
-  border-radius: 0.5rem;
-  font-family: 'Cinzel', serif;
+  border-radius: var(--blindspot-radius-button, 2px);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   cursor: pointer;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1rem;
+  transition: background 0.2s;
+}
+.bs-deck-confirm__delete-btn:hover {
+  background: var(--blindspot-accent-hover, #E04540);
+}
+
+/* Scoped Vein override for the shared .bs-campaign__header shell —
+   only the Deck screen. Other legacy screens that share this shell
+   are unaffected. */
+#bs-screen-deck {
+  background: var(--blindspot-bg);
+  background-image: var(--blindspot-bg-pattern);
+}
+#bs-screen-deck .bs-campaign__header {
+  border-bottom: 1px solid var(--blindspot-border-2);
+}
+#bs-screen-deck .bs-campaign__header h2 {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
+}
+#bs-screen-deck .bs-campaign__back {
+  color: var(--blindspot-text-dim);
+  border: 1px solid var(--blindspot-border);
+  background: transparent;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#bs-screen-deck .bs-campaign__back:hover {
+  color: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold-dim);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 5%, transparent);
 }
 
 /* Deck management button in lobby */
