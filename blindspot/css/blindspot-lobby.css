@@ -479,7 +479,7 @@ body.bs-page {
 }
 .blindspot-boss-pip__img {
   width: 64px;
-  height: 64px;
+  height: 155px;
   background-size: cover;
   background-position: center top;
   border: 1px solid var(--blindspot-border-2);
