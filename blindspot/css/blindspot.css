@@ -1713,53 +1713,64 @@
   flex-direction: column;
   gap: 1.25rem;
 }
+/* ============================================================
+   STATS screen — Vein palette migration
+   Has its own header (.bs-stats__header) instead of the shared
+   .bs-campaign__header, so most rules swap in place. The back
+   button uses the shared .bs-campaign__back class — scoped under
+   #bs-screen-stats below so other legacy screens keep their
+   amber treatment.
+   ============================================================ */
 .bs-stats__header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 .bs-stats__title {
-  font-family: 'Cinzel', serif;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
   font-weight: 600;
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   margin: 0;
   flex: 1;
-  letter-spacing: 0.02em;
-  color: var(--bs-text);
+  letter-spacing: 0.01em;
+  color: var(--blindspot-text);
+}
+.bs-stats__title i {
+  color: var(--blindspot-accent-gold);
 }
 .bs-stats__meta {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--bs-accent);
+  color: var(--blindspot-accent-gold);
 }
 .bs-stats-section {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--bs-border);
-  border-radius: 12px;
+  background: var(--blindspot-bg-2);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-card, 4px);
   padding: 1rem 1.1rem 1.1rem;
 }
 .bs-stats-section__title {
-  font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--bs-text);
+  letter-spacing: 0.01em;
+  color: var(--blindspot-text);
   margin: 0 0 0.75rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 .bs-stats-section__title i {
-  color: var(--bs-accent);
+  color: var(--blindspot-accent-gold);
   font-size: 0.9em;
 }
 
-/* Identity section — wider layout, rank icon + xp on the left, prestige on the right */
+/* Identity section — gold-tinted callout with rank + prestige */
 .bs-stats-section--identity {
-  background: linear-gradient(135deg, rgba(239, 159, 39, 0.08), rgba(0, 0, 0, 0.4));
-  border-color: rgba(239, 159, 39, 0.35);
+  background: linear-gradient(135deg, rgba(245, 192, 120, 0.08), var(--blindspot-bg-2));
+  border-color: rgba(245, 192, 120, 0.3);
 }
 .bs-stats-identity {
   display: flex;
@@ -1774,7 +1785,7 @@
 }
 .bs-stats-identity__rank > i {
   font-size: 2.4rem;
-  filter: drop-shadow(0 0 8px rgba(239, 159, 39, 0.4));
+  filter: drop-shadow(0 0 8px rgba(245, 192, 120, 0.4));
 }
 .bs-stats-identity__rank-body {
   display: flex;
@@ -1782,23 +1793,23 @@
   gap: 0.15rem;
 }
 .bs-stats-identity__rank-name {
-  font-family: 'Cinzel', serif;
-  font-size: 1.5rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.6rem;
   font-weight: 600;
-  color: var(--bs-text);
-  letter-spacing: 0.02em;
+  color: var(--blindspot-text);
+  letter-spacing: 0.01em;
 }
 .bs-stats-identity__rank-xp {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.7rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
 }
 .bs-stats-identity__divider {
   width: 1px;
   height: 50px;
-  background: var(--bs-border);
+  background: var(--blindspot-border-2);
 }
 .bs-stats-identity__prestige {
   display: flex;
@@ -1808,17 +1819,17 @@
   padding: 0 0.75rem;
 }
 .bs-stats-identity__label {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.6rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
 }
 .bs-stats-identity__value {
-  font-family: 'Cinzel', serif;
-  font-size: 2rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 2.2rem;
   font-weight: 600;
-  color: var(--bs-accent);
+  color: var(--blindspot-accent-gold);
   line-height: 1;
 }
 
@@ -1833,33 +1844,53 @@
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.7rem 0.75rem;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--bs-border);
-  border-radius: 8px;
+  padding: 0.75rem 0.75rem 0.85rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile, 4px);
   text-align: center;
 }
 .bs-stats-tile__label {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.6rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
 }
 .bs-stats-tile__value {
-  font-family: 'Cinzel', serif;
-  font-size: 1.4rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.55rem;
   font-weight: 600;
-  color: var(--bs-accent-gold, var(--bs-accent));
+  color: var(--blindspot-accent-gold);
   line-height: 1;
 }
 .bs-stats-tile__sub {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.55rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--bs-text-muted);
+  color: var(--blindspot-text-muted);
   opacity: 0.85;
+}
+
+/* Scoped header back-button override — Stats uses the shared
+   .bs-campaign__back class. Other legacy screens that share it
+   stay on amber until each migrates. */
+#bs-screen-stats {
+  background: var(--blindspot-bg);
+  background-image: var(--blindspot-bg-pattern);
+}
+#bs-screen-stats .bs-campaign__back {
+  color: var(--blindspot-text-dim);
+  border: 1px solid var(--blindspot-border);
+  background: transparent;
+  border-radius: var(--blindspot-radius-button, 2px);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#bs-screen-stats .bs-campaign__back:hover {
+  color: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold-dim);
+  background: color-mix(in srgb, var(--blindspot-accent-gold) 5%, transparent);
 }
 
 .bs-unlock-teaser {
