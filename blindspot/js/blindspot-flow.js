@@ -1755,6 +1755,16 @@
 
     if (badge) badge.innerHTML = `<i class="fas ${rankInfo.icon}" style="color:${rankInfo.color}"></i> <span>${rankInfo.label}</span>`;
 
+    const nextEl = document.getElementById('bs-rank-next');
+    if (nextEl) {
+      if (nextRank) {
+        nextEl.textContent = '→ ' + nextRank.label;
+        nextEl.style.display = '';
+      } else {
+        nextEl.style.display = 'none';
+      }
+    }
+
     // Single computed XP object \u2014 all three (label, fill, headline) read from this.
     const currentXp = _profile.xp || 0;
     let xp;
