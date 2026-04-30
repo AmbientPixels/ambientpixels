@@ -1358,8 +1358,14 @@
     }
 
     // Guest mode banner
+    // Guest banner — shows whenever the user is unauthenticated (either
+    // explicit guest-mode flag from the Stranger flow, OR isDemo from the
+    // profile API). Was previously only gated on the flag, so a user who
+    // navigated directly to play.html while logged out saw no sign-in
+    // surface at all.
     var guestBanner = document.getElementById('bs-guest-banner');
-    if (localStorage.getItem('bs-guest-mode') === 'true') {
+    var inGuest = localStorage.getItem('bs-guest-mode') === 'true' || (typeof isDemo === 'function' && isDemo());
+    if (inGuest) {
       if (!guestBanner) {
         guestBanner = document.createElement('div');
         guestBanner.id = 'bs-guest-banner';
