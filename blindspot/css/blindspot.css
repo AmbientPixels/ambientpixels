@@ -4762,23 +4762,22 @@
   margin-right: 0.3rem;
 }
 
-/* Crate opener — vertical tile. Was a horizontal row (icon | text); now
-   a square-ish stack with a large chest icon on top and the count + hint
-   centered beneath. Painterly chest illustration sits behind the gradient
-   stack: a bottom-darkening overlay keeps the count + hint legible
-   against the art; an amber tint gradient preserves the warm "treasure"
-   feel and hover boosts both layers without hiding the painting.
-   Pulsing border + wobble animation preserved. */
+/* Crate opener — painted scene with a title-card label band.
+   The painterly chest IS the icon — flat FA glyph removed entirely
+   so the painting carries the meaning. Label stack pinned to the
+   bottom edge sits on a stronger 3-stop letterbox gradient that
+   reads as a cinematic title card. Pulsing border + warm tint +
+   hover lift all preserved. */
 .bs-crate-opener {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   text-align: center;
-  gap: 0.5rem;
-  padding: 1.25rem 1rem;
+  gap: 0.25rem;
+  padding: 1.25rem 1rem 1.1rem;
   background:
-    linear-gradient(180deg, rgba(13, 8, 7, 0.15) 0%, rgba(13, 8, 7, 0.6) 100%),
+    linear-gradient(180deg, rgba(13, 8, 7, 0.05) 0%, rgba(13, 8, 7, 0.35) 55%, rgba(13, 8, 7, 0.85) 100%),
     linear-gradient(135deg, rgba(239, 159, 39, 0.18), rgba(239, 159, 39, 0.04) 60%),
     url('../img/lobby/crate-tile.webp') center/cover;
   border: 1px solid var(--bs-accent);
@@ -4789,34 +4788,35 @@
 }
 .bs-crate-opener:hover {
   background:
-    linear-gradient(180deg, rgba(13, 8, 7, 0.05) 0%, rgba(13, 8, 7, 0.45) 100%),
+    linear-gradient(180deg, rgba(13, 8, 7, 0.0) 0%, rgba(13, 8, 7, 0.25) 55%, rgba(13, 8, 7, 0.78) 100%),
     linear-gradient(135deg, rgba(239, 159, 39, 0.28), rgba(239, 159, 39, 0.08) 60%),
     url('../img/lobby/crate-tile.webp') center/cover;
   box-shadow: 0 0 20px rgba(239, 159, 39, 0.35);
   transform: scale(1.02);
 }
-.bs-crate-opener__icon {
-  font-size: 2.75rem;
-  color: var(--bs-accent);
-  animation: bs-crate-wobble 3s ease-in-out infinite;
-}
+/* Painted chest carries the meaning — flat FA glyph hidden. */
+.bs-crate-opener__icon { display: none; }
 .bs-crate-opener__info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 .bs-crate-opener__count {
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   color: var(--bs-accent-glow);
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 4px rgba(0, 0, 0, 0.85);
 }
 .bs-crate-opener__hint {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--bs-text-muted);
   font-family: 'Share Tech Mono', monospace;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 @keyframes bs-crate-pulse {
   0%, 100% { box-shadow: 0 0 12px rgba(239, 159, 39, 0.2); }
@@ -4859,48 +4859,44 @@
   gap: 0.5rem;
 }
 
-/* Collection tile — vertical layout, big gem icon on top, label below,
-   thumbnail previews at the bottom. Count badge sits absolute in the
-   top-right corner so it reads as a "X cosmetics owned" notification
-   instead of competing with the centered tile content. Painterly gem
-   spread sits behind a bottom-darkening overlay so the gem icon + label
-   stay legible at any art state. Hover lifts the overlay and adds a
-   subtle gold halo. Was horizontal row of icon + text + count. */
+/* Collection tile — painted scene with a title-card label band.
+   The painterly tome with embedded gem IS the icon — flat FA glyph
+   removed. Label pinned to the bottom edge with a strong letterbox
+   gradient so it reads as a cinematic title card. Count badge stays
+   in the top-right corner as a "X cosmetics owned" notification. */
 .bs-collection-panel {
   flex: 1;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   text-align: center;
   gap: 0.45rem;
-  padding: 1.25rem 1rem;
+  padding: 1.25rem 1rem 1.1rem;
   background:
-    linear-gradient(180deg, rgba(13, 8, 7, 0.15) 0%, rgba(13, 8, 7, 0.65) 100%),
+    linear-gradient(180deg, rgba(13, 8, 7, 0.05) 0%, rgba(13, 8, 7, 0.35) 55%, rgba(13, 8, 7, 0.88) 100%),
     url('../img/lobby/collection-tile.webp') center/cover;
   border: 1px solid var(--bs-border);
   border-radius: 12px;
   color: var(--bs-text);
   font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 4px rgba(0, 0, 0, 0.85);
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 .bs-collection-panel:hover {
   border-color: var(--bs-accent);
   background:
-    linear-gradient(180deg, rgba(13, 8, 7, 0.05) 0%, rgba(13, 8, 7, 0.5) 100%),
+    linear-gradient(180deg, rgba(13, 8, 7, 0.0) 0%, rgba(13, 8, 7, 0.25) 55%, rgba(13, 8, 7, 0.8) 100%),
     url('../img/lobby/collection-tile.webp') center/cover;
   box-shadow: 0 0 14px rgba(239, 159, 39, 0.2);
 }
-/* Big gem icon — first child <i> in the panel. Bumped to match the
-   crate icon's visual weight. */
-.bs-collection-panel > i:first-child {
-  font-size: 2.4rem;
-  color: var(--bs-accent);
-}
+/* Painted tome carries the meaning — flat FA glyph hidden. */
+.bs-collection-panel > i:first-child { display: none; }
 .bs-collection-panel__count {
   position: absolute;
   top: 10px;
