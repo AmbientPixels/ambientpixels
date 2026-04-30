@@ -949,12 +949,35 @@
   font-family: var(--blindspot-font-mono);
   color: var(--blindspot-epic);
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina, #bs-battle-container.blindspot-battle .arena-move-btn--no-stamina,
-#bs-screen-battle.blindspot-battle .arena-move-btn--exhausted , #bs-battle-container.blindspot-battle .arena-move-btn--exhausted  {
+/* Hard-block state — Ability when player can't afford its cost. The
+   only move that's truly disabled, so it's the only one that should
+   ghost. */
+#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina,
+#bs-battle-container.blindspot-battle .arena-move-btn--no-stamina {
   opacity: 0.45;
 }
-#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost , #bs-battle-container.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost  {
+#bs-screen-battle.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost,
+#bs-battle-container.blindspot-battle .arena-move-btn--no-stamina .arena-move-btn__cost {
   color: var(--blindspot-danger);
+}
+
+/* Exhaustion warning — applies to ALL buttons when stamina < 5, but
+   the moves themselves stay usable (Strike / Guard / Heal / Counter
+   never hard-block; only Ability does). Was sharing the ghost opacity
+   with --no-stamina, which made it look like the whole move-grid was
+   disabled. Now: keep buttons full opacity, signal the warning via a
+   red-tinted cost badge and a subtle danger-red bottom border. The
+   stamina bar's own --exhausted pulse carries the loud part of the
+   warning. */
+#bs-screen-battle.blindspot-battle .arena-move-btn--exhausted,
+#bs-battle-container.blindspot-battle .arena-move-btn--exhausted {
+  opacity: 1;
+  border-bottom: 2px solid var(--blindspot-danger);
+}
+#bs-screen-battle.blindspot-battle .arena-move-btn--exhausted .arena-move-btn__cost,
+#bs-battle-container.blindspot-battle .arena-move-btn--exhausted .arena-move-btn__cost {
+  color: var(--blindspot-danger);
+  text-shadow: 0 0 6px rgba(200, 48, 44, 0.5);
 }
 
 /* Battle header (round + intent + forfeit bar) — round and intent
