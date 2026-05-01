@@ -214,6 +214,28 @@
   margin: 1.5rem 0 2rem;
 }
 
+/* Reroll button — gold-tinted ghost style so the label reads clearly
+   against the dark splash without competing with the primary Begin
+   CTA. Subordinate emphasis but high legibility. */
+#bs-reroll-btn {
+  color: var(--blindspot-accent);
+  border-color: rgba(245, 192, 120, 0.45);
+  font-weight: 600;
+  background: rgba(245, 192, 120, 0.04);
+}
+#bs-reroll-btn:hover:not(:disabled) {
+  color: #FFF6E8;
+  border-color: var(--blindspot-accent);
+  background: rgba(245, 192, 120, 0.18);
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.25);
+}
+#bs-reroll-btn .fa-dice-d20 {
+  color: var(--blindspot-accent);
+}
+#bs-reroll-btn:hover:not(:disabled) .fa-dice-d20 {
+  color: #FFF6E8;
+}
+
 /* ---------- FOOTER LEDGER ---------- */
 .blindspot-landing__footer {
   border-top: 1px solid var(--blindspot-border-2);
