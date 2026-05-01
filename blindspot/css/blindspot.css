@@ -8160,6 +8160,27 @@ body.bs-battle-active .bs-play {
   text-align: center;
   margin: 0;
 }
+/* Breadcrumb crediting the borrowed face from the splash slot machine.
+   Shown after a Stranger win when the rolled-on card had a meaningful
+   name (not the demo fallback). Quiet italic underneath the title. */
+.blindspot-stranger-win__breadcrumb {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1rem;
+  color: var(--blindspot-text-muted, #9A8E7A);
+  letter-spacing: 0.02em;
+  margin: 0.6rem 0 0;
+  text-align: center;
+  max-width: 28ch;
+  line-height: 1.4;
+}
+.blindspot-stranger-win__breadcrumb strong {
+  color: var(--blindspot-accent, #EF9F27);
+  font-weight: 500;
+  font-style: normal;
+}
+
 .blindspot-stranger-win .bs-overlay__title em {
   display: block;
   margin-top: 0.4rem;

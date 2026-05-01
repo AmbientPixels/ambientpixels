@@ -15,6 +15,7 @@
   'use strict';
 
   var _cb = {};
+  var _borrowedSlide = null; // captured when Stranger fight starts; surfaces in the win-overlay breadcrumb
 
   function escHtml(s) { return window.BsUtils && window.BsUtils.escapeHtml ? window.BsUtils.escapeHtml(String(s)) : String(s); }
 
@@ -310,6 +311,7 @@
       var borrowed = (window.BsHeroCarousel && window.BsHeroCarousel.getActiveSlide)
         ? window.BsHeroCarousel.getActiveSlide()
         : null;
+      _borrowedSlide = borrowed;
       strangerCard.avatar = (borrowed && borrowed.src) || '/blindspot/img/fighters/knight.webp';
     }
 
@@ -362,6 +364,15 @@
         _cb.safeLSSet('bs-highest-boss', '1');
         _cb.safeLSSet('blindspot-highest-boss', '1');
         _cb.safeLSSet('bs-total-wins', '1');
+      }
+      // Credit the borrowed face — only if the rolled card had a real name,
+      // not the demo-fallback "The Stranger" placeholder.
+      var breadcrumb = document.getElementById('bs-stranger-win-breadcrumb');
+      if (breadcrumb && _borrowedSlide && _borrowedSlide.name
+          && _borrowedSlide.name !== 'The Stranger'
+          && _borrowedSlide.name !== 'Featured Card') {
+        breadcrumb.innerHTML = 'You wore <strong>' + escHtml(_borrowedSlide.name) + '</strong>’s face.';
+        breadcrumb.style.display = '';
       }
       if (_cb.showOverlay) _cb.showOverlay('bs-stranger-win');
       var buildBtn = document.getElementById('bs-build-btn');
