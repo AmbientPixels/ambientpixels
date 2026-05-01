@@ -992,6 +992,13 @@
   }
 
   async function loadUserCards() {
+    // Capture guest flag at fetch START — not at write time. This call runs
+    // in parallel with profile load; the guest-signin handler may clear the
+    // flag mid-flight, and we don't want a freshly-signed-in guest's deck
+    // to get clobbered with the server's empty response (their cards
+    // haven't been persisted to the server yet — that happens via
+    // persistPending immediately after the flag is cleared).
+    var wasGuestAtStart = localStorage.getItem('bs-guest-mode') === 'true';
     try {
       const data = await Promise.race([
         window.ArenaAPI.loadCards(),
@@ -1002,12 +1009,11 @@
       // empty list. Skipping the empty case let the prior user's cards
       // persist when a new player with zero cards logged in on the same
       // browser (cross-account leak).
-      // EXCEPT for guest mode: anon users don't write to the server, so
-      // the server response is always empty (or a stale shared anon blob)
-      // and clobbering bs-deck would wipe their just-built card. For
-      // guests, bs-deck IS the source of truth.
-      var isGuest = localStorage.getItem('bs-guest-mode') === 'true';
-      if (!isGuest) setDeck(cards);
+      // EXCEPT for guests (or guests-just-signed-in): anon users don't
+      // write to the server, so the server response is always empty (or a
+      // stale shared anon blob) and clobbering bs-deck would wipe their
+      // just-built card. For guests, bs-deck IS the source of truth.
+      if (!wasGuestAtStart) setDeck(cards);
       return cards;
     } catch (e) {
       console.warn('[Blindspot] Could not load cards:', e);
@@ -1227,7 +1233,10 @@
 
     var isGuestMode = localStorage.getItem('bs-guest-mode') === 'true';
 
-    // If guest signed in, clear guest flag and sync their cached progress to server.
+    // If guest signed in, clear guest flag, sync cached progress, AND
+    // persist any guest-built cards to the server under their real userId.
+    // Without the card persist, the deck survives in localStorage for this
+    // session but is lost on the next device / cache clear.
     // NOTE: the server returns isDemo at the TOP level (data.isDemo) — NOT on
     // data.profile. Reading profile.isDemo is always undefined, so the original
     // `!profile.isDemo` check evaluated truthy for actual guests and silently
@@ -1239,6 +1248,17 @@
       // Merge cached guest progress into server profile
       if (_S.loadFromCache) _S.loadFromCache();
       syncProgressToServer();
+      // Persist every guest-built card to the server. Fire-and-forget —
+      // the local deck cache continues to render the lobby; failure just
+      // means the card stays local-only this session.
+      var guestDeck = getDeck();
+      if (guestDeck.length > 0 && window.BlindspotSaveCard && window.BlindspotSaveCard.persistPending) {
+        guestDeck.forEach(function (c) {
+          window.BlindspotSaveCard.persistPending(c).catch(function (e) {
+            console.warn('[Blindspot] guest card persist failed:', e);
+          });
+        });
+      }
     }
 
     // Pending card save: a player built a card as a guest and clicked
