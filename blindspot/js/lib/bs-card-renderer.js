@@ -64,6 +64,12 @@ window.BsCardRenderer = (function () {
     return tier;
   }
 
+  function getCardLevel(cardId) {
+    var prog = window.BsState ? window.BsState.progress : {};
+    var ch = cardId && prog.cardHistory ? prog.cardHistory[cardId] : null;
+    return ch ? (ch.wins || 0) : 0;
+  }
+
   function getCardEarnedTitles(cardId) {
     var milestones = (_C.CARD_TITLE_MILESTONES || []);
     var prog = window.BsState ? window.BsState.progress : {};
@@ -159,21 +165,29 @@ window.BsCardRenderer = (function () {
         titleText = progress.cardTitle || '';
       }
     }
-    var titleHTML = titleText
-      ? '<span class="bs-rc__title-badge">' + escHtml(titleText) + '</span>'
-      : '';
-
     // Border evolution tier based on per-card battle history
     var cardId = card.id || '';
     var borderTier = getCardBorderTier(cardId);
     var borderAttr = borderTier ? ' data-border-tier="' + borderTier.id + '"' : '';
 
-    // Best earned title for this card (last = highest)
+    // Best earned title for this card (last = highest) — falls through if
+    // an explicit cosmetic/progression title is already set.
     var earnedTitles = getCardEarnedTitles(cardId);
     var bestEarnedTitle = earnedTitles.length > 0 ? earnedTitles[earnedTitles.length - 1] : null;
-    // Earned title overrides cosmetic/progression title if it's more impressive
-    if (bestEarnedTitle && !titleText) {
-      titleHTML = '<span class="bs-rc__title-badge">' + escHtml(bestEarnedTitle.title) + '</span>';
+    var resolvedTitle = titleText || (bestEarnedTitle ? bestEarnedTitle.title : '');
+
+    // Card level — visible identity number. 1 win = 1 level. Always shown
+    // on full-size cards; on compact/micro the badge stays title-only to
+    // keep small renders uncluttered.
+    var titleHTML = '';
+    if (size === 'full') {
+      var level = getCardLevel(cardId);
+      var badgeText = resolvedTitle
+        ? ('Lv ' + level + ' · ' + resolvedTitle)
+        : ('Lv ' + level);
+      titleHTML = '<span class="bs-rc__title-badge">' + escHtml(badgeText) + '</span>';
+    } else if (resolvedTitle) {
+      titleHTML = '<span class="bs-rc__title-badge">' + escHtml(resolvedTitle) + '</span>';
     }
 
     var elementBadge = '';
@@ -243,6 +257,7 @@ window.BsCardRenderer = (function () {
     ensureCombatStats: ensureCombatStats,
     getCardPower: getCardPower,
     getCardBorderTier: getCardBorderTier,
-    getCardEarnedTitles: getCardEarnedTitles
+    getCardEarnedTitles: getCardEarnedTitles,
+    getCardLevel: getCardLevel
   };
 })();
