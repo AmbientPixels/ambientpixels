@@ -108,20 +108,20 @@
       // returning visitors (page refresh, navigated back) skip straight to
       // Begin. If the carousel never populated, fall through to the legacy
       // single-click path so the splash still works offline.
+      // HTML default is "Roll Your Fate"; only swap to "Begin" once the
+      // player has already done their roll for this browser. We don't gate
+      // on carousel readiness here — if the carousel never populated, the
+      // click handler gracefully falls through to the legacy fight path.
       function refreshFightBtnLabel() {
         if (fightBtn.disabled) return; // mid-roll or mid-fight — don't clobber
         var rolled = localStorage.getItem('bs-stranger-rolled') === 'true';
-        var ready = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
-        if (!rolled && ready) {
-          fightBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Roll Your Fate';
-        } else {
+        if (rolled) {
           fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
+        } else {
+          fightBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Roll Your Fate';
         }
       }
       refreshFightBtnLabel();
-      // Carousel fetches its slides async; listen for the ready event so the
-      // button label catches up when the gallery finishes loading.
-      document.addEventListener('bs-hero-ready', refreshFightBtnLabel);
 
       fightBtn.addEventListener('click', function () {
         // Stage 1 \u2014 first click of an unrolled session triggers the roll.
