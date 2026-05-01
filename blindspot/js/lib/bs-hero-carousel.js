@@ -120,9 +120,12 @@
     if (_slides[idx]) updateTag(_slides[idx]);
   }
 
-  // Slot-machine roll — cycles fast, eases out, lands on a random slide.
-  // Called by bs-landing when the player clicks "Roll" on the splash.
-  // `callback` receives the chosen slide once landing flash starts.
+  // Slot-machine roll — overlays the hero stack with a horizontal reel
+  // (mirrors the loot-crate ceremony idiom in bs-crates.js). The strip
+  // slides left, decelerates with cubic-bezier easing, and lands the
+  // chosen tile centered under a gold pointer line. Replaces the
+  // earlier crossfade roll for a more recognisable "rolling for an
+  // outcome" feel.
   function startRoll(callback) {
     var stack = document.getElementById('bs-hero-stack');
     if (!stack || !_slides || _slides.length === 0) {
@@ -148,29 +151,59 @@
     }
 
     _rolling = true;
-    var totalDuration = 2200;
-    var startTime = Date.now();
 
-    function step() {
-      var elapsed = Date.now() - startTime;
-      if (elapsed >= totalDuration) {
+    // Build a strip of tiles. The chosen "winner" sits a few from the end
+    // so the deceleration has visible context (tiles still streaming past).
+    var TILE_COUNT = 26;
+    var WINNER_IDX = 22;
+    var TILE_WIDTH = 140; // px — tuned to fit the ~400px-wide hero stack at ~3 visible tiles
+
+    var tiles = [];
+    for (var i = 0; i < TILE_COUNT; i++) {
+      var slideIdx = (i === WINNER_IDX) ? picked : Math.floor(Math.random() * _slides.length);
+      tiles.push(_slides[slideIdx]);
+    }
+
+    var reel = document.createElement('div');
+    reel.className = 'bs-hero-reel';
+    var html = '<div class="bs-hero-reel__strip">';
+    for (var t = 0; t < tiles.length; t++) {
+      html += '<div class="bs-hero-reel__tile" style="background-image:url(' + JSON.stringify(tiles[t].src) + ');"></div>';
+    }
+    html += '</div><div class="bs-hero-reel__pointer" aria-hidden="true"></div>';
+    reel.innerHTML = html;
+    stack.appendChild(reel);
+
+    var stripEl = reel.querySelector('.bs-hero-reel__strip');
+
+    // Force layout so the initial transform: translateX(0) commits before
+    // we set the target — without this the transition can be skipped.
+    void reel.offsetWidth;
+
+    var stageWidth = stack.offsetWidth || 400;
+    var targetX = -(WINNER_IDX * TILE_WIDTH) + (stageWidth - TILE_WIDTH) / 2;
+
+    stripEl.style.transition = 'transform 2.6s cubic-bezier(0.15, 0.7, 0.1, 1)';
+    stripEl.style.transform = 'translateX(' + targetX + 'px)';
+
+    setTimeout(function () {
+      // Highlight the winner tile mid-frame
+      var winnerTile = stripEl.children[WINNER_IDX];
+      if (winnerTile) winnerTile.classList.add('bs-hero-reel__tile--winner');
+
+      setTimeout(function () {
+        // Reveal the underlying stack with the chosen slide active, fade reel out.
         _activeIdx = picked;
         setActiveSlide(stack, picked);
         flashLanding(stack, picked);
-        _rolling = false;
-        if (callback) callback(_slides[picked]);
-        return;
-      }
-      _activeIdx = (_activeIdx + 1) % _slides.length;
-      setActiveSlide(stack, _activeIdx);
-      // easeOutCubic — interval ramps from ~70ms to ~600ms so the roll feels
-      // like a slot reel slowing under its own weight.
-      var t = elapsed / totalDuration;
-      var eased = 1 - Math.pow(1 - t, 3);
-      var nextInterval = 70 + eased * 530;
-      setTimeout(step, nextInterval);
-    }
-    step();
+        reel.classList.add('bs-hero-reel--fade');
+        setTimeout(function () {
+          if (reel.parentNode) reel.parentNode.removeChild(reel);
+          _rolling = false;
+          if (callback) callback(_slides[picked]);
+        }, 600);
+      }, 600);
+    }, 2700);
   }
 
   function flashLanding(stack, idx) {

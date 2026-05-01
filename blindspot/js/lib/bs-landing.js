@@ -112,54 +112,93 @@
       // player has already done their roll for this browser. We don't gate
       // on carousel readiness here — if the carousel never populated, the
       // click handler gracefully falls through to the legacy fight path.
+      var MAX_ROLLS = 3;
+      var rerollBtn = document.getElementById('bs-reroll-btn');
+
+      function getRollsUsed() {
+        var n = parseInt(localStorage.getItem('bs-stranger-rolls') || '0', 10);
+        return isNaN(n) ? 0 : n;
+      }
+      function setRollsUsed(n) {
+        if (_cb.safeLSSet) _cb.safeLSSet('bs-stranger-rolls', String(n));
+        else { try { localStorage.setItem('bs-stranger-rolls', String(n)); } catch (e) {} }
+      }
+
       function refreshFightBtnLabel() {
-        if (fightBtn.disabled) return; // mid-roll or mid-fight — don't clobber
-        var rolled = localStorage.getItem('bs-stranger-rolled') === 'true';
-        if (rolled) {
-          fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
-        } else {
+        if (fightBtn.disabled) return;
+        var rolls = getRollsUsed();
+        if (rolls === 0) {
           fightBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Roll Your Fate';
+          if (rerollBtn) rerollBtn.style.display = 'none';
+        } else if (rolls < MAX_ROLLS) {
+          fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
+          if (rerollBtn) {
+            rerollBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Reroll (' + (MAX_ROLLS - rolls) + ' left)';
+            rerollBtn.style.display = '';
+          }
+        } else {
+          fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
+          if (rerollBtn) rerollBtn.style.display = 'none';
         }
       }
       refreshFightBtnLabel();
 
-      fightBtn.addEventListener('click', function () {
-        // Stage 1 \u2014 first click of an unrolled session triggers the roll.
-        var rolled = localStorage.getItem('bs-stranger-rolled') === 'true';
-        var ready = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
-
-        if (!rolled && ready) {
-          fightBtn.disabled = true;
-          fightBtn.innerHTML = '<i class="fas fa-dice-d20 fa-spin"></i> Rolling\u2026';
-          window.BsHeroCarousel.startRoll(function () {
-            if (_cb.safeLSSet) _cb.safeLSSet('bs-stranger-rolled', 'true');
-            else { try { localStorage.setItem('bs-stranger-rolled', 'true'); } catch (e) {} }
-            // Brief beat so the player registers the landed card before the
-            // next-click affordance reappears.
-            setTimeout(function () {
-              fightBtn.disabled = false;
-              fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
-            }, 700);
-          });
-          return;
-        }
-
-        // Stage 2 \u2014 second click (or first click if already rolled) starts the fight.
+      function startFightFlow() {
         fightBtn.disabled = true;
-        fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading\u2026';
+        if (rerollBtn) rerollBtn.disabled = true;
+        fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading…';
 
         showStrangerIntro().then(function () {
           return startStrangerFight();
         }).catch(function (err) {
           console.error('[Blindspot] First fight error:', err);
           fightBtn.disabled = false;
-          fightBtn.innerHTML = '<i class="fas fa-bolt"></i> Fight';
+          if (rerollBtn) rerollBtn.disabled = false;
+          refreshFightBtnLabel();
           if (_cb.showErrorToast) _cb.showErrorToast('Failed to start fight. Try again.');
           document.getElementById('bs-landing').style.display = '';
           document.getElementById('bs-battle-container').style.display = 'none';
           document.body.classList.remove('bs-battle-active');
         });
+      }
+
+      function performRoll() {
+        var rolls = getRollsUsed();
+        if (rolls >= MAX_ROLLS) return;
+        var ready = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
+        if (!ready) {
+          startFightFlow();
+          return;
+        }
+        fightBtn.disabled = true;
+        if (rerollBtn) rerollBtn.disabled = true;
+        if (rolls === 0) {
+          fightBtn.innerHTML = '<i class="fas fa-dice-d20 fa-spin"></i> Rolling…';
+        } else if (rerollBtn) {
+          rerollBtn.innerHTML = '<i class="fas fa-dice-d20 fa-spin"></i> Rolling…';
+        }
+        window.BsHeroCarousel.startRoll(function () {
+          setRollsUsed(rolls + 1);
+          setTimeout(function () {
+            fightBtn.disabled = false;
+            if (rerollBtn) rerollBtn.disabled = false;
+            refreshFightBtnLabel();
+          }, 700);
+        });
+      }
+
+      fightBtn.addEventListener('click', function () {
+        var rolls = getRollsUsed();
+        if (rolls === 0) {
+          performRoll();
+        } else {
+          startFightFlow();
+        }
       });
+
+      if (rerollBtn) {
+        rerollBtn.addEventListener('click', performRoll);
+      }
     });
   }
 
