@@ -37,6 +37,11 @@
         _activeIdx = 0;
         renderSlides(stack, slides);
         if (slides.length > 1) startRotation(stack, slides);
+        // Notify any listeners (e.g. bs-landing's fight-button label) that
+        // the carousel is now usable. Fired once per page load.
+        try {
+          document.dispatchEvent(new CustomEvent('bs-hero-ready', { detail: { slideCount: slides.length } }));
+        } catch (e) { /* CustomEvent unsupported — silent skip */ }
       })
       .catch(function () {
         // Stack stays empty — underlying static portrait shows through.
