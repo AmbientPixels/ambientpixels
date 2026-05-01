@@ -162,14 +162,7 @@
         });
       }
 
-      function performRoll() {
-        var rolls = getRollsUsed();
-        if (rolls >= MAX_ROLLS) return;
-        var ready = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
-        if (!ready) {
-          startFightFlow();
-          return;
-        }
+      function doActualRoll(rolls) {
         fightBtn.disabled = true;
         if (rerollBtn) rerollBtn.disabled = true;
         if (rolls === 0) {
@@ -185,6 +178,49 @@
             refreshFightBtnLabel();
           }, 700);
         });
+      }
+
+      function performRoll() {
+        var rolls = getRollsUsed();
+        if (rolls >= MAX_ROLLS) return;
+
+        var ready = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
+        if (ready) {
+          doActualRoll(rolls);
+          return;
+        }
+
+        // Carousel API hasn't resolved yet — show a Preparing state, then
+        // fire the roll automatically the moment slides land. Click feels
+        // responsive even if the gallery fetch is slow.
+        fightBtn.disabled = true;
+        if (rerollBtn) rerollBtn.disabled = true;
+        if (rolls === 0) {
+          fightBtn.innerHTML = '<i class="fas fa-dice-d20 fa-spin"></i> Preparing…';
+        } else if (rerollBtn) {
+          rerollBtn.innerHTML = '<i class="fas fa-dice-d20 fa-spin"></i> Preparing…';
+        }
+
+        var fired = false;
+        function onReady() {
+          if (fired) return;
+          fired = true;
+          document.removeEventListener('bs-hero-ready', onReady);
+          if (window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides()) {
+            doActualRoll(rolls);
+          } else {
+            // Carousel resolved but with no slides — fall through to fight.
+            startFightFlow();
+          }
+        }
+        document.addEventListener('bs-hero-ready', onReady);
+        // 10s safety fallback so a dead API doesn't strand the player.
+        setTimeout(function () {
+          if (fired) return;
+          fired = true;
+          document.removeEventListener('bs-hero-ready', onReady);
+          startFightFlow();
+        }, 10000);
       }
 
       fightBtn.addEventListener('click', function () {
