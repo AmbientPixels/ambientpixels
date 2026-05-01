@@ -167,11 +167,12 @@
     _lastRolled = slides[picked];
 
     if (prefersReducedMotion) {
-      if (!usingFallback) {
-        _activeIdx = picked;
-        setActiveSlide(stack, picked);
-        flashLanding(stack, picked);
+      _rollHappened = true;
+      if (_rotationTimer) {
+        clearInterval(_rotationTimer);
+        _rotationTimer = null;
       }
+      showRolledSlide(stack, slides[picked]);
       if (callback) callback(slides[picked]);
       return;
     }
@@ -232,14 +233,10 @@
           clearInterval(_rotationTimer);
           _rotationTimer = null;
         }
-        // Reveal the underlying stack with the chosen slide active, fade reel out.
-        // When using fallback art, the underlying ambient stack stays as-is
-        // (real slides may load mid-roll but won't auto-rotate now).
-        if (!usingFallback) {
-          _activeIdx = picked;
-          setActiveSlide(stack, picked);
-          flashLanding(stack, picked);
-        }
+        // Place the chosen face into the stack as a sticky slide. Behind
+        // the reel via DOM order, so when the reel fades out the chosen
+        // slide is what's revealed (not the static knight underneath).
+        showRolledSlide(stack, slides[picked]);
         reel.classList.add('bs-hero-reel--fade');
         setTimeout(function () {
           if (reel.parentNode) reel.parentNode.removeChild(reel);
@@ -258,6 +255,32 @@
     setTimeout(function () {
       if (node) node.classList.remove('bs-hero-slide--landed');
     }, 1400);
+  }
+
+  // After a roll lands, replace whatever's in the hero stack with a single
+  // sticky slide showing the chosen face. Works for both real gallery
+  // slides and the demo fallback deck — the chosen image sits in the
+  // stack so when the reel fades out, the static knight underneath
+  // doesn't show through.
+  function showRolledSlide(stack, slide) {
+    if (!stack || !slide || !slide.src) return;
+    var existing = stack.querySelectorAll('.bs-hero-slide');
+    for (var i = 0; i < existing.length; i++) {
+      if (existing[i].parentNode) existing[i].parentNode.removeChild(existing[i]);
+    }
+    var chosen = document.createElement('div');
+    chosen.className = 'bs-hero-slide bs-hero-slide--active';
+    chosen.style.backgroundImage = 'url(' + JSON.stringify(slide.src) + ')';
+    // Insert before the reel so the chosen slide is behind it during fade-out.
+    var reel = stack.querySelector('.bs-hero-reel');
+    if (reel) stack.insertBefore(chosen, reel);
+    else stack.appendChild(chosen);
+    // Landing flash on the chosen slide
+    setTimeout(function () {
+      chosen.classList.add('bs-hero-slide--landed');
+      setTimeout(function () { chosen.classList.remove('bs-hero-slide--landed'); }, 1400);
+    }, 50);
+    if (slide.name) updateTag(slide);
   }
 
   function updateTag(slide) {
