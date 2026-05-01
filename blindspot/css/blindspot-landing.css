@@ -1,6 +1,6 @@
 /* ============================================================
    BLINDSPOT REDESIGN — Phase 2: Landing (chapter zero / the stranger)
-   Vein-style illuminated layout: framed corners, portrait + sigil,
+   Vein-style illuminated layout: framed corners, portrait carousel,
    drop-cap verse, CTA row, ledger footer.
    All classes prefixed `blindspot-` to coexist with legacy `bs-*`.
    Depends on tokens from blindspot-tokens.css.
@@ -108,24 +108,6 @@
 }
 .bs-hero-slide--active {
   opacity: 1;
-}
-.blindspot-landing__sigil-wrap {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-.blindspot-landing__sigil {
-  width: 80%;
-  height: 80%;
-  color: var(--blindspot-accent-gold);
-  opacity: 0.18;
-  animation: blindspot-sigil-rotate 60s linear infinite;
-}
-@keyframes blindspot-sigil-rotate {
-  to { transform: rotate(360deg); }
 }
 .blindspot-landing__card-tag {
   position: absolute;
@@ -248,8 +230,7 @@
   animation: blindspot-fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 @media (prefers-reduced-motion: reduce) {
-  .blindspot-fade-up,
-  .blindspot-landing__sigil {
+  .blindspot-fade-up {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
