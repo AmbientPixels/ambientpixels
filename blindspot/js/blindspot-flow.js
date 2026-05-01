@@ -1237,6 +1237,16 @@
       return;
     }
 
+    // Anonymous users get a demo profile from the server (isDemo: true).
+    // play.html is the in-game lobby — anonymous visitors belong on the
+    // splash where they can either sign in or pick the explicit "Continue
+    // as guest" path. The guest flag is the deliberate opt-in to demo state.
+    if (isDemo() && !isGuestMode) {
+      dismissLoadingGate();
+      window.location.href = '/blindspot/';
+      return;
+    }
+
     // Cards loaded in parallel — for guests, prefer localStorage deck
     var cards;
     if (isGuestMode) {
