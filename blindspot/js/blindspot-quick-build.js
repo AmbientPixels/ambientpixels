@@ -404,7 +404,7 @@
         const vibeId = card.dataset.vibeId;
         const newVibe = VIBES.find(v => v.id === vibeId) || null;
         if (_state.vibe?.id !== vibeId) {
-          _state.artworkMode = 'gallery';
+          _state.artworkMode = 'ai';
           _state.artworkUrl = null;
           _state.aiData = null;
         }
@@ -416,7 +416,7 @@
     const surpriseBtn = document.getElementById('qb-surprise');
     if (surpriseBtn) {
       surpriseBtn.addEventListener('click', () => {
-        _state.artworkMode = 'gallery';
+        _state.artworkMode = 'ai';
         _state.artworkUrl = null;
         _state.aiData = null;
         _state.vibe = VIBES[Math.floor(Math.random() * VIBES.length)];
