@@ -17,6 +17,18 @@
   var _activeIdx = 0;
   var _rotationTimer = null;
   var _rolling = false;
+  var _lastRolled = null; // last slide the slot machine landed on (real or fallback)
+
+  // Fallback slot-machine deck used when the gallery API is slow or empty
+  // (cardforgeloadcards is currently very heavy — see slim-endpoint TODO).
+  // Lets the click-to-roll feel instant; once real slides load they take
+  // over for ambient rotation.
+  var DEMO_FALLBACK_SLIDES = [
+    { src: '/blindspot/img/fighters/knight.webp',  name: 'The Stranger', ts: 0 },
+    { src: '/blindspot/img/demo/demo-knight.webp', name: 'The Stranger', ts: 0 },
+    { src: '/blindspot/img/demo/demo-mage.webp',   name: 'The Stranger', ts: 0 },
+    { src: '/blindspot/img/demo/demo-rogue.webp',  name: 'The Stranger', ts: 0 }
+  ];
 
   function galleryUrl() {
     if (typeof window.buildApiPath === 'function') {
@@ -128,25 +140,35 @@
   // outcome" feel.
   function startRoll(callback) {
     var stack = document.getElementById('bs-hero-stack');
-    if (!stack || !_slides || _slides.length === 0) {
+    if (!stack) {
       if (callback) callback(null);
       return;
     }
-    if (_slides.length === 1) {
-      if (callback) callback(_slides[0]);
+
+    // If real gallery slides aren't loaded yet (API is slow), play the
+    // slot machine on demo fallback art so the click feels instant.
+    var usingFallback = !_slides || _slides.length === 0;
+    var slides = usingFallback ? DEMO_FALLBACK_SLIDES : _slides;
+
+    if (slides.length === 1) {
+      _lastRolled = slides[0];
+      if (callback) callback(slides[0]);
       return;
     }
 
     var prefersReducedMotion = window.matchMedia
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var picked = Math.floor(Math.random() * _slides.length);
+    var picked = Math.floor(Math.random() * slides.length);
+    _lastRolled = slides[picked];
 
     if (prefersReducedMotion) {
-      _activeIdx = picked;
-      setActiveSlide(stack, picked);
-      flashLanding(stack, picked);
-      if (callback) callback(_slides[picked]);
+      if (!usingFallback) {
+        _activeIdx = picked;
+        setActiveSlide(stack, picked);
+        flashLanding(stack, picked);
+      }
+      if (callback) callback(slides[picked]);
       return;
     }
 
@@ -161,8 +183,8 @@
 
     var tiles = [];
     for (var i = 0; i < TILE_COUNT; i++) {
-      var slideIdx = (i === WINNER_IDX) ? picked : Math.floor(Math.random() * _slides.length);
-      tiles.push(_slides[slideIdx]);
+      var slideIdx = (i === WINNER_IDX) ? picked : Math.floor(Math.random() * slides.length);
+      tiles.push(slides[slideIdx]);
     }
 
     var reel = document.createElement('div');
@@ -197,14 +219,18 @@
 
       setTimeout(function () {
         // Reveal the underlying stack with the chosen slide active, fade reel out.
-        _activeIdx = picked;
-        setActiveSlide(stack, picked);
-        flashLanding(stack, picked);
+        // When using fallback art, the underlying ambient stack stays as-is
+        // (real slides may load mid-roll and take over for ambient rotation).
+        if (!usingFallback) {
+          _activeIdx = picked;
+          setActiveSlide(stack, picked);
+          flashLanding(stack, picked);
+        }
         reel.classList.add('bs-hero-reel--fade');
         setTimeout(function () {
           if (reel.parentNode) reel.parentNode.removeChild(reel);
           _rolling = false;
-          if (callback) callback(_slides[picked]);
+          if (callback) callback(slides[picked]);
         }, 600);
       }, 600);
     }, 2900);
@@ -232,14 +258,19 @@
   // for their first battle ("you fight with someone else's card").
   window.BsHeroCarousel = {
     getActiveSlide: function () {
+      // Last rolled slide (real or fallback) wins — that's the face the
+      // player just watched land, which is what the Stranger fight should
+      // borrow regardless of whether real gallery slides loaded.
+      if (_lastRolled) return _lastRolled;
       if (!_slides || _slides.length === 0) return null;
       return _slides[_activeIdx] || _slides[0] || null;
     },
     getRandomSlide: function () {
-      if (!_slides || _slides.length === 0) return null;
-      return _slides[Math.floor(Math.random() * _slides.length)];
+      var pool = (_slides && _slides.length > 0) ? _slides : DEMO_FALLBACK_SLIDES;
+      return pool[Math.floor(Math.random() * pool.length)];
     },
-    hasSlides: function () { return _slides && _slides.length > 0; },
+    // Slot machine can always run now — falls back to demo art if API is slow.
+    hasSlides: function () { return true; },
     startRoll: startRoll
   };
 
