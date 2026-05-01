@@ -1002,7 +1002,12 @@
       // empty list. Skipping the empty case let the prior user's cards
       // persist when a new player with zero cards logged in on the same
       // browser (cross-account leak).
-      setDeck(cards);
+      // EXCEPT for guest mode: anon users don't write to the server, so
+      // the server response is always empty (or a stale shared anon blob)
+      // and clobbering bs-deck would wipe their just-built card. For
+      // guests, bs-deck IS the source of truth.
+      var isGuest = localStorage.getItem('bs-guest-mode') === 'true';
+      if (!isGuest) setDeck(cards);
       return cards;
     } catch (e) {
       console.warn('[Blindspot] Could not load cards:', e);
