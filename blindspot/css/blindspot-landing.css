@@ -257,16 +257,59 @@
   border-top: 1px solid var(--blindspot-border-2);
   padding-top: 1rem;
 }
-/* Splash stats strip — reuses .blindspot-stat-tile styling from
-   blindspot-lobby.css for visual continuity with the in-game lobby
-   KPI row. Tiles are non-interactive here (decorative ledger), so
-   cursor stays default and there's no hover gold-flash. */
+/* Splash stats strip — same component as the in-game lobby's stats
+   row (blindspot-lobby.css). Rules duplicated here because index.html
+   doesn't load the lobby stylesheet. Tile component is generic and
+   could move to a shared file later. */
+.blindspot-stats-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  background: transparent;
+  border: 0;
+}
+.blindspot-stat-tile {
+  flex: 1 1 0;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0.5rem 0.85rem 0.55rem;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  font: inherit;
+  color: inherit;
+}
+.blindspot-stat-tile + .blindspot-stat-tile {
+  border-left: 1px solid var(--blindspot-border-2, rgba(245, 192, 120, 0.18));
+}
+.blindspot-stat-tile__label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-stat-tile__value {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--blindspot-accent-gold, #F5C078);
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+/* Splash tiles are decorative — non-clickable, no hover flash. */
 .blindspot-landing__stats .blindspot-stat-tile {
   cursor: default;
 }
-.blindspot-landing__stats .blindspot-stat-tile:hover .blindspot-stat-tile__value,
-.blindspot-landing__stats .blindspot-stat-tile:focus-visible .blindspot-stat-tile__value {
-  color: var(--blindspot-accent-gold, #F5C078);
+@media (max-width: 600px) {
+  .blindspot-stat-tile { flex: 1 1 50%; }
+  .blindspot-stat-tile + .blindspot-stat-tile { border-left: 0; }
+  .blindspot-stat-tile:nth-child(2n) { border-left: 1px solid var(--blindspot-border-2, rgba(245, 192, 120, 0.18)); }
 }
 
 /* ---------- SIGN-IN LINE ---------- */
