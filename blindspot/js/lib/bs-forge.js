@@ -201,16 +201,16 @@
       <div style="margin-bottom:0.75rem;">
         <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Avatar</label>
         <div class="bs-forge-avatar-tabs" style="display:flex; gap:0.25rem; margin-bottom:0.5rem;">
-          <button class="bs-forge-avt-tab bs-forge-avt-tab--active" data-avt-tab="gallery" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text); cursor:pointer;"><i class="fas fa-images"></i> Gallery</button>
-          <button class="bs-forge-avt-tab" data-avt-tab="ai" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>
+          <button class="bs-forge-avt-tab bs-forge-avt-tab--active" data-avt-tab="ai" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text); cursor:pointer;"><i class="fas fa-wand-magic-sparkles"></i> Generate</button>
+          <button class="bs-forge-avt-tab" data-avt-tab="gallery" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-images"></i> Gallery</button>
           <button class="bs-forge-avt-tab" data-avt-tab="url" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-link"></i> URL</button>
         </div>
-        <div id="bs-forge-avt-gallery" class="bs-forge-avt-content">
+        <div id="bs-forge-avt-gallery" class="bs-forge-avt-content" style="display:none;">
           <div id="bs-forge-avatar-grid" style="min-height:120px;">
             <div style="text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;"><i class="fas fa-scroll" style="color:var(--bs-accent);margin-right:0.3em;"></i><i class="fas fa-spinner fa-spin" style="margin-right:0.3em;"></i>Gathering your collection\u2026</div>
           </div>
         </div>
-        <div id="bs-forge-avt-ai" class="bs-forge-avt-content" style="display:none;">
+        <div id="bs-forge-avt-ai" class="bs-forge-avt-content">
           <div style="margin-bottom:0.5rem;">
             <input type="text" id="bs-forge-ai-prompt" placeholder="Describe your character... e.g. 'cyberpunk warrior with glowing eyes'" maxlength="200"
                    style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.8rem; margin-bottom:0.4rem;">
