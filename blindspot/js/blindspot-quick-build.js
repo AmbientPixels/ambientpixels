@@ -51,9 +51,9 @@
     step: 0,
     vibe: null,
     element: null,
-    artworkMode: 'gallery',
+    artworkMode: 'ai',
     artworkUrl: null,
-    imageContainer: 'masked',
+    imageContainer: 'framed',
     aiData: null,
     cardName: '',
     cardClass: '',
@@ -73,7 +73,7 @@
   function open(onComplete) {
     _onComplete = onComplete || null;
     _cardFlipped = false;
-    _state = { step: 0, vibe: null, element: null, artworkMode: 'gallery', artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common', customStats: null };
+    _state = { step: 0, vibe: null, element: null, artworkMode: 'ai', artworkUrl: null, imageContainer: 'framed', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common', customStats: null };
     _render();
   }
 
@@ -242,7 +242,7 @@
 
   function _renderArtworkStep() {
     const remaining = window.CardForgeAI?.getAiRemaining?.() ?? 0;
-    const artMode = _state.artworkMode || 'gallery';
+    const artMode = _state.artworkMode || 'ai';
 
     let panelHTML = '';
     if (artMode === 'gallery') {
@@ -278,7 +278,7 @@
     return `
       <p class="qb-panel-desc">Give your card a face. Pick from the gallery, generate one, or paste a URL.</p>
       <div class="qb-artwork-options">
-        ${['gallery', 'ai', 'url'].map(m => `
+        ${['ai', 'gallery', 'url'].map(m => `
           <div class="qb-artwork-tile ${artMode === m ? 'selected' : ''}" data-art-mode="${m}">
             <i class="fas ${m === 'gallery' ? 'fa-images' : m === 'ai' ? 'fa-wand-magic-sparkles' : 'fa-link'}"></i>
             <span>${m === 'gallery' ? 'Gallery' : m === 'ai' ? 'Generate' : 'Paste URL'}</span>
