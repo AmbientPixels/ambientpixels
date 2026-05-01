@@ -656,8 +656,15 @@
         return;
       }
 
-      // Select the card
-      try { await window.ArenaAPI.selectCard(savedCardId); } catch (e) { console.warn('selectCard error:', e); }
+      // Select the card on the server only if the player is signed in.
+      // Anonymous users have no server-side card record (see bs-save-card.js
+      // anon short-circuit) so selectCard would 401 / write to the shared
+      // anon profile blob.
+      const _authHeader = await window.ArenaAPI.getPrincipalHeader();
+      const _isAuthed = !!(_authHeader && _authHeader['X-CF-Auth-Principal']);
+      if (_isAuthed) {
+        try { await window.ArenaAPI.selectCard(savedCardId); } catch (e) { console.warn('selectCard error:', e); }
+      }
 
       // Build card data for local cache (ensures guests see their card in lobby)
       const cardData = {

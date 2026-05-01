@@ -1231,6 +1231,31 @@
       syncProgressToServer();
     }
 
+    // Pending card save: a player built a card as a guest and clicked
+    // "Sign In & Enter the Arena" instead of "Continue as Guest". The
+    // card was stashed in bs-pending-card-save (and the deck cache);
+    // now that we have an authenticated principal, persist it to the
+    // server under their real userId. The deck cache is already the
+    // source of truth for rendering, so the server write is fire-and-
+    // forget — failure just means the card is local-only this session.
+    var pendingCardJSON = localStorage.getItem('bs-pending-card-save');
+    if (pendingCardJSON && profile && !profile.isDemo) {
+      try {
+        var pendingCard = JSON.parse(pendingCardJSON);
+        if (pendingCard && pendingCard.id) {
+          ensureCombatStats(pendingCard);
+          addCardToDeck(pendingCard);
+          safeLSSet('bs-selected-card-id', pendingCard.id);
+          if (window.BlindspotSaveCard && window.BlindspotSaveCard.persistPending) {
+            window.BlindspotSaveCard.persistPending(pendingCard).then(function () {
+              try { window.ArenaAPI.selectCard(pendingCard.id); } catch (e) {}
+            }).catch(function (e) { console.warn('[Blindspot] persistPending failed:', e); });
+          }
+        }
+      } catch (e) { console.warn('[Blindspot] pending card parse failed:', e); }
+      localStorage.removeItem('bs-pending-card-save');
+    }
+
     if (!profile && !isGuestMode) {
       dismissLoadingGate();
       window.location.href = '/blindspot/';

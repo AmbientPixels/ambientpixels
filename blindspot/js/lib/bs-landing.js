@@ -552,9 +552,9 @@
       '<p class="bs-reveal-title">Your card is ready</p>' +
       '<p class="bs-reveal-subtitle">The arena awaits.</p>' +
       (isDemoUser ?
-        '<a href="/blindspot/login.html?redirect=/blindspot/play.html" class="blindspot-btn blindspot-btn--primary blindspot-btn--xl bs-reveal-enter">' +
+        '<button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl bs-reveal-enter" id="bs-reveal-signin">' +
           '<i class="fas fa-sign-in-alt"></i> Sign In &amp; Enter the Arena' +
-        '</a>' +
+        '</button>' +
         '<button class="blindspot-btn blindspot-btn--ghost blindspot-btn--lg bs-reveal-enter bs-reveal-enter--ghost" id="bs-reveal-enter">' +
           '<i class="fas fa-play"></i> Continue as Guest' +
         '</button>' +
@@ -569,10 +569,30 @@
     if (enterBtn) enterBtn.addEventListener('click', function () {
       if (isDemoUser && _cb.safeLSSet) {
         _cb.safeLSSet('bs-guest-mode', 'true');
+        // Belt-and-suspenders: ensure the just-built card survives navigation
+        // even if cleanupLocalStorage or a deck-cache race blew it away.
+        if (card && _cb.addCardToDeck) _cb.addCardToDeck(card);
+        if (card && card.id) _cb.safeLSSet('bs-selected-card-id', card.id);
       }
       overlay.classList.add('bs-reveal-celebration--exit');
       setTimeout(function () {
         window.location.href = '/blindspot/play.html';
+      }, 400);
+    });
+
+    // Sign In path: stash the locally-built card so initPlay can re-save
+    // it under the player's real userId after login completes. Without
+    // this, the card lives only in localStorage and is never persisted.
+    var signInBtn = document.getElementById('bs-reveal-signin');
+    if (signInBtn) signInBtn.addEventListener('click', function () {
+      try {
+        if (card && _cb.safeLSSet) {
+          _cb.safeLSSet('bs-pending-card-save', JSON.stringify(card));
+        }
+      } catch (e) { /* localStorage full — proceed anyway */ }
+      overlay.classList.add('bs-reveal-celebration--exit');
+      setTimeout(function () {
+        window.location.href = '/blindspot/login.html?redirect=/blindspot/play.html';
       }, 400);
     });
   }
