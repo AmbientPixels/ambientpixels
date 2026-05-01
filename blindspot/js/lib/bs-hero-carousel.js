@@ -18,6 +18,7 @@
   var _rotationTimer = null;
   var _rolling = false;
   var _lastRolled = null; // last slide the slot machine landed on (real or fallback)
+  var _rollHappened = false; // once a roll has landed, ambient rotation stays off
 
   // Fallback slot-machine deck used when the gallery API is slow or empty
   // (cardforgeloadcards is currently very heavy — see slim-endpoint TODO).
@@ -46,11 +47,14 @@
       .then(function (slides) {
         if (!slides || slides.length === 0) return;
         _slides = slides;
-        _activeIdx = 0;
-        renderSlides(stack, slides);
-        if (slides.length > 1) startRotation(stack, slides);
-        // Notify any listeners (e.g. bs-landing's fight-button label) that
-        // the carousel is now usable. Fired once per page load.
+        // If a roll already happened (gallery resolved late), don't reset
+        // the active index or restart rotation — the player has committed
+        // to a chosen card and that visual should stay sticky.
+        if (!_rollHappened) {
+          _activeIdx = 0;
+          renderSlides(stack, slides);
+          if (slides.length > 1) startRotation(stack, slides);
+        }
         try {
           document.dispatchEvent(new CustomEvent('bs-hero-ready', { detail: { slideCount: slides.length } }));
         } catch (e) { /* CustomEvent unsupported — silent skip */ }
@@ -221,9 +225,16 @@
       if (winnerTile) winnerTile.classList.add('bs-hero-reel__tile--winner');
 
       setTimeout(function () {
+        // Player has landed on their card — stop ambient rotation so the
+        // chosen face stays put instead of cycling past on the next tick.
+        _rollHappened = true;
+        if (_rotationTimer) {
+          clearInterval(_rotationTimer);
+          _rotationTimer = null;
+        }
         // Reveal the underlying stack with the chosen slide active, fade reel out.
         // When using fallback art, the underlying ambient stack stays as-is
-        // (real slides may load mid-roll and take over for ambient rotation).
+        // (real slides may load mid-roll but won't auto-rotate now).
         if (!usingFallback) {
           _activeIdx = picked;
           setActiveSlide(stack, picked);
