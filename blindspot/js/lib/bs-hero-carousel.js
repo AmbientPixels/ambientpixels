@@ -15,6 +15,8 @@
   // else's card).
   var _slides = [];
   var _activeIdx = 0;
+  var _rotationTimer = null;
+  var _rolling = false;
 
   function galleryUrl() {
     if (typeof window.buildApiPath === 'function') {
@@ -97,14 +99,83 @@
   }
 
   function startRotation(stack, slides) {
-    setInterval(function () {
+    if (_rotationTimer) clearInterval(_rotationTimer);
+    _rotationTimer = setInterval(function () {
+      if (_rolling) return; // pause the ambient rotation while a roll is playing
       _activeIdx = (_activeIdx + 1) % slides.length;
-      var nodes = stack.querySelectorAll('.bs-hero-slide');
-      for (var i = 0; i < nodes.length; i++) {
-        nodes[i].classList.toggle('bs-hero-slide--active', i === _activeIdx);
-      }
-      updateTag(slides[_activeIdx]);
+      setActiveSlide(stack, _activeIdx);
     }, INTERVAL_MS);
+  }
+
+  function setActiveSlide(stack, idx) {
+    var nodes = stack.querySelectorAll('.bs-hero-slide');
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].classList.toggle('bs-hero-slide--active', i === idx);
+    }
+    if (_slides[idx]) updateTag(_slides[idx]);
+  }
+
+  // Slot-machine roll — cycles fast, eases out, lands on a random slide.
+  // Called by bs-landing when the player clicks "Roll" on the splash.
+  // `callback` receives the chosen slide once landing flash starts.
+  function startRoll(callback) {
+    var stack = document.getElementById('bs-hero-stack');
+    if (!stack || !_slides || _slides.length === 0) {
+      if (callback) callback(null);
+      return;
+    }
+    if (_slides.length === 1) {
+      if (callback) callback(_slides[0]);
+      return;
+    }
+
+    var prefersReducedMotion = window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var picked = Math.floor(Math.random() * _slides.length);
+
+    if (prefersReducedMotion) {
+      _activeIdx = picked;
+      setActiveSlide(stack, picked);
+      flashLanding(stack, picked);
+      if (callback) callback(_slides[picked]);
+      return;
+    }
+
+    _rolling = true;
+    var totalDuration = 2200;
+    var startTime = Date.now();
+
+    function step() {
+      var elapsed = Date.now() - startTime;
+      if (elapsed >= totalDuration) {
+        _activeIdx = picked;
+        setActiveSlide(stack, picked);
+        flashLanding(stack, picked);
+        _rolling = false;
+        if (callback) callback(_slides[picked]);
+        return;
+      }
+      _activeIdx = (_activeIdx + 1) % _slides.length;
+      setActiveSlide(stack, _activeIdx);
+      // easeOutCubic — interval ramps from ~70ms to ~600ms so the roll feels
+      // like a slot reel slowing under its own weight.
+      var t = elapsed / totalDuration;
+      var eased = 1 - Math.pow(1 - t, 3);
+      var nextInterval = 70 + eased * 530;
+      setTimeout(step, nextInterval);
+    }
+    step();
+  }
+
+  function flashLanding(stack, idx) {
+    var nodes = stack.querySelectorAll('.bs-hero-slide');
+    var node = nodes[idx];
+    if (!node) return;
+    node.classList.add('bs-hero-slide--landed');
+    setTimeout(function () {
+      if (node) node.classList.remove('bs-hero-slide--landed');
+    }, 1400);
   }
 
   function updateTag(slide) {
@@ -125,7 +196,9 @@
     getRandomSlide: function () {
       if (!_slides || _slides.length === 0) return null;
       return _slides[Math.floor(Math.random() * _slides.length)];
-    }
+    },
+    hasSlides: function () { return _slides && _slides.length > 0; },
+    startRoll: startRoll
   };
 
   if (document.readyState === 'loading') {

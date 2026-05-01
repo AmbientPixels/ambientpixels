@@ -103,7 +103,40 @@
         proofCards.textContent = (baseCards + (progress.forgeVisits || 0)).toLocaleString();
       }
 
+      // First-visit ritual: click 1 spins the carousel + lands on a card,
+      // click 2 starts the fight. localStorage marks the roll as done so
+      // returning visitors (page refresh, navigated back) skip straight to
+      // Begin. If the carousel never populated, fall through to the legacy
+      // single-click path so the splash still works offline.
+      var hasRolled = localStorage.getItem('bs-stranger-rolled') === 'true';
+      var carouselReady = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
+
+      if (!hasRolled && carouselReady) {
+        fightBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Roll Your Fate';
+      }
+
       fightBtn.addEventListener('click', function () {
+        // Stage 1 \u2014 first click of an unrolled session triggers the roll.
+        var rolled = localStorage.getItem('bs-stranger-rolled') === 'true';
+        var ready = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
+
+        if (!rolled && ready) {
+          fightBtn.disabled = true;
+          fightBtn.innerHTML = '<i class="fas fa-dice-d20 fa-spin"></i> Rolling\u2026';
+          window.BsHeroCarousel.startRoll(function () {
+            if (_cb.safeLSSet) _cb.safeLSSet('bs-stranger-rolled', 'true');
+            else { try { localStorage.setItem('bs-stranger-rolled', 'true'); } catch (e) {} }
+            // Brief beat so the player registers the landed card before the
+            // next-click affordance reappears.
+            setTimeout(function () {
+              fightBtn.disabled = false;
+              fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
+            }, 700);
+          });
+          return;
+        }
+
+        // Stage 2 \u2014 second click (or first click if already rolled) starts the fight.
         fightBtn.disabled = true;
         fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading\u2026';
 

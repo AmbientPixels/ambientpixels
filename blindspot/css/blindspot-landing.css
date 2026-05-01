@@ -109,6 +109,18 @@
 .bs-hero-slide--active {
   opacity: 1;
 }
+.bs-hero-slide--landed {
+  animation: bs-hero-land-pulse 1.4s ease-out;
+}
+@keyframes bs-hero-land-pulse {
+  0%   { filter: sepia(0.3) saturate(0.85) contrast(1.1) brightness(1); }
+  18%  { filter: sepia(0)   saturate(1.2)  contrast(1.18) brightness(1.45); }
+  60%  { filter: sepia(0.15) saturate(1.05) contrast(1.12) brightness(1.1); }
+  100% { filter: sepia(0.3) saturate(0.85) contrast(1.1) brightness(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-hero-slide--landed { animation: none; }
+}
 .blindspot-landing__card-tag {
   position: absolute;
   bottom: 14px;
