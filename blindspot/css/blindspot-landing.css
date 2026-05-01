@@ -85,6 +85,30 @@
   inset: 0;
   background: linear-gradient(180deg, transparent 30%, rgba(13, 8, 7, 0.85));
 }
+
+/* Hero carousel — sits above the static portrait, below the veil. JS
+   populates with up to 5 most-recently-published gallery cards. If the
+   fetch fails or returns nothing the stack stays empty and the static
+   portrait shows through unchanged. */
+.bs-hero-stack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bs-hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  filter: sepia(0.3) saturate(0.85) contrast(1.1);
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+.bs-hero-slide--active {
+  opacity: 1;
+}
 .blindspot-landing__sigil-wrap {
   position: absolute;
   inset: 0;
