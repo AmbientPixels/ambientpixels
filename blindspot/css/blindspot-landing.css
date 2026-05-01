@@ -214,13 +214,18 @@
   margin: 1.5rem 0 2rem;
 }
 
-/* Reroll button — gold-tinted ghost style so the label reads clearly
-   against the dark splash without competing with the primary Begin
-   CTA. Subordinate emphasis but high legibility. */
+/* Reroll button — gold-tinted ghost style with the body mono font (not
+   the wide-tracked uppercase display serif used by primary CTAs) so
+   the compound label "Reroll (2 left)" stays scannable. Subordinate
+   emphasis to Begin without the legibility hit. */
 #bs-reroll-btn {
+  font-family: var(--blindspot-font-body);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.95rem;
   color: var(--blindspot-accent);
   border-color: rgba(245, 192, 120, 0.45);
-  font-weight: 600;
   background: rgba(245, 192, 120, 0.04);
 }
 #bs-reroll-btn:hover:not(:disabled) {
