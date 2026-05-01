@@ -33,10 +33,16 @@
 
   function galleryUrl() {
     if (typeof window.buildApiPath === 'function') {
-      var url = window.buildApiPath('loadCards');
-      if (url) return url;
+      // Slim hero endpoint — returns just {name, avatar, createdAt} per
+      // published card. ~kilobytes vs the multi-megabyte cardforgeloadcards
+      // payload, so the carousel can populate before the player clicks.
+      var slim = window.buildApiPath('heroSlim', { count: SLIDE_COUNT });
+      if (slim) return slim;
+      // Fallback to the legacy heavy endpoint if the slim path isn't wired.
+      var legacy = window.buildApiPath('loadCards');
+      if (legacy) return legacy;
     }
-    return 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgeloadcards';
+    return 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspothero?count=5';
   }
 
   function init() {
@@ -75,12 +81,27 @@
         return r.ok ? r.json() : null;
       })
       .then(function (data) {
-        if (!data || !Array.isArray(data.galleryCards)) return [];
-        return data.galleryCards
-          .map(extractSlide)
-          .filter(function (s) { return s && s.src; })
-          .sort(function (a, b) { return b.ts - a.ts; })
-          .slice(0, SLIDE_COUNT);
+        if (!data) return [];
+        // Slim endpoint shape: { slides: [{name, avatar, createdAt}], count }
+        if (Array.isArray(data.slides)) {
+          return data.slides
+            .map(function (s) {
+              if (!s || !s.avatar) return null;
+              var ts = s.createdAt ? new Date(s.createdAt).getTime() : 0;
+              return { src: s.avatar, name: s.name || 'Featured Card', ts: isFinite(ts) ? ts : 0 };
+            })
+            .filter(Boolean)
+            .slice(0, SLIDE_COUNT);
+        }
+        // Legacy heavy endpoint shape: { galleryCards: [...] }
+        if (Array.isArray(data.galleryCards)) {
+          return data.galleryCards
+            .map(extractSlide)
+            .filter(function (s) { return s && s.src; })
+            .sort(function (a, b) { return b.ts - a.ts; })
+            .slice(0, SLIDE_COUNT);
+        }
+        return [];
       });
   }
 

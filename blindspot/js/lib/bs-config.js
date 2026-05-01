@@ -11,6 +11,10 @@ window._config.apiEndpoints = {
   // Blindspot-specific battle/bosses endpoints
   arenaBattle: 'blindspotbattle',
   arenaBosses: 'blindspotbosses',
+  // Slim feed for the splash slot machine — returns just {name, avatar,
+  // createdAt} per published card. Replaces the heavy cardforgeloadcards
+  // call in bs-hero-carousel.js.
+  heroSlim: 'blindspothero',
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',
