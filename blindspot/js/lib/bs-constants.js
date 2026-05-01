@@ -352,7 +352,7 @@ window.BsConst = (function () {
     // Phase 1 — HUD Intro (tap "Got it" to advance)
     { id: 'hp-intro',      target: '#arena-player-side .arena-hp-bar', position: 'below', icon: 'fa-heart',       label: 'Health',     text: 'Hit zero and it\u2019s over. Guard it well.',                advance: 'tap',  move: null,     disableOthers: false },
     { id: 'stamina-intro', target: '#arena-player-stamina-bar',        position: 'below', icon: 'fa-bolt',        label: 'Stamina',    text: 'Fuels your moves. Spend wisely.',                           advance: 'tap',  move: null,     disableOthers: false },
-    { id: 'enemy-intro',   target: '.arena-combatant--opponent .arena-combatant__nameplate', position: 'below', icon: 'fa-crosshairs', label: 'Your Enemy', text: 'Watch their moves for patterns.', advance: 'tap',  move: null,     disableOthers: false },
+    { id: 'enemy-intro',   target: '.arena-combatant--opponent .arena-combatant__frame',     position: 'below', icon: 'fa-crosshairs', label: 'Your Enemy', text: 'Watch their moves for patterns.', advance: 'tap',  move: null,     disableOthers: false },
     { id: 'hype-intro',    target: '#arena-hype-bar',            position: 'above', icon: 'fa-fire',        label: 'Hype',       text: 'Land big hits to fill it. Full hype = bonus damage.',   advance: 'tap',  move: null,     disableOthers: false },
     { id: 'stance-intro',  target: '#arena-stance-row',          position: 'above', icon: 'fa-circle-nodes', label: 'Stances',    text: 'Switch fighting style mid-battle. Aggressive hits harder, Defensive tanks better.', advance: 'tap', move: null, disableOthers: false },
     // Phase 2 — First Moves (click highlighted button to advance)
