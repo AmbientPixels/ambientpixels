@@ -186,6 +186,17 @@
     var strangerCard = _cb.getStrangerCard ? _cb.getStrangerCard() : null;
     var config = _cb.getConfig ? _cb.getConfig() : {};
 
+    // Lore-aligned: "every fighter begins with someone else's card." The
+    // Stranger ships with no avatar, so we borrow one from the splash
+    // carousel — literally the face the player just watched rotate by.
+    // Falls back to the static knight if the carousel didn't load.
+    if (strangerCard && !strangerCard.avatar) {
+      var borrowed = (window.BsHeroCarousel && window.BsHeroCarousel.getActiveSlide)
+        ? window.BsHeroCarousel.getActiveSlide()
+        : null;
+      strangerCard.avatar = (borrowed && borrowed.src) || '/blindspot/img/fighters/knight.webp';
+    }
+
     return window.ArenaAPI.startBattle(
       'pve', strangerCard.id, config.tutorialBoss.id,
       { cardData: strangerCard }

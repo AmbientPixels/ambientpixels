@@ -10,6 +10,12 @@
   var SLIDE_COUNT = 5;
   var FETCH_TIMEOUT_MS = 12000;
 
+  // Tracked so the Stranger fight can "borrow" the currently-visible card's
+  // avatar — matches the in-game lore (every fighter begins with someone
+  // else's card).
+  var _slides = [];
+  var _activeIdx = 0;
+
   function galleryUrl() {
     if (typeof window.buildApiPath === 'function') {
       var url = window.buildApiPath('loadCards');
@@ -25,6 +31,8 @@
     fetchGallerySlides()
       .then(function (slides) {
         if (!slides || slides.length === 0) return;
+        _slides = slides;
+        _activeIdx = 0;
         renderSlides(stack, slides);
         if (slides.length > 1) startRotation(stack, slides);
       })
@@ -89,14 +97,13 @@
   }
 
   function startRotation(stack, slides) {
-    var idx = 0;
     setInterval(function () {
-      idx = (idx + 1) % slides.length;
+      _activeIdx = (_activeIdx + 1) % slides.length;
       var nodes = stack.querySelectorAll('.bs-hero-slide');
       for (var i = 0; i < nodes.length; i++) {
-        nodes[i].classList.toggle('bs-hero-slide--active', i === idx);
+        nodes[i].classList.toggle('bs-hero-slide--active', i === _activeIdx);
       }
-      updateTag(slides[idx]);
+      updateTag(slides[_activeIdx]);
     }, INTERVAL_MS);
   }
 
@@ -106,6 +113,20 @@
       tag.textContent = slide.name;
     }
   }
+
+  // Public — let other modules borrow the active hero slide's image. Used by
+  // the Stranger fight to give a new player a real published card's face
+  // for their first battle ("you fight with someone else's card").
+  window.BsHeroCarousel = {
+    getActiveSlide: function () {
+      if (!_slides || _slides.length === 0) return null;
+      return _slides[_activeIdx] || _slides[0] || null;
+    },
+    getRandomSlide: function () {
+      if (!_slides || _slides.length === 0) return null;
+      return _slides[Math.floor(Math.random() * _slides.length)];
+    }
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
