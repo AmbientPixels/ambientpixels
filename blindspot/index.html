@@ -65,21 +65,10 @@
 </head>
 <body class="bs-page" data-theme="dark">
 
-  <!-- TOP BAR — page-level, mirrors play.html so the brand + audio
-       toggles persist across landing → Stranger fight → Quick Build.
-       bs-arena-audio.js binds to these IDs (or the -idx variants if
-       missing). -->
-  <header class="bs-topbar" role="banner">
-    <span class="bs-topbar__brand"><i class="fas fa-eye-slash bs-topbar__brand-icon" aria-hidden="true"></i>Blindspot</span>
-    <div class="bs-topbar__actions">
-      <button class="arena-audio-toggle" id="arena-sfx-toggle" title="Mute SFX" aria-label="Toggle sound effects">
-        <i class="fas fa-volume-high" aria-hidden="true"></i>
-      </button>
-      <button class="arena-audio-toggle" id="arena-music-toggle" title="Mute music" aria-label="Toggle music">
-        <i class="fas fa-music" aria-hidden="true"></i>
-      </button>
-    </div>
-  </header>
+  <!-- Splash chrome intentionally omitted — the framed splash IS the
+       brand plate. Audio toggles + topbar live on play.html where they
+       earn their keep. bs-arena-audio.js handles missing buttons via
+       null-guards on getElementById. -->
 
   <!-- AMBIENT PARTICLES (background atmosphere) -->
   <canvas id="bs-particles" class="bs-particles" aria-hidden="true"></canvas>
@@ -110,7 +99,7 @@
         </div>
 
         <div class="blindspot-landing__text">
-          <h1 class="blindspot-landing__title blindspot-fade-up" style="animation-delay: 0.7s;">Blindspot</h1>
+          <h1 class="blindspot-landing__title blindspot-fade-up" style="animation-delay: 0.7s;"><i class="fas fa-eye-slash" aria-hidden="true" style="font-size:0.6em; margin-right:0.3em; vertical-align:0.18em; opacity:0.85;"></i>Blindspot</h1>
 
           <p class="blindspot-landing__verse blindspot-fade-up" style="animation-delay: 0.9s;">
             <span class="blindspot-landing__drop">E</span>very fighter begins with someone else's card. A stranger's wounds, a stranger's strengths, a stranger's name. Win &mdash; and you earn the right to forge one of your own.
