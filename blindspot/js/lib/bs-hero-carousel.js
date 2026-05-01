@@ -235,10 +235,20 @@
     stripEl.style.transition = 'transform 2.8s cubic-bezier(0.12, 0.65, 0.05, 1)';
     stripEl.style.transform = 'translateX(' + targetX + 'px)';
 
+    // Reuse the loot-crate ratchet — its 12 decelerating ticks (~1.9s)
+    // line up nicely with the strip's ease-out, so the audio sells the
+    // visual deceleration. Same idiom as bs-crates.js, by design.
+    if (window.BsSfx && window.BsSfx.play) {
+      try { window.BsSfx.play('crateRatchet'); } catch (e) { /* audio init may need a user gesture; click counts */ }
+    }
+
     setTimeout(function () {
-      // Highlight the winner tile mid-frame
+      // Highlight the winner tile mid-frame + cymbal-crash reveal SFX
       var winnerTile = stripEl.children[WINNER_IDX];
       if (winnerTile) winnerTile.classList.add('bs-hero-reel__tile--winner');
+      if (window.BsSfx && window.BsSfx.play) {
+        try { window.BsSfx.play('crateReveal'); } catch (e) { /* silent */ }
+      }
 
       setTimeout(function () {
         // Player has landed on their card — stop ambient rotation so the
