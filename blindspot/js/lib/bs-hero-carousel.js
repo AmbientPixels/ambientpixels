@@ -189,17 +189,20 @@
 
     var reel = document.createElement('div');
     reel.className = 'bs-hero-reel';
-    var html = '<div class="bs-hero-reel__strip">';
+    var stripEl = document.createElement('div');
+    stripEl.className = 'bs-hero-reel__strip';
     for (var t = 0; t < tiles.length; t++) {
-      // Inline width so each tile matches the runtime stage width — pure
-      // CSS can't know that since the stack is sized by its parent.
-      html += '<div class="bs-hero-reel__tile" style="flex:0 0 ' + stageWidth + 'px; background-image:url(' + JSON.stringify(tiles[t].src) + ');"></div>';
+      // Build via DOM API — mixing inline style with JSON.stringify(url) in
+      // an innerHTML string blew up because the URL's quotes prematurely
+      // closed the style attribute, leaving every tile with url("").
+      var tileEl = document.createElement('div');
+      tileEl.className = 'bs-hero-reel__tile';
+      tileEl.style.flex = '0 0 ' + stageWidth + 'px';
+      tileEl.style.backgroundImage = 'url(' + JSON.stringify(tiles[t].src) + ')';
+      stripEl.appendChild(tileEl);
     }
-    html += '</div>';
-    reel.innerHTML = html;
+    reel.appendChild(stripEl);
     stack.appendChild(reel);
-
-    var stripEl = reel.querySelector('.bs-hero-reel__strip');
 
     // Force layout so the initial transform: translateX(0) commits before
     // we set the target — without this the transition can be skipped.
