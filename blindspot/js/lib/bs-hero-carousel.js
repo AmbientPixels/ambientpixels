@@ -163,7 +163,22 @@
     var prefersReducedMotion = window.matchMedia
       && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var picked = Math.floor(Math.random() * slides.length);
+    // Hard-avoid the previous landing — guarantees a different card on
+    // every reroll so the dice always visibly moves. Falls back to full
+    // random if the prior pick isn't in the current pool (e.g. real
+    // slides arrived mid-session after a fallback roll).
+    var picked;
+    if (_lastRolled && slides.length > 1) {
+      var pool = [];
+      for (var p = 0; p < slides.length; p++) {
+        if (slides[p].src !== _lastRolled.src) pool.push(p);
+      }
+      picked = pool.length > 0
+        ? pool[Math.floor(Math.random() * pool.length)]
+        : Math.floor(Math.random() * slides.length);
+    } else {
+      picked = Math.floor(Math.random() * slides.length);
+    }
     _lastRolled = slides[picked];
 
     if (prefersReducedMotion) {
