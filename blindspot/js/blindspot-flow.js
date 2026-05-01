@@ -995,7 +995,7 @@
     try {
       const data = await Promise.race([
         window.ArenaAPI.loadCards(),
-        new Promise(function(_, reject) { setTimeout(function() { reject(new Error('loadCards timeout')); }, 8000); })
+        new Promise(function(_, reject) { setTimeout(function() { reject(new Error('loadCards timeout')); }, 15000); })
       ]);
       var cards = (data.userCards || []).filter(function(c) { return !c.isDefault; });
       // Always overwrite the cache with what the server returned — even an
@@ -1279,6 +1279,7 @@
         </div>`;
       }
       bindPlayNavigation();
+      updatePlayAuthUI();
       dismissLoadingGate();
       return;
     }
