@@ -1222,8 +1222,13 @@
 
     var isGuestMode = localStorage.getItem('bs-guest-mode') === 'true';
 
-    // If guest signed in, clear guest flag and sync their cached progress to server
-    if (isGuestMode && profile && !profile.isDemo) {
+    // If guest signed in, clear guest flag and sync their cached progress to server.
+    // NOTE: the server returns isDemo at the TOP level (data.isDemo) — NOT on
+    // data.profile. Reading profile.isDemo is always undefined, so the original
+    // `!profile.isDemo` check evaluated truthy for actual guests and silently
+    // cleared bs-guest-mode, causing the line 1244 redirect to bounce them
+    // back to splash. Use isDemo() which reads _profileData.isDemo.
+    if (isGuestMode && profile && !isDemo()) {
       localStorage.removeItem('bs-guest-mode');
       isGuestMode = false;
       // Merge cached guest progress into server profile
@@ -1239,7 +1244,7 @@
     // source of truth for rendering, so the server write is fire-and-
     // forget — failure just means the card is local-only this session.
     var pendingCardJSON = localStorage.getItem('bs-pending-card-save');
-    if (pendingCardJSON && profile && !profile.isDemo) {
+    if (pendingCardJSON && profile && !isDemo()) {
       try {
         var pendingCard = JSON.parse(pendingCardJSON);
         if (pendingCard && pendingCard.id) {
