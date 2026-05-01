@@ -8,6 +8,29 @@ const fetch = require('node-fetch');
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
 
+// Pull a human-readable display name out of the principal — used for
+// gallery card attribution. Tries the 'name' claim first (Google + B2C
+// usually populate it), then givenname, then the username portion of
+// userDetails (typically the email). Returns null if nothing useful.
+function extractDisplayName(clientPrincipal) {
+  if (!clientPrincipal) return null;
+  if (Array.isArray(clientPrincipal.claims)) {
+    for (let i = 0; i < clientPrincipal.claims.length; i++) {
+      const c = clientPrincipal.claims[i];
+      if (c && c.typ === 'name' && c.val) return c.val;
+    }
+    for (let i = 0; i < clientPrincipal.claims.length; i++) {
+      const c = clientPrincipal.claims[i];
+      if (c && c.typ === 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname' && c.val) return c.val;
+    }
+  }
+  if (clientPrincipal.userDetails) {
+    const local = String(clientPrincipal.userDetails).split('@')[0];
+    if (local) return local;
+  }
+  return null;
+}
+
 // Helper to extract authenticated user information from Static Web Apps EasyAuth header
 function extractUserInfo(req, context) {
   const principalHeader = req.headers['x-ms-client-principal'];
@@ -16,7 +39,8 @@ function extractUserInfo(req, context) {
       const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
       const clientPrincipal = JSON.parse(decoded);
       const userId = clientPrincipal.userId || 'anonymous';
-      return { userId, isAuthenticated: userId !== 'anonymous' };
+      const displayName = extractDisplayName(clientPrincipal);
+      return { userId, displayName, isAuthenticated: userId !== 'anonymous' };
     } catch (err) {
       if (context && context.log && typeof context.log.warn === 'function') {
         context.log.warn(`Failed to parse client principal: ${err.message}`);
@@ -28,17 +52,17 @@ function extractUserInfo(req, context) {
   const principalId = req.headers['x-ms-client-principal-id'];
   if (principalId && principalId !== 'anonymous') {
     context.log(`Using x-ms-client-principal-id fallback: ${principalId}`);
-    return { userId: principalId, isAuthenticated: true };
+    return { userId: principalId, displayName: null, isAuthenticated: true };
   }
   // Development fallback: use X-User-ID header to simulate auth
   if (process.env.AZURE_FUNCTIONS_ENVIRONMENT !== 'Production') {
     const devUserId = req.headers['x-user-id'];
     if (devUserId) {
       context.log(`[DEV AUTH] Falling back to X-User-ID: ${devUserId}`);
-      return { userId: devUserId, isAuthenticated: true };
+      return { userId: devUserId, displayName: null, isAuthenticated: true };
     }
   }
-  return { userId: 'anonymous', isAuthenticated: false };
+  return { userId: 'anonymous', displayName: null, isAuthenticated: false };
 }
 
 // Helper function to convert stream to text
@@ -172,7 +196,7 @@ module.exports = async function (context, req) {
     }
 
     // Extract user information from EasyAuth header
-    let { userId, isAuthenticated } = extractUserInfo(req, context);
+    let { userId, displayName, isAuthenticated } = extractUserInfo(req, context);
     context.log(`Extracted user info from headers: userId=${userId}, isAuthenticated=${isAuthenticated}`);
     
     // If auth headers didn't provide userId, use userId from request body (passed by client)
@@ -422,10 +446,15 @@ module.exports = async function (context, req) {
       // Check if the card is already published
       const existingPublishedIndex = publishedCards.publishedCards.findIndex(c => c.id === cardId);
       
-      // Add the card to published cards with additional metadata
+      // Add the card to published cards with additional metadata.
+      // publishedByName is the human display name pulled from the
+      // principal's 'name' claim — used for splash gallery attribution.
+      // null for older cards published before this change; UI hides the
+      // by-line if absent.
       const publishedCard = {
         ...cardToPublish,
         publishedBy: userId,
+        publishedByName: displayName || null,
         publishDate: new Date().toISOString()
       };
       

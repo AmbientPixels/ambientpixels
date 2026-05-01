@@ -63,11 +63,12 @@ function extractAvatar(card) {
 function toSlim(card) {
   const avatar = extractAvatar(card);
   if (!avatar) return null;
-  const ts = card.publishedAt || card.createdAt || card.updatedAt || null;
+  const ts = card.publishDate || card.publishedAt || card.createdAt || card.updatedAt || null;
   return {
     name: card.name || 'Featured Card',
     avatar,
-    createdAt: ts
+    createdAt: ts,
+    creator: card.publishedByName || null
   };
 }
 

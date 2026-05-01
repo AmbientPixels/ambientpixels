@@ -82,13 +82,18 @@
       })
       .then(function (data) {
         if (!data) return [];
-        // Slim endpoint shape: { slides: [{name, avatar, createdAt}], count }
+        // Slim endpoint shape: { slides: [{name, avatar, createdAt, creator}], count }
         if (Array.isArray(data.slides)) {
           return data.slides
             .map(function (s) {
               if (!s || !s.avatar) return null;
               var ts = s.createdAt ? new Date(s.createdAt).getTime() : 0;
-              return { src: s.avatar, name: s.name || 'Featured Card', ts: isFinite(ts) ? ts : 0 };
+              return {
+                src: s.avatar,
+                name: s.name || 'Featured Card',
+                creator: s.creator || null,
+                ts: isFinite(ts) ? ts : 0
+              };
             })
             .filter(Boolean)
             .slice(0, SLIDE_COUNT);
@@ -331,7 +336,16 @@
 
   function updateTag(slide) {
     var tag = document.getElementById('bs-hero-tag');
-    if (tag && slide && slide.name) {
+    if (!tag || !slide || !slide.name) return;
+    var safeName = String(slide.name).replace(/[<>&]/g, function (c) {
+      return c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&amp;';
+    });
+    if (slide.creator) {
+      var safeCreator = String(slide.creator).replace(/[<>&]/g, function (c) {
+        return c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&amp;';
+      });
+      tag.innerHTML = safeName + '<span class="blindspot-landing__card-tag__by"> by ' + safeCreator + '</span>';
+    } else {
       tag.textContent = slide.name;
     }
   }

@@ -170,6 +170,17 @@
   text-transform: uppercase;
   color: var(--blindspot-text-muted);
 }
+/* Creator attribution under the card name — quieter still, italic
+   non-uppercase so it reads as flavor metadata, not a label. */
+.blindspot-landing__card-tag__by {
+  display: inline;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  color: var(--blindspot-text-muted);
+  opacity: 0.75;
+  margin-left: 0.4em;
+}
 
 /* ---------- RIGHT: VERSE ---------- */
 .blindspot-landing__title {
@@ -258,21 +269,6 @@
   font-feature-settings: "tnum" on, "lnum" on;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-}
-.blindspot-landing__pulse-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--blindspot-success);
-  margin-right: 0.4em;
-  vertical-align: middle;
-  box-shadow: 0 0 8px var(--blindspot-success);
-  animation: blindspot-pulse 1.6s ease-in-out infinite;
-}
-@keyframes blindspot-pulse {
-  0%, 100% { opacity: 0.4; }
-  50%      { opacity: 1; }
 }
 
 /* ---------- SIGN-IN LINE ---------- */
