@@ -152,11 +152,12 @@
 
     _rolling = true;
 
-    // Build a strip of tiles. The chosen "winner" sits a few from the end
-    // so the deceleration has visible context (tiles still streaming past).
-    var TILE_COUNT = 26;
-    var WINNER_IDX = 22;
-    var TILE_WIDTH = 140; // px — tuned to fit the ~400px-wide hero stack at ~3 visible tiles
+    // Each tile = full stage width so a complete portrait fills the window
+    // as it slides past. The strip is N stage-widths long; the winner sits
+    // a few from the end so the deceleration has visible context.
+    var TILE_COUNT = 18;
+    var WINNER_IDX = 14;
+    var stageWidth = stack.offsetWidth || stack.clientWidth || 400;
 
     var tiles = [];
     for (var i = 0; i < TILE_COUNT; i++) {
@@ -168,9 +169,11 @@
     reel.className = 'bs-hero-reel';
     var html = '<div class="bs-hero-reel__strip">';
     for (var t = 0; t < tiles.length; t++) {
-      html += '<div class="bs-hero-reel__tile" style="background-image:url(' + JSON.stringify(tiles[t].src) + ');"></div>';
+      // Inline width so each tile matches the runtime stage width — pure
+      // CSS can't know that since the stack is sized by its parent.
+      html += '<div class="bs-hero-reel__tile" style="flex:0 0 ' + stageWidth + 'px; background-image:url(' + JSON.stringify(tiles[t].src) + ');"></div>';
     }
-    html += '</div><div class="bs-hero-reel__pointer" aria-hidden="true"></div>';
+    html += '</div>';
     reel.innerHTML = html;
     stack.appendChild(reel);
 
@@ -180,10 +183,11 @@
     // we set the target — without this the transition can be skipped.
     void reel.offsetWidth;
 
-    var stageWidth = stack.offsetWidth || 400;
-    var targetX = -(WINNER_IDX * TILE_WIDTH) + (stageWidth - TILE_WIDTH) / 2;
+    // Winner tile sits at the left edge of the visible window (tiles fill
+    // the window exactly), so we just translate left by winner * stageWidth.
+    var targetX = -(WINNER_IDX * stageWidth);
 
-    stripEl.style.transition = 'transform 2.6s cubic-bezier(0.15, 0.7, 0.1, 1)';
+    stripEl.style.transition = 'transform 2.8s cubic-bezier(0.12, 0.65, 0.05, 1)';
     stripEl.style.transform = 'translateX(' + targetX + 'px)';
 
     setTimeout(function () {
@@ -203,7 +207,7 @@
           if (callback) callback(_slides[picked]);
         }, 600);
       }, 600);
-    }, 2700);
+    }, 2900);
   }
 
   function flashLanding(stack, idx) {

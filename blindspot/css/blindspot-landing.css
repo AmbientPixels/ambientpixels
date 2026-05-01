@@ -133,29 +133,16 @@
   will-change: transform;
 }
 .bs-hero-reel__tile {
-  flex: 0 0 140px;
+  /* width set inline by JS to match runtime stage width */
   height: 100%;
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
   filter: sepia(0.3) saturate(0.85) contrast(1.1);
-  border-right: 1px solid rgba(245, 192, 120, 0.18);
 }
 .bs-hero-reel__tile--winner {
   filter: sepia(0) saturate(1.2) contrast(1.18) brightness(1.4);
   transition: filter 220ms ease-out;
-}
-.bs-hero-reel__pointer {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 2px;
-  height: 100%;
-  background: linear-gradient(180deg, transparent 4%, var(--blindspot-accent-gold) 50%, transparent 96%);
-  box-shadow: 0 0 12px var(--blindspot-accent-gold), 0 0 24px var(--blindspot-accent-gold);
-  transform: translateX(-50%);
-  z-index: 11;
-  pointer-events: none;
 }
 .bs-hero-reel--fade {
   transition: opacity 600ms ease;
