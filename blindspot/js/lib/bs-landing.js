@@ -414,7 +414,7 @@
         _cb.safeLSSet('blindspot-onboarded', 'true');
         _cb.safeLSSet('bs-onboarded-lobby', 'true');
       }
-      showCardRevealCelebration(cardId, isDemo);
+      showCardRevealCelebration(cardId, isDemo, cardData);
     });
   }
 
@@ -494,7 +494,7 @@
 
   // ── Card Reveal Celebration ──
 
-  function showCardRevealCelebration(cardId, isDemoUser) {
+  function showCardRevealCelebration(cardId, isDemoUser, localCard) {
     var existing = document.querySelector('.bs-reveal-celebration');
     if (existing) existing.remove();
 
@@ -514,7 +514,10 @@
 
       cardPromise.then(function (data) {
         var cards = (data.userCards || []).filter(function (c) { return !c.isDefault; });
-        var card = cardId ? cards.find(function (c) { return c.id === cardId; }) : cards[cards.length - 1];
+        // Anon users no longer write server-side, so loadCards won't return
+        // their freshly-built card. Fall back to the locally-built card
+        // object passed in from openBlindspotQuickBuild.
+        var card = (cardId ? cards.find(function (c) { return c.id === cardId; }) : cards[cards.length - 1]) || localCard || null;
         // Cache card to deck so play.html can find it (critical for guests)
         if (card) {
           if (_cb.addCardToDeck) _cb.addCardToDeck(card);
@@ -522,7 +525,7 @@
         }
         renderCelebration(overlay, card, cardId, isDemoUser);
       }).catch(function () {
-        renderCelebration(overlay, null, cardId, isDemoUser);
+        renderCelebration(overlay, localCard || null, cardId, isDemoUser);
       });
     };
 
