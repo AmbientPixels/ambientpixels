@@ -295,12 +295,14 @@
   color: var(--blindspot-text-muted);
 }
 .blindspot-stat-tile__value {
-  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-family: var(--blindspot-font-numeric, 'Inter', system-ui, sans-serif);
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--blindspot-accent-gold, #F5C078);
   line-height: 1;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
+  font-feature-settings: "tnum" on, "lnum" on;
+  font-variant-numeric: tabular-nums;
 }
 /* Splash tiles are decorative — non-clickable, no hover flash. */
 .blindspot-landing__stats .blindspot-stat-tile {
