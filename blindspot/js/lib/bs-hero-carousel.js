@@ -36,13 +36,16 @@
       // Slim hero endpoint — returns just {name, avatar, createdAt} per
       // published card. ~kilobytes vs the multi-megabyte cardforgeloadcards
       // payload, so the carousel can populate before the player clicks.
-      var slim = window.buildApiPath('heroSlim', { count: SLIDE_COUNT });
+      // surface=hero applies the hero-specific admin config (moderation +
+      // mode + curated). Server defaults to recent + empty hidden when no
+      // admin config exists, so behavior stays unchanged on first deploy.
+      var slim = window.buildApiPath('heroSlim', { count: SLIDE_COUNT, surface: 'hero' });
       if (slim) return slim;
       // Fallback to the legacy heavy endpoint if the slim path isn't wired.
       var legacy = window.buildApiPath('loadCards');
       if (legacy) return legacy;
     }
-    return 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspothero?count=5';
+    return 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspothero?count=5&surface=hero';
   }
 
   function init() {
