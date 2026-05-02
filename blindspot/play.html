@@ -125,17 +125,17 @@
         <!-- RIGHT: sections stack -->
         <div class="blindspot-lobby__col blindspot-lobby__col--main">
 
-          <!-- Rank strip -->
-          <div class="blindspot-rank-strip" id="bs-rank-hud">
-            <div class="blindspot-rank-strip__icon" aria-hidden="true"><i class="fas fa-shield-halved"></i></div>
-            <div class="blindspot-rank-strip__body">
-              <div class="blindspot-rank-strip__row">
-                <span class="blindspot-display" id="bs-rank-badge">Bronze</span>
-                <span class="blindspot-rank-strip__arrow" id="bs-rank-next">&rarr; Silver</span>
-                <span class="blindspot-rank-strip__xp" id="bs-xp-text">0 / 0 XP</span>
+          <!-- Level HUD -->
+          <div class="blindspot-level-hud" id="bs-level-hud">
+            <div class="blindspot-level-hud__icon" aria-hidden="true"><i class="fas fa-shield-halved" id="bs-level-icon"></i></div>
+            <div class="blindspot-level-hud__body">
+              <div class="blindspot-level-hud__row">
+                <span class="blindspot-level-hud__level" id="bs-level-num">Lv 1</span>
+                <span class="blindspot-level-hud__tier" id="bs-level-tier">Initiate</span>
+                <span class="blindspot-level-hud__xp" id="bs-level-xp-text">50 XP to Lv 2</span>
               </div>
-              <div class="blindspot-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Experience progress">
-                <div class="blindspot-bar__fill" id="bs-xp-fill" style="width:0%"></div>
+              <div class="blindspot-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Level progress">
+                <div class="blindspot-bar__fill" id="bs-level-xp-fill" style="width:0%"></div>
               </div>
             </div>
           </div>
