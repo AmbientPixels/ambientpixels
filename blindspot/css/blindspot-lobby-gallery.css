@@ -12,6 +12,8 @@
   overflow: hidden;
   width: 100%;
   min-width: 0;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 10px, black calc(100% - 10px), transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0, black 10px, black calc(100% - 10px), transparent 100%);
 }
 
 .bs-lobby-gallery__strip {
