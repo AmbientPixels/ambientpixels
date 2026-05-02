@@ -196,7 +196,27 @@ window.BsLobbyGallery = (function () {
       }
     });
   }
-  function _wirePointer() { /* Task 8 */ }
+  function _wirePointer() {
+    var viewport = _section ? _section.querySelector('.bs-lobby-gallery__viewport') : null;
+    if (!viewport || !_strip) return;
+
+    function pause() {
+      _strip.setAttribute('data-paused', 'true');
+      if (_resumeTimer) { clearTimeout(_resumeTimer); _resumeTimer = null; }
+    }
+    function scheduleResume() {
+      if (_resumeTimer) clearTimeout(_resumeTimer);
+      _resumeTimer = setTimeout(function () {
+        _strip.removeAttribute('data-paused');
+        _resumeTimer = null;
+      }, POINTER_RESUME_MS);
+    }
+
+    viewport.addEventListener('pointerdown', pause);
+    viewport.addEventListener('pointerup', scheduleResume);
+    viewport.addEventListener('pointercancel', scheduleResume);
+    viewport.addEventListener('pointerleave', scheduleResume);
+  }
 
   return { init: init, refresh: refresh, openModal: openModal };
 })();
