@@ -51,12 +51,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1.25rem;
 }
 .bs-loading-gate__text {
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
   font-style: italic;
-  font-size: 1rem;
+  font-size: 1.6rem;
   color: var(--blindspot-text-dim, #B89A82);
   letter-spacing: 0.02em;
 }
@@ -74,13 +74,13 @@
   visibility: hidden;
 }
 .bs-loading-gate__bar {
-  width: 200px;
-  height: 4px;
+  width: clamp(260px, 50vw, 360px);
+  height: 6px;
   background: var(--blindspot-bg-2, #170D0B);
   border: 1px solid var(--blindspot-border, #3A1F1A);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-top: 0.25rem;
+  margin-top: 0.4rem;
 }
 .bs-loading-gate__fill {
   height: 100%;
@@ -91,17 +91,18 @@
 }
 .bs-loading-gate__step {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.18em;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--blindspot-text-muted, #7A5E4C);
   opacity: 0.7;
-  margin-top: 0.15rem;
+  margin-top: 0.3rem;
 }
 .bs-loading-gate__icon {
   color: var(--blindspot-accent-gold, #F5C078);
   margin-right: 0.4em;
-  text-shadow: 0 0 12px rgba(245, 192, 120, 0.45);
+  font-size: 1.15em;
+  text-shadow: 0 0 18px rgba(245, 192, 120, 0.5);
 }
 .bs-loading-gate--fade {
   opacity: 0;
