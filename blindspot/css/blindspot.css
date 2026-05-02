@@ -530,6 +530,24 @@
 .bs-topbar__sparks i {
   font-size: 0.7rem;
 }
+.bs-topbar__admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--bs-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  transition: color 150ms ease, background 150ms ease;
+}
+.bs-topbar__admin:hover,
+.bs-topbar__admin:focus-visible {
+  color: var(--bs-accent);
+  background: rgba(245, 192, 120, 0.08);
+  outline: none;
+}
 
 /* --- Screens --- */
 .bs-screen {

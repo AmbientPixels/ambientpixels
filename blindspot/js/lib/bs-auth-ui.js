@@ -26,6 +26,13 @@
 
         var name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'fighter';
 
+        // Reveal the admin gear icon if userId matches the admin whitelist.
+        var ADMIN_USER_IDS = ['5bb115c5-9077-4049-8af0-ce5085a9c315'];
+        if (data.clientPrincipal.userId && ADMIN_USER_IDS.indexOf(data.clientPrincipal.userId) >= 0) {
+          var adminLink = document.getElementById('bs-topbar-admin');
+          if (adminLink) adminLink.hidden = false;
+        }
+
         // Compute level chip from BsState. Falls back to "Lv 1" if state isn't ready
         // (e.g. running on a page that loaded auth-ui before bs-state).
         var xp = (window.BsState && window.BsState.progress && window.BsState.progress.xp) || 0;
