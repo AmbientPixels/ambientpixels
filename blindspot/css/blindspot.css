@@ -542,6 +542,13 @@
   border-radius: 4px;
   transition: color 150ms ease, background 150ms ease;
 }
+/* The class's `display: inline-flex` ties with the UA `[hidden]` rule on
+   specificity and wins by cascade order, so the `hidden` attribute alone
+   doesn't actually hide the gear for non-admins. Class+attribute selector
+   here lifts specificity to 0,0,2,0 — wins over both. */
+.bs-topbar__admin[hidden] {
+  display: none;
+}
 .bs-topbar__admin:hover,
 .bs-topbar__admin:focus-visible {
   color: var(--bs-accent);
