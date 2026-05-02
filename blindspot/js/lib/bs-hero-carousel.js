@@ -264,19 +264,22 @@
     stripEl.style.transition = 'transform 2.8s cubic-bezier(0.12, 0.65, 0.05, 1)';
     stripEl.style.transform = 'translateX(' + targetX + 'px)';
 
-    // Reuse the loot-crate ratchet — its 12 decelerating ticks (~1.9s)
-    // line up nicely with the strip's ease-out, so the audio sells the
-    // visual deceleration. Same idiom as bs-crates.js, by design.
+    // Mystical rising sweep — replaces the older arcade-y crateRatchet
+    // for a more cinematic Stranger reveal. The synth def is ~0.85s so
+    // it doesn't fill the full 2.8s spin; silence between sweep end and
+    // landing impact reads as anticipation rather than dead air.
     if (window.BsSfx && window.BsSfx.play) {
-      try { window.BsSfx.play('crateRatchet'); } catch (e) { /* audio init may need a user gesture; click counts */ }
+      try { window.BsSfx.play('ascension'); } catch (e) { /* audio init may need a user gesture; click counts */ }
     }
 
     setTimeout(function () {
-      // Highlight the winner tile mid-frame + cymbal-crash reveal SFX
+      // Highlight the winner tile mid-frame + anvil-hit landing SFX
+      // (forgeComplete reads as "your card is forged" — heavier than
+      // the original cymbal crash).
       var winnerTile = stripEl.children[WINNER_IDX];
       if (winnerTile) winnerTile.classList.add('bs-hero-reel__tile--winner');
       if (window.BsSfx && window.BsSfx.play) {
-        try { window.BsSfx.play('crateReveal'); } catch (e) { /* silent */ }
+        try { window.BsSfx.play('forgeComplete'); } catch (e) { /* silent */ }
       }
 
       setTimeout(function () {
