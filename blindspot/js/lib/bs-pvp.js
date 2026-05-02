@@ -429,7 +429,14 @@
     if (_matchmakingInterval) { clearInterval(_matchmakingInterval); _matchmakingInterval = null; }
 
     _activeLiveBattleId = battleId;
-    localStorage.setItem('bs-activeLiveBattle', battleId);
+    // Use safeLSSet — raw setItem silently fails on full localStorage,
+    // breaking the active-battle resume flow (player refreshes, battle
+    // disappears from UI even though it's still alive on the server).
+    if (window.BsState && window.BsState.safeLSSet) {
+      window.BsState.safeLSSet('bs-activeLiveBattle', battleId);
+    } else {
+      try { localStorage.setItem('bs-activeLiveBattle', battleId); } catch (_) {}
+    }
 
     showMatchStatus('Opponent found!', 'matched');
 
