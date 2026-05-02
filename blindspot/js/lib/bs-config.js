@@ -15,6 +15,8 @@ window._config.apiEndpoints = {
   // createdAt} per published card. Replaces the heavy cardforgeloadcards
   // call in bs-hero-carousel.js.
   heroSlim: 'blindspothero',
+  // Admin moderation + per-surface config endpoint. GET public; POST admin-only.
+  adminConfig: 'blindspotadminconfig',
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',

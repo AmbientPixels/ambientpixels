@@ -3104,22 +3104,59 @@
     grid.innerHTML = '<div class="bs-gallery__loading"><i class="fas fa-spinner fa-spin"></i> Loading cards…</div>';
     if (countEl) countEl.textContent = '';
     try {
-      const data = await window.ArenaAPI.loadCards();
-      const cards = (data.galleryCards || []).filter(function(c) {
+      // Fetch cards + admin configs in parallel. Configs soft-fail to defaults
+      // (no hidden cards, mode=recent, no curated) so a config issue never
+      // breaks the gallery view.
+      function fetchConfig(key) {
+        var url = window.buildApiPath
+          ? window.buildApiPath('adminConfig', { key: key })
+          : '/api/blindspotadminconfig?key=' + key;
+        return fetch(url, { credentials: 'omit' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .catch(function () { return null; });
+      }
+      const [data, modConfig, galleryConfig] = await Promise.all([
+        window.ArenaAPI.loadCards(),
+        fetchConfig('moderation'),
+        fetchConfig('gallery')
+      ]);
+
+      const hiddenIds = new Set((modConfig && Array.isArray(modConfig.hiddenIds)) ? modConfig.hiddenIds : []);
+      const mode = (galleryConfig && galleryConfig.mode) || 'recent';
+      const curatedIds = (galleryConfig && Array.isArray(galleryConfig.curatedIds)) ? galleryConfig.curatedIds : [];
+
+      // Apply existing publishedToGallery / has-art filters first, then moderation.
+      let cards = (data.galleryCards || []).filter(function(c) {
         if (!c) return false;
-        // Defensive: if a card explicitly opted out, hide it even if the
-        // server has it (handles eventual-consistency between user blob
-        // and published-cards.json).
         if (c.publishedToGallery === false) return false;
-        // Hide artless legacy cards — published-cards.json contains
-        // ~24 entries from a pre-avatar schema (no `avatar` / `image` /
-        // `imageUrl` / `art`), which render as anonymous silhouettes
-        // and just look broken in a showcase. Real cleanup is a server-
-        // side prune of those entries; this filter is the visible fix.
         const hasArt = c.avatar || c.image || c.imageUrl || c.art;
         if (!hasArt) return false;
+        if (hiddenIds.has(c.id)) return false;
         return true;
       });
+
+      // Apply gallery-config mode
+      if (mode === 'curated' && curatedIds.length > 0) {
+        const byId = new Map();
+        for (const c of cards) byId.set(c.id, c);
+        cards = curatedIds.map(id => byId.get(id)).filter(Boolean);
+      } else if (mode === 'random') {
+        cards = cards.slice();
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const t = cards[i]; cards[i] = cards[j]; cards[j] = t;
+        }
+      } else {
+        // 'recent' (default) and 'highest-rated' fallback
+        cards = cards.slice().sort(function(a, b) {
+          const ta = a.publishDate || a.publishedAt || a.createdAt || 0;
+          const tb = b.publishDate || b.publishedAt || b.createdAt || 0;
+          const da = ta ? Date.parse(ta) : 0;
+          const db = tb ? Date.parse(tb) : 0;
+          return (isNaN(db) ? 0 : db) - (isNaN(da) ? 0 : da);
+        });
+      }
+
       if (countEl) countEl.textContent = cards.length + (cards.length === 1 ? ' card' : ' cards');
       if (cards.length === 0) {
         grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-inbox"></i><p>No public cards yet. Publish your card from the forge to start the gallery.</p></div>';
