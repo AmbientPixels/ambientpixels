@@ -967,8 +967,18 @@
     var prior;
     try { prior = localStorage.getItem('bs-last-user'); } catch (_) { prior = null; }
     if (prior && prior !== userId) {
-      console.log('[Blindspot] User switch detected (' + prior + ' -> ' + userId + ') — clearing per-user cache');
-      _clearPerUserCache();
+      // Don't wipe on a guest → authed migration. The cards in bs-deck
+      // belong to the same human who just signed in; the guest-signin
+      // handler in initPlay needs to read them and call persistPending
+      // to write them under the new userId. Clearing here would leave
+      // the guest's just-built card unpersistable on the server.
+      var isGuestMigration = (prior === 'demo-guest') && (localStorage.getItem('bs-guest-mode') === 'true');
+      if (isGuestMigration) {
+        console.log('[Blindspot] Guest → authed migration (demo-guest -> ' + userId + ') — preserving deck for persist');
+      } else {
+        console.log('[Blindspot] User switch detected (' + prior + ' -> ' + userId + ') — clearing per-user cache');
+        _clearPerUserCache();
+      }
     }
     safeLSSet('bs-last-user', userId);
   }
