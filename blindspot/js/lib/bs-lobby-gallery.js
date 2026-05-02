@@ -46,9 +46,88 @@ window.BsLobbyGallery = (function () {
 
   function refresh() { fetchAndRender(); }
 
-  function fetchAndRender() { /* Task 4 */ }
-  function _renderStrip(slides) { /* Task 4 */ }
-  function _renderTile(slide) { /* Task 4 */ }
+  function _renderSkeleton() {
+    if (!_strip) return;
+    var html = '';
+    for (var i = 0; i < 3; i++) {
+      html += '<div class="bs-lobby-gallery__tile bs-lobby-gallery__tile--skeleton" aria-hidden="true"></div>';
+    }
+    _strip.innerHTML = html;
+  }
+
+  function fetchAndRender() {
+    if (!_strip) return;
+    _renderSkeleton();
+    _section.hidden = false;
+    var url;
+    try {
+      url = window.buildApiPath
+        ? window.buildApiPath(ENDPOINT_KEY, { detail: 'full', count: FETCH_COUNT })
+        : '/api/blindspothero?detail=full&count=' + FETCH_COUNT;
+    } catch (e) { url = '/api/blindspothero?detail=full&count=' + FETCH_COUNT; }
+    fetch(url, { credentials: 'omit' })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+      .then(function (data) {
+        var slides = (data && Array.isArray(data.slides)) ? data.slides.filter(function (s) { return s && s.card; }) : [];
+        if (slides.length < MIN_CARDS_TO_SHOW) {
+          _section.hidden = true;
+          return;
+        }
+        _slides = slides;
+        _renderStrip(slides);
+      })
+      .catch(function (err) {
+        try { console.warn('[BsLobbyGallery] fetch failed:', err.message); } catch (_) {}
+        _section.hidden = true;
+      });
+  }
+
+  function _renderStrip(slides) {
+    if (!_strip) return;
+    _strip.innerHTML = '';
+    // Duplicate the slide list twice — the CSS animation translates the
+    // strip from 0 to -50%, so the second half lines up exactly with the
+    // first and the loop seam is invisible.
+    for (var pass = 0; pass < 2; pass++) {
+      for (var i = 0; i < slides.length; i++) {
+        _strip.appendChild(_renderTile(slides[i], pass === 1));
+      }
+    }
+  }
+
+  function _renderTile(slide, isClone) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'bs-lobby-gallery__tile';
+    btn.setAttribute('role', 'listitem');
+    var ariaName = slide.name || 'Featured Card';
+    var ariaLabel = slide.creator
+      ? 'View ' + ariaName + ' forged by ' + slide.creator
+      : 'View ' + ariaName;
+    btn.setAttribute('aria-label', ariaLabel);
+    if (isClone) btn.setAttribute('aria-hidden', 'true'); // duplicate half is decorative
+
+    var cardWrap = document.createElement('div');
+    cardWrap.className = 'bs-lobby-gallery__card';
+    var _CR = window.BsCardRenderer;
+    cardWrap.innerHTML = _CR && _CR.render ? _CR.render(slide.card, 'compact') : '';
+    btn.appendChild(cardWrap);
+
+    if (slide.creator) {
+      var byline = document.createElement('div');
+      byline.className = 'bs-lobby-gallery__byline';
+      byline.textContent = 'by ' + slide.creator;
+      btn.appendChild(byline);
+    }
+
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      _lastFocus = btn;
+      openModal(slide);
+    });
+
+    return btn;
+  }
   function openModal(slide) { /* Task 7 */ }
   function _closeModal() { /* Task 7 */ }
   function _wireModal() { /* Task 7 */ }
