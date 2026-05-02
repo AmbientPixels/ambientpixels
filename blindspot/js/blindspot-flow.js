@@ -1296,6 +1296,22 @@
       localStorage.removeItem('bs-pending-card-save');
     }
 
+    // Welcome crate for new guests. Authed users get theirs server-side
+    // via createDefaultProfile() in blindspotprofile. Guests don't have
+    // a server profile, so we grant client-side once per browser via
+    // bs-welcome-crate-given flag — wiped only by a hard localStorage
+    // reset (nuking the flag = "new player state", new crate is fair).
+    if (isGuestMode && localStorage.getItem('bs-welcome-crate-given') !== 'true') {
+      if (!_progress.crates) _progress.crates = [];
+      if (_progress.crates.length === 0) {
+        _progress.crates.push({ type: 'ember', earned: Date.now() });
+        safeLSSet('bs-welcome-crate-given', 'true');
+      } else {
+        // Crates already present (e.g. legacy state) — just mark and move on
+        safeLSSet('bs-welcome-crate-given', 'true');
+      }
+    }
+
     if (!profile && !isGuestMode) {
       dismissLoadingGate();
       window.location.href = '/blindspot/';

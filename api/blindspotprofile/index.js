@@ -100,7 +100,10 @@ function createDefaultProfile(userId) {
     pvpElo: 1000,
     pvpRecord: { w: 0, l: 0 },
     crateWinCounter: 0,
-    crates: [],
+    // Welcome gift — every new authed profile starts with one Ember crate
+    // so they have something to open immediately. Premium loot table
+    // (25/35/28/12) gives a satisfying first-impression payout.
+    crates: [{ type: 'ember', earned: Date.now() }],
     charms: [],
     cosmetics: [],
     purchasedCosmetics: [],
