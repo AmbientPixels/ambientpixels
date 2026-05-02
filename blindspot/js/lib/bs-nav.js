@@ -53,6 +53,7 @@
     // Gallery button (mobile). Using the same single openGallery handler.
     const openGallery = () => { _cb.showScreen('gallery'); if (_cb.renderGallery) _cb.renderGallery(); };
     document.getElementById('bs-btn-gallery')?.addEventListener('click', openGallery);
+    document.getElementById('bs-lobby-gallery-viewall')?.addEventListener('click', openGallery);
 
     // Stats screen entry points: lobby strip "View all" link, any of the
     // four stat tiles (clicking a tile opens the same full screen — no
