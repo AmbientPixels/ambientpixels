@@ -2994,11 +2994,10 @@
 
   function renderStatsScreen() {
     if (!_profile) return;
-    var rank = deriveRankFromXp(_profile.xp);
-    var rankInfo = (RANKS && RANKS[rank]) || (RANKS && RANKS.bronze) || { label: 'Bronze', icon: 'fa-shield-halved', color: '#CD7F32' };
-    var nextIdx = (RANK_ORDER || []).indexOf(rank) + 1;
-    var nextRank = nextIdx > 0 && nextIdx < (RANK_ORDER || []).length ? RANKS[RANK_ORDER[nextIdx]] : null;
-    var currentXp = _profile.xp || 0;
+    var xp = _profile.xp || 0;
+    var level = (_S && _S.computeLevel && _S.computeLevel(xp)) || 1;
+    var tier = (_S && _S.getTier && _S.getTier(level)) || { label: 'Initiate', icon: 'fa-shield-halved', color: '#A09888' };
+    var toNext = (_S && _S.getXpToNextLevel && _S.getXpToNextLevel(xp)) || 0;
 
     // Identity
     var rankIconEl = document.getElementById('bs-stats-rank-icon');
@@ -3006,17 +3005,9 @@
     var rankXpEl = document.getElementById('bs-stats-rank-xp');
     var prestigeEl = document.getElementById('bs-stats-prestige');
     var ageEl = document.getElementById('bs-stats-account-age');
-    if (rankIconEl) { rankIconEl.className = 'fas ' + rankInfo.icon; rankIconEl.style.color = rankInfo.color; }
-    if (rankNameEl) rankNameEl.textContent = rankInfo.label;
-    if (rankXpEl) {
-      if (nextRank) {
-        var into = Math.max(0, currentXp - rankInfo.xp);
-        var span = Math.max(1, nextRank.xp - rankInfo.xp);
-        rankXpEl.textContent = into + ' / ' + span + ' XP';
-      } else {
-        rankXpEl.textContent = currentXp + ' XP — Max Rank';
-      }
-    }
+    if (rankIconEl) { rankIconEl.className = 'fas ' + tier.icon; rankIconEl.style.color = tier.color; }
+    if (rankNameEl) rankNameEl.textContent = 'Lv ' + level + ' — ' + tier.label;
+    if (rankXpEl) rankXpEl.textContent = toNext + ' XP to Lv ' + (level + 1);
     if (prestigeEl) prestigeEl.textContent = String(_profile.ascension || 0);
     if (ageEl) ageEl.textContent = _statsDaysActive() + ' DAYS ACTIVE';
 
