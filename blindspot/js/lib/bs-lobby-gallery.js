@@ -62,9 +62,9 @@ window.BsLobbyGallery = (function () {
     var url;
     try {
       url = window.buildApiPath
-        ? window.buildApiPath(ENDPOINT_KEY, { detail: 'full', count: FETCH_COUNT })
-        : '/api/blindspothero?detail=full&count=' + FETCH_COUNT;
-    } catch (e) { url = '/api/blindspothero?detail=full&count=' + FETCH_COUNT; }
+        ? window.buildApiPath(ENDPOINT_KEY, { detail: 'full', count: FETCH_COUNT, surface: 'hall' })
+        : '/api/blindspothero?detail=full&count=' + FETCH_COUNT + '&surface=hall';
+    } catch (e) { url = '/api/blindspothero?detail=full&count=' + FETCH_COUNT + '&surface=hall'; }
     fetch(url, { credentials: 'omit' })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
       .then(function (data) {
