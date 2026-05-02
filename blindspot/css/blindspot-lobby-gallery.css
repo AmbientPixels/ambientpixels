@@ -2,16 +2,16 @@
    Scoped under .blindspot-lobby-gallery. Design-system tokens only. */
 
 .blindspot-lobby-gallery {
-  grid-column: 1 / -1; /* span both columns of the lobby grid on desktop */
   margin: 0;
+  min-width: 0; /* break intrinsic-size propagation from the wide strip */
+  max-width: 100%;
 }
 
 .bs-lobby-gallery__viewport {
   position: relative;
   overflow: hidden;
   width: 100%;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+  min-width: 0;
 }
 
 .bs-lobby-gallery__strip {
