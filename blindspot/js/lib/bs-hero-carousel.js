@@ -264,26 +264,20 @@
     stripEl.style.transition = 'transform 2.8s cubic-bezier(0.12, 0.65, 0.05, 1)';
     stripEl.style.transform = 'translateX(' + targetX + 'px)';
 
-    // Magic book page-flip + impact — single MP3 playback covers the
-    // 2.8s strip ease-out (whoosh during the spin, impact landing
-    // around the highlight moment). Replaces the older synthesized
-    // crateRatchet + crateReveal pair, which read as too arcade for
-    // the cinematic Stranger reveal. ArenaAudio.init() is idempotent
-    // and required because the splash page doesn't open a battle that
-    // would have triggered it earlier; without init the SFX cache is
-    // empty and play() no-ops silently.
-    if (window.ArenaAudio && window.ArenaAudio.play) {
-      try {
-        if (window.ArenaAudio.init) window.ArenaAudio.init();
-        window.ArenaAudio.play('cardFlip');
-      } catch (e) { /* silent */ }
+    // Reuse the loot-crate ratchet — its 12 decelerating ticks (~1.9s)
+    // line up nicely with the strip's ease-out, so the audio sells the
+    // visual deceleration. Same idiom as bs-crates.js, by design.
+    if (window.BsSfx && window.BsSfx.play) {
+      try { window.BsSfx.play('crateRatchet'); } catch (e) { /* audio init may need a user gesture; click counts */ }
     }
 
     setTimeout(function () {
-      // Highlight the winner tile mid-frame (audio impact already
-      // baked into cardFlip MP3, no second SFX call needed).
+      // Highlight the winner tile mid-frame + cymbal-crash reveal SFX
       var winnerTile = stripEl.children[WINNER_IDX];
       if (winnerTile) winnerTile.classList.add('bs-hero-reel__tile--winner');
+      if (window.BsSfx && window.BsSfx.play) {
+        try { window.BsSfx.play('crateReveal'); } catch (e) { /* silent */ }
+      }
 
       setTimeout(function () {
         // Player has landed on their card — stop ambient rotation so the
