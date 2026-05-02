@@ -359,6 +359,8 @@
     document.body.classList.remove('bs-battle-active');
 
     if (isWin) {
+      // Award 30 XP for winning the Stranger (onboarding tutorial fight)
+      if (_cb.addXp) _cb.addXp(30);
       // Record Boss 1 (Gatekeeper) as beaten — the Stranger fight IS the Gatekeeper fight
       if (_cb.safeLSSet) {
         _cb.safeLSSet('bs-highest-boss', '1');
