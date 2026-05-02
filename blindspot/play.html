@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="css/blindspot-tokens.css">
   <link rel="stylesheet" href="css/blindspot-buttons.css">
   <link rel="stylesheet" href="css/blindspot-lobby.css">
+  <link rel="stylesheet" href="css/blindspot-lobby-gallery.css">
   <link rel="stylesheet" href="css/blindspot-prefight.css">
   <link rel="stylesheet" href="css/blindspot-battle.css">
   <script src="/js/telemetry-config.js"></script>
@@ -189,6 +190,23 @@
               </button>
             </div>
           </div>
+
+          <!-- Hall of Fighters carousel.
+               JS (bs-lobby-gallery.js) fetches /api/blindspothero?detail=full,
+               renders compact cards into the duplicated strip, runs the
+               CSS auto-scroll animation, and wires the modal at the
+               bottom of this page. Section is hidden until ≥3 cards arrive. -->
+          <section class="blindspot-lobby-section blindspot-lobby-gallery"
+                   id="bs-lobby-gallery"
+                   hidden>
+            <div class="blindspot-lobby-section__head">
+              <h2 class="blindspot-lobby-section__title">Hall of Fighters</h2>
+              <span class="blindspot-lobby-section__head-meta">Recently forged</span>
+            </div>
+            <div class="bs-lobby-gallery__viewport">
+              <div class="bs-lobby-gallery__strip" id="bs-lobby-gallery-strip" role="list"></div>
+            </div>
+          </section>
 
           <!-- Campaign rail.
                JS (renderCampaignProgress in blindspot-flow.js) toggles
@@ -889,6 +907,22 @@
 
   <!-- OVERLAYS -->
 
+  <!-- Hall of Fighters preview modal — opened by bs-lobby-gallery.js on tile click. -->
+  <div id="bs-gallery-modal"
+       class="bs-overlay bs-overlay--hidden bs-gallery-modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="bs-gallery-modal-title">
+    <div class="bs-gallery-modal__panel">
+      <button type="button" class="bs-gallery-modal__close" aria-label="Close">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+      <h2 id="bs-gallery-modal-title" class="sr-only">Card preview</h2>
+      <div class="bs-gallery-modal__card" id="bs-gallery-modal-card"></div>
+      <p class="bs-gallery-modal__creator" id="bs-gallery-modal-creator"></p>
+    </div>
+  </div>
+
   <!-- Shop item preview -->
   <div class="bs-overlay bs-overlay--hidden" id="bs-shop-preview" role="dialog" aria-label="Item preview"></div>
 
@@ -1489,6 +1523,7 @@
   <script src="js/lib/bs-strategy.js"></script>
   <script src="js/lib/bs-card-renderer.js"></script>
   <script src="js/lib/bs-card-share.js"></script>
+  <script src="js/lib/bs-lobby-gallery.js"></script>
   <script src="js/lib/bs-charms.js"></script>
   <script src="js/lib/bs-rewards.js"></script>
   <script src="js/lib/bs-wager.js"></script>
