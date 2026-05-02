@@ -269,6 +269,65 @@ body.bs-page {
   font-size: 0.95rem;
 }
 
+/* ---------- LEVEL HUD ----------
+   New lobby HUD: shield icon, level + tier, XP progress. Cloned from
+   rank-strip structure but with dedicated child styling. */
+.blindspot-level-hud {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background: var(--blindspot-surface);
+  border: 1px solid var(--blindspot-border);
+  border-radius: var(--blindspot-radius-tile);
+  margin-bottom: 1.5rem;
+}
+.blindspot-level-hud__icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blindspot-accent);
+  color: #FFF6E8;
+  border-radius: 4px;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+.blindspot-level-hud__body { min-width: 0; }
+.blindspot-level-hud__row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  flex-wrap: wrap;
+}
+.blindspot-level-hud__level {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--blindspot-accent, #f5c078);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+}
+.blindspot-level-hud__tier {
+  font-family: 'Inter', 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--bs-text-muted, #a09888);
+  margin-left: 0.6rem;
+}
+.blindspot-level-hud__xp {
+  margin-left: auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted, #a09888);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- BAR (XP, bounty) ---------- */
 .blindspot-bar {
   height: 12px;
