@@ -71,7 +71,7 @@ body.bs-page {
   align-items: start;
 }
 @media (max-width: 900px) {
-  .blindspot-lobby__grid { grid-template-columns: 1fr; }
+  .blindspot-lobby__grid { grid-template-columns: minmax(0, 1fr); }
   .blindspot-lobby__col--card { max-width: 360px; margin: 0 auto; width: 100%; }
 }
 
