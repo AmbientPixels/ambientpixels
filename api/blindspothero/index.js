@@ -12,6 +12,16 @@ const PUBLISHED_CARDS_PATH = 'published-cards.json';
 const MAX_COUNT = 50;
 const DEFAULT_COUNT = 10;
 
+// Surface-specific admin configs live alongside the moderation blocklist.
+// All gracefully default if the blob is missing — the splash carousel must
+// never break because of an admin-config issue.
+const MODERATION_BLOB = 'admin/blindspot-moderation.json';
+const SURFACE_BLOB = {
+  hero: 'admin/blindspot-hero-config.json',
+  hall: 'admin/blindspot-hall-config.json'
+};
+const VALID_SURFACES = ['hero', 'hall'];
+
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
@@ -45,6 +55,17 @@ async function downloadJsonBlob(containerClient, blobName) {
   const chunks = [];
   for await (const chunk of resp.readableStreamBody) chunks.push(chunk);
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+}
+
+async function tryReadJsonBlob(containerClient, blobName, context) {
+  try {
+    return await downloadJsonBlob(containerClient, blobName);
+  } catch (err) {
+    if (context && context.log && context.log.warn) {
+      context.log.warn(`[blindspothero] could not read ${blobName}: ${err.message}`);
+    }
+    return null;
+  }
 }
 
 // Walk the schema variants — avatar URL has drifted across editor versions.
@@ -92,26 +113,57 @@ module.exports = async function (context, req) {
   const detail = String((req.query && req.query.detail) || 'slim').toLowerCase();
   const mapper = detail === 'full' ? toFull : toSlim;
 
+  const surfaceParam = String((req.query && req.query.surface) || 'hero').toLowerCase();
+  const surface = VALID_SURFACES.indexOf(surfaceParam) >= 0 ? surfaceParam : 'hero';
+
   try {
     const blobServiceClient = await createBlobServiceClient();
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
-    const data = await downloadJsonBlob(containerClient, PUBLISHED_CARDS_PATH);
+
+    // Fetch published cards + admin configs in parallel; configs soft-fail
+    // (returning null) so an admin-config issue can't break the splash.
+    const [data, modConfig, surfaceConfig] = await Promise.all([
+      downloadJsonBlob(containerClient, PUBLISHED_CARDS_PATH),
+      tryReadJsonBlob(containerClient, MODERATION_BLOB, context),
+      tryReadJsonBlob(containerClient, SURFACE_BLOB[surface], context)
+    ]);
 
     const cards = (data && Array.isArray(data.publishedCards)) ? data.publishedCards : [];
-    const slides = cards
-      .map(mapper)
-      .filter(Boolean)
-      .sort((a, b) => {
-        const ta = a.createdAt ? Date.parse(a.createdAt) : 0;
-        const tb = b.createdAt ? Date.parse(b.createdAt) : 0;
-        return (isNaN(tb) ? 0 : tb) - (isNaN(ta) ? 0 : ta);
-      })
-      .slice(0, count);
+    const hiddenIds = new Set((modConfig && Array.isArray(modConfig.hiddenIds)) ? modConfig.hiddenIds : []);
+    const mode = (surfaceConfig && surfaceConfig.mode) || 'recent';
+    const curatedIds = (surfaceConfig && Array.isArray(surfaceConfig.curatedIds)) ? surfaceConfig.curatedIds : [];
+
+    // 1. Apply moderation (drop hidden cards by id)
+    let filtered = cards.filter(c => c && !hiddenIds.has(c.id));
+
+    // 2. Apply mode
+    if (mode === 'curated' && curatedIds.length > 0) {
+      const byId = new Map();
+      for (const c of filtered) byId.set(c.id, c);
+      filtered = curatedIds.map(id => byId.get(id)).filter(Boolean);
+    } else if (mode === 'random') {
+      filtered = filtered.slice();
+      for (let i = filtered.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = filtered[i]; filtered[i] = filtered[j]; filtered[j] = t;
+      }
+    } else {
+      // 'recent' (default) and 'highest-rated' fallback when no rating data here.
+      filtered = filtered.slice().sort((a, b) => {
+        const ta = a.publishDate || a.publishedAt || a.createdAt || a.updatedAt || 0;
+        const tb = b.publishDate || b.publishedAt || b.createdAt || b.updatedAt || 0;
+        const da = ta ? Date.parse(ta) : 0;
+        const db = tb ? Date.parse(tb) : 0;
+        return (isNaN(db) ? 0 : db) - (isNaN(da) ? 0 : da);
+      });
+    }
+
+    const slides = filtered.map(mapper).filter(Boolean).slice(0, count);
 
     context.res = {
       status: 200,
       headers: CORS_HEADERS,
-      body: { slides, count: slides.length }
+      body: { slides, count: slides.length, surface, mode }
     };
   } catch (err) {
     context.log.error(`[blindspothero] ${err.message}`);
