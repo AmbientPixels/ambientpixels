@@ -105,16 +105,20 @@ window.BsLobbyGallery = (function () {
     if (!_rtf && typeof Intl !== 'undefined' && Intl.RelativeTimeFormat) {
       try { _rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' }); } catch (_) { _rtf = null; }
     }
-    var pairs = [
-      [60, 'second'], [3600, 'minute'], [86400, 'hour'],
-      [2592000, 'day'], [31536000, 'month']
+    // Largest unit first — pick the first where abs >= seconds-per-unit.
+    var units = [
+      [31536000, 'year'],
+      [2592000, 'month'],
+      [86400, 'day'],
+      [3600, 'hour'],
+      [60, 'minute'],
+      [1, 'second']
     ];
-    var unit = 'year', value = Math.round(abs / 31536000);
-    for (var i = 0; i < pairs.length; i++) {
-      if (abs < pairs[i][0]) {
-        unit = i === 0 ? 'second' : pairs[i - 1][1];
-        var divisor = i === 0 ? 1 : pairs[i - 1][0];
-        value = Math.max(1, Math.round(abs / divisor));
+    var unit = 'second', value = abs;
+    for (var i = 0; i < units.length; i++) {
+      if (abs >= units[i][0]) {
+        unit = units[i][1];
+        value = Math.max(1, Math.round(abs / units[i][0]));
         break;
       }
     }
