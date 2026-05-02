@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Blindspot — Admin</title>
+  <link rel="icon" href="/blindspot/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/blindspot/css/blindspot.css">
+  <link rel="stylesheet" href="/blindspot/admin/admin.css">
+</head>
+<body class="bs-page bs-admin-page">
+
+  <header class="bs-topbar" role="banner">
+    <span class="bs-topbar__brand"><i class="fas fa-eye-slash bs-topbar__brand-icon" aria-hidden="true"></i>Blindspot</span>
+    <div class="bs-topbar__actions">
+      <span class="bs-admin-badge"><i class="fas fa-shield-halved"></i> ADMIN</span>
+      <a href="/blindspot/play.html" class="bs-admin-back"><i class="fas fa-arrow-left"></i> Lobby</a>
+    </div>
+  </header>
+
+  <main class="bs-admin" role="main">
+    <div id="bs-admin-gate" class="bs-admin__gate" hidden>
+      <i class="fas fa-shield-halved"></i>
+      <h2>Forbidden</h2>
+      <p>This page is restricted. Redirecting to lobby…</p>
+    </div>
+
+    <div id="bs-admin-app" class="bs-admin__app" hidden>
+      <h1 class="bs-admin__title">Content Moderation</h1>
+      <p class="bs-admin__sub">Manage what shows in the splash hero, Hall of Fighters, and Gallery.</p>
+
+      <nav class="bs-admin-tabs" role="tablist">
+        <button type="button" class="bs-admin-tab" id="bs-admin-tab-moderation" data-tab="moderation" role="tab" aria-selected="true">
+          <i class="fas fa-eye-slash"></i> Moderation
+        </button>
+        <button type="button" class="bs-admin-tab" id="bs-admin-tab-hero" data-tab="hero" role="tab" aria-selected="false">
+          <i class="fas fa-fire"></i> Hero
+        </button>
+        <button type="button" class="bs-admin-tab" id="bs-admin-tab-hall" data-tab="hall" role="tab" aria-selected="false">
+          <i class="fas fa-users"></i> Hall
+        </button>
+        <button type="button" class="bs-admin-tab" id="bs-admin-tab-gallery" data-tab="gallery" role="tab" aria-selected="false">
+          <i class="fas fa-images"></i> Gallery
+        </button>
+      </nav>
+
+      <section class="bs-admin-panel" id="bs-admin-panel-moderation" role="tabpanel">
+        <h2>Hidden cards <span class="bs-admin-panel__count" id="bs-admin-mod-count">(0)</span></h2>
+        <p class="bs-admin-panel__sub">Cards in this list are hidden from the splash hero, Hall of Fighters, and Gallery on every surface.</p>
+        <div class="bs-admin-mod__list" id="bs-admin-mod-list" role="list"></div>
+        <button type="button" class="bs-admin-btn bs-admin-btn--secondary" id="bs-admin-mod-add">
+          <i class="fas fa-plus"></i> Add card to blocklist
+        </button>
+        <div class="bs-admin-panel__footer">
+          <button type="button" class="bs-admin-btn" id="bs-admin-mod-save">Save</button>
+          <span class="bs-admin-panel__stamp" id="bs-admin-mod-stamp"></span>
+        </div>
+      </section>
+
+      <section class="bs-admin-panel" id="bs-admin-panel-hero" role="tabpanel" hidden>
+        <h2>Hero (splash slot machine)</h2>
+        <div class="bs-admin-surface" data-surface="hero" data-max="10"></div>
+      </section>
+
+      <section class="bs-admin-panel" id="bs-admin-panel-hall" role="tabpanel" hidden>
+        <h2>Hall of Fighters (lobby carousel)</h2>
+        <div class="bs-admin-surface" data-surface="hall" data-max="25"></div>
+      </section>
+
+      <section class="bs-admin-panel" id="bs-admin-panel-gallery" role="tabpanel" hidden>
+        <h2>Gallery (full grid screen)</h2>
+        <div class="bs-admin-surface" data-surface="gallery" data-max="50"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Card-picker modal — shared by Moderation tab + curated editors -->
+  <div id="bs-admin-picker" class="bs-overlay bs-overlay--hidden bs-admin-picker" role="dialog" aria-modal="true" aria-labelledby="bs-admin-picker-title">
+    <div class="bs-admin-picker__panel">
+      <button type="button" class="bs-admin-picker__close" aria-label="Close"><i class="fas fa-times"></i></button>
+      <h2 id="bs-admin-picker-title">Pick a card</h2>
+      <input type="search" id="bs-admin-picker-search" placeholder="Search by name…" autocomplete="off">
+      <div class="bs-admin-picker__list" id="bs-admin-picker-list" role="list"></div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="bs-admin-toast" class="bs-admin-toast" hidden></div>
+
+  <!-- Scripts (load order: config → renderer → admin script) -->
+  <script src="/blindspot/js/lib/bs-config.js"></script>
+  <script src="/blindspot/js/lib/bs-utils.js"></script>
+  <script src="/blindspot/js/lib/bs-stubs.js"></script>
+  <script src="/blindspot/js/lib/bs-card-renderer.js"></script>
+  <script src="/blindspot/admin/admin.js"></script>
+</body>
+</html>
