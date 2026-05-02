@@ -809,7 +809,14 @@
     const selectedPalette = panel.querySelector('.bs-forge-palette-swatch--selected[data-palette]');
     const selectedContainer = panel.querySelector('.bs-forge-container-card--selected[data-container]');
     if (selectedPalette) _selectedCard.palette = selectedPalette.dataset.palette;
-    if (selectedContainer) _selectedCard.imageContainer = selectedContainer.dataset.container;
+    if (selectedContainer) {
+      // bs-card-renderer reads `card.design.imageContainer` BEFORE `card.imageContainer`,
+      // so cards born in CardForge (which sets the nested path) ignore the flat field
+      // unless we also write it. Mirror the value into design.imageContainer.
+      _selectedCard.imageContainer = selectedContainer.dataset.container;
+      if (!_selectedCard.design) _selectedCard.design = {};
+      _selectedCard.design.imageContainer = selectedContainer.dataset.container;
+    }
 
     // Apply details from Details tab
     const nameInput = document.getElementById('bs-forge-name');
@@ -831,7 +838,10 @@
     try {
       const cardToSave = { ..._selectedCard, combatStats: newStats };
       if (selectedPalette) cardToSave.palette = selectedPalette.dataset.palette;
-      if (selectedContainer) cardToSave.imageContainer = selectedContainer.dataset.container;
+      if (selectedContainer) {
+        cardToSave.imageContainer = selectedContainer.dataset.container;
+        cardToSave.design = Object.assign({}, _selectedCard.design || {}, { imageContainer: selectedContainer.dataset.container });
+      }
       // Include details tab changes
       if (nameInput && nameInput.value.trim()) cardToSave.name = nameInput.value.trim();
       if (quoteInput) cardToSave.quote = quoteInput.value.trim();
@@ -856,14 +866,17 @@
       const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
       if (!resp.ok) throw new Error('Save failed: ' + resp.status);
 
-      // Sync gallery membership if the publish toggle changed. Best-
-      // effort — failures here don't block the forge save success path,
-      // since the user blob is already persisted with the new state.
-      // Auth pattern mirrors cardforge-publish.js — the publish endpoint
-      // accepts `userId` in the body as a fallback because the
-      // X-CF-Auth-Principal header doesn't survive the cross-origin hop
-      // to the Function App. We grab the userId from /.auth/me directly.
-      if (wantsPublished !== wasPublished) {
+      // Sync gallery membership whenever the card is (or was) published.
+      // The non-toggle case (re-sync of an already-published card) used to
+      // be skipped — `if (wantsPublished !== wasPublished)` only covered
+      // the on/off transitions — so visual edits via the Forge persisted
+      // to the user blob but never made it to published-cards.json,
+      // leaving the splash hero, Hall of Fighters, and CardForge gallery
+      // showing stale art. Best-effort — failures here don't block the
+      // forge save success path. Auth pattern mirrors cardforge-publish.js:
+      // X-CF-Auth-Principal doesn't survive the cross-origin hop, so we
+      // pull userId from /.auth/me and pass it in the body.
+      if (wantsPublished || wasPublished) {
         try {
           var pubUrl = window.buildApiPath('publish');
           if (pubUrl) {
