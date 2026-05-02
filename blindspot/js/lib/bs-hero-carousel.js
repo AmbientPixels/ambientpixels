@@ -264,12 +264,13 @@
     stripEl.style.transition = 'transform 2.8s cubic-bezier(0.12, 0.65, 0.05, 1)';
     stripEl.style.transform = 'translateX(' + targetX + 'px)';
 
-    // Mystical rising sweep — replaces the older arcade-y crateRatchet
-    // for a more cinematic Stranger reveal. The synth def is ~0.85s so
-    // it doesn't fill the full 2.8s spin; silence between sweep end and
-    // landing impact reads as anticipation rather than dead air.
+    // Page-flip flicks at decelerating intervals (~2.3s). Same rhythm
+    // as crateRatchet but paper-swish noise bursts instead of arcade
+    // square-wave clicks — each flick lands as a card slides past
+    // the visible window, reading as flipping pages rather than a
+    // slot-machine roulette.
     if (window.BsSfx && window.BsSfx.play) {
-      try { window.BsSfx.play('ascension'); } catch (e) { /* audio init may need a user gesture; click counts */ }
+      try { window.BsSfx.play('pageFlip'); } catch (e) { /* audio init may need a user gesture; click counts */ }
     }
 
     setTimeout(function () {

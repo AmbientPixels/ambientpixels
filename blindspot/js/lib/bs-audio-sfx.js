@@ -208,6 +208,31 @@ window.BsSfx = (function () {
       src.start(t); src.stop(t + 0.25);
     },
 
+    // Page flip — 8 paper-swish bursts at decelerating intervals (~2.3s).
+    // Same flip-paced rhythm as crateRatchet, but highpass-filtered noise
+    // reads as paper/page flicks instead of square-wave arcade clicks.
+    // Designed for the splash slot-machine roll where each "flick" lands
+    // roughly when a card slides past the visible window.
+    pageFlip: function (ctx) {
+      var t = ctx.currentTime;
+      for (var i = 0; i < 8; i++) {
+        var delay = i * (0.12 + i * 0.03);
+        var bufferSize = Math.floor(ctx.sampleRate * 0.1);
+        var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        var data = buffer.getChannelData(0);
+        for (var j = 0; j < bufferSize; j++) data[j] = (Math.random() * 2 - 1) * 0.6;
+        var noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        var hp = ctx.createBiquadFilter();
+        hp.type = 'highpass'; hp.frequency.value = 1500;
+        var gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.15, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.08);
+        noise.connect(hp); hp.connect(gain); gain.connect(ctx.destination);
+        noise.start(t + delay); noise.stop(t + delay + 0.1);
+      }
+    },
+
     // Crate ratchet — rapid ticking that slows (roulette clicks)
     crateRatchet: function (ctx) {
       var t = ctx.currentTime;
