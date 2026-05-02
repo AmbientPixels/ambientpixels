@@ -113,7 +113,9 @@
       // player has already done their roll for this browser. We don't gate
       // on carousel readiness here — if the carousel never populated, the
       // click handler gracefully falls through to the legacy fight path.
-      var MAX_ROLLS = 3;
+      // Reroll is unlimited — players can keep rolling until they like a
+      // card. The bs-stranger-rolls counter is still tracked for the
+      // "first roll vs subsequent rolls" UI branch.
       var rerollBtn = document.getElementById('bs-reroll-btn');
 
       function getRollsUsed() {
@@ -131,15 +133,12 @@
         if (rolls === 0) {
           fightBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Roll Your Fate';
           if (rerollBtn) rerollBtn.style.display = 'none';
-        } else if (rolls < MAX_ROLLS) {
-          fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
-          if (rerollBtn) {
-            rerollBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Reroll (' + (MAX_ROLLS - rolls) + ' left)';
-            rerollBtn.style.display = '';
-          }
         } else {
           fightBtn.innerHTML = '<i class="fas fa-fire"></i> Begin';
-          if (rerollBtn) rerollBtn.style.display = 'none';
+          if (rerollBtn) {
+            rerollBtn.innerHTML = '<i class="fas fa-dice-d20"></i> Reroll';
+            rerollBtn.style.display = '';
+          }
         }
       }
       refreshFightBtnLabel();
@@ -183,7 +182,6 @@
 
       function performRoll() {
         var rolls = getRollsUsed();
-        if (rolls >= MAX_ROLLS) return;
 
         var ready = window.BsHeroCarousel && window.BsHeroCarousel.hasSlides && window.BsHeroCarousel.hasSlides();
         if (ready) {
