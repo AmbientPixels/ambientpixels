@@ -1485,6 +1485,7 @@
     updateForgeProgress();
     updateCrateBadge();
     renderBounties();
+    if (window.BsLobbyGallery) window.BsLobbyGallery.init();
     renderChallenges();
     checkAndClaimChallenges();
 
