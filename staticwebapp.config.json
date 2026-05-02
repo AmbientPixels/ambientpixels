@@ -226,6 +226,13 @@
    ]
   },
   {
+   "route": "/api/blindspotadminconfig",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotadminconfig",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
    "route": "/api/blindspotdefensequeue",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotdefensequeue",
    "allowedRoles": [
