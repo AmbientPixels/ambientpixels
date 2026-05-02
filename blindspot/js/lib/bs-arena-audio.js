@@ -23,7 +23,8 @@ window.ArenaAudio = (function () {
     charge:     'charge.wav',
     crowd:      'crowd.mp3',
     last_stand: 'last-stand.mp3',
-    killshot:   'killshot.mp3'
+    killshot:   'killshot.mp3',
+    cardFlip:   'magic-book-flip.mp3'
   };
 
   var MUSIC_TRACKS = {

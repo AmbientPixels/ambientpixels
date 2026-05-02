@@ -605,7 +605,7 @@
       const flipInner = document.getElementById('bs-flip-inner');
       if (flipInner) flipInner.classList.add('flipped');
       if (window.ArenaAudio) {
-        try { window.ArenaAudio.playSfx('victory'); } catch (e) {}
+        try { window.ArenaAudio.playSfx('cardFlip'); } catch (e) {}
       }
       _cardFlipped = true;
     }, 200);
