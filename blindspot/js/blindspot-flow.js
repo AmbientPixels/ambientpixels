@@ -1741,7 +1741,13 @@
     if (collBadge) {
       collBadge.textContent = String(owned.length);
       var collBtn = document.getElementById('bs-btn-collection');
-      if (collBtn) collBtn.style.display = owned.length > 0 ? '' : 'none';
+      if (collBtn) {
+        // Always visible — when 0 owned, dim with the locked treatment
+        // so new players see the slot. Clicking still opens Collection,
+        // which handles its own empty state.
+        collBtn.style.display = '';
+        collBtn.classList.toggle('bs-loot--locked', owned.length === 0);
+      }
     }
     var collPreview = document.getElementById('bs-collection-previews');
     if (collPreview) {

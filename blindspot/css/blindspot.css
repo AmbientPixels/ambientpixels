@@ -12623,3 +12623,34 @@ body.bs-adventure-active {
   border-color: var(--blindspot-accent-gold);
   color: var(--bs-text);
 }
+
+/* ──────────────────────────────────────────────
+   Loot Zone — locked / empty state.
+   Applied to .bs-crate-opener and .bs-collection-panel when the
+   player has 0 crates / 0 cosmetics. Keeps the surface visible so
+   new players see the feature exists, but reads as gated rather
+   than active. Click is still enabled — the JS handlers route to
+   hint toasts (crate) or the Collection screen's empty state.
+   ────────────────────────────────────────────── */
+.bs-crate-opener.bs-loot--locked,
+.bs-collection-panel.bs-loot--locked {
+  border-color: rgba(245, 192, 120, 0.25);
+  box-shadow: none;
+  animation: none;
+  opacity: 0.55;
+  filter: saturate(0.6);
+  cursor: pointer;
+}
+.bs-crate-opener.bs-loot--locked:hover,
+.bs-collection-panel.bs-loot--locked:hover {
+  opacity: 0.8;
+  filter: saturate(0.85);
+  border-color: rgba(245, 192, 120, 0.45);
+  transform: none;
+  box-shadow: 0 0 16px rgba(245, 192, 120, 0.18);
+}
+.bs-crate-opener.bs-loot--locked .bs-crate-opener__hint {
+  font-style: italic;
+  color: var(--bs-text-muted, #a09888);
+}
+

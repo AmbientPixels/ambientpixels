@@ -65,10 +65,19 @@ window.BsCrates = (function () {
     var indicator = document.getElementById('bs-crate-indicator');
     var badge = document.getElementById('bs-crate-badge');
     var plural = document.getElementById('bs-crate-plural');
+    var hint = indicator ? indicator.querySelector('.bs-crate-opener__hint') : null;
     var count = getCrateCount();
-    if (indicator) indicator.style.display = count > 0 ? '' : 'none';
+    if (indicator) {
+      // Always visible — when count is 0, dim with the locked treatment
+      // so new players see the surface and understand what's coming.
+      // Click handler in bs-nav.js handles the count===0 case with a
+      // toast hint instead of trying to open nothing.
+      indicator.style.display = '';
+      indicator.classList.toggle('bs-loot--locked', count === 0);
+    }
     if (badge) badge.textContent = String(count);
     if (plural) plural.textContent = count === 1 ? '' : 's';
+    if (hint) hint.textContent = count > 0 ? 'Tap to open' : 'Win fights to earn one';
     if (_callbacks.updateSparksShop) _callbacks.updateSparksShop();
   }
 

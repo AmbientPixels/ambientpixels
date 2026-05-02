@@ -17,9 +17,13 @@
     if (_navBound) return;
     _navBound = true;
 
-    // Crate indicator — click to open
+    // Crate indicator — click to open, or hint if locked (count === 0)
     document.getElementById('bs-crate-indicator')?.addEventListener('click', function() {
-      if (_cb.getCrateCount() > 0) _cb.openCrateOverlay(0);
+      if (_cb.getCrateCount() > 0) {
+        _cb.openCrateOverlay(0);
+      } else if (window.BsToast && window.BsToast.show) {
+        window.BsToast.show('Win fights to earn a crate. Every 5 wins drops a Battle Crate; first boss kills drop bigger ones.', 'info');
+      }
     });
 
     // Primary PLAY button + Campaign button both open campaign
