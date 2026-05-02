@@ -1488,8 +1488,11 @@
       if (!guestBanner) {
         guestBanner = document.createElement('div');
         guestBanner.id = 'bs-guest-banner';
-        guestBanner.style.cssText = 'text-align:center;padding:0.4rem 0.75rem;background:rgba(239,159,39,0.12);border:1px solid var(--bs-accent-dim);border-radius:6px;margin:0.5rem auto;max-width:360px;font-size:0.75rem;color:var(--bs-text-muted);';
-        guestBanner.innerHTML = '<i class="fas fa-info-circle" style="color:var(--bs-accent);"></i> Guest mode — <a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent);text-decoration:underline;">Sign in</a> to save progress across devices';
+        // Quieter info-tint surface — the previous amber/accent border read
+        // as a warning rather than a soft prompt. Neutral background + faint
+        // border makes the link itself the only colored element.
+        guestBanner.style.cssText = 'text-align:center;padding:0.4rem 0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--bs-border);border-radius:6px;margin:0.5rem auto;max-width:360px;font-size:0.75rem;color:var(--bs-text-muted);';
+        guestBanner.innerHTML = '<i class="fas fa-info-circle" style="color:var(--bs-text-muted);"></i> Playing as guest — <a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent);text-decoration:underline;">Sign in</a> to save progress across devices';
         var lobbyScreen = document.getElementById('bs-screen-lobby');
         if (lobbyScreen) lobbyScreen.insertBefore(guestBanner, lobbyScreen.firstChild);
       }

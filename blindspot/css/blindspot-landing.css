@@ -289,10 +289,10 @@
 }
 .blindspot-stat-tile__label {
   font-family: var(--blindspot-font-mono);
-  font-size: 0.55rem;
-  letter-spacing: 0.16em;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--blindspot-text-muted);
+  color: var(--blindspot-text-dim, var(--blindspot-text-muted));
 }
 .blindspot-stat-tile__value {
   font-family: var(--blindspot-font-numeric, 'Inter', system-ui, sans-serif);

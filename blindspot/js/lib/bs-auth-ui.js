@@ -17,6 +17,21 @@
 
     var lobbyNameEl = document.getElementById('bs-lobby-username');
 
+    // Guest greeting prefers the player's selected card name (their chosen
+    // fighter identity), falls back to the lore-appropriate "Stranger" rather
+    // than the generic "fighter". The Stranger is who you are on the splash —
+    // staying with that voice when no card name is available reads intentional
+    // instead of placeholder.
+    function guestGreetingName() {
+      try {
+        var deck = JSON.parse(localStorage.getItem('bs-deck') || '[]');
+        var selectedId = localStorage.getItem('bs-selected-card-id');
+        var card = (selectedId && deck.find(function (c) { return c && c.id === selectedId; })) || deck[0];
+        if (card && card.name && String(card.name).trim()) return String(card.name).trim();
+      } catch (e) { /* fall through */ }
+      return 'Stranger';
+    }
+
     // Always check /.auth/me directly — don't rely on _profileData
     fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.clientPrincipal) {
@@ -47,12 +62,12 @@
       } else {
         // Not logged in — show sign in link
         el.innerHTML = '<a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>';
-        if (lobbyNameEl) lobbyNameEl.textContent = 'fighter';
+        if (lobbyNameEl) lobbyNameEl.textContent = guestGreetingName();
       }
     }).catch(function () {
       // Auth check failed — show sign in link
       el.innerHTML = '<a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>';
-      if (lobbyNameEl) lobbyNameEl.textContent = 'fighter';
+      if (lobbyNameEl) lobbyNameEl.textContent = guestGreetingName();
     });
   }
 
