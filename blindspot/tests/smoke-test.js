@@ -41,6 +41,24 @@ try {
   fail('bs-lobby-gallery.js parse error: ' + e.message);
 }
 
+// ── 1c. Admin module parse ──
+try {
+  const adminJs = fs.readFileSync(path.join(ROOT, 'admin/admin.js'), 'utf8');
+  new Function(adminJs);
+  pass('blindspot/admin/admin.js parses without errors');
+} catch (e) {
+  fail('blindspot/admin/admin.js parse error: ' + e.message);
+}
+
+// ── 1d. Server endpoint parse ──
+try {
+  const adminApiJs = fs.readFileSync(path.join(ROOT, '../api/blindspotadminconfig/index.js'), 'utf8');
+  new Function(adminApiJs);
+  pass('api/blindspotadminconfig/index.js parses without errors');
+} catch (e) {
+  fail('api/blindspotadminconfig/index.js parse error: ' + e.message);
+}
+
 // ── 2. CSS Brace Balance ──
 try {
   const css = fs.readFileSync(path.join(ROOT, 'css/blindspot.css'), 'utf8');
@@ -71,6 +89,18 @@ try {
   }
 } catch (e) {
   fail('blindspot-lobby-gallery.css read error: ' + e.message);
+}
+
+// ── 2c. Admin CSS Brace Balance ──
+try {
+  const adminCss = fs.readFileSync(path.join(ROOT, 'admin/admin.css'), 'utf8');
+  const stripped = adminCss.replace(/\/\*[\s\S]*?\*\//g, '').replace(/'[^']*'/g, '').replace(/"[^"]*"/g, '');
+  const opens = (stripped.match(/{/g) || []).length;
+  const closes = (stripped.match(/}/g) || []).length;
+  if (opens === closes) pass('blindspot/admin/admin.css braces balanced (' + opens + ')');
+  else fail('blindspot/admin/admin.css unbalanced: ' + opens + ' open vs ' + closes + ' close');
+} catch (e) {
+  fail('blindspot/admin/admin.css read error: ' + e.message);
 }
 
 // ── 3. CSS Overlay Safety ──
@@ -178,6 +208,48 @@ try {
   }
 } catch (e) {
   fail('play.html gallery markup check error: ' + e.message);
+}
+
+// ── 5c. Admin page markup ──
+try {
+  const adminHtml = fs.readFileSync(path.join(ROOT, 'admin/index.html'), 'utf8');
+  const required = [
+    'id="bs-admin-app"',
+    'id="bs-admin-gate"',
+    'id="bs-admin-tab-moderation"',
+    'id="bs-admin-tab-hero"',
+    'id="bs-admin-tab-hall"',
+    'id="bs-admin-tab-gallery"',
+    'id="bs-admin-picker"',
+    'src="/blindspot/admin/admin.js"',
+    'href="/blindspot/admin/admin.css"'
+  ];
+  let allFound = true;
+  for (const sel of required) {
+    if (adminHtml.indexOf(sel) === -1) {
+      fail('admin/index.html missing: ' + sel);
+      allFound = false;
+    }
+  }
+  if (allFound) pass('admin/index.html has all required hooks');
+} catch (e) {
+  fail('admin/index.html read error: ' + e.message);
+}
+
+// ── 5d. Topbar admin link ──
+try {
+  const playHtml = fs.readFileSync(path.join(ROOT, 'play.html'), 'utf8');
+  const required = ['id="bs-topbar-admin"', 'href="/blindspot/admin/"'];
+  let allFound = true;
+  for (const sel of required) {
+    if (playHtml.indexOf(sel) === -1) {
+      fail('play.html missing topbar admin: ' + sel);
+      allFound = false;
+    }
+  }
+  if (allFound) pass('play.html has topbar admin link hooks');
+} catch (e) {
+  fail('play.html admin-link read error: ' + e.message);
 }
 
 // ── 6. Boss Data Integrity ──
