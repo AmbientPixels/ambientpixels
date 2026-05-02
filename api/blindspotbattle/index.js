@@ -1046,7 +1046,15 @@ function computeXpAward(type, result, bossLevel) {
   const config = loadArenaConfig();
   const awards = config.xpAwards;
   if (result === 'win') {
-    if (type === 'pve') return awards.pveWinBase + (bossLevel || 1) * awards.pveWinPerLevel;
+    if (type === 'pve') {
+      // bossLevel is encoded as 100+N for campaign and 200+N for ascension.
+      // Subtract the 100s base so per-win XP scales with the visible boss
+      // number (Boss 1 → tier 1 → 30 XP; Boss 10 → tier 10 → 75 XP).
+      // Ascension Boss 1 (level 201) → tier 101 → 530 XP — keeps ascension
+      // as a deliberate XP power-spike.
+      const tier = Math.max(1, (bossLevel || 100) - 100);
+      return awards.pveWinBase + tier * awards.pveWinPerLevel;
+    }
     return awards.pvpWin;
   }
   if (result === 'loss') {
