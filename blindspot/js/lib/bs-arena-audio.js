@@ -37,7 +37,8 @@ window.ArenaAudio = (function () {
     'throne':          'arena-throne.mp3',
     'adventure-explore': 'adventure-explore.mp3',
     'adventure-tension': 'adventure-tension.mp3',
-    'adventure-calm':    'adventure-calm.mp3'
+    'adventure-calm':    'adventure-calm.mp3',
+    'lobby-ambient':     'torch-fire-loop.mp3'
   };
 
   var _sfxMuted       = false;

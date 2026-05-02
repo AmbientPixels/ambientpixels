@@ -1442,6 +1442,14 @@
   // ============================================================
 
   function renderLobby() {
+    // Lobby ambience — torch fire loop. playMusic is idempotent on the
+    // same key (early-returns if already playing), so the multiple
+    // renderLobby calls per session don't restart the loop. Battle
+    // entry calls playArenaMusic which fades this out; returning to
+    // the lobby fades it back in.
+    if (window.ArenaAudio && window.ArenaAudio.playMusic) {
+      try { window.ArenaAudio.playMusic('lobby-ambient'); } catch (e) {}
+    }
     // Sync selected card to deck cache
     if (_selectedCard && _selectedCard.id) updateCardInDeck(_selectedCard);
     // Apply streak glow
