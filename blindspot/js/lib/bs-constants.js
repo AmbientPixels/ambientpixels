@@ -20,6 +20,20 @@ window.BsConst = (function () {
   };
   var RANK_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
+  // ── Level / Tier (all-up player level) ──
+  // Linear curve: floor(xp / LEVEL_XP_PER_LEVEL) + 1.
+  // Tiers (Initiate → Mythic) are gated on level number, NOT xp directly.
+
+  var LEVEL_XP_PER_LEVEL = 50;
+  var LEVEL_TIERS = [
+    { id: 'initiate',   minLevel: 1,   icon: 'fa-shield-halved', color: '#A09888', label: 'Initiate' },
+    { id: 'apprentice', minLevel: 6,   icon: 'fa-shield',        color: '#CD7F32', label: 'Apprentice' },
+    { id: 'veteran',    minLevel: 16,  icon: 'fa-crown',         color: '#C0C0C0', label: 'Veteran' },
+    { id: 'champion',   minLevel: 31,  icon: 'fa-gem',           color: '#FFD700', label: 'Champion' },
+    { id: 'legend',     minLevel: 51,  icon: 'fa-diamond',       color: '#E5E4E2', label: 'Legend' },
+    { id: 'mythic',     minLevel: 100, icon: 'fa-fire',          color: '#EF9F27', label: 'Mythic' }
+  ];
+
   var ELO_DEFAULT = 1000;
   var ELO_K = 32;
   var PVP_RANKS = [
@@ -373,6 +387,7 @@ window.BsConst = (function () {
 
   return {
     RANKS: RANKS, RANK_ORDER: RANK_ORDER,
+    LEVEL_XP_PER_LEVEL: LEVEL_XP_PER_LEVEL, LEVEL_TIERS: LEVEL_TIERS,
     ELO_DEFAULT: ELO_DEFAULT, ELO_K: ELO_K, PVP_RANKS: PVP_RANKS,
     BOSS_ICONS: BOSS_ICONS, CLASS_PATTERNS: CLASS_PATTERNS, CLASS_SIGNATURE_MOVES: CLASS_SIGNATURE_MOVES, CLASS_ABILITY_ART: CLASS_ABILITY_ART, MOVE_CARD_DATA: MOVE_CARD_DATA,
     STAT_PASSIVES: STAT_PASSIVES, MOVE_UPGRADES: MOVE_UPGRADES, ARCHETYPES: ARCHETYPES,
