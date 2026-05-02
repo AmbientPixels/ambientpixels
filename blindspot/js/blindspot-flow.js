@@ -320,7 +320,7 @@
     if (amount === 0) return;
     _progress.xp = (_progress.xp || 0) + amount;
     if (_profile) _profile.xp = _progress.xp;
-    if (typeof updateRankDisplay === 'function') updateRankDisplay();
+    if (typeof renderLevelHud === 'function') renderLevelHud(); // updateRankDisplay kept for stats screen
   }
   function spendSparks(n) {
     if (n > _progress.sparks) return false;
@@ -1473,7 +1473,7 @@
     renderCardSwitcher();
     renderNewCardButton();
     renderDeckButton();
-    updateRankDisplay();
+    renderLevelHud(); // updateRankDisplay kept for stats screen
     updateForgeProgress();
     updateCrateBadge();
     renderBounties();
@@ -1946,6 +1946,35 @@
       bestEl.textContent = String(bestVal);
       bestEl.classList.toggle('is-zero', bestVal === 0);
     }
+  }
+
+  function renderLevelHud() {
+    if (!_profile) return;
+
+    var levelNum = document.getElementById('bs-level-num');
+    var tierEl   = document.getElementById('bs-level-tier');
+    var iconEl   = document.getElementById('bs-level-icon');
+    var xpText   = document.getElementById('bs-level-xp-text');
+    var xpFill   = document.getElementById('bs-level-xp-fill');
+
+    if (!levelNum) return; // Markup not present (e.g. on splash) — no-op
+
+    var xp = _profile.xp || 0;
+    var level = (_S.computeLevel && _S.computeLevel(xp)) || 1;
+    var tier = (_S.getTier && _S.getTier(level)) || { label: 'Initiate', icon: 'fa-shield-halved', color: '#A09888' };
+    var toNext = (_S.getXpToNextLevel && _S.getXpToNextLevel(xp)) || 0;
+    var per = (window.BsConst && window.BsConst.LEVEL_XP_PER_LEVEL) || 50;
+    var earnedThisLevel = per - toNext;
+    var pct = Math.max(0, Math.min(100, (earnedThisLevel / per) * 100));
+
+    levelNum.textContent = 'Lv ' + level;
+    tierEl.textContent = tier.label;
+    if (iconEl) {
+      iconEl.className = 'fas ' + tier.icon;
+      iconEl.style.color = tier.color;
+    }
+    if (xpText) xpText.textContent = toNext + ' XP to Lv ' + (level + 1);
+    if (xpFill) xpFill.style.width = pct + '%';
   }
 
   function updateForgeProgress() {
