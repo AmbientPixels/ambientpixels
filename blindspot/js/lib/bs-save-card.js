@@ -53,6 +53,13 @@ window.BlindspotSaveCard = (function () {
       quote: quote,
       rarity: cardState.cardRarity || 'Common',
       element: element,
+      // Top-level imageContainer is what the renderer actually reads via
+      // card.imageContainer in its lookup chain. cardData.imageContainer
+      // (below) is unreachable — the renderer only checks cardData.design.*,
+      // not flat fields under cardData. Without this top-level mirror,
+      // every Quick Build card defaults to masked/Portrait regardless of
+      // the chosen image style.
+      imageContainer: cardState.imageContainer || 'masked',
       combatStats: stats || { str: 60, agi: 60, int: 60, end: 60, lck: 60 },
       cardData: {
         name: name,
@@ -140,6 +147,8 @@ window.BlindspotSaveCard = (function () {
       quote: quote,
       rarity: rarity,
       element: element,
+      // Top-level mirror — see save() for the why.
+      imageContainer: imageContainer,
       combatStats: stats,
       cardData: {
         name: name,

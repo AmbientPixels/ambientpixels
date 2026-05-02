@@ -677,6 +677,10 @@
         characterClass: _state.cardClass || 'Fighter',
         avatar: _state.artworkUrl || '',
         rarity: _state.cardRarity || 'Common',
+        // Top-level mirror — bs-card-renderer's lookup chain reads card.imageContainer
+        // before falling through. Without this, cardData.imageContainer below is
+        // unreachable and every card defaults to masked/Portrait. See bs-save-card.js.
+        imageContainer: _state.imageContainer || 'masked',
         combatStats: stats,
         cardData: {
           name: _state.cardName || 'Unknown',
