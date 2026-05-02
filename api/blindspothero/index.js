@@ -72,6 +72,13 @@ function toSlim(card) {
   };
 }
 
+function toFull(card) {
+  const slim = toSlim(card);
+  if (!slim) return null;
+  slim.card = card;
+  return slim;
+}
+
 module.exports = async function (context, req) {
   if (req.method === 'OPTIONS') {
     context.res = { status: 204, headers: CORS_HEADERS, body: '' };
@@ -82,6 +89,9 @@ module.exports = async function (context, req) {
   if (!Number.isFinite(count) || count <= 0) count = DEFAULT_COUNT;
   if (count > MAX_COUNT) count = MAX_COUNT;
 
+  const detail = String((req.query && req.query.detail) || 'slim').toLowerCase();
+  const mapper = detail === 'full' ? toFull : toSlim;
+
   try {
     const blobServiceClient = await createBlobServiceClient();
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
@@ -89,7 +99,7 @@ module.exports = async function (context, req) {
 
     const cards = (data && Array.isArray(data.publishedCards)) ? data.publishedCards : [];
     const slides = cards
-      .map(toSlim)
+      .map(mapper)
       .filter(Boolean)
       .sort((a, b) => {
         const ta = a.createdAt ? Date.parse(a.createdAt) : 0;
