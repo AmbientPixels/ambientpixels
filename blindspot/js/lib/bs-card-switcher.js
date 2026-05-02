@@ -97,12 +97,18 @@ window.BsCardSwitcher = (function () {
       btn.disabled = false;
       btn.classList.add('bs-btn--locked');
       btn.innerHTML = '<i class="fas fa-lock" aria-hidden="true"></i> Save &amp; Build Deck';
+    } else if (!forgeReady) {
+      // Signed-in beginner — forge not yet unlocked. Show the button
+      // ghosted with a progress hint so the player knows the unlock
+      // exists and what it costs. Click shows a toast pointing them
+      // at the campaign rather than silently doing nothing.
+      var wins = (_cb.getForgeWins && _cb.getForgeWins()) || 0;
+      btn.style.display = '';
+      btn.disabled = false;
+      btn.classList.add('bs-btn--locked');
+      btn.innerHTML = '<i class="fas fa-lock" aria-hidden="true"></i> Build Deck (' + wins + '/' + needed + ' wins)';
     } else {
       btn.classList.remove('bs-btn--locked');
-      if (!forgeReady) {
-        btn.style.display = 'none';
-        return;
-      }
       btn.style.display = '';
       if (deckSize >= MAX_DECK_SIZE) {
         // Don't disable. A disabled button is a closed door — give the
@@ -121,11 +127,27 @@ window.BsCardSwitcher = (function () {
       _newCardBound = true;
       btn.addEventListener('click', function () {
         // Re-read state at click time so the handler stays correct
-        // across guest → signed-in transitions and deck size changes
+        // across guest → signed-in transitions and forge-unlock changes
         // without needing to rebind.
         var nowGuest = localStorage.getItem('bs-guest-mode') === 'true';
         if (nowGuest) {
           window.location.href = '/blindspot/login.html?redirect=/blindspot/play.html';
+          return;
+        }
+        // Re-evaluate forge-readiness — same conditions as render.
+        var nowConfig = _cb.getConfig ? _cb.getConfig() : null;
+        var nowNeeded = nowConfig ? nowConfig.forgeVisit.winsRequired : 3;
+        var nowReady = (_cb.isForgeUnlocked && _cb.isForgeUnlocked()) ||
+                       (_cb.getHighestBossDefeated && _cb.getHighestBossDefeated() >= 10) ||
+                       (_cb.getForgeWins && _cb.getForgeWins() >= nowNeeded) ||
+                       (_cb.isForgePending && _cb.isForgePending());
+        if (!nowReady) {
+          var wins = (_cb.getForgeWins && _cb.getForgeWins()) || 0;
+          var remaining = Math.max(0, nowNeeded - wins);
+          var msg = remaining > 0
+            ? 'Win ' + remaining + ' more campaign fight' + (remaining === 1 ? '' : 's') + ' to unlock deck building.'
+            : 'Deck building is unlocking — refresh the lobby.';
+          if (window.BsToast && window.BsToast.show) window.BsToast.show(msg, 'info');
           return;
         }
         var size = _cb.getDeckSize ? _cb.getDeckSize() : 0;
