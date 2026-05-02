@@ -321,6 +321,10 @@
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   color: var(--blindspot-text-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
 }
 .blindspot-landing__signin-row a {
   color: var(--blindspot-accent-gold);
@@ -335,7 +339,6 @@
 }
 .blindspot-landing__signin-row .blindspot-landing__signin-or {
   color: var(--blindspot-text-muted);
-  margin-left: 0.4em;
 }
 
 /* ---------- ENTRANCE ANIMATIONS ---------- */
