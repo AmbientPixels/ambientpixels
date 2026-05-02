@@ -39,6 +39,27 @@ function extractUserInfo(req, context) {
   return { userId: 'anonymous', isAuthenticated: false };
 }
 
+const LEVEL_XP_PER_LEVEL = 50;
+const LEVEL_TIERS = [
+  { id: 'initiate',   minLevel: 1   },
+  { id: 'apprentice', minLevel: 6   },
+  { id: 'veteran',    minLevel: 16  },
+  { id: 'champion',   minLevel: 31  },
+  { id: 'legend',     minLevel: 51  },
+  { id: 'mythic',     minLevel: 100 }
+];
+
+function deriveLevelFields(xp) {
+  const n = Math.max(0, Number(xp) || 0);
+  const level = Math.floor(n / LEVEL_XP_PER_LEVEL) + 1;
+  let tier = LEVEL_TIERS[0];
+  for (const t of LEVEL_TIERS) {
+    if (level >= t.minLevel) tier = t;
+  }
+  const xpToNext = (level * LEVEL_XP_PER_LEVEL) - n;
+  return { level, tier: tier.id, xpToNext };
+}
+
 async function createBlobServiceClient() {
   if (process.env.AZURE_STORAGE_CONNECTION_STRING) {
     return BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
@@ -355,10 +376,11 @@ module.exports = async function (context, req) {
         }
       }
 
+      const derived = deriveLevelFields(profile.xp);
       context.res = {
         status: 200,
         headers: CORS_HEADERS,
-        body: { profile, isNew }
+        body: { profile, isNew, level: derived.level, tier: derived.tier, xpToNext: derived.xpToNext }
       };
     } else if (req.method === 'POST') {
       const body = req.body || {};
