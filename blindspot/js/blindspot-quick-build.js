@@ -686,13 +686,18 @@
         }
       };
 
-      // Cache directly to localStorage (belt-and-suspenders — don't rely solely on callback chain)
+      // Cache directly to localStorage (belt-and-suspenders — don't rely solely on callback chain).
+      // MUST use safeLSSet so that a QuotaExceededError on bs-deck triggers the
+      // fallback path (clearing expendable caches and retrying). Raw setItem
+      // silently fails on a full localStorage and the card never enters the
+      // deck — symptom: lobby shows "No card yet" after Continue as Guest.
       try {
         var existingDeck = JSON.parse(localStorage.getItem('bs-deck') || '[]');
         existingDeck = existingDeck.filter(function(c) { return c.id !== savedCardId; });
         existingDeck.push(cardData);
-        localStorage.setItem('bs-deck', JSON.stringify(existingDeck));
-        localStorage.setItem('bs-selected-card-id', savedCardId);
+        var _safeLSSet = (window.BsState && window.BsState.safeLSSet) ? window.BsState.safeLSSet : function (k, v) { localStorage.setItem(k, v); };
+        _safeLSSet('bs-deck', JSON.stringify(existingDeck));
+        _safeLSSet('bs-selected-card-id', savedCardId);
       } catch (e) { console.warn('[BS-QB] Deck cache error:', e); }
 
       close(true);
