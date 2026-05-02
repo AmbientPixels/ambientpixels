@@ -32,6 +32,15 @@ try {
   fail('blindspot-flow.js parse error: ' + e.message);
 }
 
+// ── 1b. Gallery Module Parse ──
+try {
+  const galJs = fs.readFileSync(path.join(ROOT, 'js/lib/bs-lobby-gallery.js'), 'utf8');
+  new Function(galJs);
+  pass('bs-lobby-gallery.js parses without errors');
+} catch (e) {
+  fail('bs-lobby-gallery.js parse error: ' + e.message);
+}
+
 // ── 2. CSS Brace Balance ──
 try {
   const css = fs.readFileSync(path.join(ROOT, 'css/blindspot.css'), 'utf8');
@@ -46,6 +55,22 @@ try {
   }
 } catch (e) {
   fail('blindspot.css read error: ' + e.message);
+}
+
+// ── 2b. Gallery CSS Brace Balance ──
+try {
+  const galCss = fs.readFileSync(path.join(ROOT, 'css/blindspot-lobby-gallery.css'), 'utf8');
+  // Strip comments and strings
+  const stripped = galCss.replace(/\/\*[\s\S]*?\*\//g, '').replace(/'[^']*'/g, '').replace(/"[^"]*"/g, '');
+  const opens = (stripped.match(/{/g) || []).length;
+  const closes = (stripped.match(/}/g) || []).length;
+  if (opens === closes) {
+    pass('blindspot-lobby-gallery.css braces balanced (' + opens + ' pairs)');
+  } else {
+    fail('blindspot-lobby-gallery.css braces unbalanced: ' + opens + ' opens, ' + closes + ' closes');
+  }
+} catch (e) {
+  fail('blindspot-lobby-gallery.css read error: ' + e.message);
 }
 
 // ── 3. CSS Overlay Safety ──
@@ -124,6 +149,35 @@ try {
   });
 } catch (e) {
   fail('play.html check error: ' + e.message);
+}
+
+// ── 5b. Gallery Markup (play.html) ──
+try {
+  const playHtml = fs.readFileSync(path.join(ROOT, 'play.html'), 'utf8');
+
+  const requiredGalleryHooks = [
+    'id="bs-lobby-gallery"',
+    'id="bs-lobby-gallery-strip"',
+    'id="bs-gallery-modal"',
+    'id="bs-gallery-modal-card"',
+    'id="bs-gallery-modal-creator"',
+    'src="js/lib/bs-lobby-gallery.js"',
+    'href="css/blindspot-lobby-gallery.css"'
+  ];
+
+  let allPresent = true;
+  requiredGalleryHooks.forEach(hook => {
+    if (!playHtml.includes(hook)) {
+      fail('play.html missing gallery hook: ' + hook);
+      allPresent = false;
+    }
+  });
+
+  if (allPresent) {
+    pass('play.html has all gallery markup hooks');
+  }
+} catch (e) {
+  fail('play.html gallery markup check error: ' + e.message);
 }
 
 // ── 6. Boss Data Integrity ──
