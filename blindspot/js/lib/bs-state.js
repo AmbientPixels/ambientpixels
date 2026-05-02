@@ -218,6 +218,30 @@ window.BsState = (function () {
   // Flush progress on page unload (pagehide works with bfcache)
   window.addEventListener('pagehide', flushSyncBeforeNavigate);
 
+  function computeLevel(xp) {
+    var n = Number(xp) || 0;
+    if (n < 0) return 1;
+    var per = (window.BsConst && window.BsConst.LEVEL_XP_PER_LEVEL) || 50;
+    return Math.floor(n / per) + 1;
+  }
+
+  function getTier(level) {
+    var tiers = (window.BsConst && window.BsConst.LEVEL_TIERS) || [];
+    if (!tiers.length) return null;
+    var match = tiers[0];
+    for (var i = 0; i < tiers.length; i++) {
+      if (level >= tiers[i].minLevel) match = tiers[i];
+    }
+    return match;
+  }
+
+  function getXpToNextLevel(xp) {
+    var n = Number(xp) || 0;
+    var per = (window.BsConst && window.BsConst.LEVEL_XP_PER_LEVEL) || 50;
+    var cur = computeLevel(n);
+    return (cur * per) - n;
+  }
+
   // ============================================================
   // PUBLIC API
   // ============================================================
@@ -230,6 +254,9 @@ window.BsState = (function () {
     flush: flushSyncBeforeNavigate,
     safeLSSet: safeLSSet,
     loadFromCache: _loadProgressFromCache,
-    api: BlindspotAPI
+    api: BlindspotAPI,
+    computeLevel: computeLevel,
+    getTier: getTier,
+    getXpToNextLevel: getXpToNextLevel
   };
 })();

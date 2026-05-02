@@ -505,6 +505,71 @@ console.log('\n── Element System ──');
   }
 }
 
+// ============================================================
+// LEVEL CURVE — pure functions on xp (independent of profile)
+// ============================================================
+
+const LEVEL_XP_PER_LEVEL = 50;
+const LEVEL_TIERS = [
+  { id: 'initiate',   minLevel: 1   },
+  { id: 'apprentice', minLevel: 6   },
+  { id: 'veteran',    minLevel: 16  },
+  { id: 'champion',   minLevel: 31  },
+  { id: 'legend',     minLevel: 51  },
+  { id: 'mythic',     minLevel: 100 }
+];
+
+function computeLevel(xp) {
+  const n = Number(xp) || 0;
+  if (n < 0) return 1;
+  return Math.floor(n / LEVEL_XP_PER_LEVEL) + 1;
+}
+
+function getTier(level) {
+  let match = LEVEL_TIERS[0];
+  for (const t of LEVEL_TIERS) {
+    if (level >= t.minLevel) match = t;
+  }
+  return match;
+}
+
+function getXpToNextLevel(xp) {
+  const n = Number(xp) || 0;
+  const cur = computeLevel(n);
+  return (cur * LEVEL_XP_PER_LEVEL) - n;
+}
+
+console.log('\n\x1b[36m── Level math\x1b[0m');
+
+assertEq(computeLevel(0),    1, 'Level 1 at 0 XP');
+assertEq(computeLevel(49),   1, 'Level 1 at 49 XP (just under threshold)');
+assertEq(computeLevel(50),   2, 'Level 2 at exactly 50 XP');
+assertEq(computeLevel(249),  5, 'Level 5 at 249 XP (just under Apprentice)');
+assertEq(computeLevel(250),  6, 'Level 6 at 250 XP (Apprentice threshold)');
+assertEq(computeLevel(750),  16, 'Level 16 at 750 XP (Veteran threshold)');
+assertEq(computeLevel(1500), 31, 'Level 31 at 1500 XP (Champion threshold)');
+assertEq(computeLevel(2500), 51, 'Level 51 at 2500 XP (Legend threshold)');
+assertEq(computeLevel(4950), 100, 'Level 100 at 4950 XP (Mythic threshold)');
+assertEq(computeLevel(-5),   1, 'Negative XP clamps to Level 1');
+assertEq(computeLevel(null), 1, 'null XP returns Level 1');
+
+assertEq(getTier(1).id,   'initiate',   'Level 1 → Initiate');
+assertEq(getTier(5).id,   'initiate',   'Level 5 → Initiate (last Initiate level)');
+assertEq(getTier(6).id,   'apprentice', 'Level 6 → Apprentice');
+assertEq(getTier(15).id,  'apprentice', 'Level 15 → Apprentice');
+assertEq(getTier(16).id,  'veteran',    'Level 16 → Veteran');
+assertEq(getTier(31).id,  'champion',   'Level 31 → Champion');
+assertEq(getTier(50).id,  'champion',   'Level 50 → Champion');
+assertEq(getTier(51).id,  'legend',     'Level 51 → Legend');
+assertEq(getTier(99).id,  'legend',     'Level 99 → Legend');
+assertEq(getTier(100).id, 'mythic',     'Level 100 → Mythic');
+assertEq(getTier(500).id, 'mythic',     'Level 500 → Mythic (no cap above)');
+
+assertEq(getXpToNextLevel(0),   50, '50 XP to L2 from 0');
+assertEq(getXpToNextLevel(49),   1, '1 XP to L2 from 49');
+assertEq(getXpToNextLevel(50),  50, '50 XP to L3 from exactly L2');
+assertEq(getXpToNextLevel(249),  1, '1 XP to L6 from 249');
+
 // ── Summary ──
 console.log('\n' + '─'.repeat(50));
 if (failed === 0) {
