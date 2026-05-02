@@ -69,3 +69,21 @@
 .blindspot-btn--lg { font-size: 1rem;   padding: 1.1em 2.4em; }
 .blindspot-btn--xl { font-size: 1.15rem; padding: 1.3em 3em; }
 .blindspot-btn--block { width: 100%; }
+
+/* Locked state — used on guest lobby for deck-building features that
+   require sign-in. Looks gated but stays clickable; click routes to login. */
+.bs-btn--locked,
+.blindspot-btn.bs-btn--locked {
+  background: transparent;
+  border-color: rgba(245, 192, 120, 0.35);
+  color: rgba(245, 192, 120, 0.7);
+  box-shadow: none;
+}
+.bs-btn--locked:hover,
+.blindspot-btn.bs-btn--locked:hover {
+  background: rgba(245, 192, 120, 0.08);
+  border-color: rgba(245, 192, 120, 0.6);
+  color: var(--blindspot-accent, #f5c078);
+  box-shadow: 0 0 24px -8px rgba(245, 192, 120, 0.4);
+}
+.bs-btn--locked .fa-lock { opacity: 0.85; }

@@ -79,6 +79,7 @@ window.BsCardSwitcher = (function () {
     var btn = document.getElementById('bs-new-card-btn');
     if (!btn) return;
 
+    var isGuest = localStorage.getItem('bs-guest-mode') === 'true';
     var deckSize = _cb.getDeckSize ? _cb.getDeckSize() : 0;
     var config = _cb.getConfig ? _cb.getConfig() : null;
     var needed = config ? config.forgeVisit.winsRequired : 3;
@@ -86,29 +87,47 @@ window.BsCardSwitcher = (function () {
                      (_cb.getHighestBossDefeated && _cb.getHighestBossDefeated() >= 10) ||
                      (_cb.getForgeWins && _cb.getForgeWins() >= needed) ||
                      (_cb.isForgePending && _cb.isForgePending());
-    if (!forgeReady) {
-      btn.style.display = 'none';
-      return;
-    }
 
-    btn.style.display = '';
-    if (deckSize >= MAX_DECK_SIZE) {
-      // Don't disable. A disabled button is a closed door — give the
-      // player a path forward by routing through Manage Deck so they
-      // can swap a card out before forging. Copy tells them what the
-      // click is about to do.
+    if (isGuest) {
+      // Guest mode: always show the button as a sign-in conversion CTA.
+      // Frame it as the unlock for deck-building (which requires server
+      // persistence — guests can't expand beyond their first card).
+      // Lock icon + clear copy makes the gating obvious.
+      btn.style.display = '';
       btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> Forge New (swap a card)';
+      btn.classList.add('bs-btn--locked');
+      btn.innerHTML = '<i class="fas fa-lock" aria-hidden="true"></i> Save &amp; Build Deck';
     } else {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New Card';
+      btn.classList.remove('bs-btn--locked');
+      if (!forgeReady) {
+        btn.style.display = 'none';
+        return;
+      }
+      btn.style.display = '';
+      if (deckSize >= MAX_DECK_SIZE) {
+        // Don't disable. A disabled button is a closed door — give the
+        // player a path forward by routing through Manage Deck so they
+        // can swap a card out before forging. Copy tells them what the
+        // click is about to do.
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> Forge New (swap a card)';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New Card';
+      }
     }
 
     if (!_newCardBound) {
       _newCardBound = true;
       btn.addEventListener('click', function () {
-        // Read deck size at click time so the fork stays correct after
-        // any card add/remove without rebinding the handler.
+        // Re-read state at click time so the handler stays correct
+        // across guest → signed-in transitions and deck size changes
+        // without needing to rebind.
+        var nowGuest = localStorage.getItem('bs-guest-mode') === 'true';
+        if (nowGuest) {
+          window.location.href = '/blindspot/login.html?redirect=/blindspot/play.html';
+          return;
+        }
         var size = _cb.getDeckSize ? _cb.getDeckSize() : 0;
         if (size >= MAX_DECK_SIZE && _cb.showScreen) {
           // Mirror bs-nav.js's Manage Deck handler — showScreen alone
