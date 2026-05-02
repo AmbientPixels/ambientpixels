@@ -518,6 +518,19 @@
   align-items: center;
 }
 
+.bs-topbar__sparks {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--bs-accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.bs-topbar__sparks i {
+  font-size: 0.7rem;
+}
+
 /* --- Screens --- */
 .bs-screen {
   display: none;

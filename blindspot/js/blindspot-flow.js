@@ -309,7 +309,17 @@
 
   // Sparks — universal currency earned from all activities, spent on cosmetics
   function getSparks() { return _progress.sparks; }
-  function addSparks(n) { _progress.sparks += Math.max(0, n); }
+  function addSparks(n) {
+    _progress.sparks += Math.max(0, n);
+    updateTopbarSparks();
+  }
+  function updateTopbarSparks() {
+    var el = document.getElementById('bs-topbar-sparks');
+    var numEl = document.getElementById('bs-topbar-sparks-num');
+    if (!el || !numEl) return;
+    numEl.textContent = String(_progress.sparks || 0);
+    el.hidden = false;
+  }
 
   // XP — rank progression. Awarded on PvE wins (and PvP / bounties later).
   // _progress.xp is the client mirror (synced to server via syncProfile).
@@ -332,6 +342,7 @@
     if (hudSparks) hudSparks.innerHTML = '<i class="fas fa-fire"></i> ' + _progress.sparks + ' sparks';
     var forgeSparks = document.getElementById('bs-forge-sparks');
     if (forgeSparks) forgeSparks.textContent = _progress.sparks;
+    updateTopbarSparks();
     return true;
   }
   function getPurchasedCosmetics() { return _progress.purchasedCosmetics; }
@@ -1485,6 +1496,7 @@
     updateForgeProgress();
     updateCrateBadge();
     renderBounties();
+    updateTopbarSparks();
     if (window.BsLobbyGallery) window.BsLobbyGallery.init();
     renderChallenges();
     checkAndClaimChallenges();
@@ -2685,6 +2697,7 @@
     }
     if (sparksEarned > 0) {
       _progress.sparks = (_progress.sparks || 0) + sparksEarned;
+      updateTopbarSparks();
     }
 
     // Show result toast — stakes-aware
