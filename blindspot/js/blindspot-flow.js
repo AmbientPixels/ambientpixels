@@ -1010,9 +1010,17 @@
     // persistPending immediately after the flag is cleared).
     var wasGuestAtStart = localStorage.getItem('bs-guest-mode') === 'true';
     try {
+      // 45s timeout — cardforgeloadcards on cold-start can return ~70MB
+      // (full card payloads with base64 avatars) and routinely takes
+      // 20-30s. Earlier 15s timeout was firing on legitimate responses,
+      // and because _checkUserSwitch wipes bs-deck *before* this fetch
+      // completes (it runs inside loadProfile which fires in parallel),
+      // the catch-block fallback to getDeck() returns [] — so the player
+      // ends up on a "No card yet" lobby with their server-side cards
+      // intact but unrendered.
       const data = await Promise.race([
         window.ArenaAPI.loadCards(),
-        new Promise(function(_, reject) { setTimeout(function() { reject(new Error('loadCards timeout')); }, 15000); })
+        new Promise(function(_, reject) { setTimeout(function() { reject(new Error('loadCards timeout')); }, 45000); })
       ]);
       var cards = (data.userCards || []).filter(function(c) { return !c.isDefault; });
       // Always overwrite the cache with what the server returned — even an
