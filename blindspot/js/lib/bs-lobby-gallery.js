@@ -95,6 +95,33 @@ window.BsLobbyGallery = (function () {
     }
   }
 
+  function _relativeTime(iso) {
+    if (!iso) return 'Recently forged';
+    var t = Date.parse(iso);
+    if (isNaN(t)) return 'Recently forged';
+    var diffSec = Math.round((Date.now() - t) / 1000);
+    var future = diffSec < 0;
+    var abs = Math.abs(diffSec);
+    if (!_rtf && typeof Intl !== 'undefined' && Intl.RelativeTimeFormat) {
+      try { _rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' }); } catch (_) { _rtf = null; }
+    }
+    var pairs = [
+      [60, 'second'], [3600, 'minute'], [86400, 'hour'],
+      [2592000, 'day'], [31536000, 'month']
+    ];
+    var unit = 'year', value = Math.round(abs / 31536000);
+    for (var i = 0; i < pairs.length; i++) {
+      if (abs < pairs[i][0]) {
+        unit = i === 0 ? 'second' : pairs[i - 1][1];
+        var divisor = i === 0 ? 1 : pairs[i - 1][0];
+        value = Math.max(1, Math.round(abs / divisor));
+        break;
+      }
+    }
+    var label = _rtf ? _rtf.format(future ? value : -value, unit) : (value + ' ' + unit + (value === 1 ? '' : 's') + (future ? ' from now' : ' ago'));
+    return 'Forged ' + label;
+  }
+
   function _renderTile(slide, isClone) {
     var btn = document.createElement('button');
     btn.type = 'button';
@@ -128,9 +155,43 @@ window.BsLobbyGallery = (function () {
 
     return btn;
   }
-  function openModal(slide) { /* Task 7 */ }
-  function _closeModal() { /* Task 7 */ }
-  function _wireModal() { /* Task 7 */ }
+  function openModal(slide) {
+    if (!_modal || !_modalCard || !slide || !slide.card) return;
+    var _CR = window.BsCardRenderer;
+    _modalCard.innerHTML = _CR && _CR.render ? _CR.render(slide.card, 'full') : '';
+    var when = _relativeTime(slide.createdAt);
+    if (slide.creator) {
+      _modalCreator.innerHTML = when + ' by <strong></strong>';
+      _modalCreator.querySelector('strong').textContent = slide.creator;
+    } else {
+      _modalCreator.textContent = when;
+    }
+    _modal.classList.remove('bs-overlay--hidden');
+    if (_modalClose && _modalClose.focus) _modalClose.focus();
+  }
+  function _closeModal() {
+    if (!_modal) return;
+    _modal.classList.add('bs-overlay--hidden');
+    if (_modalCard) _modalCard.innerHTML = '';
+    if (_lastFocus && _lastFocus.focus) {
+      try { _lastFocus.focus(); } catch (_) {}
+    }
+    _lastFocus = null;
+  }
+  function _wireModal() {
+    if (!_modal) return;
+    if (_modalClose) {
+      _modalClose.addEventListener('click', _closeModal);
+    }
+    _modal.addEventListener('click', function (e) {
+      if (e.target === _modal) _closeModal(); // backdrop click only
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !_modal.classList.contains('bs-overlay--hidden')) {
+        _closeModal();
+      }
+    });
+  }
   function _wirePointer() { /* Task 8 */ }
 
   return { init: init, refresh: refresh, openModal: openModal };
