@@ -268,11 +268,15 @@
     // 2.8s strip ease-out (whoosh during the spin, impact landing
     // around the highlight moment). Replaces the older synthesized
     // crateRatchet + crateReveal pair, which read as too arcade for
-    // the cinematic Stranger reveal. Wrapped in try/catch because
-    // browser autoplay policies may require a user gesture — the
-    // click that triggered the roll counts, but be defensive.
-    if (window.ArenaAudio && window.ArenaAudio.playSfx) {
-      try { window.ArenaAudio.playSfx('cardFlip'); } catch (e) { /* silent */ }
+    // the cinematic Stranger reveal. ArenaAudio.init() is idempotent
+    // and required because the splash page doesn't open a battle that
+    // would have triggered it earlier; without init the SFX cache is
+    // empty and play() no-ops silently.
+    if (window.ArenaAudio && window.ArenaAudio.play) {
+      try {
+        if (window.ArenaAudio.init) window.ArenaAudio.init();
+        window.ArenaAudio.play('cardFlip');
+      } catch (e) { /* silent */ }
     }
 
     setTimeout(function () {

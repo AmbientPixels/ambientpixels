@@ -604,8 +604,11 @@
     setTimeout(() => {
       const flipInner = document.getElementById('bs-flip-inner');
       if (flipInner) flipInner.classList.add('flipped');
-      if (window.ArenaAudio) {
-        try { window.ArenaAudio.playSfx('cardFlip'); } catch (e) {}
+      if (window.ArenaAudio && window.ArenaAudio.play) {
+        try {
+          if (window.ArenaAudio.init) window.ArenaAudio.init();
+          window.ArenaAudio.play('cardFlip');
+        } catch (e) {}
       }
       _cardFlipped = true;
     }, 200);
