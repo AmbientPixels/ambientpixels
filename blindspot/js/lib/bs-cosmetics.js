@@ -161,10 +161,22 @@ window.BsCosmetics = (function () {
 
   var RARITY_COLORS = { common: 'var(--bs-text-muted)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#c084fc' };
   var _collectionSlot = 'frame';
+  var _collectionFilter = 'all'; // 'all' | 'owned'
+  try {
+    var _persistedFilter = localStorage.getItem('bs-collection-filter');
+    if (_persistedFilter === 'owned' || _persistedFilter === 'all') _collectionFilter = _persistedFilter;
+  } catch (e) { /* ignore */ }
 
 
   function setCollectionSlot(slot) { _collectionSlot = slot; }
   function getCollectionSlot() { return _collectionSlot; }
+  function setCollectionFilter(f) {
+    if (f !== 'all' && f !== 'owned') return;
+    _collectionFilter = f;
+    var setter = (window.BsState && window.BsState.safeLSSet) ? window.BsState.safeLSSet : function(k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
+    setter('bs-collection-filter', f);
+  }
+  function getCollectionFilter() { return _collectionFilter; }
 
   function renderCollection() {
     var container = document.getElementById('bs-collection-grid');
@@ -178,6 +190,11 @@ window.BsCosmetics = (function () {
       var isActive = tab.dataset.slot === _collectionSlot;
       tab.classList.toggle('bs-collection__tab--active', isActive);
       tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    document.querySelectorAll('.bs-collection__filter-chip').forEach(function(chip) {
+      var isActive = chip.dataset.filter === _collectionFilter;
+      chip.classList.toggle('bs-collection__filter-chip--active', isActive);
+      chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
 
     var slotDescs = {
@@ -209,6 +226,7 @@ window.BsCosmetics = (function () {
       for (var ci = 0; ci < items.length; ci++) {
         var cItem = items[ci];
         var qty = counts[cItem.id] || 0;
+        if (_collectionFilter === 'owned' && qty === 0) continue;
         var rarityColor = RARITY_COLORS[cItem.rarity] || 'var(--bs-text-muted)';
 
         // Owned -> show illustrated art. Unowned -> show FA icon (preserves
@@ -233,6 +251,7 @@ window.BsCosmetics = (function () {
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
         var isOwned = owned.includes(item.id);
+        if (_collectionFilter === 'owned' && !isOwned) continue;
         var isEquipped = equipped[_collectionSlot] === item.id;
         var rarityColor = RARITY_COLORS[item.rarity] || 'var(--bs-text-muted)';
 
@@ -283,8 +302,13 @@ window.BsCosmetics = (function () {
       }
     }
 
-    if (items.length === 0) {
-      html = '<div class="bs-collection-empty"><p style="color:var(--bs-text-muted);">No items in this category.</p></div>';
+    if (html === '') {
+      var emptyMsg = items.length === 0
+        ? 'No items in this category.'
+        : (_collectionFilter === 'owned'
+            ? "Nothing owned yet — open crates or visit the Sparks Shop."
+            : 'No items in this category.');
+      html = '<div class="bs-collection-empty"><p style="color:var(--bs-text-muted);">' + emptyMsg + '</p></div>';
     }
 
     container.innerHTML = html;
@@ -410,6 +434,8 @@ window.BsCosmetics = (function () {
     getAllBySlot: getAllCosmeticsBySlot,
     setSlot: setCollectionSlot,
     getSlot: getCollectionSlot,
+    setFilter: setCollectionFilter,
+    getFilter: getCollectionFilter,
     render: renderCollection,
     apply: applyEquippedCosmetics,
     cosmeticPreviewHtml: cosmeticPreviewHtml,

@@ -217,6 +217,13 @@
         _cb.renderCollection();
       });
     });
+    // Collection filter (All / Owned only)
+    document.querySelectorAll('.bs-collection__filter-chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        if (_cb.setCosmeticFilter) _cb.setCosmeticFilter(chip.dataset.filter || 'all');
+        _cb.renderCollection();
+      });
+    });
 
     // Shop screen
     document.getElementById('bs-btn-shop')?.addEventListener('click', function() {

@@ -10079,6 +10079,40 @@ body.bs-battle-active .bs-play {
   background: transparent;
 }
 
+/* Collection filter chips (All / Owned only) — quieter than the tabs */
+.bs-collection__filter {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0 0.5rem;
+  margin: -0.5rem 0 0.85rem;
+  justify-content: flex-end;
+}
+.bs-collection__filter-chip {
+  background: transparent;
+  border: 1px solid var(--blindspot-border);
+  border-radius: 999px;
+  padding: 0.32rem 0.85rem;
+  color: var(--blindspot-text-muted);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  min-height: 28px;
+}
+.bs-collection__filter-chip:hover {
+  color: var(--blindspot-text);
+  border-color: var(--blindspot-accent-gold-dim);
+}
+.bs-collection__filter-chip--active {
+  color: var(--blindspot-accent-gold);
+  border-color: var(--blindspot-accent-gold);
+  background: rgba(245, 192, 120, 0.08);
+}
+
 /* Collection grid */
 .bs-collection__grid {
   display: grid;

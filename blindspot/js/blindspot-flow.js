@@ -2268,6 +2268,7 @@
     showErrorToast: function(msg) { showErrorToast(msg); },
     safeLSSet: function(k, v) { safeLSSet(k, v); },
     setCosmeticSlot: function(s) { if (_Cos.setSlot) _Cos.setSlot(s); },
+    setCosmeticFilter: function(f) { if (_Cos.setFilter) _Cos.setFilter(f); },
     getHighestBossDefeated: function() { return getHighestBossDefeated(); },
     getForgeWins: function() { return getForgeWins(); },
     getForgeWinsRequired: function() { return _config ? _config.forgeVisit.winsRequired : 3; },
