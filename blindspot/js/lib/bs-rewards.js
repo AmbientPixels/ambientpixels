@@ -20,7 +20,7 @@ window.BsRewards = (function () {
   // ── Challenge Definitions ──
 
   var CHALLENGES = [
-    { id: 'wins', name: 'Warrior', icon: 'fa-sword',
+    { id: 'wins', name: 'Warrior', icon: 'fa-khanda',
       desc: ['Win 10 fights', 'Win 25 fights', 'Win 50 fights'],
       target: [10, 25, 50],
       reward: [

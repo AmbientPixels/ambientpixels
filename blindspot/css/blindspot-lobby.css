@@ -405,13 +405,33 @@ body.bs-page {
 .blindspot-stat-tile + .blindspot-stat-tile {
   border-left: 1px solid var(--blindspot-border, #3A1F1A);
 }
+/* Subtle warm pulse behind each tile so the row reads as "earned
+   accomplishments" instead of plain text on a flat row. */
+.blindspot-stat-tile {
+  position: relative;
+  transition: transform 160ms ease, background 200ms;
+}
+.blindspot-stat-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(245, 192, 120, 0.06), transparent 70%);
+  opacity: 0.7;
+  pointer-events: none;
+}
 .blindspot-stat-tile:hover,
 .blindspot-stat-tile:focus-visible {
   outline: none;
+  transform: translateY(-2px);
 }
 .blindspot-stat-tile:hover .blindspot-stat-tile__value,
 .blindspot-stat-tile:focus-visible .blindspot-stat-tile__value {
   color: var(--blindspot-accent-gold-2, #FFD89A);
+}
+.blindspot-stat-tile:hover::before,
+.blindspot-stat-tile:focus-visible::before {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, rgba(245, 192, 120, 0.14), transparent 70%);
 }
 .blindspot-stat-tile__label {
   font-family: var(--blindspot-font-mono);
@@ -422,12 +442,26 @@ body.bs-page {
 }
 .blindspot-stat-tile__value {
   font-family: var(--blindspot-font-display, 'Cinzel', serif);
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.85rem;
+  font-weight: 700;
   color: var(--blindspot-accent-gold, #F5C078);
   line-height: 1;
   letter-spacing: 0.01em;
   transition: color 160ms;
+  text-shadow: 0 0 18px rgba(245, 192, 120, 0.18);
+  position: relative;
+  padding-bottom: 0.25rem;
+}
+/* Thin gold underline accent — anchors each value visually. */
+.blindspot-stat-tile__value::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blindspot-accent-gold-dim, #B8893B), transparent);
 }
 @media (max-width: 600px) {
   .blindspot-stat-tile { flex: 1 1 50%; }
