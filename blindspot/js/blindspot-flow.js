@@ -3292,13 +3292,27 @@
     }
   }
 
-  // ── Gallery — read-only browse of cards published to the public gallery.
-  // Pulls galleryCards from the existing loadCards endpoint (already used
-  // by the PvP screen). Click a card to open the detail modal.
-  // Cards opt in via the publishedToGallery flag (set in the forge editor's
-  // Details tab) — server-side cardforgepublish keeps published-cards.json
-  // in sync, so this just consumes whatever's there.
-  async function renderGallery() {
+  // ── Gallery — delegates to bs-gallery-page.js (window.BsGalleryPage) ──
+  // Phase 2 of the gallery split: render + detail modal logic moved into
+  // its own module so gallery.html can use it without loading this monolith.
+  // play.html keeps a thin wrapper here so existing showScreen('gallery')
+  // calls + the bottom-nav data-nav="gallery" handler still work.
+  function renderGallery() {
+    if (window.BsGalleryPage && window.BsGalleryPage.render) return window.BsGalleryPage.render();
+    return _renderGalleryLegacy();
+  }
+  function openGalleryDetail(card) {
+    if (window.BsGalleryPage && window.BsGalleryPage.openDetail) return window.BsGalleryPage.openDetail(card);
+    return _openGalleryDetailLegacy(card);
+  }
+  function closeGalleryDetail() {
+    if (window.BsGalleryPage && window.BsGalleryPage.closeDetail) return window.BsGalleryPage.closeDetail();
+    return _closeGalleryDetailLegacy();
+  }
+
+  // Legacy fallbacks — kept for safety if the module fails to load. These
+  // mirror the pre-extraction implementations and will be removed in phase 5.
+  async function _renderGalleryLegacy() {
     const grid = document.getElementById('bs-gallery-grid');
     const countEl = document.getElementById('bs-gallery-count');
     if (!grid) return;
@@ -3382,7 +3396,7 @@
     }
   }
 
-  function openGalleryDetail(card) {
+  function _openGalleryDetailLegacy(card) {
     const modal = document.getElementById('bs-gallery-detail');
     const cardEl = document.getElementById('bs-gallery-detail-card');
     const metaEl = document.getElementById('bs-gallery-detail-meta');
@@ -3402,7 +3416,7 @@
     }
     modal.classList.remove('bs-modal-backdrop--hidden');
   }
-  function closeGalleryDetail() {
+  function _closeGalleryDetailLegacy() {
     const modal = document.getElementById('bs-gallery-detail');
     if (modal) modal.classList.add('bs-modal-backdrop--hidden');
   }

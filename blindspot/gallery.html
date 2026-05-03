@@ -106,10 +106,9 @@
     </a>
   </nav>
 
-  <!-- Same script bundle as play.html — phase 5 cleanup will trim this to
-       only the modules the Gallery actually needs. blindspot-flow.js's BOOT
-       block detects body.bs-page--gallery and runs initGallery() instead
-       of the heavy initPlay() lobby flow. -->
+  <!-- Phase 2 script bundle: only the libs the Gallery render actually
+       needs. blindspot-flow.js (the 6200-line monolith) is intentionally
+       NOT loaded here — bs-gallery-page.js is a self-contained module. -->
   <script src="js/lib/bs-config.js"></script>
   <script src="js/lib/bs-csrf.js"></script>
   <script src="js/lib/bs-utils.js"></script>
@@ -117,15 +116,25 @@
   <script src="js/lib/bs-arena-audio.js"></script>
   <script src="js/lib/bs-arena-api.js"></script>
   <script src="js/lib/bs-constants.js"></script>
-  <script src="js/lib/bs-state.js"></script>
   <script src="js/lib/bs-audio-sfx.js"></script>
   <script src="js/lib/bs-toast.js"></script>
   <script src="js/lib/bs-cosmetics.js"></script>
   <script src="js/lib/bs-charms.js"></script>
   <script src="js/lib/bs-card-renderer.js"></script>
   <script src="js/lib/bs-auth-ui.js"></script>
-  <script src="js/lib/bs-storage-cleanup.js"></script>
   <script src="js/lib/bs-card-rarity.js"></script>
-  <script src="js/blindspot-flow.js"></script>
+  <script src="js/lib/bs-gallery-page.js"></script>
+  <script>
+    // Bootstrap: wire the topbar auth chip, audio toggles, then render.
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.ProductAnalytics) window.ProductAnalytics.init('blindspot');
+      if (window.BsAuthUI && window.BsAuthUI.updatePlayAuthUI) window.BsAuthUI.updatePlayAuthUI();
+      if (window.ArenaAudio && window.ArenaAudio.init) window.ArenaAudio.init();
+      if (window.BsGalleryPage) {
+        window.BsGalleryPage.init();
+        window.BsGalleryPage.render();
+      }
+    });
+  </script>
 </body>
 </html>
