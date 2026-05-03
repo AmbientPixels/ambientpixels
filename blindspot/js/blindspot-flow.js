@@ -324,6 +324,13 @@
     // in sync with every sparks award/spend without a separate render.
     var tileNum = document.getElementById('bs-sparks-tile-count');
     if (tileNum) tileNum.textContent = String(_progress.sparks || 0);
+    // Directory row Sparks Shop chip — same number, third surface.
+    var shopChip = document.getElementById('bs-shop-balance');
+    var shopNum = document.getElementById('bs-shop-balance-num');
+    if (shopChip && shopNum) {
+      shopNum.textContent = String(_progress.sparks || 0);
+      shopChip.hidden = false;
+    }
   }
 
   // XP — rank progression. Awarded on PvE wins (and PvP / bounties later).
