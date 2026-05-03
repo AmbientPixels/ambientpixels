@@ -315,18 +315,30 @@
                   <span class="bs-crate-opener__hint">Tap to open</span>
                 </div>
               </div>
-              <div class="bs-loot-row">
-                <button class="bs-collection-panel" id="bs-btn-collection" style="display:none;" aria-label="Open collection">
-                  <i class="fas fa-gem"></i>
-                  <span>Collection</span>
-                  <span class="bs-collection-panel__previews" id="bs-collection-previews" aria-hidden="true"></span>
-                  <span class="bs-collection-panel__count" id="bs-collection-count">0</span>
+              <button class="bs-collection-panel" id="bs-btn-collection" style="display:none;" aria-label="Open collection">
+                <i class="fas fa-gem"></i>
+                <span>Collection</span>
+                <span class="bs-collection-panel__previews" id="bs-collection-previews" aria-hidden="true"></span>
+                <span class="bs-collection-panel__count" id="bs-collection-count">0</span>
+              </button>
+              <!-- Sparks Shop quick-access tile — sized as the third
+                   peer alongside Crates + Collection. Hero element is
+                   the player's current sparks balance. -->
+              <button class="bs-sparks-tile" id="bs-sparks-tile" type="button" aria-label="Open Sparks Shop">
+                <span class="bs-sparks-tile__balance">
+                  <i class="fas fa-fire" aria-hidden="true"></i>
+                  <span id="bs-sparks-tile-count">0</span>
+                </span>
+                <span class="bs-sparks-tile__label">Sparks Shop</span>
+                <span class="bs-sparks-tile__hint">Tap to browse</span>
+              </button>
+              <!-- Legacy quick-buy chip kept hidden so we don't break callers
+                   wired to the old #bs-sparks-shop / #bs-buy-ember-crate IDs.
+                   Hidden by default; enable by removing display:none. -->
+              <div class="bs-sparks-shop" id="bs-sparks-shop" style="display:none;" role="region" aria-label="Sparks shop">
+                <button class="bs-sparks-shop__buy" id="bs-buy-ember-crate" aria-label="Buy Ember Crate for 50 Sparks">
+                  <i class="fas fa-fire-flame-curved"></i> Buy Crate <span class="bs-sparks-shop__cost"><i class="fas fa-fire"></i>50</span>
                 </button>
-                <div class="bs-sparks-shop" id="bs-sparks-shop" style="display:none;" role="region" aria-label="Sparks shop">
-                  <button class="bs-sparks-shop__buy" id="bs-buy-ember-crate" aria-label="Buy Ember Crate for 50 Sparks">
-                    <i class="fas fa-fire-flame-curved"></i> Buy Crate <span class="bs-sparks-shop__cost"><i class="fas fa-fire"></i>50</span>
-                  </button>
-                </div>
               </div>
             </div>
           </div>

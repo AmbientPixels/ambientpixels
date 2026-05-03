@@ -201,6 +201,11 @@
       _cb.showScreen('collection');
       _cb.renderCollection();
     });
+    // Lobby Sparks Shop tile — opens the full shop screen
+    document.getElementById('bs-sparks-tile')?.addEventListener('click', function() {
+      _cb.showScreen('shop');
+      if (_cb.renderShop) _cb.renderShop();
+    });
     document.getElementById('bs-collection-back')?.addEventListener('click', function() {
       _cb.showScreen('lobby');
       _cb.renderLobby();
