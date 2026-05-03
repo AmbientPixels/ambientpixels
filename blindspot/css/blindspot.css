@@ -5149,6 +5149,7 @@
 .bs-element-pick .bs-item-art { width: 2.4rem; height: 2.4rem; border-radius: 6px; }
 .bs-class-pick .bs-item-art { width: 28px; height: 28px; border-radius: 4px; flex-shrink: 0; }
 .bs-class-picker-btn .bs-item-art { width: 1.5rem; height: 1.5rem; border-radius: 4px; }
+.bs-forge-element-btn .bs-item-art { width: 1.05em; height: 1.05em; border-radius: 3px; vertical-align: -0.18em; box-shadow: none; margin-right: 0.15em; }
 
 /* Rank-tier badges replace the FA crown at the lobby Lv HUD + Stats
    screen. The painted disc carries its own colour/material, so wrappers

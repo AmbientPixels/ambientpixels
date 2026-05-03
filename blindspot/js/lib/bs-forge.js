@@ -192,7 +192,10 @@
               var eid = elIds[ei];
               var ed = _elDefs[eid];
               var sel = (eid === curEl) ? ' bs-forge-element-btn--selected' : '';
-              btns += '<button class="bs-forge-element-btn' + sel + '" data-element="' + eid + '" style="--el-color:' + ed.color + '"><i class="fas ' + ed.icon + '" style="color:' + ed.color + '"></i> ' + ed.label + '</button>';
+              var elIconHtml = (window.BsCharms && window.BsCharms.assetArtHtml)
+                ? window.BsCharms.assetArtHtml('elements', eid, ed.icon, ed.label)
+                : '<i class="fas ' + ed.icon + '" style="color:' + ed.color + '"></i>';
+              btns += '<button class="bs-forge-element-btn' + sel + '" data-element="' + eid + '" style="--el-color:' + ed.color + '">' + elIconHtml + ' ' + ed.label + '</button>';
             }
             return btns;
           })()}
