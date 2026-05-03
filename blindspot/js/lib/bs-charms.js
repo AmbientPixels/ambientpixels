@@ -13,9 +13,14 @@ window.BsCharms = (function () {
   function progress() { return window.BsState ? window.BsState.progress : {}; }
   function sync() { if (window.BsState) window.BsState.sync(); }
 
-  // Item IDs that have illustrated WebP art under /blindspot/img/items/.
-  // Add new IDs here as art lands; anything not listed falls back to the FA icon.
+  // Item IDs that have (or will have) illustrated WebP art under /blindspot/img/items/.
+  // Pre-listing IDs here is safe: itemArtHtml's onerror handler swaps a missing
+  // image back to the FA icon at render time, so we can list IDs before the art
+  // lands without risking broken-image placeholders.
+  // Single source of truth for both bs-charms.js (prefight + battle) and the
+  // BsCharms.itemArtHtml export used by bs-cosmetics.js + bs-sparks-shop.js.
   var ITEM_IMAGES = {
+    // Shipped art
     charm_heal_potion: true,
     smoke_bomb: true,
     lucky_coin: true,
@@ -25,13 +30,32 @@ window.BsCharms = (function () {
     iron_skin: true,
     healing_salve: true,
     stamina_potion: true,
-    element_ward: true
+    element_ward: true,
+    // Pending art (auto-renders the moment the WebP lands; FA icon until then)
+    charm_power_surge: true,
+    charm_shield_wall: true,
+    charm_lucky_strike: true,
+    charm_charge_boost: true,
+    charm_resist_fire: true,
+    charm_resist_earth: true,
+    charm_resist_arcane: true,
+    charm_resist_shadow: true,
+    element_burst: true,
+    element_shift: true,
+    endurance_tonic: true,
+    second_wind: true
   };
 
   function itemArtHtml(id, fallbackFaIcon, alt) {
     if (id && ITEM_IMAGES[id]) {
+      var fbIcon = fallbackFaIcon || 'fa-box';
+      // If the WebP 404s (ID listed in ITEM_IMAGES before art has shipped),
+      // swap the <img> for the FA icon at error time. Inner quotes are
+      // HTML-escaped as &quot; so the browser hands clean JS to onerror.
+      var fbHtml = '<i class=&quot;fas ' + fbIcon + '&quot; aria-hidden=&quot;true&quot;></i>';
       return '<img class="bs-item-art" src="/blindspot/img/items/' + id + '.webp"'
-        + ' alt="' + escHtml(alt || '') + '" loading="lazy" decoding="async">';
+        + ' alt="' + escHtml(alt || '') + '" loading="lazy" decoding="async"'
+        + " onerror=\"this.outerHTML='" + fbHtml + "'\">";
     }
     return '<i class="fas ' + (fallbackFaIcon || 'fa-box') + '" aria-hidden="true"></i>';
   }
