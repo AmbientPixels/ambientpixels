@@ -37,9 +37,7 @@
       var icon = loot.stat ? (STAT_ICONS[loot.stat] || 'fa-gem') : 'fa-gem';
       var statLabel = loot.stat ? (STAT_NAMES[loot.stat] || loot.stat.toUpperCase()) : '';
       var rarityLabel = loot.rarity ? loot.rarity.charAt(0).toUpperCase() + loot.rarity.slice(1) : '';
-      var iconHtml = (loot.stat && window.BsCharms && window.BsCharms.assetArtHtml)
-        ? window.BsCharms.assetArtHtml('stats', loot.stat, icon, statLabel)
-        : '<i class="fas ' + icon + '" style="color:' + color + '; font-size:1.5rem;"></i>';
+      var iconHtml = '<i class="fas ' + icon + '" style="color:' + color + '; font-size:1.5rem;"></i>';
       return '<button class="bs-loot-card" data-loot-idx="' + i + '" style="border-color:' + color + ';">' +
         '<span class="bs-loot-card__rarity" style="color:' + color + ';">' + rarityLabel + '</span>' +
         iconHtml +
