@@ -13,6 +13,24 @@ window.BsCharms = (function () {
   function progress() { return window.BsState ? window.BsState.progress : {}; }
   function sync() { if (window.BsState) window.BsState.sync(); }
 
+  // Item IDs that have illustrated WebP art under /blindspot/img/items/.
+  // Add new IDs here as art lands; anything not listed falls back to the FA icon.
+  var ITEM_IMAGES = {
+    charm_heal_potion: true,
+    smoke_bomb: true,
+    lucky_coin: true,
+    focus_elixir: true,
+    prism_shard: true
+  };
+
+  function itemArtHtml(id, fallbackFaIcon, alt) {
+    if (id && ITEM_IMAGES[id]) {
+      return '<img class="bs-item-art" src="/blindspot/img/items/' + id + '.webp"'
+        + ' alt="' + escHtml(alt || '') + '" loading="lazy" decoding="async">';
+    }
+    return '<i class="fas ' + (fallbackFaIcon || 'fa-box') + '" aria-hidden="true"></i>';
+  }
+
   // Injected callbacks (set by monolith after load)
   var _callbacks = {};
 
@@ -128,7 +146,7 @@ window.BsCharms = (function () {
             + ' data-item="' + escHtml(id) + '"'
             + ' title="' + escHtml(def.description || def.name) + '"'
             + ' aria-label="' + escHtml(def.name) + ' (' + picked + '/' + owned + ')">'
-            + '<i class="fas ' + (def.icon || 'fa-box') + '"></i>'
+            + itemArtHtml(id, def.icon, def.name)
             + '<span>' + escHtml(def.name) + '</span>'
             + '<span class="bs-charm-count">' + (active ? picked + '/' : '') + 'x' + owned + '</span>'
             + '</button>';
@@ -172,16 +190,17 @@ window.BsCharms = (function () {
     btn.title = def.name + (def.description ? ' — ' + def.description : '');
     btn.setAttribute('aria-label', def.name + ' — ' + def.description);
     if (compact) {
-      btn.innerHTML = '<i class="fas ' + (def.icon || 'fa-flask') + '" aria-hidden="true"></i>';
+      btn.innerHTML = itemArtHtml(_equippedCharm, def.icon || 'fa-flask', def.name);
     } else {
       btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
-        + '<i class="fas ' + (def.icon || 'fa-flask') + '" aria-hidden="true"></i>'
+        + itemArtHtml(_equippedCharm, def.icon || 'fa-flask', def.name)
         + '<span class="arena-move-btn__label">' + escHtml(def.name) + '</span>'
         + '<span class="arena-move-btn__stat">1 use</span>'
         + '<span class="arena-move-btn__desc">' + escHtml(def.description || '') + '</span>';
     }
     movesEl.appendChild(btn);
 
+    var charmIdAtFire = _equippedCharm;
     btn.addEventListener('click', function() {
       if (_charmUsedThisBattle) return;
       _charmUsedThisBattle = true;
@@ -190,7 +209,7 @@ window.BsCharms = (function () {
       applyCharmEffect(def);
       removeCharm(_equippedCharm);
       _equippedCharm = null;
-      addPlayerItemChip(def.name, def.icon || 'fa-gem');
+      addPlayerItemChip(charmIdAtFire, def.name, def.icon || 'fa-gem');
       if (_callbacks.toast) _callbacks.toast(def.name + ' activated!');
       if (_callbacks.sfx) _callbacks.sfx('loot');
     }, { once: true });
@@ -275,10 +294,10 @@ window.BsCharms = (function () {
       btn.title = item.name + (item.description ? ' \u2014 ' + item.description : '');
       btn.setAttribute('aria-label', item.name + ' \u2014 ' + (item.description || ''));
       if (compact) {
-        btn.innerHTML = '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>';
+        btn.innerHTML = itemArtHtml(item.id, item.icon || 'fa-box', item.name);
       } else {
         btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
-          + '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>'
+          + itemArtHtml(item.id, item.icon || 'fa-box', item.name)
           + '<span class="arena-move-btn__label">' + escHtml(item.name) + '</span>'
           + '<span class="arena-move-btn__stat">1 use</span>'
           + '<span class="arena-move-btn__desc">' + escHtml(item.description || '') + '</span>';
@@ -292,7 +311,7 @@ window.BsCharms = (function () {
         btn.classList.add('arena-move-btn--used');
         window._pendingItemUse = item.id;
         // Show item chip on player card when activated
-        addPlayerItemChip(item.name, item.icon || 'fa-box');
+        addPlayerItemChip(item.id, item.name, item.icon || 'fa-box');
         if (_callbacks.toast) _callbacks.toast(item.name + ' ready \u2014 pick your move!');
         if (_callbacks.sfx) _callbacks.sfx('click');
       }, { once: true });
@@ -301,13 +320,13 @@ window.BsCharms = (function () {
 
   // ── Player Card Item Display ──
 
-  function addPlayerItemChip(name, icon) {
+  function addPlayerItemChip(id, name, icon) {
     var el = document.getElementById('arena-player-items');
     if (!el) return;
     var chip = document.createElement('span');
     chip.className = 'arena-item-chip';
     chip.title = name;
-    chip.innerHTML = '<i class="fas ' + (icon || 'fa-box') + '"></i>';
+    chip.innerHTML = itemArtHtml(id, icon || 'fa-box', name);
     el.appendChild(chip);
   }
 

@@ -5030,6 +5030,23 @@
 .bs-charm-option i { font-size: 0.9rem; color: var(--bs-accent); }
 .bs-charm-count { font-size: 0.55rem; color: var(--bs-text-muted); }
 
+/* Item / charm illustrated art (replaces FA icon when a WebP exists in /img/items/).
+   Sizes scope per parent so the same <img class="bs-item-art"> works in the prefight
+   picker, the battle item tray, and the activated player chip. */
+.bs-item-art {
+  display: inline-block;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  vertical-align: middle;
+}
+.bs-charm-option .bs-item-art { width: 40px; height: 40px; border-radius: 6px; }
+.blindspot-prefight__loadout-section--items .bs-charm-option .bs-item-art { width: 48px; height: 48px; }
+.arena-move-btn .bs-item-art { width: 32px; height: 32px; }
+.arena-move-btn--charm .bs-item-art,
+.arena-move-btn--item .bs-item-art { width: 28px; height: 28px; }
+.arena-item-chip .bs-item-art { width: 1.05rem; height: 1.05rem; border-radius: 50%; }
+
 /* ============================================================
    ARENA SELECTOR (pre-fight overlay)
    ============================================================ */
