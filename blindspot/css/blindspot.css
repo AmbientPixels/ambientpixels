@@ -4934,7 +4934,7 @@
   cursor: pointer;
   animation: bs-crate-pulse 2s ease-in-out infinite;
   box-shadow: 0 0 12px rgba(239, 159, 39, 0.2);
-  transition: background-image 0.4s ease;
+  transition: background-image 0.4s ease, box-shadow 0.2s, transform 0.15s;
 }
 .bs-crate-opener:hover {
   background:
@@ -4942,7 +4942,7 @@
     linear-gradient(135deg, rgba(239, 159, 39, 0.28), rgba(239, 159, 39, 0.08) 60%),
     var(--bs-crate-tile-img) center/cover;
   box-shadow: 0 0 20px rgba(239, 159, 39, 0.35);
-  transform: scale(1.02);
+  transform: translateY(-2px);
 }
 /* Painted chest carries the meaning — flat FA glyph hidden. */
 .bs-crate-opener__icon { display: none; }
@@ -5115,7 +5115,7 @@
   letter-spacing: 0.02em;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 4px rgba(0, 0, 0, 0.85);
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 .bs-collection-panel:hover {
   border-color: var(--bs-accent);
@@ -5123,6 +5123,7 @@
     linear-gradient(180deg, rgba(13, 8, 7, 0.0) 0%, rgba(13, 8, 7, 0.25) 55%, rgba(13, 8, 7, 0.8) 100%),
     url('../img/lobby/collection-tile.webp') center/cover;
   box-shadow: 0 0 14px rgba(239, 159, 39, 0.2);
+  transform: translateY(-2px);
 }
 /* Painted tome carries the meaning — flat FA glyph hidden. */
 .bs-collection-panel > i:first-child { display: none; }
