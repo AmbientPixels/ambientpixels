@@ -405,6 +405,36 @@ body.bs-page {
 .blindspot-stat-tile + .blindspot-stat-tile {
   border-left: 1px solid var(--blindspot-border, #3A1F1A);
 }
+
+/* Header chips: rank + power inline at the top of the lobby so the
+   player's identity numbers sit in the highest-attention location. */
+.blindspot-lobby__sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.55rem;
+}
+.blindspot-lobby__sub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(245, 192, 120, 0.08);
+  border: 1px solid rgba(245, 192, 120, 0.22);
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--blindspot-accent-gold);
+}
+.blindspot-lobby__sub-chip strong {
+  font-weight: 700;
+  color: inherit;
+}
+.blindspot-lobby__sub-divider {
+  color: var(--blindspot-text-muted);
+  margin: 0 0.05rem;
+}
 /* Subtle warm pulse behind each tile so the row reads as "earned
    accomplishments" instead of plain text on a flat row. */
 .blindspot-stat-tile {

@@ -1975,6 +1975,33 @@
     if (xpText) xpText.textContent = xp.atMax ? `${xp.current} XP \u2014 Max Rank` : `${xp.current} / ${xp.required} XP`;
     if (remainEl) remainEl.textContent = xp.atMax ? 'Max rank' : `${xp.remaining} XP`;
 
+    // Header rank + power chips (HEADER-CHIPS) \u2014 surfaces the player's
+    // identity numbers in the highest-attention spot. Hidden until populated
+    // so guest / new players don't see empty placeholders.
+    var rankChip = document.getElementById('bs-header-rank-chip');
+    var rankLabel = document.getElementById('bs-header-rank-label');
+    var rankIcon = document.getElementById('bs-header-rank-icon');
+    if (rankChip && rankLabel) {
+      rankLabel.textContent = rankInfo.label;
+      rankLabel.style.color = rankInfo.color;
+      if (rankIcon) {
+        rankIcon.className = 'fas ' + (rankInfo.icon || 'fa-shield-halved');
+        rankIcon.style.color = rankInfo.color;
+      }
+      rankChip.hidden = false;
+    }
+    var powerChip = document.getElementById('bs-header-power-chip');
+    var powerEl = document.getElementById('bs-header-power');
+    if (powerChip && powerEl) {
+      var pwr = _selectedCard ? getCardPower(_selectedCard) : 0;
+      if (pwr > 0) {
+        powerEl.textContent = String(pwr);
+        powerChip.hidden = false;
+      } else {
+        powerChip.hidden = true;
+      }
+    }
+
     // Streak / best \u2014 wired to live progress (was hardcoded mock markup).
     // Zero-state class so CSS can demote the red emphasis: red on
     // a `0` reads as "this is bad / dangerous" when it's actually

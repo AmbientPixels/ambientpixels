@@ -83,7 +83,16 @@
         <div class="blindspot-lobby__head-meta">
           <div class="blindspot-eyebrow">Lobby &middot; Fighter Status</div>
           <h1 class="blindspot-lobby__title">Welcome back, <span id="bs-lobby-username">fighter</span>.</h1>
-          <p class="blindspot-lobby__sub">Streak <strong id="bs-streak">0</strong> &middot; Best <strong id="bs-best">0</strong> &middot; Next rank in <strong id="bs-xp-remaining">&mdash;</strong></p>
+          <p class="blindspot-lobby__sub">
+            <span class="blindspot-lobby__sub-chip" id="bs-header-rank-chip" hidden><i class="fas fa-shield-halved" id="bs-header-rank-icon" aria-hidden="true"></i> <strong id="bs-header-rank-label">&mdash;</strong></span>
+            <span class="blindspot-lobby__sub-chip" id="bs-header-power-chip" hidden><i class="fas fa-bolt" aria-hidden="true"></i> <strong id="bs-header-power">0</strong> power</span>
+            <span class="blindspot-lobby__sub-divider" aria-hidden="true">&middot;</span>
+            <span>Streak <strong id="bs-streak">0</strong></span>
+            <span class="blindspot-lobby__sub-divider" aria-hidden="true">&middot;</span>
+            <span>Best <strong id="bs-best">0</strong></span>
+            <span class="blindspot-lobby__sub-divider" aria-hidden="true">&middot;</span>
+            <span>Next rank in <strong id="bs-xp-remaining">&mdash;</strong></span>
+          </p>
         </div>
         <button class="blindspot-btn blindspot-btn--primary blindspot-btn--xl" id="bs-play-btn" aria-label="Fight next boss">
           <i class="fas fa-bolt" aria-hidden="true"></i> <span id="bs-play-btn-label">Fight Next Boss</span>
