@@ -84,6 +84,18 @@ window.BsCosmetics = (function () {
       + '</div>';
   }
 
+  // Single dispatcher consumed by collection (owned-only) and shop
+  // (always-on, since the shop is window-browsing). Returns null if the
+  // item is not a previewable cosmetic, so callers can fall back to art / icon.
+  function cosmeticPreviewHtml(itemId) {
+    if (!itemId) return null;
+    if (itemId.indexOf('victory_') === 0) return buildVictoryPreviewHtml(itemId);
+    if (itemId.indexOf('frame_') === 0)   return buildFramePreviewHtml(itemId);
+    if (itemId.indexOf('back_') === 0)    return buildBackPreviewHtml(itemId);
+    if (itemId.indexOf('plate_') === 0)   return buildPlatePreviewHtml(itemId);
+    return null;
+  }
+
   // ── State accessors ──
   function progress() { return window.BsState ? window.BsState.progress : {}; }
   function sync() { if (window.BsState) window.BsState.sync(); }
@@ -396,6 +408,7 @@ window.BsCosmetics = (function () {
     getSlot: getCollectionSlot,
     render: renderCollection,
     apply: applyEquippedCosmetics,
+    cosmeticPreviewHtml: cosmeticPreviewHtml,
     setCallbacks: function(cbs) { _cb = cbs || {}; }
   };
 })();

@@ -269,11 +269,18 @@
       + ' data-item-price="' + price + '"'
       + ' role="button" tabindex="0" aria-label="' + escHtml(item.name) + ' - ' + price + ' Sparks">'
       + '<div class="bs-shop-card__icon">'
-        + ((window.BsCharms && window.BsCharms.itemArtHtml)
-          // Owned -> show art. Unowned -> show FA icon (reveal-on-acquire).
-          // Consumables: "owned" = qty > 0. Cosmetics: isOwned (already computed).
-          ? window.BsCharms.itemArtHtml(((isConsumable ? qty > 0 : isOwned) ? item.id : null), item.icon, item.name)
-          : '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>')
+        + (function () {
+            // Cosmetics (frame_/back_/plate_/victory_) ALWAYS show their live
+            // preview in the shop -- the player needs to see what they're
+            // buying. Items keep the owned-vs-not rule (preserve reveal moment).
+            var preview = (window.BsCosmetics && window.BsCosmetics.cosmeticPreviewHtml)
+              ? window.BsCosmetics.cosmeticPreviewHtml(item.id) : null;
+            if (preview) return preview;
+            if (window.BsCharms && window.BsCharms.itemArtHtml) {
+              return window.BsCharms.itemArtHtml(((isConsumable ? qty > 0 : isOwned) ? item.id : null), item.icon, item.name);
+            }
+            return '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>';
+          })()
         + '</div>'
       + '<div class="bs-shop-card__name">' + escHtml(item.name) + '</div>'
       + '<div class="bs-shop-card__rarity" style="color:' + rc + ';">' + rl + '</div>';
@@ -382,9 +389,16 @@
     var html = '<div class="bs-shop-preview__card">'
       + '<button class="bs-shop-preview__close" id="bs-shop-preview-close" aria-label="Close"><i class="fas fa-times"></i></button>'
       + '<div class="bs-shop-preview__icon" style="color:' + rc + ';">'
-        + ((window.BsCharms && window.BsCharms.itemArtHtml)
-          ? window.BsCharms.itemArtHtml(previewArtId, item.icon, item.name)
-          : '<i class="fas ' + (item.icon || 'fa-box') + '"></i>')
+        + (function () {
+            // Cosmetics: always preview (window-shop). Items: owned-vs-not.
+            var preview = (window.BsCosmetics && window.BsCosmetics.cosmeticPreviewHtml)
+              ? window.BsCosmetics.cosmeticPreviewHtml(itemId) : null;
+            if (preview) return preview;
+            if (window.BsCharms && window.BsCharms.itemArtHtml) {
+              return window.BsCharms.itemArtHtml(previewArtId, item.icon, item.name);
+            }
+            return '<i class="fas ' + (item.icon || 'fa-box') + '"></i>';
+          })()
         + '</div>'
       + '<div class="bs-shop-preview__name">' + escHtml(item.name) + '</div>'
       + '<div class="bs-shop-preview__rarity" style="color:' + rc + ';">' + (RARITY_LABELS[item.rarity] || '') + '</div>'
