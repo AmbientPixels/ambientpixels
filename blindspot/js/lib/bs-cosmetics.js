@@ -221,7 +221,9 @@ window.BsCosmetics = (function () {
           + ' style="--bs-item-rarity:' + rarityColor + ';"'
           + ' aria-label="' + escHtml(cItem.name) + ' x' + qty + '">'
           + '<div class="bs-collection-item__icon">' + cIconHtml + '</div>'
-          + '<span class="bs-collection-item__name">' + escHtml(cItem.name) + '</span>'
+          + '<span class="bs-collection-item__name">'
+          + (qty === 0 ? '<i class="fas fa-lock bs-collection-item__name-lock" aria-hidden="true"></i> ' : '')
+          + escHtml(cItem.name) + '</span>'
           + '<span class="bs-collection-item__desc">' + escHtml(cItem.description || '') + '</span>'
           + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (cItem.rarity || '') + '</span>'
           + '<span class="bs-collection-item__qty"' + (qty > 0 ? ' style="color:var(--bs-accent);"' : '') + '>x' + qty + '</span>'
@@ -271,7 +273,9 @@ window.BsCosmetics = (function () {
           + ' aria-label="' + escHtml(item.name) + (isEquipped ? ' (equipped)' : '') + (isOwned ? '' : ' (locked)') + '"'
           + ' style="--bs-item-rarity:' + rarityColor + ';">'
           + '<div class="bs-collection-item__icon">' + slotIconHtml + '</div>'
-          + '<span class="bs-collection-item__name">' + escHtml(item.name) + '</span>'
+          + '<span class="bs-collection-item__name">'
+          + (!isOwned ? '<i class="fas fa-lock bs-collection-item__name-lock" aria-hidden="true"></i> ' : '')
+          + escHtml(item.name) + '</span>'
           + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (item.rarity || '') + '</span>'
           + (isEquipped ? '<span class="bs-collection-item__badge"><i class="fas fa-check"></i> Equipped</span>' : '')
           + (!isOwned ? '<span class="bs-collection-item__lock"><i class="fas fa-lock"></i></span>' : '')

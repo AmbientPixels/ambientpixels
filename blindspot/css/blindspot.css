@@ -10210,6 +10210,13 @@ body.bs-battle-active .bs-play {
   color: var(--blindspot-text-muted);
   opacity: 0.5;
 }
+.bs-collection-item__name-lock {
+  font-size: 0.75em;
+  color: var(--blindspot-text-muted);
+  margin-right: 0.15em;
+  opacity: 0.85;
+  vertical-align: 0.05em;
+}
 
 /* Consumable tab: description + quantity + buy */
 .bs-collection-item__desc {
