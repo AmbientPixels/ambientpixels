@@ -188,6 +188,7 @@
 
   function isOnLandingPage() { return !!document.getElementById('bs-landing'); }
   function isOnPlayPage() { return !!document.getElementById('bs-screen-lobby'); }
+  function isOnGalleryPage() { return !!document.body && document.body.classList.contains('bs-page--gallery'); }
 
   function showOverlay(id) {
     const el = document.getElementById(id);
@@ -3410,6 +3411,10 @@
     if (e.target && e.target.id === 'bs-gallery-detail-close') closeGalleryDetail();
     if (e.target && e.target.id === 'bs-gallery-detail') closeGalleryDetail();
     if (e.target && e.target.closest && e.target.closest('#bs-gallery-back')) {
+      if (isOnGalleryPage()) {
+        window.location.href = '/blindspot/play.html';
+        return;
+      }
       showScreen('lobby');
       renderLobby();
     }
@@ -3460,10 +3465,29 @@
   // BOOT
   // ============================================================
 
+  // Standalone Gallery page (gallery.html) — public, no auth gate, just
+  // renders the gallery grid + wires the detail modal. The lobby / battle
+  // / campaign / forge surfaces are absent, so we skip the heavy initPlay
+  // flow entirely.
+  function initGallery() {
+    // Topbar: load profile (best-effort) so the user chip + sparks show
+    // up for signed-in viewers; gallery still renders for anonymous users.
+    if (window.BsAuthUI && window.BsAuthUI.updatePlayAuthUI) {
+      window.BsAuthUI.updatePlayAuthUI();
+    }
+    // Audio toggles + ambient (silent until user toggles).
+    if (window.ArenaAudio && window.ArenaAudio.init) window.ArenaAudio.init();
+    // Render the gallery grid.
+    if (typeof renderGallery === 'function') {
+      renderGallery();
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     if (window.ProductAnalytics) ProductAnalytics.init('blindspot');
     cleanupLocalStorage();
     if (isOnLandingPage()) initLanding();
+    else if (isOnGalleryPage()) initGallery();
     else if (isOnPlayPage()) initPlay();
   });
 

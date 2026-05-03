@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blindspot Gallery — Public Card Showcase</title>
+  <meta name="description" content="Browse cards forged and published by Blindspot players. A public showcase of fighter art, classes, and rarities from the arena community.">
+  <link rel="canonical" href="https://www.ambientpixels.ai/blindspot/gallery.html" />
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Blindspot Gallery — Public Card Showcase">
+  <meta property="og:description" content="Browse the public Blindspot card gallery — fighter art forged by the community.">
+  <meta property="og:url" content="https://www.ambientpixels.ai/blindspot/gallery.html">
+  <meta property="og:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Blindspot Gallery — Public Card Showcase" />
+  <meta name="twitter:description" content="Browse the public Blindspot card gallery." />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png" />
+  <meta name="csrf-token" content="">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="css/blindspot.css">
+  <link rel="stylesheet" href="css/blindspot-cards.css">
+  <link rel="stylesheet" href="css/blindspot-tokens.css">
+  <link rel="stylesheet" href="css/blindspot-buttons.css">
+  <link rel="stylesheet" href="css/blindspot-lobby.css">
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
+</head>
+<body class="bs-page bs-page--gallery" data-theme="dark">
+
+  <!-- Ambient particles -->
+  <canvas id="bs-play-particles" class="bs-play-particles" aria-hidden="true"></canvas>
+
+  <!-- TOP BAR -->
+  <header class="bs-topbar" role="banner">
+    <a href="/blindspot/play.html" class="bs-topbar__brand" style="text-decoration:none; color:inherit;"><i class="fas fa-eye-slash bs-topbar__brand-icon" aria-hidden="true"></i>Blindspot</a>
+    <div class="bs-topbar__actions">
+      <span id="bs-topbar-sparks" class="bs-topbar__sparks" hidden title="Sparks — currency for crates and Forge cosmetics">
+        <i class="fas fa-fire" aria-hidden="true"></i>
+        <span id="bs-topbar-sparks-num">0</span>
+      </span>
+      <a href="/blindspot/admin/" id="bs-topbar-admin" class="bs-topbar__admin" hidden title="Admin"><i class="fas fa-shield-halved"></i></a>
+      <span id="bs-topbar-user" style="font-size:0.75rem; color:var(--bs-text-muted);"></span>
+      <button class="arena-audio-toggle" id="arena-sfx-toggle" title="Mute SFX" aria-label="Toggle sound effects">
+        <i class="fas fa-volume-high" aria-hidden="true"></i>
+      </button>
+      <button class="arena-audio-toggle" id="arena-music-toggle" title="Mute music" aria-label="Toggle music">
+        <i class="fas fa-music" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN: Gallery -->
+  <main class="bs-play">
+    <div class="bs-screen active" role="region" aria-label="Card Gallery">
+      <div class="bs-gallery">
+        <div class="bs-gallery__header">
+          <a href="/blindspot/play.html" class="bs-campaign__back" id="bs-gallery-back" aria-label="Back to lobby" style="text-decoration:none;"><i class="fas fa-arrow-left" aria-hidden="true"></i></a>
+          <h2 class="bs-gallery__title"><i class="fas fa-images" style="color:var(--bs-accent);"></i> Gallery</h2>
+          <span class="bs-gallery__meta" id="bs-gallery-count">&nbsp;</span>
+        </div>
+        <p class="bs-gallery__sub">Cards published by other fighters. Browse for inspiration; nothing here changes your roster.</p>
+        <div class="bs-gallery__grid" id="bs-gallery-grid" role="list" aria-label="Public cards"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Card detail modal -->
+  <div id="bs-gallery-detail" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="Card detail" aria-modal="true">
+    <div class="bs-modal bs-gallery-detail">
+      <button class="bs-modal__close" id="bs-gallery-detail-close" aria-label="Close"><i class="fas fa-xmark"></i></button>
+      <div class="bs-gallery-detail__card" id="bs-gallery-detail-card"></div>
+      <div class="bs-gallery-detail__meta" id="bs-gallery-detail-meta"></div>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="bs-bottom-nav" id="bs-bottom-nav" aria-label="Game navigation">
+    <a class="bs-bottom-nav__item" href="/blindspot/play.html" data-nav="lobby">
+      <i class="fas fa-home" aria-hidden="true"></i>
+      <span>Arena</span>
+    </a>
+    <a class="bs-bottom-nav__item" href="/blindspot/play.html#campaign" data-nav="campaign">
+      <i class="fas fa-dragon" aria-hidden="true"></i>
+      <span>Campaign</span>
+    </a>
+    <a class="bs-bottom-nav__item" href="/blindspot/play.html#forge" data-nav="forge">
+      <i class="fas fa-fire" aria-hidden="true"></i>
+      <span>Forge</span>
+    </a>
+    <a class="bs-bottom-nav__item bs-bottom-nav__item--active" href="/blindspot/gallery.html" data-nav="gallery" aria-current="true">
+      <i class="fas fa-images" aria-hidden="true"></i>
+      <span>Gallery</span>
+    </a>
+    <a class="bs-bottom-nav__item" href="/blindspot/play.html#leaderboard" data-nav="leaderboard">
+      <i class="fas fa-crown" aria-hidden="true"></i>
+      <span>Ranks</span>
+    </a>
+  </nav>
+
+  <!-- Same script bundle as play.html — phase 5 cleanup will trim this to
+       only the modules the Gallery actually needs. blindspot-flow.js's BOOT
+       block detects body.bs-page--gallery and runs initGallery() instead
+       of the heavy initPlay() lobby flow. -->
+  <script src="js/lib/bs-config.js"></script>
+  <script src="js/lib/bs-csrf.js"></script>
+  <script src="js/lib/bs-utils.js"></script>
+  <script src="js/lib/bs-stubs.js"></script>
+  <script src="js/lib/bs-arena-audio.js"></script>
+  <script src="js/lib/bs-arena-api.js"></script>
+  <script src="js/lib/bs-constants.js"></script>
+  <script src="js/lib/bs-state.js"></script>
+  <script src="js/lib/bs-audio-sfx.js"></script>
+  <script src="js/lib/bs-toast.js"></script>
+  <script src="js/lib/bs-cosmetics.js"></script>
+  <script src="js/lib/bs-charms.js"></script>
+  <script src="js/lib/bs-card-renderer.js"></script>
+  <script src="js/lib/bs-auth-ui.js"></script>
+  <script src="js/lib/bs-storage-cleanup.js"></script>
+  <script src="js/lib/bs-card-rarity.js"></script>
+  <script src="js/blindspot-flow.js"></script>
+</body>
+</html>
