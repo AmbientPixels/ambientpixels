@@ -196,6 +196,11 @@
       _cb.showScreen('collection');
       _cb.renderCollection();
     });
+    // Lobby loadout panel "Change ▸" link routes to the same Collection screen
+    document.getElementById('bs-loadout-edit')?.addEventListener('click', function() {
+      _cb.showScreen('collection');
+      _cb.renderCollection();
+    });
     document.getElementById('bs-collection-back')?.addEventListener('click', function() {
       _cb.showScreen('lobby');
       _cb.renderLobby();

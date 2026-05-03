@@ -435,6 +435,100 @@ body.bs-page {
   color: var(--blindspot-text-muted);
   margin: 0 0.05rem;
 }
+
+/* Equipped Loadout panel — fills the dead vertical space below the card
+   actions in the left column with the player's current cosmetic loadout.
+   Six rows: charm / frame / back / plate / victory / title. */
+.blindspot-loadout {
+  margin-top: 1rem;
+  padding: 0.85rem 0.85rem 0.95rem;
+  background: rgba(28, 16, 13, 0.55);
+  border: 1px solid var(--blindspot-border, #3A1F1A);
+  border-radius: var(--blindspot-radius-tile, 4px);
+}
+.blindspot-loadout__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--blindspot-border, #3A1F1A);
+}
+.blindspot-loadout__head h3 {
+  margin: 0;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  font-weight: 700;
+}
+.blindspot-loadout__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.blindspot-loadout__row {
+  display: grid;
+  grid-template-columns: 60px 36px 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+.blindspot-loadout__label {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blindspot-text-muted);
+}
+.blindspot-loadout__tile {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 8, 7, 0.6);
+  border: 1px solid var(--blindspot-border, #3A1F1A);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.blindspot-loadout__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.blindspot-loadout__tile .bs-victory-preview,
+.blindspot-loadout__tile .bs-cos-preview {
+  width: 100%;
+  height: 100%;
+}
+.blindspot-loadout__tile i.fas {
+  font-size: 1rem;
+  color: var(--blindspot-accent-gold);
+}
+.blindspot-loadout__tile--empty {
+  border-style: dashed;
+  border-color: rgba(245, 192, 120, 0.18);
+  background: transparent;
+}
+.blindspot-loadout__tile--empty i.fas {
+  color: var(--blindspot-text-muted);
+  opacity: 0.35;
+}
+.blindspot-loadout__name {
+  font-family: var(--blindspot-font-body);
+  font-size: 0.78rem;
+  color: var(--blindspot-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.blindspot-loadout__name--empty {
+  color: var(--blindspot-text-muted);
+  font-style: italic;
+}
 /* Subtle warm pulse behind each tile so the row reads as "earned
    accomplishments" instead of plain text on a flat row. */
 .blindspot-stat-tile {

@@ -1800,6 +1800,71 @@
       }
       collPreview.innerHTML = thumbHtml;
     }
+
+    // Equipped Loadout panel \u2014 fills the otherwise-empty card column with
+    // the player's current cosmetic loadout. Six rows: charm, frame, back,
+    // plate, victory, title. Each row shows label + tile + name; empty
+    // slots get a dimmed dash placeholder.
+    renderEquippedLoadout();
+  }
+
+  function renderEquippedLoadout() {
+    var panel = document.getElementById('bs-loadout-panel');
+    var rows = document.getElementById('bs-loadout-rows');
+    if (!panel || !rows) return;
+
+    var equipped = (_Cos && _Cos.getEquipped) ? (_Cos.getEquipped() || {}) : {};
+    var equippedCharm = (_Chm && _Chm.getEquipped) ? _Chm.getEquipped() : null;
+    var hasArtHelper = !!(window.BsCharms && window.BsCharms.assetArtHtml);
+    var hasPreviewHelper = !!(window.BsCosmetics && window.BsCosmetics.cosmeticPreviewHtml);
+
+    function tileHtml(category, id, name, fallbackIcon) {
+      if (!id) {
+        return '<span class="blindspot-loadout__tile blindspot-loadout__tile--empty" aria-hidden="true"><i class="fas fa-circle-dashed"></i></span>';
+      }
+      // Cosmetic categories with live previews use those; everything else
+      // falls through to assetArtHtml for the static art.
+      if (hasPreviewHelper && (category === 'frames' || category === 'backs' || category === 'plates' || category === 'victory')) {
+        var preview = window.BsCosmetics.cosmeticPreviewHtml(id);
+        if (preview) {
+          return '<span class="blindspot-loadout__tile" title="' + escHtml(name || id) + '">' + preview + '</span>';
+        }
+      }
+      if (hasArtHelper) {
+        var art = window.BsCharms.assetArtHtml(category, id, fallbackIcon || 'fa-star', name || id);
+        return '<span class="blindspot-loadout__tile" title="' + escHtml(name || id) + '">' + art + '</span>';
+      }
+      return '<span class="blindspot-loadout__tile" title="' + escHtml(name || id) + '"><i class="fas ' + escHtml(fallbackIcon || 'fa-star') + '"></i></span>';
+    }
+
+    function defName(id) {
+      if (!id) return null;
+      var def = (_Cos && _Cos.find) ? _Cos.find(id) : null;
+      return def ? def.name : id;
+    }
+    function charmDef(id) {
+      if (!id || !_Chm || !_Chm.getDef) return null;
+      return _Chm.getDef(id);
+    }
+
+    var slots = [
+      { label: 'Charm',   id: equippedCharm, name: charmDef(equippedCharm) ? charmDef(equippedCharm).name : null, category: 'items',   fallbackIcon: charmDef(equippedCharm) ? charmDef(equippedCharm).icon : 'fa-flask' },
+      { label: 'Frame',   id: equipped.frame,     name: defName(equipped.frame),     category: 'frames',  fallbackIcon: 'fa-border-all' },
+      { label: 'Back',    id: equipped.back,      name: defName(equipped.back),      category: 'backs',   fallbackIcon: 'fa-circle' },
+      { label: 'Plate',   id: equipped.nameplate, name: defName(equipped.nameplate), category: 'plates',  fallbackIcon: 'fa-tag' },
+      { label: 'Victory', id: equipped.victory,   name: defName(equipped.victory),   category: 'victory', fallbackIcon: 'fa-burst' },
+      { label: 'Title',   id: equipped.title,     name: defName(equipped.title),     category: 'titles',  fallbackIcon: 'fa-medal' }
+    ];
+
+    rows.innerHTML = slots.map(function(s) {
+      return '<div class="blindspot-loadout__row">'
+        + '<span class="blindspot-loadout__label">' + escHtml(s.label) + '</span>'
+        + tileHtml(s.category, s.id, s.name, s.fallbackIcon)
+        + '<span class="blindspot-loadout__name' + (s.id ? '' : ' blindspot-loadout__name--empty') + '">' + escHtml(s.name || 'None') + '</span>'
+        + '</div>';
+    }).join('');
+
+    panel.hidden = false;
   }
 
   // Single source of truth for campaign progress \u2014 drives the count meta,

@@ -135,6 +135,17 @@
               <i class="fas fa-share-nodes" aria-hidden="true"></i> Share Card
             </button>
           </div>
+
+          <!-- Equipped Loadout panel — fills the otherwise-empty card column
+               with the player's current cosmetic loadout. Populated by
+               renderEquippedLoadout() in blindspot-flow.js. -->
+          <div class="blindspot-loadout" id="bs-loadout-panel" hidden>
+            <div class="blindspot-loadout__head">
+              <h3>Equipped Loadout</h3>
+              <button type="button" class="blindspot-section-link" id="bs-loadout-edit" aria-label="Open Collection to change loadout">Change <i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+            </div>
+            <div class="blindspot-loadout__rows" id="bs-loadout-rows"></div>
+          </div>
         </div>
 
         <!-- RIGHT: sections stack -->
