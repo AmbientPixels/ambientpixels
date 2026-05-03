@@ -380,6 +380,8 @@ window.BsCharms = (function () {
     getOwned: getOwnedCharms,
     remove: removeCharm,
     getDef: getCharmDef,
+    itemArtHtml: itemArtHtml,
+    hasItemArt: function (id) { return !!ITEM_IMAGES[id]; },
     renderSelector: renderCharmSelector,
     addCharmButton: addCharmButtonToBattle,
     addItemButtons: addItemButtonsToBattle,

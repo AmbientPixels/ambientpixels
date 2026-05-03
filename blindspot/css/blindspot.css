@@ -5046,6 +5046,9 @@
 .arena-move-btn--charm .bs-item-art,
 .arena-move-btn--item .bs-item-art { width: 28px; height: 28px; }
 .arena-item-chip .bs-item-art { width: 1.05rem; height: 1.05rem; border-radius: 50%; }
+.bs-collection-item__icon .bs-item-art { width: 100%; height: 100%; border-radius: 6px; }
+.bs-shop-card__icon .bs-item-art { width: 56px; height: 56px; border-radius: 6px; }
+.bs-shop-preview__icon .bs-item-art { width: 96px; height: 96px; border-radius: 8px; }
 
 /* ============================================================
    ARENA SELECTOR (pre-fight overlay)

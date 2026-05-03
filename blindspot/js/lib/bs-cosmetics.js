@@ -126,10 +126,13 @@ window.BsCosmetics = (function () {
         var qty = counts[cItem.id] || 0;
         var rarityColor = RARITY_COLORS[cItem.rarity] || 'var(--bs-text-muted)';
 
+        var cIconHtml = (window.BsCharms && window.BsCharms.itemArtHtml)
+          ? window.BsCharms.itemArtHtml(cItem.id, cItem.icon, cItem.name)
+          : '<i class="fas ' + (cItem.icon || 'fa-box') + '" aria-hidden="true"></i>';
         html += '<div class="bs-collection-item' + (qty === 0 ? ' bs-collection-item--locked' : '') + '"'
           + ' style="--bs-item-rarity:' + rarityColor + ';"'
           + ' aria-label="' + escHtml(cItem.name) + ' x' + qty + '">'
-          + '<div class="bs-collection-item__icon"><i class="fas ' + (cItem.icon || 'fa-box') + '" aria-hidden="true"></i></div>'
+          + '<div class="bs-collection-item__icon">' + cIconHtml + '</div>'
           + '<span class="bs-collection-item__name">' + escHtml(cItem.name) + '</span>'
           + '<span class="bs-collection-item__desc">' + escHtml(cItem.description || '') + '</span>'
           + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (cItem.rarity || '') + '</span>'

@@ -268,7 +268,11 @@
       + ' data-item-type="' + (isConsumable ? 'consumable' : 'cosmetic') + '"'
       + ' data-item-price="' + price + '"'
       + ' role="button" tabindex="0" aria-label="' + escHtml(item.name) + ' - ' + price + ' Sparks">'
-      + '<div class="bs-shop-card__icon"><i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i></div>'
+      + '<div class="bs-shop-card__icon">'
+        + ((window.BsCharms && window.BsCharms.itemArtHtml)
+          ? window.BsCharms.itemArtHtml(item.id, item.icon, item.name)
+          : '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>')
+        + '</div>'
       + '<div class="bs-shop-card__name">' + escHtml(item.name) + '</div>'
       + '<div class="bs-shop-card__rarity" style="color:' + rc + ';">' + rl + '</div>';
 
@@ -371,7 +375,11 @@
 
     var html = '<div class="bs-shop-preview__card">'
       + '<button class="bs-shop-preview__close" id="bs-shop-preview-close" aria-label="Close"><i class="fas fa-times"></i></button>'
-      + '<div class="bs-shop-preview__icon" style="color:' + rc + ';"><i class="fas ' + (item.icon || 'fa-box') + '"></i></div>'
+      + '<div class="bs-shop-preview__icon" style="color:' + rc + ';">'
+        + ((window.BsCharms && window.BsCharms.itemArtHtml)
+          ? window.BsCharms.itemArtHtml(itemId, item.icon, item.name)
+          : '<i class="fas ' + (item.icon || 'fa-box') + '"></i>')
+        + '</div>'
       + '<div class="bs-shop-preview__name">' + escHtml(item.name) + '</div>'
       + '<div class="bs-shop-preview__rarity" style="color:' + rc + ';">' + (RARITY_LABELS[item.rarity] || '') + '</div>'
       + '<div class="bs-shop-preview__desc">' + escHtml(item.description || (itemType === 'crate' ? 'Roll for random loot: stats, cosmetics, charms, and more.' : '')) + '</div>';
