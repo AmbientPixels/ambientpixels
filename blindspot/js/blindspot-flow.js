@@ -188,7 +188,6 @@
 
   function isOnLandingPage() { return !!document.getElementById('bs-landing'); }
   function isOnPlayPage() { return !!document.getElementById('bs-screen-lobby'); }
-  function isOnGalleryPage() { return !!document.body && document.body.classList.contains('bs-page--gallery'); }
 
   function showOverlay(id) {
     const el = document.getElementById(id);
@@ -2264,7 +2263,6 @@
     renderLobby: function() { renderLobby(); },
     renderCampaignLadder: function() { renderCampaignLadder(); },
     renderPvPGallery: function() { renderPvPGallery(); },
-    renderGallery: function() { renderGallery(); },
     renderStatsScreen: function() { renderStatsScreen(); },
     renderLeaderboard: function() { renderLeaderboard(); },
     renderCollection: function() { renderCollection(); },
@@ -3292,147 +3290,10 @@
     }
   }
 
-  // ── Gallery — delegates to bs-gallery-page.js (window.BsGalleryPage) ──
-  // Phase 2 of the gallery split: render + detail modal logic moved into
-  // its own module so gallery.html can use it without loading this monolith.
-  // play.html keeps a thin wrapper here so existing showScreen('gallery')
-  // calls + the bottom-nav data-nav="gallery" handler still work.
-  function renderGallery() {
-    if (window.BsGalleryPage && window.BsGalleryPage.render) return window.BsGalleryPage.render();
-    return _renderGalleryLegacy();
-  }
-  function openGalleryDetail(card) {
-    if (window.BsGalleryPage && window.BsGalleryPage.openDetail) return window.BsGalleryPage.openDetail(card);
-    return _openGalleryDetailLegacy(card);
-  }
-  function closeGalleryDetail() {
-    if (window.BsGalleryPage && window.BsGalleryPage.closeDetail) return window.BsGalleryPage.closeDetail();
-    return _closeGalleryDetailLegacy();
-  }
-
-  // Legacy fallbacks — kept for safety if the module fails to load. These
-  // mirror the pre-extraction implementations and will be removed in phase 5.
-  async function _renderGalleryLegacy() {
-    const grid = document.getElementById('bs-gallery-grid');
-    const countEl = document.getElementById('bs-gallery-count');
-    if (!grid) return;
-    grid.innerHTML = '<div class="bs-gallery__loading"><i class="fas fa-spinner fa-spin"></i> Loading cards…</div>';
-    if (countEl) countEl.textContent = '';
-    try {
-      // Fetch cards + admin configs in parallel. Configs soft-fail to defaults
-      // (no hidden cards, mode=recent, no curated) so a config issue never
-      // breaks the gallery view.
-      function fetchConfig(key) {
-        var url = window.buildApiPath
-          ? window.buildApiPath('adminConfig', { key: key })
-          : '/api/blindspotadminconfig?key=' + key;
-        return fetch(url, { credentials: 'omit' })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .catch(function () { return null; });
-      }
-      const [data, modConfig, galleryConfig] = await Promise.all([
-        window.ArenaAPI.loadCards(),
-        fetchConfig('moderation'),
-        fetchConfig('gallery')
-      ]);
-
-      const hiddenIds = new Set((modConfig && Array.isArray(modConfig.hiddenIds)) ? modConfig.hiddenIds : []);
-      const mode = (galleryConfig && galleryConfig.mode) || 'recent';
-      const curatedIds = (galleryConfig && Array.isArray(galleryConfig.curatedIds)) ? galleryConfig.curatedIds : [];
-
-      // Apply existing publishedToGallery / has-art filters first, then moderation.
-      let cards = (data.galleryCards || []).filter(function(c) {
-        if (!c) return false;
-        if (c.publishedToGallery === false) return false;
-        const hasArt = c.avatar || c.image || c.imageUrl || c.art;
-        if (!hasArt) return false;
-        if (hiddenIds.has(c.id)) return false;
-        return true;
-      });
-
-      // Apply gallery-config mode
-      if (mode === 'curated' && curatedIds.length > 0) {
-        const byId = new Map();
-        for (const c of cards) byId.set(c.id, c);
-        cards = curatedIds.map(id => byId.get(id)).filter(Boolean);
-      } else if (mode === 'random') {
-        cards = cards.slice();
-        for (let i = cards.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          const t = cards[i]; cards[i] = cards[j]; cards[j] = t;
-        }
-      } else {
-        // 'recent' (default) and 'highest-rated' fallback
-        cards = cards.slice().sort(function(a, b) {
-          const ta = a.publishDate || a.publishedAt || a.createdAt || 0;
-          const tb = b.publishDate || b.publishedAt || b.createdAt || 0;
-          const da = ta ? Date.parse(ta) : 0;
-          const db = tb ? Date.parse(tb) : 0;
-          return (isNaN(db) ? 0 : db) - (isNaN(da) ? 0 : da);
-        });
-      }
-
-      if (countEl) countEl.textContent = cards.length + (cards.length === 1 ? ' card' : ' cards');
-      if (cards.length === 0) {
-        grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-inbox"></i><p>No public cards yet. Publish your card from the forge to start the gallery.</p></div>';
-        return;
-      }
-      grid.innerHTML = cards.map(function(c, i) {
-        ensureCombatStats(c);
-        return '<button class="bs-gallery-tile" data-gallery-idx="' + i + '" type="button" role="listitem" aria-label="View ' + escHtml(c.name || 'card') + '">'
-          + renderCardHTML(c, 'full')
-          + '</button>';
-      }).join('');
-      grid.querySelectorAll('.bs-gallery-tile').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          const idx = parseInt(btn.dataset.galleryIdx, 10);
-          const card = cards[idx];
-          if (card) openGalleryDetail(card);
-        });
-      });
-    } catch (e) {
-      console.warn('[Blindspot] Gallery load failed:', e);
-      grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-triangle-exclamation"></i><p>Couldn\'t load gallery. Try again later.</p></div>';
-    }
-  }
-
-  function _openGalleryDetailLegacy(card) {
-    const modal = document.getElementById('bs-gallery-detail');
-    const cardEl = document.getElementById('bs-gallery-detail-card');
-    const metaEl = document.getElementById('bs-gallery-detail-meta');
-    if (!modal || !cardEl) return;
-    ensureCombatStats(card);
-    cardEl.innerHTML = renderCardHTML(card, 'full');
-    if (metaEl) {
-      const power = (card.combatStats ? Object.values(card.combatStats).reduce(function(a,b){return a+(b||0)},0) : 0);
-      const dateStr = card.publishDate ? new Date(card.publishDate).toLocaleDateString() : '';
-      // publishedBy is a userId — opaque to other players. We surface a
-      // truncated form as a creator handle until we wire actual display
-      // names (creator profile work is in option C).
-      const creator = card.publishedBy ? ('Forged by ' + String(card.publishedBy).slice(0, 8) + '…') : '';
-      metaEl.innerHTML = '<div class="bs-gallery-detail__row"><i class="fas fa-bolt"></i> Power ' + power + '</div>'
-        + (creator ? '<div class="bs-gallery-detail__row"><i class="fas fa-hammer"></i> ' + escHtml(creator) + '</div>' : '')
-        + (dateStr ? '<div class="bs-gallery-detail__row"><i class="fas fa-calendar"></i> Published ' + escHtml(dateStr) + '</div>' : '');
-    }
-    modal.classList.remove('bs-modal-backdrop--hidden');
-  }
-  function _closeGalleryDetailLegacy() {
-    const modal = document.getElementById('bs-gallery-detail');
-    if (modal) modal.classList.add('bs-modal-backdrop--hidden');
-  }
-  // Wire close button + backdrop click + back-to-lobby
-  document.addEventListener('click', function(e) {
-    if (e.target && e.target.id === 'bs-gallery-detail-close') closeGalleryDetail();
-    if (e.target && e.target.id === 'bs-gallery-detail') closeGalleryDetail();
-    if (e.target && e.target.closest && e.target.closest('#bs-gallery-back')) {
-      if (isOnGalleryPage()) {
-        window.location.href = '/blindspot/play.html';
-        return;
-      }
-      showScreen('lobby');
-      renderLobby();
-    }
-  });
+  // ── Gallery — fully extracted to bs-gallery-page.js + standalone
+  // gallery.html (phases 2-5 of the split). play.html no longer hosts
+  // a Gallery screen or detail modal; the bottom-nav Gallery item and
+  // the dashboard quick-link both navigate to /blindspot/gallery.html.
 
   // ── Loot Choice — delegated to bs-loot-choice.js (window.BsLootChoice) ──
   var _Loot = window.BsLootChoice || {};
@@ -3479,30 +3340,14 @@
   // BOOT
   // ============================================================
 
-  // Standalone Gallery page (gallery.html) — public, no auth gate, just
-  // renders the gallery grid + wires the detail modal. The lobby / battle
-  // / campaign / forge surfaces are absent, so we skip the heavy initPlay
-  // flow entirely.
-  function initGallery() {
-    // Topbar: load profile (best-effort) so the user chip + sparks show
-    // up for signed-in viewers; gallery still renders for anonymous users.
-    if (window.BsAuthUI && window.BsAuthUI.updatePlayAuthUI) {
-      window.BsAuthUI.updatePlayAuthUI();
-    }
-    // Audio toggles + ambient (silent until user toggles).
-    if (window.ArenaAudio && window.ArenaAudio.init) window.ArenaAudio.init();
-    // Render the gallery grid.
-    if (typeof renderGallery === 'function') {
-      renderGallery();
-    }
-  }
-
   document.addEventListener('DOMContentLoaded', () => {
     if (window.ProductAnalytics) ProductAnalytics.init('blindspot');
     cleanupLocalStorage();
     if (isOnLandingPage()) initLanding();
-    else if (isOnGalleryPage()) initGallery();
     else if (isOnPlayPage()) initPlay();
+    // gallery.html is its own standalone page with its own bootstrap
+    // (see gallery.html inline DOMContentLoaded -> BsGalleryPage.init/render);
+    // it does not load this monolith.
   });
 
 })();

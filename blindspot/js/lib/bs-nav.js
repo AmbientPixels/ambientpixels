@@ -84,7 +84,10 @@
     document.getElementById('bs-btn-campaign')?.addEventListener('click', openCampaign);
     // Gallery quicklink (desktop) — same destination as the bottom-nav
     // Gallery button (mobile). Using the same single openGallery handler.
-    const openGallery = () => { _cb.showScreen('gallery'); if (_cb.renderGallery) _cb.renderGallery(); };
+    // Gallery is its own standalone page (phase 5 cleanup) — both the
+    // dashboard quick-link button and the lobby Hall of Fighters "View
+    // all" link navigate to it instead of running an in-page showScreen.
+    const openGallery = () => { window.location.href = '/blindspot/gallery.html'; };
     document.getElementById('bs-btn-gallery')?.addEventListener('click', openGallery);
     document.getElementById('bs-lobby-gallery-viewall')?.addEventListener('click', openGallery);
 
@@ -323,7 +326,7 @@
           if (campaignDone || _cb.getForgeWins() >= needed || _cb.isForgePending()) { _cb.openForgeScreen(false, true); }
           else { _cb.showErrorToast('Win ' + Math.ceil(needed - _cb.getForgeWins()) + ' more fights to unlock the Forge'); }
         }
-        else if (nav === 'gallery') { _cb.showScreen('gallery'); if (_cb.renderGallery) _cb.renderGallery(); }
+        else if (nav === 'gallery') { window.location.href = '/blindspot/gallery.html'; }
         else if (nav === 'leaderboard') { _cb.showScreen('leaderboard'); _cb.renderLeaderboard(); }
         else if (nav === 'pvp') {
           var pvpReq = _cb.getPvpUnlockRequirement ? _cb.getPvpUnlockRequirement() : 3;

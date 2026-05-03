@@ -537,21 +537,11 @@
     </div>
 
 
-    <!-- SCREEN: GALLERY — public card showcase. Renders cards from
-         galleryCards (loadCards response) into a grid; click a card to
-         open a detail modal. Read-only, gated by per-card publishedToGallery
-         flag set in the forge editor. -->
-    <div id="bs-screen-gallery" class="bs-screen" role="region" aria-label="Card Gallery">
-      <div class="bs-gallery">
-        <div class="bs-gallery__header">
-          <button class="bs-campaign__back" id="bs-gallery-back" aria-label="Back to lobby"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
-          <h2 class="bs-gallery__title"><i class="fas fa-images" style="color:var(--bs-accent);"></i> Gallery</h2>
-          <span class="bs-gallery__meta" id="bs-gallery-count">&nbsp;</span>
-        </div>
-        <p class="bs-gallery__sub">Cards published by other fighters. Browse for inspiration; nothing here changes your roster.</p>
-        <div class="bs-gallery__grid" id="bs-gallery-grid" role="list" aria-label="Public cards"></div>
-      </div>
-    </div>
+    <!-- Gallery moved to /blindspot/gallery.html as a standalone public
+         page (phase 5 cleanup). The bottom-nav Gallery item routes there
+         directly; the Hall of Fighters preview strip in the lobby still
+         renders inline via bs-lobby-gallery.js. -->
+
 
     <!-- SCREEN: STATS — full player progression panel. renderStatsScreen
          in blindspot-flow.js populates each section from the loaded
@@ -1369,14 +1359,6 @@
        modals so .bs-modal-backdrop's `position: fixed` is viewport-relative
        (some main-tree ancestors create stacking contexts via transform/
        filter that break fixed positioning). -->
-  <div id="bs-gallery-detail" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="Card detail" aria-modal="true">
-    <div class="bs-modal bs-gallery-detail">
-      <button class="bs-modal__close" id="bs-gallery-detail-close" aria-label="Close"><i class="fas fa-xmark"></i></button>
-      <div class="bs-gallery-detail__card" id="bs-gallery-detail-card"></div>
-      <div class="bs-gallery-detail__meta" id="bs-gallery-detail-meta"></div>
-    </div>
-  </div>
-
   <!-- How to Play modal -->
   <div id="bs-howtoplay" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="How to Play" aria-modal="true">
     <div class="bs-modal" style="max-width:520px;">
@@ -1562,10 +1544,10 @@
       <i class="fas fa-fire" aria-hidden="true"></i>
       <span>Forge</span>
     </button>
-    <button class="bs-bottom-nav__item" data-nav="gallery">
+    <a class="bs-bottom-nav__item" href="/blindspot/gallery.html" data-nav="gallery">
       <i class="fas fa-images" aria-hidden="true"></i>
       <span>Gallery</span>
-    </button>
+    </a>
     <button class="bs-bottom-nav__item" data-nav="leaderboard">
       <i class="fas fa-crown" aria-hidden="true"></i>
       <span>Ranks</span>
