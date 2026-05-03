@@ -1468,7 +1468,7 @@ function getStaminaCost(move, passives, config) {
 // --- Action: move ---
 
 async function handleMove(context, containerClient, userId, body) {
-  const { battleId, round, crowdBoost, useItem } = body;
+  const { battleId, round, crowdBoost, hypeClimax, useItem } = body;
   const VALID_MOVES = ['strike', 'guard', 'ability', 'heal', 'counter'];
 
   // Dual-action: accept moves[] array or legacy move string
@@ -1633,6 +1633,23 @@ async function handleMove(context, containerClient, userId, body) {
     const boost = Math.round(result.opponentDamageTaken * 0.15);
     result.opponentDamageTaken += boost;
     result.events.push(`\uD83D\uDD25 CROWD ERUPTS! Crowd energy fuels your attack! (+${boost} damage)`);
+  }
+
+  // B5: Hype Climax \u2014 paired with the crowd boost trigger. When the hype
+  // meter fills, both fighters surge with energy and gain stamina back so
+  // the climax beat creates a high-action recovery rather than draining
+  // both sides into exhaustion. Symmetric so it stays fair across PvE/PvP.
+  if (hypeClimax === true && battle.stamina && battle.maxStamina) {
+    const HYPE_STAMINA_GAIN = 8;
+    const pBefore = battle.stamina.player;
+    const oBefore = battle.stamina.opponent;
+    battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + HYPE_STAMINA_GAIN);
+    battle.stamina.opponent = Math.min(battle.maxStamina.opponent, battle.stamina.opponent + HYPE_STAMINA_GAIN);
+    const pGain = battle.stamina.player - pBefore;
+    const oGain = battle.stamina.opponent - oBefore;
+    if (pGain > 0 || oGain > 0) {
+      result.events.push(`\u26A1 HYPE CLIMAX! Both fighters surge with energy! (+${pGain} / +${oGain} stamina)`);
+    }
   }
 
   // B1: Last Stand — below 20% HP -> +10 flat damage on any attack (desperation bonus)
@@ -2033,6 +2050,35 @@ async function handleMove(context, containerClient, userId, body) {
     result.events.push('\uD83C\uDFAF COMBO PRIMER amplifies ' + comboTriggered + '! (+' + cpBonus + ' bonus damage!)');
   }
 
+  // B6: Combo Chain \u2014 cross-turn streak of consecutive damaging hits.
+  // Resets the moment the player's turn fails to deal damage (block,
+  // miss, heal, etc.). At chain >= 3 each subsequent hit gains +15%;
+  // at chain >= 5 hits gain +30% AND refund 2 stamina so an aggressive
+  // streak feeds itself. Tracks player only -- this is a player-skill
+  // reward, not a generic combat rule.
+  if (!battle.comboChain) battle.comboChain = { player: 0 };
+  if (result.opponentDamageTaken > 0) {
+    battle.comboChain.player += 1;
+    var chain = battle.comboChain.player;
+    var chainBonus = 0;
+    if (chain >= 5) {
+      chainBonus = Math.round(result.opponentDamageTaken * 0.30);
+      result.events.push('\uD83D\uDD25 STREAK ' + chain + '! Combo chain peaks! (+' + chainBonus + ' damage, +2 stamina)');
+      if (battle.stamina && battle.maxStamina) {
+        battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + 2);
+      }
+    } else if (chain >= 3) {
+      chainBonus = Math.round(result.opponentDamageTaken * 0.15);
+      result.events.push('\u26A1 CHAIN ' + chain + '! Pressing the attack! (+' + chainBonus + ' damage)');
+    }
+    if (chainBonus > 0) {
+      opponent.hp = Math.max(0, opponent.hp - chainBonus);
+      result.opponentDamageTaken += chainBonus;
+    }
+  } else if (battle.comboChain.player > 0) {
+    battle.comboChain.player = 0;
+  }
+
   player.moves.push(m1, m2);
 
   const roundResult = {
@@ -2057,6 +2103,7 @@ async function handleMove(context, containerClient, userId, body) {
     opponentCounterReflect: result.opponentCounterReflect,
     itemUsed: itemUsed,
     comboTriggered: comboTriggered,
+    comboChain: battle.comboChain ? battle.comboChain.player : 0,
     stamina: battle.stamina ? {
       player: battle.stamina.player,
       opponent: battle.stamina.opponent,

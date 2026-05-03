@@ -3591,6 +3591,11 @@
 .bs-page .arena-combo-banner__icon { font-size: 2rem; }
 .bs-page .arena-combo-banner__name { font-family: 'Cinzel', serif; font-size: 2rem; font-weight: 900; color: var(--combo-color, var(--bs-accent)); text-shadow: 0 0 30px var(--combo-color, var(--bs-accent)), 0 0 60px rgba(0,0,0,0.5); letter-spacing: 0.08em; }
 .bs-page .arena-combo-banner__desc { font-size: 0.75rem; color: var(--bs-text-muted); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+/* STREAK banner — same burst animation, beefed up so chain-5+ feels like
+   a peak moment distinct from the within-turn combo banners (Flurry etc). */
+.bs-page .arena-combo-banner--streak .arena-combo-banner__name { font-size: 2.6rem; text-shadow: 0 0 40px var(--combo-color, var(--bs-accent)), 0 0 80px rgba(0,0,0,0.6); }
+.bs-page .arena-combo-banner--streak .arena-combo-banner__icon { font-size: 2.6rem; filter: drop-shadow(0 0 12px var(--combo-color, var(--bs-accent))); }
+.bs-page .arena-combo-banner--streak .arena-combo-banner__desc { color: var(--bs-accent-glow, #f5c078); font-weight: 700; }
 @keyframes arena-combo-burst { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); } 8% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); } 15% { transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.05) translateY(-10px); } }
 
 /* --- Phase 1B: Combo hint glow on move buttons --- */

@@ -1060,6 +1060,25 @@ window.ArenaBattleUI = (function () {
     setTimeout(function () { banner.remove(); }, 2200);
   }
 
+  // B6: STREAK banner — fires on the first hit at chain 5 (peak threshold)
+  // and re-fires every 3 hits past that (8, 11, 14...) so a long streak
+  // keeps feeling rewarding without spamming a banner every single round.
+  function showStreakBanner(chain) {
+    var field = document.querySelector('.arena-battle__field');
+    if (!field) return;
+    var banner = document.createElement('div');
+    banner.className = 'arena-combo-banner arena-combo-banner--streak';
+    banner.style.setProperty('--combo-color', '#ef9f27');
+    banner.innerHTML = '<span class="arena-combo-banner__icon">🔥</span>' +
+      '<span class="arena-combo-banner__name">STREAK ' + chain + '</span>' +
+      '<span class="arena-combo-banner__desc">+30% dmg, +2 stamina</span>';
+    field.appendChild(banner);
+    if (window.ArenaAudio) window.ArenaAudio.play('crit');
+    spawnParticles(field, 24, '#ef9f27', 'up');
+    shakeScreen('crit', 500);
+    setTimeout(function () { banner.remove(); }, 2400);
+  }
+
   // ─── Phase 1B: First-combo discovery toast (one-time per combo type) ────
   function showComboDiscoveryToast(comboId) {
     var combo = COMBO_DEFS[comboId];
@@ -1265,6 +1284,18 @@ window.ArenaBattleUI = (function () {
       spawnParticles(field, 15, comboColor, 'up');
     }
 
+    // B6: Combo Chain — STREAK banner at peak (chain reaches 5),
+    // re-fires every 3 hits past peak (8, 11, 14...) so an extended
+    // streak keeps feeling rewarding without spamming the banner.
+    var chain = (typeof result.comboChain === 'number') ? result.comboChain : 0;
+    if (chain === 5 || (chain > 5 && (chain - 5) % 3 === 0)) {
+      showStreakBanner(chain);
+    } else if (chain >= 3 && chain < 5) {
+      // Mid-chain: subtle particles in the chain color, no banner.
+      var chainField = document.querySelector('.arena-battle__field');
+      if (chainField) spawnParticles(chainField, 8, '#ef9f27', 'up');
+    }
+
     // Phase 1B: Track move history for combo hints
     _moveHistory.push(result.playerMove);
 
@@ -1365,7 +1396,10 @@ window.ArenaBattleUI = (function () {
       const boost = _crowdBoostPending;
       _crowdBoostPending = false;
       var moveExtra = {};
-      if (boost) moveExtra.crowdBoost = true;
+      if (boost) {
+        moveExtra.crowdBoost = true;
+        moveExtra.hypeClimax = true; // Same trigger -- climax also refunds +8 stamina to both
+      }
       if (window._pendingItemUse) { moveExtra.useItem = window._pendingItemUse; window._pendingItemUse = null; }
       if (_stanceChangedThisTurn) moveExtra.stance = _playerStance;
       _stanceChangedThisTurn = false;

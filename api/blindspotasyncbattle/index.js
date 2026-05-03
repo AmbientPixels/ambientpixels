@@ -741,7 +741,7 @@ async function handleStart(context, containerClient, userId, body) {
 // ── Move: attacker submits move, defender AI responds ──
 
 async function handleMove(context, containerClient, userId, body) {
-  const { battleId, round, move } = body;
+  const { battleId, round, move, crowdBoost, hypeClimax } = body;
 
   if (!battleId || !round || !move) {
     context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'battleId, round, and move are required' } };
@@ -829,6 +829,30 @@ async function handleMove(context, containerClient, userId, body) {
   // Update temp effects
   battle.tempEffects = result.newTempEffects || { player: [], opponent: [] };
 
+  // B4: Crowd Boost — same +15% damage spend as the campaign engine.
+  if (crowdBoost === true && result.opponentDamageTaken > 0) {
+    const cbBonus = Math.round(result.opponentDamageTaken * 0.15);
+    result.opponentDamageTaken += cbBonus;
+    opponent.hp = Math.max(0, opponent.hp - cbBonus);
+    result.events.push(`🔥 CROWD ERUPTS! Crowd energy fuels your attack! (+${cbBonus} damage)`);
+  }
+
+  // B5: Hype Climax — symmetric +8 stamina to both fighters when the
+  // hype meter fills. Mirrors the campaign engine so PvE/PvP feel the
+  // same. Defender AI also benefits, keeping the climax fair.
+  if (hypeClimax === true && battle.stamina && battle.maxStamina) {
+    const HYPE_STAMINA_GAIN = 8;
+    const pBefore = battle.stamina.player;
+    const oBefore = battle.stamina.opponent;
+    battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + HYPE_STAMINA_GAIN);
+    battle.stamina.opponent = Math.min(battle.maxStamina.opponent, battle.stamina.opponent + HYPE_STAMINA_GAIN);
+    const pGain = battle.stamina.player - pBefore;
+    const oGain = battle.stamina.opponent - oBefore;
+    if (pGain > 0 || oGain > 0) {
+      result.events.push(`⚡ HYPE CLIMAX! Both fighters surge with energy! (+${pGain} / +${oGain} stamina)`);
+    }
+  }
+
   // Combo detection
   let comboTriggered = null;
   const prevMoves = player.moves;
@@ -866,6 +890,33 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
+  // B6: Combo Chain — cross-turn streak of consecutive damaging hits.
+  // Mirrors the campaign engine: chain >= 3 grants +15% on the hit,
+  // chain >= 5 grants +30% AND refunds 2 stamina. Resets on any
+  // damageless turn (block, miss, heal). Tracks the player only.
+  if (!battle.comboChain) battle.comboChain = { player: 0 };
+  if (result.opponentDamageTaken > 0) {
+    battle.comboChain.player += 1;
+    const chain = battle.comboChain.player;
+    let chainBonus = 0;
+    if (chain >= 5) {
+      chainBonus = Math.round(result.opponentDamageTaken * 0.30);
+      result.events.push('🔥 STREAK ' + chain + '! Combo chain peaks! (+' + chainBonus + ' damage, +2 stamina)');
+      if (battle.stamina && battle.maxStamina) {
+        battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + 2);
+      }
+    } else if (chain >= 3) {
+      chainBonus = Math.round(result.opponentDamageTaken * 0.15);
+      result.events.push('⚡ CHAIN ' + chain + '! Pressing the attack! (+' + chainBonus + ' damage)');
+    }
+    if (chainBonus > 0) {
+      opponent.hp = Math.max(0, opponent.hp - chainBonus);
+      result.opponentDamageTaken += chainBonus;
+    }
+  } else if (battle.comboChain.player > 0) {
+    battle.comboChain.player = 0;
+  }
+
   player.moves.push(move);
   opponent.moves.push(opponentMove);
 
@@ -887,7 +938,14 @@ async function handleMove(context, containerClient, userId, body) {
     opponentLastStand: opponentInLastStand,
     playerCounterReflect: result.playerCounterReflect,
     opponentCounterReflect: result.opponentCounterReflect,
-    comboTriggered
+    comboTriggered,
+    comboChain: battle.comboChain ? battle.comboChain.player : 0,
+    stamina: battle.stamina ? {
+      player: battle.stamina.player,
+      opponent: battle.stamina.opponent,
+      playerMax: battle.maxStamina && battle.maxStamina.player,
+      opponentMax: battle.maxStamina && battle.maxStamina.opponent
+    } : undefined
   };
 
   battle.roundLog.push(roundResult);
