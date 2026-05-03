@@ -98,6 +98,24 @@ const SETS = [
       { id: 'ember',     subject: 'A glowing red-hot crate with smouldering ember-light leaking from every seam, faint smoke rising, scorched dark stone beneath.' },
       { id: 'ascension', subject: 'A crate of polished dark obsidian stone with a single embedded violet crystal star centered on the lid, cold radiant violet light beaming softly outward.' }
     ]
+  },
+
+  // ─── TITLES (heraldic wax seals — each title is an earned crest) ─
+  {
+    id: 'titles',
+    dir: 'titles',
+    webpEdge: 384,
+    style: 'A heraldic wax seal pressed into a deep crimson disc, the embossed sigil prominently raised in the center of the wax, gold dust catching the rim, dark parchment backdrop with subtle vignette, hand-rendered fantasy crest style, square 1:1 framing, no text, no UI, no logos.',
+    items: [
+      { id: 'title_the_lucky',        subject: 'The embossed sigil is a four-leaf clover with a small die pip in the center.' },
+      { id: 'title_the_brave',        subject: 'The embossed sigil is a stylized kite shield with a single bold cross brace.' },
+      { id: 'title_crate_hunter',     subject: 'The embossed sigil is a small crossed-key over an open treasure chest.' },
+      { id: 'title_shadow_walker',    subject: 'The embossed sigil is a half-mask with a single eye-slit, surrounded by faint smoke wisps.' },
+      { id: 'title_loot_goblin',      subject: 'The embossed sigil is a coin-stuffed sack with three coins spilling from the top.' },
+      { id: 'title_arena_champion',   subject: 'The embossed sigil is a laurel-wreathed trophy cup with two crossed swords behind it.' },
+      { id: 'title_the_unstoppable',  subject: 'The embossed sigil is a roaring flame contained inside a circular ring, the flame breaking the ring at the top.' },
+      { id: 'title_fortune_favored',  subject: 'The embossed sigil is a regal crown with a single radiant gemstone at its center, sun rays etched outward.' }
+    ]
   }
 ];
 

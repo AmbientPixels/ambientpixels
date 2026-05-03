@@ -149,6 +149,20 @@ window.BsCosmetics = (function () {
         var isEquipped = equipped[_collectionSlot] === item.id;
         var rarityColor = RARITY_COLORS[item.rarity] || 'var(--bs-text-muted)';
 
+        // Owned -> show illustrated art if we have it for this category;
+        // unowned (or no art for this slot) -> FA icon. Category derived from
+        // item ID prefix (title_* / frame_* / back_* / plate_* / victory_*).
+        var slotCategory = (item.id.indexOf('title_') === 0) ? 'titles'
+          : (item.id.indexOf('frame_') === 0) ? 'frames'
+          : (item.id.indexOf('back_') === 0) ? 'backs'
+          : (item.id.indexOf('plate_') === 0) ? 'plates'
+          : (item.id.indexOf('victory_') === 0) ? 'victory'
+          : null;
+        var slotArtId = (isOwned && slotCategory) ? item.id : null;
+        var slotIconHtml = (slotCategory && window.BsCharms && window.BsCharms.assetArtHtml)
+          ? window.BsCharms.assetArtHtml(slotCategory, slotArtId, item.icon, item.name)
+          : '<i class="fas ' + (item.icon || 'fa-star') + '" aria-hidden="true"></i>';
+
         html += '<button class="bs-collection-item'
           + (isEquipped ? ' bs-collection-item--equipped' : '')
           + (isOwned ? '' : ' bs-collection-item--locked')
@@ -157,7 +171,7 @@ window.BsCosmetics = (function () {
           + (isOwned ? '' : ' disabled')
           + ' aria-label="' + escHtml(item.name) + (isEquipped ? ' (equipped)' : '') + (isOwned ? '' : ' (locked)') + '"'
           + ' style="--bs-item-rarity:' + rarityColor + ';">'
-          + '<div class="bs-collection-item__icon"><i class="fas ' + (item.icon || 'fa-star') + '" aria-hidden="true"></i></div>'
+          + '<div class="bs-collection-item__icon">' + slotIconHtml + '</div>'
           + '<span class="bs-collection-item__name">' + escHtml(item.name) + '</span>'
           + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (item.rarity || '') + '</span>'
           + (isEquipped ? '<span class="bs-collection-item__badge"><i class="fas fa-check"></i> Equipped</span>' : '')

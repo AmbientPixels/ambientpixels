@@ -13,58 +13,80 @@ window.BsCharms = (function () {
   function progress() { return window.BsState ? window.BsState.progress : {}; }
   function sync() { if (window.BsState) window.BsState.sync(); }
 
-  // Item IDs that have (or will have) illustrated WebP art under /blindspot/img/items/.
-  // Pre-listing IDs here is safe: itemArtHtml's onerror handler swaps a missing
-  // image back to the FA icon at render time, so we can list IDs before the art
-  // lands without risking broken-image placeholders.
-  // Single source of truth for both bs-charms.js (prefight + battle) and the
-  // BsCharms.itemArtHtml export used by bs-cosmetics.js + bs-sparks-shop.js.
-  var ITEM_IMAGES = {
-    // Shipped art
-    charm_heal_potion: true,
-    smoke_bomb: true,
-    lucky_coin: true,
-    focus_elixir: true,
-    prism_shard: true,
-    war_cry: true,
-    iron_skin: true,
-    healing_salve: true,
-    stamina_potion: true,
-    element_ward: true,
-    // Pending art (auto-renders the moment the WebP lands; FA icon until then)
-    charm_power_surge: true,
-    charm_shield_wall: true,
-    charm_lucky_strike: true,
-    charm_charge_boost: true,
-    charm_resist_fire: true,
-    charm_resist_earth: true,
-    charm_resist_arcane: true,
-    charm_resist_shadow: true,
-    element_burst: true,
-    element_shift: true,
-    endurance_tonic: true,
-    second_wind: true,
-    // Battle charms missed in earlier passes (defined in game-config.json
-    // battle_charms drop pool); art generated 2026-05-02
-    charm_smoke_bomb: true,
-    charm_iron_skin: true,
-    charm_combo_primer: true,
-    charm_adrenaline_spike: true,
-    battle_surge: true
+  // Asset registry. Each top-level key is a category that maps to a directory
+  // under /blindspot/img/{category}/{id}.webp. Pre-listing IDs is safe -- the
+  // assetArtHtml onerror handler swaps a missing image back to the FA icon at
+  // render time, so we can list IDs before the art lands without risking
+  // broken-image placeholders.
+  // Single source of truth for the whole game; consumed by bs-charms.js
+  // (prefight + battle), bs-cosmetics.js, and bs-sparks-shop.js via the
+  // BsCharms.assetArtHtml / BsCharms.itemArtHtml exports.
+  var ASSET_REGISTRY = {
+    items: {
+      // Shipped art (batches 1-5)
+      charm_heal_potion: true,
+      smoke_bomb: true,
+      lucky_coin: true,
+      focus_elixir: true,
+      prism_shard: true,
+      war_cry: true,
+      iron_skin: true,
+      healing_salve: true,
+      stamina_potion: true,
+      element_ward: true,
+      charm_power_surge: true,
+      charm_shield_wall: true,
+      charm_lucky_strike: true,
+      charm_charge_boost: true,
+      charm_resist_fire: true,
+      charm_resist_earth: true,
+      charm_resist_arcane: true,
+      charm_resist_shadow: true,
+      element_burst: true,
+      element_shift: true,
+      endurance_tonic: true,
+      second_wind: true,
+      charm_smoke_bomb: true,
+      charm_iron_skin: true,
+      charm_combo_primer: true,
+      charm_adrenaline_spike: true,
+      battle_surge: true
+    },
+    titles: {
+      title_the_lucky: true,
+      title_the_brave: true,
+      title_crate_hunter: true,
+      title_shadow_walker: true,
+      title_loot_goblin: true,
+      title_arena_champion: true,
+      title_the_unstoppable: true,
+      title_fortune_favored: true
+    }
+    // Future categories (frames, backs, plates, victory, classes, stats,
+    // elements, crates) get listed here once their renderers wire up.
   };
 
-  function itemArtHtml(id, fallbackFaIcon, alt) {
-    if (id && ITEM_IMAGES[id]) {
+  // Backward-compat alias for the existing items lookups.
+  var ITEM_IMAGES = ASSET_REGISTRY.items;
+
+  function assetArtHtml(category, id, fallbackFaIcon, alt) {
+    var registry = ASSET_REGISTRY[category];
+    if (id && registry && registry[id]) {
       var fbIcon = fallbackFaIcon || 'fa-box';
-      // If the WebP 404s (ID listed in ITEM_IMAGES before art has shipped),
-      // swap the <img> for the FA icon at error time. Inner quotes are
-      // HTML-escaped as &quot; so the browser hands clean JS to onerror.
+      // If the WebP 404s (ID listed before art has shipped), swap the <img>
+      // for the FA icon at error time. Inner quotes are HTML-escaped as
+      // &quot; so the browser hands clean JS to onerror.
       var fbHtml = '<i class=&quot;fas ' + fbIcon + '&quot; aria-hidden=&quot;true&quot;></i>';
-      return '<img class="bs-item-art" src="/blindspot/img/items/' + id + '.webp"'
+      return '<img class="bs-item-art" src="/blindspot/img/' + category + '/' + id + '.webp"'
         + ' alt="' + escHtml(alt || '') + '" loading="lazy" decoding="async"'
         + " onerror=\"this.outerHTML='" + fbHtml + "'\">";
     }
     return '<i class="fas ' + (fallbackFaIcon || 'fa-box') + '" aria-hidden="true"></i>';
+  }
+
+  // Items are the most common asset, keep the short helper.
+  function itemArtHtml(id, fallbackFaIcon, alt) {
+    return assetArtHtml('items', id, fallbackFaIcon, alt);
   }
 
   // Injected callbacks (set by monolith after load)
@@ -412,7 +434,12 @@ window.BsCharms = (function () {
     remove: removeCharm,
     getDef: getCharmDef,
     itemArtHtml: itemArtHtml,
+    assetArtHtml: assetArtHtml,
     hasItemArt: function (id) { return !!ITEM_IMAGES[id]; },
+    hasAssetArt: function (category, id) {
+      var r = ASSET_REGISTRY[category];
+      return !!(r && r[id]);
+    },
     renderSelector: renderCharmSelector,
     addCharmButton: addCharmButtonToBattle,
     addItemButtons: addItemButtonsToBattle,
