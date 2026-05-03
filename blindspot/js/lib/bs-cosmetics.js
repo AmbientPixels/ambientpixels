@@ -11,6 +11,50 @@ window.BsCosmetics = (function () {
 
   function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
+  // Mini animated previews for the victory_* cosmetics. Renders the actual
+  // effect at icon-slot scale, looped infinitely, contained inside the slot.
+  // Same particle/animation language as the fullscreen version (.bs-vfx-*),
+  // scoped under .bs-victory-preview so the styles don't escape.
+  function buildVictoryPreviewHtml(victoryId) {
+    if (victoryId === 'victory_confetti') {
+      var colors = ['#EF9F27', '#FF5252', '#22C55E', '#3B82F6', '#A855F7', '#F5C078'];
+      var html = '';
+      for (var i = 0; i < 8; i++) {
+        html += '<span class="bs-vfx-mini-particle" style="left:' + (8 + i * 11) + '%; background:' + colors[i % colors.length]
+          + '; animation-delay:' + (i * 0.3).toFixed(2) + 's;"></span>';
+      }
+      return '<div class="bs-victory-preview bs-victory-preview--confetti">' + html + '</div>';
+    }
+    if (victoryId === 'victory_lightning') {
+      var bolts = '';
+      for (var i = 0; i < 3; i++) {
+        bolts += '<span class="bs-vfx-mini-bolt" style="left:' + (20 + i * 28) + '%; animation-delay:' + (i * 0.55).toFixed(2) + 's;"></span>';
+      }
+      return '<div class="bs-victory-preview bs-victory-preview--lightning">' + bolts + '</div>';
+    }
+    if (victoryId === 'victory_fireworks') {
+      return '<div class="bs-victory-preview bs-victory-preview--fireworks">'
+        + '<span class="bs-vfx-mini-firework"></span>'
+        + '</div>';
+    }
+    if (victoryId === 'victory_shockwave') {
+      return '<div class="bs-victory-preview bs-victory-preview--shockwave">'
+        + '<span class="bs-vfx-mini-ring"></span>'
+        + '<span class="bs-vfx-mini-ring" style="animation-delay:0.4s;"></span>'
+        + '<span class="bs-vfx-mini-ring" style="animation-delay:0.8s;"></span>'
+        + '</div>';
+    }
+    if (victoryId === 'victory_ravens') {
+      var ravens = '';
+      for (var i = 0; i < 3; i++) {
+        ravens += '<span class="bs-vfx-mini-raven" style="top:' + (60 + i * 8) + '%; animation-delay:' + (i * 0.9).toFixed(2) + 's;">'
+          + '<i class="fas fa-crow"></i></span>';
+      }
+      return '<div class="bs-victory-preview bs-victory-preview--ravens">' + ravens + '</div>';
+    }
+    return '<i class="fas fa-burst" aria-hidden="true"></i>';
+  }
+
   // ── State accessors ──
   function progress() { return window.BsState ? window.BsState.progress : {}; }
   function sync() { if (window.BsState) window.BsState.sync(); }
@@ -152,16 +196,24 @@ window.BsCosmetics = (function () {
         // Owned -> show illustrated art if we have it for this category;
         // unowned (or no art for this slot) -> FA icon. Category derived from
         // item ID prefix (title_* / frame_* / back_* / plate_* / victory_*).
+        // Special case: victory_* shows a mini animated preview of the
+        // actual effect when owned, not a static image.
         var slotCategory = (item.id.indexOf('title_') === 0) ? 'titles'
           : (item.id.indexOf('frame_') === 0) ? 'frames'
           : (item.id.indexOf('back_') === 0) ? 'backs'
           : (item.id.indexOf('plate_') === 0) ? 'plates'
           : (item.id.indexOf('victory_') === 0) ? 'victory'
           : null;
-        var slotArtId = (isOwned && slotCategory) ? item.id : null;
-        var slotIconHtml = (slotCategory && window.BsCharms && window.BsCharms.assetArtHtml)
-          ? window.BsCharms.assetArtHtml(slotCategory, slotArtId, item.icon, item.name)
-          : '<i class="fas ' + (item.icon || 'fa-star') + '" aria-hidden="true"></i>';
+
+        var slotIconHtml;
+        if (slotCategory === 'victory' && isOwned) {
+          slotIconHtml = buildVictoryPreviewHtml(item.id);
+        } else {
+          var slotArtId = (isOwned && slotCategory) ? item.id : null;
+          slotIconHtml = (slotCategory && window.BsCharms && window.BsCharms.assetArtHtml)
+            ? window.BsCharms.assetArtHtml(slotCategory, slotArtId, item.icon, item.name)
+            : '<i class="fas ' + (item.icon || 'fa-star') + '" aria-hidden="true"></i>';
+        }
 
         html += '<button class="bs-collection-item'
           + (isEquipped ? ' bs-collection-item--equipped' : '')
