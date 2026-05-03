@@ -224,11 +224,11 @@ window.ArenaAPI = (function () {
         params: { action: 'poll', battleId: battleId }
       });
     },
-    submitLiveMove: function (battleId, round, moves, stance) {
-      return apiFetch('liveBattle', {
-        method: 'POST',
-        body: { action: 'move', battleId: battleId, round: round, moves: moves, stance: stance }
-      });
+    submitLiveMove: function (battleId, round, moves, stance, extra) {
+      var body = { action: 'move', battleId: battleId, round: round, moves: moves, stance: stance };
+      if (extra && extra.crowdBoost) body.crowdBoost = true;
+      if (extra && extra.hypeClimax) body.hypeClimax = true;
+      return apiFetch('liveBattle', { method: 'POST', body: body });
     },
     forfeitLiveBattle: function (battleId) {
       return apiFetch('liveBattle', {

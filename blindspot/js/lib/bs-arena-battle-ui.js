@@ -1407,7 +1407,7 @@ window.ArenaBattleUI = (function () {
       if (_battleData.type === 'live_pvp') {
         var liveMoves = Array.isArray(submitMove) ? submitMove : [submitMove, 'guard'];
         var liveResponse = await window.ArenaAPI.submitLiveMove(
-          _battleData.battleId, _currentRound, liveMoves, moveExtra.stance || _playerStance
+          _battleData.battleId, _currentRound, liveMoves, moveExtra.stance || _playerStance, moveExtra
         );
 
         if (liveResponse.status === 'waiting') {
@@ -1659,6 +1659,17 @@ window.ArenaBattleUI = (function () {
       showReflectBanner('opponent');
       if (audio) audio.play('crit');
       await sleep(400);
+    }
+
+    // Combo chain banner — fires on the player's own peak (chain 5),
+    // re-fires every 3 hits past peak (8, 11, 14...). Mirrors campaign B6.
+    var myChain = (lr.comboChain && typeof lr.comboChain.my === 'number') ? lr.comboChain.my : 0;
+    if (myChain === 5 || (myChain > 5 && (myChain - 5) % 3 === 0)) {
+      showStreakBanner(myChain);
+      await sleep(300);
+    } else if (myChain >= 3 && myChain < 5) {
+      var chainField = document.querySelector('.arena-battle__field');
+      if (chainField) spawnParticles(chainField, 8, '#ef9f27', 'up');
     }
 
     // ── Update HP bars (final values after both slots) ──

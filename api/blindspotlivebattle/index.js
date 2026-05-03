@@ -1032,7 +1032,7 @@ async function setActiveBattle(containerClient, usrId, battleId) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function handleMove(context, containerClient, userId, body) {
-  const { battleId, round } = body;
+  const { battleId, round, crowdBoost, hypeClimax } = body;
   const VALID_MOVES = ['strike', 'guard', 'ability', 'heal', 'counter'];
 
   let playerMoves;
@@ -1119,8 +1119,13 @@ async function handleMove(context, containerClient, userId, body) {
       }
     }
 
-    // Store pending moves
-    battle.pendingMoves[slot] = { moves: playerMoves, stance: body.stance || battle.stances[slot] };
+    // Store pending moves (plus per-side hype flags for symmetric live-PvP application)
+    battle.pendingMoves[slot] = {
+      moves: playerMoves,
+      stance: body.stance || battle.stances[slot],
+      crowdBoost: !!crowdBoost,
+      hypeClimax: !!hypeClimax
+    };
     battle.lastActivity[slot] = new Date().toISOString();
     battle.disconnectRounds[slot] = 0;
 
@@ -1212,6 +1217,9 @@ function executeLiveRound(battle, config) {
   const p2Moves = battle.pendingMoves.player2;
   const cc = config.chargeConfig || {};
 
+  // Init per-side combo-chain tracking (mirrors campaign B6 / async B6, but symmetric)
+  if (!battle.comboChain) battle.comboChain = { player1: 0, player2: 0 };
+
   // Deduct stamina for both players' moves
   for (const slot of ['player1', 'player2']) {
     const moves = battle.pendingMoves[slot].moves;
@@ -1246,6 +1254,9 @@ function executeLiveRound(battle, config) {
   battle.player1.hp = Math.min(battle.player1.hp, battle.player1.maxHp);
   battle.player2.hp = Math.min(battle.player2.hp, battle.player2.maxHp);
 
+  // Slot 1: Crowd boost + Combo chain (per side, symmetric)
+  applyCrowdAndChain(battle, result1, p1Moves, p2Moves, /*slotIndex*/ 1);
+
   // If someone is KO'd after slot 1, skip slot 2
   let result2 = null;
   if (battle.player1.hp > 0 && battle.player2.hp > 0) {
@@ -1259,11 +1270,31 @@ function executeLiveRound(battle, config) {
     battle.player1.hp = Math.min(battle.player1.hp, battle.player1.maxHp);
     battle.player2.hp = Math.min(battle.player2.hp, battle.player2.maxHp);
 
+    // Slot 2: Crowd boost + Combo chain (per side, symmetric)
+    applyCrowdAndChain(battle, result2, p1Moves, p2Moves, /*slotIndex*/ 2);
+
     battle.tempEffects.player1 = result2.newTempEffects.player || [];
     battle.tempEffects.player2 = result2.newTempEffects.opponent || [];
   } else {
     battle.tempEffects.player1 = result1.newTempEffects.player || [];
     battle.tempEffects.player2 = result1.newTempEffects.opponent || [];
+  }
+
+  // Hype Climax — symmetric +8 stamina to both fighters when either side
+  // popped their hype meter this round. Fires once per round; events attach
+  // to the last-logged slot so the climax lands at the end of the action.
+  if ((p1Moves.hypeClimax || p2Moves.hypeClimax) && battle.stamina && battle.maxStamina) {
+    const HYPE_STAMINA_GAIN = 8;
+    const p1Before = battle.stamina.player1;
+    const p2Before = battle.stamina.player2;
+    battle.stamina.player1 = Math.min(battle.maxStamina.player1 || 20, battle.stamina.player1 + HYPE_STAMINA_GAIN);
+    battle.stamina.player2 = Math.min(battle.maxStamina.player2 || 20, battle.stamina.player2 + HYPE_STAMINA_GAIN);
+    const p1Gain = battle.stamina.player1 - p1Before;
+    const p2Gain = battle.stamina.player2 - p2Before;
+    if (p1Gain > 0 || p2Gain > 0) {
+      const targetEvents = result2 ? result2.events : result1.events;
+      targetEvents.push('⚡ HYPE CLIMAX! Both fighters surge with energy! (+' + HYPE_STAMINA_GAIN + ' stamina each, capped at max)');
+    }
   }
 
   // Update cooldowns
@@ -1323,7 +1354,8 @@ function executeLiveRound(battle, config) {
     charges: { ...battle.charges },
     stamina: { ...battle.stamina },
     cooldowns: JSON.parse(JSON.stringify(battle.cooldowns)),
-    tempEffects: { player1: battle.tempEffects.player1, player2: battle.tempEffects.player2 }
+    tempEffects: { player1: battle.tempEffects.player1, player2: battle.tempEffects.player2 },
+    comboChain: { ...battle.comboChain }
   };
 
   // Store last round result for poll-based clients to pick up
@@ -1335,6 +1367,75 @@ function executeLiveRound(battle, config) {
   battle.roundDeadline = new Date(Date.now() + ROUND_TIMEOUT_MS).toISOString();
 
   return roundResult;
+}
+
+// Crowd boost (B4) + Combo chain (B6) per side, symmetric for live PvP.
+// resolveRound writes from player1's perspective: opponentDamageTaken =
+// damage dealt BY player1, playerDamageTaken = damage dealt BY player2.
+// Combo chain reset on any damageless slot, mirrors campaign B6.
+function applyCrowdAndChain(battle, result, p1Moves, p2Moves) {
+  // Crowd boost — player1 side
+  if (p1Moves.crowdBoost && result.opponentDamageTaken > 0) {
+    const cbBonus = Math.round(result.opponentDamageTaken * 0.15);
+    if (cbBonus > 0) {
+      result.opponentDamageTaken += cbBonus;
+      battle.player2.hp = Math.max(0, battle.player2.hp - cbBonus);
+      result.events.push('🔥 CROWD ERUPTS! Your attack gets fueled! (+' + cbBonus + ' damage)');
+    }
+  }
+  // Crowd boost — player2 side
+  if (p2Moves.crowdBoost && result.playerDamageTaken > 0) {
+    const cbBonus = Math.round(result.playerDamageTaken * 0.15);
+    if (cbBonus > 0) {
+      result.playerDamageTaken += cbBonus;
+      battle.player1.hp = Math.max(0, battle.player1.hp - cbBonus);
+      result.events.push("🔥 CROWD ERUPTS! Enemy's attack gets fueled! (+" + cbBonus + ' damage)');
+    }
+  }
+  // Combo chain — player1
+  if (result.opponentDamageTaken > 0) {
+    battle.comboChain.player1 += 1;
+    const chain = battle.comboChain.player1;
+    let chainBonus = 0;
+    if (chain >= 5) {
+      chainBonus = Math.round(result.opponentDamageTaken * 0.30);
+      result.events.push('🔥 STREAK ' + chain + '! Your combo chain peaks! (+' + chainBonus + ' damage, +2 stamina)');
+      if (battle.stamina && battle.maxStamina) {
+        battle.stamina.player1 = Math.min(battle.maxStamina.player1 || 20, battle.stamina.player1 + 2);
+      }
+    } else if (chain >= 3) {
+      chainBonus = Math.round(result.opponentDamageTaken * 0.15);
+      result.events.push('⚡ CHAIN ' + chain + '! Your aggression presses the attack! (+' + chainBonus + ' damage)');
+    }
+    if (chainBonus > 0) {
+      result.opponentDamageTaken += chainBonus;
+      battle.player2.hp = Math.max(0, battle.player2.hp - chainBonus);
+    }
+  } else if (battle.comboChain.player1 > 0) {
+    battle.comboChain.player1 = 0;
+  }
+  // Combo chain — player2
+  if (result.playerDamageTaken > 0) {
+    battle.comboChain.player2 += 1;
+    const chain = battle.comboChain.player2;
+    let chainBonus = 0;
+    if (chain >= 5) {
+      chainBonus = Math.round(result.playerDamageTaken * 0.30);
+      result.events.push("🔥 STREAK " + chain + "! Enemy's combo chain peaks! (+" + chainBonus + ' damage, +2 stamina)');
+      if (battle.stamina && battle.maxStamina) {
+        battle.stamina.player2 = Math.min(battle.maxStamina.player2 || 20, battle.stamina.player2 + 2);
+      }
+    } else if (chain >= 3) {
+      chainBonus = Math.round(result.playerDamageTaken * 0.15);
+      result.events.push("⚡ CHAIN " + chain + "! Enemy's aggression presses the attack! (+" + chainBonus + ' damage)');
+    }
+    if (chainBonus > 0) {
+      result.playerDamageTaken += chainBonus;
+      battle.player1.hp = Math.max(0, battle.player1.hp - chainBonus);
+    }
+  } else if (battle.comboChain.player2 > 0) {
+    battle.comboChain.player2 = 0;
+  }
 }
 
 // Translate round result from player1/player2 to my/opponent perspective
@@ -1375,7 +1476,8 @@ function perspectiveShift(roundResult, mySlot) {
     charges: { my: roundResult.charges[mySlot], opponent: roundResult.charges[other] },
     stamina: { my: roundResult.stamina[mySlot], opponent: roundResult.stamina[other] },
     cooldowns: { my: roundResult.cooldowns[mySlot], opponent: roundResult.cooldowns[other] },
-    tempEffects: { my: roundResult.tempEffects[mySlot], opponent: roundResult.tempEffects[other] }
+    tempEffects: { my: roundResult.tempEffects[mySlot], opponent: roundResult.tempEffects[other] },
+    comboChain: { my: (roundResult.comboChain || {})[mySlot] || 0, opponent: (roundResult.comboChain || {})[other] || 0 }
   };
 }
 
