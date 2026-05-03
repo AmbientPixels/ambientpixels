@@ -141,7 +141,18 @@ window.BsLobbyGallery = (function () {
     var cardWrap = document.createElement('div');
     cardWrap.className = 'bs-lobby-gallery__card';
     var _CR = window.BsCardRenderer;
-    cardWrap.innerHTML = _CR && _CR.render ? _CR.render(slide.card, 'compact') : '';
+    // Force fullbleed in the carousel so cards read as a uniform trading-
+    // card strip. Cards published with imageContainer:'masked' would
+    // otherwise render as circular avatars and break the row's visual
+    // rhythm (mirrors the same override used by renderDeckManagement).
+    var carouselCard = slide.card;
+    if (carouselCard && carouselCard.imageContainer !== 'fullbleed') {
+      carouselCard = Object.assign({}, slide.card, { imageContainer: 'fullbleed' });
+      if (carouselCard.design) {
+        carouselCard.design = Object.assign({}, carouselCard.design, { imageContainer: 'fullbleed' });
+      }
+    }
+    cardWrap.innerHTML = _CR && _CR.render ? _CR.render(carouselCard, 'compact') : '';
     btn.appendChild(cardWrap);
 
     if (slide.creator) {
