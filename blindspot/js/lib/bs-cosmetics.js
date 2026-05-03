@@ -126,8 +126,11 @@ window.BsCosmetics = (function () {
         var qty = counts[cItem.id] || 0;
         var rarityColor = RARITY_COLORS[cItem.rarity] || 'var(--bs-text-muted)';
 
+        // Owned -> show illustrated art. Unowned -> show FA icon (preserves
+        // first-time reveal moment when the player actually acquires one).
+        var cArtId = qty > 0 ? cItem.id : null;
         var cIconHtml = (window.BsCharms && window.BsCharms.itemArtHtml)
-          ? window.BsCharms.itemArtHtml(cItem.id, cItem.icon, cItem.name)
+          ? window.BsCharms.itemArtHtml(cArtId, cItem.icon, cItem.name)
           : '<i class="fas ' + (cItem.icon || 'fa-box') + '" aria-hidden="true"></i>';
         html += '<div class="bs-collection-item' + (qty === 0 ? ' bs-collection-item--locked' : '') + '"'
           + ' style="--bs-item-rarity:' + rarityColor + ';"'

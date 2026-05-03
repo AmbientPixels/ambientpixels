@@ -270,7 +270,9 @@
       + ' role="button" tabindex="0" aria-label="' + escHtml(item.name) + ' - ' + price + ' Sparks">'
       + '<div class="bs-shop-card__icon">'
         + ((window.BsCharms && window.BsCharms.itemArtHtml)
-          ? window.BsCharms.itemArtHtml(item.id, item.icon, item.name)
+          // Owned -> show art. Unowned -> show FA icon (reveal-on-acquire).
+          // Consumables: "owned" = qty > 0. Cosmetics: isOwned (already computed).
+          ? window.BsCharms.itemArtHtml(((isConsumable ? qty > 0 : isOwned) ? item.id : null), item.icon, item.name)
           : '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>')
         + '</div>'
       + '<div class="bs-shop-card__name">' + escHtml(item.name) + '</div>'
@@ -371,13 +373,17 @@
     var sparks = _cb.getSparks ? _cb.getSparks() : 0;
     var canAfford = sparks >= price;
     var isOwned = itemType === 'cosmetic' && (progress().cosmetics || []).indexOf(itemId) !== -1;
+    // Consumables: owned = at least 1 in inventory.
+    var hasConsumable = itemType === 'consumable'
+      && (progress().charms || []).indexOf(itemId) !== -1;
     var rc = rarityColor(item.rarity || 'common');
+    var previewArtId = (isOwned || hasConsumable) ? itemId : null;
 
     var html = '<div class="bs-shop-preview__card">'
       + '<button class="bs-shop-preview__close" id="bs-shop-preview-close" aria-label="Close"><i class="fas fa-times"></i></button>'
       + '<div class="bs-shop-preview__icon" style="color:' + rc + ';">'
         + ((window.BsCharms && window.BsCharms.itemArtHtml)
-          ? window.BsCharms.itemArtHtml(itemId, item.icon, item.name)
+          ? window.BsCharms.itemArtHtml(previewArtId, item.icon, item.name)
           : '<i class="fas ' + (item.icon || 'fa-box') + '"></i>')
         + '</div>'
       + '<div class="bs-shop-preview__name">' + escHtml(item.name) + '</div>'

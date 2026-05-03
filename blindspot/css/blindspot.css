@@ -9802,8 +9802,15 @@ body.bs-battle-active .bs-play {
 .bs-collection-item--locked {
   cursor: default;
 }
-.bs-collection-item--locked .bs-collection-item__icon {
+/* Locked filter only applies if the icon slot still holds illustrated art
+   (e.g. cosmetics with no art map yet). When the slot has an FA icon
+   (unowned consumables now go here), the icon already reads as "not
+   yours" so it shouldn't get dimmed below readable contrast. */
+.bs-collection-item--locked .bs-collection-item__icon img {
   filter: brightness(0.35) grayscale(0.6);
+}
+.bs-collection-item--locked .bs-collection-item__icon i.fas {
+  opacity: 0.55;
 }
 .bs-collection-item--locked .bs-collection-item__name,
 .bs-collection-item--locked .bs-collection-item__rarity,
