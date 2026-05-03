@@ -197,6 +197,13 @@ module.exports = async function (context, req) {
     // Extract user information from EasyAuth header
     const { userId, isAuthenticated } = extractUserInfo(req, context);
     context.log(`[${requestId}] User ID: ${userId}, Authenticated: ${isAuthenticated}`);
+
+    // Slim mode: caller only wants the player's own cards (no gallery merge,
+    // no default-cards-for-gallery). Cuts the response from ~70MB to a few
+    // KB and skips the slow published-cards.json blob fetch entirely. The
+    // Blindspot lobby/Forge/PvP-defender-list use this path; only the
+    // Gallery screen and CardForge keep the original full payload.
+    const slimMine = req.query && req.query.slim === 'mine';
     
     // If authenticated, log auth headers (for debugging only)
     if (isAuthenticated) {
@@ -229,36 +236,41 @@ module.exports = async function (context, req) {
     let userCards = [];
     let galleryCards = [];
 
-    // Load gallery cards
-    try {
-      context.log(`[${requestId}] Attempting to load gallery cards from blob path: ${PUBLISHED_CARDS_PATH}`);
-      const blobClient = containerClient.getBlobClient(PUBLISHED_CARDS_PATH);
-      context.log(`[${requestId}] Full blob URL: ${blobClient.url}`);
-      
-      const galleryData = await downloadJsonBlobWithRetry(containerClient, PUBLISHED_CARDS_PATH, context);
-      
-      if (!galleryData) {
-        context.log.warn(`[${requestId}] Gallery data is null or undefined`);
+    // Load gallery cards (skipped in slim=mine mode -- this is the heavy
+    // ~70MB blob that drives the lobby loading-bar pause)
+    if (!slimMine) {
+      try {
+        context.log(`[${requestId}] Attempting to load gallery cards from blob path: ${PUBLISHED_CARDS_PATH}`);
+        const blobClient = containerClient.getBlobClient(PUBLISHED_CARDS_PATH);
+        context.log(`[${requestId}] Full blob URL: ${blobClient.url}`);
+
+        const galleryData = await downloadJsonBlobWithRetry(containerClient, PUBLISHED_CARDS_PATH, context);
+
+        if (!galleryData) {
+          context.log.warn(`[${requestId}] Gallery data is null or undefined`);
+          galleryCards = [];
+        } else if (!galleryData.publishedCards) {
+          context.log.warn(`[${requestId}] Gallery data does not contain publishedCards property: ${JSON.stringify(Object.keys(galleryData))}`);
+          galleryCards = [];
+        } else {
+          galleryCards = galleryData.publishedCards;
+          context.log(`[${requestId}] Successfully loaded ${galleryCards.length} gallery cards`);
+        }
+      } catch (error) {
+        if (error.code === 'BlobNotFound') {
+          context.log.warn(`[${requestId}] Published cards blob not found: ${PUBLISHED_CARDS_PATH}`);
+          context.log.warn(`[${requestId}] This is expected for new deployments or if gallery is empty`);
+        } else if (error.code === 'AuthorizationPermissionMismatch') {
+          context.log.error(`[${requestId}] Authorization error: The managed identity does not have permission to read the blob`);
+          context.log.error(`[${requestId}] Ensure the managed identity has the 'Storage Blob Data Reader' role`);
+        } else {
+          context.log.error(`[${requestId}] Error loading published cards: ${error.message}`);
+          context.log.error(`[${requestId}] Error code: ${error.code}, Error details:`, error);
+        }
         galleryCards = [];
-      } else if (!galleryData.publishedCards) {
-        context.log.warn(`[${requestId}] Gallery data does not contain publishedCards property: ${JSON.stringify(Object.keys(galleryData))}`);
-        galleryCards = [];
-      } else {
-        galleryCards = galleryData.publishedCards;
-        context.log(`[${requestId}] Successfully loaded ${galleryCards.length} gallery cards`);
       }
-    } catch (error) {
-      if (error.code === 'BlobNotFound') {
-        context.log.warn(`[${requestId}] Published cards blob not found: ${PUBLISHED_CARDS_PATH}`);
-        context.log.warn(`[${requestId}] This is expected for new deployments or if gallery is empty`);
-      } else if (error.code === 'AuthorizationPermissionMismatch') {
-        context.log.error(`[${requestId}] Authorization error: The managed identity does not have permission to read the blob`);
-        context.log.error(`[${requestId}] Ensure the managed identity has the 'Storage Blob Data Reader' role`);
-      } else {
-        context.log.error(`[${requestId}] Error loading published cards: ${error.message}`);
-        context.log.error(`[${requestId}] Error code: ${error.code}, Error details:`, error);
-      }
-      galleryCards = [];
+    } else {
+      context.log(`[${requestId}] slim=mine: skipping gallery cards fetch`);
     }
 
     /* updated by Cascade 2025-07-14 - fixed duplicate code for loading default cards */
@@ -296,10 +308,11 @@ module.exports = async function (context, req) {
       }
     }
     
-    // Get default cards for display in the gallery section
+    // Get default cards for display in the gallery section (skipped in
+    // slim=mine -- the lobby never displays the default-cards-for-gallery
+    // tray, so the second blob fetch is wasted work)
     let defaultCards = [];
-    // Only load default cards for gallery if we're authenticated (anonymous users already have default cards as their userCards)
-    if (isAuthenticated) {
+    if (isAuthenticated && !slimMine) {
       try {
         context.log(`[${requestId}] Attempting to load default cards for gallery display`);
         const defaultCardsData = await downloadJsonBlobWithRetry(containerClient, DEFAULT_CARDS_PATH, context);
@@ -316,6 +329,7 @@ module.exports = async function (context, req) {
       requestId,
       timestamp: new Date().toISOString(),
       authenticated: isAuthenticated,
+      slim: slimMine ? 'mine' : null,
       userCardsCount: userCards.length,
       galleryCardsCount: galleryCards.length,
       defaultCardsCount: defaultCards.length,

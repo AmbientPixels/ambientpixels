@@ -122,7 +122,14 @@ window.ArenaAPI = (function () {
         params: { sort: sort || 'xp', limit: limit || 50 }
       });
     },
-    loadCards: function () {
+    loadCards: function (opts) {
+      // Pass { slim: true } when only the player's own cards are needed
+      // (lobby load, post-card-creation refresh) -- skips the heavy
+      // gallery payload (~70MB) on the server. Default behavior (no
+      // opts) returns the full payload for Gallery / Forge / Leaderboard.
+      if (opts && opts.slim) {
+        return apiFetch('loadCards', { params: { slim: 'mine' } });
+      }
       return apiFetch('loadCards');
     },
     getPrincipalHeader: async function () {

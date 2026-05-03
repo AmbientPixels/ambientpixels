@@ -1033,16 +1033,14 @@
     // persistPending immediately after the flag is cleared).
     var wasGuestAtStart = localStorage.getItem('bs-guest-mode') === 'true';
     try {
-      // 45s timeout — cardforgeloadcards on cold-start can return ~70MB
-      // (full card payloads with base64 avatars) and routinely takes
-      // 20-30s. Earlier 15s timeout was firing on legitimate responses,
-      // and because _checkUserSwitch wipes bs-deck *before* this fetch
-      // completes (it runs inside loadProfile which fires in parallel),
-      // the catch-block fallback to getDeck() returns [] — so the player
-      // ends up on a "No card yet" lobby with their server-side cards
-      // intact but unrendered.
+      // slim=mine: ask the server to skip the gallery + default-cards-for-
+      // gallery blob fetches entirely. The lobby only needs the player's
+      // own cards; the heavy ~70MB gallery payload was the source of the
+      // visible loading-bar pause around 60-75%. Gallery / Forge avatar
+      // tray / PvP defender browser still call loadCards() with no opts
+      // and get the full payload.
       const data = await Promise.race([
-        window.ArenaAPI.loadCards(),
+        window.ArenaAPI.loadCards({ slim: true }),
         new Promise(function(_, reject) { setTimeout(function() { reject(new Error('loadCards timeout')); }, 45000); })
       ]);
       var cards = (data.userCards || []).filter(function(c) { return !c.isDefault; });
