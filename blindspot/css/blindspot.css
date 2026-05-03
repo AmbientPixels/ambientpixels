@@ -7504,11 +7504,15 @@ body.bs-battle-active .bs-play {
   50% { box-shadow: 0 0 28px 6px rgba(80, 0, 160, 0.7), 0 0 50px 12px rgba(40, 0, 100, 0.35), inset 0 0 20px rgba(120, 60, 220, 0.2); }
 }
 
-/* Ascension 5 — Holographic: rainbow prismatic border */
+/* Ascension 5 — Holographic: subtle prismatic border. Toned down from
+   the original loud rainbow-strobe — kept the conic-gradient idea but
+   muted opacity + heavy blur + much slower rotation + cooler-only halo
+   so it reads as "your border has a quiet rainbow shimmer," not a
+   rotating disco light. */
 .bs-lobby__card-display[data-ascension="5"] {
   border: 2px solid transparent;
   background-clip: padding-box;
-  animation: bs-asc-holo 6s linear infinite;
+  animation: bs-asc-holo 14s linear infinite;
 }
 .bs-lobby__card-display[data-ascension="5"]::before {
   content: '';
@@ -7520,9 +7524,9 @@ body.bs-battle-active .bs-play {
     #ff0000, #ff8800, #ffff00, #00ff00, #00ffff, #0088ff, #8800ff, #ff00ff, #ff0000
   );
   z-index: -1;
-  opacity: 0.8;
-  animation: bs-asc-holo-spin 4s linear infinite;
-  filter: blur(3px);
+  opacity: 0.25;
+  animation: bs-asc-holo-spin 24s linear infinite;
+  filter: blur(8px);
 }
 .bs-lobby__card-display[data-ascension="5"]::after {
   content: '';
@@ -7534,18 +7538,28 @@ body.bs-battle-active .bs-play {
     #ff0000, #ff8800, #ffff00, #00ff00, #00ffff, #0088ff, #8800ff, #ff00ff, #ff0000
   );
   z-index: -1;
-  opacity: 0.6;
-  animation: bs-asc-holo-spin 4s linear infinite reverse;
+  opacity: 0.15;
+  animation: bs-asc-holo-spin 24s linear infinite reverse;
+  filter: blur(4px);
 }
 @keyframes bs-asc-holo-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 @keyframes bs-asc-holo {
-  0% { box-shadow: 0 0 20px 4px rgba(255, 0, 128, 0.4), 0 0 40px 8px rgba(0, 128, 255, 0.2); }
-  33% { box-shadow: 0 0 20px 4px rgba(0, 255, 128, 0.4), 0 0 40px 8px rgba(255, 0, 128, 0.2); }
-  66% { box-shadow: 0 0 20px 4px rgba(0, 128, 255, 0.4), 0 0 40px 8px rgba(0, 255, 128, 0.2); }
-  100% { box-shadow: 0 0 20px 4px rgba(255, 0, 128, 0.4), 0 0 40px 8px rgba(0, 128, 255, 0.2); }
+  0%   { box-shadow: 0 0 12px 2px rgba(180, 140, 220, 0.18), 0 0 24px 6px rgba(120, 180, 220, 0.08); }
+  33%  { box-shadow: 0 0 12px 2px rgba(140, 200, 200, 0.18), 0 0 24px 6px rgba(180, 140, 220, 0.08); }
+  66%  { box-shadow: 0 0 12px 2px rgba(120, 180, 220, 0.18), 0 0 24px 6px rgba(140, 200, 200, 0.08); }
+  100% { box-shadow: 0 0 12px 2px rgba(180, 140, 220, 0.18), 0 0 24px 6px rgba(120, 180, 220, 0.08); }
+}
+/* Respect reduced-motion: kill the spin entirely, keep one frame of
+   the gradient so the border still reads as ascension-5 distinct. */
+@media (prefers-reduced-motion: reduce) {
+  .bs-lobby__card-display[data-ascension="5"]::before,
+  .bs-lobby__card-display[data-ascension="5"]::after {
+    animation: none;
+  }
+  .bs-lobby__card-display[data-ascension="5"] { animation: none; }
 }
 
 /* Reset default hover border when ascension active */
