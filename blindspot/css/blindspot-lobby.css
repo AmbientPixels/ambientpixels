@@ -1300,6 +1300,27 @@ body.bs-page {
 .blindspot-lobby .blindspot-ql__lock { color: var(--blindspot-text-muted); }
 .blindspot-lobby .blindspot-ql__lock i { color: var(--blindspot-accent-gold); }
 
+/* State chip on directory rows (Boss Codex progress, Sparks balance,
+   Gallery count). Same shape as .blindspot-ql__lock but neutral gold. */
+.blindspot-ql__chip {
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  background: rgba(245, 192, 120, 0.08);
+  border: 1px solid rgba(245, 192, 120, 0.22);
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  white-space: nowrap;
+}
+.blindspot-ql__chip i { color: var(--blindspot-accent-gold); font-size: 0.7em; }
+.blindspot-ql__chip--sparks { color: var(--bs-accent, var(--blindspot-accent)); border-color: rgba(239, 159, 39, 0.35); background: rgba(239, 159, 39, 0.1); }
+.blindspot-ql__chip--sparks i { color: var(--bs-accent, var(--blindspot-accent)); }
+
 /* #14 NOTE: vertical centering tried, reverted — the right column stacks
    tall (rank, bounties, campaign, challenges, loot, quick links) so
    centering the left column dropped the card well below the header,

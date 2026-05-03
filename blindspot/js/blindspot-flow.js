@@ -1811,6 +1811,25 @@
     // plate, victory, title. Each row shows label + tile + name; empty
     // slots get a dimmed dash placeholder.
     renderEquippedLoadout();
+
+    // Directory row state chips (Boss Codex defeated count, Gallery owned).
+    // Sparks Shop chip is wired in updateTopbarSparks so it stays live.
+    var codexChip = document.getElementById('bs-codex-progress');
+    if (codexChip) {
+      var defeated = getHighestBossDefeated() || 0;
+      codexChip.textContent = defeated + ' / 10';
+      codexChip.hidden = false;
+    }
+    var galleryChip = document.getElementById('bs-gallery-count');
+    if (galleryChip) {
+      var deck = (_profile && Array.isArray(_profile.deck)) ? _profile.deck.length : 0;
+      if (deck > 0) {
+        galleryChip.textContent = deck + ' Owned';
+        galleryChip.hidden = false;
+      } else {
+        galleryChip.hidden = true;
+      }
+    }
   }
 
   function renderEquippedLoadout() {
