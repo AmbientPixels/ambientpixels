@@ -42,6 +42,7 @@
 
   <!-- Loading gate — hides UI until JS initializes -->
   <div id="bs-loading-gate" class="bs-loading-gate" aria-live="polite">
+    <div class="bs-loading-gate__embers" id="bs-loading-gate-embers" aria-hidden="true"></div>
     <div class="bs-loading-gate__inner">
       <span class="bs-loading-gate__text"><i class="fas fa-fire bs-loading-gate__icon" aria-hidden="true"></i>Summoning your fighter<span class="bs-ellipsis-pulse">...</span></span>
       <div class="bs-loading-gate__bar">
@@ -50,6 +51,27 @@
       <span class="bs-loading-gate__step" id="bs-loading-step"></span>
     </div>
   </div>
+  <script>
+    // Ember-rain field for the loading gate. Inline so it runs as soon
+    // as the gate markup parses -- no waiting for module loaders.
+    (function () {
+      var c = document.getElementById('bs-loading-gate-embers');
+      if (!c) return;
+      var EMBER_COUNT = 42;
+      var SPARK_RATE = 0.14;
+      for (var i = 0; i < EMBER_COUNT; i++) {
+        var e = document.createElement('span');
+        var isSpark = Math.random() < SPARK_RATE;
+        e.className = isSpark ? 'bs-ember bs-ember--spark' : 'bs-ember';
+        e.style.setProperty('--ex',     (Math.random() * 100).toFixed(2) + '%');
+        e.style.setProperty('--edur',   (5 + Math.random() * 4).toFixed(2) + 's');
+        e.style.setProperty('--ed',     (-Math.random() * 8).toFixed(2) + 's');
+        e.style.setProperty('--esize',  (isSpark ? 3 + Math.random() * 1.5 : 1.4 + Math.random() * 1.6).toFixed(2) + 'px');
+        e.style.setProperty('--edrift', (((Math.random() - 0.5) * 80) | 0) + 'px');
+        c.appendChild(e);
+      }
+    })();
+  </script>
 
   <!-- Ambient particles -->
   <canvas id="bs-play-particles" class="bs-play-particles" aria-hidden="true"></canvas>
