@@ -69,7 +69,8 @@ window.BsCharms = (function () {
       caster: true, scholar: true, hacker: true, scout: true,
       rogue: true, trickster: true, medic: true, pilot: true
     },
-    crates: { battle: true, boss: true, weekly: true, ember: true, ascension: true }
+    crates: { battle: true, boss: true, weekly: true, ember: true, ascension: true },
+    ranks: { initiate: true, apprentice: true, veteran: true, champion: true, legend: true, mythic: true }
   };
 
   // Backward-compat alias for the existing items lookups.

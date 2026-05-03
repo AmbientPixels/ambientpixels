@@ -5150,6 +5150,32 @@
 .bs-class-pick .bs-item-art { width: 28px; height: 28px; border-radius: 4px; flex-shrink: 0; }
 .bs-class-picker-btn .bs-item-art { width: 1.5rem; height: 1.5rem; border-radius: 4px; }
 
+/* Rank-tier badges replace the FA crown at the lobby Lv HUD + Stats
+   screen. The painted disc carries its own colour/material, so wrappers
+   that previously framed a single-colour FA glyph (amber pad on the Lv
+   HUD, gold drop-shadow on Stats) get re-tuned to let the badge stand
+   alone with a soft glow halo. */
+.blindspot-level-hud__icon img.bs-item-art {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+  box-shadow: none;
+}
+.blindspot-level-hud__icon:has(img.bs-item-art) {
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+}
+.bs-stats-identity__rank img.bs-item-art {
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  filter: drop-shadow(0 0 8px rgba(245, 192, 120, 0.4));
+  box-shadow: none;
+}
+
 /* Illustrated stat icon inside the rendered card stat row. Sized to the
    row's existing 4px bar height + label baseline; stays compact so the
    bar still owns the row's visual weight. */

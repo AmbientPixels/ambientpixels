@@ -9,6 +9,7 @@
 //   - Crates       (5):  battle, boss, weekly, ember, ascension
 //   - Titles       (8):  heraldic wax seals
 //   - Lobby-tiles  (1):  sparks-tile (matches crate-tile + collection-tile pair)
+//   - Ranks        (6):  initiate, apprentice, veteran, champion, legend, mythic
 //
 // Usage:
 //   node scripts/generate-blindspot-game-icons.js
@@ -99,6 +100,22 @@ const SETS = [
       { id: 'weekly',    subject: 'A weathered crate with brass clockwork gears along the lid edge and a small sundial face inset on the top, soft amber clockwork glow.' },
       { id: 'ember',     subject: 'A glowing red-hot crate with smouldering ember-light leaking from every seam, faint smoke rising, scorched dark stone beneath.' },
       { id: 'ascension', subject: 'A crate of polished dark obsidian stone with a single embedded violet crystal star centered on the lid, cold radiant violet light beaming softly outward.' }
+    ]
+  },
+
+  // ─── RANKS (heraldic medallions for the all-up player level tiers) ─
+  {
+    id: 'ranks',
+    dir: 'ranks',
+    webpEdge: 384,
+    style: 'Heraldic rank medallion, single circular metal disc embossed with a bold tier symbol centered, deep recessed embossing catching the light, dark stone backdrop with subtle vignette, hand-rendered fantasy crest style in the spirit of Dark Souls / Bloodborne menu art, square 1:1 framing, no text, no UI, no logos.',
+    items: [
+      { id: 'initiate',   subject: 'A worn dim-grey iron disc embossed with a simple bold kite-shield silhouette, faint torchlight catching the rim, the metal pitted and humble.' },
+      { id: 'apprentice', subject: 'A polished dark bronze disc embossed with an ornate shield bearing a single cross brace, warm brown-orange gleam tracing the rim and embossed lines.' },
+      { id: 'veteran',    subject: 'A burnished silver disc embossed with a regal three-pointed crown, cool moonlit gleam, slight age-tarnish at the edges, dignified.' },
+      { id: 'champion',   subject: 'A polished gold disc embossed with a faceted gemstone-star, bright sunlit gleam, faint warm halo of light radiating outward from the embossing.' },
+      { id: 'legend',     subject: 'A radiant platinum disc embossed with a brilliant-cut diamond shape, cold prismatic shimmer, faint icy-violet glow tracing the embossed lines.' },
+      { id: 'mythic',     subject: 'A glowing dark obsidian disc embossed with a curling flame sigil, deep red-orange ember glow leaking from the embossed lines, faint smoke wisps drifting up.' }
     ]
   },
 

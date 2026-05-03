@@ -2080,10 +2080,7 @@
     if (rankChip && rankLabel) {
       rankLabel.textContent = rankInfo.label;
       rankLabel.style.color = rankInfo.color;
-      if (rankIcon) {
-        rankIcon.className = 'fas ' + (rankInfo.icon || 'fa-shield-halved');
-        rankIcon.style.color = rankInfo.color;
-      }
+      if (rankIcon) _setRankBadge(rankIcon, rankInfo);
       rankChip.hidden = false;
     }
     var powerChip = document.getElementById('bs-header-power-chip');
@@ -2114,6 +2111,28 @@
     }
   }
 
+  // Swap an FA rank icon element to the illustrated rank-badge WebP. The
+  // existing element gets replaced via outerHTML so subsequent renderers
+  // re-resolve via getElementById and the id is preserved across swaps.
+  // Falls back to the original className + style.color pattern when
+  // BsCharms is unavailable or the tier id isn't in the asset registry.
+  function _setRankBadge(el, tier) {
+    if (!el || !tier) return;
+    var bc = window.BsCharms;
+    if (bc && bc.assetArtHtml) {
+      var raw = bc.assetArtHtml('ranks', tier.id, tier.icon, tier.label);
+      if (raw.indexOf('<img') === 0) {
+        // Preserve the id so re-render lookups still work
+        var withId = raw.replace('<img', '<img id="' + el.id + '"');
+        el.outerHTML = withId;
+        return;
+      }
+    }
+    // Fallback: keep the legacy FA icon behavior
+    el.className = 'fas ' + (tier.icon || 'fa-shield-halved');
+    el.style.color = tier.color || '';
+  }
+
   function renderLevelHud() {
     if (!_profile) return;
 
@@ -2135,10 +2154,7 @@
 
     levelNum.textContent = 'Lv ' + level;
     tierEl.textContent = tier.label;
-    if (iconEl) {
-      iconEl.className = 'fas ' + tier.icon;
-      iconEl.style.color = tier.color;
-    }
+    if (iconEl) _setRankBadge(iconEl, tier);
     if (xpText) xpText.textContent = toNext + ' XP to Lv ' + (level + 1);
     if (xpFill) xpFill.style.width = pct + '%';
   }
@@ -3161,7 +3177,7 @@
     var rankXpEl = document.getElementById('bs-stats-rank-xp');
     var prestigeEl = document.getElementById('bs-stats-prestige');
     var ageEl = document.getElementById('bs-stats-account-age');
-    if (rankIconEl) { rankIconEl.className = 'fas ' + tier.icon; rankIconEl.style.color = tier.color; }
+    if (rankIconEl) _setRankBadge(rankIconEl, tier);
     if (rankNameEl) rankNameEl.textContent = 'Lv ' + level + ' — ' + tier.label;
     if (rankXpEl) rankXpEl.textContent = toNext + ' XP to Lv ' + (level + 1);
     if (prestigeEl) prestigeEl.textContent = String(_profile.ascension || 0);
