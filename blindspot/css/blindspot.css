@@ -56,13 +56,16 @@
   content: '';
   position: absolute;
   inset: 0;
-  /* Left-anchored anvil scene: forge glow on the left, dark stone wall
-     on the right where the text plate sits. Vignette is softer than a
-     symmetric one would be -- we want the forge fire visible. */
+  /* Left-anchored anvil scene: forge glow + glowing molten metal sit in
+     the LEFT half of the source image. Position at 25% so the warm
+     forge area dominates the visible backdrop instead of the dark stone
+     wall on the right. Brightness lift makes the warm tones land --
+     source image is intrinsically dark stone + iron, needs the boost. */
   background:
-    radial-gradient(ellipse at 30% 55%, transparent 0%, rgba(13, 8, 7, 0.15) 55%, rgba(13, 8, 7, 0.55) 100%),
-    linear-gradient(180deg, rgba(13, 8, 7, 0.12) 0%, rgba(13, 8, 7, 0.2) 65%, rgba(13, 8, 7, 0.5) 100%),
-    url('../img/card-forge.webp') center/cover;
+    radial-gradient(ellipse at 25% 55%, transparent 0%, rgba(13, 8, 7, 0.1) 55%, rgba(13, 8, 7, 0.5) 100%),
+    linear-gradient(180deg, rgba(13, 8, 7, 0.08) 0%, rgba(13, 8, 7, 0.18) 65%, rgba(13, 8, 7, 0.48) 100%),
+    url('../img/card-forge.webp') 25% center / cover;
+  filter: brightness(1.2) saturate(1.15);
   z-index: 0;
   animation: bs-loading-gate-drift 16s ease-in-out infinite alternate;
   pointer-events: none;
