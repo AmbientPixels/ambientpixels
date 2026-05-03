@@ -231,7 +231,11 @@
         var diff = _loadingTarget - _loadingCurrent;
         var speed = Math.max(0.3, diff * 0.08);
         _loadingCurrent = Math.min(_loadingTarget, _loadingCurrent + speed);
-        if (_loadingFill) _loadingFill.style.width = _loadingCurrent.toFixed(1) + '%';
+        if (_loadingFill) {
+          _loadingFill.style.width = _loadingCurrent.toFixed(1) + '%';
+          // Kindling-into-flame: glow intensity + ember opacity scale with fill
+          _loadingFill.style.setProperty('--bs-fill-pct', _loadingCurrent.toFixed(1));
+        }
         _loadingRAF = requestAnimationFrame(tick);
       } else {
         _loadingRAF = null;
