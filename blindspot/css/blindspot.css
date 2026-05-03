@@ -37,7 +37,11 @@
   overflow-x: hidden;
 }
 
-/* --- Loading Gate (play.html) — Vein palette --- */
+/* --- Loading Gate (play.html) — Vein palette ---
+   Painted forge tableau: card-forge.webp fills the backdrop with a
+   slow drift, vignette + dark gradient overlay keeps text readable,
+   inner content sits on a frosted-glass plate. The loading bar
+   reads as a molten-metal pour with an animated shimmer pass. */
 .bs-loading-gate {
   position: fixed;
   inset: 0;
@@ -46,12 +50,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+.bs-loading-gate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 60%, transparent 0%, rgba(13, 8, 7, 0.55) 70%, rgba(13, 8, 7, 0.95) 100%),
+    linear-gradient(180deg, rgba(13, 8, 7, 0.45) 0%, rgba(13, 8, 7, 0.55) 60%, rgba(13, 8, 7, 0.85) 100%),
+    url('../img/lobby/card-forge.webp') center/cover;
+  z-index: 0;
+  animation: bs-loading-gate-drift 16s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes bs-loading-gate-drift {
+  from { transform: scale(1.02); }
+  to   { transform: scale(1.08); }
 }
 .bs-loading-gate__inner {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1.25rem;
+  padding: 2rem 2.4rem 1.75rem;
+  background: rgba(13, 8, 7, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(245, 192, 120, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55), 0 0 32px rgba(245, 192, 120, 0.1);
 }
 .bs-loading-gate__text {
   font-family: 'Cormorant Garamond', 'Times New Roman', serif;
@@ -59,6 +89,7 @@
   font-size: 1.6rem;
   color: var(--blindspot-text-dim, #B89A82);
   letter-spacing: 0.02em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 .bs-ellipsis-pulse {
   display: inline-block;
@@ -74,6 +105,7 @@
   visibility: hidden;
 }
 .bs-loading-gate__bar {
+  position: relative;
   width: clamp(260px, 50vw, 360px);
   height: 6px;
   background: var(--blindspot-bg-2, #170D0B);
@@ -81,13 +113,29 @@
   border-radius: 3px;
   overflow: hidden;
   margin-top: 0.4rem;
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.2), inset 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 .bs-loading-gate__fill {
+  position: relative;
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, var(--blindspot-accent-gold-dim, #B97417), var(--blindspot-accent-gold, #F5C078));
   border-radius: 2px;
   transition: width 0.3s ease;
+  box-shadow: 0 0 16px rgba(245, 192, 120, 0.55), 0 0 4px rgba(245, 192, 120, 0.85);
+}
+.bs-loading-gate__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 240, 200, 0.55) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: bs-loading-gate-shimmer 1.8s linear infinite;
+  pointer-events: none;
+}
+@keyframes bs-loading-gate-shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
 }
 .bs-loading-gate__step {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -95,19 +143,24 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--blindspot-text-muted, #7A5E4C);
-  opacity: 0.7;
+  opacity: 0.8;
   margin-top: 0.3rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .bs-loading-gate__icon {
   color: var(--blindspot-accent-gold, #F5C078);
   margin-right: 0.4em;
   font-size: 1.15em;
-  text-shadow: 0 0 18px rgba(245, 192, 120, 0.5);
+  text-shadow: 0 0 18px rgba(245, 192, 120, 0.6), 0 0 4px rgba(0, 0, 0, 0.9);
 }
 .bs-loading-gate--fade {
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-loading-gate::before { animation: none; transform: scale(1.02); }
+  .bs-loading-gate__fill::after { animation: none; opacity: 0.25; }
 }
 
 /* --- Particle Canvas --- */
