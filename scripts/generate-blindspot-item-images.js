@@ -69,7 +69,14 @@ const ITEMS = [
   // ─── Final 3 (fills inventory to 100%) ──────────────────────────
   { id: 'charm_charge_boost', subject: 'A copper-banded glass orb the size of a chestnut filled with crackling arcane energy arcs, brass cap at top, hung on chain, faint blue-white glow casting on the dark stone beneath.' },
   { id: 'endurance_tonic', subject: 'A short stout stoneware bottle with a wax-sealed cork, deep amber liquid visible through a sliver of glass at the side, leather wrap around the neck, sitting on dark stone.' },
-  { id: 'second_wind', subject: 'A single white feather pinned beneath an iron clasp on a flat stone slab, faint wisps of pale wind rising from its tip, copper edging on the clasp glinting in forge-light.' }
+  { id: 'second_wind', subject: 'A single white feather pinned beneath an iron clasp on a flat stone slab, faint wisps of pale wind rising from its tip, copper edging on the clasp glinting in forge-light.' },
+
+  // ─── Batch 5 (game-config charm slot completion) ────────────────
+  { id: 'charm_smoke_bomb', subject: 'A small dark iron amulet shaped like a sphere etched with a single billowing smoke glyph, faint grey wisps trailing from the carved line, hung on a leather thong, set on dark stone.' },
+  { id: 'charm_iron_skin', subject: 'A wide-shouldered glass tonic bottle with a heavy iron stopper, dark steel-grey liquid inside catching warm forge-light along the bevels, brass label band stamped with a shield rune around the neck.' },
+  { id: 'charm_combo_primer', subject: 'Three interlocking dark-iron rings the size of a coin, the inner ring etched with a pulsing chevron rune glowing soft amber, hung on a leather thong, set on dark stone.' },
+  { id: 'charm_adrenaline_spike', subject: 'A small antler-handled syringe-spike with a brass plunger, a single drop of glowing yellow-green liquid at the needle tip, faint electric arc crackling along the haft, on dark stone.' },
+  { id: 'battle_surge', subject: 'A pair of glowing twin-orb crystals fused at the center, one orb cool violet and one warm amber, hung on a heavy iron chain, faint shockwave ripples in the air around them, set on cracked basalt stone.' }
 ];
 
 // ── Load API key (env -> api/local.settings.json -> .env) ──

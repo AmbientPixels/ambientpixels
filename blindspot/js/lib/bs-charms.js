@@ -43,7 +43,14 @@ window.BsCharms = (function () {
     element_burst: true,
     element_shift: true,
     endurance_tonic: true,
-    second_wind: true
+    second_wind: true,
+    // Battle charms missed in earlier passes (defined in game-config.json
+    // battle_charms drop pool); art generated 2026-05-02
+    charm_smoke_bomb: true,
+    charm_iron_skin: true,
+    charm_combo_primer: true,
+    charm_adrenaline_spike: true,
+    battle_surge: true
   };
 
   function itemArtHtml(id, fallbackFaIcon, alt) {
