@@ -150,8 +150,8 @@
           ${PALETTES.map(p => {
             var owned = uv.includes(p.key) || purchased.includes(p.key);
             if (owned) return '<button class="bs-forge-palette-swatch" data-palette="' + p.id + '" title="' + p.label + '"><span class="bs-forge-palette-swatch__preview" data-pal="' + p.id + '"></span><span class="bs-forge-palette-swatch__name">' + p.label + '</span></button>';
-            if (p.cost > 0) return '<button class="bs-forge-palette-swatch bs-forge-palette-swatch--buyable" data-buy-palette="' + p.id + '" data-buy-key="' + p.key + '" data-buy-cost="' + p.cost + '" title="' + p.cost + ' Sparks"><span class="bs-forge-palette-swatch__preview" data-pal="' + p.id + '"></span><span class="bs-forge-palette-swatch__name"><i class="fas fa-fire"></i> ' + p.cost + '</span></button>';
-            return '<button class="bs-forge-palette-swatch bs-forge-palette-swatch--locked" disabled title="' + p.unlock + '"><span class="bs-forge-palette-swatch__preview"></span><span class="bs-forge-palette-swatch__name"><i class="fas fa-lock"></i> ' + p.unlock + '</span></button>';
+            if (p.cost > 0) return '<button class="bs-forge-palette-swatch bs-forge-palette-swatch--buyable" data-buy-palette="' + p.id + '" data-buy-key="' + p.key + '" data-buy-cost="' + p.cost + '" title="' + p.label + ' — ' + p.cost + ' Sparks"><span class="bs-forge-palette-swatch__preview" data-pal="' + p.id + '"></span><span class="bs-forge-palette-swatch__name">' + p.label + '</span><span class="bs-forge-palette-swatch__cost"><i class="fas fa-fire"></i> ' + p.cost + '</span></button>';
+            return '<button class="bs-forge-palette-swatch bs-forge-palette-swatch--locked" disabled title="' + p.label + ' — ' + p.unlock + '"><span class="bs-forge-palette-swatch__preview"></span><span class="bs-forge-palette-swatch__name">' + p.label + '</span><span class="bs-forge-palette-swatch__cost"><i class="fas fa-lock"></i> ' + p.unlock + '</span></button>';
           }).join('')}
         </div>
       </div>
@@ -161,8 +161,8 @@
           ${CONTAINERS.map(c => {
             var owned = uv.includes(c.key) || purchased.includes(c.key);
             if (owned) return '<button class="bs-forge-container-card" data-container="' + c.id + '"><i class="fas ' + c.icon + '"></i><span>' + c.label + '</span></button>';
-            if (c.cost > 0) return '<button class="bs-forge-container-card bs-forge-container-card--buyable" data-buy-container="' + c.id + '" data-buy-key="' + c.key + '" data-buy-cost="' + c.cost + '"><i class="fas ' + c.icon + '"></i><span><i class="fas fa-fire"></i> ' + c.cost + '</span></button>';
-            return '<button class="bs-forge-container-card bs-forge-container-card--locked" disabled><i class="fas fa-lock"></i><span>Locked</span></button>';
+            if (c.cost > 0) return '<button class="bs-forge-container-card bs-forge-container-card--buyable" data-buy-container="' + c.id + '" data-buy-key="' + c.key + '" data-buy-cost="' + c.cost + '" title="' + c.label + ' — ' + c.cost + ' Sparks"><i class="fas ' + c.icon + '"></i><span>' + c.label + '</span><span class="bs-forge-container-card__cost"><i class="fas fa-fire"></i> ' + c.cost + '</span></button>';
+            return '<button class="bs-forge-container-card bs-forge-container-card--locked" disabled title="Locked"><i class="fas fa-lock"></i><span>Locked</span></button>';
           }).join('')}
         </div>
       </div>

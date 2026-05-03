@@ -2342,6 +2342,26 @@
 .bs-forge-palette-swatch__preview[data-pal="sunset"] { background: linear-gradient(135deg, #2d1a0e, #4a2a10); }
 .bs-forge-palette-swatch__preview[data-pal="inferno"] { background: linear-gradient(135deg, #1a0000, #4a0a0a); border: 1px solid #ff2200; }
 .bs-forge-palette-swatch__preview[data-pal="frost"] { background: linear-gradient(135deg, #050a1a, #0a1535); border: 1px solid #66ccff; }
+/* Cost / unlock chip below the palette name on buyable + locked swatches */
+.bs-forge-palette-swatch__name {
+  font-size: 0.7rem;
+  color: var(--bs-text);
+  letter-spacing: 0.04em;
+}
+.bs-forge-palette-swatch--buyable .bs-forge-palette-swatch__name { color: var(--bs-text); }
+.bs-forge-palette-swatch--locked .bs-forge-palette-swatch__name { color: var(--bs-text-muted); }
+.bs-forge-palette-swatch__cost {
+  font-size: 0.6rem;
+  color: var(--bs-accent);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  letter-spacing: 0.08em;
+  margin-top: -0.1rem;
+}
+.bs-forge-palette-swatch--locked .bs-forge-palette-swatch__cost {
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  font-size: 0.55rem;
+}
 
 /* Container cards — larger tiles with icons */
 .bs-forge-container-grid {
@@ -2368,8 +2388,15 @@
 .bs-forge-container-card:hover:not(:disabled) { border-color: var(--bs-accent-dim); }
 .bs-forge-container-card--selected { border-color: var(--bs-accent) !important; box-shadow: 0 0 8px rgba(239, 159, 39, 0.3); }
 .bs-forge-container-card--selected i { color: var(--bs-accent); }
-.bs-forge-container-card--buyable { border-style: dashed; border-color: var(--bs-accent); color: var(--bs-accent); }
+.bs-forge-container-card--buyable { border-style: dashed; border-color: var(--bs-accent); }
 .bs-forge-container-card--locked { opacity: 0.4; cursor: not-allowed; }
+.bs-forge-container-card__cost {
+  font-size: 0.6rem;
+  color: var(--bs-accent);
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  letter-spacing: 0.08em;
+  margin-top: -0.15rem;
+}
 
 .bs-forge-actions {
   margin-top: 1.5rem;
