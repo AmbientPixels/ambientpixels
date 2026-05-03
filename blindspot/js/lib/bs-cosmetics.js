@@ -55,6 +55,35 @@ window.BsCosmetics = (function () {
     return '<i class="fas fa-burst" aria-hidden="true"></i>';
   }
 
+  // Mini live previews for frames / backs / plates. Each cosmetic category
+  // gets its own preview shape so the player sees what the cosmetic actually
+  // does, not a generic icon. All looped where the underlying effect loops.
+  // ID slugs from game-config use underscores (frame_gold_filigree); CSS
+  // class convention uses hyphens (.bs-cos-frame--gold-filigree). Convert.
+  function slugify(id, prefix) {
+    return id.replace(prefix, '').replace(/_/g, '-');
+  }
+  function buildFramePreviewHtml(frameId) {
+    var slug = slugify(frameId, 'frame_');
+    return '<div class="bs-cos-preview bs-cos-preview--frame bs-cos-frame--' + slug + '">'
+      + '<div class="bs-cos-frame__inner"></div>'
+      + '</div>';
+  }
+  function buildBackPreviewHtml(backId) {
+    var slug = slugify(backId, 'back_');
+    return '<div class="bs-cos-preview bs-cos-preview--back bs-cos-back--' + slug + '">'
+      + '<div class="bs-cos-back__art"></div>'
+      + '</div>';
+  }
+  function buildPlatePreviewHtml(plateId) {
+    var slug = slugify(plateId, 'plate_');
+    // Reuse the live .bs-rc__name.bs-plate--* rules: same color, text-shadow,
+    // and animations the player sees on their actual card name.
+    return '<div class="bs-cos-preview bs-cos-preview--plate">'
+      + '<span class="bs-rc__name bs-plate--' + slug + '">Stranger</span>'
+      + '</div>';
+  }
+
   // ── State accessors ──
   function progress() { return window.BsState ? window.BsState.progress : {}; }
   function sync() { if (window.BsState) window.BsState.sync(); }
@@ -206,8 +235,14 @@ window.BsCosmetics = (function () {
           : null;
 
         var slotIconHtml;
-        if (slotCategory === 'victory' && isOwned) {
+        if (isOwned && slotCategory === 'victory') {
           slotIconHtml = buildVictoryPreviewHtml(item.id);
+        } else if (isOwned && slotCategory === 'frames') {
+          slotIconHtml = buildFramePreviewHtml(item.id);
+        } else if (isOwned && slotCategory === 'backs') {
+          slotIconHtml = buildBackPreviewHtml(item.id);
+        } else if (isOwned && slotCategory === 'plates') {
+          slotIconHtml = buildPlatePreviewHtml(item.id);
         } else {
           var slotArtId = (isOwned && slotCategory) ? item.id : null;
           slotIconHtml = (slotCategory && window.BsCharms && window.BsCharms.assetArtHtml)
