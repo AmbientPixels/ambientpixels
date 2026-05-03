@@ -2143,8 +2143,11 @@
     opts = opts || {};
     var category = opts.category || 'ranks';
     var assetId = opts.assetId || tier.id;
+    // The Lv-tier (`ranks`) badges read poorly at the lobby HUD / Stats
+    // screen sizes, so they always render as FA icons. PvP Elo ranks
+    // (`pvp-ranks`) keep the painted art since the surfaces are larger.
     var bc = window.BsCharms;
-    if (bc && bc.assetArtHtml && assetId) {
+    if (category !== 'ranks' && bc && bc.assetArtHtml && assetId) {
       var raw = bc.assetArtHtml(category, assetId, tier.icon, tier.label);
       if (raw.indexOf('<img') === 0) {
         // Preserve the id so re-render lookups still work
@@ -2153,8 +2156,20 @@
         return;
       }
     }
-    // Fallback: keep the legacy FA icon behavior
-    el.className = 'fas ' + (tier.icon || 'fa-shield-halved');
+    // Fallback: render as FA icon. If a previous render swapped this
+    // element to an <img> for painted art, restore an <i> so the FA
+    // class actually renders (className on <img> is inert visually).
+    var faClass = 'fas ' + (tier.icon || 'fa-shield-halved');
+    if (el.tagName === 'IMG') {
+      var i = document.createElement('i');
+      i.id = el.id;
+      i.className = faClass;
+      if (tier.color) i.style.color = tier.color;
+      i.setAttribute('aria-hidden', 'true');
+      el.replaceWith(i);
+      return;
+    }
+    el.className = faClass;
     el.style.color = tier.color || '';
   }
 
