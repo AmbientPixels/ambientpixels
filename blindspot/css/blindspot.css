@@ -5047,7 +5047,7 @@
 .arena-move-btn--item .bs-item-art { width: 28px; height: 28px; }
 .arena-item-chip .bs-item-art { width: 1.05rem; height: 1.05rem; border-radius: 50%; }
 .bs-collection-item__icon .bs-item-art { width: 100%; height: 100%; border-radius: 6px; }
-.bs-shop-card__icon .bs-item-art { width: 56px; height: 56px; border-radius: 6px; }
+.bs-shop-card__icon .bs-item-art { width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
 .bs-shop-preview__icon .bs-item-art { width: 96px; height: 96px; border-radius: 8px; }
 
 /* ============================================================
@@ -10592,44 +10592,72 @@ body.bs-battle-active .bs-play {
   margin-bottom: 1rem;
 }
 
-/* Item cards */
+/* Item cards — image-forward trading card layout (mirrors collection grid).
+   Art slot fills the top of the card edge-to-edge; name/rarity/desc/price
+   stack below in a small info strip. Rarity drives a 2px accent rule across
+   the top edge. */
 .bs-shop-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   text-align: center;
-  gap: 0.3rem;
-  padding: 0.85rem 0.55rem;
+  gap: 0;
+  padding: 0;
   background: var(--blindspot-surface);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-card, 4px);
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   position: relative;
+  overflow: hidden;
+}
+.bs-shop-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--bs-shop-rarity, transparent);
+  z-index: 2;
 }
 
 .bs-shop-card:hover {
   border-color: var(--bs-shop-rarity, var(--blindspot-accent-gold-dim));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 
 .bs-shop-card--owned {
-  opacity: 0.6;
+  opacity: 0.55;
 }
+.bs-shop-card--owned .bs-shop-card__icon { filter: brightness(0.55) saturate(0.7); }
 
 .bs-shop-card__icon {
-  font-size: 1.55rem;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blindspot-bg-2);
+  margin-bottom: 0;
+  overflow: hidden;
+  position: relative;
+  transition: filter 0.2s;
+}
+.bs-shop-card__icon i.fas {
+  font-size: 2.4rem;
   color: var(--bs-shop-rarity, var(--blindspot-text));
-  margin-bottom: 0.15rem;
+  opacity: 0.85;
 }
 
 .bs-shop-card__name {
   font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--blindspot-text);
   line-height: 1.2;
+  padding: 0.5rem 0.5rem 0;
 }
 
 .bs-shop-card__rarity {
@@ -10638,25 +10666,28 @@ body.bs-battle-active .bs-play {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
+  padding: 0.15rem 0.5rem 0;
 }
 
 .bs-shop-card__desc {
   font-size: 0.62rem;
   color: var(--blindspot-text-muted);
   line-height: 1.3;
-  max-width: 120px;
+  max-width: 100%;
+  padding: 0.2rem 0.55rem 0;
 }
 
 .bs-shop-card__price {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.3rem;
   font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--blindspot-accent-gold-2);
-  margin-top: 0.25rem;
+  padding: 0.4rem 0.5rem 0.55rem;
 }
 
 .bs-shop-card__price--cant {
@@ -10670,7 +10701,7 @@ body.bs-battle-active .bs-play {
   text-transform: uppercase;
   color: var(--blindspot-success);
   font-weight: 600;
-  margin-top: 0.2rem;
+  padding: 0.4rem 0.5rem 0.55rem;
 }
 
 .bs-shop-card__qty {
@@ -10678,12 +10709,13 @@ body.bs-battle-active .bs-play {
   top: 0.4rem;
   right: 0.45rem;
   font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--blindspot-accent-gold-2);
   background: color-mix(in srgb, var(--blindspot-bg) 80%, transparent);
-  padding: 0.12rem 0.4rem;
+  padding: 0.15rem 0.4rem;
   border-radius: var(--blindspot-radius-button, 2px);
+  z-index: 3;
 }
 
 /* Wishlist heart */
@@ -11002,12 +11034,13 @@ body.bs-battle-active .bs-play {
 }
 
 @media (max-width: 480px) {
-  .bs-shop__grid { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+  .bs-shop__grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   .bs-shop__tab { font-size: 0.62rem; padding: 0.4rem 0.6rem; }
-  .bs-shop-card { padding: 0.6rem 0.35rem; }
-  .bs-shop-card__icon { font-size: 1.2rem; }
-  .bs-shop-card__name { font-size: 0.65rem; }
-  .bs-shop-card__desc { font-size: 0.52rem; max-width: 90px; }
+  .bs-shop-card__icon i.fas { font-size: 1.9rem; }
+  .bs-shop-card__name { font-size: 0.8rem; }
+  .bs-shop-card__rarity { font-size: 0.52rem; }
+  .bs-shop-card__desc { font-size: 0.55rem; max-width: 100%; }
+  .bs-shop-card__price { font-size: 0.75rem; padding-bottom: 0.45rem; }
 }
 
 /* ============================================================
