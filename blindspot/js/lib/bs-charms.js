@@ -70,7 +70,8 @@ window.BsCharms = (function () {
       rogue: true, trickster: true, medic: true, pilot: true
     },
     crates: { battle: true, boss: true, weekly: true, ember: true, ascension: true },
-    ranks: { initiate: true, apprentice: true, veteran: true, champion: true, legend: true, mythic: true }
+    ranks: { initiate: true, apprentice: true, veteran: true, champion: true, legend: true, mythic: true },
+    'pvp-ranks': { iron: true, bronze: true, silver: true, gold: true, platinum: true, diamond: true }
   };
 
   // Backward-compat alias for the existing items lookups.
@@ -94,6 +95,20 @@ window.BsCharms = (function () {
   // Items are the most common asset, keep the short helper.
   function itemArtHtml(id, fallbackFaIcon, alt) {
     return assetArtHtml('items', id, fallbackFaIcon, alt);
+  }
+
+  // PvP rank chips render inline in many HTML strings (lobby Elo chip,
+  // defense queue card row, etc.). The PVP_RANKS entries use TitleCase
+  // `name` (Iron / Bronze / ...), but the asset registry keys are
+  // lowercase. Centralise the lookup so call sites stay one-line.
+  function pvpRankIconHtml(pvpRank) {
+    if (!pvpRank) return '';
+    var key = pvpRank.name ? String(pvpRank.name).toLowerCase() : null;
+    if (key) {
+      var raw = assetArtHtml('pvp-ranks', key, pvpRank.icon, pvpRank.name);
+      if (raw.indexOf('<img') === 0) return raw;
+    }
+    return '<i class="fas ' + (pvpRank.icon || 'fa-shield-halved') + '" style="color:' + (pvpRank.color || '') + ';"></i>';
   }
 
   // Injected callbacks (set by monolith after load)
@@ -442,6 +457,7 @@ window.BsCharms = (function () {
     getDef: getCharmDef,
     itemArtHtml: itemArtHtml,
     assetArtHtml: assetArtHtml,
+    pvpRankIconHtml: pvpRankIconHtml,
     hasItemArt: function (id) { return !!ITEM_IMAGES[id]; },
     hasAssetArt: function (category, id) {
       var r = ASSET_REGISTRY[category];

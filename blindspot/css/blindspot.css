@@ -5177,6 +5177,36 @@
   box-shadow: none;
 }
 
+/* Inline PvP rank chips render the painted medallion at body-text height
+   so the chip rhythm matches the surrounding copy (lobby Elo chip,
+   defense-queue card row, post-battle Elo delta line, etc.). */
+.blindspot-lobby__sub-chip img.bs-item-art {
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: 3px;
+  vertical-align: -0.22em;
+  box-shadow: none;
+  margin-right: 0.1em;
+}
+.bs-pvp-rank-badge img.bs-item-art {
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 4px;
+  vertical-align: -0.35em;
+  box-shadow: none;
+  margin-right: 0.25em;
+}
+.bs-boss-card__class img.bs-item-art,
+.bs-mode-btn__rank img.bs-item-art,
+.bs-hud-power + span img.bs-item-art {
+  width: 1.05em;
+  height: 1.05em;
+  border-radius: 3px;
+  vertical-align: -0.18em;
+  box-shadow: none;
+  margin-right: 0.1em;
+}
+
 /* Illustrated stat icon inside the rendered card stat row. Sized to the
    row's existing 4px bar height + label baseline; stays compact so the
    bar still owns the row's visual weight. */

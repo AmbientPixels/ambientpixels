@@ -254,10 +254,12 @@
         if (xpAmtEl) xpAmtEl.innerHTML = '<span style="color:' + eloColor + ';">' + sign + eloChange + ' Elo</span>';
         var rankLabel = document.getElementById('arena-results-rank-label');
         if (rankLabel) {
+          var _bcOld = (window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(oldRank) : '<i class="fas ' + oldRank.icon + '"></i>';
+          var _bcNew = (window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(newRank) : '<i class="fas ' + newRank.icon + '"></i>';
           rankLabel.innerHTML =
-            '<span style="color:' + oldRank.color + ';"><i class="fas ' + oldRank.icon + '"></i> ' + oldRank.name + '</span>' +
+            '<span style="color:' + oldRank.color + ';">' + _bcOld + ' ' + oldRank.name + '</span>' +
             ' <i class="fas fa-arrow-right" style="color:var(--bs-text-muted);margin:0 0.3rem;"></i> ' +
-            '<span style="color:' + newRank.color + ';"><i class="fas ' + newRank.icon + '"></i> ' + newRank.name + ' (' + newElo + ')</span>';
+            '<span style="color:' + newRank.color + ';">' + _bcNew + ' ' + newRank.name + ' (' + newElo + ')</span>';
         }
         // Show progress to next PvP rank instead of XP bar
         var barFill = document.getElementById('arena-results-xp-fill');

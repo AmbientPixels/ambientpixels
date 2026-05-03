@@ -108,9 +108,10 @@
       }
     }
 
+    var _rankIcon = (window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(rank) : '<i class="fas ' + rank.icon + '"></i>';
     el.innerHTML =
       '<div class="bs-pvp-rank-badge" style="color:' + rank.color + ';">' +
-        '<i class="fas ' + rank.icon + '"></i> ' + rank.name +
+        _rankIcon + ' ' + rank.name +
       '</div>' +
       '<div class="bs-pvp-elo">' + elo + ' Elo</div>' +
       '<div class="bs-pvp-record">' + rec.w + 'W / ' + rec.l + 'L</div>' +
@@ -631,7 +632,7 @@
             '</div>' +
             '<div class="bs-boss-card__info">' +
               '<div class="bs-boss-card__name">' + escHtml(entry.cardName) + ' <span style="font-size:0.7rem;color:var(--bs-text-muted);">(' + (entry.record.w || 0) + 'W/' + (entry.record.l || 0) + 'L)</span></div>' +
-              '<div class="bs-boss-card__class">' + escHtml(entry.cardClass) + ' <span style="color:' + rank.color + ';font-size:0.8rem;"><i class="fas ' + rank.icon + '"></i> ' + (entry.pvpElo || 1000) + '</span> <span style="color:' + diffColor + ';font-size:0.75rem;">' + diffLabel + '</span></div>' +
+              '<div class="bs-boss-card__class">' + escHtml(entry.cardClass) + ' <span style="color:' + rank.color + ';font-size:0.8rem;">' + ((window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(rank) : '<i class="fas ' + rank.icon + '"></i>') + ' ' + (entry.pvpElo || 1000) + '</span> <span style="color:' + diffColor + ';font-size:0.75rem;">' + diffLabel + '</span></div>' +
             '</div>' +
             '<div class="bs-boss-card__action">' +
               '<button class="bs-btn bs-btn--sm" style="padding:0.4rem 0.8rem;font-size:0.8rem;background:var(--bs-accent);color:var(--bs-bg);" data-async-fight="' + escHtml(entry.userId) + '"><i class="fas fa-swords"></i> Fight</button>' +
@@ -666,7 +667,7 @@
     if (titleEl) titleEl.textContent = defender.cardName;
     if (flavorEl) flavorEl.innerHTML =
       (defender.cardClass ? '<span style="font-size:0.85rem;color:var(--bs-text-muted);">' + escHtml(defender.cardClass) + '</span><br>' : '') +
-      '<span style="font-size:0.8rem;color:' + rank.color + ';"><i class="fas ' + rank.icon + '"></i> ' + rank.name + ' &middot; ' + (defender.pvpElo || 1000) + ' Elo</span>' +
+      '<span style="font-size:0.8rem;color:' + rank.color + ';">' + ((window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(rank) : '<i class="fas ' + rank.icon + '"></i>') + ' ' + rank.name + ' &middot; ' + (defender.pvpElo || 1000) + ' Elo</span>' +
       '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);"><i class="fas fa-shield-halved"></i> Defense: ' + (defender.record.w || 0) + 'W / ' + (defender.record.l || 0) + 'L</span>';
     if (avatarEl) {
       if (defender.avatar) {
@@ -749,7 +750,7 @@
               '</div>' +
               '<div class="bs-boss-card__info">' +
                 '<div class="bs-boss-card__name">' + escHtml(myEntry.cardName) + '</div>' +
-                '<div class="bs-boss-card__class">' + escHtml(myEntry.cardClass) + ' <span style="color:' + rank.color + ';"><i class="fas ' + rank.icon + '"></i> ' + (myEntry.pvpElo || 1000) + '</span></div>' +
+                '<div class="bs-boss-card__class">' + escHtml(myEntry.cardClass) + ' <span style="color:' + rank.color + ';">' + ((window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(rank) : '<i class="fas ' + rank.icon + '"></i>') + ' ' + (myEntry.pvpElo || 1000) + '</span></div>' +
               '</div>' +
             '</div>' +
             '<div style="color:var(--bs-text-muted);font-size:0.85rem;margin:0.5rem 0;">' +

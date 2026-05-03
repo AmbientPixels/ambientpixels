@@ -10,6 +10,7 @@
 //   - Titles       (8):  heraldic wax seals
 //   - Lobby-tiles  (1):  sparks-tile (matches crate-tile + collection-tile pair)
 //   - Ranks        (6):  initiate, apprentice, veteran, champion, legend, mythic
+//   - Pvp-ranks    (6):  iron, bronze, silver, gold, platinum, diamond
 //
 // Usage:
 //   node scripts/generate-blindspot-game-icons.js
@@ -100,6 +101,27 @@ const SETS = [
       { id: 'weekly',    subject: 'A weathered crate with brass clockwork gears along the lid edge and a small sundial face inset on the top, soft amber clockwork glow.' },
       { id: 'ember',     subject: 'A glowing red-hot crate with smouldering ember-light leaking from every seam, faint smoke rising, scorched dark stone beneath.' },
       { id: 'ascension', subject: 'A crate of polished dark obsidian stone with a single embedded violet crystal star centered on the lid, cold radiant violet light beaming softly outward.' }
+    ]
+  },
+
+  // ─── PVP RANKS (competitive ladder medallions, shield series escalating) ─
+  // Visually distinct from LEVEL_TIERS: the player journey series uses
+  // varied symbols per tier (shield → crown → gem-star → diamond → flame),
+  // whereas the PvP ladder is a tighter "shield material escalation" series
+  // ending in crown / gem / diamond -- it should read as competitive rank
+  // armor, not as a personal milestone.
+  {
+    id: 'pvp-ranks',
+    dir: 'pvp-ranks',
+    webpEdge: 384,
+    style: 'Heraldic competitive-ladder medallion, single circular metal disc embossed with a bold heraldic symbol centered, deep recessed embossing catching the light, dark stone backdrop with subtle vignette, hand-rendered fantasy crest style in the spirit of Dark Souls / Bloodborne menu art, square 1:1 framing, no text, no UI, no logos.',
+    items: [
+      { id: 'iron',     subject: 'A worn dark iron disc embossed with a simple kite-shield silhouette, dim grey patina with minor pitting, faint torchlight catching the rim, the entry-rank look.' },
+      { id: 'bronze',   subject: 'A polished bronze disc embossed with an ornate kite-shield bearing a single horizontal brace, warm copper-orange gleam tracing the rim and embossed lines.' },
+      { id: 'silver',   subject: 'A burnished silver disc embossed with a tall heater-shield bearing a single bold cross, cool moonlit gleam catching the embossed cross-arms, slight age-tarnish at the edges.' },
+      { id: 'gold',     subject: 'A polished gold disc embossed with a regal three-pointed crown above a small kite-shield, bright sunlit gleam, faint warm halo of light around the crown.' },
+      { id: 'platinum', subject: 'A radiant platinum disc embossed with a faceted gemstone-star centered above a heater-shield, cold prismatic shimmer, faint silver-violet glow tracing the embossed lines.' },
+      { id: 'diamond',  subject: 'A radiant ice-blue platinum disc embossed with a brilliant-cut diamond centered above a heater-shield, cold prismatic shimmer, faint cyan-violet glow tracing the embossed lines, the topmost competitive rank.' }
     ]
   },
 

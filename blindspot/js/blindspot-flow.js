@@ -1534,7 +1534,8 @@
         var pvpRank = getPvPRank(elo);
         pvpLock.style.display = '';
         pvpLock.className = 'bs-mode-btn__rank';
-        pvpLock.innerHTML = '<i class="fas ' + pvpRank.icon + '" style="color:' + pvpRank.color + ';"></i> ' + pvpRank.name + ' <span style="color:var(--bs-text-muted);">' + elo + '</span>';
+        var _pvpIcon1 = (window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(pvpRank) : '<i class="fas ' + pvpRank.icon + '" style="color:' + pvpRank.color + ';"></i>';
+        pvpLock.innerHTML = _pvpIcon1 + ' ' + pvpRank.name + ' <span style="color:var(--bs-text-muted);">' + elo + '</span>';
       }
     }
 
@@ -1560,7 +1561,8 @@
       if (highestB >= pvpReq) {
         const elo = getPvPElo();
         const pvpRank = getPvPRank(elo);
-        pvpHtml = `<span style="color:${pvpRank.color};" data-tooltip="PvP Rating"><i class="fas ${pvpRank.icon}"></i> ${elo}</span>`;
+        const _pvpIcon2 = (window.BsCharms && window.BsCharms.pvpRankIconHtml) ? window.BsCharms.pvpRankIconHtml(pvpRank) : `<i class="fas ${pvpRank.icon}"></i>`;
+        pvpHtml = `<span style="color:${pvpRank.color};" data-tooltip="PvP Rating">${_pvpIcon2} ${elo}</span>`;
       }
 
       // Tower best floor in lobby stats
@@ -2080,7 +2082,10 @@
     if (rankChip && rankLabel) {
       rankLabel.textContent = rankInfo.label;
       rankLabel.style.color = rankInfo.color;
-      if (rankIcon) _setRankBadge(rankIcon, rankInfo);
+      // RANKS entries lack an `id` field -- pass the rank key explicitly
+      // so _setRankBadge can resolve the pvp-ranks asset for it (the
+      // lobby header chip uses the XP-based RANKS, NOT LEVEL_TIERS).
+      if (rankIcon) _setRankBadge(rankIcon, rankInfo, { category: 'pvp-ranks', assetId: rank });
       rankChip.hidden = false;
     }
     var powerChip = document.getElementById('bs-header-power-chip');
@@ -2115,12 +2120,20 @@
   // existing element gets replaced via outerHTML so subsequent renderers
   // re-resolve via getElementById and the id is preserved across swaps.
   // Falls back to the original className + style.color pattern when
-  // BsCharms is unavailable or the tier id isn't in the asset registry.
-  function _setRankBadge(el, tier) {
+  // BsCharms is unavailable or the asset id isn't in the registry.
+  // opts:
+  //   category — asset registry category (default 'ranks')
+  //   assetId  — asset id lookup key (default tier.id; pass for systems
+  //              like RANKS where the tier object has no `id` field
+  //              and the caller knows the lowercase key)
+  function _setRankBadge(el, tier, opts) {
     if (!el || !tier) return;
+    opts = opts || {};
+    var category = opts.category || 'ranks';
+    var assetId = opts.assetId || tier.id;
     var bc = window.BsCharms;
-    if (bc && bc.assetArtHtml) {
-      var raw = bc.assetArtHtml('ranks', tier.id, tier.icon, tier.label);
+    if (bc && bc.assetArtHtml && assetId) {
+      var raw = bc.assetArtHtml(category, assetId, tier.icon, tier.label);
       if (raw.indexOf('<img') === 0) {
         // Preserve the id so re-render lookups still work
         var withId = raw.replace('<img', '<img id="' + el.id + '"');
