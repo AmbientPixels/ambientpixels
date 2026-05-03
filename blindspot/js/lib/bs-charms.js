@@ -20,7 +20,12 @@ window.BsCharms = (function () {
     smoke_bomb: true,
     lucky_coin: true,
     focus_elixir: true,
-    prism_shard: true
+    prism_shard: true,
+    war_cry: true,
+    iron_skin: true,
+    healing_salve: true,
+    stamina_potion: true,
+    element_ward: true
   };
 
   function itemArtHtml(id, fallbackFaIcon, alt) {
