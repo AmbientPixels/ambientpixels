@@ -113,7 +113,7 @@
       <div class="bs-forge-stat-list">
       ${statDefs.map(d => `
         <div class="bs-forge-stat">
-          <i class="fas ${d.icon}" style="color:${d.color};"></i>
+          ${window.BsCharms && window.BsCharms.assetArtHtml ? window.BsCharms.assetArtHtml('stats', d.key, d.icon, d.label) : `<i class="fas ${d.icon}" style="color:${d.color};"></i>`}
           <span class="bs-forge-stat__label" style="color:${d.color}">${d.label}</span>
           <span class="bs-forge-stat__base">${currentStats[d.key]}</span>
           <span class="bs-forge-stat__arrow">\u2192</span>

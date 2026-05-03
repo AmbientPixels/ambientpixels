@@ -5117,6 +5117,18 @@
 .bs-shop-preview__icon .bs-victory-preview { width: 96px; height: 96px; border-radius: 4px; }
 .bs-shop-preview__icon .bs-item-art { width: 96px; height: 96px; border-radius: 8px; }
 
+/* Game-icon art at non-card surfaces (stats / elements / classes). The asset
+   registry returns <img class="bs-item-art"> for these too -- scope sizing
+   per surface so the same helper works in the forge stats tab, the loot
+   choice cards, the prefight matchup chip, the Quick Build pickers, and the
+   class picker overlay. */
+.bs-forge-stat .bs-item-art { width: 1.15rem; height: 1.15rem; border-radius: 3px; box-shadow: none; }
+.bs-loot-card .bs-item-art { width: 2rem; height: 2rem; border-radius: 4px; }
+.bs-vs-matchup .bs-item-art { width: 1.05em; height: 1.05em; border-radius: 3px; vertical-align: -0.18em; box-shadow: none; }
+.bs-element-pick .bs-item-art { width: 2.4rem; height: 2.4rem; border-radius: 6px; }
+.bs-class-pick .bs-item-art { width: 28px; height: 28px; border-radius: 4px; flex-shrink: 0; }
+.bs-class-picker-btn .bs-item-art { width: 1.5rem; height: 1.5rem; border-radius: 4px; }
+
 /* Illustrated stat icon inside the rendered card stat row. Sized to the
    row's existing 4px bar height + label baseline; stays compact so the
    bar still owns the row's visual weight. */

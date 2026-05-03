@@ -166,9 +166,12 @@
       const sel = _state.cardClass === c.id;
       const classStats = CLASS_STATS[c.id];
       const topStat = classStats ? STAT_DEFS.reduce((a, b) => (classStats[a.key] || 0) > (classStats[b.key] || 0) ? a : b) : null;
+      const classIconHtml = (window.BsCharms && window.BsCharms.assetArtHtml)
+        ? window.BsCharms.assetArtHtml('classes', c.id.toLowerCase(), c.icon, c.label)
+        : `<i class="fas ${c.icon} bs-class-pick__icon"></i>`;
       return `
         <div class="bs-class-pick ${sel ? 'bs-class-pick--selected' : ''}" data-class-id="${c.id}">
-          <i class="fas ${c.icon} bs-class-pick__icon"></i>
+          ${classIconHtml}
           <div class="bs-class-pick__info">
             <span class="bs-class-pick__name">${c.label}</span>
             <span class="bs-class-pick__ability">${c.ability} (${c.abilityStat})</span>
@@ -223,8 +226,11 @@
       var ch = chart[id] || {};
       var strongLabel = ch.strong && defs[ch.strong] ? defs[ch.strong].label : 'None';
       var weakLabel = ch.weak && defs[ch.weak] ? defs[ch.weak].label : 'None';
+      var elIconHtml = (window.BsCharms && window.BsCharms.assetArtHtml)
+        ? window.BsCharms.assetArtHtml('elements', id, def.icon, def.label)
+        : '<i class="fas ' + def.icon + '" style="color:' + def.color + ';font-size:1.5rem;"></i>';
       return '<div class="bs-element-pick ' + (sel ? 'bs-element-pick--selected' : '') + '" data-element-id="' + id + '" style="--el-color:' + def.color + '">' +
-        '<i class="fas ' + def.icon + '" style="color:' + def.color + ';font-size:1.5rem;"></i>' +
+        elIconHtml +
         '<span class="bs-element-pick__name">' + def.label + '</span>' +
         '<span class="bs-element-pick__matchup">' +
           (ch.strong ? '<span style="color:#4ade80;">Strong vs ' + strongLabel + '</span>' : '<span style="color:var(--bs-text-muted);">Neutral</span>') +

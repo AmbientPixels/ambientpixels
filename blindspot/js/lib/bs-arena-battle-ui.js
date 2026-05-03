@@ -269,8 +269,13 @@ window.ArenaBattleUI = (function () {
       var html = '';
       var modClass = '';
       if (pEl && oEl && _ED[pEl] && _ED[oEl]) {
-        var pIcon = '<i class="fas ' + _ED[pEl].icon + '" style="color:' + _ED[pEl].color + ';"></i>';
-        var oIcon = '<i class="fas ' + _ED[oEl].icon + '" style="color:' + _ED[oEl].color + ';"></i>';
+        var _bc = window.BsCharms;
+        var pIcon = (_bc && _bc.assetArtHtml)
+          ? _bc.assetArtHtml('elements', pEl, _ED[pEl].icon, _ED[pEl].label)
+          : '<i class="fas ' + _ED[pEl].icon + '" style="color:' + _ED[pEl].color + ';"></i>';
+        var oIcon = (_bc && _bc.assetArtHtml)
+          ? _bc.assetArtHtml('elements', oEl, _ED[oEl].icon, _ED[oEl].label)
+          : '<i class="fas ' + _ED[oEl].icon + '" style="color:' + _ED[oEl].color + ';"></i>';
         var chart = _EC[pEl] || {};
         if (chart.strong === oEl) {
           html = pIcon + ' Strong vs ' + oIcon + ' <span>+25% dmg</span>';

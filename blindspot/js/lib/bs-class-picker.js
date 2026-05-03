@@ -42,8 +42,11 @@
       '<p style="color:var(--bs-text-muted);font-size:0.8rem;margin-bottom:1rem;">Pick your fighting style. You\'ll customize in the Forge.</p>' +
       '<div class="bs-class-picker-grid">' +
       NEW_CARD_CLASSES.map(function(c) {
+        var iconHtml = (window.BsCharms && window.BsCharms.assetArtHtml)
+          ? window.BsCharms.assetArtHtml('classes', c.id.toLowerCase(), c.icon, c.label)
+          : '<i class="fas ' + c.icon + '" style="font-size:1.2rem;color:var(--bs-accent);"></i>';
         return '<button class="bs-btn bs-btn--secondary bs-class-picker-btn" data-class="' + c.id + '">' +
-          '<i class="fas ' + c.icon + '" style="font-size:1.2rem;color:var(--bs-accent);"></i>' +
+          iconHtml +
           '<strong>' + c.label + '</strong>' +
           '<span style="font-size:0.7rem;color:var(--bs-text-muted);">' + c.desc + '</span>' +
           '</button>';
