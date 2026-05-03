@@ -2091,6 +2091,7 @@
   gap: 1rem;
 }
 .bs-gallery-tile {
+  position: relative;
   background: transparent;
   border: 0;
   padding: 0;
@@ -2101,6 +2102,29 @@
 .bs-gallery-tile:focus-visible {
   transform: translateY(-4px);
   outline: none;
+}
+/* Defender badge — overlay corner pill on cards on the defense queue */
+.bs-gallery-tile__defender {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  background: rgba(13, 8, 7, 0.85);
+  border: 1px solid var(--bs-accent);
+  border-radius: 999px;
+  color: var(--bs-accent);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  pointer-events: none; /* Clicks fall through to the parent tile button */
+}
+.bs-gallery-tile--defender:hover .bs-gallery-tile__defender {
+  border-color: var(--bs-accent-glow, #ffc370);
 }
 .bs-gallery-tile:focus-visible .bs-rendered-card {
   box-shadow: 0 0 0 2px var(--bs-accent), 0 0 24px rgba(239, 159, 39, 0.4);
@@ -2150,6 +2174,36 @@
   color: var(--bs-accent);
   width: 14px;
   text-align: center;
+}
+/* Challenge button — only shown when card is on defense queue */
+.bs-gallery-detail__challenge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding: 0.65rem 1rem;
+  background: var(--bs-accent);
+  color: var(--bs-bg, #0d0807);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--bs-accent);
+  border-radius: 4px;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.bs-gallery-detail__challenge:hover,
+.bs-gallery-detail__challenge:focus-visible {
+  background: var(--bs-accent-glow, #ffc370);
+  box-shadow: 0 0 14px rgba(239, 159, 39, 0.4);
+  transform: translateY(-1px);
+  outline: none;
+}
+.bs-gallery-detail__challenge i {
+  font-size: 1rem;
 }
 
 /* ── Stats screen ──

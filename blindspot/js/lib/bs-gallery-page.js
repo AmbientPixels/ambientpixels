@@ -52,6 +52,7 @@
   var _cards = null;
   var _filters = { class: '', element: '', rarity: '' };
   var _creatorFilter = ''; // URL-param-only; not in the dropdown UI
+  var _defenderIds = new Set(); // cards currently on the global defense queue
 
   function getUrlParam(name) {
     try { return new URL(window.location.href).searchParams.get(name) || ''; }
@@ -72,14 +73,29 @@
     grid.innerHTML = '<div class="bs-gallery__loading"><i class="fas fa-spinner fa-spin"></i> Loading cards…</div>';
 
     try {
+      // Defense queue is fetched in parallel; soft-fail to empty Set so
+      // a queue-API hiccup never blocks the gallery render.
+      var defenseQueuePromise = (window.ArenaAPI && window.ArenaAPI.loadDefenseQueue)
+        ? window.ArenaAPI.loadDefenseQueue().catch(function () { return null; })
+        : Promise.resolve(null);
+
       var responses = await Promise.all([
         window.ArenaAPI.loadCards(),
         fetchAdminConfig('moderation'),
-        fetchAdminConfig('gallery')
+        fetchAdminConfig('gallery'),
+        defenseQueuePromise
       ]);
       var data = responses[0];
       var modConfig = responses[1];
       var galleryConfig = responses[2];
+      var defenseQueueData = responses[3];
+
+      _defenderIds = new Set();
+      if (defenseQueueData && Array.isArray(defenseQueueData.queue)) {
+        defenseQueueData.queue.forEach(function (entry) {
+          if (entry && entry.cardId) _defenderIds.add(entry.cardId);
+        });
+      }
 
       var hiddenIds = new Set((modConfig && Array.isArray(modConfig.hiddenIds)) ? modConfig.hiddenIds : []);
       var mode = (galleryConfig && galleryConfig.mode) || 'recent';
@@ -194,8 +210,12 @@
 
     grid.innerHTML = filtered.map(function (c, i) {
       ensureCombatStats(c);
-      return '<button class="bs-gallery-tile" data-gallery-idx="' + i + '" type="button" role="listitem" aria-label="View ' + escHtml(c.name || 'card') + '">'
+      var defenderBadge = (c.id && _defenderIds.has(c.id))
+        ? '<span class="bs-gallery-tile__defender" aria-label="On defense queue"><i class="fas fa-shield-halved" aria-hidden="true"></i> Defender</span>'
+        : '';
+      return '<button class="bs-gallery-tile' + (defenderBadge ? ' bs-gallery-tile--defender' : '') + '" data-gallery-idx="' + i + '" type="button" role="listitem" aria-label="View ' + escHtml(c.name || 'card') + (defenderBadge ? ' (on defense queue)' : '') + '">'
         + renderCardHTML(c, 'full')
+        + defenderBadge
         + '</button>';
     }).join('');
 
@@ -302,9 +322,16 @@
       // publishedBy is a userId — opaque to other players. Surface a
       // truncated form as a creator handle until display-name wiring lands.
       var creator = card.publishedBy ? ('Forged by ' + String(card.publishedBy).slice(0, 8) + '…') : '';
+      var isDefender = !!(card.id && _defenderIds.has(card.id));
+      var challengeRow = isDefender
+        ? '<a class="bs-gallery-detail__challenge" href="/blindspot/play.html?pvpChallenge=' + encodeURIComponent(card.id) + '">'
+          + '<i class="fas fa-shield-halved" aria-hidden="true"></i> Challenge this defender in PvP'
+          + '</a>'
+        : '';
       metaEl.innerHTML = '<div class="bs-gallery-detail__row"><i class="fas fa-bolt"></i> Power ' + power + '</div>'
         + (creator ? '<div class="bs-gallery-detail__row"><i class="fas fa-hammer"></i> ' + escHtml(creator) + '</div>' : '')
-        + (dateStr ? '<div class="bs-gallery-detail__row"><i class="fas fa-calendar"></i> Published ' + escHtml(dateStr) + '</div>' : '');
+        + (dateStr ? '<div class="bs-gallery-detail__row"><i class="fas fa-calendar"></i> Published ' + escHtml(dateStr) + '</div>' : '')
+        + challengeRow;
     }
     modal.classList.remove('bs-modal-backdrop--hidden');
     if (card.id) setUrlParam('card', card.id);
