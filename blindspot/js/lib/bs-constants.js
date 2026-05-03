@@ -122,21 +122,23 @@ window.BsConst = (function () {
     }
   };
 
-  // Class-specific ability art filenames (served from /blindspot/img/moves/).
-  // Falls back to the generic ability.webp in HTML if class isn't listed.
+  // Class-specific ability art (served from /blindspot/img/moves/).
+  // Each class maps to one of 5 ability-family videos, matching abilityDefs in arena-config.json.
+  // Per-class .webp stills are kept as poster fallbacks for the matching video.
   var CLASS_ABILITY_ART = {
-    'Fighter':   'ability-fighter.webp',
-    'Enforcer':  'ability-enforcer.webp',
-    'Berserker': 'ability-berserker.webp',
-    'Guardian':  'ability-guardian.webp',
-    'Caster':    'ability-caster.webp',
-    'Scholar':   'ability-scholar.webp',
-    'Hacker':    'ability-hacker.webp',
-    'Scout':     'ability-scout.webp',
-    'Rogue':     'ability-rogue.webp',
-    'Trickster': 'ability-trickster.webp',
-    'Medic':     'ability-medic.webp',
-    'Pilot':     'ability-pilot.webp'
+    'Fighter':   { video: 'ability-power-strike.webm',  poster: 'ability-fighter.webp'   },
+    'Enforcer':  { video: 'ability-power-strike.webm',  poster: 'ability-enforcer.webp'  },
+    'Berserker': { video: 'ability-power-strike.webm',  poster: 'ability-berserker.webp' },
+    'Caster':    { video: 'ability-arcane-blast.webm',  poster: 'ability-caster.webp'    },
+    'Scholar':   { video: 'ability-arcane-blast.webm',  poster: 'ability-scholar.webp'   },
+    'Hacker':    { video: 'ability-arcane-blast.webm',  poster: 'ability-hacker.webp'    },
+    'Scout':     { video: 'ability-shadow-strike.webm', poster: 'ability-scout.webp'     },
+    'Rogue':     { video: 'ability-shadow-strike.webm', poster: 'ability-rogue.webp'     },
+    'Pilot':     { video: 'ability-shadow-strike.webm', poster: 'ability-pilot.webp'     },
+    'Guardian':  { video: 'ability-fortify.webm',       poster: 'ability-guardian.webp'  },
+    'Medic':     { video: 'ability-fortify.webm',       poster: 'ability-medic.webp'     },
+    'Trickster': { video: 'ability-wild-card.webm',     poster: 'ability-trickster.webp' },
+    'Wildcard':  { video: 'ability-wild-card.webm',     poster: 'ability-trickster.webp' }
   };
 
   // ── Combat ──

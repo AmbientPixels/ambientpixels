@@ -39,11 +39,19 @@
         if (abilLabel) abilLabel.textContent = sig.name;
         if (abilIcon) abilIcon.className = 'fas ' + sig.icon;
       }
-      // Swap ability button thumbnail to class-specific art (falls back to generic ability.webp)
-      var artFile = CLASS_ABILITY_ART[cardClass];
-      if (artFile) {
-        var abilBtn = document.querySelector('.arena-move-btn--ability .arena-move-btn__art');
-        if (abilBtn) abilBtn.style.backgroundImage = "url('/blindspot/img/moves/" + artFile + "')";
+      // Swap ability button art to class-family video + per-class poster (falls back to generic ability.webm)
+      var art = CLASS_ABILITY_ART[cardClass];
+      if (art && art.video) {
+        var abilVid = document.querySelector('.arena-move-btn--ability .bs-move-card__art');
+        if (abilVid && abilVid.tagName === 'VIDEO') {
+          var src = abilVid.querySelector('source');
+          var newSrc = '/blindspot/img/moves/' + art.video;
+          if (src && src.getAttribute('src') !== newSrc) {
+            src.setAttribute('src', newSrc);
+            if (art.poster) abilVid.setAttribute('poster', '/blindspot/img/moves/' + art.poster);
+            try { abilVid.load(); abilVid.play().catch(function(){}); } catch (e) {}
+          }
+        }
       }
     }
     // Move upgrades — rename buttons based on stat thresholds
