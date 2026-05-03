@@ -10493,10 +10493,13 @@ body.bs-battle-active .bs-play {
   background: radial-gradient(ellipse at center, rgba(40, 30, 20, 0.55), rgba(13, 8, 7, 1));
 }
 
-/* ── Confetti ── */
+/* ── Confetti ──
+   Animate `top` (container-relative) instead of translateY (self-relative)
+   so the particles actually traverse the full preview height. translateY %
+   was 4% of 4px = ~5px and the confetti looked stuck at the top. */
 .bs-victory-preview--confetti .bs-vfx-mini-particle {
   position: absolute;
-  top: 0;
+  top: -10%;
   width: 4px;
   height: 4px;
   border-radius: 1px;
@@ -10504,9 +10507,9 @@ body.bs-battle-active .bs-play {
   animation: bs-vfx-mini-confetti 2.4s ease-out infinite;
 }
 @keyframes bs-vfx-mini-confetti {
-  0% { transform: translateY(-15%) rotate(0deg); opacity: 0; }
-  10% { opacity: 1; }
-  100% { transform: translateY(120%) rotate(540deg); opacity: 0; }
+  0%   { top: -10%; opacity: 0; transform: rotate(0deg); }
+  10%  { opacity: 1; }
+  100% { top: 110%; opacity: 0; transform: rotate(540deg); }
 }
 
 /* ── Lightning ── */
