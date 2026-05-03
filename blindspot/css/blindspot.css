@@ -12982,11 +12982,17 @@ body.bs-adventure-active {
   border-radius: 2px;
 }
 
-/* "Current boss" highlight — gold ember outline (was red). */
+/* "Current boss" highlight — gold ember outline + gentle pulse so the
+   next undefeated rung pulls the eye in a sea of defeated/locked siblings. */
 #bs-screen-campaign .bs-boss-card--current {
   border-color: var(--blindspot-accent-gold);
   background: linear-gradient(135deg, var(--blindspot-surface-2), var(--blindspot-surface));
-  box-shadow: 0 0 24px -8px rgba(245, 192, 120, 0.35);
+  box-shadow: 0 0 28px -6px rgba(245, 192, 120, 0.45);
+  animation: bs-campaign-current-pulse 2.4s ease-in-out infinite;
+}
+@keyframes bs-campaign-current-pulse {
+  0%, 100% { box-shadow: 0 0 28px -6px rgba(245, 192, 120, 0.45); }
+  50%      { box-shadow: 0 0 40px -4px rgba(245, 192, 120, 0.65); }
 }
 #bs-screen-campaign .bs-boss-card--current::before {
   background: var(--blindspot-accent-gold);
@@ -12994,9 +13000,21 @@ body.bs-adventure-active {
 }
 #bs-screen-campaign .bs-boss-card--current[data-boss-class] .bs-boss-avatar {
   border-color: var(--blindspot-accent-gold);
+  box-shadow: 0 0 14px rgba(245, 192, 120, 0.4);
 }
 #bs-screen-campaign .bs-boss-card--current .bs-boss-card__here {
   color: var(--blindspot-accent-gold);
+  animation: bs-campaign-here-breath 2.4s ease-in-out infinite;
+}
+@keyframes bs-campaign-here-breath {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1;    text-shadow: 0 0 8px rgba(245, 192, 120, 0.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bs-screen-campaign .bs-boss-card--current,
+  #bs-screen-campaign .bs-boss-card--current .bs-boss-card__here {
+    animation: none;
+  }
 }
 
 /* Defeated boss left-stripe stays Vein success. */
