@@ -1857,6 +1857,12 @@
       if (!id) {
         return '<span class="blindspot-loadout__tile blindspot-loadout__tile--empty" aria-hidden="true"><i class="fas fa-circle-dashed"></i></span>';
       }
+      // Titles render as their FA icon in this compact panel — the painted
+      // wax-seals read poorly at this size. Seals stay on the card and in
+      // the Collection screen.
+      if (category === 'titles') {
+        return '<span class="blindspot-loadout__tile" title="' + escHtml(name || id) + '"><i class="fas ' + escHtml(fallbackIcon || 'fa-medal') + '"></i></span>';
+      }
       // Cosmetic categories with live previews use those; everything else
       // falls through to assetArtHtml for the static art.
       if (hasPreviewHelper && (category === 'frames' || category === 'backs' || category === 'plates' || category === 'victory')) {
@@ -1872,15 +1878,19 @@
       return '<span class="blindspot-loadout__tile" title="' + escHtml(name || id) + '"><i class="fas ' + escHtml(fallbackIcon || 'fa-star') + '"></i></span>';
     }
 
-    function defName(id) {
+    function cosmeticDef(id) {
       if (!id) return null;
-      var def = (_Cos && _Cos.find) ? _Cos.find(id) : null;
+      return (_Cos && _Cos.find) ? _Cos.find(id) : null;
+    }
+    function defName(id) {
+      var def = cosmeticDef(id);
       return def ? def.name : id;
     }
     function charmDef(id) {
       if (!id || !_Chm || !_Chm.getDef) return null;
       return _Chm.getDef(id);
     }
+    var equippedTitleDef = cosmeticDef(equipped.title);
 
     var slots = [
       { label: 'Charm',   id: equippedCharm, name: charmDef(equippedCharm) ? charmDef(equippedCharm).name : null, category: 'items',   fallbackIcon: charmDef(equippedCharm) ? charmDef(equippedCharm).icon : 'fa-flask' },
@@ -1888,7 +1898,7 @@
       { label: 'Back',    id: equipped.back,      name: defName(equipped.back),      category: 'backs',   fallbackIcon: 'fa-circle' },
       { label: 'Plate',   id: equipped.nameplate, name: defName(equipped.nameplate), category: 'plates',  fallbackIcon: 'fa-tag' },
       { label: 'Victory', id: equipped.victory,   name: defName(equipped.victory),   category: 'victory', fallbackIcon: 'fa-burst' },
-      { label: 'Title',   id: equipped.title,     name: defName(equipped.title),     category: 'titles',  fallbackIcon: 'fa-medal' }
+      { label: 'Title',   id: equipped.title,     name: defName(equipped.title),     category: 'titles',  fallbackIcon: (equippedTitleDef && equippedTitleDef.icon) || 'fa-medal' }
     ];
 
     rows.innerHTML = slots.map(function(s) {
