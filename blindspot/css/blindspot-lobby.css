@@ -837,26 +837,37 @@ body.bs-page {
   font-weight: 600;
 }
 
-/* Forge progress meter — recolor */
+/* Forge progress meter — anvil backdrop, text right-justified into the dark side of the image */
 .blindspot-lobby #bs-forge-progress {
-  background: var(--blindspot-surface);
+  background:
+    linear-gradient(90deg, rgba(13, 8, 7, 0.0) 45%, rgba(13, 8, 7, 0.55) 100%),
+    var(--blindspot-surface) url('../img/card-forge.webp') left center / cover no-repeat;
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile);
+  min-height: 96px;
+  padding: 0.7rem 0.9rem 0.75rem 50%;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
 }
 .blindspot-lobby .bs-forge-progress__label,
 .blindspot-lobby #bs-forge-label {
   font-family: var(--blindspot-font-mono);
   letter-spacing: 0.18em;
   color: var(--blindspot-accent-gold);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 .blindspot-lobby .bs-forge-progress__hint,
 .blindspot-lobby #bs-forge-hint {
   font-family: var(--blindspot-font-body);
-  color: var(--blindspot-text-dim);
+  color: var(--blindspot-text);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
 }
 .blindspot-lobby .bs-forge-progress__bar {
-  background: var(--blindspot-bg-2);
-  border: 1px solid var(--blindspot-border);
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.45);
   border-radius: 2px;
 }
 .blindspot-lobby .bs-forge-progress__bar-fill,
