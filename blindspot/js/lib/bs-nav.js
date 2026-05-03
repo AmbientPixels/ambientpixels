@@ -28,20 +28,53 @@
 
     // Primary PLAY button + Campaign button both open campaign
     const openCampaign = () => { _cb.showScreen('campaign'); _cb.renderCampaignLadder(); };
-    // Smart ENTER ARENA: go straight to next boss fight
+    // Smart ENTER ARENA: matches the label cascade in renderLobby (CTA-LABEL).
+    // Mid-game -> next boss prefight. End-game cascades through:
+    //   weekly boss unbeaten -> weekly prefight
+    //   tower unlocked       -> campaign screen, scroll to tower
+    //   asc < 5              -> ascension offer
+    //   fallback             -> campaign screen (replay)
     const enterArena = () => {
       const highest = _cb.getHighestBossDefeated();
       const nextBoss = _cb.getBossByNumber(highest + 1);
       if (nextBoss) {
-        // Show pre-fight overlay for next boss
         _cb.populatePrefightOverlay(nextBoss);
         _cb.showOverlay('bs-prefight-overlay');
         _cb.setupPrefightButtons(nextBoss.id);
-      } else {
-        // All bosses defeated — go to campaign to replay or ascend
+        return;
+      }
+
+      var weeklyBoss = _cb.getWeeklyBoss && _cb.getWeeklyBoss();
+      var weeklyRec = (weeklyBoss && _cb.getWeeklyRecord) ? _cb.getWeeklyRecord() : null;
+      var weeklyOpen = weeklyBoss && (!weeklyRec || (weeklyRec.wins || 0) === 0);
+
+      if (weeklyOpen) {
+        _cb.populatePrefightOverlay(weeklyBoss);
+        _cb.showOverlay('bs-prefight-overlay');
+        _cb.setupPrefightButtons(weeklyBoss.id);
+        return;
+      }
+
+      var towerOpen = _cb.isTowerUnlocked && _cb.isTowerUnlocked();
+      if (towerOpen) {
         _cb.showScreen('campaign');
         _cb.renderCampaignLadder();
+        setTimeout(function () {
+          var t = document.getElementById('bs-tower-section');
+          if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
+        return;
       }
+
+      var asc = _cb.getAscension ? _cb.getAscension() : 0;
+      if (asc < 5 && _cb.showAscensionOffer) {
+        _cb.showAscensionOffer(asc);
+        return;
+      }
+
+      // Final fallback — campaign for replay
+      _cb.showScreen('campaign');
+      _cb.renderCampaignLadder();
     };
     document.getElementById('bs-play-btn')?.addEventListener('click', enterArena);
     // Lobby Campaign entry points — both wire to the same openCampaign handler.

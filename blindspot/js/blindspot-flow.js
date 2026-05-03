@@ -1827,21 +1827,28 @@
       pip.classList.toggle('blindspot-boss-pip--locked', locked);
     });
 
-    // CTA label \u2014 derive from the SAME source as the count + pips
+    // CTA-LABEL \u2014 keep in sync with bs-nav.js enterArena cascade.
+    // End-game players (10+ bosses) get a CTA that points at their next
+    // real progression action, not a passive "REPLAY CAMPAIGN" status.
+    // Cascade: weekly -> tower -> ascend -> replay.
     const playBtnLabel = document.getElementById('bs-play-btn-label');
     if (playBtnLabel) {
       if (beaten >= 10) {
-        // Veteran branch: prefer the weekly boss if there's an unbeaten
-        // one this week, otherwise point at the campaign screen for
-        // replay/ascend. enterArena() already routes to the campaign
-        // screen at end-state \u2014 only the label changes here so the
-        // CTA reads as a verb instead of a passive status sticker.
         var weeklyBoss = getWeeklyBoss();
         var weeklyRec = weeklyBoss ? getWeeklyRecord() : null;
         var weeklyOpen = weeklyBoss && (!weeklyRec || (weeklyRec.wins || 0) === 0);
-        playBtnLabel.textContent = weeklyOpen
-          ? 'FIGHT ' + (weeklyBoss.name || 'Weekly Boss').toUpperCase()
-          : 'REPLAY CAMPAIGN';
+        var asc = getAscension();
+        var towerOpen = isTowerUnlocked();
+
+        if (weeklyOpen) {
+          playBtnLabel.textContent = 'FIGHT ' + (weeklyBoss.name || 'Weekly Boss').toUpperCase();
+        } else if (towerOpen) {
+          playBtnLabel.textContent = 'ENTER INFINITE TOWER';
+        } else if (asc < 5) {
+          playBtnLabel.textContent = asc === 0 ? 'ASCEND' : 'ASCEND TO ASC ' + (asc + 1);
+        } else {
+          playBtnLabel.textContent = 'REPLAY CAMPAIGN';
+        }
       } else {
         const nextBoss = _bossesByNumber[beaten + 1];
         playBtnLabel.textContent = nextBoss
@@ -2103,6 +2110,10 @@
     isForgePending: function() { return isForgePending(); },
     getTowerFloor: function() { return getTowerFloor(); },
     isWeeklyBoss: function(id) { return isWeeklyBoss(id); },
+    getWeeklyBoss: function() { return getWeeklyBoss(); },
+    getWeeklyRecord: function() { return getWeeklyRecord(); },
+    getAscension: function() { return getAscension(); },
+    isTowerUnlocked: function() { return isTowerUnlocked(); },
     getBattleType: function() { return _battleType; },
     getCurrentBossId: function() { return _currentBossId; },
     getBossById: function(id) { return _bossesById[id]; },
