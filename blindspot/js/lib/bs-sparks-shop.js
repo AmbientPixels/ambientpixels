@@ -270,14 +270,16 @@
       + ' role="button" tabindex="0" aria-label="' + escHtml(item.name) + ' - ' + price + ' Sparks">'
       + '<div class="bs-shop-card__icon">'
         + (function () {
-            // Cosmetics (frame_/back_/plate_/victory_) ALWAYS show their live
-            // preview in the shop -- the player needs to see what they're
-            // buying. Items keep the owned-vs-not rule (preserve reveal moment).
+            // Window-shop semantics: every item in the shop ALWAYS renders
+            // its art so the player can see what they're buying, regardless
+            // of ownership. The owned-vs-not reveal-on-acquire rule still
+            // applies to the Collection / inventory tab (bs-cosmetics.js)
+            // -- there it's appropriate to dim/icon-only unowned consumables.
             var preview = (window.BsCosmetics && window.BsCosmetics.cosmeticPreviewHtml)
               ? window.BsCosmetics.cosmeticPreviewHtml(item.id) : null;
             if (preview) return preview;
             if (window.BsCharms && window.BsCharms.itemArtHtml) {
-              return window.BsCharms.itemArtHtml(((isConsumable ? qty > 0 : isOwned) ? item.id : null), item.icon, item.name);
+              return window.BsCharms.itemArtHtml(item.id, item.icon, item.name);
             }
             return '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>';
           })()
@@ -380,22 +382,21 @@
     var sparks = _cb.getSparks ? _cb.getSparks() : 0;
     var canAfford = sparks >= price;
     var isOwned = itemType === 'cosmetic' && (progress().cosmetics || []).indexOf(itemId) !== -1;
-    // Consumables: owned = at least 1 in inventory.
-    var hasConsumable = itemType === 'consumable'
-      && (progress().charms || []).indexOf(itemId) !== -1;
     var rc = rarityColor(item.rarity || 'common');
-    var previewArtId = (isOwned || hasConsumable) ? itemId : null;
 
     var html = '<div class="bs-shop-preview__card">'
       + '<button class="bs-shop-preview__close" id="bs-shop-preview-close" aria-label="Close"><i class="fas fa-times"></i></button>'
       + '<div class="bs-shop-preview__icon" style="color:' + rc + ';">'
         + (function () {
-            // Cosmetics: always preview (window-shop). Items: owned-vs-not.
+            // Window-shop semantics: shop preview ALWAYS renders the art
+            // for both cosmetics and items so the player sees what they're
+            // buying. Owned-vs-not reveal rule still applies in the
+            // Collection / inventory tab.
             var preview = (window.BsCosmetics && window.BsCosmetics.cosmeticPreviewHtml)
               ? window.BsCosmetics.cosmeticPreviewHtml(itemId) : null;
             if (preview) return preview;
             if (window.BsCharms && window.BsCharms.itemArtHtml) {
-              return window.BsCharms.itemArtHtml(previewArtId, item.icon, item.name);
+              return window.BsCharms.itemArtHtml(itemId, item.icon, item.name);
             }
             return '<i class="fas ' + (item.icon || 'fa-box') + '"></i>';
           })()
