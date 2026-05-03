@@ -66,6 +66,7 @@ window.BsCrates = (function () {
     var badge = document.getElementById('bs-crate-badge');
     var plural = document.getElementById('bs-crate-plural');
     var hint = indicator ? indicator.querySelector('.bs-crate-opener__hint') : null;
+    var iconSlot = indicator ? indicator.querySelector('.bs-crate-opener__icon') : null;
     var count = getCrateCount();
     if (indicator) {
       // Always visible — when count is 0, dim with the locked treatment
@@ -78,6 +79,16 @@ window.BsCrates = (function () {
     if (badge) badge.textContent = String(count);
     if (plural) plural.textContent = count === 1 ? '' : 's';
     if (hint) hint.textContent = count > 0 ? 'Tap to open' : 'Win fights to earn one';
+    // Show the illustrated art of the NEXT crate so the player gets a peek
+    // at what they're about to open. Falls back to the generic fa-box-open
+    // when no crates are queued.
+    if (iconSlot && window.BsCharms && window.BsCharms.assetArtHtml) {
+      var queue = getCrates();
+      var nextType = (count > 0 && queue && queue[0]) ? queue[0].type : null;
+      iconSlot.innerHTML = nextType
+        ? window.BsCharms.assetArtHtml('crates', nextType, 'fa-box-open', nextType + ' crate').replace('class="bs-item-art"', 'class="bs-crate-opener__art"')
+        : '<i class="fas fa-box-open"></i>';
+    }
     if (_callbacks.updateSparksShop) _callbacks.updateSparksShop();
   }
 
@@ -146,9 +157,14 @@ window.BsCrates = (function () {
 
     var rarityColor = CRATE_RARITY_COLORS[wonItem.rarity] || 'var(--bs-text)';
 
+    // Illustrated crate art if available; FA icon fallback otherwise.
+    var crateIconHtml = (window.BsCharms && window.BsCharms.assetArtHtml)
+      ? window.BsCharms.assetArtHtml('crates', crate.type, crateDef.icon, crateDef.name).replace('class="bs-item-art"', 'class="bs-crate-box__art"')
+      : '<i class="fas ' + escHtml(crateDef.icon) + '" style="color:' + crateDef.color + ';"></i>';
+
     overlay.innerHTML = '<div class="bs-crate-stage">'
       + '<div class="bs-crate-box" id="bs-crate-box" role="button" aria-label="Tap to open" tabindex="0">'
-      + '<i class="fas ' + escHtml(crateDef.icon) + '" style="color:' + crateDef.color + ';"></i>'
+      + crateIconHtml
       + '</div>'
       + '<p class="bs-crate-prompt" id="bs-crate-prompt" style="font-family:\'Cinzel\',serif; color:var(--bs-text-muted); font-size:0.85rem; margin-top:1rem;">' + escHtml(crateDef.name) + '</p>'
       + '<p class="bs-crate-tap" id="bs-crate-tap" style="font-size:0.7rem; color:var(--bs-accent-dim); margin-top:0.5rem;">Tap to open</p>'

@@ -5055,6 +5055,54 @@
 .bs-shop-preview__icon .bs-victory-preview { width: 96px; height: 96px; border-radius: 4px; }
 .bs-shop-preview__icon .bs-item-art { width: 96px; height: 96px; border-radius: 8px; }
 
+/* Illustrated stat icon inside the rendered card stat row. Sized to the
+   row's existing 4px bar height + label baseline; stays compact so the
+   bar still owns the row's visual weight. */
+.bs-rc-stat__icon {
+  display: inline-block;
+  width: 0.95rem;
+  height: 0.95rem;
+  object-fit: contain;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Illustrated element rune inside the .bs-rc__element badge. */
+.bs-rc__element-icon {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  object-fit: contain;
+  vertical-align: -0.15em;
+  margin-right: 0.2em;
+}
+
+/* Illustrated class emblem inside the .bs-rc__class chip. */
+.bs-rc__class-icon {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  object-fit: contain;
+  vertical-align: -0.15em;
+  margin-right: 0.25em;
+  border-radius: 2px;
+}
+
+/* Illustrated crate art in the loot-zone indicator + opening ceremony. */
+.bs-crate-opener__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.bs-crate-box__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 /* ============================================================
    ARENA SELECTOR (pre-fight overlay)
    ============================================================ */

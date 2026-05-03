@@ -61,9 +61,15 @@ window.BsCharms = (function () {
       title_arena_champion: true,
       title_the_unstoppable: true,
       title_fortune_favored: true
-    }
-    // Future categories (frames, backs, plates, victory, classes, stats,
-    // elements, crates) get listed here once their renderers wire up.
+    },
+    stats: { str: true, agi: true, int: true, end: true, lck: true },
+    elements: { fire: true, earth: true, arcane: true, shadow: true, chaos: true },
+    classes: {
+      fighter: true, enforcer: true, berserker: true, guardian: true,
+      caster: true, scholar: true, hacker: true, scout: true,
+      rogue: true, trickster: true, medic: true, pilot: true
+    },
+    crates: { battle: true, boss: true, weekly: true, ember: true, ascension: true }
   };
 
   // Backward-compat alias for the existing items lookups.
