@@ -51,6 +51,20 @@
   // re-renders triggered by filter changes so we don't refetch.
   var _cards = null;
   var _filters = { class: '', element: '', rarity: '' };
+  var _creatorFilter = ''; // URL-param-only; not in the dropdown UI
+
+  function getUrlParam(name) {
+    try { return new URL(window.location.href).searchParams.get(name) || ''; }
+    catch (e) { return ''; }
+  }
+  function setUrlParam(name, value) {
+    try {
+      var url = new URL(window.location.href);
+      if (value) url.searchParams.set(name, value);
+      else url.searchParams.delete(name);
+      window.history.replaceState({}, '', url.toString());
+    } catch (e) { /* ignore */ }
+  }
 
   async function render() {
     var grid = document.getElementById('bs-gallery-grid');
@@ -103,7 +117,29 @@
 
       _cards = cards;
       populateFilterOptions(cards);
+
+      // Hydrate filters from URL params (?class=, ?element=, ?rarity=,
+      // ?creator=). Keys must match real values in the data after
+      // populateFilterOptions has run.
+      var urlClass   = getUrlParam('class');
+      var urlElement = getUrlParam('element');
+      var urlRarity  = getUrlParam('rarity');
+      _creatorFilter = getUrlParam('creator');
+      if (urlClass)   { _filters.class   = urlClass;   var s1 = document.getElementById('bs-gallery-filter-class');   if (s1) s1.value = urlClass; }
+      if (urlElement) { _filters.element = urlElement; var s2 = document.getElementById('bs-gallery-filter-element'); if (s2) s2.value = urlElement; }
+      if (urlRarity)  { _filters.rarity  = urlRarity;  var s3 = document.getElementById('bs-gallery-filter-rarity');  if (s3) s3.value = urlRarity; }
+      renderCreatorBanner();
+
       renderGrid();
+
+      // ?card=<id> auto-opens the detail modal on load. Searches the full
+      // pre-filter list so a deep-link works even if the card wouldn't
+      // otherwise appear under the current filter state.
+      var deepCardId = getUrlParam('card');
+      if (deepCardId) {
+        var match = cards.find(function (c) { return c.id === deepCardId; });
+        if (match) openDetail(match);
+      }
     } catch (e) {
       console.warn('[Blindspot] Gallery load failed:', e);
       grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-triangle-exclamation"></i><p>Couldn\'t load gallery. Try again later.</p></div>';
@@ -112,7 +148,7 @@
 
   function applyFilters(cards) {
     var f = _filters;
-    if (!f.class && !f.element && !f.rarity) return cards;
+    if (!f.class && !f.element && !f.rarity && !_creatorFilter) return cards;
     return cards.filter(function (c) {
       if (f.class) {
         var cardClass = c.class || c.characterClass || '';
@@ -125,6 +161,10 @@
       if (f.rarity) {
         var cardRarity = (c.rarity || '').toLowerCase();
         if (cardRarity !== f.rarity) return false;
+      }
+      if (_creatorFilter) {
+        var cardCreator = String(c.publishedBy || '');
+        if (cardCreator !== _creatorFilter) return false;
       }
       return true;
     });
@@ -171,7 +211,37 @@
   function setFilter(key, value) {
     if (!(key in _filters)) return;
     _filters[key] = value || '';
+    setUrlParam(key, value || '');
     renderGrid();
+  }
+
+  function clearCreatorFilter() {
+    _creatorFilter = '';
+    setUrlParam('creator', '');
+    renderCreatorBanner();
+    renderGrid();
+  }
+
+  function renderCreatorBanner() {
+    var existing = document.getElementById('bs-gallery-creator-banner');
+    if (!_creatorFilter) {
+      if (existing) existing.remove();
+      return;
+    }
+    var label = 'Filtering by creator: ' + _creatorFilter.slice(0, 8) + '…';
+    if (existing) {
+      existing.querySelector('.bs-gallery-creator-banner__label').textContent = label;
+      return;
+    }
+    var banner = document.createElement('div');
+    banner.id = 'bs-gallery-creator-banner';
+    banner.className = 'bs-gallery-creator-banner';
+    banner.innerHTML = '<i class="fas fa-hammer" aria-hidden="true"></i>'
+      + '<span class="bs-gallery-creator-banner__label">' + escHtml(label) + '</span>'
+      + '<button type="button" class="bs-gallery-creator-banner__clear" aria-label="Clear creator filter"><i class="fas fa-xmark" aria-hidden="true"></i></button>';
+    var grid = document.getElementById('bs-gallery-grid');
+    if (grid && grid.parentNode) grid.parentNode.insertBefore(banner, grid);
+    banner.querySelector('.bs-gallery-creator-banner__clear').addEventListener('click', clearCreatorFilter);
   }
 
   // Populate the filter dropdowns from the actual loaded data so players
@@ -237,11 +307,13 @@
         + (dateStr ? '<div class="bs-gallery-detail__row"><i class="fas fa-calendar"></i> Published ' + escHtml(dateStr) + '</div>' : '');
     }
     modal.classList.remove('bs-modal-backdrop--hidden');
+    if (card.id) setUrlParam('card', card.id);
   }
 
   function closeDetail() {
     var modal = document.getElementById('bs-gallery-detail');
     if (modal) modal.classList.add('bs-modal-backdrop--hidden');
+    setUrlParam('card', '');
   }
 
   var _wired = false;
