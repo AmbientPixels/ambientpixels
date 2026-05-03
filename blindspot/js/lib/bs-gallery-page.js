@@ -47,12 +47,15 @@
       .catch(function () { return null; });
   }
 
+  // Cached card list (post-moderation, post-sort) — survives across
+  // re-renders triggered by filter changes so we don't refetch.
+  var _cards = null;
+  var _filters = { class: '', element: '', rarity: '' };
+
   async function render() {
     var grid = document.getElementById('bs-gallery-grid');
-    var countEl = document.getElementById('bs-gallery-count');
     if (!grid) return;
     grid.innerHTML = '<div class="bs-gallery__loading"><i class="fas fa-spinner fa-spin"></i> Loading cards…</div>';
-    if (countEl) countEl.textContent = '';
 
     try {
       var responses = await Promise.all([
@@ -98,30 +101,122 @@
         });
       }
 
-      if (countEl) countEl.textContent = cards.length + (cards.length === 1 ? ' card' : ' cards');
-      if (cards.length === 0) {
-        grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-inbox"></i><p>No public cards yet. Publish your card from the forge to start the gallery.</p></div>';
-        return;
-      }
-
-      grid.innerHTML = cards.map(function (c, i) {
-        ensureCombatStats(c);
-        return '<button class="bs-gallery-tile" data-gallery-idx="' + i + '" type="button" role="listitem" aria-label="View ' + escHtml(c.name || 'card') + '">'
-          + renderCardHTML(c, 'full')
-          + '</button>';
-      }).join('');
-
-      grid.querySelectorAll('.bs-gallery-tile').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var idx = parseInt(btn.dataset.galleryIdx, 10);
-          var card = cards[idx];
-          if (card) openDetail(card);
-        });
-      });
+      _cards = cards;
+      populateFilterOptions(cards);
+      renderGrid();
     } catch (e) {
       console.warn('[Blindspot] Gallery load failed:', e);
       grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-triangle-exclamation"></i><p>Couldn\'t load gallery. Try again later.</p></div>';
     }
+  }
+
+  function applyFilters(cards) {
+    var f = _filters;
+    if (!f.class && !f.element && !f.rarity) return cards;
+    return cards.filter(function (c) {
+      if (f.class) {
+        var cardClass = c.class || c.characterClass || '';
+        if (cardClass !== f.class) return false;
+      }
+      if (f.element) {
+        var cardElement = (c.element || '').toLowerCase();
+        if (cardElement !== f.element) return false;
+      }
+      if (f.rarity) {
+        var cardRarity = (c.rarity || '').toLowerCase();
+        if (cardRarity !== f.rarity) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderGrid() {
+    var grid = document.getElementById('bs-gallery-grid');
+    var countEl = document.getElementById('bs-gallery-count');
+    if (!grid || !_cards) return;
+
+    var filtered = applyFilters(_cards);
+    var hasActiveFilter = !!(_filters.class || _filters.element || _filters.rarity);
+
+    if (countEl) {
+      var label = filtered.length + (filtered.length === 1 ? ' card' : ' cards');
+      if (hasActiveFilter) label += ' / ' + _cards.length + ' total';
+      countEl.textContent = label;
+    }
+
+    if (filtered.length === 0) {
+      var emptyMsg = hasActiveFilter
+        ? 'No cards match these filters.'
+        : 'No public cards yet. Publish your card from the forge to start the gallery.';
+      grid.innerHTML = '<div class="bs-gallery__empty"><i class="fas fa-inbox"></i><p>' + emptyMsg + '</p></div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(function (c, i) {
+      ensureCombatStats(c);
+      return '<button class="bs-gallery-tile" data-gallery-idx="' + i + '" type="button" role="listitem" aria-label="View ' + escHtml(c.name || 'card') + '">'
+        + renderCardHTML(c, 'full')
+        + '</button>';
+    }).join('');
+
+    grid.querySelectorAll('.bs-gallery-tile').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var idx = parseInt(btn.dataset.galleryIdx, 10);
+        var card = filtered[idx];
+        if (card) openDetail(card);
+      });
+    });
+  }
+
+  function setFilter(key, value) {
+    if (!(key in _filters)) return;
+    _filters[key] = value || '';
+    renderGrid();
+  }
+
+  // Populate the filter dropdowns from the actual loaded data so players
+  // never pick a value that returns zero results. Preserves the "All"
+  // option at the top of each select; replaces the rest with sorted
+  // unique values pulled from the cards. Custom user-typed class names
+  // (e.g. "Rogue Assassin", "Cyber Ninja") show up correctly here.
+  function populateFilterOptions(cards) {
+    var classes = new Set();
+    var elements = new Set();
+    var rarities = new Set();
+    cards.forEach(function (c) {
+      var cl = c.class || c.characterClass;
+      if (cl) classes.add(String(cl));
+      if (c.element) elements.add(String(c.element).toLowerCase());
+      if (c.rarity) rarities.add(String(c.rarity).toLowerCase());
+    });
+    fillSelect('bs-gallery-filter-class', toSortedArray(classes));
+    fillSelect('bs-gallery-filter-element', toSortedArray(elements));
+    fillSelect('bs-gallery-filter-rarity', toSortedArray(rarities));
+  }
+
+  function toSortedArray(set) {
+    return Array.from(set).sort(function (a, b) { return a.localeCompare(b); });
+  }
+
+  function fillSelect(id, values) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var current = sel.value;
+    // Drop everything but the "All" option (first <option>)
+    while (sel.options.length > 1) sel.remove(1);
+    values.forEach(function (v) {
+      var opt = document.createElement('option');
+      opt.value = v;
+      // Title-case for display: "fire" -> "Fire", "Cyber Ninja" left as-is
+      opt.textContent = (v && v[0] && v[0] === v[0].toLowerCase())
+        ? v.charAt(0).toUpperCase() + v.slice(1)
+        : v;
+      sel.appendChild(opt);
+    });
+    // Restore the previously selected value if it's still in the list,
+    // otherwise reset to "All".
+    if (current && values.indexOf(current) !== -1) sel.value = current;
+    else sel.value = '';
   }
 
   function openDetail(card) {
@@ -157,12 +252,26 @@
       if (e.target && e.target.id === 'bs-gallery-detail-close') closeDetail();
       if (e.target && e.target.id === 'bs-gallery-detail') closeDetail();
     });
+    // Filter dropdowns -- single-select per dimension, AND'd together.
+    var filterMap = {
+      'bs-gallery-filter-class':   'class',
+      'bs-gallery-filter-element': 'element',
+      'bs-gallery-filter-rarity':  'rarity'
+    };
+    Object.keys(filterMap).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        setFilter(filterMap[id], el.value);
+      });
+    });
   }
 
   window.BsGalleryPage = {
     init: init,
     render: render,
     openDetail: openDetail,
-    closeDetail: closeDetail
+    closeDetail: closeDetail,
+    setFilter: setFilter
   };
 })();

@@ -2011,6 +2011,48 @@
   margin: 0 0 0.5rem;
   line-height: 1.45;
 }
+/* Filter row — Class / Element / Rarity dropdowns above the grid */
+.bs-gallery__filters {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 1rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(13, 8, 7, 0.4);
+  border: 1px solid var(--bs-border);
+  border-radius: 6px;
+}
+.bs-gallery__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 0 1 auto;
+  min-width: 130px;
+}
+.bs-gallery__filter-label {
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+}
+.bs-gallery__filter-select {
+  background: var(--bs-surface-2, #170d0b);
+  border: 1px solid var(--bs-border);
+  border-radius: 4px;
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.55rem;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.bs-gallery__filter-select:hover,
+.bs-gallery__filter-select:focus-visible {
+  border-color: var(--bs-accent);
+  box-shadow: 0 0 6px rgba(239, 159, 39, 0.18);
+  outline: none;
+}
 .bs-gallery__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
