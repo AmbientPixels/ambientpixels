@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // ═══════════════════════════════════════════════════════════
 // Generate Blindspot game icon images via Gemini 2.5 Flash Image.
-// Covers four asset categories that currently use FA icons:
-//   - Stats   (5):  str, agi, int, end, lck
-//   - Classes (12): Fighter, Enforcer, Berserker, Guardian, Caster, Scholar,
-//                   Hacker, Scout, Rogue, Trickster, Medic, Pilot
-//   - Elements (5): fire, earth, arcane, shadow, chaos
-//   - Crates   (5): battle, boss, weekly, ember, ascension
+// Covers asset categories that currently use FA icons or need new art:
+//   - Stats        (5):  str, agi, int, end, lck
+//   - Classes      (12): Fighter, Enforcer, Berserker, Guardian, Caster, Scholar,
+//                        Hacker, Scout, Rogue, Trickster, Medic, Pilot
+//   - Elements     (5):  fire, earth, arcane, shadow, chaos
+//   - Crates       (5):  battle, boss, weekly, ember, ascension
+//   - Titles       (8):  heraldic wax seals
+//   - Lobby-tiles  (1):  sparks-tile (matches crate-tile + collection-tile pair)
 //
 // Usage:
 //   node scripts/generate-blindspot-game-icons.js
@@ -97,6 +99,17 @@ const SETS = [
       { id: 'weekly',    subject: 'A weathered crate with brass clockwork gears along the lid edge and a small sundial face inset on the top, soft amber clockwork glow.' },
       { id: 'ember',     subject: 'A glowing red-hot crate with smouldering ember-light leaking from every seam, faint smoke rising, scorched dark stone beneath.' },
       { id: 'ascension', subject: 'A crate of polished dark obsidian stone with a single embedded violet crystal star centered on the lid, cold radiant violet light beaming softly outward.' }
+    ]
+  },
+
+  // ─── LOBBY TILES (3rd peer to crate-tile + collection-tile) ─
+  {
+    id: 'lobby-tiles',
+    dir: 'lobby',
+    webpEdge: 1024,
+    style: 'Painterly fantasy interior scene, dramatic close-up of a small forge-lit shop interior viewed from the customer side of the counter, dark stone walls and timber beams, hanging brass lanterns casting warm orange light, deep ember shadows in the corners, hand-rendered in the spirit of Dark Souls / Bloodborne menu art, slight vignette, no text, no UI, no logos, no people.',
+    items: [
+      { id: 'sparks-tile', subject: 'The interior of a small merchant\'s stall: a heavy weathered wooden counter in the foreground stacked with neat piles of glowing red-gold sparks-coins, an open ledger and a brass scale beside the coin stacks, behind the counter dusty shelves hold corked bottles of glowing potions, scrolls in cubbyholes, and iron-bound trinkets, a single brass lantern hanging from a beam casts warm forge-light across the scene, faint embers drifting in the air.' }
     ]
   },
 

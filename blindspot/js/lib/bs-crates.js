@@ -81,13 +81,25 @@ window.BsCrates = (function () {
     if (hint) hint.textContent = count > 0 ? 'Tap to open' : 'Win fights to earn one';
     // Show the illustrated art of the NEXT crate so the player gets a peek
     // at what they're about to open. Falls back to the generic fa-box-open
-    // when no crates are queued.
+    // when no crates are queued. (The icon slot is hidden by CSS but the
+    // markup is preserved for back-compat.)
+    var queue = getCrates();
+    var nextType = (count > 0 && queue && queue[0]) ? queue[0].type : null;
     if (iconSlot && window.BsCharms && window.BsCharms.assetArtHtml) {
-      var queue = getCrates();
-      var nextType = (count > 0 && queue && queue[0]) ? queue[0].type : null;
       iconSlot.innerHTML = nextType
         ? window.BsCharms.assetArtHtml('crates', nextType, 'fa-box-open', nextType + ' crate').replace('class="bs-item-art"', 'class="bs-crate-opener__art"')
         : '<i class="fas fa-box-open"></i>';
+    }
+    // Swap the BIG tile's backdrop to the next-up crate's painted scene so
+    // the player sees what they're about to open. CSS reads --bs-crate-tile-img
+    // and layers the standard gradient overlays on top. Clearing the prop
+    // when nothing is queued falls back to the generic V3 chest.
+    if (indicator) {
+      if (nextType) {
+        indicator.style.setProperty('--bs-crate-tile-img', "url('/blindspot/img/crates/" + nextType + ".webp')");
+      } else {
+        indicator.style.removeProperty('--bs-crate-tile-img');
+      }
     }
     if (_callbacks.updateSparksShop) _callbacks.updateSparksShop();
   }
