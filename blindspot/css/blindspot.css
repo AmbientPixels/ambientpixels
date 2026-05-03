@@ -1712,23 +1712,6 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  position: relative;
-  isolation: isolate;
-}
-/* Forge anvil ambience — same art as the lobby Card Forge tile, applied
-   as a quiet atmospheric backdrop behind the modal content. Anchored to
-   the bottom so the anvil sits like a worktable underneath the panels. */
-.bs-forge-screen::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('../img/card-forge.webp') center bottom / cover no-repeat;
-  opacity: 0.18;
-  pointer-events: none;
-  z-index: -1;
-  border-radius: inherit;
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 35%, rgba(0, 0, 0, 1) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 35%, rgba(0, 0, 0, 1) 100%);
 }
 
 .bs-forge-screen__title {
