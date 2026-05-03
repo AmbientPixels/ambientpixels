@@ -133,19 +133,10 @@ window.BsCardRenderer = (function () {
       for (var _i = 0; _i < RC_STAT_DEFS.length; _i++) {
         if ((cs[RC_STAT_DEFS[_i].key] || 0) > 20) { statMax = 100; break; }
       }
-      // Each stat row gets a small illustrated stat icon if available
-      // (str/agi/int/end/lck art lives at /blindspot/img/stats/{key}.webp).
-      // Falls back silently to the bare text label via assetArtHtml's
-      // onerror handler if an icon is missing.
-      var hasStatArt = !!(window.BsCharms && window.BsCharms.assetArtHtml);
       statsHTML = '<div class="bs-rc-stats">' + RC_STAT_DEFS.map(function(d) {
         var val = cs[d.key] || 0;
         var pct = Math.max(0, Math.min(100, (val / statMax) * 100));
-        var iconHtml = hasStatArt
-          ? window.BsCharms.assetArtHtml('stats', d.key, null, d.label).replace('class="bs-item-art"', 'class="bs-rc-stat__icon"')
-          : '';
         return '<div class="bs-rc-stat">'
-          + iconHtml
           + '<span class="bs-rc-stat__label" style="color:' + d.color + '">' + d.label + '</span>'
           + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + pct + '%;background:' + d.color + '"></div></div>'
           + '<span class="bs-rc-stat__val">' + val + '</span>'
@@ -202,11 +193,7 @@ window.BsCardRenderer = (function () {
     var elementBadge = '';
     if (size === 'full' && element && _C.ELEMENT_DEFS && _C.ELEMENT_DEFS[element]) {
       var ed = _C.ELEMENT_DEFS[element];
-      // Illustrated rune sigil if available; FA fallback otherwise.
-      var elIcon = (window.BsCharms && window.BsCharms.assetArtHtml)
-        ? window.BsCharms.assetArtHtml('elements', String(element).toLowerCase(), ed.icon, ed.label).replace('class="bs-item-art"', 'class="bs-rc__element-icon"')
-        : '<i class="fas ' + ed.icon + '"></i>';
-      elementBadge = '<span class="bs-rc__element" style="color:' + ed.color + '">' + elIcon + ' ' + ed.label + '</span>';
+      elementBadge = '<span class="bs-rc__element" style="color:' + ed.color + '"><i class="fas ' + ed.icon + '"></i> ' + ed.label + '</span>';
     }
 
     // Class trait chips — surface the class signature ability + play
@@ -252,21 +239,11 @@ window.BsCardRenderer = (function () {
       }
     }
 
-    // Class chip with illustrated emblem if we have art for this class.
-    var classChip = '';
-    if (size !== 'micro') {
-      var classSlug = String(cls || '').toLowerCase();
-      var classIcon = (window.BsCharms && window.BsCharms.assetArtHtml)
-        ? window.BsCharms.assetArtHtml('classes', classSlug, null, cls).replace('class="bs-item-art"', 'class="bs-rc__class-icon"')
-        : '';
-      classChip = '<span class="bs-rc__class">' + classIcon + escHtml(cls) + '</span>';
-    }
-
     return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '" data-element="' + escHtml(element) + '"' + borderAttr + '>'
       + '<div class="bs-rc__art">' + avatarHTML + titleHTML + '</div>'
       + '<div class="bs-rc__info">'
       + '<span class="bs-rc__name">' + escHtml(name) + '</span>'
-      + classChip
+      + (size !== 'micro' ? '<span class="bs-rc__class">' + escHtml(cls) + '</span>' : '')
       + elementBadge
       + '</div>'
       + statsHTML
