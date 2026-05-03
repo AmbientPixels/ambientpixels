@@ -9756,64 +9756,103 @@ body.bs-battle-active .bs-play {
 /* Collection grid */
 .bs-collection__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.85rem;
   padding: 0 0.5rem 1rem;
 }
 
-/* Collection item card */
+/* Collection item card — image-forward trading card layout.
+   Art fills the top of the card edge-to-edge; name/rarity/qty/buy
+   sit in a small info strip below. Rarity drives a 2px accent rule
+   at the top of the art so the colour reads even before the border. */
 .bs-collection-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.75rem 0.5rem;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
   background: var(--blindspot-surface);
   border: 1px solid var(--blindspot-border);
   border-radius: var(--blindspot-radius-tile, 4px);
   cursor: pointer;
   transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
   position: relative;
-  min-height: 100px;
+  overflow: hidden;
+  text-align: center;
+}
+.bs-collection-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--bs-item-rarity, transparent);
+  z-index: 2;
 }
 .bs-collection-item:hover:not(:disabled) {
   border-color: var(--bs-item-rarity, var(--blindspot-accent-gold));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
 }
 .bs-collection-item--equipped {
   border-color: var(--bs-item-rarity, var(--blindspot-accent-gold));
-  background: linear-gradient(to bottom, var(--blindspot-surface), var(--blindspot-bg-2));
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(245, 192, 120, 0.06);
+  box-shadow: 0 0 12px rgba(245, 192, 120, 0.18), inset 0 0 18px rgba(245, 192, 120, 0.08);
 }
 .bs-collection-item--locked {
-  opacity: 0.35;
   cursor: default;
 }
+.bs-collection-item--locked .bs-collection-item__icon {
+  filter: brightness(0.35) grayscale(0.6);
+}
+.bs-collection-item--locked .bs-collection-item__name,
+.bs-collection-item--locked .bs-collection-item__rarity,
+.bs-collection-item--locked .bs-collection-item__desc,
+.bs-collection-item--locked .bs-collection-item__qty {
+  opacity: 0.5;
+}
 .bs-collection-item__icon {
-  font-size: 1.4rem;
-  color: var(--bs-item-rarity, var(--blindspot-text-muted));
-  width: 44px;
-  height: 44px;
+  width: 100%;
+  aspect-ratio: 4 / 5;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
   background: var(--blindspot-bg-2);
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  transition: filter 0.2s;
+}
+.bs-collection-item__icon .bs-item-art {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: none;
+}
+.bs-collection-item__icon i.fas {
+  /* Fallback FA icon (cosmetics + items without art) — sized for the
+     larger art slot, keeps rarity tint */
+  font-size: 2.4rem;
+  color: var(--bs-item-rarity, var(--blindspot-text-muted));
+  opacity: 0.85;
 }
 .bs-collection-item__name {
   font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   color: var(--blindspot-text);
   text-align: center;
   line-height: 1.2;
+  padding: 0.5rem 0.5rem 0;
 }
 .bs-collection-item__rarity {
   font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
+  padding: 0.15rem 0.5rem 0;
 }
 .bs-collection-item__badge {
   position: absolute;
@@ -9845,12 +9884,14 @@ body.bs-battle-active .bs-play {
   color: var(--blindspot-text-muted);
   text-align: center;
   line-height: 1.25;
+  padding: 0.15rem 0.5rem 0;
 }
 .bs-collection-item__qty {
   font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--blindspot-text-dim);
+  padding: 0.25rem 0.5rem 0.55rem;
 }
 .bs-collection-item__buy {
   display: inline-flex;
@@ -10435,19 +10476,15 @@ body.bs-battle-active .bs-play {
 
 @media (max-width: 480px) {
   .bs-collection__grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.6rem;
   }
-  .bs-collection-item {
-    padding: 0.5rem 0.35rem;
-    min-height: 88px;
+  .bs-collection-item__icon i.fas {
+    font-size: 1.9rem;
   }
-  .bs-collection-item__icon {
-    width: 36px;
-    height: 36px;
-    font-size: 1.1rem;
-  }
-  .bs-collection-item__name { font-size: 0.6rem; }
+  .bs-collection-item__name { font-size: 0.8rem; padding-top: 0.4rem; }
+  .bs-collection-item__rarity { font-size: 0.52rem; }
+  .bs-collection-item__qty { font-size: 0.65rem; padding-bottom: 0.45rem; }
   .bs-collection__tab { font-size: 0.6rem; padding: 0.4rem 0.15rem; min-height: 44px; }
   .bs-collection-btn { font-size: 0.7rem; padding: 0.4rem 0.75rem; }
 }
