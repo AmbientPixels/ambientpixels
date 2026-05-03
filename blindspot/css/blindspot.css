@@ -4828,8 +4828,6 @@
 
 .bs-bounty--done {
   color: var(--bs-success);
-  text-decoration: line-through;
-  opacity: 0.6;
 }
 
 .bs-bounty--done i {
