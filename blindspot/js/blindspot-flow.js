@@ -316,9 +316,14 @@
   function updateTopbarSparks() {
     var el = document.getElementById('bs-topbar-sparks');
     var numEl = document.getElementById('bs-topbar-sparks-num');
-    if (!el || !numEl) return;
-    numEl.textContent = String(_progress.sparks || 0);
-    el.hidden = false;
+    if (el && numEl) {
+      numEl.textContent = String(_progress.sparks || 0);
+      el.hidden = false;
+    }
+    // Lobby Sparks Shop tile mirrors the same balance so it updates
+    // in sync with every sparks award/spend without a separate render.
+    var tileNum = document.getElementById('bs-sparks-tile-count');
+    if (tileNum) tileNum.textContent = String(_progress.sparks || 0);
   }
 
   // XP — rank progression. Awarded on PvE wins (and PvP / bounties later).
