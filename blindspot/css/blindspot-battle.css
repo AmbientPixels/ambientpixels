@@ -3674,109 +3674,183 @@
   .bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle { animation: none; opacity: 0.7; transform: scale(1); }
 }
 
-/* Counter — single vertical lightning bolt that flickers in place.
-   No horizontal motion, no scaling — just opacity stutter on a static
-   center-anchored bolt. Double-pulse rhythm (bright → dim → bright →
-   off) sells the "interrupt" feel. A faint full-panel background
-   flash mirrors the same rhythm so the whole panel blinks with the
-   bolt. Color: #ffd040 (warm yellow). All CSS, no JS.
-   Gradient kept gentle (no aggressive vignette) so the panel reads
-   as uniformly active edge-to-edge instead of dark-padded around a
-   narrow center band. */
+/* Counter — Catch-and-throw. The animation IS the rules text:
+   incoming amber dot glides from the right edge toward center →
+   center spark ignites on impact (the "Flash") → an outgoing trail
+   accelerates from center back out the right edge (the deflection).
+   Full cycle runs continuously on a 4.5s loop in idle so a player
+   sitting in hand for 30s still sees the mechanic teach itself. On
+   hover the cycle halves to 2.2s — same motion grammar, just more
+   urgent. Color: #ffd040 (warm yellow). All CSS, no JS. */
 .bs-page .bs-move-card__art--counter {
-  /* Nearly-flat gradient so the panel reads at full width even when
-     the on-cooldown filter (grayscale 0.85 + brightness 0.4) is
-     applied. Previously the edges faded toward near-black and
-     disappeared into the card bg under the dim filter, creating
-     the illusion of horizontal margin. */
   background: radial-gradient(ellipse at center, #4d2e10 0%, #2c1d0a 100%);
   background-color: #2c1d0a;
   overflow: hidden;
   isolation: isolate;
 }
 
-/* Faint full-panel illumination synced to the bolt's stutter rhythm.
-   Capped at low max alpha so the panel never fully lights up — just
-   a soft warm glow that breathes with the bolt. */
-.bs-page .bs-move-card__art--counter .bs-fx-counter__flash {
+/* EMBER — always-on small amber glow at the parry point. Base
+   opacity 0.3 (never invisible), brightens to 0.85 on impact, settles
+   back. This guarantees the panel is never fully blank — even between
+   the outgoing exit and the next incoming, the ember holds the eye. */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__ember {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 50%,
-    rgba(255, 208, 64, 0.28) 0%,
-    rgba(255, 208, 64, 0.08) 50%,
-    transparent 85%);
-  opacity: 0;
-  pointer-events: none;
-  z-index: 1;
-  animation: bs-fx-counter-stutter 3.2s ease-in-out infinite;
-  mix-blend-mode: screen;
-}
-
-/* The bolt: jagged vertical silhouette via clip-path, anchored at
-   center, fixed size — never moves laterally, never scales. Only
-   opacity is animated. Peak softened so it doesn't pull focus from
-   the other (continuously-animated) move cards. */
-.bs-page .bs-move-card__art--counter .bs-fx-counter__bolt {
-  position: absolute;
+  top: 50%;
   left: 50%;
-  top: 4%;
-  width: 22px;
-  height: 92%;
-  transform: translateX(-50%);
-  background: linear-gradient(180deg,
-    transparent 0%,
-    rgba(255, 240, 180, 0.85) 12%,
-    #ffd040 50%,
-    rgba(255, 240, 180, 0.85) 88%,
-    transparent 100%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 220, 130, 0.55);
   box-shadow:
     0 0 6px rgba(255, 208, 64, 0.5),
-    0 0 14px rgba(255, 208, 64, 0.22);
-  clip-path: polygon(
-    50%   0%,
-    66%  18%,
-    52%  22%,
-    72%  42%,
-    55%  46%,
-    70%  68%,
-    44%  72%,
-    62%  92%,
-    45% 100%,
-    30%  82%,
-    44%  78%,
-    24%  56%,
-    42%  52%,
-    20%  30%,
-    38%  26%,
-    18%   8%,
-    35%   4%
-  );
+    0 0 12px rgba(255, 208, 64, 0.25);
+  transform: translate(-50%, -50%) scale(0.85);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 1;
+  animation: bs-fx-counter-ember 4.5s ease-in-out infinite;
+}
+@keyframes bs-fx-counter-ember {
+  0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.85); }
+  44%      { opacity: 0.85; transform: translate(-50%, -50%) scale(1.2);  }
+  60%      { opacity: 0.5;  transform: translate(-50%, -50%) scale(1);    }
+}
+
+/* INCOMING — bigger amber dot fades in at RIGHT edge, glides to
+   center, then fades to 0 (absorbed by the parry). */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__incoming {
+  position: absolute;
+  top: 50%;
+  left: 105%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 220, 130, 0.9);
+  box-shadow: 0 0 10px rgba(255, 208, 64, 0.8);
+  transform: translate(-50%, -50%);
   opacity: 0;
   pointer-events: none;
   z-index: 2;
-  animation: bs-fx-counter-stutter 3.2s ease-in-out infinite;
+  animation: bs-fx-counter-incoming 4.5s ease-in-out infinite;
+}
+@keyframes bs-fx-counter-incoming {
+  0%   { left: 105%; opacity: 0; }
+  8%   { left:  96%; opacity: 0.7; }
+  35%  { left:  50%; opacity: 1;   }
+  42%  { left:  50%; opacity: 0;   }
+  100% { left: 105%; opacity: 0;   }
 }
 
-/* Smoother double-pulse — peaks now top out at 0.65 (was 1.0), the
-   inter-pulse dim only drops to 0.35 (was 0.25), and the cycle is
-   longer (3.2s vs 2.4s) so the bolt fades up/out more gradually
-   instead of snapping. Still has the two-peak interrupt character,
-   but doesn't grab the eye away from continuous animations. */
-@keyframes bs-fx-counter-stutter {
-  0%, 100%   { opacity: 0; }
-  8%         { opacity: 0.65; }  /* first soft peak */
-  14%        { opacity: 0.35; }  /* gentle dim */
-  20%        { opacity: 0.65; }  /* second soft peak */
-  32%        { opacity: 0; }     /* fade to quiet */
+/* SPARK — bigger center pip ignites at impact moment (≈40% of cycle).
+   Bright burst, quick fade — the literal "Flash". */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 245, 200, 0.95);
+  box-shadow:
+    0 0 20px rgba(255, 220, 130, 0.95),
+    0 0 40px rgba(255, 208, 64, 0.6);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  animation: bs-fx-counter-spark 4.5s ease-in-out infinite;
+}
+@keyframes bs-fx-counter-spark {
+  0%, 36%, 50%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+  40%                { opacity: 1; transform: translate(-50%, -50%) scale(1.6); }
+  46%                { opacity: 0; transform: translate(-50%, -50%) scale(2.6); }
 }
 
-.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__bolt,
-.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__flash {
-  animation-duration: 1.6s;
+/* OUTGOING — longer bright trail fires from center toward and past
+   the RIGHT edge — the deflection. Tail is brighter at the leading
+   (right) edge so it reads as a projectile flying away. */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__outgoing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 3.5px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 220, 130, 0) 5%,
+    rgba(255, 230, 160, 0.85) 40%,
+    rgba(255, 245, 200, 1) 95%,
+    transparent 100%);
+  box-shadow: 0 0 12px rgba(255, 208, 64, 0.85);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: bs-fx-counter-outgoing 4.5s ease-out infinite;
 }
+@keyframes bs-fx-counter-outgoing {
+  0%, 42%, 100% { left:  50%; opacity: 0; }
+  46%           { left:  52%; opacity: 1; }
+  60%           { left:  75%; opacity: 1; }
+  88%           { left: 108%; opacity: 0; }
+}
+
+/* SHARDS — 4 small ember particles radiate from center on impact and
+   drift outward in different directions, fading as they go. They keep
+   the panel alive between the outgoing exit and the next incoming —
+   the "scatter of energy from the parry". Each shard reads its
+   direction from CSS variables so one keyframe handles all 4. */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__shard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 235, 170, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 220, 130, 0.85),
+    0 0 12px rgba(255, 208, 64, 0.4);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: bs-fx-counter-shard 4.5s ease-out infinite;
+}
+/* Four directions: up-right, down-right, up-left, down-left. The
+   first three spans in the panel are ember/incoming/spark/outgoing,
+   so shards are nth-of-type 5-8. Up-left/down-left are slightly
+   delayed for a layered scatter feel. */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__shard:nth-of-type(5) { --shard-x:  44px; --shard-y: -22px; animation-delay: 0s;    }
+.bs-page .bs-move-card__art--counter .bs-fx-counter__shard:nth-of-type(6) { --shard-x:  38px; --shard-y:  24px; animation-delay: 0s;    }
+.bs-page .bs-move-card__art--counter .bs-fx-counter__shard:nth-of-type(7) { --shard-x: -32px; --shard-y: -20px; animation-delay: 0.1s;  width: 3px; height: 3px; }
+.bs-page .bs-move-card__art--counter .bs-fx-counter__shard:nth-of-type(8) { --shard-x: -28px; --shard-y:  18px; animation-delay: 0.15s; width: 3px; height: 3px; }
+
+@keyframes bs-fx-counter-shard {
+  0%, 38%, 100% { opacity: 0; transform: translate(-50%, -50%) translate(0, 0)                                               scale(0.5); }
+  44%           { opacity: 1; transform: translate(-50%, -50%) translate(calc(var(--shard-x, 0px) * 0.25), calc(var(--shard-y, 0px) * 0.25)) scale(1); }
+  78%           { opacity: 0.7; transform: translate(-50%, -50%) translate(calc(var(--shard-x, 0px) * 0.75), calc(var(--shard-y, 0px) * 0.75)) scale(0.85); }
+  98%           { opacity: 0.15; transform: translate(-50%, -50%) translate(var(--shard-x, 0px), var(--shard-y, 0px))        scale(0.5); }
+}
+
+/* Hover — same motion grammar, halved duration (more urgent feel) */
+.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__ember,
+.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__incoming,
+.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__spark,
+.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__outgoing,
+.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__shard {
+  animation-duration: 2.2s;
+}
+
+/* Reduced motion — show the deflection mid-frame as a static tableau:
+   ember at full glow, incoming dot near the right edge, outgoing
+   trail mid-flight back out, shards mid-scatter. */
 @media (prefers-reduced-motion: reduce) {
-  .bs-page .bs-move-card__art--counter .bs-fx-counter__bolt { animation: none; opacity: 0.65; }
-  .bs-page .bs-move-card__art--counter .bs-fx-counter__flash { animation: none; opacity: 0.35; }
+  .bs-page .bs-move-card__art--counter .bs-fx-counter__ember    { animation: none; opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  .bs-page .bs-move-card__art--counter .bs-fx-counter__incoming { animation: none; opacity: 0.7; left: 80%; }
+  .bs-page .bs-move-card__art--counter .bs-fx-counter__spark    { animation: none; opacity: 0; }
+  .bs-page .bs-move-card__art--counter .bs-fx-counter__outgoing { animation: none; opacity: 0.7; left: 65%; }
+  .bs-page .bs-move-card__art--counter .bs-fx-counter__shard    { animation: none; opacity: 0.5; }
 }
 
 /* ──────────────────────────────────────────────────────────────────
