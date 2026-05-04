@@ -3455,19 +3455,34 @@
    every move has tactile feedback. Combo trigger flash still handled
    separately by .bs-move-card__dots--combo-triggered.
    ────────────────────────────────────────────────────────────────── */
-/* Whole-card physical depression. The button gets pushed in (scale
-   down + Y shift) then springs back with overshoot. cubic-bezier
-   tuned so the recovery feels snappy, not soft — like a real
-   mechanical key. The art-panel-level burst below layers on top
-   for the energy commit feel. */
+/* Hold-and-release tactile press. Mouse down triggers :active
+   which holds the card in a depressed state (quick transition
+   into it). Mouse up: JS adds .arena-move-btn--pressed which
+   plays the spring-pop release animation, then commits the move. */
+
+/* Held state — depressed while mouse button (or finger) is down.
+   Quick ease-in transition so the button feels like it's getting
+   pushed; no spring on the way down. Selector matches the production
+   hover rule's ID-prefix specificity (1,3,0) so this wins the cascade
+   against .arena-move-btn:hover when both apply. */
+#bs-screen-battle.blindspot-battle .arena-move-btn:active:not(:disabled):not(.arena-move-btn--no-stamina):not(.arena-move-btn--exhausted),
+#bs-battle-container.blindspot-battle .arena-move-btn:active:not(:disabled):not(.arena-move-btn--no-stamina):not(.arena-move-btn--exhausted),
+.bs-screen.blindspot-battle .arena-move-btn:active:not(:disabled):not(.arena-move-btn--no-stamina):not(.arena-move-btn--exhausted) {
+  transform: scale(0.96) translateY(2px);
+  transition: transform 90ms cubic-bezier(0.4, 0, 0.2, 1);
+  filter: brightness(0.95);
+}
+
+/* Release pop. Starts from the depressed state (matching :active),
+   springs up with overshoot, settles to rest. Snappy curve gives
+   the satisfying "snap" of a real mechanical key bouncing back. */
 .bs-page .arena-move-btn--pressed {
-  animation: bs-move-card-press-physical 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: bs-move-card-press-physical 320ms cubic-bezier(0.34, 1.7, 0.64, 1);
 }
 @keyframes bs-move-card-press-physical {
-  0%   { transform: scale(1)    translateY(0); }
-  12%  { transform: scale(0.96) translateY(2px); }
-  40%  { transform: scale(1.02) translateY(-1px); }
-  72%  { transform: scale(0.99) translateY(0); }
+  0%   { transform: scale(0.96) translateY(2px); }
+  35%  { transform: scale(1.04) translateY(-2px); }
+  65%  { transform: scale(0.99) translateY(0); }
   100% { transform: scale(1)    translateY(0); }
 }
 
