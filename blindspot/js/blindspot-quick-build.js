@@ -226,11 +226,8 @@
       var ch = chart[id] || {};
       var strongLabel = ch.strong && defs[ch.strong] ? defs[ch.strong].label : 'None';
       var weakLabel = ch.weak && defs[ch.weak] ? defs[ch.weak].label : 'None';
-      var elIconHtml = (window.BsCharms && window.BsCharms.assetArtHtml)
-        ? window.BsCharms.assetArtHtml('elements', id, def.icon, def.label)
-        : '<i class="fas ' + def.icon + '" style="color:' + def.color + ';font-size:1.5rem;"></i>';
       return '<div class="bs-element-pick ' + (sel ? 'bs-element-pick--selected' : '') + '" data-element-id="' + id + '" style="--el-color:' + def.color + '">' +
-        elIconHtml +
+        '<i class="fas ' + def.icon + '" style="color:' + def.color + ';font-size:1.5rem;"></i>' +
         '<span class="bs-element-pick__name">' + def.label + '</span>' +
         '<span class="bs-element-pick__matchup">' +
           (ch.strong ? '<span style="color:#4ade80;">Strong vs ' + strongLabel + '</span>' : '<span style="color:var(--bs-text-muted);">Neutral</span>') +
