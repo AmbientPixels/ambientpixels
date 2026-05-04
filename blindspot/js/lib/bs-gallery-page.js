@@ -349,8 +349,14 @@
     if (_wired) return;
     _wired = true;
     document.addEventListener('click', function (e) {
-      if (e.target && e.target.id === 'bs-gallery-detail-close') closeDetail();
-      if (e.target && e.target.id === 'bs-gallery-detail') closeDetail();
+      if (!e.target) return;
+      if (e.target.closest && e.target.closest('#bs-gallery-detail-close')) { closeDetail(); return; }
+      if (e.target.id === 'bs-gallery-detail') closeDetail();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var modal = document.getElementById('bs-gallery-detail');
+      if (modal && !modal.classList.contains('bs-modal-backdrop--hidden')) closeDetail();
     });
     // Filter dropdowns -- single-select per dimension, AND'd together.
     var filterMap = {
