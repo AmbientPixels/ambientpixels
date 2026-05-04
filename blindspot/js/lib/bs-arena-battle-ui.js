@@ -1436,6 +1436,21 @@ window.ArenaBattleUI = (function () {
       setTimeout(function () { pressedBtn.classList.remove('arena-move-btn--pressed'); }, 320);
     }
 
+    // Per-move release tone. For ability, detect class variant from the
+    // art panel class (bs-move-card__art--ability-{variant}) so each
+    // class-specific signature move plays its own pitch + texture.
+    if (window.BsSfx && pressedBtn) {
+      var soundKey = 'moveBtnRelease_' + move;
+      if (move === 'ability') {
+        var artEl = pressedBtn.querySelector('.bs-move-card__art');
+        if (artEl) {
+          var match = artEl.className.match(/bs-move-card__art--ability-(\w+)/);
+          if (match) soundKey = 'moveBtnRelease_' + match[1];
+        }
+      }
+      window.BsSfx.play(soundKey);
+    }
+
     // Battle Surge: 2-phase selection when active (PvE consumable only)
     if (_battleSurgeActive && _firstMove === null) {
       _firstMove = move;
@@ -1613,6 +1628,15 @@ window.ArenaBattleUI = (function () {
   function bindEvents() {
     document.querySelectorAll('.arena-move-btn').forEach(btn => {
       btn.addEventListener('click', () => handleMoveClick(btn.dataset.move));
+      // Universal press-down click sound on pointerdown — matches the
+      // visual :active depression. Skip on disabled / out-of-stamina /
+      // exhausted moves so we don't reward presses that don't fire.
+      btn.addEventListener('pointerdown', () => {
+        if (btn.disabled) return;
+        if (btn.classList.contains('arena-move-btn--no-stamina')) return;
+        if (btn.classList.contains('arena-move-btn--exhausted')) return;
+        if (window.BsSfx) window.BsSfx.play('moveBtnPress');
+      });
     });
 
     const forfeitBtn = document.getElementById('arena-forfeit-btn');

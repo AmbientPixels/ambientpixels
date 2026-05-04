@@ -208,6 +208,223 @@ window.BsSfx = (function () {
       src.start(t); src.stop(t + 0.25);
     },
 
+    // ════════════════════════════════════════════════════════════
+    // MOVE BUTTON PRESS / RELEASE — tactile audio matching the
+    // hold-and-release physical depression. moveBtnPress fires
+    // on pointerdown (universal, brief), moveBtnRelease_<move>
+    // fires on click (per-move character — pitch + texture
+    // tuned to the move's color identity).
+    // ════════════════════════════════════════════════════════════
+
+    // Universal press-down — quiet ~30ms lowpass noise burst.
+    // Reads as "key going down" without being annoying on rapid
+    // pressing. Same sound for every move.
+    moveBtnPress: function (ctx) {
+      var t = ctx.currentTime;
+      var bufSize = Math.floor(ctx.sampleRate * 0.04);
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 800;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.06, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+      src.connect(lp); lp.connect(g); g.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.05);
+    },
+
+    // Strike — low percussive thunk + brief ember crackle (oxblood weight)
+    moveBtnRelease_strike: function (ctx) {
+      var t = ctx.currentTime;
+      [110, 200].forEach(function (freq, i) {
+        var osc = ctx.createOscillator(); var g = ctx.createGain();
+        osc.type = 'triangle'; osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.18 - i * 0.06, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(t); osc.stop(t + 0.20);
+      });
+      var bufSize = Math.floor(ctx.sampleRate * 0.05);
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize) * 0.6;
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1500;
+      var g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0.08, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+      src.connect(hp); hp.connect(g2); g2.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.07);
+    },
+
+    // Guard — glassy cyan ping (740Hz pure tone + harmonic)
+    moveBtnRelease_guard: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = 740;
+      g.gain.setValueAtTime(0.13, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.25);
+      var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
+      osc2.type = 'sine'; osc2.frequency.value = 1480;
+      g2.gain.setValueAtTime(0.04, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc2.connect(g2); g2.connect(ctx.destination);
+      osc2.start(t); osc2.stop(t + 0.18);
+    },
+
+    // Ability (generic) — mystical bell chime (660 + 990, detuned harmonic)
+    moveBtnRelease_ability: function (ctx) {
+      var t = ctx.currentTime;
+      [660, 990].forEach(function (freq) {
+        var osc = ctx.createOscillator(); var g = ctx.createGain();
+        osc.type = 'sine'; osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.10, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(t); osc.stop(t + 0.32);
+      });
+    },
+
+    // Heal — warm rising chime (880 → 1175 glissando + warm undertone)
+    moveBtnRelease_heal: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, t);
+      osc.frequency.exponentialRampToValueAtTime(1175, t + 0.18);
+      g.gain.setValueAtTime(0.12, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.28);
+      var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
+      osc2.type = 'triangle'; osc2.frequency.value = 440;
+      g2.gain.setValueAtTime(0.05, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+      osc2.connect(g2); g2.connect(ctx.destination);
+      osc2.start(t); osc2.stop(t + 0.22);
+    },
+
+    // Counter — sharp metal tink (1480 → 800Hz, very short)
+    moveBtnRelease_counter: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1480, t);
+      osc.frequency.exponentialRampToValueAtTime(800, t + 0.08);
+      g.gain.setValueAtTime(0.14, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.10);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.12);
+    },
+
+    // Power Strike (STR-family) — deeper sub-thunk + bandpass crack noise
+    moveBtnRelease_powerstrike: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(80, t);
+      osc.frequency.exponentialRampToValueAtTime(50, t + 0.25);
+      g.gain.setValueAtTime(0.22, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.32);
+      var bufSize = Math.floor(ctx.sampleRate * 0.08);
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize) * 0.7;
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 800; bp.Q.value = 2;
+      var g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0.12, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      src.connect(bp); bp.connect(g2); g2.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.10);
+    },
+
+    // Arcane Blast (INT-family) — high electric zap + bandpass noise
+    moveBtnRelease_arcaneblast: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(1200, t);
+      osc.frequency.exponentialRampToValueAtTime(400, t + 0.15);
+      g.gain.setValueAtTime(0.11, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.20);
+      var bufSize = Math.floor(ctx.sampleRate * 0.12);
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * 0.4;
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2000; bp.Q.value = 5;
+      var g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0.07, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      src.connect(bp); bp.connect(g2); g2.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.14);
+    },
+
+    // Shadow Strike (AGI-family) — dark filtered noise sweep (stealth swish)
+    moveBtnRelease_shadowstrike: function (ctx) {
+      var t = ctx.currentTime;
+      var bufSize = Math.floor(ctx.sampleRate * 0.18);
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * Math.sin(Math.PI * i / bufSize);
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+      lp.frequency.setValueAtTime(2000, t);
+      lp.frequency.exponentialRampToValueAtTime(400, t + 0.18);
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.10, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      src.connect(lp); lp.connect(g); g.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.20);
+    },
+
+    // Fortify (END-family) — deep gong resonance with slow attack
+    moveBtnRelease_fortify: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'triangle'; osc.frequency.value = 160;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.18, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.48);
+      var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
+      osc2.type = 'sine'; osc2.frequency.value = 480;
+      g2.gain.setValueAtTime(0, t);
+      g2.gain.linearRampToValueAtTime(0.06, t + 0.04);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+      osc2.connect(g2); g2.connect(ctx.destination);
+      osc2.start(t); osc2.stop(t + 0.32);
+    },
+
+    // Wild Card (LCK-family) — pitched-random tone (different note each press)
+    moveBtnRelease_wildcard: function (ctx) {
+      var t = ctx.currentTime;
+      var freqs = [523, 622, 698, 784, 880, 988, 1175];
+      var freq = freqs[Math.floor(Math.random() * freqs.length)];
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.13, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.20);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.22);
+      var harm = freq * (1 + Math.random() * 0.5);
+      var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
+      osc2.type = 'triangle'; osc2.frequency.value = harm;
+      g2.gain.setValueAtTime(0.05, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc2.connect(g2); g2.connect(ctx.destination);
+      osc2.start(t); osc2.stop(t + 0.18);
+    },
+
     // Page flip — 8 paper-swish bursts at decelerating intervals (~2.3s).
     // Same flip-paced rhythm as crateRatchet, but highpass-filtered noise
     // reads as paper/page flicks instead of square-wave arcade clicks.
