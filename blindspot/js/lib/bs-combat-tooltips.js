@@ -21,24 +21,60 @@
     'Guardian':  'fortify',      'Medic':    'fortify',
     'Trickster': 'wildcard',     'Wildcard': 'wildcard'
   };
+  // Hybrid bespoke hover FX appended to each ability variant. The
+  // legacy bs-fx-ability__* spans are kept for backwards compat (CSS
+  // hides them in hybrid mode) but the bs-hybrid-fx--* spans are
+  // what actually render now.
+  var HYBRID_FX_BY_VARIANT = {
+    powerstrike:  '<span class="bs-hybrid-fx--ring" style="--fx-delay:0s;--fx-color:rgba(255,130,80,0.85);--fx-glow:rgba(220,40,20,0.7)"></span>' +
+                  '<span class="bs-hybrid-fx--ring" style="--fx-delay:0.5s;--fx-color:rgba(255,130,80,0.85);--fx-glow:rgba(220,40,20,0.7)"></span>',
+    arcaneblast:  '<span class="bs-hybrid-fx--beam" style="--fx-delay:0s"></span>',
+    shadowstrike: '<span class="bs-hybrid-fx--glint" style="--fx-delay:0s"></span>',
+    fortify:      '<span class="bs-hybrid-fx--halo" style="--fx-delay:0s"></span>',
+    wildcard:     '<span class="bs-hybrid-fx--token" style="--fx-delay:0s;--fx-angle:0deg"></span>' +
+                  '<span class="bs-hybrid-fx--token" style="--fx-delay:0s;--fx-angle:90deg"></span>' +
+                  '<span class="bs-hybrid-fx--token" style="--fx-delay:0s;--fx-angle:180deg"></span>' +
+                  '<span class="bs-hybrid-fx--token" style="--fx-delay:0s;--fx-angle:270deg"></span>'
+  };
+  var GENERIC_HYBRID_FX = '<span class="bs-hybrid-fx--mote" style="--fx-delay:0s;--fx-angle:0deg"></span>' +
+                          '<span class="bs-hybrid-fx--mote" style="--fx-delay:0.1s;--fx-angle:72deg"></span>' +
+                          '<span class="bs-hybrid-fx--mote" style="--fx-delay:0.2s;--fx-angle:144deg"></span>' +
+                          '<span class="bs-hybrid-fx--mote" style="--fx-delay:0.3s;--fx-angle:216deg"></span>' +
+                          '<span class="bs-hybrid-fx--mote" style="--fx-delay:0.4s;--fx-angle:288deg"></span>';
+
   var ABILITY_VARIANT_MARKUP = {
-    powerstrike:  '<span class="bs-fx-ability__pulse"></span>'.repeat(4),
+    // Power Strike: pulsing red core + thick shockwave ring + 5 short
+    // impact spikes punching out radially. Heavy slam vocabulary.
+    powerstrike:  '<span class="bs-fx-ability__core"></span>' +
+                  '<span class="bs-fx-ability__shockwave"></span>' +
+                  '<span class="bs-fx-ability__impact"></span>'.repeat(5) +
+                  HYBRID_FX_BY_VARIANT.powerstrike,
     // Arcane Blast: pulsing violet core + 6 lightning bolts radiating
     // outward in sequence (60° apart). One core + six bolts.
     arcaneblast:  '<span class="bs-fx-ability__core"></span>' +
-                  '<span class="bs-fx-ability__bolt"></span>'.repeat(6),
-    shadowstrike: '<span class="bs-fx-ability__dash"></span>'.repeat(5),
+                  '<span class="bs-fx-ability__bolt"></span>'.repeat(6) +
+                  HYBRID_FX_BY_VARIANT.arcaneblast,
+    shadowstrike: '<span class="bs-fx-ability__dash"></span>'.repeat(5) +
+                  HYBRID_FX_BY_VARIANT.shadowstrike,
     // Fortify: pulsing gold core + 3 expanding rings — radial shield
     // wave pattern.
     fortify:      '<span class="bs-fx-ability__core"></span>' +
-                  '<span class="bs-fx-ability__ring"></span>'.repeat(3),
+                  '<span class="bs-fx-ability__ring"></span>'.repeat(3) +
+                  HYBRID_FX_BY_VARIANT.fortify,
     // Wild Card: glowing color-shifting core + 5 orbital moons at
     // varied radii / directions / speeds. Higher visual energy than
     // the other variants — this is the Ultimate.
     wildcard:     '<span class="bs-fx-ability__core"></span>' +
-                  '<span class="bs-fx-ability__orbit"><span class="bs-fx-ability__moon"></span></span>'.repeat(5)
+                  '<span class="bs-fx-ability__orbit"><span class="bs-fx-ability__moon"></span></span>'.repeat(5) +
+                  HYBRID_FX_BY_VARIANT.wildcard
   };
-  var GENERIC_ABILITY_MARKUP = '<span class="bs-fx-ability__twinkle"></span>'.repeat(7);
+  // Default ability art (no class chosen yet) — center core + 5
+  // scattered twinkles. Same core+something pattern as the variants
+  // so the no-class state reads as "an ability slot waiting for
+  // identity" rather than scattered placeholder dots.
+  var GENERIC_ABILITY_MARKUP = '<span class="bs-fx-ability__core"></span>' +
+                               '<span class="bs-fx-ability__twinkle"></span>'.repeat(5) +
+                               GENERIC_HYBRID_FX;
 
   var _cb = {};
 

@@ -3683,6 +3683,13 @@
 .bs-page .bs-move-card.arena-move-btn--on-cooldown .bs-move-card__art {
   filter: grayscale(0.85) brightness(0.4);
 }
+/* Freeze every FX child while the move is on cooldown — clearer
+   "disabled" read than greyscale-but-still-animating, plus avoids
+   wasted CPU on offscreen-paused cards. */
+.bs-page .bs-move-card.arena-move-btn--on-cooldown .bs-move-card__art *,
+.bs-page .bs-move-card.arena-move-btn--no-stamina .bs-move-card__art * {
+  animation-play-state: paused !important;
+}
 .bs-page .bs-move-card.arena-move-btn--on-cooldown { pointer-events: none; }
 .bs-page .bs-move-card.arena-move-btn--on-cooldown::before {
   content: attr(data-cd);

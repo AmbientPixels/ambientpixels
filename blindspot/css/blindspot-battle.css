@@ -3449,6 +3449,23 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────
+   MOVE-CARD CLICK FEEDBACK
+   When a player presses a move, JS adds .arena-move-btn--pressed for
+   ~320ms, triggering this one-shot burst on the card's art panel so
+   every move has tactile feedback. Combo trigger flash still handled
+   separately by .bs-move-card__dots--combo-triggered.
+   ────────────────────────────────────────────────────────────────── */
+.bs-page .bs-move-card.arena-move-btn--pressed .bs-move-card__art {
+  animation: bs-move-card-press-burst 320ms ease-out;
+}
+@keyframes bs-move-card-press-burst {
+  0%   { filter: brightness(1)    saturate(1);   transform: scale(1); }
+  20%  { filter: brightness(1.5)  saturate(1.4); transform: scale(1.04); }
+  60%  { filter: brightness(1.15) saturate(1.15); transform: scale(0.98); }
+  100% { filter: brightness(1)    saturate(1);   transform: scale(1); }
+}
+
+/* ──────────────────────────────────────────────────────────────────
    MOVE-CARD CSS-DRIVEN ART SLOTS (replacing broken VP9 WebM videos)
    Each move gets a distinct motion grammar; all use distributed
    transparent/outlined elements (no single dominant shape):
@@ -3486,13 +3503,41 @@
   pointer-events: none;
   z-index: 2;
 }
-.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(1) { left:  8%; width: 10px; height: 10px; animation-delay: 0s;    animation-duration: 4.4s; --bs-drift-x: -5px; }
-.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(2) { left: 22%; width:  6px; height:  6px; animation-delay: 0.8s;  animation-duration: 3.6s; --bs-drift-x:  4px; }
-.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(3) { left: 36%; width: 12px; height: 12px; animation-delay: 1.6s;  animation-duration: 5.0s; --bs-drift-x: -3px; }
-.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(4) { left: 50%; width:  7px; height:  7px; animation-delay: 2.4s;  animation-duration: 4.0s; --bs-drift-x:  6px; }
-.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(5) { left: 64%; width: 11px; height: 11px; animation-delay: 0.4s;  animation-duration: 4.8s; --bs-drift-x: -4px; }
-.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(6) { left: 78%; width:  8px; height:  8px; animation-delay: 1.2s;  animation-duration: 3.8s; --bs-drift-x:  5px; }
-.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(7) { left: 92%; width: 10px; height: 10px; animation-delay: 2.0s;  animation-duration: 4.6s; --bs-drift-x: -6px; }
+/* Pulse element is span 1; bubbles occupy spans 2-8 */
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(2) { left:  8%; width: 10px; height: 10px; animation-delay: 0s;    animation-duration: 4.4s; --bs-drift-x: -5px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(3) { left: 22%; width:  6px; height:  6px; animation-delay: 0.8s;  animation-duration: 3.6s; --bs-drift-x:  4px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(4) { left: 36%; width: 12px; height: 12px; animation-delay: 1.6s;  animation-duration: 5.0s; --bs-drift-x: -3px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(5) { left: 50%; width:  7px; height:  7px; animation-delay: 2.4s;  animation-duration: 4.0s; --bs-drift-x:  6px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(6) { left: 64%; width: 11px; height: 11px; animation-delay: 0.4s;  animation-duration: 4.8s; --bs-drift-x: -4px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(7) { left: 78%; width:  8px; height:  8px; animation-delay: 1.2s;  animation-duration: 3.8s; --bs-drift-x:  5px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(8) { left: 92%; width: 10px; height: 10px; animation-delay: 2.0s;  animation-duration: 4.6s; --bs-drift-x: -6px; }
+
+/* Heal infusion pulse — periodic center glow surge every ~5s. The
+   bubbles already drift continuously; this adds a "moment of
+   gravity" peak so Heal feels like a decision, not a passive. */
+.bs-page .bs-move-card__art--heal .bs-fx-heal__pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60%;
+  aspect-ratio: 2 / 1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    rgba(150, 255, 190, 0.4) 0%,
+    rgba(74, 222, 128, 0.2) 35%,
+    transparent 70%);
+  transform: translate(-50%, -50%) scale(0.7);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: screen;
+  animation: bs-fx-heal-pulse 5s ease-in-out infinite;
+}
+@keyframes bs-fx-heal-pulse {
+  0%, 70%, 100% { opacity: 0;   transform: translate(-50%, -50%) scale(0.7); }
+  82%           { opacity: 0.9; transform: translate(-50%, -50%) scale(1.1); }
+  92%           { opacity: 0.4; transform: translate(-50%, -50%) scale(1.25); }
+}
 
 @keyframes bs-fx-heal-bubble-drift {
   0%   { bottom: -12%; opacity: 0;    transform: translateX(0); }
@@ -3501,14 +3546,18 @@
   100% { bottom: 112%; opacity: 0;    transform: translateX(var(--bs-drift-x, 0)); }
 }
 
-/* Hover — bubbles rise faster (~half duration) */
+/* Hover — bubbles rise faster (~half duration), pulse cycle tightens too */
 .bs-page .bs-move-card.arena-move-btn--heal:hover:not(:disabled) .bs-fx-heal__bubble {
   animation-duration: 2.4s;
+}
+.bs-page .bs-move-card.arena-move-btn--heal:hover:not(:disabled) .bs-fx-heal__pulse {
+  animation-duration: 2.6s;
 }
 
 /* Reduced motion — freeze bubbles in mid-rise as a static composition */
 @media (prefers-reduced-motion: reduce) {
   .bs-page .bs-move-card__art--heal .bs-fx-heal__bubble { animation: none; opacity: 0.75; bottom: 50%; }
+  .bs-page .bs-move-card__art--heal .bs-fx-heal__pulse  { animation: none; opacity: 0; }
 }
 
 /* Strike — kinetic speed lines (5 sharp red streaks sweeping L→R).
@@ -3639,6 +3688,35 @@
   overflow: hidden;
   isolation: isolate;
 }
+
+/* Default-ability core — small purple orb, breathes. The "no class
+   chosen" state. Variant treatments (powerstrike/arcaneblast/etc)
+   replace this whole panel via JS innerHTML swap. */
+.bs-page .bs-move-card__art--ability .bs-fx-ability__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(230, 200, 255, 0.95) 0%,
+    rgba(180, 100, 255, 0.8) 35%,
+    rgba(110, 60, 180, 0.4) 70%,
+    transparent 100%);
+  box-shadow:
+    0 0 12px rgba(180, 100, 255, 0.7),
+    0 0 24px rgba(140, 70, 220, 0.4);
+  transform: translate(-50%, -50%) scale(0.85);
+  animation: bs-fx-ability-core 2.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes bs-fx-ability-core {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.85); filter: brightness(0.95); }
+  50%      { transform: translate(-50%, -50%) scale(1.1);  filter: brightness(1.3); }
+}
+
 .bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle {
   position: absolute;
   width: 5px;
@@ -3654,13 +3732,12 @@
   pointer-events: none;
   z-index: 2;
 }
-.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(1) { left: 10%; top: 22%; width: 6px; height: 6px; animation-delay: 0s;   animation-duration: 3.6s; }
-.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(2) { left: 26%; top: 68%; width: 4px; height: 4px; animation-delay: 0.6s; animation-duration: 4.2s; }
-.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(3) { left: 40%; top: 35%; width: 5px; height: 5px; animation-delay: 1.4s; animation-duration: 3.0s; }
-.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(4) { left: 56%; top: 18%; width: 7px; height: 7px; animation-delay: 0.8s; animation-duration: 4.6s; }
-.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(5) { left: 70%; top: 78%; width: 5px; height: 5px; animation-delay: 2.0s; animation-duration: 3.4s; }
-.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(6) { left: 84%; top: 42%; width: 6px; height: 6px; animation-delay: 1.0s; animation-duration: 4.0s; }
-.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(7) { left: 92%; top: 60%; width: 4px; height: 4px; animation-delay: 2.4s; animation-duration: 3.8s; }
+/* Core is span 1; twinkles are spans 2-6 (5 of them, scattered around the core) */
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(2) { left: 14%; top: 28%; width: 5px; height: 5px; animation-delay: 0s;   animation-duration: 3.4s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(3) { left: 28%; top: 72%; width: 4px; height: 4px; animation-delay: 0.7s; animation-duration: 4.0s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(4) { left: 72%; top: 20%; width: 6px; height: 6px; animation-delay: 1.4s; animation-duration: 3.6s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(5) { left: 86%; top: 68%; width: 5px; height: 5px; animation-delay: 0.4s; animation-duration: 4.2s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(6) { left: 92%; top: 38%; width: 4px; height: 4px; animation-delay: 2.0s; animation-duration: 3.8s; }
 
 @keyframes bs-fx-ability-twinkle {
   0%, 100% { opacity: 0;   transform: scale(0.6); }
@@ -3671,6 +3748,7 @@
   animation-duration: 1.8s;
 }
 @media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--ability .bs-fx-ability__core    { animation: none; transform: translate(-50%, -50%) scale(1); }
   .bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle { animation: none; opacity: 0.7; transform: scale(1); }
 }
 
@@ -3864,48 +3942,118 @@
      wildcard     — chaotic multi-color flashes (Trickster/Wildcard)
    ────────────────────────────────────────────────────────────────── */
 
-/* Power Strike — red impact pulses */
+/* Power Strike — Heavy Slam. Central red core pulses + thick
+   shockwave ring expands outward + 5 short impact spikes punch
+   radially. Heavier visual weight than Spellburst's lightning bolts
+   — feels like a fist impact, not a spell. */
 .bs-page .bs-move-card__art--ability-powerstrike {
   background:
     radial-gradient(ellipse at center,
-      rgba(255, 80, 60, 0.20) 0%,
-      rgba(120, 30, 20, 0.32) 45%,
-      rgba(28, 8, 4, 0.95) 100%);
-  background-color: #1a0604;
+      rgba(255, 90, 60, 0.26) 0%,
+      rgba(140, 35, 20, 0.36) 45%,
+      rgba(40, 10, 6, 0.85) 100%);
+  background-color: #1f0805;
   overflow: hidden;
   isolation: isolate;
 }
-.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse {
+
+/* Central red core */
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__core {
   position: absolute;
-  width: 14px;
-  height: 14px;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255, 235, 200, 0.95) 0%,
+    rgba(255, 110, 70, 0.9) 35%,
+    rgba(180, 50, 30, 0.45) 70%,
+    transparent 100%);
+  box-shadow:
+    0 0 16px rgba(255, 90, 50, 0.85),
+    0 0 32px rgba(200, 50, 30, 0.5);
+  transform: translate(-50%, -50%) scale(0.85);
+  animation: bs-fx-powerstrike-core 1.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes bs-fx-powerstrike-core {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.85); filter: brightness(0.9); }
+  35%      { transform: translate(-50%, -50%) scale(1.25); filter: brightness(1.5); }
+  60%      { transform: translate(-50%, -50%) scale(1);    filter: brightness(1.1); }
+}
+
+/* Shockwave ring — thick red ring expands outward at impact */
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__shockwave {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: transparent;
-  border: 2px solid rgba(255, 150, 110, 0.85);
+  border: 3px solid rgba(255, 130, 90, 0.95);
   box-shadow:
-    0 0 8px rgba(255, 80, 50, 0.7),
-    inset 0 0 4px rgba(255, 200, 180, 0.4);
+    0 0 12px rgba(255, 80, 50, 0.85),
+    inset 0 0 6px rgba(255, 200, 170, 0.4);
+  transform: translate(-50%, -50%) scale(0.3);
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.4);
-  animation: bs-fx-ability-pulse 1.6s ease-out infinite;
+  animation: bs-fx-powerstrike-shockwave 1.6s ease-out infinite;
   pointer-events: none;
   z-index: 2;
 }
-.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(1) { left: 18%; top: 32%; animation-delay: 0s;   }
-.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(2) { left: 42%; top: 65%; animation-delay: 0.4s; }
-.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(3) { left: 64%; top: 28%; animation-delay: 0.8s; }
-.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(4) { left: 86%; top: 70%; animation-delay: 1.2s; }
-
-@keyframes bs-fx-ability-pulse {
-  0%   { opacity: 0;   transform: translate(-50%, -50%) scale(0.4); border-width: 2.5px; }
-  30%  { opacity: 1;   transform: translate(-50%, -50%) scale(1);   border-width: 2px; }
-  100% { opacity: 0;   transform: translate(-50%, -50%) scale(1.8); border-width: 0.5px; }
+@keyframes bs-fx-powerstrike-shockwave {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.3); opacity: 0;   border-width: 3.5px; }
+  30%      { transform: translate(-50%, -50%) scale(0.5); opacity: 1;   border-width: 3px; }
+  85%      { transform: translate(-50%, -50%) scale(5.5); opacity: 0;   border-width: 0.5px; }
 }
-.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__pulse {
-  animation-duration: 0.9s;
+
+/* Impact spikes — 5 short thick red lines punch outward radially.
+   Brief, percussive. CSS variable carries each spike's angle so a
+   single keyframe handles all 5. Thicker + shorter than Spellburst
+   bolts so they read as fist-impacts not lightning. */
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__impact {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28%;
+  height: 4px;
+  background: linear-gradient(90deg,
+    rgba(255, 200, 160, 1) 0%,
+    rgba(255, 110, 60, 0.95) 40%,
+    rgba(200, 50, 30, 0.6) 80%,
+    transparent 100%);
+  box-shadow: 0 0 8px rgba(255, 90, 50, 0.85);
+  border-radius: 2px;
+  transform-origin: 0% 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  animation: bs-fx-powerstrike-impact 1.6s ease-out infinite;
+}
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__impact:nth-of-type(3) { --impact-angle:   0deg; animation-delay: 0s;    }
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__impact:nth-of-type(4) { --impact-angle:  72deg; animation-delay: 0.05s; }
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__impact:nth-of-type(5) { --impact-angle: 144deg; animation-delay: 0.1s;  }
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__impact:nth-of-type(6) { --impact-angle: 216deg; animation-delay: 0.15s; }
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__impact:nth-of-type(7) { --impact-angle: 288deg; animation-delay: 0.2s;  }
+
+@keyframes bs-fx-powerstrike-impact {
+  0%, 100% { opacity: 0;   transform: translateY(-50%) rotate(var(--impact-angle, 0deg)) scaleX(0); }
+  25%      { opacity: 1;   transform: translateY(-50%) rotate(var(--impact-angle, 0deg)) scaleX(1); }
+  55%      { opacity: 0.5; transform: translateY(-50%) rotate(var(--impact-angle, 0deg)) scaleX(1); }
+  80%      { opacity: 0;   transform: translateY(-50%) rotate(var(--impact-angle, 0deg)) scaleX(1); }
+}
+
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__core,
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__shockwave,
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__impact {
+  animation-duration: 0.8s;
 }
 @media (prefers-reduced-motion: reduce) {
-  .bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse { animation: none; opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  .bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__core      { animation: none; transform: translate(-50%, -50%) scale(1); }
+  .bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__shockwave { animation: none; opacity: 0.4; transform: translate(-50%, -50%) scale(2.5); }
+  .bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__impact    { animation: none; opacity: 0.6; transform: translateY(-50%) rotate(var(--impact-angle, 0deg)) scaleX(1); }
 }
 
 /* Arcane Blast — Spellburst. Central violet core pulses + 6 lightning

@@ -1428,6 +1428,14 @@ window.ArenaBattleUI = (function () {
       return;
     }
 
+    // Click feedback — brief one-shot CSS burst on the pressed card so
+    // every move feels responsive, not just the ones that trigger combos.
+    var pressedBtn = document.querySelector('.arena-move-btn[data-move="' + move + '"]');
+    if (pressedBtn) {
+      pressedBtn.classList.add('arena-move-btn--pressed');
+      setTimeout(function () { pressedBtn.classList.remove('arena-move-btn--pressed'); }, 320);
+    }
+
     // Battle Surge: 2-phase selection when active (PvE consumable only)
     if (_battleSurgeActive && _firstMove === null) {
       _firstMove = move;

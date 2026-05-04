@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="css/blindspot-lobby-gallery.css">
   <link rel="stylesheet" href="css/blindspot-prefight.css">
   <link rel="stylesheet" href="css/blindspot-battle.css">
+  <link rel="stylesheet" href="css/blindspot-move-hybrid.css">
   <script src="/js/telemetry-config.js"></script>
   <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/product-analytics.js" defer></script>
@@ -845,6 +846,9 @@
               <span class="bs-fx-strike__streak"></span>
               <span class="bs-fx-strike__streak"></span>
               <span class="bs-fx-strike__streak"></span>
+              <span class="bs-hybrid-fx--ring" style="--fx-delay:0s"></span>
+              <span class="bs-hybrid-fx--ring" style="--fx-delay:0.55s"></span>
+              <span class="bs-hybrid-fx--ring" style="--fx-delay:1.10s"></span>
             </div>
             <div class="bs-move-card__tags">
               <span class="bs-move-card__tag" id="arena-move-str">STR SCALING</span>
@@ -877,6 +881,7 @@
               <span class="bs-fx-guard__ring"></span>
               <span class="bs-fx-guard__ring"></span>
               <span class="bs-fx-guard__ring"></span>
+              <span class="bs-hybrid-fx--guard-ring" style="--fx-delay:0s"></span>
             </div>
             <div class="bs-move-card__tags">
               <span class="bs-move-card__tag">BLOCK 60%</span>
@@ -903,13 +908,17 @@
               </div>
             </div>
             <div class="bs-move-card__art bs-move-card__art--ability" aria-hidden="true">
+              <span class="bs-fx-ability__core"></span>
               <span class="bs-fx-ability__twinkle"></span>
               <span class="bs-fx-ability__twinkle"></span>
               <span class="bs-fx-ability__twinkle"></span>
               <span class="bs-fx-ability__twinkle"></span>
               <span class="bs-fx-ability__twinkle"></span>
-              <span class="bs-fx-ability__twinkle"></span>
-              <span class="bs-fx-ability__twinkle"></span>
+              <span class="bs-hybrid-fx--mote" style="--fx-delay:0s;--fx-angle:0deg"></span>
+              <span class="bs-hybrid-fx--mote" style="--fx-delay:0.1s;--fx-angle:72deg"></span>
+              <span class="bs-hybrid-fx--mote" style="--fx-delay:0.2s;--fx-angle:144deg"></span>
+              <span class="bs-hybrid-fx--mote" style="--fx-delay:0.3s;--fx-angle:216deg"></span>
+              <span class="bs-hybrid-fx--mote" style="--fx-delay:0.4s;--fx-angle:288deg"></span>
             </div>
             <div class="bs-move-card__tags">
               <span class="bs-move-card__tag" id="arena-move-int">INT SCALING</span>
@@ -937,6 +946,7 @@
               </div>
             </div>
             <div class="bs-move-card__art bs-move-card__art--heal" aria-hidden="true">
+              <span class="bs-fx-heal__pulse"></span>
               <span class="bs-fx-heal__bubble"></span>
               <span class="bs-fx-heal__bubble"></span>
               <span class="bs-fx-heal__bubble"></span>
@@ -944,6 +954,12 @@
               <span class="bs-fx-heal__bubble"></span>
               <span class="bs-fx-heal__bubble"></span>
               <span class="bs-fx-heal__bubble"></span>
+              <span class="bs-hybrid-fx--heal-bloom" style="--fx-delay:0s"></span>
+              <span class="bs-hybrid-fx--eye-glow" style="--fx-delay:0.05s;--fx-x:50%;--fx-y:34%"></span>
+              <span class="bs-hybrid-fx--eye-glow" style="--fx-delay:0.15s;--fx-x:30%;--fx-y:50%"></span>
+              <span class="bs-hybrid-fx--eye-glow" style="--fx-delay:0.20s;--fx-x:70%;--fx-y:50%"></span>
+              <span class="bs-hybrid-fx--eye-glow" style="--fx-delay:0.30s;--fx-x:16%;--fx-y:74%"></span>
+              <span class="bs-hybrid-fx--eye-glow" style="--fx-delay:0.35s;--fx-x:84%;--fx-y:74%"></span>
             </div>
             <div class="bs-move-card__tags">
               <span class="bs-move-card__tag" id="arena-move-end">END SCALING</span>
@@ -978,6 +994,8 @@
               <span class="bs-fx-counter__shard"></span>
               <span class="bs-fx-counter__shard"></span>
               <span class="bs-fx-counter__shard"></span>
+              <span class="bs-hybrid-fx--blade" style="--fx-delay:0s"></span>
+              <span class="bs-hybrid-fx--blade" style="--fx-delay:0.35s"></span>
             </div>
             <div class="bs-move-card__tags">
               <span class="bs-move-card__tag">REFLECT</span>
