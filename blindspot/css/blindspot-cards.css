@@ -298,6 +298,50 @@
   outline: none;
 }
 
+#qb-ai-prompt {
+  display: block;
+  width: 100%;
+  background: var(--bs-bg, #100C08);
+  border: 1px solid var(--bs-border, #2A2018);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  color: var(--bs-text, #F5F0E8);
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+  resize: vertical;
+  min-height: 60px;
+  margin-bottom: 0.5rem;
+}
+
+#qb-ai-prompt:focus {
+  border-color: var(--bs-accent, #EF9F27);
+  outline: none;
+}
+
+.qb-ai-style-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.qb-ai-style-select {
+  flex: 1;
+  background: var(--bs-bg, #100C08);
+  border: 1px solid var(--bs-border, #2A2018);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  color: var(--bs-text, #F5F0E8);
+  font-size: 0.8rem;
+  font-family: 'Share Tech Mono', monospace;
+  cursor: pointer;
+}
+
+.qb-ai-style-select:focus {
+  border-color: var(--bs-accent, #EF9F27);
+  outline: none;
+}
+
 .qb-generate-btn {
   display: inline-flex;
   align-items: center;

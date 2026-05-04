@@ -252,9 +252,25 @@
       panelHTML = `<div class="qb-artwork-panel"><div class="qb-gallery-grid" id="qb-gallery-grid"><div class="qb-status"><span class="qb-spinner"></span> <i class="fas fa-palette" style="color:var(--bs-accent,#EF9F27);margin:0 0.3em;"></i>Unveiling the gallery\u2026</div></div></div>`;
     } else if (artMode === 'ai') {
       const prompt = _state.vibe?.aiPrompt || '';
+      const aiStyle = _state.aiStyle || 'ap-fantasy-card';
+      const styleOpts = [
+        ['ap-fantasy-card',   'Fantasy Card Art'],
+        ['ap-dark-fantasy',   'Dark Fantasy'],
+        ['ap-dark-cinematic', 'Dark Cinematic'],
+        ['ap-comic-book',     'Comic Book'],
+        ['ap-anime-cel',      'Anime'],
+        ['ap-oil-portrait',   'Oil Portrait'],
+        ['ap-holographic',    'Holographic'],
+        ['ap-neon-glass',     'Neon Glass'],
+        ['ap-watercolor',     'Watercolor'],
+        ['ap-ornate-frame',   'Ornate Frame'],
+        ['ap-retro-pixel',    'Retro Pixel'],
+        ['none',              'No Style']
+      ].map(([v, l]) => `<option value="${v}"${v === aiStyle ? ' selected' : ''}>${l}</option>`).join('');
       panelHTML = `<div class="qb-artwork-panel">
-        <div class="qb-ai-prompt-wrap">
-          <textarea id="qb-ai-prompt" placeholder="Describe the character artwork...">${prompt}</textarea>
+        <textarea id="qb-ai-prompt" placeholder="Describe the character artwork...">${prompt}</textarea>
+        <div class="qb-ai-style-row">
+          <select id="qb-ai-style" class="qb-ai-style-select">${styleOpts}</select>
           <button class="qb-generate-btn" id="qb-ai-generate" ${remaining <= 0 ? 'disabled' : ''}>
             <i class="fas fa-wand-magic-sparkles"></i> Generate
           </button>
@@ -736,7 +752,10 @@
 
     const btn = document.getElementById('qb-ai-generate');
     const promptEl = document.getElementById('qb-ai-prompt');
+    const styleEl = document.getElementById('qb-ai-style');
     const prompt = promptEl?.value?.trim() || _state.vibe?.aiPrompt || 'A mysterious RPG character';
+    const style = styleEl?.value || _state.aiStyle || 'ap-fantasy-card';
+    _state.aiStyle = style;
 
     if (btn) {
       btn.disabled = true;
@@ -750,10 +769,32 @@
       const textRaw = AI.extractText(textResp);
       const cardData = AI.parseJSON(textRaw);
 
-      const imgPrompt = `Create a high-quality RPG card portrait: ${prompt}. Vertical portrait composition, dramatic lighting, detailed fantasy/sci-fi art style. No text or UI elements.`;
-      const imgResp = await AI.callGemini(imgPrompt, { model: AI.IMAGE_MODEL, imageGeneration: true });
-      const imgData = AI.extractImage(imgResp);
-      const imageUrl = imgData ? `data:${imgData.mimeType};base64,${imgData.base64}` : '';
+      let imageUrl = '';
+      try {
+        const imgResp = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+          body: JSON.stringify({
+            topic: 'RPG character portrait: ' + prompt,
+            goal: 'Card game character avatar portrait, centered face/bust composition, dark atmospheric background',
+            preset: style,
+            outputs: ['square_image'],
+            skipApproval: true,
+            accountId: 'blindspot-quick-build'
+          })
+        });
+        const imgJson = await imgResp.json();
+        if (imgJson.ok && imgJson.outputs) {
+          const firstKey = Object.keys(imgJson.outputs).find(k => imgJson.outputs[k].status === 'success');
+          if (firstKey) imageUrl = imgJson.outputs[firstKey].imageUrl || imgJson.outputs[firstKey].thumbUrl || '';
+        }
+      } catch (imgErr) {
+        console.warn('[BS-QB] image gen failed, falling back to direct Gemini:', imgErr);
+        const imgPrompt = `Create a high-quality RPG card portrait: ${prompt}. Vertical portrait composition, dramatic lighting, detailed fantasy/sci-fi art style. No text or UI elements.`;
+        const imgResp = await AI.callGemini(imgPrompt, { model: AI.IMAGE_MODEL, imageGeneration: true });
+        const imgData = AI.extractImage(imgResp);
+        imageUrl = imgData ? `data:${imgData.mimeType};base64,${imgData.base64}` : '';
+      }
 
       _state.aiData = cardData;
       _state.artworkUrl = imageUrl || _state.artworkUrl;
