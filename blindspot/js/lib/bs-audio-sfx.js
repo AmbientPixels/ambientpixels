@@ -216,22 +216,38 @@ window.BsSfx = (function () {
     // tuned to the move's color identity).
     // ════════════════════════════════════════════════════════════
 
-    // Universal press-down — quiet ~30ms lowpass noise burst.
-    // Reads as "key going down" without being annoying on rapid
-    // pressing. Same sound for every move.
+    // Universal press-down — short two-layer mechanical click. Layer 1:
+    // bandpass noise burst at ~1500Hz for the "shink" of a key going
+    // down. Layer 2: brief 180→80Hz triangle for the low-end thunk
+    // of bottoming out. Combined ~60ms — short enough to not be
+    // annoying on rapid presses, audible enough to actually register.
     moveBtnPress: function (ctx) {
       var t = ctx.currentTime;
-      var bufSize = Math.floor(ctx.sampleRate * 0.04);
+
+      // Layer 1: mechanical "shink" — bandpass noise burst
+      var bufSize = Math.floor(ctx.sampleRate * 0.06);
       var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
       var d = buf.getChannelData(0);
       for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
       var src = ctx.createBufferSource(); src.buffer = buf;
-      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 800;
+      var bp = ctx.createBiquadFilter(); bp.type = 'bandpass';
+      bp.frequency.value = 1500; bp.Q.value = 1;
       var g = ctx.createGain();
-      g.gain.setValueAtTime(0.06, t);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-      src.connect(lp); lp.connect(g); g.connect(ctx.destination);
-      src.start(t); src.stop(t + 0.05);
+      g.gain.setValueAtTime(0.13, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+      src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.07);
+
+      // Layer 2: low thunk — bottom-out weight
+      var osc = ctx.createOscillator();
+      var g2 = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, t);
+      osc.frequency.exponentialRampToValueAtTime(80, t + 0.04);
+      g2.gain.setValueAtTime(0.11, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+      osc.connect(g2); g2.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.06);
     },
 
     // Strike — low percussive thunk + brief ember crackle (oxblood weight)
