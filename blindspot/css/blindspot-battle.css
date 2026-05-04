@@ -3468,9 +3468,8 @@
 #bs-screen-battle.blindspot-battle .arena-move-btn:active:not(:disabled):not(.arena-move-btn--no-stamina):not(.arena-move-btn--exhausted),
 #bs-battle-container.blindspot-battle .arena-move-btn:active:not(:disabled):not(.arena-move-btn--no-stamina):not(.arena-move-btn--exhausted),
 .bs-screen.blindspot-battle .arena-move-btn:active:not(:disabled):not(.arena-move-btn--no-stamina):not(.arena-move-btn--exhausted) {
-  transform: scale(0.96) translateY(2px);
-  transition: transform 90ms cubic-bezier(0.4, 0, 0.2, 1);
-  filter: brightness(0.95);
+  transform: scale(0.94) translateY(3px);
+  transition: transform 140ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Release pop. Starts from the depressed state (matching :active),
@@ -3480,8 +3479,8 @@
   animation: bs-move-card-press-physical 320ms cubic-bezier(0.34, 1.7, 0.64, 1);
 }
 @keyframes bs-move-card-press-physical {
-  0%   { transform: scale(0.96) translateY(2px); }
-  35%  { transform: scale(1.04) translateY(-2px); }
+  0%   { transform: scale(0.94) translateY(3px); }
+  35%  { transform: scale(1.05) translateY(-3px); }
   65%  { transform: scale(0.99) translateY(0); }
   100% { transform: scale(1)    translateY(0); }
 }
