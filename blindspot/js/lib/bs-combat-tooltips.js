@@ -10,8 +10,29 @@
 
   var BATTLE_HINTS = _Str.BATTLE_HINTS || {};
   var CLASS_SIGNATURE_MOVES = _C.CLASS_SIGNATURE_MOVES || {};
-  var CLASS_ABILITY_ART = _C.CLASS_ABILITY_ART || {};
   var MOVE_UPGRADES = _Str.MOVE_UPGRADES || {};
+
+  // Per-class signature ability gets its own CSS-driven art variant.
+  // Maps card class → variant slug → CSS modifier + child markup.
+  var CLASS_ABILITY_VARIANT = {
+    'Fighter':   'powerstrike',  'Enforcer': 'powerstrike',  'Berserker': 'powerstrike',
+    'Caster':    'arcaneblast',  'Scholar':  'arcaneblast',  'Hacker':    'arcaneblast',
+    'Scout':     'shadowstrike', 'Rogue':    'shadowstrike', 'Pilot':     'shadowstrike',
+    'Guardian':  'fortify',      'Medic':    'fortify',
+    'Trickster': 'wildcard',     'Wildcard': 'wildcard'
+  };
+  var ABILITY_VARIANT_MARKUP = {
+    powerstrike:  '<span class="bs-fx-ability__pulse"></span>'.repeat(4),
+    arcaneblast:  '<span class="bs-fx-ability__bolt"></span>'.repeat(4),
+    shadowstrike: '<span class="bs-fx-ability__dash"></span>'.repeat(5),
+    fortify:      '<span class="bs-fx-ability__hex"></span>'.repeat(4),
+    // Wild Card: glowing color-shifting core + 5 orbital moons at
+    // varied radii / directions / speeds. Higher visual energy than
+    // the other variants — this is the Ultimate.
+    wildcard:     '<span class="bs-fx-ability__core"></span>' +
+                  '<span class="bs-fx-ability__orbit"><span class="bs-fx-ability__moon"></span></span>'.repeat(5)
+  };
+  var GENERIC_ABILITY_MARKUP = '<span class="bs-fx-ability__twinkle"></span>'.repeat(7);
 
   var _cb = {};
 
@@ -39,19 +60,18 @@
         if (abilLabel) abilLabel.textContent = sig.name;
         if (abilIcon) abilIcon.className = 'fas ' + sig.icon;
       }
-      // Swap ability button art to class-family video + per-class poster (falls back to generic ability.webm)
-      var art = CLASS_ABILITY_ART[cardClass];
-      if (art && art.video) {
-        var abilVid = document.querySelector('.arena-move-btn--ability .bs-move-card__art');
-        if (abilVid && abilVid.tagName === 'VIDEO') {
-          var src = abilVid.querySelector('source');
-          var newSrc = '/blindspot/img/moves/' + art.video;
-          if (src && src.getAttribute('src') !== newSrc) {
-            src.setAttribute('src', newSrc);
-            if (art.poster) abilVid.setAttribute('poster', '/blindspot/img/moves/' + art.poster);
-            try { abilVid.load(); abilVid.play().catch(function(){}); } catch (e) {}
-          }
-        }
+      // Swap ability button art slot to the class-family CSS variant
+      // (powerstrike/arcaneblast/shadowstrike/fortify/wildcard). Unknown
+      // classes fall back to the generic purple-twinkle ability.
+      var artEl = document.querySelector('.arena-move-btn--ability .bs-move-card__art');
+      if (artEl) {
+        var variant = CLASS_ABILITY_VARIANT[cardClass];
+        var nextClass = 'bs-move-card__art' + (variant
+          ? ' bs-move-card__art--ability-' + variant
+          : ' bs-move-card__art--ability');
+        var nextHTML = variant ? ABILITY_VARIANT_MARKUP[variant] : GENERIC_ABILITY_MARKUP;
+        if (artEl.className !== nextClass) artEl.className = nextClass;
+        if (artEl.innerHTML !== nextHTML) artEl.innerHTML = nextHTML;
       }
     }
     // Move upgrades — rename buttons based on stat thresholds

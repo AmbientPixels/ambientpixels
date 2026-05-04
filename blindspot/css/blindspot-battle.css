@@ -3217,18 +3217,43 @@
 #bs-battle-container.blindspot-battle .arena-move-btn--ability {
   position: relative;
 }
+/* Sits in the header band, just left of the energy badge. Frees the
+   FX art panel of overlay UI so Wild Card / class-variant ability art
+   reads at the same visual scale as the other four moves. left/right
+   are both reset so the inherited blindspot.css rule's left:0.95rem
+   doesn't stretch the absolute box. */
 #bs-screen-battle.blindspot-battle .arena-move-btn__charge,
 #bs-battle-container.blindspot-battle .arena-move-btn__charge {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 1rem;
+  left: auto;
+  right: 5rem;
+  bottom: auto;
   display: flex;
   flex-direction: row;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0;
   color: transparent;
+  background: transparent;
+  border: 0;
+  padding: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
+}
+@media (max-height: 949px) {
+  #bs-screen-battle.blindspot-battle .arena-move-btn__charge,
+  #bs-battle-container.blindspot-battle .arena-move-btn__charge {
+    top: 0.85rem;
+    right: 4.5rem;
+  }
+}
+@media (max-height: 800px) {
+  #bs-screen-battle.blindspot-battle .arena-move-btn__charge,
+  #bs-battle-container.blindspot-battle .arena-move-btn__charge {
+    top: 0.7rem;
+    right: 4rem;
+  }
 }
 #bs-screen-battle.blindspot-battle .arena-move-btn__charge::before,
 #bs-screen-battle.blindspot-battle .arena-move-btn__charge::after,
@@ -3423,3 +3448,648 @@
   font-size: 0.7em;
 }
 
+/* ──────────────────────────────────────────────────────────────────
+   MOVE-CARD CSS-DRIVEN ART SLOTS (replacing broken VP9 WebM videos)
+   Each move gets a distinct motion grammar; all use distributed
+   transparent/outlined elements (no single dominant shape):
+     heal    — drifting bubbles (vertical drift, 7 hollow bubbles)
+     strike  — speed lines (L→R sweep, 5 thin gradient streaks)
+     guard   — concentric ripples (center-out scale, 5 rings)
+     ability — scattered twinkles (fade in/out at varied positions)
+     counter — pendulum arcs (L↔R swing at 3 vertical positions)
+   ────────────────────────────────────────────────────────────────── */
+
+/* Heal — drifting bubbles */
+.bs-page .bs-move-card__art--heal {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(74, 222, 128, 0.22) 0%,
+      rgba(34, 100, 60, 0.32) 45%,
+      rgba(8, 28, 14, 0.95) 100%);
+  background-color: #051410;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble {
+  position: absolute;
+  bottom: -12%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(190, 255, 210, 0.7);
+  box-shadow:
+    inset 1px 1px 1.5px rgba(255, 255, 255, 0.55),
+    inset -1px -1px 1.5px rgba(74, 222, 128, 0.18),
+    0 0 6px rgba(74, 222, 128, 0.45);
+  animation: bs-fx-heal-bubble-drift 4.5s ease-in infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(1) { left:  8%; width: 10px; height: 10px; animation-delay: 0s;    animation-duration: 4.4s; --bs-drift-x: -5px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(2) { left: 22%; width:  6px; height:  6px; animation-delay: 0.8s;  animation-duration: 3.6s; --bs-drift-x:  4px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(3) { left: 36%; width: 12px; height: 12px; animation-delay: 1.6s;  animation-duration: 5.0s; --bs-drift-x: -3px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(4) { left: 50%; width:  7px; height:  7px; animation-delay: 2.4s;  animation-duration: 4.0s; --bs-drift-x:  6px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(5) { left: 64%; width: 11px; height: 11px; animation-delay: 0.4s;  animation-duration: 4.8s; --bs-drift-x: -4px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(6) { left: 78%; width:  8px; height:  8px; animation-delay: 1.2s;  animation-duration: 3.8s; --bs-drift-x:  5px; }
+.bs-page .bs-move-card__art--heal .bs-fx-heal__bubble:nth-of-type(7) { left: 92%; width: 10px; height: 10px; animation-delay: 2.0s;  animation-duration: 4.6s; --bs-drift-x: -6px; }
+
+@keyframes bs-fx-heal-bubble-drift {
+  0%   { bottom: -12%; opacity: 0;    transform: translateX(0); }
+  15%  {                opacity: 0.9; }
+  85%  {                opacity: 0.8; }
+  100% { bottom: 112%; opacity: 0;    transform: translateX(var(--bs-drift-x, 0)); }
+}
+
+/* Hover — bubbles rise faster (~half duration) */
+.bs-page .bs-move-card.arena-move-btn--heal:hover:not(:disabled) .bs-fx-heal__bubble {
+  animation-duration: 2.4s;
+}
+
+/* Reduced motion — freeze bubbles in mid-rise as a static composition */
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--heal .bs-fx-heal__bubble { animation: none; opacity: 0.75; bottom: 50%; }
+}
+
+/* Strike — kinetic speed lines (5 sharp red streaks sweeping L→R).
+   Tightened timing + sharper gradient edges so the motion reads
+   punchy, not lens-flare-soft. The middle streak (nth 3) is the
+   lead — thicker, brighter, stronger glow — to give the eye an
+   anchor rather than five equally-faint streaks. */
+.bs-page .bs-move-card__art--strike {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(220, 60, 60, 0.18) 0%,
+      rgba(80, 20, 20, 0.32) 45%,
+      rgba(28, 8, 8, 0.95) 100%);
+  background-color: #1a0808;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--strike .bs-fx-strike__streak {
+  position: absolute;
+  left: -60%;
+  width: 65%;
+  height: 1.5px;
+  /* Sharper gradient — narrow fade at the edges, hard-bright core */
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 110, 110, 0) 14%,
+    rgba(255, 130, 130, 1) 32%,
+    rgba(255, 90, 90, 1) 50%,
+    rgba(255, 130, 130, 1) 68%,
+    rgba(255, 110, 110, 0) 86%,
+    transparent 100%);
+  box-shadow: 0 0 4px rgba(255, 80, 80, 0.65);
+  transform: rotate(-10deg);
+  transform-origin: left center;
+  animation: bs-fx-strike-streak 1.5s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.bs-page .bs-move-card__art--strike .bs-fx-strike__streak:nth-of-type(1) { top: 18%; height: 1.5px; animation-delay: 0s;    animation-duration: 1.5s; }
+.bs-page .bs-move-card__art--strike .bs-fx-strike__streak:nth-of-type(2) { top: 36%; height:   1px; animation-delay: 0.35s; animation-duration: 1.3s; opacity: 0.7; }
+/* Lead streak — thicker, brighter, longer reach, strongest glow */
+.bs-page .bs-move-card__art--strike .bs-fx-strike__streak:nth-of-type(3) {
+  top: 54%;
+  height: 2.5px;
+  width: 72%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 200, 200, 0) 10%,
+    rgba(255, 240, 220, 1) 28%,
+    rgba(255, 80, 80, 1) 50%,
+    rgba(255, 240, 220, 1) 72%,
+    rgba(255, 200, 200, 0) 90%,
+    transparent 100%);
+  box-shadow: 0 0 8px rgba(255, 90, 90, 0.85), 0 0 16px rgba(255, 60, 60, 0.4);
+  animation-delay: 0.7s;
+  animation-duration: 1.2s;
+}
+.bs-page .bs-move-card__art--strike .bs-fx-strike__streak:nth-of-type(4) { top: 72%; height: 1.5px; animation-delay: 1.0s;  animation-duration: 1.4s; }
+.bs-page .bs-move-card__art--strike .bs-fx-strike__streak:nth-of-type(5) { top: 88%; height:   1px; animation-delay: 0.55s; animation-duration: 1.5s; opacity: 0.7; }
+
+@keyframes bs-fx-strike-streak {
+  0%   { left: -60%; opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { left: 110%; opacity: 0; }
+}
+.bs-page .bs-move-card.arena-move-btn--strike:hover:not(:disabled) .bs-fx-strike__streak {
+  animation-duration: 0.65s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--strike .bs-fx-strike__streak { animation: none; left: 30%; opacity: 0.6; }
+}
+
+/* Guard — concentric ripples (5 blue rings expanding from center) */
+.bs-page .bs-move-card__art--guard {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(60, 140, 220, 0.20) 0%,
+      rgba(20, 60, 100, 0.32) 45%,
+      rgba(8, 14, 28, 0.95) 100%);
+  background-color: #050b18;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--guard .bs-fx-guard__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid rgba(140, 200, 255, 0.85);
+  box-shadow:
+    0 0 8px rgba(80, 160, 255, 0.5),
+    inset 0 0 4px rgba(180, 220, 255, 0.3);
+  transform: translate(-50%, -50%) scale(0.3);
+  animation: bs-fx-guard-ring 3.2s ease-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.bs-page .bs-move-card__art--guard .bs-fx-guard__ring:nth-of-type(1) { animation-delay: 0s;    }
+.bs-page .bs-move-card__art--guard .bs-fx-guard__ring:nth-of-type(2) { animation-delay: 0.65s; }
+.bs-page .bs-move-card__art--guard .bs-fx-guard__ring:nth-of-type(3) { animation-delay: 1.3s;  }
+.bs-page .bs-move-card__art--guard .bs-fx-guard__ring:nth-of-type(4) { animation-delay: 1.95s; }
+.bs-page .bs-move-card__art--guard .bs-fx-guard__ring:nth-of-type(5) { animation-delay: 2.6s;  }
+
+@keyframes bs-fx-guard-ring {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0; border-width: 2px; }
+  15%  { opacity: 0.95; }
+  100% { transform: translate(-50%, -50%) scale(8); opacity: 0; border-width: 0.5px; }
+}
+.bs-page .bs-move-card.arena-move-btn--guard:hover:not(:disabled) .bs-fx-guard__ring {
+  animation-duration: 1.6s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--guard .bs-fx-guard__ring { animation: none; opacity: 0.5; transform: translate(-50%, -50%) scale(2.5); }
+}
+
+/* Ability — scattered twinkles (7 hollow purple dots fading in/out) */
+.bs-page .bs-move-card__art--ability {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(140, 80, 220, 0.22) 0%,
+      rgba(60, 30, 100, 0.32) 45%,
+      rgba(18, 8, 30, 0.95) 100%);
+  background-color: #100618;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid rgba(210, 160, 255, 0.85);
+  box-shadow:
+    0 0 6px rgba(180, 100, 255, 0.65),
+    inset 0 0 2px rgba(220, 180, 255, 0.45);
+  opacity: 0;
+  animation: bs-fx-ability-twinkle 3.6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(1) { left: 10%; top: 22%; width: 6px; height: 6px; animation-delay: 0s;   animation-duration: 3.6s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(2) { left: 26%; top: 68%; width: 4px; height: 4px; animation-delay: 0.6s; animation-duration: 4.2s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(3) { left: 40%; top: 35%; width: 5px; height: 5px; animation-delay: 1.4s; animation-duration: 3.0s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(4) { left: 56%; top: 18%; width: 7px; height: 7px; animation-delay: 0.8s; animation-duration: 4.6s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(5) { left: 70%; top: 78%; width: 5px; height: 5px; animation-delay: 2.0s; animation-duration: 3.4s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(6) { left: 84%; top: 42%; width: 6px; height: 6px; animation-delay: 1.0s; animation-duration: 4.0s; }
+.bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle:nth-of-type(7) { left: 92%; top: 60%; width: 4px; height: 4px; animation-delay: 2.4s; animation-duration: 3.8s; }
+
+@keyframes bs-fx-ability-twinkle {
+  0%, 100% { opacity: 0;   transform: scale(0.6); }
+  30%      { opacity: 1;   transform: scale(1.2); }
+  60%      { opacity: 0.6; transform: scale(1);   }
+}
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__twinkle {
+  animation-duration: 1.8s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--ability .bs-fx-ability__twinkle { animation: none; opacity: 0.7; transform: scale(1); }
+}
+
+/* Counter — single vertical lightning bolt that flickers in place.
+   No horizontal motion, no scaling — just opacity stutter on a static
+   center-anchored bolt. Double-pulse rhythm (bright → dim → bright →
+   off) sells the "interrupt" feel. A faint full-panel background
+   flash mirrors the same rhythm so the whole panel blinks with the
+   bolt. Color: #ffd040 (warm yellow). All CSS, no JS.
+   Gradient kept gentle (no aggressive vignette) so the panel reads
+   as uniformly active edge-to-edge instead of dark-padded around a
+   narrow center band. */
+.bs-page .bs-move-card__art--counter {
+  /* Nearly-flat gradient so the panel reads at full width even when
+     the on-cooldown filter (grayscale 0.85 + brightness 0.4) is
+     applied. Previously the edges faded toward near-black and
+     disappeared into the card bg under the dim filter, creating
+     the illusion of horizontal margin. */
+  background: radial-gradient(ellipse at center, #4d2e10 0%, #2c1d0a 100%);
+  background-color: #2c1d0a;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Faint full-panel illumination synced to the bolt's stutter rhythm.
+   Capped at low max alpha so the panel never fully lights up — just
+   a soft warm glow that breathes with the bolt. */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%,
+    rgba(255, 208, 64, 0.28) 0%,
+    rgba(255, 208, 64, 0.08) 50%,
+    transparent 85%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  animation: bs-fx-counter-stutter 3.2s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+/* The bolt: jagged vertical silhouette via clip-path, anchored at
+   center, fixed size — never moves laterally, never scales. Only
+   opacity is animated. Peak softened so it doesn't pull focus from
+   the other (continuously-animated) move cards. */
+.bs-page .bs-move-card__art--counter .bs-fx-counter__bolt {
+  position: absolute;
+  left: 50%;
+  top: 4%;
+  width: 22px;
+  height: 92%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(255, 240, 180, 0.85) 12%,
+    #ffd040 50%,
+    rgba(255, 240, 180, 0.85) 88%,
+    transparent 100%);
+  box-shadow:
+    0 0 6px rgba(255, 208, 64, 0.5),
+    0 0 14px rgba(255, 208, 64, 0.22);
+  clip-path: polygon(
+    50%   0%,
+    66%  18%,
+    52%  22%,
+    72%  42%,
+    55%  46%,
+    70%  68%,
+    44%  72%,
+    62%  92%,
+    45% 100%,
+    30%  82%,
+    44%  78%,
+    24%  56%,
+    42%  52%,
+    20%  30%,
+    38%  26%,
+    18%   8%,
+    35%   4%
+  );
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: bs-fx-counter-stutter 3.2s ease-in-out infinite;
+}
+
+/* Smoother double-pulse — peaks now top out at 0.65 (was 1.0), the
+   inter-pulse dim only drops to 0.35 (was 0.25), and the cycle is
+   longer (3.2s vs 2.4s) so the bolt fades up/out more gradually
+   instead of snapping. Still has the two-peak interrupt character,
+   but doesn't grab the eye away from continuous animations. */
+@keyframes bs-fx-counter-stutter {
+  0%, 100%   { opacity: 0; }
+  8%         { opacity: 0.65; }  /* first soft peak */
+  14%        { opacity: 0.35; }  /* gentle dim */
+  20%        { opacity: 0.65; }  /* second soft peak */
+  32%        { opacity: 0; }     /* fade to quiet */
+}
+
+.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__bolt,
+.bs-page .bs-move-card.arena-move-btn--counter:hover:not(:disabled) .bs-fx-counter__flash {
+  animation-duration: 1.6s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--counter .bs-fx-counter__bolt { animation: none; opacity: 0.65; }
+  .bs-page .bs-move-card__art--counter .bs-fx-counter__flash { animation: none; opacity: 0.35; }
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   ABILITY VARIANTS — per-class signature move art
+   The base ability slot (purple twinkles) is the no-class default.
+   When a card class is picked, JS swaps in one of these variants:
+     powerstrike  — red impact pulses (Fighter/Enforcer/Berserker)
+     arcaneblast  — violet lightning forks (Caster/Scholar/Hacker)
+     shadowstrike — dark cyan dashes (Scout/Rogue/Pilot)
+     fortify      — gold shield facets (Guardian/Medic)
+     wildcard     — chaotic multi-color flashes (Trickster/Wildcard)
+   ────────────────────────────────────────────────────────────────── */
+
+/* Power Strike — red impact pulses */
+.bs-page .bs-move-card__art--ability-powerstrike {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(255, 80, 60, 0.20) 0%,
+      rgba(120, 30, 20, 0.32) 45%,
+      rgba(28, 8, 4, 0.95) 100%);
+  background-color: #1a0604;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid rgba(255, 150, 110, 0.85);
+  box-shadow:
+    0 0 8px rgba(255, 80, 50, 0.7),
+    inset 0 0 4px rgba(255, 200, 180, 0.4);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+  animation: bs-fx-ability-pulse 1.6s ease-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(1) { left: 18%; top: 32%; animation-delay: 0s;   }
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(2) { left: 42%; top: 65%; animation-delay: 0.4s; }
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(3) { left: 64%; top: 28%; animation-delay: 0.8s; }
+.bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse:nth-of-type(4) { left: 86%; top: 70%; animation-delay: 1.2s; }
+
+@keyframes bs-fx-ability-pulse {
+  0%   { opacity: 0;   transform: translate(-50%, -50%) scale(0.4); border-width: 2.5px; }
+  30%  { opacity: 1;   transform: translate(-50%, -50%) scale(1);   border-width: 2px; }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(1.8); border-width: 0.5px; }
+}
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__pulse {
+  animation-duration: 0.9s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse { animation: none; opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Arcane Blast — violet lightning forks */
+.bs-page .bs-move-card__art--ability-arcaneblast {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(160, 80, 255, 0.22) 0%,
+      rgba(70, 30, 120, 0.32) 45%,
+      rgba(18, 8, 30, 0.95) 100%);
+  background-color: #100618;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt {
+  position: absolute;
+  width: 36%;
+  height: 1.5px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(220, 170, 255, 0) 5%,
+    rgba(210, 140, 255, 1) 50%,
+    rgba(220, 170, 255, 0) 95%,
+    transparent 100%);
+  box-shadow: 0 0 8px rgba(180, 100, 255, 0.85);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  animation: bs-fx-ability-bolt 2.4s linear infinite;
+}
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(1) { top: 22%; left:  8%; transform: rotate(-15deg); animation-delay: 0s;    }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(2) { top: 48%; left: 38%; transform: rotate( 22deg); animation-delay: 0.6s; }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(3) { top: 72%; left: 56%; transform: rotate(-18deg); animation-delay: 1.2s; }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(4) { top: 35%; left: 20%; transform: rotate( 30deg); animation-delay: 1.8s; }
+
+@keyframes bs-fx-ability-bolt {
+  0%, 25%, 100% { opacity: 0; }
+  10%, 18%      { opacity: 1; }
+}
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__bolt {
+  animation-duration: 1.4s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt { animation: none; opacity: 0.7; }
+}
+
+/* Shadow Strike — dark cyan dashes */
+.bs-page .bs-move-card__art--ability-shadowstrike {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(80, 220, 220, 0.16) 0%,
+      rgba(20, 50, 60, 0.40) 45%,
+      rgba(4, 10, 14, 0.95) 100%);
+  background-color: #04080c;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash {
+  position: absolute;
+  left: -50%;
+  width: 30%;
+  height: 1.5px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(180, 250, 250, 0) 10%,
+    rgba(200, 255, 255, 0.95) 50%,
+    rgba(180, 250, 250, 0) 90%,
+    transparent 100%);
+  box-shadow: 0 0 5px rgba(100, 220, 220, 0.6);
+  pointer-events: none;
+  z-index: 2;
+  animation: bs-fx-ability-dash 1.4s linear infinite;
+}
+.bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash:nth-of-type(1) { top: 15%; height: 1.5px; animation-delay: 0s;   animation-duration: 1.4s; }
+.bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash:nth-of-type(2) { top: 32%; height:   1px; animation-delay: 0.2s; animation-duration: 1.1s; }
+.bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash:nth-of-type(3) { top: 52%; height:   2px; animation-delay: 0.5s; animation-duration: 1.3s; }
+.bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash:nth-of-type(4) { top: 72%; height: 1.5px; animation-delay: 0.8s; animation-duration: 1.0s; }
+.bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash:nth-of-type(5) { top: 88%; height:   1px; animation-delay: 1.0s; animation-duration: 1.2s; }
+
+@keyframes bs-fx-ability-dash {
+  0%   { left: -50%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 110%; opacity: 0; }
+}
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__dash {
+  animation-duration: 0.6s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash { animation: none; left: 30%; opacity: 0.6; }
+}
+
+/* Fortify — gold shield facets (rotated diamonds pulsing in place) */
+.bs-page .bs-move-card__art--ability-fortify {
+  background:
+    radial-gradient(ellipse at center,
+      rgba(245, 192, 120, 0.20) 0%,
+      rgba(120, 80, 30, 0.32) 45%,
+      rgba(28, 18, 8, 0.95) 100%);
+  background-color: #1a1208;
+  overflow: hidden;
+  isolation: isolate;
+}
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 220, 160, 0.85);
+  box-shadow:
+    0 0 6px rgba(245, 192, 120, 0.55),
+    inset 0 0 4px rgba(255, 230, 180, 0.25);
+  border-radius: 3px;
+  transform: translate(-50%, -50%) rotate(45deg) scale(0.85);
+  opacity: 0.4;
+  animation: bs-fx-ability-hex 2.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(1) { left: 22%; top: 35%; width: 24px; height: 24px; animation-delay: 0s;    }
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(2) { left: 50%; top: 60%; width: 28px; height: 28px; animation-delay: 0.7s; }
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(3) { left: 78%; top: 38%; width: 22px; height: 22px; animation-delay: 1.4s; }
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(4) { left: 38%; top: 72%; width: 20px; height: 20px; animation-delay: 2.1s; }
+
+@keyframes bs-fx-ability-hex {
+  0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) rotate(45deg) scale(0.85); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) rotate(45deg) scale(1.15); }
+}
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__hex {
+  animation-duration: 1.4s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex { animation: none; opacity: 0.85; transform: translate(-50%, -50%) rotate(45deg) scale(1); }
+}
+
+/* Wild Card — glowing color-shifting core + 5 orbital moons.
+   This is the Ultimate variant; deliberately higher visual energy
+   than the other variants. The core breathes + cycles hue while
+   moons orbit at varied radii, directions and speeds.
+   Gradient kept gentle (no aggressive vignette) so the panel edges
+   read as uniformly active rather than dark padding around a center
+   spotlight — fixes the "narrower window" perception caused by the
+   center-clustered orbit cluster. */
+.bs-page .bs-move-card__art--ability-wildcard {
+  /* Nearly-flat gradient so the panel reads at full width even when
+     the disabled-state filter (opacity 0.45 + grayscale + brightness)
+     is stacked on top. Previously the edges faded toward dark indigo
+     and disappeared into the card bg under the dim filter, creating
+     the illusion of horizontal margin. */
+  background: radial-gradient(ellipse at center, #4a2070 0%, #2a1240 100%);
+  background-color: #2a1240;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Central core — pulsing magenta orb that hue-shifts through full spectrum */
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255, 240, 220, 0.95) 0%,
+    rgba(255, 100, 200, 0.85) 30%,
+    rgba(140, 60, 200, 0.45) 65%,
+    transparent 100%);
+  box-shadow:
+    0 0 18px rgba(255, 100, 200, 0.75),
+    0 0 32px rgba(180, 80, 220, 0.45);
+  transform: translate(-50%, -50%) scale(0.85);
+  animation: bs-fx-wildcard-core 2.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes bs-fx-wildcard-core {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.85); filter: hue-rotate(0deg);   }
+  25%      { transform: translate(-50%, -50%) scale(1.15); filter: hue-rotate(90deg);  }
+  50%      { transform: translate(-50%, -50%) scale(0.95); filter: hue-rotate(180deg); }
+  75%      { transform: translate(-50%, -50%) scale(1.2);  filter: hue-rotate(270deg); }
+}
+
+/* Orbit wrapper — width = orbit diameter. Rotates around its own
+   center which sits at the panel's middle (translate -50% -50%). */
+/* Orbit sizes are tuned per aspect-ratio tier so the moons fill most
+   of the panel area without clipping at the edges. Defaults below are
+   for 2:1 (lush, 900p+); media queries shrink them for 3:1 / 4:1. */
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88px;
+  height: 88px;
+  pointer-events: none;
+  z-index: 2;
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: bs-fx-wildcard-orbit 4.2s linear infinite;
+}
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(2) { width:  60px; height:  60px; animation-duration: 3.0s; animation-direction: reverse; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(3) { width: 116px; height: 116px; animation-duration: 5.4s; animation-delay: -0.6s; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(4) { width:  74px; height:  74px; animation-duration: 3.6s; animation-direction: reverse; animation-delay: -1.2s; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(5) { width: 100px; height: 100px; animation-duration: 4.8s; animation-delay: -1.8s; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(6) { width:  48px; height:  48px; animation-duration: 2.6s; animation-direction: reverse; animation-delay: -0.3s; }
+
+/* 3:1 panel (laptop ~900p) — orbits ~25% smaller so the largest
+   (now 84px / radius 42) stays inside the ~93px panel height. */
+@media (max-height: 949px) {
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit                  { width: 68px; height: 68px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(2)   { width: 46px; height: 46px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(3)   { width: 84px; height: 84px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(4)   { width: 56px; height: 56px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(5)   { width: 76px; height: 76px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(6)   { width: 38px; height: 38px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__core                   { width: 20px; height: 20px; }
+}
+
+/* 4:1 panel (~768p) — most aggressive shrink; largest orbit 60px
+   (radius 30) fits in the ~70px panel height. */
+@media (max-height: 800px) {
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit                  { width: 50px; height: 50px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(2)   { width: 36px; height: 36px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(3)   { width: 60px; height: 60px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(4)   { width: 42px; height: 42px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(5)   { width: 54px; height: 54px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(6)   { width: 30px; height: 30px; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__core                   { width: 16px; height: 16px; }
+}
+@keyframes bs-fx-wildcard-orbit {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Moon — sits at the right edge of its orbit wrapper, traces the orbit as parent rotates */
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__moon {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid currentColor;
+  box-shadow:
+    0 0 8px currentColor,
+    inset 0 0 3px rgba(255, 255, 255, 0.45);
+  color: rgba(255, 100, 200, 0.95);
+  transform: translate(-50%, -50%);
+}
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(2) .bs-fx-ability__moon { color: rgba(100, 220, 255, 0.95); width: 6px; height: 6px; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(3) .bs-fx-ability__moon { color: rgba(255, 230, 100, 0.95); width: 8px; height: 8px; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(4) .bs-fx-ability__moon { color: rgba(180, 100, 255, 0.95); width: 6px; height: 6px; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(5) .bs-fx-ability__moon { color: rgba(100, 255, 180, 0.95); width: 7px; height: 7px; }
+.bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit:nth-of-type(6) .bs-fx-ability__moon { color: rgba(255, 150, 100, 0.95); width: 5px; height: 5px; }
+
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__core { animation-duration: 1.2s; }
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__orbit { animation-duration: 1.8s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__core,
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit { animation: none; }
+  .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__core { transform: translate(-50%, -50%) scale(1); }
+}

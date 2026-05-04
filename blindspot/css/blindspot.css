@@ -3385,6 +3385,12 @@
      no fr-unit slot expanding to fill the card and pushing the footer down
      with dead space under the desc. */
   grid-template-rows: repeat(5, auto);
+  /* Single full-width column. Without this, the grid auto-sizes the column
+     to the widest child's max-content — which on the Ability button caused
+     the .bs-move-card__name to dictate a narrower 187px column, shrinking
+     all siblings (including the FX art panel). With minmax(0, 1fr) every
+     row takes the full content area regardless of the longest child. */
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch !important;
   gap: 0.45rem;
   padding: 0.7rem 0.65rem 0.6rem !important;
