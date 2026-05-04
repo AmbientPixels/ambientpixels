@@ -30,6 +30,7 @@ window.ArenaBattleUI = (function () {
     _isAnimating = false;
     _playerStreak = 0;
     _moveHistory = [];
+    updateComboPipState();
 
     // Close results overlay if still open
     var overlay = document.getElementById('arena-results-overlay');
@@ -1094,6 +1095,64 @@ window.ArenaBattleUI = (function () {
     }
   }
 
+  // ─── Combo pip state (V2) — light up footer pips as the combo builds.
+  // Reads _moveHistory, sets data-combo-step on the just-played card and
+  // adds --combo-ready to the card that completes the combo. Called from
+  // initBattle (reset) and animateRoundResult (after each move). The
+  // separate flashComboTriggered() handles the big burst on combo fire. ───
+  function updateComboPipState() {
+    document.querySelectorAll('.bs-move-card__dots').forEach(function (d) {
+      d.removeAttribute('data-combo-step');
+      d.classList.remove('bs-move-card__dots--combo-ready');
+    });
+
+    if (!_moveHistory || _moveHistory.length === 0) return;
+    var last = _moveHistory[_moveHistory.length - 1];
+
+    // Flurry — count trailing consecutive Strikes; 1 = step1, 2+ = ready
+    var strikeStreak = 0;
+    for (var i = _moveHistory.length - 1; i >= 0; i--) {
+      if (_moveHistory[i] === 'strike') strikeStreak++;
+      else break;
+    }
+    var strikeDots = document.querySelector('.arena-move-btn--strike .bs-move-card__dots--flurry');
+    if (strikeDots) {
+      if (strikeStreak === 1) strikeDots.setAttribute('data-combo-step', '1');
+      else if (strikeStreak >= 2) strikeDots.classList.add('bs-move-card__dots--combo-ready');
+    }
+
+    // Riposte — last move = guard → Counter is ready, Guard shows step 1
+    if (last === 'guard') {
+      var guardDots = document.querySelector('.arena-move-btn--guard .bs-move-card__dots--riposte');
+      var counterDots = document.querySelector('.arena-move-btn--counter .bs-move-card__dots--riposte');
+      if (guardDots) guardDots.setAttribute('data-combo-step', '1');
+      if (counterDots) counterDots.classList.add('bs-move-card__dots--combo-ready');
+    }
+
+    // Empowered — last move = heal → Ability is ready, Heal shows step 1
+    if (last === 'heal') {
+      var healDots = document.querySelector('.arena-move-btn--heal .bs-move-card__dots--empowered');
+      var abilityDots = document.querySelector('.arena-move-btn--ability .bs-move-card__dots--empowered');
+      if (healDots) healDots.setAttribute('data-combo-step', '1');
+      if (abilityDots) abilityDots.classList.add('bs-move-card__dots--combo-ready');
+    }
+  }
+
+  // Brief burst flash across all pips of the firing combo family. Triggered
+  // when the server reports result.comboTriggered = 'flurry'/'riposte'/etc.
+  function flashComboTriggered(comboId) {
+    if (!comboId) return;
+    var family = String(comboId).toLowerCase();
+    if (family !== 'flurry' && family !== 'riposte' && family !== 'empowered') return;
+    var dots = document.querySelectorAll('.bs-move-card__dots--' + family);
+    dots.forEach(function (d) {
+      d.classList.add('bs-move-card__dots--combo-triggered');
+      setTimeout(function () {
+        d.classList.remove('bs-move-card__dots--combo-triggered');
+      }, 800);
+    });
+  }
+
   // ─── Phase 1A: Combo hint (preview next combo in move buttons) ──────────
   function updateComboHints() {
     // Combo hints: only active during Battle Surge 2-phase selection
@@ -1282,6 +1341,7 @@ window.ArenaBattleUI = (function () {
       shakeScreen('crit', 400);
       var field = document.querySelector('.arena-battle__field');
       spawnParticles(field, 15, comboColor, 'up');
+      flashComboTriggered(result.comboTriggered);
     }
 
     // B6: Combo Chain — STREAK banner at peak (chain reaches 5),
@@ -1298,6 +1358,7 @@ window.ArenaBattleUI = (function () {
 
     // Phase 1B: Track move history for combo hints
     _moveHistory.push(result.playerMove);
+    updateComboPipState();
 
     // B1: Last Stand — check transition before updating stored HP
     const prevPlayerHpPct  = _battleData.player.hp   / _battleData.player.maxHp;
