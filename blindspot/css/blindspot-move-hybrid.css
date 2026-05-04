@@ -19,16 +19,16 @@
    ============================================================ */
 
 /* ─── Shared painted-card chrome ─── */
-.bs-move-card__art--strike,
-.bs-move-card__art--guard,
-.bs-move-card__art--ability,
-.bs-move-card__art--ability-powerstrike,
-.bs-move-card__art--ability-arcaneblast,
-.bs-move-card__art--ability-shadowstrike,
-.bs-move-card__art--ability-fortify,
-.bs-move-card__art--ability-wildcard,
-.bs-move-card__art--heal,
-.bs-move-card__art--counter {
+.bs-page .bs-move-card__art--strike,
+.bs-page .bs-move-card__art--guard,
+.bs-page .bs-move-card__art--ability,
+.bs-page .bs-move-card__art--ability-powerstrike,
+.bs-page .bs-move-card__art--ability-arcaneblast,
+.bs-page .bs-move-card__art--ability-shadowstrike,
+.bs-page .bs-move-card__art--ability-fortify,
+.bs-page .bs-move-card__art--ability-wildcard,
+.bs-page .bs-move-card__art--heal,
+.bs-page .bs-move-card__art--counter {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -36,43 +36,43 @@
 }
 
 /* Per-move background images */
-.bs-move-card__art--strike            { background-image: url('../img/moves/flat/strike.webp'); }
-.bs-move-card__art--guard             { background-image: url('../img/moves/flat/guard.webp'); }
-.bs-move-card__art--ability           { background-image: url('../img/moves/flat/ability.webp'); }
-.bs-move-card__art--heal              { background-image: url('../img/moves/flat/heal.webp'); }
-.bs-move-card__art--counter           { background-image: url('../img/moves/flat/counter.webp'); }
-.bs-move-card__art--ability-powerstrike   { background-image: url('../img/moves/flat/powerstrike.webp'); }
-.bs-move-card__art--ability-arcaneblast   { background-image: url('../img/moves/flat/arcaneblast.webp'); }
-.bs-move-card__art--ability-shadowstrike  { background-image: url('../img/moves/flat/shadowstrike.webp'); }
-.bs-move-card__art--ability-fortify       { background-image: url('../img/moves/flat/fortify.webp'); }
-.bs-move-card__art--ability-wildcard      { background-image: url('../img/moves/flat/wildcard.webp'); }
+.bs-page .bs-move-card__art--strike            { background-image: url('../img/moves/flat/strike.webp'); }
+.bs-page .bs-move-card__art--guard             { background-image: url('../img/moves/flat/guard.webp'); }
+.bs-page .bs-move-card__art--ability           { background-image: url('../img/moves/flat/ability.webp'); }
+.bs-page .bs-move-card__art--heal              { background-image: url('../img/moves/flat/heal.webp'); }
+.bs-page .bs-move-card__art--counter           { background-image: url('../img/moves/flat/counter.webp'); }
+.bs-page .bs-move-card__art--ability-powerstrike   { background-image: url('../img/moves/flat/powerstrike.webp'); }
+.bs-page .bs-move-card__art--ability-arcaneblast   { background-image: url('../img/moves/flat/arcaneblast.webp'); }
+.bs-page .bs-move-card__art--ability-shadowstrike  { background-image: url('../img/moves/flat/shadowstrike.webp'); }
+.bs-page .bs-move-card__art--ability-fortify       { background-image: url('../img/moves/flat/fortify.webp'); }
+.bs-page .bs-move-card__art--ability-wildcard      { background-image: url('../img/moves/flat/wildcard.webp'); }
 
 /* Hide the legacy CSS-only FX particles when painted background
    is present. They were designed against an empty panel. */
-.bs-move-card__art--strike [class*="bs-fx-strike__"],
-.bs-move-card__art--guard [class*="bs-fx-guard__"],
-.bs-move-card__art--ability [class*="bs-fx-ability__"],
-.bs-move-card__art--ability-powerstrike [class*="bs-fx-ability__"],
-.bs-move-card__art--ability-arcaneblast [class*="bs-fx-ability__"],
-.bs-move-card__art--ability-shadowstrike [class*="bs-fx-ability__"],
-.bs-move-card__art--ability-fortify [class*="bs-fx-ability__"],
-.bs-move-card__art--ability-wildcard [class*="bs-fx-ability__"],
-.bs-move-card__art--heal [class*="bs-fx-heal__"],
-.bs-move-card__art--counter [class*="bs-fx-counter__"] {
+.bs-page .bs-move-card__art--strike [class*="bs-fx-strike__"],
+.bs-page .bs-move-card__art--guard [class*="bs-fx-guard__"],
+.bs-page .bs-move-card__art--ability [class*="bs-fx-ability__"],
+.bs-page .bs-move-card__art--ability-powerstrike [class*="bs-fx-ability__"],
+.bs-page .bs-move-card__art--ability-arcaneblast [class*="bs-fx-ability__"],
+.bs-page .bs-move-card__art--ability-shadowstrike [class*="bs-fx-ability__"],
+.bs-page .bs-move-card__art--ability-fortify [class*="bs-fx-ability__"],
+.bs-page .bs-move-card__art--ability-wildcard [class*="bs-fx-ability__"],
+.bs-page .bs-move-card__art--heal [class*="bs-fx-heal__"],
+.bs-page .bs-move-card__art--counter [class*="bs-fx-counter__"] {
   display: none;
 }
 
 /* Vignette — softens panel edges so painted card doesn't look pasted in */
-.bs-move-card__art--strike::after,
-.bs-move-card__art--guard::after,
-.bs-move-card__art--ability::after,
-.bs-move-card__art--heal::after,
-.bs-move-card__art--counter::after,
-.bs-move-card__art--ability-powerstrike::after,
-.bs-move-card__art--ability-arcaneblast::after,
-.bs-move-card__art--ability-shadowstrike::after,
-.bs-move-card__art--ability-fortify::after,
-.bs-move-card__art--ability-wildcard::after {
+.bs-page .bs-move-card__art--strike::after,
+.bs-page .bs-move-card__art--guard::after,
+.bs-page .bs-move-card__art--ability::after,
+.bs-page .bs-move-card__art--heal::after,
+.bs-page .bs-move-card__art--counter::after,
+.bs-page .bs-move-card__art--ability-powerstrike::after,
+.bs-page .bs-move-card__art--ability-arcaneblast::after,
+.bs-page .bs-move-card__art--ability-shadowstrike::after,
+.bs-page .bs-move-card__art--ability-fortify::after,
+.bs-page .bs-move-card__art--ability-wildcard::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -84,16 +84,16 @@
 /* ─── PER-MOVE IDLE ::before EFFECTS ─── */
 
 /* Common ::before chassis */
-.bs-move-card__art--strike::before,
-.bs-move-card__art--guard::before,
-.bs-move-card__art--ability::before,
-.bs-move-card__art--heal::before,
-.bs-move-card__art--counter::before,
-.bs-move-card__art--ability-powerstrike::before,
-.bs-move-card__art--ability-arcaneblast::before,
-.bs-move-card__art--ability-shadowstrike::before,
-.bs-move-card__art--ability-fortify::before,
-.bs-move-card__art--ability-wildcard::before {
+.bs-page .bs-move-card__art--strike::before,
+.bs-page .bs-move-card__art--guard::before,
+.bs-page .bs-move-card__art--ability::before,
+.bs-page .bs-move-card__art--heal::before,
+.bs-page .bs-move-card__art--counter::before,
+.bs-page .bs-move-card__art--ability-powerstrike::before,
+.bs-page .bs-move-card__art--ability-arcaneblast::before,
+.bs-page .bs-move-card__art--ability-shadowstrike::before,
+.bs-page .bs-move-card__art--ability-fortify::before,
+.bs-page .bs-move-card__art--ability-wildcard::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -103,7 +103,7 @@
 }
 
 /* Strike — warm radial breath echoing the painted shockwave's heat */
-.bs-move-card__art--strike::before {
+.bs-page .bs-move-card__art--strike::before {
   background: radial-gradient(ellipse 50% 70% at center,
                               rgba(255,140,70,0.25) 0%,
                               rgba(255,90,30,0.10) 40%,
@@ -112,7 +112,7 @@
 }
 
 /* Guard — slow conic shimmer rotating around the painted shield rings */
-.bs-move-card__art--guard::before {
+.bs-page .bs-move-card__art--guard::before {
   background: conic-gradient(from 0deg,
                              transparent 0deg,
                              rgba(108,196,255,0.0) 60deg,
@@ -126,7 +126,7 @@
 }
 
 /* Ability — vertical light seam breathing where the painted sigil cracked open */
-.bs-move-card__art--ability::before {
+.bs-page .bs-move-card__art--ability::before {
   background: linear-gradient(90deg,
                               transparent 46%,
                               rgba(255,235,150,0.6) 49%,
@@ -137,7 +137,7 @@
 }
 
 /* Heal — gentle mint glow rising from the painted lotus core */
-.bs-move-card__art--heal::before {
+.bs-page .bs-move-card__art--heal::before {
   background: radial-gradient(ellipse 60% 80% at center 75%,
                               rgba(108,255,176,0.30) 0%,
                               rgba(180,255,200,0.12) 35%,
@@ -146,7 +146,7 @@
 }
 
 /* Counter — gold spark twinkle at the painted blade-cross center */
-.bs-move-card__art--counter::before {
+.bs-page .bs-move-card__art--counter::before {
   background: radial-gradient(circle 4% at center,
                               rgba(255,255,220,0.95) 0%,
                               rgba(255,217,122,0.6) 40%,
@@ -155,7 +155,7 @@
 }
 
 /* Power Strike — heated radial pulse on the painted impact crater */
-.bs-move-card__art--ability-powerstrike::before {
+.bs-page .bs-move-card__art--ability-powerstrike::before {
   background: radial-gradient(ellipse 70% 50% at center 75%,
                               rgba(255,90,42,0.45) 0%,
                               rgba(220,40,20,0.18) 40%,
@@ -164,7 +164,7 @@
 }
 
 /* Arcane Blast — magenta beam shimmer traveling left to right */
-.bs-move-card__art--ability-arcaneblast::before {
+.bs-page .bs-move-card__art--ability-arcaneblast::before {
   background: linear-gradient(90deg,
                               transparent 0%,
                               rgba(255,80,200,0.0) 30%,
@@ -176,7 +176,7 @@
 }
 
 /* Shadow Strike — diagonal sweep echoing the painted afterimage trail */
-.bs-move-card__art--ability-shadowstrike::before {
+.bs-page .bs-move-card__art--ability-shadowstrike::before {
   background: linear-gradient(110deg,
                               transparent 0%,
                               transparent 35%,
@@ -189,7 +189,7 @@
 }
 
 /* Fortify — slow copper-warm radial heartbeat from the painted armor core */
-.bs-move-card__art--ability-fortify::before {
+.bs-page .bs-move-card__art--ability-fortify::before {
   background: radial-gradient(ellipse 55% 75% at center,
                               rgba(220,140,80,0.30) 0%,
                               rgba(180,100,60,0.12) 40%,
@@ -198,7 +198,7 @@
 }
 
 /* Wild Card — slow rotating conic shimmer suggesting wheel motion */
-.bs-move-card__art--ability-wildcard::before {
+.bs-page .bs-move-card__art--ability-wildcard::before {
   background: conic-gradient(from 0deg,
                              transparent 0deg,
                              rgba(255,90,200,0.30) 90deg,
@@ -234,16 +234,16 @@
 /* ─── BESPOKE PER-MOVE HOVER PARTICLES ─── */
 
 /* Common chassis for all bespoke hover FX particles */
-.bs-hybrid-fx--ring,
-.bs-hybrid-fx--guard-ring,
-.bs-hybrid-fx--mote,
-.bs-hybrid-fx--blade,
-.bs-hybrid-fx--beam,
-.bs-hybrid-fx--glint,
-.bs-hybrid-fx--halo,
-.bs-hybrid-fx--token,
-.bs-hybrid-fx--eye-glow,
-.bs-hybrid-fx--heal-bloom {
+.bs-page .bs-hybrid-fx--ring,
+.bs-page .bs-hybrid-fx--guard-ring,
+.bs-page .bs-hybrid-fx--mote,
+.bs-page .bs-hybrid-fx--blade,
+.bs-page .bs-hybrid-fx--beam,
+.bs-page .bs-hybrid-fx--glint,
+.bs-page .bs-hybrid-fx--halo,
+.bs-page .bs-hybrid-fx--token,
+.bs-page .bs-hybrid-fx--eye-glow,
+.bs-page .bs-hybrid-fx--heal-bloom {
   position: absolute;
   pointer-events: none;
   z-index: 2;
@@ -255,7 +255,7 @@
 }
 
 /* Type 1: RING — Strike, Power Strike */
-.bs-hybrid-fx--ring {
+.bs-page .bs-hybrid-fx--ring {
   top: 50%; left: 50%;
   width: 38%; aspect-ratio: 1;
   border-radius: 50%;
@@ -268,7 +268,7 @@
 }
 
 /* Type 2: GUARD-RING — single big cyan ring flash */
-.bs-hybrid-fx--guard-ring {
+.bs-page .bs-hybrid-fx--guard-ring {
   top: 50%; left: 50%;
   width: 75%; aspect-ratio: 1;
   border-radius: 50%;
@@ -282,7 +282,7 @@
 }
 
 /* Type 3: MOTE — Ability (orbits the breach) */
-.bs-hybrid-fx--mote {
+.bs-page .bs-hybrid-fx--mote {
   top: 50%; left: 50%;
   width: 6px; height: 6px;
   border-radius: 50%;
@@ -294,7 +294,7 @@
 }
 
 /* Type 4: BLADE — Counter (horizontal flash sweep) */
-.bs-hybrid-fx--blade {
+.bs-page .bs-hybrid-fx--blade {
   top: 50%;
   left: -25%;
   width: 35%;
@@ -309,12 +309,12 @@
   animation-duration: 0.9s;
   animation-timing-function: ease-out;
 }
-.bs-hybrid-fx--blade:nth-of-type(even) {
+.bs-page .bs-hybrid-fx--blade:nth-of-type(even) {
   animation-name: bs-fx-blade-sweep-rev;
 }
 
 /* Type 5: BEAM — Arcane Blast (right-edge magenta flash) */
-.bs-hybrid-fx--beam {
+.bs-page .bs-hybrid-fx--beam {
   top: 50%;
   right: 5%;
   width: 22%;
@@ -328,7 +328,7 @@
 }
 
 /* Type 6: GLINT — Shadow Strike (cyan center flash) */
-.bs-hybrid-fx--glint {
+.bs-page .bs-hybrid-fx--glint {
   top: 50%; left: 55%;
   width: 28%; aspect-ratio: 1;
   border-radius: 50%;
@@ -340,7 +340,7 @@
 }
 
 /* Type 7: HALO — Fortify (single warm copper halo) */
-.bs-hybrid-fx--halo {
+.bs-page .bs-hybrid-fx--halo {
   top: 50%; left: 50%;
   width: 60%; aspect-ratio: 1;
   border-radius: 50%;
@@ -353,7 +353,7 @@
 }
 
 /* Type 8: TOKEN — Wild Card (orbiting tokens) */
-.bs-hybrid-fx--token {
+.bs-page .bs-hybrid-fx--token {
   top: 50%; left: 50%;
   width: 6px; height: 6px;
   border-radius: 50%;
@@ -365,7 +365,7 @@
 }
 
 /* Type 9: EYE-GLOW — Heal (painted amber eye-pods ignite) */
-.bs-hybrid-fx--eye-glow {
+.bs-page .bs-hybrid-fx--eye-glow {
   top: var(--fx-y, 50%);
   left: var(--fx-x, 50%);
   width: 22%;
@@ -383,7 +383,7 @@
 }
 
 /* Type 10: HEAL-BLOOM — Heal (central warm bloom) */
-.bs-hybrid-fx--heal-bloom {
+.bs-page .bs-hybrid-fx--heal-bloom {
   top: 50%; left: 50%;
   width: 95%; aspect-ratio: 1;
   border-radius: 50%;
@@ -456,65 +456,65 @@
 }
 
 /* ─── HOVER TRIGGER ─── */
-.arena-move-btn:hover .bs-move-card__art--strike,
-.arena-move-btn:hover .bs-move-card__art--guard,
-.arena-move-btn:hover .bs-move-card__art--ability,
-.arena-move-btn:hover .bs-move-card__art--heal,
-.arena-move-btn:hover .bs-move-card__art--counter,
-.arena-move-btn:hover .bs-move-card__art--ability-powerstrike,
-.arena-move-btn:hover .bs-move-card__art--ability-arcaneblast,
-.arena-move-btn:hover .bs-move-card__art--ability-shadowstrike,
-.arena-move-btn:hover .bs-move-card__art--ability-fortify,
-.arena-move-btn:hover .bs-move-card__art--ability-wildcard {
+.bs-page .arena-move-btn:hover .bs-move-card__art--strike,
+.bs-page .arena-move-btn:hover .bs-move-card__art--guard,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability,
+.bs-page .arena-move-btn:hover .bs-move-card__art--heal,
+.bs-page .arena-move-btn:hover .bs-move-card__art--counter,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-powerstrike,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-arcaneblast,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-shadowstrike,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-fortify,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-wildcard {
   filter: brightness(1.14) saturate(1.18);
   transition: filter 220ms ease;
 }
-.arena-move-btn:hover .bs-hybrid-fx--ring,
-.arena-move-btn:hover .bs-hybrid-fx--guard-ring,
-.arena-move-btn:hover .bs-hybrid-fx--mote,
-.arena-move-btn:hover .bs-hybrid-fx--blade,
-.arena-move-btn:hover .bs-hybrid-fx--beam,
-.arena-move-btn:hover .bs-hybrid-fx--glint,
-.arena-move-btn:hover .bs-hybrid-fx--halo,
-.arena-move-btn:hover .bs-hybrid-fx--token,
-.arena-move-btn:hover .bs-hybrid-fx--eye-glow,
-.arena-move-btn:hover .bs-hybrid-fx--heal-bloom {
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--ring,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--guard-ring,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--mote,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--blade,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--beam,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--glint,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--halo,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--token,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--eye-glow,
+.bs-page .arena-move-btn:hover .bs-hybrid-fx--heal-bloom {
   animation-play-state: running;
 }
-.arena-move-btn:hover .bs-move-card__art--strike::before,
-.arena-move-btn:hover .bs-move-card__art--guard::before,
-.arena-move-btn:hover .bs-move-card__art--ability::before,
-.arena-move-btn:hover .bs-move-card__art--heal::before,
-.arena-move-btn:hover .bs-move-card__art--counter::before,
-.arena-move-btn:hover .bs-move-card__art--ability-powerstrike::before,
-.arena-move-btn:hover .bs-move-card__art--ability-arcaneblast::before,
-.arena-move-btn:hover .bs-move-card__art--ability-shadowstrike::before,
-.arena-move-btn:hover .bs-move-card__art--ability-fortify::before,
-.arena-move-btn:hover .bs-move-card__art--ability-wildcard::before {
+.bs-page .arena-move-btn:hover .bs-move-card__art--strike::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--guard::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--heal::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--counter::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-powerstrike::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-arcaneblast::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-shadowstrike::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-fortify::before,
+.bs-page .arena-move-btn:hover .bs-move-card__art--ability-wildcard::before {
   animation-duration: 1.4s;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bs-move-card__art--strike::before,
-  .bs-move-card__art--guard::before,
-  .bs-move-card__art--ability::before,
-  .bs-move-card__art--heal::before,
-  .bs-move-card__art--counter::before,
-  .bs-move-card__art--ability-powerstrike::before,
-  .bs-move-card__art--ability-arcaneblast::before,
-  .bs-move-card__art--ability-shadowstrike::before,
-  .bs-move-card__art--ability-fortify::before,
-  .bs-move-card__art--ability-wildcard::before,
-  .bs-hybrid-fx--ring,
-  .bs-hybrid-fx--guard-ring,
-  .bs-hybrid-fx--mote,
-  .bs-hybrid-fx--blade,
-  .bs-hybrid-fx--beam,
-  .bs-hybrid-fx--glint,
-  .bs-hybrid-fx--halo,
-  .bs-hybrid-fx--token,
-  .bs-hybrid-fx--eye-glow,
-  .bs-hybrid-fx--heal-bloom {
+  .bs-page .bs-move-card__art--strike::before,
+  .bs-page .bs-move-card__art--guard::before,
+  .bs-page .bs-move-card__art--ability::before,
+  .bs-page .bs-move-card__art--heal::before,
+  .bs-page .bs-move-card__art--counter::before,
+  .bs-page .bs-move-card__art--ability-powerstrike::before,
+  .bs-page .bs-move-card__art--ability-arcaneblast::before,
+  .bs-page .bs-move-card__art--ability-shadowstrike::before,
+  .bs-page .bs-move-card__art--ability-fortify::before,
+  .bs-page .bs-move-card__art--ability-wildcard::before,
+  .bs-page .bs-hybrid-fx--ring,
+  .bs-page .bs-hybrid-fx--guard-ring,
+  .bs-page .bs-hybrid-fx--mote,
+  .bs-page .bs-hybrid-fx--blade,
+  .bs-page .bs-hybrid-fx--beam,
+  .bs-page .bs-hybrid-fx--glint,
+  .bs-page .bs-hybrid-fx--halo,
+  .bs-page .bs-hybrid-fx--token,
+  .bs-page .bs-hybrid-fx--eye-glow,
+  .bs-page .bs-hybrid-fx--heal-bloom {
     animation: none;
   }
 }
