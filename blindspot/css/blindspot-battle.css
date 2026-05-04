@@ -3908,47 +3908,91 @@
   .bs-page .bs-move-card__art--ability-powerstrike .bs-fx-ability__pulse { animation: none; opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
 }
 
-/* Arcane Blast — violet lightning forks */
+/* Arcane Blast — Spellburst. Central violet core pulses + 6 lightning
+   bolts radiate outward from center to panel edge in sequence (60°
+   apart, staggered 0.3s) so the cycle reads as a 360° starburst.
+   Each bolt grows from the core via scaleX. CSS variable carries the
+   per-bolt rotation angle so a single keyframe handles all 6. */
 .bs-page .bs-move-card__art--ability-arcaneblast {
   background:
     radial-gradient(ellipse at center,
-      rgba(160, 80, 255, 0.22) 0%,
-      rgba(70, 30, 120, 0.32) 45%,
-      rgba(18, 8, 30, 0.95) 100%);
-  background-color: #100618;
+      rgba(180, 100, 255, 0.28) 0%,
+      rgba(80, 40, 150, 0.36) 45%,
+      rgba(28, 12, 50, 0.85) 100%);
+  background-color: #18092a;
   overflow: hidden;
   isolation: isolate;
 }
+
+/* Central pulsing violet core */
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(245, 220, 255, 0.95) 0%,
+    rgba(200, 130, 255, 0.85) 35%,
+    rgba(140, 70, 220, 0.4) 70%,
+    transparent 100%);
+  box-shadow:
+    0 0 16px rgba(200, 130, 255, 0.85),
+    0 0 32px rgba(160, 80, 240, 0.45);
+  transform: translate(-50%, -50%) scale(0.85);
+  animation: bs-fx-arcaneblast-core 1.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes bs-fx-arcaneblast-core {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.85); filter: brightness(0.95); }
+  50%      { transform: translate(-50%, -50%) scale(1.2);  filter: brightness(1.4); }
+}
+
+/* Radiating bolts — anchored at center via transform-origin: 0% 50%,
+   each rotates to its angle and scales-out from 0 to full panel-edge
+   length in a quick crackle. */
 .bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt {
   position: absolute;
-  width: 36%;
-  height: 1.5px;
+  left: 50%;
+  top: 50%;
+  width: 50%;
+  height: 2.5px;
   background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(220, 170, 255, 0) 5%,
-    rgba(210, 140, 255, 1) 50%,
-    rgba(220, 170, 255, 0) 95%,
+    rgba(245, 220, 255, 1) 0%,
+    rgba(200, 130, 255, 0.9) 30%,
+    rgba(160, 80, 240, 0.5) 70%,
     transparent 100%);
   box-shadow: 0 0 8px rgba(180, 100, 255, 0.85);
+  transform-origin: 0% 50%;
   opacity: 0;
   pointer-events: none;
   z-index: 2;
-  animation: bs-fx-ability-bolt 2.4s linear infinite;
+  animation: bs-fx-arcaneblast-bolt 1.8s ease-out infinite;
 }
-.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(1) { top: 22%; left:  8%; transform: rotate(-15deg); animation-delay: 0s;    }
-.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(2) { top: 48%; left: 38%; transform: rotate( 22deg); animation-delay: 0.6s; }
-.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(3) { top: 72%; left: 56%; transform: rotate(-18deg); animation-delay: 1.2s; }
-.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(4) { top: 35%; left: 20%; transform: rotate( 30deg); animation-delay: 1.8s; }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(2) { --bolt-angle:   0deg; animation-delay: 0s;   }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(3) { --bolt-angle:  60deg; animation-delay: 0.3s; }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(4) { --bolt-angle: 120deg; animation-delay: 0.6s; }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(5) { --bolt-angle: 180deg; animation-delay: 0.9s; }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(6) { --bolt-angle: 240deg; animation-delay: 1.2s; }
+.bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt:nth-of-type(7) { --bolt-angle: 300deg; animation-delay: 1.5s; }
 
-@keyframes bs-fx-ability-bolt {
-  0%, 25%, 100% { opacity: 0; }
-  10%, 18%      { opacity: 1; }
+@keyframes bs-fx-arcaneblast-bolt {
+  0%   { opacity: 0;   transform: translateY(-50%) rotate(var(--bolt-angle, 0deg)) scaleX(0); }
+  18%  { opacity: 1;   transform: translateY(-50%) rotate(var(--bolt-angle, 0deg)) scaleX(1); }
+  45%  { opacity: 0.5; transform: translateY(-50%) rotate(var(--bolt-angle, 0deg)) scaleX(1); }
+  70%  { opacity: 0;   transform: translateY(-50%) rotate(var(--bolt-angle, 0deg)) scaleX(1); }
+  100% { opacity: 0;   transform: translateY(-50%) rotate(var(--bolt-angle, 0deg)) scaleX(0); }
 }
+
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__core,
 .bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__bolt {
-  animation-duration: 1.4s;
+  animation-duration: 0.9s;
 }
 @media (prefers-reduced-motion: reduce) {
-  .bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt { animation: none; opacity: 0.7; }
+  .bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__core { animation: none; transform: translate(-50%, -50%) scale(1); }
+  .bs-page .bs-move-card__art--ability-arcaneblast .bs-fx-ability__bolt { animation: none; opacity: 0.5; transform: translateY(-50%) rotate(var(--bolt-angle, 0deg)) scaleX(1); }
 }
 
 /* Shadow Strike — dark cyan dashes */
@@ -3997,47 +4041,81 @@
   .bs-page .bs-move-card__art--ability-shadowstrike .bs-fx-ability__dash { animation: none; left: 30%; opacity: 0.6; }
 }
 
-/* Fortify — gold shield facets (rotated diamonds pulsing in place) */
+/* Fortify — Shield Wall. Central gold core pulses + 3 expanding gold
+   rings (Guard-style ripple but warmer) + 4 perimeter hex shields
+   that flash in sequence around the corners (like sequential blocks
+   absorbing incoming hits). Three layered timings give it the most
+   "active defensive system" energy of any Ability variant. */
 .bs-page .bs-move-card__art--ability-fortify {
   background:
     radial-gradient(ellipse at center,
-      rgba(245, 192, 120, 0.20) 0%,
-      rgba(120, 80, 30, 0.32) 45%,
-      rgba(28, 18, 8, 0.95) 100%);
-  background-color: #1a1208;
+      rgba(255, 200, 100, 0.26) 0%,
+      rgba(140, 90, 35, 0.34) 45%,
+      rgba(40, 25, 10, 0.85) 100%);
+  background-color: #2a1a08;
   overflow: hidden;
   isolation: isolate;
 }
-.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex {
+
+/* Central gold core — always-on pulse */
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__core {
   position: absolute;
-  width: 22px;
-  height: 22px;
-  background: transparent;
-  border: 1.5px solid rgba(255, 220, 160, 0.85);
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255, 245, 200, 0.95) 0%,
+    rgba(255, 200, 100, 0.85) 35%,
+    rgba(180, 130, 50, 0.4) 70%,
+    transparent 100%);
   box-shadow:
-    0 0 6px rgba(245, 192, 120, 0.55),
-    inset 0 0 4px rgba(255, 230, 180, 0.25);
-  border-radius: 3px;
-  transform: translate(-50%, -50%) rotate(45deg) scale(0.85);
-  opacity: 0.4;
-  animation: bs-fx-ability-hex 2.8s ease-in-out infinite;
+    0 0 16px rgba(255, 200, 100, 0.85),
+    0 0 32px rgba(245, 192, 120, 0.45);
+  transform: translate(-50%, -50%) scale(0.85);
+  animation: bs-fx-fortify-core 2.0s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes bs-fx-fortify-core {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.85); filter: brightness(0.95); }
+  50%      { transform: translate(-50%, -50%) scale(1.2);  filter: brightness(1.4); }
+}
+
+/* Expanding gold rings — radiate outward from center */
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 220, 160, 0.85);
+  box-shadow: 0 0 8px rgba(255, 200, 100, 0.55);
+  background: transparent;
+  transform: translate(-50%, -50%) scale(0.3);
+  opacity: 0;
+  animation: bs-fx-fortify-ring 2.4s ease-out infinite;
   pointer-events: none;
   z-index: 2;
 }
-.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(1) { left: 22%; top: 35%; width: 24px; height: 24px; animation-delay: 0s;    }
-.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(2) { left: 50%; top: 60%; width: 28px; height: 28px; animation-delay: 0.7s; }
-.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(3) { left: 78%; top: 38%; width: 22px; height: 22px; animation-delay: 1.4s; }
-.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex:nth-of-type(4) { left: 38%; top: 72%; width: 20px; height: 20px; animation-delay: 2.1s; }
-
-@keyframes bs-fx-ability-hex {
-  0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) rotate(45deg) scale(0.85); }
-  50%      { opacity: 1;    transform: translate(-50%, -50%) rotate(45deg) scale(1.15); }
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__ring:nth-of-type(2) { animation-delay: 0s;    }
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__ring:nth-of-type(3) { animation-delay: 0.8s;  }
+.bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__ring:nth-of-type(4) { animation-delay: 1.6s;  }
+@keyframes bs-fx-fortify-ring {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0;   border-width: 2.5px; }
+  15%  {                                              opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(6);   opacity: 0;   border-width: 0.5px; }
 }
-.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__hex {
-  animation-duration: 1.4s;
+
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__core,
+.bs-page .bs-move-card.arena-move-btn--ability:hover:not(:disabled) .bs-fx-ability__ring {
+  animation-duration: 1.0s;
 }
 @media (prefers-reduced-motion: reduce) {
-  .bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__hex { animation: none; opacity: 0.85; transform: translate(-50%, -50%) rotate(45deg) scale(1); }
+  .bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__core { animation: none; transform: translate(-50%, -50%) scale(1); }
+  .bs-page .bs-move-card__art--ability-fortify .bs-fx-ability__ring { animation: none; opacity: 0.4; transform: translate(-50%, -50%) scale(2.5); }
 }
 
 /* Wild Card — glowing color-shifting core + 5 orbital moons.

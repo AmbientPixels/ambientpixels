@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Blindspot — Move Card Preview</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="../css/blindspot-tokens.css">
+  <link rel="stylesheet" href="../css/blindspot.css">
+  <link rel="stylesheet" href="../css/blindspot-cards.css">
+  <link rel="stylesheet" href="../css/blindspot-battle.css">
+  <style>
+    /* Page chrome — kept independent of production styles so this preview
+       doesn't accidentally inherit lobby/battle screen layout side-effects. */
+    body { margin: 0; padding: 0; background: #0a0806; color: #f0e8d8; font-family: 'Share Tech Mono', monospace; }
+    .preview-shell { padding: 1.5rem 2rem 4rem; max-width: 1480px; margin: 0 auto; }
+    .preview-shell h1 { font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.8rem; letter-spacing: 0.04em; margin: 0 0 0.4rem; color: #f5c078; }
+    .preview-shell p.preview-sub { font-size: 0.85rem; color: #a09888; margin: 0 0 1.2rem; max-width: 60ch; }
+    .preview-section { margin-top: 2rem; }
+    .preview-section h2 { font-family: 'Cinzel', serif; font-weight: 600; font-size: 1.1rem; letter-spacing: 0.06em; color: #d8c8b8; margin: 0 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .preview-toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .preview-toolbar fieldset { display: inline-flex; gap: 0.35rem; padding: 0.4rem 0.6rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; background: rgba(255,255,255,0.02); }
+    .preview-toolbar legend { font-size: 0.7rem; color: #a09888; padding: 0 0.4rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .preview-toolbar button {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.04em;
+      padding: 0.35rem 0.7rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #d8c8b8;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 150ms ease, border-color 150ms ease;
+    }
+    .preview-toolbar button:hover { background: rgba(255,255,255,0.08); border-color: rgba(245,192,120,0.4); }
+    .preview-toolbar button.is-active { background: rgba(245,192,120,0.18); border-color: #f5c078; color: #f5c078; }
+    /* Production scope shell — replicates the in-battle DOM hierarchy so
+       the battle-CSS selectors (#bs-screen-battle.blindspot-battle ...)
+       actually match. Without this wrapper the aspect-ratio rules and
+       art-panel sizing wouldn't apply. */
+    .preview-stage { display: block; }
+    .preview-stage .arena-battle__moves {
+      display: grid;
+      grid-template-columns: repeat(5, 240px);
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 1rem 0;
+    }
+    /* Aspect-ratio simulation buttons can't actually shrink the viewport,
+       so when user picks 3:1 / 4:1 we apply data attributes that override
+       the panel aspect-ratio inline. */
+    .preview-stage[data-aspect="3"] .bs-move-card__art { aspect-ratio: 3 / 1 !important; }
+    .preview-stage[data-aspect="4"] .bs-move-card__art { aspect-ratio: 4 / 1 !important; }
+    .preview-meta {
+      font-size: 0.65rem;
+      color: #a09888;
+      text-align: center;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+  </style>
+</head>
+<body class="bs-page bs-battle-active">
+
+<div class="preview-shell">
+  <h1><i class="fas fa-fire" style="color:#f5c078;"></i> Blindspot Move Card Preview</h1>
+  <p class="preview-sub">All 5 base moves + 5 class-ability variants rendered in production CSS. Toggle combo pip states to see the dynamic fill behavior. Aspect-ratio simulator overrides the panel ratio inline so you can preview the 949p / 800p compact layouts without resizing.</p>
+
+  <div class="preview-toolbar">
+    <fieldset>
+      <legend>Combo pips</legend>
+      <button data-pip-state="idle" class="is-active">Idle</button>
+      <button data-pip-state="step1">Step 1</button>
+      <button data-pip-state="ready">Ready</button>
+      <button data-pip-state="triggered">Triggered</button>
+    </fieldset>
+    <fieldset>
+      <legend>Aspect ratio</legend>
+      <button data-aspect="2" class="is-active">2:1 (default)</button>
+      <button data-aspect="3">3:1 (≤949p)</button>
+      <button data-aspect="4">4:1 (≤800p)</button>
+    </fieldset>
+    <fieldset>
+      <legend>Charges</legend>
+      <button data-charge="0" class="is-active">0 / 2</button>
+      <button data-charge="1">1 / 2</button>
+      <button data-charge="2">2 / 2</button>
+    </fieldset>
+  </div>
+
+  <div class="preview-section">
+    <h2>Base Moves</h2>
+    <div id="bs-screen-battle" class="bs-screen blindspot-battle preview-stage" data-aspect="2">
+      <div class="arena-battle__moves" id="preview-base-moves"></div>
+    </div>
+  </div>
+
+  <div class="preview-section">
+    <h2>Class Ability Variants</h2>
+    <p class="preview-sub" style="margin-bottom:0.8rem;">Each row shows the same Ability slot under one of the 5 class-family CSS variants (swapped at battle start by <code>bs-combat-tooltips.js</code> based on the player's card class).</p>
+    <div id="preview-ability-stage" class="bs-screen blindspot-battle preview-stage" data-aspect="2">
+      <div class="arena-battle__moves" id="preview-ability-variants"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Move-card markup builder. Returns the same DOM as production play.html
+  // so any visual issues here surface in production too.
+  function buildBaseMove(cfg) {
+    return `
+      <button class="arena-move-btn arena-move-btn--${cfg.id} bs-move-card" data-move="${cfg.id}" aria-label="${cfg.name}">
+        <div class="bs-move-card__header">
+          <div class="bs-move-card__titles">
+            <div class="bs-move-card__type-label">${cfg.typeLabel}</div>
+            <div class="bs-move-card__name arena-move-btn__label">${cfg.name}</div>
+          </div>
+          <div class="bs-move-card__energy">
+            <div class="bs-move-card__energy-num arena-move-btn__cost">${cfg.cost}</div>
+            <div class="bs-move-card__energy-label">ENERGY</div>
+          </div>
+        </div>
+        <div class="bs-move-card__art bs-move-card__art--${cfg.artVariant || cfg.id}" aria-hidden="true">${cfg.fxMarkup}</div>
+        <div class="bs-move-card__tags">${cfg.tags.map(t => `<span class="bs-move-card__tag${t.active ? ' bs-move-card__tag--active' : ''}">${t.text}</span>`).join('')}</div>
+        <p class="bs-move-card__desc arena-move-btn__desc">${cfg.desc}</p>
+        <div class="bs-move-card__footer">
+          <div class="bs-move-card__badge"><i class="fas ${cfg.badgeIcon}" aria-hidden="true"></i> TYPE: ${cfg.badgeType}</div>
+          <div class="bs-move-card__dots bs-move-card__dots--${cfg.combo}" title="${cfg.comboTitle}">${'<span class="bs-move-card__dot"></span>'.repeat(cfg.pipCount)}</div>
+        </div>
+        ${cfg.id === 'ability' ? '<span class="arena-move-btn__charge" data-filled="0">0/2</span>' : ''}
+      </button>`;
+  }
+
+  // FX markup per move type (matches what's actually in play.html / index.html).
+  var FX = {
+    strike: '<span class="bs-fx-strike__streak"></span><span class="bs-fx-strike__streak"></span><span class="bs-fx-strike__streak"></span><span class="bs-fx-strike__streak"></span><span class="bs-fx-strike__streak"></span>',
+    guard: '<span class="bs-fx-guard__ring"></span><span class="bs-fx-guard__ring"></span><span class="bs-fx-guard__ring"></span><span class="bs-fx-guard__ring"></span><span class="bs-fx-guard__ring"></span>',
+    abilityGeneric: '<span class="bs-fx-ability__twinkle"></span>'.repeat(7),
+    heal: '<span class="bs-fx-heal__bubble"></span>'.repeat(7),
+    counter: '<span class="bs-fx-counter__ember"></span><span class="bs-fx-counter__incoming"></span><span class="bs-fx-counter__spark"></span><span class="bs-fx-counter__outgoing"></span><span class="bs-fx-counter__shard"></span><span class="bs-fx-counter__shard"></span><span class="bs-fx-counter__shard"></span><span class="bs-fx-counter__shard"></span>',
+    powerstrike: '<span class="bs-fx-ability__pulse"></span>'.repeat(4),
+    arcaneblast: '<span class="bs-fx-ability__core"></span>' + '<span class="bs-fx-ability__bolt"></span>'.repeat(6),
+    shadowstrike: '<span class="bs-fx-ability__dash"></span>'.repeat(5),
+    fortify: '<span class="bs-fx-ability__core"></span>' + '<span class="bs-fx-ability__ring"></span>'.repeat(3),
+    wildcard: '<span class="bs-fx-ability__core"></span>' + '<span class="bs-fx-ability__orbit"><span class="bs-fx-ability__moon"></span></span>'.repeat(5)
+  };
+
+  var BASE_MOVES = [
+    {
+      id: 'strike', name: 'Strike', cost: 4, typeLabel: 'OFFENSIVE ACTION',
+      tags: [{ text: 'STR SCALING' }, { text: 'MELEE', active: true }],
+      desc: 'Forged intent made kinetic. Hit first, hit hardest.',
+      badgeIcon: 'fa-hand-fist', badgeType: 'ATTACK',
+      combo: 'flurry', pipCount: 3, comboTitle: 'Flurry — 3× Strike → +30% damage',
+      fxMarkup: FX.strike
+    },
+    {
+      id: 'guard', name: 'Guard', cost: 1, typeLabel: 'DEFENSIVE STANCE',
+      tags: [{ text: 'BLOCK 60%' }, { text: 'REDUCE', active: true }],
+      desc: 'Brace against the incoming. Weather the storm.',
+      badgeIcon: 'fa-shield-halved', badgeType: 'DEFENSE',
+      combo: 'riposte', pipCount: 2, comboTitle: 'Riposte — Guard → Counter → forced reflect',
+      fxMarkup: FX.guard
+    },
+    {
+      id: 'ability', name: 'Ability', cost: 5, typeLabel: 'SIGNATURE MOVE',
+      tags: [{ text: 'INT SCALING' }, { text: 'CLASS POWER', active: true }],
+      desc: 'The move only you can pull off.',
+      badgeIcon: 'fa-bolt', badgeType: 'ULTIMATE',
+      combo: 'empowered', pipCount: 2, comboTitle: 'Empowered — Heal → Ability → +50%',
+      artVariant: 'ability', fxMarkup: FX.abilityGeneric
+    },
+    {
+      id: 'heal', name: 'Heal', cost: 2, typeLabel: 'RECOVERY PROTOCOL',
+      tags: [{ text: 'END SCALING' }, { text: 'RESTORE', active: true }],
+      desc: 'Mend what the battle broke. Buy another round.',
+      badgeIcon: 'fa-heart-pulse', badgeType: 'SUPPORT',
+      combo: 'empowered', pipCount: 2, comboTitle: 'Empowered — Heal → Ability → +50%',
+      fxMarkup: FX.heal
+    },
+    {
+      id: 'counter', name: 'Flash Counter', cost: 4, typeLabel: 'TACTICAL RESPONSE',
+      tags: [{ text: 'REFLECT' }, { text: 'DEFLECT STRIKE', active: true }],
+      desc: 'Wait for the precise moment. Redirect the incoming momentum.',
+      badgeIcon: 'fa-shield', badgeType: 'REACTION',
+      combo: 'riposte', pipCount: 2, comboTitle: 'Riposte — Guard → Counter → forced reflect',
+      fxMarkup: FX.counter
+    }
+  ];
+
+  // Class ability variants — same Ability slot, different art-panel class
+  // and FX child markup, with the class-specific signature move name.
+  var ABILITY_VARIANTS = [
+    { id: 'ability', artVariant: 'ability-powerstrike',  fxMarkup: FX.powerstrike,  name: 'Power Strike',  badgeType: 'ULTIMATE · STR-FAMILY' },
+    { id: 'ability', artVariant: 'ability-arcaneblast',  fxMarkup: FX.arcaneblast,  name: 'Arcane Blast',  badgeType: 'ULTIMATE · INT-FAMILY' },
+    { id: 'ability', artVariant: 'ability-shadowstrike', fxMarkup: FX.shadowstrike, name: 'Shadow Strike', badgeType: 'ULTIMATE · AGI-FAMILY' },
+    { id: 'ability', artVariant: 'ability-fortify',      fxMarkup: FX.fortify,      name: 'Fortify',       badgeType: 'ULTIMATE · END-FAMILY' },
+    { id: 'ability', artVariant: 'ability-wildcard',     fxMarkup: FX.wildcard,     name: 'Wild Card',     badgeType: 'ULTIMATE · LCK-FAMILY' }
+  ].map(v => ({
+    ...v,
+    cost: 5, typeLabel: 'SIGNATURE MOVE',
+    tags: [{ text: 'INT SCALING' }, { text: 'CLASS POWER', active: true }],
+    desc: 'Class-specific signature move.',
+    badgeIcon: 'fa-bolt',
+    combo: 'empowered', pipCount: 2, comboTitle: 'Empowered — Heal → Ability → +50%'
+  }));
+
+  document.getElementById('preview-base-moves').innerHTML = BASE_MOVES.map(buildBaseMove).join('');
+  document.getElementById('preview-ability-variants').innerHTML = ABILITY_VARIANTS.map(buildBaseMove).join('');
+
+  // ── Toolbar wiring ─────────────────────────────────────────────────────
+  function setActive(group, btn) {
+    document.querySelectorAll('[data-' + group + ']').forEach(b => b.classList.remove('is-active'));
+    btn.classList.add('is-active');
+  }
+
+  // Combo pip state toggle
+  document.querySelectorAll('[data-pip-state]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setActive('pip-state', btn);
+      var state = btn.dataset.pipState;
+      document.querySelectorAll('.bs-move-card__dots').forEach(d => {
+        d.removeAttribute('data-combo-step');
+        d.classList.remove('bs-move-card__dots--combo-ready', 'bs-move-card__dots--combo-triggered');
+        if (state === 'step1')     d.setAttribute('data-combo-step', '1');
+        if (state === 'ready')     d.classList.add('bs-move-card__dots--combo-ready');
+        if (state === 'triggered') d.classList.add('bs-move-card__dots--combo-triggered');
+      });
+    });
+  });
+
+  // Aspect ratio toggle (applies to both stages)
+  document.querySelectorAll('[data-aspect]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setActive('aspect', btn);
+      var aspect = btn.dataset.aspect;
+      document.querySelectorAll('.preview-stage').forEach(s => s.setAttribute('data-aspect', aspect));
+    });
+  });
+
+  // Charge counter toggle (only affects Ability cards)
+  document.querySelectorAll('[data-charge]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setActive('charge', btn);
+      var n = btn.dataset.charge;
+      document.querySelectorAll('.arena-move-btn__charge').forEach(c => {
+        c.setAttribute('data-filled', n);
+        c.textContent = n + '/2';
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

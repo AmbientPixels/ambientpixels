@@ -23,9 +23,15 @@
   };
   var ABILITY_VARIANT_MARKUP = {
     powerstrike:  '<span class="bs-fx-ability__pulse"></span>'.repeat(4),
-    arcaneblast:  '<span class="bs-fx-ability__bolt"></span>'.repeat(4),
+    // Arcane Blast: pulsing violet core + 6 lightning bolts radiating
+    // outward in sequence (60° apart). One core + six bolts.
+    arcaneblast:  '<span class="bs-fx-ability__core"></span>' +
+                  '<span class="bs-fx-ability__bolt"></span>'.repeat(6),
     shadowstrike: '<span class="bs-fx-ability__dash"></span>'.repeat(5),
-    fortify:      '<span class="bs-fx-ability__hex"></span>'.repeat(4),
+    // Fortify: pulsing gold core + 3 expanding rings — radial shield
+    // wave pattern.
+    fortify:      '<span class="bs-fx-ability__core"></span>' +
+                  '<span class="bs-fx-ability__ring"></span>'.repeat(3),
     // Wild Card: glowing color-shifting core + 5 orbital moons at
     // varied radii / directions / speeds. Higher visual energy than
     // the other variants — this is the Ultimate.
@@ -74,11 +80,19 @@
         if (artEl.innerHTML !== nextHTML) artEl.innerHTML = nextHTML;
       }
     }
-    // Move upgrades — rename buttons based on stat thresholds
+    // Move upgrades — rename buttons based on stat thresholds.
+    // Ability is intentionally excluded: its label is owned by
+    // CLASS_SIGNATURE_MOVES (Power Slam / Arcane Blast / Shadow
+    // Strike / Fortify / Wild Card), which is the player-facing
+    // identity of that class's signature move. The "Focused" passive
+    // at INT 12+ still applies mechanically (cheaper charge cost) —
+    // we just don't overwrite the class-specific label with the
+    // generic "Focused Ability" string.
     if (card && card.combatStats) {
       var cs = card.combatStats;
       Object.entries(MOVE_UPGRADES).forEach(function (entry) {
         var move = entry[0], upg = entry[1];
+        if (move === 'ability') return;
         if ((cs[upg.stat] || 0) >= upg.threshold) {
           var btn = document.querySelector('[data-move="' + move + '"] .arena-move-btn__label');
           var descEl = document.querySelector('[data-move="' + move + '"] .arena-move-btn__desc');
