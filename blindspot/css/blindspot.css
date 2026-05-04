@@ -3590,6 +3590,24 @@
   box-shadow: 0 0 6px rgba(239, 159, 39, 0.6);
 }
 
+/* ── Combo identity pips — color-coded by combo family. Pip count
+   communicates combo size (3 = Flurry, 2 = Riposte/Empowered) and
+   color identifies which cards combo together (matching colors
+   between two cards = combo partners). Replaces the old generic
+   3-dot footer cluster with meaningful identity markers. ── */
+.bs-page .bs-move-card__dots--flurry .bs-move-card__dot {
+  background: #ff7a3a;
+  box-shadow: 0 0 5px rgba(255, 122, 58, 0.6);
+}
+.bs-page .bs-move-card__dots--riposte .bs-move-card__dot {
+  background: #5cb8ff;
+  box-shadow: 0 0 5px rgba(92, 184, 255, 0.55);
+}
+.bs-page .bs-move-card__dots--empowered .bs-move-card__dot {
+  background: #b078ff;
+  box-shadow: 0 0 5px rgba(176, 120, 255, 0.55);
+}
+
 /* ── Charge counter (ability only) — overlays top-left corner of art slot ── */
 .bs-page .bs-move-card .arena-move-btn__charge {
   position: absolute;
