@@ -7432,11 +7432,114 @@ body.bs-battle-active .bs-play {
 .bs-guide-matchups { display: flex; flex-direction: column; gap: 0.25rem; }
 .bs-guide-matchup { font-size: 0.7rem; color: var(--bs-text-muted); }
 .bs-guide-win { color: #4ade80; }
-.bs-guide-combos { display: flex; flex-direction: column; gap: 0.4rem; }
-.bs-guide-combo { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; }
-.bs-guide-combo__seq { color: var(--bs-text-muted); flex: 1; }
-.bs-guide-combo__name { font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.75rem; min-width: 5rem; text-align: center; }
-.bs-guide-combo__bonus { color: var(--bs-text-muted); font-size: 0.65rem; min-width: 5rem; text-align: right; }
+/* ── Combo codex (combat guide) — visual catalog of combos with
+   color-matched pip clusters, move-icon sequences, and discovery
+   state read from localStorage (bs-combo-discovered-{id}). Refreshed
+   by JS each time the guide opens. ── */
+.bs-combo-codex { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 0.4rem; }
+
+.bs-combo-codex__entry {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  background: rgba(0, 0, 0, 0.18);
+  transition: opacity 200ms ease, filter 200ms ease, border-color 200ms ease;
+}
+.bs-combo-codex__entry:not(.bs-combo-codex__entry--discovered) {
+  opacity: 0.6;
+  filter: grayscale(0.35);
+}
+
+.bs-combo-codex__header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.45rem;
+}
+
+.bs-combo-codex__pips {
+  display: inline-flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+.bs-combo-codex__pips span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.bs-combo-codex__pips--flurry    span { background: #ff7a3a; box-shadow: 0 0 4px rgba(255, 122, 58, 0.6); }
+.bs-combo-codex__pips--riposte   span { background: #5cb8ff; box-shadow: 0 0 4px rgba(92, 184, 255, 0.55); }
+.bs-combo-codex__pips--empowered span { background: #b078ff; box-shadow: 0 0 4px rgba(176, 120, 255, 0.55); }
+
+.bs-combo-codex__name {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  flex: 1;
+}
+.bs-combo-codex__entry--flurry    .bs-combo-codex__name { color: #ff9100; }
+.bs-combo-codex__entry--riposte   .bs-combo-codex__name { color: #3a9fff; }
+.bs-combo-codex__entry--empowered .bs-combo-codex__name { color: #a855f7; }
+
+.bs-combo-codex__bonus {
+  font-size: 0.66rem;
+  color: var(--bs-text-muted);
+  font-style: italic;
+}
+
+.bs-combo-codex__status {
+  width: 1rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--bs-text-muted);
+  flex-shrink: 0;
+}
+.bs-combo-codex__entry--discovered .bs-combo-codex__status {
+  color: #4ade80;
+}
+.bs-combo-codex__status .fa-check { display: none; }
+.bs-combo-codex__entry--discovered .bs-combo-codex__status .fa-lock  { display: none; }
+.bs-combo-codex__entry--discovered .bs-combo-codex__status .fa-check { display: inline; }
+
+.bs-combo-codex__sequence {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.7rem;
+}
+.bs-combo-codex__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.22rem 0.5rem;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+}
+.bs-combo-codex__step i {
+  font-size: 0.85em;
+  color: var(--bs-accent);
+}
+.bs-combo-codex__arrow {
+  color: var(--bs-text-muted);
+  font-size: 0.7em;
+}
+
+.bs-combo-codex__streak {
+  margin-top: 0.2rem;
+  padding: 0.5rem 0.7rem;
+  border-left: 2px solid #ef9f27;
+  background: rgba(239, 159, 39, 0.06);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+}
+.bs-combo-codex__streak i { color: #ef9f27; margin-right: 0.2rem; }
+
 .bs-guide-combo-hint { font-size: 0.65rem; color: var(--bs-accent-dim, rgba(239,159,39,0.5)); margin: 0.5rem 0 0; font-style: italic; }
 
 /* ============================================================

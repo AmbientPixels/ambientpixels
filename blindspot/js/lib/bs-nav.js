@@ -289,6 +289,15 @@
         if (highest >= 3) guide.classList.add('bs-guide--tier3');
         else if (highest >= 1) guide.classList.add('bs-guide--tier1');
       }
+      // Combo codex: read bs-combo-discovered-{id} keys + apply --discovered class
+      // so the lock/check icon and grayscale state stay in sync with player progress.
+      ['flurry', 'riposte', 'empowered'].forEach(function (id) {
+        var found = false;
+        try { found = !!localStorage.getItem('bs-combo-discovered-' + id); } catch (e) {}
+        document.querySelectorAll('[data-combo-id="' + id + '"]').forEach(function (el) {
+          el.classList.toggle('bs-combo-codex__entry--discovered', found);
+        });
+      });
       _cb.showOverlay('bs-combat-guide');
     });
     document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { _cb.hideOverlay('bs-combat-guide'); });
