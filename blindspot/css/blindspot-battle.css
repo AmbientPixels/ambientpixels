@@ -3455,14 +3455,40 @@
    every move has tactile feedback. Combo trigger flash still handled
    separately by .bs-move-card__dots--combo-triggered.
    ────────────────────────────────────────────────────────────────── */
+/* Whole-card physical depression. The button gets pushed in (scale
+   down + Y shift) then springs back with overshoot. cubic-bezier
+   tuned so the recovery feels snappy, not soft — like a real
+   mechanical key. The art-panel-level burst below layers on top
+   for the energy commit feel. */
+.bs-page .arena-move-btn--pressed {
+  animation: bs-move-card-press-physical 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes bs-move-card-press-physical {
+  0%   { transform: scale(1)    translateY(0); }
+  12%  { transform: scale(0.96) translateY(2px); }
+  40%  { transform: scale(1.02) translateY(-1px); }
+  72%  { transform: scale(0.99) translateY(0); }
+  100% { transform: scale(1)    translateY(0); }
+}
+
+/* Art panel: brightness pump + inset accent-glow burst. The
+   --bs-move-color custom prop is per-move (orange Strike, cyan
+   Guard, violet Ability, mint Heal, gold Counter), so the press
+   feedback is color-coded to which move ignited. The whole-button
+   animation above handles the physical depression, so this rule
+   no longer animates transform — we just do the visual energy. */
 .bs-page .bs-move-card.arena-move-btn--pressed .bs-move-card__art {
   animation: bs-move-card-press-burst 320ms ease-out;
 }
 @keyframes bs-move-card-press-burst {
-  0%   { filter: brightness(1)    saturate(1);   transform: scale(1); }
-  20%  { filter: brightness(1.5)  saturate(1.4); transform: scale(1.04); }
-  60%  { filter: brightness(1.15) saturate(1.15); transform: scale(0.98); }
-  100% { filter: brightness(1)    saturate(1);   transform: scale(1); }
+  0%   { filter: brightness(1)    saturate(1);
+         box-shadow: inset 0 0 0 0 transparent; }
+  18%  { filter: brightness(1.55) saturate(1.5);
+         box-shadow: inset 0 0 36px 6px var(--bs-move-color, rgba(255,255,255,0.7)); }
+  55%  { filter: brightness(1.18) saturate(1.18);
+         box-shadow: inset 0 0 18px 3px var(--bs-move-color, rgba(255,255,255,0.4)); }
+  100% { filter: brightness(1)    saturate(1);
+         box-shadow: inset 0 0 0 0 transparent; }
 }
 
 /* ──────────────────────────────────────────────────────────────────
