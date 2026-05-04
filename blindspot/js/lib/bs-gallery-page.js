@@ -319,9 +319,10 @@
     if (metaEl) {
       var power = (card.combatStats ? Object.values(card.combatStats).reduce(function (a, b) { return a + (b || 0); }, 0) : 0);
       var dateStr = card.publishDate ? new Date(card.publishDate).toLocaleDateString() : '';
-      // publishedBy is a userId — opaque to other players. Surface a
-      // truncated form as a creator handle until display-name wiring lands.
-      var creator = card.publishedBy ? ('Forged by ' + String(card.publishedBy).slice(0, 8) + '…') : '';
+      // Prefer publishedByName (extracted from principal claim at publish time);
+      // fall back to truncated userId for cards published before that wiring.
+      var creatorName = card.publishedByName || (card.publishedBy ? String(card.publishedBy).slice(0, 8) + '…' : '');
+      var creator = creatorName ? ('Forged by ' + creatorName) : '';
       var isDefender = !!(card.id && _defenderIds.has(card.id));
       var challengeRow = isDefender
         ? '<a class="bs-gallery-detail__challenge" href="/blindspot/play.html?pvpChallenge=' + encodeURIComponent(card.id) + '">'
