@@ -75,6 +75,12 @@ window.ArenaAPI = (function () {
         body: { action: 'selectCard', cardId: cardId }
       });
     },
+    setProfileImage: function (url) {
+      return apiFetch('arenaProfile', {
+        method: 'POST',
+        body: { action: 'setProfileImage', profileImage: String(url || '') }
+      });
+    },
     loadBosses: function () {
       return apiFetch('arenaBosses');
     },

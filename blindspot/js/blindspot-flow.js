@@ -3240,6 +3240,18 @@
     if (!_selectedCard) return;
     var card = _selectedCard;
 
+    // Pencil button opens the generator modal. Re-wired on every
+    // render with onclick (not addEventListener) so listeners do not
+    // stack across repeat renderStatsScreen() calls.
+    var editBtn = document.getElementById('bs-fp-edit-btn');
+    if (editBtn) {
+      editBtn.onclick = function () {
+        if (window.BsProfileImage && window.BsProfileImage.open) {
+          window.BsProfileImage.open();
+        }
+      };
+    }
+
     // Avatar: profileImage first, card avatar fallback. Same lookup
     // chain bs-auth-ui uses for the topbar. Empty values fall through
     // to the silhouette icon already in markup.
@@ -3497,6 +3509,15 @@
     window.BsAuthUI.setCallbacks({
       showScreen: function (id) { showScreen(id); },
       renderStatsScreen: function () { renderStatsScreen(); }
+    });
+  }
+
+  // Profile image generator: refreshHero callback lets the modal
+  // re-render the Fighter Profile hero after a successful save so the
+  // 96px avatar updates without a full screen render.
+  if (window.BsProfileImage && window.BsProfileImage.init) {
+    window.BsProfileImage.init({
+      refreshHero: function () { renderFighterProfileHero(); }
     });
   }
 

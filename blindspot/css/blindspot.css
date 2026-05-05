@@ -3035,6 +3035,166 @@
     font-size: 1.25rem;
   }
 }
+
+/* ============================================================
+   Profile image generator modal (Phase D). Reuses the existing
+   .bs-modal-backdrop + .bs-modal pattern; only the inner layout
+   is custom.
+   ============================================================ */
+.bs-pim-modal .bs-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.bs-pim-preview {
+  position: relative;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(245, 192, 120, 0.04);
+  border: 2px solid rgba(245, 192, 120, 0.32);
+}
+.bs-pim-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bs-pim-preview-img[hidden] {
+  display: none;
+}
+.bs-pim-preview-empty,
+.bs-pim-preview-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--bs-text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.bs-pim-preview-empty[hidden],
+.bs-pim-preview-loading[hidden] {
+  display: none;
+}
+.bs-pim-preview-empty i {
+  font-size: 2.4rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+  opacity: 0.55;
+}
+.bs-pim-preview-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 8, 7, 0.72);
+}
+
+.bs-pim-prompt-label {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-text);
+  opacity: 0.85;
+}
+.bs-pim-prompt-row {
+  display: flex;
+}
+.bs-pim-prompt {
+  width: 100%;
+  resize: vertical;
+  min-height: 56px;
+  padding: 0.6rem 0.7rem;
+  font-family: var(--blindspot-font-body, Inter, sans-serif);
+  font-size: 0.9rem;
+  color: var(--bs-text);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(245, 192, 120, 0.24);
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.bs-pim-prompt:focus {
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.bs-pim-actions-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.bs-pim-surprise,
+.bs-pim-generate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 38px;
+  padding: 0 0.85rem;
+  font-family: var(--blindspot-font-body, Inter, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.bs-pim-surprise {
+  flex-shrink: 0;
+  color: var(--blindspot-accent-gold, #F5C078);
+  background: rgba(245, 192, 120, 0.06);
+  border: 1px solid rgba(245, 192, 120, 0.32);
+}
+.bs-pim-surprise:hover,
+.bs-pim-surprise:focus-visible {
+  background: rgba(245, 192, 120, 0.14);
+  border-color: rgba(245, 192, 120, 0.55);
+  outline: none;
+}
+.bs-pim-generate {
+  flex: 1;
+  color: #fff;
+  background: var(--blindspot-accent, #C8302C);
+  border: 1px solid var(--blindspot-accent, #C8302C);
+}
+.bs-pim-generate:hover:not(:disabled),
+.bs-pim-generate:focus-visible:not(:disabled) {
+  background: var(--blindspot-accent-hover, #E04540);
+  border-color: var(--blindspot-accent-hover, #E04540);
+  outline: none;
+}
+.bs-pim-generate:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.bs-pim-error {
+  padding: 0.5rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--blindspot-accent-hover, #E04540);
+  background: rgba(200, 48, 44, 0.08);
+  border: 1px solid rgba(200, 48, 44, 0.32);
+  border-radius: 6px;
+}
+.bs-pim-error[hidden] {
+  display: none;
+}
+
+.bs-pim-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.85rem;
+  margin-top: 0.85rem;
+  border-top: 1px solid rgba(245, 192, 120, 0.1);
+}
 .bs-stats-section__title {
   font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
   font-size: 1rem;

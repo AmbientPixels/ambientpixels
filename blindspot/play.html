@@ -1610,6 +1610,48 @@
        (some main-tree ancestors create stacking contexts via transform/
        filter that break fixed positioning). -->
   <!-- How to Play modal -->
+  <!-- Profile image generator modal (Phase D). Opened by the pencil
+       button on the Fighter Profile hero. Driven by bs-profile-image.js.
+       Same .bs-modal-backdrop pattern as #bs-howtoplay. -->
+  <div id="bs-profile-image-modal" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-modal="true" aria-labelledby="bs-pim-title">
+    <div class="bs-modal bs-pim-modal" style="max-width:480px;">
+      <button class="bs-modal__close" id="bs-pim-close" aria-label="Close"><i class="fas fa-times"></i></button>
+      <h2 id="bs-pim-title" class="bs-modal__title"><i class="fas fa-wand-magic-sparkles"></i> Profile Image</h2>
+      <div class="bs-modal__body">
+        <div class="bs-pim-preview">
+          <img class="bs-pim-preview-img" id="bs-pim-preview-img" alt="" hidden>
+          <div class="bs-pim-preview-empty" id="bs-pim-preview-empty">
+            <i class="fas fa-user-shield" aria-hidden="true"></i>
+            <span>Generate to preview</span>
+          </div>
+          <div class="bs-pim-preview-loading" id="bs-pim-preview-loading" hidden aria-live="polite">
+            <div class="bs-spinner" role="status"></div>
+            <span>Channeling&hellip;</span>
+          </div>
+        </div>
+        <label class="bs-pim-prompt-label" for="bs-pim-prompt">Describe yourself</label>
+        <div class="bs-pim-prompt-row">
+          <textarea class="bs-pim-prompt" id="bs-pim-prompt" rows="2" placeholder="e.g. battle-scarred ranger in twilight forest"></textarea>
+        </div>
+        <div class="bs-pim-actions-row">
+          <button class="bs-pim-surprise" id="bs-pim-surprise" type="button">
+            <i class="fas fa-shuffle" aria-hidden="true"></i>
+            <span>Surprise me</span>
+          </button>
+          <button class="bs-pim-generate" id="bs-pim-generate" type="button">
+            <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
+            <span>Generate</span>
+          </button>
+        </div>
+        <div class="bs-pim-error" id="bs-pim-error" hidden role="alert"></div>
+      </div>
+      <div class="bs-pim-footer">
+        <button class="bs-btn bs-btn--ghost" id="bs-pim-cancel" type="button">Cancel</button>
+        <button class="bs-btn bs-btn--primary" id="bs-pim-save" type="button" disabled>Save</button>
+      </div>
+    </div>
+  </div>
+
   <div id="bs-howtoplay" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="How to Play" aria-modal="true">
     <div class="bs-modal" style="max-width:520px;">
       <button class="bs-modal__close" id="bs-howtoplay-close" aria-label="Close"><i class="fas fa-times"></i></button>
@@ -1852,6 +1894,7 @@
   <script src="js/lib/bs-combat-tooltips.js"></script>
   <script src="js/lib/bs-auth-ui.js"></script>
   <script src="js/lib/bs-notifications.js"></script>
+  <script src="js/lib/bs-profile-image.js"></script>
   <script src="js/lib/bs-storage-cleanup.js"></script>
   <script src="js/lib/bs-battle-palette.js"></script>
   <script src="js/lib/bs-boss-card.js"></script>
