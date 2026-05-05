@@ -3338,28 +3338,30 @@
       }
     }
 
-    // Per-card record block
-    var ch = (_progress && _progress.cardHistory && _progress.cardHistory[card.id])
-      ? _progress.cardHistory[card.id] : null;
+    // Player record block — account-level totals. Per-card cardHistory
+    // is a separate Phase 15 concept and not all card ids reliably
+    // line up with what the battle engine wrote. Account totals come
+    // straight from _profile (battle engine increments them every
+    // fight) so the numbers here always match what the Combat section
+    // shows below.
     var grid = document.getElementById('bs-fp-record-grid');
-    if (grid) {
-      var wins = (ch && ch.wins) || 0;
-      var losses = (ch && ch.losses) || 0;
+    if (grid && _profile) {
+      var wins = _profile.totalWins || 0;
+      var losses = _statsAggregateLosses();
       var totalFights = wins + losses;
       var winRate = totalFights > 0 ? Math.round((wins / totalFights) * 100) + '%' : '—';
-      var bossesBeaten = (ch && Array.isArray(ch.bossesBeaten)) ? ch.bossesBeaten.length : 0;
-      var bestStreak = (ch && ch.bestStreak) || 0;
-      var nemesisHtml = '—';
-      if (ch && ch.nemesis && ch.nemesisLosses && ch.nemesisLosses[ch.nemesis]) {
-        nemesisHtml = ch.nemesis + ' (' + ch.nemesisLosses[ch.nemesis] + ' losses)';
-      }
+      var bestStreak = _profile.bestStreak || 0;
+      var bossesDefeated = (_profile.highestBoss || 0) + ' / 10';
+      var pvpW = (_profile.pvpRecord && _profile.pvpRecord.w) || 0;
+      var pvpL = (_profile.pvpRecord && _profile.pvpRecord.l) || 0;
+      var pvpRecord = pvpW + 'W / ' + pvpL + 'L';
       grid.innerHTML =
         _fpRecordTile('Wins', wins) +
         _fpRecordTile('Losses', losses) +
         _fpRecordTile('Win rate', winRate, totalFights + ' fights') +
-        _fpRecordTile('Bosses defeated', bossesBeaten + ' / 10') +
+        _fpRecordTile('Bosses defeated', bossesDefeated) +
         _fpRecordTile('Best streak', bestStreak) +
-        _fpRecordTile('Nemesis', nemesisHtml);
+        _fpRecordTile('PvP record', pvpRecord, 'Elo ' + (_profile.pvpElo || 0));
     }
 
     // Title milestones grid: all 9 entries, earned ones lit, locked
