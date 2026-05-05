@@ -897,6 +897,12 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Phase E: respect the saved profile-image crop transform when
+     bs-auth-ui sets the CSS variables. Falls back to centered cover
+     when the variables are unset (card-avatar fallback path). */
+  object-position: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
+  transform: scale(var(--pim-scale, 1));
+  transform-origin: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
   display: block;
 }
 .bs-topbar__user-avatar-img[hidden] {
@@ -1010,6 +1016,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Phase E: shared crop transform via --pim-* CSS vars. */
+  object-position: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
+  transform: scale(var(--pim-scale, 1));
+  transform-origin: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
   display: block;
 }
 .bs-topbar__user-menu-avatar-img[hidden] {
@@ -2848,6 +2858,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Phase E: shared crop transform via --pim-* CSS vars. */
+  object-position: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
+  transform: scale(var(--pim-scale, 1));
+  transform-origin: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
   display: block;
 }
 .bs-fighter-profile__avatar-img[hidden] {
@@ -3058,14 +3072,107 @@
   overflow: hidden;
   background: rgba(245, 192, 120, 0.04);
   border: 2px solid rgba(245, 192, 120, 0.32);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.bs-pim-preview--dragging {
+  cursor: grabbing;
 }
 .bs-pim-preview-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Phase E: crop transform driven by --pim-* CSS vars set by JS.
+     object-position picks WHICH part of the image fills the round
+     frame; transform: scale + transform-origin zooms in on the
+     focal point. Defaults match the previous fixed cover crop. */
+  object-position: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
+  transform: scale(var(--pim-scale, 1));
+  transform-origin: var(--pim-pos-x, 50%) var(--pim-pos-y, 50%);
   display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
 }
 .bs-pim-preview-img[hidden] {
+  display: none;
+}
+
+/* Zoom + reposition controls (Phase E). Sit between preview and
+   prompt textarea; appear once a preview lands. */
+.bs-pim-zoom {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bs-pim-zoom[hidden] {
+  display: none;
+}
+.bs-pim-zoom-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: rgba(245, 192, 120, 0.06);
+  border: 1px solid rgba(245, 192, 120, 0.32);
+  border-radius: 6px;
+  color: var(--blindspot-accent-gold, #F5C078);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.bs-pim-zoom-btn:hover,
+.bs-pim-zoom-btn:focus-visible {
+  background: rgba(245, 192, 120, 0.16);
+  border-color: rgba(245, 192, 120, 0.55);
+  outline: none;
+}
+.bs-pim-zoom-btn--reset {
+  margin-left: auto;
+}
+.bs-pim-zoom-slider {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(245, 192, 120, 0.15);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+}
+.bs-pim-zoom-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--blindspot-accent-gold, #F5C078);
+  border: 2px solid var(--blindspot-bg-2, #170D0B);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+.bs-pim-zoom-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+.bs-pim-zoom-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--blindspot-accent-gold, #F5C078);
+  border: 2px solid var(--blindspot-bg-2, #170D0B);
+  cursor: pointer;
+}
+
+.bs-pim-zoom-hint {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.bs-pim-zoom-hint[hidden] {
   display: none;
 }
 .bs-pim-preview-empty,

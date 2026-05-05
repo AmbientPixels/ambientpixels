@@ -75,11 +75,12 @@ window.ArenaAPI = (function () {
         body: { action: 'selectCard', cardId: cardId }
       });
     },
-    setProfileImage: function (url) {
-      return apiFetch('arenaProfile', {
-        method: 'POST',
-        body: { action: 'setProfileImage', profileImage: String(url || '') }
-      });
+    setProfileImage: function (url, transform) {
+      var body = { action: 'setProfileImage', profileImage: String(url || '') };
+      if (transform && typeof transform === 'object') {
+        body.profileImageTransform = transform;
+      }
+      return apiFetch('arenaProfile', { method: 'POST', body: body });
     },
     loadBosses: function () {
       return apiFetch('arenaBosses');

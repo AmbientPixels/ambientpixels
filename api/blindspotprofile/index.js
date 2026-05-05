@@ -125,6 +125,11 @@ function createDefaultProfile(userId) {
     // and Fighter Profile page fall back to the equipped card's
     // avatar. Set by the profile image generator (Phase D).
     profileImage: '',
+    // Crop transform for the profile image (Phase E). Lets the
+    // player drag + zoom inside the round frame. scale 1.0 + 50/50
+    // matches the previous object-fit:cover default. Stored as plain
+    // numbers so the client can serialize directly.
+    profileImageTransform: { scale: 1, posX: 50, posY: 50 },
     // Welcome gift, every new authed profile starts with one Ember
     // crate so they have something to open immediately. Premium loot
     // table (25/35/28/12) gives a satisfying first-impression payout.
@@ -186,6 +191,9 @@ function mergeProfiles(server, client) {
   if (client.selectedCardId) merged.selectedCardId = client.selectedCardId;
   if (client.lastDaily) merged.lastDaily = client.lastDaily;
   if (typeof client.profileImage === 'string') merged.profileImage = client.profileImage;
+  if (client.profileImageTransform && typeof client.profileImageTransform === 'object') {
+    merged.profileImageTransform = client.profileImageTransform;
+  }
 
   // PvP record — take client (current state)
   if (client.pvpRecord && typeof client.pvpRecord === 'object') {
@@ -439,11 +447,9 @@ module.exports = async function (context, req) {
           body: { success: true, profile: serverProfile }
         };
       } else if (action === 'setProfileImage') {
-        // Accepts { profileImage: '<url>' }. Empty string is a valid
-        // value (clears the image, falling back to the equipped
-        // card's avatar in the UI). Validates type + length only;
-        // the URL itself is generated server-side by the Phase D
-        // image generator so origin checks would be redundant here.
+        // Accepts { profileImage: '<url>', profileImageTransform: {scale,posX,posY} }.
+        // Empty string is valid (clears back to card avatar fallback).
+        // Transform is optional; missing = defaults persisted earlier.
         const incoming = body.profileImage;
         if (typeof incoming !== 'string') {
           context.res = {
@@ -466,6 +472,22 @@ module.exports = async function (context, req) {
           serverProfile = createDefaultProfile(userId);
         }
         serverProfile.profileImage = incoming.trim();
+        // Validate + clamp the optional transform. Out-of-range
+        // values are silently clamped rather than 400'd because the
+        // client UI already enforces the same bounds; the server is
+        // a defense-in-depth layer, not a validator that needs to
+        // teach the client about its mistakes.
+        if (body.profileImageTransform && typeof body.profileImageTransform === 'object') {
+          const t = body.profileImageTransform;
+          const scale = Math.max(1, Math.min(3, Number(t.scale) || 1));
+          const posX = Math.max(0, Math.min(100, Number(t.posX)));
+          const posY = Math.max(0, Math.min(100, Number(t.posY)));
+          serverProfile.profileImageTransform = {
+            scale: scale,
+            posX: isFinite(posX) ? posX : 50,
+            posY: isFinite(posY) ? posY : 50
+          };
+        }
         serverProfile.userId = userId;
         await uploadJsonBlob(containerClient, profilePath, serverProfile);
         context.res = {

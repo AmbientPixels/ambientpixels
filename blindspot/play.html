@@ -1618,8 +1618,8 @@
       <button class="bs-modal__close" id="bs-pim-close" aria-label="Close"><i class="fas fa-times"></i></button>
       <h2 id="bs-pim-title" class="bs-modal__title"><i class="fas fa-wand-magic-sparkles"></i> Profile Image</h2>
       <div class="bs-modal__body">
-        <div class="bs-pim-preview">
-          <img class="bs-pim-preview-img" id="bs-pim-preview-img" alt="" hidden>
+        <div class="bs-pim-preview" id="bs-pim-preview">
+          <img class="bs-pim-preview-img" id="bs-pim-preview-img" alt="" hidden draggable="false">
           <div class="bs-pim-preview-empty" id="bs-pim-preview-empty">
             <i class="fas fa-user-shield" aria-hidden="true"></i>
             <span>Generate to preview</span>
@@ -1629,6 +1629,23 @@
             <span>Channeling&hellip;</span>
           </div>
         </div>
+        <!-- Zoom + reposition controls (Phase E). Hidden until a
+             preview lands. Slider controls scale, drag inside the
+             preview repositions the focal point, scroll wheel zooms,
+             reset returns to defaults. -->
+        <div class="bs-pim-zoom" id="bs-pim-zoom" hidden>
+          <button class="bs-pim-zoom-btn" id="bs-pim-zoom-out" type="button" aria-label="Zoom out">
+            <i class="fas fa-magnifying-glass-minus" aria-hidden="true"></i>
+          </button>
+          <input class="bs-pim-zoom-slider" id="bs-pim-zoom-slider" type="range" min="100" max="300" value="100" step="5" aria-label="Zoom level">
+          <button class="bs-pim-zoom-btn" id="bs-pim-zoom-in" type="button" aria-label="Zoom in">
+            <i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i>
+          </button>
+          <button class="bs-pim-zoom-btn bs-pim-zoom-btn--reset" id="bs-pim-zoom-reset" type="button" aria-label="Reset crop" title="Reset crop">
+            <i class="fas fa-arrows-rotate" aria-hidden="true"></i>
+          </button>
+        </div>
+        <p class="bs-pim-zoom-hint" id="bs-pim-zoom-hint" hidden>Drag to position &middot; scroll or use the slider to zoom</p>
         <label class="bs-pim-prompt-label" for="bs-pim-prompt">Describe yourself</label>
         <div class="bs-pim-prompt-row">
           <textarea class="bs-pim-prompt" id="bs-pim-prompt" rows="2" placeholder="e.g. battle-scarred ranger in twilight forest"></textarea>

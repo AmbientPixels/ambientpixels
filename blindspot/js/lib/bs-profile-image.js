@@ -62,11 +62,18 @@
     'twilight oracle reading bone runes'
   ];
 
+  var DEFAULT_CROP = { scale: 1, posX: 50, posY: 50 };
+  var ZOOM_MIN = 1;
+  var ZOOM_MAX = 3;
+  var ZOOM_STEP = 0.1;
+
   var _cb = {};
   var _bound = false;
   var _previewUrl = '';
+  var _crop = { scale: 1, posX: 50, posY: 50 };
   var _generating = false;
   var _saving = false;
+  var _drag = null;
 
   function init(cbs) { _cb = cbs || {}; }
 
@@ -77,11 +84,33 @@
     return STYLE_ROLL_POOL[Math.floor(Math.random() * STYLE_ROLL_POOL.length)];
   }
 
+  // Apply current crop state to the preview img via CSS variables.
+  // Same vars are read by .bs-topbar__user-avatar-img on the chip,
+  // .bs-topbar__user-menu-avatar-img in the dropdown header, and
+  // .bs-fighter-profile__avatar-img on the Fighter Profile hero.
+  function applyCropToImg(imgEl) {
+    if (!imgEl) return;
+    imgEl.style.setProperty('--pim-pos-x', _crop.posX + '%');
+    imgEl.style.setProperty('--pim-pos-y', _crop.posY + '%');
+    imgEl.style.setProperty('--pim-scale', String(_crop.scale));
+  }
+  function applyCrop() {
+    applyCropToImg(document.getElementById('bs-pim-preview-img'));
+    var slider = document.getElementById('bs-pim-zoom-slider');
+    if (slider) slider.value = String(Math.round(_crop.scale * 100));
+  }
+  function resetCrop() {
+    _crop = { scale: 1, posX: 50, posY: 50 };
+    applyCrop();
+  }
+
   function setPreview(url) {
     _previewUrl = url || '';
     var img = document.getElementById('bs-pim-preview-img');
     var empty = document.getElementById('bs-pim-preview-empty');
     var save = document.getElementById('bs-pim-save');
+    var zoomCtrls = document.getElementById('bs-pim-zoom');
+    var zoomHint = document.getElementById('bs-pim-zoom-hint');
     if (img) {
       if (_previewUrl) {
         img.src = _previewUrl;
@@ -95,7 +124,20 @@
       if (_previewUrl) empty.setAttribute('hidden', '');
       else empty.removeAttribute('hidden');
     }
+    if (zoomCtrls) {
+      if (_previewUrl) zoomCtrls.removeAttribute('hidden');
+      else zoomCtrls.setAttribute('hidden', '');
+    }
+    if (zoomHint) {
+      if (_previewUrl) zoomHint.removeAttribute('hidden');
+      else zoomHint.setAttribute('hidden', '');
+    }
     if (save) save.disabled = !_previewUrl;
+    // New preview always starts uncropped; apply defaults to clear
+    // any leftover transform from a prior generate.
+    if (_previewUrl) {
+      resetCrop();
+    }
   }
 
   function setLoading(on) {
@@ -202,14 +244,18 @@
     _saving = true;
     setError('');
     setSaveBusy(true);
+    var transform = { scale: _crop.scale, posX: _crop.posX, posY: _crop.posY };
+    var transformJson = JSON.stringify(transform);
     try {
       if (window.ArenaAPI && window.ArenaAPI.setProfileImage) {
-        await window.ArenaAPI.setProfileImage(_previewUrl);
+        await window.ArenaAPI.setProfileImage(_previewUrl, transform);
       }
       // Mirror to localStorage so the topbar + Fighter Profile hero
       // pick it up immediately without waiting for next profile load.
-      try { localStorage.setItem('bs-profile-image', _previewUrl); }
-      catch (e) { /* ignore quota */ }
+      try {
+        localStorage.setItem('bs-profile-image', _previewUrl);
+        localStorage.setItem('bs-profile-image-transform', transformJson);
+      } catch (e) { /* ignore quota */ }
       // Refresh consumers.
       if (window.BsAuthUI && window.BsAuthUI.refreshAvatar) {
         try { window.BsAuthUI.refreshAvatar(); } catch (e) { /* silent */ }
@@ -262,6 +308,90 @@
 
     // Save
     document.getElementById('bs-pim-save')?.addEventListener('click', save);
+
+    // Zoom slider + buttons
+    var slider = document.getElementById('bs-pim-zoom-slider');
+    if (slider) {
+      slider.addEventListener('input', function () {
+        _crop.scale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Number(slider.value) / 100));
+        applyCrop();
+      });
+    }
+    document.getElementById('bs-pim-zoom-out')?.addEventListener('click', function () {
+      _crop.scale = Math.max(ZOOM_MIN, +(_crop.scale - ZOOM_STEP).toFixed(2));
+      applyCrop();
+    });
+    document.getElementById('bs-pim-zoom-in')?.addEventListener('click', function () {
+      _crop.scale = Math.min(ZOOM_MAX, +(_crop.scale + ZOOM_STEP).toFixed(2));
+      applyCrop();
+    });
+    document.getElementById('bs-pim-zoom-reset')?.addEventListener('click', resetCrop);
+
+    // Drag-to-reposition + scroll-zoom on the preview itself.
+    var preview = document.getElementById('bs-pim-preview');
+    if (preview) {
+      var handlePointerDown = function (clientX, clientY) {
+        if (!_previewUrl) return;
+        _drag = {
+          startX: clientX,
+          startY: clientY,
+          posX: _crop.posX,
+          posY: _crop.posY,
+          rect: preview.getBoundingClientRect()
+        };
+        preview.classList.add('bs-pim-preview--dragging');
+      };
+      var handlePointerMove = function (clientX, clientY) {
+        if (!_drag) return;
+        var rect = _drag.rect;
+        if (!rect.width || !rect.height) return;
+        // Mouse drag delta translates inversely to object-position so
+        // the focal point follows the cursor.
+        var dx = (clientX - _drag.startX) / rect.width * 100;
+        var dy = (clientY - _drag.startY) / rect.height * 100;
+        _crop.posX = Math.max(0, Math.min(100, _drag.posX - dx));
+        _crop.posY = Math.max(0, Math.min(100, _drag.posY - dy));
+        applyCrop();
+      };
+      var handlePointerUp = function () {
+        if (!_drag) return;
+        _drag = null;
+        preview.classList.remove('bs-pim-preview--dragging');
+      };
+
+      preview.addEventListener('mousedown', function (e) {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        handlePointerDown(e.clientX, e.clientY);
+      });
+      document.addEventListener('mousemove', function (e) {
+        if (!_drag) return;
+        handlePointerMove(e.clientX, e.clientY);
+      });
+      document.addEventListener('mouseup', handlePointerUp);
+
+      // Touch drag (single-finger). Pinch-zoom is a future addition.
+      preview.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        var t = e.touches[0];
+        handlePointerDown(t.clientX, t.clientY);
+      }, { passive: true });
+      document.addEventListener('touchmove', function (e) {
+        if (!_drag || e.touches.length !== 1) return;
+        var t = e.touches[0];
+        handlePointerMove(t.clientX, t.clientY);
+      }, { passive: true });
+      document.addEventListener('touchend', handlePointerUp);
+      document.addEventListener('touchcancel', handlePointerUp);
+
+      preview.addEventListener('wheel', function (e) {
+        if (!_previewUrl) return;
+        e.preventDefault();
+        var delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+        _crop.scale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, +(_crop.scale + delta).toFixed(2)));
+        applyCrop();
+      }, { passive: false });
+    }
   }
 
   function open() {

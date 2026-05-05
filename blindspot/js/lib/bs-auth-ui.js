@@ -81,12 +81,34 @@
     } catch (e) { return null; }
   }
 
-  function setAvatarSource(imgEl, fallbackEl, url) {
+  function getProfileImageTransform() {
+    // Player-saved crop. Falls back to defaults when missing or
+    // when the player is showing a card-avatar fallback (the card
+    // art was never cropped, so neutral defaults are correct).
+    try {
+      var stored = localStorage.getItem('bs-profile-image-transform');
+      if (!stored) return null;
+      var t = JSON.parse(stored);
+      if (t && typeof t === 'object' && typeof t.scale === 'number') return t;
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function applyTransformToImg(imgEl, transform) {
+    if (!imgEl) return;
+    var t = transform || { scale: 1, posX: 50, posY: 50 };
+    imgEl.style.setProperty('--pim-pos-x', (t.posX || 50) + '%');
+    imgEl.style.setProperty('--pim-pos-y', (t.posY || 50) + '%');
+    imgEl.style.setProperty('--pim-scale', String(t.scale || 1));
+  }
+
+  function setAvatarSource(imgEl, fallbackEl, url, transform) {
     if (!imgEl) return;
     if (url) {
       imgEl.src = url;
       imgEl.removeAttribute('hidden');
       if (fallbackEl) fallbackEl.setAttribute('hidden', '');
+      applyTransformToImg(imgEl, transform);
     } else {
       imgEl.removeAttribute('src');
       imgEl.setAttribute('hidden', '');
@@ -111,19 +133,28 @@
 
   function updateAvatars() {
     var url = getProfileImageUrl();
+    // Only apply the saved crop when the URL actually came from the
+    // saved profile image; falling back to the card avatar means the
+    // crop was never authored for that art, so use neutral defaults.
+    var fromProfile = false;
+    try { fromProfile = !!(localStorage.getItem('bs-profile-image') || '').trim(); }
+    catch (e) {}
+    var transform = fromProfile ? getProfileImageTransform() : null;
 
     // Chip avatar (24px in the trigger).
     setAvatarSource(
       document.getElementById('bs-topbar-user-avatar-img'),
       document.querySelector('.bs-topbar__user-avatar-fallback'),
-      url
+      url,
+      transform
     );
 
     // Menu header avatar (40px in the dropdown header).
     setAvatarSource(
       document.getElementById('bs-topbar-menu-avatar-img'),
       document.querySelector('.bs-topbar__user-menu-avatar-fallback'),
-      url
+      url,
+      transform
     );
   }
 

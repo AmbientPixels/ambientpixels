@@ -1019,11 +1019,16 @@
       // since the last session on this browser. Has to happen before
       // loadUserCards / renderLobby read getDeck().
       if (_profile && _profile.userId) _checkUserSwitch(_profile.userId);
-      // Mirror profileImage to localStorage so bs-auth-ui can read it
-      // without a callback dependency. Empty string is a valid value
-      // (clears back to fallback). Same pattern as bs-deck.
+      // Mirror profileImage + transform to localStorage so bs-auth-ui
+      // and the Fighter Profile hero can read them without a callback
+      // dependency. Empty string is a valid value (clears back to
+      // fallback). Same pattern as bs-deck.
       if (_profile) {
         safeLSSet('bs-profile-image', String(_profile.profileImage || ''));
+        if (_profile.profileImageTransform && typeof _profile.profileImageTransform === 'object') {
+          try { safeLSSet('bs-profile-image-transform', JSON.stringify(_profile.profileImageTransform)); }
+          catch (e) { /* ignore */ }
+        }
       }
       return _profile;
     } catch (e) {
@@ -3256,7 +3261,17 @@
     // chain bs-auth-ui uses for the topbar. Empty values fall through
     // to the silhouette icon already in markup.
     var profileImg = '';
+    var profileTransform = null;
     try { profileImg = (localStorage.getItem('bs-profile-image') || '').trim(); } catch (e) {}
+    if (profileImg) {
+      try {
+        var stored = localStorage.getItem('bs-profile-image-transform');
+        if (stored) {
+          var t = JSON.parse(stored);
+          if (t && typeof t === 'object' && typeof t.scale === 'number') profileTransform = t;
+        }
+      } catch (e) {}
+    }
     var url = profileImg || (card.avatar ? String(card.avatar).trim() : '');
     var imgEl = document.getElementById('bs-fp-avatar-img');
     var fallbackEl = document.querySelector('.bs-fighter-profile__avatar-fallback');
@@ -3265,6 +3280,12 @@
         imgEl.src = url;
         imgEl.removeAttribute('hidden');
         if (fallbackEl) fallbackEl.setAttribute('hidden', '');
+        // Crop transform: applied only when showing the saved profile
+        // image (card art was never cropped for the round frame).
+        var t = profileTransform || { scale: 1, posX: 50, posY: 50 };
+        imgEl.style.setProperty('--pim-pos-x', (t.posX || 50) + '%');
+        imgEl.style.setProperty('--pim-pos-y', (t.posY || 50) + '%');
+        imgEl.style.setProperty('--pim-scale', String(t.scale || 1));
       } else {
         imgEl.removeAttribute('src');
         imgEl.setAttribute('hidden', '');
