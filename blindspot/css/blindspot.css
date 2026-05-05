@@ -589,11 +589,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.25rem;
-  border-bottom: 1px solid var(--blindspot-border, #3A1F1A);
+  /* Fixed 56px geometry. flex-shrink:0 keeps the bar from compressing
+     when the lobby below is tall. Padding is purely horizontal; height
+     comes from the explicit 56px so internal chips align to a single
+     baseline regardless of their own padding. */
+  height: 56px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  /* Thin gold divider at the bottom edge: gold token at ~15% alpha.
+     Replaces the muted brown border so the bar terminates with brand
+     color rather than fading into the surface below. */
+  border-bottom: 1px solid rgba(245, 192, 120, 0.15);
   background: rgba(13, 8, 7, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  /* Stacking context above lobby (z 0-3 range) but below the dropdown
+     menu's z:200 so menu still escapes inside the bar's local context. */
+  position: relative;
+  z-index: 50;
 }
 
 .bs-topbar__brand {
@@ -6491,7 +6504,8 @@
   .bs-btn--full { max-width: 100%; }
   .bs-btn--large { padding: 0.875rem 2rem; font-size: 1rem; }
   .bs-screen { padding: 0.75rem; }
-  .bs-topbar { padding: 0.5rem 0.75rem; }
+  /* Mobile: tighter horizontal padding, height stays 56px. */
+  .bs-topbar { padding: 0 12px; }
   .bs-topbar__brand { font-size: 1rem; letter-spacing: var(--blindspot-display-tracking, 0.02em); }
   .bs-lobby__card-display { width: 160px; min-height: 200px; height: auto; }
   .bs-rank-badge { font-size: 1rem; }
