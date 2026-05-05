@@ -121,9 +121,13 @@ function createDefaultProfile(userId) {
     pvpElo: 1000,
     pvpRecord: { w: 0, l: 0 },
     crateWinCounter: 0,
-    // Welcome gift — every new authed profile starts with one Ember crate
-    // so they have something to open immediately. Premium loot table
-    // (25/35/28/12) gives a satisfying first-impression payout.
+    // Player profile image (URL). Optional. When empty, the topbar
+    // and Fighter Profile page fall back to the equipped card's
+    // avatar. Set by the profile image generator (Phase D).
+    profileImage: '',
+    // Welcome gift, every new authed profile starts with one Ember
+    // crate so they have something to open immediately. Premium loot
+    // table (25/35/28/12) gives a satisfying first-impression payout.
     crates: [{ type: 'ember', earned: Date.now() }],
     charms: [],
     cosmetics: [],
@@ -181,6 +185,7 @@ function mergeProfiles(server, client) {
   if (client.cardTitle) merged.cardTitle = client.cardTitle;
   if (client.selectedCardId) merged.selectedCardId = client.selectedCardId;
   if (client.lastDaily) merged.lastDaily = client.lastDaily;
+  if (typeof client.profileImage === 'string') merged.profileImage = client.profileImage;
 
   // PvP record — take client (current state)
   if (client.pvpRecord && typeof client.pvpRecord === 'object') {
@@ -426,6 +431,41 @@ module.exports = async function (context, req) {
           serverProfile = createDefaultProfile(userId);
         }
         serverProfile.selectedCardId = cardId;
+        serverProfile.userId = userId;
+        await uploadJsonBlob(containerClient, profilePath, serverProfile);
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: { success: true, profile: serverProfile }
+        };
+      } else if (action === 'setProfileImage') {
+        // Accepts { profileImage: '<url>' }. Empty string is a valid
+        // value (clears the image, falling back to the equipped
+        // card's avatar in the UI). Validates type + length only;
+        // the URL itself is generated server-side by the Phase D
+        // image generator so origin checks would be redundant here.
+        const incoming = body.profileImage;
+        if (typeof incoming !== 'string') {
+          context.res = {
+            status: 400,
+            headers: CORS_HEADERS,
+            body: { error: 'profileImage must be a string' }
+          };
+          return;
+        }
+        if (incoming.length > 2048) {
+          context.res = {
+            status: 400,
+            headers: CORS_HEADERS,
+            body: { error: 'profileImage URL exceeds 2048 chars' }
+          };
+          return;
+        }
+        let serverProfile = await downloadJsonBlob(containerClient, profilePath, context);
+        if (!serverProfile) {
+          serverProfile = createDefaultProfile(userId);
+        }
+        serverProfile.profileImage = incoming.trim();
         serverProfile.userId = userId;
         await uploadJsonBlob(containerClient, profilePath, serverProfile);
         context.res = {
