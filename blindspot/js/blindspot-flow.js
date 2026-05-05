@@ -1019,6 +1019,12 @@
       // since the last session on this browser. Has to happen before
       // loadUserCards / renderLobby read getDeck().
       if (_profile && _profile.userId) _checkUserSwitch(_profile.userId);
+      // Mirror profileImage to localStorage so bs-auth-ui can read it
+      // without a callback dependency. Empty string is a valid value
+      // (clears back to fallback). Same pattern as bs-deck.
+      if (_profile) {
+        safeLSSet('bs-profile-image', String(_profile.profileImage || ''));
+      }
       return _profile;
     } catch (e) {
       console.warn('[Blindspot] Could not load profile:', e);

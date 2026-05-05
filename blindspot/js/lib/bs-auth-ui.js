@@ -94,9 +94,23 @@
     }
   }
 
-  function updateAvatars() {
+  function getProfileImageUrl() {
+    // Player profile image takes precedence. Mirrored to localStorage
+    // by blindspot-flow.js loadProfile() so we can read without a
+    // callback dependency. Empty string is a valid value: it means
+    // the player has not set one yet; we fall through to the card
+    // avatar so the topbar still shows something recognizable.
+    try {
+      var stored = localStorage.getItem('bs-profile-image');
+      if (stored && stored.trim()) return stored.trim();
+    } catch (e) { /* ignore */ }
     var card = getSelectedCardFromCache();
-    var url = card && card.avatar ? String(card.avatar).trim() : '';
+    if (card && card.avatar) return String(card.avatar).trim();
+    return '';
+  }
+
+  function updateAvatars() {
+    var url = getProfileImageUrl();
 
     // Chip avatar (24px in the trigger).
     setAvatarSource(
