@@ -8453,7 +8453,18 @@ body.bs-battle-active .bs-play {
    ============================================================ */
 
 /* --- Guide wrapper + 2-col desktop layout --- */
-.bs-guide { max-width: 400px; width: 100%; }
+/* Combat guide can outgrow the viewport on shorter laptops once
+   Combos / Stamina / Hype Climax / Stances all expand. Default
+   .bs-overlay uses justify-content: center with no scroll, which
+   pushes the top of the content above the viewport. Override here
+   so the guide starts at the top and scrolls when needed. Other
+   overlays keep their fit-viewport behavior. */
+#bs-combat-guide.bs-overlay {
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding: 2rem;
+}
+.bs-guide { max-width: 400px; width: 100%; margin: auto 0; }
 .bs-guide__columns { display: flex; flex-direction: column; }
 .bs-guide__col .bs-guide-section { margin-top: 0.75rem; }
 .bs-guide__col .bs-guide-section:first-child { margin-top: 0; }
