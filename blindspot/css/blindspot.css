@@ -688,6 +688,150 @@
   box-shadow: 0 0 0 3px rgba(245, 192, 120, 0.1);
   outline: none;
 }
+
+/* ============================================================
+   Notification bell + popover panel.
+   Bell is a 32px square icon-only button (no pill border) with a red
+   badge in the top-right corner. Popover hangs off the wrap, anchored
+   under the bell.
+   ============================================================ */
+.bs-topbar__bell-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.bs-topbar__bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--blindspot-accent-gold, #F5C078);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.bs-topbar__bell:hover,
+.bs-topbar__bell:focus-visible {
+  background: rgba(245, 192, 120, 0.1);
+  color: var(--blindspot-accent-gold-2, #FFD89A);
+  outline: none;
+}
+
+.bs-topbar__bell-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  background: var(--blindspot-accent, #C8302C);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 14px;
+  text-align: center;
+  border-radius: 999px;
+  border: 1.5px solid rgba(13, 8, 7, 0.9);
+  box-shadow: 0 0 6px rgba(200, 48, 44, 0.45);
+}
+.bs-topbar__bell-badge[hidden] {
+  display: none;
+}
+
+.bs-topbar__notif-panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  width: 280px;
+  max-width: calc(100vw - 24px);
+  padding: 0.4rem;
+  background: rgba(13, 8, 7, 0.94);
+  border: 1px solid rgba(245, 192, 120, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(245, 192, 120, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 200;
+}
+.bs-topbar__notif-panel[hidden] {
+  display: none;
+}
+
+.bs-topbar__notif-header {
+  padding: 0.4rem 0.55rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+  border-bottom: 1px solid rgba(245, 192, 120, 0.1);
+  margin-bottom: 0.3rem;
+}
+
+.bs-topbar__notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.bs-topbar__notif-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.55rem;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--bs-text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.bs-topbar__notif-item:hover,
+.bs-topbar__notif-item:focus-visible {
+  background: rgba(245, 192, 120, 0.1);
+  color: var(--bs-accent);
+  outline: none;
+}
+.bs-topbar__notif-icon {
+  width: 1.2em;
+  font-size: 0.9rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+.bs-topbar__notif-text {
+  flex: 1;
+  min-width: 0;
+}
+.bs-topbar__notif-chev {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  flex-shrink: 0;
+}
+
+.bs-topbar__notif-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.25rem 0.55rem;
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+}
+.bs-topbar__notif-empty i {
+  color: var(--blindspot-success, #6E9F4A);
+}
 /* ============================================================
    Identity chip + dropdown ([play.html] #bs-topbar-user-wrap).
    Replaces the old .bs-topbar__admin gear + inline-styled

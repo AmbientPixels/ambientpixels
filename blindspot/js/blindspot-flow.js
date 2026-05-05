@@ -1462,6 +1462,11 @@
     // if (window.ArenaAudio && window.ArenaAudio.playMusic) {
     //   try { window.ArenaAudio.playMusic('lobby-ambient'); } catch (e) {}
     // }
+    // Topbar notification badge: bounties/crates/inbox counts can change
+    // every time we land back on the lobby (post-fight, post-claim, etc.).
+    if (window.BsNotifications && window.BsNotifications.refresh) {
+      try { window.BsNotifications.refresh(); } catch (e) { /* silent */ }
+    }
     // Sync selected card to deck cache
     if (_selectedCard && _selectedCard.id) updateCardInDeck(_selectedCard);
     // Apply streak glow
@@ -3335,6 +3340,15 @@
     setForgeWins: setForgeWins, isForgeUnlocked: isForgeUnlocked,
     getForgeWins: getForgeWins, renderSessionStats: renderSessionStats
   });
+
+  // Topbar notifications: wire navigation callbacks so panel rows can
+  // route to lobby (bounties/crates) or pvp screen (inbox).
+  if (window.BsNotifications && window.BsNotifications.setCallbacks) {
+    window.BsNotifications.setCallbacks({
+      showScreen: function (id) { showScreen(id); },
+      renderLobby: function () { renderLobby(); }
+    });
+  }
 
   // ============================================================
   // BOOT

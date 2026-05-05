@@ -115,11 +115,27 @@
           <span class="bs-topbar__pill-value" id="bs-topbar-sparks-num">0</span>
         </button>
       </div>
+      <!-- Notification bell. Driven by bs-notifications.js. Sources:
+           daily bounties (BsRewards.getDailyBounties), crates pending
+           (BsCrates.getCrates), async PvP inbox unread
+           (BsState.progress.asyncInboxCount). Badge shows total count;
+           panel groups by source with a row per category. Click an
+           item to navigate to the relevant screen. -->
+      <div class="bs-topbar__bell-wrap" id="bs-topbar-bell-wrap">
+        <button class="bs-topbar__bell" id="bs-topbar-bell" type="button" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="bs-topbar-notif-panel">
+          <i class="fas fa-bell" aria-hidden="true"></i>
+          <span class="bs-topbar__bell-badge" id="bs-topbar-bell-badge" hidden>0</span>
+        </button>
+        <div class="bs-topbar__notif-panel" id="bs-topbar-notif-panel" role="dialog" aria-label="Notifications" hidden>
+          <div class="bs-topbar__notif-header">Notifications</div>
+          <div class="bs-topbar__notif-list" id="bs-topbar-notif-list"></div>
+        </div>
+      </div>
       <!-- Identity chip + dropdown. bs-auth-ui.js fills in name and
            toggles the admin item + signed-in vs signed-out shapes.
-           Click → open menu (Sign Out, Admin when admin). Replaces the
+           Click opens menu (Sign Out, Admin when admin). Replaces the
            old inline-styled #bs-topbar-user blob and standalone admin
-           gear icon. Level moved out into its own chip above. -->
+           gear icon. Level moved out into its own pill. -->
       <div class="bs-topbar__user-wrap" id="bs-topbar-user-wrap">
         <button class="bs-topbar__user-chip" id="bs-topbar-user-chip" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="bs-topbar-user-menu" hidden>
           <i class="fas fa-user-check bs-topbar__user-chip-icon" aria-hidden="true"></i>
@@ -1747,6 +1763,7 @@
   <script src="js/lib/bs-leaderboard.js"></script>
   <script src="js/lib/bs-combat-tooltips.js"></script>
   <script src="js/lib/bs-auth-ui.js"></script>
+  <script src="js/lib/bs-notifications.js"></script>
   <script src="js/lib/bs-storage-cleanup.js"></script>
   <script src="js/lib/bs-battle-palette.js"></script>
   <script src="js/lib/bs-boss-card.js"></script>
