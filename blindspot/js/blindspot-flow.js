@@ -1467,6 +1467,12 @@
     if (window.BsNotifications && window.BsNotifications.refresh) {
       try { window.BsNotifications.refresh(); } catch (e) { /* silent */ }
     }
+    // Topbar fighter avatar: refresh in case the player switched cards
+    // via the card-switcher (which mutates bs-deck + bs-selected-card-id
+    // but does not call updatePlayAuthUI).
+    if (window.BsAuthUI && window.BsAuthUI.refreshAvatar) {
+      try { window.BsAuthUI.refreshAvatar(); } catch (e) { /* silent */ }
+    }
     // Sync selected card to deck cache
     if (_selectedCard && _selectedCard.id) updateCardInDeck(_selectedCard);
     // Apply streak glow

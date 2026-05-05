@@ -847,8 +847,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.7rem 0.4rem 0.55rem;
-  min-height: 36px;
+  /* Phase 4: 32px tall to match the status pills. 4px left so the
+     avatar sits flush with the pill border, 8px right for breathing
+     room around the chevron. */
+  height: 32px;
+  padding: 0 8px 0 4px;
   background: rgba(245, 192, 120, 0.06);
   border: 1px solid rgba(245, 192, 120, 0.2);
   border-radius: 999px;
@@ -872,9 +875,39 @@
   display: none;
 }
 
-.bs-topbar__user-chip-icon {
-  font-size: 0.75rem;
-  color: var(--bs-accent);
+/* User avatar — 24px circle inside the user chip. Pulls the equipped
+   fighter card's avatar URL from localStorage (bs-deck +
+   bs-selected-card-id, populated by the lobby card-switcher). Falls
+   back to a silhouette icon when no card is equipped. The 2px gold
+   border at low opacity separates the portrait from the pill border. */
+.bs-topbar__user-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(245, 192, 120, 0.08);
+  border: 2px solid rgba(245, 192, 120, 0.32);
+  flex-shrink: 0;
+}
+.bs-topbar__user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bs-topbar__user-avatar-img[hidden] {
+  display: none;
+}
+.bs-topbar__user-avatar-fallback {
+  font-size: 0.7rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+.bs-topbar__user-avatar-fallback[hidden] {
+  display: none;
 }
 .bs-topbar__user-name {
   font-size: 0.9rem;

@@ -94,19 +94,48 @@
     else menu.setAttribute('hidden', '');
   }
 
-  function guestGreetingName() {
-    // Guest greeting prefers the player's selected card name (their chosen
-    // fighter identity), falls back to the lore-appropriate "Stranger"
-    // rather than the generic "fighter". The Stranger is who you are on the
-    // splash — staying with that voice when no card name is available reads
-    // intentional instead of placeholder.
+  function getSelectedCardFromCache() {
+    // The lobby keeps the deck mirrored in localStorage as bs-deck and
+    // the active card id as bs-selected-card-id. Reading directly from
+    // there avoids needing a callback dependency on blindspot-flow.js
+    // and matches the pattern guestGreetingName already uses.
     try {
       var deck = JSON.parse(localStorage.getItem('bs-deck') || '[]');
       var selectedId = localStorage.getItem('bs-selected-card-id');
       var card = (selectedId && deck.find(function (c) { return c && c.id === selectedId; })) || deck[0];
-      if (card && card.name && String(card.name).trim()) return String(card.name).trim();
-    } catch (e) { /* fall through */ }
+      return card || null;
+    } catch (e) { return null; }
+  }
+
+  function guestGreetingName() {
+    // Guest greeting prefers the player's selected card name (their chosen
+    // fighter identity), falls back to the lore-appropriate Stranger
+    // rather than the generic "fighter". The Stranger is who you are on
+    // the splash; staying with that voice when no card name is available
+    // reads intentional instead of placeholder.
+    var card = getSelectedCardFromCache();
+    if (card && card.name && String(card.name).trim()) return String(card.name).trim();
     return 'Stranger';
+  }
+
+  function updateUserAvatar() {
+    // Pulls the equipped card's avatar URL from the same cache the
+    // lobby reads. Falls back to the silhouette icon (fa-user-shield
+    // already in markup) if no card or no avatar URL.
+    var img = document.getElementById('bs-topbar-user-avatar-img');
+    var fallback = document.querySelector('.bs-topbar__user-avatar-fallback');
+    if (!img) return;
+    var card = getSelectedCardFromCache();
+    var url = card && card.avatar ? String(card.avatar).trim() : '';
+    if (url) {
+      img.src = url;
+      img.removeAttribute('hidden');
+      if (fallback) fallback.setAttribute('hidden', '');
+    } else {
+      img.removeAttribute('src');
+      img.setAttribute('hidden', '');
+      if (fallback) fallback.removeAttribute('hidden');
+    }
   }
 
   function updatePlayAuthUI() {
@@ -139,6 +168,7 @@
         nameEl.textContent = name;
         if (levelNumEl) levelNumEl.textContent = 'Lv ' + level;
         if (levelChip) levelChip.removeAttribute('hidden');
+        updateUserAvatar();
         chip.removeAttribute('hidden');
         signin.setAttribute('hidden', '');
         if (lobbyNameEl) lobbyNameEl.textContent = name;
@@ -171,6 +201,7 @@
 
   window.BsAuthUI = {
     setCallbacks: setCallbacks,
-    update: updatePlayAuthUI
+    update: updatePlayAuthUI,
+    refreshAvatar: updateUserAvatar
   };
 })();
