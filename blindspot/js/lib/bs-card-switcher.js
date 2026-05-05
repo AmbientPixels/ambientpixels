@@ -109,15 +109,15 @@ window.BsCardSwitcher = (function () {
       btn.innerHTML = '<i class="fas fa-lock" aria-hidden="true"></i> Build Deck (' + wins + '/' + needed + ' wins)';
     } else {
       btn.classList.remove('bs-btn--locked');
-      btn.style.display = '';
       if (deckSize >= MAX_DECK_SIZE) {
-        // Don't disable. A disabled button is a closed door — give the
-        // player a path forward by routing through Manage Deck so they
-        // can swap a card out before forging. Copy tells them what the
-        // click is about to do.
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> Forge New (swap a card)';
+        // Deck full. Hide rather than relabel + reroute to Manage Deck —
+        // having two buttons that land on the same screen reads as a
+        // duplicate. Manage Deck is right next to this button and
+        // already handles retiring. Once a card is retired the button
+        // re-renders below the cap and comes back as "+ New Card".
+        btn.style.display = 'none';
       } else {
+        btn.style.display = '';
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New Card';
       }
