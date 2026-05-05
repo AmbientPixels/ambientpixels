@@ -84,12 +84,47 @@
   <header class="bs-topbar" role="banner">
     <span class="bs-topbar__brand"><i class="fas fa-eye-slash bs-topbar__brand-icon" aria-hidden="true"></i>Blindspot</span>
     <div class="bs-topbar__actions">
-      <span id="bs-topbar-sparks" class="bs-topbar__sparks" hidden title="Sparks — currency for crates and Forge cosmetics">
-        <i class="fas fa-fire" aria-hidden="true"></i>
-        <span id="bs-topbar-sparks-num">0</span>
+      <!-- Combined stats chip — Level + Sparks as one pill with a
+           middle-dot separator. Level segment is populated by
+           bs-auth-ui.js when signed-in; sparks segment by
+           blindspot-flow.js updateTopbarSparks(). Each segment stays
+           [hidden] independently; the wrapper auto-reveals via :has()
+           the moment either segment becomes visible. -->
+      <span id="bs-topbar-stats" class="bs-topbar__chip bs-topbar__chip--stats" title="Level &middot; Sparks">
+        <span class="bs-topbar__stat bs-topbar__stat--level" id="bs-topbar-level" hidden>
+          <i class="fas fa-star" aria-hidden="true"></i>
+          <span class="bs-topbar__chip-value" id="bs-topbar-level-num">Lv 1</span>
+        </span>
+        <span class="bs-topbar__stat bs-topbar__stat--sparks" id="bs-topbar-sparks" hidden>
+          <i class="fas fa-fire" aria-hidden="true"></i>
+          <span class="bs-topbar__chip-value" id="bs-topbar-sparks-num">0</span>
+        </span>
       </span>
-      <a href="/blindspot/admin/" id="bs-topbar-admin" class="bs-topbar__admin" hidden title="Admin"><i class="fas fa-shield-halved"></i></a>
-      <span id="bs-topbar-user" style="font-size:0.75rem; color:var(--bs-text-muted);"></span>
+      <!-- Identity chip + dropdown. bs-auth-ui.js fills in name and
+           toggles the admin item + signed-in vs signed-out shapes.
+           Click → open menu (Sign Out, Admin when admin). Replaces the
+           old inline-styled #bs-topbar-user blob and standalone admin
+           gear icon. Level moved out into its own chip above. -->
+      <div class="bs-topbar__user-wrap" id="bs-topbar-user-wrap">
+        <button class="bs-topbar__user-chip" id="bs-topbar-user-chip" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="bs-topbar-user-menu" hidden>
+          <i class="fas fa-user-check bs-topbar__user-chip-icon" aria-hidden="true"></i>
+          <span class="bs-topbar__user-name" id="bs-topbar-user-name">&mdash;</span>
+          <i class="fas fa-chevron-down bs-topbar__user-chev" aria-hidden="true"></i>
+        </button>
+        <a class="bs-topbar__signin-btn" id="bs-topbar-signin" href="/blindspot/login.html?redirect=/blindspot/play.html" hidden>
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Sign in
+        </a>
+        <div class="bs-topbar__user-menu" id="bs-topbar-user-menu" role="menu" aria-labelledby="bs-topbar-user-chip" hidden>
+          <a class="bs-topbar__user-menu-item bs-topbar__user-menu-item--admin" id="bs-topbar-menu-admin" href="/blindspot/admin/" role="menuitem" hidden>
+            <i class="fas fa-shield-halved" aria-hidden="true"></i>
+            <span>Admin</span>
+          </a>
+          <a class="bs-topbar__user-menu-item" id="bs-topbar-menu-logout" href="/.auth/logout?post_logout_redirect_uri=/blindspot/" role="menuitem">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+            <span>Sign out</span>
+          </a>
+        </div>
+      </div>
       <button class="arena-audio-toggle" id="arena-sfx-toggle" title="Mute SFX" aria-label="Toggle sound effects">
         <i class="fas fa-volume-high" aria-hidden="true"></i>
       </button>

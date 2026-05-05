@@ -239,7 +239,7 @@ try {
 // ── 5d. Topbar admin link ──
 try {
   const playHtml = fs.readFileSync(path.join(ROOT, 'play.html'), 'utf8');
-  const required = ['id="bs-topbar-admin"', 'href="/blindspot/admin/"'];
+  const required = ['id="bs-topbar-menu-admin"', 'href="/blindspot/admin/"'];
   let allFound = true;
   for (const sel of required) {
     if (playHtml.indexOf(sel) === -1) {

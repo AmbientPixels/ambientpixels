@@ -623,42 +623,202 @@
   align-items: center;
 }
 
-.bs-topbar__sparks {
+/* ============================================================
+   Topbar stats chip — Level + Sparks fused into one pill with a
+   middle-dot separator. Each segment stays [hidden] independently;
+   the wrapper auto-reveals when either segment becomes visible.
+   ============================================================ */
+.bs-topbar__chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-  color: var(--bs-accent);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
-}
-.bs-topbar__sparks i {
-  font-size: 0.7rem;
-}
-.bs-topbar__admin {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  color: var(--bs-text-muted);
-  text-decoration: none;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  min-height: 36px;
+  background: rgba(245, 192, 120, 0.06);
+  border: 1px solid rgba(245, 192, 120, 0.2);
+  border-radius: 999px;
   font-size: 0.85rem;
-  border-radius: 4px;
-  transition: color 150ms ease, background 150ms ease;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  color: var(--bs-text);
+  transition: background 150ms ease, border-color 150ms ease;
 }
-/* The class's `display: inline-flex` ties with the UA `[hidden]` rule on
-   specificity and wins by cascade order, so the `hidden` attribute alone
-   doesn't actually hide the gear for non-admins. Class+attribute selector
-   here lifts specificity to 0,0,2,0 — wins over both. */
-.bs-topbar__admin[hidden] {
+.bs-topbar__chip[hidden] {
   display: none;
 }
-.bs-topbar__admin:hover,
-.bs-topbar__admin:focus-visible {
+.bs-topbar__chip i {
+  font-size: 0.85rem;
   color: var(--bs-accent);
-  background: rgba(245, 192, 120, 0.08);
+}
+.bs-topbar__chip-value {
+  line-height: 1;
+}
+
+/* Combined stats wrapper — collapses when both segments are hidden. */
+.bs-topbar__chip--stats {
+  display: none;
+}
+.bs-topbar__chip--stats:has(.bs-topbar__stat:not([hidden])) {
+  display: inline-flex;
+}
+
+/* Each inner segment is its own icon-+-value pair. */
+.bs-topbar__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.bs-topbar__stat[hidden] {
+  display: none;
+}
+.bs-topbar__stat--level .bs-topbar__chip-value {
+  text-transform: uppercase;
+}
+
+/* Middle-dot separator — only when BOTH segments are visible.
+   Without the :not([hidden]) on the first, a hidden first segment
+   would still trigger the +-sibling rule on the second and leave a
+   stray dot. */
+.bs-topbar__stat:not([hidden]) + .bs-topbar__stat:not([hidden])::before {
+  content: '·';
+  color: var(--bs-text-muted);
+  margin-right: 0.5rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+/* ============================================================
+   Identity chip + dropdown ([play.html] #bs-topbar-user-wrap).
+   Replaces the old .bs-topbar__admin gear + inline-styled
+   #bs-topbar-user blob. Driven by bs-auth-ui.js.
+   ============================================================ */
+.bs-topbar__user-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.bs-topbar__user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.7rem 0.4rem 0.55rem;
+  min-height: 36px;
+  background: rgba(245, 192, 120, 0.06);
+  border: 1px solid rgba(245, 192, 120, 0.2);
+  border-radius: 999px;
+  color: var(--bs-text);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.bs-topbar__user-chip:hover,
+.bs-topbar__user-chip:focus-visible {
+  background: rgba(245, 192, 120, 0.12);
+  border-color: rgba(245, 192, 120, 0.38);
+  box-shadow: 0 0 0 3px rgba(245, 192, 120, 0.08);
   outline: none;
+}
+/* hidden attribute alone loses to inline-flex via cascade order, so
+   force display:none with class+attribute specificity. */
+.bs-topbar__user-chip[hidden],
+.bs-topbar__signin-btn[hidden],
+.bs-topbar__user-menu-item[hidden] {
+  display: none;
+}
+
+.bs-topbar__user-chip-icon {
+  font-size: 0.75rem;
+  color: var(--bs-accent);
+}
+.bs-topbar__user-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bs-topbar__user-chev {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  transition: transform 180ms ease, color 180ms ease;
+}
+.bs-topbar__user-chip[aria-expanded="true"] .bs-topbar__user-chev {
+  transform: rotate(180deg);
+  color: var(--bs-accent);
+}
+
+.bs-topbar__signin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  min-height: 36px;
+  background: rgba(245, 192, 120, 0.1);
+  border: 1px solid rgba(245, 192, 120, 0.32);
+  border-radius: 999px;
+  color: var(--bs-accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.bs-topbar__signin-btn:hover,
+.bs-topbar__signin-btn:focus-visible {
+  background: rgba(245, 192, 120, 0.16);
+  border-color: rgba(245, 192, 120, 0.5);
+  outline: none;
+}
+
+.bs-topbar__user-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 180px;
+  padding: 0.35rem;
+  background: rgba(13, 8, 7, 0.94);
+  border: 1px solid var(--blindspot-border, #3A1F1A);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(245, 192, 120, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.bs-topbar__user-menu[hidden] {
+  display: none;
+}
+
+.bs-topbar__user-menu-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.85rem;
+  color: var(--bs-text);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 120ms ease, color 120ms ease;
+}
+.bs-topbar__user-menu-item i {
+  width: 1em;
+  font-size: 0.85rem;
+  color: var(--bs-text-muted);
+  transition: color 120ms ease;
+}
+.bs-topbar__user-menu-item:hover,
+.bs-topbar__user-menu-item:focus-visible {
+  background: rgba(245, 192, 120, 0.1);
+  color: var(--bs-accent);
+  outline: none;
+}
+.bs-topbar__user-menu-item:hover i,
+.bs-topbar__user-menu-item:focus-visible i {
+  color: var(--bs-accent);
 }
 
 /* --- Screens --- */
