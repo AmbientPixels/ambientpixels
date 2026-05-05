@@ -35,7 +35,12 @@
 }
 #bs-battle-container.blindspot-battle {
   position: relative;
-  min-height: calc(100vh - 69px);
+  /* index.html has no topbar above the battle (deliberately dropped in
+     the Apr 30 splash redesign), so use the full viewport rather than
+     the - 69px that #bs-screen-battle subtracts for play.html's
+     topbar. Without this the page leaves a 69px dead band at the
+     bottom of the onboarding battle. */
+  min-height: 100vh;
   max-width: none;
   margin: 0;
   padding: 0;
@@ -1242,6 +1247,13 @@
      bottom edge instead of floating mid-screen. Matches the screen wrapper's
      min-height so the flex column actually has space to distribute. */
   min-height: calc(100vh - 69px);
+}
+/* Override for #bs-battle-container — index.html has no topbar above
+   the battle, so reclaim the 69px the play.html rule subtracts for
+   its topbar. Without this the column stops short and a 69px gap
+   appears below the battle log on the onboarding flow. */
+#bs-battle-container.blindspot-battle .arena-battle {
+  min-height: 100vh;
 }
 
 /* ---------- UTILITY CLUSTER — INLINE BELOW STANCES ----------
