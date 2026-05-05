@@ -3356,6 +3356,17 @@
     });
   }
 
+  // Topbar identity dropdown: wire navigation callbacks so the Fighter
+  // Profile menu row can route to the stats screen. Without this the
+  // _cb object inside bs-auth-ui.js stays empty and the click silently
+  // no-ops.
+  if (window.BsAuthUI && window.BsAuthUI.setCallbacks) {
+    window.BsAuthUI.setCallbacks({
+      showScreen: function (id) { showScreen(id); },
+      renderStatsScreen: function () { renderStatsScreen(); }
+    });
+  }
+
   // ============================================================
   // BOOT
   // ============================================================
