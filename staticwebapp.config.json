@@ -108,6 +108,9 @@
    "route": "/ambientscore/confirm.html"
   },
   {
+   "route": "/ambientscore/images/*"
+  },
+  {
    "route": "/ambientscore/*",
    "rewrite": "/ambientscore/index.html"
   },
