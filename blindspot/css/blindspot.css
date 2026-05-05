@@ -3125,6 +3125,52 @@
   background: rgba(0, 0, 0, 0.45);
 }
 
+.bs-pim-style-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.bs-pim-style-label {
+  flex-shrink: 0;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--bs-text);
+  opacity: 0.85;
+}
+.bs-pim-style-select {
+  flex: 1;
+  height: 36px;
+  padding: 0 2rem 0 0.7rem;
+  font-family: var(--blindspot-font-body, Inter, sans-serif);
+  font-size: 0.85rem;
+  color: var(--bs-text);
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(245, 192, 120, 0.24);
+  border-radius: 6px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  /* Inline gold chevron — keeps icon size + color consistent across
+     browsers without a Font Awesome glyph in the markup. */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%23F5C078' d='M0 0l5 6 5-6z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.bs-pim-style-select:focus,
+.bs-pim-style-select:hover {
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  background-color: rgba(0, 0, 0, 0.45);
+  outline: none;
+}
+.bs-pim-style-select option {
+  background: var(--blindspot-surface, #1C100D);
+  color: var(--bs-text);
+}
+
 .bs-pim-actions-row {
   display: flex;
   gap: 0.6rem;

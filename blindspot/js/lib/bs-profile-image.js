@@ -20,6 +20,23 @@
 (function () {
   'use strict';
 
+  // Random style pool for Surprise Me. Excludes 'none' (no-style
+  // gives generic output, not what a random roll should produce).
+  // Matches the dropdown options in play.html minus the No Style entry.
+  var STYLE_ROLL_POOL = [
+    'ap-fantasy-card',
+    'ap-dark-fantasy',
+    'ap-dark-cinematic',
+    'ap-comic-book',
+    'ap-anime-cel',
+    'ap-oil-portrait',
+    'ap-holographic',
+    'ap-neon-glass',
+    'ap-watercolor',
+    'ap-ornate-frame',
+    'ap-retro-pixel'
+  ];
+
   // Curated seed prompts. Surprise Me picks one and writes it into
   // the textarea. The player can edit before generating.
   var SUGGESTIONS = [
@@ -55,6 +72,9 @@
 
   function pickRandomSuggestion() {
     return SUGGESTIONS[Math.floor(Math.random() * SUGGESTIONS.length)];
+  }
+  function pickRandomStyle() {
+    return STYLE_ROLL_POOL[Math.floor(Math.random() * STYLE_ROLL_POOL.length)];
   }
 
   function setPreview(url) {
@@ -130,22 +150,29 @@
     }
     if (prompt.length > 240) prompt = prompt.slice(0, 240);
 
+    var styleSel = document.getElementById('bs-pim-style');
+    var style = styleSel ? styleSel.value : 'ap-fantasy-card';
+
     _generating = true;
     setError('');
     setLoading(true);
     setGenerateBusy(true);
 
     try {
+      var body = {
+        topic: 'Player profile portrait: ' + prompt,
+        goal: 'Player profile avatar portrait, square composition, centered face and upper body, dark atmospheric background.',
+        outputs: ['square_image'],
+        skipApproval: true,
+        accountId: 'blindspot-profile-image'
+      };
+      // 'none' means no style preset; everything else is an
+      // ap-* preset name the server already understands.
+      if (style && style !== 'none') body.preset = style;
       var resp = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-        body: JSON.stringify({
-          topic: 'Player profile portrait: ' + prompt,
-          goal: 'Player profile avatar portrait, square composition, centered face and upper body, dark atmospheric background, painterly fantasy or cyberpunk style.',
-          outputs: ['square_image'],
-          skipApproval: true,
-          accountId: 'blindspot-profile-image'
-        })
+        body: JSON.stringify(body)
       });
       var json = await resp.json();
       var imageUrl = '';
@@ -216,13 +243,17 @@
       close();
     });
 
-    // Surprise me
+    // Surprise me: rolls BOTH a random style and a random description
+    // so the player gets a fresh combo each click. Either can be
+    // overridden before hitting Generate.
     document.getElementById('bs-pim-surprise')?.addEventListener('click', function () {
       var input = document.getElementById('bs-pim-prompt');
+      var styleSel = document.getElementById('bs-pim-style');
       if (input) {
         input.value = pickRandomSuggestion();
         input.focus();
       }
+      if (styleSel) styleSel.value = pickRandomStyle();
       setError('');
     });
 
@@ -244,6 +275,8 @@
     setSaveBusy(false);
     var input = document.getElementById('bs-pim-prompt');
     if (input) input.value = '';
+    var styleSel = document.getElementById('bs-pim-style');
+    if (styleSel) styleSel.value = 'ap-fantasy-card';
     modal.classList.remove('bs-modal-backdrop--hidden');
     if (input) setTimeout(function () { input.focus(); }, 50);
   }
