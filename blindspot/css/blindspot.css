@@ -2811,6 +2811,230 @@
   border-radius: var(--blindspot-radius-card, 4px);
   padding: 1rem 1.1rem 1.1rem;
 }
+
+/* ============================================================
+   Fighter Profile hero (Phase C). Sits as the first section on
+   bs-screen-stats. Three stacked blocks: hero strip (avatar +
+   identity), per-card record grid, card title milestones grid.
+   ============================================================ */
+.bs-fighter-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.bs-fighter-profile__hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bs-fighter-profile__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.bs-fighter-profile__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(245, 192, 120, 0.06);
+  border: 2px solid rgba(245, 192, 120, 0.32);
+}
+.bs-fighter-profile__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bs-fighter-profile__avatar-img[hidden] {
+  display: none;
+}
+.bs-fighter-profile__avatar-fallback {
+  font-size: 2.4rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+  opacity: 0.8;
+}
+.bs-fighter-profile__avatar-fallback[hidden] {
+  display: none;
+}
+/* Edit pencil over the bottom-right corner of the avatar. Opens
+   the Phase D generator modal. */
+.bs-fighter-profile__edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--blindspot-bg-2, #170D0B);
+  border: 2px solid rgba(245, 192, 120, 0.6);
+  border-radius: 50%;
+  color: var(--blindspot-accent-gold, #F5C078);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+.bs-fighter-profile__edit:hover,
+.bs-fighter-profile__edit:focus-visible {
+  background: rgba(245, 192, 120, 0.16);
+  border-color: var(--blindspot-accent-gold, #F5C078);
+  transform: scale(1.06);
+  outline: none;
+}
+
+.bs-fighter-profile__id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.bs-fighter-profile__name {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--blindspot-accent-gold, #F5C078);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bs-fighter-profile__sub {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--bs-text-muted);
+  letter-spacing: 0.04em;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+}
+.bs-fighter-profile__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.bs-fighter-profile__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: rgba(245, 192, 120, 0.1);
+  border: 1px solid rgba(245, 192, 120, 0.32);
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+.bs-fighter-profile__badge[hidden] {
+  display: none;
+}
+.bs-fighter-profile__badge--title {
+  background: rgba(200, 48, 44, 0.1);
+  border-color: rgba(200, 48, 44, 0.36);
+  color: var(--blindspot-accent-hover, #E04540);
+}
+
+/* Per-card record block */
+.bs-fighter-profile__record-title {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--bs-text);
+  letter-spacing: 0.04em;
+  margin: 0 0 0.55rem;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.bs-fighter-profile__record-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+.bs-fighter-profile__record-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 0.55rem 0.7rem;
+  background: rgba(245, 192, 120, 0.04);
+  border: 1px solid rgba(245, 192, 120, 0.14);
+  border-radius: 6px;
+}
+.bs-fighter-profile__record-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+}
+.bs-fighter-profile__record-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--blindspot-accent-gold, #F5C078);
+  font-variant-numeric: tabular-nums;
+  margin-top: 0.2rem;
+  line-height: 1.1;
+}
+.bs-fighter-profile__record-sub {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  margin-top: 0.15rem;
+}
+
+/* Card title milestones grid */
+.bs-fighter-profile__milestones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+.bs-fighter-profile__milestone {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.65rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: var(--bs-text-muted);
+  opacity: 0.55;
+  transition: opacity 150ms ease;
+}
+.bs-fighter-profile__milestone i {
+  font-size: 0.78rem;
+  color: var(--bs-text-muted);
+}
+.bs-fighter-profile__milestone--earned {
+  background: rgba(245, 192, 120, 0.08);
+  border-color: rgba(245, 192, 120, 0.32);
+  color: var(--blindspot-accent-gold, #F5C078);
+  opacity: 1;
+}
+.bs-fighter-profile__milestone--earned i {
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+.bs-fighter-profile__milestone-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile: stack hero vertically */
+@media (max-width: 480px) {
+  .bs-fighter-profile__hero {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .bs-fighter-profile__name {
+    font-size: 1.25rem;
+  }
+}
 .bs-stats-section__title {
   font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
   font-size: 1rem;

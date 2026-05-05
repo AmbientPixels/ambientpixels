@@ -672,13 +672,48 @@
          in blindspot-flow.js populates each section from the loaded
          profile + derived numbers (losses summed from bossRecords,
          cards published counted from user blob). Read-only. -->
-    <div id="bs-screen-stats" class="bs-screen" role="region" aria-label="Player Stats">
+    <div id="bs-screen-stats" class="bs-screen" role="region" aria-label="Fighter Profile">
       <div class="bs-stats">
         <div class="bs-stats__header">
           <button class="bs-campaign__back" id="bs-stats-back" aria-label="Back to lobby"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
-          <h2 class="bs-stats__title"><i class="fas fa-chart-line"></i> Player Stats</h2>
+          <h2 class="bs-stats__title"><i class="fas fa-user-shield"></i> Fighter Profile</h2>
           <span class="bs-stats__meta" id="bs-stats-account-age">&nbsp;</span>
         </div>
+
+        <!-- Fighter Profile hero — profile image, identity, per-card
+             record, and earned card title milestones. Sits above the
+             account-level Identity section so the player's fighter is
+             the visual lead. Populated by renderStatsScreen() in
+             blindspot-flow.js. -->
+        <section class="bs-stats-section bs-fighter-profile">
+          <div class="bs-fighter-profile__hero">
+            <div class="bs-fighter-profile__avatar-wrap">
+              <span class="bs-fighter-profile__avatar" aria-hidden="true">
+                <img class="bs-fighter-profile__avatar-img" id="bs-fp-avatar-img" alt="" hidden>
+                <i class="fas fa-user-shield bs-fighter-profile__avatar-fallback" aria-hidden="true"></i>
+              </span>
+              <button class="bs-fighter-profile__edit" id="bs-fp-edit-btn" type="button" aria-label="Change profile image">
+                <i class="fas fa-pen" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="bs-fighter-profile__id">
+              <div class="bs-fighter-profile__name" id="bs-fp-name">&mdash;</div>
+              <div class="bs-fighter-profile__sub" id="bs-fp-sub">&mdash;</div>
+              <div class="bs-fighter-profile__badges">
+                <span class="bs-fighter-profile__badge bs-fighter-profile__badge--border" id="bs-fp-border" hidden></span>
+                <span class="bs-fighter-profile__badge bs-fighter-profile__badge--title" id="bs-fp-title" hidden></span>
+              </div>
+            </div>
+          </div>
+          <div class="bs-fighter-profile__record" id="bs-fp-record">
+            <h3 class="bs-fighter-profile__record-title">This card's record</h3>
+            <div class="bs-fighter-profile__record-grid" id="bs-fp-record-grid"></div>
+          </div>
+          <div class="bs-fighter-profile__milestones" id="bs-fp-milestones-wrap">
+            <h3 class="bs-fighter-profile__record-title">Card titles</h3>
+            <div class="bs-fighter-profile__milestones-grid" id="bs-fp-milestones"></div>
+          </div>
+        </section>
 
         <!-- Identity card -->
         <section class="bs-stats-section bs-stats-section--identity">

@@ -3221,12 +3221,139 @@
     if (forgeEl) forgeEl.textContent = String(_profile.forgeVisits || 0);
   }
 
+  // ── Fighter Profile hero (Phase C) ──
+  // Populates the top section of the bs-screen-stats screen with the
+  // player's profile image (or card avatar fallback), per-card record,
+  // and earned card title milestones. Phase D wires the edit pencil
+  // button on the avatar to the generator modal.
+
+  function _fpRecordTile(label, value, sub) {
+    var subHtml = sub ? '<span class="bs-fighter-profile__record-sub">' + escHtml(sub) + '</span>' : '';
+    return '<div class="bs-fighter-profile__record-tile">'
+      + '<span class="bs-fighter-profile__record-label">' + escHtml(label) + '</span>'
+      + '<span class="bs-fighter-profile__record-value">' + escHtml(String(value)) + '</span>'
+      + subHtml
+      + '</div>';
+  }
+
+  function renderFighterProfileHero() {
+    if (!_selectedCard) return;
+    var card = _selectedCard;
+
+    // Avatar: profileImage first, card avatar fallback. Same lookup
+    // chain bs-auth-ui uses for the topbar. Empty values fall through
+    // to the silhouette icon already in markup.
+    var profileImg = '';
+    try { profileImg = (localStorage.getItem('bs-profile-image') || '').trim(); } catch (e) {}
+    var url = profileImg || (card.avatar ? String(card.avatar).trim() : '');
+    var imgEl = document.getElementById('bs-fp-avatar-img');
+    var fallbackEl = document.querySelector('.bs-fighter-profile__avatar-fallback');
+    if (imgEl) {
+      if (url) {
+        imgEl.src = url;
+        imgEl.removeAttribute('hidden');
+        if (fallbackEl) fallbackEl.setAttribute('hidden', '');
+      } else {
+        imgEl.removeAttribute('src');
+        imgEl.setAttribute('hidden', '');
+        if (fallbackEl) fallbackEl.removeAttribute('hidden');
+      }
+    }
+
+    // Identity strip: card name, archetype + card level + power
+    var nameEl = document.getElementById('bs-fp-name');
+    var subEl = document.getElementById('bs-fp-sub');
+    var cardLevel = (window.BsCardRenderer && window.BsCardRenderer.getCardLevel)
+      ? window.BsCardRenderer.getCardLevel(card.id) : 0;
+    var power = (window.BsCardRenderer && window.BsCardRenderer.getCardPower)
+      ? window.BsCardRenderer.getCardPower(card) : 0;
+    if (nameEl) nameEl.textContent = card.name || 'Your Fighter';
+    if (subEl) {
+      var archetype = card.class || card.archetype || '';
+      var subBits = [];
+      if (archetype) subBits.push(archetype);
+      subBits.push('Lv ' + cardLevel);
+      if (power) subBits.push(power + ' power');
+      subEl.textContent = subBits.join(' · ');
+    }
+
+    // Border tier badge
+    var borderEl = document.getElementById('bs-fp-border');
+    var borderTier = (window.BsCardRenderer && window.BsCardRenderer.getCardBorderTier)
+      ? window.BsCardRenderer.getCardBorderTier(card.id) : null;
+    if (borderEl) {
+      if (borderTier && borderTier.label && borderTier.label.toLowerCase() !== 'plain') {
+        borderEl.textContent = borderTier.label + ' border';
+        borderEl.removeAttribute('hidden');
+        borderEl.setAttribute('data-tier', String(borderTier.label || '').toLowerCase());
+      } else {
+        borderEl.setAttribute('hidden', '');
+      }
+    }
+
+    // Earned title (highest milestone won so far)
+    var titleEl = document.getElementById('bs-fp-title');
+    var earned = (window.BsCardRenderer && window.BsCardRenderer.getCardEarnedTitles)
+      ? window.BsCardRenderer.getCardEarnedTitles(card.id) : [];
+    if (titleEl) {
+      if (earned && earned.length) {
+        var topTitle = earned[earned.length - 1].title;
+        titleEl.textContent = topTitle;
+        titleEl.removeAttribute('hidden');
+      } else {
+        titleEl.setAttribute('hidden', '');
+      }
+    }
+
+    // Per-card record block
+    var ch = (_progress && _progress.cardHistory && _progress.cardHistory[card.id])
+      ? _progress.cardHistory[card.id] : null;
+    var grid = document.getElementById('bs-fp-record-grid');
+    if (grid) {
+      var wins = (ch && ch.wins) || 0;
+      var losses = (ch && ch.losses) || 0;
+      var totalFights = wins + losses;
+      var winRate = totalFights > 0 ? Math.round((wins / totalFights) * 100) + '%' : '—';
+      var bossesBeaten = (ch && Array.isArray(ch.bossesBeaten)) ? ch.bossesBeaten.length : 0;
+      var bestStreak = (ch && ch.bestStreak) || 0;
+      var nemesisHtml = '—';
+      if (ch && ch.nemesis && ch.nemesisLosses && ch.nemesisLosses[ch.nemesis]) {
+        nemesisHtml = ch.nemesis + ' (' + ch.nemesisLosses[ch.nemesis] + ' losses)';
+      }
+      grid.innerHTML =
+        _fpRecordTile('Wins', wins) +
+        _fpRecordTile('Losses', losses) +
+        _fpRecordTile('Win rate', winRate, totalFights + ' fights') +
+        _fpRecordTile('Bosses defeated', bossesBeaten + ' / 10') +
+        _fpRecordTile('Best streak', bestStreak) +
+        _fpRecordTile('Nemesis', nemesisHtml);
+    }
+
+    // Title milestones grid: all 9 entries, earned ones lit, locked
+    // ones dimmed with a lock icon.
+    var milestonesEl = document.getElementById('bs-fp-milestones');
+    if (milestonesEl && _C && Array.isArray(_C.CARD_TITLE_MILESTONES)) {
+      var earnedIds = {};
+      for (var i = 0; i < earned.length; i++) earnedIds[earned[i].id] = true;
+      milestonesEl.innerHTML = _C.CARD_TITLE_MILESTONES.map(function (m) {
+        var isEarned = !!earnedIds[m.id];
+        return '<div class="bs-fighter-profile__milestone' + (isEarned ? ' bs-fighter-profile__milestone--earned' : '') + '" title="' + escHtml(m.desc) + '">'
+          + '<i class="fas ' + (isEarned ? 'fa-medal' : 'fa-lock') + '" aria-hidden="true"></i>'
+          + '<span class="bs-fighter-profile__milestone-name">' + escHtml(m.title) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+  }
+
   function renderStatsScreen() {
     if (!_profile) return;
     var xp = _profile.xp || 0;
     var level = (_S && _S.computeLevel && _S.computeLevel(xp)) || 1;
     var tier = (_S && _S.getTier && _S.getTier(level)) || { label: 'Initiate', icon: 'fa-shield-halved', color: '#A09888' };
     var toNext = (_S && _S.getXpToNextLevel && _S.getXpToNextLevel(xp)) || 0;
+
+    // Fighter Profile hero (Phase C)
+    renderFighterProfileHero();
 
     // Identity
     var rankIconEl = document.getElementById('bs-stats-rank-icon');
