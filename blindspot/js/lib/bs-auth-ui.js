@@ -414,9 +414,12 @@
     });
   }
 
+  function closeMenu() { setMenuOpen(false); }
+
   window.BsAuthUI = {
     setCallbacks: setCallbacks,
     update: updatePlayAuthUI,
-    refreshAvatar: updateAvatars
+    refreshAvatar: updateAvatars,
+    closeMenu: closeMenu
   };
 })();

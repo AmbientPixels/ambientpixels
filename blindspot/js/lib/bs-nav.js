@@ -214,6 +214,23 @@
       _cb.showScreen('shop');
       if (_cb.renderShop) _cb.renderShop();
     });
+    // Topbar dropdown -> Fighter Profile. Bound here as the canonical
+    // path because bs-nav already has _cb wired via setCallbacks.
+    // bs-auth-ui has a parallel listener as a belt-and-suspenders;
+    // setMenuOpen / closeMenu are idempotent so dual-firing is safe.
+    document.getElementById('bs-topbar-menu-profile')?.addEventListener('click', function() {
+      if (window.BsAuthUI && window.BsAuthUI.closeMenu) window.BsAuthUI.closeMenu();
+      _cb.showScreen('stats');
+      if (_cb.renderStatsScreen) _cb.renderStatsScreen();
+    });
+    // Topbar dropdown -> How to Play modal. Same belt-and-suspenders
+    // pattern; bs-auth-ui also handles this but routing through nav
+    // keeps the navigation surface consistent across modules.
+    document.getElementById('bs-topbar-menu-howto')?.addEventListener('click', function() {
+      if (window.BsAuthUI && window.BsAuthUI.closeMenu) window.BsAuthUI.closeMenu();
+      var htp = document.getElementById('bs-howtoplay');
+      if (htp) htp.classList.remove('bs-modal-backdrop--hidden');
+    });
     // Topbar Level pill — placeholder until progression detail ships.
     // TODO: route to XP/progression screen when one exists. For now,
     // toast the current level + xp so the click is not a dead end.
