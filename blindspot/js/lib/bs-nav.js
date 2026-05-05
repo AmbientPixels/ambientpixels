@@ -209,6 +209,21 @@
       _cb.showScreen('shop');
       if (_cb.renderShop) _cb.renderShop();
     });
+    // Topbar Sparks pill — same destination as the lobby tile, shortcut from any screen.
+    document.getElementById('bs-topbar-sparks')?.addEventListener('click', function() {
+      _cb.showScreen('shop');
+      if (_cb.renderShop) _cb.renderShop();
+    });
+    // Topbar Level pill — placeholder until progression detail ships.
+    // TODO: route to XP/progression screen when one exists. For now,
+    // toast the current level + xp so the click is not a dead end.
+    document.getElementById('bs-topbar-level')?.addEventListener('click', function() {
+      if (window.BsToast && window.BsToast.show) {
+        var xp = (window.BsState && window.BsState.progress && window.BsState.progress.xp) || 0;
+        var lvl = (window.BsState && typeof window.BsState.computeLevel === 'function') ? window.BsState.computeLevel(xp) : 1;
+        window.BsToast.show('Level ' + lvl + ' (' + xp + ' XP). Progression detail coming soon.', 'info');
+      }
+    });
     document.getElementById('bs-collection-back')?.addEventListener('click', function() {
       _cb.showScreen('lobby');
       _cb.renderLobby();

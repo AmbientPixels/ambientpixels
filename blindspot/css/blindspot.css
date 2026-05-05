@@ -637,68 +637,56 @@
 }
 
 /* ============================================================
-   Topbar stats chip — Level + Sparks fused into one pill with a
-   middle-dot separator. Each segment stays [hidden] independently;
-   the wrapper auto-reveals when either segment becomes visible.
+   Topbar status pills (Level + Sparks). Two distinct buttons in an
+   8px-gap wrapper. Both share .bs-topbar__pill so border + bg + size
+   stay identical; only the icon distinguishes them. The wrapper
+   collapses when both are [hidden] via :has().
    ============================================================ */
-.bs-topbar__chip {
+.bs-topbar__stats {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.8rem;
-  min-height: 36px;
-  background: rgba(245, 192, 120, 0.06);
-  border: 1px solid rgba(245, 192, 120, 0.2);
+  gap: 8px;
+}
+.bs-topbar__stats:not(:has(.bs-topbar__pill:not([hidden]))) {
+  display: none;
+}
+
+.bs-topbar__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 32px;
+  padding: 0 8px;
+  background: rgba(245, 192, 120, 0.08);
+  border: 1px solid var(--blindspot-accent-gold, #F5C078);
   border-radius: 999px;
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.03em;
   color: var(--bs-text);
-  transition: background 150ms ease, border-color 150ms ease;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
-.bs-topbar__chip[hidden] {
+.bs-topbar__pill[hidden] {
   display: none;
 }
-.bs-topbar__chip i {
+.bs-topbar__pill i {
   font-size: 0.85rem;
-  color: var(--bs-accent);
+  color: var(--blindspot-accent-gold, #F5C078);
 }
-.bs-topbar__chip-value {
+.bs-topbar__pill-value {
   line-height: 1;
 }
-
-/* Combined stats wrapper — collapses when both segments are hidden. */
-.bs-topbar__chip--stats {
-  display: none;
-}
-.bs-topbar__chip--stats:has(.bs-topbar__stat:not([hidden])) {
-  display: inline-flex;
-}
-
-/* Each inner segment is its own icon-+-value pair. */
-.bs-topbar__stat {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-.bs-topbar__stat[hidden] {
-  display: none;
-}
-.bs-topbar__stat--level .bs-topbar__chip-value {
+.bs-topbar__pill--level .bs-topbar__pill-value {
   text-transform: uppercase;
 }
-
-/* Middle-dot separator — only when BOTH segments are visible.
-   Without the :not([hidden]) on the first, a hidden first segment
-   would still trigger the +-sibling rule on the second and leave a
-   stray dot. */
-.bs-topbar__stat:not([hidden]) + .bs-topbar__stat:not([hidden])::before {
-  content: '·';
-  color: var(--bs-text-muted);
-  margin-right: 0.5rem;
-  font-weight: 700;
-  opacity: 0.7;
+.bs-topbar__pill:hover,
+.bs-topbar__pill:focus-visible {
+  background: rgba(245, 192, 120, 0.16);
+  box-shadow: 0 0 0 3px rgba(245, 192, 120, 0.1);
+  outline: none;
 }
 /* ============================================================
    Identity chip + dropdown ([play.html] #bs-topbar-user-wrap).

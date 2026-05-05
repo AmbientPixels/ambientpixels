@@ -96,22 +96,25 @@
   <header class="bs-topbar" role="banner">
     <span class="bs-topbar__brand"><i class="fas fa-eye-slash bs-topbar__brand-icon" aria-hidden="true"></i>Blindspot</span>
     <div class="bs-topbar__actions">
-      <!-- Combined stats chip — Level + Sparks as one pill with a
-           middle-dot separator. Level segment is populated by
-           bs-auth-ui.js when signed-in; sparks segment by
-           blindspot-flow.js updateTopbarSparks(). Each segment stays
-           [hidden] independently; the wrapper auto-reveals via :has()
-           the moment either segment becomes visible. -->
-      <span id="bs-topbar-stats" class="bs-topbar__chip bs-topbar__chip--stats" title="Level &middot; Sparks">
-        <span class="bs-topbar__stat bs-topbar__stat--level" id="bs-topbar-level" hidden>
+      <!-- Status cluster: Level + Sparks as two independent pill
+           buttons with an 8px gap. Both are clickable. Level pill
+           is a placeholder route until progression detail ships;
+           Sparks pill opens the Sparks Shop (wired in bs-nav.js).
+           Each pill stays [hidden] independently: level shows when
+           signed-in (populated by bs-auth-ui.js), sparks shows when
+           the player has earned any (populated by blindspot-flow.js
+           updateTopbarSparks). The wrapper itself collapses when
+           both children are hidden, via :has(). -->
+      <div class="bs-topbar__stats" id="bs-topbar-stats">
+        <button id="bs-topbar-level" class="bs-topbar__pill bs-topbar__pill--level" type="button" hidden aria-label="View progression">
           <i class="fas fa-star" aria-hidden="true"></i>
-          <span class="bs-topbar__chip-value" id="bs-topbar-level-num">Lv 1</span>
-        </span>
-        <span class="bs-topbar__stat bs-topbar__stat--sparks" id="bs-topbar-sparks" hidden>
+          <span class="bs-topbar__pill-value" id="bs-topbar-level-num">Lv 1</span>
+        </button>
+        <button id="bs-topbar-sparks" class="bs-topbar__pill bs-topbar__pill--sparks" type="button" hidden aria-label="Open Sparks Shop">
           <i class="fas fa-fire" aria-hidden="true"></i>
-          <span class="bs-topbar__chip-value" id="bs-topbar-sparks-num">0</span>
-        </span>
-      </span>
+          <span class="bs-topbar__pill-value" id="bs-topbar-sparks-num">0</span>
+        </button>
+      </div>
       <!-- Identity chip + dropdown. bs-auth-ui.js fills in name and
            toggles the admin item + signed-in vs signed-out shapes.
            Click → open menu (Sign Out, Admin when admin). Replaces the
