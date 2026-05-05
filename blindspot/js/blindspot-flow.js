@@ -3241,8 +3241,29 @@
       + '</div>';
   }
 
+  // Computes account-level milestones from _profile totals. Same
+  // CARD_TITLE_MILESTONES definitions but checked against the
+  // player's authoritative totals (totalWins, bestStreak,
+  // highestBoss) instead of per-card cardHistory which may not be
+  // populated reliably for older fights.
+  function computePlayerMilestones(profile) {
+    var milestones = (_C && _C.CARD_TITLE_MILESTONES) || [];
+    if (!profile) return [];
+    var totalWins = profile.totalWins || 0;
+    var bestStreak = profile.bestStreak || 0;
+    var bossesBeaten = profile.highestBoss || 0;
+    var earned = [];
+    for (var i = 0; i < milestones.length; i++) {
+      var m = milestones[i];
+      if (m.wins && totalWins >= m.wins) earned.push(m);
+      else if (m.bestStreak && bestStreak >= m.bestStreak) earned.push(m);
+      else if (m.bossesBeaten && bossesBeaten >= m.bossesBeaten) earned.push(m);
+    }
+    return earned;
+  }
+
   function renderFighterProfileHero() {
-    if (!_selectedCard) return;
+    if (!_profile) return;
     var card = _selectedCard;
 
     // Pencil button opens the generator modal. Re-wired on every
@@ -3272,7 +3293,7 @@
         }
       } catch (e) {}
     }
-    var url = profileImg || (card.avatar ? String(card.avatar).trim() : '');
+    var url = profileImg || (card && card.avatar ? String(card.avatar).trim() : '');
     var imgEl = document.getElementById('bs-fp-avatar-img');
     var fallbackEl = document.querySelector('.bs-fighter-profile__avatar-fallback');
     if (imgEl) {
@@ -3293,45 +3314,48 @@
       }
     }
 
-    // Identity strip: card name, archetype + card level + power
+    // Identity strip: player name + account level + tier label.
+    // Player display name comes from auth, mirrored into the lobby
+    // welcome line by bs-auth-ui. Falls back to selected card name
+    // when guest, then to a neutral 'Fighter'.
     var nameEl = document.getElementById('bs-fp-name');
     var subEl = document.getElementById('bs-fp-sub');
-    var cardLevel = (window.BsCardRenderer && window.BsCardRenderer.getCardLevel)
-      ? window.BsCardRenderer.getCardLevel(card.id) : 0;
-    var power = (window.BsCardRenderer && window.BsCardRenderer.getCardPower)
-      ? window.BsCardRenderer.getCardPower(card) : 0;
-    if (nameEl) nameEl.textContent = card.name || 'Your Fighter';
+    var lobbyName = document.getElementById('bs-lobby-username');
+    var displayName = (lobbyName && lobbyName.textContent && lobbyName.textContent.trim())
+      ? lobbyName.textContent.trim()
+      : (card && card.name ? card.name : 'Fighter');
+    var xp = _profile.xp || 0;
+    var level = (_S && _S.computeLevel) ? _S.computeLevel(xp) : 1;
+    var tier = (_S && _S.getTier) ? _S.getTier(level) : null;
+    if (nameEl) nameEl.textContent = displayName;
     if (subEl) {
-      var archetype = card.class || card.archetype || '';
-      var subBits = [];
-      if (archetype) subBits.push(archetype);
-      subBits.push('Lv ' + cardLevel);
-      if (power) subBits.push(power + ' power');
+      var subBits = ['Lv ' + level];
+      if (tier && tier.label) subBits.push(tier.label);
+      if ((_profile.ascension || 0) > 0) subBits.push('Prestige ' + _profile.ascension);
       subEl.textContent = subBits.join(' · ');
     }
 
-    // Border tier badge
+    // PvP peak rank badge (account-level achievement)
     var borderEl = document.getElementById('bs-fp-border');
-    var borderTier = (window.BsCardRenderer && window.BsCardRenderer.getCardBorderTier)
-      ? window.BsCardRenderer.getCardBorderTier(card.id) : null;
     if (borderEl) {
-      if (borderTier && borderTier.label && borderTier.label.toLowerCase() !== 'plain') {
-        borderEl.textContent = borderTier.label + ' border';
+      var peak = _profile.peakRank;
+      if (peak && peak !== 'Iron') {
+        borderEl.textContent = 'Peak ' + peak;
         borderEl.removeAttribute('hidden');
-        borderEl.setAttribute('data-tier', String(borderTier.label || '').toLowerCase());
+        borderEl.setAttribute('data-tier', String(peak).toLowerCase());
       } else {
         borderEl.setAttribute('hidden', '');
       }
     }
 
-    // Earned title (highest milestone won so far)
+    // Highest earned milestone title (account-level, computed below
+    // in the milestones grid). We just pick the top one to surface
+    // up here as a quick-glance badge.
     var titleEl = document.getElementById('bs-fp-title');
-    var earned = (window.BsCardRenderer && window.BsCardRenderer.getCardEarnedTitles)
-      ? window.BsCardRenderer.getCardEarnedTitles(card.id) : [];
+    var earned = computePlayerMilestones(_profile);
     if (titleEl) {
-      if (earned && earned.length) {
-        var topTitle = earned[earned.length - 1].title;
-        titleEl.textContent = topTitle;
+      if (earned.length) {
+        titleEl.textContent = earned[earned.length - 1].title;
         titleEl.removeAttribute('hidden');
       } else {
         titleEl.setAttribute('hidden', '');
@@ -3364,8 +3388,10 @@
         _fpRecordTile('PvP record', pvpRecord, 'Elo ' + (_profile.pvpElo || 0));
     }
 
-    // Title milestones grid: all 9 entries, earned ones lit, locked
-    // ones dimmed with a lock icon.
+    // Account-level milestones grid: all 9 entries, earned ones lit,
+    // locked ones dimmed. Uses player totals (computed above) so the
+    // 102-wins-but-everything-locked bug from per-card cardHistory
+    // can't reproduce.
     var milestonesEl = document.getElementById('bs-fp-milestones');
     if (milestonesEl && _C && Array.isArray(_C.CARD_TITLE_MILESTONES)) {
       var earnedIds = {};
