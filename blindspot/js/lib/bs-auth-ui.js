@@ -24,6 +24,10 @@
 
   var ADMIN_USER_IDS = ['5bb115c5-9077-4049-8af0-ce5085a9c315'];
   var REDUCE_EFFECTS_KEY = 'bs-reduce-effects';
+  // Audio mute keys come from bs-arena-audio.js. Reading them directly
+  // avoids needing a getter (ArenaAudio.isMuted only returns sfx state).
+  var SFX_MUTED_KEY = 'arena_sfx_muted';
+  var MUSIC_MUTED_KEY = 'arena_music_muted';
   var _cb = {};
   var _menuBound = false;
 
@@ -42,6 +46,28 @@
     var state = document.getElementById('bs-topbar-menu-effects-state');
     if (item) item.setAttribute('aria-checked', on ? 'true' : 'false');
     if (state) state.textContent = on ? 'On' : 'Off';
+  }
+
+  // ── Audio toggles (Settings view, Phase 6) ──
+  // Underlying state lives in ArenaAudio (window.ArenaAudio). The
+  // toggle row is "On" when audio is playing (NOT muted), so we
+  // invert the muted flag for display.
+
+  function isAudioOn(key) {
+    try { return localStorage.getItem(key) !== 'true'; }
+    catch (e) { return true; }
+  }
+
+  function applyAudioRowState(rowId, stateId, on) {
+    var item = document.getElementById(rowId);
+    var state = document.getElementById(stateId);
+    if (item) item.setAttribute('aria-checked', on ? 'true' : 'false');
+    if (state) state.textContent = on ? 'On' : 'Off';
+  }
+
+  function syncAudioRows() {
+    applyAudioRowState('bs-topbar-menu-sfx', 'bs-topbar-menu-sfx-state', isAudioOn(SFX_MUTED_KEY));
+    applyAudioRowState('bs-topbar-menu-music', 'bs-topbar-menu-music-state', isAudioOn(MUSIC_MUTED_KEY));
   }
 
   // ── Selected card cache (avatar source for chip + menu header) ──
@@ -151,6 +177,10 @@
       // Always start at the main view; settings should be a deliberate
       // sub-navigation, not a sticky panel.
       setView('main');
+      // Refresh settings-view toggle state so the pills reflect
+      // current truth even if something outside the menu changed it.
+      applyReduceEffects(isReduceEffectsOn());
+      syncAudioRows();
       menu.removeAttribute('hidden');
       // Focus the first interactive item so keyboard users land in
       // the menu directly.
@@ -234,7 +264,7 @@
       backBtn.addEventListener('click', function () { setView('main'); });
     }
 
-    // ── Reduce Effects toggle (Settings view) ──
+    // ── Reduce Motion toggle (Settings view) ──
 
     var effectsBtn = document.getElementById('bs-topbar-menu-effects');
     if (effectsBtn) {
@@ -246,6 +276,34 @@
         try { localStorage.setItem(REDUCE_EFFECTS_KEY, next ? 'true' : 'false'); }
         catch (err) { /* localStorage blocked, apply in-memory only */ }
         applyReduceEffects(next);
+      });
+    }
+
+    // ── Audio toggles (Settings view, Phase 6) ──
+    // ArenaAudio.toggleSfx / toggleMusic do the work and persist the
+    // mute flag. We just sync the row state after each toggle so the
+    // On/Off pill reflects truth.
+    syncAudioRows();
+    var sfxBtn = document.getElementById('bs-topbar-menu-sfx');
+    if (sfxBtn) {
+      sfxBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.ArenaAudio && window.ArenaAudio.toggleSfx) {
+          window.ArenaAudio.toggleSfx();
+        }
+        syncAudioRows();
+      });
+    }
+    var musicBtn = document.getElementById('bs-topbar-menu-music');
+    if (musicBtn) {
+      musicBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.ArenaAudio && window.ArenaAudio.toggleMusic) {
+          window.ArenaAudio.toggleMusic();
+        }
+        syncAudioRows();
       });
     }
 
