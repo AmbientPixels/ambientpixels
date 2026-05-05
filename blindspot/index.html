@@ -21,10 +21,13 @@
   {
     "@context": "https://schema.org",
     "@type": "VideoGame",
+    "@id": "https://www.ambientpixels.ai/blindspot/#game",
     "name": "Blindspot",
     "description": "Build a fighter card from scratch and battle through a 10-boss campaign with stamina, stances, elements, combos, and async PvP.",
     "url": "https://www.ambientpixels.ai/blindspot/",
     "image": "https://www.ambientpixels.ai/blindspot/img/og-blindspot.png",
+    "datePublished": "2026-03-07",
+    "inLanguage": "en",
     "genre": ["Card Game", "Arena Combat", "RPG"],
     "gamePlatform": "Web Browser",
     "applicationCategory": "Game",
@@ -37,18 +40,54 @@
     },
     "author": {
       "@type": "Organization",
+      "@id": "https://www.ambientpixels.ai/#org",
       "name": "AmbientPixels",
       "url": "https://www.ambientpixels.ai"
     },
+    "publisher": {
+      "@type": "Organization",
+      "@id": "https://www.ambientpixels.ai/#org"
+    },
     "playMode": ["SinglePlayer", "MultiPlayer"],
-    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 }
+    "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 2 },
+    "screenshot": [
+      "https://www.ambientpixels.ai/blindspot/img/og-blindspot.png",
+      "https://www.ambientpixels.ai/blindspot/img/arena/arena-colosseum.webp",
+      "https://www.ambientpixels.ai/blindspot/img/arena/arena-throne.webp",
+      "https://www.ambientpixels.ai/blindspot/img/arena/arena-void-rift.webp",
+      "https://www.ambientpixels.ai/blindspot/img/fighters/knight.webp"
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://www.ambientpixels.ai/#org",
+    "name": "AmbientPixels",
+    "url": "https://www.ambientpixels.ai",
+    "logo": "https://www.ambientpixels.ai/images/og-ambientpixels.png",
+    "description": "Creative-tech studio operating AI systems, digital products, and the infrastructure behind them.",
+    "sameAs": []
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "AmbientPixels", "item": "https://www.ambientpixels.ai/" },
+      { "@type": "ListItem", "position": 2, "name": "Blindspot", "item": "https://www.ambientpixels.ai/blindspot/" }
+    ]
   }
   </script>
   <meta name="csrf-token" content="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"></noscript>
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/theme.css">
@@ -86,7 +125,7 @@
 
       <div class="blindspot-landing__layout">
         <div class="blindspot-landing__art blindspot-fade-up" style="animation-delay: 0.5s;" aria-hidden="true">
-          <div class="blindspot-landing__portrait" style="background-image: url('img/fighters/knight.webp');"></div>
+          <img class="blindspot-landing__portrait" src="img/fighters/knight.webp" alt="The Stranger — Blindspot starter fighter card portrait" width="1024" height="1024" loading="eager" decoding="async" fetchpriority="high">
           <div class="bs-hero-stack" id="bs-hero-stack" aria-hidden="true"></div>
           <div class="blindspot-landing__portrait-veil"></div>
           <span class="blindspot-landing__card-tag" id="bs-hero-tag">Stranger · 0001</span>
@@ -133,6 +172,12 @@
               <i class="fas fa-user-shield" aria-hidden="true"></i> Sign in to save your card
             </a>
             <span class="blindspot-landing__signin-or">Or play as guest, no account needed</span>
+          </div>
+          <div class="blindspot-landing__signin-row blindspot-fade-up" style="animation-delay: 1.9s;">
+            <a href="/blindspot/gallery.html" id="bs-gallery-link">
+              <i class="fas fa-images" aria-hidden="true"></i> Browse the Card Gallery
+            </a>
+            <span class="blindspot-landing__signin-or">See cards forged by other fighters</span>
           </div>
         </div>
       </div>

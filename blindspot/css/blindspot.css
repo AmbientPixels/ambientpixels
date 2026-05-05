@@ -2567,6 +2567,20 @@
   margin: 0 0 0.5rem;
   line-height: 1.45;
 }
+.bs-gallery__intro {
+  font-size: 0.9rem;
+  color: var(--bs-text-dim);
+  line-height: 1.55;
+  margin: 0.5rem 0 1rem;
+  max-width: 56rem;
+}
+.bs-gallery__intro p {
+  margin: 0 0 0.6rem;
+}
+.bs-gallery__intro a {
+  color: var(--bs-accent-gold);
+  text-decoration: underline;
+}
 /* Filter row — Class / Element / Rarity dropdowns above the grid */
 .bs-gallery__filters {
   display: flex;

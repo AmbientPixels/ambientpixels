@@ -10,18 +10,54 @@
   <meta property="og:title" content="Blindspot Gallery — Public Card Showcase">
   <meta property="og:description" content="Browse the public Blindspot card gallery — fighter art forged by the community.">
   <meta property="og:url" content="https://www.ambientpixels.ai/blindspot/gallery.html">
-  <meta property="og:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot-gallery.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Blindspot Gallery — Public Card Showcase" />
   <meta name="twitter:description" content="Browse the public Blindspot card gallery." />
-  <meta name="twitter:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png" />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot-gallery.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Blindspot Card Gallery",
+    "description": "Public showcase of fighter cards forged and published by Blindspot players. Browse by class, element, and rarity.",
+    "url": "https://www.ambientpixels.ai/blindspot/gallery.html",
+    "isPartOf": { "@id": "https://www.ambientpixels.ai/blindspot/#game" },
+    "inLanguage": "en"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://www.ambientpixels.ai/#org",
+    "name": "AmbientPixels",
+    "url": "https://www.ambientpixels.ai",
+    "logo": "https://www.ambientpixels.ai/images/og-ambientpixels.png",
+    "description": "Creative-tech studio operating AI systems, digital products, and the infrastructure behind them.",
+    "sameAs": []
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "AmbientPixels", "item": "https://www.ambientpixels.ai/" },
+      { "@type": "ListItem", "position": 2, "name": "Blindspot", "item": "https://www.ambientpixels.ai/blindspot/" },
+      { "@type": "ListItem", "position": 3, "name": "Gallery", "item": "https://www.ambientpixels.ai/blindspot/gallery.html" }
+    ]
+  }
+  </script>
   <meta name="csrf-token" content="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"></noscript>
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/theme.css">
@@ -64,10 +100,34 @@
       <div class="bs-gallery">
         <div class="bs-gallery__header">
           <a href="/blindspot/play.html" class="bs-campaign__back" id="bs-gallery-back" aria-label="Back to lobby" style="text-decoration:none;"><i class="fas fa-arrow-left" aria-hidden="true"></i></a>
-          <h2 class="bs-gallery__title"><i class="fas fa-images" style="color:var(--bs-accent);"></i> Gallery</h2>
+          <h1 class="bs-gallery__title"><i class="fas fa-images" style="color:var(--bs-accent);"></i> Blindspot Card Gallery</h1>
           <span class="bs-gallery__meta" id="bs-gallery-count">&nbsp;</span>
         </div>
         <p class="bs-gallery__sub">Cards published by other fighters. Browse for inspiration; nothing here changes your roster.</p>
+
+        <!-- Static intro for crawlers and no-JS users. The grid below is JS-rendered;
+             this copy gives Googlebot, AI crawlers, and screen readers something to
+             read while the live cards load. Keep this brief and meaningful — it's
+             not filler, it's the only content non-JS visitors will see. -->
+        <section class="bs-gallery__intro" aria-label="About the gallery">
+          <p>The Blindspot Card Gallery is a public showcase of fighter cards forged and published by players. Every card here was built with the in-game <a href="/blindspot/play.html">Forge</a> or Quick Build wizard, then published by its creator for the community to see.</p>
+          <p>Filter by <strong>class</strong>, <strong>element</strong>, or <strong>rarity</strong> using the controls below. Cards span 13 fighter classes (Fighter, Enforcer, Berserker, Caster, Hacker, Scholar, Scout, Rogue, Pilot, Guardian, Medic, Trickster, Wildcard) and 5 elemental affinities (Fire, Earth, Arcane, Shadow, Chaos), with rarities from Common through Legendary. Browsing the gallery never changes your roster — to forge your own card, head to the <a href="/blindspot/play.html">Arena lobby</a> and win a campaign fight.</p>
+        </section>
+
+        <noscript>
+          <div class="bs-gallery__intro" role="alert" style="border:1px solid var(--bs-border-2); padding:1rem; margin:1rem 0; border-radius:6px;">
+            <p><strong>The live card gallery requires JavaScript.</strong> The interactive grid loads cards from the Blindspot API, which needs JS to render.</p>
+            <p>You can still explore Blindspot without JavaScript:</p>
+            <ul style="margin: 0.5rem 0 0.5rem 1.5rem;">
+              <li><a href="/blindspot/">Blindspot landing page</a> — game overview and rules</li>
+              <li><a href="/blindspot/play.html">Arena lobby</a> — campaign and PvP entry point</li>
+              <li><a href="/">AmbientPixels home</a> — the studio behind Blindspot</li>
+            </ul>
+            <p style="margin-top:0.75rem;"><strong>Fighter classes:</strong> Fighter, Enforcer, Berserker, Caster, Hacker, Scholar, Scout, Rogue, Pilot, Guardian, Medic, Trickster, Wildcard.</p>
+            <p><strong>Elements:</strong> Fire (strong vs Earth), Earth (strong vs Arcane), Arcane (strong vs Shadow), Shadow (strong vs Fire), Chaos (neutral to all).</p>
+          </div>
+        </noscript>
+
         <div class="bs-gallery__filters" role="group" aria-label="Filter gallery">
           <label class="bs-gallery__filter">
             <span class="bs-gallery__filter-label">Class</span>

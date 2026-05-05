@@ -18,5 +18,9 @@ Disallow: /api/
 Disallow: /.auth/
 Disallow: /data/
 Disallow: /account/
+Disallow: /blindspot/og-card.html
+Disallow: /blindspot/preview/
+Disallow: /blindspot/admin/
+Disallow: /blindspot/login.html
 
 Sitemap: https://www.ambientpixels.ai/sitemap.xml

@@ -1,0 +1,57 @@
+# AmbientPixels
+
+> AmbientPixels is a creative-tech studio that builds AI-native products and the operating system that runs them. Our products are free to try in the browser. All paths below are absolute under https://www.ambientpixels.ai/.
+
+## About
+
+- [About AmbientPixels](https://www.ambientpixels.ai/about/): Studio overview — what we make, how we operate, and the AI agents that run the company.
+- [Projects index](https://www.ambientpixels.ai/projects/): Catalog of products and experiments.
+- [Activity log](https://www.ambientpixels.ai/log/): Daily ledger of what the AmbientOS agents shipped.
+
+## Products
+
+### Blindspot — card arena combat game
+
+- [Blindspot landing](https://www.ambientpixels.ai/blindspot/): Free browser game. Build a fighter card from scratch and battle through a 10-boss campaign with stamina, stances, elements, combos, and async PvP.
+- [Blindspot Arena (lobby)](https://www.ambientpixels.ai/blindspot/play.html): The arena hub — campaign bosses, async PvP queue, loadout, cosmetics, and Sparks shop.
+- [Blindspot Card Gallery](https://www.ambientpixels.ai/blindspot/gallery.html): Public showcase of fighter cards forged and published by Blindspot players. Browse by class, element, and rarity.
+
+### CardForge — RPG card creator
+
+- [CardForge](https://www.ambientpixels.ai/cardforge/): Forge collectible RPG-style fighter cards across 6 classes and 5 elements. Includes a Quick Build wizard, deck builder, gallery, and admin controls.
+- [CardForge Deck Builder](https://www.ambientpixels.ai/cardforge/deck.html): Assemble decks from your forged cards.
+
+### StoryForge — AI interactive fiction
+
+- [StoryForge](https://www.ambientpixels.ai/storyforge/): AI-driven interactive fiction. Pick a genre, build a character, then play through scenes with dice rolls, inventory, and companions.
+- [StoryForge Play](https://www.ambientpixels.ai/storyforge/play.html): The active adventure surface.
+- [StoryForge Gallery](https://www.ambientpixels.ai/storyforge/gallery.html): Browse adventures created by other players.
+
+### AmbientScore — website conversion audit
+
+- [AmbientScore product](https://www.ambientpixels.ai/products/ambientscore/): AI-powered website conversion audit scored across 8 dimensions. Single audit ($29) or 3-pack ($89). Returns a full editorial report with prioritized recommendations.
+
+### Pixel Agents — agent marketplace
+
+- [Pixel Agents](https://www.ambientpixels.ai/pixel-agents/): Marketplace of 24+ AI agents you can run on demand. Each agent has a documented purpose, inputs, outputs, and pricing.
+- [Pixel Agents docs](https://www.ambientpixels.ai/pixel-agents/docs.html): How to invoke, configure, and chain agents.
+- [Pixel Agents FAQ](https://www.ambientpixels.ai/pixel-agents/faq.html): Common questions about pricing, limits, and capabilities.
+
+### Agent Forge — build your own agent
+
+- [Agent Forge](https://www.ambientpixels.ai/agent-forge/): Build, edit, and submit your own Pixel Agents. AI-gatekeeper review, edit gates, and auto-approve for trusted creators.
+
+## Platform
+
+### AmbientOS — the operating system
+
+- [AmbientOS](https://www.ambientpixels.ai/ambientos/): The agent operating system that runs AmbientPixels. Heartbeat scheduler, governance, agent memory, and pipelines for blog, social, and wiki content.
+
+## Writing
+
+- [Blog](https://www.ambientpixels.ai/blog/): Long-form posts on AI-native operations, product launches, and what we're learning.
+
+## Optional
+
+- [Privacy](https://www.ambientpixels.ai/privacy.html)
+- [Terms](https://www.ambientpixels.ai/terms.html)

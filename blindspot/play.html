@@ -10,18 +10,54 @@
   <meta property="og:title" content="Blindspot Arena — Campaign & PvP">
   <meta property="og:description" content="Fight bosses, challenge players, evolve your card.">
   <meta property="og:url" content="https://www.ambientpixels.ai/blindspot/play.html">
-  <meta property="og:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot-play.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Blindspot Arena — Campaign & PvP" />
   <meta name="twitter:description" content="Fight bosses, challenge players, evolve your card." />
-  <meta name="twitter:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png" />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot-play.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "@id": "https://www.ambientpixels.ai/blindspot/#game",
+    "url": "https://www.ambientpixels.ai/blindspot/play.html",
+    "name": "Blindspot — Arena",
+    "description": "The arena lobby for Blindspot — fight 10 campaign bosses, challenge other players in async PvP, and evolve your card with loot, cosmetics, and elemental powers.",
+    "mainEntityOfPage": "https://www.ambientpixels.ai/blindspot/"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://www.ambientpixels.ai/#org",
+    "name": "AmbientPixels",
+    "url": "https://www.ambientpixels.ai",
+    "logo": "https://www.ambientpixels.ai/images/og-ambientpixels.png",
+    "description": "Creative-tech studio operating AI systems, digital products, and the infrastructure behind them.",
+    "sameAs": []
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "AmbientPixels", "item": "https://www.ambientpixels.ai/" },
+      { "@type": "ListItem", "position": 2, "name": "Blindspot", "item": "https://www.ambientpixels.ai/blindspot/" },
+      { "@type": "ListItem", "position": 3, "name": "Arena", "item": "https://www.ambientpixels.ai/blindspot/play.html" }
+    ]
+  }
+  </script>
   <meta name="csrf-token" content="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous"></noscript>
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/theme.css">
@@ -1881,65 +1917,65 @@
   </nav>
 
   <!-- Blindspot lib (forked from CardForge for independence) -->
-  <script src="js/lib/bs-config.js"></script>
-  <script src="js/lib/bs-csrf.js"></script>
-  <script src="js/lib/bs-utils.js"></script>
-  <script src="js/lib/bs-stubs.js"></script>
-  <script src="js/lib/bs-arena-audio.js"></script>
-  <script src="js/lib/bs-arena-api.js"></script>
-  <script src="js/lib/bs-arena-card-select.js"></script>
-  <script src="js/lib/bs-arena-battle-ui.js"></script>
-  <script src="js/lib/bs-arena-results.js"></script>
-  <script src="js/lib/bs-arena-backgrounds.js"></script>
+  <script src="js/lib/bs-config.js" defer></script>
+  <script src="js/lib/bs-csrf.js" defer></script>
+  <script src="js/lib/bs-utils.js" defer></script>
+  <script src="js/lib/bs-stubs.js" defer></script>
+  <script src="js/lib/bs-arena-audio.js" defer></script>
+  <script src="js/lib/bs-arena-api.js" defer></script>
+  <script src="js/lib/bs-arena-card-select.js" defer></script>
+  <script src="js/lib/bs-arena-battle-ui.js" defer></script>
+  <script src="js/lib/bs-arena-results.js" defer></script>
+  <script src="js/lib/bs-arena-backgrounds.js" defer></script>
 
-  <script src="js/lib/bs-presets.js"></script>
-  <script src="js/lib/bs-ai.js"></script>
-  <script src="js/lib/bs-save-card.js"></script>
-  <script src="js/lib/bs-adventure.js"></script>
-  <script src="js/blindspot-quick-build.js"></script>
-  <script src="js/lib/bs-constants.js"></script>
-  <script src="js/lib/bs-state.js"></script>
-  <script src="js/lib/bs-audio-sfx.js"></script>
-  <script src="js/lib/bs-toast.js"></script>
-  <script src="js/lib/bs-cosmetics.js"></script>
-  <script src="js/lib/bs-crates.js"></script>
-  <script src="js/lib/bs-strategy.js"></script>
-  <script src="js/lib/bs-card-renderer.js"></script>
-  <script src="js/lib/bs-card-share.js"></script>
-  <script src="js/lib/bs-gallery-page.js"></script>
-  <script src="js/lib/bs-lobby-gallery.js"></script>
-  <script src="js/lib/bs-charms.js"></script>
-  <script src="js/lib/bs-rewards.js"></script>
-  <script src="js/lib/bs-wager.js"></script>
-  <script src="js/lib/bs-pvp.js"></script>
-  <script src="js/lib/bs-campaign.js"></script>
-  <script src="js/lib/bs-forge.js"></script>
-  <script src="js/lib/bs-session-stats.js"></script>
-  <script src="js/lib/bs-nav.js"></script>
-  <script src="js/lib/bs-debug.js"></script>
-  <script src="js/lib/bs-deck.js"></script>
-  <script src="js/lib/bs-lobby-onboarding.js"></script>
-  <script src="js/lib/bs-battle-results.js"></script>
-  <script src="js/lib/bs-loot-choice.js"></script>
-  <script src="js/lib/bs-ascension.js"></script>
-  <script src="js/lib/bs-tutorial.js"></script>
-  <script src="js/lib/bs-reward-drops.js"></script>
-  <script src="js/lib/bs-leaderboard.js"></script>
-  <script src="js/lib/bs-combat-tooltips.js"></script>
-  <script src="js/lib/bs-auth-ui.js"></script>
-  <script src="js/lib/bs-notifications.js"></script>
-  <script src="js/lib/bs-profile-image.js"></script>
-  <script src="js/lib/bs-storage-cleanup.js"></script>
-  <script src="js/lib/bs-battle-palette.js"></script>
-  <script src="js/lib/bs-boss-card.js"></script>
-  <script src="js/lib/bs-card-switcher.js"></script>
-  <script src="js/lib/bs-card-rarity.js"></script>
-  <script src="js/lib/bs-sparks-shop.js"></script>
-  <script src="js/lib/bs-boss-rewards.js"></script>
-  <script src="js/lib/bs-class-picker.js"></script>
-  <script src="js/lib/bs-prefight-buttons.js"></script>
-  <script src="js/lib/bs-landing.js"></script>
-  <script src="js/blindspot-flow.js"></script>
+  <script src="js/lib/bs-presets.js" defer></script>
+  <script src="js/lib/bs-ai.js" defer></script>
+  <script src="js/lib/bs-save-card.js" defer></script>
+  <script src="js/lib/bs-adventure.js" defer></script>
+  <script src="js/blindspot-quick-build.js" defer></script>
+  <script src="js/lib/bs-constants.js" defer></script>
+  <script src="js/lib/bs-state.js" defer></script>
+  <script src="js/lib/bs-audio-sfx.js" defer></script>
+  <script src="js/lib/bs-toast.js" defer></script>
+  <script src="js/lib/bs-cosmetics.js" defer></script>
+  <script src="js/lib/bs-crates.js" defer></script>
+  <script src="js/lib/bs-strategy.js" defer></script>
+  <script src="js/lib/bs-card-renderer.js" defer></script>
+  <script src="js/lib/bs-card-share.js" defer></script>
+  <script src="js/lib/bs-gallery-page.js" defer></script>
+  <script src="js/lib/bs-lobby-gallery.js" defer></script>
+  <script src="js/lib/bs-charms.js" defer></script>
+  <script src="js/lib/bs-rewards.js" defer></script>
+  <script src="js/lib/bs-wager.js" defer></script>
+  <script src="js/lib/bs-pvp.js" defer></script>
+  <script src="js/lib/bs-campaign.js" defer></script>
+  <script src="js/lib/bs-forge.js" defer></script>
+  <script src="js/lib/bs-session-stats.js" defer></script>
+  <script src="js/lib/bs-nav.js" defer></script>
+  <script src="js/lib/bs-debug.js" defer></script>
+  <script src="js/lib/bs-deck.js" defer></script>
+  <script src="js/lib/bs-lobby-onboarding.js" defer></script>
+  <script src="js/lib/bs-battle-results.js" defer></script>
+  <script src="js/lib/bs-loot-choice.js" defer></script>
+  <script src="js/lib/bs-ascension.js" defer></script>
+  <script src="js/lib/bs-tutorial.js" defer></script>
+  <script src="js/lib/bs-reward-drops.js" defer></script>
+  <script src="js/lib/bs-leaderboard.js" defer></script>
+  <script src="js/lib/bs-combat-tooltips.js" defer></script>
+  <script src="js/lib/bs-auth-ui.js" defer></script>
+  <script src="js/lib/bs-notifications.js" defer></script>
+  <script src="js/lib/bs-profile-image.js" defer></script>
+  <script src="js/lib/bs-storage-cleanup.js" defer></script>
+  <script src="js/lib/bs-battle-palette.js" defer></script>
+  <script src="js/lib/bs-boss-card.js" defer></script>
+  <script src="js/lib/bs-card-switcher.js" defer></script>
+  <script src="js/lib/bs-card-rarity.js" defer></script>
+  <script src="js/lib/bs-sparks-shop.js" defer></script>
+  <script src="js/lib/bs-boss-rewards.js" defer></script>
+  <script src="js/lib/bs-class-picker.js" defer></script>
+  <script src="js/lib/bs-prefight-buttons.js" defer></script>
+  <script src="js/lib/bs-landing.js" defer></script>
+  <script src="js/blindspot-flow.js" defer></script>
 
   <!-- Play page particle system -->
   <script>
