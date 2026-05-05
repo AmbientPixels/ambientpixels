@@ -950,43 +950,150 @@
   outline: none;
 }
 
+/* ============================================================
+   User dropdown menu — Phase 5 structure.
+   Two stacked views (main + settings) inside one panel. JS
+   toggles which is hidden. 8px corner radius (deliberately not
+   pill or fully rounded), gold border at low alpha, anchored flush
+   under the trigger with no gap.
+   ============================================================ */
 .bs-topbar__user-menu {
   position: absolute;
-  top: calc(100% + 0.4rem);
+  top: 100%;
   right: 0;
-  min-width: 180px;
-  padding: 0.35rem;
-  background: rgba(13, 8, 7, 0.94);
-  border: 1px solid var(--blindspot-border, #3A1F1A);
-  border-radius: 10px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(245, 192, 120, 0.06);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  width: 240px;
+  background: var(--blindspot-surface, #1C100D);
+  border: 1px solid rgba(245, 192, 120, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(245, 192, 120, 0.06);
   z-index: 200;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  overflow: hidden;
 }
 .bs-topbar__user-menu[hidden] {
   display: none;
 }
 
-.bs-topbar__user-menu-item {
+/* Each view is a flex column. Padding lives on the view (not the
+   panel) so the header strip can reach edge-to-edge. */
+.bs-topbar__user-menu-view {
+  display: flex;
+  flex-direction: column;
+}
+.bs-topbar__user-menu-view[hidden] {
+  display: none;
+}
+
+/* Header strip: avatar + identity. Lighter band so the panel reads
+   as panel-on-bar visually. */
+.bs-topbar__user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 0.85rem 0.75rem;
+  background: rgba(245, 192, 120, 0.04);
+  border-bottom: 1px solid rgba(245, 192, 120, 0.1);
+}
+.bs-topbar__user-menu-avatar {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 0.7rem;
-  font-size: 0.85rem;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(245, 192, 120, 0.08);
+  border: 2px solid rgba(245, 192, 120, 0.32);
+  flex-shrink: 0;
+}
+.bs-topbar__user-menu-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bs-topbar__user-menu-avatar-img[hidden] {
+  display: none;
+}
+.bs-topbar__user-menu-avatar-fallback {
+  font-size: 1rem;
+  color: var(--blindspot-accent-gold, #F5C078);
+}
+.bs-topbar__user-menu-avatar-fallback[hidden] {
+  display: none;
+}
+.bs-topbar__user-menu-id {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.bs-topbar__user-menu-name {
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--blindspot-accent-gold, #F5C078);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bs-topbar__user-menu-meta {
+  font-family: var(--blindspot-font-body, Inter, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--bs-text-muted);
+  letter-spacing: 0.04em;
+  margin-top: 0.15rem;
+  text-transform: uppercase;
+}
+
+/* Section: each group of items. Padding pulls items off the
+   panel's edges so hover fills feel intentional. */
+.bs-topbar__user-menu-section {
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem 0;
+}
+
+/* Divider: 1px gold @ ~10% with horizontal padding so the line
+   feels inset from the panel edges. */
+.bs-topbar__user-menu-divider {
+  height: 1px;
+  margin: 0 0.6rem;
+  background: rgba(245, 192, 120, 0.1);
+}
+
+/* Items: 44px min-height, hover/focus fills full content width. */
+.bs-topbar__user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   color: var(--bs-text);
+  font-family: var(--blindspot-font-body, Inter, sans-serif);
+  font-size: 0.88rem;
+  text-align: left;
   text-decoration: none;
-  border-radius: 6px;
+  cursor: pointer;
   transition: background 120ms ease, color 120ms ease;
 }
 .bs-topbar__user-menu-item i {
   width: 1em;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: var(--bs-text-muted);
+  flex-shrink: 0;
   transition: color 120ms ease;
+}
+.bs-topbar__user-menu-item-chev {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--bs-text-muted);
 }
 .bs-topbar__user-menu-item:hover,
 .bs-topbar__user-menu-item:focus-visible {
@@ -999,23 +1106,66 @@
   color: var(--bs-accent);
 }
 
-/* Toggle variant — used as a <button>, not an <a>. Reset native button
-   chrome so it visually matches the link rows, then push a trailing
-   state label (On/Off) to the far right via auto margin. */
-.bs-topbar__user-menu-item--toggle {
-  width: 100%;
+/* Destructive variant (Sign out): red text, no background fill on
+   hover (just intensifies the red). */
+.bs-topbar__user-menu-item--destructive {
+  color: var(--blindspot-accent, #C8302C);
+}
+.bs-topbar__user-menu-item--destructive i {
+  color: var(--blindspot-accent, #C8302C);
+}
+.bs-topbar__user-menu-item--destructive:hover,
+.bs-topbar__user-menu-item--destructive:focus-visible {
   background: transparent;
+  color: var(--blindspot-accent-hover, #E04540);
+}
+.bs-topbar__user-menu-item--destructive:hover i,
+.bs-topbar__user-menu-item--destructive:focus-visible i {
+  color: var(--blindspot-accent-hover, #E04540);
+}
+
+/* Settings sub-panel back button. Reads as a header row, not a menu
+   item, so the eye groups it with the panel chrome. */
+.bs-topbar__user-menu-back {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  background: rgba(245, 192, 120, 0.04);
   border: 0;
-  font-family: inherit;
-  cursor: pointer;
+  border-bottom: 1px solid rgba(245, 192, 120, 0.1);
+  border-radius: 0;
+  color: var(--blindspot-accent-gold, #F5C078);
+  font-family: var(--blindspot-font-body, Inter, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.bs-topbar__user-menu-back:hover,
+.bs-topbar__user-menu-back:focus-visible {
+  background: rgba(245, 192, 120, 0.1);
+  outline: none;
+}
+.bs-topbar__user-menu-back i {
+  font-size: 0.75rem;
+}
+
+/* Toggle variant on a menu row (Reduce Effects, Phase 6 audio). */
+.bs-topbar__user-menu-item--toggle {
+  font-family: var(--blindspot-font-body, Inter, sans-serif);
 }
 .bs-topbar__user-menu-state {
   margin-left: auto;
-  padding: 0.1rem 0.45rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--bs-text-muted);
   background: rgba(255, 255, 255, 0.04);
@@ -1025,11 +1175,20 @@
 }
 .bs-topbar__user-menu-item--toggle[aria-checked="true"] .bs-topbar__user-menu-state {
   color: var(--bs-accent);
-  background: rgba(245, 192, 120, 0.12);
-  border-color: rgba(245, 192, 120, 0.32);
+  background: rgba(245, 192, 120, 0.14);
+  border-color: rgba(245, 192, 120, 0.36);
 }
 .bs-topbar__user-menu-item--toggle[aria-checked="true"] i {
   color: var(--bs-accent);
+}
+
+/* Mobile: full-width menu with 16px gutter on each side. */
+@media (max-width: 480px) {
+  .bs-topbar__user-menu {
+    width: calc(100vw - 32px);
+    right: 16px;
+    left: auto;
+  }
 }
 
 /* ============================================================

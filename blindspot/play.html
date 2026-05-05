@@ -148,20 +148,63 @@
         <a class="bs-topbar__signin-btn" id="bs-topbar-signin" href="/blindspot/login.html?redirect=/blindspot/play.html" hidden>
           <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Sign in
         </a>
+        <!-- User dropdown. Two views inside the same panel: main and
+             settings. JS (bs-auth-ui.js) toggles which view is shown.
+             Header strip is populated by updateMenuHeader() to mirror
+             the topbar avatar + chip name + level / sparks. -->
         <div class="bs-topbar__user-menu" id="bs-topbar-user-menu" role="menu" aria-labelledby="bs-topbar-user-chip" hidden>
-          <a class="bs-topbar__user-menu-item bs-topbar__user-menu-item--admin" id="bs-topbar-menu-admin" href="/blindspot/admin/" role="menuitem" hidden>
-            <i class="fas fa-shield-halved" aria-hidden="true"></i>
-            <span>Admin</span>
-          </a>
-          <button class="bs-topbar__user-menu-item bs-topbar__user-menu-item--toggle" id="bs-topbar-menu-effects" type="button" role="menuitemcheckbox" aria-checked="false">
-            <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
-            <span>Reduce effects</span>
-            <span class="bs-topbar__user-menu-state" id="bs-topbar-menu-effects-state">Off</span>
-          </button>
-          <a class="bs-topbar__user-menu-item" id="bs-topbar-menu-logout" href="/.auth/logout?post_logout_redirect_uri=/blindspot/" role="menuitem">
-            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-            <span>Sign out</span>
-          </a>
+          <div class="bs-topbar__user-menu-view bs-topbar__user-menu-view--main" id="bs-topbar-menu-view-main">
+            <div class="bs-topbar__user-menu-header">
+              <span class="bs-topbar__user-menu-avatar" aria-hidden="true">
+                <img class="bs-topbar__user-menu-avatar-img" id="bs-topbar-menu-avatar-img" alt="" hidden>
+                <i class="fas fa-user-shield bs-topbar__user-menu-avatar-fallback" aria-hidden="true"></i>
+              </span>
+              <div class="bs-topbar__user-menu-id">
+                <div class="bs-topbar__user-menu-name" id="bs-topbar-menu-name">&mdash;</div>
+                <div class="bs-topbar__user-menu-meta" id="bs-topbar-menu-meta">LV 1</div>
+              </div>
+            </div>
+            <div class="bs-topbar__user-menu-section" role="group">
+              <a class="bs-topbar__user-menu-item bs-topbar__user-menu-item--admin" id="bs-topbar-menu-admin" href="/blindspot/admin/" role="menuitem" hidden>
+                <i class="fas fa-shield-halved" aria-hidden="true"></i>
+                <span>Admin</span>
+              </a>
+              <button class="bs-topbar__user-menu-item" id="bs-topbar-menu-profile" type="button" role="menuitem">
+                <i class="fas fa-user" aria-hidden="true"></i>
+                <span>Fighter profile</span>
+              </button>
+              <button class="bs-topbar__user-menu-item" id="bs-topbar-menu-settings" type="button" role="menuitem" aria-haspopup="true">
+                <i class="fas fa-sliders" aria-hidden="true"></i>
+                <span>Settings</span>
+                <i class="fas fa-chevron-right bs-topbar__user-menu-item-chev" aria-hidden="true"></i>
+              </button>
+              <button class="bs-topbar__user-menu-item" id="bs-topbar-menu-howto" type="button" role="menuitem">
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                <span>How to play</span>
+              </button>
+            </div>
+            <div class="bs-topbar__user-menu-divider" aria-hidden="true"></div>
+            <div class="bs-topbar__user-menu-section bs-topbar__user-menu-section--destructive" role="group">
+              <a class="bs-topbar__user-menu-item bs-topbar__user-menu-item--destructive" id="bs-topbar-menu-logout" href="/.auth/logout?post_logout_redirect_uri=/blindspot/" role="menuitem">
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                <span>Sign out</span>
+              </a>
+            </div>
+          </div>
+          <div class="bs-topbar__user-menu-view bs-topbar__user-menu-view--settings" id="bs-topbar-menu-view-settings" hidden>
+            <button class="bs-topbar__user-menu-back" id="bs-topbar-menu-back" type="button" aria-label="Back to menu">
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>
+              <span>Settings</span>
+            </button>
+            <div class="bs-topbar__user-menu-section" role="group">
+              <button class="bs-topbar__user-menu-item bs-topbar__user-menu-item--toggle" id="bs-topbar-menu-effects" type="button" role="menuitemcheckbox" aria-checked="false">
+                <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
+                <span>Reduce effects</span>
+                <span class="bs-topbar__user-menu-state" id="bs-topbar-menu-effects-state">Off</span>
+              </button>
+              <!-- Phase 6 will add: Sound effects toggle, Music toggle -->
+            </div>
+          </div>
         </div>
       </div>
       <button class="arena-audio-toggle" id="arena-sfx-toggle" title="Mute SFX" aria-label="Toggle sound effects">

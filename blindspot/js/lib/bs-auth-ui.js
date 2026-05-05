@@ -1,18 +1,23 @@
 /* ============================================================
-   bs-auth-ui.js — Play page topbar auth display
-   IIFE → window.BsAuthUI
+   bs-auth-ui.js
+   Topbar identity chip + dropdown menu (main + settings views).
+   IIFE on window.BsAuthUI.
 
-   Drives the identity chip + dropdown in the topbar (replaces an
-   older inline-style blob inside #bs-topbar-user). Markup lives in
-   play.html under #bs-topbar-user-wrap; this module:
-     - reads /.auth/me to detect signed-in vs guest
-     - populates name + level into the chip, reveals admin menu item
-       when the userId matches the whitelist
-     - toggles between the chip (signed-in) and a "Sign in" button
-       (guest) by flipping the [hidden] attribute — no display:none
-       overrides so the original CSS still works
-     - wires chip click → menu open, outside-click + Esc → close,
-       aria-expanded for screen readers
+   Responsibilities:
+     - Read /.auth/me to detect signed-in vs guest
+     - Populate the chip (name + avatar) and menu header
+     - Toggle between chip (signed-in) and Sign In button (guest)
+     - Drive the dropdown: open / close, view switching, focus trap,
+       outside-click + Esc behavior, item handlers (Fighter Profile,
+       Settings, How to Play, Sign Out)
+     - Persist Reduce Effects preference (lives on the Settings view)
+
+   Public API:
+     setCallbacks(cbs)   accepts { showScreen, renderStatsScreen,
+                                   renderLobby, openHowToPlay }
+     update()            re-runs the auth check + populates UI
+     refreshAvatar()     re-pulls the equipped card avatar URL into
+                         both chip and menu header (after a card swap)
    ============================================================ */
 (function () {
   'use strict';
@@ -23,6 +28,8 @@
   var _menuBound = false;
 
   function setCallbacks(obj) { _cb = obj || {}; }
+
+  // ── Reduce Effects (lives on the Settings sub-panel in Phase 5) ──
 
   function isReduceEffectsOn() {
     try { return localStorage.getItem(REDUCE_EFFECTS_KEY) === 'true'; }
@@ -37,68 +44,9 @@
     if (state) state.textContent = on ? 'On' : 'Off';
   }
 
-  function bindMenu() {
-    if (_menuBound) return;
-    _menuBound = true;
-    var chip = document.getElementById('bs-topbar-user-chip');
-    var menu = document.getElementById('bs-topbar-user-menu');
-    if (!chip || !menu) return;
-
-    // Reduce-effects toggle. Lives in the user dropdown so it's
-    // discoverable but doesn't compete with primary CTAs. The class
-    // is already applied by an inline <head> script before this binds
-    // so the menu state just reflects current truth.
-    var effectsBtn = document.getElementById('bs-topbar-menu-effects');
-    if (effectsBtn) {
-      applyReduceEffects(isReduceEffectsOn());
-      effectsBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var next = !isReduceEffectsOn();
-        try { localStorage.setItem(REDUCE_EFFECTS_KEY, next ? 'true' : 'false'); }
-        catch (err) { /* localStorage blocked — apply in-memory only */ }
-        applyReduceEffects(next);
-      });
-    }
-
-    chip.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var open = chip.getAttribute('aria-expanded') === 'true';
-      setMenuOpen(!open);
-    });
-
-    // Outside-click closes the menu. mousedown beats the doc-level click
-    // race on touch devices.
-    document.addEventListener('mousedown', function (e) {
-      if (chip.getAttribute('aria-expanded') !== 'true') return;
-      if (chip.contains(e.target) || menu.contains(e.target)) return;
-      setMenuOpen(false);
-    });
-
-    // Esc closes from anywhere; focus returns to the chip so keyboard
-    // users don't lose their place.
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape') return;
-      if (chip.getAttribute('aria-expanded') !== 'true') return;
-      setMenuOpen(false);
-      chip.focus();
-    });
-  }
-
-  function setMenuOpen(open) {
-    var chip = document.getElementById('bs-topbar-user-chip');
-    var menu = document.getElementById('bs-topbar-user-menu');
-    if (!chip || !menu) return;
-    chip.setAttribute('aria-expanded', open ? 'true' : 'false');
-    if (open) menu.removeAttribute('hidden');
-    else menu.setAttribute('hidden', '');
-  }
+  // ── Selected card cache (avatar source for chip + menu header) ──
 
   function getSelectedCardFromCache() {
-    // The lobby keeps the deck mirrored in localStorage as bs-deck and
-    // the active card id as bs-selected-card-id. Reading directly from
-    // there avoids needing a callback dependency on blindspot-flow.js
-    // and matches the pattern guestGreetingName already uses.
     try {
       var deck = JSON.parse(localStorage.getItem('bs-deck') || '[]');
       var selectedId = localStorage.getItem('bs-selected-card-id');
@@ -107,36 +55,238 @@
     } catch (e) { return null; }
   }
 
+  function setAvatarSource(imgEl, fallbackEl, url) {
+    if (!imgEl) return;
+    if (url) {
+      imgEl.src = url;
+      imgEl.removeAttribute('hidden');
+      if (fallbackEl) fallbackEl.setAttribute('hidden', '');
+    } else {
+      imgEl.removeAttribute('src');
+      imgEl.setAttribute('hidden', '');
+      if (fallbackEl) fallbackEl.removeAttribute('hidden');
+    }
+  }
+
+  function updateAvatars() {
+    var card = getSelectedCardFromCache();
+    var url = card && card.avatar ? String(card.avatar).trim() : '';
+
+    // Chip avatar (24px in the trigger).
+    setAvatarSource(
+      document.getElementById('bs-topbar-user-avatar-img'),
+      document.querySelector('.bs-topbar__user-avatar-fallback'),
+      url
+    );
+
+    // Menu header avatar (40px in the dropdown header).
+    setAvatarSource(
+      document.getElementById('bs-topbar-menu-avatar-img'),
+      document.querySelector('.bs-topbar__user-menu-avatar-fallback'),
+      url
+    );
+  }
+
   function guestGreetingName() {
-    // Guest greeting prefers the player's selected card name (their chosen
-    // fighter identity), falls back to the lore-appropriate Stranger
-    // rather than the generic "fighter". The Stranger is who you are on
-    // the splash; staying with that voice when no card name is available
-    // reads intentional instead of placeholder.
     var card = getSelectedCardFromCache();
     if (card && card.name && String(card.name).trim()) return String(card.name).trim();
     return 'Stranger';
   }
 
-  function updateUserAvatar() {
-    // Pulls the equipped card's avatar URL from the same cache the
-    // lobby reads. Falls back to the silhouette icon (fa-user-shield
-    // already in markup) if no card or no avatar URL.
-    var img = document.getElementById('bs-topbar-user-avatar-img');
-    var fallback = document.querySelector('.bs-topbar__user-avatar-fallback');
-    if (!img) return;
-    var card = getSelectedCardFromCache();
-    var url = card && card.avatar ? String(card.avatar).trim() : '';
-    if (url) {
-      img.src = url;
-      img.removeAttribute('hidden');
-      if (fallback) fallback.setAttribute('hidden', '');
+  // ── Menu views (main vs settings) ──
+
+  function getView(name) {
+    return document.getElementById('bs-topbar-menu-view-' + name);
+  }
+
+  function setView(name) {
+    var main = getView('main');
+    var settings = getView('settings');
+    if (!main || !settings) return;
+    if (name === 'settings') {
+      main.setAttribute('hidden', '');
+      settings.removeAttribute('hidden');
+      focusFirstIn(settings);
     } else {
-      img.removeAttribute('src');
-      img.setAttribute('hidden', '');
-      if (fallback) fallback.removeAttribute('hidden');
+      settings.setAttribute('hidden', '');
+      main.removeAttribute('hidden');
+      focusFirstIn(main);
     }
   }
+
+  function getActiveView() {
+    var settings = getView('settings');
+    return settings && !settings.hasAttribute('hidden') ? settings : getView('main');
+  }
+
+  // ── Focus trap helpers ──
+
+  function getFocusables(view) {
+    if (!view) return [];
+    var nodes = view.querySelectorAll('a[href]:not([hidden]), button:not([hidden]):not([disabled])');
+    return Array.prototype.filter.call(nodes, function (n) {
+      // Skip elements inside hidden subtrees (admin item, etc).
+      var p = n;
+      while (p && p !== view) {
+        if (p.hasAttribute('hidden')) return false;
+        p = p.parentNode;
+      }
+      return true;
+    });
+  }
+
+  function focusFirstIn(view) {
+    var f = getFocusables(view);
+    if (f.length) f[0].focus();
+  }
+
+  // ── Open / close ──
+
+  function setMenuOpen(open) {
+    var chip = document.getElementById('bs-topbar-user-chip');
+    var menu = document.getElementById('bs-topbar-user-menu');
+    if (!chip || !menu) return;
+    chip.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      // Always start at the main view; settings should be a deliberate
+      // sub-navigation, not a sticky panel.
+      setView('main');
+      menu.removeAttribute('hidden');
+      // Focus the first interactive item so keyboard users land in
+      // the menu directly.
+      focusFirstIn(getView('main'));
+    } else {
+      menu.setAttribute('hidden', '');
+      // Reset settings view so it doesn't briefly flash on next open.
+      var settings = getView('settings');
+      if (settings) settings.setAttribute('hidden', '');
+      var main = getView('main');
+      if (main) main.removeAttribute('hidden');
+    }
+  }
+
+  // ── Bind menu (idempotent) ──
+
+  function bindMenu() {
+    if (_menuBound) return;
+    var chip = document.getElementById('bs-topbar-user-chip');
+    var menu = document.getElementById('bs-topbar-user-menu');
+    if (!chip || !menu) return;
+    _menuBound = true;
+
+    // Chip click toggles the menu.
+    chip.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var open = chip.getAttribute('aria-expanded') === 'true';
+      setMenuOpen(!open);
+    });
+
+    // Outside-click closes. mousedown beats document-level click race
+    // conditions on touch devices.
+    document.addEventListener('mousedown', function (e) {
+      if (chip.getAttribute('aria-expanded') !== 'true') return;
+      if (chip.contains(e.target) || menu.contains(e.target)) return;
+      setMenuOpen(false);
+    });
+
+    // Esc handling: on settings view it goes back to main; on main it
+    // closes the menu and restores focus to the chip.
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (chip.getAttribute('aria-expanded') !== 'true') return;
+      var settings = getView('settings');
+      if (settings && !settings.hasAttribute('hidden')) {
+        setView('main');
+        var settingsBtn = document.getElementById('bs-topbar-menu-settings');
+        if (settingsBtn) settingsBtn.focus();
+      } else {
+        setMenuOpen(false);
+        chip.focus();
+      }
+    });
+
+    // Tab focus trap inside the menu. Captures Tab on the menu element
+    // and wraps focus around the focusables in the active view.
+    menu.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+      var view = getActiveView();
+      var f = getFocusables(view);
+      if (!f.length) return;
+      var first = f[0];
+      var last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    // ── Settings view ──
+
+    var settingsBtn = document.getElementById('bs-topbar-menu-settings');
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', function () { setView('settings'); });
+    }
+    var backBtn = document.getElementById('bs-topbar-menu-back');
+    if (backBtn) {
+      backBtn.addEventListener('click', function () { setView('main'); });
+    }
+
+    // ── Reduce Effects toggle (Settings view) ──
+
+    var effectsBtn = document.getElementById('bs-topbar-menu-effects');
+    if (effectsBtn) {
+      applyReduceEffects(isReduceEffectsOn());
+      effectsBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var next = !isReduceEffectsOn();
+        try { localStorage.setItem(REDUCE_EFFECTS_KEY, next ? 'true' : 'false'); }
+        catch (err) { /* localStorage blocked, apply in-memory only */ }
+        applyReduceEffects(next);
+      });
+    }
+
+    // ── Fighter Profile -> stats screen ──
+
+    var profileBtn = document.getElementById('bs-topbar-menu-profile');
+    if (profileBtn) {
+      profileBtn.addEventListener('click', function () {
+        setMenuOpen(false);
+        if (_cb.showScreen) _cb.showScreen('stats');
+        if (_cb.renderStatsScreen) _cb.renderStatsScreen();
+      });
+    }
+
+    // ── How to Play -> existing modal ──
+
+    var howtoBtn = document.getElementById('bs-topbar-menu-howto');
+    if (howtoBtn) {
+      howtoBtn.addEventListener('click', function () {
+        setMenuOpen(false);
+        var htp = document.getElementById('bs-howtoplay');
+        if (htp) htp.classList.remove('bs-modal-backdrop--hidden');
+      });
+    }
+  }
+
+  // ── Menu header populate ──
+
+  function updateMenuHeader(name) {
+    var nameEl = document.getElementById('bs-topbar-menu-name');
+    var metaEl = document.getElementById('bs-topbar-menu-meta');
+    if (nameEl) nameEl.textContent = name || 'Fighter';
+    if (metaEl) {
+      var xp = (window.BsState && window.BsState.progress && window.BsState.progress.xp) || 0;
+      var level = (window.BsState && typeof window.BsState.computeLevel === 'function') ? window.BsState.computeLevel(xp) : 1;
+      var sparks = (window.BsState && window.BsState.progress && window.BsState.progress.sparks) || 0;
+      metaEl.textContent = 'LV ' + level + ' · ' + sparks + ' sparks';
+    }
+  }
+
+  // ── Auth check + populate ──
 
   function updatePlayAuthUI() {
     var chip = document.getElementById('bs-topbar-user-chip');
@@ -153,27 +303,22 @@
 
     fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (data) {
       if (data && data.clientPrincipal) {
-        // Signed in.
         sessionStorage.setItem('isAuthenticated', 'true');
         document.body.setAttribute('data-auth-state', 'signed-in');
 
         var name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'fighter';
-
-        // Level chip from BsState. Falls back to "Lv 1" if BsState isn't
-        // ready (e.g. running on a page that loaded auth-ui before
-        // bs-state).
         var xp = (window.BsState && window.BsState.progress && window.BsState.progress.xp) || 0;
         var level = (window.BsState && typeof window.BsState.computeLevel === 'function') ? window.BsState.computeLevel(xp) : 1;
 
         nameEl.textContent = name;
         if (levelNumEl) levelNumEl.textContent = 'Lv ' + level;
         if (levelChip) levelChip.removeAttribute('hidden');
-        updateUserAvatar();
+        updateAvatars();
+        updateMenuHeader(name);
         chip.removeAttribute('hidden');
         signin.setAttribute('hidden', '');
         if (lobbyNameEl) lobbyNameEl.textContent = name;
 
-        // Admin item — reveal the menu row, not a separate icon link.
         if (adminItem) {
           if (data.clientPrincipal.userId && ADMIN_USER_IDS.indexOf(data.clientPrincipal.userId) >= 0) {
             adminItem.removeAttribute('hidden');
@@ -182,7 +327,6 @@
           }
         }
       } else {
-        // Not signed in. Hide chip + level, show sign-in button.
         chip.setAttribute('hidden', '');
         if (levelChip) levelChip.setAttribute('hidden', '');
         setMenuOpen(false);
@@ -190,7 +334,6 @@
         if (lobbyNameEl) lobbyNameEl.textContent = guestGreetingName();
       }
     }).catch(function () {
-      // Auth check failed — show sign in.
       chip.setAttribute('hidden', '');
       if (levelChip) levelChip.setAttribute('hidden', '');
       setMenuOpen(false);
@@ -202,6 +345,6 @@
   window.BsAuthUI = {
     setCallbacks: setCallbacks,
     update: updatePlayAuthUI,
-    refreshAvatar: updateUserAvatar
+    refreshAvatar: updateAvatars
   };
 })();
