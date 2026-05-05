@@ -41,6 +41,18 @@
 </head>
 <body class="bs-page bs-page--loading" data-theme="dark">
 
+  <!-- Apply Reduce Effects preference BEFORE the loading gate renders.
+       Inline so it runs as soon as <body> parses — no flash of the
+       holographic asc-5 spinner before the class lands. Toggle is in
+       the user-chip dropdown; persistence in localStorage. -->
+  <script>
+    try {
+      if (localStorage.getItem('bs-reduce-effects') === 'true') {
+        document.body.classList.add('bs-reduce-effects');
+      }
+    } catch (e) { /* localStorage blocked — fall through */ }
+  </script>
+
   <!-- Loading gate — hides UI until JS initializes -->
   <div id="bs-loading-gate" class="bs-loading-gate" aria-live="polite">
     <div class="bs-loading-gate__embers" id="bs-loading-gate-embers" aria-hidden="true"></div>
@@ -119,6 +131,11 @@
             <i class="fas fa-shield-halved" aria-hidden="true"></i>
             <span>Admin</span>
           </a>
+          <button class="bs-topbar__user-menu-item bs-topbar__user-menu-item--toggle" id="bs-topbar-menu-effects" type="button" role="menuitemcheckbox" aria-checked="false">
+            <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
+            <span>Reduce effects</span>
+            <span class="bs-topbar__user-menu-state" id="bs-topbar-menu-effects-state">Off</span>
+          </button>
           <a class="bs-topbar__user-menu-item" id="bs-topbar-menu-logout" href="/.auth/logout?post_logout_redirect_uri=/blindspot/" role="menuitem">
             <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
             <span>Sign out</span>

@@ -821,6 +821,55 @@
   color: var(--bs-accent);
 }
 
+/* Toggle variant — used as a <button>, not an <a>. Reset native button
+   chrome so it visually matches the link rows, then push a trailing
+   state label (On/Off) to the far right via auto margin. */
+.bs-topbar__user-menu-item--toggle {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.bs-topbar__user-menu-state {
+  margin-left: auto;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+.bs-topbar__user-menu-item--toggle[aria-checked="true"] .bs-topbar__user-menu-state {
+  color: var(--bs-accent);
+  background: rgba(245, 192, 120, 0.12);
+  border-color: rgba(245, 192, 120, 0.32);
+}
+.bs-topbar__user-menu-item--toggle[aria-checked="true"] i {
+  color: var(--bs-accent);
+}
+
+/* ============================================================
+   Reduce Effects mode — body.bs-reduce-effects opts heavy ambient
+   animations out. Add new rules here as more "is this too loud?"
+   moments come up. Today: kill the asc-5 holographic spin.
+   ============================================================ */
+.bs-reduce-effects .bs-lobby__card-display[data-ascension="5"] {
+  animation: none;
+}
+.bs-reduce-effects .bs-lobby__card-display[data-ascension="5"]::before,
+.bs-reduce-effects .bs-lobby__card-display[data-ascension="5"]::after {
+  animation: none;
+  /* Keep a static slice of the gradient so the border still reads as
+     ascended rather than disappearing entirely. Matches the
+     prefers-reduced-motion fallback intent. */
+}
+
 /* --- Screens --- */
 .bs-screen {
   display: none;

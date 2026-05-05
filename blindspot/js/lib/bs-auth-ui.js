@@ -18,10 +18,24 @@
   'use strict';
 
   var ADMIN_USER_IDS = ['5bb115c5-9077-4049-8af0-ce5085a9c315'];
+  var REDUCE_EFFECTS_KEY = 'bs-reduce-effects';
   var _cb = {};
   var _menuBound = false;
 
   function setCallbacks(obj) { _cb = obj || {}; }
+
+  function isReduceEffectsOn() {
+    try { return localStorage.getItem(REDUCE_EFFECTS_KEY) === 'true'; }
+    catch (e) { return false; }
+  }
+
+  function applyReduceEffects(on) {
+    document.body.classList.toggle('bs-reduce-effects', !!on);
+    var item = document.getElementById('bs-topbar-menu-effects');
+    var state = document.getElementById('bs-topbar-menu-effects-state');
+    if (item) item.setAttribute('aria-checked', on ? 'true' : 'false');
+    if (state) state.textContent = on ? 'On' : 'Off';
+  }
 
   function bindMenu() {
     if (_menuBound) return;
@@ -29,6 +43,23 @@
     var chip = document.getElementById('bs-topbar-user-chip');
     var menu = document.getElementById('bs-topbar-user-menu');
     if (!chip || !menu) return;
+
+    // Reduce-effects toggle. Lives in the user dropdown so it's
+    // discoverable but doesn't compete with primary CTAs. The class
+    // is already applied by an inline <head> script before this binds
+    // so the menu state just reflects current truth.
+    var effectsBtn = document.getElementById('bs-topbar-menu-effects');
+    if (effectsBtn) {
+      applyReduceEffects(isReduceEffectsOn());
+      effectsBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var next = !isReduceEffectsOn();
+        try { localStorage.setItem(REDUCE_EFFECTS_KEY, next ? 'true' : 'false'); }
+        catch (err) { /* localStorage blocked — apply in-memory only */ }
+        applyReduceEffects(next);
+      });
+    }
 
     chip.addEventListener('click', function (e) {
       e.stopPropagation();
