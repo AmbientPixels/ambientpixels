@@ -1,0 +1,283 @@
+{
+  "_meta": {
+    "schema_version": 1,
+    "description": "Authored lore content for the Boss Gallery public pages. The build script (scripts/build-boss-pages.js) joins this against bosses.json + boss-cards.json + adventures/* at build time so combat numbers stay single-sourced. Paragraphs in long-form fields are separated by \\n\\n and split into <p> tags by the build script. Per-boss `_needsExpansion` flags mark which fields are reduced scaffolds (drawn from existing data sources) vs fully authored content — expansion sessions consult these flags to find the next priority.",
+    "classThematic": {
+      "Enforcer": "Enforcers are the rules made flesh. They don't fight to win — they fight to make sure the rules win. Every blow is a reminder of who sets the boundary, and what crossing it costs.",
+      "Fighter": "Fighters fight with everything they've already got. No tricks, no flourish — just leverage, footwork, and the willingness to take a hit if it sets up the next one.",
+      "Scout": "Scouts win by being where the strike isn't. They read the room, count the breaths, and step into the gap that opens between intentions.",
+      "Hacker": "Hackers don't break rules — they read them faster than you do. Where you see combat, they see input handlers. Where you see your charges, they see uncollected data.",
+      "Berserker": "Berserkers turn punishment into fuel. The longer you keep them alive, the more the fight tilts. Mercy and patience both lose against a Berserker — the only winning play is over before it starts.",
+      "Scholar": "Scholars treat the arena like a library. Every move you make is a citation, filed away, returned to you sharper next round. Knowledge here is not metaphor — it is the weapon.",
+      "Guardian": "Guardians don't beat you. They wait. The arena is already theirs, and the fight is just the time it takes to remind you.",
+      "Trickster": "Tricksters bend probability the way other classes bend metal. They don't have a strategy — they have a tempo, and you're always one beat behind.",
+      "Caster": "Casters speak to the arena and it answers. Their fights are conversations, conducted in fire and crystal and the slow accumulation of design. By the time you understand the question, the answer has already shaped the room."
+    }
+  },
+  "bosses": [
+    {
+      "id": "bs-boss-1",
+      "slug": "gatekeeper",
+      "tagline": "The first wall. The last courtesy.",
+      "bio": "Every fighter who steps into Blindspot meets the Gatekeeper first. He stands where the corridor ends and the arena begins, and he has stood there long enough that nobody remembers a time before him.\n\nHe doesn't hate you. He doesn't even particularly want to fight. The Gatekeeper is what happens when an old soldier decides the world has enough chaos and not enough discipline, then volunteers to be the difference. His armor is light, his stance economical, and his patience finite — three rounds, no more, before the courtesy of fortified guard burns away and the work begins.\n\nThey say if you can pass the Gate, the rest of the campaign is just consequences. They are mostly right.",
+      "domainName": "The Gate",
+      "domainDescription": "The corridor stretches ahead, lit by flickering torches that cast long shadows across the stone walls. A low hum vibrates through the floor — the arena's heartbeat, waiting. Two paths branch before you. The left passage is carved with runes that pulse faintly to the rhythm of his fighting style; some say if you read them long enough, you can predict his rotation. The right path opens onto the training yard — scarred dummies, broken weapons, old bloodstains. This is where the Gatekeeper drills. Every challenger who has reached the arena door has passed through this room first, and most of them left something here.",
+      "strengthsProse": "The Gatekeeper opens with light armor that shrugs off the first wave of damage. If you swing wild in round one, you teach him your rhythm and waste your charge. He hits hardest when you're already committed — punishing reckless opens with a clean counter, then pressing forward as your stamina dips.\n\nHis low INT (5) makes him predictable to anyone paying attention, but predictability isn't the same as soft. Every move he throws is leveraged through high END (10) and disciplined STR (8) — fewer attacks than a Berserker, none of them wasted.",
+      "weaknessesProse": "His Achilles is INT — an Arcane build with high ability damage tears him apart while he's still saluting. Strikes work too: his moveWeaknesses table reads strike +10%, ability +20%, so anything that bypasses the early armor is doubled in effect once round three lands.\n\nThe winning shape is patience for two rounds, then escalate. Hold pressure on round one, conserve stamina round two, and unload on round three when his Fortified Start has worn through. If you can keep your charges alive through the opening, the back half of the fight is yours.",
+      "classThematic": "Enforcer",
+      "signatureMoves": [
+        {
+          "name": "Fortified Start",
+          "description": "Rounds one and two, the Gatekeeper wears light armor that absorbs flat damage off the top. By round three the plating has burned away and the courtesy is over."
+        },
+        {
+          "name": "First Blood",
+          "description": "His opening strike carries +10% damage. He doesn't telegraph it — he just hits harder when nobody is bleeding yet."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Gatekeeper-01.webp", "alt": "The Gatekeeper portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Gatekeeper-01.webm", "poster": "/blindspot/img/bosses/Gatekeeper-01.webp", "alt": "The Gatekeeper combat clip" }
+      ],
+      "_needsExpansion": []
+    },
+    {
+      "id": "bs-boss-2",
+      "slug": "gutter-rat",
+      "tagline": "Rules exist for a reason.",
+      "bio": "Gutter Rat is what's left when a career fighter outlasts every code they ever swore by. He came up in pit fights where the only rule was the one you survived. The discipline that keeps him standing in Blindspot's arena isn't borrowed from a school — it's the residue of a hundred fights nobody wrote down. Crit him once and he hits back twice. He learned that in places that don't have rules.",
+      "domainName": "The Warden's Corridor",
+      "domainDescription": "The corridor narrows. Iron bars line every wall, remnants of a prison that never released its dead. Somewhere ahead, metal scrapes against stone — a guard's blade, dragged lazily along the floor. The Warden walks his rounds even when no one is watching.",
+      "strengthsProse": "Vengeance is the engine. Land a crit and you wake him up — every subsequent hit lands harder. He resists abilities at 15%, so the obvious arcane play falls flat. Counter, in particular, gets +20% damage against him because he commits to strikes and doesn't pull punches mid-swing.",
+      "weaknessesProse": "His weakness stat is AGI (7) — a fast Scout build outpaces his strikes and dictates tempo. Avoid critting him casually; save crits for closing damage when his HP is already cracking. Counter is the highest-leverage move in the entire matchup.",
+      "classThematic": "Fighter",
+      "signatureMoves": [
+        {
+          "name": "Vengeance",
+          "description": "Hits harder after being crit. The angrier he gets, the cleaner the next strike lands."
+        },
+        {
+          "name": "Rule Keeper",
+          "description": "Resists abilities by 15%. He's seen every trick before — and he's still standing."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Gutter-Rat01.webp", "alt": "Gutter Rat portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Gutter-Rat01.webm", "poster": "/blindspot/img/bosses/Gutter-Rat01.webp", "alt": "Gutter Rat combat clip" }
+      ],
+      "_needsExpansion": ["bio", "domainDescription"]
+    },
+    {
+      "id": "bs-boss-3",
+      "slug": "shadow-stalker",
+      "tagline": "You never see them coming.",
+      "bio": "Nobody who has fought Shadow Stalker can describe their face. Not because of any glamor — but because by the time you've focused on it, they're already somewhere else. They are the lesson Blindspot teaches third: that watching the enemy is not the same as seeing them.",
+      "domainName": "The Haunted Ward",
+      "domainDescription": "The hallway ahead is wrong. The torches burn, but they cast no shadows. The air is still — too still, like the room itself is holding its breath. Every third step, the walls seem to forget you were there.",
+      "strengthsProse": "Phase is the entire fight. Every third round, Shadow Stalker steps out of the arena entirely — your big committed move lands on empty air. Read the count, save your stamina, and don't waste an Ability on a phase round.\n\nEvasion knocks 25% off your counters. The mirror of every other matchup: counter is usually the safe play, here it's the trap.",
+      "weaknessesProse": "Weak to LCK — a Gambler or Trickster build with Wild Card crits punishes them disproportionately. Strikes also work (+15% from moveWeaknesses), so a STR rotation between phase rounds chews them down quickly. The whole fight is a counting drill: track the round number, time your hits.",
+      "classThematic": "Scout",
+      "signatureMoves": [
+        {
+          "name": "Phase",
+          "description": "Every third round, ignores damage entirely. Plan your big hits around the cycle."
+        },
+        {
+          "name": "Evasion",
+          "description": "Counters land 25% less often. The reflective play doesn't work on something that isn't there."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Shadow-Stalker-01.webp", "alt": "Shadow Stalker portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Shadow-Stalker-01.webm", "poster": "/blindspot/img/bosses/Shadow-Stalker-01.webp", "alt": "Shadow Stalker combat clip" }
+      ],
+      "_needsExpansion": ["bio"]
+    },
+    {
+      "id": "bs-boss-4",
+      "slug": "arcane-scholar",
+      "tagline": "Every system has a flaw.",
+      "bio": "The Arcane Scholar isn't a wizard, whatever the name suggests. He is a system administrator. Where you see a fight, he sees an API — your charges are tokens to be drained, your move history is a log to be parsed, your guard is a permission flag to be flipped. He won the day he stopped thinking of Blindspot as combat and started thinking of it as input.",
+      "domainName": "The Server Room",
+      "domainDescription": "The corridor hums with electricity. Blue light pulses through cables that line the walls like veins. This is the Cipher's domain — a place where information flows faster than blood, and the air carries the faint smell of ozone and overheated copper.",
+      "strengthsProse": "Hack steals one of your charges every time he lands a hit. The longer the fight runs, the less you have to work with. Strikes do 20% less to him — Exploit makes brute-force builds look pedestrian.\n\nHis high INT (12) and balanced LCK (9) mean ability damage is consistently dangerous. He's not built to outlast — he's built to suffocate.",
+      "weaknessesProse": "Weak to STR (6) — a heavy STR build punches through his defensive code faster than he can rewrite it. Abilities deal +15% damage. Guard up early to protect your charges, then close the fight before the charge drain becomes terminal.",
+      "classThematic": "Hacker",
+      "signatureMoves": [
+        {
+          "name": "Hack",
+          "description": "Steals one of your charges on hit. Every successful strike against you is also a withdrawal."
+        },
+        {
+          "name": "Exploit",
+          "description": "Strikes deal 20% less damage to him. He's read your stance and patched the vulnerability."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Arcane-Scholar-01.webp", "alt": "Arcane Scholar portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Arcane-Scholar-01.webm", "poster": "/blindspot/img/bosses/Arcane-Scholar-01.webp", "alt": "Arcane Scholar combat clip" }
+      ],
+      "_needsExpansion": ["bio"]
+    },
+    {
+      "id": "bs-boss-5",
+      "slug": "warlord-grax",
+      "tagline": "Subtlety is for cowards.",
+      "bio": "Warlord Grax does not believe in defense. He believes that the fastest path to a clean victory is through the enemy, and that anyone who disagrees has not yet been hit hard enough. His STR (17) is the single highest stat among the early-tier bosses, and he uses every point of it to remind challengers that pure aggression is a complete strategy if you commit to it.",
+      "domainName": "The Mountain Pass",
+      "domainDescription": "The mountain path narrows to a ledge barely wide enough for two. Wind howls through the gap, carrying the smell of sulfur and old fires. At the end of the pass, an arena pit carved into the mountain itself, ringed with broken columns and shattered shields — trophies from challengers who arrived thinking patience would be enough.",
+      "strengthsProse": "Rage is the lategame. Below 30% HP he gains +40% damage, and his already-massive STR turns terminal. He has no move weakness — every line in his moveWeaknesses table is empty.\n\nThick Skin resists abilities and counters at 15% each. The two safest combat tools against most bosses are the two least effective here.",
+      "weaknessesProse": "Weak to END (14) — a Tank build can outlast him IF you can survive the opening rounds. The play is to burn him down hard before Rage activates; once he's below 30%, the math turns against you. Strikes are unmodified — keep it simple, stay in stance, kill fast.",
+      "classThematic": "Berserker",
+      "signatureMoves": [
+        {
+          "name": "Rage",
+          "description": "Below 30% HP, deals +40% damage. The mercy of slow fights does not apply here."
+        },
+        {
+          "name": "Thick Skin",
+          "description": "Resists abilities and counters by 15%. The patient plays don't work — bring leverage."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Warlord-Grax01.webp", "alt": "Warlord Grax portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Warlord-Grax01.webm", "poster": "/blindspot/img/bosses/Warlord-Grax01.webp", "alt": "Warlord Grax combat clip" }
+      ],
+      "_needsExpansion": ["bio"]
+    },
+    {
+      "id": "bs-boss-6",
+      "slug": "ironclad-sentinel",
+      "tagline": "Knowledge compounds.",
+      "bio": "Every fighter who falls in the Library becomes a page. The Ironclad Sentinel does not collect bodies — he collects techniques. By the time you face him, he has read the moves of every challenger who came before you, and INT scales with every round he spends watching yours.\n\nThey say if you stand still long enough in his domain, you can hear the books whispering counters in voices that sound vaguely like your own.",
+      "domainName": "The Library of Leech",
+      "domainDescription": "Books line every surface — floor to ceiling, wall to wall. Some float in mid-air, their pages turning on their own. The ink seems to move, rearranging itself as you watch — every entry a record of a defeated fighter, every paragraph a counter to a move someone once thought was original. Training dummies are arranged in the corners, shaped like past challengers, the wounds in their stuffing matching techniques carved into the wood.",
+      "strengthsProse": "Leech drains 15% of every hit he lands as healing. The longer he stands, the harder he is to put down — and Accumulated Wisdom means his INT scales with rounds elapsed, so his ability damage compounds while you're trying to grind him out.\n\nResistant to strikes (-20%), so brute-force shapes lose the most efficient damage line.",
+      "weaknessesProse": "Weak to STR despite the strike resistance — high STR overcomes the -20% modifier, and his low base STR (6) means he can't trade. Counter does +20% damage. Lean on counter for offense, abilities for finishing damage, and don't let the fight grind past round seven.",
+      "classThematic": "Scholar",
+      "signatureMoves": [
+        {
+          "name": "Leech",
+          "description": "Drains 15% of damage dealt as HP. Every strike that lands also extends the fight."
+        },
+        {
+          "name": "Accumulated Wisdom",
+          "description": "INT scales with rounds elapsed. The longer you stay, the smarter the room gets."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp", "alt": "Ironclad Sentinel portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Ironclad-Sentinel-01.webm", "poster": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp", "alt": "Ironclad Sentinel combat clip" }
+      ],
+      "_needsExpansion": []
+    },
+    {
+      "id": "bs-boss-7",
+      "slug": "titanium-aegis",
+      "tagline": "Nothing gets through.",
+      "bio": "Titanium Aegis is built like a statement. END (18) is the highest endurance in the campaign and the architecture of the boss is one continuous declaration: the arena is mine, the fight is on my schedule, and your strikes are a draft I am not interested in editing.",
+      "domainName": "The Iron Bastion",
+      "domainDescription": "The fortress is built from a single piece of metal. No seams, no joints, no weakness in the architecture. This is the Iron's home — a monument to endurance. The arena floor is a forge: anvils ring the pit, the heat is oppressive, and the air smells like old fire and tempered steel.",
+      "strengthsProse": "Fortress reduces strike damage by 25% on top of the moveWeaknesses resistance — strike-heavy builds run into a brick wall. Unbreakable means he can't be staggered, so combo lockdowns don't work either.\n\nHigh END (18) and decent LCK (10) mean he's hard to kill cleanly and harder to kill via attrition. His Fortified Start is heavier than the Gatekeeper's — the early rounds are pure damage absorption.",
+      "weaknessesProse": "Weak to INT — abilities cut through the armor faster than strikes. Counter does +15% extra damage and is the safest active line. Survive the first three rounds while his armor burns down, then transition to ability-heavy pressure once Fortress fades. Any build that doubled-down on STR alone will struggle here.",
+      "classThematic": "Guardian",
+      "signatureMoves": [
+        {
+          "name": "Fortress",
+          "description": "Heavy armor reduces strike damage by 25%. The opening rounds belong to him."
+        },
+        {
+          "name": "Unbreakable",
+          "description": "Cannot be staggered. No matter how clean the hit, he's not flinching."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Titanium-Aegis-01.webp", "alt": "Titanium Aegis portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Titanium-Aegis-01.webm", "poster": "/blindspot/img/bosses/Titanium-Aegis-01.webp", "alt": "Titanium Aegis combat clip" }
+      ],
+      "_needsExpansion": ["bio"]
+    },
+    {
+      "id": "bs-boss-8",
+      "slug": "forge-king",
+      "tagline": "Probability is just a suggestion.",
+      "bio": "The Forge King doesn't have a strategy. He has a tempo, and he steals yours. Mirror — his signature passive — copies your last move 25% of the time, which means every move you make is also handing him a free one. The fight is not against him. The fight is against your own habits, reflected back faster than you can change them.",
+      "domainName": "The House of Mirrors",
+      "domainDescription": "The corridor is a carnival gone wrong. Lights flicker between colors. The floor tilts — or maybe it doesn't. Hard to tell in the Trickster's domain. Mirrors line the walls and ceiling, not all of them showing the same thing, and the gambling den off to one side has chips from currencies that shouldn't exist.",
+      "strengthsProse": "Mirror is the entire problem. 25% of the time, your move is replayed against you on the next round — and against a 16-LCK kit, the crits land more often than they should. Counter is resisted at 20%, so the safe response shape is degraded.\n\nThe Forge King is the most balanced statline in the campaign (12/13/12/11/16) — there is no exploitable weakness in the raw numbers.",
+      "weaknessesProse": "Weak to LCK — fighting fire with fire works. A high-LCK build can outroll him on crits. Strikes and abilities both deal +10% damage. The winning shape is to vary your moves so the Mirror has nothing useful to copy back: a predictable rotation hands him your best damage on a delay.",
+      "classThematic": "Trickster",
+      "signatureMoves": [
+        {
+          "name": "Mirror",
+          "description": "25% chance to copy your last move. Every habit becomes ammunition."
+        },
+        {
+          "name": "Fortune",
+          "description": "Higher crit rate on streak. The longer the fight, the more probability bends his way."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/The-Forge-King-01.webp", "alt": "The Forge King portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/The-Forge-King-01.webm", "poster": "/blindspot/img/bosses/The-Forge-King-01.webp", "alt": "The Forge King combat clip" }
+      ],
+      "_needsExpansion": ["bio"]
+    },
+    {
+      "id": "bs-boss-9",
+      "slug": "void-harbinger",
+      "tagline": "Pain stopped mattering long ago.",
+      "bio": "The Void Harbinger was a champion once. Cards in their old name still surface in the gallery sometimes — a fighter who beat the Forge King twice and walked back into the arena one too many times.\n\nWhat's left now isn't a person. It's a process. Enrage stacks 5% damage every round it spends standing, and Consumed means the usual feedback loop of pain and decision is broken — they don't slow when you connect, they don't hesitate when you Counter. They just keep coming, harder, every round.",
+      "domainName": "The Killing Floor",
+      "domainDescription": "Blood on the walls. Not decorative — functional. The Feral marks its territory. The bone-strewn canyon at the back of the arena is full of remains arranged with care: claw marks always at the same height, bodies positioned for visibility. Powerful, but predictable. The discipline is still there — buried under Consumed, but there.",
+      "strengthsProse": "Enrage is the timer. Every round elapsed adds 5% damage. By round eight, his STR (18) is hitting like a tier-6 boss. Consumed makes him immune to the usual stagger and hesitation patterns, so combo lockdown shapes don't work.\n\nResistant to abilities (-10%) — the magical-burst builds that beat the Forge King don't translate here.",
+      "weaknessesProse": "Weak to AGI — fast builds outpace the timer. Counter does +15% damage. The fight is a clock: every round you spend not pressuring is a round where his damage scaling makes the eventual exchange more expensive. Counter on every strike, push abilities on the off-rounds, and end the fight inside seven turns.",
+      "classThematic": "Berserker",
+      "signatureMoves": [
+        {
+          "name": "Enrage",
+          "description": "Damage rises 5% per round elapsed. The fight gets worse the longer it runs."
+        },
+        {
+          "name": "Consumed",
+          "description": "Was once a champion. Pain stopped registering long ago — every round, he comes back harder."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Void-Harbinger-01.webp", "alt": "Void Harbinger portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Void-Harbinger-01.webm", "poster": "/blindspot/img/bosses/Void-Harbinger-01.webp", "alt": "Void Harbinger combat clip" }
+      ],
+      "_needsExpansion": []
+    },
+    {
+      "id": "bs-boss-10",
+      "slug": "crystal-weaver",
+      "tagline": "This is what a Forger becomes when they never stop.",
+      "bio": "The Crystal Weaver is the answer to a question Blindspot does not ask out loud: what happens to a Forger who reaches the end of the campaign and chooses, instead of leaving, to stay?\n\nHis arena is the Forge Eternal. His traits are Leech Mk II, Design, and Succession — that last one is a confession. The arena was built to forge his replacement. He knows. He built it that way. And he is still going to fight you with everything he has, because the only thing more important than being beaten is being beaten by someone worthy of inheriting the room.",
+      "domainName": "The Forge Eternal",
+      "domainDescription": "The path ends at a staircase that spirals upward into light. Not torchlight — something older, something that hums with creation itself. At the top, a gallery of every card ever forged hangs in the air, slowly rotating, and beyond it the forge itself — flames conducted like an orchestra, crystal lattices arranging and rearranging themselves to the rhythm of the Architect's attention.",
+      "strengthsProse": "Leech Mk II is constant healing — 10% of every hit, every round. Design adapts to repeated player moves, so a clean rotation degrades fast. Succession means the fight is theatrical; the Crystal Weaver is the entire campaign's final exam.\n\nINT (19) is the highest stat in the campaign. Stamina (9) is also the highest — he never runs out of ability fuel. Resistant to strikes (-15%) and counters (-20%), so the obvious shapes are dulled.",
+      "weaknessesProse": "Weak to END — only an outlast build wins this cleanly. Vary your moves constantly to defeat Design's adaptation. Save your charges for the back half, where Leech Mk II's healing is your main obstacle. There is no fast win against the Crystal Weaver — only a slow one, paid for in stamina, charges, and the willingness to refuse to repeat yourself.",
+      "classThematic": "Caster",
+      "signatureMoves": [
+        {
+          "name": "Leech Mk II",
+          "description": "Drains 10% of damage dealt as HP. The improved version of a familiar problem."
+        },
+        {
+          "name": "Design",
+          "description": "Adapts to repeated player moves. Predictable rotations are punished within rounds."
+        },
+        {
+          "name": "Succession",
+          "description": "The arena was built to forge his replacement. He knows. He's still going to fight you with everything he has."
+        }
+      ],
+      "media": [
+        { "type": "image", "src": "/blindspot/img/bosses/Crystal-Weaver-10.webp", "alt": "Crystal Weaver portrait", "isHero": true },
+        { "type": "video", "src": "/blindspot/img/bosses/Crystal-Weaver-10.webm", "poster": "/blindspot/img/bosses/Crystal-Weaver-10.webp", "alt": "Crystal Weaver combat clip" }
+      ],
+      "_needsExpansion": []
+    }
+  ]
+}

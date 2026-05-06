@@ -1472,6 +1472,55 @@ body.bs-page {
   font-size: 0.85rem;
 }
 
+/* Public Boss Gallery link — sits at the top of the codex modal,
+   gives players a path out to the indexable lore pages. */
+.bs-codex-gallery-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.7rem 1rem;
+  margin: 0 0 0.85rem;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  background: rgba(245, 192, 120, 0.06);
+  border: 1px solid rgba(245, 192, 120, 0.32);
+  border-radius: var(--blindspot-radius-button);
+  transition: var(--blindspot-transition-fast);
+}
+.bs-codex-gallery-link:hover,
+.bs-codex-gallery-link:focus-visible {
+  background: rgba(245, 192, 120, 0.14);
+  border-color: var(--blindspot-accent-gold);
+  color: var(--blindspot-accent-gold-2);
+  outline: none;
+}
+.bs-codex-gallery-link i:first-child { font-size: 0.85em; }
+.bs-codex-gallery-link i:last-child { font-size: 0.7em; opacity: 0.85; }
+
+/* Per-row "Read the full dossier" link — only on defeated rows. */
+.bs-codex-row__lore-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  font-family: var(--blindspot-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blindspot-accent-gold);
+  transition: var(--blindspot-transition-fast);
+}
+.bs-codex-row__lore-link:hover,
+.bs-codex-row__lore-link:focus-visible {
+  color: var(--blindspot-accent-gold-2);
+  outline: none;
+}
+.bs-codex-row__lore-link i { font-size: 0.7em; opacity: 0.85; }
+
 /* #11 Collection thumbnails — up to 3 mini icons inline in the row */
 .bs-collection-panel__previews {
   display: inline-flex;
