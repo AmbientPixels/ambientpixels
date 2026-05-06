@@ -249,6 +249,47 @@ window.BsStrategy = (function () {
     return html;
   */
 
+  // Attach a hover-to-play WebM clip to the boss portrait. The static
+  // boss avatar (set via background-image) stays the resting state;
+  // the video fades in on pointer enter, pauses + resets on leave.
+  // Skipped on touch-only devices via @media (hover: hover) in CSS;
+  // bosses without a matching .webm get the video element removed by
+  // the error handler so DOM stays clean and 404s don't repeat.
+  function attachBossPortraitVideo(portraitEl, avatarUrl) {
+    if (!portraitEl || !avatarUrl) return;
+    var webmUrl = avatarUrl.replace(/\.webp(\?.*)?$/i, '.webm$1');
+    if (webmUrl === avatarUrl) return; // not a .webp avatar — skip
+    var existing = portraitEl.querySelector('.blindspot-prefight__portrait-video');
+    if (existing) {
+      if (existing.getAttribute('data-src') === webmUrl) return; // same boss — keep it
+      try { existing.pause(); } catch (e) {}
+      existing.parentNode.removeChild(existing);
+    }
+    var v = document.createElement('video');
+    v.className = 'blindspot-prefight__portrait-video';
+    v.setAttribute('data-src', webmUrl);
+    v.muted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.preload = 'none';
+    v.setAttribute('aria-hidden', 'true');
+    v.src = webmUrl;
+    v.addEventListener('error', function () {
+      if (v.parentNode) v.parentNode.removeChild(v);
+    });
+    portraitEl.insertBefore(v, portraitEl.firstChild);
+    var enter = function () {
+      try { v.play().catch(function () {}); } catch (e) {}
+    };
+    var leave = function () {
+      try { v.pause(); v.currentTime = 0; } catch (e) {}
+    };
+    portraitEl.addEventListener('mouseenter', enter);
+    portraitEl.addEventListener('mouseleave', leave);
+    portraitEl.addEventListener('focusin', enter);
+    portraitEl.addEventListener('focusout', leave);
+  }
+
   // ── Prefight overlay population (needs card + DOM) ──
 
   function populatePrefightOverlay(boss, selectedCard, opts) {
@@ -276,6 +317,12 @@ window.BsStrategy = (function () {
     if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(boss);
     if (bossPortraitEl && boss.avatar) {
       bossPortraitEl.style.backgroundImage = 'url("' + String(boss.avatar).replace(/"/g, '\\"') + '")';
+      // Hover-to-play WebM clip layered over the static avatar. Derive
+      // the clip path from the avatar URL (.webp -> .webm) — bosses
+      // without a matching clip just show the static image (the load
+      // error handler removes the video element). Uses preload="none"
+      // so we only fetch on first hover, never on overlay open.
+      attachBossPortraitVideo(bossPortraitEl, String(boss.avatar));
     }
     if (avatarEl) {
       avatarEl.style.width = '';
