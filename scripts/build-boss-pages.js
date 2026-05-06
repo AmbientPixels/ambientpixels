@@ -188,12 +188,17 @@ function main() {
     }
   }
 
-  // Per-boss pages.
+  // Per-boss pages — folder-per-boss layout so /blindspot/bosses/{slug}/
+  // resolves natively to the boss page without route rewrites. SWA's
+  // parameterized rewrites don't substitute {slug} into the target;
+  // folders sidestep the issue entirely.
   let written = 0;
   contexts.forEach(function (ctx) {
     if (onlySlug && ctx.slug !== onlySlug) return;
     const html = pageTemplate.render(ctx);
-    writeFile(path.join(OUT, ctx.slug + '.html'), html);
+    const bossDir = path.join(OUT, ctx.slug);
+    if (!checkOnly && !fs.existsSync(bossDir)) fs.mkdirSync(bossDir, { recursive: true });
+    writeFile(path.join(bossDir, 'index.html'), html);
     written++;
   });
 

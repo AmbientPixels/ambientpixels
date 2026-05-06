@@ -47,14 +47,6 @@
  },
  "routes": [
   {
-   "route": "/blindspot/bosses/{slug}",
-   "rewrite": "/blindspot/bosses/{slug}.html"
-  },
-  {
-   "route": "/blindspot/bosses/{slug}/",
-   "rewrite": "/blindspot/bosses/{slug}.html"
-  },
-  {
    "route": "/blindspot/*",
    "allowedRoles": [
     "anonymous"
