@@ -2861,13 +2861,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 180px;
-  height: 225px;
+  width: 240px;
+  height: 300px;
   border-radius: 10px;
   overflow: hidden;
   background: rgba(245, 192, 120, 0.06);
   border: 1px solid rgba(245, 192, 120, 0.45);
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55), 0 2px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 .bs-fighter-profile__avatar-img {
   width: 100%;
@@ -2883,7 +2883,7 @@
   display: none;
 }
 .bs-fighter-profile__avatar-fallback {
-  font-size: 4rem;
+  font-size: 5.5rem;
   color: var(--blindspot-accent-gold, #F5C078);
   opacity: 0.8;
 }
@@ -3062,11 +3062,11 @@
     text-align: left;
   }
   .bs-fighter-profile__avatar {
-    width: 140px;
-    height: 175px;
+    width: 180px;
+    height: 225px;
   }
   .bs-fighter-profile__avatar-fallback {
-    font-size: 3.2rem;
+    font-size: 4rem;
   }
   .bs-fighter-profile__name {
     font-size: 1.25rem;
@@ -3089,12 +3089,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
+  width: 200px;
+  height: 250px;
+  border-radius: 10px;
   overflow: hidden;
   background: rgba(245, 192, 120, 0.04);
-  border: 2px solid rgba(245, 192, 120, 0.32);
+  border: 1px solid rgba(245, 192, 120, 0.45);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55);
   cursor: grab;
   user-select: none;
   touch-action: none;
