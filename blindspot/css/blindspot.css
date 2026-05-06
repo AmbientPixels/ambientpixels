@@ -2849,8 +2849,8 @@
 
 .bs-fighter-profile__hero {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 1.25rem;
 }
 
 .bs-fighter-profile__avatar-wrap {
@@ -2861,12 +2861,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
+  width: 180px;
+  height: 225px;
+  border-radius: 10px;
   overflow: hidden;
   background: rgba(245, 192, 120, 0.06);
-  border: 2px solid rgba(245, 192, 120, 0.32);
+  border: 1px solid rgba(245, 192, 120, 0.45);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.55), 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 .bs-fighter-profile__avatar-img {
   width: 100%;
@@ -2882,7 +2883,7 @@
   display: none;
 }
 .bs-fighter-profile__avatar-fallback {
-  font-size: 2.4rem;
+  font-size: 4rem;
   color: var(--blindspot-accent-gold, #F5C078);
   opacity: 0.8;
 }
@@ -2893,20 +2894,21 @@
    the Phase D generator modal. */
 .bs-fighter-profile__edit {
   position: absolute;
-  right: -2px;
-  bottom: -2px;
-  width: 30px;
-  height: 30px;
+  right: 8px;
+  bottom: 8px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  background: var(--blindspot-bg-2, #170D0B);
-  border: 2px solid rgba(245, 192, 120, 0.6);
+  background: rgba(15, 9, 7, 0.85);
+  border: 1px solid rgba(245, 192, 120, 0.6);
   border-radius: 50%;
   color: var(--blindspot-accent-gold, #F5C078);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   cursor: pointer;
+  backdrop-filter: blur(4px);
   transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
 .bs-fighter-profile__edit:hover,
@@ -3058,6 +3060,13 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+  }
+  .bs-fighter-profile__avatar {
+    width: 140px;
+    height: 175px;
+  }
+  .bs-fighter-profile__avatar-fallback {
+    font-size: 3.2rem;
   }
   .bs-fighter-profile__name {
     font-size: 1.25rem;
