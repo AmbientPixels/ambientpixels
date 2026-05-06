@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AmbientScore — OG card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EEE3;
+    --paper-2:#EAE3D3;
+    --paper-warm:#FBF7EB;
+    --rule:#D4CBB5;
+    --rule-2:#BDB299;
+    --ink:#1A1613;
+    --ink-soft:#3D342C;
+    --ink-muted:#6B6052;
+    --stamp:#8C2F1E;
+    --steel:#BFB5A0;
+    --serif:'Source Serif 4',Georgia,serif;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#888;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+  /* Exact OG viewport */
+  .og{
+    width:1200px;
+    height:630px;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 18% 12%,rgba(0,0,0,0.04),transparent 55%),
+      radial-gradient(circle at 86% 78%,rgba(140,47,30,0.045),transparent 55%);
+    position:relative;
+    overflow:hidden;
+    border:1px solid #aaa;
+  }
+
+  /* Tick marks in extreme corners */
+  .og::before,.og::after{
+    content:"";
+    position:absolute;
+    width:14px;height:14px;
+    border:1px solid var(--ink);
+  }
+  .og::before{top:18px;left:18px;border-right:0;border-bottom:0}
+  .og::after{bottom:18px;right:18px;border-left:0;border-top:0}
+
+  /* ── Masthead ─────────────────────────────── */
+  .mast{
+    position:absolute;left:48px;right:48px;top:32px;
+    border-bottom:1px solid var(--ink);
+    padding-bottom:10px;
+    display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .brand{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:32px;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+  }
+  .brand em{font-style:italic;font-weight:500}
+  .mast-meta{
+    display:flex;gap:22px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-muted);
+  }
+  .mast-meta b{color:var(--ink);font-weight:600}
+
+  .submast{
+    position:absolute;left:48px;right:48px;top:80px;
+    border-bottom:1px double var(--ink);
+    padding:6px 0;
+    display:flex;justify-content:space-between;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+
+  /* ── Body grid ────────────────────────────── */
+  .body{
+    position:absolute;
+    left:48px;right:48px;top:114px;bottom:60px;
+    display:grid;
+    grid-template-columns:420px 1fr;
+    gap:44px;
+    align-items:stretch;
+  }
+
+  /* LEFT — giant grade column */
+  .grade-col{
+    border-right:1px solid var(--rule);
+    padding-right:24px;
+    display:flex;flex-direction:column;
+    position:relative;
+  }
+  .ref-block{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-muted);
+    line-height:1.7;
+    margin-bottom:4px;
+  }
+  .ref-block b{color:var(--ink);font-weight:600;letter-spacing:0.16em}
+
+  .grade-letter{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:380px;
+    line-height:0.74;
+    letter-spacing:-0.06em;
+    color:var(--ink);
+    position:relative;
+    margin-top:8px;
+    margin-left:-10px;
+  }
+
+  .grade-foot{
+    margin-top:14px;
+    padding-top:10px;
+    border-top:1px solid var(--ink);
+    display:flex;justify-content:space-between;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-muted);
+  }
+  .grade-foot b{color:var(--ink);font-weight:600}
+
+  /* RIGHT — verdict + dimensions */
+  .verdict-col{
+    display:flex;flex-direction:column;
+    min-width:0;
+  }
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    font-weight:600;
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:12px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:32px;height:2px;
+    background:var(--stamp);
+  }
+  .head{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:36px;
+    line-height:1;
+    letter-spacing:-0.025em;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .head em{font-style:italic;font-weight:400;color:var(--ink-soft)}
+
+  .subject{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-muted);
+    font-weight:500;
+    margin-bottom:4px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .subject::before{
+    content:"›";
+    color:var(--stamp);
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:16px;
+    letter-spacing:0;
+    transform:translateY(-1px);
+  }
+  .subject b{color:var(--ink);font-weight:600;letter-spacing:0.16em}
+
+  .score-row{
+    display:flex;align-items:baseline;gap:20px;
+    padding:5px 0 3px;
+    border-top:1px solid var(--ink);
+    border-bottom:1px dotted var(--rule);
+  }
+  .score-num{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:36px;
+    line-height:1;
+    letter-spacing:-0.03em;
+    color:var(--ink);
+  }
+  .score-num sub{
+    font-family:var(--serif);
+    font-size:16px;
+    color:var(--ink-muted);
+    font-weight:400;
+    margin-left:3px;
+    vertical-align:baseline;
+  }
+  .verdict{
+    font-family:var(--mono);
+    font-size:9.5px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-muted);
+  }
+  .verdict b{
+    display:block;
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:16px;
+    letter-spacing:-0.01em;
+    text-transform:none;
+    color:var(--ink);
+    margin-top:1px;
+  }
+
+  .revenue-row{
+    display:flex;flex-direction:column;align-items:flex-end;
+    padding:1px 0 4px;
+    border-bottom:1px solid var(--ink);
+    margin-bottom:2px;
+    text-align:right;
+  }
+  .revenue-label{
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--ink-muted);
+    font-weight:500;
+    line-height:1.2;
+    margin-bottom:2px;
+  }
+  .revenue-figure{
+    font-family:var(--serif);
+    font-weight:500;
+    font-size:48px;
+    line-height:0.92;
+    letter-spacing:-0.03em;
+    color:var(--stamp);
+  }
+
+  .dims{display:flex;flex-direction:column;gap:0}
+  .dim{
+    display:grid;
+    grid-template-columns:1fr 150px 32px;
+    gap:12px;
+    align-items:center;
+    padding:1.5px 0;
+    border-bottom:1px dotted var(--rule);
+    font-size:11.5px;
+    line-height:1.45;
+  }
+  .dim:last-child{border-bottom:0}
+  .dim-name{
+    color:var(--ink-soft);
+    font-family:var(--sans);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .dim-name span{
+    font-family:var(--mono);
+    font-size:9px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    margin-right:8px;
+    font-weight:600;
+  }
+  .dim-bar{
+    height:4px;
+    background:var(--paper-2);
+    position:relative;
+  }
+  .dim-bar i{
+    position:absolute;left:0;top:0;bottom:0;
+    background:var(--ink);
+  }
+  .dim.is-leak .dim-bar i{ background:var(--stamp); }
+  .dim-score{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:15px;
+    text-align:right;
+    color:var(--ink);
+    line-height:1;
+  }
+  .dim.is-leak .dim-score{ color:var(--stamp); }
+
+  /* ── Draft . Sample stamp — upper-left corner ─ */
+  .stamp{
+    position:absolute;
+    top:46px;left:268px;
+    background:var(--stamp);
+    color:var(--paper);
+    font-family:var(--mono);
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.26em;
+    text-transform:uppercase;
+    padding:9px 14px 7px;
+    transform:rotate(6deg);
+    border:1.5px solid var(--stamp);
+    box-shadow:inset 0 0 0 2px rgba(243,238,227,0.22), 0 6px 14px -8px rgba(140,47,30,0.5);
+    z-index:5;
+    text-align:center;
+    white-space:nowrap;
+  }
+
+  /* ── Footer ───────────────────────────────── */
+  .foot{
+    position:absolute;
+    left:48px;right:48px;bottom:30px;
+    border-top:1px solid var(--ink);
+    padding-top:10px;
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-muted);
+  }
+  .foot-spacer{flex:0 0 220px}
+  .foot .lede{
+    font-family:var(--serif);
+    font-style:italic;
+    font-weight:400;
+    font-size:14px;
+    letter-spacing:-0.005em;
+    text-transform:none;
+    color:var(--ink-soft);
+    flex:1;
+    text-align:center;
+    padding:0 24px;
+  }
+  .foot .url{
+    flex:0 0 220px;
+    text-align:right;
+  }
+  .foot b{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+  <div class="og">
+
+    <!-- Masthead -->
+    <div class="mast">
+      <div class="brand">Ambient<em>Score</em></div>
+      <div class="mast-meta">
+        <span><b>Vol. IX</b></span>
+        <span>Filed Q2 2026</span>
+        <span>Confidential</span>
+      </div>
+    </div>
+    <div class="submast">
+      <span>Conversion Audit &amp; Revenue Review</span>
+      <span>Issued on Demand · 60 Seconds · $0 to $29</span>
+    </div>
+
+    <!-- Draft . Sample stamp -->
+    <div class="stamp">Draft · Sample</div>
+
+    <!-- Body -->
+    <div class="body">
+
+      <!-- LEFT: giant grade -->
+      <div class="grade-col">
+        <div class="ref-block">
+          Ref <b>04-118</b><br>
+          21 Apr 2026
+        </div>
+        <div class="grade-letter">C</div>
+        <div class="grade-foot">
+          <span>Letter Grade</span>
+          <span><b>Below Benchmark</b></span>
+        </div>
+      </div>
+
+      <!-- RIGHT: verdict + dimensions -->
+      <div class="verdict-col">
+        <div class="eyebrow">Conversion Audit · Form SC-1</div>
+        <h1 class="head">A plain-English <em>audit</em> of where your site loses money.</h1>
+        <div class="subject"><b>oakroute.co</b></div>
+
+        <div class="score-row">
+          <div class="score-num">62<sub>/100</sub></div>
+          <div class="verdict">
+            Verdict
+            <b>Visible leaks</b>
+          </div>
+        </div>
+
+        <div class="revenue-row">
+          <div class="revenue-label">Est. revenue left on table</div>
+          <div class="revenue-figure">~18%</div>
+        </div>
+
+        <div class="dims">
+          <div class="dim is-leak">
+            <div class="dim-name"><span>D-01 · MSG.CLR</span>Messaging clarity</div>
+            <div class="dim-bar"><i style="width:48%"></i></div>
+            <div class="dim-score">48</div>
+          </div>
+          <div class="dim">
+            <div class="dim-name"><span>D-02 · CTA.STR</span>CTA strength</div>
+            <div class="dim-bar"><i style="width:55%"></i></div>
+            <div class="dim-score">55</div>
+          </div>
+          <div class="dim">
+            <div class="dim-name"><span>D-03 · TRS.SIG</span>Trust signals</div>
+            <div class="dim-bar"><i style="width:71%"></i></div>
+            <div class="dim-score">71</div>
+          </div>
+          <div class="dim">
+            <div class="dim-name"><span>D-04 · FNL.FRC</span>Funnel friction</div>
+            <div class="dim-bar"><i style="width:64%"></i></div>
+            <div class="dim-score">64</div>
+          </div>
+          <div class="dim">
+            <div class="dim-name"><span>D-05 · SOC.PRF</span>Social proof</div>
+            <div class="dim-bar"><i style="width:82%"></i></div>
+            <div class="dim-score">82</div>
+          </div>
+          <div class="dim">
+            <div class="dim-name"><span>D-06 · OFR.CLR</span>Offer clarity</div>
+            <div class="dim-bar"><i style="width:57%"></i></div>
+            <div class="dim-score">57</div>
+          </div>
+          <div class="dim">
+            <div class="dim-name"><span>D-07 · CNT.FLW</span>Content flow</div>
+            <div class="dim-bar"><i style="width:61%"></i></div>
+            <div class="dim-score">61</div>
+          </div>
+          <div class="dim is-leak">
+            <div class="dim-name"><span>D-08 · RSK.REV</span>Risk reversal</div>
+            <div class="dim-bar"><i style="width:32%"></i></div>
+            <div class="dim-score">32</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="foot">
+      <div class="foot-spacer"></div>
+      <span class="lede">Letter grade · 8-dimension scorecard · Ranked fix list.</span>
+      <span class="url"><b>ambientpixels.ai</b>/ambientscore</span>
+    </div>
+
+  </div>
+</body>
+</html>
