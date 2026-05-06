@@ -105,20 +105,6 @@
       _cb.showScreen('lobby');
       if (_cb.renderLobby) _cb.renderLobby();
     });
-    // The lower nav 'Boss Codex' card replaced the redundant 'Campaign' card —
-    // the boss rail above already serves as the campaign destination, so the
-    // codex repurposes this slot as a lore/intel overview.
-    var codexEl = document.getElementById('bs-codex');
-    function openCodex() {
-      if (_cb.renderBossCodex) _cb.renderBossCodex();
-      if (codexEl) codexEl.classList.remove('bs-modal-backdrop--hidden');
-    }
-    function closeCodex() { if (codexEl) codexEl.classList.add('bs-modal-backdrop--hidden'); }
-    document.getElementById('bs-btn-codex')?.addEventListener('click', openCodex);
-    document.getElementById('bs-codex-close')?.addEventListener('click', closeCodex);
-    document.getElementById('bs-codex-gotit')?.addEventListener('click', closeCodex);
-    if (codexEl) codexEl.addEventListener('click', function(e) { if (e.target === codexEl) closeCodex(); });
-
     // Campaign rail (lobby) — boss pip clicks. The static markup uses
     // data-nav-target="campaign" but no JS read it; routing here by
     // progression state instead:

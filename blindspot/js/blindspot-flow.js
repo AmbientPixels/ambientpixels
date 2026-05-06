@@ -1845,13 +1845,13 @@
     // slots get a dimmed dash placeholder.
     renderEquippedLoadout();
 
-    // Directory row state chips (Boss Codex defeated count, Gallery owned).
+    // Directory row state chips (Campaign defeated count, Gallery owned).
     // Sparks Shop chip is wired in updateTopbarSparks so it stays live.
-    var codexChip = document.getElementById('bs-codex-progress');
-    if (codexChip) {
+    var campaignChip = document.getElementById('bs-campaign-progress');
+    if (campaignChip) {
       var defeated = getHighestBossDefeated() || 0;
-      codexChip.textContent = defeated + ' / 10';
-      codexChip.hidden = false;
+      campaignChip.textContent = defeated + ' / 10';
+      campaignChip.hidden = false;
     }
     var galleryChip = document.getElementById('bs-gallery-count');
     if (galleryChip) {
@@ -1988,91 +1988,6 @@
           : 'FIGHT NEXT BOSS';
       }
     }
-  }
-
-  // Boss Codex modal — renders all campaign bosses as a list. Defeated
-  // bosses show full intel + a link to the public Boss Gallery page;
-  // locked bosses show a teaser silhouette (no link, preserves spoiler
-  // gating). Header gallery link gives unrevealed players a path to
-  // the public lore destination too.
-  // Slug map mirrors data/boss-lore.json — source of /blindspot/bosses/{slug}/ URLs.
-  var BOSS_GALLERY_SLUGS = {
-    1: 'gatekeeper', 2: 'gutter-rat', 3: 'shadow-stalker', 4: 'arcane-scholar',
-    5: 'warlord-grax', 6: 'ironclad-sentinel', 7: 'titanium-aegis',
-    8: 'forge-king', 9: 'void-harbinger', 10: 'crystal-weaver'
-  };
-
-  function renderBossCodex() {
-    var listEl = document.getElementById('bs-codex-list');
-    if (!listEl) return;
-
-    // One-time gallery link injected at the top of the modal so the
-    // public Boss Gallery is reachable from inside the game.
-    var modalBody = listEl.parentNode;
-    if (modalBody && !modalBody.querySelector('.bs-codex-gallery-link')) {
-      var galleryLink = document.createElement('a');
-      galleryLink.href = '/blindspot/bosses/';
-      galleryLink.className = 'bs-codex-gallery-link';
-      galleryLink.innerHTML = '<i class="fas fa-th" aria-hidden="true"></i> Browse the full Boss Gallery <i class="fas fa-arrow-right" aria-hidden="true"></i>';
-      modalBody.insertBefore(galleryLink, listEl);
-    }
-
-    var beaten = getHighestBossDefeated() || 0;
-    // Pull only campaign bosses, ordered by their boss number.
-    var entries = [];
-    for (var n = 1; n <= 10; n++) {
-      var b = _bossesByNumber[n];
-      if (b) entries.push({ n: n, boss: b });
-    }
-    if (!entries.length) {
-      listEl.innerHTML = '<div class="bs-codex-empty">Codex unavailable — boss data not loaded.</div>';
-      return;
-    }
-
-    var html = entries.map(function(entry) {
-      var b = entry.boss;
-      var defeated = entry.n <= beaten;
-      var statusClass = defeated ? 'bs-codex-row--defeated' : 'bs-codex-row--locked';
-      var statusBadge = defeated
-        ? '<span class="bs-codex-row__status"><i class="fas fa-check-circle"></i> Defeated</span>'
-        : '<span class="bs-codex-row__status bs-codex-row__status--locked"><i class="fas fa-lock"></i> Locked</span>';
-
-      var detailHtml;
-      if (defeated) {
-        var weakness = b.weakness ? String(b.weakness).toUpperCase() : '—';
-        var sigName = (b.signaturePassive && b.signaturePassive.name) || '—';
-        var sigDesc = (b.signaturePassive && b.signaturePassive.desc) || '';
-        var element = b.element ? String(b.element).replace(/^./, function(c){ return c.toUpperCase(); }) : '—';
-        var rewardLabel = (b.reward && b.reward.label) || '—';
-        var slug = BOSS_GALLERY_SLUGS[entry.n];
-        var loreLink = slug
-          ? '<a class="bs-codex-row__lore-link" href="/blindspot/bosses/' + slug + '/">Read the full dossier <i class="fas fa-arrow-right" aria-hidden="true"></i></a>'
-          : '';
-        detailHtml =
-            '<p class="bs-codex-row__flavor">' + escHtml(b.flavor || '') + '</p>'
-          + '<dl class="bs-codex-row__intel">'
-            + '<dt>Element</dt><dd>' + escHtml(element) + '</dd>'
-            + '<dt>Weakness</dt><dd>' + escHtml(weakness) + '</dd>'
-            + '<dt>Signature</dt><dd>' + escHtml(sigName) + (sigDesc ? ' &mdash; ' + escHtml(sigDesc) : '') + '</dd>'
-            + '<dt>First-kill reward</dt><dd>' + escHtml(rewardLabel) + '</dd>'
-          + '</dl>'
-          + loreLink;
-      } else {
-        detailHtml = '<p class="bs-codex-row__flavor bs-codex-row__flavor--locked">Defeat to reveal lore, weakness, and signature move.</p>';
-      }
-
-      var pad = String(entry.n).padStart(2, '0');
-      return '<div class="bs-codex-row ' + statusClass + '" role="listitem">'
-        + '<div class="bs-codex-row__head">'
-          + '<span class="bs-codex-row__num">' + pad + '</span>'
-          + '<h3 class="bs-codex-row__name">' + escHtml(defeated ? (b.name || 'Boss ' + entry.n) : '???') + '</h3>'
-          + statusBadge
-        + '</div>'
-        + detailHtml
-        + '</div>';
-    }).join('');
-
-    listEl.innerHTML = html;
   }
 
   // Derive rank from lifetime XP. Self-heals legacy accounts whose stored
@@ -2350,8 +2265,7 @@
     initPvPTabs: function() { if (_Pvp.initPvPTabs) _Pvp.initPvPTabs(); },
     renderDefenseQueue: function() { if (_Pvp.renderDefenseQueue) _Pvp.renderDefenseQueue(); },
     pollInboxCount: function() { if (_Pvp.pollInboxCount) _Pvp.pollInboxCount(); },
-    getPvpUnlockRequirement: function() { return _config && _config.pvpUnlock ? _config.pvpUnlock.requireBossDefeated : 3; },
-    renderBossCodex: function() { renderBossCodex(); }
+    getPvpUnlockRequirement: function() { return _config && _config.pvpUnlock ? _config.pvpUnlock.requireBossDefeated : 3; }
   });
 
   // ============================================================

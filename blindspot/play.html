@@ -537,20 +537,11 @@
 
           <!-- Quick Links (replaces .bs-modes; same JS hooks) -->
           <nav class="blindspot-quick-links" aria-label="Game modes">
-            <button class="blindspot-ql" id="bs-btn-codex" type="button">
+            <a class="blindspot-ql" id="bs-btn-boss-gallery" href="/blindspot/bosses/">
               <i class="fas fa-book-skull" aria-hidden="true"></i>
               <span class="blindspot-ql__body">
-                <span class="blindspot-ql__title">Boss Codex</span>
-                <span class="blindspot-ql__desc">Your defeats. Track progress, unlock entries.</span>
-              </span>
-              <span class="blindspot-ql__chip" id="bs-codex-progress" hidden></span>
-              <i class="fas fa-chevron-right blindspot-ql__chev" aria-hidden="true"></i>
-            </button>
-            <a class="blindspot-ql" id="bs-btn-boss-gallery" href="/blindspot/bosses/">
-              <i class="fas fa-book-open" aria-hidden="true"></i>
-              <span class="blindspot-ql__body">
                 <span class="blindspot-ql__title">Boss Gallery</span>
-                <span class="blindspot-ql__desc">Browse all dossiers — open from the start.</span>
+                <span class="blindspot-ql__desc">Lore, weaknesses, and signature moves for all 10 bosses.</span>
               </span>
               <i class="fas fa-chevron-right blindspot-ql__chev" aria-hidden="true"></i>
             </a>
@@ -585,6 +576,7 @@
                 <span class="blindspot-ql__title">Campaign</span>
                 <span class="blindspot-ql__desc">Boss roster, rewards, mastery tiers.</span>
               </span>
+              <span class="blindspot-ql__chip" id="bs-campaign-progress" hidden></span>
               <i class="fas fa-chevron-right blindspot-ql__chev" aria-hidden="true"></i>
             </button>
             <button class="blindspot-ql" id="bs-btn-gallery" type="button">
@@ -1796,23 +1788,6 @@
       </div>
 
       <button class="bs-btn bs-btn--primary bs-btn--full" id="bs-howtoplay-gotit" style="margin-top:1rem;">Got It</button>
-    </div>
-  </div>
-
-  <!-- Boss Codex modal — populated by renderBossCodex() in blindspot-flow.js
-       from _bosses + getHighestBossDefeated(). Defeated bosses surface full
-       stats; locked bosses show silhouette + "Defeat to reveal". -->
-  <div id="bs-codex" class="bs-modal-backdrop bs-modal-backdrop--hidden" role="dialog" aria-label="Boss Codex" aria-modal="true">
-    <div class="bs-modal" style="max-width:680px;">
-      <button class="bs-modal__close" id="bs-codex-close" aria-label="Close"><i class="fas fa-times"></i></button>
-      <h2 class="bs-modal__title"><i class="fas fa-book-skull"></i> Boss Codex</h2>
-      <p class="bs-text-sm" style="color:var(--bs-text-muted); margin:0 0 1rem;">Defeat a boss to unlock their full entry — weaknesses, signature, and reward.</p>
-      <div class="bs-modal__body">
-        <div id="bs-codex-list" class="bs-codex-list" role="list">
-          <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading codex…</div>
-        </div>
-      </div>
-      <button class="bs-btn bs-btn--primary bs-btn--full" id="bs-codex-gotit" style="margin-top:1rem;">Close</button>
     </div>
   </div>
 

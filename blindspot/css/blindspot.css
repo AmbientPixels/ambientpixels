@@ -5283,44 +5283,6 @@
   margin-bottom: 1.25rem;
 }
 
-/* ============================================================
-   CODEX modal — Vein palette migration
-   The shared .bs-modal shell uses --bs-* tokens (legacy amber).
-   Scoping a Vein override under #bs-codex keeps other modals
-   (How to Play, etc.) on legacy until they migrate.
-   ============================================================ */
-#bs-codex.bs-modal-backdrop {
-  background: rgba(13, 8, 7, 0.86);
-}
-#bs-codex .bs-modal {
-  background: var(--blindspot-surface);
-  border: 1px solid var(--blindspot-border-2);
-  border-radius: var(--blindspot-radius-card, 4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(245, 192, 120, 0.1);
-}
-#bs-codex .bs-modal__close {
-  border: 1px solid var(--blindspot-border);
-  color: var(--blindspot-text-muted);
-  border-radius: var(--blindspot-radius-button, 2px);
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-}
-#bs-codex .bs-modal__close:hover {
-  color: var(--blindspot-accent-gold);
-  border-color: var(--blindspot-accent-gold-dim);
-  background: color-mix(in srgb, var(--blindspot-accent-gold) 5%, transparent);
-}
-#bs-codex .bs-modal__title {
-  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
-  color: var(--blindspot-accent-gold);
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-#bs-codex .bs-modal__body {
-  scrollbar-color: var(--blindspot-accent-gold-dim) transparent;
-}
-#bs-codex .bs-modal__body::-webkit-scrollbar-thumb { background: var(--blindspot-accent-gold-dim); }
-#bs-codex .bs-modal__body::-webkit-scrollbar-thumb:hover { background: var(--blindspot-accent-gold); }
-
 .bs-modal__section:last-child {
   margin-bottom: 0;
 }
