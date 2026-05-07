@@ -4445,3 +4445,68 @@
   .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__orbit { animation: none; }
   .bs-page .bs-move-card__art--ability-wildcard .bs-fx-ability__core { transform: translate(-50%, -50%) scale(1); }
 }
+
+/* ============================================================
+   MOBILE BATTLE POLISH (≤600px) — Phase 1: stage geometry + center reflow
+   ============================================================
+   At 375px the desktop 3-col stage (`minmax(320px, 1fr) minmax(220px, 300px)
+   minmax(320px, 1fr)`) cannot fit. The 1100px breakpoint shifts the center
+   column to span full width via `grid-column: 1 / -1; order: -1` (placing it
+   ABOVE the field). At 375 we want the opposite: keep player + opponent
+   side-by-side (~170px each), float the center BELOW the field as a
+   horizontal strip. That preserves matchup framing without crushing the
+   card columns to thumbnail width.
+
+   This block is intentionally placed at end-of-file so it overrides both
+   the height-based 949/800px rules (which fire at 812h) and the 1100px
+   width rule (which fires alongside this one). Source order matters more
+   than specificity for same-selector @media rules. Dual ID prefix mirrors
+   the rest of the file (#bs-screen-battle for play.html, #bs-battle-container
+   for index.html / Stranger fight).
+   ============================================================ */
+@media (max-width: 600px) {
+  #bs-screen-battle.blindspot-battle .arena-battle__field,
+  #bs-battle-container.blindspot-battle .arena-battle__field {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin-top: 8px;
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center {
+    grid-column: 1 / -1;
+    order: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.5rem 0;
+  }
+  /* Top zone: round counter + VS glyph inline (was column-stacked). */
+  #bs-screen-battle.blindspot-battle .bs-vs-zone--top,
+  #bs-battle-container.blindspot-battle .bs-vs-zone--top {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+  }
+  /* Mid zone: intent + matchup + flavor + hype span full width of the strip. */
+  #bs-screen-battle.blindspot-battle .bs-vs-zone--mid,
+  #bs-battle-container.blindspot-battle .bs-vs-zone--mid {
+    width: 100%;
+    padding: 0.25rem 0;
+  }
+  /* Bottom zone: stance row + utils stay stacked but centered, full-width. */
+  #bs-screen-battle.blindspot-battle .bs-vs-zone--bottom,
+  #bs-battle-container.blindspot-battle .bs-vs-zone--bottom {
+    width: 100%;
+  }
+  #bs-screen-battle.blindspot-battle .arena-stance-row,
+  #bs-battle-container.blindspot-battle .arena-stance-row {
+    gap: 0.25rem;
+  }
+  #bs-screen-battle.blindspot-battle .bs-vs-utils,
+  #bs-battle-container.blindspot-battle .bs-vs-utils {
+    gap: 0.5rem;
+  }
+}
