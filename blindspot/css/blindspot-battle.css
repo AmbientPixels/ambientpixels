@@ -4742,6 +4742,12 @@
     display: contents;          /* let titles + energy participate in
                                    the card's flex column directly */
   }
+  /* !important on all the move-card-content hides — the legacy
+     desktop rules at line 934 (.bs-move-card__desc) etc. set their
+     own font/color but no display, so a plain `display: none` should
+     win... but real-device test showed desc still visible (likely a
+     cascade race against an inherited `display: -webkit-box` or
+     similar). Force the hide. */
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__type-label,
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__type-label,
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy-label,
@@ -4752,7 +4758,7 @@
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__tags,
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__footer,
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__footer {
-    display: none;
+    display: none !important;
   }
   /* Re-show art (Commit 9 hid it). Sized as a thin band at the top
      of the card. Aspect-ratio 2/1 from the desktop rule keeps the
@@ -4890,9 +4896,12 @@
      gap 0.25 -> 0.18, padding 0.25rem 0 -> 0.15rem 0. Round counter
      pill + boss intent + hype bar tightened proportionally so the
      band reads as a single horizontal strip, not stacked sections. */
-  #bs-screen-battle.blindspot-battle .bs-vs-matchup,
-  #bs-battle-container.blindspot-battle .bs-vs-matchup {
-    display: none;
+  /* Match existing rule's specificity (`.blindspot-battle__center
+     .bs-vs-matchup` = 3 classes) and add !important so the hide
+     wins regardless of source-order races. */
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-matchup,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-matchup {
+    display: none !important;
   }
   #bs-screen-battle.blindspot-battle .blindspot-battle__center,
   #bs-battle-container.blindspot-battle .blindspot-battle__center {
