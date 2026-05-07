@@ -1467,4 +1467,15 @@ body.bs-page {
     padding: 0.65rem 0.5rem;
     min-height: 44px;
   }
+
+  /* Mobile readability — five leaf labels rendered under 11px in the
+     audit, with 8.8px stat-tile labels the worst case. Bumping each
+     to 0.7rem (11.2px) brings them above the legibility floor without
+     disturbing the surrounding rhythm — the values + chips around
+     them stay larger so hierarchy is preserved. */
+  .blindspot-stat-tile__label { font-size: 0.7rem; }       /* 8.8 -> 11.2 */
+  .blindspot-boss-pip__num { font-size: 0.7rem; }          /* 9.6 -> 11.2 */
+  .blindspot-ql__chip { font-size: 0.7rem; }               /* 9.9 -> 11.2 */
+  .bs-sparks-tile__hint { font-size: 0.7rem; }             /* 10.4 -> 11.2 */
+  .bs-forge-progress__hint { font-size: 0.7rem; }          /* overrides the 0.65rem rule at blindspot.css:9217 */
 }
