@@ -4637,4 +4637,122 @@
     padding: 0.85rem 1.4rem;
     width: 100%;
   }
+
+  /* ---------- Battle viewport budget at 375x812 ----------
+     User reported: in real-device test the move buttons sit below the
+     fold even with .bs-play scroll enabled (a follow-up commit added
+     scroll as safety net). Combat needs HP + intent + moves all
+     visible at once — scrolling during a turn is wrong UX.
+
+     Vertical budget at 375x812: 812 - 56 (topbar) = 756 usable.
+     Allocation:
+       - Field (cards + bars + buffs row):        ~250
+       - Center strip (round/intent/hype/stance): ~180
+       - Move grid (5-col horizontal):             ~90
+       - Battle log:                               ~50
+       - Margins/gaps/padding:                     ~50
+       Total: ~620, comfortably under 756.
+
+     Aggressive compression vs the previous commits' 200px frame +
+     1-col stacked moves. Frame shrinks 200 -> 160, move grid goes
+     5-col horizontal with trimmed card content (icon + label only),
+     boss flavor + stance indicator hidden, buffs row collapses to
+     horizontal flex-wrap. */
+  /* Frame + backdrop tighter still */
+  #bs-screen-battle.blindspot-battle .arena-combatant__frame,
+  #bs-battle-container.blindspot-battle .arena-combatant__frame {
+    height: 160px;
+    padding: 0.25rem 20px !important;
+  }
+  #bs-screen-battle.blindspot-battle .arena-combatant__backdrop,
+  #bs-battle-container.blindspot-battle .arena-combatant__backdrop {
+    height: 160px;
+  }
+  #bs-screen-battle.blindspot-battle .arena-hp-bar,
+  #bs-battle-container.blindspot-battle .arena-hp-bar,
+  #bs-screen-battle.blindspot-battle .arena-stamina-bar,
+  #bs-battle-container.blindspot-battle .arena-stamina-bar {
+    height: calc(100% - 32px);
+  }
+
+  /* Buffs row goes horizontal-flex with wrap, capped height. The
+     +SPEED / +CRIT / +CRIT DMG chips stack vertically by default —
+     in a 170px-wide column at 375 they eat ~80-100px vertically.
+     Wrap horizontally + max-height clips at 2 lines. */
+  #bs-screen-battle.blindspot-battle .arena-player-buffs,
+  #bs-battle-container.blindspot-battle .arena-player-buffs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    max-height: 56px;
+    overflow: hidden;
+  }
+
+  /* Hide boss flavor ("Your data is already mine.") and the explicit
+     boss stance indicator — both are nice-to-have but eat ~70px combined.
+     Boss stance is already conveyed by the opponent card's border tint
+     (commit 0b4036ad9 stance-tinted borders). */
+  #bs-screen-battle.blindspot-battle .bs-vs-flavor,
+  #bs-battle-container.blindspot-battle .bs-vs-flavor,
+  #bs-screen-battle.blindspot-battle .bs-boss-stance-indicator,
+  #bs-battle-container.blindspot-battle .bs-boss-stance-indicator {
+    display: none;
+  }
+
+  /* Hype meter slimmer — track 14 -> 8px, label inline */
+  #bs-screen-battle.blindspot-battle .arena-hype-bar__track,
+  #bs-battle-container.blindspot-battle .arena-hype-bar__track {
+    flex: 0 0 8px;
+    height: 8px;
+  }
+
+  /* Move grid: 1-col stack -> 5-col horizontal. Each card becomes a
+     compact icon+label tile. Strip desc, tags, footer to fit. */
+  #bs-screen-battle.blindspot-battle .arena-battle__moves,
+  #bs-battle-container.blindspot-battle .arena-battle__moves {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.3rem;
+  }
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card {
+    flex-direction: column;
+    padding: 0.35rem 0.2rem !important;
+    gap: 0.2rem;
+    min-height: 56px;
+    aspect-ratio: auto;
+  }
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__art,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__art,
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__desc,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__desc,
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__tags,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__tags,
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__footer,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__footer {
+    display: none;
+  }
+  /* Move card type label sized to fit the narrow tile */
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__type-label,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__type-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+
+  /* Battle log compressed — 80px max with internal scroll */
+  #bs-screen-battle.blindspot-battle .arena-battle__log,
+  #bs-battle-container.blindspot-battle .arena-battle__log {
+    max-height: 80px;
+    height: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Center column padding tighter so utils row fits without pushing
+     the move grid off-screen */
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center {
+    padding: 0.25rem 0;
+    gap: 0.25rem;
+  }
 }
