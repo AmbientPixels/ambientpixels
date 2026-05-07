@@ -4909,4 +4909,60 @@
     font-size: 0.78rem;
     padding: 0.3rem 0.6rem;
   }
+
+  /* ---------- Combat log: backing panel + better contrast ----------
+     Combat feedback was reading like debug text — italic + low contrast
+     against the arena image background. Add a translucent dark backing
+     strip with a faint gold inset border so combat events have visual
+     authority and read instantly. */
+  #bs-screen-battle.blindspot-battle .arena-battle__log,
+  #bs-battle-container.blindspot-battle .arena-battle__log {
+    background: linear-gradient(180deg,
+      rgba(13, 8, 7, 0.7) 0%,
+      rgba(13, 8, 7, 0.55) 100%);
+    border-top: 1px solid rgba(245, 192, 120, 0.18);
+    border-bottom: 1px solid rgba(245, 192, 120, 0.08);
+    padding: 0.4rem 0.6rem;
+    border-radius: 2px;
+  }
+  #bs-screen-battle.blindspot-battle .arena-log-entry,
+  #bs-battle-container.blindspot-battle .arena-log-entry {
+    color: var(--blindspot-text, #F5F0E8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  }
+
+  /* ---------- Active stance: subtle pulse ----------
+     Mobile combat feedback. The selected stance gets a subtle scale
+     + glow pulse so the player gets instant tactile confirmation that
+     their tap registered. ~1.4s loop, low amplitude — atmospheric, not
+     attention-grabbing. Respects prefers-reduced-motion. */
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn--active,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn--active {
+    animation: bs-stance-pulse 1.6s ease-in-out infinite;
+  }
+
+  /* ---------- Reduce secondary-element glow ----------
+     Round pill, hype label, matchup chip glow at full strength was
+     competing with the cards + active stance for focus. Tone the
+     secondary chrome glow down on mobile so the eye flows: cards ->
+     HP/intent -> stance -> moves. */
+  #bs-screen-battle.blindspot-battle .bs-vs-round,
+  #bs-battle-container.blindspot-battle .bs-vs-round {
+    box-shadow: none;
+  }
+  #bs-screen-battle.blindspot-battle .arena-hype-bar__label,
+  #bs-battle-container.blindspot-battle .arena-hype-bar__label {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  }
+}
+
+@keyframes bs-stance-pulse {
+  0%, 100% { transform: scale(1); box-shadow: inset 0 0 0 0 currentColor; }
+  50% { transform: scale(1.04); box-shadow: inset 0 0 0 1px currentColor; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn--active,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn--active {
+    animation: none;
+  }
 }
