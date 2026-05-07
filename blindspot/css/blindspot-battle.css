@@ -4810,21 +4810,27 @@
     font-size: 0.7rem;
   }
 
-  /* Battle log compressed — 80px max with internal scroll. margin-top
-     auto pushes it to the bottom of the .arena-battle flex column so
-     the screen no longer has an empty void below the log when content
-     is shorter than the .bs-play container (which sets height to
-     100dvh - 52px — taller than the content stack on mobile). Result:
-     content stacks at top, log anchored to bottom, breathing room
-     between them sits as deliberate negative space, not as a layout
-     bug below the last element. */
+  /* Battle log expanded — was max-height: 80 (~2 entries) with a dead
+     ~15% void between moves and log. Bump to 140 (~4-5 entries) so
+     the log absorbs the void as visible combat history. margin-top
+     auto + the .bs-play stretch (commit f7d6f4b0 / 5aa178e4) keep
+     the log anchored to viewport bottom. */
   #bs-screen-battle.blindspot-battle .arena-battle__log,
   #bs-battle-container.blindspot-battle .arena-battle__log {
-    max-height: 80px;
+    max-height: 140px;
     height: auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     margin-top: auto;
+  }
+  /* Header chip clearance — without explicit padding-top the log's
+     internal scroll could let the first .arena-log-entry slide under
+     the inline-flex .arena-battle__log-head ("BATTLE LOG" chip),
+     clipping the leading characters. Padding holds entries clear of
+     the header even when scrolled. */
+  #bs-screen-battle.blindspot-battle .arena-battle__log,
+  #bs-battle-container.blindspot-battle .arena-battle__log {
+    padding-top: 0.55rem;
   }
 
   /* Center column padding tighter so utils row fits without pushing

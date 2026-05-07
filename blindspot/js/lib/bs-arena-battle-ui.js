@@ -329,8 +329,12 @@ window.ArenaBattleUI = (function () {
     var opponentSide = document.getElementById('arena-opponent-side');
     var playerFrame = playerSide && playerSide.querySelector('.arena-combatant__frame');
     var opponentFrame = opponentSide && opponentSide.querySelector('.arena-combatant__frame');
-    if (playerFrame) playerFrame.dataset.hp = `HP ${Math.max(0, playerHp)} / ${playerMax}`;
-    if (opponentFrame) opponentFrame.dataset.hp = `HP ${Math.max(0, opponentHp)} / ${opponentMax}`;
+    // Current value only on the chip (no max). Bar visual already
+    // shows fill-percent; the max-value-with-slash was causing chip
+    // text to overflow the frame edge into the gutter at narrow
+    // widths (Galaxy S8+ 360, iPhone SE 375).
+    if (playerFrame) playerFrame.dataset.hp = `HP ${Math.max(0, playerHp)}`;
+    if (opponentFrame) opponentFrame.dataset.hp = `HP ${Math.max(0, opponentHp)}`;
 
     // Color shifts at low HP
     if (playerFill) playerFill.classList.toggle('arena-hp-bar__fill--low', playerPct < 30);
@@ -420,8 +424,9 @@ window.ArenaBattleUI = (function () {
     var opponentSide = document.getElementById('arena-opponent-side');
     var playerFrame = playerSide && playerSide.querySelector('.arena-combatant__frame');
     var opponentFrame = opponentSide && opponentSide.querySelector('.arena-combatant__frame');
-    if (playerFrame) playerFrame.dataset.stam = 'ST ' + pStam + ' / ' + pMax;
-    if (opponentFrame) opponentFrame.dataset.stam = 'ST ' + oStam + ' / ' + oMax;
+    // Current value only — same rationale as updateHpBars chip text.
+    if (playerFrame) playerFrame.dataset.stam = 'ST ' + pStam;
+    if (opponentFrame) opponentFrame.dataset.stam = 'ST ' + oStam;
     if (pBar) pBar.classList.toggle('arena-stamina-bar--exhausted', pStam < threshold);
     if (oBar) oBar.classList.toggle('arena-stamina-bar--exhausted', oStam < threshold);
   }
