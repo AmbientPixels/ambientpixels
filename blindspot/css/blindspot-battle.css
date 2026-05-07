@@ -4878,4 +4878,35 @@
     opacity: 0.7;
     margin-right: 1px;
   }
+
+  /* ---------- Center strip de-duplication + tightening ----------
+     The "VS · EVEN MATCHUP" matchup chip restated information already
+     conveyed by the giant VS glyph above + the round counter. On
+     mobile that's three competing affordances saying the same thing.
+     Hide the chip; matchup is inferable from the boss's element badge
+     on its rendered card.
+
+     Compress center-strip vertical rhythm by ~25% beyond Commit 9:
+     gap 0.25 -> 0.18, padding 0.25rem 0 -> 0.15rem 0. Round counter
+     pill + boss intent + hype bar tightened proportionally so the
+     band reads as a single horizontal strip, not stacked sections. */
+  #bs-screen-battle.blindspot-battle .bs-vs-matchup,
+  #bs-battle-container.blindspot-battle .bs-vs-matchup {
+    display: none;
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center {
+    padding: 0.15rem 0;
+    gap: 0.18rem;
+  }
+  #bs-screen-battle.blindspot-battle .bs-vs-round,
+  #bs-battle-container.blindspot-battle .bs-vs-round {
+    padding: 0.2rem 0.7rem;
+    font-size: 0.7rem;
+  }
+  #bs-screen-battle.blindspot-battle .arena-boss-intent,
+  #bs-battle-container.blindspot-battle .arena-boss-intent {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.6rem;
+  }
 }

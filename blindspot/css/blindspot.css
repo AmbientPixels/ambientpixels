@@ -973,6 +973,13 @@
     min-height: 44px;
     padding: 0.55rem 0.95rem;
   }
+  /* Hide the sign-in CTA during active battle. Combat is high-focus —
+     surfacing a sign-in prompt mid-round is jarring + competes for
+     attention with the moves grid. Re-appears after battle ends
+     (results overlay / lobby return). */
+  body.bs-battle-active .bs-topbar__signin-btn {
+    display: none;
+  }
 }
 
 /* ============================================================
