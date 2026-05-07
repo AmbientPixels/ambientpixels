@@ -1416,3 +1416,30 @@ body.bs-page {
   font-size: 0.7rem;
 }
 .bs-collection-panel__previews + .bs-collection-panel__count { margin-left: 0.4rem; }
+
+/* ============================================================
+   MOBILE POLISH (≤600px) — Phase 1: kill duplication
+   Quick Links row dupes Campaign + Gallery + How to Play, all of
+   which the user can already reach from the bottom nav (Campaign,
+   Gallery) or the topbar dropdown (How to Play). On a 375px screen
+   the duplicate rows just push real destinations (Boss Gallery,
+   PvP, Leaderboard, Sparks Shop) further down. Desktop keeps the
+   full list since vertical space isn't a constraint there.
+
+   Empty Daily Bounties / Challenges sections render their h2 +
+   meta strip even with zero content, leaving 36px of dead header
+   for new players. Collapse the whole section when its render
+   target is empty. :has() is supported in all evergreen browsers
+   we ship to. */
+@media (max-width: 600px) {
+  .blindspot-quick-links #bs-btn-campaign,
+  .blindspot-quick-links #bs-btn-gallery,
+  .blindspot-quick-links #bs-btn-howtoplay {
+    display: none;
+  }
+
+  .blindspot-lobby-section:has(> #bs-bounties:empty),
+  .blindspot-lobby-section:has(> #bs-challenges:empty) {
+    display: none;
+  }
+}
