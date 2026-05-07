@@ -951,4 +951,38 @@
   .blindspot-prefight__loadout-section--items .bs-charm-options {
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
+
+  /* ---------- MOBILE POLISH (Phase 5) ----------
+     Pager buttons render at 32x32 (line 114-115) — under the 44x44
+     tap floor. Add ::before invisible inset to extend hit area
+     without changing visual size, same pattern as the lobby bell.
+     Position: relative is already implicit on flex children but we
+     set it explicitly so the pseudo anchors. */
+  .blindspot-prefight__pager-btn {
+    position: relative;
+  }
+  .blindspot-prefight__pager-btn::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
+  /* Retreat ("Lobby" CTA) measured 94x44 at 375 — hits the floor
+     by a hair via padding-math (font 0.9rem + padding 0.7em top/bot).
+     Explicit min-height makes it resilient to font/line-height drift. */
+  .blindspot-prefight__retreat {
+    min-height: 44px;
+  }
+
+  /* Tiny-text floor — four labels under 10px on mobile. */
+  .blindspot-intel-group__label {
+    font-size: 0.65rem;     /* 0.62 -> 0.65 (~9.9 -> ~10.4) */
+  }
+  .blindspot-intel-row__k,
+  .blindspot-prefight__vs-eyebrow {
+    font-size: 0.65rem;     /* 0.6 -> 0.65 */
+  }
+  .blindspot-prefight #bs-arena-selector .bs-arena-option__req {
+    font-size: 0.65rem;     /* 0.54 -> 0.65 (worst at 8.6px) */
+  }
 }
