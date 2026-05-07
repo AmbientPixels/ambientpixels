@@ -4780,9 +4780,22 @@
   }
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__name,
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__name {
-    font-size: 0.75rem;
-    letter-spacing: 0.02em;
-    line-height: 1.1;
+    font-size: 0.65rem;
+    letter-spacing: 0;            /* tighter — was 0.02em */
+    line-height: 1.05;
+    /* Allow 2-line wrap so high-level upgraded names ("Heavy Strike",
+       "Power Strike", "Flash Counter", "Fortified Heal") render in
+       full instead of truncating mid-word. word-break: break-word
+       handles edge cases; max 2 lines via -webkit-line-clamp keeps
+       card heights consistent. */
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-align: center;
   }
   /* Energy chip becomes a compact bolt + number row at the bottom. */
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy,
@@ -4883,6 +4896,20 @@
     content: 'ST ';
     opacity: 0.7;
     margin-right: 1px;
+  }
+  /* Pull readouts INSIDE each frame as small dark chips so they no
+     longer float in the gutter where player-HP and opponent-HP
+     collided (the bars sit on adjacent inner edges of the two frames,
+     and bottom: -16px overflowed into the seam between cards). Now
+     each chip sits at the bottom of its OWN bar's edge, contained
+     within the frame's footprint. */
+  #bs-screen-battle.blindspot-battle .arena-bar-readout,
+  #bs-battle-container.blindspot-battle .arena-bar-readout {
+    bottom: 6px;                         /* was -16px (outside frame) */
+    background: rgba(13, 8, 7, 0.85);
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   }
 
   /* ---------- Center strip de-duplication + tightening ----------
