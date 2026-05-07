@@ -980,6 +980,13 @@
   body.bs-battle-active .bs-topbar__signin-btn {
     display: none;
   }
+  /* Hide the username text on mobile — avatar alone is sufficient
+     identification at this scale, and username was overflowing the
+     topbar (logo + LV badge + currency + bell + avatar + name was
+     too many elements competing for 375px of width). */
+  .bs-topbar__user-name {
+    display: none;
+  }
 }
 
 /* ============================================================

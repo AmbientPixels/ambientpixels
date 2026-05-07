@@ -4810,13 +4810,21 @@
     font-size: 0.7rem;
   }
 
-  /* Battle log compressed — 80px max with internal scroll */
+  /* Battle log compressed — 80px max with internal scroll. margin-top
+     auto pushes it to the bottom of the .arena-battle flex column so
+     the screen no longer has an empty void below the log when content
+     is shorter than the .bs-play container (which sets height to
+     100dvh - 52px — taller than the content stack on mobile). Result:
+     content stacks at top, log anchored to bottom, breathing room
+     between them sits as deliberate negative space, not as a layout
+     bug below the last element. */
   #bs-screen-battle.blindspot-battle .arena-battle__log,
   #bs-battle-container.blindspot-battle .arena-battle__log {
     max-height: 80px;
     height: auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    margin-top: auto;
   }
 
   /* Center column padding tighter so utils row fits without pushing
@@ -4861,9 +4869,28 @@
     font-size: 0.85rem;       /* was 1.05rem default */
     gap: 0.1rem;
   }
+  /* Iteration: drop the GUIDE / FORFEIT labels on mobile so the
+     utils row collapses to two compact icon-only buttons. The labels
+     were taking a dedicated row of vertical real estate; icons alone
+     read clearly enough at the 56x44 button size and reclaim ~20px. */
   #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after,
   #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after {
-    font-size: 0.55rem;
+    display: none;
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn {
+    height: 36px;
+    width: 36px;
+    min-width: 36px;
+    /* Hit area extended to 44 via ::before invisible inset — same
+       pattern as the lobby bell (visual stays compact, taps are 44). */
+    position: relative;
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::before,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
   }
 
   /* Buffs row even tighter — max-height 56 was 2 rows; cap to 28 for
