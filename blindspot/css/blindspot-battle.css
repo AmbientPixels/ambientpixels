@@ -4936,64 +4936,62 @@
   #bs-battle-container.blindspot-battle .arena-bar-readout {
     display: none;
   }
-  /* Per-column stat chips. ::before for HP (red, bottom-left of
-     player column / bottom-right of opponent — outer edges, away
-     from the gutter). ::after for ST (gold, opposite corner). The
-     two combatants mirror so HP is always on the OUTER edge of the
-     two-card pair, ST on the INNER edge — keeps the high-priority
-     stat (HP) in the most visible corner. */
-  #bs-screen-battle.blindspot-battle .arena-combatant,
-  #bs-battle-container.blindspot-battle .arena-combatant {
-    position: relative;
-  }
-  #bs-screen-battle.blindspot-battle .arena-combatant::before,
-  #bs-battle-container.blindspot-battle .arena-combatant::before,
-  #bs-screen-battle.blindspot-battle .arena-combatant::after,
-  #bs-battle-container.blindspot-battle .arena-combatant::after {
+  /* Per-frame stat chips. Anchor to the FRAME (not the column) so
+     chips sit at the bottom of the visible card frame, not below it
+     on top of buffs/status rows. Bars sit on INNER edges of the two
+     frames (HP-red next to gutter, ST-gold on outer edges); chips
+     mirror that so each chip sits directly UNDER its corresponding
+     bar — HP chip under HP rail, ST chip under ST rail. */
+  #bs-screen-battle.blindspot-battle .arena-combatant__frame::before,
+  #bs-battle-container.blindspot-battle .arena-combatant__frame::before,
+  #bs-screen-battle.blindspot-battle .arena-combatant__frame::after,
+  #bs-battle-container.blindspot-battle .arena-combatant__frame::after {
     position: absolute;
-    bottom: 6px;
+    bottom: 4px;
     background: rgba(13, 8, 7, 0.88);
     padding: 2px 6px;
     border-radius: 3px;
     font-family: var(--blindspot-font-mono);
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
     pointer-events: none;
     z-index: 5;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
   }
-  /* HP chip: ::before, content from data-hp, red text */
-  #bs-screen-battle.blindspot-battle .arena-combatant::before,
-  #bs-battle-container.blindspot-battle .arena-combatant::before {
+  /* HP chip: ::before, content from data-hp on frame, red text */
+  #bs-screen-battle.blindspot-battle .arena-combatant__frame::before,
+  #bs-battle-container.blindspot-battle .arena-combatant__frame::before {
     content: attr(data-hp);
     color: #ef4444;
     border: 1px solid rgba(239, 68, 68, 0.3);
   }
-  /* ST chip: ::after, content from data-stam, gold text */
-  #bs-screen-battle.blindspot-battle .arena-combatant::after,
-  #bs-battle-container.blindspot-battle .arena-combatant::after {
+  /* ST chip: ::after, content from data-stam on frame, gold text */
+  #bs-screen-battle.blindspot-battle .arena-combatant__frame::after,
+  #bs-battle-container.blindspot-battle .arena-combatant__frame::after {
     content: attr(data-stam);
     color: var(--blindspot-accent-gold, #F5C078);
     border: 1px solid rgba(245, 192, 120, 0.3);
   }
-  /* Player: HP outer-left, ST inner-right */
-  #bs-screen-battle.blindspot-battle .arena-combatant--player::before,
-  #bs-battle-container.blindspot-battle .arena-combatant--player::before {
-    left: 6px;
+  /* Player frame: HP rail on RIGHT (inner) -> HP chip right.
+                   ST rail on LEFT (outer) -> ST chip left. */
+  #bs-screen-battle.blindspot-battle .arena-combatant--player .arena-combatant__frame::before,
+  #bs-battle-container.blindspot-battle .arena-combatant--player .arena-combatant__frame::before {
+    right: 4px;
   }
-  #bs-screen-battle.blindspot-battle .arena-combatant--player::after,
-  #bs-battle-container.blindspot-battle .arena-combatant--player::after {
-    right: 6px;
+  #bs-screen-battle.blindspot-battle .arena-combatant--player .arena-combatant__frame::after,
+  #bs-battle-container.blindspot-battle .arena-combatant--player .arena-combatant__frame::after {
+    left: 4px;
   }
-  /* Opponent: HP outer-right, ST inner-left (mirror of player) */
-  #bs-screen-battle.blindspot-battle .arena-combatant--opponent::before,
-  #bs-battle-container.blindspot-battle .arena-combatant--opponent::before {
-    right: 6px;
+  /* Opponent frame: mirror — HP rail on LEFT (inner) -> HP chip left.
+                              ST rail on RIGHT (outer) -> ST chip right. */
+  #bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-combatant__frame::before,
+  #bs-battle-container.blindspot-battle .arena-combatant--opponent .arena-combatant__frame::before {
+    left: 4px;
   }
-  #bs-screen-battle.blindspot-battle .arena-combatant--opponent::after,
-  #bs-battle-container.blindspot-battle .arena-combatant--opponent::after {
-    left: 6px;
+  #bs-screen-battle.blindspot-battle .arena-combatant--opponent .arena-combatant__frame::after,
+  #bs-battle-container.blindspot-battle .arena-combatant--opponent .arena-combatant__frame::after {
+    right: 4px;
   }
 
   /* ---------- Center strip de-duplication + tightening ----------

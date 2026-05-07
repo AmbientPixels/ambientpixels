@@ -321,14 +321,16 @@ window.ArenaBattleUI = (function () {
     if (playerText) playerText.textContent = `${Math.max(0, playerHp)} / ${playerMax}`;
     if (opponentText) opponentText.textContent = `${Math.max(0, opponentHp)} / ${opponentMax}`;
 
-    // Mirror onto data attrs on the combatant column. Mobile CSS hides
-    // the in-bar readouts (which span the gutter regardless of position
-    // tweaks because they're anchored to bars on adjacent inner edges)
-    // and renders fresh per-column chips via ::before reading data-hp.
+    // Mirror onto data attrs on the combatant FRAME (not column).
+    // Mobile CSS hides the in-bar readouts and renders fresh chips via
+    // ::before/::after on the frame itself — anchoring to the column
+    // would put chips below the frame on top of buffs/status rows.
     var playerSide = document.getElementById('arena-player-side');
     var opponentSide = document.getElementById('arena-opponent-side');
-    if (playerSide) playerSide.dataset.hp = `HP ${Math.max(0, playerHp)} / ${playerMax}`;
-    if (opponentSide) opponentSide.dataset.hp = `HP ${Math.max(0, opponentHp)} / ${opponentMax}`;
+    var playerFrame = playerSide && playerSide.querySelector('.arena-combatant__frame');
+    var opponentFrame = opponentSide && opponentSide.querySelector('.arena-combatant__frame');
+    if (playerFrame) playerFrame.dataset.hp = `HP ${Math.max(0, playerHp)} / ${playerMax}`;
+    if (opponentFrame) opponentFrame.dataset.hp = `HP ${Math.max(0, opponentHp)} / ${opponentMax}`;
 
     // Color shifts at low HP
     if (playerFill) playerFill.classList.toggle('arena-hp-bar__fill--low', playerPct < 30);
@@ -412,12 +414,14 @@ window.ArenaBattleUI = (function () {
     if (oBar) renderStaminaPips(oBar, oStam, oMax);
     if (pText) pText.textContent = pStam + ' / ' + pMax;
     if (oText) oText.textContent = oStam + ' / ' + oMax;
-    // Mirror onto data attrs on the combatant column. See updateHpBars
-    // comment — mobile CSS reads these via ::after on the column.
+    // Mirror onto data attrs on the combatant FRAME. See updateHpBars
+    // comment — mobile CSS reads these via ::after on the frame.
     var playerSide = document.getElementById('arena-player-side');
     var opponentSide = document.getElementById('arena-opponent-side');
-    if (playerSide) playerSide.dataset.stam = 'ST ' + pStam + ' / ' + pMax;
-    if (opponentSide) opponentSide.dataset.stam = 'ST ' + oStam + ' / ' + oMax;
+    var playerFrame = playerSide && playerSide.querySelector('.arena-combatant__frame');
+    var opponentFrame = opponentSide && opponentSide.querySelector('.arena-combatant__frame');
+    if (playerFrame) playerFrame.dataset.stam = 'ST ' + pStam + ' / ' + pMax;
+    if (opponentFrame) opponentFrame.dataset.stam = 'ST ' + oStam + ' / ' + oMax;
     if (pBar) pBar.classList.toggle('arena-stamina-bar--exhausted', pStam < threshold);
     if (oBar) oBar.classList.toggle('arena-stamina-bar--exhausted', oStam < threshold);
   }
