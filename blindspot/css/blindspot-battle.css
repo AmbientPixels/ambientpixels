@@ -2937,6 +2937,11 @@
   background: rgba(10, 8, 6, 0.94);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  /* Inner modal can exceed viewport on long XP/banner copy. Without
+     this the bottom CTAs are unreachable on a phone. -webkit prefix
+     keeps iOS Safari momentum scroll behavior. */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Ember layer — full-overlay, rises behind the modal */
@@ -4606,5 +4611,30 @@
   #bs-screen-battle.blindspot-battle .bs-rc-trait--player,
   #bs-battle-container.blindspot-battle .bs-rc-trait--player {
     font-size: 0.7rem;                    /* 0.6 -> 0.7 — trait pill */
+  }
+
+  /* ---------- Results overlay (post-battle) at 375px ----------
+     The .arena-results-overlay base now has overflow-y: auto so the
+     modal scrolls when content exceeds viewport. On mobile, tighten
+     the inner modal padding, scale the title down, stack the action
+     CTAs full-width, and bump CTA min-height to the 44px floor. */
+  .arena-results-overlay .arena-results {
+    padding: 1.5rem 1rem 1rem;            /* 2.25rem 1.75rem -> 1.5rem 1rem */
+  }
+  .arena-results-overlay .arena-results__banner h2,
+  .arena-results-overlay .arena-results__banner h1 {
+    font-size: 1.5rem;                    /* 2rem -> 1.5rem */
+  }
+  .arena-results-overlay .arena-results__actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .arena-results-overlay .arena-results__actions .arena-btn--primary,
+  .arena-results-overlay .arena-results__actions .arena-btn--ghost,
+  .arena-results-overlay #arena-results-again,
+  .arena-results-overlay #arena-results-lobby {
+    min-height: 44px;
+    padding: 0.85rem 1.4rem;
+    width: 100%;
   }
 }
