@@ -4755,4 +4755,51 @@
     padding: 0.25rem 0;
     gap: 0.25rem;
   }
+
+  /* ---------- Iteration: stance row + utils row compressed ----------
+     Real-device follow-up showed stance buttons rendering at ~80px
+     tall and the GUIDE/FORFEIT utils row another ~70px below — that
+     150px eats the room the move grid needed. Compress both rows to
+     the 44px tap floor so the moves grid renders fully on-screen.
+
+     Stance buttons: drop the 1.1rem icon + 0.65rem label stack to a
+     0.9rem icon + tighter padding, keeping min-height 44. Total ~44px
+     instead of ~80, while still meeting the tap-target floor.
+
+     Utils buttons: existing 52x48 from line 3187. Keep width but
+     shrink height + padding so the row settles at 44px tall. */
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn {
+    padding: 0.35rem 0.25rem;
+    font-size: 0.9rem;        /* icon shrinks 1.1 -> 0.9rem */
+    gap: 0.1rem;              /* was 0.2 between icon and label */
+    min-height: 44px;
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn::after,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn::after {
+    font-size: 0.55rem;       /* below 0.65 floor here is fine — chip
+                                 context with strong contrast + brand
+                                 mono spacing keeps it legible */
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn {
+    height: 44px;
+    width: 56px;
+    min-width: 44px;
+    padding: 0.2rem 0;
+    font-size: 0.85rem;       /* was 1.05rem default */
+    gap: 0.1rem;
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after {
+    font-size: 0.55rem;
+  }
+
+  /* Buffs row even tighter — max-height 56 was 2 rows; cap to 28 for
+     a single row and rely on overflow: hidden to clip extras. The
+     buffs are status hints, not load-bearing combat info. */
+  #bs-screen-battle.blindspot-battle .arena-player-buffs,
+  #bs-battle-container.blindspot-battle .arena-player-buffs {
+    max-height: 28px;
+  }
 }
