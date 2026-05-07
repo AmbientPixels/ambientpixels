@@ -4854,4 +4854,28 @@
   #bs-battle-container.blindspot-battle .arena-player-buffs {
     max-height: 28px;
   }
+
+  /* ---------- HP / ST stat labels on bar readouts ----------
+     Without labels the bare numbers (e.g. "32 / 114" + "0 / 0") were
+     unreadable for first-time players — no way to know which is HP,
+     which is stamina, or what the gold vs red bar means. ::before
+     pseudo prepends a 2-letter tag inline with the number. Inherits
+     the readout's color (red for HP, gold for stamina), so the label
+     visually links to its corresponding bar. */
+  #bs-screen-battle.blindspot-battle .arena-bar-readout,
+  #bs-battle-container.blindspot-battle .arena-bar-readout {
+    font-size: 0.7rem;          /* 0.55 -> 0.7rem — was 8.8px, now 11.2 */
+  }
+  #bs-screen-battle.blindspot-battle .arena-bar-readout--hp::before,
+  #bs-battle-container.blindspot-battle .arena-bar-readout--hp::before {
+    content: 'HP ';
+    opacity: 0.7;
+    margin-right: 1px;
+  }
+  #bs-screen-battle.blindspot-battle .arena-bar-readout--stam::before,
+  #bs-battle-container.blindspot-battle .arena-bar-readout--stam::before {
+    content: 'ST ';
+    opacity: 0.7;
+    margin-right: 1px;
+  }
 }
