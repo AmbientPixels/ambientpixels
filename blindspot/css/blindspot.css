@@ -723,6 +723,17 @@
   color: var(--blindspot-accent-gold-2, #FFD89A);
   outline: none;
 }
+/* Mobile hit-area extension (visual stays 32px to match the rest of
+   the topbar pills). ::before adds an invisible 6px inset on every
+   side, expanding the clickable region to 44x44. */
+@media (max-width: 600px) {
+  .bs-topbar__bell { position: relative; }
+  .bs-topbar__bell::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+}
 
 .bs-topbar__bell-badge {
   position: absolute;
@@ -954,6 +965,14 @@
   background: rgba(245, 192, 120, 0.16);
   border-color: rgba(245, 192, 120, 0.5);
   outline: none;
+}
+/* Mobile: sign-in chip was 38px tall — under the 44px minimum. Topbar
+   is 56px so 44px fits with breathing room. */
+@media (max-width: 600px) {
+  .bs-topbar__signin-btn {
+    min-height: 44px;
+    padding: 0.55rem 0.95rem;
+  }
 }
 
 /* ============================================================

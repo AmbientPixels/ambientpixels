@@ -1442,4 +1442,29 @@ body.bs-page {
   .blindspot-lobby-section:has(> #bs-challenges:empty) {
     display: none;
   }
+
+  /* Welcome head was 215px / 9% of total page at 375px. Title used a
+     desktop-tuned clamp(2rem, 4.5vw, 3.5rem) which floors to 2rem on
+     mobile — still bigger than the screen wants. Tighten the heading,
+     trim outer + inner spacing, keep the eyebrow + sub-chips intact. */
+  .blindspot-lobby__head {
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  .blindspot-lobby__title {
+    font-size: clamp(1.5rem, 6vw, 2.25rem);
+    margin: 0.15rem 0;
+  }
+  .blindspot-lobby__sub {
+    line-height: 1.4;
+  }
+
+  /* "View all" links rendered at 87x22 in the audit — far below the
+     44x44 minimum tap target. Bump padding to expand hit area without
+     resizing the visible text. min-height makes the rule resilient to
+     line-height/font changes. */
+  .blindspot-section-link {
+    padding: 0.65rem 0.5rem;
+    min-height: 44px;
+  }
 }
