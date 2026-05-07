@@ -4899,12 +4899,24 @@
     inset: -4px;
   }
 
-  /* Buffs row even tighter — max-height 56 was 2 rows; cap to 28 for
-     a single row and rely on overflow: hidden to clip extras. The
-     buffs are status hints, not load-bearing combat info. */
+  /* Buffs row hidden on mobile (was max-height 28). The +15 XP /
+     buff chips were the only content under the LEFT card that the
+     OPPONENT side didn't mirror — created left/right asymmetry that
+     read as a layout bug. Buffs are informational (XP totals are in
+     the lobby HUD; prefight picker is where adventure buffs are
+     surfaced); losing them mid-battle on mobile is acceptable trade
+     for a symmetric layout.
+
+     Item tray (charms/items the player tapped to bring) hidden for
+     the same reason — three unlabeled thumbnails under the left
+     card with no opponent equivalent. Items came in via the prefight
+     picker; mid-battle activation moves to a future iteration with
+     proper labeling + shared positioning. */
   #bs-screen-battle.blindspot-battle .arena-player-buffs,
-  #bs-battle-container.blindspot-battle .arena-player-buffs {
-    max-height: 28px;
+  #bs-battle-container.blindspot-battle .arena-player-buffs,
+  #bs-screen-battle.blindspot-battle .arena-combatant__item-tray,
+  #bs-battle-container.blindspot-battle .arena-combatant__item-tray {
+    display: none;
   }
 
   /* ---------- HP / ST stat labels on bar readouts ----------
