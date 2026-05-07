@@ -4509,4 +4509,46 @@
   #bs-battle-container.blindspot-battle .bs-vs-utils {
     gap: 0.5rem;
   }
+
+  /* ---------- Combatant frame + backdrop perf ----------
+     At 812h the existing max-height: 800px rule fires (frame -> 250).
+     With the 2-col field above, each column is ~170px wide; a 250px
+     frame is still a touch tall and the 22px backdrop blur composes
+     twice (once per side) on every scroll frame. Tighten frame to
+     200, match backdrop, drop blur 22 -> 12 for ~70% less compositing
+     cost when both backdrops paint together.
+
+     Frame side-padding 32px -> 24px frees 16px total horizontal space
+     for the card render. The HP/stamina rails inset 18px from frame
+     edge (line 1531-37) stay legible inside the smaller chrome.
+
+     `padding: ... !important` matches the load-bearing !important at
+     line 1523 — without it the cascade loses to the desktop value. */
+  #bs-screen-battle.blindspot-battle .arena-combatant__frame,
+  #bs-battle-container.blindspot-battle .arena-combatant__frame {
+    height: 200px;
+    padding: 0.25rem 24px !important;
+  }
+  #bs-screen-battle.blindspot-battle .arena-combatant__backdrop,
+  #bs-battle-container.blindspot-battle .arena-combatant__backdrop {
+    height: 200px;
+    filter: blur(12px) saturate(1.2) brightness(0.95);
+  }
+  /* Smaller frame -> rails need less reserved space top/bottom. Bumps
+     bar-readout offset to 24px each side (was 32) so the visible bar
+     length scales with the new frame. */
+  #bs-screen-battle.blindspot-battle .arena-hp-bar,
+  #bs-battle-container.blindspot-battle .arena-hp-bar,
+  #bs-screen-battle.blindspot-battle .arena-stamina-bar,
+  #bs-battle-container.blindspot-battle .arena-stamina-bar {
+    height: calc(100% - 48px);
+  }
+  /* Free vertical on the column itself so HP rail + buffs + status
+     fit beneath the shrunken frame without clipping. */
+  #bs-screen-battle.blindspot-battle .arena-combatant,
+  #bs-battle-container.blindspot-battle .arena-combatant {
+    padding: 0.25rem;
+    gap: 0.1rem;
+    max-height: none;
+  }
 }
