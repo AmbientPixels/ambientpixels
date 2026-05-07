@@ -4706,8 +4706,19 @@
     height: 8px;
   }
 
-  /* Move grid: 1-col stack -> 5-col horizontal. Each card becomes a
-     compact icon+label tile. Strip desc, tags, footer to fit. */
+  /* ---------- Move cards: art + full name + cost ----------
+     User feedback: previous "icon-letter only" treatment (S/G/W/H/F)
+     was unreadable. Combat is the most-interacted surface — needs
+     full names + visual identity (move art) at a glance.
+
+     Card vertical stack at 5-col: ART (small icon ~28px) + NAME (full
+     word, single line, 0.75rem display font) + ENERGY chip (cost num
+     with bolt icon, no "ENERGY" label). Type-label, desc, tags, footer
+     all hidden on mobile (they're descriptive metadata for desktop).
+
+     min-height 88 keeps each card ≥44 tap-floor with breathing room.
+     The 5 in a row at 343px viewport-padded = ~64px each, which fits
+     5-char "Strike" / "Guard" / "Counter" at 0.75rem display font. */
   #bs-screen-battle.blindspot-battle .arena-battle__moves,
   #bs-battle-container.blindspot-battle .arena-battle__moves {
     grid-template-columns: repeat(5, 1fr);
@@ -4716,13 +4727,25 @@
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card,
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card {
     flex-direction: column;
-    padding: 0.35rem 0.2rem !important;
-    gap: 0.2rem;
-    min-height: 56px;
+    padding: 0.4rem 0.2rem 0.35rem !important;
+    gap: 0.25rem;
+    min-height: 88px;
     aspect-ratio: auto;
+    align-items: stretch;
+    justify-content: flex-start;
   }
-  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__art,
-  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__art,
+  /* Header is currently row (titles + energy). On mobile we want
+     just the name — hide the type-label inside titles, drop the row
+     direction so name + energy stack via card flex column instead. */
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__header,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__header {
+    display: contents;          /* let titles + energy participate in
+                                   the card's flex column directly */
+  }
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__type-label,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__type-label,
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy-label,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__energy-label,
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__desc,
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__desc,
   #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__tags,
@@ -4731,12 +4754,41 @@
   #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__footer {
     display: none;
   }
-  /* Move card type label sized to fit the narrow tile */
-  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__type-label,
-  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__type-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
+  /* Re-show art (Commit 9 hid it). Sized as a thin band at the top
+     of the card. Aspect-ratio 2/1 from the desktop rule keeps the
+     animation pixels intact at ~32px height in a 64px column. */
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__art,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__art {
+    display: block;
+    order: 1;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    margin: 0;
+  }
+  /* Titles wraps the name. On mobile flatten to just the name. */
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__titles,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__titles {
+    order: 2;
+    width: 100%;
     text-align: center;
+  }
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__name,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__name {
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+  /* Energy chip becomes a compact bolt + number row at the bottom. */
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__energy {
+    order: 3;
+    align-self: center;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.7rem;
+  }
+  #bs-screen-battle.blindspot-battle .arena-battle__moves .bs-move-card__energy-num,
+  #bs-battle-container.blindspot-battle .arena-battle__moves .bs-move-card__energy-num {
+    font-size: 0.7rem;
   }
 
   /* Battle log compressed — 80px max with internal scroll */
