@@ -5450,7 +5450,10 @@
   .bs-speech-bubble { max-width: 220px; padding: 0.6rem 0.75rem; }
   .bs-speech-bubble__text { font-size: 0.72rem; }
   .bs-speech-bubble__label { font-size: 0.72rem; }
-  .bs-speech-bubble__action { min-height: 36px; padding: 0.35rem 0.75rem; }
+  /* 36 -> 44 to clear the tap-target floor. The bubble's repositioning
+     logic (in bs-tutorial.js) already clamps to viewport, so the larger
+     button doesn't push the bubble off-screen. */
+  .bs-speech-bubble__action { min-height: 44px; padding: 0.5rem 0.9rem; }
 }
 @media (max-width: 375px) {
   .bs-speech-bubble { max-width: 200px; }
@@ -13974,9 +13977,14 @@ body.bs-adventure-active {
   .bs-adventure__sidebar { padding: 1rem 0.75rem 0.75rem; }
   .bs-adventure__title { font-size: 1rem; }
   .bs-adventure__text { font-size: 0.9rem; }
-  .bs-adventure__choice { padding: 0.7rem 0.85rem; font-size: 0.9rem; }
+  /* min-height ensures the choice tile clears the 44px tap floor even
+     when the body text is short (1-line choices like "Continue"). */
+  .bs-adventure__choice { padding: 0.7rem 0.85rem; font-size: 0.9rem; min-height: 44px; }
   .bs-adventure__dice-value { font-size: 2.5rem; }
   .bs-adventure__choices { margin-top: 0.75rem; }
+  /* Dice panel padding 1.5rem 2rem -> tighter horizontal so the panel
+     fits inside the 520px adventure container at 375 width. */
+  .bs-adventure__dice { padding: 1rem; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
