@@ -987,6 +987,24 @@
   .bs-topbar__user-name {
     display: none;
   }
+  /* Fill the .bs-play scroll area so the battle log's margin-top:
+     auto rule (set in blindspot-battle.css mobile block) actually
+     pushes the log to the bottom of the visible viewport, not just
+     the bottom of .arena-battle. At widths where content < .bs-play
+     height (XR/Pixel/Galaxy), the void was rendering BELOW the log
+     because .arena-battle was content-sized. flex: 1 stretches
+     #bs-screen-battle to fill .bs-play, and arena-battle stretches
+     to fill that — log lands at viewport bottom on every width. */
+  body.bs-battle-active .bs-play > #bs-screen-battle.bs-screen.active {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  body.bs-battle-active .bs-play > #bs-screen-battle.bs-screen.active > .arena-battle {
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 /* ============================================================

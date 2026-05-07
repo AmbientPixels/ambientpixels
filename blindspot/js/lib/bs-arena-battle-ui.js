@@ -321,6 +321,15 @@ window.ArenaBattleUI = (function () {
     if (playerText) playerText.textContent = `${Math.max(0, playerHp)} / ${playerMax}`;
     if (opponentText) opponentText.textContent = `${Math.max(0, opponentHp)} / ${opponentMax}`;
 
+    // Mirror onto data attrs on the combatant column. Mobile CSS hides
+    // the in-bar readouts (which span the gutter regardless of position
+    // tweaks because they're anchored to bars on adjacent inner edges)
+    // and renders fresh per-column chips via ::before reading data-hp.
+    var playerSide = document.getElementById('arena-player-side');
+    var opponentSide = document.getElementById('arena-opponent-side');
+    if (playerSide) playerSide.dataset.hp = `HP ${Math.max(0, playerHp)} / ${playerMax}`;
+    if (opponentSide) opponentSide.dataset.hp = `HP ${Math.max(0, opponentHp)} / ${opponentMax}`;
+
     // Color shifts at low HP
     if (playerFill) playerFill.classList.toggle('arena-hp-bar__fill--low', playerPct < 30);
     if (opponentFill) opponentFill.classList.toggle('arena-hp-bar__fill--low', opponentPct < 30);
@@ -403,6 +412,12 @@ window.ArenaBattleUI = (function () {
     if (oBar) renderStaminaPips(oBar, oStam, oMax);
     if (pText) pText.textContent = pStam + ' / ' + pMax;
     if (oText) oText.textContent = oStam + ' / ' + oMax;
+    // Mirror onto data attrs on the combatant column. See updateHpBars
+    // comment — mobile CSS reads these via ::after on the column.
+    var playerSide = document.getElementById('arena-player-side');
+    var opponentSide = document.getElementById('arena-opponent-side');
+    if (playerSide) playerSide.dataset.stam = 'ST ' + pStam + ' / ' + pMax;
+    if (opponentSide) opponentSide.dataset.stam = 'ST ' + oStam + ' / ' + oMax;
     if (pBar) pBar.classList.toggle('arena-stamina-bar--exhausted', pStam < threshold);
     if (oBar) oBar.classList.toggle('arena-stamina-bar--exhausted', oStam < threshold);
   }
