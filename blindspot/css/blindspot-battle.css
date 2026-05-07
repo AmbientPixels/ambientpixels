@@ -4954,6 +4954,18 @@
   #bs-battle-container.blindspot-battle .arena-hype-bar__label {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
   }
+
+  /* ---------- VS glyph: 15% smaller + softer glow on mobile ----------
+     ChatGPT visual-hierarchy recommendation #4: VS was eating focal
+     attention with clamp(3rem, 6vw, 4rem) (-> 48px at 375 width) plus
+     a 40px-blur red glow. Cards should be the primary focal point;
+     VS is connective tissue. Drop ~17% (3rem -> 2.4rem floor) and
+     halve the glow intensity. */
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-battle__vs-text,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-battle__vs-text {
+    font-size: clamp(2.4rem, 7vw, 3.2rem);
+    text-shadow: 0 0 24px rgba(200, 48, 44, 0.35);
+  }
 }
 
 @keyframes bs-stance-pulse {
