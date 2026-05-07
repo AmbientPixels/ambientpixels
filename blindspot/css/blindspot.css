@@ -8386,6 +8386,31 @@ body.bs-battle-active .bs-play {
   display: flex;
   flex-direction: column;
 }
+/* Mobile: the in-battle content (field + center strip + moves + log)
+   exceeds 743px (812 viewport - 69 topbar) at 375 width once the
+   center column reflows below the field. Without scroll the move
+   buttons sit below the fold and are unreachable.
+
+   Two targets because the two battle entry points have different
+   parent chains:
+   - play.html: body > header.bs-topbar > main.bs-play > #bs-screen-battle
+   - index.html: body > #bs-battle-container (no topbar, no .bs-play)
+
+   .bs-play handles scroll on play.html (topbar lives outside it so
+   stays fixed). #bs-battle-container handles scroll on index.html
+   (body would clip with bs-battle-active overflow:hidden otherwise).
+   -webkit prefix preserves iOS momentum scroll on both. */
+@media (max-width: 600px) {
+  body.bs-battle-active .bs-play {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.bs-battle-active #bs-battle-container.blindspot-battle {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    max-height: 100vh;
+  }
+}
 
 /* Campaign progress no-wrap */
 .bs-campaign__progress {
