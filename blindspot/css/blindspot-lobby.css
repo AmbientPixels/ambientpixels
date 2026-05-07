@@ -1478,4 +1478,59 @@ body.bs-page {
   .blindspot-ql__chip { font-size: 0.7rem; }               /* 9.9 -> 11.2 */
   .bs-sparks-tile__hint { font-size: 0.7rem; }             /* 10.4 -> 11.2 */
   .bs-forge-progress__hint { font-size: 0.7rem; }          /* overrides the 0.65rem rule at blindspot.css:9217 */
+
+  /* Quick Links was a single-col stack of 4 unique destinations after
+     commit 1 trimmed the duplicates. Switch to a 2x2 tile grid: hides
+     descriptions (icon + title alone signal each tile clearly enough),
+     hides the chevron (the tile chrome itself signals tappability),
+     wraps the rows in a faint tile background so they don't read as
+     flat text rows in a grid context. Saves ~140px vs. the stacked
+     list. The bottom 1px hairline border from the desktop list rule
+     gets neutralized by the per-tile border. */
+  .blindspot-quick-links {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  /* Stack vertically inside each tile: icon-top-left, title, then any
+     chip/lock badge wraps to its own row underneath. The desktop rule
+     uses a 3-col `22px 1fr auto` grid which forces title + chip onto
+     one line — at ~155px cell width that wraps "PvP Arena" and crops
+     the "Beat Boss 3" lock label. */
+  .blindspot-ql {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    background: rgba(245, 192, 120, 0.04);
+    border: 1px solid var(--blindspot-border);
+    border-radius: var(--blindspot-radius-tile, 6px);
+    padding: 0.75rem;
+    min-height: 88px;
+  }
+  .blindspot-ql__desc,
+  .blindspot-ql__chev {
+    display: none;
+  }
+  .blindspot-ql__body {
+    width: 100%;
+  }
+  .blindspot-ql__title {
+    font-size: 0.95rem;
+  }
+  .blindspot-ql__lock,
+  .blindspot-ql__chip {
+    align-self: flex-start;
+    margin-left: 0;
+    padding: 0.15rem 0.4rem;
+  }
+
+  /* Backdrop blur on the always-visible chrome (topbar + bottom nav)
+     was 12px. Composes on every scroll frame on mobile. Drop to 8px:
+     same blurred-glass read, ~30% less compositing cost. Toast keeps
+     12px (transient overlay). */
+  .bs-topbar,
+  .bs-bottom-nav {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
 }
