@@ -4551,4 +4551,32 @@
     gap: 0.1rem;
     max-height: none;
   }
+
+  /* ---------- Tap target normalization ----------
+     Item tray icons (charm + activated items) render as 32x32 squares
+     in a horizontal strip. At a 44x44 floor each would either grow
+     visually (crowding the tray when 4+ items are equipped) or get an
+     invisible-inset hit area extension via ::before. Going with ::before
+     — same pattern proven for the lobby bell, keeps the visual rhythm.
+
+     Stance buttons measure ~48-52px tall via padding-math today; an
+     explicit min-height:44 makes that resilient to font/line-height
+     tweaks. Help/Forfeit utils (.bs-vs-utils .arena-btn) are already
+     52x48 — above the floor, no change needed. */
+  #bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn,
+  #bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn {
+    /* `position: relative` is already set at line 2398, so ::before
+       anchors correctly. */
+  }
+  #bs-screen-battle.blindspot-battle .arena-combatant__item-tray .arena-move-btn::before,
+  #bs-battle-container.blindspot-battle .arena-combatant__item-tray .arena-move-btn::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    /* invisible — extends hit area to 44x44 */
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn {
+    min-height: 44px;
+  }
 }
