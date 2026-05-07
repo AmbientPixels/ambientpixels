@@ -4579,4 +4579,32 @@
   #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn {
     min-height: 44px;
   }
+
+  /* ---------- Tiny-text floor ----------
+     Five labels render under 10px on mobile in the battle scope. The
+     worst case is `.arena-btn::after` at 0.46rem (~7.4px) on the help
+     and forfeit utility buttons — barely legible even at high DPI.
+     Bump every leaf label to >=10.4px (0.65rem) or >=11.2px (0.7rem)
+     for the chip/trait family which has more breathing room and
+     letter-spacing. */
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .bs-vs-utils .arena-btn::after {
+    font-size: 0.65rem;                   /* 0.46 -> 0.65 */
+  }
+  #bs-screen-battle.blindspot-battle .blindspot-battle__center .arena-stance-btn::after,
+  #bs-battle-container.blindspot-battle .blindspot-battle__center .arena-stance-btn::after {
+    font-size: 0.65rem;                   /* 0.55 -> 0.65 */
+  }
+  #bs-screen-battle.blindspot-battle .arena-hype-bar__hint,
+  #bs-battle-container.blindspot-battle .arena-hype-bar__hint {
+    font-size: 0.65rem;                   /* 0.55 -> 0.65 */
+  }
+  #bs-screen-battle.blindspot-battle .arena-buff-chip,
+  #bs-battle-container.blindspot-battle .arena-buff-chip {
+    font-size: 0.7rem;                    /* 0.6 -> 0.7 — chip has letter-spacing room */
+  }
+  #bs-screen-battle.blindspot-battle .bs-rc-trait--player,
+  #bs-battle-container.blindspot-battle .bs-rc-trait--player {
+    font-size: 0.7rem;                    /* 0.6 -> 0.7 — trait pill */
+  }
 }
