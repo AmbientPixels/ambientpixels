@@ -540,14 +540,23 @@ async function appendToIndex(entry) {
 }
 
 /**
- * Atomically bump the all-time AI image generation counter.
+ * Best-effort bump of the all-time AI image generation counter.
+ *
+ * Reads the current value, increments by n, writes back. NOT atomic — there's
+ * no blob lease or ETag check, so two concurrent generations may read the same
+ * value and both write current+n, losing one increment. We accept that
+ * undercount: the alternative (lease the blob per call) is overkill for a
+ * stats dashboard tolerant of small drift.
+ *
  * The counter blob lives at content-engine/total-count.json — a tiny JSON
  * doc { count: <integer>, updatedAt: <iso> }. Used by /api/blindspotstats
  * because content-engine/index.json is capped at 500 entries and so is
- * NOT a true historical count.
+ * NOT a true historical count. The updatedAt field is informational/debug
+ * only; the stats endpoint reads only `count`.
  *
- * Best-effort: any failure here MUST NOT break the calling generation flow.
- * Caller (appendToIndex) wraps this in try/catch; we log + swallow inside too.
+ * Best-effort across the board: any failure here MUST NOT break the calling
+ * generation flow. Caller (appendToIndex) wraps this in try/catch; we log +
+ * swallow inside too.
  *
  * @param {number} n  Number of successful images to add (default 1).
  */
