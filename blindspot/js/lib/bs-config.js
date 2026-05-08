@@ -17,6 +17,8 @@ window._config.apiEndpoints = {
   heroSlim: 'blindspothero',
   // Admin moderation + per-surface config endpoint. GET public; POST admin-only.
   adminConfig: 'blindspotadminconfig',
+  // Live aggregate stats (public + admin extras). GET only.
+  stats: 'blindspotstats',
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',
