@@ -458,6 +458,16 @@
       // Sync progression to server after boss fight
       syncProgressToServer();
 
+      // First-real-boss-defeat publish nudge. Most players come out of
+      // Quick Build with publish-on-by-default already (see bs-save-card.js),
+      // but anyone who unticked, or who has an older pre-toggle card, gets
+      // one shot at this prompt after their first lobby boss win. Stranger
+      // auto-credits Boss 1 via localStorage, so isNewBossDefeat first fires
+      // on Boss 2 in the canonical path.
+      if (isNewBossDefeat) {
+        try { maybeShowPublishPrompt(); } catch (e) { console.warn('[BsBattleResults] publish prompt error:', e); }
+      }
+
       // Boss 10 — The Architect
       if (boss && boss.boss === 10 && isNewBossDefeat) {
         setTimeout(function() {
@@ -560,6 +570,85 @@
 
     // Session stats panel
     renderSessionStats();
+  }
+
+  // ── Publish prompt (one-shot, after first real boss defeat) ──
+
+  var PUBLISH_PROMPT_FLAG = 'bs-publish-prompt-shown';
+
+  function maybeShowPublishPrompt() {
+    if (localStorage.getItem(PUBLISH_PROMPT_FLAG) === '1') return;
+    var card = getSelectedCard();
+    if (!card || !card.id) return;
+    if (card.publishedToGallery === true || card.published === true) return;
+
+    // Auth required — guests can't publish (no userId for published-cards.json)
+    fetch('/.auth/me')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; })
+      .then(function (me) {
+        var userId = me && me.clientPrincipal && me.clientPrincipal.userId;
+        if (!userId) return;
+        // Delay so the player sees their rewards first
+        setTimeout(function () { renderPublishPrompt(card, userId); }, 2200);
+      });
+  }
+
+  function renderPublishPrompt(card, userId) {
+    if (document.getElementById('bs-publish-prompt')) return;
+    var ov = document.createElement('div');
+    ov.id = 'bs-publish-prompt';
+    ov.className = 'bs-overlay';
+    ov.style.zIndex = '9500';
+    ov.innerHTML =
+      '<div style="max-width:420px; text-align:center; padding:1.5rem; background:var(--bs-surface,#1a1410); border:1px solid var(--bs-accent,#EF9F27); border-radius:8px; box-shadow:0 0 40px rgba(239,159,39,0.25);">' +
+        '<div style="font-size:2.4rem; color:var(--bs-accent,#EF9F27); margin-bottom:0.4rem;"><i class="fas fa-eye"></i></div>' +
+        '<h2 class="bs-overlay__title" style="margin:0 0 0.5rem;">You\'re on the board.</h2>' +
+        '<p class="bs-overlay__subtitle" style="margin:0 0 1.25rem;">Show your card in the public gallery so other players can browse it. You can change this later in Forge → Details.</p>' +
+        '<div style="display:flex; gap:0.6rem; justify-content:center; flex-wrap:wrap;">' +
+          '<button id="bs-publish-prompt-yes" class="bs-btn bs-btn--primary"><i class="fas fa-eye"></i> Show in gallery</button>' +
+          '<button id="bs-publish-prompt-no" class="bs-btn bs-btn--secondary">Maybe later</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+
+    function dismiss() {
+      try { localStorage.setItem(PUBLISH_PROMPT_FLAG, '1'); } catch (e) {}
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+    }
+
+    document.getElementById('bs-publish-prompt-no').addEventListener('click', dismiss);
+    document.getElementById('bs-publish-prompt-yes').addEventListener('click', function () {
+      publishCardNow(card, userId).then(function (ok) {
+        if (ok) {
+          card.publishedToGallery = true;
+          if (_cb.showSuccessToast) _cb.showSuccessToast('Card shared to the gallery.');
+        } else {
+          if (window.BsToast) window.BsToast.error('Couldn’t share — try again from Forge → Details.');
+        }
+        dismiss();
+      });
+    });
+  }
+
+  async function publishCardNow(card, userId) {
+    try {
+      var pubUrl = window.buildApiPath ? window.buildApiPath('publish') : null;
+      if (!pubUrl) return false;
+      var headers = { 'Content-Type': 'application/json' };
+      var auth = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
+        ? await window.ArenaAPI.getPrincipalHeader()
+        : null;
+      if (auth) Object.assign(headers, auth);
+      var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+      if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
+      var body = { cardId: card.id, userId: userId, cardData: card };
+      var resp = await fetch(pubUrl, { method: 'POST', headers: headers, body: JSON.stringify(body), credentials: 'include' });
+      return resp.ok;
+    } catch (e) {
+      console.warn('[BsBattleResults] publishCardNow failed:', e);
+      return false;
+    }
   }
 
   window.BsBattleResults = {

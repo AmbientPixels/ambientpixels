@@ -65,6 +65,7 @@
   let _generating = false;
   let _onComplete = null; // callback(cardId) when save finishes
   let _cardFlipped = false;
+  let _publishOptIn = true; // Becomes the publishedToGallery flag at save time
 
   const STEP_TITLES = ['Origin', 'Power', 'Element', 'Form', 'Identity', 'Become'];
 
@@ -73,6 +74,7 @@
   function open(onComplete) {
     _onComplete = onComplete || null;
     _cardFlipped = false;
+    _publishOptIn = true;
     _state = { step: 0, vibe: null, element: null, artworkMode: 'ai', artworkUrl: null, imageContainer: 'framed', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common', customStats: null };
     _render();
   }
@@ -642,6 +644,29 @@
         document.getElementById('bs-enter-arena')?.addEventListener('click', _handleSaveAndEnter);
         document.getElementById('qb-back')?.addEventListener('click', () => { _state.step--; _cardFlipped = false; _render(); });
       }
+
+      // Inject publish toggle above the nav (default checked). Lives in the
+      // wrap so it re-renders cleanly if the player navigates back and reveals
+      // again — the wrap is destroyed on _render().
+      const wrap = _overlayEl?.querySelector('.qb-preview-wrap');
+      if (wrap && !document.getElementById('bs-qb-publish')) {
+        const row = document.createElement('label');
+        row.className = 'bs-qb-publish-row';
+        row.setAttribute('for', 'bs-qb-publish');
+        row.style.cssText = 'display:flex; align-items:flex-start; gap:0.6rem; max-width:340px; margin:1.25rem auto 0; padding:0.7rem 0.85rem; background:var(--bs-surface-2,rgba(255,255,255,0.04)); border:1px solid var(--bs-border,rgba(245,192,120,0.18)); border-radius:6px; cursor:pointer; text-align:left;';
+        row.innerHTML =
+          '<input type="checkbox" id="bs-qb-publish" ' + (_publishOptIn ? 'checked' : '') + ' style="width:18px; height:18px; margin-top:0.1rem; cursor:pointer; accent-color:var(--bs-accent,#EF9F27); flex:0 0 auto;">' +
+          '<span style="flex:1; font-size:0.78rem; line-height:1.4;">' +
+            '<strong style="color:var(--bs-text,#F5F0E8); display:block; margin-bottom:0.15rem;">' +
+              '<i class="fas fa-eye" style="color:var(--bs-accent,#EF9F27); margin-right:0.4em;"></i>' +
+              'Show this card in the public gallery' +
+            '</strong>' +
+            '<span style="color:var(--bs-text-muted,#A09888); font-size:0.7rem;">Other players can browse it. You can change this later in Forge → Details.</span>' +
+          '</span>';
+        wrap.appendChild(row);
+        const cb = row.querySelector('#bs-qb-publish');
+        if (cb) cb.addEventListener('change', () => { _publishOptIn = !!cb.checked; });
+      }
     }, 1100);
   }
 
@@ -660,7 +685,7 @@
       let savedCardId = null;
 
       if (window.BlindspotSaveCard) {
-        savedCardId = await window.BlindspotSaveCard.save(_state, stats);
+        savedCardId = await window.BlindspotSaveCard.save(_state, stats, _publishOptIn);
       }
 
       // Brief wait for blob propagation
@@ -689,6 +714,8 @@
       }
 
       // Build card data for local cache (ensures guests see their card in lobby)
+      // publishedToGallery rides along so persistPending honours the choice
+      // when a guest signs in later (their pre-auth save couldn't publish).
       const cardData = {
         id: savedCardId,
         name: _state.cardName || 'Unknown',
@@ -696,6 +723,7 @@
         characterClass: _state.cardClass || 'Fighter',
         avatar: _state.artworkUrl || '',
         rarity: _state.cardRarity || 'Common',
+        publishedToGallery: !!_publishOptIn,
         // Top-level mirror — bs-card-renderer's lookup chain reads card.imageContainer
         // before falling through. Without this, cardData.imageContainer below is
         // unreachable and every card defaults to masked/Portrait. See bs-save-card.js.
