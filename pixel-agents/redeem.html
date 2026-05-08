@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Redeem your Pixel Agents founder code." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Redeem Code — Pixel Agents</title>
+
+  <link rel="canonical" href="https://ambientpixels.ai/pixel-agents/redeem.html" />
+  <meta name="robots" content="noindex, follow" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+
+  <style>
+    .pa-redeem-hero { text-align: center; padding: 2.5rem 0 1rem; }
+    .pa-redeem-eyebrow {
+      font-family: var(--pa-font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--pa-ink-60);
+      margin-bottom: 0.6rem;
+    }
+    .pa-redeem-hero h1 {
+      font-family: var(--pa-font-display);
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--pa-ink);
+      margin: 0 0 0.5rem;
+    }
+    .pa-redeem-sub {
+      font-size: 0.95rem;
+      color: var(--pa-ink-60);
+      margin: 0;
+    }
+
+    .pa-redeem-card {
+      max-width: 480px;
+      margin: 1.5rem auto 2rem;
+      padding: 1.75rem 1.5rem;
+      background: var(--pa-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--pa-radius-md);
+    }
+
+    .pa-redeem-field { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .pa-redeem-field label {
+      font-family: var(--pa-font-display);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--pa-ink-60);
+    }
+    .pa-redeem-input {
+      font-family: var(--pa-font-mono);
+      font-size: 1rem;
+      letter-spacing: 0.06em;
+      padding: 0.85rem 1rem;
+      background: var(--pa-surface-raised);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--pa-radius-sm);
+      color: var(--pa-ink);
+      text-transform: uppercase;
+    }
+    .pa-redeem-input:focus { outline: none; border-color: var(--pa-primary); }
+
+    .pa-redeem-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .pa-redeem-status {
+      margin-top: 0.9rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: var(--pa-radius-sm);
+      font-size: 0.85rem;
+      line-height: 1.4;
+      display: none;
+    }
+    .pa-redeem-status.show { display: block; }
+    .pa-redeem-status--error {
+      background: rgba(248,113,113,0.08);
+      border-left: 2px solid var(--pa-danger);
+      color: #fca5a5;
+    }
+    .pa-redeem-status--success {
+      background: rgba(74,222,128,0.08);
+      border-left: 2px solid var(--pa-success);
+      color: #86efac;
+    }
+
+    .pa-redeem-success {
+      max-width: 480px;
+      margin: 1.5rem auto 2rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      background: var(--pa-surface);
+      border: 1px solid rgba(74,222,128,0.2);
+      border-radius: var(--pa-radius-md);
+    }
+    .pa-redeem-success__icon {
+      font-size: 2.5rem;
+      color: var(--pa-success);
+      margin-bottom: 0.75rem;
+    }
+    .pa-redeem-success h2 {
+      font-family: var(--pa-font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--pa-ink);
+      margin: 0 0 0.5rem;
+    }
+    .pa-redeem-success p {
+      font-size: 0.9rem;
+      color: var(--pa-ink-60);
+      margin: 0 0 1.25rem;
+    }
+
+    .pa-redeem-signin {
+      max-width: 480px;
+      margin: 1.5rem auto 2rem;
+      padding: 1.75rem 1.5rem;
+      text-align: center;
+      background: var(--pa-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--pa-radius-md);
+    }
+    .pa-redeem-signin p {
+      font-size: 0.95rem;
+      color: var(--pa-ink-80);
+      margin: 0 0 1rem;
+    }
+
+    @media (max-width: 480px) {
+      .pa-redeem-hero h1 { font-size: 1.7rem; }
+      .pa-redeem-card,
+      .pa-redeem-signin,
+      .pa-redeem-success { padding: 1.25rem 1rem; }
+    }
+  </style>
+</head>
+<body class="pa-shell" data-theme="dark">
+
+  <!-- Sidebar -->
+  <aside class="pa-sidebar">
+    <div class="pa-sidebar-logo">
+      <i class="fas fa-diagram-project pa-logo-icon" aria-hidden="true"></i>
+      <span class="pa-logo-wordmark"><span class="pa-logo-accent">Pixel</span> Agents</span>
+    </div>
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot" id="pa-operator-dot"></span>
+      <span id="pa-operator-label">Operator</span>
+    </div>
+    <nav class="pa-sidebar-nav">
+      <a href="/pixel-agents/" data-nav="explore"><i class="fas fa-compass"></i><span>Explore</span></a>
+      <a href="/pixel-agents/#agent-grid" data-nav="agents"><i class="fas fa-robot"></i><span>Agents</span></a>
+      <a href="/agent-forge/" data-nav="forge"><i class="fas fa-hammer"></i><span>Forge</span></a>
+      <a href="#" aria-disabled="true" data-nav="vault"><i class="fas fa-vault"></i><span>Vault</span><span class="pa-coming-soon">Soon</span></a>
+      <a href="/pixel-agents/analytics.html" data-nav="activity"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+    </nav>
+    <div class="pa-sidebar-resources">
+      <a href="/pixel-agents/docs.html"><i class="fas fa-book"></i><span>Docs</span></a>
+      <a href="/pixel-agents/faq.html"><i class="fas fa-circle-question"></i><span>FAQ</span></a>
+      <a href="/pixel-agents/changelog.html"><i class="fas fa-clock-rotate-left"></i><span>Changelog</span></a>
+      <a href="/pixel-agents/contact.html"><i class="fas fa-envelope"></i><span>Contact</span></a>
+    </div>
+    <div class="pa-sidebar-footer">
+      <a href="/agent-forge/" class="pa-sidebar-cta"><i class="fas fa-plus"></i><span>New Agent</span></a>
+    </div>
+  </aside>
+
+  <!-- Topbar -->
+  <header class="pa-topbar-v2">
+    <span class="pa-wordmark">Redeem</span>
+    <div class="pa-topbar-actions">
+      <a class="pa-signin-pill" id="pa-signin-pill" href="/pixel-agents/login.html?redirect=/pixel-agents/redeem.html">
+        <i class="fas fa-sign-in-alt"></i> <span class="pa-signin-pill__label">Sign In</span>
+      </a>
+      <div class="pa-avatar" id="pa-avatar" style="display:none;" title="Account">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="pa-avatar-menu" id="pa-avatar-menu">
+        <a id="pa-login-btn" href="/pixel-agents/login.html?redirect=/pixel-agents/redeem.html">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <div id="pa-user-status" style="display:none;">
+          <span class="pa-avatar-menu-text">Signed in as <strong id="pa-user-name"></strong></span>
+          <button id="pa-logout-btn"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="pa-main">
+    <section class="pa-redeem-hero">
+      <div class="pa-redeem-eyebrow">Founder Access</div>
+      <h1>redeem your code</h1>
+      <p class="pa-redeem-sub">paste it below. one code, one account.</p>
+    </section>
+
+    <!-- Signed-out state -->
+    <section class="pa-redeem-signin" id="pa-redeem-signin" style="display:none;">
+      <p>sign in to redeem your code.</p>
+      <a class="pa-btn-primary" href="/pixel-agents/login.html?redirect=/pixel-agents/redeem.html">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </a>
+    </section>
+
+    <!-- Form state -->
+    <section class="pa-redeem-card" id="pa-redeem-form-card" style="display:none;">
+      <form id="pa-redeem-form" novalidate>
+        <div class="pa-redeem-field">
+          <label for="pa-redeem-code">Code</label>
+          <input
+            type="text"
+            id="pa-redeem-code"
+            class="pa-redeem-input"
+            name="code"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="FOUNDER-XXXX-XXXX"
+            required />
+        </div>
+        <div class="pa-redeem-actions">
+          <button type="submit" class="pa-btn-primary" id="pa-redeem-submit">
+            <i class="fas fa-key"></i> Redeem
+          </button>
+        </div>
+        <div class="pa-redeem-status" id="pa-redeem-status" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- Success state -->
+    <section class="pa-redeem-success" id="pa-redeem-success" style="display:none;">
+      <div class="pa-redeem-success__icon"><i class="fas fa-check-circle"></i></div>
+      <h2>you're in. founder access unlocked.</h2>
+      <p>your account is flagged. paid features will be comped when they ship.</p>
+      <a class="pa-btn-primary" href="/pixel-agents/">
+        <i class="fas fa-compass"></i> Explore Agents
+      </a>
+    </section>
+
+    <footer class="pa-footer-v2">
+      <span>&copy; 2026 Pixel Agents</span>
+      <div class="pa-footer-links">
+        <a href="/pixel-agents/">Pixel Agents</a>
+        <a href="/agent-forge/">Agent Forge</a>
+        <a href="/storyforge/">StoryForge</a>
+        <a href="/cardforge/">CardForge</a>
+        <a href="/blindspot/">Blindspot</a>
+      </div>
+    </footer>
+  </main>
+
+  <nav class="pa-bottom-nav">
+    <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
+    <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
+    <a href="#" aria-disabled="true"><i class="fas fa-vault"></i><span>Vault</span></a>
+    <a href="/pixel-agents/analytics.html"><i class="fas fa-chart-line"></i><span>Activity</span></a>
+  </nav>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var apiBase = window.location.hostname.indexOf('ambientpixels.ai') !== -1
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+
+    var signinSection = document.getElementById('pa-redeem-signin');
+    var formCard = document.getElementById('pa-redeem-form-card');
+    var successCard = document.getElementById('pa-redeem-success');
+    var statusEl = document.getElementById('pa-redeem-status');
+    var form = document.getElementById('pa-redeem-form');
+    var codeInput = document.getElementById('pa-redeem-code');
+    var submitBtn = document.getElementById('pa-redeem-submit');
+
+    var _principal = null;
+    var _isAuthenticated = false;
+
+    // Avatar menu
+    var avatar = document.getElementById('pa-avatar');
+    var menu = document.getElementById('pa-avatar-menu');
+    if (avatar && menu) {
+      avatar.addEventListener('click', function (e) { e.stopPropagation(); menu.classList.toggle('open'); });
+      document.addEventListener('click', function () { menu.classList.remove('open'); });
+    }
+    var logoutBtn = document.getElementById('pa-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        sessionStorage.removeItem('pa_auth'); sessionStorage.removeItem('pa_tier');
+        window.location.href = '/.auth/logout?post_logout_redirect_uri=/pixel-agents/';
+      });
+    }
+
+    function showSignin() {
+      signinSection.style.display = '';
+      formCard.style.display = 'none';
+      successCard.style.display = 'none';
+    }
+    function showForm() {
+      signinSection.style.display = 'none';
+      formCard.style.display = '';
+      successCard.style.display = 'none';
+    }
+    function showSuccess() {
+      signinSection.style.display = 'none';
+      formCard.style.display = 'none';
+      successCard.style.display = '';
+    }
+
+    function setStatus(msg, kind) {
+      if (!msg) {
+        statusEl.className = 'pa-redeem-status';
+        statusEl.textContent = '';
+        return;
+      }
+      statusEl.textContent = msg;
+      statusEl.className = 'pa-redeem-status show pa-redeem-status--' + (kind || 'error');
+    }
+
+    function showUser(name) {
+      var loginBtn = document.getElementById('pa-login-btn');
+      var userStatus = document.getElementById('pa-user-status');
+      var userName = document.getElementById('pa-user-name');
+      var signinPill = document.getElementById('pa-signin-pill');
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (userStatus) userStatus.style.display = '';
+      if (userName) userName.textContent = name;
+      if (signinPill) signinPill.style.display = 'none';
+      if (avatar) avatar.style.display = '';
+    }
+
+    // Auth check
+    fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.clientPrincipal) {
+        _isAuthenticated = true;
+        _principal = btoa(JSON.stringify(d.clientPrincipal));
+        var name = d.clientPrincipal.userDetails || 'User';
+        sessionStorage.setItem('pa_auth', JSON.stringify({ isAuthenticated: true, name: name }));
+        showUser(name);
+        showForm();
+
+        // Auto-fill from ?code= param
+        var params = new URLSearchParams(window.location.search);
+        var preset = params.get('code');
+        if (preset) {
+          codeInput.value = preset.trim().toUpperCase();
+        }
+      } else {
+        showSignin();
+      }
+    }).catch(function () {
+      showSignin();
+    });
+
+    function errorMessage(status, body) {
+      if (status === 404) return "that code doesn't exist. double-check it.";
+      if (status === 409) return "that code's already been used.";
+      if (status === 410) return "that code expired. sorry.";
+      if (status === 429) {
+        var mins = (body && body.retry_after_minutes) || 1;
+        return 'too many tries. wait ' + mins + ' min' + (mins === 1 ? '' : 's') + ' and try again.';
+      }
+      if (status === 401) return 'sign in to redeem.';
+      if (status === 400) return (body && body.error) || 'check the code and try again.';
+      return 'something went wrong. try again in a sec.';
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      setStatus('');
+
+      if (!_isAuthenticated) {
+        window.location.href = '/pixel-agents/login.html?redirect=/pixel-agents/redeem.html';
+        return;
+      }
+
+      var code = (codeInput.value || '').trim().toUpperCase();
+      if (!code) {
+        setStatus('paste a code first.', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redeeming...';
+
+      var headers = { 'Content-Type': 'application/json' };
+      if (_principal) headers['x-cf-auth-principal'] = _principal;
+
+      fetch(apiBase + '/redeem-promo-code', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ code: code })
+      })
+      .then(function (r) {
+        return r.json().then(function (b) { return { status: r.status, body: b }; });
+      })
+      .then(function (resp) {
+        if (resp.status === 200 && resp.body && resp.body.success) {
+          showSuccess();
+          // Bust cached tier so the operator badge refreshes on next visit.
+          sessionStorage.removeItem('pa_tier');
+          return;
+        }
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-key"></i> Redeem';
+        setStatus(errorMessage(resp.status, resp.body), 'error');
+      })
+      .catch(function () {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-key"></i> Redeem';
+        setStatus('network error. try again.', 'error');
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Pixel Agents promo-code redemption status — campaign breakdown and recent redemptions." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Promo Codes — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .pc-section {
+      margin-bottom: 1.4rem;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .pc-section h2 { font-size: var(--c-text-base); margin: 0 0 0.7rem 0; letter-spacing: 0.02em; }
+    .pc-empty {
+      font-size: var(--c-text-xs);
+      color: rgba(255,255,255,0.5);
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid rgba(251,191,36,0.4);
+      border-radius: 4px;
+    }
+    .pc-totals { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem; }
+    .pc-chip {
+      padding: 0.4rem 0.7rem;
+      font-size: var(--c-text-xs);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.75);
+    }
+    .pc-chip strong { color: #fff; }
+    .pc-chip.pc-good { background: rgba(52,211,153,0.1); color: #34d399; }
+    .pc-chip.pc-warn { background: rgba(251,191,36,0.1); color: #fbbf24; }
+    .pc-chip.pc-bad  { background: rgba(248,113,113,0.1); color: #f87171; }
+    table.pc-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-base); }
+    table.pc-table th, table.pc-table td {
+      text-align: left;
+      padding: 0.4rem 0.55rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: var(--c-text-xs);
+    }
+    table.pc-table th { color: rgba(255,255,255,0.5); font-weight: 500; }
+    .pc-mono { font-family: 'Fira Code', 'Courier New', monospace; }
+    .pc-status-pill {
+      display: inline-block;
+      padding: 0.1rem 0.4rem;
+      font-size: var(--c-text-xs);
+      border-radius: 3px;
+    }
+    .pc-status-redeemed  { background: rgba(52,211,153,0.12); color: #34d399; }
+    .pc-status-unredeemed{ background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+    .pc-status-expired   { background: rgba(248,113,113,0.12); color: #f87171; }
+    .pc-status-revoked   { background: rgba(168,85,247,0.12); color: #c4b5fd; }
+    @media (max-width: 480px) {
+      .pc-totals { gap: 0.4rem; }
+      .pc-chip { padding: 0.35rem 0.55rem; font-size: 0.7rem; }
+      table.pc-table th, table.pc-table td { padding: 0.3rem 0.4rem; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="pc-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-ticket co-icon-mr-lg dash-icon-amber"></i>Promo Codes</h1>
+        <p class="act-header-sub">Pixel Agents redemption status. Read-only — generate / revoke via curl + admin secret.</p>
+      </div>
+    </div>
+
+    <div id="pc-totals" class="pc-totals"></div>
+
+    <div class="pc-section">
+      <h2><i class="fas fa-list"></i> Campaigns</h2>
+      <div id="pc-campaigns"></div>
+    </div>
+
+    <div class="pc-section">
+      <h2><i class="fas fa-clock-rotate-left"></i> Recent Redemptions</h2>
+      <div id="pc-recent"></div>
+    </div>
+
+    <div class="pc-section" style="font-size: var(--c-text-xs); opacity: 0.75;">
+      <strong>Generate codes (curl):</strong>
+      <pre style="margin: 0.6rem 0 0; padding: 0.7rem; background: rgba(255,255,255,0.04); border-radius: 4px; white-space: pre-wrap; word-break: break-all;">curl -X POST "$API/generate-promo-codes" \
+  -H "x-company-secret: pixelpusher" \
+  -H "Content-Type: application/json" \
+  -d '{"count":10,"campaign":"x-launch-1","grant_type":"founder_flag","expires_in_days":30}'</pre>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function emptyState(id, msg) {
+      document.getElementById(id).innerHTML = '<div class="pc-empty">' + esc(msg) + '</div>';
+    }
+
+    function fmtTimestamp(iso) {
+      if (!iso) return '—';
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return esc(iso);
+      var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+        + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
+    function renderTotals(d) {
+      var s = (d && d.summary) || {};
+      var chips = [];
+      chips.push('<div class="pc-chip">Total: <strong>' + (s.total || 0) + '</strong></div>');
+      chips.push('<div class="pc-chip">Unredeemed: <strong>' + (s.unredeemed || 0) + '</strong></div>');
+      chips.push('<div class="pc-chip pc-good">Redeemed: <strong>' + (s.redeemed || 0) + '</strong></div>');
+      var expClass = (s.expired || 0) > 0 ? 'pc-bad' : '';
+      chips.push('<div class="pc-chip ' + expClass + '">Expired: <strong>' + (s.expired || 0) + '</strong></div>');
+      if ((s.revoked || 0) > 0) chips.push('<div class="pc-chip">Revoked: <strong>' + s.revoked + '</strong></div>');
+      var soonClass = (s.expiring_soon || 0) > 0 ? 'pc-warn' : '';
+      chips.push('<div class="pc-chip ' + soonClass + '">Expiring soon (7d): <strong>' + (s.expiring_soon || 0) + '</strong></div>');
+      document.getElementById('pc-totals').innerHTML = chips.join('');
+    }
+
+    function renderCampaigns(d) {
+      var camps = (d && d.campaigns) || {};
+      var keys = Object.keys(camps);
+      if (keys.length === 0) {
+        emptyState('pc-campaigns', 'No campaigns yet. Generate codes via the curl example below to populate.');
+        return;
+      }
+      keys.sort();
+      var rows = keys.map(function (k) {
+        var c = camps[k];
+        return '<tr>'
+          + '<td class="pc-mono">' + esc(k) + '</td>'
+          + '<td>' + (c.total || 0) + '</td>'
+          + '<td>' + (c.unredeemed || 0) + '</td>'
+          + '<td>' + (c.redeemed || 0) + '</td>'
+          + '<td>' + (c.expired || 0) + '</td>'
+          + '</tr>';
+      }).join('');
+      document.getElementById('pc-campaigns').innerHTML =
+        '<table class="pc-table"><thead><tr><th>Campaign</th><th>Total</th><th>Unredeemed</th><th>Redeemed</th><th>Expired</th></tr></thead><tbody>'
+        + rows + '</tbody></table>';
+    }
+
+    function renderRecent(d) {
+      var items = (d && d.recent_redemptions) || [];
+      if (items.length === 0) {
+        emptyState('pc-recent', 'No redemptions yet.');
+        return;
+      }
+      var rows = items.map(function (r) {
+        return '<tr>'
+          + '<td class="pc-mono">' + esc(r.code) + '</td>'
+          + '<td class="pc-mono">' + esc(r.redeemed_by || '—') + '</td>'
+          + '<td>' + esc(r.campaign || '—') + '</td>'
+          + '<td>' + esc(fmtTimestamp(r.redeemed_at)) + '</td>'
+          + '</tr>';
+      }).join('');
+      document.getElementById('pc-recent').innerHTML =
+        '<table class="pc-table"><thead><tr><th>Code</th><th>User</th><th>Campaign</th><th>Redeemed</th></tr></thead><tbody>'
+        + rows + '</tbody></table>';
+    }
+
+    function load() {
+      return fetch(API + '/promo-codes-status', { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); });
+    }
+
+    load().then(function (d) {
+      renderTotals(d);
+      renderCampaigns(d);
+      renderRecent(d);
+    }).catch(function (err) {
+      var msg = 'Failed to load promo codes status.';
+      if (err && err.status === 403) msg = 'Unauthorized — check x-company-secret.';
+      document.getElementById('pc-totals').innerHTML = '<div class="pc-empty">' + esc(msg) + '</div>';
+      emptyState('pc-campaigns', msg);
+      emptyState('pc-recent', msg);
+    });
+  })();
+  </script>
+</body>
+</html>
