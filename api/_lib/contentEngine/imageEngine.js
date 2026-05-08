@@ -530,7 +530,52 @@ async function appendToIndex(entry) {
   // Cap at 500 entries
   if (index.length > 500) index = index.slice(-500);
   await _uploadJson(STATE_CONTAINER, blobPath, index);
+  // Bump the all-time counter (best-effort — must not break generation).
+  // Use entry.successCount if available so we count actual images, not packages.
+  var bumpBy = (entry && typeof entry.successCount === 'number' && entry.successCount > 0)
+    ? entry.successCount
+    : 1;
+  try { await bumpTotalGenerations(bumpBy); } catch (e) { /* best-effort */ }
   return index.length;
+}
+
+/**
+ * Atomically bump the all-time AI image generation counter.
+ * The counter blob lives at content-engine/total-count.json — a tiny JSON
+ * doc { count: <integer>, updatedAt: <iso> }. Used by /api/blindspotstats
+ * because content-engine/index.json is capped at 500 entries and so is
+ * NOT a true historical count.
+ *
+ * Best-effort: any failure here MUST NOT break the calling generation flow.
+ * Caller (appendToIndex) wraps this in try/catch; we log + swallow inside too.
+ *
+ * @param {number} n  Number of successful images to add (default 1).
+ */
+async function bumpTotalGenerations(n) {
+  if (typeof n !== 'number' || !isFinite(n) || n < 1) n = 1;
+  try {
+    var container = await _ensureContainer(STATE_CONTAINER);
+    var blobPath = 'content-engine/total-count.json';
+    var blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
+    var current = 0;
+    try {
+      var download = await blob.download(0);
+      var body = await _streamToString(download.readableStreamBody);
+      var parsed = JSON.parse(body);
+      if (parsed && typeof parsed.count === 'number') current = parsed.count;
+    } catch (e) { /* first time — counter doesn't exist yet, start at 0 */ }
+    var next = current + n;
+    await _uploadJson(STATE_CONTAINER, blobPath, {
+      count: next,
+      updatedAt: new Date().toISOString()
+    });
+    return next;
+  } catch (err) {
+    // Swallow — the calling generation already succeeded; we don't want
+    // a counter blip to bubble up as an HTTP 500.
+    console.warn('[imageEngine] bumpTotalGenerations failed:', err.message || err);
+    return null;
+  }
 }
 
 // ── Usage Logging ──
@@ -778,6 +823,7 @@ module.exports = {
   savePackage: savePackage,
   loadPackage: loadPackage,
   appendToIndex: appendToIndex,
+  bumpTotalGenerations: bumpTotalGenerations,
   buildPrompt: buildPrompt,
   writeUsageRecord: writeUsageRecord,
   estimateCost: estimateCost,
