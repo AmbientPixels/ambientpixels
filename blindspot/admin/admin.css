@@ -358,3 +358,15 @@
 @media (max-width: 480px) {
   .bs-admin-stats__grid { grid-template-columns: 1fr; }
 }
+
+.bs-admin-stats__warning {
+  color: var(--bs-text-muted, #A09888);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  font-style: italic;
+  margin: 0.5rem 0 1rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(245, 192, 120, 0.06);
+  border-left: 3px solid var(--bs-accent, #EF9F27);
+  border-radius: 3px;
+}

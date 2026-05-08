@@ -1,4 +1,5 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
+const { prefixBlobKey } = require('../_utils/demoGuard');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const PLAYER_CONTAINER = 'cardforge';
@@ -134,7 +135,7 @@ async function aggregate(context) {
   let aiGenerations = 0;
   let counterMissing = false;
   try {
-    const dl = await stateContainer.getBlockBlobClient(COUNTER_PATH).download();
+    const dl = await stateContainer.getBlockBlobClient(prefixBlobKey(COUNTER_PATH)).download();
     const body = await streamToText(dl.readableStreamBody);
     const parsed = JSON.parse(body);
     if (parsed && typeof parsed.count === 'number') aiGenerations = parsed.count;
@@ -182,7 +183,7 @@ function subtractStats(a, b) {
 
 async function loadBaseline(container, context) {
   try {
-    const dl = await container.getBlockBlobClient(BASELINE_PATH).download();
+    const dl = await container.getBlockBlobClient(prefixBlobKey(BASELINE_PATH)).download();
     const body = await streamToText(dl.readableStreamBody);
     return JSON.parse(body);
   } catch (e) {
@@ -210,7 +211,7 @@ async function maybeRollBaseline(container, prev, stats, now, context) {
   if (wrote.day || wrote.week) {
     try {
       const payload = JSON.stringify({ dayStart: dayStart, weekStart: weekStart }, null, 2);
-      await container.getBlockBlobClient(BASELINE_PATH).upload(
+      await container.getBlockBlobClient(prefixBlobKey(BASELINE_PATH)).upload(
         Buffer.from(payload),
         Buffer.byteLength(payload),
         { blobHTTPHeaders: { blobContentType: 'application/json' } }

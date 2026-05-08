@@ -464,6 +464,17 @@
       var asOfEl = document.getElementById('bs-admin-stats-asof');
       if (asOfEl) asOfEl.textContent = fmtAsOf(data.asOf);
 
+      var warnEl = document.getElementById('bs-admin-stats-warning');
+      if (warnEl) {
+        if (data._warning) {
+          warnEl.textContent = data._warning;
+          warnEl.hidden = false;
+        } else {
+          warnEl.hidden = true;
+          warnEl.textContent = '';
+        }
+      }
+
       var ax = data.adminExtras || null;
       renderDeltaChips('bs-admin-stats-day', ax && ax.todayDelta);
       renderDeltaChips('bs-admin-stats-week', ax && ax.weekDelta);

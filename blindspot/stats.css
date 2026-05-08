@@ -131,3 +131,14 @@
   .bs-stats-page .bs-stats__grid { grid-template-columns: 1fr; }
   .bs-stats-page .bs-stats__tile { min-height: 110px; padding: 1.25rem; }
 }
+
+.bs-stats-page .bs-stats__warning {
+  color: var(--bs-text-muted, #A09888);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  font-style: italic;
+  margin: 1.25rem 0 0;
+  text-align: center;
+  max-width: 540px;
+  line-height: 1.4;
+}

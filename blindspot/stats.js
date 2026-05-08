@@ -33,7 +33,7 @@
 
   function endpointUrl() {
     if (typeof window.buildApiPath === 'function') return window.buildApiPath('stats');
-    return 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspotstats';
+    return '/api/blindspotstats';
   }
 
   fetch(endpointUrl(), { credentials: 'omit' })
@@ -51,6 +51,13 @@
       setTile('aiGenerations', data.stats.aiGenerations);
       var asOfEl = document.getElementById('bs-stats-asof');
       if (asOfEl) asOfEl.textContent = fmtAsOf(data.asOf);
+      if (data._warning) {
+        var warnEl = document.getElementById('bs-stats-warning');
+        if (warnEl) {
+          warnEl.textContent = data._warning;
+          warnEl.hidden = false;
+        }
+      }
     })
     .catch(function (err) {
       console.warn('[bs-stats] load failed:', err);
