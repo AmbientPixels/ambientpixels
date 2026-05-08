@@ -113,7 +113,11 @@ async function aggregate(context) {
       const dl = await playerContainer.getBlockBlobClient(item.name).download();
       const body = await streamToText(dl.readableStreamBody);
       const arr = JSON.parse(body);
+      // user/{userId}/cards.json actual shape is { cards: [...] }, not a
+      // top-level array. Fall back to top-level array as a defensive guard
+      // in case the schema ever changes back.
       if (Array.isArray(arr)) cardsForged += arr.length;
+      else if (arr && Array.isArray(arr.cards)) cardsForged += arr.cards.length;
     } catch (e) {
       if (context) context.log.warn('Skip user blob ' + item.name + ': ' + e.message);
     }
@@ -125,7 +129,11 @@ async function aggregate(context) {
     const dl = await playerContainer.getBlockBlobClient(PUBLISHED_PATH).download();
     const body = await streamToText(dl.readableStreamBody);
     const parsed = JSON.parse(body);
+    // published-cards.json actual shape is { publishedCards: [...] }.
+    // Also accept top-level array and { cards: [...] } as defensive
+    // fallbacks against future schema changes.
     if (Array.isArray(parsed)) cardsPublished = parsed.length;
+    else if (parsed && Array.isArray(parsed.publishedCards)) cardsPublished = parsed.publishedCards.length;
     else if (parsed && Array.isArray(parsed.cards)) cardsPublished = parsed.cards.length;
   } catch (e) {
     if (context) context.log.warn('published-cards.json read failed: ' + e.message);
