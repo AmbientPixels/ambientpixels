@@ -66,10 +66,80 @@
     .pc-status-unredeemed{ background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
     .pc-status-expired   { background: rgba(248,113,113,0.12); color: #f87171; }
     .pc-status-revoked   { background: rgba(168,85,247,0.12); color: #c4b5fd; }
+
+    .pc-form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: flex-end;
+      margin-bottom: 0.6rem;
+    }
+    .pc-form-field { display: flex; flex-direction: column; gap: 0.25rem; flex: 1 1 120px; }
+    .pc-form-field label {
+      font-size: var(--c-text-xs);
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .pc-form-field input {
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      color: #fff;
+      font-size: var(--c-text-base);
+      font-family: inherit;
+    }
+    .pc-form-field input:focus { outline: none; border-color: rgba(251,191,36,0.5); }
+    .pc-form-actions { display: flex; gap: 0.6rem; align-items: center; }
+    .pc-btn {
+      padding: 0.55rem 1rem;
+      font-size: var(--c-text-base);
+      background: rgba(251,191,36,0.18);
+      color: #fde68a;
+      border: 1px solid rgba(251,191,36,0.35);
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .pc-btn:hover:not(:disabled) { background: rgba(251,191,36,0.28); }
+    .pc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .pc-btn--ghost {
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.75);
+      border-color: rgba(255,255,255,0.1);
+    }
+    .pc-form-status {
+      margin-top: 0.5rem;
+      font-size: var(--c-text-xs);
+      color: rgba(255,255,255,0.6);
+    }
+    .pc-form-status.pc-bad { color: #f87171; }
+    .pc-form-status.pc-good { color: #34d399; }
+    .pc-generated {
+      margin-top: 0.7rem;
+      padding: 0.7rem;
+      background: rgba(52,211,153,0.06);
+      border-left: 2px solid rgba(52,211,153,0.4);
+      border-radius: 4px;
+    }
+    .pc-generated-list {
+      margin: 0.5rem 0 0;
+      padding: 0.5rem 0.7rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 4px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: var(--c-text-xs);
+      max-height: 240px;
+      overflow: auto;
+      white-space: pre;
+    }
+
     @media (max-width: 480px) {
       .pc-totals { gap: 0.4rem; }
       .pc-chip { padding: 0.35rem 0.55rem; font-size: 0.7rem; }
       table.pc-table th, table.pc-table td { padding: 0.3rem 0.4rem; }
+      .pc-form-field { flex: 1 1 100%; }
     }
   </style>
 </head>
@@ -79,11 +149,36 @@
     <div class="company-header">
       <div>
         <h1><i class="fas fa-ticket co-icon-mr-lg dash-icon-amber"></i>Promo Codes</h1>
-        <p class="act-header-sub">Pixel Agents redemption status. Read-only — generate / revoke via curl + admin secret.</p>
+        <p class="act-header-sub">Pixel Agents redemption status. Generate codes inline — revoke via curl + admin secret.</p>
       </div>
     </div>
 
     <div id="pc-totals" class="pc-totals"></div>
+
+    <div class="pc-section">
+      <h2><i class="fas fa-wand-magic-sparkles"></i> Generate Codes</h2>
+      <form id="pc-gen-form" autocomplete="off">
+        <div class="pc-form-row">
+          <div class="pc-form-field" style="flex:0 0 90px;">
+            <label for="pc-gen-count">Count</label>
+            <input id="pc-gen-count" type="number" min="1" max="500" value="5" required />
+          </div>
+          <div class="pc-form-field" style="flex:1 1 200px;">
+            <label for="pc-gen-campaign">Campaign</label>
+            <input id="pc-gen-campaign" type="text" value="x-launch-1" required />
+          </div>
+          <div class="pc-form-field" style="flex:0 0 130px;">
+            <label for="pc-gen-expires">Expires (days)</label>
+            <input id="pc-gen-expires" type="number" min="0" value="30" placeholder="30" />
+          </div>
+          <div class="pc-form-actions">
+            <button class="pc-btn" type="submit" id="pc-gen-submit"><i class="fas fa-plus"></i> Generate</button>
+          </div>
+        </div>
+        <div class="pc-form-status" id="pc-gen-status">Grant: founder_flag. Leave expires blank to default to 30 days.</div>
+      </form>
+      <div id="pc-gen-result" style="display:none;"></div>
+    </div>
 
     <div class="pc-section">
       <h2><i class="fas fa-list"></i> Campaigns</h2>
@@ -93,14 +188,6 @@
     <div class="pc-section">
       <h2><i class="fas fa-clock-rotate-left"></i> Recent Redemptions</h2>
       <div id="pc-recent"></div>
-    </div>
-
-    <div class="pc-section" style="font-size: var(--c-text-xs); opacity: 0.75;">
-      <strong>Generate codes (curl):</strong>
-      <pre style="margin: 0.6rem 0 0; padding: 0.7rem; background: rgba(255,255,255,0.04); border-radius: 4px; white-space: pre-wrap; word-break: break-all;">curl -X POST "$API/generate-promo-codes" \
-  -H "x-company-secret: pixelpusher" \
-  -H "Content-Type: application/json" \
-  -d '{"count":10,"campaign":"x-launch-1","grant_type":"founder_flag","expires_in_days":30}'</pre>
     </div>
   </main>
 
@@ -191,16 +278,106 @@
         .then(function (r) { if (!r.ok) throw r; return r.json(); });
     }
 
-    load().then(function (d) {
-      renderTotals(d);
-      renderCampaigns(d);
-      renderRecent(d);
-    }).catch(function (err) {
-      var msg = 'Failed to load promo codes status.';
-      if (err && err.status === 403) msg = 'Unauthorized — check x-company-secret.';
-      document.getElementById('pc-totals').innerHTML = '<div class="pc-empty">' + esc(msg) + '</div>';
-      emptyState('pc-campaigns', msg);
-      emptyState('pc-recent', msg);
+    function refreshStatus() {
+      return load().then(function (d) {
+        renderTotals(d);
+        renderCampaigns(d);
+        renderRecent(d);
+      }).catch(function (err) {
+        var msg = 'Failed to load promo codes status.';
+        if (err && err.status === 403) msg = 'Unauthorized — check x-company-secret.';
+        document.getElementById('pc-totals').innerHTML = '<div class="pc-empty">' + esc(msg) + '</div>';
+        emptyState('pc-campaigns', msg);
+        emptyState('pc-recent', msg);
+      });
+    }
+
+    refreshStatus();
+
+    // Generate form
+    var genForm = document.getElementById('pc-gen-form');
+    var genStatus = document.getElementById('pc-gen-status');
+    var genResult = document.getElementById('pc-gen-result');
+    var genSubmit = document.getElementById('pc-gen-submit');
+
+    function setGenStatus(msg, kind) {
+      genStatus.textContent = msg;
+      genStatus.className = 'pc-form-status' + (kind ? ' pc-' + kind : '');
+    }
+
+    genForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var count = parseInt(document.getElementById('pc-gen-count').value, 10) || 0;
+      var campaign = (document.getElementById('pc-gen-campaign').value || '').trim();
+      var expRaw = document.getElementById('pc-gen-expires').value;
+      var expIn = expRaw === '' ? 30 : parseInt(expRaw, 10);
+
+      if (count < 1) { setGenStatus('Count must be at least 1.', 'bad'); return; }
+      if (!campaign) { setGenStatus('Campaign is required.', 'bad'); return; }
+
+      genSubmit.disabled = true;
+      setGenStatus('Generating ' + count + '...');
+
+      fetch(API + '/generate-promo-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': SECRET },
+        body: JSON.stringify({
+          count: count,
+          campaign: campaign,
+          grant_type: 'founder_flag',
+          expires_in_days: expIn
+        })
+      })
+      .then(function (r) {
+        return r.json().then(function (b) { return { status: r.status, body: b }; });
+      })
+      .then(function (resp) {
+        genSubmit.disabled = false;
+        if (resp.status !== 200 || !resp.body || !resp.body.success) {
+          setGenStatus((resp.body && resp.body.error) || 'Generate failed.', 'bad');
+          return;
+        }
+        var codes = (resp.body.codes || []).map(function (c) { return c.code; });
+        var expLabel = resp.body.expires_at ? ' (expires ' + esc(String(resp.body.expires_at).substring(0, 10)) + ')' : ' (no expiry)';
+        var listText = codes.join('\n');
+        genResult.style.display = '';
+        genResult.innerHTML =
+          '<div class="pc-generated">'
+          + '<strong>Generated ' + codes.length + ' code' + (codes.length === 1 ? '' : 's') + '</strong> for <code>' + esc(campaign) + '</code>' + expLabel + '. Copy now — they are only shown here once.'
+          + '<div class="pc-generated-list" id="pc-gen-list">' + esc(listText) + '</div>'
+          + '<div style="display:flex; gap:0.5rem; margin-top:0.5rem;">'
+          + '<button type="button" class="pc-btn" id="pc-gen-copy"><i class="fas fa-copy"></i> Copy all</button>'
+          + '<button type="button" class="pc-btn pc-btn--ghost" id="pc-gen-clear">Clear</button>'
+          + '</div>'
+          + '</div>';
+        setGenStatus('Done. Refreshed status.', 'good');
+        refreshStatus();
+
+        document.getElementById('pc-gen-copy').addEventListener('click', function () {
+          var btn = this;
+          var copyFn = navigator.clipboard && navigator.clipboard.writeText
+            ? navigator.clipboard.writeText(listText)
+            : Promise.reject();
+          copyFn.then(function () {
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+            setTimeout(function () { btn.innerHTML = '<i class="fas fa-copy"></i> Copy all'; }, 1500);
+          }).catch(function () {
+            // Fallback: select the text block
+            var el = document.getElementById('pc-gen-list');
+            var range = document.createRange(); range.selectNodeContents(el);
+            var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+          });
+        });
+        document.getElementById('pc-gen-clear').addEventListener('click', function () {
+          genResult.style.display = 'none';
+          genResult.innerHTML = '';
+          setGenStatus('Grant: founder_flag. Leave expires blank to default to 30 days.');
+        });
+      })
+      .catch(function () {
+        genSubmit.disabled = false;
+        setGenStatus('Network error.', 'bad');
+      });
     });
   })();
   </script>
