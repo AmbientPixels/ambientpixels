@@ -59,6 +59,29 @@ try {
   fail('api/blindspotadminconfig/index.js parse error: ' + e.message);
 }
 
+// ── 1e. Stats page module parse ──
+try {
+  const statsJs = fs.readFileSync(path.join(ROOT, 'stats.js'), 'utf8');
+  new Function(statsJs);
+  pass('blindspot/stats.js parses without errors');
+} catch (e) {
+  fail('blindspot/stats.js parse error: ' + e.message);
+}
+
+// ── 1f. Stats endpoint parse ──
+try {
+  const apiPath = path.join(ROOT, '../api/blindspotstats/index.js');
+  if (fs.existsSync(apiPath)) {
+    const apiSrc = fs.readFileSync(apiPath, 'utf8');
+    new Function(apiSrc);
+    pass('api/blindspotstats/index.js parses without errors');
+  } else {
+    fail('api/blindspotstats/index.js missing');
+  }
+} catch (e) {
+  fail('api/blindspotstats/index.js parse error: ' + e.message);
+}
+
 // ── 2. CSS Brace Balance ──
 try {
   const css = fs.readFileSync(path.join(ROOT, 'css/blindspot.css'), 'utf8');
@@ -250,6 +273,55 @@ try {
   if (allFound) pass('play.html has topbar admin link hooks');
 } catch (e) {
   fail('play.html admin-link read error: ' + e.message);
+}
+
+// ── 5e. stats.html has required tile hooks ──
+try {
+  const statsHtml = fs.readFileSync(path.join(ROOT, 'stats.html'), 'utf8');
+  const required = ['data-value-for="players"', 'data-value-for="cardsForged"', 'data-value-for="cardsPublished"', 'data-value-for="bossesDefeated"', 'data-value-for="battlesFought"', 'data-value-for="aiGenerations"', 'id="bs-stats-asof"'];
+  let allPresent = true;
+  for (const r of required) {
+    if (statsHtml.indexOf(r) === -1) { fail('stats.html missing: ' + r); allPresent = false; break; }
+  }
+  if (allPresent) pass('stats.html has all 6 stat tiles + asof hook');
+} catch (e) {
+  fail('stats.html check failed: ' + e.message);
+}
+
+// ── 5f. admin/index.html has Stats tab + panel ──
+try {
+  const adminHtml = fs.readFileSync(path.join(ROOT, 'admin/index.html'), 'utf8');
+  const required = ['id="bs-admin-tab-stats"', 'id="bs-admin-panel-stats"', 'id="bs-admin-stats-grid"'];
+  let allPresent = true;
+  for (const r of required) {
+    if (adminHtml.indexOf(r) === -1) { fail('admin/index.html missing: ' + r); allPresent = false; break; }
+  }
+  if (allPresent) pass('admin/index.html has Stats tab hooks');
+} catch (e) {
+  fail('admin/index.html stats check failed: ' + e.message);
+}
+
+// ── 5g. staticwebapp.config.json has /api/blindspotstats route ──
+try {
+  const swaPath = path.join(ROOT, '../staticwebapp.config.json');
+  const swa = JSON.parse(fs.readFileSync(swaPath, 'utf8'));
+  const route = (swa.routes || []).find(r => r.route === '/api/blindspotstats');
+  if (!route) fail('staticwebapp.config.json missing /api/blindspotstats route');
+  else pass('staticwebapp.config.json has /api/blindspotstats route');
+} catch (e) {
+  fail('staticwebapp.config.json check failed: ' + e.message);
+}
+
+// ── 5h. bs-config.js registers stats endpoint ──
+try {
+  const cfg = fs.readFileSync(path.join(ROOT, 'js/lib/bs-config.js'), 'utf8');
+  if (cfg.indexOf("stats: 'blindspotstats'") === -1) {
+    fail("bs-config.js missing stats: 'blindspotstats' endpoint");
+  } else {
+    pass('bs-config.js registers stats endpoint');
+  }
+} catch (e) {
+  fail('bs-config.js check failed: ' + e.message);
 }
 
 // ── 6. Boss Data Integrity ──
