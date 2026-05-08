@@ -364,6 +364,7 @@
     initPicker();
     renderModerationTab();
     SURFACES.forEach(renderSurfaceTab);
+    wireStatsLazyLoad();
   }
 
   if (document.readyState === 'loading') {
@@ -428,7 +429,10 @@
       chip.className = 'bs-admin-stats__chip';
       var v = deltas[def.key];
       if (typeof v === 'number' && v > 0) chip.classList.add('bs-admin-stats__chip--up');
-      chip.innerHTML = '<strong>' + def.label + '</strong> ' + fmtDelta(v);
+      var strong = document.createElement('strong');
+      strong.textContent = def.label;
+      chip.appendChild(strong);
+      chip.appendChild(document.createTextNode(' ' + fmtDelta(v)));
       host.appendChild(chip);
     });
   }
@@ -494,11 +498,5 @@
     if (btn) btn.addEventListener('click', function () { setTimeout(maybeLoad, 0); });
     maybeLoad();
   }
-  // Run after the rest of admin.js has bootstrapped. The existing IIFE
-  // calls a boot function on DOMContentLoaded; we hook in there.
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wireStatsLazyLoad);
-  } else {
-    wireStatsLazyLoad();
-  }
+
 })();
