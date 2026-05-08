@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Blindspot — live aggregate stats from the arena.">
+  <title>Blindspot — Live Stats</title>
+  <link rel="icon" href="/blindspot/img/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/blindspot/css/blindspot.css">
+  <link rel="stylesheet" href="/blindspot/stats.css">
+</head>
+<body class="bs-page bs-stats-page">
+
+  <header class="bs-stats__header">
+    <h1 class="bs-stats__title"><i class="fas fa-eye-slash bs-stats__title-icon"></i> Blindspot — Live Stats</h1>
+    <p class="bs-stats__sub">As of <span id="bs-stats-asof">—</span></p>
+  </header>
+
+  <main class="bs-stats__main" role="main">
+    <div class="bs-stats__grid" id="bs-stats-grid">
+      <!-- Six tiles, populated by stats.js -->
+      <div class="bs-stats__tile" data-key="players">
+        <span class="bs-stats__value" data-value-for="players">—</span>
+        <span class="bs-stats__label">Players</span>
+      </div>
+      <div class="bs-stats__tile" data-key="cardsForged">
+        <span class="bs-stats__value" data-value-for="cardsForged">—</span>
+        <span class="bs-stats__label">Cards Forged</span>
+      </div>
+      <div class="bs-stats__tile" data-key="cardsPublished">
+        <span class="bs-stats__value" data-value-for="cardsPublished">—</span>
+        <span class="bs-stats__label">Cards Published</span>
+      </div>
+      <div class="bs-stats__tile" data-key="bossesDefeated">
+        <span class="bs-stats__value" data-value-for="bossesDefeated">—</span>
+        <span class="bs-stats__label">Bosses Defeated</span>
+      </div>
+      <div class="bs-stats__tile" data-key="battlesFought">
+        <span class="bs-stats__value" data-value-for="battlesFought">—</span>
+        <span class="bs-stats__label">Battles Fought</span>
+      </div>
+      <div class="bs-stats__tile" data-key="aiGenerations">
+        <span class="bs-stats__value" data-value-for="aiGenerations">—</span>
+        <span class="bs-stats__label">AI Generations</span>
+      </div>
+    </div>
+    <p class="bs-stats__error" id="bs-stats-error" hidden>Stats temporarily unavailable. Refresh in a minute.</p>
+    <p class="bs-stats__footer">Refreshed every 10 minutes from live game state.</p>
+  </main>
+
+  <script src="/blindspot/js/lib/bs-config.js"></script>
+  <script src="/blindspot/stats.js"></script>
+</body>
+</html>

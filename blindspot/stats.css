@@ -1,0 +1,126 @@
+/* Blindspot Public Stats — Vein-themed standalone page.
+   Reuses tokens from blindspot.css (--bs-bg, --bs-accent, --bs-text, etc.). */
+
+.bs-stats-page {
+  min-height: 100vh;
+  padding: 3rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--bs-bg, #100C08);
+  color: var(--bs-text, #F5F0E8);
+}
+
+.bs-stats__header {
+  text-align: center;
+  max-width: 720px;
+  margin-bottom: 2.5rem;
+}
+
+.bs-stats__title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  letter-spacing: 0.04em;
+  color: var(--bs-text, #F5F0E8);
+  margin: 0 0 0.4rem;
+  text-shadow: 0 0 18px rgba(245, 192, 120, 0.18);
+}
+
+.bs-stats__title-icon {
+  color: var(--bs-accent, #EF9F27);
+  font-size: 0.7em;
+  vertical-align: 0.18em;
+  opacity: 0.85;
+  margin-right: 0.3em;
+}
+
+.bs-stats__sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted, #A09888);
+  margin: 0;
+}
+
+.bs-stats__main {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bs-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.bs-stats__tile {
+  background: rgba(245, 192, 120, 0.04);
+  border: 1px solid rgba(245, 192, 120, 0.18);
+  border-radius: 6px;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  text-align: center;
+  transition: border-color 200ms ease;
+}
+
+.bs-stats__tile:hover {
+  border-color: rgba(245, 192, 120, 0.35);
+}
+
+.bs-stats__value {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  color: var(--bs-accent, #EF9F27);
+  line-height: 1;
+  text-shadow: 0 0 22px rgba(239, 159, 39, 0.25);
+  font-variant-numeric: tabular-nums;
+}
+
+.bs-stats__label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted, #A09888);
+  margin-top: 0.85rem;
+}
+
+.bs-stats__error {
+  color: var(--bs-danger, #D85A30);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  margin: 1.5rem 0 0;
+  text-align: center;
+}
+
+.bs-stats__footer {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted, #A09888);
+  margin: 2.5rem 0 0;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .bs-stats__grid { grid-template-columns: repeat(2, 1fr); gap: 0.85rem; }
+  .bs-stats__tile { padding: 1.5rem 0.75rem; min-height: 130px; }
+}
+
+@media (max-width: 480px) {
+  .bs-stats-page { padding: 2rem 1rem 3rem; }
+  .bs-stats__grid { grid-template-columns: 1fr; }
+  .bs-stats__tile { min-height: 110px; padding: 1.25rem; }
+}
