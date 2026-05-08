@@ -45,6 +45,9 @@
         <button type="button" class="bs-admin-tab" id="bs-admin-tab-gallery" data-tab="gallery" role="tab" aria-selected="false">
           <i class="fas fa-images"></i> Gallery
         </button>
+        <button type="button" class="bs-admin-tab" id="bs-admin-tab-stats" data-tab="stats" role="tab" aria-selected="false">
+          <i class="fas fa-chart-line"></i> Stats
+        </button>
       </nav>
 
       <section class="bs-admin-panel" id="bs-admin-panel-moderation" role="tabpanel">
@@ -73,6 +76,32 @@
       <section class="bs-admin-panel" id="bs-admin-panel-gallery" role="tabpanel" hidden>
         <h2>Gallery (full grid screen)</h2>
         <div class="bs-admin-surface" data-surface="gallery" data-max="50"></div>
+      </section>
+
+      <section class="bs-admin-panel" id="bs-admin-panel-stats" role="tabpanel" hidden>
+        <h2>Live Stats</h2>
+        <p class="bs-admin-panel__sub">As of <span id="bs-admin-stats-asof">—</span>. Refreshes every 10 minutes server-side.</p>
+
+        <div class="bs-admin-stats__grid" id="bs-admin-stats-grid">
+          <div class="bs-admin-stats__tile"><span class="bs-admin-stats__value" data-stat="players">—</span><span class="bs-admin-stats__label">Players</span></div>
+          <div class="bs-admin-stats__tile"><span class="bs-admin-stats__value" data-stat="cardsForged">—</span><span class="bs-admin-stats__label">Cards Forged</span></div>
+          <div class="bs-admin-stats__tile"><span class="bs-admin-stats__value" data-stat="cardsPublished">—</span><span class="bs-admin-stats__label">Cards Published</span></div>
+          <div class="bs-admin-stats__tile"><span class="bs-admin-stats__value" data-stat="bossesDefeated">—</span><span class="bs-admin-stats__label">Bosses Defeated</span></div>
+          <div class="bs-admin-stats__tile"><span class="bs-admin-stats__value" data-stat="battlesFought">—</span><span class="bs-admin-stats__label">Battles Fought</span></div>
+          <div class="bs-admin-stats__tile"><span class="bs-admin-stats__value" data-stat="aiGenerations">—</span><span class="bs-admin-stats__label">AI Generations</span></div>
+        </div>
+
+        <h3 class="bs-admin-stats__h3">Today's deltas</h3>
+        <div class="bs-admin-stats__chips" id="bs-admin-stats-day"></div>
+
+        <h3 class="bs-admin-stats__h3">This week's deltas</h3>
+        <div class="bs-admin-stats__chips" id="bs-admin-stats-week"></div>
+
+        <h3 class="bs-admin-stats__h3">Last activity</h3>
+        <p class="bs-admin-stats__activity" id="bs-admin-stats-activity">—</p>
+
+        <h3 class="bs-admin-stats__h3">Top 5 players by wins</h3>
+        <ol class="bs-admin-stats__top" id="bs-admin-stats-top"></ol>
       </section>
     </div>
   </main>

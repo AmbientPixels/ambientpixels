@@ -373,4 +373,132 @@
   }
 
   window.BsAdmin = { _state: _state }; // expose for debugging
+
+  // ── Stats tab (Task 6) ────────────────────────────────────────────────
+
+  var DELTA_KEYS = [
+    { key: 'players',         label: 'Players' },
+    { key: 'battlesFought',   label: 'Battles' },
+    { key: 'cardsPublished',  label: 'Published' },
+    { key: 'aiGenerations',   label: 'AI Gens' }
+  ];
+
+  function statsUrl() {
+    if (typeof window.buildApiPath === 'function') {
+      return window.buildApiPath('stats', { detail: 'admin' });
+    }
+    return '/api/blindspotstats?detail=admin';
+  }
+
+  function fmtNum(n) {
+    if (typeof n !== 'number' || !isFinite(n)) return '—';
+    return n.toLocaleString();
+  }
+
+  function fmtDelta(n) {
+    if (typeof n !== 'number' || !isFinite(n) || n === 0) return '0';
+    return (n > 0 ? '+' : '') + n.toLocaleString();
+  }
+
+  function fmtRelative(iso) {
+    if (!iso) return '—';
+    var t = Date.parse(iso);
+    if (isNaN(t)) return '—';
+    var diff = Date.now() - t;
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + ' min ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + ' hr ago';
+    return Math.floor(diff / 86400000) + ' days ago';
+  }
+
+  function fmtAsOf(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  }
+
+  function renderDeltaChips(hostId, deltas) {
+    var host = document.getElementById(hostId);
+    if (!host) return;
+    if (!deltas) { host.innerHTML = '<em>No baseline yet — deltas appear after the next day/week roll.</em>'; return; }
+    host.innerHTML = '';
+    DELTA_KEYS.forEach(function (def) {
+      var chip = document.createElement('span');
+      chip.className = 'bs-admin-stats__chip';
+      var v = deltas[def.key];
+      if (typeof v === 'number' && v > 0) chip.classList.add('bs-admin-stats__chip--up');
+      chip.innerHTML = '<strong>' + def.label + '</strong> ' + fmtDelta(v);
+      host.appendChild(chip);
+    });
+  }
+
+  function renderTopPlayers(list) {
+    var host = document.getElementById('bs-admin-stats-top');
+    if (!host) return;
+    host.innerHTML = '';
+    if (!list || !list.length) { host.innerHTML = '<li><em>No players yet.</em></li>'; return; }
+    list.forEach(function (p) {
+      var li = document.createElement('li');
+      li.innerHTML = '<code>' + escHtml(p.userIdShort) + '</code> — ' + fmtNum(p.totalWins) + ' wins';
+      host.appendChild(li);
+    });
+  }
+
+  async function loadStats() {
+    try {
+      var resp = await fetch(statsUrl(), { credentials: 'include' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      var data = await resp.json();
+      if (!data || !data.ok) throw new Error('bad payload');
+
+      ['players', 'cardsForged', 'cardsPublished', 'bossesDefeated', 'battlesFought', 'aiGenerations'].forEach(function (k) {
+        var el = document.querySelector('[data-stat="' + k + '"]');
+        if (el) el.textContent = fmtNum(data.stats[k]);
+      });
+
+      var asOfEl = document.getElementById('bs-admin-stats-asof');
+      if (asOfEl) asOfEl.textContent = fmtAsOf(data.asOf);
+
+      var ax = data.adminExtras || null;
+      renderDeltaChips('bs-admin-stats-day', ax && ax.todayDelta);
+      renderDeltaChips('bs-admin-stats-week', ax && ax.weekDelta);
+
+      var actEl = document.getElementById('bs-admin-stats-activity');
+      if (actEl) actEl.textContent = ax && ax.lastActivityAt ? fmtRelative(ax.lastActivityAt) : '—';
+
+      renderTopPlayers(ax && ax.topPlayersByWins);
+    } catch (err) {
+      console.warn('[bs-admin-stats] load failed:', err);
+      var asOfEl = document.getElementById('bs-admin-stats-asof');
+      if (asOfEl) asOfEl.textContent = 'unavailable';
+    }
+  }
+
+  // Lazy-load when the Stats tab is first shown. Uses MutationObserver on
+  // the panel's [hidden] attribute since the existing tab system just
+  // toggles `hidden` on the panel.
+  function wireStatsLazyLoad() {
+    var panel = document.getElementById('bs-admin-panel-stats');
+    if (!panel) return;
+    var loaded = false;
+    function maybeLoad() {
+      if (loaded) return;
+      if (!panel.hidden) { loaded = true; loadStats(); }
+    }
+    var observer = new MutationObserver(maybeLoad);
+    observer.observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+    // Also wire to the tab button click directly as a belt-and-suspenders
+    // for older browsers / cases where MutationObserver fires before the panel renders
+    var btn = document.getElementById('bs-admin-tab-stats');
+    if (btn) btn.addEventListener('click', function () { setTimeout(maybeLoad, 0); });
+    maybeLoad();
+  }
+  // Run after the rest of admin.js has bootstrapped. The existing IIFE
+  // calls a boot function on DOMContentLoaded; we hook in there.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireStatsLazyLoad);
+  } else {
+    wireStatsLazyLoad();
+  }
 })();

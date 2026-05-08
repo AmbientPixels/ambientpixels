@@ -251,3 +251,110 @@
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Stats tab ── */
+
+.bs-admin-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.bs-admin-stats__tile {
+  background: rgba(245, 192, 120, 0.04);
+  border: 1px solid rgba(245, 192, 120, 0.18);
+  border-radius: 6px;
+  padding: 1rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.bs-admin-stats__value {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--bs-accent, #EF9F27);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.bs-admin-stats__label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bs-text-muted, #A09888);
+  margin-top: 0.45rem;
+}
+
+.bs-admin-stats__h3 {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  color: var(--bs-text, #F5F0E8);
+  margin: 1.2rem 0 0.5rem;
+}
+
+.bs-admin-stats__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bs-admin-stats__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  background: rgba(245, 192, 120, 0.06);
+  border: 1px solid rgba(245, 192, 120, 0.22);
+  border-radius: 999px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--bs-text, #F5F0E8);
+}
+
+.bs-admin-stats__chip strong {
+  color: var(--bs-text-muted, #A09888);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.bs-admin-stats__chip--up {
+  border-color: rgba(120, 200, 120, 0.4);
+  background: rgba(120, 200, 120, 0.08);
+}
+
+.bs-admin-stats__activity {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--bs-text, #F5F0E8);
+  margin: 0.4rem 0 0;
+}
+
+.bs-admin-stats__top {
+  margin: 0.5rem 0 0;
+  padding-left: 1.4rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.bs-admin-stats__top code {
+  background: rgba(245, 192, 120, 0.08);
+  padding: 0.05rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 768px) {
+  .bs-admin-stats__grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .bs-admin-stats__grid { grid-template-columns: 1fr; }
+}
