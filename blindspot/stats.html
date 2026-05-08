@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
   <meta name="description" content="Blindspot — live aggregate stats from the arena.">
   <title>Blindspot — Live Stats</title>
   <link rel="icon" href="/blindspot/img/favicon.ico" type="image/x-icon">
@@ -46,7 +47,7 @@
         <span class="bs-stats__label">AI Generations</span>
       </div>
     </div>
-    <p class="bs-stats__error" id="bs-stats-error" hidden>Stats temporarily unavailable. Refresh in a minute.</p>
+    <p class="bs-stats__error" id="bs-stats-error" hidden aria-live="assertive">Stats temporarily unavailable. Refresh in a minute.</p>
     <p class="bs-stats__footer">Refreshed every 10 minutes from live game state.</p>
   </main>
 
