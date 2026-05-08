@@ -81,11 +81,11 @@ async function aggregate(context) {
   const allProfiles = [];
   for await (const item of playerContainer.listBlobsFlat({ prefix: PROFILE_PREFIX })) {
     if (!item.name.endsWith('.json')) continue;
-    players++;
     try {
       const dl = await playerContainer.getBlockBlobClient(item.name).download();
       const body = await streamToText(dl.readableStreamBody);
       const p = JSON.parse(body);
+      players++; // count only profiles we successfully read
       bossesDefeated += (typeof p.highestBoss === 'number') ? p.highestBoss : 0;
       const wins = (typeof p.totalWins === 'number') ? p.totalWins : 0;
       const pvpW = (p.pvpRecord && typeof p.pvpRecord.w === 'number') ? p.pvpRecord.w : 0;
@@ -224,7 +224,7 @@ async function maybeRollBaseline(container, prev, stats, now, context) {
 
 module.exports = async function (context, req) {
   if (req.method === 'OPTIONS') {
-    context.res = { status: 204, headers: CORS_HEADERS };
+    context.res = { status: 204, headers: CORS_HEADERS, body: '' };
     return;
   }
 
@@ -260,12 +260,22 @@ module.exports = async function (context, req) {
     context.res = { status: 200, headers: CORS_HEADERS, body: JSON.stringify(body) };
   } catch (err) {
     context.log.error('[blindspotstats] error: ' + (err.message || String(err)));
-    // Serve stale cache if available
+    // Serve stale cache if available — preserve _warning so operator
+    // doesn't lose the "run backfill" hint while serving stale data.
     if (_cache) {
+      const staleBody = {
+        ok: true,
+        asOf: _cache.payload.asOf,
+        stats: _cache.payload.public.stats,
+        _stale: true
+      };
+      if (_cache.payload.public._meta && _cache.payload.public._meta.counterMissing) {
+        staleBody._warning = 'aiGenerations counter not initialized — run scripts/backfill-content-total-count.js';
+      }
       context.res = {
         status: 200,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ ok: true, asOf: _cache.payload.asOf, stats: _cache.payload.public.stats, _stale: true })
+        body: JSON.stringify(staleBody)
       };
       return;
     }
