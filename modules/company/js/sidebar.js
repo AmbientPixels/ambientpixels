@@ -109,7 +109,8 @@
           links: [
             { href: BASE + 'config-overview.html', label: 'Config', icon: 'fa-sliders', match: ['config-overview.html'] },
             { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
-            { href: BASE + 'world-state.html', label: 'World State', icon: 'fa-globe', match: ['world-state.html'], minMode: 'admin' }
+            { href: BASE + 'world-state.html', label: 'World State', icon: 'fa-globe', match: ['world-state.html'], minMode: 'admin' },
+            { href: BASE + 'promo-codes.html', label: 'Codes', icon: 'fa-ticket', match: ['promo-codes.html'], minMode: 'admin' }
           ]
         },
         {
