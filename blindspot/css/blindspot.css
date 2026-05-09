@@ -2054,10 +2054,44 @@
   color: var(--blindspot-text-muted);
 }
 
-/* Current state — gold border + soft glow on the whole card. */
+/* Current state — gold border + soft glow on the whole card. The
+   campaign-screen rule block (search "bs-campaign-current-pulse")
+   layers the breathing pulse + gradient bg on top of this for the
+   richer treatment when the ladder is on its dedicated screen. */
 #bs-boss-ladder > .bs-boss-card--current {
   border-color: var(--blindspot-accent-gold);
   box-shadow: 0 0 18px rgba(245, 192, 120, 0.35);
+}
+/* "NEXT UP" pill — pure CSS overlay (no JS change). Ties the active
+   ladder tile to the "Fight Next Boss" CTA above so the eye lands
+   here instantly instead of having to count which boss is unbeaten.
+   Pinned over the top-left of the avatar; pulses gently. */
+#bs-boss-ladder > .bs-boss-card--current::after {
+  content: 'NEXT UP';
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 3;
+  padding: 0.22rem 0.55rem;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blindspot-bg, #100C08);
+  background: var(--blindspot-accent-gold, #F5C078);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6),
+              0 0 12px rgba(245, 192, 120, 0.45);
+  pointer-events: none;
+  animation: bs-ladder-pill-breath 2.4s ease-in-out infinite;
+}
+@keyframes bs-ladder-pill-breath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #bs-boss-ladder > .bs-boss-card--current::after { animation: none; }
 }
 
 /* Hover — only on unlocked. Clears the dim filter, lifts slightly. */
@@ -6356,6 +6390,46 @@
   flex: 1;
   min-width: 0;
   min-height: 140px;
+}
+/* Loot Zone hover amplification — the V3 painted-tile art deserves more
+   than the modest -2px lift the per-tile hovers shipped with. Bumps the
+   lift, adds a subtle scale, and layers a stronger gold-glow drop shadow
+   so the tile reads as "alive and pulling forward" on hover. Scoped to
+   `.bs-loot-zone__row >` so other surfaces (gallery, prefight) using
+   the same components keep their original hovers. */
+.bs-loot-zone__row > .bs-crate-opener,
+.bs-loot-zone__row > .bs-collection-panel,
+.bs-loot-zone__row > .bs-sparks-tile {
+  transition: background-image 0.4s ease,
+              background 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.25s ease,
+              transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.bs-loot-zone__row > .bs-crate-opener:hover,
+.bs-loot-zone__row > .bs-collection-panel:hover,
+.bs-loot-zone__row > .bs-sparks-tile:hover,
+.bs-loot-zone__row > .bs-crate-opener:focus-visible,
+.bs-loot-zone__row > .bs-collection-panel:focus-visible,
+.bs-loot-zone__row > .bs-sparks-tile:focus-visible {
+  transform: translateY(-5px) scale(1.012);
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.6),
+              0 0 28px -4px rgba(239, 159, 39, 0.45),
+              inset 0 0 0 1px rgba(245, 192, 120, 0.25);
+}
+/* Locked tiles shouldn't act lit-up on hover — they have their own
+   ghost-state hover. Override the boost back to neutral. */
+.bs-loot-zone__row > .bs-crate-opener.bs-loot--locked:hover,
+.bs-loot-zone__row > .bs-collection-panel.bs-loot--locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bs-loot-zone__row > .bs-crate-opener:hover,
+  .bs-loot-zone__row > .bs-collection-panel:hover,
+  .bs-loot-zone__row > .bs-sparks-tile:hover {
+    transform: none;
+  }
 }
 
 /* Sparks Shop tile — 3rd peer alongside Crates + Collection. Matches
