@@ -3020,6 +3020,86 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Name + edit pencil row + inline edit form. Pencil sits next to the
+   name; clicking it swaps the display name out for an inline form
+   (input + save + cancel + hint). Form is hidden by default via the
+   [hidden] attribute on the markup. */
+.bs-fighter-profile__name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bs-fighter-profile__name-edit {
+  background: transparent;
+  border: 1px solid rgba(245, 192, 120, 0.3);
+  color: var(--blindspot-text-dim);
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: border-color 200ms, color 200ms, background 200ms;
+}
+.bs-fighter-profile__name-edit:hover {
+  border-color: var(--blindspot-accent-gold);
+  color: var(--blindspot-accent-gold);
+  background: rgba(245, 192, 120, 0.08);
+}
+.bs-fighter-profile__name-edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.15rem 0;
+}
+.bs-fighter-profile__name-input {
+  flex: 1;
+  min-width: 160px;
+  padding: 0.45rem 0.65rem;
+  font-family: var(--blindspot-font-display, 'Cormorant Garamond', serif);
+  font-size: 1.15rem;
+  color: var(--blindspot-text);
+  background: rgba(13, 8, 7, 0.7);
+  border: 1px solid var(--blindspot-accent-gold);
+  border-radius: 4px;
+  outline: none;
+}
+.bs-fighter-profile__name-input:focus {
+  box-shadow: 0 0 0 2px rgba(245, 192, 120, 0.2);
+}
+.bs-fighter-profile__name-save,
+.bs-fighter-profile__name-cancel {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid var(--blindspot-border);
+  background: var(--blindspot-surface);
+  color: var(--blindspot-text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 200ms, color 200ms, background 200ms;
+}
+.bs-fighter-profile__name-save {
+  border-color: var(--blindspot-success);
+  color: var(--blindspot-success);
+}
+.bs-fighter-profile__name-save:hover { background: rgba(72, 187, 120, 0.12); }
+.bs-fighter-profile__name-cancel:hover { border-color: var(--blindspot-accent); color: var(--blindspot-accent); }
+.bs-fighter-profile__name-hint {
+  flex-basis: 100%;
+  font-family: var(--blindspot-font-mono, 'Share Tech Mono', monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--blindspot-text-muted);
+}
+.bs-fighter-profile__name-hint--error {
+  color: var(--blindspot-accent);
+}
 .bs-fighter-profile__sub {
   font-size: 0.8rem;
   font-weight: 500;

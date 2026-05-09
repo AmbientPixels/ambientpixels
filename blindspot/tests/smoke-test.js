@@ -450,6 +450,39 @@ try {
   fail('profile.html check failed: ' + e.message);
 }
 
+// ── 5o. play.html has Fighter Profile name edit form ──
+try {
+  const html = fs.readFileSync(path.join(ROOT, 'play.html'), 'utf8');
+  const required = [
+    'bs-fp-name-edit-btn',
+    'bs-fp-name-edit-form',
+    'bs-fp-name-input',
+    'bs-fp-name-cancel'
+  ];
+  const missing = required.filter(s => html.indexOf(s) === -1);
+  if (missing.length > 0) {
+    fail('play.html missing name edit hooks: ' + missing.join(', '));
+  } else {
+    pass('play.html has Fighter Profile name edit form');
+  }
+} catch (e) {
+  fail('play.html name edit check failed: ' + e.message);
+}
+
+// ── 5p. blindspotprofile API has setDisplayName action ──
+try {
+  const src = fs.readFileSync(path.join(ROOT, '../api/blindspotprofile/index.js'), 'utf8');
+  if (src.indexOf("action === 'setDisplayName'") === -1) {
+    fail('blindspotprofile/index.js missing setDisplayName action');
+  } else if (src.indexOf('displayName: \'\'') === -1) {
+    fail('blindspotprofile/index.js missing displayName default field');
+  } else {
+    pass('blindspotprofile API has setDisplayName + displayName default');
+  }
+} catch (e) {
+  fail('blindspotprofile API check failed: ' + e.message);
+}
+
 // ── 6. Boss Data Integrity ──
 try {
   const bosses = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/bosses.json'), 'utf8'));

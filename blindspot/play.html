@@ -733,7 +733,20 @@
               </button>
             </div>
             <div class="bs-fighter-profile__id">
-              <div class="bs-fighter-profile__name" id="bs-fp-name">&mdash;</div>
+              <div class="bs-fighter-profile__name-row">
+                <div class="bs-fighter-profile__name" id="bs-fp-name">&mdash;</div>
+                <button class="bs-fighter-profile__name-edit" id="bs-fp-name-edit-btn" type="button" aria-label="Edit display name" title="Edit display name">
+                  <i class="fas fa-pen" aria-hidden="true"></i>
+                </button>
+              </div>
+              <!-- Inline edit form, hidden by default. Opens when the
+                   pencil is clicked; closes on Save / Cancel / Esc. -->
+              <form class="bs-fighter-profile__name-edit-form" id="bs-fp-name-edit-form" hidden>
+                <input type="text" class="bs-fighter-profile__name-input" id="bs-fp-name-input" maxlength="24" minlength="2" pattern="[A-Za-z0-9 _'\-\.]+" autocomplete="off" aria-label="Display name">
+                <button type="submit" class="bs-fighter-profile__name-save"><i class="fas fa-check" aria-hidden="true"></i></button>
+                <button type="button" class="bs-fighter-profile__name-cancel" id="bs-fp-name-cancel"><i class="fas fa-times" aria-hidden="true"></i></button>
+                <span class="bs-fighter-profile__name-hint" id="bs-fp-name-hint">2-24 chars · letters, numbers, spaces, -_'.</span>
+              </form>
               <div class="bs-fighter-profile__sub" id="bs-fp-sub">&mdash;</div>
               <div class="bs-fighter-profile__badges">
                 <span class="bs-fighter-profile__badge bs-fighter-profile__badge--border" id="bs-fp-border" hidden></span>

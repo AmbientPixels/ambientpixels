@@ -107,6 +107,9 @@ function sanitizeProfile(p, displayName) {
     userId: p.userId,
     userIdShort: String(p.userId || '').slice(0, 8),
     displayName,
+    // Whether the displayed name is a player-set override or the auth
+    // fallback. Lets the client tag "set by player" vs "from sign-in".
+    displayNameIsCustom: !!(p.displayName && String(p.displayName).trim()),
     profileImage: p.profileImage || '',
     profileImageTransform: p.profileImageTransform || { scale: 1, posX: 50, posY: 50 },
     xp: Number(p.xp) || 0,
@@ -134,10 +137,14 @@ async function aggregate(userId, context) {
   if (!profile) return { notFound: true };
   if (profile.isDemo === true) return { notFound: true };
 
-  // Display name + featured card resolution from published-cards.
-  // Single read shared with the leaderboard endpoint pattern. If
-  // performance becomes an issue, consider a userId→name index blob.
-  let displayName = 'Fighter ' + String(userId).slice(0, 8);
+  // Display name fallback chain:
+  //   profile.displayName (player-set override)
+  //   → publishedByName auth claim from any of their published cards
+  //   → 'Fighter XXXXXXXX'
+  // Mirrors the chain in /api/blindspotleaderboard so leaderboard +
+  // profile page render the same name for the same player.
+  const overrideName = (typeof profile.displayName === 'string' && profile.displayName.trim()) ? profile.displayName.trim() : '';
+  let displayName = overrideName || ('Fighter ' + String(userId).slice(0, 8));
   let featuredCard = null;
   const pubs = await downloadJsonOrNull(container, PUBLISHED_PATH);
   if (pubs) {
@@ -147,7 +154,8 @@ async function aggregate(userId, context) {
     else if (Array.isArray(pubs.cards)) arr = pubs.cards;
     for (const c of arr) {
       if (!c) continue;
-      if (c.publishedBy === userId && c.publishedByName && displayName.startsWith('Fighter ')) {
+      // Only fall back to publishedByName if no override is set.
+      if (!overrideName && c.publishedBy === userId && c.publishedByName && displayName.startsWith('Fighter ')) {
         displayName = c.publishedByName;
       }
       if (profile.selectedCardId && c.id === profile.selectedCardId) {

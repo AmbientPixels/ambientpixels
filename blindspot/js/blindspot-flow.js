@@ -955,7 +955,10 @@
         getSelectedCard: function() { return _selectedCard; },
         getActiveBattle: function() { return _activeBattle; }
       });
-      if (_Au.setCallbacks) _Au.setCallbacks({ escHtml: escHtml });
+      if (_Au.setCallbacks) _Au.setCallbacks({
+        escHtml: escHtml,
+        getDisplayNameOverride: function () { return _profile && _profile.displayName ? _profile.displayName : ''; }
+      });
       if (_Asc.setCallbacks) _Asc.setCallbacks({
         playSfx: playSfx, showScreen: showScreen, renderLobby: renderLobby,
         showSuccessToast: showSuccessToast, syncProgressToServer: syncProgressToServer,
@@ -1438,6 +1441,22 @@
     bindPlayNavigation();
     updatePlayAuthUI();
     dismissLoadingGate();
+
+    // Deep-link hash: honor /blindspot/play.html#stats etc. so the public
+    // profile page's "Edit your profile" CTA can land directly on the
+    // Fighter Profile screen instead of dropping the player on the lobby.
+    // Only fires once per page load. Hash is cleared after dispatch so a
+    // refresh doesn't re-trigger.
+    try {
+      var hash = (window.location.hash || '').replace(/^#/, '').toLowerCase();
+      var DEEP_LINKS = { stats: 'stats', leaderboard: 'leaderboard', pvp: 'pvp', shop: 'shop', collection: 'collection' };
+      if (hash && DEEP_LINKS[hash]) {
+        showScreen(DEEP_LINKS[hash]);
+        if (hash === 'stats') renderStatsScreen();
+        // Strip the hash so back-button + refresh behavior is normal.
+        if (history.replaceState) history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    } catch (e) { /* non-fatal */ }
 
     // Check for active live PvP battle to resume
     if (!checkForActiveLiveBattle()) {
@@ -3182,6 +3201,99 @@
       + '</div>';
   }
 
+  // Display name edit handler. POSTs to /api/blindspotprofile with
+  // action: 'setDisplayName'. Server validates 2-24 chars + permissive
+  // charset. On success, mirrors the new name into _profile + the
+  // lobby topbar so the change is reflected without a full reload.
+  function bindFighterProfileNameEdit(currentName) {
+    var editBtn = document.getElementById('bs-fp-name-edit-btn');
+    var form = document.getElementById('bs-fp-name-edit-form');
+    var input = document.getElementById('bs-fp-name-input');
+    var cancelBtn = document.getElementById('bs-fp-name-cancel');
+    var nameEl = document.getElementById('bs-fp-name');
+    var hint = document.getElementById('bs-fp-name-hint');
+    if (!editBtn || !form || !input || !cancelBtn || !nameEl) return;
+
+    // Hide edit affordance entirely for guests / unauthed — server
+    // POST would 401 anyway.
+    var canEdit = !!(_profile && _profile.userId && !isDemo());
+    editBtn.style.display = canEdit ? '' : 'none';
+
+    function openForm() {
+      input.value = currentName || '';
+      form.removeAttribute('hidden');
+      nameEl.style.display = 'none';
+      editBtn.style.display = 'none';
+      if (hint) {
+        hint.textContent = '2-24 chars · letters, numbers, spaces, -_\'.';
+        hint.classList.remove('bs-fighter-profile__name-hint--error');
+      }
+      input.focus();
+      input.select();
+    }
+    function closeForm() {
+      form.setAttribute('hidden', '');
+      nameEl.style.display = '';
+      editBtn.style.display = canEdit ? '' : 'none';
+    }
+
+    editBtn.onclick = openForm;
+    cancelBtn.onclick = closeForm;
+    input.onkeydown = function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); closeForm(); }
+    };
+    form.onsubmit = async function (e) {
+      e.preventDefault();
+      var raw = (input.value || '').trim();
+      if (raw.length < 2 || raw.length > 24) {
+        if (hint) {
+          hint.textContent = 'Must be 2-24 characters';
+          hint.classList.add('bs-fighter-profile__name-hint--error');
+        }
+        return;
+      }
+      if (!/^[A-Za-z0-9 _'\-\.]+$/.test(raw)) {
+        if (hint) {
+          hint.textContent = 'Only letters, numbers, spaces, and -_\'.';
+          hint.classList.add('bs-fighter-profile__name-hint--error');
+        }
+        return;
+      }
+      try {
+        var url = window.buildApiPath ? window.buildApiPath('blindspotProfile') : '/api/blindspotprofile';
+        var resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action: 'setDisplayName', userId: _profile.userId, displayName: raw })
+        });
+        var data = await resp.json().catch(function () { return {}; });
+        if (!resp.ok) {
+          if (hint) {
+            hint.textContent = data && data.error ? data.error : 'Save failed — try again.';
+            hint.classList.add('bs-fighter-profile__name-hint--error');
+          }
+          return;
+        }
+        // Mirror locally so the rest of this session sees the new name.
+        _profile.displayName = data.displayName || raw;
+        nameEl.textContent = _profile.displayName;
+        // Tell auth-ui to re-render the topbar chip + dropdown header
+        // from the new override. update() reads getDisplayNameOverride
+        // callback we wired in setCallbacks. Lobby greeting updates
+        // automatically inside update().
+        if (window.BsAuthUI && window.BsAuthUI.update) window.BsAuthUI.update();
+        if (window.BsToast && window.BsToast.show) window.BsToast.show('Display name updated.');
+        closeForm();
+      } catch (err) {
+        if (hint) {
+          hint.textContent = 'Network error — try again.';
+          hint.classList.add('bs-fighter-profile__name-hint--error');
+        }
+      }
+    };
+  }
+
   // Computes account-level milestones from _profile totals. Same
   // CARD_TITLE_MILESTONES definitions but checked against the
   // player's authoritative totals (totalWins, bestStreak,
@@ -3255,16 +3367,19 @@
       }
     }
 
-    // Identity strip: player name + account level + tier label.
-    // Player display name comes from auth, mirrored into the lobby
-    // welcome line by bs-auth-ui. Falls back to selected card name
-    // when guest, then to a neutral 'Fighter'.
+    // Identity strip — display name fallback chain:
+    //   profile.displayName (player-set override via name edit form)
+    //   → #bs-lobby-username (auth claim mirrored by bs-auth-ui)
+    //   → selectedCard.name (guest mode)
+    //   → 'Fighter'
     var nameEl = document.getElementById('bs-fp-name');
     var subEl = document.getElementById('bs-fp-sub');
     var lobbyName = document.getElementById('bs-lobby-username');
-    var displayName = (lobbyName && lobbyName.textContent && lobbyName.textContent.trim())
-      ? lobbyName.textContent.trim()
-      : (card && card.name ? card.name : 'Fighter');
+    var overrideName = (_profile && typeof _profile.displayName === 'string' && _profile.displayName.trim()) ? _profile.displayName.trim() : '';
+    var displayName = overrideName
+      || (lobbyName && lobbyName.textContent && lobbyName.textContent.trim())
+      || (card && card.name)
+      || 'Fighter';
     var xp = _profile.xp || 0;
     var level = (_S && _S.computeLevel) ? _S.computeLevel(xp) : 1;
     var tier = (_S && _S.getTier) ? _S.getTier(level) : null;
@@ -3275,6 +3390,12 @@
       if ((_profile.ascension || 0) > 0) subBits.push('Prestige ' + _profile.ascension);
       subEl.textContent = subBits.join(' · ');
     }
+
+    // Wire the name edit form. Idempotent — uses .onclick / .onsubmit
+    // (not addEventListener) so repeat renderStatsScreen() calls don't
+    // stack handlers. Edit button is hidden for guests since they
+    // can't persist server-side.
+    bindFighterProfileNameEdit(displayName);
 
     // PvP peak rank badge (account-level achievement)
     var borderEl = document.getElementById('bs-fp-border');

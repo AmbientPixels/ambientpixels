@@ -156,9 +156,10 @@
 
   function ctaRowHtml(p, isOwner, isAuthed) {
     if (isOwner) {
-      // Owner: link straight into their own Fighter Profile screen so
-      // they can edit avatar, name, equipped loadout, etc.
-      return '<a class="bs-profile__cta" href="/blindspot/play.html"><i class="fas fa-pen" aria-hidden="true"></i> Edit your profile</a>'
+      // Owner: deep-link straight into the Fighter Profile screen via #stats
+      // so they don't bounce through the lobby first. Honored by initPlay()
+      // in blindspot-flow.js after the loading gate dismisses.
+      return '<a class="bs-profile__cta" href="/blindspot/play.html#stats"><i class="fas fa-pen" aria-hidden="true"></i> Edit your profile</a>'
         + '<button class="bs-profile__cta bs-profile__cta--ghost" type="button" id="bs-profile-share-btn"><i class="fas fa-share-nodes" aria-hidden="true"></i> Copy share link</button>';
     }
     if (isAuthed) {

@@ -97,10 +97,15 @@ async function aggregate(context) {
       const userIdShort = userId.slice(0, 8);
       const featured = p.selectedCardId ? cardById.get(p.selectedCardId) : null;
 
-      // Display name fallback chain: published-card name claim → 'Fighter XXXXXXXX'.
-      // This matches the splash gallery behavior — older players whose
-      // cards predate publishedByName get the userId-short fallback.
-      const displayName = nameByUserId.get(userId) || ('Fighter ' + userIdShort);
+      // Display name fallback chain:
+      //   profile.displayName (player-set override)
+      //   → publishedByName auth claim (Google/B2C "name")
+      //   → 'Fighter XXXXXXXX' for un-published older players
+      // The override exists so players can hide the raw real-name auth
+      // claim from the leaderboard without re-authing. Empty / whitespace
+      // override is treated as unset.
+      const overrideName = (typeof p.displayName === 'string' && p.displayName.trim()) ? p.displayName.trim() : '';
+      const displayName = overrideName || nameByUserId.get(userId) || ('Fighter ' + userIdShort);
 
       players.push({
         userId,                           // full id (used for client "(you)" tag match)

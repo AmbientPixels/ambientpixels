@@ -121,6 +121,12 @@ function createDefaultProfile(userId) {
     pvpElo: 1000,
     pvpRecord: { w: 0, l: 0 },
     crateWinCounter: 0,
+    // Optional player-set display name. When non-empty, overrides the
+    // publishedByName auth claim on leaderboards + public profile pages.
+    // Empty string = use publishedByName fallback (default for everyone
+    // pre-displayName-feature). Validated server-side: 2-24 chars,
+    // letters/numbers/spaces/-_'.
+    displayName: '',
     // Player profile image (URL). Optional. When empty, the topbar
     // and Fighter Profile page fall back to the equipped card's
     // avatar. Set by the profile image generator (Phase D).
@@ -204,6 +210,7 @@ function mergeProfiles(server, client) {
   if (client.selectedCardId) merged.selectedCardId = client.selectedCardId;
   if (client.lastDaily) merged.lastDaily = client.lastDaily;
   if (typeof client.profileImage === 'string') merged.profileImage = client.profileImage;
+  if (typeof client.displayName === 'string') merged.displayName = client.displayName;
   if (client.profileImageTransform && typeof client.profileImageTransform === 'object') {
     merged.profileImageTransform = client.profileImageTransform;
   }
@@ -517,6 +524,52 @@ module.exports = async function (context, req) {
           status: 200,
           headers: CORS_HEADERS,
           body: { success: true, profile: serverProfile }
+        };
+      } else if (action === 'setDisplayName') {
+        // Player-set display name override. Empty string clears back to
+        // the publishedByName auth claim. Server is the canonical
+        // validation layer — client UI mirrors these rules but never
+        // trust it.
+        const raw = body.displayName;
+        if (typeof raw !== 'string') {
+          context.res = {
+            status: 400,
+            headers: CORS_HEADERS,
+            body: { error: 'displayName must be a string' }
+          };
+          return;
+        }
+        const trimmed = raw.trim().replace(/\s+/g, ' '); // collapse internal whitespace
+        if (trimmed.length === 0) {
+          // Clearing the override is allowed
+        } else if (trimmed.length < 2 || trimmed.length > 24) {
+          context.res = {
+            status: 400,
+            headers: CORS_HEADERS,
+            body: { error: 'displayName must be 2-24 characters' }
+          };
+          return;
+        } else if (!/^[A-Za-z0-9 _'\-\.]+$/.test(trimmed)) {
+          // Permissive but no HTML / control chars / slashes / brackets.
+          // Lets through real-name patterns ("D'Arcy", "Anne-Marie") +
+          // gamer-tag patterns ("xX_Reaper_Xx").
+          context.res = {
+            status: 400,
+            headers: CORS_HEADERS,
+            body: { error: 'displayName allows letters, numbers, spaces, and -_\'.' }
+          };
+          return;
+        }
+        let serverProfile = await downloadJsonBlob(containerClient, profilePath, context);
+        if (!serverProfile) serverProfile = createDefaultProfile(userId);
+        serverProfile.displayName = trimmed;
+        serverProfile.userId = userId;
+        await uploadJsonBlob(containerClient, profilePath, serverProfile);
+        context.log(`[Blindspot] Set displayName for user ${userId}: "${trimmed}"`);
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: { success: true, displayName: trimmed }
         };
       } else if (action === 'reset') {
         const fresh = createDefaultProfile(userId);

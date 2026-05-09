@@ -409,7 +409,15 @@
         sessionStorage.setItem('isAuthenticated', 'true');
         document.body.setAttribute('data-auth-state', 'signed-in');
 
-        var name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'fighter';
+        // Display name fallback: profile.displayName override → email
+        // username → 'fighter'. The override comes from the profile blob
+        // and is set via the Fighter Profile name editor. When the user
+        // updates it, the editor calls update() to reflect the change
+        // here without a full reload.
+        var override = (_cb.getDisplayNameOverride && _cb.getDisplayNameOverride()) || '';
+        var name = (override && String(override).trim())
+          || (data.clientPrincipal.userDetails || '').split('@')[0]
+          || 'fighter';
         var xp = (window.BsState && window.BsState.progress && window.BsState.progress.xp) || 0;
         var level = (window.BsState && typeof window.BsState.computeLevel === 'function') ? window.BsState.computeLevel(xp) : 1;
 
