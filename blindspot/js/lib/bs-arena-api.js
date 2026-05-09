@@ -82,6 +82,25 @@ window.ArenaAPI = (function () {
       }
       return apiFetch('arenaProfile', { method: 'POST', body: body });
     },
+    setDisplayName: function (displayName) {
+      // Player-set display-name override. Empty string clears back to
+      // the publishedByName auth claim. Server validates 2-24 chars.
+      // Use this wrapper rather than raw fetch — apiFetch sends the
+      // X-CF-Auth-Principal header the Function App needs to identify
+      // the user (raw fetch goes anonymous and the save is a no-op).
+      return apiFetch('arenaProfile', {
+        method: 'POST',
+        body: { action: 'setDisplayName', displayName: String(displayName || '') }
+      });
+    },
+    setPrivacy: function (isPrivate) {
+      // Privacy toggle. true = hide from public leaderboard + public
+      // profile page. Their published cards are unaffected.
+      return apiFetch('arenaProfile', {
+        method: 'POST',
+        body: { action: 'setPrivacy', isPrivate: !!isPrivate }
+      });
+    },
     loadBosses: function () {
       return apiFetch('arenaBosses');
     },

@@ -3260,17 +3260,19 @@
         return;
       }
       try {
-        var url = window.buildApiPath ? window.buildApiPath('blindspotProfile') : '/api/blindspotprofile';
-        var resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action: 'setDisplayName', userId: _profile.userId, displayName: raw })
-        });
-        var data = await resp.json().catch(function () { return {}; });
-        if (!resp.ok) {
+        // Route through ArenaAPI so the X-CF-Auth-Principal header is
+        // attached. Raw fetch would be treated as anonymous by the
+        // Function App and the save would silently no-op into a demo
+        // response.
+        var data;
+        if (window.ArenaAPI && window.ArenaAPI.setDisplayName) {
+          data = await window.ArenaAPI.setDisplayName(raw);
+        } else {
+          throw new Error('ArenaAPI.setDisplayName missing');
+        }
+        if (!data || data.success === false) {
           if (hint) {
-            hint.textContent = data && data.error ? data.error : 'Save failed — try again.';
+            hint.textContent = (data && data.error) ? data.error : 'Save failed — try again.';
             hint.classList.add('bs-fighter-profile__name-hint--error');
           }
           return;
@@ -3317,16 +3319,15 @@
       if (next === prev) return;
       input.disabled = true;
       try {
-        var url = window.buildApiPath ? window.buildApiPath('blindspotProfile') : '/api/blindspotprofile';
-        var resp = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action: 'setPrivacy', userId: _profile.userId, isPrivate: next })
-        });
-        var data = await resp.json().catch(function () { return {}; });
-        if (!resp.ok) {
-          // Revert
+        // Same auth-header reasoning as setDisplayName — use ArenaAPI
+        // wrapper, not raw fetch.
+        var data;
+        if (window.ArenaAPI && window.ArenaAPI.setPrivacy) {
+          data = await window.ArenaAPI.setPrivacy(next);
+        } else {
+          throw new Error('ArenaAPI.setPrivacy missing');
+        }
+        if (!data || data.success === false) {
           input.checked = prev;
           if (window.BsToast && window.BsToast.show) {
             window.BsToast.show((data && data.error) || 'Privacy update failed', { type: 'error' });
