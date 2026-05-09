@@ -19,6 +19,8 @@ window._config.apiEndpoints = {
   adminConfig: 'blindspotadminconfig',
   // Live aggregate stats (public + admin extras). GET only.
   stats: 'blindspotstats',
+  // Player-based leaderboard. GET ?sortBy=wins|bosses|elo|power. Returns top 50.
+  leaderboard: 'blindspotleaderboard',
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',

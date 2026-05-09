@@ -82,6 +82,20 @@ try {
   fail('api/blindspotstats/index.js parse error: ' + e.message);
 }
 
+// ── 1g. Leaderboard endpoint parse ──
+try {
+  const apiPath = path.join(ROOT, '../api/blindspotleaderboard/index.js');
+  if (fs.existsSync(apiPath)) {
+    const apiSrc = fs.readFileSync(apiPath, 'utf8');
+    new Function(apiSrc);
+    pass('api/blindspotleaderboard/index.js parses without errors');
+  } else {
+    fail('api/blindspotleaderboard/index.js missing');
+  }
+} catch (e) {
+  fail('api/blindspotleaderboard/index.js parse error: ' + e.message);
+}
+
 // ── 2. CSS Brace Balance ──
 try {
   const css = fs.readFileSync(path.join(ROOT, 'css/blindspot.css'), 'utf8');
@@ -322,6 +336,49 @@ try {
   }
 } catch (e) {
   fail('bs-config.js check failed: ' + e.message);
+}
+
+// ── 5i. staticwebapp.config.json has /api/blindspotleaderboard route ──
+try {
+  const swaPath = path.join(ROOT, '../staticwebapp.config.json');
+  const swa = JSON.parse(fs.readFileSync(swaPath, 'utf8'));
+  const route = (swa.routes || []).find(r => r.route === '/api/blindspotleaderboard');
+  if (!route) fail('staticwebapp.config.json missing /api/blindspotleaderboard route');
+  else pass('staticwebapp.config.json has /api/blindspotleaderboard route');
+} catch (e) {
+  fail('staticwebapp.config.json leaderboard check failed: ' + e.message);
+}
+
+// ── 5j. bs-config.js registers leaderboard endpoint ──
+try {
+  const cfg = fs.readFileSync(path.join(ROOT, 'js/lib/bs-config.js'), 'utf8');
+  if (cfg.indexOf("leaderboard: 'blindspotleaderboard'") === -1) {
+    fail("bs-config.js missing leaderboard: 'blindspotleaderboard' endpoint");
+  } else {
+    pass('bs-config.js registers leaderboard endpoint');
+  }
+} catch (e) {
+  fail('bs-config.js leaderboard check failed: ' + e.message);
+}
+
+// ── 5k. bs-leaderboard.js parse + has tab markup hooks ──
+try {
+  const lb = fs.readFileSync(path.join(ROOT, 'js/lib/bs-leaderboard.js'), 'utf8');
+  new Function(lb);
+  const required = [
+    'data-leaderboard-tab',
+    'bs-leaderboard__tabs',
+    "buildApiPath('leaderboard'",
+    'getUserId'
+  ];
+  const missing = required.filter(s => lb.indexOf(s) === -1);
+  if (missing.length > 0) {
+    fail('bs-leaderboard.js missing required hooks: ' + missing.join(', '));
+  } else {
+    pass('bs-leaderboard.js parses + has tab markup + endpoint hooks');
+  }
+} catch (e) {
+  fail('bs-leaderboard.js parse error: ' + e.message);
 }
 
 // ── 6. Boss Data Integrity ──

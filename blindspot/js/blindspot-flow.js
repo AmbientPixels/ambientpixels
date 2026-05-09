@@ -948,6 +948,7 @@
       });
       if (_Lb.setCallbacks) _Lb.setCallbacks({
         getSelectedCard: function() { return _selectedCard; },
+        getUserId: function() { return _profile ? _profile.userId : null; },
         escHtml: escHtml
       });
       if (_Ct.setCallbacks) _Ct.setCallbacks({
