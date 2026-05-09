@@ -165,6 +165,15 @@ function createDefaultProfile(userId) {
 function mergeProfiles(server, client) {
   const merged = { ...server };
 
+  // Detect ascension event: client.ascension increased above server.ascension.
+  // On ascension the campaign resets, so highestBoss / bossRecords /
+  // masteryClaimed must take client values rather than max-merging — otherwise
+  // the server's pre-reset values would clobber the reset and the player would
+  // never actually drop back to boss 1.
+  const serverAsc = Number(server.ascension) || 0;
+  const clientAsc = Number(client.ascension) || 0;
+  const isAscensionEvent = clientAsc > serverAsc;
+
   // Numeric fields — keep higher value
   const numericKeys = [
     'sparks', 'xp', 'highestBoss', 'totalWins', 'totalBounties',
@@ -172,7 +181,11 @@ function mergeProfiles(server, client) {
   ];
   for (const key of numericKeys) {
     if (typeof client[key] === 'number') {
-      merged[key] = Math.max(merged[key] || 0, client[key]);
+      if (isAscensionEvent && key === 'highestBoss') {
+        merged[key] = client[key];
+      } else {
+        merged[key] = Math.max(merged[key] || 0, client[key]);
+      }
     }
   }
 
@@ -226,27 +239,37 @@ function mergeProfiles(server, client) {
     merged.equipped = { ...merged.equipped, ...client.equipped };
   }
 
-  // Boss records — merge per-boss, keep higher wins/losses
+  // Boss records — merge per-boss, keep higher wins/losses.
+  // Ascension event: take client (which performAscension reset to {}).
   if (client.bossRecords && typeof client.bossRecords === 'object') {
-    merged.bossRecords = merged.bossRecords || {};
-    for (const bossId of Object.keys(client.bossRecords)) {
-      const serverBoss = merged.bossRecords[bossId] || { wins: 0, losses: 0 };
-      const clientBoss = client.bossRecords[bossId] || { wins: 0, losses: 0 };
-      merged.bossRecords[bossId] = {
-        wins: Math.max(serverBoss.wins || 0, clientBoss.wins || 0),
-        losses: Math.max(serverBoss.losses || 0, clientBoss.losses || 0)
-      };
+    if (isAscensionEvent) {
+      merged.bossRecords = client.bossRecords;
+    } else {
+      merged.bossRecords = merged.bossRecords || {};
+      for (const bossId of Object.keys(client.bossRecords)) {
+        const serverBoss = merged.bossRecords[bossId] || { wins: 0, losses: 0 };
+        const clientBoss = client.bossRecords[bossId] || { wins: 0, losses: 0 };
+        merged.bossRecords[bossId] = {
+          wins: Math.max(serverBoss.wins || 0, clientBoss.wins || 0),
+          losses: Math.max(serverBoss.losses || 0, clientBoss.losses || 0)
+        };
+      }
     }
   }
 
-  // Mastery claimed — merge, keep higher tier
+  // Mastery claimed — merge, keep higher tier.
+  // Ascension event: take client (which performAscension reset to {}).
   if (client.masteryClaimed && typeof client.masteryClaimed === 'object') {
-    merged.masteryClaimed = merged.masteryClaimed || {};
-    for (const key of Object.keys(client.masteryClaimed)) {
-      merged.masteryClaimed[key] = Math.max(
-        merged.masteryClaimed[key] || 0,
-        client.masteryClaimed[key] || 0
-      );
+    if (isAscensionEvent) {
+      merged.masteryClaimed = client.masteryClaimed;
+    } else {
+      merged.masteryClaimed = merged.masteryClaimed || {};
+      for (const key of Object.keys(client.masteryClaimed)) {
+        merged.masteryClaimed[key] = Math.max(
+          merged.masteryClaimed[key] || 0,
+          client.masteryClaimed[key] || 0
+        );
+      }
     }
   }
 
