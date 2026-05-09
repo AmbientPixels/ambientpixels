@@ -137,6 +137,25 @@ async function aggregate(userId, context) {
   if (!profile) return { notFound: true };
   if (profile.isDemo === true) return { notFound: true };
 
+  // Privacy gate. Resolve display name from the same fallback chain as
+  // the full response so the public page can show *whose* profile is
+  // private when a shared URL lands on a private profile (otherwise the
+  // page would just say "private" with no context). Don't expose any
+  // stats / record / cards here — the displayName is the most we leak.
+  if (profile.isPrivate === true) {
+    const overrideName = (typeof profile.displayName === 'string' && profile.displayName.trim()) ? profile.displayName.trim() : '';
+    let pubsForName = await downloadJsonOrNull(container, PUBLISHED_PATH);
+    let claimName = '';
+    if (pubsForName && !overrideName) {
+      let arr = Array.isArray(pubsForName) ? pubsForName : (pubsForName.publishedCards || pubsForName.cards || []);
+      for (const c of arr) {
+        if (c && c.publishedBy === userId && c.publishedByName) { claimName = c.publishedByName; break; }
+      }
+    }
+    const displayName = overrideName || claimName || ('Fighter ' + String(userId).slice(0, 8));
+    return { notFound: false, isPrivate: true, profile: { userId, displayName } };
+  }
+
   // Display name fallback chain:
   //   profile.displayName (player-set override)
   //   → publishedByName auth claim from any of their published cards
@@ -240,6 +259,21 @@ module.exports = async function (context, req) {
       const payload = { ok: false, error: 'not_found' };
       _cache.set(userId, { asOf: now, payload });
       context.res = { status: 404, headers: CORS_HEADERS, body: payload };
+      return;
+    }
+    if (result.isPrivate) {
+      // Honest 200 with a private flag + just-enough data (displayName)
+      // for the public page to render "X's profile is private". Cache
+      // it so a flood of crawlers hitting a shared private URL doesn't
+      // hammer the blob layer.
+      const payload = {
+        ok: true,
+        asOf: new Date().toISOString(),
+        isPrivate: true,
+        profile: result.profile
+      };
+      _cache.set(userId, { asOf: now, payload });
+      context.res = { status: 200, headers: CORS_HEADERS, body: payload };
       return;
     }
     const payload = { ok: true, asOf: new Date().toISOString(), profile: result.profile };

@@ -86,6 +86,9 @@
 }
 .bs-profile-page .bs-profile__error h1 i { color: var(--blindspot-accent-gold, #F5C078); margin-right: 0.4em; }
 .bs-profile-page .bs-profile__error p { color: var(--bs-text-dim, #A09888); margin: 0 0 1.5rem; }
+/* Private state — same chrome as not-found, but the lock icon is
+   gold-tinted to match the owner-side privacy toggle visual language. */
+.bs-profile-page .bs-profile__error--private h1 i { color: var(--blindspot-accent-gold, #F5C078); }
 
 /* ===== Hero ===== */
 

@@ -92,6 +92,7 @@ async function aggregate(context) {
       const p = JSON.parse(body);
       if (!p || !p.userId) continue;
       if (p.isDemo === true) continue; // demo profiles never appear on leaderboard
+      if (p.isPrivate === true) continue; // player opted out of public ranking
 
       const userId = String(p.userId);
       const userIdShort = userId.slice(0, 8);

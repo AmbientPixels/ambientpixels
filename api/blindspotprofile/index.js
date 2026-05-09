@@ -127,6 +127,14 @@ function createDefaultProfile(userId) {
     // pre-displayName-feature). Validated server-side: 2-24 chars,
     // letters/numbers/spaces/-_'.
     displayName: '',
+    // Privacy toggle. When true, the player is filtered from the public
+    // leaderboard and /api/blindspotprofileview returns a "private"
+    // response (with displayName preserved so visitors who hit a shared
+    // URL see whose profile is private). Their PUBLISHED cards still
+    // appear in the splash hero + Hall of Fighters — those are card-
+    // level public (player opted in by publishing). Privacy is about
+    // the profile aggregate + leaderboard rank only.
+    isPrivate: false,
     // Player profile image (URL). Optional. When empty, the topbar
     // and Fighter Profile page fall back to the equipped card's
     // avatar. Set by the profile image generator (Phase D).
@@ -211,6 +219,7 @@ function mergeProfiles(server, client) {
   if (client.lastDaily) merged.lastDaily = client.lastDaily;
   if (typeof client.profileImage === 'string') merged.profileImage = client.profileImage;
   if (typeof client.displayName === 'string') merged.displayName = client.displayName;
+  if (typeof client.isPrivate === 'boolean') merged.isPrivate = client.isPrivate;
   if (client.profileImageTransform && typeof client.profileImageTransform === 'object') {
     merged.profileImageTransform = client.profileImageTransform;
   }
@@ -570,6 +579,32 @@ module.exports = async function (context, req) {
           status: 200,
           headers: CORS_HEADERS,
           body: { success: true, displayName: trimmed }
+        };
+      } else if (action === 'setPrivacy') {
+        // Player privacy toggle. true = hide from public leaderboard +
+        // public profile page. Their published cards are unaffected.
+        // Owner can still view their own profile via the in-game
+        // Fighter Profile screen — that reads _profile directly, not
+        // /api/blindspotprofileview.
+        const incoming = body.isPrivate;
+        if (typeof incoming !== 'boolean') {
+          context.res = {
+            status: 400,
+            headers: CORS_HEADERS,
+            body: { error: 'isPrivate must be a boolean' }
+          };
+          return;
+        }
+        let serverProfile = await downloadJsonBlob(containerClient, profilePath, context);
+        if (!serverProfile) serverProfile = createDefaultProfile(userId);
+        serverProfile.isPrivate = incoming;
+        serverProfile.userId = userId;
+        await uploadJsonBlob(containerClient, profilePath, serverProfile);
+        context.log(`[Blindspot] Set isPrivate=${incoming} for user ${userId}`);
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: { success: true, isPrivate: incoming }
         };
       } else if (action === 'reset') {
         const fresh = createDefaultProfile(userId);

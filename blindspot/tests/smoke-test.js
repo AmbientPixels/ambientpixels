@@ -483,6 +483,57 @@ try {
   fail('blindspotprofile API check failed: ' + e.message);
 }
 
+// ── 5q. blindspotprofile API has setPrivacy action + isPrivate default ──
+try {
+  const src = fs.readFileSync(path.join(ROOT, '../api/blindspotprofile/index.js'), 'utf8');
+  if (src.indexOf("action === 'setPrivacy'") === -1) {
+    fail('blindspotprofile/index.js missing setPrivacy action');
+  } else if (src.indexOf('isPrivate: false') === -1) {
+    fail('blindspotprofile/index.js missing isPrivate default field');
+  } else {
+    pass('blindspotprofile API has setPrivacy + isPrivate default');
+  }
+} catch (e) {
+  fail('blindspotprofile setPrivacy check failed: ' + e.message);
+}
+
+// ── 5r. Privacy filter wired in leaderboard + profileview ──
+try {
+  const lb = fs.readFileSync(path.join(ROOT, '../api/blindspotleaderboard/index.js'), 'utf8');
+  const pv = fs.readFileSync(path.join(ROOT, '../api/blindspotprofileview/index.js'), 'utf8');
+  if (lb.indexOf('p.isPrivate === true') === -1) {
+    fail('blindspotleaderboard missing isPrivate filter');
+  } else if (pv.indexOf('isPrivate === true') === -1 || pv.indexOf('isPrivate: true') === -1) {
+    fail('blindspotprofileview missing isPrivate gate');
+  } else {
+    pass('Privacy filter wired in leaderboard + profileview');
+  }
+} catch (e) {
+  fail('Privacy filter check failed: ' + e.message);
+}
+
+// ── 5s. play.html has privacy toggle hooks ──
+try {
+  const html = fs.readFileSync(path.join(ROOT, 'play.html'), 'utf8');
+  const required = ['bs-fp-privacy-row', 'bs-fp-privacy-toggle'];
+  const missing = required.filter(s => html.indexOf(s) === -1);
+  if (missing.length > 0) fail('play.html missing privacy toggle hooks: ' + missing.join(', '));
+  else pass('play.html has privacy toggle hooks');
+} catch (e) {
+  fail('play.html privacy check failed: ' + e.message);
+}
+
+// ── 5t. profile.html has private state hooks ──
+try {
+  const html = fs.readFileSync(path.join(ROOT, 'profile.html'), 'utf8');
+  const required = ['bs-profile-private', 'bs-profile-private-name'];
+  const missing = required.filter(s => html.indexOf(s) === -1);
+  if (missing.length > 0) fail('profile.html missing private state hooks: ' + missing.join(', '));
+  else pass('profile.html has private state hooks');
+} catch (e) {
+  fail('profile.html private state check failed: ' + e.message);
+}
+
 // ── 6. Boss Data Integrity ──
 try {
   const bosses = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/bosses.json'), 'utf8'));

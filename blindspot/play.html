@@ -752,6 +752,21 @@
                 <span class="bs-fighter-profile__badge bs-fighter-profile__badge--border" id="bs-fp-border" hidden></span>
                 <span class="bs-fighter-profile__badge bs-fighter-profile__badge--title" id="bs-fp-title" hidden></span>
               </div>
+              <!-- Privacy toggle. When on, hides the player from the
+                   public leaderboard + returns "private" from
+                   /api/blindspotprofileview. Their published cards
+                   still appear in the splash hero / Hall of Fighters. -->
+              <label class="bs-fighter-profile__privacy" id="bs-fp-privacy-row" hidden>
+                <input type="checkbox" id="bs-fp-privacy-toggle" class="bs-fighter-profile__privacy-input">
+                <span class="bs-fighter-profile__privacy-track" aria-hidden="true">
+                  <span class="bs-fighter-profile__privacy-thumb"></span>
+                </span>
+                <span class="bs-fighter-profile__privacy-label">
+                  <i class="fas fa-lock" aria-hidden="true"></i>
+                  <span class="bs-fighter-profile__privacy-text">Private profile</span>
+                </span>
+                <span class="bs-fighter-profile__privacy-hint">Hides you from leaderboard + share page</span>
+              </label>
             </div>
           </div>
           <div class="bs-fighter-profile__record" id="bs-fp-record">

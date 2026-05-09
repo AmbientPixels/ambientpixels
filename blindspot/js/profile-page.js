@@ -291,6 +291,14 @@
     hide($('bs-profile-loading'));
     show($('bs-profile-error'));
   }
+  function showPrivate(displayName) {
+    hide($('bs-profile-loading'));
+    var nameEl = $('bs-profile-private-name');
+    if (nameEl && displayName) nameEl.textContent = displayName;
+    // Set page title + meta so share previews don't leak any record.
+    document.title = (displayName || 'A fighter') + '’s profile is private — Blindspot';
+    show($('bs-profile-private'));
+  }
 
   function boot() {
     var userId = getQueryParam('u') || getQueryParam('userId');
@@ -307,6 +315,15 @@
       var visitorUserId = results[1];
       if (profileResult && profileResult.notFound) {
         showNotFound();
+        return;
+      }
+      // Private profile — render the dedicated "X is private" state
+      // with just the displayName, no stats / cards / record. Owner
+      // viewing their own private URL gets the same treatment; the
+      // in-game Fighter Profile is the self-edit surface (where they
+      // can toggle privacy off if they want to preview).
+      if (profileResult && profileResult.isPrivate && profileResult.profile) {
+        showPrivate(profileResult.profile.displayName);
         return;
       }
       if (!profileResult || !profileResult.ok || !profileResult.profile) {

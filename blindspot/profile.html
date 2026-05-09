@@ -56,6 +56,14 @@
       <h1><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Profile temporarily unavailable</h1>
       <p>Try again in a minute.</p>
     </div>
+    <!-- Private state — shown when /api/blindspotprofileview returns
+         { ok: true, isPrivate: true }. We surface the displayName so a
+         shared URL has context, but no stats / cards / record. -->
+    <div class="bs-profile__error bs-profile__error--private" id="bs-profile-private" hidden role="alert">
+      <h1><i class="fas fa-lock" aria-hidden="true"></i> <span id="bs-profile-private-name">This fighter</span>'s profile is private</h1>
+      <p>They’ve chosen to hide their record from the public board.</p>
+      <a class="bs-profile__cta" href="/blindspot/play.html"><i class="fas fa-trophy" aria-hidden="true"></i> View Leaderboard</a>
+    </div>
 
     <!-- Profile content (shown after fetch) -->
     <article class="bs-profile__content" id="bs-profile-content" hidden>

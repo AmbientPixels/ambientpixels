@@ -3294,6 +3294,60 @@
     };
   }
 
+  // Privacy toggle. POSTs to /api/blindspotprofile setPrivacy.
+  // Optimistic UI — flips the toggle immediately, reverts on failure.
+  // Hidden for guests (no userId to write under).
+  function bindFighterProfilePrivacyToggle() {
+    var row = document.getElementById('bs-fp-privacy-row');
+    var input = document.getElementById('bs-fp-privacy-toggle');
+    if (!row || !input) return;
+
+    var canEdit = !!(_profile && _profile.userId && !isDemo());
+    if (!canEdit) {
+      row.setAttribute('hidden', '');
+      return;
+    }
+    row.removeAttribute('hidden');
+    input.checked = !!(_profile && _profile.isPrivate);
+    input.disabled = false;
+
+    input.onchange = async function () {
+      var prev = !!(_profile && _profile.isPrivate);
+      var next = !!input.checked;
+      if (next === prev) return;
+      input.disabled = true;
+      try {
+        var url = window.buildApiPath ? window.buildApiPath('blindspotProfile') : '/api/blindspotprofile';
+        var resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action: 'setPrivacy', userId: _profile.userId, isPrivate: next })
+        });
+        var data = await resp.json().catch(function () { return {}; });
+        if (!resp.ok) {
+          // Revert
+          input.checked = prev;
+          if (window.BsToast && window.BsToast.show) {
+            window.BsToast.show((data && data.error) || 'Privacy update failed', { type: 'error' });
+          }
+          return;
+        }
+        _profile.isPrivate = next;
+        if (window.BsToast && window.BsToast.show) {
+          window.BsToast.show(next
+            ? 'Profile is now private. You’re hidden from the leaderboard.'
+            : 'Profile is now public. You’re back on the leaderboard.');
+        }
+      } catch (err) {
+        input.checked = prev;
+        if (window.BsToast && window.BsToast.show) window.BsToast.show('Network error', { type: 'error' });
+      } finally {
+        input.disabled = false;
+      }
+    };
+  }
+
   // Computes account-level milestones from _profile totals. Same
   // CARD_TITLE_MILESTONES definitions but checked against the
   // player's authoritative totals (totalWins, bestStreak,
@@ -3396,6 +3450,7 @@
     // stack handlers. Edit button is hidden for guests since they
     // can't persist server-side.
     bindFighterProfileNameEdit(displayName);
+    bindFighterProfilePrivacyToggle();
 
     // PvP peak rank badge (account-level achievement)
     var borderEl = document.getElementById('bs-fp-border');
