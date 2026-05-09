@@ -126,6 +126,13 @@
   font-size: 3.4rem;
   color: var(--bs-text-muted, #A09888);
 }
+/* [hidden] vs FontAwesome bug: .fas / .fa-* set display: inline-block at
+   author specificity (0,0,1,0), tying with the UA [hidden] rule. Author
+   wins via cascade order, so the fallback icon stays visible behind the
+   profile image. Same root cause as the May 2 admin-gear hide. Explicit
+   override needed on every surface that toggles a FA icon via [hidden]. */
+.bs-profile-page .bs-profile__avatar-img[hidden],
+.bs-profile-page .bs-profile__avatar-fallback[hidden] { display: none; }
 .bs-profile-page .bs-profile__id { min-width: 0; }
 .bs-profile-page .bs-profile__name {
   font-family: 'Cinzel', serif;
