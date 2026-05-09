@@ -45,6 +45,9 @@
         <button type="button" class="bs-admin-tab" id="bs-admin-tab-gallery" data-tab="gallery" role="tab" aria-selected="false">
           <i class="fas fa-images"></i> Gallery
         </button>
+        <button type="button" class="bs-admin-tab" id="bs-admin-tab-videos" data-tab="videos" role="tab" aria-selected="false">
+          <i class="fas fa-video"></i> Videos
+        </button>
         <button type="button" class="bs-admin-tab" id="bs-admin-tab-stats" data-tab="stats" role="tab" aria-selected="false">
           <i class="fas fa-chart-line"></i> Stats
         </button>
@@ -76,6 +79,15 @@
       <section class="bs-admin-panel" id="bs-admin-panel-gallery" role="tabpanel" hidden>
         <h2>Gallery (full grid screen)</h2>
         <div class="bs-admin-surface" data-surface="gallery" data-max="50"></div>
+      </section>
+
+      <section class="bs-admin-panel" id="bs-admin-panel-videos" role="tabpanel" hidden>
+        <h2>Profile Videos (splash hover playback)</h2>
+        <p class="bs-admin-panel__sub">Upload a short looping video (≤ 5 MB, mp4 or webm) per player. The splash slot machine plays it on hover when the slot lands on one of their published cards.</p>
+        <p class="bs-admin-panel__sub bs-admin-videos__hint">Tip: encode your sources to ~720×720 ≤4s loops. Run <code>node scripts/encode-blindspot-profile-videos.js</code> to batch-encode the masters in <code>blindspot/img/players/</code>.</p>
+        <div class="bs-admin-videos__list" id="bs-admin-videos-list" role="list">
+          <p class="bs-admin-videos__empty">Loading players…</p>
+        </div>
       </section>
 
       <section class="bs-admin-panel" id="bs-admin-panel-stats" role="tabpanel" hidden>

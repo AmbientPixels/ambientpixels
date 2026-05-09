@@ -1453,6 +1453,10 @@
       if (hash && DEEP_LINKS[hash]) {
         showScreen(DEEP_LINKS[hash]);
         if (hash === 'stats') renderStatsScreen();
+        else if (hash === 'leaderboard') renderLeaderboard();
+        else if (hash === 'pvp') { renderPvPGallery(); if (typeof initPvPTabs === 'function') initPvPTabs(); }
+        else if (hash === 'shop' && typeof renderShop === 'function') renderShop();
+        else if (hash === 'collection') renderCollection();
         // Strip the hash so back-button + refresh behavior is normal.
         if (history.replaceState) history.replaceState(null, '', window.location.pathname + window.location.search);
       }

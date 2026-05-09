@@ -144,6 +144,13 @@ function createDefaultProfile(userId) {
     // matches the previous object-fit:cover default. Stored as plain
     // numbers so the client can serialize directly.
     profileImageTransform: { scale: 1, posX: 50, posY: 50 },
+    // Player profile video (URL). Optional. Admin-only upload in v1
+    // via /api/blindspotsaveprofilevideo. The splash slot machine
+    // plays it on hover when present; falls back to the static avatar
+    // when empty. profileVideoUpdatedAt records the last upload for
+    // cache busting if the URL ever needs to be reused after replace.
+    profileVideo: '',
+    profileVideoUpdatedAt: null,
     // Welcome gift, every new authed profile starts with one Ember
     // crate so they have something to open immediately. Premium loot
     // table (25/35/28/12) gives a satisfying first-impression payout.

@@ -23,6 +23,9 @@ window._config.apiEndpoints = {
   leaderboard: 'blindspotleaderboard',
   // Public profile view (read-only, sanitized). GET ?userId={id}.
   profileView: 'blindspotprofileview',
+  // Admin-only profile video upload. POST raw mp4/webm body with
+  // ?targetUserId={id}. Adds ?action=delete to clear.
+  saveProfileVideo: 'blindspotsaveprofilevideo',
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',

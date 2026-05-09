@@ -116,6 +116,27 @@
   animation: bs-hero-land-pulse 1.4s ease-out;
 }
 
+/* Hover-play video overlay. The static avatar (background-image on
+   .bs-hero-slide) is the poster; this <video> fades in over it when
+   the player hovers a slide whose owner has uploaded a profile video.
+   Inherits the same sepia tint as the static slide so the transition
+   from poster to video doesn't read as a colour shift. */
+.bs-hero-slide__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  filter: sepia(0.3) saturate(0.85) contrast(1.1);
+  opacity: 0;
+  transition: opacity 320ms ease;
+  pointer-events: none;
+}
+.bs-hero-slide--video-active .bs-hero-slide__video {
+  opacity: 1;
+}
+
 /* Slot-machine reel — overlays the hero stack during a roll. Strip
    slides left and lands the chosen tile centered under the gold
    pointer. Mirrors the loot crate ceremony idiom (bs-crates.js). */

@@ -365,6 +365,7 @@
     renderModerationTab();
     SURFACES.forEach(renderSurfaceTab);
     wireStatsLazyLoad();
+    wireVideosLazyLoad();
   }
 
   if (document.readyState === 'loading') {
@@ -506,6 +507,284 @@
     // Also wire to the tab button click directly as a belt-and-suspenders
     // for older browsers / cases where MutationObserver fires before the panel renders
     var btn = document.getElementById('bs-admin-tab-stats');
+    if (btn) btn.addEventListener('click', function () { setTimeout(maybeLoad, 0); });
+    maybeLoad();
+  }
+
+  // ── Videos tab ────────────────────────────────────────────────
+  // Per-player profile video upload. v1 admin-only. Lists every unique
+  // publisher derived from the published-cards corpus, fetches each
+  // player's current profileVideo via /api/blindspotprofileview, and
+  // exposes file pickers + remove buttons that hit
+  // /api/blindspotsaveprofilevideo with raw binary.
+
+  var MAX_VIDEO_BYTES = 5 * 1024 * 1024;
+  var ACCEPTED_VIDEO_MIME = ['video/mp4', 'video/webm'];
+  var _videoRows = []; // [{ userId, displayName, avatar, profileVideo, profileVideoUpdatedAt }]
+  var _videosLoaded = false;
+
+  function videoSaveUrl(targetUserId, action) {
+    var params = { targetUserId: targetUserId };
+    if (action) params.action = action;
+    if (typeof window.buildApiPath === 'function') {
+      return window.buildApiPath('saveProfileVideo', params);
+    }
+    var qs = 'targetUserId=' + encodeURIComponent(targetUserId) + (action ? '&action=' + encodeURIComponent(action) : '');
+    return '/api/blindspotsaveprofilevideo?' + qs;
+  }
+
+  // Build a unique-publisher list from the loaded card corpus. Each row
+  // gets the publisher's most recent card avatar as a default thumbnail
+  // (overwritten by profileImage when the profileview lookup returns).
+  function uniquePublishersFromCards(cards) {
+    var byId = new Map();
+    for (var i = 0; i < cards.length; i++) {
+      var c = cards[i];
+      if (!c || !c.publishedBy) continue;
+      var existing = byId.get(c.publishedBy);
+      var ts = Date.parse(c.publishDate || c.publishedAt || c.createdAt || c.updatedAt || 0) || 0;
+      if (!existing || ts > existing._ts) {
+        byId.set(c.publishedBy, {
+          userId: c.publishedBy,
+          displayName: c.publishedByName || ('Fighter ' + String(c.publishedBy).slice(0, 8)),
+          avatar: c.avatar || '',
+          _ts: ts,
+          // Filled in by hydratePlayerVideos(). Treat empty string as
+          // "no video yet" — null would imply still loading.
+          profileVideo: '',
+          profileVideoUpdatedAt: null,
+          // Tri-state load flag: 'pending' until profileview resolves,
+          // then 'ready' or 'error'. Used to hint per-row UI.
+          _videoStatus: 'pending'
+        });
+      }
+    }
+    var rows = Array.from(byId.values());
+    rows.sort(function (a, b) {
+      return String(a.displayName).toLowerCase().localeCompare(String(b.displayName).toLowerCase());
+    });
+    return rows;
+  }
+
+  // Parallel-fetch each publisher's profileview to get their current
+  // video URL + display name + profileImage. Soft-fails per row.
+  async function hydratePlayerVideos(rows) {
+    var profileViewUrl = function (uid) {
+      if (typeof window.buildApiPath === 'function') {
+        return window.buildApiPath('profileView', { userId: uid });
+      }
+      return '/api/blindspotprofileview?userId=' + encodeURIComponent(uid);
+    };
+    await Promise.all(rows.map(function (row) {
+      return fetch(profileViewUrl(row.userId), { credentials: 'omit' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (data && data.profile) {
+            // Honor the player-set displayName override when present
+            row.displayName = data.profile.displayName || row.displayName;
+            if (data.profile.profileImage) row.avatar = data.profile.profileImage;
+            row.profileVideo = data.profile.profileVideo || '';
+            row.profileVideoUpdatedAt = data.profile.profileVideoUpdatedAt || null;
+          }
+          row._videoStatus = 'ready';
+        })
+        .catch(function () { row._videoStatus = 'error'; });
+    }));
+  }
+
+  function renderVideosTab() {
+    var listEl = document.getElementById('bs-admin-videos-list');
+    if (!listEl) return;
+    if (_videoRows.length === 0) {
+      listEl.innerHTML = '<p class="bs-admin-videos__empty">No publishers found.</p>';
+      return;
+    }
+    listEl.innerHTML = '';
+    _videoRows.forEach(function (row) {
+      listEl.appendChild(buildVideoRow(row));
+    });
+  }
+
+  function buildVideoRow(row) {
+    var wrap = document.createElement('div');
+    wrap.className = 'bs-admin-video-row';
+    wrap.setAttribute('data-userid', row.userId);
+
+    var avatar = document.createElement('div');
+    avatar.className = 'bs-admin-video-row__avatar';
+    if (row.avatar) {
+      var img = document.createElement('img');
+      img.src = row.avatar;
+      img.alt = '';
+      img.loading = 'lazy';
+      avatar.appendChild(img);
+    } else {
+      avatar.innerHTML = '<i class="fas fa-user-shield"></i>';
+    }
+    wrap.appendChild(avatar);
+
+    var meta = document.createElement('div');
+    meta.className = 'bs-admin-video-row__meta';
+    var name = document.createElement('div');
+    name.className = 'bs-admin-video-row__name';
+    name.textContent = row.displayName;
+    var sub = document.createElement('div');
+    sub.className = 'bs-admin-video-row__sub';
+    var statusText;
+    if (row._videoStatus === 'pending') statusText = 'Loading…';
+    else if (row._videoStatus === 'error') statusText = 'Could not load profile';
+    else if (row.profileVideo) statusText = 'Video uploaded';
+    else statusText = 'No video';
+    sub.textContent = String(row.userId).slice(0, 8) + ' · ' + statusText;
+    meta.appendChild(name);
+    meta.appendChild(sub);
+    wrap.appendChild(meta);
+
+    var preview = document.createElement('div');
+    preview.className = 'bs-admin-video-row__preview';
+    if (row.profileVideo) {
+      var v = document.createElement('video');
+      v.src = row.profileVideo;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.preload = 'metadata';
+      v.controls = true;
+      preview.appendChild(v);
+    } else {
+      preview.innerHTML = '<span class="bs-admin-video-row__noprev">—</span>';
+    }
+    wrap.appendChild(preview);
+
+    var actions = document.createElement('div');
+    actions.className = 'bs-admin-video-row__actions';
+
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'video/mp4,video/webm';
+    fileInput.style.display = 'none';
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files && fileInput.files[0]) {
+        uploadVideoForRow(row, fileInput.files[0]);
+        fileInput.value = '';
+      }
+    });
+
+    var uploadBtn = document.createElement('button');
+    uploadBtn.type = 'button';
+    uploadBtn.className = 'bs-admin-btn bs-admin-btn--secondary';
+    uploadBtn.innerHTML = row.profileVideo
+      ? '<i class="fas fa-arrows-rotate"></i> Replace'
+      : '<i class="fas fa-upload"></i> Upload';
+    uploadBtn.addEventListener('click', function () { fileInput.click(); });
+    actions.appendChild(uploadBtn);
+
+    if (row.profileVideo) {
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'bs-admin-btn bs-admin-btn--ghost';
+      removeBtn.innerHTML = '<i class="fas fa-trash"></i> Remove';
+      removeBtn.addEventListener('click', function () {
+        if (!confirm('Remove video for ' + row.displayName + '?')) return;
+        deleteVideoForRow(row);
+      });
+      actions.appendChild(removeBtn);
+    }
+
+    actions.appendChild(fileInput);
+    wrap.appendChild(actions);
+
+    return wrap;
+  }
+
+  async function uploadVideoForRow(row, file) {
+    if (!file) return;
+    if (file.size > MAX_VIDEO_BYTES) {
+      toast('Too large: max ' + Math.round(MAX_VIDEO_BYTES / 1024 / 1024) + ' MB', true);
+      return;
+    }
+    if (ACCEPTED_VIDEO_MIME.indexOf(file.type) < 0) {
+      // Some browsers report empty string for the .webm MIME — fall back to
+      // extension check rather than rejecting outright.
+      var ext = String(file.name || '').toLowerCase().split('.').pop();
+      if (ext !== 'mp4' && ext !== 'webm') {
+        toast('Only mp4 or webm', true);
+        return;
+      }
+    }
+    toast('Uploading ' + row.displayName + '…');
+    try {
+      var buf = await file.arrayBuffer();
+      var r = await fetch(videoSaveUrl(row.userId), {
+        method: 'POST',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: buf,
+        credentials: 'include'
+      });
+      if (!r.ok) {
+        var err = await r.json().catch(function () { return { error: 'HTTP ' + r.status }; });
+        toast('Upload failed: ' + err.error, true);
+        return;
+      }
+      var saved = await r.json();
+      row.profileVideo = saved.profileVideo || '';
+      row.profileVideoUpdatedAt = new Date().toISOString();
+      row._videoStatus = 'ready';
+      // Replace just this row in place — re-render is cheaper than DOM
+      // surgery and the list is short.
+      var existing = document.querySelector('[data-userid="' + row.userId + '"]');
+      if (existing && existing.parentNode) {
+        existing.parentNode.replaceChild(buildVideoRow(row), existing);
+      }
+      toast('Saved video for ' + row.displayName);
+    } catch (e) {
+      toast('Upload failed: ' + e.message, true);
+    }
+  }
+
+  async function deleteVideoForRow(row) {
+    try {
+      var r = await fetch(videoSaveUrl(row.userId, 'delete'), {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (!r.ok) {
+        var err = await r.json().catch(function () { return { error: 'HTTP ' + r.status }; });
+        toast('Delete failed: ' + err.error, true);
+        return;
+      }
+      row.profileVideo = '';
+      row.profileVideoUpdatedAt = new Date().toISOString();
+      var existing = document.querySelector('[data-userid="' + row.userId + '"]');
+      if (existing && existing.parentNode) {
+        existing.parentNode.replaceChild(buildVideoRow(row), existing);
+      }
+      toast('Removed video for ' + row.displayName);
+    } catch (e) {
+      toast('Delete failed: ' + e.message, true);
+    }
+  }
+
+  async function loadVideosTab() {
+    var listEl = document.getElementById('bs-admin-videos-list');
+    if (!listEl) return;
+    listEl.innerHTML = '<p class="bs-admin-videos__empty">Loading players…</p>';
+    _videoRows = uniquePublishersFromCards(_allCards);
+    renderVideosTab(); // Show pending state immediately
+    await hydratePlayerVideos(_videoRows);
+    renderVideosTab();
+  }
+
+  function wireVideosLazyLoad() {
+    var panel = document.getElementById('bs-admin-panel-videos');
+    if (!panel) return;
+    function maybeLoad() {
+      if (_videosLoaded) return;
+      if (!panel.hidden) { _videosLoaded = true; loadVideosTab(); }
+    }
+    var observer = new MutationObserver(maybeLoad);
+    observer.observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+    var btn = document.getElementById('bs-admin-tab-videos');
     if (btn) btn.addEventListener('click', function () { setTimeout(maybeLoad, 0); });
     maybeLoad();
   }

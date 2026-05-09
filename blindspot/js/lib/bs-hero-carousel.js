@@ -85,7 +85,7 @@
       })
       .then(function (data) {
         if (!data) return [];
-        // Slim endpoint shape: { slides: [{name, avatar, createdAt, creator}], count }
+        // Slim endpoint shape: { slides: [{name, avatar, createdAt, creator, profileVideo}], count }
         if (Array.isArray(data.slides)) {
           return data.slides
             .map(function (s) {
@@ -95,6 +95,10 @@
                 src: s.avatar,
                 name: s.name || 'Featured Card',
                 creator: s.creator || null,
+                // Per-publisher hover-play video. Falsy when the publisher
+                // hasn't uploaded one (admin-only seed in v1). The slide
+                // renderer adds a <video> overlay only when present.
+                profileVideo: s.profileVideo || '',
                 ts: isFinite(ts) ? ts : 0
               };
             })
@@ -143,9 +147,57 @@
       div.className = 'bs-hero-slide' + (i === 0 ? ' bs-hero-slide--active' : '');
       div.style.backgroundImage = 'url(' + JSON.stringify(s.src) + ')';
       div.setAttribute('data-name', s.name);
+      attachHoverVideo(div, s);
       stack.appendChild(div);
     });
     updateTag(slides[0]);
+  }
+
+  // Attach a <video> overlay that plays on hover when the slide owner has
+  // a profileVideo uploaded. preload="none" so the splash doesn't pre-fetch
+  // every video on first paint. Mouse: hover plays + fades video over the
+  // poster, mouseleave pauses + resets. Touch: tap once toggles playback.
+  function attachHoverVideo(slideEl, slide) {
+    if (!slide || !slide.profileVideo) return;
+    var video = document.createElement('video');
+    video.className = 'bs-hero-slide__video';
+    video.src = slide.profileVideo;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.preload = 'none';
+    video.disableRemotePlayback = true;
+    slideEl.appendChild(video);
+
+    // Hover: show + play. mouseleave: hide + pause + reset to first frame.
+    var playPromise = null;
+    function tryPlay() {
+      slideEl.classList.add('bs-hero-slide--video-active');
+      try {
+        playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+          // Autoplay can reject if the user hasn't interacted yet — treat
+          // as a soft fail; the static avatar still shows.
+          playPromise.catch(function () { /* silent */ });
+        }
+      } catch (e) { /* silent */ }
+    }
+    function tryStop() {
+      slideEl.classList.remove('bs-hero-slide--video-active');
+      try {
+        if (!video.paused) video.pause();
+        video.currentTime = 0;
+      } catch (e) { /* silent */ }
+    }
+    slideEl.addEventListener('mouseenter', tryPlay);
+    slideEl.addEventListener('mouseleave', tryStop);
+    // Touch: tap once toggles play (most touch devices fire mouseenter on
+    // first tap anyway, but explicit handling avoids double-fire bugs).
+    slideEl.addEventListener('touchstart', function (e) {
+      if (slideEl.classList.contains('bs-hero-slide--video-active')) tryStop();
+      else tryPlay();
+    }, { passive: true });
   }
 
   function startRotation(stack, slides) {
@@ -329,6 +381,7 @@
     var chosen = document.createElement('div');
     chosen.className = 'bs-hero-slide bs-hero-slide--active';
     chosen.style.backgroundImage = 'url(' + JSON.stringify(slide.src) + ')';
+    attachHoverVideo(chosen, slide);
     // Insert before the reel so the chosen slide is behind it during fade-out.
     var reel = stack.querySelector('.bs-hero-reel');
     if (reel) stack.insertBefore(chosen, reel);
