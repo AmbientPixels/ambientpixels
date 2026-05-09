@@ -1162,29 +1162,28 @@ body.bs-page {
    separate bar. Single-target bounties (target=1, no chip shown)
    render at 0% or 100% so the toggle still visually completes. */
 .blindspot-lobby #bs-bounties .bs-bounty::after {
-  /* Empty-track strip behind the fill so empty bounties still read as
-     "this row holds progress" instead of a flat line. */
+  /* Empty-track strip behind the fill so empty/partial bounties still
+     read as "this row holds progress" instead of a flat line. Spans
+     the full row at the bottom edge; alpha bumped from 0.04 → 0.14 so
+     it's actually visible against the surface bg. */
   content: '';
   position: absolute;
-  left: 0.6rem;
-  right: 0.6rem;
+  left: 0;
+  right: 0;
   bottom: 0;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 2px 2px 0 0;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.14);
   pointer-events: none;
 }
 .blindspot-lobby #bs-bounties .bs-bounty::before {
   content: '';
   position: absolute;
-  left: 0.6rem;
+  left: 0;
   bottom: 0;
-  height: 4px;
-  width: calc(var(--bounty-pct, 0%) - 1.2rem);
-  min-width: 0;
+  height: 5px;
+  width: var(--bounty-pct, 0%);
   background: linear-gradient(90deg, var(--blindspot-accent-dim, #8E2220), var(--blindspot-accent-gold, #F5C078));
-  border-radius: 2px 2px 0 0;
-  box-shadow: 0 0 6px rgba(245, 192, 120, 0.35);
+  box-shadow: 0 0 8px rgba(245, 192, 120, 0.5);
   transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
   pointer-events: none;
   z-index: 1;
