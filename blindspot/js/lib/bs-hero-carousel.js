@@ -9,6 +9,11 @@
   var INTERVAL_MS = 5000;
   var SLIDE_COUNT = 5;
   var FETCH_TIMEOUT_MS = 12000;
+  // Static cardId -> video URL map (loaded once on init, cached for the
+  // page lifetime). Tactical / temporary until the per-card video upload
+  // UX is rebuilt — see /blindspot/data/hero-card-videos.json header.
+  var VIDEO_MAP_URL = '/blindspot/data/hero-card-videos.json';
+  var _videoMap = {};
 
   // Tracked so the Stranger fight can "borrow" the currently-visible card's
   // avatar — matches the in-game lore (every fighter begins with someone
@@ -52,6 +57,16 @@
     var stack = document.getElementById('bs-hero-stack');
     if (!stack) return;
 
+    // Fire-and-forget the video-map fetch in parallel with slides. If it
+    // resolves before render the videos attach immediately; if after,
+    // they attach on the next render (slot-machine landing or rotation).
+    fetch(VIDEO_MAP_URL)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (data && data.videos && typeof data.videos === 'object') _videoMap = data.videos;
+      })
+      .catch(function () { /* mapping is optional */ });
+
     fetchGallerySlides()
       .then(function (slides) {
         if (!slides || slides.length === 0) return;
@@ -85,20 +100,17 @@
       })
       .then(function (data) {
         if (!data) return [];
-        // Slim endpoint shape: { slides: [{name, avatar, createdAt, creator, profileVideo}], count }
+        // Slim endpoint shape: { slides: [{id, name, avatar, createdAt, creator}], count }
         if (Array.isArray(data.slides)) {
           return data.slides
             .map(function (s) {
               if (!s || !s.avatar) return null;
               var ts = s.createdAt ? new Date(s.createdAt).getTime() : 0;
               return {
+                id: s.id || null,
                 src: s.avatar,
                 name: s.name || 'Featured Card',
                 creator: s.creator || null,
-                // Per-publisher hover-play video. Falsy when the publisher
-                // hasn't uploaded one (admin-only seed in v1). The slide
-                // renderer adds a <video> overlay only when present.
-                profileVideo: s.profileVideo || '',
                 ts: isFinite(ts) ? ts : 0
               };
             })
@@ -153,15 +165,23 @@
     updateTag(slides[0]);
   }
 
-  // Attach a <video> overlay that plays on hover when the slide owner has
-  // a profileVideo uploaded. preload="none" so the splash doesn't pre-fetch
-  // every video on first paint. Mouse: hover plays + fades video over the
-  // poster, mouseleave pauses + resets. Touch: tap once toggles playback.
+  // Attach a <video> overlay to slides whose cardId is in _videoMap. The
+  // static avatar (background-image on .bs-hero-slide) acts as the poster;
+  // the video fades over it on hover. preload="none" so the splash doesn't
+  // pre-fetch every video on first paint. Mouse: enter plays + fades in,
+  // leave pauses + resets. Touch: tap once toggles. No-op when no entry
+  // is mapped — the slide just renders normally.
   function attachHoverVideo(slideEl, slide) {
-    if (!slide || !slide.profileVideo) return;
+    if (!slide || !slide.id) return;
+    var url = _videoMap[slide.id];
+    if (!url) return;
+
+    // The .bs-hero-stack parent has pointer-events: none for click-through
+    // semantics. Override on this specific slide so mouseenter/leave fire.
+    slideEl.classList.add('bs-hero-slide--has-video');
     var video = document.createElement('video');
     video.className = 'bs-hero-slide__video';
-    video.src = slide.profileVideo;
+    video.src = url;
     video.muted = true;
     video.loop = true;
     video.playsInline = true;
@@ -170,17 +190,11 @@
     video.disableRemotePlayback = true;
     slideEl.appendChild(video);
 
-    // Hover: show + play. mouseleave: hide + pause + reset to first frame.
-    var playPromise = null;
     function tryPlay() {
       slideEl.classList.add('bs-hero-slide--video-active');
       try {
-        playPromise = video.play();
-        if (playPromise && typeof playPromise.catch === 'function') {
-          // Autoplay can reject if the user hasn't interacted yet — treat
-          // as a soft fail; the static avatar still shows.
-          playPromise.catch(function () { /* silent */ });
-        }
+        var p = video.play();
+        if (p && typeof p.catch === 'function') p.catch(function () { /* silent */ });
       } catch (e) { /* silent */ }
     }
     function tryStop() {
@@ -192,9 +206,7 @@
     }
     slideEl.addEventListener('mouseenter', tryPlay);
     slideEl.addEventListener('mouseleave', tryStop);
-    // Touch: tap once toggles play (most touch devices fire mouseenter on
-    // first tap anyway, but explicit handling avoids double-fire bugs).
-    slideEl.addEventListener('touchstart', function (e) {
+    slideEl.addEventListener('touchstart', function () {
       if (slideEl.classList.contains('bs-hero-slide--video-active')) tryStop();
       else tryPlay();
     }, { passive: true });

@@ -112,10 +112,6 @@ function sanitizeProfile(p, displayName) {
     displayNameIsCustom: !!(p.displayName && String(p.displayName).trim()),
     profileImage: p.profileImage || '',
     profileImageTransform: p.profileImageTransform || { scale: 1, posX: 50, posY: 50 },
-    // Profile video — used by the splash slot machine for hover playback.
-    // Empty string when none uploaded. Admin-only upload in v1.
-    profileVideo: p.profileVideo || '',
-    profileVideoUpdatedAt: p.profileVideoUpdatedAt || null,
     xp: Number(p.xp) || 0,
     totalWins: Number(p.totalWins) || 0,
     bestStreak: Number(p.bestStreak) || 0,

@@ -86,15 +86,15 @@ function toSlim(card) {
   if (!avatar) return null;
   const ts = card.publishDate || card.publishedAt || card.createdAt || card.updatedAt || null;
   return {
+    // cardId — used by the splash carousel to look up an optional
+    // hover-play video from the static blindspot/data/hero-card-videos.json
+    // mapping. Field is purely informational; cards without a video entry
+    // render normally.
+    id: card.id || null,
     name: card.name || 'Featured Card',
     avatar,
     createdAt: ts,
-    creator: card.publishedByName || null,
-    // Owner userId — used by the splash carousel to look up the player's
-    // profile video for hover playback. profileVideo itself is attached
-    // below by attachProfileVideos() once the slim list is built.
-    publishedBy: card.publishedBy || null,
-    profileVideo: ''
+    creator: card.publishedByName || null
   };
 }
 
@@ -103,29 +103,6 @@ function toFull(card) {
   if (!slim) return null;
   slim.card = card;
   return slim;
-}
-
-// Look up profileVideo per unique publisher userId and attach to each
-// slide. Soft-fails per-userId — a missing or unreadable profile blob
-// just leaves profileVideo as '' on that slide. N+1 reads where N is
-// the number of UNIQUE publishers in the result set; acceptable at the
-// current player scale. If/when this gets hot, precompute a tiny
-// videos-by-userId blob via a heartbeat job.
-async function attachProfileVideos(containerClient, slides, context) {
-  const ids = Array.from(new Set(slides.map(s => s.publishedBy).filter(Boolean)));
-  if (ids.length === 0) return;
-  const lookups = await Promise.all(ids.map(async (uid) => {
-    const profile = await tryReadJsonBlob(containerClient, `blindspot/profiles/${uid}.json`, context);
-    if (!profile) return [uid, ''];
-    if (profile.isPrivate === true) return [uid, '']; // privacy: skip private profiles
-    return [uid, profile.profileVideo || ''];
-  }));
-  const byId = new Map(lookups);
-  for (const s of slides) {
-    if (s.publishedBy && byId.has(s.publishedBy)) {
-      s.profileVideo = byId.get(s.publishedBy) || '';
-    }
-  }
 }
 
 module.exports = async function (context, req) {
@@ -187,11 +164,6 @@ module.exports = async function (context, req) {
     }
 
     const slides = filtered.map(mapper).filter(Boolean).slice(0, count);
-
-    // Attach per-slide profileVideo by looking up each publisher's
-    // profile blob. Soft-fails — missing/private profiles get empty
-    // string and the slide still renders with the static avatar.
-    await attachProfileVideos(containerClient, slides, context);
 
     context.res = {
       status: 200,

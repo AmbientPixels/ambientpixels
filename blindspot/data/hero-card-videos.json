@@ -1,0 +1,11 @@
+{
+  "_comment": "Static cardId -> video URL mapping for the splash slot machine hover playback. Keys are published card IDs (matched against slim slide.id from /api/blindspothero). Values are absolute or root-relative video URLs. Tactical / temporary — admin moderation tab will replace this once the per-card video upload UX is rebuilt.",
+  "_updated": "2026-05-09",
+  "videos": {
+    "bs-1777827959341-yq44tc": "/blindspot/img/players/grok-video-0ee620d1-bebc-4b4f-9056-add835fe992a.webm",
+    "card_1772679389381_wd8job1il": "/blindspot/img/players/grok-video-8933bb1f-e7ac-4e71-8f3a-eb8b168c4ccb.webm",
+    "bs-1778205850819-kliozs": "/blindspot/img/players/grok-video-966a1816-c698-487b-a2ca-72ae4d89af19.webm",
+    "bs-1777427126305-aqd9ps": "/blindspot/img/players/grok-video-ad67f7b8-f192-40ee-b165-3ea7bcd1c0ae.webm",
+    "bs-1777688537632-gk57dy": "/blindspot/img/players/grok-video-f3790a05-90ce-4e28-9c71-f8aef4af1f8d.webm"
+  }
+}

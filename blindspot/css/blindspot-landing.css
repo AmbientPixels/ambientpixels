@@ -116,9 +116,9 @@
   animation: bs-hero-land-pulse 1.4s ease-out;
 }
 
-/* Hover-play video overlay. The static avatar (background-image on
-   .bs-hero-slide) is the poster; this <video> fades in over it when
-   the player hovers a slide whose owner has uploaded a profile video.
+/* Hover-play video overlay. Static avatar (background-image on
+   .bs-hero-slide) is the poster; this <video> fades in over it on hover
+   when the cardId has an entry in /blindspot/data/hero-card-videos.json.
    Inherits the same sepia tint as the static slide so the transition
    from poster to video doesn't read as a colour shift. */
 .bs-hero-slide__video {
@@ -135,6 +135,13 @@
 }
 .bs-hero-slide--video-active .bs-hero-slide__video {
   opacity: 1;
+}
+/* Restore pointer events on slides that actually have a video so the
+   mouseenter/leave handlers fire. Parent .bs-hero-stack stays
+   pointer-events: none so non-video slides remain click-through. */
+.bs-hero-slide--has-video {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 /* Slot-machine reel — overlays the hero stack during a roll. Strip
