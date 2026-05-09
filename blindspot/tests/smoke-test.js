@@ -96,6 +96,29 @@ try {
   fail('api/blindspotleaderboard/index.js parse error: ' + e.message);
 }
 
+// ── 1h. Profile view endpoint parse ──
+try {
+  const apiPath = path.join(ROOT, '../api/blindspotprofileview/index.js');
+  if (fs.existsSync(apiPath)) {
+    const apiSrc = fs.readFileSync(apiPath, 'utf8');
+    new Function(apiSrc);
+    pass('api/blindspotprofileview/index.js parses without errors');
+  } else {
+    fail('api/blindspotprofileview/index.js missing');
+  }
+} catch (e) {
+  fail('api/blindspotprofileview/index.js parse error: ' + e.message);
+}
+
+// ── 1i. profile-page.js parses ──
+try {
+  const src = fs.readFileSync(path.join(ROOT, 'js/profile-page.js'), 'utf8');
+  new Function(src);
+  pass('blindspot/js/profile-page.js parses without errors');
+} catch (e) {
+  fail('blindspot/js/profile-page.js parse error: ' + e.message);
+}
+
 // ── 2. CSS Brace Balance ──
 try {
   const css = fs.readFileSync(path.join(ROOT, 'css/blindspot.css'), 'utf8');
@@ -369,16 +392,62 @@ try {
     'data-leaderboard-tab',
     'bs-leaderboard__tabs',
     "buildApiPath('leaderboard'",
-    'getUserId'
+    'getUserId',
+    '/blindspot/profile.html?u='
   ];
   const missing = required.filter(s => lb.indexOf(s) === -1);
   if (missing.length > 0) {
     fail('bs-leaderboard.js missing required hooks: ' + missing.join(', '));
   } else {
-    pass('bs-leaderboard.js parses + has tab markup + endpoint hooks');
+    pass('bs-leaderboard.js parses + has tab markup + profile link hook');
   }
 } catch (e) {
   fail('bs-leaderboard.js parse error: ' + e.message);
+}
+
+// ── 5l. staticwebapp.config.json has /api/blindspotprofileview route ──
+try {
+  const swaPath = path.join(ROOT, '../staticwebapp.config.json');
+  const swa = JSON.parse(fs.readFileSync(swaPath, 'utf8'));
+  const route = (swa.routes || []).find(r => r.route === '/api/blindspotprofileview');
+  if (!route) fail('staticwebapp.config.json missing /api/blindspotprofileview route');
+  else pass('staticwebapp.config.json has /api/blindspotprofileview route');
+} catch (e) {
+  fail('staticwebapp.config.json profileview check failed: ' + e.message);
+}
+
+// ── 5m. bs-config.js registers profileView endpoint ──
+try {
+  const cfg = fs.readFileSync(path.join(ROOT, 'js/lib/bs-config.js'), 'utf8');
+  if (cfg.indexOf("profileView: 'blindspotprofileview'") === -1) {
+    fail("bs-config.js missing profileView: 'blindspotprofileview' endpoint");
+  } else {
+    pass('bs-config.js registers profileView endpoint');
+  }
+} catch (e) {
+  fail('bs-config.js profileview check failed: ' + e.message);
+}
+
+// ── 5n. profile.html exists + has required hooks ──
+try {
+  const html = fs.readFileSync(path.join(ROOT, 'profile.html'), 'utf8');
+  const required = [
+    'bs-profile-content',
+    'bs-profile-name',
+    'bs-profile-record-grid',
+    'bs-profile-featured',
+    'bs-profile-milestones',
+    '/blindspot/css/blindspot-profile.css',
+    '/blindspot/js/profile-page.js'
+  ];
+  const missing = required.filter(s => html.indexOf(s) === -1);
+  if (missing.length > 0) {
+    fail('profile.html missing required hooks: ' + missing.join(', '));
+  } else {
+    pass('profile.html has all profile hooks');
+  }
+} catch (e) {
+  fail('profile.html check failed: ' + e.message);
 }
 
 // ── 6. Boss Data Integrity ──

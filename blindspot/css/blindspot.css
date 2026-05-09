@@ -14494,7 +14494,8 @@ body.bs-adventure-active {
 .bs-leaderboard__error { color: var(--blindspot-accent); }
 
 /* Row geometry — rank | avatar | body | stat. Body flexes; rank + stat
-   are fixed-width so columns line up across the list. */
+   are fixed-width so columns line up across the list. Rendered as an
+   <a> linking to the public profile page; reset link chrome. */
 .bs-lb-row {
   display: grid;
   grid-template-columns: 48px 56px 1fr auto;
@@ -14505,10 +14506,16 @@ body.bs-adventure-active {
   border: 1px solid var(--blindspot-border);
   border-radius: 4px;
   transition: border-color 200ms, background 200ms, transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
-.bs-lb-row:hover {
+.bs-lb-row:hover,
+.bs-lb-row:focus-visible {
   border-color: var(--blindspot-accent-gold);
   transform: translateY(-1px);
+  outline: none;
+  box-shadow: 0 6px 18px -10px rgba(245, 192, 120, 0.45);
 }
 .bs-lb-row--top3 {
   border-color: rgba(245, 192, 120, 0.5);

@@ -107,7 +107,8 @@
     var isMe = myUserId && p.userId === myUserId;
     var medal = rankMedal(p.rank);
     var stat = primaryStatFor(_activeTab, p);
-    return '<div class="bs-lb-row' + (isMe ? ' bs-lb-row--me' : '') + (p.rank <= 3 ? ' bs-lb-row--top3' : '') + '" data-user-id="' + escHtml(p.userId) + '">'
+    var href = '/blindspot/profile.html?u=' + encodeURIComponent(p.userId);
+    return '<a class="bs-lb-row' + (isMe ? ' bs-lb-row--me' : '') + (p.rank <= 3 ? ' bs-lb-row--top3' : '') + '" data-user-id="' + escHtml(p.userId) + '" href="' + href + '" aria-label="View ' + escHtml(p.displayName) + ' profile">'
       + '<div class="bs-lb-row__rank">' + (medal || ('#' + p.rank)) + '</div>'
       + '<div class="bs-lb-row__avatar">' + avatarHtml(p) + '</div>'
       + '<div class="bs-lb-row__body">'
@@ -118,7 +119,7 @@
       +   '<div class="bs-lb-row__stat-value">' + escHtml(stat.value) + '</div>'
       +   '<div class="bs-lb-row__stat-label">' + escHtml(stat.label) + '</div>'
       + '</div>'
-      + '</div>';
+      + '</a>';
   }
 
   function ensureMarkup() {

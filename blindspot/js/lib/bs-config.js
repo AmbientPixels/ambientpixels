@@ -21,6 +21,8 @@ window._config.apiEndpoints = {
   stats: 'blindspotstats',
   // Player-based leaderboard. GET ?sortBy=wins|bosses|elo|power. Returns top 50.
   leaderboard: 'blindspotleaderboard',
+  // Public profile view (read-only, sanitized). GET ?userId={id}.
+  profileView: 'blindspotprofileview',
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',

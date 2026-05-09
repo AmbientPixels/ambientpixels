@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- robots ALLOWED on this page so OG previews work when shared. The
+       endpoint sanitizes — nothing private leaks. -->
+  <meta name="description" content="Blindspot fighter profile — record, milestones, and featured card.">
+  <title>Fighter Profile — Blindspot</title>
+  <link rel="icon" href="/blindspot/img/favicon.ico" type="image/x-icon">
+  <link rel="canonical" id="bs-profile-canonical" href="https://www.ambientpixels.ai/blindspot/profile.html">
+
+  <!-- Default OG/Twitter — overwritten by JS once the profile loads -->
+  <meta property="og:type" content="profile">
+  <meta property="og:title" id="bs-og-title" content="Blindspot Fighter Profile">
+  <meta property="og:description" id="bs-og-desc" content="A Blindspot fighter's record, milestones, and featured card.">
+  <meta property="og:image" id="bs-og-image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png">
+  <meta property="og:url" id="bs-og-url" content="https://www.ambientpixels.ai/blindspot/profile.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="bs-tw-title" content="Blindspot Fighter Profile">
+  <meta name="twitter:description" id="bs-tw-desc" content="A Blindspot fighter's record, milestones, and featured card.">
+  <meta name="twitter:image" id="bs-tw-image" content="https://www.ambientpixels.ai/blindspot/img/og-blindspot.png">
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Share+Tech+Mono&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/blindspot/css/blindspot.css">
+  <link rel="stylesheet" href="/blindspot/css/blindspot-profile.css">
+</head>
+<body class="bs-page bs-profile-page">
+
+  <header class="bs-profile__topbar">
+    <a class="bs-profile__back" href="/blindspot/play.html#leaderboard">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i> <span>Leaderboard</span>
+    </a>
+    <span class="bs-profile__brand">
+      <i class="fas fa-eye-slash" aria-hidden="true"></i> Blindspot
+    </span>
+    <span class="bs-profile__topbar-spacer" aria-hidden="true"></span>
+  </header>
+
+  <main class="bs-profile__main" role="main">
+
+    <!-- Loading state -->
+    <div class="bs-profile__loading" id="bs-profile-loading" role="status">
+      <i class="fas fa-circle-notch fa-spin" aria-hidden="true"></i>
+      <span>Consulting the record…</span>
+    </div>
+
+    <!-- Error states -->
+    <div class="bs-profile__error" id="bs-profile-not-found" hidden role="alert">
+      <h1><i class="fas fa-ghost" aria-hidden="true"></i> No fighter here</h1>
+      <p>This fighter has retreated to the shadows, or never stepped into the arena.</p>
+      <a class="bs-profile__cta" href="/blindspot/play.html"><i class="fas fa-trophy" aria-hidden="true"></i> View Leaderboard</a>
+    </div>
+    <div class="bs-profile__error" id="bs-profile-error" hidden role="alert">
+      <h1><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Profile temporarily unavailable</h1>
+      <p>Try again in a minute.</p>
+    </div>
+
+    <!-- Profile content (shown after fetch) -->
+    <article class="bs-profile__content" id="bs-profile-content" hidden>
+
+      <!-- Hero strip -->
+      <section class="bs-profile__hero">
+        <div class="bs-profile__avatar-wrap">
+          <span class="bs-profile__avatar">
+            <img class="bs-profile__avatar-img" id="bs-profile-avatar-img" alt="" hidden>
+            <i class="fas fa-user-shield bs-profile__avatar-fallback" id="bs-profile-avatar-fallback" aria-hidden="true"></i>
+          </span>
+        </div>
+        <div class="bs-profile__id">
+          <h1 class="bs-profile__name" id="bs-profile-name">—</h1>
+          <p class="bs-profile__sub" id="bs-profile-sub">—</p>
+          <div class="bs-profile__badges">
+            <span class="bs-profile__badge bs-profile__badge--rank" id="bs-profile-rank-badge" hidden></span>
+            <span class="bs-profile__badge bs-profile__badge--milestone" id="bs-profile-milestone-badge" hidden></span>
+            <span class="bs-profile__badge bs-profile__badge--you" id="bs-profile-you-badge" hidden>This is you</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Record tile grid -->
+      <section class="bs-profile__section">
+        <h2 class="bs-profile__section-title">Record</h2>
+        <div class="bs-profile__record-grid" id="bs-profile-record-grid"></div>
+      </section>
+
+      <!-- Featured card showcase -->
+      <section class="bs-profile__section bs-profile__section--featured">
+        <h2 class="bs-profile__section-title">Featured Fighter Card</h2>
+        <div class="bs-profile__featured" id="bs-profile-featured"></div>
+      </section>
+
+      <!-- Milestones -->
+      <section class="bs-profile__section">
+        <h2 class="bs-profile__section-title">Milestones</h2>
+        <div class="bs-profile__milestones-grid" id="bs-profile-milestones"></div>
+      </section>
+
+      <!-- Meta strip -->
+      <footer class="bs-profile__meta">
+        <span><i class="fas fa-calendar-plus" aria-hidden="true"></i> <span id="bs-profile-member-since">—</span></span>
+        <span class="bs-profile__meta-dot" aria-hidden="true">·</span>
+        <span><i class="fas fa-clock" aria-hidden="true"></i> <span id="bs-profile-last-active">—</span></span>
+        <span class="bs-profile__meta-dot" aria-hidden="true">·</span>
+        <span><i class="fas fa-hammer" aria-hidden="true"></i> <span id="bs-profile-cards-counts">—</span></span>
+      </footer>
+
+      <!-- CTA -->
+      <div class="bs-profile__cta-row" id="bs-profile-cta-row"></div>
+    </article>
+  </main>
+
+  <script src="/blindspot/js/lib/bs-config.js"></script>
+  <script src="/blindspot/js/profile-page.js"></script>
+</body>
+</html>
