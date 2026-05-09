@@ -100,7 +100,7 @@ function checkAttempts(record, userId) {
     // Window has rolled — entry is effectively reset on next failure.
     return { allowed: true, retry_after_minutes: 0 };
   }
-  if ((entry.count || 0) <= ATTEMPT_LIMIT) {
+  if ((entry.count || 0) < ATTEMPT_LIMIT) {
     return { allowed: true, retry_after_minutes: 0 };
   }
   const remaining = ATTEMPT_WINDOW_MS - elapsed;
