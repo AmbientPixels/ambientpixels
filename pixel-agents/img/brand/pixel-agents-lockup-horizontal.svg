@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="160" viewBox="0 0 640 160" fill="none">
+  <g id="mark">
+    <path d="M152 30 L120 30 L120 130 L152 130" stroke="#F4EDE2" stroke-width="10" fill="none" stroke-linecap="square"></path>
+    <path d="M202 30 L234 30 L234 130 L202 130" stroke="#F4EDE2" stroke-width="10" fill="none" stroke-linecap="square"></path>
+    <rect x="152" y="55" width="50" height="50" fill="#EF4F2A" fill-opacity="0.18"></rect>
+    <rect x="167" y="70" width="20" height="20" fill="#EF4F2A"></rect>
+  </g>
+  <g id="wordmark" font-family="&#39;Big Shoulders Display&#39;, sans-serif" font-weight="900" font-size="86" letter-spacing="2" fill="#F4EDE2">
+    <text x="280" y="105">PIXEL <tspan font-weight="400">AGENTS</tspan></text>
+  </g>
+</svg>

@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Brand — Pixel Agents</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Pixel Agents brand mark — specs, lockups, color treatments, and usage rules." />
+<link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+
+<link rel="canonical" href="https://ambientpixels.ai/pixel-agents/brand.html" />
+<meta name="robots" content="index, follow" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Pixel Agents — Brand Mark" />
+<meta property="og:description" content="The bracketed pixel — specs, lockups, scale, color treatments, and usage rules for the Pixel Agents identity." />
+<meta property="og:url" content="https://ambientpixels.ai/pixel-agents/brand.html" />
+<meta property="og:image" content="https://ambientpixels.ai/pixel-agents/img/og-card.png" />
+<meta property="og:site_name" content="AmbientPixels" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Pixel Agents — Brand Mark" />
+<meta name="twitter:description" content="The bracketed pixel — specs, lockups, scale, color treatments, and usage rules for the Pixel Agents identity." />
+<meta name="twitter:image" content="https://ambientpixels.ai/pixel-agents/img/og-card.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0b0d; --bg-2:#131316; --ink:#f4ede2; --ink-2:#c9c1b4;
+    --mute:#5a5650; --red:#ef4f2a; --red-2:#ff7a4a; --cyan:#7cd6ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:'Space Grotesk',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  .page{max-width:1240px; margin:0 auto; padding:64px 56px 96px;}
+
+  /* tiny brand atoms */
+  .mono{font-family:'JetBrains Mono',monospace; letter-spacing:0.18em; text-transform:uppercase;}
+  .wm{font-family:'Big Shoulders Display',sans-serif; font-weight:900; line-height:0.85;
+      letter-spacing:0.02em; text-transform:uppercase;}
+  .wm .lt{font-weight:400; opacity:0.95;}
+
+  /* page header */
+  .head{display:flex; justify-content:space-between; align-items:flex-end; gap:24px;
+        padding-bottom:28px; border-bottom:1px solid #1d1d22;}
+  .head .eyebrow{color:var(--red); font-size:11px;}
+  .head h1{font-family:'Big Shoulders Display',sans-serif; font-weight:900; text-transform:uppercase;
+           font-size:64px; line-height:0.9; margin:8px 0 0; letter-spacing:0.01em;}
+  .head .meta{font-size:11px; color:var(--mute); text-align:right; line-height:1.6;}
+  .head .meta b{color:var(--ink); font-weight:500;}
+
+  section{margin-top:64px;}
+  .sec-head{display:flex; align-items:baseline; gap:16px; margin-bottom:20px;}
+  .sec-num{color:var(--red); font-size:11px; font-family:'JetBrains Mono',monospace; letter-spacing:0.22em;}
+  .sec-title{font-family:'Big Shoulders Display',sans-serif; font-weight:900; text-transform:uppercase;
+             font-size:28px; letter-spacing:0.02em;}
+  .sec-sub{color:var(--mute); font-size:13px; margin-left:auto;}
+
+  /* hero mark display */
+  .hero{display:grid; grid-template-columns: 1.4fr 1fr; gap:24px;}
+  .hero .frame{
+    background:var(--bg-2); border:1px solid #1d1d22; border-radius:14px;
+    padding:64px; min-height:380px; display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden;
+  }
+  .hero .frame.gridbg::before{
+    content:""; position:absolute; inset:0;
+    background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .hero .frame .corner{position:absolute; top:14px; left:14px; font-size:10px; color:var(--mute);}
+  .hero .frame .corner.r{left:auto; right:14px;}
+  .hero .frame .corner.b{top:auto; bottom:14px;}
+
+  .specs{
+    background:var(--bg-2); border:1px solid #1d1d22; border-radius:14px; padding:28px;
+    display:flex; flex-direction:column; gap:18px;
+  }
+  .specs h3{margin:0; font-size:11px; color:var(--mute); font-family:'JetBrains Mono',monospace;
+            letter-spacing:0.2em; text-transform:uppercase;}
+  .specs .row{display:flex; justify-content:space-between; gap:16px; font-size:13px;
+              padding-bottom:10px; border-bottom:1px dashed #1d1d22;}
+  .specs .row:last-child{border:0; padding-bottom:0;}
+  .specs .row .k{color:var(--mute);}
+  .specs .row .v{color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:12px;}
+  .swatch-row{display:flex; gap:6px; align-items:center;}
+  .sw{width:28px; height:28px; border-radius:5px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);}
+
+  /* construction grid */
+  .construction{
+    background:var(--bg-2); border:1px solid #1d1d22; border-radius:14px;
+    padding:48px; display:flex; align-items:center; justify-content:center; min-height:380px;
+    position:relative;
+  }
+  .construction svg{display:block;}
+  .construction .legend{position:absolute; left:24px; bottom:18px; font-size:10px; color:var(--mute);
+                        font-family:'JetBrains Mono',monospace; letter-spacing:0.16em; text-transform:uppercase;}
+
+  /* lockups */
+  .lockup-grid{display:grid; grid-template-columns: repeat(2,1fr); gap:16px;}
+  .lk{background:var(--bg-2); border:1px solid #1d1d22; border-radius:14px;
+      padding:48px 36px; min-height:200px; display:flex; align-items:center; justify-content:center;
+      position:relative;}
+  .lk.light{background:var(--ink); color:var(--bg); border-color:#d0c8b8;}
+  .lk.red{background:var(--red); color:var(--bg);}
+  .lk .tag{position:absolute; top:12px; left:14px; font-family:'JetBrains Mono',monospace;
+           font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--mute);}
+  .lk.light .tag{color:rgba(0,0,0,0.4);}
+  .lk.red .tag{color:rgba(0,0,0,0.55);}
+
+  .lockup-h{display:flex; align-items:center; gap:18px;}
+  .lockup-v{display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .lockup-stack{display:flex; align-items:center; gap:14px;}
+  .lockup-stack .stk{display:flex; flex-direction:column;}
+  .lockup-stack .stk .a{font-size:46px; line-height:0.85;}
+  .lockup-stack .stk .b{font-size:28px; line-height:0.85; color:var(--ink-2); font-weight:400;}
+
+  /* sizes */
+  .sizes{
+    background:var(--bg-2); border:1px solid #1d1d22; border-radius:14px;
+    padding:36px; display:flex; align-items:flex-end; justify-content:space-between; gap:28px; flex-wrap:wrap;
+  }
+  .sz{display:flex; flex-direction:column; align-items:center; gap:10px;}
+  .sz .px{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mute);
+          letter-spacing:0.16em; text-transform:uppercase;}
+  .sz .tile{display:flex; align-items:center; justify-content:center;}
+
+  /* color treatments */
+  .colors{display:grid; grid-template-columns: repeat(4,1fr); gap:16px;}
+  .col-tile{aspect-ratio: 1/1; border-radius:14px; display:flex; align-items:center; justify-content:center;
+            position:relative; overflow:hidden;}
+  .col-tile .lab{position:absolute; bottom:12px; left:14px; right:14px;
+                 font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.16em;
+                 text-transform:uppercase; color:rgba(255,255,255,0.55);
+                 display:flex; justify-content:space-between;}
+  .col-tile.dark{background:var(--bg);}
+  .col-tile.bg2 {background:var(--bg-2);}
+  .col-tile.red {background:var(--red);}
+  .col-tile.red .lab{color:rgba(0,0,0,0.55);}
+  .col-tile.bone{background:var(--ink);}
+  .col-tile.bone .lab{color:rgba(0,0,0,0.45);}
+
+  /* in product */
+  .product{display:grid; grid-template-columns: 280px 1fr; gap:16px;}
+  .nav{
+    background:var(--bg); border:1px solid #1d1d22; border-radius:14px;
+    padding:22px; display:flex; flex-direction:column; gap:18px; min-height:420px;
+  }
+  .nav .brand{display:flex; align-items:center; gap:10px;}
+  .nav .brand .name{font-family:'Big Shoulders Display',sans-serif; font-weight:900;
+                    letter-spacing:0.04em; font-size:14px;}
+  .nav .brand .name span{font-weight:400;}
+  .nav .div{height:1px; background:#1d1d22;}
+  .nav .item{font-size:12px; color:#7c7770; letter-spacing:0.04em; padding:6px 0;}
+  .nav .item.on{color:var(--red);}
+
+  .og{
+    background:var(--bg); border:1px solid #1d1d22; border-radius:14px;
+    padding:36px 40px; min-height:420px; position:relative; overflow:hidden;
+  }
+  .og::before{content:""; position:absolute; inset:0;
+    background:radial-gradient(120% 80% at 75% 50%, rgba(239,79,42,0.18), transparent 55%);}
+  .og > *{position:relative; z-index:1;}
+  .og .brand{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+  .og .brand .name{font-family:'Big Shoulders Display',sans-serif; font-weight:900;
+                   letter-spacing:0.05em; font-size:14px;}
+  .og .brand .name span{font-weight:400;}
+  .og .eyebrow{color:var(--red); font-family:'JetBrains Mono',monospace; font-size:10px;
+               letter-spacing:0.18em; text-transform:uppercase;}
+  .og h2{font-family:'Big Shoulders Display',sans-serif; font-weight:900; text-transform:uppercase;
+         font-size:54px; line-height:0.92; margin:14px 0 16px;}
+  .og h2 .red{color:var(--red);}
+  .og .desc{color:var(--ink-2); font-size:13px; max-width:520px;}
+  .og .pills{display:flex; gap:8px; margin-top:22px;}
+  .og .pill{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.14em;
+            text-transform:uppercase; padding:8px 12px; border-radius:999px;
+            background:rgba(255,255,255,0.04); color:var(--ink-2); border:1px solid #1d1d22;}
+
+  /* terminal */
+  .term{
+    background:#080808; border:1px solid #1d1d22; border-radius:12px;
+    padding:18px 20px 22px; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.55;
+  }
+  .term .head-bar{display:flex; align-items:center; gap:8px; margin-bottom:14px;
+                  padding-bottom:10px; border-bottom:1px solid #1d1d22; color:var(--mute);
+                  font-size:10px; letter-spacing:0.16em; text-transform:uppercase;}
+  .term .prompt{color:var(--red);}
+  .term .dim{color:#7c7770;}
+  .term .key{color:var(--cyan);}
+  .term .val{color:var(--red-2);}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  .blink{animation:blink 1s steps(2) infinite;}
+
+  /* dont's */
+  .donts{display:grid; grid-template-columns: repeat(4,1fr); gap:16px;}
+  .dont{background:var(--bg-2); border:1px solid #1d1d22; border-radius:14px;
+        padding:36px 24px 56px; display:flex; align-items:center; justify-content:center;
+        position:relative; min-height:180px;}
+  .dont .lab{position:absolute; bottom:14px; left:0; right:0; text-align:center;
+             font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.18em;
+             text-transform:uppercase; color:var(--mute);}
+  .dont .x{position:absolute; top:12px; right:14px; color:var(--red); font-size:14px;}
+
+  /* footer */
+  footer{margin-top:80px; padding-top:24px; border-top:1px solid #1d1d22;
+         display:flex; justify-content:space-between; color:var(--mute); font-size:11px;
+         font-family:'JetBrains Mono',monospace; letter-spacing:0.16em; text-transform:uppercase;}
+
+  /* downloads — site-only addition, matches prototype card style */
+  .dl-grid{display:grid; grid-template-columns: repeat(3,1fr); gap:16px;}
+  .dl{background:var(--bg-2); border:1px solid #1d1d22; border-radius:14px;
+      padding:24px; display:flex; flex-direction:column; gap:14px;}
+  .dl .name{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink);
+            letter-spacing:0.16em; text-transform:uppercase;}
+  .dl .links{display:flex; gap:10px; font-family:'JetBrains Mono',monospace;
+             font-size:10px; letter-spacing:0.16em; text-transform:uppercase;}
+  .dl .links a{color:var(--red); text-decoration:none; padding:6px 10px;
+               border:1px solid #1d1d22; border-radius:6px;
+               transition:border-color 0.15s ease, color 0.15s ease;}
+  .dl .links a:hover{color:var(--red-2); border-color:var(--red);}
+  .dl .preview{background:var(--bg); border:1px solid #1d1d22; border-radius:8px;
+               min-height:120px; display:flex; align-items:center; justify-content:center;
+               padding:20px;}
+  .dl.light .preview{background:var(--ink); border-color:#d0c8b8;}
+  .dl.red .preview{background:var(--red); border-color:var(--red);}
+
+  @media (max-width: 900px){
+    .page{padding:40px 24px 64px;}
+    .head{flex-direction:column; align-items:flex-start;}
+    .head h1{font-size:48px;}
+    .head .meta{text-align:left;}
+    .hero, .product{grid-template-columns:1fr;}
+    .lockup-grid, .colors, .donts, .dl-grid{grid-template-columns:repeat(2,1fr);}
+    .og h2{font-size:36px;}
+  }
+  @media (max-width: 560px){
+    .lockup-grid, .colors, .donts, .dl-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="head">
+    <div>
+      <div class="eyebrow mono">— Final Mark</div>
+      <h1>Pixel Agents</h1>
+    </div>
+    <div class="meta mono">
+      <div><b>06.B1</b> · Bracketed</div>
+      <div>Specs · Lockups · Usage</div>
+    </div>
+  </header>
+
+  <!-- HERO MARK -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <span class="sec-title">The mark</span>
+      <span class="sec-sub">A single pixel, framed. Quiet, ownable, scales clean.</span>
+    </div>
+    <div class="hero">
+      <div class="frame gridbg">
+        <span class="corner mono">240 × 240</span>
+        <span class="corner r mono">SVG</span>
+        <span class="corner b mono">— PRIMARY</span>
+        <svg width="240" height="240" viewBox="0 0 64 64" fill="none" aria-label="Pixel Agents">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+          <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+        </svg>
+      </div>
+      <div class="specs">
+        <h3>Tokens</h3>
+        <div class="row"><span class="k">Mark</span><span class="v">06.B1 · Bracketed</span></div>
+        <div class="row"><span class="k">Grid</span><span class="v">64 × 64</span></div>
+        <div class="row"><span class="k">Stroke</span><span class="v">4u (square cap)</span></div>
+        <div class="row"><span class="k">Pixel</span><span class="v">8u solid + 20u halo @ 18%</span></div>
+        <div class="row"><span class="k">Min size</span><span class="v">14px</span></div>
+        <h3 style="margin-top:6px">Palette</h3>
+        <div class="swatch-row">
+          <div class="sw" style="background:#0b0b0d"></div>
+          <div class="sw" style="background:#131316"></div>
+          <div class="sw" style="background:#ef4f2a"></div>
+          <div class="sw" style="background:#ff7a4a"></div>
+          <div class="sw" style="background:#f4ede2"></div>
+          <div class="sw" style="background:#7cd6ff"></div>
+        </div>
+        <div class="row" style="border:0; padding:0;">
+          <span class="k mono" style="font-size:10px;">INK · BG-2 · RED · FLAME · BONE · RIM</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONSTRUCTION -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <span class="sec-title">Construction</span>
+      <span class="sec-sub">All units derived from a 64-unit grid. Brackets sit at 6u and 12u from the frame edge.</span>
+    </div>
+    <div class="construction">
+      <svg width="380" height="380" viewBox="0 0 64 64" fill="none">
+        <g stroke="#1d1d22" stroke-width="0.15">
+          <path d="M0 0H64M0 8H64M0 16H64M0 24H64M0 32H64M0 40H64M0 48H64M0 56H64M0 64H64"/>
+          <path d="M0 0V64M8 0V64M16 0V64M24 0V64M32 0V64M40 0V64M48 0V64M56 0V64M64 0V64"/>
+        </g>
+        <rect x="6" y="6" width="52" height="52" stroke="#ef4f2a" stroke-width="0.2" stroke-dasharray="0.8 0.8" fill="none" opacity="0.6"/>
+        <rect x="10" y="12" width="12" height="40" stroke="#7cd6ff" stroke-width="0.2" fill="none" opacity="0.4"/>
+        <rect x="42" y="12" width="12" height="40" stroke="#7cd6ff" stroke-width="0.2" fill="none" opacity="0.4"/>
+        <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+        <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+        <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+        <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+        <line x1="32" y1="32" x2="56" y2="14" stroke="#ef4f2a" stroke-width="0.2"/>
+        <text x="58" y="14" fill="#ef4f2a" font-size="3" font-family="JetBrains Mono">8u · pixel</text>
+        <line x1="10" y1="52" x2="2" y2="60" stroke="#7cd6ff" stroke-width="0.2"/>
+        <text x="2" y="63" fill="#7cd6ff" font-size="3" font-family="JetBrains Mono">12u inset</text>
+      </svg>
+      <div class="legend">— grid 64u · safe area 52u · stroke 4u</div>
+    </div>
+  </section>
+
+  <!-- LOCKUPS -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <span class="sec-title">Lockups</span>
+      <span class="sec-sub">Horizontal is primary. Stacked for square placements. Mono for code surfaces.</span>
+    </div>
+    <div class="lockup-grid">
+
+      <div class="lk">
+        <span class="tag">A · Horizontal · Primary</span>
+        <div class="lockup-h">
+          <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+          <div class="wm" style="font-size:48px;"><span>PIXEL </span><span class="lt">AGENTS</span></div>
+        </div>
+      </div>
+
+      <div class="lk">
+        <span class="tag">B · Stacked · Square</span>
+        <div class="lockup-stack">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+          <div class="stk wm">
+            <div class="a">PIXEL</div>
+            <div class="b">AGENTS</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lk light">
+        <span class="tag">C · Light surface</span>
+        <div class="lockup-h">
+          <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.22"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+          <div class="wm" style="font-size:48px; color:#0b0b0d;"><span>PIXEL </span><span class="lt">AGENTS</span></div>
+        </div>
+      </div>
+
+      <div class="lk">
+        <span class="tag">D · Mono · Code surfaces</span>
+        <div class="lockup-h">
+          <svg width="42" height="42" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+          <div class="mono" style="font-size:22px; font-weight:700; color:#f4ede2;">
+            pixel<span style="color:#ef4f2a">·</span>agents
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SIZES -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <span class="sec-title">Scale</span>
+      <span class="sec-sub">Holds at every size that matters. Below 14px, drop the halo.</span>
+    </div>
+    <div class="sizes">
+      <div class="sz">
+        <div class="tile">
+          <svg width="160" height="160" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="px">160 px · hero</div>
+      </div>
+      <div class="sz">
+        <div class="tile">
+          <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="px">80 px · app</div>
+      </div>
+      <div class="sz">
+        <div class="tile">
+          <svg width="40" height="40" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="px">40 px · nav</div>
+      </div>
+      <div class="sz">
+        <div class="tile">
+          <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="px">24 px · inline</div>
+      </div>
+      <div class="sz">
+        <div class="tile">
+          <svg width="16" height="16" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="6" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="6" fill="none" stroke-linecap="square"/>
+            <rect x="26" y="26" width="12" height="12" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="px">16 px · favicon</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLOR TREATMENTS -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <span class="sec-title">Color treatments</span>
+      <span class="sec-sub">Primary on bg. Inverted on bone. Mono on red. Halo-off everywhere it would fight context.</span>
+    </div>
+    <div class="colors">
+      <div class="col-tile dark">
+        <svg width="120" height="120" viewBox="0 0 64 64" fill="none">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+          <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+        </svg>
+        <div class="lab"><span>Primary</span><span>#0B0B0D</span></div>
+      </div>
+      <div class="col-tile bone">
+        <svg width="120" height="120" viewBox="0 0 64 64" fill="none">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.22"/>
+          <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+        </svg>
+        <div class="lab"><span>Inverted</span><span>#F4EDE2</span></div>
+      </div>
+      <div class="col-tile red">
+        <svg width="120" height="120" viewBox="0 0 64 64" fill="none">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <rect x="28" y="28" width="8" height="8" fill="#0b0b0d"/>
+        </svg>
+        <div class="lab"><span>Mono · brand</span><span>#EF4F2A</span></div>
+      </div>
+      <div class="col-tile bg2">
+        <svg width="120" height="120" viewBox="0 0 64 64" fill="none">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <rect x="28" y="28" width="8" height="8" fill="#f4ede2"/>
+        </svg>
+        <div class="lab"><span>Mono · ink</span><span>#F4EDE2</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IN PRODUCT -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <span class="sec-title">In product</span>
+      <span class="sec-sub">Living in the navbar, OG card, and CLI exactly where it ships.</span>
+    </div>
+    <div class="product">
+      <div class="nav">
+        <div class="brand">
+          <svg width="22" height="22" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+          <div class="name">PIXEL <span>AGENTS</span></div>
+        </div>
+        <div class="div"></div>
+        <div class="item on">Explore</div>
+        <div class="item">Agents</div>
+        <div class="item">Forge</div>
+        <div class="item">Vault</div>
+        <div class="item">Activity</div>
+        <div style="margin-top:auto" class="div"></div>
+        <div class="item">Docs</div>
+        <div class="item">FAQ</div>
+        <div class="item">Changelog</div>
+      </div>
+
+      <div class="og">
+        <div class="brand">
+          <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+          <div class="name">PIXEL <span>AGENTS</span></div>
+        </div>
+        <div class="eyebrow">— First Principle</div>
+        <h2>Build once.<br/>Deploy forever.<br/><span class="red">Earn on every run.</span></h2>
+        <div class="desc">AI agents for hire. Structured output. Zero prompt engineering.</div>
+        <div class="pills">
+          <div class="pill">⚡ Sub-second results</div>
+          <div class="pill">⟨/⟩ Structured JSON</div>
+          <div class="pill">⊘ No prompt engineering</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div class="term">
+        <div class="head-bar">
+          <svg width="14" height="14" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#5a5650" stroke-width="6" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#5a5650" stroke-width="6" fill="none" stroke-linecap="square"/>
+            <rect x="26" y="26" width="12" height="12" fill="#ef4f2a"/>
+          </svg>
+          <span>PIXEL-AGENTS · CLI v0.4.2</span>
+        </div>
+        <div><span class="prompt">$</span> pa run vibe-check --input "./site"</div>
+        <div class="dim">→ dispatching agent…</div>
+        <div class="dim">→ structured output ready · 218ms</div>
+        <div>{</div>
+        <div style="padding-left:18px;"><span class="key">"agent"</span>: <span class="val">"vibe-check"</span>,</div>
+        <div style="padding-left:18px;"><span class="key">"score"</span>: <span class="val">0.31</span>,</div>
+        <div style="padding-left:18px;"><span class="key">"verdict"</span>: <span class="val">"derelict"</span></div>
+        <div>}</div>
+        <div style="margin-top:6px;"><span class="prompt">$</span> <span class="blink">_</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DON'TS -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <span class="sec-title">Don'ts</span>
+      <span class="sec-sub">Quick boundaries. The mark earns its weight from precision.</span>
+    </div>
+    <div class="donts">
+      <div class="dont">
+        <span class="x">✕</span>
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="1" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="1" fill="none" stroke-linecap="square"/>
+          <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+        </svg>
+        <div class="lab">Don't thin the brackets</div>
+      </div>
+      <div class="dont">
+        <span class="x">✕</span>
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <circle cx="32" cy="32" r="5" fill="#ef4f2a"/>
+        </svg>
+        <div class="lab">Don't round corners</div>
+      </div>
+      <div class="dont">
+        <span class="x">✕</span>
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+          <defs><linearGradient id="badGrad" x1="0" x2="1"><stop offset="0" stop-color="#ef4f2a"/><stop offset="1" stop-color="#7cd6ff"/></linearGradient></defs>
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="url(#badGrad)" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="url(#badGrad)" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <rect x="28" y="28" width="8" height="8" fill="url(#badGrad)"/>
+        </svg>
+        <div class="lab">Don't gradient</div>
+      </div>
+      <div class="dont">
+        <span class="x">✕</span>
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none" style="transform:rotate(15deg)">
+          <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+          <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+          <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+        </svg>
+        <div class="lab">Don't rotate</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOADS — site addition (not in prototype): exposes the ready-made assets -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">08</span>
+      <span class="sec-title">Download</span>
+      <span class="sec-sub">SVG for Figma + everywhere. PNG for raster fallbacks.</span>
+    </div>
+    <div class="dl-grid">
+      <div class="dl">
+        <div class="preview">
+          <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="name">Mark · Primary</div>
+        <div class="links">
+          <a href="img/brand/pixel-agents-mark-primary.svg" download>SVG</a>
+          <a href="img/brand/pixel-agents-mark-primary.png" download>PNG</a>
+        </div>
+      </div>
+      <div class="dl light">
+        <div class="preview">
+          <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#0b0b0d" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.22"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="name">Mark · Dark on light</div>
+        <div class="links">
+          <a href="img/brand/pixel-agents-mark-dark.svg" download>SVG</a>
+          <a href="img/brand/pixel-agents-mark-dark.png" download>PNG</a>
+        </div>
+      </div>
+      <div class="dl">
+        <div class="preview">
+          <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#ef4f2a" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#ef4f2a" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+          </svg>
+        </div>
+        <div class="name">Mark · Red mono</div>
+        <div class="links">
+          <a href="img/brand/pixel-agents-mark-red-mono.svg" download>SVG</a>
+          <a href="img/brand/pixel-agents-mark-red-mono.png" download>PNG</a>
+        </div>
+      </div>
+      <div class="dl">
+        <div class="preview">
+          <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+            <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+            <rect x="28" y="28" width="8" height="8" fill="#f4ede2"/>
+          </svg>
+        </div>
+        <div class="name">Mark · Ink mono</div>
+        <div class="links">
+          <a href="img/brand/pixel-agents-mark-ink-mono.svg" download>SVG</a>
+          <a href="img/brand/pixel-agents-mark-ink-mono.png" download>PNG</a>
+        </div>
+      </div>
+      <div class="dl">
+        <div class="preview">
+          <div class="lockup-h">
+            <svg width="40" height="40" viewBox="0 0 64 64" fill="none">
+              <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+              <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+              <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+              <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+            </svg>
+            <div class="wm" style="font-size:32px;"><span>PIXEL </span><span class="lt">AGENTS</span></div>
+          </div>
+        </div>
+        <div class="name">Lockup · Horizontal</div>
+        <div class="links">
+          <a href="img/brand/pixel-agents-lockup-horizontal.svg" download>SVG</a>
+        </div>
+      </div>
+      <div class="dl">
+        <div class="preview">
+          <div class="lockup-stack">
+            <svg width="44" height="44" viewBox="0 0 64 64" fill="none">
+              <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+              <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+              <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+              <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+            </svg>
+            <div class="stk wm">
+              <div class="a" style="font-size:30px;">PIXEL</div>
+              <div class="b" style="font-size:20px;">AGENTS</div>
+            </div>
+          </div>
+        </div>
+        <div class="name">Lockup · Stacked</div>
+        <div class="links">
+          <a href="img/brand/pixel-agents-lockup-stacked.svg" download>SVG</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Pixel Agents · Brand mark v1.0</div>
+    <div>06.B1 · The Bracketed</div>
+  </footer>
+</div>
+
+</body>
+</html>
