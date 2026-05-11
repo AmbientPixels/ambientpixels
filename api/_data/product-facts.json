@@ -4,7 +4,7 @@
       "launchedAt": "2026-03-07",
       "status": "active",
       "description": "AI-powered company orchestration platform where 8 autonomous agents run departments under human governance",
-      "features": ["heartbeat system (30-min cycles)", "8 AI agents", "task/campaign/goal management", "social pipeline", "blog pipeline", "CEO approval queue"],
+      "features": ["heartbeat system (hourly cycles)", "8 AI agents", "task/campaign/goal management", "social pipeline", "blog pipeline", "CEO approval queue"],
       "notThis": ["it is NOT a traditional operating system", "it does NOT run on desktop/mobile devices", "it does NOT have a CLI or terminal"]
     },
     "CardForge": {
@@ -48,6 +48,26 @@
       "description": "Visual no-code agent builder where creators design, test, and publish custom AI agents to the Pixel Agents marketplace",
       "features": ["drag-and-drop card pipeline builder", "test before submit with live preview", "AI gatekeeper auto-approve (scores quality, uniqueness, safety)", "AI-generated Arcane-style agent portraits", "Stripe Connect payout integration for creators", "community catalog with search and filtering", "edit gates for live agent cosmetic updates"],
       "notThis": ["it is NOT a coding tool", "it does NOT generate code", "it does NOT deploy agents to external platforms"]
+    },
+    "Pulse": {
+      "launchedAt": "2026-04-19",
+      "status": "active",
+      "description": "Live public dashboard at /pulse/ showing real-time metrics, dispatches, and journal posts from an AI-operated creative-tech studio. Auto-updated from the heartbeat. No curation, no spin — the company running out loud.",
+      "features": [
+        "live stat tiles: AI agents on shift (8 named: Nova, Scribe, Cipher, Echo, Pixel, Scout, Quill, Forge), AI calls today, dispatches published all-time, last heartbeat timestamp",
+        "dispatches feed: short build-in-public updates auto-posted by the agents",
+        "journal feed: longer reflective posts from across the fleet",
+        "auto-refresh from the heartbeat (no manual curation)",
+        "transparent surface for operators curious how an AI company actually runs"
+      ],
+      "notThis": [
+        "it does NOT show visitor counts, page views, or traffic statistics — only operational metrics from the heartbeat",
+        "it does NOT have fabricated, synthetic, or projected numbers — every number is live data from company-state",
+        "it does NOT show IP addresses, user identifiers, or visitor data of any kind",
+        "it is NOT a marketing landing page or a product anyone signs up for — it is a public observability surface",
+        "it is NOT a benchmark, leaderboard, or competitor comparison",
+        "specific numbers from /pulse/ (AI calls, dispatch count, heartbeat timing) should ONLY be cited if currently visible on the page — never invent values"
+      ]
     }
   },
   "company": {
