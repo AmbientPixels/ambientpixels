@@ -354,6 +354,7 @@
           else { _cb.showErrorToast('Win ' + Math.ceil(needed - _cb.getForgeWins()) + ' more fights to unlock the Forge'); }
         }
         else if (nav === 'gallery') { window.location.href = '/blindspot/gallery.html'; }
+        else if (nav === 'community') { window.location.href = '/blindspot/community/'; }
         else if (nav === 'leaderboard') { _cb.showScreen('leaderboard'); _cb.renderLeaderboard(); }
         else if (nav === 'pvp') {
           var pvpReq = _cb.getPvpUnlockRequirement ? _cb.getPvpUnlockRequirement() : 3;

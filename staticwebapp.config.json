@@ -47,6 +47,22 @@
  },
  "routes": [
   {
+   "route": "/blindspot/player/*",
+   "rewrite": "/api/blindspotplayerpage"
+  },
+  {
+   "route": "/blindspot/card/*",
+   "rewrite": "/api/blindspotcardpage"
+  },
+  {
+   "route": "/blindspot/community",
+   "rewrite": "/blindspot/community/index.html"
+  },
+  {
+   "route": "/blindspot/community/",
+   "rewrite": "/blindspot/community/index.html"
+  },
+  {
    "route": "/blindspot/*",
    "allowedRoles": [
     "anonymous"
@@ -252,6 +268,41 @@
   {
    "route": "/api/blindspotprofileview",
    "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotprofileview",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotcardview",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotcardview",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotcommunityroster",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotcommunityroster",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotpublishcard",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotpublishcard",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotcardpage",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotcardpage",
+   "allowedRoles": [
+    "anonymous"
+   ]
+  },
+  {
+   "route": "/api/blindspotplayerpage",
+   "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotplayerpage",
    "allowedRoles": [
     "anonymous"
    ]
