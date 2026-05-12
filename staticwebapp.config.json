@@ -48,19 +48,31 @@
  "routes": [
   {
    "route": "/blindspot/player/*",
-   "rewrite": "/api/blindspotplayerpage"
+   "rewrite": "/api/blindspotplayerpage",
+   "allowedRoles": [
+    "anonymous"
+   ]
   },
   {
    "route": "/blindspot/card/*",
-   "rewrite": "/api/blindspotcardpage"
+   "rewrite": "/api/blindspotcardpage",
+   "allowedRoles": [
+    "anonymous"
+   ]
   },
   {
    "route": "/blindspot/community",
-   "rewrite": "/blindspot/community/index.html"
+   "rewrite": "/blindspot/community/index.html",
+   "allowedRoles": [
+    "anonymous"
+   ]
   },
   {
    "route": "/blindspot/community/",
-   "rewrite": "/blindspot/community/index.html"
+   "rewrite": "/blindspot/community/index.html",
+   "allowedRoles": [
+    "anonymous"
+   ]
   },
   {
    "route": "/blindspot/*",
