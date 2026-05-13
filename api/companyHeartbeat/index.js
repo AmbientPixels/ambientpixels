@@ -578,6 +578,69 @@ module.exports = async function (context) {
       }
     }
 
+    // ── Revision safety net for publish_document actions ──
+    // The social safety net above only fires for actions with a parent taskId. Blog/doc
+    // publishes carry no parent task (taskId is null on the AQ entry), so revision_requested
+    // publish_document actions die silently in the queue. This block spawns a fresh revision
+    // task addressed to the originating agent with CEO feedback embedded. Idempotency via
+    // a per-action tag — skip if a non-done revision task already exists for the action.
+    const publishRevisions = revisionActions.filter(a =>
+      (a.type === 'publish_document' || a.action_type === 'publish_document') && a.payload
+    );
+    for (const _pra of publishRevisions) {
+      const _actionId = _pra.id;
+      const _docId = (_pra.payload && _pra.payload.documentId) || null;
+      const _docTitle = (_pra.payload && _pra.payload.title) || 'Untitled';
+      const _docKind = (_pra.payload && _pra.payload.kind) || 'marketing_post';
+      const _author = _pra.created_by || _pra.origin_agent || 'scribe';
+      const _feedback = (_pra.approval && _pra.approval.decision_note) || 'CEO requested revision on the published draft.';
+      const _dedupTag = 'publish-revision-for-' + _actionId;
+      const _existing = tasks.find(t =>
+        Array.isArray(t.tags) && t.tags.indexOf(_dedupTag) !== -1 &&
+        t.status !== 'done' && !t._archived
+      );
+      if (_existing) continue;
+      const _revTaskId = 'task_' + Date.now() + '_pubrev_' + Math.random().toString(36).substr(2, 4);
+      tasks.push({
+        id: _revTaskId,
+        title: 'Revise published draft: ' + _docTitle,
+        description: 'CEO requested revision on your publish action (' + _actionId + ').\n\n'
+          + 'CEO feedback:\n' + _feedback + '\n\n'
+          + 'To submit your rewrite, call revise-action with this envelope:\n'
+          + '{ "type": "revise-action", "action_id": "' + _actionId + '", "social": { "text": "<your rewritten markdown content>" } }\n\n'
+          + 'The "social.text" field is the envelope name even for publish_document — the handler routes it into payload.content_md automatically.\n\n'
+          + 'Document ID: ' + (_docId || '(not linked)') + '\n'
+          + 'Kind: ' + _docKind + '\n\n'
+          + 'Requirements:\n'
+          + '- Rewrite the draft to address every point in the CEO feedback above.\n'
+          + '- Do NOT call submit-for-publish again — the action is already in the queue and revise-action flips it back to pending.\n'
+          + '- Preserve the original title unless feedback explicitly says otherwise.\n'
+          + '- Do not include meta-commentary ("Notes:", "Revision Notes:", etc.) — the handler strips it but cleaner content is preferred.',
+        taskType: 'internal_doc',
+        category: 'maintenance',
+        status: 'todo',
+        priority: 'critical',
+        assignee: _author,
+        source: 'heartbeat',
+        created_by: 'system',
+        parent_task_id: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        campaign_id: null,
+        objective_id: null,
+        tags: ['publish-revision', 'auto-created', _dedupTag],
+        comments: [{
+          id: 'cmt-pubrev-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+          author: 'system',
+          text: 'Auto-spawned after CEO requested revision on publish action ' + _actionId + '.',
+          type: 'system',
+          createdAt: new Date().toISOString()
+        }]
+      });
+      context.log('[Heartbeat] Publish revision: spawned task', _revTaskId, 'for action', _actionId, '→', _author);
+    }
+
     // ── CEO Needs Attention escalations: overdue + stale revisions ──
     try {
       const _naAQ = (await storage.getState('approvalQueue')) || [];
