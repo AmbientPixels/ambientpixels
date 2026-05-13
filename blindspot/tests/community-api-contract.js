@@ -58,11 +58,22 @@ async function testCardviewShape() {
   }
 }
 
+async function testRosterReachable() {
+  const r = await fetchJson('/api/blindspotcommunityroster');
+  assert(r.status === 200, 'roster GET should return 200, got ' + r.status);
+  assert(r.json && r.json.ok === true, 'roster response should have ok:true');
+  assert(Array.isArray(r.json.players), 'roster response should have players[] array');
+  assert(typeof r.json.window === 'string', 'roster response should have window string');
+  assert(typeof r.json.asOf === 'string', 'roster response should have asOf string');
+  console.log('  ✓ roster endpoint reachable, basic shape ok');
+}
+
 async function run() {
   console.log('community-api-contract tests');
   await testCardviewMissingId();
   await testCardviewNotFound();
   await testCardviewShape();
+  await testRosterReachable();
   console.log('all community-api-contract tests passed');
 }
 
