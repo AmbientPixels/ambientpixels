@@ -641,6 +641,118 @@ module.exports = async function (context) {
       context.log('[Heartbeat] Publish revision: spawned task', _revTaskId, 'for action', _actionId, '→', _author);
     }
 
+    // ── Auto-promote done publish-revision tasks into revise-action mutations ──
+    // Agents complete revision tasks as normal execute-task deliverables (the revise-action
+    // schema quirk where publish_document rewrites need a social.text envelope is too brittle
+    // to rely on agents knowing). Bridge it system-side: when a publish-revision-for-<actionId>
+    // tagged task is done with a deliverable comment, copy the content into payload.content_md
+    // and flip the action back to pending so it re-enters the CEO approval queue.
+    // Mirrors core logic from the revise-action handler at agent-runner.js:3122-3247.
+    const _promoteAQ = (await storage.getState('approvalQueue')) || [];
+    let _promotedAny = false;
+    for (const _pra of publishRevisions) {
+      const _actionId = _pra.id;
+      const _dedupTag = 'publish-revision-for-' + _actionId;
+      const _doneTask = tasks.find(t =>
+        Array.isArray(t.tags) && t.tags.indexOf(_dedupTag) !== -1 &&
+        t.status === 'done' && !t._revision_promoted && !t._archived
+      );
+      if (!_doneTask) continue;
+      const _deliverables = (_doneTask.comments || []).filter(c =>
+        c.type === 'deliverable' && c.author === _doneTask.assignee && c.text && c.text.length > 50
+      );
+      if (_deliverables.length === 0) {
+        context.log('[Heartbeat] Promote skipped — no deliverable on task', _doneTask.id);
+        _doneTask._revision_promoted = 'blocked-no-deliverable';
+        continue;
+      }
+      let _revText = _deliverables[_deliverables.length - 1].text;
+      // Sanitize meta-commentary tails (mirrors agent-runner.js:3140-3142)
+      _revText = _revText.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
+      _revText = _revText.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
+      _revText = _revText.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
+      // Placeholder bracket gate (mirrors agent-runner.js:3118)
+      if (/\[(?:[^\]]*(?:mention|insert|\badd\b|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(_revText)) {
+        context.log('[Heartbeat] Promote BLOCKED — placeholder brackets in task', _doneTask.id);
+        _doneTask._revision_promoted = 'blocked-placeholders';
+        continue;
+      }
+      if (_revText.length < 100) {
+        context.log('[Heartbeat] Promote BLOCKED — content too short on task', _doneTask.id, 'len=', _revText.length);
+        _doneTask._revision_promoted = 'blocked-too-short';
+        continue;
+      }
+      // Mutate the action payload + approval state (mirrors agent-runner.js:3135-3187)
+      _pra.payload = _pra.payload || {};
+      _pra.payload.content_md = _revText;
+      // Re-resolve hero image from document (Pixel may have updated the asset since original publish)
+      try {
+        const _revDoc = documents.find(d => d.id === (_pra.payload.documentId || ''));
+        const _revAssetId = (_revDoc && _revDoc.hero_image_asset_id) || _pra.payload.hero_image_asset_id || null;
+        if (_revAssetId) {
+          _pra.payload.hero_image_asset_id = _revAssetId;
+          const _imgAssets = (await storage.getState('imageAssets')) || [];
+          const _hero = _imgAssets.find(a => a.id === _revAssetId);
+          if (_hero && _hero.url) _pra.payload.hero_image_url = _hero.url;
+        }
+      } catch (_heroErr) { /* non-fatal */ }
+      _pra.approval = _pra.approval || {};
+      _pra.approval.status = 'pending';
+      _pra.approval.decision_note = null;
+      _pra.approval.revised_at = new Date().toISOString();
+      _pra.approval.revision_count = (_pra.approval.revision_count || 0) + 1;
+      _pra.approval.revised_by_system = true;
+      _pra.execution_status = 'pending';
+      if (_pra.execution) {
+        _pra.execution.status = 'pending';
+        _pra.execution.attempts = 0;
+        _pra.execution.last_error = null;
+      }
+      // Update AQ entry (mirrors agent-runner.js:3220-3239)
+      const _aqIdx = _promoteAQ.findIndex(q => q.action_id === _actionId);
+      if (_aqIdx !== -1) {
+        _promoteAQ[_aqIdx].status = 'pending';
+        _promoteAQ[_aqIdx].submittedAt = new Date().toISOString();
+        _promoteAQ[_aqIdx].preview = _revText.substring(0, 120);
+        if (_pra.payload.hero_image_url) _promoteAQ[_aqIdx].heroImageUrl = _pra.payload.hero_image_url;
+        if (_pra.payload.hero_image_asset_id) _promoteAQ[_aqIdx].heroImageAssetId = _pra.payload.hero_image_asset_id;
+      }
+      _doneTask._revision_promoted = true;
+      _doneTask.updatedAt = new Date().toISOString();
+      _doneTask.comments = _doneTask.comments || [];
+      _doneTask.comments.push({
+        id: 'cmt-prom-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        author: 'system',
+        text: '[SYSTEM] Promoted deliverable to publish_document action ' + _actionId + '. Action flipped back to pending for CEO review.',
+        type: 'system',
+        createdAt: new Date().toISOString()
+      });
+      // Also mark any sibling in-progress dup tasks for this same action as superseded —
+      // they're working on a problem that no longer exists.
+      for (const _sib of tasks) {
+        if (_sib.id === _doneTask.id) continue;
+        if (!Array.isArray(_sib.tags) || _sib.tags.indexOf(_dedupTag) === -1) continue;
+        if (_sib.status === 'done' || _sib._archived) continue;
+        _sib.status = 'done';
+        _sib._revision_superseded = true;
+        _sib.updatedAt = new Date().toISOString();
+        _sib.comments = _sib.comments || [];
+        _sib.comments.push({
+          id: 'cmt-supersede-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+          author: 'system',
+          text: '[SYSTEM] Superseded — action ' + _actionId + ' already promoted from sibling task ' + _doneTask.id + '.',
+          type: 'system',
+          createdAt: new Date().toISOString()
+        });
+      }
+      _promotedAny = true;
+      context.log('[Heartbeat] Promote: action', _actionId, '→ pending, source task', _doneTask.id);
+    }
+    if (_promotedAny) {
+      await storage.setState('actions', allActions);
+      await storage.setState('approvalQueue', _promoteAQ);
+    }
+
     // ── CEO Needs Attention escalations: overdue + stale revisions ──
     try {
       const _naAQ = (await storage.getState('approvalQueue')) || [];
