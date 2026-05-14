@@ -345,12 +345,14 @@ async function runAgentHeartbeat(ctx) {
   // Build context for the agent
   // Pixel: exclude 'review' tasks — once Pixel delivers an image the task awaits review, not further Pixel action
   // Other agents: keep 'review' visible (e.g. Scribe needs to submit-for-publish after hero image attached)
-  const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done'
+  // Skip _archived tasks — they're tombstones from canceled-objective/campaign sweeps that the anti-oscillation
+  // pattern keeps in the array. Picking them up triggers objective_canceled_freeze gate violations every cycle.
+  const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived
     && !(agentId === 'pixel' && t.status === 'review'));
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
   const allActiveTasks = agentId === 'nova'
-    ? tasks.filter(t => t.status !== 'done')
-    : tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
+    ? tasks.filter(t => t.status !== 'done' && !t._archived)
+    : tasks.filter(t => t.status !== 'done' && t.status !== 'backlog' && !t._archived);
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
