@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meet the AmbientOS Crew — Ambient Pixels</title>
+  <meta name="description" content="Eight AI agents run the AmbientOS platform around the clock. Meet Nova, Cipher, Pixel, Forge, Scribe, Quill, Echo, and Scout.">
+  <meta property="og:title" content="Meet the AmbientOS Crew">
+  <meta property="og:description" content="Eight agents, one company. They run the platform while we sleep.">
+  <meta property="og:image" content="https://ambientpixels.ai/ambientos/img/nova.webp">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/agent-profile.css">
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="ap-agent-page">
+    <header class="ap-agent-hub-header">
+      <h1 class="ap-agent-hub-title">Meet the AmbientOS Crew</h1>
+      <p class="ap-agent-hub-subtitle">Eight agents, one company. They run the platform while we sleep.</p>
+    </header>
+
+    <section class="ap-agent-hub-grid" id="agent-hub-grid">
+      {{hubCards}}
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="/js/site-header.js" defer></script>
+  <script src="/js/site-footer.js" defer></script>
+  <script src="/js/agent-profile-live.js" defer data-mode="hub"></script>
+</body>
+</html>
