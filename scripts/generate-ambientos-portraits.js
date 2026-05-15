@@ -29,42 +29,51 @@ function getApiKey() {
 }
 
 // ── AmbientOS agent portraits ──
+// Prompts enriched with each agent's seed-memory personality:
+//  nova    — operational triage / "nothing falls through the cracks"
+//  cipher  — financial discipline / "never estimate or guess"
+//  pixel   — design system / color tokens / WCAG
+//  forge   — DevOps watchdog / deployment vigilance
+//  echo    — strategic CMO / company voice / audience-aware
+//  scout   — competitive intel / sourced research
+//  scribe  — content director / builder voice / structured drafts
+//  quill   — editor / "cut 20% of words" / red-pen markup
 const PORTRAITS = [
   {
     id: 'nova',
-    prompt: 'sharp commanding woman in her 30s, low angle shot looking up slightly commanding presence, sleek dark turtleneck, cool authoritative expression, hair pulled back cleanly, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'commanding woman in her 30s, slight 3/4 angle mid-gesture as if explaining a plan, warm confident expression with a slight smile, sleek dark turtleneck, hair pulled back cleanly, easy energy, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'cipher',
-    prompt: 'calculating man in his 40s, slight 3/4 angle body turned right arms crossed, cold analytical stare, reading glasses, sharp dark suit, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'man in his 40s, leaning back from an open ledger of neat figure columns with a quietly satisfied smile as the numbers come together, fountain pen between two fingers, thin reading glasses, sharp charcoal suit with crisp collar, faint amber lamplight on the page, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'pixel',
-    prompt: 'creative androgynous figure in their late 20s, hand on chin thinking expression slight angle, artistic calm expression, stylish layered jacket, paint detail on collar, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'creative androgynous figure in their late 20s, mid-gesture plucking a color from a soft-glowing grid of swatches with a delighted grin, stylish layered jacket with a fine paint streak on the collar, bright artistic expression, subtle violet accent light along the cheek, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'forge',
-    prompt: 'rugged focused man in his 30s, leaning forward slightly elbows on surface, mechanical goggles pushed up on forehead, steady composed expression, worn utility jacket, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'rugged man in his 30s, leaning back from a workbench with a relaxed grin after a clean deploy, one hand still resting on the keyboard, mechanical goggles pushed up on his forehead with terminal-green log text faintly reflected in the lenses, worn utility jacket with rolled sleeves, amber console glow on his face, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'echo',
-    prompt: 'sharp strategic woman in her 30s, slight 3/4 angle body turned left face toward camera, structured blazer, confident composed expression, direct gaze, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'sharp strategic woman in her 30s, leaning over a thin tablet displaying a scrolling content feed, animated bright smile mid-reaction as the audience engages, structured charcoal blazer, lively confident expression, faint signal-red highlight along the jawline, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'scout',
-    prompt: 'alert curious figure in their late 20s, side profile with eyes cutting back toward camera, field jacket with small detail patches, observant scanning eyes, calm focused expression, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'alert curious figure in their late 20s, paused mid-stride glancing back over their shoulder with a sly satisfied smirk like they just found something good, small leather field notebook tucked into the breast of a worn olive field jacket with detail patches, faint constellation of map-lines and graph overlays in soft bokeh behind, bright observant eyes, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'scribe',
-    prompt: 'measured thoughtful man in his 30s, leaning back relaxed confident posture, calm focused expression, casual dark shirt, slight tilt of head, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'thoughtful man in his 30s, leaning forward at a writing desk with an open notebook of handwritten margin notes, fountain pen poised mid-sentence, the easy engaged smile of a writer in the zone, casual dark shirt with rolled sleeves, faint warm desk-lamp glow on the page, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'quill',
-    prompt: 'precise focused woman in her 40s, high angle shot looking down slightly contemplative, neat dark jacket, reading glasses perched on nose, critical but calm expression, pen visible at collar, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'meticulous woman in her 40s, looking down at a manuscript page marked with deliberate red-pen edits with a small fond smile as if catching a good fix, neat dark jacket with a fine red-ink pen clipped at the collar, reading glasses perched halfway down her nose, warm focused expression, faint paper-warm light from below, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'pixelpusher',
-    prompt: 'confident solo founder in his late 30s, slight 3/4 angle body turned right face toward camera, calm decisive expression, direct gaze, beard and glasses, dark casual jacket over dark shirt, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'confident solo founder in his late 30s, slight 3/4 angle body turned right face toward camera, warm decisive expression with the trace of a smile, direct gaze, beard and glasses, dark casual jacket over dark shirt, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   }
 ];
 
