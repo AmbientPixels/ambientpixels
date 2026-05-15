@@ -290,6 +290,10 @@ module.exports = async function (context) {
       const _geminiCostsEarly = await storage.getGeminiCostSummary(30);
       costIntel = { gemini: _geminiCostsEarly };
     } catch (_costErrEarly) { context.log('[Heartbeat] Early cost load failed (non-fatal):', _costErrEarly.message); }
+    // Load persistent agent memories early — reflectionDigest below needs them or
+    // it sees the empty module-scope init and writes lastReflectionAt:null for every
+    // agent every cycle. Original load lived ~500 lines below this block.
+    try { _agentMemoryStore = (await storage.getState('agentMemories')) || {}; } catch (_amErrEarly) { /* non-fatal */ }
 
     // Cipher financial intelligence digest (uses already-loaded data)
     // Outcome Attribution digest (Phase 3): per-agent / per-experiment / per-hook / per-campaign
@@ -821,8 +825,8 @@ module.exports = async function (context) {
       context.log('[Heartbeat] Needs Attention escalation check failed (non-fatal):', String(_naErr).substring(0, 200));
     }
 
-    // Load persistent agent memories
-    _agentMemoryStore = (await storage.getState('agentMemories')) || {};
+    // Persistent agent memories were loaded earlier (top of heartbeat) so the
+    // reflectionDigest could see them. No reload needed here.
     // Load CEO-curated seed memories (markdown per agent + global)
     const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
     // researchIntelStore already loaded early (above digest block) to avoid TDZ.
