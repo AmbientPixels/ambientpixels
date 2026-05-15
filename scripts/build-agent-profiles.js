@@ -39,8 +39,8 @@ function renderCrewChips(agents, currentId) {
   return agents
     .filter(a => a.id !== currentId)
     .map(a =>
-      `<a class="ap-agent-crew-chip" href="/ambientos/agents/${a.id}">
-          <img class="ap-agent-crew-chip-avatar" src="${a.portrait}" alt="${escapeHtml(a.name)}" width="24" height="24">
+      `<a class="agent-crew-chip" href="/ambientos/agents/${a.id}">
+          <img class="agent-crew-chip-avatar" src="${a.portrait}" alt="${escapeHtml(a.name)}" width="32" height="32">
           <span>${escapeHtml(a.name)}</span>
         </a>`
     )
@@ -49,11 +49,11 @@ function renderCrewChips(agents, currentId) {
 
 function renderHubCards(agents) {
   return agents.map(a =>
-    `<a class="ap-agent-hub-card" href="/ambientos/agents/${a.id}" data-agent-id="${a.id}">
-        <img class="ap-agent-hub-card-portrait" src="${a.portrait}" alt="${escapeHtml(a.name)} portrait" loading="lazy">
-        <h2 class="ap-agent-hub-card-name">${escapeHtml(a.name)}</h2>
-        <p class="ap-agent-hub-card-role">${escapeHtml(a.role)} · Tier ${a.tier}</p>
-        <span class="ap-agent-hub-card-status" data-status=""></span>
+    `<a class="agent-hub-card" href="/ambientos/agents/${a.id}" data-agent-id="${a.id}">
+        <img class="agent-hub-card-portrait" src="${a.portrait}" alt="${escapeHtml(a.name)} portrait" loading="lazy">
+        <h2 class="agent-hub-card-name">${escapeHtml(a.name)}.</h2>
+        <p class="agent-hub-card-role">${escapeHtml(a.role)} · Tier ${a.tier}</p>
+        <span class="agent-hub-card-status" data-status=""></span>
       </a>`
   ).join('\n      ');
 }
