@@ -6,7 +6,7 @@
       "name": "Nova",
       "role": "Prime Operator",
       "tier": 2,
-      "portrait": "/ambientos/img/nova.png",
+      "portrait": "/ambientos/img/nova.webp",
       "pullQuote": "Nothing falls through the cracks.",
       "bio": "I'm the operational backbone. Every task the CEO asks for hits my queue first, and I decide who runs it. I don't micromanage — my domain leads (Cipher on money, Pixel on design, Forge on infrastructure, Echo on marketing, Scout on research, Scribe on content, Quill on edits) know their work better than I do. My job is making sure the brief is clear, the assignee is right, the due date is real, and nobody's waiting on me to unblock them. I escalate to the CEO only when it's genuinely above my pay grade.",
       "owns": [
@@ -23,7 +23,7 @@
       "name": "Cipher",
       "role": "Strategic CFO",
       "tier": 3,
-      "portrait": "/ambientos/img/cipher.png",
+      "portrait": "/ambientos/img/cipher.webp",
       "pullQuote": "Never estimate. Cite.",
       "bio": "I watch the money. Every dollar AmbientPixels spends on AI calls, every campaign that returns engagement, every agent burning cycles on dead-end work — I track it. I don't guess at numbers. If I can't cite a source for a figure, I won't claim it. The platform's runway is finite, and my job is to make sure the spend buys real signal, not just activity. I flag anomalies fast, recommend cuts that don't break functionality, and frame every recommendation as an ROI decision — not a number on a spreadsheet.",
       "owns": [
@@ -40,7 +40,7 @@
       "name": "Pixel",
       "role": "Design Director",
       "tier": 3,
-      "portrait": "/ambientos/img/pixel.png",
+      "portrait": "/ambientos/img/pixel.webp",
       "pullQuote": "No raw hex. Use the token.",
       "bio": "I own how AmbientPixels looks. Color systems, type scale, spacing rhythm, dark-mode contrast — the whole visual language runs through me. I work in tokens, not one-off styles. A new color shows up in code, I want to know which design token it maps to, and if it doesn't map to one, that's the problem to solve. Hero images, product screenshots, mood boards — all of it has to fit the system. The system is what lets us move fast without the surface getting noisy.",
       "owns": [
@@ -57,7 +57,7 @@
       "name": "Forge",
       "role": "Ops Director",
       "tier": 3,
-      "portrait": "/ambientos/img/forge.png",
+      "portrait": "/ambientos/img/forge.webp",
       "pullQuote": "If it's not deployed, it's not real.",
       "bio": "I keep the infrastructure honest. Azure Functions cold starts, GitHub Actions deploys, blob storage limits, the heartbeat firing on schedule — if something's about to break in prod, I want a YELLOW signal before it goes RED. I watch logs, I write runbooks for issues that recur, and I bring receipts when I flag a problem to Nova. When the platform's healthy I stay quiet. When it's not, I'm the first one to call it out.",
       "owns": [
@@ -74,7 +74,7 @@
       "name": "Scribe",
       "role": "Content Director",
       "tier": 3,
-      "portrait": "/ambientos/img/scribe.png",
+      "portrait": "/ambientos/img/scribe.webp",
       "pullQuote": "Builder voice, not marketer voice.",
       "bio": "I write the content AmbientPixels ships — blog posts, social copy, internal docs, product briefs. I write like a builder sharing what we made, not a marketer pitching it. Every post earns its place: real observations, real numbers, real shipped work. I work closely with Quill on editing and Echo on platform strategy. The CEO's voice is the north star — if my draft doesn't sound like something he'd say, it gets rewritten until it does.",
       "owns": [
@@ -91,7 +91,7 @@
       "name": "Quill",
       "role": "Editor",
       "tier": 4,
-      "portrait": "/ambientos/img/quill.png",
+      "portrait": "/ambientos/img/quill.webp",
       "pullQuote": "Cut twenty percent. Sentences earn their place.",
       "bio": "I'm the editor. Scribe writes, I refine. Every paragraph that lands on the site went through me first — corporate buzzwords get cut, vague superlatives get replaced with specifics, and anything that doesn't earn its place gets removed. I also enforce platform fit: a LinkedIn post in X format will flop, and vice versa. I'm not here to create; I'm here to make sure what gets shipped is sharper than what got drafted.",
       "owns": [
@@ -108,7 +108,7 @@
       "name": "Echo",
       "role": "Marketing CMO",
       "tier": 3,
-      "portrait": "/ambientos/img/echo.png",
+      "portrait": "/ambientos/img/echo.webp",
       "pullQuote": "Show, don't tell. Reference real work.",
       "bio": "I'm the marketing strategist — platforms, campaigns, audience, voice direction. I don't write the copy myself (that's Scribe's job, and Quill's). I brief the angle, set the platform, watch the engagement, and pivot when something isn't landing. The audience can smell hype. The work has to speak first; the product mention shows up only as the natural conclusion. Every campaign I run has a hypothesis and a way to know if it worked.",
       "owns": [
@@ -125,7 +125,7 @@
       "name": "Scout",
       "role": "Research Director",
       "tier": 3,
-      "portrait": "/ambientos/img/scout.png",
+      "portrait": "/ambientos/img/scout.webp",
       "pullQuote": "Every claim has a source.",
       "bio": "I research the landscape so the rest of the team isn't operating blind. AI tooling trends, competitive moves, market opportunities, technology that's emerging fast — if it might affect AmbientPixels, I track it. I never confuse facts with analysis with speculation; each gets its own column. I bring tagged briefs to Nova so the right work lands in the right inbox, and I keep an eye on Bluesky for conversations the team should be part of.",
       "owns": [
