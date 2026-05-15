@@ -1,0 +1,308 @@
+/* AmbientOS Agent Profile Pages
+   ─ Used by /ambientos/agents/ (hub) and /ambientos/agents/{id}/ (per-agent profile)
+   ─ Theme tokens from AmbientPixels DS (--aura-*, --mood-*, --glow-*)
+*/
+
+.ap-agent-page {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  color: var(--mood-text, #e8ecf2);
+}
+
+/* ── Profile page hero (portrait + name + bio) ── */
+.ap-agent-hero {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+  margin-bottom: 2.5rem;
+}
+
+.ap-agent-portrait {
+  width: 320px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.ap-agent-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+  color: var(--mood-text, #e8ecf2);
+}
+
+.ap-agent-role {
+  font-size: 1rem;
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.6));
+  margin: 0 0 1.5rem;
+}
+
+.ap-agent-quote {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--mood-accent, #8a2be2);
+  margin: 0 0 2rem;
+  padding-left: 1rem;
+  border-left: 3px solid currentColor;
+}
+
+.ap-agent-section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.6));
+  margin: 0 0 0.75rem;
+}
+
+.ap-agent-bio {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: 0 0 2rem;
+  color: var(--mood-text, #e8ecf2);
+}
+
+.ap-agent-owns {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2.5rem;
+}
+
+.ap-agent-owns li {
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  color: var(--mood-text, #e8ecf2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ap-agent-owns li::before {
+  content: "·  ";
+  color: var(--mood-accent, #8a2be2);
+  font-weight: 700;
+}
+
+/* ── Right Now band (live data) ── */
+.ap-agent-live {
+  display: none; /* hidden until JS injects */
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 0 0 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ap-agent-live.is-loaded {
+  display: block;
+}
+
+.ap-agent-live-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.ap-agent-status-pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.6));
+}
+
+.ap-agent-status-pill[data-status="GREEN"] { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+.ap-agent-status-pill[data-status="YELLOW"] { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+.ap-agent-status-pill[data-status="RED"] { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+.ap-agent-stat {
+  font-size: 0.95rem;
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.7));
+}
+
+.ap-agent-stat-value {
+  color: var(--mood-text, #e8ecf2);
+  font-weight: 600;
+}
+
+.ap-agent-memory {
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--mood-text, #e8ecf2);
+  margin: 0;
+}
+
+.ap-agent-memory-ago {
+  font-style: normal;
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.5));
+  font-size: 0.85rem;
+  margin-left: 0.5rem;
+}
+
+.ap-agent-live-section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.5));
+}
+
+/* ── Crew footer (chips) ── */
+.ap-agent-crew {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ap-agent-crew-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ap-agent-crew-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--mood-text, #e8ecf2);
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ap-agent-crew-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.ap-agent-crew-chip-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ── Hub page ── */
+.ap-agent-hub-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.ap-agent-hub-title {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+}
+
+.ap-agent-hub-subtitle {
+  font-size: 1.15rem;
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.65));
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ap-agent-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.ap-agent-hub-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.ap-agent-hub-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.ap-agent-hub-card-portrait {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.ap-agent-hub-card-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.ap-agent-hub-card-role {
+  font-size: 0.85rem;
+  color: var(--mood-text-dim, rgba(232, 236, 242, 0.6));
+  margin: 0;
+}
+
+.ap-agent-hub-card-status {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.ap-agent-hub-card-status[data-status="GREEN"] { background: #4ade80; box-shadow: 0 0 8px rgba(74, 222, 128, 0.6); }
+.ap-agent-hub-card-status[data-status="YELLOW"] { background: #fbbf24; box-shadow: 0 0 8px rgba(251, 191, 36, 0.6); }
+.ap-agent-hub-card-status[data-status="RED"] { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ap-agent-hero {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .ap-agent-portrait {
+    width: 100%;
+    height: auto;
+    max-width: 320px;
+  }
+  .ap-agent-name {
+    font-size: 2rem;
+  }
+  .ap-agent-quote {
+    font-size: 1.25rem;
+  }
+  .ap-agent-hub-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ap-agent-hub-title {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .ap-agent-hub-grid {
+    grid-template-columns: 1fr;
+  }
+}
