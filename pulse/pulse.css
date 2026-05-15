@@ -408,12 +408,37 @@
 }
 .pulse-agent:nth-child(4n) { border-right: none; }
 
+.pulse-agent-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--dur-fast) var(--ease);
+}
+.pulse-agent-link:hover .pulse-agent-portrait {
+  border-color: var(--color-text-primary);
+}
+.pulse-agent-link:hover .pulse-agent-name {
+  color: var(--pc, var(--color-text-primary));
+}
+
+.pulse-agent-portrait {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
 .pulse-agent-name {
   font-family: var(--font-display);
   font-weight: var(--fw-heavy);
   font-size: clamp(24px, 2.6vw, 36px);
   letter-spacing: -0.02em;
   color: var(--color-text-primary);
+  transition: color var(--dur-fast) var(--ease);
 }
 .pulse-agent-role {
   font-family: var(--font-mono);
