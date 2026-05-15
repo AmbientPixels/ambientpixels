@@ -30,11 +30,24 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
   var avgDailySpend = days.length > 0 ? thisWeekSpend / days.length : 0;
   var projectedMonthly = avgDailySpend * 30;
 
+  // Real month-to-date spend: sum byDay entries whose date prefix matches current YYYY-MM.
+  // Previously the digest stored `projectedMonthly` in `budget.monthly.actual`, mislabeling a
+  // projection as actuals — consumers like world-state-intel piped that into agent prompts as
+  // if it were real spend, causing 146% YELLOW signals when MTD was actually 69% GREEN.
+  var monthPrefix = new Date(now).toISOString().substring(0, 7); // 'YYYY-MM'
+  var monthToDateSpend = Object.keys(byDay).reduce(function (s, d) {
+    if (typeof d === 'string' && d.indexOf(monthPrefix) === 0) {
+      return s + ((byDay[d] && byDay[d].cost) || 0);
+    }
+    return s;
+  }, 0);
+
   var trendDelta = prevWeekSpend > 0 ? Math.round(((thisWeekSpend - prevWeekSpend) / prevWeekSpend) * 100) : 0;
   var trendDirection = trendDelta > 15 ? 'rising' : (trendDelta < -15 ? 'falling' : 'flat');
 
   var dailyPct = FINANCE_BUDGET_DAILY > 0 ? Math.round((avgDailySpend / FINANCE_BUDGET_DAILY) * 100) : 0;
-  var monthlyPct = FINANCE_BUDGET_MONTHLY > 0 ? Math.round((projectedMonthly / FINANCE_BUDGET_MONTHLY) * 100) : 0;
+  var monthlyActualPct = FINANCE_BUDGET_MONTHLY > 0 ? Math.round((monthToDateSpend / FINANCE_BUDGET_MONTHLY) * 100) : 0;
+  var monthlyProjectedPct = FINANCE_BUDGET_MONTHLY > 0 ? Math.round((projectedMonthly / FINANCE_BUDGET_MONTHLY) * 100) : 0;
 
   function _budgetStatus(actual, budget, yellowMult, redMult) {
     if (actual > budget * redMult) return 'RED';
@@ -42,9 +55,21 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
     return 'GREEN';
   }
 
+  // `monthly.actual` is now real MTD spend (the field name finally matches reality).
+  // `monthly.projected*` carries the 30-day projection at current burn rate so the
+  // early-warning signal isn't lost. `status` reflects actuals; `projectedStatus`
+  // reflects projection — consumers can pick the signal that fits their use case.
   var budget = {
     daily: { actual: Math.round(avgDailySpend * 100) / 100, budget: FINANCE_BUDGET_DAILY, pct: dailyPct, status: _budgetStatus(avgDailySpend, FINANCE_BUDGET_DAILY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red) },
-    monthly: { actual: Math.round(projectedMonthly * 100) / 100, budget: FINANCE_BUDGET_MONTHLY, pct: monthlyPct, status: _budgetStatus(projectedMonthly, FINANCE_BUDGET_MONTHLY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red) }
+    monthly: {
+      actual: Math.round(monthToDateSpend * 100) / 100,
+      projected: Math.round(projectedMonthly * 100) / 100,
+      budget: FINANCE_BUDGET_MONTHLY,
+      pct: monthlyActualPct,
+      projectedPct: monthlyProjectedPct,
+      status: _budgetStatus(monthToDateSpend, FINANCE_BUDGET_MONTHLY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red),
+      projectedStatus: _budgetStatus(projectedMonthly, FINANCE_BUDGET_MONTHLY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red)
+    }
   };
 
   // ── Agent Efficiency ──
@@ -179,7 +204,7 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
     agentEfficiency: agentEfficiency,
     sortedAgents: sortedAgents,
     campaignROI: campaignROI,
-    costTrend: { thisWeek: Math.round(thisWeekSpend * 100) / 100, lastWeek: Math.round(prevWeekSpend * 100) / 100, deltaPct: trendDelta, direction: trendDirection },
+    costTrend: { thisWeek: Math.round(thisWeekSpend * 100) / 100, lastWeek: Math.round(prevWeekSpend * 100) / 100, deltaPct: trendDelta, direction: trendDirection, projected: Math.round(projectedMonthly * 100) / 100 },
     costPerInteraction: costPerInteraction,
     alerts: alerts
   };
@@ -208,7 +233,8 @@ function _buildFinancePromptBlock(agent, digest) {
   var daily = b.daily || {};
   var monthly = b.monthly || {};
   lines.push('- Daily: $' + (daily.actual || 0) + ' / $' + (daily.budget || FINANCE_BUDGET_DAILY) + ' (' + (daily.pct || 0) + '%) ' + (daily.status || 'GREEN'));
-  lines.push('- Monthly projected: $' + (monthly.actual || 0) + ' / $' + (monthly.budget || FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.pct || 0) + '%) ' + (monthly.status || 'GREEN'));
+  lines.push('- Month to date: $' + (monthly.actual || 0) + ' / $' + (monthly.budget || FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.pct || 0) + '%) ' + (monthly.status || 'GREEN'));
+  lines.push('- Monthly projected: $' + (monthly.projected || 0) + ' / $' + (monthly.budget || FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.projectedPct || 0) + '%) ' + (monthly.projectedStatus || 'GREEN'));
   lines.push('- Trend: ' + _arrow(trend.deltaPct || 0) + ' week-over-week');
 
   // Agent efficiency
