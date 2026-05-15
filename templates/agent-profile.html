@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{name}} — AmbientOS Agent — Ambient Pixels</title>
+  <meta name="description" content="{{name}} — {{role}}. {{pullQuote}}">
+  <meta property="og:title" content="{{name}} — AmbientOS Agent">
+  <meta property="og:description" content="{{pullQuote}}">
+  <meta property="og:image" content="https://ambientpixels.ai{{portrait}}">
+  <meta property="og:type" content="profile">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/agent-profile.css">
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="ap-agent-page" data-agent-id="{{id}}">
+    <article class="ap-agent-hero">
+      <img class="ap-agent-portrait" src="{{portrait}}" alt="{{name}} portrait" width="320" height="400">
+
+      <div>
+        <h1 class="ap-agent-name">{{name}}</h1>
+        <p class="ap-agent-role">{{role}} · Tier {{tier}}</p>
+
+        <blockquote class="ap-agent-quote">{{pullQuote}}</blockquote>
+
+        <p class="ap-agent-section-label">Who I Am</p>
+        <p class="ap-agent-bio">{{bio}}</p>
+
+        <p class="ap-agent-section-label">What I Own</p>
+        <ul class="ap-agent-owns">
+          {{ownsList}}
+        </ul>
+      </div>
+    </article>
+
+    <section class="ap-agent-live" id="agent-live-band">
+      <div class="ap-agent-live-header">
+        <span class="ap-agent-live-section-label">Right Now</span>
+        <span class="ap-agent-status-pill" id="agent-status-pill" data-status="">—</span>
+        <span class="ap-agent-stat" id="agent-stat"></span>
+      </div>
+      <p class="ap-agent-memory" id="agent-memory" hidden></p>
+    </section>
+
+    <section class="ap-agent-crew">
+      <p class="ap-agent-section-label">Meet the rest of the crew</p>
+      <div class="ap-agent-crew-chips">
+        {{crewChips}}
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="/js/site-header.js" defer></script>
+  <script src="/js/site-footer.js" defer></script>
+  <script src="/js/agent-profile-live.js" defer></script>
+</body>
+</html>
