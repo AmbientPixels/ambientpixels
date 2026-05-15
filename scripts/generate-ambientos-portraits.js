@@ -41,7 +41,7 @@ function getApiKey() {
 const PORTRAITS = [
   {
     id: 'nova',
-    prompt: 'commanding woman in her 30s, slight 3/4 angle mid-gesture as if explaining a plan, warm confident expression with a slight smile, sleek dark turtleneck, hair pulled back cleanly, easy energy, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
+    prompt: 'commanding woman in her 30s, slight 3/4 angle mid-gesture as if explaining a plan, warm confident expression with a slight smile, sharp tailored dark charcoal suit jacket over a crisp white shirt with open collar, hair pulled back cleanly, easy authoritative energy, dark near-black background, chest and shoulders visible, in the style of Arcane League of Legends animated series --ar 16:9 --stylize 250 --no photorealistic, rain, wet, fire, smoke, action, weather, storm'
   },
   {
     id: 'cipher',
