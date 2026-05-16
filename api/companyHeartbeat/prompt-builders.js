@@ -2243,7 +2243,6 @@ DELIVERABLE QUALITY — NO PREAMBLE:
        - [Blindspot](https://ambientpixels.ai/blindspot/) — card arena combat game
        - [CardForge](https://ambientpixels.ai/cardforge/) — RPG card creator
        - [StoryForge](https://ambientpixels.ai/storyforge/) — AI interactive fiction
-       - [Nova](https://ambientpixels.ai/nova/) — AI prime operator
        - [AmbientOS](https://ambientpixels.ai/ambientos/) — AI operating system
     6. EXCERPT: Include a 150-160 character excerpt as the FIRST line after the H1, wrapped in **bold**. This becomes the meta description for search results. Make it compelling — it's what people see in Google before they click.
     7. DO NOT write "introducing X" or "announcing X" posts. Write posts that ANSWER QUESTIONS or TEACH SOMETHING. A post titled "How We Built an AI Agent Team That Runs a Company" will rank. "Introducing AmbientOS" will not.

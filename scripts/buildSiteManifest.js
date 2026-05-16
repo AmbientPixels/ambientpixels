@@ -21,7 +21,7 @@ const OUT_MANIFEST = path.join(ROOT, 'data', 'site-manifest.json');
 const OUT_DIGEST = path.join(ROOT, 'data', 'site-manifest.digest.json');
 
 // ── Scan config ──
-const SCAN_DIRS = ['', 'modules', 'projects', 'cardforge', 'nova', 'tools', 'lab', 'pages', 'about', 'account', 'help', 'services', 'skills', 'support', 'hanson', 'playground'];
+const SCAN_DIRS = ['', 'modules', 'projects', 'cardforge', 'tools', 'lab', 'pages', 'about', 'account', 'help', 'services', 'skills', 'support', 'hanson', 'playground'];
 const EXCLUDE_DIRS = ['node_modules', '.git', 'dist', 'build', 'downloads', '.github', '.vscode', '.windsurf', 'api'];
 
 // Category assignment

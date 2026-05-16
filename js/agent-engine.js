@@ -1688,7 +1688,6 @@ var AgentEngine = (function () {
       { id: 'task-manager', name: 'DevOps Dash', icon: 'fas fa-tachometer-alt', url: '/modules/company/dashboard.html', category: 'monitoring', status: 'active', description: 'Monitor sessions, tokens, costs, and logs' },
       { id: 'org-chart', name: 'Org Chart', icon: 'fas fa-sitemap', url: '/modules/company/', category: 'structure', status: 'active', description: 'View company structure and agent roles' },
       { id: 'meetings', name: 'Meetings', icon: 'fas fa-calendar-check', url: '/modules/company/meetings.html', category: 'coordination', status: 'active', description: 'Schedule and review team meetings' },
-      { id: 'nova-nexus', name: 'Nova Nexus', icon: 'fas fa-brain', url: '/nova/', category: 'ai-core', status: 'active', description: 'Nova\'s sentient dashboard — mood, dreams, awareness' },
       { id: 'cardforge', name: 'CardForge', icon: 'fas fa-id-card', url: '/cardforge/', category: 'creative-tools', status: 'active', description: 'Trading card creator with AI generation' }
     ]);
   }

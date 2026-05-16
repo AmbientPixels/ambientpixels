@@ -153,7 +153,6 @@ function buildPage(post, slug) {
     '        <a href="/">Home</a>\n' +
     '        <a href="/blog/" class="ap-brand-nav--active">Blog</a>\n' +
     '        <a href="/log/">Activity Log</a>\n' +
-    '        <a href="/nova/">Nova</a>\n' +
     '        <a href="/projects/">Projects</a>\n' +
     '      </nav>\n' +
     '    </div>\n' +
@@ -182,7 +181,7 @@ function buildPage(post, slug) {
     '    <div class="blog-footer">\n' +
     '      <div class="ap-footer-logo"><img src="/images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels" /></div>\n' +
     '      <div class="ap-footer-tagline">Built on the Grid.</div>\n' +
-    '      <div class="ap-footer-links"><a href="/">Home</a> · <a href="/blog/">Blog</a> · <a href="/log/">Activity Log</a> · <a href="/nova/">Nova</a></div>\n' +
+    '      <div class="ap-footer-links"><a href="/">Home</a> · <a href="/blog/">Blog</a> · <a href="/log/">Activity Log</a></div>\n' +
     '      <div class="ap-footer-legal">&copy; 2026 AmbientPixels.ai · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></div>\n' +
     '    </div>\n' +
     '  </div>\n' +

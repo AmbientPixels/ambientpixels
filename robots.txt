@@ -2,7 +2,6 @@ User-agent: *
 Allow: /
 Allow: /blog/
 Allow: /log/
-Allow: /nova/
 Allow: /cardforge/
 Allow: /storyforge/
 Allow: /blindspot/

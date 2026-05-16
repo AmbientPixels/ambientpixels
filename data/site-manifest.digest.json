@@ -1,19 +1,17 @@
 {
-  "generatedAt": "2026-03-20T22:19:08.506Z",
-  "gitHead": "d6a4bbcb",
+  "generatedAt": "2026-05-16T19:45:23.051Z",
+  "gitHead": "ef5da6747",
   "lastDeployHint": "// trigger deploy",
   "counts": {
-    "pages": 162,
+    "pages": 140,
     "categories": {
-      "company": 31,
-      "projects": 34,
       "modules": 16,
-      "root": 23,
-      "tools": 15,
-      "nova": 26,
-      "lab": 7,
-      "hanson": 5,
-      "cardforge": 5
+      "root": 20,
+      "projects": 34,
+      "company": 41,
+      "cardforge": 11,
+      "tools": 14,
+      "lab": 4
     }
   },
   "attention": [
@@ -40,24 +38,24 @@
   ],
   "recentPages": [
     {
-      "path": "/modules/company/agent-performance.html",
-      "title": "Agent Performance — AmbientPixels HQ"
+      "path": "/modules/header.html",
+      "title": ""
     },
     {
-      "path": "/modules/company/agent-intelligence.html",
-      "title": "Agent Intelligence — AmbientPixels HQ"
+      "path": "/support/index.html",
+      "title": "Engage — AmbientPixels"
     },
     {
-      "path": "/modules/company/dashboard.html",
-      "title": "Dashboard — AmbientPixels HQ"
+      "path": "/skills/index.html",
+      "title": "Studio Skills — AmbientPixels"
     },
     {
-      "path": "/modules/company/analytics-hub.html",
-      "title": "Analytics Hub — AmbientPixels HQ"
+      "path": "/skills/chad-martin-resume.html",
+      "title": "Chad Martin — Resume — AmbientPixels"
     },
     {
-      "path": "/projects/xbox-support-team.html",
-      "title": "Xbox Support Content Team | AmbientPixels"
+      "path": "/services/index.html",
+      "title": "Services — AmbientPixels"
     }
   ]
 }

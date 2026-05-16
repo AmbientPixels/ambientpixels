@@ -76,33 +76,6 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Nova -->
-  <url>
-    <loc>https://www.ambientpixels.ai/nova/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.ambientpixels.ai/nova/about.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.ambientpixels.ai/nova/awareness.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.ambientpixels.ai/nova/dashboard.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.ambientpixels.ai/nova/logs.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
   <!-- Pixel Agents -->
   <url>
     <loc>https://www.ambientpixels.ai/pixel-agents/</loc>

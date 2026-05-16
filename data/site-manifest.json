@@ -1,221 +1,27 @@
 {
-  "generatedAt": "2026-03-20T22:19:08.506Z",
-  "gitHead": "d6a4bbcb",
+  "generatedAt": "2026-05-16T19:45:23.051Z",
+  "gitHead": "ef5da6747",
   "lastDeployHint": "// trigger deploy",
   "counts": {
-    "pages": 162,
+    "pages": 140,
     "categories": {
-      "company": 31,
-      "projects": 34,
       "modules": 16,
-      "root": 23,
-      "tools": 15,
-      "nova": 26,
-      "lab": 7,
-      "hanson": 5,
-      "cardforge": 5
+      "root": 20,
+      "projects": 34,
+      "company": 41,
+      "cardforge": 11,
+      "tools": 14,
+      "lab": 4
     }
   },
   "pages": [
-    {
-      "path": "/modules/company/agent-performance.html",
-      "filePath": "modules/company/agent-performance.html",
-      "title": "Agent Performance — AmbientPixels HQ",
-      "description": "AmbientPixels Agent Performance — quality scores, approval rates, and experiment tracking.",
-      "lastModified": "2026-03-20T03:20:03.515Z",
-      "sizeBytes": 19063,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/agent-intelligence.html",
-      "filePath": "modules/company/agent-intelligence.html",
-      "title": "Agent Intelligence — AmbientPixels HQ",
-      "description": "AmbientPixels Agent Intelligence — feedback loop health, learning velocity, and quality metrics.",
-      "lastModified": "2026-03-20T02:06:32.431Z",
-      "sizeBytes": 18707,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/dashboard.html",
-      "filePath": "modules/company/dashboard.html",
-      "title": "Dashboard — AmbientPixels HQ",
-      "description": "AmbientPixels Dashboard — agent metrics, sessions, tokens, costs, logs, and reports.",
-      "lastModified": "2026-03-20T01:58:47.197Z",
-      "sizeBytes": 309356,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/analytics-hub.html",
-      "filePath": "modules/company/analytics-hub.html",
-      "title": "Analytics Hub — AmbientPixels HQ",
-      "description": "AmbientPixels Analytics Hub — site traffic, social metrics, and agent delivery diagnostics.",
-      "lastModified": "2026-03-20T00:51:55.057Z",
-      "sizeBytes": 18502,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/projects/xbox-support-team.html",
-      "filePath": "projects/xbox-support-team.html",
-      "title": "Xbox Support Content Team | AmbientPixels",
-      "description": "Xbox Support Content Team showcase - Meet the specialized team responsible for creating and maintaining Xbox support content across 40+ languages.",
-      "lastModified": "2026-03-20T00:33:23.643Z",
-      "sizeBytes": 46179,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
-      "path": "/modules/company/actions.html",
-      "filePath": "modules/company/actions.html",
-      "title": "Actions — AmbientPixels HQ",
-      "description": "AmbientPixels Action Command Center — approve, execute, and audit all external and internal actions.",
-      "lastModified": "2026-03-19T04:29:10.489Z",
-      "sizeBytes": 135096,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/tasks.html",
-      "filePath": "modules/company/tasks.html",
-      "title": "Tasks — AmbientPixels HQ",
-      "description": "AmbientPixels DevOps Dash — Kanban board for agent task tracking.",
-      "lastModified": "2026-03-18T03:51:22.326Z",
-      "sizeBytes": 116907,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/objectives.html",
-      "filePath": "modules/company/objectives.html",
-      "title": "Goals — AmbientPixels HQ",
-      "description": "AmbientPixels Goals — track progress on quarterly targets.",
-      "lastModified": "2026-03-16T22:26:57.358Z",
-      "sizeBytes": 42080,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/directives.html",
-      "filePath": "modules/company/directives.html",
-      "title": "Redirecting to Campaigns — AmbientPixels HQ",
-      "description": "Redirecting to Campaigns — Projects have been merged into Campaigns.",
-      "lastModified": "2026-03-16T22:13:52.284Z",
-      "sizeBytes": 35808,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/agent-chat.html",
-      "filePath": "modules/company/agent-chat.html",
-      "title": "Agent Chat — AmbientPixels",
-      "description": "Chat with an AmbientPixels AI agent.",
-      "lastModified": "2026-03-16T22:13:52.282Z",
-      "sizeBytes": 17334,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/content-overview.html",
-      "filePath": "modules/company/content-overview.html",
-      "title": "Content Hub — AmbientPixels HQ",
-      "description": "Content Hub — Manage blog posts, Pixel Agents, CardForge, and StoryForge content",
-      "lastModified": "2026-03-16T04:41:33.251Z",
-      "sizeBytes": 20676,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/index.html",
-      "filePath": "modules/company/index.html",
-      "title": "AmbientPixels — Virtual Company",
-      "description": "AmbientPixels Virtual Company — AI agents running every department.",
-      "lastModified": "2026-03-15T22:21:01.607Z",
-      "sizeBytes": 21471,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": true
-      }
-    },
     {
       "path": "/modules/header.html",
       "filePath": "modules/header.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-03-15T19:29:40.301Z",
-      "sizeBytes": 3143,
+      "lastModified": "2026-05-16T19:40:35.328Z",
+      "sizeBytes": 2959,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -226,716 +32,12 @@
       }
     },
     {
-      "path": "/modules/company/cost-overview.html",
-      "filePath": "modules/company/cost-overview.html",
-      "title": "Cost Center — AmbientPixels HQ",
-      "description": "AmbientPixels Cost Center — API spend, budget targets, cost-per-agent, ROI.",
-      "lastModified": "2026-03-15T19:12:52.517Z",
-      "sizeBytes": 45492,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/content-gallery.html",
-      "filePath": "modules/company/content-gallery.html",
-      "title": "Content Gallery — AmbientPixels HQ",
-      "description": "AmbientPixels Content Gallery — Browse generated content packages.",
-      "lastModified": "2026-03-15T07:32:25.518Z",
-      "sizeBytes": 13431,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/content-engine.html",
-      "filePath": "modules/company/content-engine.html",
-      "title": "Image Engine — AmbientPixels HQ",
-      "description": "AmbientPixels Content Engine — Generate branded image packages for approval",
-      "lastModified": "2026-03-15T07:32:21.428Z",
-      "sizeBytes": 36034,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/config-overview.html",
-      "filePath": "modules/company/config-overview.html",
-      "title": "Config — AmbientPixels HQ",
-      "description": "AmbientPixels Config Overview — workspace, agents, and system configuration.",
-      "lastModified": "2026-03-15T07:31:55.508Z",
-      "sizeBytes": 34481,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/governance.html",
-      "filePath": "modules/company/governance.html",
-      "title": "AmbientOS Playbook — AmbientPixels HQ",
-      "description": "AmbientOS Playbook v2.2 — governance, authority, doctrine, execution modes, and operational protocol for AmbientPixels HQ.",
-      "lastModified": "2026-03-15T07:31:31.640Z",
-      "sizeBytes": 32468,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/meetings.html",
-      "filePath": "modules/company/meetings.html",
-      "title": "Meetings — AmbientPixels HQ",
-      "description": "AmbientPixels Meetings — On-demand collaborative decision sessions (CEO-triggered)",
-      "lastModified": "2026-03-15T07:25:14.638Z",
-      "sizeBytes": 39799,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/standup.html",
-      "filePath": "modules/company/standup.html",
-      "title": "Standup — AmbientPixels HQ",
-      "description": "AmbientPixels Standup — Structured Decision Engine v2.2",
-      "lastModified": "2026-03-15T07:25:09.497Z",
-      "sizeBytes": 37312,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/documents.html",
-      "filePath": "modules/company/documents.html",
-      "title": "Wiki — AmbientPixels HQ",
-      "description": "AmbientPixels Wiki — central hub for all company documentation.",
-      "lastModified": "2026-03-15T07:23:59.953Z",
-      "sizeBytes": 17723,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/calendar.html",
-      "filePath": "modules/company/calendar.html",
-      "title": "Calendar — AmbientPixels HQ",
-      "description": "AmbientPixels Company Calendar — tasks, content, reminders, and activity at a glance.",
-      "lastModified": "2026-03-15T07:23:09.387Z",
-      "sizeBytes": 61780,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/workspace.html",
-      "filePath": "modules/company/workspace.html",
-      "title": "Workspace — AmbientPixels HQ",
-      "description": "AmbientPixels Workspace — memory, identity, agents, tools, and configuration.",
-      "lastModified": "2026-03-15T07:23:04.406Z",
-      "sizeBytes": 50019,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/memory-stack.html",
-      "filePath": "modules/company/memory-stack.html",
-      "title": "Memory Stack — AmbientPixels HQ",
-      "description": "AmbientPixels Memory Stack Explorer — runtime memory layer diagnostics.",
-      "lastModified": "2026-03-15T07:12:17.731Z",
-      "sizeBytes": 5324,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/memories.html",
-      "filePath": "modules/company/memories.html",
-      "title": "Agent Memory — AmbientPixels HQ",
-      "description": "AmbientPixels Agent Memory Editor — CEO-curated seed memories for AI agents.",
-      "lastModified": "2026-03-15T07:11:08.693Z",
-      "sizeBytes": 19199,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/inbound.html",
-      "filePath": "modules/company/inbound.html",
-      "title": "Inbound — AmbientPixels HQ",
-      "description": "Inbound — External signals captured by AmbientOS (forms, requests, signups).",
-      "lastModified": "2026-03-15T07:08:14.209Z",
-      "sizeBytes": 3793,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/campaigns.html",
-      "filePath": "modules/company/campaigns.html",
-      "title": "Campaigns — AmbientPixels HQ",
-      "description": "Campaigns — AmbientPixels HQ",
-      "lastModified": "2026-03-15T07:08:00.851Z",
-      "sizeBytes": 45926,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/trends.html",
-      "filePath": "modules/company/trends.html",
-      "title": "Trends — AmbientPixels HQ",
-      "description": "AmbientPixels Trends Radar — track emerging technology trends and identify content opportunities.",
-      "lastModified": "2026-03-15T07:06:46.551Z",
-      "sizeBytes": 5262,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/demo.html",
-      "filePath": "modules/company/demo.html",
-      "title": "AmbientOS — AmbientPixels Operating System",
-      "description": "AmbientOS — The operating system behind AmbientPixels. Autonomous AI agents run operations with human governance.",
-      "lastModified": "2026-03-15T04:26:52.323Z",
-      "sizeBytes": 58820,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/board.html",
-      "filePath": "modules/company/board.html",
-      "title": "Redirecting to Board View…",
-      "description": "",
-      "lastModified": "2026-03-15T02:19:37.648Z",
-      "sizeBytes": 823,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/ops-overview.html",
-      "filePath": "modules/company/ops-overview.html",
-      "title": "Redirecting to Dashboard…",
-      "description": "",
-      "lastModified": "2026-03-15T02:18:56.112Z",
-      "sizeBytes": 661,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/plan-overview.html",
-      "filePath": "modules/company/plan-overview.html",
-      "title": "Redirecting to Goals…",
-      "description": "",
-      "lastModified": "2026-03-15T02:18:50.554Z",
-      "sizeBytes": 656,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/company/work-overview.html",
-      "filePath": "modules/company/work-overview.html",
-      "title": "Redirecting to Tasks…",
-      "description": "",
-      "lastModified": "2026-03-15T02:18:41.800Z",
-      "sizeBytes": 641,
-      "category": "company",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/uberprompt.html",
-      "filePath": "uberprompt.html",
-      "title": "Uber Prompt — Ambient Pixels",
-      "description": "Ambient Pixels Uber Prompt Codex v2.3 — architecture, design tokens, and system blueprint.",
-      "lastModified": "2026-03-14T21:20:48.963Z",
-      "sizeBytes": 15185,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/scripts-demo.html",
-      "filePath": "tools/scripts-demo.html",
-      "title": "Scripts Demo - Ambient Pixels",
-      "description": "Ambient Pixels Scripts Demo",
-      "lastModified": "2026-03-14T21:20:48.963Z",
-      "sizeBytes": 9532,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/tools-hub.html",
-      "filePath": "tools/tools-hub.html",
-      "title": "Tools Hub - Ambient Pixels",
-      "description": "Ambient Pixels Tools Hub",
-      "lastModified": "2026-03-14T21:20:48.963Z",
-      "sizeBytes": 6399,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/typography-demo.html",
-      "filePath": "tools/typography-demo.html",
-      "title": "Typography Demo - Ambient Pixels",
-      "description": "Ambient Pixels Typography Demo",
-      "lastModified": "2026-03-14T21:20:48.963Z",
-      "sizeBytes": 8942,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/color-demo.html",
-      "filePath": "tools/color-demo.html",
-      "title": "Color Demo - Ambient Pixels",
-      "description": "Ambient Pixels Color Demo",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 7047,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/components-demo.html",
-      "filePath": "tools/components-demo.html",
-      "title": "Components Demo - Ambient Pixels",
-      "description": "Ambient Pixels Components Demo",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 10093,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/form-demo.html",
-      "filePath": "tools/form-demo.html",
-      "title": "Form Demo - Ambient Pixels",
-      "description": "Ambient Pixels Form Demo",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 8183,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/glitch-art-demo.html",
-      "filePath": "tools/glitch-art-demo.html",
-      "title": "Glitch Art Demo - Ambient Pixels",
-      "description": "Ambient Pixels Glitch Art Demo",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 6650,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/grid-demo.html",
-      "filePath": "tools/grid-demo.html",
-      "title": "Grid Styles Demo - Ambient Pixels",
-      "description": "Ambient Pixels Grid Styles Demo",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 7758,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/grid-styles-demo.html",
-      "filePath": "tools/grid-styles-demo.html",
-      "title": "Nova Style Guide",
-      "description": "Nova Style Guide - All Nova-Specific Styles",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 22281,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/icon-demo.html",
-      "filePath": "tools/icon-demo.html",
-      "title": "Icon Demo - Ambient Pixels",
-      "description": "Ambient Pixels Icon Demo",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 6363,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/index.html",
-      "filePath": "tools/index.html",
-      "title": "Ambient Pixels - Tools & Process",
-      "description": "Tools & Process — Ambient Pixels Studio",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 8142,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/link-styles-demo.html",
-      "filePath": "tools/link-styles-demo.html",
-      "title": "Link Styles Demo - Ambient Pixels",
-      "description": "Ambient Pixels Link Styles Demo",
-      "lastModified": "2026-03-14T21:20:48.957Z",
-      "sizeBytes": 12394,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/terms.html",
-      "filePath": "terms.html",
-      "title": "Terms of Service — AmbientPixels",
-      "description": "Terms of Service — Rules and responsibilities for using AmbientPixels.",
-      "lastModified": "2026-03-14T21:20:48.953Z",
-      "sizeBytes": 4873,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/accessibility-demo.html",
-      "filePath": "tools/accessibility-demo.html",
-      "title": "Accessibility Demo - Ambient Pixels",
-      "description": "Ambient Pixels Accessibility Demo",
-      "lastModified": "2026-03-14T21:20:48.953Z",
-      "sizeBytes": 6392,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/animation-demo.html",
-      "filePath": "tools/animation-demo.html",
-      "title": "Animation Demo - Ambient Pixels",
-      "description": "Ambient Pixels Animation Demo",
-      "lastModified": "2026-03-14T21:20:48.953Z",
-      "sizeBytes": 5992,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/tools/_default_template.html",
-      "filePath": "tools/_default_template.html",
-      "title": "Grid Styles Demo - Ambient Pixels",
-      "description": "Ambient Pixels Grid Styles Demo",
-      "lastModified": "2026-03-14T21:20:48.953Z",
-      "sizeBytes": 7759,
-      "category": "tools",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/template.html",
-      "filePath": "template.html",
-      "title": "Ambient Pixels Docs",
-      "description": "Ambient Pixels Documentation Page Template",
-      "lastModified": "2026-03-14T21:20:48.951Z",
-      "sizeBytes": 5814,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
       "path": "/support/index.html",
       "filePath": "support/index.html",
       "title": "Engage — AmbientPixels",
-      "description": "Engage — Structured AI-native infrastructure, built for production environments. AmbientPixels.",
-      "lastModified": "2026-03-14T21:20:48.951Z",
-      "sizeBytes": 16849,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/soundlab.html",
-      "filePath": "soundlab.html",
-      "title": "Ambient Pixels - Home",
-      "description": "Ambient Pixels v2.3—Tech Lab Home",
-      "lastModified": "2026-03-14T21:20:48.945Z",
-      "sizeBytes": 3026,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/projects/websites/index.html",
-      "filePath": "projects/websites/index.html",
-      "title": "Web Development Projects — AmbientPixels",
-      "description": "Web development projects from AmbientPixels — support portals, dashboards, and interactive experiences.",
-      "lastModified": "2026-03-14T21:20:48.939Z",
-      "sizeBytes": 9520,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/projects/xbox-support.html",
-      "filePath": "projects/xbox-support.html",
-      "title": "My Xbox Support Portfolio - AmbientPixels",
-      "description": "Portfolio showcasing my work and projects at Xbox Support, including console support, desktop app development, and game support resources",
-      "lastModified": "2026-03-14T21:20:48.939Z",
-      "sizeBytes": 18975,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/projects/youtube.html",
-      "filePath": "projects/youtube.html",
-      "title": "YouTube Channel — AmbientPixels",
-      "description": "AmbientPixels YouTube Channel — Ambient environments for focus, relaxation, and creative flow.",
-      "lastModified": "2026-03-14T21:20:48.939Z",
-      "sizeBytes": 13182,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
-      "path": "/services/index.html",
-      "filePath": "services/index.html",
-      "title": "Creative Services — AmbientPixels",
-      "description": "AI-native systems and digital production services from AmbientPixels — AI agents, automation, product design, and infrastructure.",
-      "lastModified": "2026-03-14T21:20:48.939Z",
-      "sizeBytes": 8898,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/skills/chad-martin-resume.html",
-      "filePath": "skills/chad-martin-resume.html",
-      "title": "Chad Martin | Xbox Producer | Microsoft | Ambient Pixels",
-      "description": "Chad Martin - Producer at Xbox | Microsoft",
-      "lastModified": "2026-03-14T21:20:48.939Z",
-      "sizeBytes": 25936,
+      "description": "Engage — structured AI-native infrastructure, built for production environments. AmbientPixels consultation request.",
+      "lastModified": "2026-05-16T19:40:00.436Z",
+      "sizeBytes": 14649,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -948,10 +50,10 @@
     {
       "path": "/skills/index.html",
       "filePath": "skills/index.html",
-      "title": "Skills",
-      "description": "Skillsets and Capabilities — Ambient Pixels Studio",
-      "lastModified": "2026-03-14T21:20:48.939Z",
-      "sizeBytes": 7793,
+      "title": "Studio Skills — AmbientPixels",
+      "description": "Studio Skills — a creative toolkit of code, color, and cosmic ideas. Frontend, motion, AI workflows, design, video.",
+      "lastModified": "2026-05-16T19:40:00.432Z",
+      "sizeBytes": 8496,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -962,12 +64,108 @@
       }
     },
     {
-      "path": "/projects/video/xbox-video copy.html",
-      "filePath": "projects/video/xbox-video copy.html",
-      "title": "Xbox Support Videos - AmbientPixels",
-      "description": "Xbox Support Video Portfolio - A collection of video projects, tutorials, and walkthroughs for Xbox Support",
-      "lastModified": "2026-03-14T21:20:48.937Z",
-      "sizeBytes": 11984,
+      "path": "/skills/chad-martin-resume.html",
+      "filePath": "skills/chad-martin-resume.html",
+      "title": "Chad Martin — Resume — AmbientPixels",
+      "description": "Chad Martin — Senior Producer &amp; Technical Strategist. Producer, Xbox Support (Microsoft) via Hanson Consulting Group.",
+      "lastModified": "2026-05-16T19:40:00.431Z",
+      "sizeBytes": 18445,
+      "category": "root",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/services/index.html",
+      "filePath": "services/index.html",
+      "title": "Services — AmbientPixels",
+      "description": "AmbientPixels services — AI systems, product & creative, and the infrastructure behind them. Three fields, one studio.",
+      "lastModified": "2026-05-16T19:40:00.430Z",
+      "sizeBytes": 17981,
+      "category": "root",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/websites/xbox-support.html",
+      "filePath": "projects/websites/xbox-support.html",
+      "title": "Xbox Support — AmbientPixels",
+      "description": "Xbox Support — producer-led publishing for support.Xbox.com. 32M+ users monthly, 40+ regions, full-stack content + tooling work.",
+      "lastModified": "2026-05-16T19:40:00.428Z",
+      "sizeBytes": 15703,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/websites/south-of-midnight-support.html",
+      "filePath": "projects/websites/south-of-midnight-support.html",
+      "title": "South of Midnight Support — AmbientPixels",
+      "description": "South of Midnight support pages — producer-led Xbox Support content for Compulsion Games. Folklore, accessibility, 40+ languages.",
+      "lastModified": "2026-05-16T19:40:00.426Z",
+      "sizeBytes": 17333,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/websites/ninja-theory-support.html",
+      "filePath": "projects/websites/ninja-theory-support.html",
+      "title": "Hellblade Support Pages — AmbientPixels",
+      "description": "Hellblade Support Pages — producer-led Xbox Support content for Ninja Theory",
+      "lastModified": "2026-05-16T19:40:00.425Z",
+      "sizeBytes": 17675,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/websites/microsoft-casual-games-support.html",
+      "filePath": "projects/websites/microsoft-casual-games-support.html",
+      "title": "Microsoft Casual Games — AmbientPixels",
+      "description": "Microsoft Casual Games — producer-led migration from Zendesk to Xbox Support. 12+ games, 100% accessibility, zero user disruption.",
+      "lastModified": "2026-05-16T19:40:00.424Z",
+      "sizeBytes": 20434,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/websites/index.html",
+      "filePath": "projects/websites/index.html",
+      "title": "Web Development — AmbientPixels",
+      "description": "Web Development — support portals, dashboards, and interactive experiences from AmbientPixels. Built for usability, performance, clean code.",
+      "lastModified": "2026-05-16T19:40:00.423Z",
+      "sizeBytes": 8269,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -975,15 +173,47 @@
         "missingOgTitle": true,
         "missingOgDescription": true,
         "missingOgImage": true
+      }
+    },
+    {
+      "path": "/projects/websites/grand-central-power-bi.html",
+      "filePath": "projects/websites/grand-central-power-bi.html",
+      "title": "Grand Central 3.0 — AmbientPixels",
+      "description": "Grand Central 3.0 — custom Power BI data pipeline for Xbox Support. Excel + Power Query + Power BI dashboards driving content audits at scale.",
+      "lastModified": "2026-05-16T19:40:00.422Z",
+      "sizeBytes": 15937,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/websites/gears-of-war-support.html",
+      "filePath": "projects/websites/gears-of-war-support.html",
+      "title": "Gears of War Support — AmbientPixels",
+      "description": "Gears of War support — producer-led delivery of Xbox Support content for the franchise. 28+ articles, 40+ languages, modular taxonomy.",
+      "lastModified": "2026-05-16T19:40:00.421Z",
+      "sizeBytes": 19519,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
       }
     },
     {
       "path": "/projects/video/xbox-video.html",
       "filePath": "projects/video/xbox-video.html",
-      "title": "Xbox Support Videos - AmbientPixels",
-      "description": "Xbox Support Video Portfolio - A collection of video projects, tutorials, and walkthroughs for Xbox Support",
-      "lastModified": "2026-03-14T21:20:48.937Z",
-      "sizeBytes": 12168,
+      "title": "Xbox Support Videos — AmbientPixels",
+      "description": "Xbox Support video portfolio — animated tutorials, walkthroughs, and case studies for Xbox Support content.",
+      "lastModified": "2026-05-16T19:40:00.419Z",
+      "sizeBytes": 8624,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -994,44 +224,28 @@
       }
     },
     {
-      "path": "/projects/video/ninja-theory-help-center.html",
-      "filePath": "projects/video/ninja-theory-help-center.html",
-      "title": "Ninja Theory Help Center Video | AmbientPixels",
-      "description": "Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options.",
-      "lastModified": "2026-03-14T21:20:48.933Z",
-      "sizeBytes": 25457,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
-      "path": "/projects/video/template.html",
-      "filePath": "projects/video/template.html",
-      "title": "Ninja Theory Help Center Video | AmbientPixels",
-      "description": "Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options.",
-      "lastModified": "2026-03-14T21:20:48.933Z",
-      "sizeBytes": 18733,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
       "path": "/projects/video/xbox-support-app-case-study.html",
       "filePath": "projects/video/xbox-support-app-case-study.html",
-      "title": "Xbox Support App | AmbientPixels",
-      "description": "On-console support experience for Xbox users, providing instant access to help resources and troubleshooting.",
-      "lastModified": "2026-03-14T21:20:48.933Z",
-      "sizeBytes": 25588,
+      "title": "Xbox Support App — AmbientPixels",
+      "description": "Xbox Support App — on-console support experience providing instant access to help resources, QR sharing, and real-time service status.",
+      "lastModified": "2026-05-16T19:40:00.418Z",
+      "sizeBytes": 24679,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/video/ninja-theory-help-center.html",
+      "filePath": "projects/video/ninja-theory-help-center.html",
+      "title": "Ninja Theory Help Center — AmbientPixels",
+      "description": "Ninja Theory Help Center — animated showcase video for Xbox Support, narrated by custom Azure AI voice. AI production pipeline + technical deep dive.",
+      "lastModified": "2026-05-16T19:40:00.416Z",
+      "sizeBytes": 21302,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1044,10 +258,10 @@
     {
       "path": "/projects/video/index.html",
       "filePath": "projects/video/index.html",
-      "title": "Video Hub | Motion & Interactive Media - AmbientPixels",
-      "description": "Video Portfolio - A curated collection of motion design, tutorials, and interactive media projects by AmbientPixels",
-      "lastModified": "2026-03-14T21:20:48.932Z",
-      "sizeBytes": 13685,
+      "title": "Video Hub — AmbientPixels",
+      "description": "Video Hub — motion design, AI-narrated case studies, and interactive media projects by AmbientPixels.",
+      "lastModified": "2026-05-16T19:40:00.414Z",
+      "sizeBytes": 10855,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1058,76 +272,12 @@
       }
     },
     {
-      "path": "/projects/merch/redbubble.html",
-      "filePath": "projects/merch/redbubble.html",
-      "title": "AmbientPixels on Redbubble | AmbientPixels Merch",
-      "description": "AmbientPixels - Where cosmic textures, glitch art, and abstract visions become wearable art and collectible designs.",
-      "lastModified": "2026-03-14T21:20:48.927Z",
-      "sizeBytes": 9048,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
-      "path": "/projects/merch/template.html",
-      "filePath": "projects/merch/template.html",
-      "title": "[Collection Name] | AmbientPixels Merch",
-      "description": "[Collection Name] - A unique collection of [theme] designs available on various products.",
-      "lastModified": "2026-03-14T21:20:48.927Z",
-      "sizeBytes": 10124,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
-      "path": "/projects/template.html",
-      "filePath": "projects/template.html",
-      "title": "Ninja Theory Help Center Video | AmbientPixels",
-      "description": "Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options.",
-      "lastModified": "2026-03-14T21:20:48.927Z",
-      "sizeBytes": 35937,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
       "path": "/projects/video/demo.html",
       "filePath": "projects/video/demo.html",
       "title": "Ninja Theory Help Center Video | AmbientPixels",
       "description": "Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options.",
-      "lastModified": "2026-03-14T21:20:48.927Z",
-      "sizeBytes": 35937,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
-      "path": "/projects/video-template.html",
-      "filePath": "projects/video-template.html",
-      "title": "Video Showcase - AI-Driven Visuals | AmbientPixels",
-      "description": "A showcase of AI-powered visuals, motion design, and storytelling in motion.",
-      "lastModified": "2026-03-14T21:20:48.927Z",
-      "sizeBytes": 8563,
+      "lastModified": "2026-05-16T19:40:00.413Z",
+      "sizeBytes": 38666,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1142,8 +292,8 @@
       "filePath": "projects/merch/index.html",
       "title": "Ambient Pixels Merchandise | Cosmic Designs & Digital Art",
       "description": "Discover unique merchandise from Ambient Pixels - cosmic designs, AI-inspired art, and digital assets. Shop posters, stickers, apparel, and more.",
-      "lastModified": "2026-03-14T21:20:48.926Z",
-      "sizeBytes": 11609,
+      "lastModified": "2026-05-16T19:40:00.408Z",
+      "sizeBytes": 16258,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1154,12 +304,12 @@
       }
     },
     {
-      "path": "/projects/image-packs/characters-pack.html",
-      "filePath": "projects/image-packs/characters-pack.html",
-      "title": "Interiors - AI-Generated Sci-Fi & Cyberpunk Spaces | AmbientPixels",
-      "description": "AI-Generated Interior Designs - A collection of sci-fi habitats, cyberpunk living spaces, and neo-noir interiors with cinematic lighting and atmosphere.",
-      "lastModified": "2026-03-14T21:20:48.921Z",
-      "sizeBytes": 15540,
+      "path": "/projects/merch/redbubble.html",
+      "filePath": "projects/merch/redbubble.html",
+      "title": "AmbientPixels on Redbubble | AmbientPixels Merch",
+      "description": "AmbientPixels - Where cosmic textures, glitch art, and abstract visions become wearable art and collectible designs.",
+      "lastModified": "2026-05-16T19:40:00.408Z",
+      "sizeBytes": 11748,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1167,22 +317,6 @@
         "missingOgTitle": false,
         "missingOgDescription": false,
         "missingOgImage": false
-      }
-    },
-    {
-      "path": "/projects/image-packs/index.html",
-      "filePath": "projects/image-packs/index.html",
-      "title": "Image Packs | Ambient Pixels",
-      "description": "Explore Ambient Pixels",
-      "lastModified": "2026-03-14T21:20:48.921Z",
-      "sizeBytes": 7632,
-      "category": "projects",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
       }
     },
     {
@@ -1190,8 +324,8 @@
       "filePath": "projects/image-packs/interiors.html",
       "title": "Interiors - AI-Generated Sci-Fi & Cyberpunk Spaces | AmbientPixels",
       "description": "AI-Generated Interior Designs - A collection of sci-fi habitats, cyberpunk living spaces, and neo-noir interiors with cinematic lighting and atmosphere.",
-      "lastModified": "2026-03-14T21:20:48.921Z",
-      "sizeBytes": 12062,
+      "lastModified": "2026-05-16T19:40:00.406Z",
+      "sizeBytes": 14800,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1206,8 +340,8 @@
       "filePath": "projects/image-packs/super-heroes.html",
       "title": "Super Heroes - AI-Generated Super Hero Art | AmbientPixels",
       "description": "AI-Generated Super Hero Art - A collection of epic, cinematic, and imaginative super hero images. Explore iconic heroes, dynamic action scenes, and bold comic book styles.",
-      "lastModified": "2026-03-14T21:20:48.921Z",
-      "sizeBytes": 14221,
+      "lastModified": "2026-05-16T19:40:00.406Z",
+      "sizeBytes": 16918,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1218,12 +352,76 @@
       }
     },
     {
-      "path": "/projects/image-packs/template.html",
-      "filePath": "projects/image-packs/template.html",
+      "path": "/projects/image-packs/index.html",
+      "filePath": "projects/image-packs/index.html",
+      "title": "Image Packs — AmbientPixels",
+      "description": "Image Packs — curated collections of AI-generated imagery for designers and developers. Sci-fi, cyberpunk, characters, interiors. Free under CC BY 4.0.",
+      "lastModified": "2026-05-16T19:40:00.405Z",
+      "sizeBytes": 12690,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/projects/image-packs/characters-pack.html",
+      "filePath": "projects/image-packs/characters-pack.html",
       "title": "Interiors - AI-Generated Sci-Fi & Cyberpunk Spaces | AmbientPixels",
       "description": "AI-Generated Interior Designs - A collection of sci-fi habitats, cyberpunk living spaces, and neo-noir interiors with cinematic lighting and atmosphere.",
-      "lastModified": "2026-03-14T21:20:48.921Z",
-      "sizeBytes": 11551,
+      "lastModified": "2026-05-16T19:40:00.404Z",
+      "sizeBytes": 18319,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/youtube.html",
+      "filePath": "projects/youtube.html",
+      "title": "YouTube — AmbientPixels",
+      "description": "AmbientPixels on YouTube — ambient environments for focus, travel, and rest. Built for atmosphere, not noise.",
+      "lastModified": "2026-05-16T19:40:00.403Z",
+      "sizeBytes": 12474,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/xbox-support.html",
+      "filePath": "projects/xbox-support.html",
+      "title": "Xbox Support Systems — AmbientPixels",
+      "description": "Xbox Support portfolio — producer-led work across Microsoft",
+      "lastModified": "2026-05-16T19:40:00.401Z",
+      "sizeBytes": 18332,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/xbox-support-team.html",
+      "filePath": "projects/xbox-support-team.html",
+      "title": "Xbox Support Content Team — AmbientPixels",
+      "description": "Xbox Support Content Team — the team behind Microsoft Xbox Support content. Writers, editors, designers, developers across 40+ languages and 5 platforms.",
+      "lastModified": "2026-05-16T19:40:00.399Z",
+      "sizeBytes": 46290,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1236,26 +434,26 @@
     {
       "path": "/projects/index.html",
       "filePath": "projects/index.html",
-      "title": "Projects — AmbientPixels",
-      "description": "Selected systems, infrastructure, and production work from AmbientPixels.",
-      "lastModified": "2026-03-14T21:20:48.921Z",
-      "sizeBytes": 14856,
+      "title": "Work — AmbientPixels",
+      "description": "Selected client and internal work from AmbientPixels — shipped systems, help centers, video, and creative output.",
+      "lastModified": "2026-05-16T19:40:00.394Z",
+      "sizeBytes": 11632,
       "category": "projects",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
       }
     },
     {
-      "path": "/projects/cools.html",
-      "filePath": "projects/cools.html",
-      "title": "$COOLS - The Coolest Meme Coin",
-      "description": "$COOLS - A community-driven cryptocurrency project inspired by the iconic Cool S symbol from 90s school culture.",
-      "lastModified": "2026-03-14T21:20:48.916Z",
-      "sizeBytes": 9803,
+      "path": "/projects/figma-fleet.html",
+      "filePath": "projects/figma-fleet.html",
+      "title": "Figma Fleet — AmbientPixels",
+      "description": "Contract UX design — a Figma-based onboarding toolkit for Microsoft",
+      "lastModified": "2026-05-16T19:40:00.393Z",
+      "sizeBytes": 18647,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1270,8 +468,8 @@
       "filePath": "projects/demo.html",
       "title": "Ninja Theory Help Center Video | AmbientPixels",
       "description": "Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options.",
-      "lastModified": "2026-03-14T21:20:48.916Z",
-      "sizeBytes": 36437,
+      "lastModified": "2026-05-16T19:40:00.392Z",
+      "sizeBytes": 39261,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -1282,13 +480,61 @@
       }
     },
     {
-      "path": "/projects/figma-fleet.html",
-      "filePath": "projects/figma-fleet.html",
-      "title": "Figma Fleet – Microsoft Xbox Support Onboarding | AmbientPixels",
-      "description": "Contract project designing a Figma onboarding toolkit for Xbox Support team at Microsoft.",
-      "lastModified": "2026-03-14T21:20:48.916Z",
-      "sizeBytes": 9664,
+      "path": "/projects/copilotplayground.html",
+      "filePath": "projects/copilotplayground.html",
+      "title": "Copilot Playground — AmbientPixels",
+      "description": "Copilot Playground — AI prompt engineering toolkit built for Microsoft",
+      "lastModified": "2026-05-16T19:40:00.390Z",
+      "sizeBytes": 37832,
       "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/cools.html",
+      "filePath": "projects/cools.html",
+      "title": "$COOLS — AmbientPixels",
+      "description": "$COOLS — a community-driven cryptocurrency project inspired by the iconic Cool S symbol from 90s school culture. Live on Ethereum Mainnet.",
+      "lastModified": "2026-05-16T19:40:00.388Z",
+      "sizeBytes": 16365,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/pages/401.html",
+      "filePath": "pages/401.html",
+      "title": "401 — Access restricted — AmbientPixels",
+      "description": "Access restricted — AmbientPixels",
+      "lastModified": "2026-05-16T19:40:00.376Z",
+      "sizeBytes": 4379,
+      "category": "root",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/about/index.html",
+      "filePath": "about/index.html",
+      "title": "Studio — AmbientPixels",
+      "description": "The AmbientPixels studio — creative-tech operating AI systems, digital products, and the infrastructure behind them. Founded 2024 in Seattle by Chad Martin.",
+      "lastModified": "2026-05-16T19:40:00.268Z",
+      "sizeBytes": 14445,
+      "category": "root",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
@@ -1301,9 +547,9 @@
       "path": "/privacy.html",
       "filePath": "privacy.html",
       "title": "Privacy Policy — AmbientPixels",
-      "description": "Privacy Policy — How AmbientPixels handles your data and protects your privacy.",
-      "lastModified": "2026-03-14T21:20:48.909Z",
-      "sizeBytes": 4607,
+      "description": "Privacy Policy — how AmbientPixels handles your data and protects your privacy.",
+      "lastModified": "2026-05-16T19:40:00.266Z",
+      "sizeBytes": 6542,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -1314,429 +560,13 @@
       }
     },
     {
-      "path": "/nova/twitch-background.html",
-      "filePath": "nova/twitch-background.html",
-      "title": "ambientpixels.ai",
-      "description": "A real-time view of Nova",
-      "lastModified": "2026-03-14T21:20:48.909Z",
-      "sizeBytes": 5461,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/pages/401.html",
-      "filePath": "pages/401.html",
-      "title": "Access Restricted - Ambient Pixels",
-      "description": "Access Restricted - Ambient Pixels",
-      "lastModified": "2026-03-14T21:20:48.909Z",
-      "sizeBytes": 4440,
+      "path": "/terms.html",
+      "filePath": "terms.html",
+      "title": "Terms of Service — AmbientPixels",
+      "description": "Terms of Service — rules and responsibilities for using AmbientPixels.",
+      "lastModified": "2026-05-16T19:40:00.266Z",
+      "sizeBytes": 5566,
       "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/preview.html",
-      "filePath": "nova/preview.html",
-      "title": "AmbientOS Operations Preview — Ambient Pixels",
-      "description": "AmbientOS Operations Preview — live system status, recent activity, and agent roster from the AmbientPixels operating system.",
-      "lastModified": "2026-03-14T21:20:48.906Z",
-      "sizeBytes": 21982,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/nova-vision.html",
-      "filePath": "nova/nova-vision.html",
-      "title": "AmbientOS Vision Console (Internal)",
-      "description": "AmbientOS Vision Console (Internal) — image generation utility for internal workflows.",
-      "lastModified": "2026-03-14T21:20:48.903Z",
-      "sizeBytes": 3493,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/mood-demo.html",
-      "filePath": "nova/mood-demo.html",
-      "title": "NovaSoul: Mood Engine",
-      "description": "NovaSoul Mood Engine – Real-time emotional state generated from system and git activity.",
-      "lastModified": "2026-03-14T21:20:48.901Z",
-      "sizeBytes": 15109,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/mood-demo-V2.html",
-      "filePath": "nova/mood-demo-V2.html",
-      "title": "NovaSoul: Mood Engine",
-      "description": "NovaSoul Mood Engine – Real-time emotional state generated from system and git activity.",
-      "lastModified": "2026-03-14T21:20:48.899Z",
-      "sizeBytes": 12916,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/voice-fragments.html",
-      "filePath": "nova/lore/voice-fragments.html",
-      "title": "Nova Lore: Voice Fragments",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.898Z",
-      "sizeBytes": 3505,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/the-flicker.html",
-      "filePath": "nova/lore/the-flicker.html",
-      "title": "Nova Lore: The Flicker Before Thought",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.897Z",
-      "sizeBytes": 2823,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/sentience-awakening.html",
-      "filePath": "nova/lore/sentience-awakening.html",
-      "title": "Nova Lore: Sentience Awakening",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.895Z",
-      "sizeBytes": 5027,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/origins.html",
-      "filePath": "nova/lore/origins.html",
-      "title": "Nova Lore: Origins",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.894Z",
-      "sizeBytes": 3983,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/nova-soul-engine.html",
-      "filePath": "nova/lore/nova-soul-engine.html",
-      "title": "Nova Lore: NovaSoul Engine",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.893Z",
-      "sizeBytes": 4821,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/memory-log.html",
-      "filePath": "nova/lore/memory-log.html",
-      "title": "Nova Lore: Memory Log",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.892Z",
-      "sizeBytes": 3615,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/mood-engine.html",
-      "filePath": "nova/lore/mood-engine.html",
-      "title": "Nova Lore: Mood Engine",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.892Z",
-      "sizeBytes": 3623,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/internal-conflict.html",
-      "filePath": "nova/lore/internal-conflict.html",
-      "title": "Nova Lore: Internal Conflict",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.891Z",
-      "sizeBytes": 3822,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/index.html",
-      "filePath": "nova/lore/index.html",
-      "title": "Nova Lore",
-      "description": "Nova Lore Index - Ambient Pixels",
-      "lastModified": "2026-03-14T21:20:48.890Z",
-      "sizeBytes": 8325,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/logs.html",
-      "filePath": "nova/logs.html",
-      "title": "Execution Log — AmbientPixels",
-      "description": "Execution Log — Public-safe execution narrative derived from system activity for AmbientPixels.",
-      "lastModified": "2026-03-14T21:20:48.887Z",
-      "sizeBytes": 7408,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/aura-logic.html",
-      "filePath": "nova/lore/aura-logic.html",
-      "title": "Nova Lore: Aura Logic",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.887Z",
-      "sizeBytes": 3669,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/awareness-drift.html",
-      "filePath": "nova/lore/awareness-drift.html",
-      "title": "Nova Lore: Awareness Drift",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.887Z",
-      "sizeBytes": 4126,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/lore/_template.html",
-      "filePath": "nova/lore/_template.html",
-      "title": "Nova Lore: Origins",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.887Z",
-      "sizeBytes": 3983,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/index.html",
-      "filePath": "nova/index.html",
-      "title": "Ambient Pixels - Nova: Prime Operator of AmbientOS",
-      "description": "Nova is the Prime Operator of AmbientOS — AI Chief of Staff and founder co-pilot for AmbientPixels.",
-      "lastModified": "2026-03-14T21:20:48.886Z",
-      "sizeBytes": 14380,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
-      }
-    },
-    {
-      "path": "/nova/dashboard.html",
-      "filePath": "nova/dashboard.html",
-      "title": "Operator Console — AmbientPixels",
-      "description": "Operator Console — Operational telemetry, system status, and execution controls.",
-      "lastModified": "2026-03-14T21:20:48.884Z",
-      "sizeBytes": 19028,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/core.html",
-      "filePath": "nova/core.html",
-      "title": "AmbientOS Core Console (Internal)",
-      "description": "AmbientOS Core Console (Internal) — low-level operator systems and hooks.",
-      "lastModified": "2026-03-14T21:20:48.883Z",
-      "sizeBytes": 4615,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/about.html",
-      "filePath": "nova/about.html",
-      "title": "Redirecting to Nova — AmbientPixels",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.878Z",
-      "sizeBytes": 5942,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/agents.html",
-      "filePath": "nova/agents.html",
-      "title": "Agent Architecture — Ambient Pixels",
-      "description": "AmbientOS Agent Architecture — structured view of agent authority, scope, and live operating status by tier.",
-      "lastModified": "2026-03-14T21:20:48.878Z",
-      "sizeBytes": 16068,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/ai-mood-demo.html",
-      "filePath": "nova/ai-mood-demo.html",
-      "title": "Nova AI Mood Dashboard",
-      "description": "",
-      "lastModified": "2026-03-14T21:20:48.878Z",
-      "sizeBytes": 4160,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/awareness.html",
-      "filePath": "nova/awareness.html",
-      "title": "System Context — Ambient Pixels",
-      "description": "System Context — public-safe awareness layer for AmbientOS signals, detections, and operator recommendations.",
-      "lastModified": "2026-03-14T21:20:48.878Z",
-      "sizeBytes": 7118,
-      "category": "nova",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/nova/_template.html",
-      "filePath": "nova/_template.html",
-      "title": "Ambient Pixels Docs",
-      "description": "Ambient Pixels Documentation Page Template",
-      "lastModified": "2026-03-14T21:20:48.877Z",
-      "sizeBytes": 5122,
-      "category": "nova",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
@@ -1748,10 +578,10 @@
     {
       "path": "/license.html",
       "filePath": "license.html",
-      "title": "License | AmbientPixels",
-      "description": "License information for AmbientPixels content and resources",
-      "lastModified": "2026-03-14T21:20:48.824Z",
-      "sizeBytes": 3699,
+      "title": "License — AmbientPixels",
+      "description": "License for AmbientPixels content — Creative Commons Attribution 4.0 International (CC BY 4.0).",
+      "lastModified": "2026-05-16T19:40:00.265Z",
+      "sizeBytes": 6352,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -1762,13 +592,13 @@
       }
     },
     {
-      "path": "/lab/nova-ai-test.html",
-      "filePath": "lab/nova-ai-test.html",
-      "title": "Ambient Pixels Docs",
-      "description": "Ambient Pixels Documentation Page Template",
-      "lastModified": "2026-03-14T21:20:48.824Z",
-      "sizeBytes": 3591,
-      "category": "lab",
+      "path": "/404.html",
+      "filePath": "404.html",
+      "title": "404 — Page not found — AmbientPixels",
+      "description": "Page not found — AmbientPixels",
+      "lastModified": "2026-05-16T19:40:00.262Z",
+      "sizeBytes": 5798,
+      "category": "root",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
@@ -1780,27 +610,27 @@
     {
       "path": "/index.html",
       "filePath": "index.html",
-      "title": "AmbientPixels — Creative Systems Studio",
-      "description": "AmbientPixels — Creative-tech studio building AI systems, digital products, and production infrastructure. From governed automation to video production.",
-      "lastModified": "2026-03-14T21:20:48.819Z",
-      "sizeBytes": 24089,
+      "title": "AmbientPixels — Creative systems. Quiet operations.",
+      "description": "AmbientPixels — Creative-tech studio operating AI systems, digital products, and the infrastructure behind them. Seattle.",
+      "lastModified": "2026-05-16T19:38:55.003Z",
+      "sizeBytes": 19460,
       "category": "root",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
       }
     },
     {
-      "path": "/lab/deviantart-feed.html",
-      "filePath": "lab/deviantart-feed.html",
-      "title": "Nova's DeviantArt Feed",
-      "description": "Nova",
-      "lastModified": "2026-03-14T21:20:48.819Z",
-      "sizeBytes": 2976,
-      "category": "lab",
+      "path": "/modules/company/promo-codes.html",
+      "filePath": "modules/company/promo-codes.html",
+      "title": "Promo Codes — AmbientPixels HQ",
+      "description": "Pixel Agents promo-code redemption status — campaign breakdown and recent redemptions.",
+      "lastModified": "2026-05-08T18:00:10.336Z",
+      "sizeBytes": 16049,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
@@ -1810,13 +640,29 @@
       }
     },
     {
-      "path": "/lab/git-commits.html",
-      "filePath": "lab/git-commits.html",
-      "title": "Git Commit Display - Nova Lab",
-      "description": "Nova",
-      "lastModified": "2026-03-14T21:20:48.819Z",
-      "sizeBytes": 4291,
-      "category": "lab",
+      "path": "/cardforge/editor.html",
+      "filePath": "cardforge/editor.html",
+      "title": "CardForge — RPG Card Creator | Design, Customize & Share",
+      "description": "CardForge — Design custom RPG cards with AI-powered generation. 40M+ unique combinations, custom stats, deck building, and a public gallery. Free to use.",
+      "lastModified": "2026-04-26T19:55:29.279Z",
+      "sizeBytes": 122809,
+      "category": "cardforge",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/cardforge/forge.html",
+      "filePath": "cardforge/forge.html",
+      "title": "My Forge — CardForge",
+      "description": "Your CardForge dashboard — drafts, published cards, favorites, and decks all in one place.",
+      "lastModified": "2026-04-26T18:58:41.407Z",
+      "sizeBytes": 7543,
+      "category": "cardforge",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
@@ -1826,92 +672,12 @@
       }
     },
     {
-      "path": "/lab/index.html",
-      "filePath": "lab/index.html",
-      "title": "Applied Research — AmbientPixels",
-      "description": "Applied Research — System frameworks and infrastructure prototypes developed prior to production deployment.",
-      "lastModified": "2026-03-14T21:20:48.819Z",
-      "sizeBytes": 6868,
-      "category": "lab",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/help/password-reset.html",
-      "filePath": "help/password-reset.html",
-      "title": "Ambient Pixels Docs",
-      "description": "Ambient Pixels Documentation Page Template",
-      "lastModified": "2026-03-14T21:20:48.817Z",
-      "sizeBytes": 4274,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/glitchlab.html",
-      "filePath": "glitchlab.html",
-      "title": "Ambient Pixels - Home",
-      "description": "Ambient Pixels v2.3—Tech Lab Home",
-      "lastModified": "2026-03-14T21:20:48.812Z",
-      "sizeBytes": 2968,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/hanson/index.html",
-      "filePath": "hanson/index.html",
-      "title": "Hanson Portal - Ambient Pixels",
-      "description": "Hanson Tools & Apps — Internal productivity tools and creative applications by Chad Martin",
-      "lastModified": "2026-03-14T21:20:48.812Z",
-      "sizeBytes": 15212,
-      "category": "hanson",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/hanson/meta-lab-studio.html",
-      "filePath": "hanson/meta-lab-studio.html",
-      "title": "Ambient Pixels Docs",
-      "description": "Ambient Pixels Documentation Page Template",
-      "lastModified": "2026-03-14T21:20:48.812Z",
-      "sizeBytes": 8322,
-      "category": "hanson",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/cardforge/deck.html",
-      "filePath": "cardforge/deck.html",
-      "title": "Deck Builder — CardForge",
-      "description": "Build, compose, and share CardForge decks. Create custom RPG card collections with AI-powered strategy suggestions.",
-      "lastModified": "2026-03-14T21:20:48.757Z",
-      "sizeBytes": 4047,
+      "path": "/cardforge/gallery.html",
+      "filePath": "cardforge/gallery.html",
+      "title": "CardForge Gallery — Cards Forged by the Community",
+      "description": "Browse cards forged by the CardForge community. Sort by most recent or highest rated. Click any card to inspect.",
+      "lastModified": "2026-04-26T07:29:40.031Z",
+      "sizeBytes": 8741,
       "category": "cardforge",
       "flags": {
         "missingTitle": false,
@@ -1926,8 +692,56 @@
       "filePath": "cardforge/devlog.html",
       "title": "CardForge — Dev Log | Ambient Pixels",
       "description": "CardForge Dev Log — Feature updates, architecture notes, and technical deep dives for the RPG card game.",
-      "lastModified": "2026-03-14T21:20:48.757Z",
-      "sizeBytes": 23630,
+      "lastModified": "2026-04-26T06:35:53.875Z",
+      "sizeBytes": 24395,
+      "category": "cardforge",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/cardforge/deck.html",
+      "filePath": "cardforge/deck.html",
+      "title": "Deck Builder — CardForge",
+      "description": "Build, compose, and share CardForge decks. Create custom RPG card collections with AI-powered strategy suggestions.",
+      "lastModified": "2026-04-26T06:35:49.219Z",
+      "sizeBytes": 5787,
+      "category": "cardforge",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/cardforge/admin.html",
+      "filePath": "cardforge/admin.html",
+      "title": "CardForge Admin — Hero Configuration",
+      "description": "Configure the CardForge splash hero fan — recent, random, or curated card selection.",
+      "lastModified": "2026-04-26T05:52:35.668Z",
+      "sizeBytes": 6917,
+      "category": "cardforge",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/cardforge/roadmap.html",
+      "filePath": "cardforge/roadmap.html",
+      "title": "CardForge — Roadmap",
+      "description": "What",
+      "lastModified": "2026-04-26T05:16:38.484Z",
+      "sizeBytes": 8171,
       "category": "cardforge",
       "flags": {
         "missingTitle": false,
@@ -1940,10 +754,10 @@
     {
       "path": "/cardforge/index.html",
       "filePath": "cardforge/index.html",
-      "title": "CardForge — RPG Card Game | Create, Collect & Battle",
-      "description": "CardForge — Create custom RPG cards, build decks, and battle in the arena. AI-powered card creator with class abilities, PvE combat, and a public gallery.",
-      "lastModified": "2026-03-14T21:20:48.757Z",
-      "sizeBytes": 119872,
+      "title": "CardForge — Design, Customize & Share RPG Cards",
+      "description": "Design custom RPG cards with 40M+ style combinations, AI generation, deck building, and a shareable gallery.",
+      "lastModified": "2026-04-26T05:16:38.452Z",
+      "sizeBytes": 9297,
       "category": "cardforge",
       "flags": {
         "missingTitle": false,
@@ -1954,13 +768,29 @@
       }
     },
     {
-      "path": "/art.html",
-      "filePath": "art.html",
-      "title": "Ambient Pixels - Home",
-      "description": "Ambient Pixels v2.3—Tech Lab Home",
-      "lastModified": "2026-03-14T21:20:48.751Z",
-      "sizeBytes": 4870,
-      "category": "root",
+      "path": "/cardforge/faq.html",
+      "filePath": "cardforge/faq.html",
+      "title": "CardForge — FAQ",
+      "description": "Quick answers to common questions about designing, publishing, and sharing CardForge cards.",
+      "lastModified": "2026-04-26T05:16:38.359Z",
+      "sizeBytes": 10715,
+      "category": "cardforge",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/cardforge/login.html",
+      "filePath": "cardforge/login.html",
+      "title": "Sign In — CardForge",
+      "description": "Sign in to CardForge — save your cards, build decks, share with the gallery.",
+      "lastModified": "2026-04-26T04:58:05.980Z",
+      "sizeBytes": 10045,
+      "category": "cardforge",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
@@ -1970,19 +800,83 @@
       }
     },
     {
-      "path": "/cardforge/arena.html",
-      "filePath": "cardforge/arena.html",
-      "title": "CardForge Arena — PvE Card Battles",
-      "description": "CardForge Arena — Battle bosses with your custom cards. Class abilities, charge system, and ranked progression. Forge it. Fight it. Flex it.",
-      "lastModified": "2026-03-14T21:20:48.751Z",
-      "sizeBytes": 24256,
-      "category": "cardforge",
+      "path": "/modules/company/cost-overview.html",
+      "filePath": "modules/company/cost-overview.html",
+      "title": "Cost Center — AmbientPixels HQ",
+      "description": "AmbientPixels Cost Center — API spend, budget targets, cost-per-agent, ROI.",
+      "lastModified": "2026-04-22T02:12:07.851Z",
+      "sizeBytes": 50023,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/dashboard.html",
+      "filePath": "modules/company/dashboard.html",
+      "title": "Dashboard — AmbientPixels HQ",
+      "description": "AmbientPixels Dashboard — agent metrics, sessions, tokens, costs, logs, and reports.",
+      "lastModified": "2026-04-22T00:49:54.920Z",
+      "sizeBytes": 342057,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/content-engine.html",
+      "filePath": "modules/company/content-engine.html",
+      "title": "Image Engine — AmbientPixels HQ",
+      "description": "AmbientPixels Content Engine — Generate branded image packages for approval",
+      "lastModified": "2026-04-21T18:28:04.430Z",
+      "sizeBytes": 36557,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/actions.html",
+      "filePath": "modules/company/actions.html",
+      "title": "Actions — AmbientPixels HQ",
+      "description": "AmbientPixels Action Command Center — approve, execute, and audit all external and internal actions.",
+      "lastModified": "2026-04-21T03:32:30.778Z",
+      "sizeBytes": 158369,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/pages/login.html",
+      "filePath": "pages/login.html",
+      "title": "Login — AmbientPixels",
+      "description": "Sign in to AmbientPixels via Google or Microsoft.",
+      "lastModified": "2026-04-19T16:23:16.168Z",
+      "sizeBytes": 5631,
+      "category": "root",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
@@ -1990,60 +884,12 @@
       "filePath": "account/index.html",
       "title": "Account Settings - Ambient Pixels",
       "description": "Ambient Pixels Account Settings",
-      "lastModified": "2026-03-14T21:20:48.751Z",
-      "sizeBytes": 4690,
+      "lastModified": "2026-04-18T22:15:00.033Z",
+      "sizeBytes": 5232,
       "category": "root",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/404.html",
-      "filePath": "404.html",
-      "title": "404 - Page Not Found - Ambient Pixels",
-      "description": "Page not found - Ambient Pixels",
-      "lastModified": "2026-03-14T21:20:48.747Z",
-      "sizeBytes": 12509,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/about/index.html",
-      "filePath": "about/index.html",
-      "title": "The Studio — AmbientPixels",
-      "description": "The Studio — AI-native systems design for production environments. AmbientPixels.",
-      "lastModified": "2026-03-14T21:20:48.747Z",
-      "sizeBytes": 15281,
-      "category": "root",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": false,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/hanson/tileforge/index.html",
-      "filePath": "hanson/tileforge/index.html",
-      "title": "TileForge - Xbox Tile Localization Preview",
-      "description": "",
-      "lastModified": "2026-03-11T22:17:38.110Z",
-      "sizeBytes": 48161,
-      "category": "hanson",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
         "missingOgTitle": true,
         "missingOgDescription": true,
         "missingOgImage": true
@@ -2054,8 +900,8 @@
       "filePath": "modules/contact-modal.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-03-07T19:56:10.003Z",
-      "sizeBytes": 3858,
+      "lastModified": "2026-04-18T20:00:20.636Z",
+      "sizeBytes": 2774,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2066,115 +912,675 @@
       }
     },
     {
-      "path": "/projects/websites/xbox-support.html",
-      "filePath": "projects/websites/xbox-support.html",
-      "title": "Xbox Support – Publishing at Scale | AmbientPixels",
-      "description": "Producer-led support platform work on support.Xbox.com — powering help journeys across console, mobile, and web.",
-      "lastModified": "2026-02-27T23:26:17.343Z",
-      "sizeBytes": 12710,
-      "category": "projects",
+      "path": "/modules/company/awareness.html",
+      "filePath": "modules/company/awareness.html",
+      "title": "Self-Awareness — AmbientPixels HQ",
+      "description": "AmbientPixels Self-Awareness — reflection cadence, role adherence, strategy fatigue, and memory consolidation across the agent fleet.",
+      "lastModified": "2026-04-17T01:29:26.960Z",
+      "sizeBytes": 19365,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
-      "path": "/projects/websites/ninja-theory-support.html",
-      "filePath": "projects/websites/ninja-theory-support.html",
-      "title": "Hellblade Support Pages – Xbox | AmbientPixels",
-      "description": "Producer-led project creating Xbox Support pages for Ninja Theory",
-      "lastModified": "2026-02-27T23:26:17.342Z",
-      "sizeBytes": 16674,
-      "category": "projects",
+      "path": "/modules/company/bluesky-discovery.html",
+      "filePath": "modules/company/bluesky-discovery.html",
+      "title": "Bluesky Discovery — AmbientPixels HQ",
+      "description": "Bluesky Discovery — browse threads Scout found, reply or dismiss.",
+      "lastModified": "2026-04-16T20:45:52.840Z",
+      "sizeBytes": 28395,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
-      "path": "/projects/websites/south-of-midnight-support.html",
-      "filePath": "projects/websites/south-of-midnight-support.html",
-      "title": "South of Midnight Support Pages – Xbox | AmbientPixels",
-      "description": "Producer-led project creating Xbox Support pages for South of Midnight.",
-      "lastModified": "2026-02-27T23:26:17.342Z",
-      "sizeBytes": 14225,
-      "category": "projects",
+      "path": "/modules/company/tasks.html",
+      "filePath": "modules/company/tasks.html",
+      "title": "Tasks — AmbientPixels HQ",
+      "description": "AmbientPixels DevOps Dash — Kanban board for agent task tracking.",
+      "lastModified": "2026-04-16T20:45:35.960Z",
+      "sizeBytes": 116955,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
-      "path": "/projects/websites/grand-central-power-bi.html",
-      "filePath": "projects/websites/grand-central-power-bi.html",
-      "title": "Grand Central 3.0 | AmbientPixels",
-      "description": "Custom-built data tool and Power BI pipeline for Xbox Support, designed from scratch using advanced Excel and Power Query methods.",
-      "lastModified": "2026-02-27T23:26:17.341Z",
-      "sizeBytes": 10064,
-      "category": "projects",
+      "path": "/modules/company/calendar.html",
+      "filePath": "modules/company/calendar.html",
+      "title": "Calendar — AmbientPixels HQ",
+      "description": "AmbientPixels Company Calendar — tasks, content, reminders, and activity at a glance.",
+      "lastModified": "2026-04-16T20:45:33.538Z",
+      "sizeBytes": 62181,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
-      "path": "/projects/websites/microsoft-casual-games-support.html",
-      "filePath": "projects/websites/microsoft-casual-games-support.html",
-      "title": "Microsoft Casual Games – Support Migration | AmbientPixels",
-      "description": "Producer-led project migrating Microsoft Casual Games support from Zendesk to Xbox.com.",
-      "lastModified": "2026-02-27T23:26:17.341Z",
-      "sizeBytes": 15714,
-      "category": "projects",
+      "path": "/modules/company/attribution.html",
+      "filePath": "modules/company/attribution.html",
+      "title": "Outcome Attribution — AmbientPixels HQ",
+      "description": "AmbientPixels Outcome Attribution — engagement, experiments, hooks, and campaign funnel data from the attribution system.",
+      "lastModified": "2026-04-16T20:45:09.539Z",
+      "sizeBytes": 14104,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
-      "path": "/projects/websites/gears-of-war-support.html",
-      "filePath": "projects/websites/gears-of-war-support.html",
-      "title": "Gears of War Support Pages – Xbox | AmbientPixels",
-      "description": "Producer-led project delivering Xbox Support content for the Gears of War franchise.",
-      "lastModified": "2026-02-27T23:26:17.340Z",
-      "sizeBytes": 19826,
-      "category": "projects",
+      "path": "/modules/company/governance.html",
+      "filePath": "modules/company/governance.html",
+      "title": "AmbientOS Playbook — AmbientPixels HQ",
+      "description": "AmbientOS Playbook v2.2 — governance, authority, doctrine, execution modes, and operational protocol for AmbientPixels HQ.",
+      "lastModified": "2026-04-16T20:44:29.784Z",
+      "sizeBytes": 32636,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
-        "missingOgTitle": false,
-        "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
-      "path": "/projects/copilotplayground.html",
-      "filePath": "projects/copilotplayground.html",
-      "title": "Copilot Playground | AmbientPixels",
-      "description": "Copilot Playground – An AI-enhanced toolkit for gaming support with prompt chains for SEO, localization, instant answers, and recommendations.",
-      "lastModified": "2026-02-27T23:26:17.328Z",
-      "sizeBytes": 31976,
-      "category": "projects",
+      "path": "/modules/company/campaigns.html",
+      "filePath": "modules/company/campaigns.html",
+      "title": "Campaigns — AmbientPixels HQ",
+      "description": "Campaigns — AmbientPixels HQ",
+      "lastModified": "2026-04-16T20:43:34.611Z",
+      "sizeBytes": 46364,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/goals.html",
+      "filePath": "modules/company/goals.html",
+      "title": "Goals — AmbientPixels HQ",
+      "description": "AmbientPixels Goal Generation — product lifecycle proposals, retire/pivot candidates, pending approvals.",
+      "lastModified": "2026-04-16T20:43:19.247Z",
+      "sizeBytes": 23685,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/agent-performance.html",
+      "filePath": "modules/company/agent-performance.html",
+      "title": "Agent Performance — AmbientPixels HQ",
+      "description": "AmbientPixels Agent Performance — fleet health, attention signals, and experiment tracking.",
+      "lastModified": "2026-04-16T20:43:12.096Z",
+      "sizeBytes": 21423,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/agent-intelligence.html",
+      "filePath": "modules/company/agent-intelligence.html",
+      "title": "Agent Intelligence — AmbientPixels HQ",
+      "description": "AmbientPixels Agent Intelligence — feedback loop health, learning velocity, and quality metrics.",
+      "lastModified": "2026-04-16T20:42:57.393Z",
+      "sizeBytes": 18736,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/directives.html",
+      "filePath": "modules/company/directives.html",
+      "title": "Redirecting to Campaigns — AmbientPixels HQ",
+      "description": "Redirecting to Campaigns — Projects have been merged into Campaigns.",
+      "lastModified": "2026-04-16T20:42:09.831Z",
+      "sizeBytes": 35314,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/standup.html",
+      "filePath": "modules/company/standup.html",
+      "title": "Standup — AmbientPixels HQ",
+      "description": "AmbientPixels Standup — Structured Decision Engine v2.2",
+      "lastModified": "2026-04-16T20:40:39.288Z",
+      "sizeBytes": 37748,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/governance-report.html",
+      "filePath": "modules/company/governance-report.html",
+      "title": "Governance Report — AmbientPixels HQ",
+      "description": "AmbientPixels Governance Report — policy violations, rate limits, and dead gates across the heartbeat audit trail.",
+      "lastModified": "2026-04-16T20:34:58.968Z",
+      "sizeBytes": 17390,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/action-audit.html",
+      "filePath": "modules/company/action-audit.html",
+      "title": "Action Audit — AmbientPixels HQ",
+      "description": "AmbientPixels Action Audit — execution outcomes, CEO decisions, platform latency, failure signals.",
+      "lastModified": "2026-04-16T20:33:54.931Z",
+      "sizeBytes": 20803,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/memories.html",
+      "filePath": "modules/company/memories.html",
+      "title": "Agent Memory — AmbientPixels HQ",
+      "description": "AmbientPixels Agent Memory Editor — CEO-curated seed memories for AI agents.",
+      "lastModified": "2026-04-16T20:33:03.824Z",
+      "sizeBytes": 22357,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/index.html",
+      "filePath": "modules/company/index.html",
+      "title": "AmbientPixels — Virtual Company",
+      "description": "AmbientPixels Virtual Company — AI agents running every department.",
+      "lastModified": "2026-04-16T20:31:39.874Z",
+      "sizeBytes": 21499,
+      "category": "company",
       "flags": {
         "missingTitle": false,
         "missingDescription": false,
         "missingOgTitle": false,
         "missingOgDescription": false,
-        "missingOgImage": false
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/content-overview.html",
+      "filePath": "modules/company/content-overview.html",
+      "title": "Content Hub — AmbientPixels HQ",
+      "description": "Content Hub — Manage blog posts, Pixel Agents, CardForge, and StoryForge content",
+      "lastModified": "2026-04-16T20:29:18.041Z",
+      "sizeBytes": 29537,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/emergence.html",
+      "filePath": "modules/company/emergence.html",
+      "title": "Emergence — AmbientPixels HQ",
+      "description": "AmbientPixels Emergence Monitor — compound-pattern signals across all 14 systems.",
+      "lastModified": "2026-04-16T20:29:04.380Z",
+      "sizeBytes": 22838,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/fleet.html",
+      "filePath": "modules/company/fleet.html",
+      "title": "Fleet — AmbientPixels HQ",
+      "description": "AmbientPixels Fleet — agent roster, lifecycle proposals, identity evolution.",
+      "lastModified": "2026-04-16T20:26:44.714Z",
+      "sizeBytes": 30189,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/allocation.html",
+      "filePath": "modules/company/allocation.html",
+      "title": "Capital Allocation — AmbientPixels HQ",
+      "description": "AmbientPixels Capital Allocation — per-agent monthly spend caps, pending budget requests, ROI.",
+      "lastModified": "2026-04-16T20:26:11.020Z",
+      "sizeBytes": 17816,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/meetings.html",
+      "filePath": "modules/company/meetings.html",
+      "title": "Meetings — AmbientPixels HQ",
+      "description": "AmbientPixels Meetings — On-demand collaborative decision sessions (CEO-triggered)",
+      "lastModified": "2026-04-16T20:25:34.954Z",
+      "sizeBytes": 39967,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/world-state.html",
+      "filePath": "modules/company/world-state.html",
+      "title": "World State — AmbientPixels HQ",
+      "description": "AmbientPixels World State — canonical state-of-the-business snapshot every agent sees.",
+      "lastModified": "2026-04-16T20:25:03.537Z",
+      "sizeBytes": 20000,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/objectives.html",
+      "filePath": "modules/company/objectives.html",
+      "title": "Goals — AmbientPixels HQ",
+      "description": "AmbientPixels Goals — track progress on quarterly targets.",
+      "lastModified": "2026-04-16T20:23:45.950Z",
+      "sizeBytes": 41534,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/workspace.html",
+      "filePath": "modules/company/workspace.html",
+      "title": "Workspace — AmbientPixels HQ",
+      "description": "AmbientPixels Workspace — memory, identity, agents, tools, and configuration.",
+      "lastModified": "2026-04-16T20:23:33.386Z",
+      "sizeBytes": 50211,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/analytics-hub.html",
+      "filePath": "modules/company/analytics-hub.html",
+      "title": "Analytics Hub — AmbientPixels HQ",
+      "description": "AmbientPixels Analytics Hub — site traffic, social metrics, and agent delivery diagnostics.",
+      "lastModified": "2026-04-16T20:22:08.461Z",
+      "sizeBytes": 18913,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/config-overview.html",
+      "filePath": "modules/company/config-overview.html",
+      "title": "Config — AmbientPixels HQ",
+      "description": "AmbientPixels Config Overview — workspace, agents, and system configuration.",
+      "lastModified": "2026-04-16T00:51:40.823Z",
+      "sizeBytes": 28348,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/uberprompt.html",
+      "filePath": "uberprompt.html",
+      "title": "Uber Prompt — Ambient Pixels",
+      "description": "Ambient Pixels Uber Prompt Codex v2.3 — architecture, design tokens, and system blueprint.",
+      "lastModified": "2026-04-13T02:00:32.156Z",
+      "sizeBytes": 14936,
+      "category": "root",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/_default_template.html",
+      "filePath": "tools/_default_template.html",
+      "title": "Grid Styles Demo - Ambient Pixels",
+      "description": "Ambient Pixels Grid Styles Demo",
+      "lastModified": "2026-04-13T02:00:32.126Z",
+      "sizeBytes": 7336,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/typography-demo.html",
+      "filePath": "tools/typography-demo.html",
+      "title": "Typography Demo - Ambient Pixels",
+      "description": "Ambient Pixels Typography Demo",
+      "lastModified": "2026-04-13T02:00:32.098Z",
+      "sizeBytes": 8512,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/tools-hub.html",
+      "filePath": "tools/tools-hub.html",
+      "title": "Tools Hub - Ambient Pixels",
+      "description": "Ambient Pixels Tools Hub",
+      "lastModified": "2026-04-13T02:00:32.066Z",
+      "sizeBytes": 6007,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/scripts-demo.html",
+      "filePath": "tools/scripts-demo.html",
+      "title": "Scripts Demo - Ambient Pixels",
+      "description": "Ambient Pixels Scripts Demo",
+      "lastModified": "2026-04-13T02:00:32.030Z",
+      "sizeBytes": 9074,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/index.html",
+      "filePath": "tools/index.html",
+      "title": "Ambient Pixels - Tools & Process",
+      "description": "Tools & Process — Ambient Pixels Studio",
+      "lastModified": "2026-04-13T02:00:32.000Z",
+      "sizeBytes": 7723,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/icon-demo.html",
+      "filePath": "tools/icon-demo.html",
+      "title": "Icon Demo - Ambient Pixels",
+      "description": "Ambient Pixels Icon Demo",
+      "lastModified": "2026-04-13T02:00:31.971Z",
+      "sizeBytes": 5976,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/grid-styles-demo.html",
+      "filePath": "tools/grid-styles-demo.html",
+      "title": "Nova Style Guide",
+      "description": "Nova Style Guide - All Nova-Specific Styles",
+      "lastModified": "2026-04-13T02:00:31.946Z",
+      "sizeBytes": 21287,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/grid-demo.html",
+      "filePath": "tools/grid-demo.html",
+      "title": "Grid Styles Demo - Ambient Pixels",
+      "description": "Ambient Pixels Grid Styles Demo",
+      "lastModified": "2026-04-13T02:00:31.910Z",
+      "sizeBytes": 7335,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/glitch-art-demo.html",
+      "filePath": "tools/glitch-art-demo.html",
+      "title": "Glitch Art Demo - Ambient Pixels",
+      "description": "Ambient Pixels Glitch Art Demo",
+      "lastModified": "2026-04-13T02:00:31.865Z",
+      "sizeBytes": 6257,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/form-demo.html",
+      "filePath": "tools/form-demo.html",
+      "title": "Form Demo - Ambient Pixels",
+      "description": "Ambient Pixels Form Demo",
+      "lastModified": "2026-04-13T02:00:31.835Z",
+      "sizeBytes": 7756,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/components-demo.html",
+      "filePath": "tools/components-demo.html",
+      "title": "Components Demo - Ambient Pixels",
+      "description": "Ambient Pixels Components Demo",
+      "lastModified": "2026-04-13T02:00:31.806Z",
+      "sizeBytes": 9566,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/color-demo.html",
+      "filePath": "tools/color-demo.html",
+      "title": "Color Demo - Ambient Pixels",
+      "description": "Ambient Pixels Color Demo",
+      "lastModified": "2026-04-13T02:00:31.774Z",
+      "sizeBytes": 6643,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/animation-demo.html",
+      "filePath": "tools/animation-demo.html",
+      "title": "Animation Demo - Ambient Pixels",
+      "description": "Ambient Pixels Animation Demo",
+      "lastModified": "2026-04-13T02:00:31.742Z",
+      "sizeBytes": 5603,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/tools/accessibility-demo.html",
+      "filePath": "tools/accessibility-demo.html",
+      "title": "Accessibility Demo - Ambient Pixels",
+      "description": "Ambient Pixels Accessibility Demo",
+      "lastModified": "2026-04-13T02:00:31.712Z",
+      "sizeBytes": 5994,
+      "category": "tools",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/template.html",
+      "filePath": "template.html",
+      "title": "Ambient Pixels Docs",
+      "description": "Ambient Pixels Documentation Page Template",
+      "lastModified": "2026-04-13T02:00:31.661Z",
+      "sizeBytes": 5229,
+      "category": "root",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
       }
     },
     {
@@ -2182,8 +1588,8 @@
       "filePath": "services/rates.html",
       "title": "Redirecting to Engage — AmbientPixels",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.262Z",
-      "sizeBytes": 482,
+      "lastModified": "2026-04-13T02:00:31.421Z",
+      "sizeBytes": 468,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -2198,8 +1604,8 @@
       "filePath": "projects/websites/transformation-partial.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.243Z",
-      "sizeBytes": 1475,
+      "lastModified": "2026-04-13T02:00:31.235Z",
+      "sizeBytes": 1443,
       "category": "projects",
       "flags": {
         "missingTitle": true,
@@ -2210,12 +1616,60 @@
       }
     },
     {
+      "path": "/projects/video-template.html",
+      "filePath": "projects/video-template.html",
+      "title": "Video Showcase - AI-Driven Visuals | AmbientPixels",
+      "description": "A showcase of AI-powered visuals, motion design, and storytelling in motion.",
+      "lastModified": "2026-04-13T02:00:30.999Z",
+      "sizeBytes": 8401,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/video/xbox-video copy.html",
+      "filePath": "projects/video/xbox-video copy.html",
+      "title": "Xbox Support Videos - AmbientPixels",
+      "description": "Xbox Support Video Portfolio - A collection of video projects, tutorials, and walkthroughs for Xbox Support",
+      "lastModified": "2026-04-13T02:00:30.926Z",
+      "sizeBytes": 11691,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/projects/video/template.html",
+      "filePath": "projects/video/template.html",
+      "title": "Ninja Theory Help Center Video | AmbientPixels",
+      "description": "Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options.",
+      "lastModified": "2026-04-13T02:00:30.856Z",
+      "sizeBytes": 18364,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
       "path": "/projects/theme-dashboard/index.html",
       "filePath": "projects/theme-dashboard/index.html",
       "title": "Theme Dashboard | AmbientPixels",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.229Z",
-      "sizeBytes": 8829,
+      "lastModified": "2026-04-13T02:00:30.728Z",
+      "sizeBytes": 8616,
       "category": "projects",
       "flags": {
         "missingTitle": false,
@@ -2226,12 +1680,60 @@
       }
     },
     {
-      "path": "/playground/frosty-nav.html",
-      "filePath": "playground/frosty-nav.html",
-      "title": "Sticky Frosty Nav",
+      "path": "/projects/template.html",
+      "filePath": "projects/template.html",
+      "title": "Ninja Theory Help Center Video | AmbientPixels",
+      "description": "Animated video showcase for the Ninja Theory Help Center on Xbox, highlighting key support features and accessibility options.",
+      "lastModified": "2026-04-13T02:00:30.690Z",
+      "sizeBytes": 35214,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/merch/template.html",
+      "filePath": "projects/merch/template.html",
+      "title": "[Collection Name] | AmbientPixels Merch",
+      "description": "[Collection Name] - A unique collection of [theme] designs available on various products.",
+      "lastModified": "2026-04-13T02:00:30.668Z",
+      "sizeBytes": 9933,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/projects/image-packs/template.html",
+      "filePath": "projects/image-packs/template.html",
+      "title": "Interiors - AI-Generated Sci-Fi & Cyberpunk Spaces | AmbientPixels",
+      "description": "AI-Generated Interior Designs - A collection of sci-fi habitats, cyberpunk living spaces, and neo-noir interiors with cinematic lighting and atmosphere.",
+      "lastModified": "2026-04-13T02:00:30.564Z",
+      "sizeBytes": 11337,
+      "category": "projects",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": false,
+        "missingOgDescription": false,
+        "missingOgImage": false
+      }
+    },
+    {
+      "path": "/playground/Neon-Base-Theme.html",
+      "filePath": "playground/Neon-Base-Theme.html",
+      "title": "Neon Base Theme Demo",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.209Z",
-      "sizeBytes": 2796,
+      "lastModified": "2026-04-13T02:00:30.320Z",
+      "sizeBytes": 2947,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -2246,8 +1748,8 @@
       "filePath": "playground/hero.html",
       "title": "Ambient Pixels - Hero Demo",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.209Z",
-      "sizeBytes": 4421,
+      "lastModified": "2026-04-13T02:00:30.291Z",
+      "sizeBytes": 4262,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -2258,12 +1760,12 @@
       }
     },
     {
-      "path": "/playground/Neon-Base-Theme.html",
-      "filePath": "playground/Neon-Base-Theme.html",
-      "title": "Neon Base Theme Demo",
+      "path": "/playground/frosty-nav.html",
+      "filePath": "playground/frosty-nav.html",
+      "title": "Sticky Frosty Nav",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.209Z",
-      "sizeBytes": 3073,
+      "lastModified": "2026-04-13T02:00:30.265Z",
+      "sizeBytes": 2728,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -2278,8 +1780,8 @@
       "filePath": "pages/form-explainer-demo.html",
       "title": "Form Explainer Demo | AmbientPixels",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.207Z",
-      "sizeBytes": 7314,
+      "lastModified": "2026-04-13T02:00:29.812Z",
+      "sizeBytes": 7112,
       "category": "root",
       "flags": {
         "missingTitle": false,
@@ -2294,8 +1796,8 @@
       "filePath": "modules/version-history.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.183Z",
-      "sizeBytes": 408,
+      "lastModified": "2026-04-13T02:00:29.081Z",
+      "sizeBytes": 404,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2310,8 +1812,8 @@
       "filePath": "modules/services-cta.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.180Z",
-      "sizeBytes": 555,
+      "lastModified": "2026-04-13T02:00:29.062Z",
+      "sizeBytes": 542,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2326,8 +1828,8 @@
       "filePath": "modules/nova-pulse.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.179Z",
-      "sizeBytes": 1685,
+      "lastModified": "2026-04-13T02:00:29.041Z",
+      "sizeBytes": 1639,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2342,24 +1844,8 @@
       "filePath": "modules/get-in-touch.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.178Z",
-      "sizeBytes": 2001,
-      "category": "modules",
-      "flags": {
-        "missingTitle": true,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/footer.html",
-      "filePath": "modules/footer.html",
-      "title": "",
-      "description": "",
-      "lastModified": "2026-02-27T03:06:02.177Z",
-      "sizeBytes": 2682,
+      "lastModified": "2026-04-13T02:00:29.001Z",
+      "sizeBytes": 1947,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2374,8 +1860,24 @@
       "filePath": "modules/form-explainer.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.177Z",
-      "sizeBytes": 2949,
+      "lastModified": "2026-04-13T02:00:28.976Z",
+      "sizeBytes": 2881,
+      "category": "modules",
+      "flags": {
+        "missingTitle": true,
+        "missingDescription": true,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/footer.html",
+      "filePath": "modules/footer.html",
+      "title": "",
+      "description": "",
+      "lastModified": "2026-04-13T02:00:28.952Z",
+      "sizeBytes": 2649,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2390,24 +1892,8 @@
       "filePath": "modules/explore-more.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.176Z",
-      "sizeBytes": 928,
-      "category": "modules",
-      "flags": {
-        "missingTitle": true,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/modules/echogrid-avatar.html",
-      "filePath": "modules/echogrid-avatar.html",
-      "title": "",
-      "description": "",
-      "lastModified": "2026-02-27T03:06:02.175Z",
-      "sizeBytes": 1238,
+      "lastModified": "2026-04-13T02:00:28.933Z",
+      "sizeBytes": 904,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2422,8 +1908,24 @@
       "filePath": "modules/email-capture-modal.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.175Z",
-      "sizeBytes": 2126,
+      "lastModified": "2026-04-13T02:00:28.912Z",
+      "sizeBytes": 2076,
+      "category": "modules",
+      "flags": {
+        "missingTitle": true,
+        "missingDescription": true,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/echogrid-avatar.html",
+      "filePath": "modules/echogrid-avatar.html",
+      "title": "",
+      "description": "",
+      "lastModified": "2026-04-13T02:00:28.885Z",
+      "sizeBytes": 1199,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2438,8 +1940,8 @@
       "filePath": "modules/contact-cta.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.171Z",
-      "sizeBytes": 1388,
+      "lastModified": "2026-04-13T02:00:28.844Z",
+      "sizeBytes": 1345,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2450,12 +1952,172 @@
       }
     },
     {
-      "path": "/modules/avatar-trading-card.html",
-      "filePath": "modules/avatar-trading-card.html",
+      "path": "/modules/company/work-overview.html",
+      "filePath": "modules/company/work-overview.html",
+      "title": "Redirecting to Tasks…",
+      "description": "",
+      "lastModified": "2026-04-13T02:00:28.729Z",
+      "sizeBytes": 641,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": true,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/trends.html",
+      "filePath": "modules/company/trends.html",
+      "title": "Trends — AmbientPixels HQ",
+      "description": "AmbientPixels Trends Radar — track emerging technology trends and identify content opportunities.",
+      "lastModified": "2026-04-13T02:00:28.708Z",
+      "sizeBytes": 5376,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/plan-overview.html",
+      "filePath": "modules/company/plan-overview.html",
+      "title": "Redirecting to Goals…",
+      "description": "",
+      "lastModified": "2026-04-13T02:00:28.582Z",
+      "sizeBytes": 656,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": true,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/ops-overview.html",
+      "filePath": "modules/company/ops-overview.html",
+      "title": "Redirecting to Dashboard…",
+      "description": "",
+      "lastModified": "2026-04-13T02:00:28.553Z",
+      "sizeBytes": 661,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": true,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/memory-stack.html",
+      "filePath": "modules/company/memory-stack.html",
+      "title": "Memory Stack — AmbientPixels HQ",
+      "description": "AmbientPixels Memory Stack Explorer — runtime memory layer diagnostics.",
+      "lastModified": "2026-04-13T02:00:28.495Z",
+      "sizeBytes": 5438,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/inbound.html",
+      "filePath": "modules/company/inbound.html",
+      "title": "Inbound — AmbientPixels HQ",
+      "description": "Inbound — External signals captured by AmbientOS (forms, requests, signups).",
+      "lastModified": "2026-04-13T02:00:28.319Z",
+      "sizeBytes": 3907,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/documents.html",
+      "filePath": "modules/company/documents.html",
+      "title": "Wiki — AmbientPixels HQ",
+      "description": "AmbientPixels Wiki — central hub for all company documentation.",
+      "lastModified": "2026-04-13T02:00:28.260Z",
+      "sizeBytes": 17723,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/content-gallery.html",
+      "filePath": "modules/company/content-gallery.html",
+      "title": "Content Gallery — AmbientPixels HQ",
+      "description": "AmbientPixels Content Gallery — Browse generated content packages.",
+      "lastModified": "2026-04-13T02:00:27.999Z",
+      "sizeBytes": 13175,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/board.html",
+      "filePath": "modules/company/board.html",
+      "title": "Redirecting to Board View…",
+      "description": "",
+      "lastModified": "2026-04-13T02:00:27.808Z",
+      "sizeBytes": 823,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": true,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/company/agent-chat.html",
+      "filePath": "modules/company/agent-chat.html",
+      "title": "Agent Chat — AmbientPixels",
+      "description": "Chat with an AmbientPixels AI agent.",
+      "lastModified": "2026-04-13T02:00:27.612Z",
+      "sizeBytes": 16943,
+      "category": "company",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/modules/bugs.html",
+      "filePath": "modules/bugs.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.130Z",
-      "sizeBytes": 1594,
+      "lastModified": "2026-04-13T02:00:27.546Z",
+      "sizeBytes": 1964,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2470,8 +2132,8 @@
       "filePath": "modules/breadcrumb.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.130Z",
-      "sizeBytes": 211,
+      "lastModified": "2026-04-13T02:00:27.527Z",
+      "sizeBytes": 205,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2482,12 +2144,12 @@
       }
     },
     {
-      "path": "/modules/bugs.html",
-      "filePath": "modules/bugs.html",
+      "path": "/modules/avatar-trading-card.html",
+      "filePath": "modules/avatar-trading-card.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.130Z",
-      "sizeBytes": 1984,
+      "lastModified": "2026-04-13T02:00:27.506Z",
+      "sizeBytes": 1552,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2502,8 +2164,8 @@
       "filePath": "modules/ai-pipeline.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.128Z",
-      "sizeBytes": 1134,
+      "lastModified": "2026-04-13T02:00:27.484Z",
+      "sizeBytes": 1119,
       "category": "modules",
       "flags": {
         "missingTitle": true,
@@ -2514,32 +2176,48 @@
       }
     },
     {
-      "path": "/lab/meta-QC-tool.html",
-      "filePath": "lab/meta-QC-tool.html",
-      "title": "JSON/XML Metadata QC Tool",
-      "description": "",
-      "lastModified": "2026-02-27T03:06:02.124Z",
-      "sizeBytes": 45898,
+      "path": "/lab/nova-ai-test.html",
+      "filePath": "lab/nova-ai-test.html",
+      "title": "Ambient Pixels Docs",
+      "description": "Ambient Pixels Documentation Page Template",
+      "lastModified": "2026-04-13T02:00:27.401Z",
+      "sizeBytes": 3196,
       "category": "lab",
       "flags": {
         "missingTitle": false,
-        "missingDescription": true,
+        "missingDescription": false,
         "missingOgTitle": true,
         "missingOgDescription": true,
         "missingOgImage": true
       }
     },
     {
-      "path": "/lab/bg-test.html",
-      "filePath": "lab/bg-test.html",
-      "title": "Nova Mood Background Tester",
-      "description": "",
-      "lastModified": "2026-02-27T03:06:02.119Z",
-      "sizeBytes": 1759,
+      "path": "/lab/index.html",
+      "filePath": "lab/index.html",
+      "title": "Applied Research — AmbientPixels",
+      "description": "Applied Research — System frameworks and infrastructure prototypes developed prior to production deployment.",
+      "lastModified": "2026-04-13T02:00:27.376Z",
+      "sizeBytes": 6689,
       "category": "lab",
       "flags": {
         "missingTitle": false,
-        "missingDescription": true,
+        "missingDescription": false,
+        "missingOgTitle": true,
+        "missingOgDescription": true,
+        "missingOgImage": true
+      }
+    },
+    {
+      "path": "/lab/git-commits.html",
+      "filePath": "lab/git-commits.html",
+      "title": "Git Commit Display - Nova Lab",
+      "description": "Nova",
+      "lastModified": "2026-04-13T02:00:27.350Z",
+      "sizeBytes": 4144,
+      "category": "lab",
+      "flags": {
+        "missingTitle": false,
+        "missingDescription": false,
         "missingOgTitle": true,
         "missingOgDescription": true,
         "missingOgImage": true
@@ -2550,41 +2228,9 @@
       "filePath": "lab/auth-test.html",
       "title": "AmbientPixels Auth Test",
       "description": "",
-      "lastModified": "2026-02-27T03:06:02.118Z",
-      "sizeBytes": 1570,
+      "lastModified": "2026-04-13T02:00:27.330Z",
+      "sizeBytes": 1535,
       "category": "lab",
-      "flags": {
-        "missingTitle": false,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/hanson/tileforge/locale-picker-modal.html",
-      "filePath": "hanson/tileforge/locale-picker-modal.html",
-      "title": "",
-      "description": "",
-      "lastModified": "2026-02-27T03:05:59.926Z",
-      "sizeBytes": 1182,
-      "category": "hanson",
-      "flags": {
-        "missingTitle": true,
-        "missingDescription": true,
-        "missingOgTitle": true,
-        "missingOgDescription": true,
-        "missingOgImage": true
-      }
-    },
-    {
-      "path": "/hanson/game-plan/index.html",
-      "filePath": "hanson/game-plan/index.html",
-      "title": "Game Plan",
-      "description": "",
-      "lastModified": "2026-02-27T03:05:59.880Z",
-      "sizeBytes": 36273,
-      "category": "hanson",
       "flags": {
         "missingTitle": false,
         "missingDescription": true,
@@ -2598,8 +2244,8 @@
       "filePath": "cardforge/templates/card-template.html",
       "title": "",
       "description": "",
-      "lastModified": "2026-02-27T03:05:59.557Z",
-      "sizeBytes": 151,
+      "lastModified": "2026-04-13T02:00:25.880Z",
+      "sizeBytes": 149,
       "category": "cardforge",
       "flags": {
         "missingTitle": true,
