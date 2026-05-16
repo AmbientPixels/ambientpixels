@@ -105,12 +105,47 @@
     }
   }
 
+  async function hydratePulse() {
+    const set = (key, value) => {
+      const el = document.querySelector(`[data-pulse="${key}"]`);
+      if (el) el.textContent = value;
+    };
+    try {
+      const [pulseRes, worldRes] = await Promise.allSettled([
+        fetch(`${apiBase()}/pulseStats`).then(r => r.ok ? r.json() : null),
+        fetch(`${apiBase()}/worldState`).then(r => r.ok ? r.json() : null)
+      ]);
+      const pulse = pulseRes.status === 'fulfilled' ? pulseRes.value : null;
+      const world = worldRes.status === 'fulfilled' ? worldRes.value : null;
+
+      if (pulse?.lastHeartbeatAt) set('lastHeartbeat', formatRelativeTime(pulse.lastHeartbeatAt));
+      if (typeof pulse?.cyclesToday === 'number') set('cyclesToday', String(pulse.cyclesToday));
+      if (typeof world?.openApprovals?.count === 'number') set('proposalsQueued', String(world.openApprovals.count));
+
+      if (world) {
+        const financeRed = world?.finance?.status === 'RED';
+        const fleetStalled = (world?.fleet?.stalledCount ?? 0) > 0;
+        set('systemsStatus', (financeRed || fleetStalled) ? 'degraded' : 'nominal');
+      }
+    } catch (_) { /* leave ··· placeholders */ }
+  }
+
   function init() {
     const script = document.currentScript || document.querySelector('script[src*="agent-profile-live.js"]');
     const mode = (script && script.getAttribute('data-mode')) || 'profile';
 
     if (mode === 'hub') {
       hydrateHub();
+      hydratePulse();
+      let pulseInterval = setInterval(hydratePulse, 60_000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          clearInterval(pulseInterval);
+        } else {
+          hydratePulse();
+          pulseInterval = setInterval(hydratePulse, 60_000);
+        }
+      });
     } else {
       const main = document.querySelector('main[data-agent-id]');
       const agentId = main && main.getAttribute('data-agent-id');

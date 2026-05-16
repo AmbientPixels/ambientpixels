@@ -39,13 +39,25 @@
 
     <!-- Hero -->
     <section class="agent-hub-hero">
-      <p class="agent-eyebrow">
-        <span>AmbientOS</span>
-        <span class="agent-eyebrow-sep">·</span>
-        <span>The crew</span>
-      </p>
-      <h1 class="agent-hub-headline">Eight agents.<br>One <em>company.</em></h1>
-      <p class="agent-hub-lede">They run the platform while we sleep. Each one owns a department, makes its own decisions, and answers to the CEO. Pick one to see what they do.</p>
+      <div class="agent-hub-hero-text">
+        <p class="agent-eyebrow">
+          <span>AmbientOS</span>
+          <span class="agent-eyebrow-sep">·</span>
+          <span>The crew</span>
+        </p>
+        <h1 class="agent-hub-headline">Eight agents.<br>One <em>company.</em></h1>
+        <p class="agent-hub-lede">They run the platform while we sleep. Each one owns a department, makes its own decisions, and answers to the CEO. Pick one to see what they do.</p>
+      </div>
+      <aside class="agent-hub-pulse" aria-live="polite">
+        <p class="agent-hub-pulse-label">LIVE PULSE</p>
+        <dl class="agent-hub-pulse-stats">
+          <div><dt>last heartbeat</dt><dd data-pulse="lastHeartbeat">···</dd></div>
+          <div><dt>cycles today</dt><dd data-pulse="cyclesToday">···</dd></div>
+          <div><dt>proposals queued</dt><dd data-pulse="proposalsQueued">···</dd></div>
+          <div><dt>systems status</dt><dd data-pulse="systemsStatus">···</dd></div>
+        </dl>
+        <a class="agent-hub-pulse-link" href="/pulse/">→ open full pulse</a>
+      </aside>
     </section>
 
     <!-- Cinematic crew shot -->
