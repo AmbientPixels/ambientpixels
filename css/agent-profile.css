@@ -76,7 +76,7 @@
 /* ---- Profile hero ------------------------------------------- */
 
 .agent-hero {
-  padding: var(--sp-15) 0 var(--sp-12);
+  padding: var(--sp-15) 0 var(--sp-8);
   border-bottom: 1px solid var(--color-border);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
@@ -274,12 +274,14 @@
   text-transform: uppercase;
   color: var(--color-text-body);
   text-decoration: none;
-  transition: border-color var(--dur-fast), color var(--dur-fast), background var(--dur-fast);
+  cursor: pointer;
+  transition: border-color var(--dur-fast), color var(--dur-fast), background var(--dur-fast), box-shadow var(--dur-fast);
 }
 .agent-crew-chip:hover {
-  border-color: var(--color-text-primary);
+  border-color: var(--color-accent-amber-glow-near);
   color: var(--color-text-primary);
   background: var(--color-surface-soft);
+  box-shadow: 0 0 0 1px var(--color-accent-amber-glow-far);
 }
 
 .agent-crew-chip-avatar {
@@ -288,6 +290,11 @@
   border-radius: var(--r-dot);
   object-fit: cover;
   background: var(--color-surface);
+  transition: transform var(--dur-fast);
+}
+
+.agent-crew-chip:hover .agent-crew-chip-avatar {
+  transform: scale(1.08);
 }
 
 /* ---- Hub page ----------------------------------------------- */
