@@ -284,7 +284,7 @@
 /* ---- Hub page ----------------------------------------------- */
 
 .agent-hub-hero {
-  padding: var(--sp-15) 0 var(--sp-12);
+  padding: var(--sp-15) 0 var(--sp-6);
   border-bottom: 1px solid var(--color-border);
   display: grid;
   grid-template-columns: minmax(0, var(--max-prose)) minmax(220px, 320px);
@@ -405,7 +405,7 @@
   font-size: var(--fs-mono-xs);
   letter-spacing: var(--tracking-mono-md);
   color: var(--color-text-muted);
-  text-align: right;
+  text-align: left;
   margin: var(--sp-10) 0 var(--sp-2);
 }
 
