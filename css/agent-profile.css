@@ -396,7 +396,7 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 21 / 9;
   object-fit: cover;
 }
 
@@ -406,7 +406,7 @@
   letter-spacing: var(--tracking-mono-md);
   color: var(--color-text-muted);
   text-align: right;
-  margin: var(--sp-4) 0 var(--sp-3);
+  margin: var(--sp-10) 0 var(--sp-2);
 }
 
 .agent-hub-grid {
