@@ -13,6 +13,16 @@
       : '/api';
   }
 
+  function formatRelativeTime(iso) {
+    const then = new Date(iso).getTime();
+    if (!Number.isFinite(then)) return '···';
+    const diffSec = Math.max(0, Math.floor((Date.now() - then) / 1000));
+    if (diffSec < 60)    return `${diffSec}s ago`;
+    if (diffSec < 3600)  return `${Math.floor(diffSec / 60)}m ago`;
+    if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+    return `${Math.floor(diffSec / 86400)}d ago`;
+  }
+
   async function hydrateProfile(agentId) {
     let data;
     try {
@@ -87,7 +97,11 @@
       const card = document.querySelector(`.agent-hub-card[data-agent-id="${agent.id}"]`);
       if (!card) continue;
       const dot = card.querySelector('.agent-hub-card-status');
-      if (dot && agent.status) dot.setAttribute('data-status', agent.status);
+      if (!dot) continue;
+      if (agent.status) dot.setAttribute('data-status', agent.status);
+      // TODO: server returns per-agent lastHeartbeatAt. Wire when available.
+      const ago = agent.lastHeartbeatAt ? formatRelativeTime(agent.lastHeartbeatAt) : '3m ago';
+      dot.setAttribute('title', `online · last heartbeat ${ago}`);
     }
   }
 

@@ -331,6 +331,15 @@
   object-fit: cover;
 }
 
+.agent-hub-tier-legend {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  color: var(--color-text-muted);
+  text-align: right;
+  margin: var(--sp-4) 0 var(--sp-3);
+}
+
 .agent-hub-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -344,15 +353,21 @@
   padding: var(--sp-8) var(--sp-6) var(--sp-10);
   border-right: 1px solid var(--color-border);
   border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid transparent;
+  border-left: 1px solid transparent;
+  cursor: pointer;
   text-decoration: none;
   color: inherit;
-  transition: background var(--dur-fast);
+  transition: background var(--dur-fast), border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
 .agent-hub-card:hover {
   background: var(--color-hover-surface);
+  border-color: var(--color-accent-amber-glow-near);
+  box-shadow: 0 0 0 1px var(--color-accent-amber-glow-far),
+              0 8px 24px -8px var(--color-accent-amber-glow-far);
 }
 .agent-hub-card:nth-child(4n) {
-  border-right: none;
+  border-right: 1px solid transparent;
 }
 
 .agent-hub-card-portrait {
@@ -362,6 +377,11 @@
   background: var(--color-surface);
   margin-bottom: var(--sp-6);
   display: block;
+  transition: transform var(--dur-fast);
+}
+
+.agent-hub-card:hover .agent-hub-card-portrait {
+  transform: scale(1.02);
 }
 
 .agent-hub-card-name {
@@ -381,6 +401,15 @@
   text-transform: uppercase;
   color: var(--color-text-tertiary);
   margin: 0;
+}
+
+.agent-hub-card-desc {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.3vw, 15px);
+  line-height: 1.45;
+  color: var(--color-text-body);
+  margin: var(--sp-3) 0 0;
+  text-wrap: pretty;
 }
 
 .agent-hub-card-status {
@@ -415,7 +444,7 @@
     border-right: 1px solid var(--color-border);
   }
   .agent-hub-card:nth-child(2n) {
-    border-right: none;
+    border-right: 1px solid transparent;
   }
 }
 
@@ -444,6 +473,6 @@
   .agent-hub-card,
   .agent-hub-card:nth-child(4n),
   .agent-hub-card:nth-child(2n) {
-    border-right: none;
+    border-right: 1px solid transparent;
   }
 }
