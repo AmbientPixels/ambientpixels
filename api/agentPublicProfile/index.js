@@ -75,10 +75,18 @@ async function buildSingle(id) {
   let stat = null;
 
   if (id === 'cipher') {
-    const alloc = (await storage.getState('allocationDigest')) || null;
+    // allocationDigest lives inside runtimeMemory, not as a top-level state key.
+    // Fall back to the top-level key for safety, then to financeDigest if both miss.
+    const runtime = (await storage.getState('runtimeMemory')) || {};
+    const alloc = runtime.allocationDigest || (await storage.getState('allocationDigest')) || null;
     if (alloc && alloc.system) {
       status = alloc.system.status || null;
       stat = { label: 'MTD spend', value: `$${Number(alloc.system.spent || 0).toFixed(2)} / $${Number(alloc.system.budget || 0).toFixed(0)}` };
+    } else if (runtime.financeDigest && runtime.financeDigest.monthlyActual != null) {
+      // Last-resort fallback: financeDigest carries the same monthly numbers.
+      const fd = runtime.financeDigest;
+      status = fd.status || 'GREEN';
+      stat = { label: 'MTD spend', value: `$${Number(fd.monthlyActual || 0).toFixed(2)} / $${Number(fd.monthlyBudget || 0).toFixed(0)}` };
     }
   } else if (id === 'nova') {
     const tasks = (await storage.getState('tasks')) || [];
@@ -117,6 +125,8 @@ async function buildSingle(id) {
     let topDelta = null;
     let topPlatform = null;
     const platforms = social.platforms || {};
+
+    // Preferred: deltaWoW pre-computed on platforms (legacy path).
     for (const [name, p] of Object.entries(platforms)) {
       if (p && typeof p.deltaWoW === 'number') {
         if (topDelta === null || Math.abs(p.deltaWoW) > Math.abs(topDelta)) {
@@ -125,10 +135,37 @@ async function buildSingle(id) {
         }
       }
     }
+
+    // Fallback: compute deltaWoW on the fly from socialWeeklySnapshots.
+    if (topPlatform === null) {
+      const snaps = (await storage.getState('socialWeeklySnapshots')) || [];
+      if (Array.isArray(snaps) && snaps.length >= 2) {
+        const latest = snaps[snaps.length - 1];
+        const prev = snaps[snaps.length - 2];
+        const f1 = latest && latest.followers || {};
+        const f0 = prev && prev.followers || {};
+        for (const name of Object.keys(f1)) {
+          if (name === 'total') continue;
+          const delta = Number(f1[name]) - Number(f0[name] || 0);
+          if (!Number.isFinite(delta)) continue;
+          if (topDelta === null || Math.abs(delta) > Math.abs(topDelta)) {
+            topDelta = delta;
+            topPlatform = name;
+          }
+        }
+      }
+    }
+
     status = 'GREEN';
-    stat = topPlatform
-      ? { label: 'Top platform WoW', value: `${topPlatform} ${topDelta >= 0 ? '+' : ''}${topDelta}` }
-      : null;
+    if (topPlatform !== null) {
+      stat = { label: 'Top platform WoW', value: `${topPlatform} ${topDelta >= 0 ? '+' : ''}${topDelta}` };
+    } else {
+      // Last-resort: total followers across all platforms.
+      const totalFollowers = social.totals && social.totals.followers;
+      if (typeof totalFollowers === 'number') {
+        stat = { label: 'Total followers', value: String(totalFollowers) };
+      }
+    }
   } else if (id === 'scout') {
     const candidates = (await storage.getState('blueskyCandidates')) || [];
     const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
