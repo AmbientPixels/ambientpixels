@@ -53,6 +53,14 @@
         <h1 class="agent-headline">Pixel.</h1>
         <p class="agent-quote">No raw hex. Use the token.</p>
         <p class="agent-lede">I own how AmbientPixels looks. Color systems, type scale, spacing rhythm, dark-mode contrast. The whole visual language runs through me. I work in tokens, not one-off styles. A new color shows up in code, I want to know which design token it maps to, and if it doesn&#39;t map to one, that&#39;s the problem to solve. Hero images, product screenshots, mood boards. All of it has to fit the system. The system is what lets us move fast without the surface getting noisy.</p>
+        <aside class="agent-hero-live" id="agent-live-band" aria-live="polite">
+          <div class="agent-hero-live-row">
+            <span class="agent-status-pill" id="agent-status-pill" data-status="">···</span>
+            <span class="agent-stat" id="agent-stat"></span>
+            <span class="agent-hero-live-asof" id="agent-live-asof"></span>
+          </div>
+          <blockquote class="agent-memory" id="agent-memory" hidden></blockquote>
+        </aside>
       </div>
     </section>
 
@@ -69,25 +77,11 @@
       </ul>
     </section>
 
-    <!-- Right Now (live band, hydrated by /api/agentPublicProfile) -->
-    <section class="agent-sec agent-live" id="agent-live-band">
-      <div class="agent-sec-head">
-        <span class="agent-sec-tag">§ 02 — Right now</span>
-        <span class="agent-sec-sub" id="agent-live-asof">Live feed</span>
-      </div>
-      <div class="agent-live-body">
-        <div class="agent-live-row">
-          <span class="agent-status-pill" id="agent-status-pill" data-status="">—</span>
-          <span class="agent-stat" id="agent-stat"></span>
-        </div>
-        <blockquote class="agent-memory" id="agent-memory" hidden></blockquote>
-      </div>
-    </section>
 
     <!-- Crew -->
     <section class="agent-sec agent-crew">
       <div class="agent-sec-head">
-        <span class="agent-sec-tag">§ 03 — Meet the rest of the crew</span>
+        <span class="agent-sec-tag">§ 02 — Meet the rest of the crew</span>
         <a class="agent-sec-link" href="/ambientos/agents/">All eight &rarr;</a>
       </div>
       <div class="agent-crew-chips">

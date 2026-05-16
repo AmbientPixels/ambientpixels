@@ -30,11 +30,8 @@
       if (!res.ok) return;
       data = await res.json();
     } catch (e) {
-      return; // network / CORS / parse error — leave band un-hydrated
+      return; // network / CORS / parse error — leave placeholders in place
     }
-
-    const band = document.getElementById('agent-live-band');
-    if (!band) return;
 
     // Status pill
     const pill = document.getElementById('agent-status-pill');
@@ -43,7 +40,7 @@
         pill.setAttribute('data-status', data.status);
         pill.textContent = data.status;
       } else {
-        pill.textContent = '—';
+        pill.textContent = '···';
       }
     }
 
@@ -58,10 +55,10 @@
       statEl.appendChild(v);
     }
 
-    // As-of stamp (in the section head)
+    // As-of stamp (relative time, sits at the end of the row)
     const asOfEl = document.getElementById('agent-live-asof');
     if (asOfEl && data.asOf) {
-      asOfEl.textContent = 'as of ' + new Date(data.asOf).toUTCString().replace(' GMT', ' UTC');
+      asOfEl.textContent = 'as of ' + formatRelativeTime(data.asOf);
     }
 
     // Latest memory quote (textContent prevents any HTML injection)
@@ -77,8 +74,6 @@
       }
       memoryEl.hidden = false;
     }
-
-    band.classList.add('is-loaded');
   }
 
   async function hydrateHub() {
