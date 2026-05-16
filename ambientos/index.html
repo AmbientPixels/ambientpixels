@@ -42,8 +42,8 @@
   <script defer src="/js/ap-nav-mobile.js"></script>
   <script defer src="/js/ap-screens.js"></script>
   <style>
-    /* /ambientos/ local — product-landing hero + specs per DS §4.7
-       (shared pattern with /nova/, /ambientscore/ Tier-1 landings) */
+    /* /ambientos/ local — product-landing hero + specs + crew per DS §4.7
+       (shared pattern with /ambientscore/ Tier-1 landings) */
     .ap-product-hero {
       max-width: var(--max-page);
       margin: 0 auto;
@@ -94,6 +94,79 @@
       letter-spacing: 0;
     }
     @media (max-width: 1000px) { .ap-specs { grid-template-columns: 1fr; } }
+
+    /* Crew roster — mirror of /pulse/ team grid, scoped to /ambientos/ */
+    .ap-crew {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--color-border);
+    }
+    .ap-crew-card {
+      padding: var(--sp-10) var(--sp-6);
+      border-right: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+    }
+    .ap-crew-card::before {
+      content: '';
+      width: 40px;
+      height: 2px;
+      background: var(--pc, rgba(244,244,244,.5));
+      opacity: .7;
+    }
+    .ap-crew-card:nth-child(4n) { border-right: none; }
+    .ap-crew-link {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+      text-decoration: none;
+      color: inherit;
+    }
+    .ap-crew-link:hover .ap-crew-portrait { border-color: var(--color-text-primary); }
+    .ap-crew-link:hover .ap-crew-name { color: var(--pc, var(--color-text-primary)); }
+    .ap-crew-portrait {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      transition: border-color var(--dur-fast) var(--ease);
+    }
+    .ap-crew-name {
+      font-family: var(--font-display);
+      font-weight: var(--fw-heavy);
+      font-size: clamp(24px, 2.6vw, 36px);
+      letter-spacing: -0.02em;
+      color: var(--color-text-primary);
+      transition: color var(--dur-fast) var(--ease);
+    }
+    .ap-crew-role {
+      font-family: var(--font-mono);
+      font-size: var(--fs-mono-xs);
+      letter-spacing: var(--tracking-mono-md);
+      text-transform: uppercase;
+      color: var(--color-text-tertiary);
+    }
+    .ap-crew-cta {
+      text-align: center;
+      margin: var(--sp-10) 0 0;
+    }
+    @media (max-width: 900px) {
+      .ap-crew { grid-template-columns: repeat(2, 1fr); }
+      .ap-crew-card:nth-child(4n) { border-right: 1px solid var(--color-border); }
+      .ap-crew-card:nth-child(2n) { border-right: none; }
+    }
+    @media (max-width: 600px) {
+      .ap-crew { grid-template-columns: 1fr; }
+      .ap-crew-card,
+      .ap-crew-card:nth-child(4n),
+      .ap-crew-card:nth-child(2n) { border-right: none; }
+    }
   </style>
 </head>
 <body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper" style="--tx-op: 0.195;">
@@ -207,7 +280,7 @@
           <h3 class="ap-display ap-display--pillar">Execution<br><em>layer.</em></h3>
           <p>An eight-role agent fleet running through one governed heartbeat. Each agent thinks in sequence, produces proposals and state changes, writes a permanent audit trail. The fleet itself is mutable &mdash; agents can be hired, retired, or role-evolved by proposal.</p>
           <ul>
-            <li>Agent fleet (8 roles)</li>
+            <li><a href="/ambientos/agents/">Agent fleet (8 roles) &rarr;</a></li>
             <li>Hourly heartbeat</li>
             <li>Self-modifying roster</li>
             <li>Full audit trail</li>
@@ -238,11 +311,87 @@
       </div>
     </section>
 
+    <!-- §03 FLEET — agent roster, mirror of /pulse/ team -->
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">&sect; 03 &mdash; FLEET</div>
+          <h2 class="ap-display">Eight operators,<br><em>one heartbeat.</em></h2>
+        </div>
+        <div class="ap-sec-meta">
+          The roster that runs AmbientPixels every hour, in the open. Each role specialized, each accountable to a different system. Click any agent for their full profile.
+        </div>
+      </div>
+
+      <ul class="ap-crew">
+        <li class="ap-crew-card">
+          <a class="ap-crew-link" href="/ambientos/agents/nova/">
+            <img class="ap-crew-portrait" src="/ambientos/img/nova.webp" alt="Nova" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Nova</span>
+            <span class="ap-crew-role">Operator &middot; Tier 2</span>
+          </a>
+        </li>
+        <li class="ap-crew-card" style="--pc: var(--pc-ambientos);">
+          <a class="ap-crew-link" href="/ambientos/agents/cipher/">
+            <img class="ap-crew-portrait" src="/ambientos/img/cipher.webp" alt="Cipher" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Cipher</span>
+            <span class="ap-crew-role">Finance &middot; CFO</span>
+          </a>
+        </li>
+        <li class="ap-crew-card" style="--pc: var(--pc-cardforge);">
+          <a class="ap-crew-link" href="/ambientos/agents/pixel/">
+            <img class="ap-crew-portrait" src="/ambientos/img/pixel.webp" alt="Pixel" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Pixel</span>
+            <span class="ap-crew-role">Design &middot; Director</span>
+          </a>
+        </li>
+        <li class="ap-crew-card" style="--pc: #ef4444;">
+          <a class="ap-crew-link" href="/ambientos/agents/forge/">
+            <img class="ap-crew-portrait" src="/ambientos/img/forge.webp" alt="Forge" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Forge</span>
+            <span class="ap-crew-role">Ops &middot; Infrastructure</span>
+          </a>
+        </li>
+        <li class="ap-crew-card" style="--pc: var(--pc-ambientscore);">
+          <a class="ap-crew-link" href="/ambientos/agents/echo/">
+            <img class="ap-crew-portrait" src="/ambientos/img/echo.webp" alt="Echo" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Echo</span>
+            <span class="ap-crew-role">Marketing &middot; CMO</span>
+          </a>
+        </li>
+        <li class="ap-crew-card" style="--pc: var(--pc-storyforge);">
+          <a class="ap-crew-link" href="/ambientos/agents/scribe/">
+            <img class="ap-crew-portrait" src="/ambientos/img/scribe.webp" alt="Scribe" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Scribe</span>
+            <span class="ap-crew-role">Content &middot; Director</span>
+          </a>
+        </li>
+        <li class="ap-crew-card" style="--pc: #84cc16;">
+          <a class="ap-crew-link" href="/ambientos/agents/quill/">
+            <img class="ap-crew-portrait" src="/ambientos/img/quill.webp" alt="Quill" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Quill</span>
+            <span class="ap-crew-role">Brand &middot; Editor</span>
+          </a>
+        </li>
+        <li class="ap-crew-card" style="--pc: #3b82f6;">
+          <a class="ap-crew-link" href="/ambientos/agents/scout/">
+            <img class="ap-crew-portrait" src="/ambientos/img/scout.webp" alt="Scout" width="140" height="140" loading="lazy">
+            <span class="ap-crew-name">Scout</span>
+            <span class="ap-crew-role">Research &middot; Intel</span>
+          </a>
+        </li>
+      </ul>
+
+      <p class="ap-crew-cta">
+        <a class="ap-link-mono" href="/ambientos/agents/">See the full crew &rarr;</a>
+      </p>
+    </section>
+
     <!-- DS §4.7 step 6 — Specs -->
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 03 &mdash; SPECS</div>
+          <div class="ap-sec-idx">&sect; 04 &mdash; SPECS</div>
           <h2 class="ap-display">How it&rsquo;s<br><em>actually built.</em></h2>
         </div>
         <div class="ap-sec-meta">
@@ -270,7 +419,7 @@
       <p>AmbientOS runs AmbientPixels. We license the pattern, not the instance &mdash; talk to us about an operating system tuned to your company.</p>
       <div class="ap-cta-actions">
         <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
-        <a class="ap-btn ap-btn--ghost" href="/ambientos/agents/nova/">Meet Nova</a>
+        <a class="ap-btn ap-btn--ghost" href="/ambientos/agents/">Meet the crew</a>
       </div>
       <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
     </section>
