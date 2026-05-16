@@ -146,7 +146,15 @@ async function buildBatch() {
   // profile pages still show the proper per-agent signal.
   const alloc = (await storage.getState('allocationDigest')) || null;
   const systemStatus = (alloc && alloc.system && alloc.system.status) || 'GREEN';
-  const agents = ALLOWLIST.map(id => ({ id, status: id === 'cipher' ? systemStatus : 'GREEN' }));
+  const configs = (await storage.getState('agentConfigs')) || {};
+  const agents = ALLOWLIST.map(id => {
+    const lastHeartbeatAt = configs[id] && configs[id].heartbeat && configs[id].heartbeat.lastBeat || null;
+    return {
+      id,
+      status: id === 'cipher' ? systemStatus : 'GREEN',
+      lastHeartbeatAt
+    };
+  });
   return { asOf: new Date().toISOString(), agents };
 }
 
