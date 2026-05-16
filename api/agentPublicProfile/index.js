@@ -50,6 +50,16 @@ function agoText(iso) {
   return `${d}d ago`;
 }
 
+// Sources to suppress on public profile: system bookkeeping, not agent voice.
+const MEMORY_NOISE_SOURCES = new Set([
+  'auto:rate-limit',
+  'auto:quality-gate',
+  'auto:budget-rejected',
+  'auto:budget-approved',
+  'auto:campaign-pace',
+  'auto:experiment-verdict'
+]);
+
 function pickLatestPublicMemory(memories) {
   if (!Array.isArray(memories)) return null;
   for (let i = memories.length - 1; i >= 0; i--) {
@@ -57,7 +67,9 @@ function pickLatestPublicMemory(memories) {
     if (!m || typeof m.text !== 'string') continue;
     const text = m.text.trim();
     if (!text) continue;
-    if (m.source && String(m.source).startsWith('auto:')) continue;
+    // Allow non-auto sources and voice-bearing auto sources (reflection, consolidation, ceo-edit).
+    // Suppress only pure system bookkeeping sources.
+    if (m.source && MEMORY_NOISE_SOURCES.has(m.source)) continue;
     const truncated = text.length > 200 ? text.slice(0, 199) + '…' : text;
     return {
       text: truncated,
