@@ -277,6 +277,7 @@
           '<div class="agent-actions">' +
             '<a href="/modules/company/agent-chat.html?agent=' + agent.id + '" class="agent-action-btn agent-action-btn--primary"><i class="fas fa-comment"></i> Chat with ' + agent.name + '</a>' +
             '<button class="agent-action-btn" id="btn-request-report"><i class="fas fa-file-alt"></i> Request Report</button>' +
+            (agent.isHuman ? '' : '<a href="/ambientos/agents/' + agent.id + '/" class="agent-action-btn"><i class="fas fa-id-card"></i> View Profile</a>') +
           '</div>';
 
         // Bind report button

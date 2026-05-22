@@ -385,6 +385,20 @@ select option:checked {
   flex-wrap: wrap;
 }
 
+/* Tier 3 has 6 dept heads — force clean 3×2 grid instead of 4+2 wrap */
+#tier-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 180px);
+  gap: 1rem;
+  justify-content: center;
+}
+@media (max-width: 768px) {
+  #tier-3 { grid-template-columns: repeat(2, 140px); }
+}
+@media (max-width: 600px) {
+  #tier-3 { grid-template-columns: 1fr; max-width: 280px; margin: 0 auto; }
+}
+
 .org-connector {
   width: 2px;
   height: 1.5rem;
@@ -459,14 +473,14 @@ select option:checked {
 }
 
 .agent-card--prime .agent-avatar {
-  width: 62px;
-  height: 62px;
+  width: 112px;
+  height: 112px;
   font-size: var(--c-text-2xl);
 }
 
 .agent-avatar {
-  width: 56px;
-  height: 56px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   margin: 0 auto 0.8rem;
   display: flex;
@@ -479,9 +493,17 @@ select option:checked {
 }
 
 .agent-card--ceo .agent-avatar {
-  width: 68px;
-  height: 68px;
-  font-size: var(--c-text-2xl);
+  width: 112px;
+  height: 112px;
+  font-size: calc(var(--c-text-2xl) * 1.6);
+  background: radial-gradient(circle at 30% 25%, #fef3c7 0%, #fbbf24 45%, #b45309 100%);
+  border: none;
+  color: #78350f;
+  box-shadow:
+    0 0 0 1px rgba(180, 83, 9, 0.4),
+    0 0 24px rgba(251, 191, 36, 0.25),
+    inset 0 -8px 16px rgba(120, 53, 15, 0.25);
+  text-shadow: 0 1px 0 rgba(254, 243, 199, 0.5);
 }
 
 .agent-avatar img {
@@ -1165,8 +1187,8 @@ select option:checked {
   }
 
   .agent-avatar {
-    width: 44px;
-    height: 44px;
+    width: 72px;
+    height: 72px;
     font-size: var(--c-text-lg);
   }
 

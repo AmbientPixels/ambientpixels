@@ -259,7 +259,7 @@ body[data-theme="light"] .hq-proof-link:hover { color: rgba(0,0,0,0.75); }
 
 /* ── Inline Style Replacements ── */
 body[data-theme="dark"] { background: #000000; }
-#hq-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+#hq-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
 .org-tier-label { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 2px; opacity: 0.3; margin-bottom: 0.3rem; }
 .org-tier-sub { opacity: 0.5; }
 .hq-standup-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); }
