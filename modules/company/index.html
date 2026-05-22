@@ -198,7 +198,12 @@
 
       function createAgentCard(agent) {
         var card = document.createElement('div');
-        card.className = 'agent-card' + (agent.tier === 1 ? ' agent-card--ceo' : agent.tier === 2 ? ' agent-card--prime' : '');
+        card.className = 'agent-card' + (
+          agent.tier === 1 ? ' agent-card--ceo' :
+          agent.tier === 2 ? ' agent-card--prime' :
+          agent.tier === 4 ? ' agent-card--sub' :
+          ''
+        );
         card.style.setProperty('--agent-color', agent.color);
         card.setAttribute('data-agent-id', agent.id);
 
@@ -396,7 +401,7 @@
           .then(function (data) {
             var runtime = data && data.value !== undefined ? data.value : data;
             var digest = runtime && runtime.agentPerformance;
-            if (!digest || !digest.agents) { el.innerHTML = '<div class="hq-trends-empty">No performance data yet.</div>'; return; }
+            if (!digest || !digest.agents) { el.innerHTML = '<div class="hq-trends-empty"><i class="fas fa-gauge-high" style="opacity:0.4;margin-right:6px"></i>Scores compile after the weekly performance digest. <a href="/modules/company/agent-performance.html" style="text-decoration:underline">Open leaderboard &rarr;</a></div>'; return; }
             var ids = Object.keys(digest.agents).sort(function (a, b) { return (digest.agents[b].qualityScore || 0) - (digest.agents[a].qualityScore || 0); });
             var top5 = ids.slice(0, 5);
             if (!top5.length) { el.innerHTML = '<div class="hq-trends-empty">No agent data.</div>'; return; }
@@ -426,7 +431,7 @@
                 + '</a>';
             }).join('');
           })
-          .catch(function () { el.innerHTML = '<div class="hq-trends-empty">Could not load performance data.</div>'; });
+          .catch(function () { el.innerHTML = '<div class="hq-trends-empty"><i class="fas fa-gauge-high" style="opacity:0.4;margin-right:6px"></i>Scores compile after the weekly performance digest. <a href="/modules/company/agent-performance.html" style="text-decoration:underline">Open leaderboard &rarr;</a></div>'; });
       })();
     })();
   </script>

@@ -399,6 +399,24 @@ select option:checked {
   #tier-3 { grid-template-columns: 1fr; max-width: 280px; margin: 0 auto; }
 }
 
+/* Tier 4 mirrors Tier 3's column grid so sub-agents sit under their parent.
+   Quill reports to Scribe (column 2 of Tier 3) — drop her there. */
+#tier-4 {
+  display: grid;
+  grid-template-columns: repeat(3, 180px);
+  gap: 1rem;
+  justify-content: center;
+}
+#tier-4 .agent-card { grid-column: 2; }
+@media (max-width: 768px) {
+  #tier-4 { grid-template-columns: repeat(2, 140px); }
+  #tier-4 .agent-card { grid-column: 1 / -1; justify-self: center; }
+}
+@media (max-width: 600px) {
+  #tier-4 { grid-template-columns: 1fr; max-width: 280px; margin: 0 auto; }
+  #tier-4 .agent-card { grid-column: 1; }
+}
+
 .org-connector {
   width: 2px;
   height: 1.5rem;
@@ -472,6 +490,25 @@ select option:checked {
   padding: 1.3rem;
 }
 
+.agent-card--sub {
+  width: 150px;
+  padding: 0.9rem;
+  opacity: 0.92;
+}
+
+.agent-card--sub .agent-avatar {
+  width: 72px;
+  height: 72px;
+}
+
+.agent-card--sub .agent-name {
+  font-size: var(--c-text-base);
+}
+
+.agent-card--sub .agent-role {
+  font-size: var(--c-text-xs);
+}
+
 .agent-card--prime .agent-avatar {
   width: 112px;
   height: 112px;
@@ -532,8 +569,8 @@ select option:checked {
   font-size: var(--c-text-xs);
   padding: 2px 8px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--agent-color, rgba(138, 43, 226, 0.2));
+  background: color-mix(in srgb, var(--agent-color, #a78bfa) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--agent-color, #a78bfa) 45%, transparent);
   color: var(--agent-color, #c9a0ff);
   font-weight: 500;
   letter-spacing: 0.5px;
