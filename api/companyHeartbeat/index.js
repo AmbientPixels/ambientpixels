@@ -2909,6 +2909,48 @@ module.exports = async function (context) {
           const _platform = (_pt.taskType || '').replace('social_', '') || 'x';
           // Sanitize reviewed_copy (same chain as agent-runner)
           var _rcText = _pt.reviewed_copy;
+
+          // ── LEADING PREAMBLE STRIP ──
+          // Scribe sometimes prepends planning monologue, brief recap, or role announcement
+          // before the actual post body. The post is usually introduced by "here's the post:"
+          // or similar pivot phrase. Drop everything before the pivot.
+          var _pivotMatch = _rcText.match(/^[\s\S]{0,1200}?\bhere'?s\s+(?:the|my)?\s*(?:post|draft|copy|version)\b\s*:?\s*\n+/i);
+          if (_pivotMatch) {
+            context.log('[Heartbeat] AUTO-POST SANITIZE: stripped leading preamble (' + _pivotMatch[0].length + ' chars) before "here\'s the post" pivot for task ' + _pt.id);
+            _rcText = _rcText.substring(_pivotMatch.index + _pivotMatch[0].length);
+          }
+          // Strip leading agent self-introduction ("this is scribe.", "i'm scribe.", etc.) through next blank line
+          var _introMatch = _rcText.match(/^(?:this is|i am|i'm)\s+(?:scribe|cipher|nova|echo|forge|quill|pixel|scout)\b[\s\S]*?\n\s*\n/i);
+          if (_introMatch) {
+            context.log('[Heartbeat] AUTO-POST SANITIZE: stripped leading agent self-intro (' + _introMatch[0].length + ' chars) for task ' + _pt.id);
+            _rcText = _rcText.substring(_introMatch[0].length);
+          }
+          // Strip leading "the goal is..." brief recap if it leaks
+          _rcText = _rcText.replace(/^\s*the goal (?:is|of this post is)\s+[\s\S]*?\n\s*\n/i, '').trimStart();
+
+          // ── REFUSAL DETECT ──
+          // Scribe sometimes writes a refusal ("I cannot produce an X post...") as a deliverable.
+          // If we publish the refusal, the refusal text becomes the public post. Detect and abort.
+          var _refusalPatterns = [
+            /^[\s\S]{0,400}?\b(?:given the (?:ceo'?s? )?directive|i cannot produce|i am unable to (?:complete|fulfill|produce|write)|i refuse to|i will not write)\b/i,
+            /^[\s\S]{0,400}?\bcannot (?:complete|fulfill|produce|write) (?:this|the|an?) (?:post|task|request)\b/i
+          ];
+          var _isRefusal = _refusalPatterns.some(function (rx) { return rx.test(_rcText); });
+          if (_isRefusal) {
+            context.log('[Heartbeat] AUTO-POST BLOCKED: refusal pattern detected in reviewed_copy for task ' + _pt.id + ' — skipping AQ push, resetting copy state so pipeline can respawn');
+            _pt.reviewed_copy = null;
+            _pt._social_action_pending = false;
+            if (!_pt.comments) _pt.comments = [];
+            _pt.comments.push({
+              id: 'cmt-refusal-' + Date.now(),
+              author: 'system',
+              text: 'Auto-post blocked: Scribe deliverable was a refusal, not a post. If the platform is intentionally disabled (e.g. social_x removed from allowed task types), archive this task and update the campaign\'s allowedTaskTypes. Otherwise the copy pipeline will respawn a Scribe copy task on the next heartbeat.',
+              type: 'system',
+              createdAt: new Date().toISOString()
+            });
+            continue;
+          }
+
           _rcText = _rcText.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
           _rcText = _rcText.replace(/^\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\]\s*[^\n]*$/gim, '').trim();
           _rcText = _rcText.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();

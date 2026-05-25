@@ -2373,6 +2373,8 @@ Write the full deliverable first, then the structured JSON block.`;
                   + _qgFeedback
                   + 'Requirements:\n'
                   + '- Write exactly ONE post — not multiple variations, not a batch. One single post.\n'
+                  + '- DELIVERABLE FORMAT: the first character of your deliverable IS the first character of the post. No "this is scribe", no "i\'m writing a linkedin post for...", no "here\'s the post:", no "here\'s the draft:", no role announcement, no brief recap, no rationale, no rationale preamble. The deliverable IS the post text, nothing else. The system publishes your deliverable verbatim — any preamble you add ships to the public.\n'
+                  + '- IF YOU CANNOT WRITE THE POST (platform disallowed, missing context, brief contradicts CEO directive, etc.): DO NOT write a refusal as your deliverable. A refusal becomes the published post. Instead, comment on the task explaining why (use comment-task) and leave the deliverable empty. The system will route accordingly.\n'
                   + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes, no "Post 1/Post 2" labels)\n'
                   + '- Founder voice (NOT corporate): casual, lowercase where natural, short paragraphs, one idea per line. No em dashes. No buzzwords (supercharge, unleash, revolutionary, thrilled). No rhetorical question hooks. 5th grade reading level. Lead with specifics not adjectives. Vulnerability beats polish.\n'
                   + '- MUST include the product URL: ' + _cmpUrl + '\n'
