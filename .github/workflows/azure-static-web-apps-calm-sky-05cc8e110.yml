@@ -68,6 +68,10 @@ jobs:
           skip_app_build: true
 
       # Deploy /api to Azure Function App (standalone)
+      # Note: Azure/functions-action@v1 was disabled by GitHub staff for a
+      # ToS violation (discovered June 2026). Switched to a direct Kudu
+      # zip-deploy using the existing publish-profile secret. No external
+      # action dependency.
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -78,12 +82,60 @@ jobs:
           cd api
           npm install
 
-      - name: Deploy to Azure Functions App
-        uses: Azure/functions-action@v1
-        with:
-          app-name: ambientpixels-nova-api
-          package: ./api
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+      - name: Deploy API to Azure Functions (Kudu zip-deploy)
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          APP_NAME: ambientpixels-nova-api
+        run: |
+          set -euo pipefail
+
+          # Build deploy zip
+          cd api
+          zip -qr ../api-deploy.zip . -x "node_modules/.cache/*"
+          cd ..
+          echo "Built api-deploy.zip ($(du -h api-deploy.zip | cut -f1))"
+
+          # Parse MSDeploy credentials from publish-profile XML
+          cat > /tmp/parse_creds.py <<'PY'
+          import os, sys, xml.etree.ElementTree as ET
+          root = ET.fromstring(os.environ['PUBLISH_PROFILE'])
+          for prof in root.findall('publishProfile'):
+              if prof.get('publishMethod') == 'MSDeploy':
+                  print(prof.get('userName'))
+                  print(prof.get('userPWD'))
+                  sys.exit(0)
+          sys.stderr.write('No MSDeploy profile in publish-profile XML\n')
+          sys.exit(1)
+          PY
+          CREDS=$(python3 /tmp/parse_creds.py)
+          USER=$(echo "$CREDS" | sed -n '1p')
+          PASS=$(echo "$CREDS" | sed -n '2p')
+
+          if [ -z "$USER" ] || [ -z "$PASS" ]; then
+            echo "::error::Failed to parse MSDeploy credentials from publish profile"
+            exit 1
+          fi
+
+          # Push to Kudu zipdeploy
+          HTTP=$(curl -sS -w "%{http_code}" -o deploy-response.log \
+            -X POST \
+            -u "$USER:$PASS" \
+            -H "Content-Type: application/zip" \
+            --max-time 600 \
+            --data-binary @api-deploy.zip \
+            "https://${APP_NAME}.scm.azurewebsites.net/api/zipdeploy")
+
+          echo "Kudu HTTP status: $HTTP"
+          echo "--- Kudu response ---"
+          cat deploy-response.log || true
+          echo ""
+          echo "---"
+
+          if [ "$HTTP" -lt 200 ] || [ "$HTTP" -ge 300 ]; then
+            echo "::error::Kudu zipdeploy failed (HTTP $HTTP)"
+            exit 1
+          fi
+          echo "API deployed to ${APP_NAME}"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
