@@ -8,11 +8,6 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - master
-  # Added by Cascade 2025-07-18: Run after Nova memory update workflow
-  workflow_run:
-    workflows: ["Update Nova Memory"]
-    types:
-      - completed
 
 permissions:
   contents: read
@@ -24,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
           lfs: false
