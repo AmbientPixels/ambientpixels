@@ -1,0 +1,52 @@
+name: Probe External Actions
+
+# Manual diagnostic. Each job tests whether GitHub can fetch one external
+# action. Trigger from Actions tab -> "Probe External Actions" -> Run workflow.
+#
+# If a job dies at "Getting action download info" with "Repository access
+# blocked", that specific action is the one GitHub is refusing to fetch
+# for this account/repo. If ALL four jobs die at that step, the block is
+# account-wide and needs GitHub support, not a workflow change.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe-checkout:
+    name: Probe actions/checkout@v4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "actions/checkout@v4 fetched OK"
+
+  probe-setup-node:
+    name: Probe actions/setup-node@v4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: echo "actions/setup-node@v4 fetched OK"
+
+  probe-azure-swa:
+    name: Probe Azure/static-web-apps-deploy@v1
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: dummy-token-for-fetch-test
+          action: "close"
+          app_location: "."
+      - run: echo "Azure/static-web-apps-deploy@v1 fetched OK"
+
+  probe-azure-fn:
+    name: Probe Azure/functions-action@v1
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: dummy
+          package: "."
+      - run: echo "Azure/functions-action@v1 fetched OK"
