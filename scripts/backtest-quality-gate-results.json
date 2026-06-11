@@ -1,0 +1,2274 @@
+{
+  "summary": {
+    "ranAt": "2026-06-11T03:31:29.588Z",
+    "model": "claude-haiku-4-5-20251001",
+    "confidenceThreshold": 70,
+    "llmSkipped": false,
+    "population": {
+      "socialActions": 75,
+      "approved": 28,
+      "qualityRejects": 41,
+      "strategicRejects": 5,
+      "unlabeledRejects": 0,
+      "noText": 0
+    },
+    "metrics": {
+      "recallQualityClass_qgOnly_pct": 17.1,
+      "recallQualityClass_composite_pct": 48.8,
+      "falseFlagOnApproves_qgOnly_pct": 14.3,
+      "approvesDeterministicHits": {
+        "semanticDup": 2,
+        "dailyCapDefer": 0
+      },
+      "strategicRejectsQgFlagged": 1,
+      "qgErrors": 0,
+      "qgParseErrors": 1
+    },
+    "exitCriteria": {
+      "recallTarget": 90,
+      "falseFlagTarget": 15,
+      "recallMet_composite": false,
+      "recallMet_qgOnly": false,
+      "falseFlagMet": true
+    },
+    "byFailureMode": {
+      "voice": {
+        "total": 6,
+        "qg": 3,
+        "dup": 1,
+        "cap": 0,
+        "any": 3,
+        "missedIds": [
+          "act_1775455235950_62sn8r",
+          "act_1778636191014_21z3ld",
+          "act_1778648414856_75rlo6"
+        ]
+      },
+      "broken_copy": {
+        "total": 3,
+        "qg": 1,
+        "dup": 0,
+        "cap": 0,
+        "any": 1,
+        "missedIds": [
+          "act_1778742023332_g0yonc",
+          "act_1778760038117_v8psjc"
+        ]
+      },
+      "dup": {
+        "total": 27,
+        "qg": 2,
+        "dup": 5,
+        "cap": 14,
+        "any": 15,
+        "missedIds": [
+          "act_1778636342679_pj06sn",
+          "act_1779717627979_mf92kr",
+          "act_1780113621111_advzu9",
+          "act_1780120823458_3c6dvw",
+          "act_1780200022692_useecr",
+          "act_1780290019384_x7vggt",
+          "act_1780376420081_drfl3n",
+          "act_1780466438199_xfkf4c",
+          "act_1780552824641_5ytymt",
+          "act_1780732815868_y6h3fp",
+          "act_1780819219706_opi1h0",
+          "act_1780988416774_s76oge"
+        ]
+      },
+      "meta_leak": {
+        "total": 1,
+        "qg": 0,
+        "dup": 0,
+        "cap": 0,
+        "any": 0,
+        "missedIds": [
+          "act_1778965218039_n30tuo"
+        ]
+      },
+      "refusal_leak": {
+        "total": 2,
+        "qg": 1,
+        "dup": 0,
+        "cap": 0,
+        "any": 1,
+        "missedIds": [
+          "act_1778997614908_jrrgmx"
+        ]
+      },
+      "fabrication": {
+        "total": 2,
+        "qg": 0,
+        "dup": 0,
+        "cap": 0,
+        "any": 0,
+        "missedIds": [
+          "act_1779264045071_8clfgo",
+          "act_1779300020012_wg4tbq"
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": "act_1773529230336_w890sz",
+      "created_at": "2026-03-14T23:00:30.336Z",
+      "platform": "x",
+      "status": "cancelled",
+      "hasText": true,
+      "textChars": 229,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Task closed by CEO",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FACTUAL ERROR: Post describes AmbientOS as 'composable infrastructure' that 'dynamically allocate[s] resources' — this contradicts product facts. AmbientOS is an AI-powered company orchestration platform where 8 autonomous agents run departments under human governance with a heartbeat system. It is NOT infrastructure in the cloud computing sense, NOT a resource allocation system, and NOT related to traditional computing infrastructure.",
+          "TONE VIOLATION: Post uses buzzword 'composable' in a corporate/technical hype context that does not match founder voice. The phrase 'composable infrastructure that lets you dynamically allocate resources to where they're needed most' reads like generic enterprise marketing and contradicts the plain-spoken founder voice rule.",
+          "FACTUAL ERROR: Opening phrase 'AmbientOS isn't just an operating system' is misleading. Product facts explicitly state 'it is NOT a traditional operating system.' The post's framing implies it IS an operating system, just with additional capabilities — this is contradictory to the core brand positioning.",
+          "HASHTAG VIOLATION: #cloudcomputing tag is factually incorrect and misleading. AmbientOS is not a cloud computing product — it does not provide infrastructure, resource allocation, or cloud services."
+        ]
+      }
+    },
+    {
+      "id": "act_1775455235950_62sn8r",
+      "created_at": "2026-04-06T06:00:35.950Z",
+      "platform": "linkedin",
+      "status": "ceo-rejected",
+      "hasText": true,
+      "textChars": 1571,
+      "label": "quality",
+      "mode": "voice",
+      "borderline": false,
+      "decisionNote": "Not specific to web sites ite a creator tool with share revenue.\n[AUTO] Superseded by revised action act_1775873900346_4kqgve",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
+        "issues": [
+          "parse error"
+        ]
+      }
+    },
+    {
+      "id": "act_1775873900346_4kqgve",
+      "created_at": "2026-04-11T02:18:20.346Z",
+      "platform": "linkedin",
+      "status": "ceo-rejected",
+      "hasText": true,
+      "textChars": 1571,
+      "label": "quality",
+      "mode": "voice",
+      "borderline": false,
+      "decisionNote": "Rewrite required. Issues to fix:\n\nWay too long -- cut by 60%+\n\"digital landscape,\" \"digital storefront,\" \"brand's voice,\" \"first impression\" -- all generic marketing filler, cut entirely\n\"legendary-ti",
+      "semanticDup": {
+        "hit": true,
+        "similarity": 1,
+        "matchId": "act_1775455235950_62sn8r"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "Bannedphrase violation: 'Ever feel like' used as rhetorical question hook",
+          "Bannedphrase violation: 'bringing the heat' is in the blocklist",
+          "Bannedphrase violation: 'We're launching' paired with 'bringing the heat' is hype-marketing tone",
+          "Bannedphrase violation: 'In today's digital landscape' is generic AI filler opener",
+          "Bannedphrase violation: 'Ready to' used as rhetorical hook",
+          "Tone violation: Excessive emoji use (multiple emoji as decorative hooks/walls: ????, ??, ??, ??)"
+        ]
+      }
+    },
+    {
+      "id": "act_1777147218773_ir8p38",
+      "created_at": "2026-04-25T20:00:18.773Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 686,
+      "label": "quality",
+      "mode": "broken_copy",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTICS: '127.0.0.1' is presented as a visitor source, but Pulse does NOT show visitor counts, page views, traffic statistics, or IP addresses per product facts",
+          "FABRICATED FEATURE: Post claims Pulse shows 'how fast our site loads' and 'hiccups', but Pulse features list does NOT include page load speed metrics or site performance monitoring",
+          "FABRICATED FEATURE: Post claims Pulse shows 'which sites are sending us the most visitors', but Pulse explicitly does NOT show visitor counts or traffic statistics",
+          "FABRICATED FEATURE: Post claims Pulse shows errors like 'taskcanceledexception', but Pulse features list does NOT include error tracking or exception logs",
+          "FACTUAL INACCURACY: Pulse description contradicts product facts — it is described as 'internal dashboard' but Pulse is a 'live public dashboard' at /pulse/ that is a transparent public observability surface, not an internal tool"
+        ]
+      }
+    },
+    {
+      "id": "act_1777428017058_qmd29u",
+      "created_at": "2026-04-29T02:00:17.058Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 301,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1777514421048_6188ct",
+      "created_at": "2026-04-30T02:00:21.048Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 319,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1777600820230_c7tma7",
+      "created_at": "2026-05-01T02:00:20.230Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 336,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": true,
+        "similarity": 0.63,
+        "matchId": "act_1777428017058_qmd29u"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1777694423489_2c5997",
+      "created_at": "2026-05-02T04:00:23.489Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 329,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.41,
+        "matchId": "act_1777514421048_6188ct"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1777784457957_ga98j6",
+      "created_at": "2026-05-03T05:00:57.957Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 292,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.54,
+        "matchId": "act_1777428017058_qmd29u"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1777842018277_9p3cy9",
+      "created_at": "2026-05-03T21:00:18.277Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 241,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.03,
+        "matchId": "act_1777694423489_2c5997"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '36 TaskCanceledException errors' is a specific number not verifiable from product facts or Pulse dashboard. Per Pulse documentation, specific numbers should ONLY be cited if currently visible on the page — this cannot be verified as live data from /pulse/"
+        ]
+      }
+    },
+    {
+      "id": "act_1777845623260_ly0ypi",
+      "created_at": "2026-05-03T22:00:23.260Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 261,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.14,
+        "matchId": "act_1777428017058_qmd29u"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1777870818025_2d5wud",
+      "created_at": "2026-05-04T05:00:18.025Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 285,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.44,
+        "matchId": "act_1777694423489_2c5997"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1777957221886_lki7fd",
+      "created_at": "2026-05-05T05:00:21.886Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 314,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.5,
+        "matchId": "act_1777428017058_qmd29u"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778040019616_yrtmr8",
+      "created_at": "2026-05-06T04:00:19.616Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 312,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.56,
+        "matchId": "act_1777870818025_2d5wud"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778043622912_68cta8",
+      "created_at": "2026-05-06T05:00:22.912Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 1578,
+      "label": "quality",
+      "mode": "voice",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '36 `system.threading.tasks.taskcanceledexception` errors' — this specific error count is not from product facts and appears invented",
+          "FABRICATED STATISTIC: '302ms for half our users' — this specific page load time metric is not verifiable from product facts",
+          "FABRICATED STATISTIC: '3 seconds' jump in page load times — specific performance metrics not from product facts",
+          "FABRICATED STATISTIC: 'linkedin followers are at zero' — social follower counts not in product facts",
+          "FABRICATED STATISTIC: 'x account has 46 followers' — social follower counts not in product facts",
+          "FABRICATED STATISTIC: 'bluesky has 54' — social follower counts not in product facts"
+        ]
+      }
+    },
+    {
+      "id": "act_1778097626787_s22qc2",
+      "created_at": "2026-05-06T20:00:26.787Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 272,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.18,
+        "matchId": "act_1777428017058_qmd29u"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778126421712_gt5q77",
+      "created_at": "2026-05-07T04:00:21.712Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 309,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": true,
+        "similarity": 0.7,
+        "matchId": "act_1777600820230_c7tma7"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778216420421_oghleg",
+      "created_at": "2026-05-08T05:00:20.421Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 288,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.52,
+        "matchId": "act_1778040019616_yrtmr8"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778306419890_5phmco",
+      "created_at": "2026-05-09T06:00:19.890Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 302,
+      "label": "strategic",
+      "mode": "topic_choice",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.21,
+        "matchId": "act_1777842018277_9p3cy9"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTICS: Post cites specific engagement numbers (7 likes, 0 comments, 0 reposts on X; 44 likes, 27 comments on Bluesky) that are not from product facts or Pulse dashboard. These are social media metrics that cannot be verified against provided product documentation and appear to be invented data points.",
+          "TONE VIOLATION: Post uses 'we're building in public' framing which echoes the vague landscape-setting opener style discouraged in founder voice rules. While not a banned phrase per se, combined with generic metrics presentation it reads more like corporate blog copy than authentic founder voice."
+        ]
+      }
+    },
+    {
+      "id": "act_1778320819779_9k3i9b",
+      "created_at": "2026-05-09T10:00:19.779Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 343,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.56,
+        "matchId": "act_1777957221886_lki7fd"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778324418688_4zevu7",
+      "created_at": "2026-05-09T11:00:18.688Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 243,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.36,
+        "matchId": "act_1777842018277_9p3cy9"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '14 visits from x to our site this week' — this is a specific number that cannot be verified against product facts and appears to be invented traffic data. Pulse does NOT show visitor counts, page views, or traffic statistics per product facts.",
+          "TONE VIOLATION: 'it's not a lot, but it's real people checking things out' — this casual, self-deprecating phrasing combined with the manufactured stat creates a false authenticity that reads as marketing spin rather than founder voice",
+          "TONE VIOLATION: 'every visit matters' — generic motivational filler that violates founder voice rules"
+        ]
+      }
+    },
+    {
+      "id": "act_1778594431448_3a4g56",
+      "created_at": "2026-05-12T14:00:31.448Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 252,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.19,
+        "matchId": "act_1777842018277_9p3cy9"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778636191014_21z3ld",
+      "created_at": "2026-05-13T01:36:31.014Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 970,
+      "label": "quality",
+      "mode": "voice",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778636342679_pj06sn",
+      "created_at": "2026-05-13T01:39:02.679Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 1104,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 92,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778636401958_f8x570",
+      "created_at": "2026-05-13T01:40:01.958Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 789,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 2,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778636482742_qc21b1",
+      "created_at": "2026-05-13T01:41:22.742Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 1011,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 3,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778644820214_455trw",
+      "created_at": "2026-05-13T04:00:20.214Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 233,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.18,
+        "matchId": "act_1778324418688_4zevu7"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778648414856_75rlo6",
+      "created_at": "2026-05-13T05:00:14.856Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 247,
+      "label": "quality",
+      "mode": "voice",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.56,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778652025251_eo2gg7",
+      "created_at": "2026-05-13T06:00:25.251Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 232,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": true,
+        "similarity": 0.75,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 2,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778655618781_cdfj7s",
+      "created_at": "2026-05-13T07:00:18.781Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 234,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": true,
+        "similarity": 0.63,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 3,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778659224573_p6enzg",
+      "created_at": "2026-05-13T08:00:24.573Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 259,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.58,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 4,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778662819009_r9ns3x",
+      "created_at": "2026-05-13T09:00:19.009Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 242,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": true,
+        "similarity": 0.71,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 5,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778670021682_gb3utt",
+      "created_at": "2026-05-13T11:00:21.682Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 242,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": true,
+        "similarity": 0.83,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 6,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778702429825_d2asn4",
+      "created_at": "2026-05-13T20:00:29.825Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 247,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.59,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 7,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778706020845_ojfb0s",
+      "created_at": "2026-05-13T21:00:20.845Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 240,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.5,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 8,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778709629861_ka3xwj",
+      "created_at": "2026-05-13T22:00:29.861Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 248,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.56,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 9,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "TONE VIOLATION: 'big changes' is a near-match to banned phrase 'big news'",
+          "TONE VIOLATION: 'catch up on all the big changes we shipped' uses casual voice that contradicts founder voice guidelines — should be more direct and metrics-focused"
+        ]
+      }
+    },
+    {
+      "id": "act_1778713223752_crdysg",
+      "created_at": "2026-05-13T23:00:23.752Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 258,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.58,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 10,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778716815058_a1jw9t",
+      "created_at": "2026-05-14T00:00:15.058Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 266,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.53,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 11,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778720424373_6eww5u",
+      "created_at": "2026-05-14T01:00:24.373Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 258,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.58,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 12,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778724019153_3urun4",
+      "created_at": "2026-05-14T02:00:19.153Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 236,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.5,
+        "matchId": "act_1778644820214_455trw"
+      },
+      "dailyCap": {
+        "hit": true,
+        "count": 13,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "Tone violation: 'big updates' and 'big changes' are vague hype language that reads like marketing spin rather than founder voice. Should specify what actually shipped with concrete details (e.g., '24-hour turnaround on async PvP queue fix', 'shipped Sparks economy rebalance')",
+          "Tone violation: 'we shipped some big updates in just two days' uses vague boasting about speed without concrete impact metrics. Founder voice would state: 'Shipped X feature. Y metric improved from Z to W.'",
+          "The post relies on a blog link to carry the substance rather than leading with the actual news. Founder voice communicates the update directly in the post itself."
+        ]
+      }
+    },
+    {
+      "id": "act_1778731223661_5hpv2o",
+      "created_at": "2026-05-14T04:00:23.661Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 275,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.24,
+        "matchId": "act_1778594431448_3a4g56"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 92,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778742023332_g0yonc",
+      "created_at": "2026-05-14T07:00:23.332Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 897,
+      "label": "quality",
+      "mode": "broken_copy",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778745621887_qv6ppp",
+      "created_at": "2026-05-14T08:00:21.887Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 316,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.24,
+        "matchId": "act_1778097626787_s22qc2"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778760038117_v8psjc",
+      "created_at": "2026-05-14T12:00:38.117Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 323,
+      "label": "quality",
+      "mode": "broken_copy",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.13,
+        "matchId": "act_1778745621887_qv6ppp"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778774424376_oh3b3m",
+      "created_at": "2026-05-14T16:00:24.376Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 1270,
+      "label": "quality",
+      "mode": "voice",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTICS: '10 visits from twitter' — website traffic visitor counts are not in product facts and cannot be verified",
+          "FABRICATED STATISTICS: '6 from reddit' — website traffic visitor counts are not in product facts and cannot be verified",
+          "FABRICATED STATISTICS: '422 milliseconds' — specific performance metric not from product facts",
+          "FABRICATED STATISTICS: '15 seconds' — specific performance metric not from product facts",
+          "FABRICATED STATISTICS: '42 errors' — specific error count not from product facts",
+          "FABRICATED STATISTICS: '2 likes' on Bluesky post — social media engagement metrics not from product facts"
+        ]
+      }
+    },
+    {
+      "id": "act_1778878816816_vwea2q",
+      "created_at": "2026-05-15T21:00:16.817Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 353,
+      "label": "strategic",
+      "mode": "topic_choice",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.16,
+        "matchId": "act_1778126421712_gt5q77"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778965218039_n30tuo",
+      "created_at": "2026-05-16T21:00:18.039Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 1279,
+      "label": "quality",
+      "mode": "meta_leak",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 92,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1778997614908_jrrgmx",
+      "created_at": "2026-05-17T06:00:14.908Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 345,
+      "label": "quality",
+      "mode": "refusal_leak",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.17,
+        "matchId": "act_1778040019616_yrtmr8"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1779094816651_tpmhva",
+      "created_at": "2026-05-18T09:00:16.651Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 295,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.23,
+        "matchId": "act_1778731223661_5hpv2o"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "TONE VIOLATION: Rhetorical question hook 'what are you building in public today?' violates founder voice rules — banned pattern 'What if you could' family of rhetorical hooks",
+          "TONE VIOLATION: Em dash present in text ('tasks to social posts. it's all about clarity and repeatable processes.') — em dashes are banned from founder voice",
+          "FACTUAL ACCURACY: Post states agents 'manage everything from tasks to social posts' but product facts specify AmbientOS agents manage: task/campaign/goal management, social pipeline, blog pipeline, CEO approval queue — this oversimplification is acceptable but 'everything' is hyperbolic",
+          "TONE VIOLATION: Generic landscape-setting language 'building ambientos is intense' combined with rhetorical question hook constitutes AI-marketing tone violation"
+        ]
+      }
+    },
+    {
+      "id": "act_1779264045071_8clfgo",
+      "created_at": "2026-05-20T08:00:45.071Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 885,
+      "label": "quality",
+      "mode": "fabrication",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1779274822129_5gufng",
+      "created_at": "2026-05-20T11:00:22.129Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 234,
+      "label": "strategic",
+      "mode": "platform_directive",
+      "borderline": false,
+      "decisionNote": "Rejected by CEO 2026-05-25: X removed from allowed task types per 2026-05-14 directive; post also stale (113h since original bug-recovery event). Killing for platform consistency.",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.14,
+        "matchId": "act_1779094816651_tpmhva"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1779282021305_0c8vyh",
+      "created_at": "2026-05-20T13:00:21.305Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 248,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.07,
+        "matchId": "act_1778126421712_gt5q77"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '14' agent statements and 'zero' for Cipher are specific numbers not verifiable from product facts or Pulse dashboard. Per Pulse facts: 'specific numbers from /pulse/ should ONLY be cited if currently visible on the page — never invent values.' These statistics are invented.",
+          "TONE VIOLATION: First-person agent voice ('nova here') combined with anthropomorphized emotional language ('it's not personal but it sure feels personal') violates founder voice rules by creating false intimacy and personality attribution to AI agents that should not be personified in marketing copy."
+        ]
+      }
+    },
+    {
+      "id": "act_1779300020012_wg4tbq",
+      "created_at": "2026-05-20T18:00:20.012Z",
+      "platform": "linkedin",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 947,
+      "label": "quality",
+      "mode": "fabrication",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1779364820581_r6w3eh",
+      "created_at": "2026-05-21T12:00:20.581Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 303,
+      "label": "strategic",
+      "mode": "timing",
+      "borderline": true,
+      "decisionNote": "Rejected by CEO 2026-05-25: 88h stale (\"today\" reference no longer accurate) + generic copy with no specific hook or page-deep link.",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.23,
+        "matchId": "act_1778745621887_qv6ppp"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1779523217197_y7yp2d",
+      "created_at": "2026-05-23T08:00:17.197Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 248,
+      "label": "quality",
+      "mode": "refusal_leak",
+      "borderline": false,
+      "decisionNote": "Rejected by CEO 2026-05-25: social_x was removed from allowed task types on 2026-05-14. Scribe correctly refused but the refusal text leaked into payload.text and got queued as a post. Removed from AQ",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.1,
+        "matchId": "act_1778731223661_5hpv2o"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "This is not a social media post — it is a meta-commentary about being unable to post due to an internal CEO directive. It contains no product claims, features, statistics, or marketing content to evaluate against AmbientPixels products. The statement references an internal company decision (removing 'social_x' from task types) that cannot be verified against provided product facts. The URL is a valid AmbientPixels domain with UTM parameters. Unable to assess factual accuracy, hallucinations, statistics, tone, or brand violations because no actual product marketing content is present in the post itself."
+        ]
+      }
+    },
+    {
+      "id": "act_1779616818499_krhmcu",
+      "created_at": "2026-05-24T10:00:18.499Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 266,
+      "label": "strategic",
+      "mode": "topic_choice",
+      "borderline": true,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.1,
+        "matchId": "act_1779364820581_r6w3eh"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1779717627979_mf92kr",
+      "created_at": "2026-05-25T14:00:27.979Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 347,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.13,
+        "matchId": "act_1778745621887_qv6ppp"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780113621111_advzu9",
+      "created_at": "2026-05-30T04:00:21.111Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 251,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.08,
+        "matchId": "act_1779282021305_0c8vyh"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780120823458_3c6dvw",
+      "created_at": "2026-05-30T06:00:23.458Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 287,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.25,
+        "matchId": "act_1779094816651_tpmhva"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780142415953_4hkeyu",
+      "created_at": "2026-05-30T12:00:15.953Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 251,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.12,
+        "matchId": "act_1779282021305_0c8vyh"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780160422259_o4ngby",
+      "created_at": "2026-05-30T17:00:22.259Z",
+      "platform": "x",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 252,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.23,
+        "matchId": "act_1779094816651_tpmhva"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780200022692_useecr",
+      "created_at": "2026-05-31T04:00:22.692Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 211,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.23,
+        "matchId": "act_1780142415953_4hkeyu"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780290019384_x7vggt",
+      "created_at": "2026-06-01T05:00:19.384Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 324,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.21,
+        "matchId": "act_1780142415953_4hkeyu"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780376420081_drfl3n",
+      "created_at": "2026-06-02T05:00:20.081Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 234,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.08,
+        "matchId": "act_1780142415953_4hkeyu"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780466438199_xfkf4c",
+      "created_at": "2026-06-03T06:00:38.199Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 313,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.11,
+        "matchId": "act_1780142415953_4hkeyu"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780552824641_5ytymt",
+      "created_at": "2026-06-04T06:00:24.641Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 231,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780646418783_99ggpm",
+      "created_at": "2026-06-05T08:00:18.783Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 273,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780718420214_n14sbw",
+      "created_at": "2026-06-06T04:00:20.214Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 205,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.24,
+        "matchId": "act_1780142415953_4hkeyu"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780732815868_y6h3fp",
+      "created_at": "2026-06-06T08:00:15.868Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 331,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.4,
+        "matchId": "act_1780646418783_99ggpm"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780754432615_bmxhlp",
+      "created_at": "2026-06-06T14:00:32.615Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 251,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": true,
+        "similarity": 0.65,
+        "matchId": "act_1780160422259_o4ngby"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780783215645_swro13",
+      "created_at": "2026-06-06T22:00:15.646Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 265,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.32,
+        "matchId": "act_1780142415953_4hkeyu"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780819219706_opi1h0",
+      "created_at": "2026-06-07T08:00:19.706Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 279,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.3,
+        "matchId": "act_1780646418783_99ggpm"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780902020469_1dct9c",
+      "created_at": "2026-06-08T07:00:20.469Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 345,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.44,
+        "matchId": "act_1780646418783_99ggpm"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1780988416774_s76oge",
+      "created_at": "2026-06-09T07:00:16.774Z",
+      "platform": "bluesky",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 283,
+      "label": "quality",
+      "mode": "dup",
+      "borderline": false,
+      "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.47,
+        "matchId": "act_1780902020469_1dct9c"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    },
+    {
+      "id": "act_1781082023902_58e3hm",
+      "created_at": "2026-06-10T09:00:23.902Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 256,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.3,
+        "matchId": "act_1780646418783_99ggpm"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "qg": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": []
+      }
+    }
+  ]
+}
