@@ -2,6 +2,14 @@
 
 > **For agentic workers:** This is a multi-session ROADMAP, not a single implementation plan. Each phase gets its own bite-sized implementation plan (via superpowers:writing-plans) at the session where it starts. Phase A item A1 has enough detail in the kickoff handoff to start immediately.
 
+> **⚡ 2026-06-10 EVALUATION UPDATE — SLIMMED EXECUTION PLAN SUPERSEDES THE PHASE SIZING BELOW.**
+> Full audit: [`../specs/2026-06-10-full-system-audit.md`](../specs/2026-06-10-full-system-audit.md) (rating 6.5/10). A1 backtest: [`../specs/2026-06-10-qg-backtest-report.md`](../specs/2026-06-10-qg-backtest-report.md) — QG recall 17.1% solo / 48.8% composite vs ≥90% target = **Phase A exit FAILED**, false-flag 14.3% (≤15% pass).
+> CEO judged the full 5-phase ceremony oversized for current stakes (~125 followers, $15/mo, breaker bounds worst case at 2 bad posts). The path compresses to **3 working sessions**:
+> 1. **A2+A3 together** — one QG verdict object composing: refusal/meta-leak/placeholder regexes, semantic_dup, daily_cap, and a NEW **repeat-promo URL check** (same UTM-stripped URL + platform within 7d — the A1 backtest's biggest gap: 11/12 missed dups are differently-worded daily repeat-promos) + claim-grounding. Re-run `scripts/backtest-quality-gate.cjs`; exit at composite ≥90% / false-flag ≤15% (aspire <5%).
+> 2. **B1 only** — Echo re-injection root fix. A4 model swap only if step 1's re-run still misses. **B2 demoted** (CEO pruned objectives 11→4 on 06-10; revisit only if staleness recurs). **B3 moot** (agentExperiments empty).
+> 3. **Phase C entry** — grace window + breaker + digest as specced in C1–C3 below. CEO posture confirm at entry. The 14-day soak is just the system running; **no formal Phase E** — 14 clean days → shrink grace per C4. Phase D and monthly D3 audits become opportunistic.
+> Detailed C1–C4 specs, exit criteria, and the stays-human-forever list below remain authoritative.
+
 **Goal:** Take AmbientOS from 6.0/10 (operationally self-sufficient, outcome-gated on the CEO) to full autonomy: the CEO is an exception-handler reading a daily digest, not a gatekeeper in the publish path.
 
 **Architecture:** Graduated, revocable autonomy. Every unlock is (1) preceded by a measured trust prerequisite, (2) guarded by deterministic rails (not prompt hope), (3) wrapped in an auto-revert breaker, (4) reusing existing rails (actionsScheduler, approval.status, systemConfig runtime flags, governanceLog).
