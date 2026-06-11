@@ -3012,6 +3012,13 @@ Write the full deliverable first, then the structured JSON block.`;
         }
         if (_qgResult) {
           context.log('[QualityGate]', newAction.platform, 'pass:', _qgResult.pass, 'confidence:', _qgResult.confidence, 'issues:', (_qgResult.issues || []).length, 'det:', JSON.stringify(_qgResult.deterministicFlags || {}));
+          // Stamp the verdict on the ACTION (not just the AQ entry) — the Phase C grace
+          // window reads action.qualityGate to decide auto-publish eligibility.
+          newAction.qualityGate = {
+            pass: !!_qgResult.pass, confidence: _qgResult.confidence || 0,
+            issues: (_qgResult.issues || []).slice(0, 6),
+            deterministicFlags: _qgResult.deterministicFlags || null
+          };
         }
       }
 

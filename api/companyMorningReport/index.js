@@ -159,6 +159,25 @@ module.exports = async function (context) {
       context.log.warn('[MorningReport] Enriched context unavailable:', e.message);
     }
 
+    // ── Phase C3: grace-window auto-publish digest (CEO awareness without CEO action) ──
+    let autoPublished = [];
+    try {
+      const _allActions = (await storage.getState('actions')) || [];
+      autoPublished = _allActions
+        .filter(a => a && a._gracePublished && a.approval && a.approval.approved_at >= sinceISO)
+        .map(a => ({
+          id: a.id, platform: a.platform,
+          preview: ((a.payload && a.payload.text) || '').slice(0, 120),
+          postUrl: (a.execution && a.execution.receipt && (a.execution.receipt.post_url || a.execution.receipt.public_url)) || null
+        }));
+      if (autoPublished.length > 0) {
+        enrichedContext += '\n\nAUTO-PUBLISHED VIA GRACE WINDOW (last 24h — mention these to the CEO): ' +
+          autoPublished.map(p => p.platform + ' ' + p.id + (p.postUrl ? ' (' + p.postUrl + ')' : '')).join('; ');
+      }
+    } catch (e) {
+      context.log.warn('[MorningReport] Auto-publish digest unavailable:', e.message);
+    }
+
     // ── Generate CEO summary via Gemini ──
     const summaryPrompt = buildSummaryPrompt({
       today,
@@ -211,6 +230,7 @@ module.exports = async function (context) {
         escalations24h: escalations.length
       },
       ceoSummary: ceoSummary || '',
+      autoPublished: autoPublished,
       agentHighlights: agentActions,
       heartbeatCycles: heartbeatCycles.length,
       errorCount: errors.length,

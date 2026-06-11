@@ -3229,6 +3229,15 @@ module.exports = async function (context) {
           } catch (_qgvErr) {
             context.log('[QualityGate] AUTO-POST compose error (LLM-only fallback):', String(_qgvErr).substring(0, 150));
           }
+          // Stamp the verdict on the ACTION — the Phase C grace window reads
+          // action.qualityGate to decide auto-publish eligibility.
+          if (_aqQualityGate) {
+            _newAction.qualityGate = {
+              pass: !!_aqQualityGate.pass, confidence: _aqQualityGate.confidence || 0,
+              issues: (_aqQualityGate.issues || []).slice(0, 6),
+              deterministicFlags: _aqQualityGate.deterministicFlags || null
+            };
+          }
 
           // Quality gate FAILED — auto-reject, remove action, reset task for Scribe rewrite
           if (_aqQualityGate && !_aqQualityGate.pass && (_aqQualityGate.confidence || 0) >= 70) {
