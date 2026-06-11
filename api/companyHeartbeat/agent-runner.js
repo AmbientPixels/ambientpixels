@@ -27,6 +27,7 @@ const {
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
+const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
 const _productFacts = require('../_data/product-facts.json');
 var _founderVoice = {};
 try { _founderVoice = require('../_data/founder-voice-examples.json'); } catch (_) {}
@@ -2830,6 +2831,44 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
+      // ── REPEAT-PROMO SERIALIZE (A2): one pending post per deep link per platform ──
+      // Items 1-2 bound copy similarity and volume; this serializes PROMO TARGETS so the
+      // queue never piles up same-link posts (the 2026-06-10 curation killed 8 of 9 queued
+      // startup-obituary posts — all the same link, each worded differently enough to slip
+      // both gates). DEFER like the cap: once the pending post is decided, the next may queue.
+      {
+        var _promoStatus = QGV.repeatPromoUrlStatus({
+          text: socialPayload.text || '',
+          platform: _resolvedPlatform,
+          actions: existingActions,
+          now: Date.now()
+        });
+        if (_promoStatus.exceeded) {
+          context.log('[Heartbeat]', agentId, 'DEFERRED create-social-action — repeat promo: ' + _promoStatus.url + ' already pending on ' + _resolvedPlatform + ' (' + _promoStatus.matchId + ')');
+          var _promoTask = action.taskId ? tasks.find(function (t) { return t.id === action.taskId; }) : null;
+          if (_promoTask) {
+            _promoTask._social_post_deferred_until = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+            _promoTask.updatedAt = new Date().toISOString();
+            if (!_promoTask.comments) _promoTask.comments = [];
+            var _hasPromoNote = (_promoTask.comments || []).some(function (c) { return c && c.text && c.text.indexOf('Repeat-promo serialized') !== -1; });
+            if (!_hasPromoNote) {
+              _promoTask.comments.push({
+                id: 'cmt-promoser-' + Date.now(),
+                author: 'system',
+                text: 'Repeat-promo serialized: a post linking ' + _promoStatus.url + ' is already pending approval on ' + _resolvedPlatform + '. One queued post per link at a time — this one is deferred ~6h and will retry once the pending post is decided.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+            }
+          }
+          await logEvent('policy-violation', agentId, 'Repeat-promo deferred social post (same link already pending)', cycleId,
+            { runId: cycleId, gate: 'repeat_promo_url', reason: 'same_link_pending_on_platform',
+              platform: _resolvedPlatform, url: _promoStatus.url, pendingActionId: _promoStatus.matchId,
+              taskId: action.taskId || null, campaignId: _semCampaignId });
+          continue;
+        }
+      }
+
       const _diagRc = action.taskId ? ((tasks.find(function(t) { return t.id === action.taskId; }) || {}).reviewed_copy || '').length : -1;
       context.log('[Heartbeat]', agentId, 'CREATING social action — GATE PASSED. taskId:', action.taskId, 'rc_len:', _diagRc, 'text_len:', (socialPayload.text || '').length, '_codeTag:v10diag');
       // For Reddit: extract target subreddit from task description/comments (r/SubName pattern)
@@ -2930,8 +2969,22 @@ Write the full deliverable first, then the structured JSON block.`;
       var _postText = (newAction.payload && newAction.payload.text) || '';
       if (_postText.length > 10) {
         _qgResult = await _validateContentQuality(_postText, newAction.platform || 'social', context);
+        // A2+A3: compose the LLM result with deterministic checks (leak detectors, persona,
+        // length, claim grounding vs the task chain) into ONE verdict. Downstream reject /
+        // circuit-breaker / AQ-badge logic consumes the composed verdict unchanged.
+        try {
+          var _qgvTask = action.taskId ? tasks.find(function (t) { return t.id === action.taskId; }) : null;
+          _qgResult = QGV.composeQualityVerdict({
+            llm: _qgResult,
+            text: _postText,
+            platform: newAction.platform,
+            grounding: QGV.findUngroundedClaims(_postText, QGV.buildGroundingText(_qgvTask, _productFacts))
+          });
+        } catch (_qgvErr) {
+          context.log('[QualityGate] compose error (LLM-only fallback):', String(_qgvErr).substring(0, 150));
+        }
         if (_qgResult) {
-          context.log('[QualityGate]', newAction.platform, 'pass:', _qgResult.pass, 'confidence:', _qgResult.confidence, 'issues:', (_qgResult.issues || []).length);
+          context.log('[QualityGate]', newAction.platform, 'pass:', _qgResult.pass, 'confidence:', _qgResult.confidence, 'issues:', (_qgResult.issues || []).length, 'det:', JSON.stringify(_qgResult.deterministicFlags || {}));
         }
       }
 

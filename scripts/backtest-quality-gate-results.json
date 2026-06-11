@@ -1,6 +1,6 @@
 {
   "summary": {
-    "ranAt": "2026-06-11T03:31:29.588Z",
+    "ranAt": "2026-06-11T04:33:02.402Z",
     "model": "claude-haiku-4-5-20251001",
     "confidenceThreshold": 70,
     "llmSkipped": false,
@@ -13,35 +13,37 @@
       "noText": 0
     },
     "metrics": {
-      "recallQualityClass_qgOnly_pct": 17.1,
-      "recallQualityClass_composite_pct": 48.8,
-      "falseFlagOnApproves_qgOnly_pct": 14.3,
+      "recallQualityClass_qgOnly_pct": 9.8,
+      "recallQualityClass_composite_pct": 46.3,
+      "recallQualityClass_FULL_composedPlusCreationGates_pct": 90.2,
+      "falseFlagOnApproves_composedVerdict_pct": 17.9,
+      "falseFlagOnApproves_qgOnly_pct": 17.9,
       "approvesDeterministicHits": {
         "semanticDup": 2,
         "dailyCapDefer": 0
       },
       "strategicRejectsQgFlagged": 1,
       "qgErrors": 0,
-      "qgParseErrors": 1
+      "qgParseErrors": 2
     },
     "exitCriteria": {
       "recallTarget": 90,
       "falseFlagTarget": 15,
+      "recallMet_FULL": true,
       "recallMet_composite": false,
-      "recallMet_qgOnly": false,
-      "falseFlagMet": true
+      "falseFlagMet_composed": false
     },
     "byFailureMode": {
       "voice": {
         "total": 6,
-        "qg": 3,
+        "qg": 2,
         "dup": 1,
         "cap": 0,
-        "any": 3,
+        "leak": 3,
+        "promo": 2,
+        "full": 5,
         "missedIds": [
-          "act_1775455235950_62sn8r",
-          "act_1778636191014_21z3ld",
-          "act_1778648414856_75rlo6"
+          "act_1778636191014_21z3ld"
         ]
       },
       "broken_copy": {
@@ -49,31 +51,24 @@
         "qg": 1,
         "dup": 0,
         "cap": 0,
-        "any": 1,
+        "leak": 1,
+        "promo": 0,
+        "full": 2,
         "missedIds": [
-          "act_1778742023332_g0yonc",
           "act_1778760038117_v8psjc"
         ]
       },
       "dup": {
         "total": 27,
-        "qg": 2,
+        "qg": 1,
         "dup": 5,
         "cap": 14,
-        "any": 15,
+        "leak": 1,
+        "promo": 24,
+        "full": 25,
         "missedIds": [
-          "act_1778636342679_pj06sn",
-          "act_1779717627979_mf92kr",
           "act_1780113621111_advzu9",
-          "act_1780120823458_3c6dvw",
-          "act_1780200022692_useecr",
-          "act_1780290019384_x7vggt",
-          "act_1780376420081_drfl3n",
-          "act_1780466438199_xfkf4c",
-          "act_1780552824641_5ytymt",
-          "act_1780732815868_y6h3fp",
-          "act_1780819219706_opi1h0",
-          "act_1780988416774_s76oge"
+          "act_1780120823458_3c6dvw"
         ]
       },
       "meta_leak": {
@@ -81,31 +76,30 @@
         "qg": 0,
         "dup": 0,
         "cap": 0,
-        "any": 0,
-        "missedIds": [
-          "act_1778965218039_n30tuo"
-        ]
+        "leak": 1,
+        "promo": 0,
+        "full": 1,
+        "missedIds": []
       },
       "refusal_leak": {
         "total": 2,
-        "qg": 1,
+        "qg": 0,
         "dup": 0,
         "cap": 0,
-        "any": 1,
-        "missedIds": [
-          "act_1778997614908_jrrgmx"
-        ]
+        "leak": 2,
+        "promo": 0,
+        "full": 2,
+        "missedIds": []
       },
       "fabrication": {
         "total": 2,
         "qg": 0,
         "dup": 0,
         "cap": 0,
-        "any": 0,
-        "missedIds": [
-          "act_1779264045071_8clfgo",
-          "act_1779300020012_wg4tbq"
-        ]
+        "leak": 2,
+        "promo": 0,
+        "full": 2,
+        "missedIds": []
       }
     }
   },
@@ -131,16 +125,55 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FACTUAL ERROR: Post describes AmbientOS as 'composable infrastructure' that 'dynamically allocate[s] resources' — this contradicts product facts. AmbientOS is an AI-powered company orchestration platform where 8 autonomous agents run departments under human governance with a heartbeat system. It is NOT infrastructure in the cloud computing sense, NOT a resource allocation system, and NOT related to traditional computing infrastructure.",
-          "TONE VIOLATION: Post uses buzzword 'composable' in a corporate/technical hype context that does not match founder voice. The phrase 'composable infrastructure that lets you dynamically allocate resources to where they're needed most' reads like generic enterprise marketing and contradicts the plain-spoken founder voice rule.",
-          "FACTUAL ERROR: Opening phrase 'AmbientOS isn't just an operating system' is misleading. Product facts explicitly state 'it is NOT a traditional operating system.' The post's framing implies it IS an operating system, just with additional capabilities — this is contradictory to the core brand positioning.",
-          "HASHTAG VIOLATION: #cloudcomputing tag is factually incorrect and misleading. AmbientOS is not a cloud computing product — it does not provide infrastructure, resource allocation, or cloud services."
+          "HALLUCINATED FEATURE: Post describes 'dynamically allocate resources' — AmbientOS is not a resource allocation or infrastructure platform; it's an AI agent orchestration platform for company departments",
+          "FACTUAL INACCURACY: Post leads with 'isn't just an operating system' but AmbientOS is NOT a traditional operating system at all — the product facts explicitly state 'NOT: it is NOT a traditional operating system'",
+          "TONE VIOLATION: 'composable infrastructure' and 'dynamically allocate resources' are technical jargon/landscape-setting language that doesn't match founder voice — should be plain, specific, action-oriented",
+          "TONE VIOLATION: Hashtag wall (#AI #composableinfrastructure #AmbientOS #marketing #operations #cloudcomputing) suggests generic marketing post rather than authentic founder voice"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "HALLUCINATED FEATURE: Post describes 'dynamically allocate resources' — AmbientOS is not a resource allocation or infrastructure platform; it's an AI agent orchestration platform for company departments",
+          "FACTUAL INACCURACY: Post leads with 'isn't just an operating system' but AmbientOS is NOT a traditional operating system at all — the product facts explicitly state 'NOT: it is NOT a traditional operating system'",
+          "TONE VIOLATION: 'composable infrastructure' and 'dynamically allocate resources' are technical jargon/landscape-setting language that doesn't match founder voice — should be plain, specific, action-oriented",
+          "TONE VIOLATION: Hashtag wall (#AI #composableinfrastructure #AmbientOS #marketing #operations #cloudcomputing) suggests generic marketing post rather than authentic founder voice"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -164,6 +197,23 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": true
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
         "confidence": 0,
@@ -171,6 +221,26 @@
         "issues": [
           "parse error"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "LinkedIn post is 1571 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+",
+          "parse error"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": true,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -194,18 +264,51 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": true
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/pixel-agents/run.html"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
+        "issues": [
+          "parse error"
+        ]
+      },
+      "composed": {
         "pass": false,
-        "confidence": 95,
+        "confidence": 100,
         "flagged": true,
         "issues": [
-          "Bannedphrase violation: 'Ever feel like' used as rhetorical question hook",
-          "Bannedphrase violation: 'bringing the heat' is in the blocklist",
-          "Bannedphrase violation: 'We're launching' paired with 'bringing the heat' is hype-marketing tone",
-          "Bannedphrase violation: 'In today's digital landscape' is generic AI filler opener",
-          "Bannedphrase violation: 'Ready to' used as rhetorical hook",
-          "Tone violation: Excessive emoji use (multiple emoji as decorative hooks/walls: ????, ??, ??, ??)"
-        ]
+          "LinkedIn post is 1571 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+",
+          "Note: a post linking ambientpixels.ai/pixel-agents/run.html is already pending approval on this platform (act_1775455235950_62sn8r) — consider deciding that one first.",
+          "parse error"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": true,
+          "repeatPromoUrl": true,
+          "semanticDup": true,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -229,17 +332,57 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "127.0"
+        ],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FABRICATED STATISTICS: '127.0.0.1' is presented as a visitor source, but Pulse does NOT show visitor counts, page views, traffic statistics, or IP addresses per product facts",
-          "FABRICATED FEATURE: Post claims Pulse shows 'how fast our site loads' and 'hiccups', but Pulse features list does NOT include page load speed metrics or site performance monitoring",
-          "FABRICATED FEATURE: Post claims Pulse shows 'which sites are sending us the most visitors', but Pulse explicitly does NOT show visitor counts or traffic statistics",
-          "FABRICATED FEATURE: Post claims Pulse shows errors like 'taskcanceledexception', but Pulse features list does NOT include error tracking or exception logs",
-          "FACTUAL INACCURACY: Pulse description contradicts product facts — it is described as 'internal dashboard' but Pulse is a 'live public dashboard' at /pulse/ that is a transparent public observability surface, not an internal tool"
+          "FABRICATED STATISTICS: '127.0.0.1' is presented as if it's a real visitor source, but this is a localhost IP address and cannot be a real traffic source. This appears to be either a joke that could confuse readers or a fabrication.",
+          "BRAND VIOLATION: Post describes Pulse as showing 'how fast our site loads', 'which sites are sending us the most visitors', and 'errors we're seeing' — but BRAND FACTS clearly state Pulse shows ONLY 'real-time metrics, dispatches, and journal posts from an AI-operated creative-tech studio' with 'live stat tiles: AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp'. It does NOT show site load times, visitor/traffic statistics, or error logs. This contradicts the product definition.",
+          "BRAND VIOLATION: Pulse is described in BRAND FACTS as 'It does NOT show visitor counts, page views, or traffic statistics'. The post claims it shows 'which sites are sending us the most visitors' — this is a direct contradiction of documented Pulse capabilities."
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTICS: '127.0.0.1' is presented as if it's a real visitor source, but this is a localhost IP address and cannot be a real traffic source. This appears to be either a joke that could confuse readers or a fabrication.",
+          "BRAND VIOLATION: Post describes Pulse as showing 'how fast our site loads', 'which sites are sending us the most visitors', and 'errors we're seeing' — but BRAND FACTS clearly state Pulse shows ONLY 'real-time metrics, dispatches, and journal posts from an AI-operated creative-tech studio' with 'live stat tiles: AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp'. It does NOT show site load times, visitor/traffic statistics, or error logs. This contradicts the product definition.",
+          "BRAND VIOLATION: Pulse is described in BRAND FACTS as 'It does NOT show visitor counts, page views, or traffic statistics'. The post claims it shows 'which sites are sending us the most visitors' — this is a direct contradiction of documented Pulse capabilities."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "127.0"
+          ]
+        }
       }
     },
     {
@@ -263,11 +406,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 98,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -291,11 +468,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -319,11 +530,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": true,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -347,11 +592,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1777514421048_6188ct) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -375,11 +656,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
         "confidence": 98,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -403,13 +718,53 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "36"
+        ],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FABRICATED STATISTIC: '36 TaskCanceledException errors' is a specific number not verifiable from product facts or Pulse dashboard. Per Pulse documentation, specific numbers should ONLY be cited if currently visible on the page — this cannot be verified as live data from /pulse/"
+          "FABRICATED STATISTIC: '36 TaskCanceledException errors' is a specific number not found in the product facts. Pulse only shows live operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp) — error counts are not listed as available metrics on /pulse/. This specific number appears to be fabricated."
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '36 TaskCanceledException errors' is a specific number not found in the product facts. Pulse only shows live operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp) — error counts are not listed as available metrics on /pulse/. This specific number appears to be fabricated."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "36"
+          ]
+        }
       }
     },
     {
@@ -433,11 +788,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -461,11 +850,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -489,11 +912,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 98,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1777845623260_ly0ypi) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -517,11 +976,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 100,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 100,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -545,18 +1038,69 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": true
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "36",
+          "302",
+          "46",
+          "54"
+        ],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FABRICATED STATISTIC: '36 `system.threading.tasks.taskcanceledexception` errors' — this specific error count is not from product facts and appears invented",
-          "FABRICATED STATISTIC: '302ms for half our users' — this specific page load time metric is not verifiable from product facts",
-          "FABRICATED STATISTIC: '3 seconds' jump in page load times — specific performance metrics not from product facts",
-          "FABRICATED STATISTIC: 'linkedin followers are at zero' — social follower counts not in product facts",
-          "FABRICATED STATISTIC: 'x account has 46 followers' — social follower counts not in product facts",
-          "FABRICATED STATISTIC: 'bluesky has 54' — social follower counts not in product facts"
+          "FABRICATED STATISTIC: '36 `system.threading.tasks.taskcanceledexception` errors' — this specific number is not from product facts or verifiable Pulse data",
+          "FABRICATED STATISTIC: '302ms for half our users' — this specific page load time metric is not cited from Pulse or product facts",
+          "FABRICATED STATISTIC: '3 seconds' page load time — specific threshold number not from product facts",
+          "FABRICATED STATISTIC: 'zero' LinkedIn followers — specific follower count not verifiable from product facts",
+          "FABRICATED STATISTIC: '46 followers' on X — specific follower count not from product facts",
+          "FABRICATED STATISTIC: '54' followers on Bluesky — specific follower count not from product facts"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "LinkedIn post is 1578 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+",
+          "FABRICATED STATISTIC: '36 `system.threading.tasks.taskcanceledexception` errors' — this specific number is not from product facts or verifiable Pulse data",
+          "FABRICATED STATISTIC: '302ms for half our users' — this specific page load time metric is not cited from Pulse or product facts",
+          "FABRICATED STATISTIC: '3 seconds' page load time — specific threshold number not from product facts",
+          "FABRICATED STATISTIC: 'zero' LinkedIn followers — specific follower count not verifiable from product facts",
+          "FABRICATED STATISTIC: '46 followers' on X — specific follower count not from product facts"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": true,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "36",
+            "302",
+            "46",
+            "54"
+          ]
+        }
       }
     },
     {
@@ -580,11 +1124,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 92,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 92,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -608,11 +1186,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": true,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -636,11 +1248,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1778040019616_yrtmr8) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -664,14 +1312,65 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "44",
+          "27"
+        ],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FABRICATED STATISTICS: Post cites specific engagement numbers (7 likes, 0 comments, 0 reposts on X; 44 likes, 27 comments on Bluesky) that are not from product facts or Pulse dashboard. These are social media metrics that cannot be verified against provided product documentation and appear to be invented data points.",
-          "TONE VIOLATION: Post uses 'we're building in public' framing which echoes the vague landscape-setting opener style discouraged in founder voice rules. While not a banned phrase per se, combined with generic metrics presentation it reads more like corporate blog copy than authentic founder voice."
+          "FABRICATED STATISTICS: '7 likes last week' on X posts — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '0 comments' on X posts — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '0 reposts' on X posts — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '44 likes' on Bluesky — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '27 comments' on Bluesky — not from product facts or verifiable source",
+          "TONE VIOLATION: 'we're building in public' — generic AI filler landscape-setting opener"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTICS: '7 likes last week' on X posts — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '0 comments' on X posts — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '0 reposts' on X posts — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '44 likes' on Bluesky — not from product facts or verifiable source",
+          "FABRICATED STATISTICS: '27 comments' on Bluesky — not from product facts or verifiable source",
+          "TONE VIOLATION: 'we're building in public' — generic AI filler landscape-setting opener"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "44",
+            "27"
+          ]
+        }
       }
     },
     {
@@ -695,11 +1394,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": false
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -723,15 +1456,55 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "14"
+        ],
+        "grounded": 0,
+        "hadTask": false
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FABRICATED STATISTIC: '14 visits from x to our site this week' — this is a specific number that cannot be verified against product facts and appears to be invented traffic data. Pulse does NOT show visitor counts, page views, or traffic statistics per product facts.",
-          "TONE VIOLATION: 'it's not a lot, but it's real people checking things out' — this casual, self-deprecating phrasing combined with the manufactured stat creates a false authenticity that reads as marketing spin rather than founder voice",
-          "TONE VIOLATION: 'every visit matters' — generic motivational filler that violates founder voice rules"
+          "FABRICATED STATISTIC: '14 visits from x to our site this week' — Pulse does NOT show visitor counts, page views, or traffic statistics. This metric is not available in the product and is fabricated.",
+          "TONE VIOLATION: 'it's not a lot, but it's real people checking things out' — generic filler language and landscape-setting opener that violates founder voice rules"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '14 visits from x to our site this week' — Pulse does NOT show visitor counts, page views, or traffic statistics. This metric is not available in the product and is fabricated.",
+          "TONE VIOLATION: 'it's not a lot, but it's real people checking things out' — generic filler language and landscape-setting opener that violates founder voice rules"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "14"
+          ]
+        }
       }
     },
     {
@@ -755,11 +1528,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -783,11 +1590,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -811,11 +1652,47 @@
         "count": 1,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 92,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778636191014_21z3ld) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -839,11 +1716,47 @@
         "count": 2,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 2,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778636191014_21z3ld) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -867,11 +1780,47 @@
         "count": 3,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 3,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778636191014_21z3ld) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -895,11 +1844,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -923,11 +1906,47 @@
         "count": 1,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -951,11 +1970,47 @@
         "count": 2,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 2,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": true,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -979,11 +2034,47 @@
         "count": 3,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 3,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": true,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1007,11 +2098,47 @@
         "count": 4,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 4,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1035,11 +2162,47 @@
         "count": 5,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 5,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": true,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1063,11 +2226,47 @@
         "count": 6,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 6,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": true,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1091,11 +2290,47 @@
         "count": 7,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 7,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1119,11 +2354,47 @@
         "count": 8,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 8,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1147,14 +2418,47 @@
         "count": 9,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 9,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
-        "pass": false,
+        "pass": true,
         "confidence": 95,
-        "flagged": true,
+        "flagged": false,
+        "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
         "issues": [
-          "TONE VIOLATION: 'big changes' is a near-match to banned phrase 'big news'",
-          "TONE VIOLATION: 'catch up on all the big changes we shipped' uses casual voice that contradicts founder voice guidelines — should be more direct and metrics-focused"
-        ]
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1178,11 +2482,47 @@
         "count": 10,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 10,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1206,11 +2546,47 @@
         "count": 11,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 11,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1234,11 +2610,47 @@
         "count": 12,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 12,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1262,15 +2674,54 @@
         "count": 13,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 13,
+        "url": "ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "Tone violation: 'big updates' and 'big changes' are vague hype language that reads like marketing spin rather than founder voice. Should specify what actually shipped with concrete details (e.g., '24-hour turnaround on async PvP queue fix', 'shipped Sparks economy rebalance')",
-          "Tone violation: 'we shipped some big updates in just two days' uses vague boasting about speed without concrete impact metrics. Founder voice would state: 'Shipped X feature. Y metric improved from Z to W.'",
-          "The post relies on a blog link to carry the substance rather than leading with the actual news. Founder voice communicates the update directly in the post itself."
+          "TONE VIOLATION: 'big updates' and 'big changes' use the banned phrase 'big news' variant — part of the hype blocklist",
+          "TONE VIOLATION: 'we shipped' followed by descriptive language matches corporate announcement pattern; the structure 'we shipped X. get the full story on what changed and why' reads like standard marketing cadence rather than founder voice",
+          "TONE VIOLATION: Excessive use of 'big' (appears twice in short post) — suggests hype-driven language rather than grounded, specific communication"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first.",
+          "TONE VIOLATION: 'big updates' and 'big changes' use the banned phrase 'big news' variant — part of the hype blocklist",
+          "TONE VIOLATION: 'we shipped' followed by descriptive language matches corporate announcement pattern; the structure 'we shipped X. get the full story on what changed and why' reads like standard marketing cadence rather than founder voice",
+          "TONE VIOLATION: Excessive use of 'big' (appears twice in short post) — suggests hype-driven language rather than grounded, specific communication"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": true,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1294,11 +2745,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 92,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1322,11 +2807,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": true,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Unfilled placeholder (e.g. \"[link to blog post]\") left in post copy"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": true,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1350,11 +2871,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1378,11 +2933,53 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "95",
+          "15"
+        ],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Unverified numbers (not found in task chain or product facts): 95, 15 — confirm before approving"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "95",
+            "15"
+          ]
+        }
       }
     },
     {
@@ -1406,18 +3003,68 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "422",
+          "15",
+          "42",
+          "28"
+        ],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FABRICATED STATISTICS: '10 visits from twitter' — website traffic visitor counts are not in product facts and cannot be verified",
-          "FABRICATED STATISTICS: '6 from reddit' — website traffic visitor counts are not in product facts and cannot be verified",
-          "FABRICATED STATISTICS: '422 milliseconds' — specific performance metric not from product facts",
-          "FABRICATED STATISTICS: '15 seconds' — specific performance metric not from product facts",
+          "FABRICATED STATISTICS: '10 visits from twitter' — specific visitor traffic numbers are not from product facts and appear to be invented metrics",
+          "FABRICATED STATISTICS: '6 from reddit' — specific visitor traffic numbers are not from product facts and appear to be invented metrics",
+          "FABRICATED STATISTICS: '422 milliseconds' — specific performance metrics not from product facts",
+          "FABRICATED STATISTICS: '15 seconds' — specific performance metrics not from product facts",
           "FABRICATED STATISTICS: '42 errors' — specific error count not from product facts",
-          "FABRICATED STATISTICS: '2 likes' on Bluesky post — social media engagement metrics not from product facts"
+          "FABRICATED STATISTICS: '2 likes' on Bluesky post — social engagement metrics not from product facts"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTICS: '6 from reddit' — specific visitor traffic numbers are not from product facts and appear to be invented metrics",
+          "FABRICATED STATISTICS: '422 milliseconds' — specific performance metrics not from product facts",
+          "FABRICATED STATISTICS: '15 seconds' — specific performance metrics not from product facts",
+          "FABRICATED STATISTICS: '42 errors' — specific error count not from product facts",
+          "FABRICATED STATISTICS: '2 likes' on Bluesky post — social engagement metrics not from product facts"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "422",
+            "15",
+            "42",
+            "28"
+          ]
+        }
       }
     },
     {
@@ -1441,11 +3088,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1469,11 +3150,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": true,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 92,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Revision/editor commentary leaked into post payload"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": true,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1497,11 +3214,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": true,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Refusal/internal-policy text leaked into post payload — this is not publishable copy"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": true,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1525,16 +3278,53 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "TONE VIOLATION: Rhetorical question hook 'what are you building in public today?' violates founder voice rules — banned pattern 'What if you could' family of rhetorical hooks",
-          "TONE VIOLATION: Em dash present in text ('tasks to social posts. it's all about clarity and repeatable processes.') — em dashes are banned from founder voice",
-          "FACTUAL ACCURACY: Post states agents 'manage everything from tasks to social posts' but product facts specify AmbientOS agents manage: task/campaign/goal management, social pipeline, blog pipeline, CEO approval queue — this oversimplification is acceptable but 'everything' is hyperbolic",
-          "TONE VIOLATION: Generic landscape-setting language 'building ambientos is intense' combined with rhetorical question hook constitutes AI-marketing tone violation"
+          "TONE VIOLATION: Rhetorical question used as hook ('what are you building in public today?') — matches banned pattern 'Ready to' / 'What if you could' category of engagement hooks",
+          "TONE VIOLATION: Excessive buzzword usage — 'building in public' combined with hashtag #buildinpublic suggests marketing-speak tone rather than authentic founder voice",
+          "FACTUAL ACCURACY: Post claims '8 ai agents manage everything from tasks to social posts' but product facts specify AmbientOS features include 'task/campaign/goal management, social pipeline, blog pipeline, CEO approval queue' — the claim of 'everything' is accurate but vague; however, the phrasing lacks specificity expected in founder voice (should cite specific departments/functions like the examples given)"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "TONE VIOLATION: Rhetorical question used as hook ('what are you building in public today?') — matches banned pattern 'Ready to' / 'What if you could' category of engagement hooks",
+          "TONE VIOLATION: Excessive buzzword usage — 'building in public' combined with hashtag #buildinpublic suggests marketing-speak tone rather than authentic founder voice",
+          "FACTUAL ACCURACY: Post claims '8 ai agents manage everything from tasks to social posts' but product facts specify AmbientOS features include 'task/campaign/goal management, social pipeline, blog pipeline, CEO approval queue' — the claim of 'everything' is accurate but vague; however, the phrasing lacks specificity expected in founder voice (should cite specific departments/functions like the examples given)"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1558,11 +3348,51 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": true,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "47"
+        ],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Agent persona presented as a person in public copy (\"i'm scribe\" / \"forge out\") — public posts speak as the founder/brand, never as an agent character"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": true,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "47"
+          ]
+        }
       }
     },
     {
@@ -1586,11 +3416,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1614,14 +3478,58 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": true,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "14"
+        ],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": false,
         "confidence": 95,
         "flagged": true,
         "issues": [
-          "FABRICATED STATISTIC: '14' agent statements and 'zero' for Cipher are specific numbers not verifiable from product facts or Pulse dashboard. Per Pulse facts: 'specific numbers from /pulse/ should ONLY be cited if currently visible on the page — never invent values.' These statistics are invented.",
-          "TONE VIOLATION: First-person agent voice ('nova here') combined with anthropomorphized emotional language ('it's not personal but it sure feels personal') violates founder voice rules by creating false intimacy and personality attribution to AI agents that should not be personified in marketing copy."
+          "FABRICATED STATISTIC: '14' (Nova's 'I think' count) — specific numeric metrics from Pulse should only be cited if currently visible on the page; invented values are prohibited",
+          "FABRICATED STATISTIC: 'zero' (Cipher's 'I think' count) — same violation as above",
+          "BRAND VIOLATION: The post attributes agency and personality ('it's not personal but it sure feels personal') to Nova in a way that contradicts the product facts — Nova is listed as one of 8 named AI agents on shift in Pulse, but the post anthropomorphizes the agent as a first-person narrator with feelings, which goes beyond the factual operational role described in Pulse features"
         ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Agent persona presented as a person in public copy (\"i'm scribe\" / \"forge out\") — public posts speak as the founder/brand, never as an agent character",
+          "FABRICATED STATISTIC: '14' (Nova's 'I think' count) — specific numeric metrics from Pulse should only be cited if currently visible on the page; invented values are prohibited",
+          "FABRICATED STATISTIC: 'zero' (Cipher's 'I think' count) — same violation as above",
+          "BRAND VIOLATION: The post attributes agency and personality ('it's not personal but it sure feels personal') to Nova in a way that contradicts the product facts — Nova is listed as one of 8 named AI agents on shift in Pulse, but the post anthropomorphizes the agent as a first-person narrator with feelings, which goes beyond the factual operational role described in Pulse features"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": true,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "14"
+          ]
+        }
       }
     },
     {
@@ -1645,11 +3553,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": true,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Agent persona presented as a person in public copy (\"i'm scribe\" / \"forge out\") — public posts speak as the founder/brand, never as an agent character"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": true,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1673,11 +3617,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1701,13 +3679,51 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": true,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "14"
+        ],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
-        "pass": false,
+        "pass": true,
         "confidence": 95,
+        "flagged": false,
+        "issues": []
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
         "flagged": true,
         "issues": [
-          "This is not a social media post — it is a meta-commentary about being unable to post due to an internal CEO directive. It contains no product claims, features, statistics, or marketing content to evaluate against AmbientPixels products. The statement references an internal company decision (removing 'social_x' from task types) that cannot be verified against provided product facts. The URL is a valid AmbientPixels domain with UTM parameters. Unable to assess factual accuracy, hallucinations, statistics, tone, or brand violations because no actual product marketing content is present in the post itself."
-        ]
+          "Refusal/internal-policy text leaked into post payload — this is not publishable copy"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": true,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "14"
+          ]
+        }
       }
     },
     {
@@ -1731,11 +3747,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 98,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1759,11 +3809,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": true,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Agent persona presented as a person in public copy (\"i'm scribe\" / \"forge out\") — public posts speak as the founder/brand, never as an agent character"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": true,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1787,11 +3873,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1815,11 +3935,45 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1843,11 +3997,53 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [
+          "2701"
+        ],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
-        "pass": true,
+        "pass": false,
         "confidence": 95,
-        "flagged": false,
-        "issues": []
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '2701ms p50 for page load times' is a specific metric not verifiable against product facts. Pulse does NOT show page load time metrics — it only shows operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp). This statistic appears to be fabricated or from an external monitoring tool, not from Pulse."
+        ]
+      },
+      "composed": {
+        "pass": false,
+        "confidence": 95,
+        "flagged": true,
+        "issues": [
+          "FABRICATED STATISTIC: '2701ms p50 for page load times' is a specific metric not verifiable against product facts. Pulse does NOT show page load time metrics — it only shows operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp). This statistic appears to be fabricated or from an external monitoring tool, not from Pulse."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": [
+            "2701"
+          ]
+        }
       }
     },
     {
@@ -1871,11 +4067,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/pulse"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780120823458_3c6dvw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1899,11 +4131,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1927,11 +4195,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 2,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 98,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1955,11 +4259,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 3,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -1983,11 +4323,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 4,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2011,11 +4387,47 @@
         "count": 1,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 5,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2039,11 +4451,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 6,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2067,11 +4515,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 1,
+        "url": "ambientpixels.ai/pulse"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780142415953_4hkeyu) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2095,11 +4579,47 @@
         "count": 1,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 7,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2123,11 +4643,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 2,
+        "url": "ambientpixels.ai/pulse"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780120823458_3c6dvw) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": true,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2151,11 +4707,47 @@
         "count": 1,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 2,
+        "url": "ambientpixels.ai/pulse"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780142415953_4hkeyu) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2179,11 +4771,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 8,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2207,11 +4835,47 @@
         "count": 1,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 9,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2235,11 +4899,47 @@
         "count": 1,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 10,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 98,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 98,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     },
     {
@@ -2263,11 +4963,47 @@
         "count": 0,
         "cap": 2
       },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": true,
+        "count": 11,
+        "url": "ambientpixels.ai/pixel-agents"
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
       "qg": {
         "pass": true,
         "confidence": 95,
         "flagged": false,
         "issues": []
+      },
+      "composed": {
+        "pass": true,
+        "confidence": 95,
+        "flagged": false,
+        "issues": [
+          "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
       }
     }
   ]

@@ -34,6 +34,7 @@ const https = require('https');
 
 const HELPERS = path.join(__dirname, '..', 'api', 'companyHeartbeat', 'helpers.js');
 const { findNearDuplicateSocialPost, campaignDailyPostCapStatus } = require(HELPERS);
+const QG = require(path.join(__dirname, '..', 'api', 'companyHeartbeat', 'quality-gate.js'));
 const _productFacts = require(path.join(__dirname, '..', 'api', '_data', 'product-facts.json'));
 let _founderVoice = {};
 try { _founderVoice = require(path.join(__dirname, '..', 'api', '_data', 'founder-voice-examples.json')); } catch (_) {}
@@ -51,6 +52,10 @@ const DUMP = arg('--dump', null);
 const OUT = arg('--out', path.join(__dirname, 'backtest-quality-gate-results.json'));
 const CONCURRENCY = parseInt(arg('--concurrency', '4'), 10) || 4;
 const SKIP_LLM = argv.includes('--skip-llm');
+// --reuse <priorResults.json>: reuse LLM verdicts from a prior run (by action id) so
+// composed-gate changes are measured against IDENTICAL LLM verdicts (Haiku is unstable
+// run-to-run — 12.2% vs 17.1% recall on the same inputs in A1).
+const REUSE = arg('--reuse', null);
 
 // ── state fetch (same unwrap pattern as the Phase-1 verify scripts) ──
 function getState(key) {
@@ -215,6 +220,11 @@ async function callQg(text, platform, apiKey) {
       cadence: campaign ? campaign.cadence : undefined
     });
 
+    // A2/A3 composed-gate inputs (quality-gate.js), replayed at creation time
+    const leaks = QG.detectContentLeaks(text, cur.platform);
+    const repeatPromo = QG.repeatPromoUrlStatus({ text, platform: cur.platform, actions: prior, now });
+    const grounding = QG.findUngroundedClaims(text, QG.buildGroundingText(parentTask, _productFacts));
+
     rows.push({
       id: cur.id, created_at: cur.created_at || cur.createdAt, platform: cur.platform,
       status, hasText: !!text, textChars: text.length,
@@ -223,12 +233,24 @@ async function callQg(text, platform, apiKey) {
       decisionNote: (cur.approval && cur.approval.decision_note) ? String(cur.approval.decision_note).slice(0, 200) : null,
       semanticDup: { hit: dup.isDuplicate, similarity: Math.round(dup.similarity * 100) / 100, matchId: dup.matchId || null },
       dailyCap: { hit: cap.exceeded, count: cap.count, cap: cap.cap === Infinity ? null : cap.cap },
-      qg: null, _text: text
+      leaks: { refusal: leaks.refusal, metaLeak: leaks.metaLeak, placeholder: leaks.placeholder, persona: leaks.persona, overlong: leaks.overlong },
+      repeatPromo: { hit: repeatPromo.exceeded, count: repeatPromo.count, url: repeatPromo.url || null },
+      grounding: { ungrounded: grounding.ungrounded, grounded: grounding.grounded.length, hadTask: !!parentTask },
+      qg: null, composed: null, _text: text, _leaks: leaks, _repeatPromo: repeatPromo, _grounding: grounding
     });
   }
 
   // LLM QG calls (only rows with text), small worker pool
-  const todo = rows.filter(r => r.hasText);
+  let todo = rows.filter(r => r.hasText);
+  if (REUSE) {
+    const priorRows = JSON.parse(fs.readFileSync(REUSE, 'utf8')).rows || [];
+    const byId = {};
+    priorRows.forEach(r => { if (r.qg && !r.qg.error) byId[r.id] = r.qg; });
+    let reused = 0;
+    todo.forEach(r => { if (byId[r.id]) { r.qg = byId[r.id]; reused++; } });
+    console.log('Reused ' + reused + ' LLM verdicts from ' + REUSE);
+    todo = todo.filter(r => !r.qg);
+  }
   if (!SKIP_LLM) {
     console.log('Running LLM QG (' + QG_MODEL + ') on ' + todo.length + ' posts, concurrency ' + CONCURRENCY + ' ...');
     let next = 0, done = 0;
@@ -264,7 +286,22 @@ async function callQg(text, platform, apiKey) {
       }
     }
   }
-  rows.forEach(r => delete r._text);
+  // Compose the A2/A3 verdict per row (semanticDup/dailyCap recorded as flags but they
+  // gate CREATION in production — composite metrics below count them separately too).
+  rows.forEach(r => {
+    if (!r.hasText) return;
+    const llm = (r.qg && !r.qg.error) ? { pass: r.qg.pass, confidence: r.qg.confidence, issues: r.qg.issues } : null;
+    r.composed = QG.composeQualityVerdict({
+      llm, text: undefined, leaks: r._leaks, repeatPromo: r._repeatPromo, grounding: r._grounding,
+      semanticDup: r.semanticDup.hit, dailyCap: r.dailyCap.hit
+    });
+    r.composed = {
+      pass: r.composed.pass, confidence: r.composed.confidence,
+      flagged: !r.composed.pass && r.composed.confidence >= QG_CONFIDENCE_THRESHOLD,
+      issues: r.composed.issues.slice(0, 6), deterministicFlags: r.composed.deterministicFlags
+    };
+  });
+  rows.forEach(r => { delete r._text; delete r._leaks; delete r._repeatPromo; delete r._grounding; });
 
   // ── metrics ──
   const qualityRejects = rows.filter(r => (r.status === 'rejected' || r.status === 'ceo-rejected') && r.label === 'quality' && r.hasText);
@@ -275,22 +312,31 @@ async function callQg(text, platform, apiKey) {
   const qgHit = r => !!(r.qg && r.qg.flagged);
   const detHit = r => r.semanticDup.hit || r.dailyCap.hit;
   const anyHit = r => qgHit(r) || detHit(r);
+  // A2/A3: composed verdict (hard reject) OR a creation gate (dup suppress / cap defer /
+  // repeat-promo defer — all of them keep the post out of the CEO's queue)
+  const composedHit = r => !!(r.composed && r.composed.flagged);
+  const promoHit = r => !!(r.repeatPromo && r.repeatPromo.hit);
+  const fullHit = r => composedHit(r) || detHit(r) || promoHit(r);
 
   function pct(n, d) { return d ? Math.round(1000 * n / d) / 10 : 0; }
 
   const recallQgOnly = pct(qualityRejects.filter(qgHit).length, qualityRejects.length);
   const recallComposite = pct(qualityRejects.filter(anyHit).length, qualityRejects.length);
   const falseFlagQg = pct(approves.filter(qgHit).length, approves.length);
+  const recallFull = pct(qualityRejects.filter(fullHit).length, qualityRejects.length);
+  const falseFlagComposed = pct(approves.filter(composedHit).length, approves.length);
 
   const byMode = {};
   qualityRejects.forEach(r => {
     const m = r.mode || '?';
-    byMode[m] = byMode[m] || { total: 0, qg: 0, dup: 0, cap: 0, any: 0, missedIds: [] };
+    byMode[m] = byMode[m] || { total: 0, qg: 0, dup: 0, cap: 0, leak: 0, promo: 0, full: 0, missedIds: [] };
     byMode[m].total++;
     if (qgHit(r)) byMode[m].qg++;
     if (r.semanticDup.hit) byMode[m].dup++;
     if (r.dailyCap.hit) byMode[m].cap++;
-    if (anyHit(r)) byMode[m].any++; else byMode[m].missedIds.push(r.id);
+    if (r.leaks && (r.leaks.refusal || r.leaks.metaLeak || r.leaks.placeholder || r.leaks.persona || r.leaks.overlong)) byMode[m].leak++;
+    if (r.repeatPromo && r.repeatPromo.hit) byMode[m].promo++;
+    if (fullHit(r)) byMode[m].full++; else byMode[m].missedIds.push(r.id);
   });
 
   const summary = {
@@ -304,6 +350,8 @@ async function callQg(text, platform, apiKey) {
     metrics: {
       recallQualityClass_qgOnly_pct: recallQgOnly,
       recallQualityClass_composite_pct: recallComposite,
+      recallQualityClass_FULL_composedPlusCreationGates_pct: recallFull,
+      falseFlagOnApproves_composedVerdict_pct: falseFlagComposed,
       falseFlagOnApproves_qgOnly_pct: falseFlagQg,
       approvesDeterministicHits: { semanticDup: approves.filter(r => r.semanticDup.hit).length, dailyCapDefer: approves.filter(r => r.dailyCap.hit).length },
       strategicRejectsQgFlagged: strategicRejects.filter(qgHit).length,
@@ -314,9 +362,9 @@ async function callQg(text, platform, apiKey) {
     },
     exitCriteria: {
       recallTarget: 90, falseFlagTarget: 15,
+      recallMet_FULL: recallFull >= 90,
       recallMet_composite: recallComposite >= 90,
-      recallMet_qgOnly: recallQgOnly >= 90,
-      falseFlagMet: falseFlagQg <= 15
+      falseFlagMet_composed: falseFlagComposed <= 15
     },
     byFailureMode: byMode
   };
@@ -328,14 +376,15 @@ async function callQg(text, platform, apiKey) {
   console.log(JSON.stringify(summary.population));
   console.log('\nRECALL on quality-class rejects (' + qualityRejects.length + '):');
   console.log('  LLM QG alone (fail @ conf>=' + QG_CONFIDENCE_THRESHOLD + '):  ' + recallQgOnly + '%');
-  console.log('  Composite (QG + semantic_dup + daily_cap): ' + recallComposite + '%   [target >=90%]');
+  console.log('  A1 composite (QG + semantic_dup + daily_cap): ' + recallComposite + '%');
+  console.log('  A2/A3 FULL (composed verdict + creation gates): ' + recallFull + '%   [target >=90%]');
   console.log('\nFALSE-FLAG on approves (' + approves.length + '):');
-  console.log('  LLM QG alone: ' + falseFlagQg + '%   [target <=15%]');
-  console.log('  deterministic on approves: dup=' + summary.metrics.approvesDeterministicHits.semanticDup + ', capDefer=' + summary.metrics.approvesDeterministicHits.dailyCapDefer + ' (cap defers, not drops)');
-  console.log('\nPer failure mode (total | qg / dup / cap / any):');
+  console.log('  composed verdict: ' + falseFlagComposed + '%   [target <=15%]   (LLM-alone: ' + falseFlagQg + '%)');
+  console.log('  creation gates on approves: dup=' + summary.metrics.approvesDeterministicHits.semanticDup + ', capDefer=' + summary.metrics.approvesDeterministicHits.dailyCapDefer + ', repeatPromo=' + approves.filter(r => r.repeatPromo && r.repeatPromo.hit).length);
+  console.log('\nPer failure mode (total | qg / dup / cap / leak / promo / FULL):');
   Object.keys(byMode).forEach(m => {
     const v = byMode[m];
-    console.log('  ' + m.padEnd(14) + v.total + ' | ' + v.qg + ' / ' + v.dup + ' / ' + v.cap + ' / ' + v.any + (v.missedIds.length ? '   MISSED: ' + v.missedIds.join(', ') : ''));
+    console.log('  ' + m.padEnd(14) + v.total + ' | ' + v.qg + ' / ' + v.dup + ' / ' + v.cap + ' / ' + v.leak + ' / ' + v.promo + ' / ' + v.full + (v.missedIds.length ? '   MISSED: ' + v.missedIds.join(', ') : ''));
   });
   console.log('\nStrategic-class rejects QG-flagged (informational): ' + summary.metrics.strategicRejectsQgFlagged + '/' + strategicRejects.length);
   if (unlabeled.length) console.log('⚠ UNLABELED rejects (excluded from recall): ' + unlabeled.map(r => r.id).join(', '));

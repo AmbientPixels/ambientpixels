@@ -5,6 +5,7 @@ const storage = require('../_utils/companyStorage');
 // ── Extracted modules ──
 const C = require('./constants');
 const H = require('./helpers');
+const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
 const { _buildBlockedProposal, _normalizeProposal, _isValidProposal } = require('./normalization');
 const { _fetchSiteIntel } = require('./site-intelligence');
 const { applyTaskUpdate } = require('./task-mutations');
@@ -3107,6 +3108,41 @@ module.exports = async function (context) {
             }
           }
 
+          // ── REPEAT-PROMO SERIALIZE (A2): one pending post per deep link per platform ──
+          // The 2026-06-10 curation killed 8 of 9 QUEUED same-link posts (each worded
+          // differently enough to slip the dup gate, 1/day so the cap never fired).
+          // Serialize instead: while a same-link post is pending approval on this platform,
+          // defer the next one. Decided (approved/rejected) posts release the slot.
+          {
+            const _promoStatus = QGV.repeatPromoUrlStatus({
+              text: _rcText,
+              platform: _platform,
+              actions: _actionsStore,
+              now: Date.now()
+            });
+            if (_promoStatus.exceeded) {
+              context.log('[Heartbeat] AUTO-POST DEFERRED: repeat promo — ' + _promoStatus.url + ' already pending on ' + _platform + ' (' + _promoStatus.matchId + ') for task ' + _pt.id);
+              _pt._social_post_deferred_until = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString();
+              _pt.updatedAt = new Date().toISOString();
+              if (!_pt.comments) _pt.comments = [];
+              const _hasPromoNote = (_pt.comments || []).some(function (c) { return c && c.text && c.text.indexOf('Repeat-promo serialized') !== -1; });
+              if (!_hasPromoNote) {
+                _pt.comments.push({
+                  id: 'cmt-promoser-' + Date.now(),
+                  author: 'system',
+                  text: 'Repeat-promo serialized: a post linking ' + _promoStatus.url + ' is already pending approval on ' + _platform + '. One queued post per link at a time — this one is deferred ~6h and will retry once the pending post is decided.',
+                  type: 'system',
+                  createdAt: new Date().toISOString()
+                });
+              }
+              await logEvent('policy-violation', 'echo', 'Repeat-promo deferred social post (auto-post, same link already pending)', cycleId,
+                { runId: cycleId, gate: 'repeat_promo_url', reason: 'same_link_pending_on_platform',
+                  platform: _platform, url: _promoStatus.url, pendingActionId: _promoStatus.matchId,
+                  taskId: _pt.id, campaignId: _pt.campaign_id || null });
+              continue;
+            }
+          }
+
           const _scheduledFor = _getOptimalPostTime(_platform, researchIntelStore);
           // Auto-inject experiment_tag — this auto-post path bypasses agent-runner.js:2466,
           // so we mirror its logic here. Picks newest active experiment for Echo.
@@ -3156,8 +3192,21 @@ module.exports = async function (context) {
           var _aqQualityGate = null;
           try {
             _aqQualityGate = await _validateContentQuality(_rcText, _platform, context);
-            if (_aqQualityGate) context.log('[QualityGate] AUTO-POST', _platform, 'pass:', _aqQualityGate.pass, 'confidence:', _aqQualityGate.confidence);
           } catch (_qgErr) { context.log('[QualityGate] AUTO-POST error (fail-open):', String(_qgErr).substring(0, 100)); }
+          // A2+A3: compose LLM result with deterministic checks (leaks, persona, length,
+          // claim grounding vs the task chain) into ONE verdict — downstream reject /
+          // circuit-breaker / AQ-badge logic consumes it unchanged.
+          try {
+            _aqQualityGate = QGV.composeQualityVerdict({
+              llm: _aqQualityGate,
+              text: _rcText,
+              platform: _platform,
+              grounding: QGV.findUngroundedClaims(_rcText, QGV.buildGroundingText(_pt, productFacts))
+            });
+            context.log('[QualityGate] AUTO-POST', _platform, 'pass:', _aqQualityGate.pass, 'confidence:', _aqQualityGate.confidence, 'det:', JSON.stringify(_aqQualityGate.deterministicFlags || {}));
+          } catch (_qgvErr) {
+            context.log('[QualityGate] AUTO-POST compose error (LLM-only fallback):', String(_qgvErr).substring(0, 150));
+          }
 
           // Quality gate FAILED — auto-reject, remove action, reset task for Scribe rewrite
           if (_aqQualityGate && !_aqQualityGate.pass && (_aqQualityGate.confidence || 0) >= 70) {
