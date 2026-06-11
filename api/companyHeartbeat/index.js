@@ -3027,6 +3027,10 @@ module.exports = async function (context) {
             _rcText = _rcText.trimEnd() + '\n' + _fallbackUrl;
             context.log('[Heartbeat] AUTO-POST: URL missing after trim — appended', _fallbackUrl);
           }
+          // Enforce proper sentence-case on the final post copy (founder-voice writes lowercase;
+          // humans expect sentence case). Casual tone is otherwise untouched.
+          _rcText = H.capitalizeSentences(_rcText);
+
           // ── SEMANTIC DEDUP (Phase 1): block near-duplicate copy vs recent posts ──
           // This is the LIVE publish path — the reviewed_copy → social action funnel that
           // shipped ~11 near-identical posts during the unsupervised run. Compare the fully

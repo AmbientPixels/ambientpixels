@@ -24,7 +24,7 @@ const {
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
-  spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus
+  spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const _productFacts = require('../_data/product-facts.json');
@@ -1867,8 +1867,9 @@ Write the full deliverable first, then the structured JSON block.`;
                 context.log('[Heartbeat] scribe: bluesky-reply declined for task', action.taskId);
                 continue;
               }
-              // Truncate to 280 chars max (bluesky cap is 300, leave headroom)
-              let _finalReply = _replyText.substring(0, 280);
+              // Enforce proper sentence-case (founder-voice writes lowercase), then truncate
+              // to 280 chars max (bluesky cap is 300, leave headroom).
+              let _finalReply = capitalizeSentences(_replyText).substring(0, 280);
               const _tc = task.threadContext;
               // Create a social_post.reply action
               const _replyActionId = 'act_' + Date.now() + '_bsreply_' + Math.random().toString(36).substr(2, 5);
@@ -2741,6 +2742,10 @@ Write the full deliverable first, then the structured JSON block.`;
           _resolvedPlatform = _parentTask.taskType.replace('social_', '');
         }
       }
+      // Enforce proper sentence-case on the final post copy. The founder-voice doctrine writes
+      // sentences lowercase; humans expect sentence case. Tone (short lines, no hype) is kept.
+      socialPayload.text = capitalizeSentences(socialPayload.text || '');
+
       // ── SEMANTIC DEDUP (Phase 1): block near-duplicate copy vs recent posts ──
       // The same-task guards above stop one task spawning two actions; they miss campaign
       // churn where many DIFFERENT tasks produce near-identical copy. Catch it at creation.

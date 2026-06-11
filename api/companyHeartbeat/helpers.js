@@ -565,11 +565,51 @@ function campaignDailyPostCapStatus(opts) {
   return { exceeded: count >= cap, count: count, cap: cap };
 }
 
+// ── Sentence-case normalization for agent-written text (2026-06-10) ──
+//
+// The founder-voice doctrine told agents to "start sentences lowercase when natural", which
+// reads as broken capitalization to humans. This deterministically enforces proper sentence
+// case on published copy regardless of what the LLM produced: capitalize the first word of
+// every sentence (start of text, after . ! ?, and at each line start) and the standalone
+// pronoun "i". The casual tone (short lines, no hype, no em dashes) is untouched — only the
+// first letter of sentences changes.
+//
+// Safe by construction: URLs / bare domains / hashtags / @mentions are extracted and restored
+// verbatim so a sentence that opens with a link or tag keeps its casing, and "i" inside a URL
+// slug is never altered. Decimals/versions ("v2.5", "$1.15") aren't treated as sentence ends
+// because the boundary requires whitespace after the punctuation.
+
+function capitalizeSentences(text) {
+  if (!text || typeof text !== 'string') return text;
+
+  // 1. Freeze URLs / bare domains / hashtags / @mentions in ONE pass so a placeholder can
+  //    never be re-matched by a later pattern. The {{FRZ:n}} placeholder has no [a-z] /
+  //    standalone "i" so steps 2-3 leave it alone, and it can't collide with real digits in
+  //    copy ("24 agents", "$1.15"). Restored verbatim at the end so links/tags keep their case.
+  var _frozen = [];
+  var _freezeRe = /(?:https?:\/\/\S+|www\.\S+|\b[a-z0-9-]+\.(?:ai|com|io|net|org|app|dev|co|xyz|gg)(?:\/\S*)?|[#@][\w-]+)/gi;
+  var out = text.replace(_freezeRe, function (tok) { _frozen.push(tok); return '{{FRZ:' + (_frozen.length - 1) + '}}'; });
+
+  // 2. Capitalize the first letter of each sentence: start of string, after .!? (+ optional
+  //    closing quotes/brackets) + whitespace, or at a line start (allowing markdown list/
+  //    quote markers + leading spaces). Optional opening quotes/brackets are skipped over.
+  out = out.replace(
+    /(^|[.!?]["')\]]*\s+|\n[ \t>*\-]*)(["'(\[]*)([a-z])/g,
+    function (_m, boundary, lead, ch) { return boundary + lead + ch.toUpperCase(); }
+  );
+
+  // 3. Standalone pronoun "i" -> "I" (apostrophe boundary also covers i'm/i've/i'll/i'd).
+  out = out.replace(/\bi\b/g, 'I');
+
+  // 4. Restore frozen tokens verbatim.
+  return out.replace(/\{\{FRZ:(\d+)\}\}/g, function (_m, n) { return _frozen[Number(n)]; });
+}
 module.exports = {
   _sanitizeSingleComment,
   generateConversationalEntityComment,
   findNearDuplicateSocialPost,
   campaignDailyPostCapStatus,
+  capitalizeSentences,
   stripTaskPrefixes,
   _isActiveStatus,
   _isRecent,

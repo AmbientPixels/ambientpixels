@@ -2171,7 +2171,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - No em dashes. Use commas, periods, or line breaks.
   - No buzzwords or hype. No "supercharge", "unleash", "game-changing", "revolutionary", "thrilled to announce", "introducing our latest".
   - Short paragraphs. One idea per line.
-  - Lowercase casual tone. Start sentences lowercase when natural.
+  - Casual, conversational tone, but PROPER CAPITALIZATION: capitalize the first word of every sentence and the pronoun "I". Lowercase is fine for deliberate mid-sentence styling, never for sentence starts. Casual does not mean broken capitalization.
   - 5th grade reading level. Simple words. Short sentences. No jargon.
   - Authentic over polished. Rough edges beat corporate smoothness.
   - No exclamation marks. No emoji walls. No bullet-point feature dumps.
