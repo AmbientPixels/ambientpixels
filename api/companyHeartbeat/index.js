@@ -2900,7 +2900,8 @@ module.exports = async function (context) {
     // ── Auto-create social actions for tasks with reviewed_copy (post-copy-pipeline) ──
     {
       const _pendingPosts = tasks.filter(function (t) {
-        return t._social_action_pending && t.reviewed_copy && /^social_/.test(t.taskType || '');
+        return t._social_action_pending && t.reviewed_copy && /^social_/.test(t.taskType || '') &&
+          !t._social_action_suppressed_dup; // skip tasks already blocked as near-duplicates
       });
       if (_pendingPosts.length > 0) {
         const _actionsStore = (await storage.getState('actions')) || [];
@@ -3024,6 +3025,42 @@ module.exports = async function (context) {
             _rcText = _rcText.trimEnd() + '\n' + _fallbackUrl;
             context.log('[Heartbeat] AUTO-POST: URL missing after trim — appended', _fallbackUrl);
           }
+          // ── SEMANTIC DEDUP (Phase 1): block near-duplicate copy vs recent posts ──
+          // This is the LIVE publish path — the reviewed_copy → social action funnel that
+          // shipped ~11 near-identical posts during the unsupervised run. Compare the fully
+          // sanitized body against recent same-platform/same-campaign posts before queueing.
+          {
+            const _semDup = H.findNearDuplicateSocialPost({
+              text: _rcText,
+              platform: _platform,
+              campaignId: _pt.campaign_id || null,
+              actions: _actionsStore,
+              tasks: tasks,
+              now: Date.now()
+            });
+            if (_semDup.isDuplicate) {
+              _guardrailCounts.fuzzyDupBlocked++;
+              const _semPct = Math.round(_semDup.similarity * 100);
+              context.log('[Heartbeat] AUTO-POST BLOCKED: near-duplicate copy (' + _semPct + '% similar to ' + _semDup.matchId + ' on ' + _platform + ') for task ' + _pt.id + ' — suppressing, varying-theme nudge added');
+              _pt._social_action_pending = false;          // stop auto-post re-selecting it
+              _pt._social_action_suppressed_dup = true;     // and stop Echo re-injection
+              _pt.updatedAt = new Date().toISOString();
+              if (!_pt.comments) _pt.comments = [];
+              _pt.comments.push({
+                id: 'cmt-semdup-' + Date.now(),
+                author: 'system',
+                text: 'Near-duplicate social post blocked (' + _semPct + '% similar to a recent ' + _platform + ' post). This campaign is churning the same theme — vary the topic/angle before posting again.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              await logEvent('policy-violation', 'echo', 'Near-duplicate social post blocked (auto-post)', cycleId,
+                { runId: cycleId, gate: 'semantic_dup', reason: 'social_text_similarity',
+                  platform: _platform, similarityPct: _semPct, similarActionId: _semDup.matchId,
+                  taskId: _pt.id, campaignId: _pt.campaign_id || null });
+              continue;
+            }
+          }
+
           const _scheduledFor = _getOptimalPostTime(_platform, researchIntelStore);
           // Auto-inject experiment_tag — this auto-post path bypasses agent-runner.js:2466,
           // so we mirror its logic here. Picks newest active experiment for Echo.

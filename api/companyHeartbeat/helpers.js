@@ -402,9 +402,107 @@ function spawnQgRespawnCopyTask(tasks, parentTask, platform, qgIssues, hallConte
   return _newTask;
 }
 
+// ── Semantic dedup for social posts (Phase 1 — quality hardening, 2026-06-10) ──
+//
+// The same-task dedup guards (one task → one pending action) miss campaign churn:
+// many DIFFERENT tasks under one campaign producing near-identical copy. During the
+// 7–9 day unsupervised run, ~11 near-duplicate "Startup Obituary" posts shipped while
+// the fuzzy guard blocked 0 — because the live publish path (index.js auto-post) and
+// the agent-runner create-social-action handler never compared post BODIES against
+// each other, only task titles / same-task pending actions.
+//
+// This compares cleaned post copy against recent posts on the same platform (further
+// scoped to the same campaign when the new post has one), using the house word-overlap
+// metric (cf. comment dedup at agent-runner.js:~3290 and title fuzzy dedup at :~1505):
+// similarity = sharedWords / max(|A|, |B|). Returns the best match — callers block +
+// increment guardrails.fuzzyDupBlocked when isDuplicate is true.
+//
+// Pure + dependency-free so BOTH creation paths can call it and so it's checkable
+// offline against the live actions store.
+
+function _socialDedupNormalize(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/https?:\/\/\S+/g, ' ')   // URLs — shared boilerplate + per-post UTM noise
+    .replace(/[#@][\w-]+/g, ' ')        // hashtags + @mentions — campaign boilerplate
+    .replace(/[^a-z0-9 ]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function _socialDedupWords(s) {
+  return _socialDedupNormalize(s).split(' ').filter(function (w) { return w.length > 2; });
+}
+
+// opts: { text, platform, campaignId, actions, tasks, now?, threshold?, minWords?, windowDays? }
+// returns: { isDuplicate, similarity (0–1), matchId }
+function findNearDuplicateSocialPost(opts) {
+  var EMPTY = { isDuplicate: false, similarity: 0, matchId: null };
+  opts = opts || {};
+  if (!opts.text || !Array.isArray(opts.actions)) return EMPTY;
+
+  var threshold = (typeof opts.threshold === 'number') ? opts.threshold : 0.6;
+  var minWords = (typeof opts.minWords === 'number') ? opts.minWords : 8;
+  var windowDays = (typeof opts.windowDays === 'number') ? opts.windowDays : 14;
+  var now = (typeof opts.now === 'number') ? opts.now : Date.now();
+  var platform = String(opts.platform || '');
+  var campaignId = opts.campaignId || null;
+  var tasks = Array.isArray(opts.tasks) ? opts.tasks : [];
+
+  var newWords = _socialDedupWords(opts.text);
+  if (newWords.length < minWords) return EMPTY;        // too short to judge — let it through
+  var newSet = new Set(newWords);
+
+  var cutoff = now - windowDays * 24 * 60 * 60 * 1000;
+
+  // Memoize parentTaskId → campaign_id so same-campaign scoping doesn't re-scan tasks.
+  var _campaignCache = {};
+  function _campaignOf(action) {
+    var pid = action && action._parentTaskId;
+    if (!pid) return null;
+    if (Object.prototype.hasOwnProperty.call(_campaignCache, pid)) return _campaignCache[pid];
+    var t = tasks.find(function (x) { return x && x.id === pid; });
+    var c = t ? (t.campaign_id || null) : null;
+    _campaignCache[pid] = c;
+    return c;
+  }
+
+  var bestSim = 0;
+  var bestId = null;
+  for (var i = 0; i < opts.actions.length; i++) {
+    var a = opts.actions[i];
+    if (!a || typeof a.type !== 'string' || a.type.indexOf('social_post') !== 0) continue;
+    if (String(a.platform || '') !== platform) continue;
+    var st = (a.approval && a.approval.status) || '';
+    if (st === 'rejected' || st === 'cancelled') continue;   // retry allowed after reject
+    var ex = (a.execution && a.execution.status) || '';
+    if (ex === 'failed') continue;                           // failed sends don't block new ones
+    var ts = a.created_at || a.createdAt || (a.approval && a.approval.approved_at) || null;
+    if (ts) {
+      var tms = new Date(ts).getTime();
+      if (Number.isFinite(tms) && tms < cutoff) continue;    // outside lookback window
+    }
+    if (campaignId) {
+      var ec = _campaignOf(a);
+      if (ec && ec !== campaignId) continue;                 // different campaign — skip
+    }
+    var exText = (a.payload && a.payload.text) || (a.action_payload && a.action_payload.text) || '';
+    var exWords = _socialDedupWords(exText);
+    if (exWords.length < minWords) continue;
+    var exSet = new Set(exWords);
+    var inter = 0;
+    newSet.forEach(function (w) { if (exSet.has(w)) inter++; });
+    var sim = inter / Math.max(newSet.size, exSet.size);
+    if (sim > bestSim) { bestSim = sim; bestId = a.id || null; }
+  }
+
+  return { isDuplicate: bestSim >= threshold, similarity: bestSim, matchId: bestId };
+}
+
 module.exports = {
   _sanitizeSingleComment,
   generateConversationalEntityComment,
+  findNearDuplicateSocialPost,
   stripTaskPrefixes,
   _isActiveStatus,
   _isRecent,

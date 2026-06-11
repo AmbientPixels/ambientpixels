@@ -24,7 +24,7 @@ const {
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
-  spawnQgRespawnCopyTask
+  spawnQgRespawnCopyTask, findNearDuplicateSocialPost
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const _productFacts = require('../_data/product-facts.json');
@@ -1139,6 +1139,7 @@ Write the full deliverable first, then the structured JSON block.`;
     const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
     const _doneSocialAll = tasks.filter(function (t) {
       if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
+      if (t._social_action_suppressed_dup) return false; // near-dup: don't re-inject every cycle
       var age = Date.now() - new Date(t.createdAt || 0).getTime();
       if (age > _doneSocialMaxAge2) return false;
       var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
@@ -2739,6 +2740,48 @@ Write the full deliverable first, then the structured JSON block.`;
           _resolvedPlatform = _parentTask.taskType.replace('social_', '');
         }
       }
+      // ── SEMANTIC DEDUP (Phase 1): block near-duplicate copy vs recent posts ──
+      // The same-task guards above stop one task spawning two actions; they miss campaign
+      // churn where many DIFFERENT tasks produce near-identical copy. Catch it at creation.
+      {
+        var _semCampaignId = null;
+        if (action.taskId) {
+          var _semTaskC = tasks.find(function (t) { return t.id === action.taskId; });
+          if (_semTaskC) _semCampaignId = _semTaskC.campaign_id || null;
+        }
+        var _semDup = findNearDuplicateSocialPost({
+          text: socialPayload.text || '',
+          platform: _resolvedPlatform,
+          campaignId: _semCampaignId,
+          actions: existingActions,
+          tasks: tasks,
+          now: Date.now()
+        });
+        if (_semDup.isDuplicate) {
+          result.guardrails.fuzzyDupBlocked++;
+          var _semPct = Math.round(_semDup.similarity * 100);
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — near-duplicate copy (' + _semPct + '% similar to ' + _semDup.matchId + ' on ' + _resolvedPlatform + ')');
+          var _semTask = action.taskId ? tasks.find(function (t) { return t.id === action.taskId; }) : null;
+          if (_semTask) {
+            _semTask._social_action_suppressed_dup = true;   // stop re-injection loop next cycle
+            _semTask.updatedAt = new Date().toISOString();
+            if (!_semTask.comments) _semTask.comments = [];
+            _semTask.comments.push({
+              id: 'cmt-semdup-' + Date.now(),
+              author: 'system',
+              text: 'Near-duplicate social post blocked (' + _semPct + '% similar to a recent ' + _resolvedPlatform + ' post). This campaign is churning the same theme — vary the topic/angle before posting again.',
+              type: 'system',
+              createdAt: new Date().toISOString()
+            });
+          }
+          await logEvent('policy-violation', agentId, 'Near-duplicate social post blocked', cycleId,
+            { runId: cycleId, gate: 'semantic_dup', reason: 'social_text_similarity',
+              platform: _resolvedPlatform, similarityPct: _semPct, similarActionId: _semDup.matchId,
+              taskId: action.taskId || null, campaignId: _semCampaignId });
+          continue;
+        }
+      }
+
       const _diagRc = action.taskId ? ((tasks.find(function(t) { return t.id === action.taskId; }) || {}).reviewed_copy || '').length : -1;
       context.log('[Heartbeat]', agentId, 'CREATING social action — GATE PASSED. taskId:', action.taskId, 'rc_len:', _diagRc, 'text_len:', (socialPayload.text || '').length, '_codeTag:v10diag');
       // For Reddit: extract target subreddit from task description/comments (r/SubName pattern)
