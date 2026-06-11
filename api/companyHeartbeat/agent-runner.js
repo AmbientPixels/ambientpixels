@@ -1142,6 +1142,7 @@ Write the full deliverable first, then the structured JSON block.`;
       if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
       if (t._social_action_suppressed_dup) return false; // near-dup: don't re-inject every cycle
       if (t._social_post_deferred_until && new Date(t._social_post_deferred_until).getTime() > Date.now()) return false; // daily cap: wait out defer window
+      if ((t._social_action_attempts || 0) >= QGV.SOCIAL_ATTEMPTS_CAP) return false; // B1: attempts exhausted — CEO revision resets
       var age = Date.now() - new Date(t.createdAt || 0).getTime();
       if (age > _doneSocialMaxAge2) return false;
       var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
@@ -2940,6 +2941,32 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Link action to parent task if provided
       if (action.taskId) newAction._parentTaskId = action.taskId;
+
+      // B1: count auto-generated social actions per task. At the cap the done-task
+      // injection and auto-post selection stop re-firing; CEO revision resets the budget.
+      if (action.taskId) {
+        var _attTask = tasks.find(function (t) { return t.id === action.taskId; });
+        if (_attTask) {
+          _attTask._social_action_attempts = (_attTask._social_action_attempts || 0) + 1;
+          _attTask.updatedAt = new Date().toISOString();
+          if (_attTask._social_action_attempts >= QGV.SOCIAL_ATTEMPTS_CAP) {
+            if (!_attTask.comments) _attTask.comments = [];
+            var _hasAttNote = (_attTask.comments || []).some(function (c) { return c && c.text && c.text.indexOf('Social attempts cap') !== -1; });
+            if (!_hasAttNote) {
+              _attTask.comments.push({
+                id: 'cmt-attcap-' + Date.now(),
+                author: 'system',
+                text: 'Social attempts cap reached (' + _attTask._social_action_attempts + ' auto-created actions for this task). No further auto-posting from this task — a CEO revision request resets the budget.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+            }
+            await logEvent('policy-violation', agentId, 'Social attempts cap reached for task', cycleId,
+              { runId: cycleId, gate: 'social_attempts_cap', reason: 'max_auto_actions_per_task',
+                attempts: _attTask._social_action_attempts, cap: QGV.SOCIAL_ATTEMPTS_CAP, taskId: action.taskId });
+          }
+        }
+      }
 
       // Pipeline trust signals — attach metadata showing which steps this action went through
       if (action.taskId) {

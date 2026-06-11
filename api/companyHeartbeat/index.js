@@ -504,6 +504,7 @@ module.exports = async function (context) {
         _parentTask.priority = 'critical';
         _parentTask._social_action_created = false;
         _parentTask._social_action_pending = false;
+        _parentTask._social_action_attempts = 0; // B1: explicit CEO direction resets the attempts budget
         _parentTask.reviewed_copy = '';
         const _feedback = (_ra.approval && _ra.approval.decision_note) || 'CEO requested revision on the social post.';
         _parentTask.comments = _parentTask.comments || [];
@@ -2904,6 +2905,7 @@ module.exports = async function (context) {
         if (!(t._social_action_pending && t.reviewed_copy && /^social_/.test(t.taskType || ''))) return false;
         if (t._social_action_suppressed_dup) return false; // near-dup: don't re-create
         if (t._social_post_deferred_until && new Date(t._social_post_deferred_until).getTime() > Date.now()) return false; // daily cap: wait out defer window
+        if ((t._social_action_attempts || 0) >= QGV.SOCIAL_ATTEMPTS_CAP) return false; // B1: attempts exhausted — CEO revision resets
         return true;
       });
       if (_pendingPosts.length > 0) {
@@ -3168,6 +3170,26 @@ module.exports = async function (context) {
           const _newAction = H._createActionFromHeartbeat(_actionReq, 'echo');
           _newAction._parentTaskId = _pt.id;
           _newAction._autoPosted = true;
+
+          // B1: count auto-generated social actions per task. At the cap this task stops
+          // re-entering the auto-post funnel; a CEO revision request resets the budget.
+          _pt._social_action_attempts = (_pt._social_action_attempts || 0) + 1;
+          if (_pt._social_action_attempts >= QGV.SOCIAL_ATTEMPTS_CAP) {
+            if (!_pt.comments) _pt.comments = [];
+            const _hasAttNote = (_pt.comments || []).some(function (c) { return c && c.text && c.text.indexOf('Social attempts cap') !== -1; });
+            if (!_hasAttNote) {
+              _pt.comments.push({
+                id: 'cmt-attcap-' + Date.now(),
+                author: 'system',
+                text: 'Social attempts cap reached (' + _pt._social_action_attempts + ' auto-created actions for this task). No further auto-posting from this task — a CEO revision request resets the budget.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+            }
+            await logEvent('policy-violation', 'echo', 'Social attempts cap reached for task (auto-post)', cycleId,
+              { runId: cycleId, gate: 'social_attempts_cap', reason: 'max_auto_actions_per_task',
+                attempts: _pt._social_action_attempts, cap: QGV.SOCIAL_ATTEMPTS_CAP, taskId: _pt.id });
+          }
 
           // Outcome Attribution Phase 2: inject UTM params into ambientpixels.ai URLs
           // so blog views + form submits are attributable to this specific post.

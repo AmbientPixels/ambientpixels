@@ -273,7 +273,16 @@ function composeQualityVerdict(opts) {
   };
 }
 
+// ── B1: per-task social action attempts cap ─────────────────────────────────
+// The 14x-in-24h flood was one done task generating a new social action every
+// heartbeat cycle (each reject/failure made it look "ready" again). Cap the
+// AUTO-generated actions per task at 2 (initial + one retry); an explicit CEO
+// revision request resets the budget — human direction earns exactly one fresh
+// respawn, not hourly retries.
+var SOCIAL_ATTEMPTS_CAP = 2;
+
 module.exports = {
+  SOCIAL_ATTEMPTS_CAP: SOCIAL_ATTEMPTS_CAP,
   detectContentLeaks: detectContentLeaks,
   repeatPromoUrlStatus: repeatPromoUrlStatus,
   extractClaimNumbers: extractClaimNumbers,
