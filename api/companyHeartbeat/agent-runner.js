@@ -12,7 +12,7 @@ const { callGemini } = require('./gemini');
 const {
   AGENT_ROLES, GUARDRAILS, DOMAIN_LEAD_MAP,
   MAX_TOOL_CALLS_PER_AGENT, MAX_MEMORIES_PER_AGENT,
-  MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_DEFAULT_TTL_DAYS,
+  MAX_L4_WRITES_PER_AGENT_PER_DAY, L4_ALLOWED_TYPES, L4_PREFERRED_TYPES, L4_STRUCTURAL_TYPES, L4_DEFAULT_TTL_DAYS,
   MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS,
   MAX_RESEARCH_INTEL_PER_DAY, MAX_WEEKLY_REPORTS_PER_AGENT,
   CAPITAL_AUTHORIZED_AGENTS, CAPITAL_DECISION_THRESHOLDS, FINANCE_BUDGET_MONTHLY,
@@ -4545,12 +4545,15 @@ Write the full deliverable first, then the structured JSON block.`;
             runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
           });
         }
-        // Evidence requirement for ALL L4 memory types except structural types (weekly_report).
-        // Previously only L4_PREFERRED_TYPES enforced this; legacy types (learning/feedback/
-        // context/preference) could be written with no provenance, which was the root cause of
-        // the stale-loop incidents ("Cipher spent $0.51" repeated 20×). Now every write needs
-        // evidence.runId unless it's a structural aggregation type.
-        else if (_memType !== 'weekly_report' && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
+        // Evidence requirement for ALL L4 memory types except structural aggregation types
+        // (weekly_report, reflection, consolidated_belief — see L4_STRUCTURAL_TYPES). These
+        // synthesize a window of prior activity into a conclusion rather than asserting a single
+        // verifiable fact, so a per-write evidence.runId doesn't apply. Previously only
+        // weekly_report was exempted, which silently dropped proactive `reflection` writes (the
+        // cadence nudge demands evidence.runId that agents routinely omit) — the root cause of the
+        // near-total absence of type='reflection' memories. The evidence gate still polices the
+        // factual L4 types (the stale-loop fix: "Cipher spent $0.51" repeated 20×).
+        else if (!L4_STRUCTURAL_TYPES.has(_memType) && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
           _memBlockedReason = 'missing_evidence';
           await logEvent('policy-violation', agentId, 'Memory write blocked: evidence.runId required', cycleId, {
             runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'missing_evidence', type: _memType
