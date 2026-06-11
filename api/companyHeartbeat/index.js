@@ -2900,8 +2900,10 @@ module.exports = async function (context) {
     // ── Auto-create social actions for tasks with reviewed_copy (post-copy-pipeline) ──
     {
       const _pendingPosts = tasks.filter(function (t) {
-        return t._social_action_pending && t.reviewed_copy && /^social_/.test(t.taskType || '') &&
-          !t._social_action_suppressed_dup; // skip tasks already blocked as near-duplicates
+        if (!(t._social_action_pending && t.reviewed_copy && /^social_/.test(t.taskType || ''))) return false;
+        if (t._social_action_suppressed_dup) return false; // near-dup: don't re-create
+        if (t._social_post_deferred_until && new Date(t._social_post_deferred_until).getTime() > Date.now()) return false; // daily cap: wait out defer window
+        return true;
       });
       if (_pendingPosts.length > 0) {
         const _actionsStore = (await storage.getState('actions')) || [];
@@ -3057,6 +3059,46 @@ module.exports = async function (context) {
                 { runId: cycleId, gate: 'semantic_dup', reason: 'social_text_similarity',
                   platform: _platform, similarityPct: _semPct, similarActionId: _semDup.matchId,
                   taskId: _pt.id, campaignId: _pt.campaign_id || null });
+              continue;
+            }
+          }
+
+          // ── DAILY POST CAP (Phase 1 item 2): bound per-campaign-per-platform volume ──
+          // Item 1 blocks near-identical copy; this caps VOLUME so a campaign can't flood one
+          // platform in a day with differently-worded posts. Over-cap posts DEFER (not drop) so
+          // the flood spreads as older posts age out of the 24h window. Leaves _social_action_pending
+          // set so the deferred post re-enters selection once the defer window passes.
+          if (_pt.campaign_id || _pt.id) {
+            const _capCmp = _pt.campaign_id ? (campaignById[_pt.campaign_id] || null) : null;
+            const _capStatus = H.campaignDailyPostCapStatus({
+              campaignId: _pt.campaign_id || null,
+              parentTaskId: _pt.id || null,
+              platform: _platform,
+              frequency: _capCmp ? _capCmp.frequency : null,
+              cadence: _capCmp ? _capCmp.cadence : null,
+              actions: _actionsStore,
+              tasks: tasks,
+              now: Date.now()
+            });
+            if (_capStatus.exceeded) {
+              context.log('[Heartbeat] AUTO-POST DEFERRED: campaign daily post cap reached (' + _capStatus.count + '/' + _capStatus.cap + ' on ' + _platform + ' in 24h) for task ' + _pt.id + ' — deferring ~3h');
+              _pt._social_post_deferred_until = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+              _pt.updatedAt = new Date().toISOString();
+              if (!_pt.comments) _pt.comments = [];
+              const _hasCapNote = (_pt.comments || []).some(function (c) { return c && c.text && c.text.indexOf('Daily post cap reached') !== -1; });
+              if (!_hasCapNote) {
+                _pt.comments.push({
+                  id: 'cmt-capdaily-' + Date.now(),
+                  author: 'system',
+                  text: 'Daily post cap reached for this campaign on ' + _platform + ' (' + _capStatus.count + ' in 24h, cap ' + _capStatus.cap + '). Post deferred ~3h so the campaign stops flooding one platform — it will retry once earlier posts age out of the window.',
+                  type: 'system',
+                  createdAt: new Date().toISOString()
+                });
+              }
+              await logEvent('policy-violation', 'echo', 'Campaign daily post cap deferred social post (auto-post)', cycleId,
+                { runId: cycleId, gate: 'campaign_daily_cap', reason: 'per_platform_daily_volume',
+                  platform: _platform, count: _capStatus.count, cap: _capStatus.cap,
+                  taskId: _pt.id, campaignId: _pt.campaign_id });
               continue;
             }
           }

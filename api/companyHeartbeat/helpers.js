@@ -499,10 +499,77 @@ function findNearDuplicateSocialPost(opts) {
   return { isDuplicate: bestSim >= threshold, similarity: bestSim, matchId: bestId };
 }
 
+// ── Per-source daily post cap (Phase 1 item 2 — quality hardening, 2026-06-10) ──
+//
+// findNearDuplicateSocialPost (item 1) bounds near-identical COPY; this bounds VOLUME so a
+// single post SOURCE can't flood ONE platform with many posts in a day even when each post
+// is worded differently enough to slip past the copy check. The "source" is the campaign
+// when the post is campaigned, else the parent task — because the worst real flood was an
+// UNCAMPAIGNED promo task that re-posted to X ~13× in 24h (hourly), which a campaign-only
+// cap would miss entirely (43 of 75 historical posts had no campaign).
+//
+// Counts non-rejected/cancelled/failed social_post actions sharing the same source on the
+// same platform in the last 24h. Cap: daily-cadence campaigns get `frequency` posts/
+// platform/day, everything else (weekly/biweekly campaigns AND uncampaigned task sources)
+// gets 1, plus a 1-post buffer so normal cadence is never throttled. Callers DEFER (not
+// drop) over-cap posts so a flood spreads as older posts age out of the window.
+//
+// Pure + dependency-free so BOTH creation paths can call it and it's checkable offline.
+
+function campaignDailyPostCapStatus(opts) {
+  var ZERO = { exceeded: false, count: 0, cap: Infinity };
+  opts = opts || {};
+  var srcKey = opts.campaignId || opts.parentTaskId || null;
+  if (!srcKey || !Array.isArray(opts.actions)) return ZERO; // no source to attribute → uncapped
+
+  var now = (typeof opts.now === 'number') ? opts.now : Date.now();
+  var windowMs = (typeof opts.windowMs === 'number') ? opts.windowMs : 24 * 60 * 60 * 1000;
+  var platform = String(opts.platform || '');
+  var cutoff = now - windowMs;
+
+  var freq = (typeof opts.frequency === 'number' && opts.frequency > 0) ? opts.frequency : 1;
+  var buffer = (typeof opts.buffer === 'number') ? opts.buffer : 1;
+  // Only daily campaigns earn a frequency-scaled allowance; task sources & non-daily get 1.
+  var base = (opts.campaignId && String(opts.cadence || '').toLowerCase() === 'daily') ? Math.ceil(freq) : 1;
+  var cap = base + buffer;
+
+  var tasks = Array.isArray(opts.tasks) ? opts.tasks : [];
+  var _cache = {};
+  function _sourceOf(a) {
+    var pid = a && a._parentTaskId;
+    // campaign source resolves via parent task's campaign_id; falls back to the task id.
+    if (!pid) return null;
+    if (Object.prototype.hasOwnProperty.call(_cache, pid)) return _cache[pid];
+    var t = tasks.find(function (x) { return x && x.id === pid; });
+    var c = (t && t.campaign_id) ? t.campaign_id : pid;
+    _cache[pid] = c;
+    return c;
+  }
+
+  var count = 0;
+  for (var i = 0; i < opts.actions.length; i++) {
+    var a = opts.actions[i];
+    if (!a || typeof a.type !== 'string' || a.type.indexOf('social_post') !== 0) continue;
+    if (String(a.platform || '') !== platform) continue;
+    // Volume cap counts ALL attempts (incl. CEO-rejected + failed) — the flood is the SOURCE
+    // generating posts, not whether they shipped (the worst case was 13 rejected + 1 success
+    // from one task in 24h). Only explicitly cancelled/withdrawn actions don't count.
+    var st = (a.approval && a.approval.status) || '';
+    var ex = (a.execution && a.execution.status) || '';
+    if (st === 'cancelled' || ex === 'cancelled') continue;
+    var ts = a.created_at || a.createdAt || (a.approval && a.approval.approved_at) || null;
+    if (ts) { var tms = new Date(ts).getTime(); if (Number.isFinite(tms) && tms < cutoff) continue; }
+    if (_sourceOf(a) !== srcKey) continue;
+    count++;
+  }
+  return { exceeded: count >= cap, count: count, cap: cap };
+}
+
 module.exports = {
   _sanitizeSingleComment,
   generateConversationalEntityComment,
   findNearDuplicateSocialPost,
+  campaignDailyPostCapStatus,
   stripTaskPrefixes,
   _isActiveStatus,
   _isRecent,

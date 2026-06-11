@@ -24,7 +24,7 @@ const {
 } = require('./constants');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
-  spawnQgRespawnCopyTask, findNearDuplicateSocialPost
+  spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const _productFacts = require('../_data/product-facts.json');
@@ -1140,6 +1140,7 @@ Write the full deliverable first, then the structured JSON block.`;
     const _doneSocialAll = tasks.filter(function (t) {
       if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
       if (t._social_action_suppressed_dup) return false; // near-dup: don't re-inject every cycle
+      if (t._social_post_deferred_until && new Date(t._social_post_deferred_until).getTime() > Date.now()) return false; // daily cap: wait out defer window
       var age = Date.now() - new Date(t.createdAt || 0).getTime();
       if (age > _doneSocialMaxAge2) return false;
       var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
@@ -2777,6 +2778,48 @@ Write the full deliverable first, then the structured JSON block.`;
           await logEvent('policy-violation', agentId, 'Near-duplicate social post blocked', cycleId,
             { runId: cycleId, gate: 'semantic_dup', reason: 'social_text_similarity',
               platform: _resolvedPlatform, similarityPct: _semPct, similarActionId: _semDup.matchId,
+              taskId: action.taskId || null, campaignId: _semCampaignId });
+          continue;
+        }
+      }
+
+      // ── DAILY POST CAP (Phase 1 item 2): bound per-campaign-per-platform volume ──
+      // Item 1 blocks near-identical copy; this bounds VOLUME so a campaign can't flood one
+      // platform in a day with differently-worded posts. Over-cap posts are DEFERRED (not
+      // dropped) so the flood spreads as older posts age out of the 24h window.
+      if (_semCampaignId || action.taskId) {
+        var _capCmp = (_semCampaignId && campaignCtx && campaignCtx.campaignById) ? campaignCtx.campaignById[_semCampaignId] : null;
+        var _capStatus = campaignDailyPostCapStatus({
+          campaignId: _semCampaignId,
+          parentTaskId: action.taskId || null,
+          platform: _resolvedPlatform,
+          frequency: _capCmp ? _capCmp.frequency : null,
+          cadence: _capCmp ? _capCmp.cadence : null,
+          actions: existingActions,
+          tasks: tasks,
+          now: Date.now()
+        });
+        if (_capStatus.exceeded) {
+          context.log('[Heartbeat]', agentId, 'DEFERRED create-social-action — campaign daily post cap reached (' + _capStatus.count + '/' + _capStatus.cap + ' on ' + _resolvedPlatform + ' in 24h) for campaign ' + _semCampaignId);
+          var _capTask = action.taskId ? tasks.find(function (t) { return t.id === action.taskId; }) : null;
+          if (_capTask) {
+            _capTask._social_post_deferred_until = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+            _capTask.updatedAt = new Date().toISOString();
+            if (!_capTask.comments) _capTask.comments = [];
+            var _hasCapNote = (_capTask.comments || []).some(function (c) { return c && c.text && c.text.indexOf('Daily post cap reached') !== -1; });
+            if (!_hasCapNote) {
+              _capTask.comments.push({
+                id: 'cmt-capdaily-' + Date.now(),
+                author: 'system',
+                text: 'Daily post cap reached for this campaign on ' + _resolvedPlatform + ' (' + _capStatus.count + ' in 24h, cap ' + _capStatus.cap + '). Post deferred ~3h so the campaign stops flooding one platform — it will retry once earlier posts age out of the window.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+            }
+          }
+          await logEvent('policy-violation', agentId, 'Campaign daily post cap deferred social post', cycleId,
+            { runId: cycleId, gate: 'campaign_daily_cap', reason: 'per_platform_daily_volume',
+              platform: _resolvedPlatform, count: _capStatus.count, cap: _capStatus.cap,
               taskId: action.taskId || null, campaignId: _semCampaignId });
           continue;
         }
