@@ -119,6 +119,9 @@ Total: ~6–8 working sessions over ~8–10 calendar weeks (soak-dominated).
 | Date | Decision | Status |
 |---|---|---|
 | 2026-06-10 | Quality before gate (Phase 1 first) | DONE — shipped + verified |
+| 2026-06-10 | A1 backtest harness + labeled history | DONE — QG measured at 17.1%/48.8%, exit FAILED (`d9b61c61`) |
+| 2026-06-10 | A2+A3 composed verdict (quality-gate.js: leak/persona/length detectors, repeat-promo queue-collapse, claim grounding) | DONE — recall 90.2% (run-stable), FF 14.3–17.9% (`774b495b`). **Phase A exit criteria met.** A4 (Sonnet + digest-grounding) only if production FF >15%. |
+| 2026-06-10 | Repeat-promo semantics: queue-collapse (serialize), NOT frequency cap | Decided — CEO approved daily same-link posts in May; only the unshipped pile-up is redundant |
 | 2026-06-10 | Auto-publish posture (grace vs immediate vs manual) | **DEFERRED to Phase C entry.** Recommended: 48h grace, graduated. CEO said "not ready yet" — honored by sequencing A+B first. |
 | 2026-06-10 | Sentence-case enforcement scope | Social + bluesky-reply deterministic; blog prompt-only |
 | open | A4 QG model (Haiku vs Sonnet) | Decided by A1 backtest data |
