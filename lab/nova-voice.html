@@ -1,0 +1,60 @@
+<!-- File: /lab/nova-voice.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Nova Voice — push-to-talk conversation with Nova" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Nova Voice — Lab</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-voice.css" />
+</head>
+<body data-theme="dark">
+  <div class="banner-container" id="banner-container">
+    <div class="banner">
+      <i class="fas fa-flask banner-icon"></i>
+      <span>Lab Experimental — Nova Voice. Push to talk.</span>
+      <button class="banner-close" aria-label="Close Banner">×</button>
+    </div>
+  </div>
+
+  <header id="nav-header"></header>
+
+  <section class="mini-hero">
+    <img src="/images/hero-23.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
+    <h1>Nova Voice</h1>
+  </section>
+
+  <main class="grid-container">
+    <section class="grid-col-12 content-section neon-card">
+      <div class="nova-voice-stage">
+        <div class="nova-voice-orb" id="nova-voice-orb" data-state="idle" role="button" tabindex="0" aria-label="Hold to talk to Nova"></div>
+        <div class="nova-voice-mood" id="nova-voice-mood">tuning in…</div>
+        <div class="nova-voice-hint" id="nova-voice-hint">Hold the orb and speak. Release to send.</div>
+        <div class="nova-voice-fallback" id="nova-voice-fallback">
+          <input type="text" id="nova-voice-input" placeholder="Type to Nova — she still answers aloud" aria-label="Message Nova" />
+          <button class="btn" id="nova-voice-send" type="button">Send</button>
+        </div>
+        <div class="nova-voice-log" id="nova-voice-log" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="footer-container"></footer>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/nova-voice.js" defer></script>
+</body>
+</html>
