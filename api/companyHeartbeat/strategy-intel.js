@@ -139,7 +139,7 @@ function evaluateObjectives(objectives, sources, nowMs) {
   const now = Number.isFinite(nowMs) ? nowMs : Date.now();
   for (const obj of objectives) {
     if (!obj || obj.deletedAt) continue;
-    if (obj.status === 'complete' || obj.status === 'canceled') continue;
+    if (obj.status === 'complete' || obj.status === 'canceled' || obj.status === 'archived') continue;
     const c = obj.criteria;
     if (!c || typeof c !== 'object' || !c.metric || !Number.isFinite(Number(c.target))) continue;
     const r = resolveNorthStarMetric({ metric: c.metric, source: c.source || 'auto', current: c.current }, sources, now);
