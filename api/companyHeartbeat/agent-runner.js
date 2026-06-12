@@ -291,7 +291,7 @@ function _fleetProposalGate(agentId, type, targetKey, approvalQueue) {
 
 async function runAgentHeartbeat(ctx) {
   if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
-  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, executionMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, pendingMessages, approvalQueue, emergenceDigest } = ctx;
+  const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, executionMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, pendingMessages, approvalQueue, emergenceDigest } = ctx;
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -497,7 +497,7 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
-  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest };
+  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest };
   const prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
@@ -4952,6 +4952,15 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // SE-1: proposals must name the north star they serve. Flag, don't block
+      // (graduated) — and no flag at all when strategy isn't seeded yet.
+      var _pcNS = (_pc.northStarMetric || '').trim().substring(0, 50);
+      var _pcNSValid = !!(strategyDigest && Array.isArray(strategyDigest.northStar) &&
+        strategyDigest.northStar.some(function (n) { return n.metric === _pcNS; }));
+      if (strategyDigest && !_pcNSValid) {
+        context.log('[Heartbeat]', agentId, 'propose-campaign missing/unknown northStarMetric ("' + _pcNS + '") — flagging for CEO scrutiny');
+      }
+
       var _pcEntry = {
         id: 'cprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         type: 'campaign_proposal',
@@ -4966,6 +4975,8 @@ Write the full deliverable first, then the structured JSON block.`;
         duration: (_pc.duration || '').substring(0, 50),
         product: (_pc.product || '').substring(0, 50),
         kpiTarget: (_pc.kpiTarget || '').substring(0, 200),
+        northStarMetric: _pcNSValid ? _pcNS : null,
+        strategyFlag: (strategyDigest && !_pcNSValid) ? 'no-north-star-metric' : null,
         createdAt: new Date().toISOString()
       };
 
@@ -5009,6 +5020,14 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // SE-1: same north-star capture as propose-campaign (flag, don't block).
+      var _poNS = (_po.northStarMetric || '').trim().substring(0, 50);
+      var _poNSValid = !!(strategyDigest && Array.isArray(strategyDigest.northStar) &&
+        strategyDigest.northStar.some(function (n) { return n.metric === _poNS; }));
+      if (strategyDigest && !_poNSValid) {
+        context.log('[Heartbeat]', agentId, 'propose-objective missing/unknown northStarMetric ("' + _poNS + '") — flagging for CEO scrutiny');
+      }
+
       var _poEntry = {
         id: 'oprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         type: 'objective_proposal',
@@ -5020,6 +5039,8 @@ Write the full deliverable first, then the structured JSON block.`;
         successCriteria: _poSuccess.substring(0, 300),
         timeHorizon: _poHorizon.substring(0, 50),
         suggestedCampaigns: Array.isArray(_po.suggestedCampaigns) ? _po.suggestedCampaigns.slice(0, 3) : [],
+        northStarMetric: _poNSValid ? _poNS : null,
+        strategyFlag: (strategyDigest && !_poNSValid) ? 'no-north-star-metric' : null,
         createdAt: new Date().toISOString()
       };
 
