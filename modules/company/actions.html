@@ -1266,6 +1266,7 @@
       html += '<h3><i class="fas fa-bullhorn" style="color:#a78bfa;margin-right:0.3rem;"></i>' + esc(p.name || 'Campaign Proposal') + '</h3>';
       html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
       html += '<span class="act-drawer-badge" style="background:rgba(139,92,246,0.15);color:#a78bfa;">Proposal</span>';
+      if (p.strategyFlag === 'no-north-star-metric') html += '<span class="act-drawer-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;"><i class="fas fa-exclamation-triangle"></i> serves no north star</span>';
       html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">From ' + esc((p.proposedBy || '?').charAt(0).toUpperCase() + (p.proposedBy || '').slice(1)) + '</span>';
       html += '</div>';
       if (p.description) {
@@ -1279,6 +1280,7 @@
       html += '<div>Frequency: <strong>' + (p.frequency || '?') + '/' + esc(p.cadence || 'week') + '</strong></div>';
       html += '<div>Duration: <strong>' + esc(p.duration || 'ongoing') + '</strong></div>';
       html += '<div>Product: <strong>' + esc(p.product || 'general') + '</strong></div>';
+      if (p.northStarMetric) html += '<div style="grid-column:span 2;">North Star: <strong style="color:#a78bfa;">' + esc(p.northStarMetric) + '</strong></div>';
       if (p.kpiTarget) html += '<div style="grid-column:span 2;">KPI: <strong>' + esc(p.kpiTarget) + '</strong></div>';
       html += '</div></div>';
       html += '<div class="act-drawer-actions" style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">';
@@ -1317,6 +1319,7 @@
             allowedTaskTypes: p.platforms || [],
             frequency: p.frequency || 2,
             cadence: p.cadence || 'weekly',
+            northStarMetric: p.northStarMetric || null,
             source: 'echo-proposal',
             proposalId: proposalId,
             createdAt: new Date().toISOString()
@@ -1417,6 +1420,7 @@
       html += '<h3><i class="fas fa-bullseye" style="color:#60a5fa;margin-right:0.3rem;"></i>' + esc(p.title || 'Objective Proposal') + '</h3>';
       html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
       html += '<span class="act-drawer-badge" style="background:rgba(96,165,250,0.15);color:#60a5fa;">Objective</span>';
+      if (p.strategyFlag === 'no-north-star-metric') html += '<span class="act-drawer-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;"><i class="fas fa-exclamation-triangle"></i> serves no north star</span>';
       html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">From ' + esc((p.proposedBy || '?').charAt(0).toUpperCase() + (p.proposedBy || '').slice(1)) + '</span>';
       html += '</div>';
       if (p.description) html += '<div class="act-drawer-section"><h4>Description</h4><p style="white-space:pre-wrap;font-size:var(--c-text-base);">' + esc(p.description) + '</p></div>';
@@ -1424,6 +1428,11 @@
       html += '<div class="act-drawer-section"><h4>Details</h4><div style="font-size:var(--c-text-xs);display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;">';
       html += '<div>Success Criteria: <strong>' + esc(p.successCriteria || 'not specified') + '</strong></div>';
       html += '<div>Time Horizon: <strong>' + esc(p.timeHorizon || 'not specified') + '</strong></div>';
+      if (p.northStarMetric) {
+        var nsLine = esc(p.northStarMetric);
+        if (p.metricTarget) nsLine += ' → ' + esc(String(p.metricTarget)) + (p.metricDeadline ? ' by ' + esc(p.metricDeadline) : '');
+        html += '<div style="grid-column:span 2;">North Star: <strong style="color:#60a5fa;">' + nsLine + '</strong>' + (p.metricTarget ? ' <span style="opacity:0.6;">(progress auto-measured on approval)</span>' : ' <span style="opacity:0.6;">(no target — legacy tracking)</span>') + '</div>';
+      }
       if (p.suggestedCampaigns && p.suggestedCampaigns.length > 0) html += '<div style="grid-column:span 2;">Suggested Campaigns: <strong>' + esc(p.suggestedCampaigns.join(', ')) + '</strong></div>';
       html += '</div></div>';
       html += '<div class="act-drawer-actions" style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">';
@@ -1443,6 +1452,10 @@
         .then(function(data) {
           var objectives = data.value || data || [];
           if (!Array.isArray(objectives)) objectives = [];
+          // SE-2: proposals carrying northStarMetric + metricTarget + metricDeadline
+          // mint a measurable objective (criteria object). Heartbeat stamps baseline
+          // with the live metric value on first evaluation, then computes progress.
+          var hasCriteria = p.northStarMetric && isFinite(Number(p.metricTarget)) && Number(p.metricTarget) > 0 && p.metricDeadline;
           objectives.push({
             id: 'obj-' + Date.now().toString(36),
             title: p.title,
@@ -1451,6 +1464,8 @@
             progress: 0,
             successCriteria: p.successCriteria || '',
             timeHorizon: p.timeHorizon || '',
+            northStarMetric: p.northStarMetric || null,
+            criteria: hasCriteria ? { metric: p.northStarMetric, target: Number(p.metricTarget), by: p.metricDeadline, baseline: null } : null,
             source: 'agent-proposal',
             proposalId: proposalId,
             createdAt: new Date().toISOString()

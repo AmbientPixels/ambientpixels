@@ -5027,6 +5027,14 @@ Write the full deliverable first, then the structured JSON block.`;
       if (strategyDigest && !_poNSValid) {
         context.log('[Heartbeat]', agentId, 'propose-objective missing/unknown northStarMetric ("' + _poNS + '") — flagging for CEO scrutiny');
       }
+      // SE-2: optional structured target so CEO approval can mint a measurable
+      // objective (criteria object). Both-or-neither: a target without a parseable
+      // deadline (or vice versa) is dropped to null rather than half-captured.
+      var _poMT = Number(_po.metricTarget);
+      var _poMD = String(_po.metricDeadline || '').trim().substring(0, 10);
+      if (!_poNSValid || !Number.isFinite(_poMT) || _poMT <= 0 || !Number.isFinite(Date.parse(_poMD))) {
+        _poMT = null; _poMD = null;
+      }
 
       var _poEntry = {
         id: 'oprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
@@ -5040,6 +5048,8 @@ Write the full deliverable first, then the structured JSON block.`;
         timeHorizon: _poHorizon.substring(0, 50),
         suggestedCampaigns: Array.isArray(_po.suggestedCampaigns) ? _po.suggestedCampaigns.slice(0, 3) : [],
         northStarMetric: _poNSValid ? _poNS : null,
+        metricTarget: _poMT,
+        metricDeadline: _poMD,
         strategyFlag: (strategyDigest && !_poNSValid) ? 'no-north-star-metric' : null,
         createdAt: new Date().toISOString()
       };

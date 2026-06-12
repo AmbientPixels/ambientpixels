@@ -144,6 +144,14 @@ function evaluateObjectives(objectives, sources, nowMs) {
     if (!c || typeof c !== 'object' || !c.metric || !Number.isFinite(Number(c.target))) continue;
     const r = resolveNorthStarMetric({ metric: c.metric, source: c.source || 'auto', current: c.current }, sources, now);
     if (!r.resolved) continue; // unresolvable (manual/no telemetry) → leave untouched, no fake progress
+    if (c.baseline === null || c.baseline === undefined) {
+      // Objectives born from approved proposals carry baseline:null — stamp it
+      // with the live value on first evaluation so progress measures the work
+      // done SINCE approval, not credit for pre-existing numbers.
+      c.baseline = r.value;
+      c.baselineStampedAt = new Date(now).toISOString();
+      out.changed = true;
+    }
     const pct = _pctToTarget(r.value, c.target, c.baseline);
     obj.measuredAt = new Date(now).toISOString();
     obj.measuredValue = r.value;
