@@ -14,6 +14,14 @@
   margin-top: var(--sp-10);
 }
 
+/* Compact console variant (dashboard module) — no hero above the stage, so drop
+   the hero-tuned top spacing and let the orb sit near the top of the pane. */
+.nova-voice--compact .nova-voice-stage {
+  padding: var(--sp-8) 0 var(--sp-10);
+  border-top: none;
+  margin-top: 0;
+}
+
 /* Agent switcher — quiet mono row; active agent carries a 1px underline */
 .nova-voice-agents {
   display: flex;
