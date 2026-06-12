@@ -26,6 +26,9 @@
 
 ## Summary
 
+> **SUPERSEDED in part — see Revisions above.** Nova is now AmbientOS Nova (Prime
+> Operator) grounded in live company data via `agentchat`; the mood system is dropped.
+
 A push-to-talk voice conversation with Nova as a character — a "Jarvis-like" experimental
 where you hold a mic orb, speak, and Nova answers aloud in a voice that reflects her
 current mood. Persona-first, not a company copilot: she is grounded in her live mood and
@@ -42,6 +45,10 @@ light awareness context, not in operational company data.
 | Architecture | Hybrid: browser STT in, Azure TTS out, existing `novachat` brain |
 
 ## Architecture & data flow
+
+> **SUPERSEDED in part — see Revisions above.** Steps 1 and 3-4 changed: no mood fetch;
+> the brain is `POST /api/agentchat` (`agentId:'nova'`, `mode:'voice'`, read-only); TTS
+> is called without a mood payload (server defaults to the `friendly` style).
 
 1. **Open** `lab/nova-voice.html` → page generates a session mood via
    `POST /api/novachat` with `mode: 'mood'` (the same call NovaSoul uses; there is no
@@ -107,8 +114,12 @@ TTS function (server-side) so the client only passes the raw mood object.
 - Gemini Live API real-time pipeline (orb UX carries over if ever swapped)
 - Session memory across visits
 - Company-state grounding (copilot mode) and voice-triggered actions
-- Rate limiting / auth on the TTS endpoint beyond the char cap (lab experimental; add
-  throttling before any promotion out of lab)
+- Rate limiting / auth beyond the TTS char cap (lab experimental; add throttling before
+  any promotion out of lab). This deferral covers BOTH endpoints the page calls:
+  `nova-voice-tts` (Azure Speech chars cost money) and the pre-existing anonymous
+  `agentchat` (each voice message triggers blob reads + an LLM completion, and
+  `mode:'voice'` ships Nova's live company context — task/campaign/doc titles, intel
+  digests — to any visitor). Accepted for /lab/; revisit before promotion.
 
 ## Testing
 

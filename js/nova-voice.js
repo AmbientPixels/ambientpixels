@@ -52,22 +52,32 @@
   }
 
   // --- Status line (real telemetry, not decoration) ---
+  function setBadge(awake) {
+    var badge = document.getElementById('nova-voice-badge');
+    if (!badge) return;
+    badge.textContent = awake ? 'Awake' : 'Offline';
+    badge.className = 'ap-status ' + (awake ? 'ap-status--live' : 'ap-status--archive');
+  }
+
   function fetchStatus() {
     return fetch(API_BASE + '/agentchat', { method: 'GET' })
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        moodEl.textContent = (data && data.status === 'ok')
-          ? 'Nova — Prime Operator · online'
-          : 'Nova — signal weak';
+        var ok = data && data.status === 'ok';
+        moodEl.textContent = ok ? 'Nova — Prime Operator · online' : 'Nova — signal weak';
+        setBadge(ok);
       })
       .catch(function () {
         moodEl.textContent = 'Nova — offline';
+        setBadge(false);
       });
   }
 
   // --- Conversation round-trip ---
   function send(text) {
-    if (!text || state === 'thinking' || state === 'speaking') return;
+    // Only from idle — blocks typed sends mid-listen (which would orphan the
+    // mic session) and double-sends while thinking/speaking.
+    if (!text || state !== 'idle') return;
     addLog('user', text);
     setState('thinking');
 
@@ -83,11 +93,16 @@
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        var reply = (data && data.reply) ? toSpeech(data.reply) : 'I hit a glitch in the signal. Try me again.';
-        history.push({ role: 'user', text: text });
-        history.push({ role: 'agent', text: reply });
-        addLog('nova', reply);
-        return speak(reply);
+        var reply = (data && data.reply) ? toSpeech(data.reply) : null;
+        if (reply) {
+          // Only real exchanges enter model history — error lines would pollute context
+          history.push({ role: 'user', text: text });
+          history.push({ role: 'agent', text: reply });
+          if (history.length > 40) history = history.slice(-MAX_HISTORY_TURNS);
+        }
+        var shown = reply || 'I hit a glitch in the signal. Try me again.';
+        addLog('nova', shown);
+        return speak(shown);
       })
       .catch(function () {
         addLog('nova', 'I could not reach the operations layer. The signal fades...');
@@ -170,15 +185,20 @@
     try { recognition.start(); } catch (e) { /* already started */ }
   }
 
+  var stopping = false; // one-shot guard — pointerup and pointerleave both fire on touch release
+
   function stopListening() {
-    if (!recognition || state !== 'listening') return;
+    if (!recognition || state !== 'listening' || stopping) return;
+    stopping = true;
     recognition.stop();
     hintEl.textContent = 'Hold the orb and speak. Release to send.';
     // onresult fires before stop completes; give it a beat
     setTimeout(function () {
+      stopping = false;
       var text = pendingTranscript;
       pendingTranscript = '';
-      if (text) { send(text); } else { setState('idle'); }
+      setState('idle');
+      if (text) send(text);
     }, 350);
   }
 

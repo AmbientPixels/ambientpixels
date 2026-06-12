@@ -1,7 +1,7 @@
 /* File: /css/nova-voice.css — Nova Voice lab experimental (orb + transcript) */
 /* AmbientPixels DS surface: black page, rules not cards, mono telemetry.    */
 /* States are driven by [data-state] on .nova-voice-orb: idle | listening | thinking | speaking */
-/* --nova-voice-aura is set at runtime from Nova's mood (auraColorHex); idle default is Nova's product color. */
+/* --nova-voice-aura is statically Nova's product color (--pc-nova); no runtime mood system. */
 
 .nova-voice-stage {
   --nova-voice-aura: var(--pc-nova);
