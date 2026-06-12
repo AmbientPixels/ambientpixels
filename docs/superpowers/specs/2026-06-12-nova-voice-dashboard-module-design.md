@@ -1,7 +1,7 @@
 # Nova Voice — Dashboard Module Variant (Design Spec)
 
 **Date:** 2026-06-12
-**Status:** Approved design
+**Status:** SHIPPED 2026-06-12 (commit f75760db) — live at `/modules/company/voice.html`
 **Type:** Dashboard module (`/modules/company/voice.html`)
 **Parent feature:** `docs/superpowers/specs/2026-06-10-nova-voice-design.md`
 
