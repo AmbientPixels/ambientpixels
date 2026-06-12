@@ -290,10 +290,19 @@
   // --- Proactive greeting ---
   // Fetched at load (read-only mode), shown as the first transcript entry, and
   // spoken on the first neutral gesture — never over the user's own first words.
+  // Best-effort with a 25s abort: the nova+intel sitrep path can cold-start slow,
+  // and a greeting that arrives after the user has started is worthless — bound it
+  // rather than let the request dangle.
   function fetchGreeting() {
+    var ac = null, timer = null;
+    if (window.AbortController) {
+      ac = new AbortController();
+      timer = setTimeout(function () { ac.abort(); }, 25000);
+    }
     fetch(API_BASE + '/agentchat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: ac ? ac.signal : undefined,
       body: JSON.stringify({
         agentId: 'nova',
         mode: 'voice', // read-only — greetings must never act
@@ -302,12 +311,13 @@
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
+        if (timer) clearTimeout(timer);
         if (!data || !data.reply || history.length > 0) return;
         greetingText = toSpeech(data.reply);
         addLog('nova', greetingText, 'Nova');
         history.push({ role: 'agent', text: greetingText });
       })
-      .catch(function () { /* greeting is best-effort */ });
+      .catch(function () { if (timer) clearTimeout(timer); /* greeting is best-effort */ });
   }
 
   function maybeSpeakGreeting(e) {

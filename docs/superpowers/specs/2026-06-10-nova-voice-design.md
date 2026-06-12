@@ -35,6 +35,29 @@
    transcript, quiet ambient-pixel orb (breathing center dot, ripple ring on speak),
    bottom-border input, `ap-btn--primary` send.
 
+## Revisions (2026-06-12, post-ship enhancement pass)
+
+1. **Full AmbientOS crew.** All 8 agents (nova, cipher, echo, forge, pixel, scout,
+   scribe, quill) selectable via a mono switcher row; `currentAgentId` drives the
+   `agentchat` call, status line, and transcript speaker label. The same orb/transcript
+   serves whoever is selected.
+2. **Per-agent voices.** `buildSsml(text, mood, voice)` takes a voice param validated
+   against a server-side `ALLOWED_VOICES` whitelist (8 `en-US-*Neural` voices, one per
+   agent). Non-Aria voices skip the Aria-tuned `express-as` styles and speak with plain
+   prosody. A non-whitelisted/injected voice string falls back to Aria (tested).
+3. **Barge-in.** Tapping the orb (or Space) while Nova is speaking calls `stopSpeaking()`
+   (`AudioBufferSourceNode.stop()` / element pause) and immediately starts listening —
+   interruptible like a real assistant.
+4. **Dead-air filler.** On send, a short clip ("One moment." / "Checking." …) in the
+   agent's voice plays to cover the round-trip silence; cached per phrase+voice, only
+   played if still `thinking` when it's ready, cut by `stopSpeaking()` when the real
+   reply arrives.
+5. **Proactive greeting.** At load, a read-only (`mode:'voice'`) sitrep is fetched,
+   rendered as the first transcript line, and spoken on the first neutral gesture (never
+   over the user's own first words; the orb/input are excluded). 25s `AbortController`
+   bound because the nova+intel path cold-starts slow — best-effort, never blocks the
+   orb, which is usable immediately.
+
 ## Summary
 
 > **SUPERSEDED in part — see Revisions above.** Nova is now AmbientOS Nova (Prime
