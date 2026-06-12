@@ -109,7 +109,8 @@
   text-align: center;
 }
 
-/* Transcript — editorial log, rules between entries, mono speaker labels */
+/* Transcript — the page's one teal moment (DS §3.12): a solid deep-teal panel,
+   light-teal type, mono speaker labels. Hidden until the first exchange. */
 .nova-voice-log {
   width: 100%;
   max-width: 640px;
@@ -118,14 +119,17 @@
   max-height: 360px;
   overflow-y: auto;
   margin-top: var(--sp-6);
+  background: var(--color-teal-surface);
+  padding: var(--sp-5) var(--sp-8);
 }
+.nova-voice-log:empty { display: none; }
 
 .nova-voice-log-entry {
   padding: var(--sp-4) 0;
   border-top: 1px dashed var(--color-border-dashed);
   font-size: var(--fs-body-sm);
   line-height: var(--lh-body);
-  color: var(--color-text-body);
+  color: var(--color-teal-primary);
   text-wrap: pretty;
 }
 .nova-voice-log-entry:first-child { border-top: none; }
@@ -136,18 +140,24 @@
   font-size: var(--fs-mono-xs);
   letter-spacing: var(--tracking-mono-md);
   text-transform: uppercase;
-  color: var(--color-text-tertiary);
+  color: var(--color-teal-secondary);
+  opacity: .8;
   margin-bottom: var(--sp-2);
 }
 .nova-voice-log-entry--user::before { content: 'You —'; }
 .nova-voice-log-entry--nova::before { content: 'Nova —'; }
+
+.nova-voice-log-entry--user {
+  color: var(--color-teal-secondary);
+}
 
 .nova-voice-log-entry--note {
   font-family: var(--font-mono);
   font-size: var(--fs-mono-xs);
   letter-spacing: var(--tracking-mono-sm);
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-teal-secondary);
+  opacity: .6;
   text-align: center;
 }
 .nova-voice-log-entry--note::before { content: none; }

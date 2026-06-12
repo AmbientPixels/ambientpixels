@@ -111,6 +111,39 @@
   }
 
   // --- TTS playback ---
+  // Web Audio, not an <audio> element: Chrome's transient user activation expires
+  // during the multi-second agentchat+TTS round trip, so a late audio.play() gets
+  // rejected as autoplay. An AudioContext unlocked during the press gesture keeps
+  // playing regardless of how long the round trip takes.
+  var audioCtx = null;
+
+  function unlockAudio() {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audioCtx) audioCtx = new AC();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playViaElement(buf, resolve) {
+    var url = URL.createObjectURL(new Blob([buf], { type: 'audio/mpeg' }));
+    currentAudio = new Audio(url);
+    setState('speaking');
+    currentAudio.onended = currentAudio.onerror = function () {
+      URL.revokeObjectURL(url);
+      currentAudio = null;
+      setState('idle');
+      resolve();
+    };
+    currentAudio.play().catch(function () {
+      URL.revokeObjectURL(url);
+      currentAudio = null;
+      addLog('note', 'audio blocked by the browser — tap the orb once, then try again');
+      setState('idle');
+      resolve();
+    });
+  }
+
   function speak(text) {
     var clipped = text.length > MAX_TTS_CHARS ? text.slice(0, MAX_TTS_CHARS - 1) + '…' : text;
     return fetch(API_BASE + '/nova-voice-tts', {
@@ -120,24 +153,25 @@
     })
       .then(function (res) {
         if (!res.ok) throw new Error('tts ' + res.status);
-        return res.blob();
+        return res.arrayBuffer();
       })
-      .then(function (blob) {
+      .then(function (buf) {
         return new Promise(function (resolve) {
-          var url = URL.createObjectURL(blob);
-          currentAudio = new Audio(url);
-          setState('speaking');
-          currentAudio.onended = currentAudio.onerror = function () {
-            URL.revokeObjectURL(url);
-            currentAudio = null;
-            setState('idle');
-            resolve();
-          };
-          currentAudio.play().catch(function () {
-            URL.revokeObjectURL(url);
-            currentAudio = null;
-            setState('idle');
-            resolve();
+          var ctx = unlockAudio();
+          if (!ctx) { playViaElement(buf, resolve); return; }
+          // slice(): decodeAudioData detaches the buffer; keep the original for fallback
+          ctx.decodeAudioData(buf.slice(0), function (decoded) {
+            var src = ctx.createBufferSource();
+            src.buffer = decoded;
+            src.connect(ctx.destination);
+            setState('speaking');
+            src.onended = function () {
+              setState('idle');
+              resolve();
+            };
+            src.start(0);
+          }, function () {
+            playViaElement(buf, resolve);
           });
         });
       })
@@ -221,11 +255,11 @@
     fetchStatus();
 
     if (setupRecognition()) {
-      orb.addEventListener('pointerdown', function (e) { e.preventDefault(); startListening(); });
+      orb.addEventListener('pointerdown', function (e) { e.preventDefault(); unlockAudio(); startListening(); });
       orb.addEventListener('pointerup', stopListening);
       orb.addEventListener('pointerleave', stopListening);
       orb.addEventListener('keydown', function (e) {
-        if (e.code === 'Space' && state === 'idle') { e.preventDefault(); startListening(); }
+        if (e.code === 'Space' && state === 'idle') { e.preventDefault(); unlockAudio(); startListening(); }
       });
       orb.addEventListener('keyup', function (e) {
         if (e.code === 'Space') { e.preventDefault(); stopListening(); }
@@ -239,6 +273,7 @@
     function sendTyped() {
       var text = (inputEl.value || '').trim();
       if (!text) return;
+      unlockAudio(); // still inside the click/keydown gesture
       inputEl.value = '';
       send(text);
     }
