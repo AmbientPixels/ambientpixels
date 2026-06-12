@@ -23,8 +23,10 @@ light awareness context, not in operational company data.
 
 ## Architecture & data flow
 
-1. **Open** `lab/nova-voice.html` → page fetches `/data/nova-synth-mood.json` → orb tints
-   to `auraColorHex`, mood name displayed, mood object held for the session.
+1. **Open** `lab/nova-voice.html` → page generates a session mood via
+   `POST /api/novachat` with `mode: 'mood'` (the same call NovaSoul uses; there is no
+   static mood JSON file) → orb tints to `auraColorHex`, mood name displayed, mood object
+   held for the session. Hardcoded default mood if generation fails.
 2. **Listen:** user holds the orb → browser `SpeechRecognition`
    (`webkitSpeechRecognition`) starts → on release/final result, transcript captured.
 3. **Think:** transcript + running conversation history → existing
