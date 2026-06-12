@@ -1,8 +1,28 @@
 # Nova Voice — Lab Experimental (Design Spec)
 
 **Date:** 2026-06-10
-**Status:** Approved design, pre-implementation
+**Status:** Approved design — REVISED during implementation (2026-06-11, see Revisions)
 **Type:** Lab experimental (`/lab/nova-voice.html`)
+
+## Revisions (2026-06-11, CEO-directed mid-implementation)
+
+1. **Brain swapped: `novachat` → `agentchat`.** The CEO clarified this is **AmbientOS
+   Nova** (Prime Operator, Tier 2 agent) — not the old public-site Nova persona.
+   Client now calls `POST /api/agentchat` with `{ agentId:'nova', message, history:
+   [{role:'user'|'agent', text}], mode:'voice' }` → `{ reply }`. The custom `'voice'`
+   mode keeps the channel READ-ONLY: agentchat only enables action execution for modes
+   `'chat'`/`'task'`. Nova answers grounded in live company context + intel digests.
+2. **Mood system dropped.** Synth moods belong to old Nova; AmbientOS Nova has none.
+   No mood fetch; the TTS function's `pickStyle` defaults to `friendly` when no mood is
+   sent (module kept — harmless, future-proof). Orb aura is statically Nova's product
+   color (`--pc-nova`). The status line shows real service telemetry instead of a mood.
+3. **Voice channel shaping.** Operational Nova writes structured bullets; the client
+   prefixes each message with a voice-channel instruction (conversational, <80 words,
+   no markdown) and strips residual markdown before display/TTS.
+4. **Restyled to the AmbientPixels DS (Monolith).** Old lab template replaced with
+   `ap-nav`/`ap-sec`/`ap-foot` shell, Archivo + JetBrains Mono, rules-not-cards
+   transcript, quiet ambient-pixel orb (breathing center dot, ripple ring on speak),
+   bottom-border input, `ap-btn--primary` send.
 
 ## Summary
 

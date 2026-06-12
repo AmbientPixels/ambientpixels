@@ -1,5 +1,7 @@
 // File: /js/nova-voice.js
-// Nova Voice lab experimental — push-to-talk persona chat.
+// Nova Voice lab experimental — push-to-talk chat with AmbientOS Nova (Prime Operator).
+// Brain: POST /api/agentchat { agentId:'nova', mode:'voice' } — read-only (actions only
+// enable for modes 'chat'/'task'), grounded in live company context + intel digests.
 // Orb states: idle -> listening -> thinking -> speaking -> idle
 // Spec: docs/superpowers/specs/2026-06-10-nova-voice-design.md
 
@@ -13,17 +15,12 @@
   var MAX_TTS_CHARS = 600;   // mirror of server cap
   var MAX_HISTORY_TURNS = 12;
 
-  var DEFAULT_MOOD = {
-    mood: 'calm',
-    auraColorHex: '#c792ea', // Nova's product color (--pc-nova)
-    emoji: '🌙',
-    selfWorth: 0.7, glitchFactor: 0.1, memoryClutter: 0.3,
-    awareness: 0.6, isStable: true, intensity: 0.5
-  };
+  // Spoken-channel instruction — operational Nova defaults to structured bullets,
+  // which read badly aloud. Prefixed to every message; not shown in the transcript.
+  var VOICE_PREFIX = '[VOICE CHANNEL — you are speaking aloud. Reply conversationally in under 80 words. No bullets, no markdown, no headings.] ';
 
-  var stage, orb, moodEl, hintEl, logEl, fallbackEl, inputEl, sendBtn;
-  var sessionMood = DEFAULT_MOOD;
-  var history = [];          // [{role:'user'|'nova', text}]
+  var orb, moodEl, hintEl, logEl, fallbackEl, inputEl, sendBtn;
+  var history = [];          // [{role:'user'|'agent', text}] — agentchat contract
   var state = 'idle';
   var recognition = null;
   var currentAudio = null;
@@ -42,35 +39,30 @@
     logEl.scrollTop = logEl.scrollHeight;
   }
 
-  // --- Mood (session-scoped, generated once via novachat mood mode) ---
-  function timeLabel() {
-    var h = new Date().getHours();
-    if (h >= 5 && h < 12) return 'morning';
-    if (h >= 12 && h < 17) return 'afternoon';
-    if (h >= 17 && h < 21) return 'evening';
-    return 'late night';
+  // Strip markdown artifacts before speaking/printing — Nova's replies may
+  // carry **bold**, `code`, or list markers despite the voice instruction.
+  function toSpeech(text) {
+    return text
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/[*_`#>]/g, '')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/^\s*[-•]\s*/gm, '')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
-  function applyMood(mood) {
-    sessionMood = mood;
-    if (/^#[0-9a-fA-F]{6}$/.test(mood.auraColorHex || '')) {
-      stage.style.setProperty('--nova-voice-aura', mood.auraColorHex);
-    }
-    moodEl.textContent = (mood.emoji ? mood.emoji + ' ' : '') + (mood.mood || 'calm');
-  }
-
-  function fetchMood() {
-    return fetch(API_BASE + '/novachat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        mode: 'mood',
-        message: 'Time: ' + timeLabel() + '. A visitor just opened the Nova Voice lab to speak with Nova.'
-      })
-    })
+  // --- Status line (real telemetry, not decoration) ---
+  function fetchStatus() {
+    return fetch(API_BASE + '/agentchat', { method: 'GET' })
       .then(function (res) { return res.json(); })
-      .then(function (data) { applyMood(data && data.mood ? data.mood : DEFAULT_MOOD); })
-      .catch(function () { applyMood(DEFAULT_MOOD); });
+      .then(function (data) {
+        moodEl.textContent = (data && data.status === 'ok')
+          ? 'Nova — Prime Operator · online'
+          : 'Nova — signal weak';
+      })
+      .catch(function () {
+        moodEl.textContent = 'Nova — offline';
+      });
   }
 
   // --- Conversation round-trip ---
@@ -79,25 +71,26 @@
     addLog('user', text);
     setState('thinking');
 
-    fetch(API_BASE + '/novachat', {
+    fetch(API_BASE + '/agentchat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: text,
+        agentId: 'nova',
+        message: VOICE_PREFIX + text,
         history: history.slice(-MAX_HISTORY_TURNS),
-        voiceMode: 'friendly'
+        mode: 'voice'
       })
     })
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        var reply = (data && data.reply) ? data.reply.trim() : 'Nova encountered a glitch in the signal...';
+        var reply = (data && data.reply) ? toSpeech(data.reply) : 'I hit a glitch in the signal. Try me again.';
         history.push({ role: 'user', text: text });
-        history.push({ role: 'nova', text: reply });
+        history.push({ role: 'agent', text: reply });
         addLog('nova', reply);
         return speak(reply);
       })
       .catch(function () {
-        addLog('nova', 'Nova could not connect. The signal fades...');
+        addLog('nova', 'I could not reach the operations layer. The signal fades...');
         setState('idle');
       });
   }
@@ -108,7 +101,7 @@
     return fetch(API_BASE + '/nova-voice-tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: clipped, mood: sessionMood })
+      body: JSON.stringify({ text: clipped })
     })
       .then(function (res) {
         if (!res.ok) throw new Error('tts ' + res.status);
@@ -204,9 +197,8 @@
     inputEl = document.getElementById('nova-voice-input');
     sendBtn = document.getElementById('nova-voice-send');
     if (!orb) return;
-    stage = orb.closest('.nova-voice-stage') || orb.parentElement;
 
-    fetchMood();
+    fetchStatus();
 
     if (setupRecognition()) {
       orb.addEventListener('pointerdown', function (e) { e.preventDefault(); startListening(); });
