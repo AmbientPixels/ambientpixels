@@ -443,6 +443,7 @@
         var _needsSave = false;
         objectives.forEach(function (o) {
           if (o.status === 'canceled') return;
+          if (o.criteria && typeof o.criteria === 'object') return; // SE-2: server owns measurable objectives
           var p = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(o.id) : null;
           if (!p || p.campaigns === 0) return;
           // Sync progress percentage
@@ -509,7 +510,9 @@
           '</tr></thead><tbody>';
           visible.forEach(function (obj) {
             var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
-            var pct = progress ? progress.pct : 0;
+            var pct = (obj.criteria && typeof obj.criteria === 'object')
+              ? (typeof obj.progress === 'number' ? obj.progress : 0)
+              : (progress ? progress.pct : 0);
             var autoHealth = progress ? progress.health : 'neutral';
             var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#64748b';
             var sColor = statusColors[obj.status] || '#60a5fa';
@@ -567,7 +570,9 @@
 
         // Auto-calculated progress from linked campaigns
         var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
-        var pct = progress ? progress.pct : 0;
+        var pct = (obj.criteria && typeof obj.criteria === 'object')
+          ? (typeof obj.progress === 'number' ? obj.progress : 0)
+          : (progress ? progress.pct : 0);
         var donePct = progress ? progress.donePct : 0;
         var autoSignal = progress ? progress.signal : 'no_campaigns';
         var autoHealth = progress ? progress.health : 'neutral';
