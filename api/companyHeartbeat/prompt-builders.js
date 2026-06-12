@@ -162,6 +162,7 @@ const { _buildStrategicPromptBlock } = require('./strategic-intel');
 const { _buildResearchDemandPromptBlock } = require('./research-intel');
 const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
 const { _buildReflectionPromptBlock } = require('./reflection-intel');
+const { _buildStrategyPromptBlock } = require('./strategy-intel');
 const { _buildWorldStatePromptBlock } = require('./world-state-intel');
 
 // ── Prompt Coverage Guard ──
@@ -241,7 +242,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1373,6 +1374,16 @@ You must remain within your assigned authority tier. Doctrine influences your st
     worldStateBlock = '\n═══ WORLD STATE — build error, see logs ═══\n';
   }
 
+  // Strategic Engine SE-1: COMPANY STRATEGY block — CEO's north-star KPI tree.
+  // Sits directly under WORLD STATE (facts), giving agents direction. Empty
+  // string when companyStrategy is unseeded; never blocks prompt assembly.
+  let companyStrategyBlock = '';
+  try {
+    companyStrategyBlock = _buildStrategyPromptBlock(strategyDigest) || '';
+  } catch (_csErr) {
+    companyStrategyBlock = '';
+  }
+
   // Type-diversity hint — live state shows agents tend to pick ONE memory type and never vary
   // (Cipher 100% verified_fact, Pixel 100% learning, Quill 100% feedback). The L4 type system has
   // 8+ types for a reason. This is a soft hint, not a block — agents can ignore it if today's work
@@ -1653,7 +1664,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   const _assembledPrompt = `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${worldStateBlock}${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${worldStateBlock}${companyStrategyBlock}${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
@@ -1989,9 +2000,9 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)
   - STRATEGIC AUTHORITY:
     You can propose objectives and campaigns to the CEO for approval:
-    - propose-objective: { "type": "propose-objective", "objective": { "title": "...", "description": "...", "rationale": "...", "successCriteria": "...", "timeHorizon": "..." } }
-    - propose-campaign: { "type": "propose-campaign", "campaign": { "name": "...", "description": "...", "rationale": "...", "platforms": [...], "frequency": N, "cadence": "weekly" } }
-    ALL fields are required. Rationale must cite specific agent data (Echo analytics, Cipher ROI, Scout research, Forge alerts).
+    - propose-objective: { "type": "propose-objective", "objective": { "title": "...", "description": "...", "rationale": "...", "successCriteria": "...", "timeHorizon": "...", "northStarMetric": "..." } }
+    - propose-campaign: { "type": "propose-campaign", "campaign": { "name": "...", "description": "...", "rationale": "...", "platforms": [...], "frequency": N, "cadence": "weekly", "northStarMetric": "..." } }
+    ALL fields are required. Rationale must cite specific agent data (Echo analytics, Cipher ROI, Scout research, Forge alerts) AND "northStarMetric" must name the COMPANY STRATEGY north star this serves (exact metric name). Proposals serving no north star get flagged for CEO scrutiny.
     Max 1 objective proposal + 1 campaign proposal per day. CEO approves → auto-created. CEO rejects → feedback stored.
   - LIFECYCLE MANAGEMENT:
     You can manage campaign and objective lifecycle:
