@@ -155,8 +155,21 @@
   margin-top: var(--sp-6);
   background: var(--color-teal-surface);
   padding: var(--sp-5) var(--sp-8);
+  /* Thin teal-toned scrollbar — the native bar reads clunky against the panel */
+  scrollbar-width: thin;                                   /* Firefox */
+  scrollbar-color: var(--color-teal-secondary) transparent;
 }
 .nova-voice-log:empty { display: none; }
+
+/* WebKit/Blink scrollbar — match the teal panel instead of the OS default */
+.nova-voice-log::-webkit-scrollbar { width: 6px; }
+.nova-voice-log::-webkit-scrollbar-track { background: transparent; }
+.nova-voice-log::-webkit-scrollbar-thumb {
+  background: var(--color-teal-secondary);
+  border-radius: var(--r-pill);
+  opacity: .6;
+}
+.nova-voice-log::-webkit-scrollbar-thumb:hover { background: var(--color-teal-primary); }
 
 .nova-voice-log-entry {
   padding: var(--sp-4) 0;
