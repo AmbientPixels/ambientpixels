@@ -29,7 +29,8 @@ const VALID_KEYS = [
   'outcomeSnapshots', 'agentDecisions',
   'capitalAllocation',
   'agentRegistry',
-  'emergenceDigest'
+  'emergenceDigest',
+  'companyStrategy'
 ];
 
 module.exports = async function (context, req) {
