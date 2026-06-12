@@ -1,7 +1,8 @@
 // File: /js/nova-voice.js
-// Nova Voice lab experimental — push-to-talk chat with AmbientOS Nova (Prime Operator).
-// Brain: POST /api/agentchat { agentId:'nova', mode:'voice' } — read-only (actions only
-// enable for modes 'chat'/'task'), grounded in live company context + intel digests.
+// Nova Voice lab experimental — push-to-talk chat with the AmbientOS crew.
+// Brain: POST /api/agentchat { agentId, mode:'chat' } — actions enabled with a
+// prompt-gated confirm-before-execute rule; campaigns/objectives stay CEO-approval
+// proposals server-side. Each agent speaks with its own whitelisted Azure voice.
 // Orb states: idle -> listening -> thinking -> speaking -> idle
 // Spec: docs/superpowers/specs/2026-06-10-nova-voice-design.md
 
@@ -15,27 +16,62 @@
   var MAX_TTS_CHARS = 600;   // mirror of server cap
   var MAX_HISTORY_TURNS = 12;
 
-  // Spoken-channel instruction — operational Nova defaults to structured bullets,
-  // which read badly aloud. Prefixed to every message; not shown in the transcript.
+  // Voice names must match the server whitelist in api/nova-voice-tts/ssml.js
+  var AGENTS = {
+    nova:   { label: 'Nova',   role: 'Prime Operator', voice: 'en-US-AriaNeural' },
+    cipher: { label: 'Cipher', role: 'CFO',            voice: 'en-US-DavisNeural' },
+    echo:   { label: 'Echo',   role: 'Marketing',      voice: 'en-US-JaneNeural' },
+    forge:  { label: 'Forge',  role: 'DevOps',         voice: 'en-US-GuyNeural' },
+    pixel:  { label: 'Pixel',  role: 'Design & QC',    voice: 'en-US-JennyNeural' },
+    scout:  { label: 'Scout',  role: 'Research',       voice: 'en-US-JasonNeural' },
+    scribe: { label: 'Scribe', role: 'Content',        voice: 'en-US-NancyNeural' },
+    quill:  { label: 'Quill',  role: 'Editor',         voice: 'en-US-TonyNeural' }
+  };
+  var currentAgentId = 'nova';
+
+  // Spoken-channel instruction — agents default to structured bullets, which read
+  // badly aloud. Prefixed to every message; not shown in the transcript.
   // The ACTION RULE is the confirm-before-execute gate: actions execute server-side
-  // the moment Nova emits them, so she must hold them until a spoken/typed yes.
+  // the moment the agent emits them, so it must hold them until a spoken/typed yes.
   var VOICE_PREFIX = '[VOICE CHANNEL — you are speaking aloud. Reply conversationally in under 80 words. No bullets, no markdown, no headings. ACTION RULE: if the user asks you to create or change anything (tasks, campaigns, objectives, docs), do NOT emit the action yet — first say exactly what you will do and ask them to confirm. Emit the action only after the user explicitly confirms in a follow-up message.] ';
 
-  var orb, moodEl, hintEl, logEl, fallbackEl, inputEl, sendBtn;
+  // Dead-air cover — short clips in the agent's voice while the round trip runs.
+  // Cached per phrase+voice so repeats cost nothing.
+  var FILLERS = ['One moment.', 'Checking.', 'On it.', 'Let me look at that.'];
+  var fillerIdx = 0;
+  var fillerCache = {};
+
+  var orb, moodEl, hintEl, logEl, fallbackEl, inputEl, sendBtn, agentsEl;
   var history = [];          // [{role:'user'|'agent', text}] — agentchat contract
   var state = 'idle';
   var recognition = null;
-  var currentAudio = null;
+  var currentAudio = null;   // element-fallback playback
+  var currentSource = null;  // Web Audio playback (speech or filler)
   var pendingTranscript = '';
+  var serviceOnline = false;
+  var greetingText = null;
+  var greetingSpoken = false;
+
+  var HINT_DEFAULT = 'Hold the orb and speak. Release to send.';
 
   function setState(next) {
     state = next;
     if (orb) orb.setAttribute('data-state', next);
+    if (recognition && hintEl) {
+      if (next === 'speaking') hintEl.textContent = 'Tap the orb to interrupt.';
+      else if (next === 'thinking') hintEl.textContent = 'Thinking…';
+      else if (next === 'idle') hintEl.textContent = HINT_DEFAULT;
+    }
   }
 
-  function addLog(role, text) {
+  function speakerLabel() {
+    return AGENTS[currentAgentId].label;
+  }
+
+  function addLog(role, text, speaker) {
     var div = document.createElement('div');
     div.className = 'nova-voice-log-entry nova-voice-log-entry--' + role;
+    if (role === 'nova') div.setAttribute('data-speaker', (speaker || speakerLabel()) + ' —');
     div.textContent = text;
     logEl.appendChild(div);
     logEl.scrollTop = logEl.scrollHeight;
@@ -51,8 +87,8 @@
     logEl.scrollTop = logEl.scrollHeight;
   }
 
-  // Strip markdown artifacts before speaking/printing — Nova's replies may
-  // carry **bold**, `code`, or list markers despite the voice instruction.
+  // Strip markdown artifacts before speaking/printing — replies may carry
+  // **bold**, `code`, or list markers despite the voice instruction.
   function toSpeech(text) {
     return text
       .replace(/```[\s\S]*?```/g, ' ')
@@ -71,68 +107,30 @@
     badge.className = 'ap-status ' + (awake ? 'ap-status--live' : 'ap-status--archive');
   }
 
+  function statusLine() {
+    var a = AGENTS[currentAgentId];
+    moodEl.textContent = a.label + ' — ' + a.role + (serviceOnline ? ' · online' : ' · offline');
+  }
+
   function fetchStatus() {
     return fetch(API_BASE + '/agentchat', { method: 'GET' })
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        var ok = data && data.status === 'ok';
-        moodEl.textContent = ok ? 'Nova — Prime Operator · online' : 'Nova — signal weak';
-        setBadge(ok);
+        serviceOnline = !!(data && data.status === 'ok');
+        statusLine();
+        setBadge(serviceOnline);
       })
       .catch(function () {
-        moodEl.textContent = 'Nova — offline';
+        serviceOnline = false;
+        statusLine();
         setBadge(false);
       });
   }
 
-  // --- Conversation round-trip ---
-  function send(text) {
-    // Only from idle — blocks typed sends mid-listen (which would orphan the
-    // mic session) and double-sends while thinking/speaking.
-    if (!text || state !== 'idle') return;
-    addLog('user', text);
-    setState('thinking');
-
-    fetch(API_BASE + '/agentchat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        agentId: 'nova',
-        message: VOICE_PREFIX + text,
-        history: history.slice(-MAX_HISTORY_TURNS),
-        // 'chat' enables agentchat actions (create-task, propose-campaign, ...).
-        // Campaigns/objectives still land in the CEO approval queue server-side;
-        // the VOICE_PREFIX action rule adds the spoken confirm gate.
-        mode: 'chat'
-      })
-    })
-      .then(function (res) { return res.json(); })
-      .then(function (data) {
-        var reply = (data && data.reply) ? toSpeech(data.reply) : null;
-        if (reply) {
-          // Only real exchanges enter model history — error lines would pollute context
-          history.push({ role: 'user', text: text });
-          history.push({ role: 'agent', text: reply });
-          if (history.length > 40) history = history.slice(-MAX_HISTORY_TURNS);
-        }
-        var shown = reply || 'I hit a glitch in the signal. Try me again.';
-        addLog('nova', shown);
-        if (data && Array.isArray(data.actions)) {
-          data.actions.forEach(addActionCard);
-        }
-        return speak(shown);
-      })
-      .catch(function () {
-        addLog('nova', 'I could not reach the operations layer. The signal fades...');
-        setState('idle');
-      });
-  }
-
-  // --- TTS playback ---
-  // Web Audio, not an <audio> element: Chrome's transient user activation expires
-  // during the multi-second agentchat+TTS round trip, so a late audio.play() gets
-  // rejected as autoplay. An AudioContext unlocked during the press gesture keeps
-  // playing regardless of how long the round trip takes.
+  // --- Audio: Web Audio, not an <audio> element ---
+  // Chrome's transient user activation expires during the multi-second round trip,
+  // so a late audio.play() gets rejected as autoplay. An AudioContext unlocked
+  // during the press gesture keeps playing regardless of round-trip length.
   var audioCtx = null;
 
   function unlockAudio() {
@@ -141,6 +139,19 @@
     if (!audioCtx) audioCtx = new AC();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
+  }
+
+  // Barge-in: kill whatever is playing (speech or filler) immediately
+  function stopSpeaking() {
+    if (currentSource) {
+      try { currentSource.onended = null; currentSource.stop(); } catch (e) { /* already stopped */ }
+      currentSource = null;
+    }
+    if (currentAudio) {
+      try { currentAudio.onended = currentAudio.onerror = null; currentAudio.pause(); } catch (e) { /* noop */ }
+      currentAudio = null;
+    }
+    if (state === 'speaking') setState('idle');
   }
 
   function playViaElement(buf, resolve) {
@@ -162,41 +173,151 @@
     });
   }
 
-  function speak(text) {
-    var clipped = text.length > MAX_TTS_CHARS ? text.slice(0, MAX_TTS_CHARS - 1) + '…' : text;
+  // isSpeech=true drives the orb state machine; fillers play under 'thinking'
+  function playBuffer(buf, isSpeech) {
+    return new Promise(function (resolve) {
+      var ctx = unlockAudio();
+      if (!ctx) {
+        if (isSpeech) playViaElement(buf, resolve); else resolve();
+        return;
+      }
+      // slice(): decodeAudioData detaches the buffer; keep the original for fallback/cache
+      ctx.decodeAudioData(buf.slice(0), function (decoded) {
+        var src = ctx.createBufferSource();
+        src.buffer = decoded;
+        src.connect(ctx.destination);
+        currentSource = src;
+        if (isSpeech) setState('speaking');
+        src.onended = function () {
+          if (currentSource === src) currentSource = null;
+          if (isSpeech) setState('idle');
+          resolve();
+        };
+        src.start(0);
+      }, function () {
+        if (isSpeech) playViaElement(buf, resolve); else resolve();
+      });
+    });
+  }
+
+  function fetchTts(text, voice) {
     return fetch(API_BASE + '/nova-voice-tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: clipped })
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error('tts ' + res.status);
-        return res.arrayBuffer();
-      })
+      body: JSON.stringify({ text: text, voice: voice })
+    }).then(function (res) {
+      if (!res.ok) throw new Error('tts ' + res.status);
+      return res.arrayBuffer();
+    });
+  }
+
+  function speak(text, voice) {
+    var clipped = text.length > MAX_TTS_CHARS ? text.slice(0, MAX_TTS_CHARS - 1) + '…' : text;
+    return fetchTts(clipped, voice)
       .then(function (buf) {
-        return new Promise(function (resolve) {
-          var ctx = unlockAudio();
-          if (!ctx) { playViaElement(buf, resolve); return; }
-          // slice(): decodeAudioData detaches the buffer; keep the original for fallback
-          ctx.decodeAudioData(buf.slice(0), function (decoded) {
-            var src = ctx.createBufferSource();
-            src.buffer = decoded;
-            src.connect(ctx.destination);
-            setState('speaking');
-            src.onended = function () {
-              setState('idle');
-              resolve();
-            };
-            src.start(0);
-          }, function () {
-            playViaElement(buf, resolve);
-          });
-        });
+        stopSpeaking(); // cut a still-playing filler before the real reply
+        return playBuffer(buf, true);
       })
       .catch(function () {
         addLog('note', 'voice signal lost — text only');
         setState('idle');
       });
+  }
+
+  // Cover the round-trip silence with a short clip in the agent's voice.
+  // Only plays if we're still thinking when the clip is ready.
+  function playFiller(voice) {
+    var phrase = FILLERS[fillerIdx++ % FILLERS.length];
+    var key = voice + '|' + phrase;
+    if (fillerCache[key]) {
+      if (state === 'thinking') playBuffer(fillerCache[key], false);
+      return;
+    }
+    fetchTts(phrase, voice)
+      .then(function (buf) {
+        fillerCache[key] = buf;
+        if (state === 'thinking') playBuffer(buf, false);
+      })
+      .catch(function () { /* fillers are best-effort */ });
+  }
+
+  // --- Conversation round-trip ---
+  function send(text) {
+    // Only from idle — blocks typed sends mid-listen (which would orphan the
+    // mic session) and double-sends while thinking/speaking.
+    if (!text || state !== 'idle') return;
+    var agent = AGENTS[currentAgentId]; // snapshot — user may switch mid-flight
+    var agentId = currentAgentId;
+    addLog('user', text);
+    setState('thinking');
+    playFiller(agent.voice);
+
+    fetch(API_BASE + '/agentchat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: agentId,
+        message: VOICE_PREFIX + text,
+        history: history.slice(-MAX_HISTORY_TURNS),
+        // 'chat' enables agentchat actions (create-task, propose-campaign, ...).
+        // Campaigns/objectives still land in the CEO approval queue server-side;
+        // the VOICE_PREFIX action rule adds the spoken confirm gate.
+        mode: 'chat'
+      })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var reply = (data && data.reply) ? toSpeech(data.reply) : null;
+        if (reply) {
+          // Only real exchanges enter model history — error lines would pollute context
+          history.push({ role: 'user', text: text });
+          history.push({ role: 'agent', text: reply });
+          if (history.length > 40) history = history.slice(-MAX_HISTORY_TURNS);
+        }
+        var shown = reply || 'I hit a glitch in the signal. Try me again.';
+        addLog('nova', shown, agent.label);
+        if (data && Array.isArray(data.actions)) {
+          data.actions.forEach(addActionCard);
+        }
+        return speak(shown, agent.voice);
+      })
+      .catch(function () {
+        addLog('nova', 'I could not reach the operations layer. The signal fades...', agent.label);
+        setState('idle');
+      });
+  }
+
+  // --- Proactive greeting ---
+  // Fetched at load (read-only mode), shown as the first transcript entry, and
+  // spoken on the first neutral gesture — never over the user's own first words.
+  function fetchGreeting() {
+    fetch(API_BASE + '/agentchat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agentId: 'nova',
+        mode: 'voice', // read-only — greetings must never act
+        message: VOICE_PREFIX + 'Open a voice session with a one-or-two sentence spoken greeting: time-appropriate salutation, system health in a phrase, and anything urgent or waiting on the CEO. Under 40 words.'
+      })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || !data.reply || history.length > 0) return;
+        greetingText = toSpeech(data.reply);
+        addLog('nova', greetingText, 'Nova');
+        history.push({ role: 'agent', text: greetingText });
+      })
+      .catch(function () { /* greeting is best-effort */ });
+  }
+
+  function maybeSpeakGreeting(e) {
+    if (greetingSpoken || !greetingText || state !== 'idle') return;
+    // The orb / input / send are conversation starts — don't talk over them
+    var t = e.target;
+    if (orb.contains(t) || fallbackEl.contains(t)) return;
+    greetingSpoken = true;
+    unlockAudio();
+    speak(greetingText, AGENTS.nova.voice);
   }
 
   // --- Speech recognition (push-to-talk) ---
@@ -243,7 +364,7 @@
     if (!recognition || state !== 'listening' || stopping) return;
     stopping = true;
     recognition.stop();
-    hintEl.textContent = 'Hold the orb and speak. Release to send.';
+    hintEl.textContent = HINT_DEFAULT;
     // onresult fires before stop completes; give it a beat
     setTimeout(function () {
       stopping = false;
@@ -259,6 +380,17 @@
     if (reason) hintEl.textContent = reason;
   }
 
+  // --- Agent switching ---
+  function selectAgent(id) {
+    if (!AGENTS[id] || id === currentAgentId) return;
+    currentAgentId = id;
+    statusLine();
+    var btns = agentsEl.querySelectorAll('.nova-voice-agent');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('nova-voice-agent--active', btns[i].getAttribute('data-agent') === id);
+    }
+  }
+
   // --- Init ---
   function init() {
     orb = document.getElementById('nova-voice-orb');
@@ -268,22 +400,42 @@
     fallbackEl = document.getElementById('nova-voice-fallback');
     inputEl = document.getElementById('nova-voice-input');
     sendBtn = document.getElementById('nova-voice-send');
+    agentsEl = document.getElementById('nova-voice-agents');
     if (!orb) return;
 
     fetchStatus();
+    fetchGreeting();
+    document.addEventListener('pointerdown', maybeSpeakGreeting);
+
+    if (agentsEl) {
+      agentsEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('.nova-voice-agent');
+        if (btn) selectAgent(btn.getAttribute('data-agent'));
+      });
+    }
 
     if (setupRecognition()) {
-      orb.addEventListener('pointerdown', function (e) { e.preventDefault(); unlockAudio(); startListening(); });
+      orb.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        unlockAudio();
+        if (state === 'speaking') stopSpeaking(); // barge-in
+        startListening();
+      });
       orb.addEventListener('pointerup', stopListening);
       orb.addEventListener('pointerleave', stopListening);
       orb.addEventListener('keydown', function (e) {
-        if (e.code === 'Space' && state === 'idle') { e.preventDefault(); unlockAudio(); startListening(); }
+        if (e.code === 'Space' && (state === 'idle' || state === 'speaking')) {
+          e.preventDefault();
+          unlockAudio();
+          if (state === 'speaking') stopSpeaking();
+          startListening();
+        }
       });
       orb.addEventListener('keyup', function (e) {
         if (e.code === 'Space') { e.preventDefault(); stopListening(); }
       });
     } else {
-      showFallback('Voice input not supported in this browser — type instead. Nova still answers aloud.');
+      showFallback('Voice input not supported in this browser — type instead. The crew still answers aloud.');
       orb.classList.add('nova-voice-orb--disabled');
     }
 
@@ -292,6 +444,7 @@
       var text = (inputEl.value || '').trim();
       if (!text) return;
       unlockAudio(); // still inside the click/keydown gesture
+      if (state === 'speaking') stopSpeaking(); // typed barge-in
       inputEl.value = '';
       send(text);
     }

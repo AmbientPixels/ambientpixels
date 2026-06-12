@@ -1,8 +1,22 @@
 // File: api/nova-voice-tts/ssml.js
 // Maps Nova's mood numerics to an Azure Neural TTS expressive style and builds SSML.
-// Voice pinned to en-US-AriaNeural (supports whispering/sad/cheerful/friendly).
+// Default voice en-US-AriaNeural (supports whispering/sad/cheerful/friendly).
+// Other AmbientOS agents use whitelisted alternates; express-as styles are
+// Aria-tuned, so non-Aria voices speak with plain prosody only.
 
 const VOICE = 'en-US-AriaNeural';
+
+// One voice per AmbientOS agent — anything not on this list falls back to Aria
+const ALLOWED_VOICES = [
+  'en-US-AriaNeural',   // nova
+  'en-US-DavisNeural',  // cipher
+  'en-US-GuyNeural',    // forge
+  'en-US-JaneNeural',   // echo
+  'en-US-JennyNeural',  // pixel
+  'en-US-JasonNeural',  // scout
+  'en-US-NancyNeural',  // scribe
+  'en-US-TonyNeural'    // quill
+];
 
 // First match wins — order matters (spec: mood -> voice mapping table)
 function pickStyle(mood) {
@@ -30,17 +44,17 @@ function escapeXml(text) {
     .replace(/'/g, '&apos;');
 }
 
-function buildSsml(text, mood) {
+function buildSsml(text, mood, voice) {
+  const v = ALLOWED_VOICES.includes(voice) ? voice : VOICE;
   const { style, rate, pitch } = pickStyle(mood);
+  const prosody = `<prosody rate="${rate}" pitch="${pitch}">${escapeXml(text)}</prosody>`;
   return [
     '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="en-US">',
-    `<voice name="${VOICE}">`,
-    `<mstts:express-as style="${style}">`,
-    `<prosody rate="${rate}" pitch="${pitch}">${escapeXml(text)}</prosody>`,
-    '</mstts:express-as>',
+    `<voice name="${v}">`,
+    v === VOICE ? `<mstts:express-as style="${style}">${prosody}</mstts:express-as>` : prosody,
     '</voice>',
     '</speak>'
   ].join('');
 }
 
-module.exports = { pickStyle, buildSsml, VOICE };
+module.exports = { pickStyle, buildSsml, VOICE, ALLOWED_VOICES };

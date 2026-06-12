@@ -60,4 +60,17 @@ assert.ok(ssml.includes('pitch="+0%"'), 'prosody pitch applied');
 assert.ok(ssml.includes('Hello &lt;world&gt; &amp; &quot;friends&quot;'), 'XML escaped');
 assert.ok(!ssml.includes('<world>'), 'no raw angle brackets from input');
 
+// --- voice parameter: whitelist + Aria-only express-as ---
+const forgeSsml = buildSsml('Deploy complete.', null, 'en-US-GuyNeural');
+assert.ok(forgeSsml.includes('en-US-GuyNeural'), 'whitelisted voice honored');
+assert.ok(!forgeSsml.includes('express-as'), 'non-Aria voices skip express-as (styles are Aria-tuned)');
+assert.ok(forgeSsml.includes('<prosody'), 'non-Aria voices keep prosody');
+
+const evilSsml = buildSsml('hi', null, 'en-US-Hacker"><script>');
+assert.ok(evilSsml.includes('en-US-AriaNeural'), 'non-whitelisted voice falls back to Aria');
+assert.ok(!evilSsml.includes('Hacker'), 'unsanctioned voice string never reaches SSML');
+
+const ariaDefault = buildSsml('hi', null, undefined);
+assert.ok(ariaDefault.includes('en-US-AriaNeural') && ariaDefault.includes('express-as'), 'omitted voice keeps Aria + styles');
+
 console.log('ssml.test.js: all assertions passed');

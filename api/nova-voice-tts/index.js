@@ -39,7 +39,7 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const ssml = buildSsml(text, body.mood);
+  const ssml = buildSsml(text, body.mood, body.voice);
 
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), 10000);

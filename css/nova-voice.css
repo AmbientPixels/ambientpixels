@@ -14,6 +14,40 @@
   margin-top: var(--sp-10);
 }
 
+/* Agent switcher — quiet mono row; active agent carries a 1px underline */
+.nova-voice-agents {
+  display: flex;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: var(--sp-4);
+}
+
+.nova-voice-agent {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid transparent;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.nova-voice-agent:hover,
+.nova-voice-agent:focus-visible {
+  color: var(--color-text-secondary);
+  outline: none;
+}
+
+.nova-voice-agent--active {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-text-primary);
+}
+
 /* Orb — a large ambient pixel. Quiet ring, breathing mood-colored center. */
 .nova-voice-orb {
   width: 140px;
@@ -145,7 +179,7 @@
   margin-bottom: var(--sp-2);
 }
 .nova-voice-log-entry--user::before { content: 'You —'; }
-.nova-voice-log-entry--nova::before { content: 'Nova —'; }
+.nova-voice-log-entry--nova::before { content: attr(data-speaker); }
 
 .nova-voice-log-entry--user {
   color: var(--color-teal-secondary);

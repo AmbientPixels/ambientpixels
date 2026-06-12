@@ -58,7 +58,17 @@
       </div>
 
       <div class="nova-voice-stage">
-        <div class="nova-voice-orb" id="nova-voice-orb" data-state="idle" role="button" tabindex="0" aria-label="Hold to talk to Nova"></div>
+        <div class="nova-voice-agents" id="nova-voice-agents" aria-label="Choose an agent">
+          <button class="nova-voice-agent nova-voice-agent--active" data-agent="nova" type="button">Nova</button>
+          <button class="nova-voice-agent" data-agent="cipher" type="button">Cipher</button>
+          <button class="nova-voice-agent" data-agent="echo" type="button">Echo</button>
+          <button class="nova-voice-agent" data-agent="forge" type="button">Forge</button>
+          <button class="nova-voice-agent" data-agent="pixel" type="button">Pixel</button>
+          <button class="nova-voice-agent" data-agent="scout" type="button">Scout</button>
+          <button class="nova-voice-agent" data-agent="scribe" type="button">Scribe</button>
+          <button class="nova-voice-agent" data-agent="quill" type="button">Quill</button>
+        </div>
+        <div class="nova-voice-orb" id="nova-voice-orb" data-state="idle" role="button" tabindex="0" aria-label="Hold to talk to the selected agent"></div>
         <div class="nova-voice-mood" id="nova-voice-mood">tuning in&hellip;</div>
         <div class="nova-voice-hint" id="nova-voice-hint">Hold the orb and speak. Release to send.</div>
         <div class="nova-voice-fallback" id="nova-voice-fallback">
