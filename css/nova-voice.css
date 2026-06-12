@@ -162,6 +162,20 @@
 }
 .nova-voice-log-entry--note::before { content: none; }
 
+/* Executed-action receipts — mono telemetry; green = done, muted = blocked/failed */
+.nova-voice-log-entry--action {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-sm);
+  text-transform: uppercase;
+  color: var(--color-status-live-solid);
+}
+.nova-voice-log-entry--action::before { content: none; }
+
+.nova-voice-log-entry--action-failed {
+  color: var(--color-text-muted);
+}
+
 /* Type-to-talk fallback — bottom-border-only input per DS §5 forms */
 .nova-voice-fallback {
   display: none;

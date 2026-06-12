@@ -17,7 +17,9 @@
 
   // Spoken-channel instruction — operational Nova defaults to structured bullets,
   // which read badly aloud. Prefixed to every message; not shown in the transcript.
-  var VOICE_PREFIX = '[VOICE CHANNEL — you are speaking aloud. Reply conversationally in under 80 words. No bullets, no markdown, no headings.] ';
+  // The ACTION RULE is the confirm-before-execute gate: actions execute server-side
+  // the moment Nova emits them, so she must hold them until a spoken/typed yes.
+  var VOICE_PREFIX = '[VOICE CHANNEL — you are speaking aloud. Reply conversationally in under 80 words. No bullets, no markdown, no headings. ACTION RULE: if the user asks you to create or change anything (tasks, campaigns, objectives, docs), do NOT emit the action yet — first say exactly what you will do and ask them to confirm. Emit the action only after the user explicitly confirms in a follow-up message.] ';
 
   var orb, moodEl, hintEl, logEl, fallbackEl, inputEl, sendBtn;
   var history = [];          // [{role:'user'|'agent', text}] — agentchat contract
@@ -35,6 +37,16 @@
     var div = document.createElement('div');
     div.className = 'nova-voice-log-entry nova-voice-log-entry--' + role;
     div.textContent = text;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // Executed-action receipt — one mono line per action result from agentchat
+  function addActionCard(action) {
+    var div = document.createElement('div');
+    div.className = 'nova-voice-log-entry nova-voice-log-entry--action' +
+      (action.success ? '' : ' nova-voice-log-entry--action-failed');
+    div.textContent = (action.success ? '✓ ' : '✗ ') + (action.summary || action.type || 'action');
     logEl.appendChild(div);
     logEl.scrollTop = logEl.scrollHeight;
   }
@@ -88,7 +100,10 @@
         agentId: 'nova',
         message: VOICE_PREFIX + text,
         history: history.slice(-MAX_HISTORY_TURNS),
-        mode: 'voice'
+        // 'chat' enables agentchat actions (create-task, propose-campaign, ...).
+        // Campaigns/objectives still land in the CEO approval queue server-side;
+        // the VOICE_PREFIX action rule adds the spoken confirm gate.
+        mode: 'chat'
       })
     })
       .then(function (res) { return res.json(); })
@@ -102,6 +117,9 @@
         }
         var shown = reply || 'I hit a glitch in the signal. Try me again.';
         addLog('nova', shown);
+        if (data && Array.isArray(data.actions)) {
+          data.actions.forEach(addActionCard);
+        }
         return speak(shown);
       })
       .catch(function () {

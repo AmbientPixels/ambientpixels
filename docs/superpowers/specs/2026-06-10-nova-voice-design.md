@@ -19,7 +19,18 @@
 3. **Voice channel shaping.** Operational Nova writes structured bullets; the client
    prefixes each message with a voice-channel instruction (conversational, <80 words,
    no markdown) and strips residual markdown before display/TTS.
-4. **Restyled to the AmbientPixels DS (Monolith).** Old lab template replaced with
+4. **Voice actions enabled (2026-06-11, CEO-requested).** Client now sends
+   `mode:'chat'`, which enables agentchat action execution (create-task,
+   update/move/comment-task, create/update-doc, propose-campaign,
+   propose-objective, pause/resume campaigns). Safeguards: (a) campaigns and
+   objectives remain PROPOSALS routed to the CEO approval queue server-side —
+   voice cannot mint them directly; (b) `execution_mode` and campaign gates apply
+   unchanged; (c) the voice-channel instruction requires Nova to state the exact
+   action and get an explicit confirmation in a follow-up turn before emitting it
+   (prompt-gated, not server-enforced — the real boundary remains the server
+   gates); (d) executed actions render as mono receipt lines in the transcript
+   (`✓/✗ summary`).
+5. **Restyled to the AmbientPixels DS (Monolith).** Old lab template replaced with
    `ap-nav`/`ap-sec`/`ap-foot` shell, Archivo + JetBrains Mono, rules-not-cards
    transcript, quiet ambient-pixel orb (breathing center dot, ripple ring on speak),
    bottom-border input, `ap-btn--primary` send.
