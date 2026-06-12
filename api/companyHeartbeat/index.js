@@ -19,6 +19,7 @@ const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments
 const { buildOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
+const { buildStrategyDigest, evaluateObjectives } = require('./strategy-intel');
 const { buildAllocationDigest } = require('./allocation-intel');
 const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD, QG_HALLUCINATION_KEYWORDS } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
@@ -207,6 +208,8 @@ module.exports = async function (context) {
     try { _weeklySnapshots = (await storage.getState('socialWeeklySnapshots')) || []; } catch (_e) { /* non-fatal */ }
     let _blogPostViewsForDigest = [];
     try { _blogPostViewsForDigest = (await storage.getState('blogPostViews')) || []; } catch (_e) { /* non-fatal */ }
+    let companyStrategy = null;
+    try { companyStrategy = (await storage.getState('companyStrategy')) || null; } catch (_e) { /* non-fatal */ }
     const socialIntel = _socialIntelBuildDigest(
       runtimeMemory && runtimeMemory.socialIntel,
       socialMetricsEvents,
@@ -402,6 +405,22 @@ module.exports = async function (context) {
       context.log('[heartbeat] World state: runway=', worldState.company.runwayDays, 'stalled=', worldState.fleet.stalledCount, 'recentEvents=', worldState.recentEvents.length);
     } catch (_e) {
       context.log('[heartbeat] World state failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : '');
+    }
+
+    // ── Strategic Engine SE-1: COMPANY STRATEGY digest ──
+    // CEO-authored north-star KPI tree (companyStrategy key) resolved against
+    // live sources. Injected into every prompt directly under WORLD STATE.
+    // Null when unseeded — prompts simply lack the block (fail-open).
+    var strategyDigest = null;
+    try {
+      strategyDigest = buildStrategyDigest(companyStrategy, {
+        socialAccountStats: socialAccountStats,
+        blogPostViews: _blogPostViewsForDigest
+      }, Date.now());
+      if (strategyDigest) context.log('[heartbeat] Strategy digest:', strategyDigest.northStar.length, 'north stars, era=' + strategyDigest.era);
+      else context.log('[heartbeat] Strategy digest: companyStrategy not seeded — block omitted');
+    } catch (_e) {
+      context.log('[heartbeat] Strategy digest failed (non-fatal):', _e.message);
     }
 
     // ── Capital Allocation (System 12) ──
@@ -1859,6 +1878,7 @@ module.exports = async function (context) {
             outcomeDigest, reflectionDigest, worldState,
             productFacts, skillsData,
             forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest,
+            strategyDigest,
             socialAccountStats,
             weeklyReportsStore,
             publishedBlogPosts: _publishedBlogPostsForDigest,
@@ -1928,6 +1948,7 @@ module.exports = async function (context) {
           performanceDigest, agentExperiments,
           productFacts, skillsData,
           forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest,
+          strategyDigest,
           socialAccountStats,
           weeklyReportsStore,
           publishedBlogPosts: _publishedBlogPostsForDigest,
