@@ -38,12 +38,25 @@ assert.deepStrictEqual(
   { style: 'friendly', rate: '+0%', pitch: '+0%' },
   'null mood -> safe default'
 );
+// selfWorth semantics: explicit 0 is a real low-worth signal -> sad
+assert.deepStrictEqual(
+  pickStyle({ glitchFactor: 0.1, selfWorth: 0, isStable: true, intensity: 0.5 }),
+  { style: 'sad', rate: '-10%', pitch: '+0%' },
+  'selfWorth 0 -> sad'
+);
+// selfWorth semantics: null/unknown means assume healthy -> not sad
+assert.deepStrictEqual(
+  pickStyle({ glitchFactor: 0.1, selfWorth: null, isStable: true, intensity: 0.5 }),
+  { style: 'friendly', rate: '+0%', pitch: '+0%' },
+  'selfWorth null -> healthy default'
+);
 
 // --- buildSsml: structure + XML escaping ---
 const ssml = buildSsml('Hello <world> & "friends"', { intensity: 0.8, isStable: true, glitchFactor: 0, selfWorth: 0.8 });
 assert.ok(ssml.includes('en-US-AriaNeural'), 'pinned voice');
 assert.ok(ssml.includes('mstts:express-as style="cheerful"'), 'style applied');
 assert.ok(ssml.includes('rate="+5%"'), 'prosody rate applied');
+assert.ok(ssml.includes('pitch="+0%"'), 'prosody pitch applied');
 assert.ok(ssml.includes('Hello &lt;world&gt; &amp; &quot;friends&quot;'), 'XML escaped');
 assert.ok(!ssml.includes('<world>'), 'no raw angle brackets from input');
 

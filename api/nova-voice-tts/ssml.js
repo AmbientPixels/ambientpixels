@@ -7,9 +7,12 @@ const VOICE = 'en-US-AriaNeural';
 // First match wins — order matters (spec: mood -> voice mapping table)
 function pickStyle(mood) {
   const m = mood || {};
+  // NaN/missing collapses to 0, which is safe because 0 means "absent" for these fields
   const glitch = Number(m.glitchFactor) || 0;
+  // Missing selfWorth means "assume healthy (1)" while an explicit 0 is a real low-worth signal (0 must NOT collapse to the default)
   const worth = (m.selfWorth === undefined || m.selfWorth === null) ? 1 : Number(m.selfWorth);
   const stable = m.isStable !== false; // missing -> treat as stable
+  // NaN/missing collapses to 0, which is safe because 0 means "absent" for these fields
   const intensity = Number(m.intensity) || 0;
 
   if (glitch > 0.6) return { style: 'whispering', rate: '+10%', pitch: '+5%' };
