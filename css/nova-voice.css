@@ -1,121 +1,164 @@
 /* File: /css/nova-voice.css — Nova Voice lab experimental (orb + transcript) */
+/* AmbientPixels DS surface: black page, rules not cards, mono telemetry.    */
 /* States are driven by [data-state] on .nova-voice-orb: idle | listening | thinking | speaking */
+/* --nova-voice-aura is set at runtime from Nova's mood (auraColorHex); idle default is Nova's product color. */
 
 .nova-voice-stage {
-  --nova-voice-aura: var(--aura-glow, #8884ff);
+  --nova-voice-aura: var(--pc-nova);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  padding: 2rem 1rem;
+  gap: var(--sp-6);
+  padding: var(--sp-20) 0 var(--sp-10);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--sp-10);
 }
 
+/* Orb — a large ambient pixel. Quiet ring, breathing mood-colored center. */
 .nova-voice-orb {
   width: 140px;
   height: 140px;
-  border-radius: 50%;
-  border: 2px solid var(--nova-voice-aura);
-  background: radial-gradient(circle at 35% 35%, var(--nova-voice-aura), transparent 70%);
-  box-shadow: 0 0 24px var(--nova-voice-aura);
+  border-radius: var(--r-dot);
+  border: 1px solid var(--color-border);
+  position: relative;
   cursor: pointer;
   user-select: none;
   touch-action: none;
-  transition: transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
-  animation: nova-voice-breathe 5s ease-in-out infinite;
+  transition: border-color var(--dur-med) var(--ease), transform var(--dur-fast) var(--ease), opacity var(--dur-med) var(--ease);
+}
+
+.nova-voice-orb::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 14px; height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: var(--r-dot);
+  background: var(--nova-voice-aura);
+  animation: nova-voice-breathe var(--dur-pulse) var(--ease-inout) infinite;
+}
+
+.nova-voice-orb:hover,
+.nova-voice-orb:focus-visible {
+  border-color: var(--color-text-secondary);
+  outline: none;
 }
 
 .nova-voice-orb[data-state="listening"] {
-  transform: scale(1.12);
-  animation: nova-voice-pulse 0.9s ease-in-out infinite;
+  border-color: var(--nova-voice-aura);
+  transform: scale(1.06);
+}
+.nova-voice-orb[data-state="listening"]::before {
+  width: 28px; height: 28px; margin: -14px 0 0 -14px;
+  animation: nova-voice-breathe var(--dur-breathe) var(--ease-inout) infinite;
 }
 
-.nova-voice-orb[data-state="thinking"] {
-  animation: nova-voice-think 1.4s linear infinite;
+.nova-voice-orb[data-state="thinking"]::before {
+  animation: nova-voice-blink 1.1s steps(2) infinite;
 }
 
 .nova-voice-orb[data-state="speaking"] {
-  animation: nova-voice-ripple 1.1s ease-out infinite;
+  border-color: var(--nova-voice-aura);
+}
+.nova-voice-orb[data-state="speaking"]::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--r-dot);
+  border: 1px solid var(--nova-voice-aura);
+  animation: nova-voice-ripple 1.4s var(--ease) infinite;
 }
 
 .nova-voice-orb--disabled {
-  opacity: 0.35;
+  opacity: .35;
   cursor: not-allowed;
-  animation: none;
 }
+.nova-voice-orb--disabled::before { animation: none; }
 
 @keyframes nova-voice-breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  0%, 100% { opacity: .5; }
+  50% { opacity: 1; }
 }
 
-@keyframes nova-voice-pulse {
-  0%, 100% { box-shadow: 0 0 24px var(--nova-voice-aura); }
-  50% { box-shadow: 0 0 56px var(--nova-voice-aura); }
-}
-
-@keyframes nova-voice-think {
-  0% { filter: hue-rotate(0deg) brightness(1); }
-  50% { filter: hue-rotate(25deg) brightness(1.25); }
-  100% { filter: hue-rotate(0deg) brightness(1); }
+@keyframes nova-voice-blink {
+  50% { opacity: 0; }
 }
 
 @keyframes nova-voice-ripple {
-  0% { box-shadow: 0 0 0 0 var(--nova-voice-aura), 0 0 24px var(--nova-voice-aura); }
-  100% { box-shadow: 0 0 0 28px transparent, 0 0 24px var(--nova-voice-aura); }
+  0%   { transform: scale(1); opacity: .7; }
+  100% { transform: scale(1.35); opacity: 0; }
 }
 
+/* Mood + hint — mono telemetry lines */
 .nova-voice-mood {
-  font-size: 0.95rem;
-  opacity: 0.8;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
   text-align: center;
   min-height: 1.4em;
 }
 
 .nova-voice-hint {
-  font-size: 0.85rem;
-  opacity: 0.55;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-sm);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
   text-align: center;
 }
 
+/* Transcript — editorial log, rules between entries, mono speaker labels */
 .nova-voice-log {
   width: 100%;
   max-width: 640px;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  max-height: 320px;
+  max-height: 360px;
   overflow-y: auto;
+  margin-top: var(--sp-6);
 }
 
 .nova-voice-log-entry {
-  padding: 0.5rem 0.9rem;
-  border-radius: 10px;
-  line-height: 1.45;
-  opacity: 0.9;
+  padding: var(--sp-4) 0;
+  border-top: 1px dashed var(--color-border-dashed);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-body);
+  color: var(--color-text-body);
+  text-wrap: pretty;
 }
+.nova-voice-log-entry:first-child { border-top: none; }
 
-.nova-voice-log-entry--user {
-  align-self: flex-end;
-  border: 1px solid var(--nova-voice-aura);
+.nova-voice-log-entry::before {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--sp-2);
 }
-
-.nova-voice-log-entry--nova {
-  align-self: flex-start;
-  background: rgba(255, 255, 255, 0.05);
-}
+.nova-voice-log-entry--user::before { content: 'You —'; }
+.nova-voice-log-entry--nova::before { content: 'Nova —'; }
 
 .nova-voice-log-entry--note {
-  align-self: center;
-  font-size: 0.8rem;
-  opacity: 0.5;
-  font-style: italic;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-sm);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
 }
+.nova-voice-log-entry--note::before { content: none; }
 
+/* Type-to-talk fallback — bottom-border-only input per DS §5 forms */
 .nova-voice-fallback {
   display: none;
   width: 100%;
   max-width: 640px;
-  gap: 0.5rem;
+  gap: var(--sp-4);
+  align-items: flex-end;
 }
 
 .nova-voice-fallback--visible {
@@ -124,15 +167,25 @@
 
 .nova-voice-fallback input {
   flex: 1;
-  padding: 0.6rem 0.9rem;
-  border-radius: 8px;
-  border: 1px solid var(--nova-voice-aura);
-  background: transparent;
-  color: inherit;
-  font: inherit;
+  padding: var(--sp-3) 0;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: var(--fs-body-sm);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.nova-voice-fallback input:focus {
+  outline: none;
+  border-bottom-color: var(--color-text-secondary);
+}
+.nova-voice-fallback input::placeholder {
+  color: var(--color-text-muted);
 }
 
 @media (max-width: 600px) {
   .nova-voice-orb { width: 110px; height: 110px; }
-  .nova-voice-log { max-height: 240px; }
+  .nova-voice-log { max-height: 260px; }
+  .nova-voice-stage { padding-top: var(--sp-12); }
 }

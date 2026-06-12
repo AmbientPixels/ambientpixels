@@ -15,7 +15,7 @@
 
   var DEFAULT_MOOD = {
     mood: 'calm',
-    auraColorHex: '#8884ff',
+    auraColorHex: '#c792ea', // Nova's product color (--pc-nova)
     emoji: '🌙',
     selfWorth: 0.7, glitchFactor: 0.1, memoryClutter: 0.3,
     awareness: 0.6, isStable: true, intensity: 0.5

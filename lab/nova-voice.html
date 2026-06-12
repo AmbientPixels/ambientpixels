@@ -1,60 +1,123 @@
-<!-- File: /lab/nova-voice.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Nova Voice — push-to-talk conversation with Nova" />
+  <meta name="description" content="Nova Voice — a lab experimental. Hold the orb, speak, and Nova answers aloud in a voice shaped by her mood." />
+  <meta name="robots" content="noindex" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Nova Voice — Lab</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/base.css" />
-  <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
-  <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
-  <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
+  <title>Nova Voice — Lab — AmbientPixels</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="/css/ap-tokens.css" />
+  <link rel="stylesheet" href="/css/ap-base.css" />
+  <link rel="stylesheet" href="/css/ap-components.css" />
   <link rel="stylesheet" href="/css/nova-voice.css" />
+
+  <script defer src="/js/ap-nav-mobile.js"></script>
 </head>
-<body data-theme="dark">
-  <div class="banner-container" id="banner-container">
-    <div class="banner">
-      <i class="fas fa-flask banner-icon"></i>
-      <span>Lab Experimental — Nova Voice. Push to talk.</span>
-      <button class="banner-close" aria-label="Close Banner">×</button>
+<body>
+
+  <nav class="ap-nav">
+    <a class="ap-logo" href="/" aria-label="AmbientPixels home">
+      <span class="m"><i></i></span>
+      AmbientPixels.
+    </a>
+    <div class="ap-nav-links">
+      <a href="/services/">Services.</a>
+      <a href="/products/">Products.</a>
+      <a href="/projects/">Work.</a>
+      <a href="/about/">Studio.</a>
+      <a href="/blog/">Journal.</a>
+      <a href="/pages/login.html">Login.</a>
     </div>
-  </div>
+    <a class="ap-nav-cta" href="/#start">Start a project &rarr;</a>
+  </nav>
 
-  <header id="nav-header"></header>
+  <main>
 
-  <section class="mini-hero">
-    <img src="/images/hero-23.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <h1>Nova Voice</h1>
-  </section>
+    <section class="ap-sec">
+      <div class="ap-sec-head">
+        <div>
+          <div class="ap-sec-idx">§ LAB &mdash; NOVA VOICE</div>
+          <h1 class="ap-display ap-display--hero">Hold the orb,<br><em>she answers.</em></h1>
+        </div>
+        <div class="ap-sec-meta">
+          A lab experimental. Push to talk, release to send. Nova replies aloud in a neural voice shaped by her current mood &mdash; the orb carries her aura.
+        </div>
+      </div>
 
-  <main class="grid-container">
-    <section class="grid-col-12 content-section neon-card">
+      <div class="ap-meta-strip">
+        <span>Lab &middot; experimental</span>
+        <span>Push-to-talk</span>
+        <span>Mood-mapped neural voice</span>
+        <span class="ap-status ap-status--live">Awake</span>
+      </div>
+
       <div class="nova-voice-stage">
         <div class="nova-voice-orb" id="nova-voice-orb" data-state="idle" role="button" tabindex="0" aria-label="Hold to talk to Nova"></div>
-        <div class="nova-voice-mood" id="nova-voice-mood">tuning in…</div>
+        <div class="nova-voice-mood" id="nova-voice-mood">tuning in&hellip;</div>
         <div class="nova-voice-hint" id="nova-voice-hint">Hold the orb and speak. Release to send.</div>
         <div class="nova-voice-fallback" id="nova-voice-fallback">
           <input type="text" id="nova-voice-input" placeholder="Type to Nova — she still answers aloud" aria-label="Message Nova" />
-          <button class="glass-button" id="nova-voice-send" type="button">Send</button>
+          <button class="ap-btn ap-btn--primary" id="nova-voice-send" type="button">Send &rarr;</button>
         </div>
         <div class="nova-voice-log" id="nova-voice-log" aria-live="polite"></div>
       </div>
     </section>
+
   </main>
 
-  <footer id="footer-container"></footer>
+  <footer class="ap-foot-wrap">
+    <div class="ap-foot">
+      <div>
+        <a class="ap-logo" href="/" style="font-size: 22px;" aria-label="AmbientPixels home">
+          <span class="m"><i></i></span>
+          AmbientPixels.
+        </a>
+        <p class="ap-foot-about">A creative-tech studio operating AI systems, digital products, and the <em>infrastructure</em> behind them. Seattle.</p>
+      </div>
+      <div>
+        <h5>Products</h5>
+        <ul>
+          <li><a href="/ambientos/">AmbientOS</a></li>
+          <li><a href="/storyforge/">StoryForge</a></li>
+          <li><a href="/cardforge/">CardForge</a></li>
+          <li><a href="/ambientscore/">AmbientScore</a></li>
+          <li><a href="/pixel-agents/">Pixel Agents</a></li>
+          <li><a href="/blindspot/">Blindspot</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Studio</h5>
+        <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/projects/">Projects</a></li>
+          <li><a href="/blog/">Journal</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@ambientpixels.ai">hello@ambientpixels.ai</a></li>
+          <li><a href="/log/">Activity log</a></li>
+          <li><a href="mailto:press@ambientpixels.ai">Press</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ap-legal">
+      <span>&copy; 2026 AmbientPixels &middot; Est. 2024 &middot; Seattle</span>
+      <span class="ap-legal-right">V2.6 &middot; All systems nominal <span class="ap-legal-dot" aria-hidden="true"></span></span>
+    </div>
+    <div class="ap-colophon">Set in Archivo &amp; JetBrains Mono. Built by hand. Last updated June 2026.</div>
+  </footer>
 
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/nav.js" defer></script>
-  <script src="/js/main.js" defer></script>
-  <script src="/js/theme.js" defer></script>
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
   <script src="/js/nova-voice.js" defer></script>
 </body>
 </html>
