@@ -2453,11 +2453,20 @@ Write the full deliverable first, then the structured JSON block.`;
       // Strip conversational preamble from social post text (e.g. "Okay, here's the copy...")
       // Must run before all other sanitizers so downstream logic sees clean text
       if (action.social.text) {
-        const _preambleRx = /^(?:Okay|Sure|Alright|Great|Here|Let me|I'll|I will|I've|Of course)[^\n]*(?:copy|post|draft|content|text|version|revision|here's|for you)[^\n]*[.:]\s*\n+/i;
+        // "Got it" opener + whole-first-line strip added after act_1781200817701 leaked
+        // "Got it. Here's the Bluesky post, addressing all quality gate issues. ---" past
+        // the old tail requirement ([.:]\n) because the line ended with "---".
+        const _preambleRx = /^(?:Okay|Sure|Alright|Great|Got it|Understood|Perfect|Done|Here|Let me|I'll|I will|I've|Of course)[^\n]*(?:copy|post|draft|content|text|version|revision|here's|for you)[^\n]*\n+/i;
         if (_preambleRx.test(action.social.text)) {
           context.log('[Heartbeat]', agentId, 'Stripping conversational preamble from social post text');
           action.social.text = action.social.text.replace(_preambleRx, '');
         }
+        // Strip leftover separator + platform-label lines ("---", "Bluesky post:") that
+        // trail a stripped preamble or leak on their own.
+        action.social.text = action.social.text
+          .replace(/^\s*-{3,}\s*\n+/g, '')
+          .replace(/^(?:bluesky|x|twitter|linkedin|reddit|facebook)\s+post\s*:\s*/i, '')
+          .trimStart();
       }
 
       // Agent-initiated social post action — routes through action layer governance

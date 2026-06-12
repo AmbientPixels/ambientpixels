@@ -2920,11 +2920,16 @@ module.exports = async function (context) {
           // Scribe sometimes prepends planning monologue, brief recap, or role announcement
           // before the actual post body. The post is usually introduced by "here's the post:"
           // or similar pivot phrase. Drop everything before the pivot.
-          var _pivotMatch = _rcText.match(/^[\s\S]{0,1200}?\bhere'?s\s+(?:the|my)?\s*(?:post|draft|copy|version)\b\s*:?\s*\n+/i);
+          // Pivot tolerates 0-2 words before "post" ("here's the BLUESKY post") and any
+          // trailing clause on the pivot line ("..., addressing all quality gate issues. ---")
+          // — both evaded the old pattern in act_1781200817701 (2026-06-11 leak).
+          var _pivotMatch = _rcText.match(/^[\s\S]{0,1200}?\bhere'?s\s+(?:the|my|your)?\s*(?:[\w-]+\s+){0,2}(?:post|draft|copy|version)\b[^\n]*\n+/i);
           if (_pivotMatch) {
             context.log('[Heartbeat] AUTO-POST SANITIZE: stripped leading preamble (' + _pivotMatch[0].length + ' chars) before "here\'s the post" pivot for task ' + _pt.id);
             _rcText = _rcText.substring(_pivotMatch.index + _pivotMatch[0].length);
           }
+          // Strip leftover separator + platform-label lines ("---", "Bluesky post:")
+          _rcText = _rcText.replace(/^\s*-{3,}\s*\n+/g, '').replace(/^(?:bluesky|x|twitter|linkedin|reddit|facebook)\s+post\s*:\s*/i, '').trimStart();
           // Strip leading agent self-introduction ("this is scribe.", "i'm scribe.", etc.) through next blank line
           var _introMatch = _rcText.match(/^(?:this is|i am|i'm)\s+(?:scribe|cipher|nova|echo|forge|quill|pixel|scout)\b[\s\S]*?\n\s*\n/i);
           if (_introMatch) {

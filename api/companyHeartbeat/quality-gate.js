@@ -39,7 +39,13 @@ var META_LEAK_PATTERNS = [
   /['"‘’“”][^'"‘’“”]{2,80}['"‘’“”]\s+(?:refined|revised|changed|updated|tightened) to\b/i,
   /\bCTA is now\b/i,
   /\b(?:addressed|incorporat(?:ed|ing)|per) (?:the )?(?:ceo|editor|quill|reviewer)'?s? (?:feedback|notes?|edits?)\b/i,
-  /\brevision notes?:/i
+  /\brevision notes?:/i,
+  // act_1781200817701 (first production false-negative, 2026-06-11): "Got it. Here's the
+  // Bluesky post, addressing all quality gate issues. --- | Bluesky post: ..."
+  /^got it[.!,]?\s/i,                                                          // assistant acknowledgment opener
+  /\baddressing (?:all |the )?(?:quality[ -]?gate|qg|ceo|editor|reviewer)\b/i, // QG-feedback vocabulary in public copy
+  /\bhere'?s (?:the|my|your)\s+(?:[\w-]+\s+){0,2}(?:post|draft|copy|version)\b/i, // "here's the Bluesky post" pivot anywhere
+  /^(?:bluesky|x|twitter|linkedin|reddit|facebook)\s+post\s*:/im               // platform label line leak
 ];
 
 var PLACEHOLDER_PATTERN = /\[(?:link|url|insert|add|blog|image|img|cta|placeholder|todo)[^\]\n]{0,50}\]/i;
