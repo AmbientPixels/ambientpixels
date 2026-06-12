@@ -1,0 +1,138 @@
+/* File: /css/nova-voice.css — Nova Voice lab experimental (orb + transcript) */
+/* States are driven by [data-state] on .nova-voice-orb: idle | listening | thinking | speaking */
+
+.nova-voice-stage {
+  --nova-voice-aura: var(--aura-glow, #8884ff);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+}
+
+.nova-voice-orb {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid var(--nova-voice-aura);
+  background: radial-gradient(circle at 35% 35%, var(--nova-voice-aura), transparent 70%);
+  box-shadow: 0 0 24px var(--nova-voice-aura);
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  animation: nova-voice-breathe 5s ease-in-out infinite;
+}
+
+.nova-voice-orb[data-state="listening"] {
+  transform: scale(1.12);
+  animation: nova-voice-pulse 0.9s ease-in-out infinite;
+}
+
+.nova-voice-orb[data-state="thinking"] {
+  animation: nova-voice-think 1.4s linear infinite;
+}
+
+.nova-voice-orb[data-state="speaking"] {
+  animation: nova-voice-ripple 1.1s ease-out infinite;
+}
+
+.nova-voice-orb--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  animation: none;
+}
+
+@keyframes nova-voice-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes nova-voice-pulse {
+  0%, 100% { box-shadow: 0 0 24px var(--nova-voice-aura); }
+  50% { box-shadow: 0 0 56px var(--nova-voice-aura); }
+}
+
+@keyframes nova-voice-think {
+  0% { filter: hue-rotate(0deg) brightness(1); }
+  50% { filter: hue-rotate(25deg) brightness(1.25); }
+  100% { filter: hue-rotate(0deg) brightness(1); }
+}
+
+@keyframes nova-voice-ripple {
+  0% { box-shadow: 0 0 0 0 var(--nova-voice-aura), 0 0 24px var(--nova-voice-aura); }
+  100% { box-shadow: 0 0 0 28px transparent, 0 0 24px var(--nova-voice-aura); }
+}
+
+.nova-voice-mood {
+  font-size: 0.95rem;
+  opacity: 0.8;
+  text-align: center;
+  min-height: 1.4em;
+}
+
+.nova-voice-hint {
+  font-size: 0.85rem;
+  opacity: 0.55;
+  text-align: center;
+}
+
+.nova-voice-log {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.nova-voice-log-entry {
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  line-height: 1.45;
+  opacity: 0.9;
+}
+
+.nova-voice-log-entry--user {
+  align-self: flex-end;
+  border: 1px solid var(--nova-voice-aura);
+}
+
+.nova-voice-log-entry--nova {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nova-voice-log-entry--note {
+  align-self: center;
+  font-size: 0.8rem;
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.nova-voice-fallback {
+  display: none;
+  width: 100%;
+  max-width: 640px;
+  gap: 0.5rem;
+}
+
+.nova-voice-fallback--visible {
+  display: flex;
+}
+
+.nova-voice-fallback input {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--nova-voice-aura);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+@media (max-width: 600px) {
+  .nova-voice-orb { width: 110px; height: 110px; }
+  .nova-voice-log { max-height: 240px; }
+}
