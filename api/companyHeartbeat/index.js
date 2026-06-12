@@ -3470,11 +3470,28 @@ module.exports = async function (context) {
       }
     }
 
-    // ── Objective progress rollup ──
+    // ── Strategic Engine SE-2: measurable objectives (metric-computed) ──
+    // Objectives with criteria:{metric,target,by,baseline} get progress from
+    // live metric sources — not task counts. Auto-complete at target,
+    // deadline-miss flagged once. Gov events ride campaignGovEvents → governanceLog.
+    try {
+      const _se2 = evaluateObjectives(objectives, {
+        socialAccountStats: socialAccountStats,
+        blogPostViews: _blogPostViewsForDigest
+      }, Date.now());
+      if (_se2.changed) objectivesChanged = true;
+      for (const _evt of _se2.govEvents) campaignGovEvents.push(_evt);
+      if (_se2.govEvents.length > 0) context.log('[Heartbeat] SE-2:', _se2.govEvents.map(function (e) { return e.type + ':' + e.data.objectiveId; }).join(', '));
+    } catch (_se2Err) {
+      context.log('[Heartbeat] SE-2 objective evaluation failed (non-fatal):', _se2Err.message);
+    }
+
+    // ── Objective progress rollup (legacy: task-count, only for objectives WITHOUT criteria) ──
     {
       let _objChanged = false;
       for (const obj of objectives) {
         if (!obj || obj.deletedAt) continue;
+        if (obj.criteria && typeof obj.criteria === 'object') continue; // SE-2 owns measurable objectives
         const linked = Array.isArray(obj.linkedCampaigns) ? obj.linkedCampaigns : [];
         const objCamps = campaigns.filter(function (c) {
           return c && !c.deletedAt && (c.objective_id === obj.id || linked.indexOf(c.id) !== -1);
