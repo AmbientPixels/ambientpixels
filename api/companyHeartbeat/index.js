@@ -11,7 +11,7 @@ const { _fetchSiteIntel } = require('./site-intelligence');
 const { applyTaskUpdate } = require('./task-mutations');
 const { _socialIntelBuildDigest, _buildWeeklySnapshot, _buildCampaignVelocityBlock } = require('./social-intel');
 const { buildForgeOpsDigest } = require('./ops-intel');
-const { buildFinanceDigest } = require('./finance-intel');
+const { buildFinanceDigest, applyCampaignRevenue } = require('./finance-intel');
 const { buildResearchDemandDigest } = require('./research-intel');
 const { buildContentDigest } = require('./content-intel');
 const { buildStrategicDigest } = require('./strategic-intel');
@@ -354,12 +354,30 @@ module.exports = async function (context) {
     try {
       const _revLedger = await getRevenueLedger();
       const _spendCents = Math.round(((financeDigest && financeDigest.budget && financeDigest.budget.monthly && financeDigest.budget.monthly.actual) || 0) * 100);
-      revenueDigest = buildRevenueDigest(_revLedger, _spendCents, Date.now());
+      // Gap 2 attribution map: a purchase's utm_content (= originating post action id) →
+      // its campaign. Built from already-loaded allActions + tasks (action._parentTaskId →
+      // task.campaign_id), so it's free. Only resolves entries that actually carry utm.
+      const _actionToCampaign = {};
+      try {
+        const _taskById = {};
+        (tasks || []).forEach(t => { if (t && t.id) _taskById[t.id] = t; });
+        (allActions || []).forEach(a => {
+          if (!a || !a.id) return;
+          const _pt = a._parentTaskId && _taskById[a._parentTaskId];
+          const _cid = _pt && _pt.campaign_id;
+          if (_cid) _actionToCampaign[a.id] = _cid;
+        });
+      } catch (_mapErr) { context.log('[heartbeat] action→campaign map failed (non-fatal):', _mapErr.message); }
+      revenueDigest = buildRevenueDigest(_revLedger, _spendCents, Date.now(), _actionToCampaign);
       if (revenueDigest) {
         runtimeMemory.revenueDigest = revenueDigest;
-        if (financeDigest) financeDigest.revenue = revenueDigest; // Cipher's finance prompt block reads digest.revenue
+        if (financeDigest) {
+          financeDigest.revenue = revenueDigest; // Cipher's finance prompt block reads digest.revenue
+          // Overlay real per-campaign revenue onto ROI rows (dollars beat the engagement proxy).
+          financeDigest.campaignROI = applyCampaignRevenue(financeDigest.campaignROI, revenueDigest.byCampaign);
+        }
       }
-      context.log('[heartbeat] Revenue digest: mtd=$' + revenueDigest.mtdRevenueDollars + ' mrr=$' + revenueDigest.mrrDollars + ' paying=' + revenueDigest.payingCustomers + ' net=$' + revenueDigest.netDollars);
+      context.log('[heartbeat] Revenue digest: mtd=$' + revenueDigest.mtdRevenueDollars + ' mrr=$' + revenueDigest.mrrDollars + ' paying=' + revenueDigest.payingCustomers + ' net=$' + revenueDigest.netDollars + ' attributedCampaigns=' + Object.keys(revenueDigest.byCampaign || {}).length);
     } catch (_e) { context.log('[heartbeat] Revenue digest failed (non-fatal):', _e.message); }
 
     // Scout research demand digest (aggregates signals from all other digests — Scout runs last)

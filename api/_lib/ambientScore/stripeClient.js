@@ -14,7 +14,7 @@ const SITE_URL = process.env.AS_SITE_URL || process.env.CC_SITE_URL || 'https://
 
 // ── Create Checkout Session ──────────────────────────────────────
 
-async function createCheckoutSession({ reportId, url, email, priceType }) {
+async function createCheckoutSession({ reportId, url, email, priceType, utmContent, utmSource }) {
   if (!STRIPE_SECRET_KEY) throw new Error('Stripe is not configured');
 
   const priceId = priceType === 'pack' ? STRIPE_PRICE_PACK : STRIPE_PRICE_SINGLE;
@@ -30,6 +30,11 @@ async function createCheckoutSession({ reportId, url, email, priceType }) {
   params.append('metadata[reportId]', reportId);
   params.append('metadata[url]', url);
   params.append('metadata[priceType]', priceType);
+  // Campaign attribution (revenue-visibility Gap 2): carry the originating post's
+  // utm_content (action id) + utm_source into the session metadata so the webhook
+  // can stamp the campaign on the ledger entry.
+  if (utmContent) params.append('metadata[utm_content]', String(utmContent).slice(0, 120));
+  if (utmSource) params.append('metadata[utm_source]', String(utmSource).slice(0, 50));
   if (email) params.append('customer_email', email);
 
   const res = await axios.post(STRIPE_BASE + '/checkout/sessions', params.toString(), {

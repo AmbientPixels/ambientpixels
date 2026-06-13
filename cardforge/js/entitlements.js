@@ -103,7 +103,8 @@
         method: 'POST',
         headers: headers,
         credentials: 'include',
-        body: JSON.stringify({ productId: productId })
+        body: JSON.stringify(Object.assign({ productId: productId },
+          (window.ProductAnalytics && ProductAnalytics.getAttribution) ? ProductAnalytics.getAttribution() : {}))
       });
 
       if (!resp.ok) {

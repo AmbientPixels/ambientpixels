@@ -256,11 +256,18 @@ function _buildFinancePromptBlock(agent, digest) {
     lines.push('- ' + aid + ': $' + e.costPerAction + '/action, $' + e.costPerApproved + '/approved, waste ' + e.wasteRate + '% ' + e.status);
   });
 
-  // Campaign ROI
+  // Campaign ROI — show REAL revenue when a campaign has attributed Stripe income
+  // (revenue-visibility Gap 2), else fall back to the engagement proxy.
   if (roi.length > 0) {
     lines.push('\nCAMPAIGN ROI:');
     roi.forEach(function (c) {
-      lines.push('- "' + c.title + '" — est. $' + c.estimatedCost + ' cost, ' + c.engagement + ' engagement → ' + c.signal);
+      if (c.revenueCents != null) {
+        lines.push('- "' + c.title + '" — est. $' + c.estimatedCost + ' cost → $' + (c.revenueCents / 100).toFixed(2) + ' revenue' +
+          (c.payingCustomers ? ', ' + c.payingCustomers + ' paying' : '') +
+          (c.revenuePerDollar != null ? ' ($' + c.revenuePerDollar + '/$ spend)' : '') + ' → ' + c.signal);
+      } else {
+        lines.push('- "' + c.title + '" — est. $' + c.estimatedCost + ' cost, ' + c.engagement + ' engagement → ' + c.signal);
+      }
     });
   }
 
@@ -281,7 +288,32 @@ function _buildFinancePromptBlock(agent, digest) {
   return lines.join('\n');
 }
 
+// Overlay real campaign revenue (revenue-visibility Gap 2) onto the ROI rows. When a
+// campaign has attributed ledger revenue, dollars beat the engagement proxy: stamp
+// revenueCents/revenuePerDollar/payingCustomers, mark source 'actual-revenue', signal
+// POSITIVE. Pure; rows without attributed revenue pass through unchanged. Called from
+// the heartbeat AFTER revenueDigest is built (financeDigest is built first, so the
+// overlay can't be inline in buildFinanceDigest).
+function applyCampaignRevenue(campaignROI, byCampaign) {
+  if (!Array.isArray(campaignROI) || !byCampaign) return campaignROI || [];
+  return campaignROI.map(function (row) {
+    var bc = row && byCampaign[row.id];
+    if (!bc || !(Number(bc.netCents) > 0)) return row;
+    var revenueCents = Number(bc.netCents);
+    var cost = Number(row.estimatedCost) || 0;
+    return Object.assign({}, row, {
+      revenueCents: revenueCents,
+      revenueDollars: Math.round(revenueCents) / 100,
+      revenuePerDollar: cost > 0 ? Math.round((revenueCents / 100 / cost) * 100) / 100 : null,
+      payingCustomers: Number(bc.customers) || 0,
+      source: 'actual-revenue',
+      signal: 'POSITIVE'
+    });
+  });
+}
+
 module.exports = {
   buildFinanceDigest: buildFinanceDigest,
+  applyCampaignRevenue: applyCampaignRevenue,
   _buildFinancePromptBlock: _buildFinancePromptBlock
 };

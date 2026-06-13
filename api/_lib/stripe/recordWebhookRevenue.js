@@ -59,6 +59,10 @@ async function recordCheckoutRevenue(args) {
       customerId: _id(session.customer),
       subscriptionId: _id(session.subscription),
       sourceId: session.id || null,
+      // Campaign attribution: utm_content (= originating post's action id) + utm_source,
+      // threaded from the campaign link through the checkout session metadata.
+      utmContent: (session.metadata && session.metadata.utm_content) || null,
+      utmSource: (session.metadata && session.metadata.utm_source) || null,
       occurredAt: _isoFromEvent(event)
     }, args.storageOverride);
     _log(args.log, '[revenue] ' + (args.product || '?') + ' ' + (args.type || 'one_time') + ' $' + (amount / 100).toFixed(2) + ' -> ' + res.reason);

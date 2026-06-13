@@ -163,7 +163,9 @@ module.exports = async function (context, req) {
         reportId: reportId,
         url: url,
         email: body.email || '',
-        priceType: priceType
+        priceType: priceType,
+        utmContent: body.utm_content || null,
+        utmSource: body.utm_source || null
       });
 
       // Only run analysis if no existing report (i.e. no reportId was provided)

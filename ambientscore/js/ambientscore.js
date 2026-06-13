@@ -369,6 +369,7 @@
     buyPack.disabled = true;
     buySingle.textContent = 'Redirecting.';
 
+    var _attr = (window.ProductAnalytics && ProductAnalytics.getAttribution) ? ProductAnalytics.getAttribution() : { utm_content: '', utm_source: '' };
     fetch(API + '/as-analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -376,7 +377,9 @@
         url: currentUrl,
         reportId: currentReportId,
         createCheckout: true,
-        priceType: priceType
+        priceType: priceType,
+        utm_content: _attr.utm_content,
+        utm_source: _attr.utm_source
       })
     })
       .then(function (res) { return res.json(); })

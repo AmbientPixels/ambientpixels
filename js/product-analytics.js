@@ -69,6 +69,20 @@
     }
   }
 
+  // First-touch campaign attribution (revenue-visibility Gap 2): persist utm_content
+  // (= originating post action id) + utm_source from the landing URL so they survive
+  // navigation to the checkout page. First-touch wins — never overwrite.
+  function _captureAttribution() {
+    try {
+      var p = new URLSearchParams(location.search);
+      var c = p.get('utm_content'), s = p.get('utm_source');
+      if (c && !localStorage.getItem('ap_utm_content')) {
+        localStorage.setItem('ap_utm_content', String(c).slice(0, 120));
+        if (s) localStorage.setItem('ap_utm_source', String(s).slice(0, 50));
+      }
+    } catch (e) { /* silent */ }
+  }
+
   function _buildEvent(event, category, props) {
     return {
       id: _genId('evt'),
@@ -159,6 +173,7 @@
       _product = product;
       _sessionId = _getOrCreateSessionId();
       _detectUserId();
+      _captureAttribution();
       _startFlushTimer();
       _setupPageLifecycle();
 
@@ -228,6 +243,23 @@
      */
     flush: function () {
       _flush();
+    },
+
+    /**
+     * First-touch campaign attribution captured from the landing URL.
+     * Attach to a checkout POST body so revenue can be traced to the campaign.
+     * @returns {{utm_content: string, utm_source: string}}
+     */
+    getAttribution: function () {
+      try {
+        return {
+          utm_content: localStorage.getItem('ap_utm_content') || '',
+          utm_source: localStorage.getItem('ap_utm_source') || ''
+        };
+      } catch (e) { return { utm_content: '', utm_source: '' }; }
     }
   };
+
+  // Capture first-touch attribution on script load, even on pages that never call init().
+  _captureAttribution();
 })();

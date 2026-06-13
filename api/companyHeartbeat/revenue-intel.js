@@ -54,12 +54,14 @@ function _round2(n) { return Math.round(n * 100) / 100; }
  * @param {number} nowMs
  * @returns {object} revenueDigest (cents canonical; a few *Dollars convenience fields)
  */
-function buildRevenueDigest(ledger, spendCents, nowMs) {
+function buildRevenueDigest(ledger, spendCents, nowMs, actionToCampaign) {
   var now = (typeof nowMs === 'number') ? nowMs : Date.now();
   var entries = (ledger && Array.isArray(ledger.entries)) ? ledger.entries : [];
   var monthPrefix = _monthPrefix(now);
   var priorPrefix = _priorMonthPrefix(now);
   var spend = Number.isFinite(spendCents) ? Math.round(spendCents) : 0;
+  // Gap 2: map a purchase's utmContent (originating post action id) to its campaign id.
+  var a2c = actionToCampaign || {};
 
   var mtdNetCents = 0;        // signed, this month
   var mtdGrossCents = 0;      // positive money only, this month
@@ -73,6 +75,9 @@ function buildRevenueDigest(ledger, spendCents, nowMs) {
   var byCustomerNet = {};    // customerKey -> net lifetime cents
   var canceledSubs = {};     // subscriptionId -> true
   var subInitials = [];      // subscription_initial entries (for active-set)
+  var byCampaign = {};       // campaignId -> { netCents, grossCents, count, customers, _custSet }
+  var attributedRevenueCents = 0;
+  var unattributedRevenueCents = 0;
 
   for (var i = 0; i < entries.length; i++) {
     var e = entries[i] || {};
@@ -111,7 +116,24 @@ function buildRevenueDigest(ledger, spendCents, nowMs) {
     } else if (e.type === 'subscription_initial') {
       subInitials.push(e);
     }
+
+    // campaign attribution: resolve utmContent (post action id) -> campaign id
+    var campId = e.utmContent ? a2c[e.utmContent] : null;
+    if (campId) {
+      if (!byCampaign[campId]) byCampaign[campId] = { netCents: 0, grossCents: 0, count: 0, customers: 0, _custSet: {} };
+      var bc = byCampaign[campId];
+      bc.netCents += amt;
+      if (positive) {
+        bc.grossCents += amt;
+        bc.count += 1;
+        if (!bc._custSet[ckey]) { bc._custSet[ckey] = true; bc.customers += 1; }
+      }
+      attributedRevenueCents += amt;
+    } else if (amt !== 0) {
+      unattributedRevenueCents += amt;
+    }
   }
+  Object.keys(byCampaign).forEach(function (k) { delete byCampaign[k]._custSet; });
 
   // Active subscription set: first initial per subscription, not later canceled.
   var seenSub = {};
@@ -162,6 +184,9 @@ function buildRevenueDigest(ledger, spendCents, nowMs) {
     lifetimeRevenueCents: lifetimeNetCents,
     lifetimeGrossCents: lifetimeGrossCents,
     byProduct: byProduct,
+    byCampaign: byCampaign,
+    attributedRevenueCents: attributedRevenueCents,
+    unattributedRevenueCents: unattributedRevenueCents,
     priorMonthRevenueCents: priorNetCents,
     trend: { deltaPct: trendDeltaPct, direction: trendDirection },
     totalEntries: entries.length,

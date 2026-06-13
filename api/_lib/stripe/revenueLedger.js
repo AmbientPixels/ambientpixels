@@ -99,6 +99,11 @@ async function recordRevenue(entry, storageOverride) {
     customerId: entry.customerId || null,
     subscriptionId: entry.subscriptionId || null,
     sourceId: entry.sourceId || null,
+    // Campaign attribution (revenue-visibility Gap 2): utmContent is the originating
+    // campaign post's action id, carried through Stripe checkout metadata. The heartbeat
+    // maps it to a campaign id at digest time so revenue rolls up per campaign.
+    utmContent: entry.utmContent || null,
+    utmSource: entry.utmSource || null,
     occurredAt: entry.occurredAt || nowIso,
     recordedAt: nowIso
   };

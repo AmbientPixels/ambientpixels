@@ -118,7 +118,9 @@ module.exports = async function (context, req) {
       priceId: product.stripePrice,
       successUrl,
       cancelUrl,
-      metadata: { userId, productId },
+      metadata: Object.assign({ userId, productId },
+        body.utm_content ? { utm_content: String(body.utm_content).slice(0, 120) } : {},
+        body.utm_source ? { utm_source: String(body.utm_source).slice(0, 50) } : {}),
       customerId: customerId || undefined,
       customerEmail: !customerId ? email : undefined
     });

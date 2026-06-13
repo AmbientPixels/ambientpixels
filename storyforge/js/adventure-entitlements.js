@@ -116,7 +116,8 @@ window.AdventureEntitlements = (function () {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ productId: productId })
+      body: JSON.stringify(Object.assign({ productId: productId },
+        (window.ProductAnalytics && ProductAnalytics.getAttribution) ? ProductAnalytics.getAttribution() : {}))
     })
     .then(function (resp) {
       if (!resp.ok) {
