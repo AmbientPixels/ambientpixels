@@ -355,7 +355,8 @@
                 + 'Engagement: ' + c.replyCount + ' replies, ' + c.likeCount + ' likes\n\n'
                 + 'ORIGINAL POST:\n"' + (c.text || '').substring(0, 500) + '"'
                 + angleInstruction
-                + '\n\nWrite a genuine reply following Founder Voice rules. Under 280 chars. No em dashes. No hype.',
+                + '\n\nWrite a genuine reply following Founder Voice rules. Under 280 chars. No em dashes. No hype.'
+                + '\n\nOutput ONLY the reply text itself. No title, no "To:" line, no "Reply:" label, no preamble. Just the words that should be posted.',
               taskType: 'bluesky_reply',
               category: 'maintenance',
               status: 'todo',

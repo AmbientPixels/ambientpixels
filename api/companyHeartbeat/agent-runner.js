@@ -1857,7 +1857,32 @@ Write the full deliverable first, then the structured JSON block.`;
             // BLUESKY REPLY: task tagged bluesky-reply — route directly to approval queue as social_post.reply action
             // Skip Quill (the draft IS the final copy). Scribe's deliverable is the reply text itself.
             if (_isBsReply) {
-              const _replyText = (deliverable || '').trim();
+              // Scribe sometimes echoes the task's labels back as a formatted document
+              // ("Bluesky Reply Draft", "**To:** @handle", "**Reply:** ..."), which would
+              // otherwise be posted to Bluesky verbatim. Strip it down to the genuine reply text.
+              const _stripReplyScaffolding = function (raw) {
+                let t = String(raw || '').trim();
+                const _lines = t.split('\n');
+                // Drop leading scaffolding lines: a draft/title header, To:/Platform:/Thread:
+                // labels, and blank lines, until we hit real content.
+                while (_lines.length) {
+                  const _ln = _lines[0].trim();
+                  if (_ln === '' ||
+                      /^\*{0,2}\s*(?:bluesky\s+)?reply\s+draft\s*\*{0,2}\.?$/i.test(_ln) ||
+                      /^\*{0,2}\s*(?:to|platform|thread|in\s+reply\s+to|replying\s+to|context|original\s+post)\s*\*{0,2}\s*:/i.test(_ln)) {
+                    _lines.shift();
+                  } else { break; }
+                }
+                t = _lines.join('\n').trim();
+                // Drop a leading "Reply:" label if one survived the line strip.
+                t = t.replace(/^\*{0,2}\s*reply\s*\*{0,2}\s*:\s*\*{0,2}\s*/i, '');
+                // Unwrap a fully quote-wrapped reply.
+                if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
+                  t = t.slice(1, -1).trim();
+                }
+                return t.trim();
+              };
+              const _replyText = _stripReplyScaffolding(deliverable);
               // Empty deliverable = Scribe explicitly chose not to reply (spam, nothing to add)
               if (!_replyText || _replyText.length < 5) {
                 result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });

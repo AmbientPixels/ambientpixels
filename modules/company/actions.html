@@ -2252,6 +2252,26 @@
       html += '<span style="font-size:var(--c-text-xs);opacity:0.35;margin-left:auto;">' + esc(a.id) + '</span>';
       html += '</div>';
 
+      // Replying-To card (bluesky_reply actions) — show the original post for context.
+      // The original post text lives on the approval-queue entry's threadContext, not on
+      // the action payload, so look it up by action_id (same map the quality-gate badge uses).
+      if (aType === 'social_post.reply') {
+        var _replyAq = (window._aqItemsByActionId && window._aqItemsByActionId[a.id]) || a._aqEntry || null;
+        var _tc = (_replyAq && _replyAq.threadContext) || a.threadContext || null;
+        if (_tc && (_tc.originalText || _tc.author)) {
+          html += '<div class="act-drawer-section"><h4 style="margin:0 0 0.4rem;">Replying To</h4>';
+          html += '<div style="padding:0.5rem 0.65rem;border-left:2px solid rgba(96,165,250,0.35);background:rgba(96,165,250,0.04);border-radius:0 6px 6px 0;">';
+          html += '<div style="font-size:var(--c-text-xs);opacity:0.55;margin-bottom:0.3rem;text-transform:uppercase;letter-spacing:0.04em;">Original post · @' + esc(_tc.author || 'unknown') + '</div>';
+          if (_tc.originalText) html += '<div style="font-size:var(--c-text-base);color:rgba(255,255,255,0.82);line-height:1.45;white-space:pre-wrap;">' + esc(_tc.originalText) + '</div>';
+          if (_tc.uri) {
+            var _threadRkey = String(_tc.uri).split('/').pop();
+            var _threadUrl = _tc.author ? 'https://bsky.app/profile/' + _tc.author + '/post/' + _threadRkey : '';
+            if (_threadUrl) html += '<a href="' + esc(_threadUrl) + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:0.45rem;font-size:var(--c-text-xs);color:#60a5fa;text-decoration:none;"><i class="fas fa-external-link-alt" style="margin-right:3px;"></i>View thread</a>';
+          }
+          html += '</div></div>';
+        }
+      }
+
       // Post preview card (for social posts)
       var _canEdit = approvalStatus === 'pending' || approvalStatus === 'revision_requested';
       if (isSocial && payload.text) {
