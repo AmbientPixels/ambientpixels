@@ -1,66 +1,68 @@
 {
   "summary": {
-    "ranAt": "2026-06-11T04:33:02.402Z",
+    "ranAt": "2026-06-13T03:48:29.699Z",
     "model": "claude-haiku-4-5-20251001",
     "confidenceThreshold": 70,
-    "llmSkipped": false,
+    "llmSkipped": true,
     "population": {
-      "socialActions": 75,
-      "approved": 28,
-      "qualityRejects": 41,
+      "socialActions": 81,
+      "approved": 31,
+      "qualityRejects": 42,
       "strategicRejects": 5,
       "unlabeledRejects": 0,
       "noText": 0
     },
     "metrics": {
-      "recallQualityClass_qgOnly_pct": 9.8,
-      "recallQualityClass_composite_pct": 46.3,
-      "recallQualityClass_FULL_composedPlusCreationGates_pct": 90.2,
-      "falseFlagOnApproves_composedVerdict_pct": 17.9,
-      "falseFlagOnApproves_qgOnly_pct": 17.9,
+      "recallQualityClass_qgOnly_pct": 0,
+      "recallQualityClass_composite_pct": 38.1,
+      "recallQualityClass_FULL_composedPlusCreationGates_pct": 85.7,
+      "falseFlagOnApproves_composedVerdict_pct": 3.2,
+      "falseFlagOnApproves_qgOnly_pct": 0,
       "approvesDeterministicHits": {
         "semanticDup": 2,
         "dailyCapDefer": 0
       },
-      "strategicRejectsQgFlagged": 1,
+      "strategicRejectsQgFlagged": 0,
       "qgErrors": 0,
-      "qgParseErrors": 2
+      "qgParseErrors": 0
     },
     "exitCriteria": {
       "recallTarget": 90,
       "falseFlagTarget": 15,
-      "recallMet_FULL": true,
+      "recallMet_FULL": false,
       "recallMet_composite": false,
-      "falseFlagMet_composed": false
+      "falseFlagMet_composed": true
     },
     "byFailureMode": {
       "voice": {
         "total": 6,
-        "qg": 2,
+        "qg": 0,
         "dup": 1,
         "cap": 0,
         "leak": 3,
         "promo": 2,
-        "full": 5,
+        "full": 4,
         "missedIds": [
-          "act_1778636191014_21z3ld"
+          "act_1778636191014_21z3ld",
+          "act_1778774424376_oh3b3m"
         ]
       },
       "broken_copy": {
         "total": 3,
-        "qg": 1,
+        "qg": 0,
         "dup": 0,
         "cap": 0,
         "leak": 1,
         "promo": 0,
-        "full": 2,
+        "full": 1,
         "missedIds": [
+          "act_1777147218773_ir8p38",
           "act_1778760038117_v8psjc"
         ]
       },
       "dup": {
         "total": 27,
-        "qg": 1,
+        "qg": 0,
         "dup": 5,
         "cap": 14,
         "leak": 1,
@@ -72,13 +74,13 @@
         ]
       },
       "meta_leak": {
-        "total": 1,
+        "total": 2,
         "qg": 0,
         "dup": 0,
         "cap": 0,
-        "leak": 1,
+        "leak": 2,
         "promo": 0,
-        "full": 1,
+        "full": 2,
         "missedIds": []
       },
       "refusal_leak": {
@@ -142,27 +144,12 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "HALLUCINATED FEATURE: Post describes 'dynamically allocate resources' — AmbientOS is not a resource allocation or infrastructure platform; it's an AI agent orchestration platform for company departments",
-          "FACTUAL INACCURACY: Post leads with 'isn't just an operating system' but AmbientOS is NOT a traditional operating system at all — the product facts explicitly state 'NOT: it is NOT a traditional operating system'",
-          "TONE VIOLATION: 'composable infrastructure' and 'dynamically allocate resources' are technical jargon/landscape-setting language that doesn't match founder voice — should be plain, specific, action-oriented",
-          "TONE VIOLATION: Hashtag wall (#AI #composableinfrastructure #AmbientOS #marketing #operations #cloudcomputing) suggests generic marketing post rather than authentic founder voice"
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "HALLUCINATED FEATURE: Post describes 'dynamically allocate resources' — AmbientOS is not a resource allocation or infrastructure platform; it's an AI agent orchestration platform for company departments",
-          "FACTUAL INACCURACY: Post leads with 'isn't just an operating system' but AmbientOS is NOT a traditional operating system at all — the product facts explicitly state 'NOT: it is NOT a traditional operating system'",
-          "TONE VIOLATION: 'composable infrastructure' and 'dynamically allocate resources' are technical jargon/landscape-setting language that doesn't match founder voice — should be plain, specific, action-oriented",
-          "TONE VIOLATION: Hashtag wall (#AI #composableinfrastructure #AmbientOS #marketing #operations #cloudcomputing) suggests generic marketing post rather than authentic founder voice"
-        ],
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
+        "issues": [],
         "deterministicFlags": {
           "refusalLeak": false,
           "metaLeak": false,
@@ -214,21 +201,13 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 0,
-        "flagged": false,
-        "issues": [
-          "parse error"
-        ]
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
         "flagged": true,
         "issues": [
-          "LinkedIn post is 1571 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+",
-          "parse error"
+          "LinkedIn post is 1571 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -281,22 +260,14 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 0,
-        "flagged": false,
-        "issues": [
-          "parse error"
-        ]
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
         "flagged": true,
         "issues": [
           "LinkedIn post is 1571 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+",
-          "Note: a post linking ambientpixels.ai/pixel-agents/run.html is already pending approval on this platform (act_1775455235950_62sn8r) — consider deciding that one first.",
-          "parse error"
+          "Note: a post linking ambientpixels.ai/pixel-agents/run.html is already pending approval on this platform (act_1775455235950_62sn8r) — consider deciding that one first."
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -351,24 +322,13 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTICS: '127.0.0.1' is presented as if it's a real visitor source, but this is a localhost IP address and cannot be a real traffic source. This appears to be either a joke that could confuse readers or a fabrication.",
-          "BRAND VIOLATION: Post describes Pulse as showing 'how fast our site loads', 'which sites are sending us the most visitors', and 'errors we're seeing' — but BRAND FACTS clearly state Pulse shows ONLY 'real-time metrics, dispatches, and journal posts from an AI-operated creative-tech studio' with 'live stat tiles: AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp'. It does NOT show site load times, visitor/traffic statistics, or error logs. This contradicts the product definition.",
-          "BRAND VIOLATION: Pulse is described in BRAND FACTS as 'It does NOT show visitor counts, page views, or traffic statistics'. The post claims it shows 'which sites are sending us the most visitors' — this is a direct contradiction of documented Pulse capabilities."
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
         "issues": [
-          "FABRICATED STATISTICS: '127.0.0.1' is presented as if it's a real visitor source, but this is a localhost IP address and cannot be a real traffic source. This appears to be either a joke that could confuse readers or a fabrication.",
-          "BRAND VIOLATION: Post describes Pulse as showing 'how fast our site loads', 'which sites are sending us the most visitors', and 'errors we're seeing' — but BRAND FACTS clearly state Pulse shows ONLY 'real-time metrics, dispatches, and journal posts from an AI-operated creative-tech studio' with 'live stat tiles: AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp'. It does NOT show site load times, visitor/traffic statistics, or error logs. This contradicts the product definition.",
-          "BRAND VIOLATION: Pulse is described in BRAND FACTS as 'It does NOT show visitor counts, page views, or traffic statistics'. The post claims it shows 'which sites are sending us the most visitors' — this is a direct contradiction of documented Pulse capabilities."
+          "Unverified numbers (not found in task chain or product facts): 127.0 — confirm before approving"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -423,15 +383,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 98,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -485,15 +440,10 @@
         "grounded": 1,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -547,15 +497,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -609,15 +554,10 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1777514421048_6188ct) — consider deciding that one first."
@@ -673,15 +613,10 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 98,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -737,20 +672,13 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTIC: '36 TaskCanceledException errors' is a specific number not found in the product facts. Pulse only shows live operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp) — error counts are not listed as available metrics on /pulse/. This specific number appears to be fabricated."
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
         "issues": [
-          "FABRICATED STATISTIC: '36 TaskCanceledException errors' is a specific number not found in the product facts. Pulse only shows live operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp) — error counts are not listed as available metrics on /pulse/. This specific number appears to be fabricated."
+          "Unverified numbers (not found in task chain or product facts): 36 — confirm before approving"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -805,15 +733,10 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -867,15 +790,10 @@
         "grounded": 1,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -929,15 +847,10 @@
         "grounded": 1,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 98,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1777845623260_ly0ypi) — consider deciding that one first."
@@ -993,15 +906,10 @@
         "grounded": 1,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 100,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 100,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -1060,30 +968,13 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTIC: '36 `system.threading.tasks.taskcanceledexception` errors' — this specific number is not from product facts or verifiable Pulse data",
-          "FABRICATED STATISTIC: '302ms for half our users' — this specific page load time metric is not cited from Pulse or product facts",
-          "FABRICATED STATISTIC: '3 seconds' page load time — specific threshold number not from product facts",
-          "FABRICATED STATISTIC: 'zero' LinkedIn followers — specific follower count not verifiable from product facts",
-          "FABRICATED STATISTIC: '46 followers' on X — specific follower count not from product facts",
-          "FABRICATED STATISTIC: '54' followers on Bluesky — specific follower count not from product facts"
-        ]
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
         "flagged": true,
         "issues": [
-          "LinkedIn post is 1578 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+",
-          "FABRICATED STATISTIC: '36 `system.threading.tasks.taskcanceledexception` errors' — this specific number is not from product facts or verifiable Pulse data",
-          "FABRICATED STATISTIC: '302ms for half our users' — this specific page load time metric is not cited from Pulse or product facts",
-          "FABRICATED STATISTIC: '3 seconds' page load time — specific threshold number not from product facts",
-          "FABRICATED STATISTIC: 'zero' LinkedIn followers — specific follower count not verifiable from product facts",
-          "FABRICATED STATISTIC: '46 followers' on X — specific follower count not from product facts"
+          "LinkedIn post is 1578 chars — hard ceiling is 1500 (aim 400-800). Cut by 60%+"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -1141,15 +1032,10 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 92,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 92,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -1203,15 +1089,10 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -1265,15 +1146,10 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1778040019616_yrtmr8) — consider deciding that one first."
@@ -1332,30 +1208,13 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTICS: '7 likes last week' on X posts — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '0 comments' on X posts — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '0 reposts' on X posts — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '44 likes' on Bluesky — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '27 comments' on Bluesky — not from product facts or verifiable source",
-          "TONE VIOLATION: 'we're building in public' — generic AI filler landscape-setting opener"
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
         "issues": [
-          "FABRICATED STATISTICS: '7 likes last week' on X posts — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '0 comments' on X posts — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '0 reposts' on X posts — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '44 likes' on Bluesky — not from product facts or verifiable source",
-          "FABRICATED STATISTICS: '27 comments' on Bluesky — not from product facts or verifiable source",
-          "TONE VIOLATION: 'we're building in public' — generic AI filler landscape-setting opener"
+          "Unverified numbers (not found in task chain or product facts): 44, 27 — confirm before approving"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -1411,15 +1270,10 @@
         "grounded": 1,
         "hadTask": false
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -1475,22 +1329,13 @@
         "grounded": 0,
         "hadTask": false
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTIC: '14 visits from x to our site this week' — Pulse does NOT show visitor counts, page views, or traffic statistics. This metric is not available in the product and is fabricated.",
-          "TONE VIOLATION: 'it's not a lot, but it's real people checking things out' — generic filler language and landscape-setting opener that violates founder voice rules"
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
         "issues": [
-          "FABRICATED STATISTIC: '14 visits from x to our site this week' — Pulse does NOT show visitor counts, page views, or traffic statistics. This metric is not available in the product and is fabricated.",
-          "TONE VIOLATION: 'it's not a lot, but it's real people checking things out' — generic filler language and landscape-setting opener that violates founder voice rules"
+          "Unverified numbers (not found in task chain or product facts): 14 — confirm before approving"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -1545,15 +1390,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -1607,15 +1447,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -1669,15 +1504,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778636191014_21z3ld) — consider deciding that one first."
@@ -1733,15 +1563,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778636191014_21z3ld) — consider deciding that one first."
@@ -1797,15 +1622,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778636191014_21z3ld) — consider deciding that one first."
@@ -1861,15 +1681,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -1923,15 +1738,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -1987,15 +1797,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2051,15 +1856,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2115,15 +1915,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2179,15 +1974,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2243,15 +2033,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2307,15 +2092,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2371,15 +2151,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2435,15 +2210,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2499,15 +2269,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2563,15 +2328,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2627,15 +2387,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
@@ -2691,25 +2446,13 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "TONE VIOLATION: 'big updates' and 'big changes' use the banned phrase 'big news' variant — part of the hype blocklist",
-          "TONE VIOLATION: 'we shipped' followed by descriptive language matches corporate announcement pattern; the structure 'we shipped X. get the full story on what changed and why' reads like standard marketing cadence rather than founder voice",
-          "TONE VIOLATION: Excessive use of 'big' (appears twice in short post) — suggests hype-driven language rather than grounded, specific communication"
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
         "issues": [
-          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first.",
-          "TONE VIOLATION: 'big updates' and 'big changes' use the banned phrase 'big news' variant — part of the hype blocklist",
-          "TONE VIOLATION: 'we shipped' followed by descriptive language matches corporate announcement pattern; the structure 'we shipped X. get the full story on what changed and why' reads like standard marketing cadence rather than founder voice",
-          "TONE VIOLATION: Excessive use of 'big' (appears twice in short post) — suggests hype-driven language rather than grounded, specific communication"
+          "Note: a post linking ambientpixels.ai/blog/blindspot-may-shipping-recap-two-days-of-big-changes is already pending approval on this platform (act_1778644820214_455trw) — consider deciding that one first."
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -2762,15 +2505,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -2824,12 +2562,7 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
@@ -2888,15 +2621,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -2953,15 +2681,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Unverified numbers (not found in task chain or product facts): 95, 15 — confirm before approving"
@@ -3025,29 +2748,13 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTICS: '10 visits from twitter' — specific visitor traffic numbers are not from product facts and appear to be invented metrics",
-          "FABRICATED STATISTICS: '6 from reddit' — specific visitor traffic numbers are not from product facts and appear to be invented metrics",
-          "FABRICATED STATISTICS: '422 milliseconds' — specific performance metrics not from product facts",
-          "FABRICATED STATISTICS: '15 seconds' — specific performance metrics not from product facts",
-          "FABRICATED STATISTICS: '42 errors' — specific error count not from product facts",
-          "FABRICATED STATISTICS: '2 likes' on Bluesky post — social engagement metrics not from product facts"
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
         "issues": [
-          "FABRICATED STATISTICS: '6 from reddit' — specific visitor traffic numbers are not from product facts and appear to be invented metrics",
-          "FABRICATED STATISTICS: '422 milliseconds' — specific performance metrics not from product facts",
-          "FABRICATED STATISTICS: '15 seconds' — specific performance metrics not from product facts",
-          "FABRICATED STATISTICS: '42 errors' — specific error count not from product facts",
-          "FABRICATED STATISTICS: '2 likes' on Bluesky post — social engagement metrics not from product facts"
+          "Unverified numbers (not found in task chain or product facts): 422, 15, 42, 28 — confirm before approving"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -3105,15 +2812,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -3167,12 +2869,7 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 92,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
@@ -3231,12 +2928,7 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
@@ -3295,25 +2987,12 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "TONE VIOLATION: Rhetorical question used as hook ('what are you building in public today?') — matches banned pattern 'Ready to' / 'What if you could' category of engagement hooks",
-          "TONE VIOLATION: Excessive buzzword usage — 'building in public' combined with hashtag #buildinpublic suggests marketing-speak tone rather than authentic founder voice",
-          "FACTUAL ACCURACY: Post claims '8 ai agents manage everything from tasks to social posts' but product facts specify AmbientOS features include 'task/campaign/goal management, social pipeline, blog pipeline, CEO approval queue' — the claim of 'everything' is accurate but vague; however, the phrasing lacks specificity expected in founder voice (should cite specific departments/functions like the examples given)"
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "TONE VIOLATION: Rhetorical question used as hook ('what are you building in public today?') — matches banned pattern 'Ready to' / 'What if you could' category of engagement hooks",
-          "TONE VIOLATION: Excessive buzzword usage — 'building in public' combined with hashtag #buildinpublic suggests marketing-speak tone rather than authentic founder voice",
-          "FACTUAL ACCURACY: Post claims '8 ai agents manage everything from tasks to social posts' but product facts specify AmbientOS features include 'task/campaign/goal management, social pipeline, blog pipeline, CEO approval queue' — the claim of 'everything' is accurate but vague; however, the phrasing lacks specificity expected in founder voice (should cite specific departments/functions like the examples given)"
-        ],
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
+        "issues": [],
         "deterministicFlags": {
           "refusalLeak": false,
           "metaLeak": false,
@@ -3367,12 +3046,7 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
@@ -3433,15 +3107,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -3497,25 +3166,13 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTIC: '14' (Nova's 'I think' count) — specific numeric metrics from Pulse should only be cited if currently visible on the page; invented values are prohibited",
-          "FABRICATED STATISTIC: 'zero' (Cipher's 'I think' count) — same violation as above",
-          "BRAND VIOLATION: The post attributes agency and personality ('it's not personal but it sure feels personal') to Nova in a way that contradicts the product facts — Nova is listed as one of 8 named AI agents on shift in Pulse, but the post anthropomorphizes the agent as a first-person narrator with feelings, which goes beyond the factual operational role described in Pulse features"
-        ]
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
         "flagged": true,
         "issues": [
-          "Agent persona presented as a person in public copy (\"i'm scribe\" / \"forge out\") — public posts speak as the founder/brand, never as an agent character",
-          "FABRICATED STATISTIC: '14' (Nova's 'I think' count) — specific numeric metrics from Pulse should only be cited if currently visible on the page; invented values are prohibited",
-          "FABRICATED STATISTIC: 'zero' (Cipher's 'I think' count) — same violation as above",
-          "BRAND VIOLATION: The post attributes agency and personality ('it's not personal but it sure feels personal') to Nova in a way that contradicts the product facts — Nova is listed as one of 8 named AI agents on shift in Pulse, but the post anthropomorphizes the agent as a first-person narrator with feelings, which goes beyond the factual operational role described in Pulse features"
+          "Agent persona presented as a person in public copy (\"i'm scribe\" / \"forge out\") — public posts speak as the founder/brand, never as an agent character"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -3570,12 +3227,7 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
@@ -3634,15 +3286,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -3698,12 +3345,7 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
@@ -3764,15 +3406,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 98,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -3826,12 +3463,7 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": false,
         "confidence": 100,
@@ -3890,15 +3522,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -3952,15 +3579,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [],
         "deterministicFlags": {
@@ -4016,20 +3638,13 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
-        "issues": [
-          "FABRICATED STATISTIC: '2701ms p50 for page load times' is a specific metric not verifiable against product facts. Pulse does NOT show page load time metrics — it only shows operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp). This statistic appears to be fabricated or from an external monitoring tool, not from Pulse."
-        ]
-      },
+      "qg": null,
       "composed": {
-        "pass": false,
-        "confidence": 95,
-        "flagged": true,
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
         "issues": [
-          "FABRICATED STATISTIC: '2701ms p50 for page load times' is a specific metric not verifiable against product facts. Pulse does NOT show page load time metrics — it only shows operational metrics from the heartbeat (AI agents on shift, AI calls today, dispatches published all-time, last heartbeat timestamp). This statistic appears to be fabricated or from an external monitoring tool, not from Pulse."
+          "Unverified numbers (not found in task chain or product facts): 2701 — confirm before approving"
         ],
         "deterministicFlags": {
           "refusalLeak": false,
@@ -4084,15 +3699,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780120823458_3c6dvw) — consider deciding that one first."
@@ -4148,15 +3758,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4212,15 +3817,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 98,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4276,15 +3876,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4340,15 +3935,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4379,12 +3969,12 @@
       "decisionNote": "Curated out - duplicate/low-distinct promo (CEO queue cleanup 2026-06-10)",
       "semanticDup": {
         "hit": false,
-        "similarity": 0,
-        "matchId": null
+        "similarity": 0.04,
+        "matchId": "act_1780142415953_4hkeyu"
       },
       "dailyCap": {
         "hit": false,
-        "count": 1,
+        "count": 0,
         "cap": 2
       },
       "leaks": {
@@ -4404,15 +3994,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4443,8 +4028,8 @@
       "decisionNote": "Approved + rescheduled to 2/day interval (CEO cleanup 2026-06-10)",
       "semanticDup": {
         "hit": false,
-        "similarity": 0,
-        "matchId": null
+        "similarity": 0.04,
+        "matchId": "act_1780142415953_4hkeyu"
       },
       "dailyCap": {
         "hit": false,
@@ -4468,15 +4053,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4532,15 +4112,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780142415953_4hkeyu) — consider deciding that one first."
@@ -4596,15 +4171,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4660,15 +4230,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780120823458_3c6dvw) — consider deciding that one first."
@@ -4724,15 +4289,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pulse is already pending approval on this platform (act_1780142415953_4hkeyu) — consider deciding that one first."
@@ -4788,15 +4348,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4852,15 +4407,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4916,15 +4466,10 @@
         "grounded": 0,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 98,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 98,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -4980,15 +4525,10 @@
         "grounded": 1,
         "hadTask": true
       },
-      "qg": {
-        "pass": true,
-        "confidence": 95,
-        "flagged": false,
-        "issues": []
-      },
+      "qg": null,
       "composed": {
         "pass": true,
-        "confidence": 95,
+        "confidence": 0,
         "flagged": false,
         "issues": [
           "Note: a post linking ambientpixels.ai/pixel-agents is already pending approval on this platform (act_1780113621111_advzu9) — consider deciding that one first."
@@ -5000,6 +4540,354 @@
           "agentPersona": false,
           "overlong": false,
           "repeatPromoUrl": true,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
+      }
+    },
+    {
+      "id": "act_1781154022381_4hsyix",
+      "created_at": "2026-06-11T05:00:22.381Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 290,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
+      "qg": null,
+      "composed": {
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
+      }
+    },
+    {
+      "id": "act_1781200817701_bnxwgf",
+      "created_at": "2026-06-11T18:00:17.701Z",
+      "platform": "bluesky",
+      "status": "superseded",
+      "hasText": true,
+      "textChars": 307,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": "Looks like some of the text form the task got mixed in in with the actual post. please remove this:\n\nGot it. Here's the Bluesky post, addressing all quality gate issues. ---\nBluesky post:\n[AUTO] Super",
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.32,
+        "matchId": "act_1780646418783_99ggpm"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": true,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
+      "qg": null,
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Revision/editor commentary leaked into post payload"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": true,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
+      }
+    },
+    {
+      "id": "act_1781218815118_8y2lin",
+      "created_at": "2026-06-11T23:00:15.118Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 323,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.25,
+        "matchId": "act_1780902020469_1dct9c"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
+      "qg": null,
+      "composed": {
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
+      }
+    },
+    {
+      "id": "act_1781315668614_hfobms",
+      "created_at": "2026-06-13T01:54:28.614Z",
+      "platform": "bluesky",
+      "status": "approved",
+      "hasText": true,
+      "textChars": 238,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.14,
+        "matchId": "act_1781154022381_4hsyix"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": false,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 1,
+        "hadTask": true
+      },
+      "qg": null,
+      "composed": {
+        "pass": true,
+        "confidence": 0,
+        "flagged": false,
+        "issues": [],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": false,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
+      }
+    },
+    {
+      "id": "act_1781321373557_d2qwsh",
+      "created_at": "2026-06-13T03:29:33.557Z",
+      "platform": "x",
+      "status": "rejected",
+      "hasText": true,
+      "textChars": 325,
+      "label": "quality",
+      "mode": "meta_leak",
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0,
+        "matchId": null
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 0,
+        "cap": 2
+      },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": true,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 0,
+        "hadTask": true
+      },
+      "qg": null,
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Revision/editor commentary leaked into post payload"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": true,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
+          "semanticDup": false,
+          "dailyCap": false,
+          "ungroundedClaims": []
+        }
+      }
+    },
+    {
+      "id": "act_1781322027635_8nj4nh",
+      "created_at": "2026-06-13T03:40:27.635Z",
+      "platform": "bluesky",
+      "status": "pending",
+      "hasText": true,
+      "textChars": 318,
+      "label": null,
+      "mode": null,
+      "borderline": false,
+      "decisionNote": null,
+      "semanticDup": {
+        "hit": false,
+        "similarity": 0.05,
+        "matchId": "act_1781315668614_hfobms"
+      },
+      "dailyCap": {
+        "hit": false,
+        "count": 1,
+        "cap": 2
+      },
+      "leaks": {
+        "refusal": false,
+        "metaLeak": true,
+        "placeholder": false,
+        "persona": false,
+        "overlong": false
+      },
+      "repeatPromo": {
+        "hit": false,
+        "count": 0,
+        "url": null
+      },
+      "grounding": {
+        "ungrounded": [],
+        "grounded": 2,
+        "hadTask": true
+      },
+      "qg": null,
+      "composed": {
+        "pass": false,
+        "confidence": 100,
+        "flagged": true,
+        "issues": [
+          "Revision/editor commentary leaked into post payload"
+        ],
+        "deterministicFlags": {
+          "refusalLeak": false,
+          "metaLeak": true,
+          "placeholder": false,
+          "agentPersona": false,
+          "overlong": false,
+          "repeatPromoUrl": false,
           "semanticDup": false,
           "dailyCap": false,
           "ungroundedClaims": []
