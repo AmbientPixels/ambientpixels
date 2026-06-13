@@ -1,54 +1,69 @@
-# Heartbeat Cadence Slider (Design Spec)
+# Heartbeat Model-Driven Cadence (Design Spec)
 
 **Date:** 2026-06-12
 **Status:** DESIGN — approved in brainstorm 2026-06-12, not yet implemented
-**Type:** Dashboard control (dev view) + runtime gate in `companyHeartbeat`
-**Surfaces:** `modules/company/dashboard.html` (AI Model Fleet panel), `api/companyHeartbeat/`
+**Type:** Runtime gate in `companyHeartbeat` + read-only display in dashboard dev view
+**Surfaces:** `api/companyHeartbeat/`, `modules/company/dashboard.html` (AI Model Fleet panel)
+
+> Supersedes the earlier "cadence slider" framing in this file's first revision.
+> The brainstorm pivoted from a manual minutes slider to a model-driven cadence:
+> the run frequency is a *consequence* of the selected heartbeat model, not a
+> separate knob. See "History" at the bottom.
 
 ## Summary
 
-A live, CEO-adjustable slider that throttles how often the agent fleet actually
-does work. It is a **cost lever**: slow the heartbeat down when running expensive
-models (e.g. Claude Opus), speed it up on cheap ones. Cadence is changed from the
-dashboard with no redeploy.
+The heartbeat's run frequency is automatically derived from the selected model. It
+is a **cost-vs-quality lever**: cheap models run often, premium models run rarely,
+to control spend. There is **no slider and no separate cadence setting** — the
+existing model picker in the dashboard IS the control. Pick a model, the rhythm
+follows.
 
-The Azure timer cannot be reprogrammed from the browser — its schedule is a fixed
-cron in `api/companyHeartbeat/function.json`. So the slider does not change the
-timer. Instead, the timer fires at a fixed fine base tick (every 30 min) and a
-**runtime gate** at the top of the heartbeat handler skips ticks until the chosen
-cadence has elapsed. The slider just writes a single number to state.
+The Azure timer fires at a fixed fine base tick (every 30 min). A **runtime gate**
+at the top of the heartbeat reads the active model, looks up that model's cadence,
+and skips the tick unless enough time has passed since the last real run. Nothing
+about cadence requires a redeploy to change once shipped — the lookup table lives
+in `systemConfig`.
 
 ## Motivation
 
-The fleet's per-run cost varies with `heartbeatModel`. When the fleet is on a
-high-cost model, the CEO wants to reduce run frequency to control spend; on a
-cheap model, run more often. Today cadence is hard-coded in the deployed cron and
-can only be changed by editing `function.json` and redeploying. This makes the
-lever live and self-serve.
+Per-run cost scales with `heartbeatModel`. When the fleet is on an expensive model
+the CEO wants fewer runs; on a cheap model, more. Rather than manage a second knob,
+cadence is bound to the model choice so the cost/quality tradeoff is a single
+decision.
 
 ## Decisions (from brainstorm 2026-06-12)
 
+- **Model-driven, not a slider.** Cadence = lookup(active model). The dashboard
+  model picker is the only control; a read-only line shows the resulting cadence.
 - **Architecture: runtime gating** (chosen over app-setting-cron and edit+redeploy).
-  Fully live, no Azure credentials in the API, no redeploy to change cadence. The
-  only cost is that the gate can only make cadence **coarser** than the base tick.
-- **Base tick → 30 min**, one-time deploy. `function.json` schedule changes from
-  `0 0 * * * *` (hourly) to `0 */30 * * * *` (every 30 min) so 30 min is the
-  finest cadence the gate can deliver. Net behaviour is unchanged when cadence is
-  set to 60 — the extra ticks are simply skipped.
-- **Range: 30 min – 24 h, mixed steps** — `[30, 60, 90, 120, 150, 180, 210, 240,
-  360, 480, 720, 1440]`. 30-min steps up to 4 h, then coarse jumps for a near-idle
-  "once a day" mode on costly models.
-- **Apply on release** — dragging and releasing the slider POSTs the new value and
-  shows a toast. No separate Save/Confirm button (it is dev-view / CEO-only).
-- **Manual trigger bypasses the gate** — `company-heartbeat-trigger` always runs a
-  cycle. The gate applies only to timer-driven runs.
-- **Readout = runs/day + current model** — the slider shows e.g. "Every 90 min ·
-  16 runs/day" plus the current `heartbeatModel` name, so the cost tradeoff is
-  visible while dragging. A `$/day` estimate is explicitly deferred (YAGNI).
+  Live, no Azure credentials in the API, no redeploy to retune cadence.
+- **Cost-true table** (pricier model = runs less often):
+
+  | Model key       | Cadence (min) | ≈      | Runs/day |
+  |-----------------|---------------|--------|----------|
+  | `gemini`        | 60            | 1 h    | ~24      |
+  | `claude-haiku`  | 150           | 2.5 h  | ~10      |
+  | `claude-sonnet` | 330           | 5.5 h  | ~4       |
+
+- **Table stored in `systemConfig.modelCadence`**, seeded with the defaults above.
+  The gate and the dashboard both read it; if absent, both fall back to hardcoded
+  defaults. Numbers are tunable later with no deploy (same pattern as
+  `heartbeatModel`).
+- **Base tick → 30 min**, one-time, in the same deploy as the gate. `function.json`
+  changes from `0 0 * * * *` to `0 */30 * * * *` so 150 and 330 land precisely
+  (both divide by 30). Net behaviour at 60 is unchanged — extra ticks just skip.
+- **Skips are logged lightly** — a `context.log` line only, never a `heartbeatRuns`
+  entry. `heartbeatRuns` is a protected audit trail and must not be polluted with
+  skip records.
+- **Evaluated against the current model each tick** — switching to a cheaper model
+  speeds the fleet up on the next tick; switching to a premium model stretches the
+  gap. No "apply" action needed; changing the model pill is the action.
+- **Dropped** from the earlier revision: the slider, the manual minutes value,
+  "run once on apply," and the two-timeline staging (it is now one deploy).
 
 ## Architecture
 
-### 1. Base timer change (one-time deploy)
+### 1. Base timer change (one-time, same deploy)
 
 `api/companyHeartbeat/function.json`:
 
@@ -56,109 +71,125 @@ lever live and self-serve.
 "schedule": "0 0 * * * *"   →   "schedule": "0 */30 * * * *"
 ```
 
-The stale `// every 30 minutes` comment at the top of `index.js` becomes accurate
-again as a side effect.
+The stale `// every 30 minutes` comment atop `index.js` becomes accurate again.
 
-### 2. Runtime gate
+### 2. Cadence lookup
 
-**New pure helper in `helpers.js`** (unit-testable in isolation, no I/O):
+**New tiny module/helper** (e.g. `cadence.js` in `companyHeartbeat/`, or an export
+in `helpers.js`):
 
 ```
+DEFAULT_MODEL_CADENCE = { gemini: 60, 'claude-haiku': 150, 'claude-sonnet': 330 }
+DEFAULT_CADENCE_MINUTES = 60   // unknown model → hourly
+
+getCadenceMinutes(modelKey, modelCadenceConfig) -> number
+  // modelCadenceConfig = systemConfig.modelCadence (may be undefined)
+  // returns config[modelKey] ?? DEFAULT_MODEL_CADENCE[modelKey] ?? DEFAULT_CADENCE_MINUTES
+
 shouldSkipForCadence(nowMs, lastRunMs, cadenceMinutes) -> boolean
-// true  => skip this tick (not enough time elapsed)
-// false => run (or lastRunMs is null/0 — first run always proceeds)
+  // true => skip (not enough elapsed). lastRunMs null/0 => never skip (first run).
+  // lastRunMs in the future (clock skew) => never skip (fail open).
 ```
 
-**Minimal touch in `index.js`** — at the very top of the timer handler, before any
-agent work:
+Both functions are pure and unit-testable with no I/O.
 
-1. Read `heartbeatCadenceMinutes` from `systemConfig` (default 60).
-2. Read the last *effective* run timestamp (`lastHeartbeatEffectiveRunAt`).
-3. If `shouldSkipForCadence(...)` is true: write a lightweight skip entry to the
-   run log (`{ skipped: true, reason: 'cadence-gate', cadenceMinutes }`) and
-   `return` before running agents.
-4. Otherwise stamp `lastHeartbeatEffectiveRunAt = now` at run **start** (not
-   success — measuring from start prevents pile-ups if a run errors), then proceed.
+### 3. Runtime gate (minimal touch in `index.js`)
 
-This keeps the protected-file change to one `require` plus one guard block. The
-gate decision lives in the testable helper, not in `index.js`.
+At the very top of the **timer** handler, before any agent work:
 
-The gate is wired only into the **timer** entry path. The manual
-`company-heartbeat-trigger` path does not call it.
+1. Read `systemConfig` once (active `heartbeatModel`, `modelCadence`,
+   `lastHeartbeatEffectiveRunAt`).
+2. `cadence = getCadenceMinutes(heartbeatModel, modelCadence)`.
+3. If `shouldSkipForCadence(now, lastEffectiveRun, cadence)` → `context.log` a skip
+   line and `return` before running agents (no spend, no `heartbeatRuns` entry).
+4. Else stamp `lastHeartbeatEffectiveRunAt = now` (at run **start**, to prevent
+   pile-ups if a run errors), then proceed as normal.
 
-### 3. Storage + API (no new endpoint)
+Kept to one `require` plus one guard block; the decision logic lives in the
+testable helper. The manual `company-heartbeat-trigger` path does **not** call the
+gate — manual runs always execute.
 
-- `heartbeatCadenceMinutes` is stored in `systemConfig` (merging write — safe).
-- `lastHeartbeatEffectiveRunAt` is stored in `systemConfig` (or a sibling small
-  key) and written by the heartbeat itself.
-- The dashboard reads both via existing `GET /api/company-state?key=systemConfig`
-  and writes the cadence via existing `POST /api/company-state` (merge). No new
+**Fail open:** any error reading config/timestamp must default to running, never to
+skipping — a bad value must never silently freeze the fleet.
+
+### 4. Storage (no new endpoint)
+
+- `systemConfig.modelCadence` — the table (seeded once; gate falls back to defaults
+  if missing).
+- `systemConfig.lastHeartbeatEffectiveRunAt` — written by the heartbeat at run start.
+- Both read via existing `GET /api/company-state?key=systemConfig`; cadence table
+  edits (if ever exposed) use existing `POST /api/company-state` (merge). No new
   Azure Function.
 
-### 4. Dashboard UI — AI Model Fleet panel (dev view)
+### 5. Dashboard display — AI Model Fleet panel (dev view)
 
-In `modules/company/dashboard.html`, inside the existing `#panel-fleet` /
-`AI Model Fleet` panel (dev view, already gated):
+In `modules/company/dashboard.html`, in the existing model-picker / `#panel-fleet`
+area (already dev-view gated):
 
-- A stepped `<input type="range">` indexing into the step array
-  `[30,60,90,120,150,180,210,240,360,480,720,1440]` (slider value = array index;
-  the label maps index → minutes so steps feel even).
-- Live readout: `Every {label} · {runsPerDay} runs/day` where
-  `runsPerDay = Math.round(1440 / minutes)` (label uses "h" formatting above 60).
-- Current model line pulled from the fleet data already rendered in `renderFleet()`
-  (`AgentEngine.getModelFleet()` — primary model name).
-- On `change` (release): POST `{ heartbeatCadenceMinutes: minutes }` merged into
-  `systemConfig`, optimistic UI update, toast `Cadence set to {label}`.
-- On load: read `systemConfig.heartbeatCadenceMinutes` and set the slider to the
-  matching index (default 60 → index 1).
-- Reuses existing dashboard panel + fleet CSS and theme tokens. New scoped class
-  `cadence-*`. No `!important`, no raw hex.
+- A read-only line under the active model pill:
+  `{Model name} · runs every {≈cadence} (~{runsPerDay}/day)`,
+  e.g. `Claude Haiku · runs every ~2.5 h (~10/day)`.
+- Source: read `systemConfig.modelCadence` (fallback to a hardcoded copy of the
+  defaults — 3 entries) and compute from the active model key already tracked as
+  `_activeModelKey` ([dashboard.html:2666](../../../modules/company/dashboard.html)).
+- Updates when a different model pill is chosen (the picker already POSTs
+  `heartbeatModel`; we just recompute the label from the new key).
+- Reuses existing fleet/panel CSS + theme tokens. New scoped `cadence-*` class. No
+  `!important`, no raw hex.
 
 ## Data flow
 
 ```
-CEO drags slider (release)
-  → POST /api/company-state  systemConfig.heartbeatCadenceMinutes = N   (merge)
-  → toast
+CEO picks a model pill
+  → existing flow: POST systemConfig.heartbeatModel = <key>   (merge)
+  → dashboard recomputes the cadence label from the table
 
 Azure timer fires (every 30 min)
-  → index.js reads systemConfig.heartbeatCadenceMinutes (N) + lastHeartbeatEffectiveRunAt (T)
-  → shouldSkipForCadence(now, T, N)?
-      yes → log skip, return  (no agent work, no spend)
-      no  → stamp lastHeartbeatEffectiveRunAt = now, run fleet as normal
+  → index.js reads systemConfig: heartbeatModel (M), modelCadence (T), lastEffectiveRun (L)
+  → cadence = getCadenceMinutes(M, T)
+  → shouldSkipForCadence(now, L, cadence)?
+        yes → context.log skip, return   (no agent work, no spend, no run record)
+        no  → stamp lastEffectiveRun = now, run fleet as normal
 
 Manual trigger → runs unconditionally (gate not consulted)
 ```
 
 ## Testing
 
-- Unit-test `shouldSkipForCadence(now, lastRun, cadence)` in isolation:
-  null/first-run → run; just-ran → skip; exactly at boundary → run; well past →
-  run; clock skew / lastRun in future → run (fail open, never wedge the fleet).
-- Manual verification: set cadence to 120 in dashboard → confirm `systemConfig`
-  holds 120 → confirm timer ticks inside the window log a skip and one runs at the
-  boundary → reload dashboard, slider shows 120.
-- Verify manual trigger still runs while a gate window is open.
+- Unit-test `getCadenceMinutes`: known keys → table values; unknown key → 60;
+  config override beats default; missing config → defaults.
+- Unit-test `shouldSkipForCadence`: first run (null) → run; just ran → skip;
+  exactly at boundary → run; well past → run; lastRun in the future → run (fail open).
+- Manual verification: set model to Claude Sonnet → confirm gate skips ticks for
+  ~5.5 h and runs once at the boundary; switch to Gemini → confirm it runs on the
+  next tick. Confirm skips do **not** appear in `heartbeatRuns`. Confirm manual
+  trigger still runs during a skip window. Confirm dashboard label matches the
+  active model.
 
 ## Success criteria
 
-1. Slider in the AI Model Fleet panel shows the saved cadence on load.
-2. Dragging to a new step writes `systemConfig.heartbeatCadenceMinutes` and toasts.
-3. Timer ticks inside the cadence window are skipped and logged; one effective run
-   happens per window.
+1. Heartbeat run frequency matches the active model's cadence (60 / 150 / 330 min).
+2. Switching models changes the rhythm on the next tick, no redeploy.
+3. Skipped ticks do no agent work, cost nothing, and are not recorded in
+   `heartbeatRuns`.
 4. Manual trigger always runs regardless of the gate.
-5. No redeploy needed to change cadence after the one-time base-cron deploy.
+5. Dashboard shows the active model's cadence, read-only, and updates on switch.
 
 ## Risks / guardrails
 
-- **Protected file:** `index.js` is on the "do not touch without explicit request"
-  list. The change is deliberately minimal (one require + one guard block) and the
-  logic is isolated in a testable helper. Implementation requires the CEO's
-  explicit go-ahead (given in the 2026-06-12 brainstorm).
-- **One-time deploy required:** dropping the base cron to 30 min is a deploy via
-  CI/CD. Until that deploy lands, the gate can only deliver hourly-or-coarser even
-  if the slider shows 30.
-- **Fail open:** any error reading cadence/last-run must default to running, never
-  to skipping — a bad config value must not silently freeze the fleet.
-- **Cannot go finer than the base tick** by design. 30 min is the floor.
-```
+- **Protected file:** `index.js` is "do not touch without explicit request." The
+  change is one `require` + one guard block; logic is isolated in a testable helper.
+  CEO go-ahead given in the 2026-06-12 brainstorm.
+- **One deploy:** dropping the base cron to 30 min, the gate, the helper, and the
+  dashboard line all ship together via CI/CD.
+- **Fail open** on any config/timestamp error — never skip on uncertainty.
+- **Floor is 30 min** by design; cadence cannot go finer than the base tick.
+- **Extra ticks are cheap:** at a 30-min base the timer fires 48×/day; skipped ticks
+  early-return after two state reads — negligible cost/load.
+
+## History
+
+- **Rev 1 (slider):** a manual 30 min–24 h stepped slider writing
+  `heartbeatCadenceMinutes`. Superseded — replaced by binding cadence to the model
+  so there is one decision (quality vs cost) instead of two knobs.
+- **Rev 2 (this doc):** model-driven cadence, cost-true table, no slider.
