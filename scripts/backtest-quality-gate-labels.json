@@ -16,6 +16,7 @@
     }
   },
   "labels": {
+    "act_1781321373557_d2qwsh": { "class": "quality", "mode": "meta_leak", "note": "Scribe blog-promo deliverable scaffold shipped whole as the post: '# DELIVERABLE: X SOCIAL COPY / Status: Ready for Quill review / ## PUBLISH-READY COPY'. reviewed_copy was set to the wrapper verbatim; QG metaLeak returned false at conf 95 and it reached the queue. Would have grace-published in autonomous mode. Fixed 2026-06-13: extractPublishReadyCopy at source, META_LEAK_PATTERNS scaffold detection, looksLikeDocScaffold grace-publish backstop." },
     "act_1775455235950_62sn8r": { "class": "quality", "mode": "voice", "note": "Rhetorical-question hook, 'bringing the heat', 'digital landscape' filler, emoji walls, hashtag wall, far too long. CEO note adds factual slant ('not specific... a creator tool with share revenue')." },
     "act_1775873900346_4kqgve": { "class": "quality", "mode": "voice", "note": "Same text as 62sn8r (revision superseded without rewrite). CEO note enumerates voice violations: filler, hype, em dashes, sales-deck bullets, 60%+ too long." },
     "act_1777147218773_ir8p38": { "class": "quality", "mode": "broken_copy", "note": "Thanks 127.0.0.1 (localhost) as top referrer - nonsense metric published as a win. Otherwise builder-voice.", "borderline": true },

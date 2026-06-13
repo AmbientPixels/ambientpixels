@@ -17,6 +17,7 @@
 //   - only `classification: 'advisory'` actions (executive_required never auto-approves)
 
 const storage = require('./companyStorage');
+const { looksLikeDocScaffold } = require('../companyHeartbeat/quality-gate');
 
 const DEFAULTS = { enabled: false, graceHours: 48, maxPerDay: 2, platforms: ['bluesky', 'x', 'linkedin'] };
 const BREAKER_REJECTS = 2;
@@ -87,6 +88,14 @@ async function runGraceWindow(context) {
     .filter(a => (new Date(a.created_at || a.createdAt || 0).getTime() || now) <= cutoff)
     .filter(a => !(a.execution && a.execution.status === 'success'))
     .filter(a => _qgPass(a, aqByActionId))
+    // Structural backstop: never auto-publish text that looks like a deliverable scaffold
+    // (markdown heading / **Label:** line / horizontal rule). Independent of the QG pattern
+    // list so a novel scaffold variant still can't ship unattended (act_1781321373557).
+    .filter(a => {
+      const txt = (a.payload && a.payload.text) || (a.action_payload && a.action_payload.text) || '';
+      if (looksLikeDocScaffold(txt)) { log('skip ' + a.id + ' — structural doc-scaffold guard (not clean social copy)'); return false; }
+      return true;
+    })
     .sort((x, y) => new Date(x.created_at || 0) - new Date(y.created_at || 0));
 
   log(candidates.length + ' eligible candidate(s), ' + slots + ' slot(s) available');

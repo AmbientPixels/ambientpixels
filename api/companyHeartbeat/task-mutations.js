@@ -2,7 +2,7 @@
 // Central mutation dispatcher: create, execute, review, comment, update, move, set-research-intel
 
 const { CFO_THRESHOLD, AGENT_IDS, VALID_TASK_STATUSES } = require("./constants");
-const { stripTaskPrefixes } = require("./helpers");
+const { stripTaskPrefixes, extractPublishReadyCopy } = require("./helpers");
 // ── Apply task mutation ──
 function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
   if (update.action === 'create') {
@@ -149,7 +149,11 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
               const _parentSocialTask = tasks.find(t => t.id === _parentSocialTaskId);
               if (_parentSocialTask) {
                 const _deliverables = (tasks[i].comments || []).filter(c => c.type === 'deliverable');
-                const _copyText = _deliverables.length > 0 ? _deliverables[_deliverables.length - 1].text : '';
+                const _rawCopyText = _deliverables.length > 0 ? _deliverables[_deliverables.length - 1].text : '';
+                // Strip any DELIVERABLE/PUBLISH-READY/COPY-SPEC scaffold so only the actual
+                // post copy propagates — the raw wrapper shipping as the post is what put
+                // act_1781321373557 into the queue (2026-06-13).
+                const _copyText = extractPublishReadyCopy(_rawCopyText);
                 if (_copyText) {
                   _parentSocialTask.reviewed_copy = _copyText;
                   _parentSocialTask.awaiting_copy_review = false;

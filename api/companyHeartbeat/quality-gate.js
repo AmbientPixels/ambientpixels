@@ -45,7 +45,15 @@ var META_LEAK_PATTERNS = [
   /^got it[.!,]?\s/i,                                                          // assistant acknowledgment opener
   /\baddressing (?:all |the )?(?:quality[ -]?gate|qg|ceo|editor|reviewer)\b/i, // QG-feedback vocabulary in public copy
   /\bhere'?s (?:the|my|your)\s+(?:[\w-]+\s+){0,2}(?:post|draft|copy|version)\b/i, // "here's the Bluesky post" pivot anywhere
-  /^(?:bluesky|x|twitter|linkedin|reddit|facebook)\s+post\s*:/im               // platform label line leak
+  /^(?:bluesky|x|twitter|linkedin|reddit|facebook)\s+post\s*:/im,              // platform label line leak
+  // act_1781321373557 (2026-06-13): a Scribe blog-promo deliverable scaffold leaked WHOLE —
+  // "# DELIVERABLE: X SOCIAL COPY / **Status:** Ready for Quill review / ## PUBLISH-READY COPY
+  // / ## COPY SPEC". reviewed_copy was set to the wrapper verbatim and auto-post shipped it.
+  /^\s{0,3}#{1,6}\s*deliverable\b/im,                                          // "# DELIVERABLE: X SOCIAL COPY" heading
+  /^\s{0,3}#{1,6}\s*publish[- ]?ready copy\b/im,                               // "## PUBLISH-READY COPY" section header
+  /^\s{0,3}#{1,6}\s*copy spec\b/im,                                            // "## COPY SPEC" scaffold section
+  /\bstatus:\s*ready for \w+ review\b/i,                                       // "Status: Ready for Quill review"
+  /\bcharacter count:\s*\d+\s*\/\s*\d+/i                                       // "Character count: 278 / 280" meta
 ];
 
 var PLACEHOLDER_PATTERN = /\[(?:link|url|insert|add|blog|image|img|cta|placeholder|todo)[^\]\n]{0,50}\]/i;
@@ -81,6 +89,24 @@ function detectContentLeaks(text, platform) {
     refusal: refusal, metaLeak: metaLeak, placeholder: placeholder, persona: persona, overlong: overlong,
     any: refusal || metaLeak || placeholder || persona || overlong, issues: issues
   };
+}
+
+// ── Structural doc-scaffold guard (grace auto-publish backstop) ───────────────
+// Independent of META_LEAK_PATTERNS by design: clean social copy is a few lines of
+// prose, NEVER a markdown document. A heading line, a "**Label:**" bold field, or a
+// horizontal rule means an agent's deliverable scaffold leaked. The grace window
+// consults this so a NOVEL scaffold variant the pattern list hasn't learned yet still
+// cannot auto-publish — "a real post has no markdown headings" outlasts any blocklist.
+// Hashtags are safe: a heading requires whitespace after the '#' ("# Title"), which
+// "#gamedev" never has.
+var STRUCTURAL_DOC_PATTERNS = [
+  /^\s{0,3}#{1,6}\s+\S/m,                  // markdown heading line ("## PUBLISH-READY COPY")
+  /^\s{0,3}\*{2}[^*\n]{1,40}:\*{2}/m,      // "**Label:**" bold field line
+  /^\s{0,3}-{3,}\s*$/m                     // "---" horizontal rule
+];
+function looksLikeDocScaffold(text) {
+  var t = String(text || '');
+  return STRUCTURAL_DOC_PATTERNS.some(function (rx) { return rx.test(t); });
 }
 
 // ── Repeat-promo URL check (queue collapse) ─────────────────────────────────
@@ -290,6 +316,7 @@ var SOCIAL_ATTEMPTS_CAP = 2;
 module.exports = {
   SOCIAL_ATTEMPTS_CAP: SOCIAL_ATTEMPTS_CAP,
   detectContentLeaks: detectContentLeaks,
+  looksLikeDocScaffold: looksLikeDocScaffold,
   repeatPromoUrlStatus: repeatPromoUrlStatus,
   extractClaimNumbers: extractClaimNumbers,
   findUngroundedClaims: findUngroundedClaims,

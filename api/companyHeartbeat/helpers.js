@@ -604,12 +604,50 @@ function capitalizeSentences(text) {
   // 4. Restore frozen tokens verbatim.
   return out.replace(/\{\{FRZ:(\d+)\}\}/g, function (_m, n) { return _frozen[Number(n)]; });
 }
+
+// ── Extract the publishable post copy from a Scribe social-copy deliverable ───
+// Scribe frequently wraps the post in a "# DELIVERABLE / ## PUBLISH-READY COPY /
+// ## COPY SPEC / ## NOTES" scaffold. Propagating that wrapper verbatim into
+// reviewed_copy ships the scaffold AS the post (act_1781321373557, 2026-06-13).
+// Pull out ONLY the publishable copy:
+//   1. If a "## PUBLISH-READY COPY" section exists, return its body (up to the next
+//      horizontal rule or markdown heading).
+//   2. Otherwise strip a leading "# DELIVERABLE ..." heading + metadata block and any
+//      trailing spec/notes sections, plus stray horizontal rules and "**Label:**" lines.
+// Returns the original text unchanged if it has no scaffold, and never returns empty
+// (falls back to the trimmed original so we never propagate nothing).
+function extractPublishReadyCopy(deliverable) {
+  var t = String(deliverable || '');
+  if (!t.trim()) return t;
+
+  var headed = t.match(/^[ \t]{0,3}#{1,6}[ \t]*publish[- ]?ready copy[ \t]*$/im);
+  if (headed) {
+    var body = t.slice(headed.index + headed[0].length);
+    var stop = body.search(/^[ \t]{0,3}(?:-{3,}[ \t]*$|#{1,6}[ \t]+\S)/m); // next rule or heading
+    if (stop >= 0) body = body.slice(0, stop);
+    var picked = body.replace(/^[ \t]{0,3}-{3,}[ \t]*$/gm, '').trim();
+    if (picked) return picked;
+  }
+
+  var out = t;
+  // leading "# DELIVERABLE ..." heading + metadata field lines, up to the first
+  // horizontal rule or the blank line before the real copy.
+  out = out.replace(/^[ \t]{0,3}#{1,6}[ \t]*deliverable\b[\s\S]*?(?:^[ \t]{0,3}-{3,}[ \t]*$|\n[ \t]*\n)/im, '');
+  // trailing scaffold sections (copy spec / notes / metadata / strategy / rationale)
+  out = out.replace(/\n[ \t]{0,3}#{1,6}[ \t]*(?:copy spec|notes?|metadata|spec|strategy|rationale)\b[\s\S]*$/i, '');
+  // leftover horizontal rules and "**Label:**" field lines
+  out = out.replace(/^[ \t]{0,3}-{3,}[ \t]*$/gm, '');
+  out = out.replace(/^[ \t]{0,3}\*{2}[^*\n]{1,40}:\*{2}[^\n]*$/gm, '');
+  out = out.trim();
+  return out || t.trim();
+}
 module.exports = {
   _sanitizeSingleComment,
   generateConversationalEntityComment,
   findNearDuplicateSocialPost,
   campaignDailyPostCapStatus,
   capitalizeSentences,
+  extractPublishReadyCopy,
   stripTaskPrefixes,
   _isActiveStatus,
   _isRecent,
