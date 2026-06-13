@@ -6,89 +6,76 @@
   <meta name="description" content="Nova Voice — talk to the AmbientOS crew. Operator console." />
   <meta name="robots" content="noindex" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Nova Voice — Company HQ</title>
+  <title>Nova Voice — AmbientPixels HQ</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <!-- Dashboard chrome (Inter) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
 
+  <!-- Monolith orb console (Archivo + JetBrains Mono). ap-base.css is intentionally
+       NOT loaded — it sets body bg/font globally and would fight the dashboard chrome.
+       ap-tokens (variables) + ap-components (.ap-btn) + nova-voice.css are all we need. -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,500;0,900;1,400&family=Archivo+Black&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/ap-tokens.css" />
-  <link rel="stylesheet" href="/css/ap-base.css" />
   <link rel="stylesheet" href="/css/ap-components.css" />
   <link rel="stylesheet" href="/css/nova-voice.css" />
 
   <style>
-    /* Console-local layout — compact operator pane, centered, no marketing chrome */
-    .nv-console {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: var(--sp-8) var(--sec-pad-x) var(--sp-20);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    .nv-console-top {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: var(--sp-6);
-      padding-bottom: var(--sp-5);
-      border-bottom: 1px solid var(--color-border);
-    }
-    .nv-console-idx {
-      font-family: var(--font-mono);
-      font-size: var(--fs-mono);
-      letter-spacing: var(--tracking-mono);
-      text-transform: uppercase;
-      color: var(--color-text-secondary);
-    }
-    .nv-back {
-      font-family: var(--font-mono);
-      font-size: var(--fs-mono-xs);
-      letter-spacing: var(--tracking-mono-sm);
-      text-transform: uppercase;
-      color: var(--color-text-muted);
-      text-decoration: none;
-      white-space: nowrap;
-      transition: color var(--dur-fast) var(--ease);
-    }
-    .nv-back:hover { color: var(--color-text-secondary); }
-
-    @media (max-width: 600px) {
-      .nv-console { padding-left: var(--mobile-pad); padding-right: var(--mobile-pad); }
+    /* Console sits inside the dashboard content area — no full-viewport centering */
+    .nv-console { max-width: 760px; margin: 0 auto; }
+    .nv-console-head { margin-bottom: var(--sp-2, 8px); }
+    .nv-console-head h1 { display: flex; align-items: center; gap: 0.6rem; margin: 0; }
+    .nv-console-head .nv-sub {
+      margin: 0.35rem 0 0;
+      font-size: var(--c-text-xs);
+      color: rgba(255, 255, 255, 0.5);
     }
   </style>
 </head>
-<body class="nova-voice--compact">
+<body class="nova-voice--compact" data-theme="dark">
 
-  <main class="nv-console">
-    <div class="nv-console-top">
-      <span class="nv-console-idx">§ Nova Voice — talk to the crew</span>
-      <a class="nv-back" href="/modules/company/">&lsaquo; Back to HQ</a>
-    </div>
+  <main class="content-section">
+    <div class="nv-console">
+      <div class="nv-console-head">
+        <h1><i class="fas fa-microphone co-icon-mr-lg dash-icon-blue"></i>Nova Voice</h1>
+        <p class="nv-sub">Push-to-talk with the AmbientOS crew. Hold the orb, speak, release to send — they answer aloud.</p>
+      </div>
 
-    <div class="nova-voice-stage">
-      <div class="nova-voice-agents" id="nova-voice-agents" aria-label="Choose an agent">
-        <button class="nova-voice-agent nova-voice-agent--active" data-agent="nova" type="button">Nova</button>
-        <button class="nova-voice-agent" data-agent="cipher" type="button">Cipher</button>
-        <button class="nova-voice-agent" data-agent="echo" type="button">Echo</button>
-        <button class="nova-voice-agent" data-agent="forge" type="button">Forge</button>
-        <button class="nova-voice-agent" data-agent="pixel" type="button">Pixel</button>
-        <button class="nova-voice-agent" data-agent="scout" type="button">Scout</button>
-        <button class="nova-voice-agent" data-agent="scribe" type="button">Scribe</button>
-        <button class="nova-voice-agent" data-agent="quill" type="button">Quill</button>
+      <div class="nova-voice-stage">
+        <div class="nova-voice-agents" id="nova-voice-agents" aria-label="Choose an agent">
+          <button class="nova-voice-agent nova-voice-agent--active" data-agent="nova" type="button">Nova</button>
+          <button class="nova-voice-agent" data-agent="cipher" type="button">Cipher</button>
+          <button class="nova-voice-agent" data-agent="echo" type="button">Echo</button>
+          <button class="nova-voice-agent" data-agent="forge" type="button">Forge</button>
+          <button class="nova-voice-agent" data-agent="pixel" type="button">Pixel</button>
+          <button class="nova-voice-agent" data-agent="scout" type="button">Scout</button>
+          <button class="nova-voice-agent" data-agent="scribe" type="button">Scribe</button>
+          <button class="nova-voice-agent" data-agent="quill" type="button">Quill</button>
+        </div>
+        <div class="nova-voice-orb" id="nova-voice-orb" data-state="idle" role="button" tabindex="0" aria-label="Hold to talk to the selected agent"></div>
+        <div class="nova-voice-mood" id="nova-voice-mood">tuning in&hellip;</div>
+        <div class="nova-voice-hint" id="nova-voice-hint">Hold the orb and speak. Release to send.</div>
+        <div class="nova-voice-fallback" id="nova-voice-fallback">
+          <input type="text" id="nova-voice-input" placeholder="Type to the crew — they still answer aloud" aria-label="Message the selected agent" />
+          <button class="ap-btn ap-btn--primary" id="nova-voice-send" type="button">Send &rarr;</button>
+        </div>
+        <div class="nova-voice-log" id="nova-voice-log" aria-live="polite"></div>
       </div>
-      <div class="nova-voice-orb" id="nova-voice-orb" data-state="idle" role="button" tabindex="0" aria-label="Hold to talk to the selected agent"></div>
-      <div class="nova-voice-mood" id="nova-voice-mood">tuning in&hellip;</div>
-      <div class="nova-voice-hint" id="nova-voice-hint">Hold the orb and speak. Release to send.</div>
-      <div class="nova-voice-fallback" id="nova-voice-fallback">
-        <input type="text" id="nova-voice-input" placeholder="Type to the crew — they still answer aloud" aria-label="Message the selected agent" />
-        <button class="ap-btn ap-btn--primary" id="nova-voice-send" type="button">Send &rarr;</button>
-      </div>
-      <div class="nova-voice-log" id="nova-voice-log" aria-live="polite"></div>
     </div>
   </main>
 
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/js/nova-voice.js" defer></script>
 </body>
 </html>
