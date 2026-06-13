@@ -65,6 +65,10 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
     var agentData = r.perAgent || r.agentResults;
     if (!agentData) return;
     Object.keys(agentData).forEach(function (aid) {
+      // Skip synthetic closing-pass pseudo-agents (e.g. nova_closing) — they are
+      // commentary-only debriefs that produce 0 mutating actions by design and must
+      // not trip stall detection. Mirrors the filter in emergence-intel.js.
+      if (aid.indexOf('_closing') !== -1) return;
       if (!perAgent[aid]) perAgent[aid] = { ran: 0, failed: 0, blocked: 0, executed: 0, zeroActionRuns: 0 };
       perAgent[aid].ran++;
       var ar = agentData[aid];
