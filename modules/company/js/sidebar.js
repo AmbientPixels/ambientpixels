@@ -130,6 +130,7 @@
           label: 'Finance',
           icon: 'fa-coins',
           links: [
+            { href: BASE + 'revenue.html', label: 'Revenue', icon: 'fa-chart-line', match: ['revenue.html'] },
             { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
             { href: BASE + 'allocation.html', label: 'Allocation', icon: 'fa-coins', match: ['allocation.html'] },
             { href: BASE + 'goals.html', label: 'Goals', icon: 'fa-bullseye', match: ['goals.html'] }

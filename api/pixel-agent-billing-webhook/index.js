@@ -11,6 +11,7 @@ const {
   deactivateSubscription,
   markSubscriptionAtRisk
 } = require('../_lib/stripe/entitlements');
+const revenueRecorder = require('../_lib/stripe/recordWebhookRevenue');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
@@ -83,6 +84,20 @@ module.exports = async function (context, req) {
           await activateSubscription(containerClient, userId, obj.subscription, obj.customer);
         }
 
+        // Record company revenue (sub or credit-pack; idempotent on event.id, non-fatal).
+        {
+          const _isSub = !!(product && product.mode === 'subscription');
+          await revenueRecorder.recordCheckoutRevenue({
+            event: event,
+            session: obj,
+            product: 'pixelagents',
+            type: _isSub ? 'subscription_initial' : 'one_time',
+            plan: productId,
+            interval: _isSub ? (/year/i.test(productId) ? 'year' : 'month') : null,
+            log: context.log
+          });
+        }
+
         context.log('[PA Webhook] Granted ' + productId + ' to user ' + userId);
         break;
       }
@@ -102,6 +117,9 @@ module.exports = async function (context, req) {
           await activateSubscription(containerClient, userId, subId, customerId);
         } else if (status === 'canceled' || status === 'unpaid') {
           await deactivateSubscription(containerClient, userId);
+          if (status === 'canceled') {
+            await revenueRecorder.recordSubscriptionCanceled({ event: event, subscription: obj, product: 'pixelagents', log: context.log });
+          }
         } else if (status === 'past_due') {
           await markSubscriptionAtRisk(containerClient, userId);
         }
@@ -117,6 +135,8 @@ module.exports = async function (context, req) {
           await deactivateSubscription(containerClient, userId);
           context.log('[PA Webhook] Subscription deleted for user ' + userId);
         }
+        // Record cancellation for MRR regardless of user lookup (non-fatal).
+        await revenueRecorder.recordSubscriptionCanceled({ event: event, subscription: obj, product: 'pixelagents', log: context.log });
         break;
       }
 
@@ -132,6 +152,14 @@ module.exports = async function (context, req) {
         }
         break;
       }
+
+      case 'charge.refunded':
+        await revenueRecorder.recordRefundFromEvent({ event: event, product: 'pixelagents', kind: 'refund', log: context.log });
+        break;
+
+      case 'charge.dispute.created':
+        await revenueRecorder.recordRefundFromEvent({ event: event, product: 'pixelagents', kind: 'dispute', log: context.log });
+        break;
 
       default:
         context.log('[PA Webhook] Unhandled event type: ' + eventType);

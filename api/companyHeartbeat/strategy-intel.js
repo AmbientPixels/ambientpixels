@@ -37,6 +37,12 @@ const METRIC_RESOLVERS = {
       if (Number.isFinite(t) && t >= cutoff && t <= nowMs) count++;
     }
     return count;
+  },
+  // Revenue-visibility pipe: the PRIMARY north-star now measures itself.
+  paying_customers: function (entry, sources) {
+    const r = sources && sources.revenueDigest;
+    const n = r && Number(r.payingCustomers);
+    return Number.isFinite(n) ? n : null;
   }
 };
 

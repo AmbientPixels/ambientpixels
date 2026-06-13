@@ -9,6 +9,7 @@ const {
   deactivateSubscription,
   markSubscriptionAtRisk
 } = require('../_lib/stripe/entitlements');
+const revenueRecorder = require('../_lib/stripe/recordWebhookRevenue');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
@@ -70,6 +71,20 @@ module.exports = async function (context, req) {
           await activateSubscription(containerClient, userId, obj.subscription, obj.customer);
         }
 
+        // Record company revenue (idempotent on event.id, non-fatal).
+        {
+          const _isSub = !!(product && product.mode === 'subscription');
+          await revenueRecorder.recordCheckoutRevenue({
+            event: event,
+            session: obj,
+            product: 'storyforge',
+            type: _isSub ? 'subscription_initial' : 'one_time',
+            plan: productId,
+            interval: _isSub ? (/year/i.test(productId) ? 'year' : 'month') : null,
+            log: context.log
+          });
+        }
+
         context.log('[SF Webhook] Granted ' + productId + ' to user ' + userId);
         break;
       }
@@ -91,6 +106,9 @@ module.exports = async function (context, req) {
         } else if (status === 'canceled' || status === 'unpaid') {
           await deactivateSubscription(containerClient, userId);
           context.log('[SF Webhook] Deactivated subscription for user ' + userId);
+          if (status === 'canceled') {
+            await revenueRecorder.recordSubscriptionCanceled({ event: event, subscription: obj, product: 'storyforge', log: context.log });
+          }
         } else if (status === 'past_due') {
           await markSubscriptionAtRisk(containerClient, userId);
           context.log('[SF Webhook] Marked subscription at risk for user ' + userId);
@@ -106,6 +124,8 @@ module.exports = async function (context, req) {
           await deactivateSubscription(containerClient, userId);
           context.log('[SF Webhook] Subscription deleted for user ' + userId);
         }
+        // Record cancellation for MRR regardless of user lookup (non-fatal).
+        await revenueRecorder.recordSubscriptionCanceled({ event: event, subscription: obj, product: 'storyforge', log: context.log });
         break;
       }
 
@@ -121,6 +141,14 @@ module.exports = async function (context, req) {
         }
         break;
       }
+
+      case 'charge.refunded':
+        await revenueRecorder.recordRefundFromEvent({ event: event, product: 'storyforge', kind: 'refund', log: context.log });
+        break;
+
+      case 'charge.dispute.created':
+        await revenueRecorder.recordRefundFromEvent({ event: event, product: 'storyforge', kind: 'dispute', log: context.log });
+        break;
 
       default:
         context.log('[SF Webhook] Unhandled event type: ' + eventType);

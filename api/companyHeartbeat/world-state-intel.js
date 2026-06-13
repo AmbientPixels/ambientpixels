@@ -106,7 +106,7 @@ function summarizeEvent(e) {
   return type;
 }
 
-function computeRunwayDays(financeDigest) {
+function computeRunwayDays(financeDigest, revenueDigest) {
   if (!financeDigest || !financeDigest.budget) return null;
   const monthly = financeDigest.budget.monthly || {};
   const daily = financeDigest.budget.daily || {};
@@ -114,27 +114,37 @@ function computeRunwayDays(financeDigest) {
   const monthlyActual = Number(monthly.actual || 0);
   const dailyAvg = Number(daily.actual || 0);
   if (dailyAvg <= 0) return null;
+  // NET runway: revenue offsets daily burn (revenue-visibility pipe). At $0 revenue
+  // this is identical to the prior burn-only formula.
+  const monthlyRevenue = (revenueDigest && Number(revenueDigest.mtdRevenueCents) > 0) ? Number(revenueDigest.mtdRevenueCents) / 100 : 0;
+  const netDailyBurn = dailyAvg - (monthlyRevenue / 30);
+  if (netDailyBurn <= 0) return null; // income covers burn — effectively sustainable
   if (monthlyActual >= monthlyBudget) return 0;
-  return Math.floor((monthlyBudget - monthlyActual) / dailyAvg);
+  return Math.floor((monthlyBudget - monthlyActual) / netDailyBurn);
 }
 
-function computeHeroLine(products, financeStatus, outcomeCoverage) {
+function computeHeroLine(products, financeStatus, outcomeCoverage, finance) {
   const activeCount = (products || []).filter(p => p.status === 'active').length;
-  return 'AmbientOS platform, ' + activeCount + ' products live. Finance ' + (financeStatus || 'unknown') +
-    '. Outcome coverage: ' + (outcomeCoverage || 'building');
+  let line = 'AmbientOS platform, ' + activeCount + ' products live. Finance ' + (financeStatus || 'unknown');
+  // Show money earned in the hero line once there's any (revenue-visibility pipe).
+  if (finance && (Number(finance.mrr) > 0 || Number(finance.payingCustomers) > 0)) {
+    line += ' · $' + Number(finance.mrr || 0).toFixed(2) + ' MRR · ' + finance.payingCustomers + ' paying';
+  }
+  line += '. Outcome coverage: ' + (outcomeCoverage || 'building');
+  return line;
 }
 
 function buildWorldState(inputs, nowMs) {
   const now = Number.isFinite(nowMs) ? nowMs : Date.now();
   const {
-    financeDigest, forgeOpsDigest, outcomeDigest, strategicDigest,
+    financeDigest, revenueDigest, forgeOpsDigest, outcomeDigest, strategicDigest,
     socialAccountStats, contentDigest,
     campaigns, objectives, tasks, approvalQueue, governanceLog,
     agentExperiments, executionMode, productFacts
   } = inputs || {};
 
   // ── COMPANY ──
-  const runwayDays = computeRunwayDays(financeDigest);
+  const runwayDays = computeRunwayDays(financeDigest, revenueDigest);
   const activeMode = (executionMode && typeof executionMode === 'string') ? executionMode : 'active';
 
   // ── FLEET ──
@@ -146,14 +156,21 @@ function buildWorldState(inputs, nowMs) {
   const finBudget = (financeDigest && financeDigest.budget) || {};
   const finTrend = (financeDigest && financeDigest.costTrend) || {};
   const financeStatus = (finBudget.monthly && finBudget.monthly.status) || (finBudget.daily && finBudget.daily.status) || 'unknown';
+  const _monthlyActual = (finBudget.monthly && finBudget.monthly.actual) || 0;
+  const _monthlyRevenue = revenueDigest ? Number(revenueDigest.mtdRevenueDollars) || 0 : 0;
   const finance = {
     monthlySpendPct: (finBudget.monthly && finBudget.monthly.pct) || 0,
-    monthlyActual: (finBudget.monthly && finBudget.monthly.actual) || 0,
+    monthlyActual: _monthlyActual,
     monthlyBudget: (finBudget.monthly && finBudget.monthly.budget) || 0,
     dailyAvg: (finBudget.daily && finBudget.daily.actual) || 0,
     burnTrend: finTrend.direction ? (finTrend.direction + (finTrend.deltaPct ? ' ' + finTrend.deltaPct + '%' : '')) : 'stable',
     projectedMonthEnd: finTrend.projected || null,
-    status: String(financeStatus).toUpperCase()
+    status: String(financeStatus).toUpperCase(),
+    // ── Revenue (revenue-visibility pipe) ──
+    monthlyRevenue: _monthlyRevenue,
+    mrr: revenueDigest ? Number(revenueDigest.mrrDollars) || 0 : 0,
+    payingCustomers: revenueDigest ? Number(revenueDigest.payingCustomers) || 0 : 0,
+    netBurn: Math.round((_monthlyActual - _monthlyRevenue) * 100) / 100
   };
 
   // ── METRICS ──
@@ -241,7 +258,7 @@ function buildWorldState(inputs, nowMs) {
   const recentEvents = extractRecentEvents(governanceLog, agentExperiments, campaigns, now);
 
   // ── Assembly ──
-  const heroLine = computeHeroLine(products, finance.status, outcomeCoverage);
+  const heroLine = computeHeroLine(products, finance.status, outcomeCoverage, finance);
 
   return {
     generatedAt: new Date(now).toISOString(),
@@ -292,6 +309,14 @@ function _buildWorldStatePromptBlock(worldState) {
 
   const fin = worldState.finance || {};
   lines.push('FINANCE: $' + Number(fin.monthlyActual || 0).toFixed(2) + ' / $' + Number(fin.monthlyBudget || 0).toFixed(0) + ' monthly (' + (fin.monthlySpendPct || 0) + '%, trend ' + (fin.burnTrend || 'stable') + (fin.projectedMonthEnd ? ', projected $' + Number(fin.projectedMonthEnd).toFixed(2) : '') + '). Status: ' + (fin.status || 'unknown') + '.');
+  // Income line — shown once there is ANY revenue, so agents optimize for money
+  // earned, not just spent. Omitted at $0 to respect the hard 1500-char cap (the
+  // block already runs near it under heavy data; agents still see paying_customers
+  // 0→1 via the COMPANY STRATEGY block below, and Cipher sees full revenue detail).
+  if (Number(fin.monthlyRevenue) > 0 || Number(fin.mrr) > 0 || Number(fin.payingCustomers) > 0) {
+    const _netIncome = Math.round((Number(fin.monthlyRevenue || 0) - Number(fin.monthlyActual || 0)) * 100) / 100;
+    lines.push('REVENUE: $' + Number(fin.monthlyRevenue || 0).toFixed(2) + ' MTD, $' + Number(fin.mrr || 0).toFixed(2) + ' MRR, ' + (fin.payingCustomers || 0) + ' paying, net ' + (_netIncome >= 0 ? '+$' + _netIncome.toFixed(2) : '-$' + Math.abs(_netIncome).toFixed(2)) + ' vs LLM.');
+  }
 
   const fleet = worldState.fleet || {};
   const stallList = fleet.stalled && fleet.stalled.length > 0 ? ' (' + fleet.stalled.join(', ') + ')' : '';

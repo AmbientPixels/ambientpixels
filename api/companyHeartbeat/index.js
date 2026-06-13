@@ -20,6 +20,8 @@ const { buildOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
 const { buildStrategyDigest, evaluateObjectives } = require('./strategy-intel');
+const { buildRevenueDigest } = require('./revenue-intel');
+const { getLedger: getRevenueLedger } = require('../_lib/stripe/revenueLedger');
 const { buildAllocationDigest } = require('./allocation-intel');
 const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD, QG_HALLUCINATION_KEYWORDS } = require('./agent-runner');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
@@ -340,6 +342,26 @@ module.exports = async function (context) {
 
     var financeDigest = null;
     try { financeDigest = buildFinanceDigest(_perfGeminiUsage, _perfHeartbeatRuns, campaigns, tasks, performanceDigest, costIntel && costIntel.gemini, Date.now(), outcomeDigest); } catch (_e) { context.log('[heartbeat] Finance digest failed (non-fatal):', _e.message); }
+
+    // ── Revenue Visibility Pipe ──
+    // Central INCOME digest built from the revenueLedger (Stripe webhooks append
+    // to it via _lib/stripe/revenueLedger). Built right after financeDigest so it
+    // can net income vs month-to-date LLM spend, then attached to financeDigest.revenue
+    // (Cipher sees income vs spend) and threaded into worldState + the strategy
+    // sources bag below (paying_customers north-star auto-resolves). Pure module;
+    // fail-open (null) on any error.
+    var revenueDigest = null;
+    try {
+      const _revLedger = await getRevenueLedger();
+      const _spendCents = Math.round(((financeDigest && financeDigest.budget && financeDigest.budget.monthly && financeDigest.budget.monthly.actual) || 0) * 100);
+      revenueDigest = buildRevenueDigest(_revLedger, _spendCents, Date.now());
+      if (revenueDigest) {
+        runtimeMemory.revenueDigest = revenueDigest;
+        if (financeDigest) financeDigest.revenue = revenueDigest; // Cipher's finance prompt block reads digest.revenue
+      }
+      context.log('[heartbeat] Revenue digest: mtd=$' + revenueDigest.mtdRevenueDollars + ' mrr=$' + revenueDigest.mrrDollars + ' paying=' + revenueDigest.payingCustomers + ' net=$' + revenueDigest.netDollars);
+    } catch (_e) { context.log('[heartbeat] Revenue digest failed (non-fatal):', _e.message); }
+
     // Scout research demand digest (aggregates signals from all other digests — Scout runs last)
     var researchDemandDigest = null;
     try { researchDemandDigest = buildResearchDemandDigest(socialIntel, forgeOpsDigest, financeDigest, performanceDigest, tasks, researchIntelStore, campaigns, skillsData, Date.now()); } catch (_e) { context.log('[heartbeat] Research demand digest failed (non-fatal):', _e.message); }
@@ -387,6 +409,7 @@ module.exports = async function (context) {
       const _worldExecMode = (await storage.getState('execution_mode')) || 'active';
       worldState = buildWorldState({
         financeDigest: financeDigest,
+        revenueDigest: revenueDigest,
         forgeOpsDigest: forgeOpsDigest,
         outcomeDigest: outcomeDigest,
         strategicDigest: strategicDigest,
@@ -415,7 +438,8 @@ module.exports = async function (context) {
     try {
       strategyDigest = buildStrategyDigest(companyStrategy, {
         socialAccountStats: socialAccountStats,
-        blogPostViews: _blogPostViewsForDigest
+        blogPostViews: _blogPostViewsForDigest,
+        revenueDigest: revenueDigest
       }, Date.now());
       if (strategyDigest) context.log('[heartbeat] Strategy digest:', strategyDigest.northStar.length, 'north stars, era=' + strategyDigest.era);
       else context.log('[heartbeat] Strategy digest: companyStrategy not seeded — block omitted');
@@ -3477,7 +3501,8 @@ module.exports = async function (context) {
     try {
       const _se2 = evaluateObjectives(objectives, {
         socialAccountStats: socialAccountStats,
-        blogPostViews: _blogPostViewsForDigest
+        blogPostViews: _blogPostViewsForDigest,
+        revenueDigest: revenueDigest
       }, Date.now());
       if (_se2.changed) objectivesChanged = true;
       for (const _evt of _se2.govEvents) campaignGovEvents.push(_evt);
@@ -4167,6 +4192,7 @@ module.exports = async function (context) {
         outcomeDigest: !!outcomeDigest,
         reflectionDigest: !!reflectionDigest,
         financeDigest: !!financeDigest,
+        revenueDigest: !!revenueDigest,
         contentDigest: !!contentDigest,
         strategicDigest: !!strategicDigest,
         worldState: !!worldState,

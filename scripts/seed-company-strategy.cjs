@@ -10,7 +10,7 @@ const companyStrategy = {
   eraGoal: 'Prove the system can win real paying customers.',
   planningCadence: 'monthly',
   northStar: [
-    { metric: 'paying_customers', label: 'Paying customers', priority: 1, target: 1, by: '2026-08-31', source: 'manual', current: 0, baseline: 0 },
+    { metric: 'paying_customers', label: 'Paying customers', priority: 1, target: 1, by: '2026-08-31', source: 'revenueDigest', current: 0, baseline: 0 },
     { metric: 'bluesky_followers', label: 'Bluesky followers', priority: 2, target: 500, by: '2026-09-30', source: 'socialAccountStats', baseline: 72 },
     { metric: 'blog_views_week', label: 'Blog views/week', priority: 3, target: 100, by: '2026-09-30', source: 'blogPostViews', baseline: 16 },
     { metric: 'weekly_active_users', label: 'Weekly active product users', priority: 4, target: 25, by: '2026-09-30', source: 'manual', current: null, baseline: 0 }

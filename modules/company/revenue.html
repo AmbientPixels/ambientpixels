@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Revenue — company income, MRR, paying customers, net vs LLM spend." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Revenue — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .rev-section { margin-bottom: 1.4rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); }
+    .rev-empty { font-size: var(--c-text-xs); color: rgba(255,255,255,0.5); padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+    .rev-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
+    .rev-hero-card { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .rev-hero-card .rev-label { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .rev-hero-card .rev-value { font-size: var(--c-text-xl); font-weight: 600; color: #fff; }
+    .rev-hero-card .rev-sub { font-size: var(--c-text-xs); opacity: 0.6; margin-top: 0.2rem; }
+    .rev-value.rev-pos { color: #34d399; }
+    .rev-value.rev-neg { color: #f87171; }
+    .rev-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; }
+
+    .rev-row { display: grid; grid-template-columns: 1fr 110px 70px; gap: 0.6rem; align-items: center; padding: 0.4rem 0.6rem; border-radius: 6px; margin-bottom: 0.3rem; font-size: var(--c-text-xs); background: rgba(255,255,255,0.02); }
+    .rev-row-name { text-transform: capitalize; font-weight: 500; color: #fff; }
+    .rev-row-val { text-align: right; }
+    .rev-row-sub { text-align: right; opacity: 0.6; }
+
+    .rev-kv { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem; padding: 0.4rem 0.6rem; font-size: var(--c-text-xs); border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .rev-kv:last-child { border-bottom: none; }
+    .rev-kv-key { opacity: 0.7; }
+    .rev-kv-val { color: #fff; font-weight: 500; }
+    .rev-trend-up { color: #34d399; }
+    .rev-trend-down { color: #f87171; }
+    .rev-ondemand { font-size: var(--c-text-xs); opacity: 0.45; margin-top: 0.4rem; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="rev-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-chart-line co-icon-mr-lg dash-icon-amber"></i>Revenue</h1>
+        <p class="act-header-sub">Company income from Stripe — what the agents earned, not just what they spent. MRR, paying customers, and net vs LLM cost.</p>
+      </div>
+    </div>
+
+    <div id="rev-hero" class="rev-hero"></div>
+
+    <div class="rev-grid-2">
+      <div class="sys-section rev-section" id="rev-products-section" data-section="products">
+        <div class="sys-section-hdr">
+          <i class="fas fa-box-open"></i>
+          <strong>Revenue by Product (lifetime)</strong>
+          <span class="sys-count" id="rev-products-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="rev-products"></div>
+        </div>
+      </div>
+
+      <div class="sys-section rev-section" id="rev-composition-section" data-section="composition">
+        <div class="sys-section-hdr">
+          <i class="fas fa-layer-group"></i>
+          <strong>This Month &amp; MRR</strong>
+          <span class="sys-count" id="rev-composition-count"></span>
+          <i class="fas fa-chevron-down sys-chevron"></i>
+        </div>
+        <div class="sys-section-body">
+          <div id="rev-composition"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+
+    function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function emptyState(id, msg) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="rev-empty">' + esc(msg) + '</div>'; }
+    function dollars(cents) { return '$' + (Math.round(Number(cents) || 0) / 100).toFixed(2); }
+
+    function load() {
+      return fetch(API + '/revenueDigest', { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); });
+    }
+
+    function renderHero(d) {
+      var net = Number(d.netCents || 0);
+      var html = '';
+      html += '<div class="rev-hero-card"><div class="rev-label">Income (MTD)</div><div class="rev-value">' + dollars(d.mtdRevenueCents) + '</div><div class="rev-sub">gross ' + dollars(d.mtdGrossCents) + ' · ' + esc(d.month || '') + '</div></div>';
+      html += '<div class="rev-hero-card"><div class="rev-label">MRR</div><div class="rev-value">' + dollars(d.mrrCents) + '</div><div class="rev-sub">' + (d.activeSubs || 0) + ' active subscription' + (d.activeSubs === 1 ? '' : 's') + '</div></div>';
+      html += '<div class="rev-hero-card"><div class="rev-label">Paying Customers</div><div class="rev-value">' + (d.payingCustomers || 0) + '</div><div class="rev-sub">lifetime distinct (non-refunded)</div></div>';
+      html += '<div class="rev-hero-card"><div class="rev-label">Net vs LLM Spend</div><div class="rev-value ' + (net >= 0 ? 'rev-pos' : 'rev-neg') + '">' + (net >= 0 ? '+' : '-') + dollars(Math.abs(net)) + '</div><div class="rev-sub">income ' + dollars(d.mtdRevenueCents) + ' − spend ' + dollars(d.spendCents) + '</div></div>';
+      document.getElementById('rev-hero').innerHTML = html;
+    }
+
+    function renderProducts(d) {
+      var bp = d.byProduct || {};
+      var rows = Object.keys(bp).map(function (k) { return { product: k, net: bp[k].netCents, count: bp[k].count }; })
+        .filter(function (r) { return r.net !== 0 || r.count > 0; })
+        .sort(function (a, b) { return b.net - a.net; });
+      if (rows.length === 0) { emptyState('rev-products', 'No revenue recorded yet. The ledger fills as Stripe webhooks fire — or run scripts/backfill-revenue-ledger.cjs to seed history.'); return; }
+      var html = rows.map(function (r) {
+        return '<div class="rev-row">' +
+          '<div class="rev-row-name">' + esc(r.product) + '</div>' +
+          '<div class="rev-row-val">' + dollars(r.net) + '</div>' +
+          '<div class="rev-row-sub">' + (r.count || 0) + ' sale' + (r.count === 1 ? '' : 's') + '</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('rev-products').innerHTML = html;
+    }
+
+    function renderComposition(d) {
+      var ovr = d.oneTimeVsRecurring || { oneTimeCents: 0, recurringCents: 0 };
+      var trend = d.trend || {};
+      var trendStr = '—';
+      if (trend.deltaPct != null) {
+        var cls = trend.deltaPct >= 0 ? 'rev-trend-up' : 'rev-trend-down';
+        trendStr = '<span class="' + cls + '">' + (trend.deltaPct >= 0 ? '+' : '') + trend.deltaPct + '%</span> vs last month';
+      } else {
+        trendStr = 'no prior month';
+      }
+      var html = '';
+      html += '<div class="rev-kv"><div class="rev-kv-key">One-time income (MTD)</div><div class="rev-kv-val">' + dollars(ovr.oneTimeCents) + '</div></div>';
+      html += '<div class="rev-kv"><div class="rev-kv-key">Recurring income (MTD)</div><div class="rev-kv-val">' + dollars(ovr.recurringCents) + '</div></div>';
+      html += '<div class="rev-kv"><div class="rev-kv-key">MRR (monthly recurring)</div><div class="rev-kv-val">' + dollars(d.mrrCents) + '</div></div>';
+      html += '<div class="rev-kv"><div class="rev-kv-key">Active subscriptions</div><div class="rev-kv-val">' + (d.activeSubs || 0) + '</div></div>';
+      html += '<div class="rev-kv"><div class="rev-kv-key">Income trend</div><div class="rev-kv-val">' + trendStr + '</div></div>';
+      html += '<div class="rev-kv"><div class="rev-kv-key">Lifetime revenue</div><div class="rev-kv-val">' + dollars(d.lifetimeRevenueCents) + '</div></div>';
+      html += '<div class="rev-kv"><div class="rev-kv-key">Ledger entries</div><div class="rev-kv-val">' + (d.totalEntries || 0) + '</div></div>';
+      document.getElementById('rev-composition').innerHTML = html;
+    }
+
+    // ── Collapsible sections ──
+    document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
+      hdr.addEventListener('click', function() {
+        hdr.parentElement.classList.toggle('collapsed');
+        hdr.parentElement.classList.remove('dimmed');
+      });
+    });
+
+    function _applySectionDefaults(defaults) {
+      Object.keys(defaults).forEach(function(id) {
+        var section = document.getElementById(id);
+        if (!section) return;
+        var body = section.querySelector('.sys-section-body');
+        var countEl = section.querySelector('.sys-count');
+        var cfg = defaults[id];
+        var count = cfg.count != null ? cfg.count : body ? body.querySelectorAll(':scope > *').length : 0;
+        if (countEl) countEl.textContent = count > 0 ? '(' + count + ')' : '';
+        if (cfg.collapse === 'always') section.classList.add('collapsed');
+        else section.classList.remove('collapsed', 'dimmed');
+      });
+    }
+
+    load().then(function (d) {
+      renderHero(d);
+      renderProducts(d);
+      renderComposition(d);
+      _applySectionDefaults({
+        'rev-products-section':    { collapse: 'never' },
+        'rev-composition-section': { collapse: 'never' }
+      });
+      if (d._builtOnDemand) {
+        var hero = document.getElementById('rev-hero');
+        var note = document.createElement('div');
+        note.className = 'rev-ondemand';
+        note.textContent = 'Built on-demand (heartbeat cache missing or stale).';
+        hero.parentNode.insertBefore(note, hero.nextSibling);
+      }
+    }).catch(function (err) {
+      var m = 'Failed to load revenue.';
+      if (err && err.status === 403) m = 'Unauthorized — check x-company-secret header.';
+      document.getElementById('rev-hero').innerHTML = '<div class="rev-empty">' + esc(m) + '</div>';
+    });
+  })();
+  </script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>

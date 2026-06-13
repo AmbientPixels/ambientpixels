@@ -237,6 +237,17 @@ function _buildFinancePromptBlock(agent, digest) {
   lines.push('- Monthly projected: $' + (monthly.projected || 0) + ' / $' + (monthly.budget || FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.projectedPct || 0) + '%) ' + (monthly.projectedStatus || 'GREEN'));
   lines.push('- Trend: ' + _arrow(trend.deltaPct || 0) + ' week-over-week');
 
+  // Revenue (income vs spend) — present once the revenue pipe has populated digest.revenue.
+  var rev = digest.revenue;
+  if (rev) {
+    var _d = function (c) { return '$' + (Math.round(c) / 100).toFixed(2); };
+    lines.push('\nREVENUE (this month):');
+    lines.push('- MTD income: ' + _d(rev.mtdRevenueCents) + ' (one-time ' + _d(rev.oneTimeVsRecurring.oneTimeCents) + ' · recurring ' + _d(rev.oneTimeVsRecurring.recurringCents) + ')');
+    lines.push('- MRR: ' + _d(rev.mrrCents) + ' (' + rev.activeSubs + ' active sub' + (rev.activeSubs === 1 ? '' : 's') + ') | Paying customers (lifetime): ' + rev.payingCustomers);
+    lines.push('- Net (income − LLM spend MTD): ' + _d(rev.netCents) + (rev.netCents >= 0 ? ' — profitable this month' : ' — burning'));
+    if (rev.trend && rev.trend.deltaPct !== null) lines.push('- Income trend vs last month: ' + (rev.trend.deltaPct >= 0 ? '+' : '') + rev.trend.deltaPct + '%');
+  }
+
   // Agent efficiency
   lines.push('\nAGENT EFFICIENCY (cost/action | waste):');
   sorted.forEach(function (aid) {

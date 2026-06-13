@@ -3,6 +3,7 @@
 
 const storage = require('../_utils/companyStorage');
 const stripeClient = require('../_lib/ambientScore/stripeClient');
+const revenueRecorder = require('../_lib/stripe/recordWebhookRevenue');
 
 module.exports = async function (context, req) {
   try {
@@ -79,6 +80,21 @@ module.exports = async function (context, req) {
           context.log.warn('[as-webhook] Report not found for: ' + reportId + ' (may still be generating)');
         }
       }
+
+      // Record company revenue (idempotent on event.id, non-fatal — never breaks the unlock).
+      await revenueRecorder.recordCheckoutRevenue({
+        event: event,
+        session: session,
+        product: 'ambientscore',
+        type: 'one_time',
+        plan: (session.metadata && session.metadata.priceType) || 'single',
+        fallbackCents: ((session.metadata && session.metadata.priceType) === 'pack') ? 8900 : 2900,
+        log: context.log
+      });
+    } else if (event.type === 'charge.refunded') {
+      await revenueRecorder.recordRefundFromEvent({ event: event, product: 'ambientscore', kind: 'refund', log: context.log });
+    } else if (event.type === 'charge.dispute.created') {
+      await revenueRecorder.recordRefundFromEvent({ event: event, product: 'ambientscore', kind: 'dispute', log: context.log });
     }
 
     // Always return 200 to Stripe
