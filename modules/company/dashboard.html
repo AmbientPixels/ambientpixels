@@ -2598,21 +2598,39 @@
       // ── Model Fleet ──
       function renderFleet() {
         var fleet = AgentEngine.getModelFleet();
-        panelFleet.innerHTML = '';
+        // Dynamic routing summary — reflects what the current selection actually runs.
+        // The heartbeatModel toggle is system-wide: chat/standups/reports follow it
+        // (collapsing any Claude pick to Sonnet); only the heartbeat honors Haiku.
+        var _k = _activeModelKey || 'gemini';
+        var _nm = function (t) { return '<span style="color:var(--aura-text,#e8e8e8);font-weight:600;">' + t + '</span>'; };
+        var _routing = (_k === 'claude-haiku')
+          ? 'Heartbeat: ' + _nm('Haiku 4.5') + ' · Chat, Standups &amp; Reports: ' + _nm('Sonnet 4.6')
+          : 'Heartbeat, Chat, Standups &amp; Reports: ' + _nm(_k === 'claude-sonnet' ? 'Sonnet 4.6' : 'Gemini Flash');
+        panelFleet.innerHTML =
+          '<div class="fleet-routing" style="padding:8px 12px;border-bottom:1px solid var(--aura-border,#333);">' +
+            '<div style="font-size:0.72rem;color:var(--aura-text-muted,#888);line-height:1.4;">Running now — ' + _routing + '</div>' +
+            '<div style="font-size:0.66rem;color:var(--aura-text-muted,#666);margin-top:3px;">Pixel Agents &amp; image generation run separately.</div>' +
+          '</div>';
         // Exact match: _detectedModel is the full model ID (e.g. "claude-sonnet-4-6")
         var activeId = _detectedModel || '';
 
         fleet.forEach(function (model) {
           var isPrimary = activeId === model.id;
+          // Sonnet also runs chat/standups/reports whenever a Claude model is the
+          // heartbeat pick (any Claude collapses to Sonnet for those surfaces). So it's
+          // a non-primary "active" model only when Haiku is selected — when Sonnet is
+          // picked it's already PRIMARY, and on Gemini it sits idle (STANDBY).
+          var sonnetSecondary = (model.id === 'claude-sonnet-4-6' && _activeModelKey === 'claude-haiku');
           var statusLabel, statusClass, roleTag;
           if (isPrimary) {
             statusLabel = 'PRIMARY';
             statusClass = 'active';
             roleTag = ' <span style="color:var(--glow-confirm);font-size:0.7em;font-weight:600;">● HEARTBEAT</span>';
-          } else if (model.alwaysActive) {
+          } else if (model.alwaysActive || sonnetSecondary) {
             statusLabel = 'ACTIVE';
             statusClass = 'active';
-            roleTag = ' <span style="color:var(--aura-text-muted,#888);font-size:0.7em;font-weight:400;">· ' + model.alwaysActiveRole + '</span>';
+            var _role = model.alwaysActive ? model.alwaysActiveRole : 'chat, standups &amp; reports';
+            roleTag = ' <span style="color:var(--aura-text-muted,#888);font-size:0.7em;font-weight:400;">· ' + _role + '</span>';
           } else {
             statusLabel = 'STANDBY';
             statusClass = 'available';
@@ -2706,7 +2724,17 @@
       }
 
       // ── Agent Status ──
+      // Pull the real server-side fleet activity (geminiUsage) first so call counts + the
+      // active/idle dots reflect the autonomous heartbeat, not just dashboard chats.
       function renderAgentStatus() {
+        if (AgentEngine.refreshFleetActivity) {
+          AgentEngine.refreshFleetActivity().then(_paintAgentStatus).catch(_paintAgentStatus);
+        } else {
+          _paintAgentStatus();
+        }
+      }
+
+      function _paintAgentStatus() {
         var statuses = AgentEngine.getAgentStatuses();
         panelAgentStatus.innerHTML = '';
         var agentStats = AgentEngine.getAgentSessionStats();

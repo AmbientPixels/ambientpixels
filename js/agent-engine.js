@@ -78,6 +78,12 @@ var AgentEngine = (function () {
       : '/api/agentchat';
   }
 
+  function _apiRoot() {
+    return window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+  }
+
   // ── Load agent registry ──
   function loadRegistry() {
     if (_registry) return Promise.resolve(_registry);
@@ -234,6 +240,13 @@ var AgentEngine = (function () {
   var MAX_SESSIONS = 100;
   var MAX_CRON = 50;
 
+  // Real fleet activity — aggregated from the server-side geminiUsage call log (the heartbeat
+  // logs every autonomous LLM call there). The local sessionLog only captures dashboard chats.
+  var _fleetActivity = null;     // { agentId: {calls, inputTokens, outputTokens, cost, lastCall} }
+  var _fleetActivityAt = 0;
+  var FLEET_ACTIVITY_WINDOW_MS = 24 * 60 * 60 * 1000; // count real calls in the last 24h
+  var FLEET_ACTIVITY_TTL_MS = 20000;                  // don't refetch the (large) log more than every 20s
+
   // Log a completed API call (session log only — real token/cost data lives server-side in geminiUsage)
   function _trackCall(agentId, mode) {
     var sessions = _loadStorage(SESSION_LOG_KEY, []);
@@ -281,9 +294,7 @@ var AgentEngine = (function () {
       name: 'Claude Sonnet 4.6',
       provider: 'Anthropic',
       status: 'active',
-      usage: 'Heartbeat toggle · Always: chat, standup, reports, Pixel Agents',
-      alwaysActive: true,
-      alwaysActiveRole: 'chat + standup',
+      usage: 'Balanced · writing, everyday tasks',
       inputPrice: '$3.00 / 1M tokens',
       outputPrice: '$15.00 / 1M tokens'
     }, {
@@ -291,15 +302,15 @@ var AgentEngine = (function () {
       name: 'Claude Haiku 4.5',
       provider: 'Anthropic',
       status: 'available',
-      usage: 'Heartbeat toggle · ~4x cheaper than Sonnet',
-      inputPrice: '$0.80 / 1M tokens',
-      outputPrice: '$4.00 / 1M tokens'
+      usage: 'Fastest · lowest cost, high volume',
+      inputPrice: '$1.00 / 1M tokens',
+      outputPrice: '$5.00 / 1M tokens'
     }, {
       id: 'gemini-2.5-flash',
       name: 'Gemini 2.5 Flash',
       provider: 'Google',
       status: 'active',
-      usage: 'Heartbeat toggle · Always: image generation',
+      usage: 'Workhorse · always runs image generation',
       alwaysActive: true,
       alwaysActiveRole: 'image gen',
       inputPrice: '$0.30 / 1M tokens',
@@ -307,8 +318,50 @@ var AgentEngine = (function () {
     }];
   }
 
-  // Get per-agent session breakdown
+  // Pull the real per-agent LLM call log (server-side geminiUsage) and aggregate the last 24h.
+  // This reflects the autonomous heartbeat — not just dashboard chats. Result is cached for
+  // FLEET_ACTIVITY_TTL_MS so repeated renders don't refetch the large log. Always resolves.
+  function refreshFleetActivity(force) {
+    if (!force && _fleetActivity && (Date.now() - _fleetActivityAt) < FLEET_ACTIVITY_TTL_MS) {
+      return Promise.resolve(_fleetActivity);
+    }
+    var headers = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders)
+      ? CompanyStore.getWriteHeaders() : { 'x-company-secret': 'pixelpusher' };
+    return fetch(_apiRoot() + '/company-state?key=geminiUsage', { headers: headers })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (resp) {
+        var usage = (resp && resp.value) || [];
+        if (!Array.isArray(usage)) usage = [];
+        var cutoff = Date.now() - FLEET_ACTIVITY_WINDOW_MS;
+        var stats = {};
+        usage.forEach(function (u) {
+          if (!u || !u.agentId) return;
+          var t = u.timestamp ? new Date(u.timestamp).getTime() : 0;
+          if (!t || t < cutoff) return;
+          // Fold the Nova closing-pass (and any *_closing sub-call) back onto the base agent.
+          var id = String(u.agentId).replace(/_closing$/, '');
+          if (!stats[id]) {
+            stats[id] = { calls: 0, inputTokens: 0, outputTokens: 0, cost: 0, lastCall: null };
+          }
+          stats[id].calls += 1;
+          stats[id].inputTokens += (u.promptTokens || 0);
+          stats[id].outputTokens += (u.completionTokens || 0);
+          stats[id].cost += (u.totalCost || 0);
+          if (!stats[id].lastCall || u.timestamp > stats[id].lastCall) stats[id].lastCall = u.timestamp;
+        });
+        _fleetActivity = stats;
+        _fleetActivityAt = Date.now();
+        emit('fleet-activity-update', stats);
+        return stats;
+      })
+      .catch(function () { return _fleetActivity || {}; });
+  }
+
+  // Get per-agent session breakdown. Prefers real server-side fleet activity (geminiUsage)
+  // once refreshFleetActivity() has run; falls back to the local dashboard session log.
   function getAgentSessionStats() {
+    if (_fleetActivity) return _fleetActivity;
+
     var sessions = _loadStorage(SESSION_LOG_KEY, []);
     var stats = {};
 
@@ -3762,6 +3815,7 @@ var AgentEngine = (function () {
     logCron: logCron,
     getModelFleet: getModelFleet,
     getAgentSessionStats: getAgentSessionStats,
+    refreshFleetActivity: refreshFleetActivity,
     getAgentStatuses: getAgentStatuses,
     getOvernightLog: getOvernightLog,
     // Workspace
