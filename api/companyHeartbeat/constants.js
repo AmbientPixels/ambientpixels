@@ -170,7 +170,25 @@ const EMERGENCE_THRESHOLDS = {
   fleetChurn30d:          { yellow: 3, red: 5 },
   capitalRedStreak:       { yellow: 3, red: 7 },
   approvalCriticalAgeH:   { yellow: 24, red: 72 },
-  approvalDepthTotal:     { yellow: 10, red: 20 }
+  approvalDepthTotal:     { yellow: 10, red: 20 },
+  // Signal 6: fleet throughput collapse. Two prongs over the last `windowRuns`
+  // runs that actually ran the agent loop (non-empty perAgent). Catches both the
+  // gemini-idle case (low aggregate output) and the LLM-outage case (agents
+  // present but failing at sub-second latency). latencyFloorMs is the
+  // discriminator: a healthy agent that CHOSE to do nothing still spends seconds
+  // thinking; a failed/empty LLM call returns in <500ms.
+  throughputCollapse: {
+    windowRuns: 6,
+    minRunsRequired: 4,
+    latencyFloorMs: 1000,
+    avgExecuted:  { yellow: 2, red: 1 },
+    // yellow:2 because TWO agents persistently sub-second + zero-output is always
+    // pathological for Claude (a real run is 3-15s; Gemini's ~2s is above the
+    // floor) — validated against the 2026-06-12/13 outage where nova+scribe sat
+    // dead for ~21h while the aggregate stayed healthy (prefetch group kept
+    // working). A single silent agent is left to ops-intel's per-agent stall.
+    silentAgents: { yellow: 2, red: 4 }
+  }
 };
 
 // Maps approvalQueue entry type → blast-radius tier for CEO dashboard sort.

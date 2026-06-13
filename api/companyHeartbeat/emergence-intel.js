@@ -365,6 +365,118 @@ function _computeApprovalDepth(approvalQueue, nowMs) {
   };
 }
 
+// Signal 6: fleet throughput collapse (cause-agnostic). Watches the SYMPTOM —
+// the heartbeat producing little/no work — so it catches model misconfig,
+// credit exhaustion, and rate-limiting alike. Deterministic: fires even during a
+// total LLM outage (this cron uses no LLM). Two prongs, level = worst of both.
+function _median(nums) {
+  if (!nums.length) return null;
+  var s = nums.slice().sort(function (a, b) { return a - b; });
+  var m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+function _computeThroughputCollapse(heartbeatRuns, nowMs) {
+  var t = EMERGENCE_THRESHOLDS.throughputCollapse;
+  var realKeys = function (perAgent) {
+    return Object.keys(perAgent || {}).filter(function (k) { return k.indexOf('_closing') === -1; });
+  };
+
+  // Qualifying runs = ran the agent loop (non-empty perAgent of real agents).
+  // Excludes frozen/observe/errored-early runs that legitimately did nothing.
+  var qualifying = (heartbeatRuns || []).filter(function (r) {
+    return r && r.perAgent && realKeys(r.perAgent).length > 0;
+  });
+  var window = qualifying.slice(-t.windowRuns);
+  var n = window.length;
+
+  var metrics = {
+    qualifyingRuns: n,
+    windowRuns: t.windowRuns,
+    avgExecuted: null,
+    silentAgentCount: 0,
+    silentAgents: [],
+    busyAgentCount: 0
+  };
+
+  if (n < t.minRunsRequired) {
+    return { metrics: metrics, signals: [] };
+  }
+
+  // Prong 1: aggregate executed actions per run.
+  var execSum = window.reduce(function (acc, r) {
+    var e = r.agentActions && Number(r.agentActions.executed);
+    return acc + (Number.isFinite(e) ? e : 0);
+  }, 0);
+  var avgExecuted = Math.round((execSum / n) * 10) / 10;
+  metrics.avgExecuted = avgExecuted;
+
+  // Prong 2: agents present in EVERY window run, executed 0 in all, median
+  // latency below the floor (the failed/empty-call signature).
+  var agentUniverse = {};
+  window.forEach(function (r) {
+    realKeys(r.perAgent).forEach(function (id) { agentUniverse[id] = true; });
+  });
+  var silent = [];
+  var busy = 0;
+  Object.keys(agentUniverse).forEach(function (id) {
+    var appearances = 0, anyExecuted = false, lats = [];
+    window.forEach(function (r) {
+      var a = r.perAgent && r.perAgent[id];
+      if (!a) return;
+      appearances += 1;
+      var ex = Number(a.actionsExecuted);
+      if (Number.isFinite(ex) && ex > 0) anyExecuted = true;
+      var lat = Number(a.avgLatencyMs);
+      if (Number.isFinite(lat)) lats.push(lat);
+    });
+    if (anyExecuted) { busy += 1; return; }
+    var med = _median(lats);
+    // Silent = ran every cycle, never executed, and median latency looks like a
+    // failed/empty call (not seconds of deliberation).
+    if (appearances === n && med !== null && med < t.latencyFloorMs) silent.push(id);
+  });
+  metrics.silentAgentCount = silent.length;
+  metrics.silentAgents = silent;
+  metrics.busyAgentCount = busy;
+
+  // Level = worst of the two prongs.
+  function level(value, thr, lowerIsWorse) {
+    if (lowerIsWorse) {
+      if (value <= thr.red) return 'RED';
+      if (value <= thr.yellow) return 'YELLOW';
+    } else {
+      if (value >= thr.red) return 'RED';
+      if (value >= thr.yellow) return 'YELLOW';
+    }
+    return null;
+  }
+  var aggLevel = level(avgExecuted, t.avgExecuted, true);
+  var silLevel = level(silent.length, t.silentAgents, false);
+  var worst = (aggLevel === 'RED' || silLevel === 'RED') ? 'RED'
+            : (aggLevel === 'YELLOW' || silLevel === 'YELLOW') ? 'YELLOW' : null;
+
+  var signals = [];
+  if (worst) {
+    var silentNote = silent.length
+      ? ', ' + silent.length + ' agent(s) silent at sub-second latency (' + silent.join(', ') + ')'
+      : '';
+    signals.push({
+      id: _id('esig'),
+      level: worst,
+      signalType: 'throughput-collapse',
+      subject: 'system',
+      signal: 'Fleet throughput collapsed: avg ' + avgExecuted + ' actions/run over last ' + n + ' runs' + silentNote,
+      recommendation: 'Most common causes: systemConfig.heartbeatModel misconfigured (Gemini ignores the multi-section prompt) or an Anthropic credit/rate-limit failure (swallowed in gemini.js). Check the model setting + Anthropic billing. Healthy Claude runs are 3-15s/agent; sub-500ms + null reasoning = a failed LLM call, not an idle choice.',
+      threshold: { avgExecuted: t.avgExecuted, silentAgents: t.silentAgents, windowRuns: t.windowRuns, latencyFloorMs: t.latencyFloorMs },
+      evidence: { avgExecuted: avgExecuted, silentAgentCount: silent.length, silentAgents: silent, windowRuns: n },
+      at: new Date(nowMs).toISOString()
+    });
+  }
+
+  return { metrics: metrics, signals: signals };
+}
+
 function buildEmergenceDigest(ctx, nowMsIn) {
   var nowMs = Number.isFinite(nowMsIn) ? nowMsIn : Date.now();
   var approvalQueue = Array.isArray(ctx && ctx.approvalQueue) ? ctx.approvalQueue : [];
@@ -376,13 +488,15 @@ function buildEmergenceDigest(ctx, nowMsIn) {
   var churn    = _computeFleetChurn(approvalQueue, nowMs);
   var redStreak = _computeCapitalRedStreak(capitalAllocation, heartbeatRuns, nowMs);
   var depth    = _computeApprovalDepth(approvalQueue, nowMs);
+  var throughput = _computeThroughputCollapse(heartbeatRuns, nowMs);
 
   var allSignals = []
     .concat(propRate.signals)
     .concat(rejRate.signals)
     .concat(churn.signals)
     .concat(redStreak.signals)
-    .concat(depth.signals);
+    .concat(depth.signals)
+    .concat(throughput.signals);
 
   // Trim to EMERGENCE_SIGNALS_MAX (FIFO — keep most recent if over)
   if (allSignals.length > EMERGENCE_SIGNALS_MAX) {
@@ -398,7 +512,8 @@ function buildEmergenceDigest(ctx, nowMsIn) {
       rejectRate:   rejRate.metrics,
       fleetChurn:   churn.metrics,
       capitalRedStreak: redStreak.metrics,
-      approvalDepth: depth.metrics
+      approvalDepth: depth.metrics,
+      throughputCollapse: throughput.metrics
     },
     lastCronRun: new Date(nowMs).toISOString()
   };
