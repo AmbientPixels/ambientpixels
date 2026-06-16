@@ -462,6 +462,13 @@
             </div>
             <div class="act-panel-body" id="bluesky-reply-list"></div>
           </div>
+          <div class="act-panel" id="auto-published-panel" style="display:none;">
+            <div class="act-panel-head">
+              <span><i class="fas fa-robot" style="color:#34d399;"></i> Auto-Published (grace window)</span>
+              <span id="auto-published-count" class="act-count-badge"></span>
+            </div>
+            <div class="act-panel-body" id="auto-published-list"></div>
+          </div>
         </div>
       </div>
 
@@ -675,6 +682,7 @@
       renderPending();
       renderContentPackages();
       renderBlueskyReplies();
+      renderAutoPublished();
       renderRevisions();
       renderScheduled();
       renderExecLog();
@@ -898,6 +906,44 @@
     }
 
     // ── Pending ──
+    // ── Auto-Published (grace window) — read-only list of posts that shipped autonomously ──
+    function renderAutoPublished() {
+      var panel = document.getElementById('auto-published-panel');
+      var el = document.getElementById('auto-published-list');
+      var countEl = document.getElementById('auto-published-count');
+      if (!panel || !el) return;
+      var items = AE.getActions().filter(function (a) {
+        return a && a._gracePublished && a.approval && a.approval.approved_at;
+      });
+      items.sort(function (a, b) {
+        return String(b.approval.approved_at).localeCompare(String(a.approval.approved_at));
+      });
+      if (items.length === 0) { panel.style.display = 'none'; if (countEl) countEl.textContent = ''; return; }
+      panel.style.display = '';
+      if (countEl) countEl.textContent = items.length;
+      var html = '';
+      items.forEach(function (a) {
+        var rc = (a.execution && a.execution.receipt) || {};
+        var url = rc.post_url || rc.public_url || '';
+        var when = a.approval.approved_at;
+        var qg = a.qualityGate || (a.payload && a.payload.qualityGate) || null;
+        var conf = (qg && qg.confidence != null) ? qg.confidence : null;
+        var text = (a.payload && (a.payload.text || a.payload.copy)) || '';
+        var plat = a.platform || 'unknown';
+        html += '<div style="padding:0.5rem 0.65rem;margin-bottom:0.5rem;border-left:2px solid rgba(52,211,153,0.45);background:rgba(52,211,153,0.04);border-radius:0 6px 6px 0;">';
+        html += '<div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.3rem;">';
+        html += '<span style="font-size:var(--c-text-xs);text-transform:uppercase;letter-spacing:0.04em;color:#34d399;"><i class="fas fa-robot" style="margin-right:4px;"></i>Auto-published &middot; ' + esc(plat) + '</span>';
+        if (when) html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">' + esc(timeAgo(when)) + '</span>';
+        if (conf != null) html += '<span style="font-size:var(--c-text-xs);opacity:0.55;">QG ' + esc(String(conf)) + '</span>';
+        html += '</div>';
+        if (text) html += '<div style="font-size:var(--c-text-base);color:rgba(255,255,255,0.85);line-height:1.45;white-space:pre-wrap;margin-bottom:0.4rem;">' + esc(text) + '</div>';
+        if (url) html += '<a href="' + esc(url) + '" target="_blank" rel="noopener" style="font-size:var(--c-text-xs);color:#60a5fa;text-decoration:none;"><i class="fas fa-external-link-alt" style="margin-right:3px;"></i>View live post</a>';
+        else html += '<span style="font-size:var(--c-text-xs);opacity:0.4;">(no live link on record)</span>';
+        html += '</div>';
+      });
+      el.innerHTML = html;
+    }
+
     function renderPending() {
       var all = AE.getActions().filter(function (a) {
         return a.approval && a.approval.status === 'pending';
