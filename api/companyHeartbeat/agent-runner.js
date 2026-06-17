@@ -28,6 +28,7 @@ const {
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
+const { evaluateDocQualityGate } = require('./doc-quality-gate'); // shared blog/long-form fact-check decision
 const _productFacts = require('../_data/product-facts.json');
 var _founderVoice = {};
 try { _founderVoice = require('../_data/founder-voice-examples.json'); } catch (_) {}
@@ -2139,54 +2140,84 @@ Write the full deliverable first, then the structured JSON block.`;
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
                 };
-                _etDocsStore.push(_etDoc);
-                await storage.setState('documents', _etDocsStore);
-                context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created marketing_post from execute-task deliverable:', _etDocId, 'for blog task:', action.taskId);
-
-                // Auto-create Pixel hero image task (same logic as create-doc handler)
-                // SPAWN GUARD: do not spawn child tasks from auto-created tasks (prevents auto→auto chains)
-                const _etSourceAutoCreated = task.tags && task.tags.indexOf('auto-created') !== -1;
-                const _etHeroTitle = 'Generate hero image for: ' + stripTaskPrefixes(_etDoc.title);
-                const _etHeroExists = tasks.some(t =>
-                  t.assignee === 'pixel' && t.status !== 'done' &&
-                  (t.title === _etHeroTitle || (t.description && t.description.indexOf(_etDocId) !== -1))
-                );
-                if (!_etHeroExists && !_etSourceAutoCreated) {
-                  const _etHeroTask = {
-                    id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
-                    title: _etHeroTitle,
-                    description: 'Generate a hero image for the blog post "' + _etDoc.title + '".\nDocument ID: ' + _etDocId + '\nUse generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + _etDocId + '" }.\nChoose an appropriate preset based on the content tone.',
-                    taskType: 'design_asset',
-                    status: 'todo',
-                    priority: task.priority || 'high',
-                    dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-                    assignee: 'pixel',
-                    source: 'heartbeat',
-                    created_by: 'system',
-                    parent_task_id: action.taskId,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    campaign_id: task.campaign_id || null,
-                    objective_id: task.objective_id || null,
-                    tags: ['hero-image', 'auto-created', 'visual-workflow'],
-                    comments: [{
-                      id: 'cmt-hero-' + Date.now(),
-                      author: 'nova',
-                      text: 'Pixel, generate a hero image for the blog post "' + _etDoc.title + '" (doc: ' + _etDocId + '). Use generate-image with purpose blog_header and attachTo the document.',
-                      type: 'system',
-                      createdAt: new Date().toISOString()
-                    }]
-                  };
-                  tasks.push(_etHeroTask);
-                  context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created Pixel hero image task:', _etHeroTask.id, 'for auto-doc:', _etDocId);
-                }
-                // Add visible diagnostic comment on the task
-                result.taskUpdates.push({
-                  action: 'comment',
-                  taskId: action.taskId,
-                  comment: '[AUTO-DOC] Blog post detected via execute-task — auto-created document (' + _etDocId + ', kind: marketing_post) and Pixel hero image task. Next: Pixel generates hero image, then submit-for-publish.',
-                  agentId: 'system'
+                // ── CONTENT QUALITY GATE (parity with the create-doc handler) ──
+                // Blog posts written via execute-task used to skip fact-checking
+                // entirely — a fabricated post reached the approval queue with a
+                // blank QG stamp (Heartbeat Diaries, 2026-06-17). Run the same Haiku
+                // gate here; fail-closed at confidence >= 70 means the doc is NOT
+                // stored, so a hallucinated draft never becomes a publishable artifact.
+                const _etQg = await evaluateDocQualityGate({
+                  title: _etDoc.title,
+                  contentMd: _etDoc.content_md,
+                  kind: 'marketing_post',
+                  validate: _validateContentQuality,
+                  context: context
                 });
+                if (_etQg.rejected) {
+                  context.log('[QualityGate] AUTO-DOC REJECTED', _etDocId, '—', (_etQg.issues || []).slice(0, 3).join('; ').substring(0, 300));
+                  result.taskUpdates.push({
+                    action: 'comment', taskId: action.taskId, agentId: 'system',
+                    comment: '[QUALITY GATE] Blog draft rejected — rewrite required. Issues:\n- ' + (_etQg.issues || []).slice(0, 8).join('\n- ') + '\n\nRewrite the post addressing each issue, then resubmit.'
+                  });
+                  try {
+                    await logEvent('policy-violation', agentId, 'Quality gate rejected blog draft (execute-task auto-doc)', cycleId, {
+                      runId: cycleId, gate: 'quality_gate', reason: 'haiku_rejection_doc_autodoc',
+                      kind: 'marketing_post', docTitle: _etDoc.title, confidence: _etQg.confidence || 0,
+                      issueCount: (_etQg.issues || []).length,
+                      issuesPreview: ((_etQg.issues || []).slice(0, 5).join('; ')).substring(0, 400)
+                    });
+                  } catch (_etQgLogErr) { /* non-fatal */ }
+                } else {
+                  _etDoc.qualityGate = _etQg.qualityGate;
+                  _etDocsStore.push(_etDoc);
+                  await storage.setState('documents', _etDocsStore);
+                  context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created marketing_post from execute-task deliverable:', _etDocId, 'for blog task:', action.taskId, 'qg.pass:', _etDoc.qualityGate.pass, _etDoc.qualityGate.failOpen ? '(fail-open)' : '');
+
+                  // Auto-create Pixel hero image task (same logic as create-doc handler)
+                  // SPAWN GUARD: do not spawn child tasks from auto-created tasks (prevents auto→auto chains)
+                  const _etSourceAutoCreated = task.tags && task.tags.indexOf('auto-created') !== -1;
+                  const _etHeroTitle = 'Generate hero image for: ' + stripTaskPrefixes(_etDoc.title);
+                  const _etHeroExists = tasks.some(t =>
+                    t.assignee === 'pixel' && t.status !== 'done' &&
+                    (t.title === _etHeroTitle || (t.description && t.description.indexOf(_etDocId) !== -1))
+                  );
+                  if (!_etHeroExists && !_etSourceAutoCreated) {
+                    const _etHeroTask = {
+                      id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
+                      title: _etHeroTitle,
+                      description: 'Generate a hero image for the blog post "' + _etDoc.title + '".\nDocument ID: ' + _etDocId + '\nUse generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + _etDocId + '" }.\nChoose an appropriate preset based on the content tone.',
+                      taskType: 'design_asset',
+                      status: 'todo',
+                      priority: task.priority || 'high',
+                      dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+                      assignee: 'pixel',
+                      source: 'heartbeat',
+                      created_by: 'system',
+                      parent_task_id: action.taskId,
+                      createdAt: new Date().toISOString(),
+                      updatedAt: new Date().toISOString(),
+                      campaign_id: task.campaign_id || null,
+                      objective_id: task.objective_id || null,
+                      tags: ['hero-image', 'auto-created', 'visual-workflow'],
+                      comments: [{
+                        id: 'cmt-hero-' + Date.now(),
+                        author: 'nova',
+                        text: 'Pixel, generate a hero image for the blog post "' + _etDoc.title + '" (doc: ' + _etDocId + '). Use generate-image with purpose blog_header and attachTo the document.',
+                        type: 'system',
+                        createdAt: new Date().toISOString()
+                      }]
+                    };
+                    tasks.push(_etHeroTask);
+                    context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created Pixel hero image task:', _etHeroTask.id, 'for auto-doc:', _etDocId);
+                  }
+                  // Add visible diagnostic comment on the task
+                  result.taskUpdates.push({
+                    action: 'comment',
+                    taskId: action.taskId,
+                    comment: '[AUTO-DOC] Blog post detected via execute-task — auto-created document (' + _etDocId + ', kind: marketing_post) and Pixel hero image task. Next: Pixel generates hero image, then submit-for-publish.',
+                    agentId: 'system'
+                  });
+                }
               }
             }
           } else {
