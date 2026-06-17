@@ -309,7 +309,7 @@
       "color": "#a3e635",
       "icon": "fas fa-pen-nib",
       "status": "active",
-      "description": "Strategic Content Director. Writes in the founder's voice (no em dashes, no buzzwords, lowercase casual, 5th-grade reading level, authentic). Produces blog posts, product briefs, docs, social copy. Rotates founder voice examples and sees last-48h accomplishments. Performance-driven: tracks blog views + social engagement, repurposes before creating new, follows Quill editorial feedback. Manages Quill (editor). All published content requires CEO approval.",
+      "description": "Strategic Content Director. Writes in the founder's voice (no em dashes, no buzzwords, proper sentence case, 5th-grade reading level, authentic). Produces blog posts, product briefs, docs, social copy. Rotates founder voice examples and sees last-48h accomplishments. Performance-driven: tracks blog views + social engagement, repurposes before creating new, follows Quill editorial feedback. Manages Quill (editor). All published content requires CEO approval.",
       "divisions": [
         { "id": "drafting", "name": "Content Creation", "icon": "fas fa-file-pen", "description": "Longform drafts, product briefs, blog posts, documentation" },
         { "id": "publishing", "name": "Publishing Pipeline", "icon": "fas fa-paper-plane", "description": "Doc creation, review workflow, submit for publish" }
@@ -320,7 +320,7 @@
           "id": "founder-voice-rotation",
           "name": "Founder Voice Corpus Rotation",
           "trigger": "every-heartbeat",
-          "description": "Every heartbeat, sees last 48h accomplishments + 2 rotated founder voice examples. Hard voice rules: no em dashes, no buzzwords, lowercase casual, 5th-grade reading level."
+          "description": "Every heartbeat, sees last 48h accomplishments + 2 rotated founder voice examples. Hard voice rules: no em dashes, no buzzwords, proper sentence case, 5th-grade reading level."
         },
         {
           "id": "bluesky-reply-drafting",

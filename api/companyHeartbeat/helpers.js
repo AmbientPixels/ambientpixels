@@ -605,6 +605,43 @@ function capitalizeSentences(text) {
   return out.replace(/\{\{FRZ:(\d+)\}\}/g, function (_m, n) { return _frozen[Number(n)]; });
 }
 
+// ── Markdown-aware sentence-case for long-form (blog) content ──
+//
+// capitalizeSentences() is tuned for a few lines of social prose. Long-form blog
+// drafts are markdown — they can contain code blocks (where casing is meaningful)
+// and headings (where capitalizeSentences's newline rule skips the leading '#').
+// This wrapper protects code, capitalizes heading first-words, then reuses
+// capitalizeSentences for the prose + standalone "i" (so URL/hashtag/@mention
+// freezing is inherited). Applied on the publish path so an all-lowercase draft
+// never ships to /blog/ regardless of what the LLM produced.
+function capitalizeSentencesLongform(text) {
+  if (!text || typeof text !== 'string') return text;
+
+  // 1. Freeze fenced code blocks (``` / ~~~) and inline code so casing inside
+  //    code is never altered. The {{CODE:n}} placeholder can't appear in real
+  //    markdown, carries no [a-z] / standalone "i" for the later passes to touch,
+  //    and is distinct from capitalizeSentences's own {{FRZ:n}} tokens.
+  var _code = [];
+  var out = text.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]+`/g, function (m) {
+    _code.push(m); return '{{CODE:' + (_code.length - 1) + '}}';
+  });
+
+  // 2. Capitalize the first letter after a heading marker ("## why" -> "## Why").
+  out = out.replace(/^([ \t]{0,3}#{1,6}[ \t]+)([a-z])/gm, function (_m, h, ch) { return h + ch.toUpperCase(); });
+
+  // 2b. Capitalize list-item first words ("- foo" -> "- Foo", "1. foo" -> "1. Foo").
+  //     capitalizeSentences covers later lines via its newline rule but not the first
+  //     line of the string. The required whitespace after the marker excludes "---"
+  //     rules and "**bold**" runs.
+  out = out.replace(/^([ \t]{0,3}(?:[-*+]|\d+[.)])[ \t]+)([a-z])/gm, function (_m, mk, ch) { return mk + ch.toUpperCase(); });
+
+  // 3. Sentence-case the prose + standalone "i" (URL/hashtag/@mention safe).
+  out = capitalizeSentences(out);
+
+  // 4. Restore code verbatim.
+  return out.replace(/\{\{CODE:(\d+)\}\}/g, function (_m, n) { return _code[Number(n)]; });
+}
+
 // ── Extract the publishable post copy from a Scribe social-copy deliverable ───
 // Scribe frequently wraps the post in a "# DELIVERABLE / ## PUBLISH-READY COPY /
 // ## COPY SPEC / ## NOTES" scaffold. Propagating that wrapper verbatim into
@@ -647,6 +684,7 @@ module.exports = {
   findNearDuplicateSocialPost,
   campaignDailyPostCapStatus,
   capitalizeSentences,
+  capitalizeSentencesLongform,
   extractPublishReadyCopy,
   stripTaskPrefixes,
   _isActiveStatus,

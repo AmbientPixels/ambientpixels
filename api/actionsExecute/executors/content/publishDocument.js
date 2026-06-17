@@ -5,6 +5,7 @@
 
 const crypto = require('crypto');
 const storage = require('../../../_utils/companyStorage');
+const { capitalizeSentencesLongform } = require('../../../companyHeartbeat/helpers');
 
 const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
 
@@ -26,10 +27,10 @@ async function publishDocument(action) {
   }
 
   const doc = docs[docIdx];
-  const contentMd = doc.content_md || '';
+  const contentMdRaw = doc.content_md || '';
 
-  if (!contentMd || contentMd.length < 10) {
-    throw { code: 'EMPTY_CONTENT', message: 'Document content is empty or too short (' + contentMd.length + ' chars)' };
+  if (!contentMdRaw || contentMdRaw.length < 10) {
+    throw { code: 'EMPTY_CONTENT', message: 'Document content is empty or too short (' + contentMdRaw.length + ' chars)' };
   }
 
   // Determine visibility
@@ -38,6 +39,11 @@ async function publishDocument(action) {
   const isPublic = visibility === 'public';
   const publicUrl = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
   const now = new Date().toISOString();
+
+  // Founder-voice drafts arrive all-lowercase; readers expect sentence case. Normalize
+  // public blog content at this single publish chokepoint (markdown-aware: code blocks,
+  // URLs and headings are preserved). Internal docs are left exactly as authored.
+  const contentMd = isPublic ? capitalizeSentencesLongform(contentMdRaw) : contentMdRaw;
 
   // Generate excerpt for blog posts
   let excerpt = '';
@@ -80,6 +86,7 @@ async function publishDocument(action) {
 
   // Update document status
   docs[docIdx].status = 'published';
+  docs[docIdx].content_md = contentMd;
   docs[docIdx].updated_at = now;
   docs[docIdx].published_at = now;
   docs[docIdx].published_by = publishEntry.published_by;

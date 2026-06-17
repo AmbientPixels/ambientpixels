@@ -27,7 +27,7 @@
       "platform": "bluesky",
       "context": "agent-policing thread, part 1 of 3 (hook)",
       "text": "my AI agents police each other without asking me.\n\nif an agent breaks for 5+ heartbeat cycles, Forge (the ops watchdog) fires a system directive at it. screaming red banner. drop everything, fix this first.",
-      "why_it_works": "hook ends on a vivid image (the red banner). no setup, no buildup, just the specific thing that happens. lowercase casual. no em dashes."
+      "why_it_works": "hook ends on a vivid image (the red banner). no setup, no buildup, just the specific thing that happens. no em dashes."
     },
     {
       "platform": "bluesky",
