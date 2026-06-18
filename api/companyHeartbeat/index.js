@@ -4198,6 +4198,10 @@ module.exports = async function (context) {
       },
       perAgent: perAgent,
       skippedAgents: skippedAgents,
+      // Capital RED/YELLOW/GREEN for this run — consumed by emergence Signal 4
+      // (capital-red-streak) to bucket days by capital status. null if the
+      // allocation digest didn't build this cycle (treated as non-RED downstream).
+      capitalStatus: (allocationDigest && allocationDigest.system && allocationDigest.system.status) || null,
       worldStateInjected: !!worldState,
       worldStateBlockLength: (function () {
         if (!worldState) return 0;
