@@ -136,7 +136,23 @@ module.exports = async function (context, req) {
 
     // Dead-gate detection — any known gate with zero entries in the window.
     // Only meaningful within a time window; not run for window=all.
-    const deadGates = win.cutoff > 0
+    //
+    // Reliability guard: governanceLog is a ~200-entry FIFO. On a busy system it
+    // only spans a few days, so a requested 7d window may not actually be covered
+    // by retained history. A low-frequency gate (orphan, mode_gate) then looks
+    // "dead" only because its last fire scrolled out of the buffer — a false
+    // alarm. We can assert a gate is dead ONLY if the log actually covers the
+    // full window; otherwise report no dead gates and flag the coverage gap so
+    // the dashboard can say "insufficient history" instead of crying wolf.
+    const logTimestamps = log
+      .map((e) => Date.parse((e && e.timestamp) || ''))
+      .filter(Number.isFinite);
+    const logOldestTs = logTimestamps.length ? Math.min.apply(null, logTimestamps) : null;
+    const windowTruncated = win.cutoff > 0 && logOldestTs !== null && logOldestTs > win.cutoff;
+    const effectiveCoverageDays = logOldestTs !== null
+      ? Math.round(((Date.now() - logOldestTs) / (24 * 60 * 60 * 1000)) * 10) / 10
+      : null;
+    const deadGates = (win.cutoff > 0 && !windowTruncated)
       ? KNOWN_GATES.filter((g) => !byGate[g])
       : [];
 
@@ -163,6 +179,8 @@ module.exports = async function (context, req) {
         meta: {
           asOfUtc: new Date().toISOString(),
           windowDays: win.days,
+          windowTruncated: windowTruncated,
+          effectiveCoverageDays: effectiveCoverageDays,
           totalEntriesInWindow: filtered.length,
           totalEntriesAllTime: log.length,
           filters: {

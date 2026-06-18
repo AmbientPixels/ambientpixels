@@ -23,6 +23,14 @@ var {
 
 var DAY_MS = 24 * 60 * 60 * 1000;
 
+// Canonical registry of real, agent-emitted proposal types. The proposal-rate
+// and reject-rate signals count ONLY these. System-emitted approvalQueue entries
+// (convergence_escalation, bluesky_reply, budget-request escalations, etc.) are
+// NOT proposals and carry no proposedBy, so counting them buckets under a phantom
+// "unknown" emitter and fires false alerts. Sourced from the blast-radius map so
+// new proposal types are picked up automatically.
+var PROPOSAL_TYPES = new Set(Object.keys(EMERGENCE_BLAST_RADIUS));
+
 function _id(prefix) {
   return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
 }
@@ -46,17 +54,9 @@ function _computeProposalRate(approvalQueue, nowMs) {
   var byType = {};
   var byAgent = {};
 
-  // Only real agent-emitted proposals count toward proposal velocity. The
-  // blast-radius map is the canonical proposal-type registry; anything not in
-  // it (e.g. convergence_escalation — a system-emitted stuck-task escalation
-  // with no proposedBy) is NOT a proposal. Counting those buckets them under a
-  // phantom "unknown" emitter and fires false RED alerts. Sourced from
-  // EMERGENCE_BLAST_RADIUS so new proposal types are picked up automatically.
-  var PROPOSAL_TYPES = new Set(Object.keys(EMERGENCE_BLAST_RADIUS));
-
   approvalQueue.forEach(function (q) {
     if (!q || !q.createdAt || !q.type) return;
-    if (!PROPOSAL_TYPES.has(q.type)) return; // skip non-proposal queue entries
+    if (!PROPOSAL_TYPES.has(q.type)) return; // skip non-proposal queue entries (see PROPOSAL_TYPES)
     var ts = Date.parse(q.createdAt);
     if (!Number.isFinite(ts) || ts < cutoff30d) return;
     var is7d = ts >= cutoff7d;
@@ -130,9 +130,11 @@ function _computeRejectRate(approvalQueue, nowMs) {
     if (!q || !q.resolvedAt || !q.resolvedBy) return;
     if (q.resolvedBy !== 'ceo') return; // exclude auto-approved
     if (q.status !== 'approved' && q.status !== 'rejected') return;
+    if (!PROPOSAL_TYPES.has(q.type)) return; // only real proposals — not escalations/replies (see PROPOSAL_TYPES)
+    if (!q.proposedBy) return; // no emitter to attribute; a phantom "unknown" reject-rate is non-actionable
     var ts = Date.parse(q.resolvedAt);
     if (!Number.isFinite(ts) || ts < cutoff) return;
-    var agent = q.proposedBy || 'unknown';
+    var agent = q.proposedBy;
     if (!byEmitter[agent]) byEmitter[agent] = { total: 0, approved: 0, rejected: 0, rate: 0 };
     byEmitter[agent].total += 1;
     if (q.status === 'rejected') byEmitter[agent].rejected += 1;
