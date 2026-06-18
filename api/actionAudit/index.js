@@ -58,12 +58,19 @@ function timelinePerDay(entries, tsFn) {
 }
 
 // Resolve the primary outcome state for an action. Precedence:
-// 1. execution.status (success/failed/running) if set
-// 2. approval.status (approved/rejected/cancelled/pending/superseded) otherwise
+// 1. rejected/cancelled verdict (approval/execution_status) — a rejected action
+//    is NOT an execution failure, even though some reject paths stamp
+//    execution.status='failed' (e.g. documentsExecute reject). Honoring the
+//    verdict first keeps CEO rejections out of the "failed · unknown" bucket.
+// 2. execution.status (success/failed/running) if set
+// 3. approval.status (approved/pending/superseded) otherwise
 function resolveOutcome(a) {
-  const exec = a && a.execution && a.execution.status;
+  if (!a) return 'pending';
+  const verdict = a.execution_status || (a.approval && a.approval.status);
+  if (verdict === 'rejected' || verdict === 'cancelled') return verdict;
+  const exec = a.execution && a.execution.status;
   if (exec === 'success' || exec === 'failed' || exec === 'running') return exec;
-  const appr = a && a.approval && a.approval.status;
+  const appr = a.approval && a.approval.status;
   if (appr) return appr;
   return 'pending';
 }
