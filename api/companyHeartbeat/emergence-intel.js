@@ -46,8 +46,17 @@ function _computeProposalRate(approvalQueue, nowMs) {
   var byType = {};
   var byAgent = {};
 
+  // Only real agent-emitted proposals count toward proposal velocity. The
+  // blast-radius map is the canonical proposal-type registry; anything not in
+  // it (e.g. convergence_escalation — a system-emitted stuck-task escalation
+  // with no proposedBy) is NOT a proposal. Counting those buckets them under a
+  // phantom "unknown" emitter and fires false RED alerts. Sourced from
+  // EMERGENCE_BLAST_RADIUS so new proposal types are picked up automatically.
+  var PROPOSAL_TYPES = new Set(Object.keys(EMERGENCE_BLAST_RADIUS));
+
   approvalQueue.forEach(function (q) {
     if (!q || !q.createdAt || !q.type) return;
+    if (!PROPOSAL_TYPES.has(q.type)) return; // skip non-proposal queue entries
     var ts = Date.parse(q.createdAt);
     if (!Number.isFinite(ts) || ts < cutoff30d) return;
     var is7d = ts >= cutoff7d;
