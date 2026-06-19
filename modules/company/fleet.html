@@ -72,6 +72,62 @@
 
     .fl-intel-row { padding: 0.4rem 0.6rem; font-size: var(--c-text-xs); border-radius: 4px; margin-bottom: 0.25rem; background: rgba(255,255,255,0.02); }
     .fl-intel-label { font-weight: 600; color: #fff; text-transform: capitalize; }
+
+    /* Character-sheet card extras */
+    .fl-lv { font-size: var(--c-text-xs); font-weight: 600; color: #fbbf24; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3); border-radius: 3px; padding: 0.02rem 0.3rem; vertical-align: middle; letter-spacing: 0.02em; }
+    .fl-traits { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.4rem; }
+    .fl-trait { font-size: var(--c-text-xs); padding: 0.1rem 0.4rem; border-radius: 3px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+    .fl-loadout { margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px solid rgba(255,255,255,0.06); display: grid; gap: 0.2rem; }
+    .fl-mix-row { display: flex; justify-content: space-between; align-items: center; font-size: var(--c-text-xs); }
+    .fl-mix-row > span:first-child { opacity: 0.65; }
+    .fl-mix-row > span:last-child { font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.62rem; padding: 0.04rem 0.32rem; border-radius: 3px; }
+    .fl-mix-high { color: #34d399; background: rgba(52,211,153,0.14); }
+    .fl-mix-medium { color: #fbbf24; background: rgba(251,191,36,0.14); }
+    .fl-mix-low { color: #60a5fa; background: rgba(96,165,250,0.14); }
+    .fl-mix-none { color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.05); }
+
+    /* Evolve modal */
+    .fe-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(6,9,13,0.78); display: flex; align-items: flex-start; justify-content: center; padding: 3vh 1rem; overflow-y: auto; }
+    .fe-modal { width: 100%; max-width: 560px; background: #0e1218; border: 1px solid #2a3644; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,0.6); color: #e7edf5; font-size: var(--c-text-xs); padding: 1.1rem 1.2rem 1rem; }
+    .fe-head { margin-bottom: 0.8rem; }
+    .fe-title { font-size: var(--c-text-lg); font-weight: 600; color: #fff; text-transform: capitalize; }
+    .fe-sub { font-size: var(--c-text-xs); opacity: 0.6; margin-top: 0.15rem; }
+    .fe-presets { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.9rem; }
+    .fe-preset { font-size: var(--c-text-xs); padding: 0.22rem 0.55rem; border-radius: 5px; background: rgba(255,255,255,0.04); border: 1px solid #2a3644; color: #cdd7e3; cursor: pointer; user-select: none; }
+    .fe-preset:hover { border-color: rgba(251,191,36,0.5); color: #fff; }
+    .fe-sec { margin-bottom: 0.85rem; }
+    .fe-lbl { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.55; margin-bottom: 0.4rem; }
+    .fe-req { color: #f87171; text-transform: none; letter-spacing: 0; opacity: 0.9; margin-left: 0.3rem; }
+    .fe-ta { width: 100%; box-sizing: border-box; background: #161c25; border: 1px solid #2a3644; border-radius: 6px; color: #e7edf5; font-family: inherit; font-size: var(--c-text-xs); padding: 0.45rem 0.55rem; resize: vertical; }
+    .fe-ta:focus { outline: none; border-color: rgba(251,191,36,0.6); }
+    .fe-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.45rem; }
+    .fe-row > span { flex: 0 0 8.5rem; opacity: 0.7; }
+    .fe-row > input.fe-ta { flex: 1; }
+    .fe-seg { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .fe-seg-b { font-size: var(--c-text-xs); padding: 0.2rem 0.5rem; border-radius: 5px; background: rgba(255,255,255,0.04); border: 1px solid #2a3644; color: #cdd7e3; cursor: pointer; user-select: none; font-weight: 400; }
+    .fe-seg-b:hover { border-color: rgba(251,191,36,0.4); }
+    .fe-seg-b.on { background: #fbbf24; border-color: #fbbf24; color: #1a1206; font-weight: 600; }
+    .fe-range { width: 100%; accent-color: #fbbf24; }
+    .fe-capval { display: inline-block; margin-top: 0.25rem; font-weight: 600; color: #fbbf24; }
+    .fe-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; flex: 1; }
+    .fe-chip { display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--c-text-xs); padding: 0.15rem 0.45rem; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid #2a3644; color: #cdd7e3; }
+    .fe-chip .fe-x { cursor: pointer; font-style: normal; opacity: 0.6; }
+    .fe-chip .fe-x:hover { opacity: 1; color: #f87171; }
+    .fe-chip.fe-add { cursor: pointer; border-style: dashed; color: #fbbf24; border-color: rgba(251,191,36,0.4); }
+    .fe-chip.fe-add:hover { background: rgba(251,191,36,0.1); }
+    .fe-diff { margin: 0.6rem 0 0.9rem; padding: 0.6rem 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid #2a3644; border-radius: 8px; min-height: 1.2rem; }
+    .fe-diff-row { font-size: var(--c-text-xs); line-height: 1.6; }
+    .fe-diff-row .was { color: rgba(255,255,255,0.5); text-decoration: line-through; }
+    .fe-diff-row .now { color: #34d399; font-weight: 600; }
+    .fe-note { font-size: var(--c-text-xs); opacity: 0.5; }
+    .fe-foot { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; }
+    .fe-spacer { flex: 1; }
+    .fe-btn { padding: 0.4rem 0.75rem; font-size: var(--c-text-xs); border-radius: 6px; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
+    .fe-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .fe-btn:hover:not(:disabled) { filter: brightness(1.1); }
+    .fe-btn.fe-ghost { background: transparent; border-color: #2a3644; color: #cdd7e3; }
+    .fe-btn.fe-sec { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.3); color: #60a5fa; }
+    .fe-btn.fe-amber { background: #fbbf24; border-color: #fbbf24; color: #1a1206; font-weight: 600; }
   </style>
 </head>
 <body data-theme="dark">
@@ -159,6 +215,7 @@
     </div>
   </main>
 
+  <script src="/modules/company/fleet-evolve.js"></script>
   <script>
   (function () {
     'use strict';
@@ -228,12 +285,22 @@
         var capClass = alloc ? ('fl-cap-' + String(alloc.status||'green').toLowerCase()) : '';
         var capText = alloc ? ('$' + Number(alloc.spent).toFixed(2) + '/$' + Number(a.monthlyCap).toFixed(2) + ' (' + alloc.pct + '%)') : ('cap $' + Number(a.monthlyCap||0).toFixed(2));
 
+        var d = a.doctrine || {}, mix = a.expectedActionMix || {};
+        var ver = (Array.isArray(a.doctrineHistory) ? a.doctrineHistory.length : 0) + 1;
+        var traits = [d.riskTolerance ? 'Risk: ' + d.riskTolerance : '', d.timeHorizon ? 'Horizon: ' + d.timeHorizon : '']
+          .filter(Boolean).map(function (t) { return '<span class="fl-trait">' + esc(t) + '</span>'; }).join('');
+        var loadout = Object.keys(mix).slice(0, 4).map(function (act) {
+          return '<div class="fl-mix-row"><span>' + esc(act) + '</span><span class="fl-mix-' + esc(mix[act]) + '">' + esc(mix[act]) + '</span></div>';
+        }).join('');
+
         return '<div class="fl-agent-card' + (isProtected ? ' protected' : '') + '">' +
-          '<div class="fl-agent-head"><span class="fl-agent-name">' + esc(a.name || a.id) + driftBadge + '</span><span class="fl-agent-tier">T' + (a.tier||'?') + '</span></div>' +
+          '<div class="fl-agent-head"><span class="fl-agent-name">' + esc(a.name || a.id) +
+            ' <span class="fl-lv">v' + ver + '</span>' + driftBadge + '</span><span class="fl-agent-tier">T' + (a.tier||'?') + '</span></div>' +
           '<div class="fl-agent-role">' + esc(a.role || '') + '</div>' +
+          (traits ? '<div class="fl-traits">' + traits + '</div>' : '') +
           '<div class="fl-agent-meta"><strong>Cap:</strong> <span class="' + capClass + '">' + esc(capText) + '</span><br>' +
-          '<strong>Focus:</strong> ' + esc(String(a.focus||'').substring(0,140)) + (String(a.focus||'').length > 140 ? '…' : '') + '<br>' +
-          '<strong>Reports to:</strong> ' + esc(a.reportsTo || '—') + (isProtected ? ' · <span style="color:#34d399;">PROTECTED</span>' : '') + '</div>' +
+            '<strong>Focus:</strong> ' + esc(String(a.focus||'').substring(0,140)) + (String(a.focus||'').length > 140 ? '…' : '') + '</div>' +
+          (loadout ? '<div class="fl-loadout">' + loadout + '</div>' : '') +
           '<div class="fl-agent-actions">' +
             '<button class="fl-btn fl-btn-primary" data-action="evolve" data-agent="' + esc(a.id) + '">Evolve</button>' +
             '<button class="fl-btn fl-btn-warn" data-action="retire" data-agent="' + esc(a.id) + '"' + (isProtected ? ' disabled title="PROTECTED"' : '') + '>Retire</button>' +
