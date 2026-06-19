@@ -60,3 +60,17 @@ test('validateEvolution: protected field rejected', () => {
   const r = FE.validateEvolution({ tier: 2, focus: 'x' }, { rationale: 'a long enough rationale here yes' });
   assert.ok(r.errors.some(e => /protected/i.test(e)));
 });
+
+test('diffSummary: cap + doctrine subfield', () => {
+  const cur = { focus: 'a', monthlyCap: 4, doctrine: { riskTolerance: 'Low' }, expectedActionMix: {} };
+  const ed  = { focus: 'a', monthlyCap: 4.5, doctrine: { riskTolerance: 'High' }, expectedActionMix: {} };
+  assert.deepStrictEqual(FE.diffSummary(cur, ed), [
+    { label: 'Monthly cap', was: '$4.00', now: '$4.50' },
+    { label: 'Risk tolerance', was: 'Low', now: 'High' }
+  ]);
+});
+test('diffSummary: action-mix change', () => {
+  const cur = { focus: 'a', monthlyCap: 4, doctrine: {}, expectedActionMix: { 'remember': 'low' } };
+  const ed  = { focus: 'a', monthlyCap: 4, doctrine: {}, expectedActionMix: { 'remember': 'high' } };
+  assert.deepStrictEqual(FE.diffSummary(cur, ed), [{ label: 'remember', was: 'low', now: 'high' }]);
+});

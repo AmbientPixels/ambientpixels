@@ -65,6 +65,25 @@
     return { ok: errors.length === 0, errors: errors };
   }
 
+  var DOCTRINE_LABELS = { strategicBias: 'Strategic bias', riskTolerance: 'Risk tolerance', timeHorizon: 'Time horizon', coreQuestion: 'Core question', escalationTriggers: 'Escalation triggers' };
+
+  function diffSummary(current, edited) {
+    var out = [];
+    if (String(edited.focus) !== String(current.focus)) out.push({ label: 'Focus', was: String(current.focus || ''), now: String(edited.focus || '') });
+    if (Number(edited.monthlyCap) !== Number(current.monthlyCap)) out.push({ label: 'Monthly cap', was: '$' + Number(current.monthlyCap).toFixed(2), now: '$' + Number(edited.monthlyCap).toFixed(2) });
+    var cd = current.doctrine || {}, edd = edited.doctrine || {};
+    Object.keys(DOCTRINE_LABELS).forEach(function (k) {
+      var a = Array.isArray(cd[k]) ? cd[k].join(', ') : (cd[k] || '');
+      var b = Array.isArray(edd[k]) ? edd[k].join(', ') : (edd[k] || '');
+      if (a !== b) out.push({ label: DOCTRINE_LABELS[k], was: a, now: b });
+    });
+    var cm = current.expectedActionMix || {}, em = edited.expectedActionMix || {};
+    Object.keys(em).forEach(function (act) {
+      if ((cm[act] || 'none') !== em[act]) out.push({ label: act, was: cm[act] || 'none', now: em[act] });
+    });
+    return out;
+  }
+
   return {
     CAP_CEILING: CAP_CEILING,
     ALLOWED_FIELDS: ALLOWED_FIELDS,
@@ -75,6 +94,7 @@
     ARCHETYPES: ARCHETYPES,
     buildChanges: buildChanges,
     computeCostDelta: computeCostDelta,
-    validateEvolution: validateEvolution
+    validateEvolution: validateEvolution,
+    diffSummary: diffSummary
   };
 });
