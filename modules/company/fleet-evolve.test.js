@@ -28,3 +28,13 @@ test('buildChanges: changed action-mix sends FULL map', () => {
   const ed  = { focus: 'a', monthlyCap: 4, doctrine: {}, expectedActionMix: { 'execute-task': 'high', 'remember': 'medium' } };
   assert.deepStrictEqual(FE.buildChanges(cur, ed), { expectedActionMix: { 'execute-task': 'high', 'remember': 'medium' } });
 });
+
+test('computeCostDelta: cap change → delta', () => {
+  assert.strictEqual(FE.computeCostDelta({ monthlyCap: 4 }, { monthlyCap: 4.5 }), 0.5);
+});
+test('computeCostDelta: cap decrease → negative delta', () => {
+  assert.strictEqual(FE.computeCostDelta({ monthlyCap: 4 }, { monthlyCap: 3 }), -1);
+});
+test('computeCostDelta: no cap change → 0 (regression: old code sent full cap)', () => {
+  assert.strictEqual(FE.computeCostDelta({ monthlyCap: 4 }, { monthlyCap: 4 }), 0);
+});

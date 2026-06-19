@@ -45,6 +45,10 @@
     return changes;
   }
 
+  function computeCostDelta(current, edited) {
+    return Math.round((Number(edited.monthlyCap) - Number(current.monthlyCap)) * 100) / 100;
+  }
+
   return {
     CAP_CEILING: CAP_CEILING,
     ALLOWED_FIELDS: ALLOWED_FIELDS,
@@ -53,6 +57,7 @@
     RISK_PRESETS: RISK_PRESETS,
     HORIZON_PRESETS: HORIZON_PRESETS,
     ARCHETYPES: ARCHETYPES,
-    buildChanges: buildChanges
+    buildChanges: buildChanges,
+    computeCostDelta: computeCostDelta
   };
 });
