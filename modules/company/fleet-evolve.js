@@ -49,6 +49,22 @@
     return Math.round((Number(edited.monthlyCap) - Number(current.monthlyCap)) * 100) / 100;
   }
 
+  function validateEvolution(changes, opts) {
+    opts = opts || {};
+    var errors = [];
+    var keys = Object.keys(changes || {});
+    var hasAllowed = keys.some(function (k) { return ALLOWED_FIELDS.indexOf(k) !== -1; });
+    if (!hasAllowed) errors.push('Change at least one field (focus, cap, doctrine, or loadout).');
+    var protectedHit = keys.filter(function (k) { return PROTECTED_FIELDS.indexOf(k) !== -1; });
+    if (protectedHit.length) errors.push('Cannot change protected field(s): ' + protectedHit.join(', '));
+    if ('monthlyCap' in changes) {
+      var cap = Number(changes.monthlyCap);
+      if (!(cap > 0 && cap <= CAP_CEILING)) errors.push('Monthly cap must be between $0 and $' + CAP_CEILING.toFixed(2) + '.');
+    }
+    if (String(opts.rationale || '').trim().length < 20) errors.push('Rationale is required (min 20 characters).');
+    return { ok: errors.length === 0, errors: errors };
+  }
+
   return {
     CAP_CEILING: CAP_CEILING,
     ALLOWED_FIELDS: ALLOWED_FIELDS,
@@ -58,6 +74,7 @@
     HORIZON_PRESETS: HORIZON_PRESETS,
     ARCHETYPES: ARCHETYPES,
     buildChanges: buildChanges,
-    computeCostDelta: computeCostDelta
+    computeCostDelta: computeCostDelta,
+    validateEvolution: validateEvolution
   };
 });

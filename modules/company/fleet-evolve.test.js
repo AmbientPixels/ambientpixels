@@ -38,3 +38,25 @@ test('computeCostDelta: cap decrease → negative delta', () => {
 test('computeCostDelta: no cap change → 0 (regression: old code sent full cap)', () => {
   assert.strictEqual(FE.computeCostDelta({ monthlyCap: 4 }, { monthlyCap: 4 }), 0);
 });
+
+test('validateEvolution: ok', () => {
+  const r = FE.validateEvolution({ monthlyCap: 4.5 }, { rationale: 'this is a sufficiently long reason' });
+  assert.deepStrictEqual(r, { ok: true, errors: [] });
+});
+test('validateEvolution: no fields', () => {
+  const r = FE.validateEvolution({}, { rationale: 'a long enough rationale here yes' });
+  assert.strictEqual(r.ok, false);
+  assert.ok(r.errors.some(e => /at least one/i.test(e)));
+});
+test('validateEvolution: cap out of range', () => {
+  const r = FE.validateEvolution({ monthlyCap: 9 }, { rationale: 'a long enough rationale here yes' });
+  assert.ok(r.errors.some(e => /cap/i.test(e)));
+});
+test('validateEvolution: short rationale', () => {
+  const r = FE.validateEvolution({ focus: 'x' }, { rationale: 'too short' });
+  assert.ok(r.errors.some(e => /rationale/i.test(e)));
+});
+test('validateEvolution: protected field rejected', () => {
+  const r = FE.validateEvolution({ tier: 2, focus: 'x' }, { rationale: 'a long enough rationale here yes' });
+  assert.ok(r.errors.some(e => /protected/i.test(e)));
+});
