@@ -332,33 +332,155 @@
       submitProposal(payload);
     }
 
+    // ── Evolve modal (replaces the old window.prompt chain) ─────────────
+    // refreshAll: reuse the file's existing post-action reload (same as the
+    // proposal decision handler + submitProposal already use). A full reload
+    // re-runs loadAll() and re-sets window._fleetData — no duplicate loader.
+    function refreshAll() { window.location.reload(); }
+
+    var _feCurrentAgent = null;
+
     function openEvolveFlow(agentId) {
-      var field = window.prompt('Which field to evolve? Options: focus, monthlyCap, doctrine, expectedActionMix');
-      if (!field) return;
-      field = field.trim();
-      var allowed = ['focus', 'monthlyCap', 'doctrine', 'expectedActionMix'];
-      if (allowed.indexOf(field) === -1) { alert('Field must be one of: ' + allowed.join(', ')); return; }
-      var newValue;
-      if (field === 'monthlyCap') {
-        var v = window.prompt('New monthlyCap (number, 0 < cap ≤ $5):');
-        newValue = Number(v);
-        if (!(newValue > 0 && newValue <= 5)) { alert('Invalid cap.'); return; }
-      } else if (field === 'focus') {
-        newValue = window.prompt('New focus statement:');
-        if (!newValue || newValue.length < 10) { alert('Focus required, min 10 chars.'); return; }
-      } else {
-        var json = window.prompt('New ' + field + ' as JSON:');
-        try { newValue = JSON.parse(json); } catch (e) { alert('Invalid JSON.'); return; }
-      }
-      var rationale = window.prompt('Rationale for this evolution:');
-      if (!rationale || rationale.trim().length < 20) { alert('Rationale required, min 20 chars.'); return; }
-      var changes = {}; changes[field] = newValue;
-      var payload = {
-        type: 'agent_evolution_proposal',
-        proposedBy: 'ceo',
-        evolution: { targetAgent: agentId, changes: changes, rationale: rationale.trim(), estimatedCostDelta: field === 'monthlyCap' ? (newValue - 0) : 0 }
+      var agent = (window._fleetData && window._fleetData.registry && window._fleetData.registry.agents || []).filter(function (a) { return a.id === agentId; })[0];
+      if (!agent) { alert('Agent not found: ' + agentId); return; }
+      _feCurrentAgent = agent;
+      var overlay = document.createElement('div');
+      overlay.className = 'fe-overlay';
+      overlay.id = 'fe-overlay';
+      overlay.innerHTML = FleetEvolve.buildEvolveModalHtml(agent);
+      document.body.appendChild(overlay);
+      wireEvolveModal(overlay, agent);
+      updateEvolveDiff(overlay, agent);
+    }
+
+    function readEvolveModalState(overlay, agent) {
+      var q = function (s) { return overlay.querySelector(s); };
+      var edited = {
+        focus: (q('[data-field="focus"]') || {}).value || '',
+        monthlyCap: Number((q('[data-field="monthlyCap"]') || {}).value || agent.monthlyCap),
+        doctrine: {}, expectedActionMix: {}
       };
-      submitProposal(payload);
+      // doctrine scalar inputs
+      ['strategicBias', 'coreQuestion'].forEach(function (k) {
+        var el = q('[data-doctrine="' + k + '"]'); if (el) edited.doctrine[k] = el.value;
+      });
+      // doctrine segmented (riskTolerance, timeHorizon)
+      ['riskTolerance', 'timeHorizon'].forEach(function (k) {
+        var on = q('.fe-seg-b.on[data-doctrine="' + k + '"]');
+        edited.doctrine[k] = on ? on.getAttribute('data-val') : (agent.doctrine || {})[k];
+      });
+      // escalation triggers chips
+      edited.doctrine.escalationTriggers = Array.prototype.map.call(
+        overlay.querySelectorAll('[data-triggers] .fe-chip[data-trigger]'),
+        function (c) { return c.getAttribute('data-trigger'); });
+      // action mix
+      Object.keys(agent.expectedActionMix || {}).forEach(function (act) {
+        var on = q('.fe-seg-b.on[data-action="' + act + '"]');
+        edited.expectedActionMix[act] = on ? on.getAttribute('data-val') : agent.expectedActionMix[act];
+      });
+      return edited;
+    }
+
+    function wireEvolveModal(overlay, agent) {
+      // segmented pickers (doctrine + action mix): clicking selects within its group
+      overlay.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('.fe-seg-b');
+        if (b) {
+          var group = b.getAttribute('data-doctrine') ? '[data-doctrine="' + b.getAttribute('data-doctrine') + '"]'
+                                                       : '[data-action="' + b.getAttribute('data-action') + '"]';
+          overlay.querySelectorAll('.fe-seg-b' + group).forEach(function (x) { x.classList.remove('on'); });
+          b.classList.add('on');
+          updateEvolveDiff(overlay, agent);
+        }
+        var chipX = e.target.closest && e.target.closest('.fe-x');
+        if (chipX) { chipX.parentNode.remove(); updateEvolveDiff(overlay, agent); }
+        var addChip = e.target.classList && e.target.classList.contains('fe-add');
+        if (addChip) {
+          var v = window.prompt('New escalation trigger:'); // small inline add; full chip-input is P3 polish
+          if (v && v.trim()) {
+            var span = document.createElement('span');
+            span.className = 'fe-chip'; span.setAttribute('data-trigger', v.trim());
+            span.innerHTML = esc(v.trim()) + '<i class="fe-x">×</i>';
+            e.target.parentNode.insertBefore(span, e.target);
+            updateEvolveDiff(overlay, agent);
+          }
+        }
+        var preset = e.target.getAttribute && e.target.getAttribute('data-preset');
+        if (preset) { applyArchetype(overlay, agent, preset); }
+        var fe = e.target.getAttribute && e.target.getAttribute('data-fe');
+        if (fe === 'cancel') closeEvolveModal();
+        if (fe === 'propose') submitEvolution(overlay, agent, 'propose');
+        if (fe === 'now') submitEvolution(overlay, agent, 'now');
+      });
+      // slider readout + live diff on any input
+      overlay.addEventListener('input', function (e) {
+        if (e.target.getAttribute('data-field') === 'monthlyCap') {
+          var out = overlay.querySelector('.fe-capval'); if (out) out.textContent = '$' + Number(e.target.value).toFixed(2);
+        }
+        updateEvolveDiff(overlay, agent);
+      });
+    }
+
+    function applyArchetype(overlay, agent, key) {
+      var arc = FleetEvolve.ARCHETYPES[key]; if (!arc) return;
+      if (arc._reset) { closeEvolveModal(); openEvolveFlow(agent.id); return; } // reset = re-render from current
+      if (arc.doctrine) Object.keys(arc.doctrine).forEach(function (k) {
+        var sel = overlay.querySelector('.fe-seg-b[data-doctrine="' + k + '"][data-val="' + arc.doctrine[k] + '"]');
+        if (sel) { overlay.querySelectorAll('.fe-seg-b[data-doctrine="' + k + '"]').forEach(function (x){x.classList.remove('on');}); sel.classList.add('on'); }
+      });
+      if (arc.expectedActionMix) Object.keys(arc.expectedActionMix).forEach(function (act) {
+        var sel = overlay.querySelector('.fe-seg-b[data-action="' + act + '"][data-val="' + arc.expectedActionMix[act] + '"]');
+        if (sel) { overlay.querySelectorAll('.fe-seg-b[data-action="' + act + '"]').forEach(function (x){x.classList.remove('on');}); sel.classList.add('on'); }
+      });
+      updateEvolveDiff(overlay, agent);
+    }
+
+    function updateEvolveDiff(overlay, agent) {
+      var edited = readEvolveModalState(overlay, agent);
+      var rows = FleetEvolve.diffSummary(agent, edited);
+      var el = overlay.querySelector('[data-diff]');
+      if (!el) return;
+      el.innerHTML = rows.length
+        ? '<div class="fe-lbl">Changes (' + rows.length + ')</div>' + rows.map(function (r) {
+            return '<div class="fe-diff-row">' + esc(r.label) + ': <span class="was">' + esc(r.was) + '</span> → <span class="now">' + esc(r.now) + '</span></div>';
+          }).join('')
+        : '<div class="fe-note">No changes yet.</div>';
+    }
+
+    function closeEvolveModal() { var o = document.getElementById('fe-overlay'); if (o) o.remove(); _feCurrentAgent = null; }
+
+    function submitEvolution(overlay, agent, mode) {
+      var edited = readEvolveModalState(overlay, agent);
+      var changes = FleetEvolve.buildChanges(agent, edited);
+      var rationale = ((overlay.querySelector('[data-field="rationale"]') || {}).value || '').trim();
+      var v = FleetEvolve.validateEvolution(changes, { rationale: rationale });
+      if (!v.ok) { alert(v.errors.join('\n')); return; }
+      var payload = {
+        type: 'agent_evolution_proposal', proposedBy: 'ceo',
+        evolution: { targetAgent: agent.id, changes: changes, rationale: rationale,
+                     estimatedCostDelta: FleetEvolve.computeCostDelta(agent, edited) }
+      };
+      overlay.querySelectorAll('.fe-btn').forEach(function (b){ b.disabled = true; });
+      fetch(API + '/fleetProposalCreate', {
+        method: 'POST', headers: { 'x-company-secret': SECRET, 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        if (!res || (!res.id && !res.ok)) throw new Error((res && res.error) || 'Create failed');
+        if (mode === 'propose') { closeEvolveModal(); alert('Proposal created — review it in the queue.'); return refreshAll(); }
+        // evolve-now: chain approve
+        return fetch(API + '/approveProposal', {
+          method: 'POST', headers: { 'x-company-secret': SECRET, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: res.id, decision: 'approved', ceoNote: 'Evolved via Fleet Command' })
+        }).then(function (r2) { return r2.json(); }).then(function (ar) {
+          closeEvolveModal();
+          if (ar && ar.sideEffect) alert('Evolved ' + agent.id + '. Changed: ' + ((ar.sideEffect.changedFields||[]).join(', ') || 'fields') + '. Takes effect next heartbeat.');
+          else alert('Evolution applied (proposal ' + res.id + ').');
+          return refreshAll();
+        });
+      }).catch(function (err) {
+        overlay.querySelectorAll('.fe-btn').forEach(function (b){ b.disabled = false; });
+        alert('Evolution failed: ' + (err && err.message ? err.message : err) + '\nIf a proposal was created it is left pending in the queue.');
+      });
     }
 
     function submitProposal(payload) {
@@ -539,6 +661,7 @@
     }
 
     loadAll().then(function (d) {
+      window._fleetData = d;
       renderHero(d);
       renderRoster(d);
       renderProposals(d);
