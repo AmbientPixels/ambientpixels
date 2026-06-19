@@ -8,3 +8,23 @@ test('module exposes constants', () => {
   assert.deepStrictEqual(FE.ALLOWED_FIELDS, ['focus', 'monthlyCap', 'doctrine', 'expectedActionMix']);
   assert.ok(FE.PROTECTED_FIELDS.includes('reportsTo'));
 });
+
+test('buildChanges: no changes → empty object', () => {
+  const cur = { focus: 'a', monthlyCap: 4, doctrine: { riskTolerance: 'Low' }, expectedActionMix: { 'execute-task': 'high' } };
+  assert.deepStrictEqual(FE.buildChanges(cur, JSON.parse(JSON.stringify(cur))), {});
+});
+test('buildChanges: scalar focus + cap', () => {
+  const cur = { focus: 'a', monthlyCap: 4, doctrine: {}, expectedActionMix: {} };
+  const ed  = { focus: 'b', monthlyCap: 4.5, doctrine: {}, expectedActionMix: {} };
+  assert.deepStrictEqual(FE.buildChanges(cur, ed), { focus: 'b', monthlyCap: 4.5 });
+});
+test('buildChanges: changed doctrine sub-field sends FULL doctrine', () => {
+  const cur = { focus: 'a', monthlyCap: 4, doctrine: { riskTolerance: 'Low', timeHorizon: 'Immediate' }, expectedActionMix: {} };
+  const ed  = { focus: 'a', monthlyCap: 4, doctrine: { riskTolerance: 'High', timeHorizon: 'Immediate' }, expectedActionMix: {} };
+  assert.deepStrictEqual(FE.buildChanges(cur, ed), { doctrine: { riskTolerance: 'High', timeHorizon: 'Immediate' } });
+});
+test('buildChanges: changed action-mix sends FULL map', () => {
+  const cur = { focus: 'a', monthlyCap: 4, doctrine: {}, expectedActionMix: { 'execute-task': 'high', 'remember': 'low' } };
+  const ed  = { focus: 'a', monthlyCap: 4, doctrine: {}, expectedActionMix: { 'execute-task': 'high', 'remember': 'medium' } };
+  assert.deepStrictEqual(FE.buildChanges(cur, ed), { expectedActionMix: { 'execute-task': 'high', 'remember': 'medium' } });
+});

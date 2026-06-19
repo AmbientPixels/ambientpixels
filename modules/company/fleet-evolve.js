@@ -23,6 +23,28 @@
     reset:        { label: '↺ Reset to default',   _reset: true }
   };
 
+  function _shallowEqual(a, b) {
+    a = a || {}; b = b || {};
+    var ka = Object.keys(a), kb = Object.keys(b);
+    if (ka.length !== kb.length) return false;
+    for (var i = 0; i < ka.length; i++) {
+      var k = ka[i];
+      if (Array.isArray(a[k]) || Array.isArray(b[k])) {
+        if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) return false;
+      } else if (a[k] !== b[k]) return false;
+    }
+    return true;
+  }
+
+  function buildChanges(current, edited) {
+    var changes = {};
+    if (String(edited.focus) !== String(current.focus)) changes.focus = edited.focus;
+    if (Number(edited.monthlyCap) !== Number(current.monthlyCap)) changes.monthlyCap = Number(edited.monthlyCap);
+    if (!_shallowEqual(current.doctrine, edited.doctrine)) changes.doctrine = edited.doctrine;
+    if (!_shallowEqual(current.expectedActionMix, edited.expectedActionMix)) changes.expectedActionMix = edited.expectedActionMix;
+    return changes;
+  }
+
   return {
     CAP_CEILING: CAP_CEILING,
     ALLOWED_FIELDS: ALLOWED_FIELDS,
@@ -30,6 +52,7 @@
     ACTION_LEVELS: ACTION_LEVELS,
     RISK_PRESETS: RISK_PRESETS,
     HORIZON_PRESETS: HORIZON_PRESETS,
-    ARCHETYPES: ARCHETYPES
+    ARCHETYPES: ARCHETYPES,
+    buildChanges: buildChanges
   };
 });
