@@ -84,6 +84,62 @@
     return out;
   }
 
+  function _esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function _segDoctrine(field, presets, current) {
+    return presets.map(function (p) {
+      var on = (String(current) === p) ? ' on' : '';
+      return '<b data-doctrine="' + field + '" data-val="' + _esc(p) + '" class="fe-seg-b' + on + '">' + _esc(p) + '</b>';
+    }).join('');
+  }
+  function _segAction(action, current) {
+    return ACTION_LEVELS.map(function (lvl) {
+      var on = (String(current || 'none') === lvl) ? ' on' : '';
+      return '<b data-action="' + action + '" data-val="' + lvl + '" class="fe-seg-b' + on + '">' + lvl + '</b>';
+    }).join('');
+  }
+
+  function buildEvolveModalHtml(agent) {
+    var d = agent.doctrine || {}, mix = agent.expectedActionMix || {};
+    var ver = (Array.isArray(agent.doctrineHistory) ? agent.doctrineHistory.length : 0) + 1;
+    var presetBtns = Object.keys(ARCHETYPES).map(function (k) {
+      return '<b class="fe-preset" data-preset="' + k + '">' + _esc(ARCHETYPES[k].label) + '</b>';
+    }).join('');
+    var triggers = (Array.isArray(d.escalationTriggers) ? d.escalationTriggers : []).map(function (t) {
+      return '<span class="fe-chip" data-trigger="' + _esc(t) + '">' + _esc(t) + '<i class="fe-x">×</i></span>';
+    }).join('');
+    var mixRows = Object.keys(mix).map(function (act) {
+      return '<div class="fe-row"><span>' + _esc(act) + '</span><div class="fe-seg">' + _segAction(act, mix[act]) + '</div></div>';
+    }).join('');
+
+    return '' +
+    '<div class="fe-modal" data-agent="' + _esc(agent.id) + '">' +
+      '<div class="fe-head"><div class="fe-title">Evolve ' + _esc(agent.name || agent.id) + '</div>' +
+        '<div class="fe-sub">' + _esc(agent.role || '') + ' · Tier ' + _esc(agent.tier) + ' · v' + (ver - 1) + ' → v' + ver + '</div></div>' +
+      '<div class="fe-presets">' + presetBtns + '</div>' +
+      '<div class="fe-sec"><div class="fe-lbl">Focus</div>' +
+        '<textarea class="fe-ta" data-field="focus" rows="2">' + _esc(agent.focus || '') + '</textarea></div>' +
+      '<div class="fe-sec"><div class="fe-lbl">Monthly cap (max $' + CAP_CEILING.toFixed(2) + ')</div>' +
+        '<input class="fe-range" type="range" min="0.5" max="' + CAP_CEILING + '" step="0.25" data-field="monthlyCap" value="' + Number(agent.monthlyCap || 0) + '">' +
+        '<span class="fe-capval">$' + Number(agent.monthlyCap || 0).toFixed(2) + '</span></div>' +
+      '<div class="fe-sec"><div class="fe-lbl">Doctrine</div>' +
+        '<div class="fe-row"><span>Risk tolerance</span><div class="fe-seg">' + _segDoctrine('riskTolerance', RISK_PRESETS, d.riskTolerance) + '</div></div>' +
+        '<div class="fe-row"><span>Time horizon</span><div class="fe-seg">' + _segDoctrine('timeHorizon', HORIZON_PRESETS, d.timeHorizon) + '</div></div>' +
+        '<div class="fe-row"><span>Strategic bias</span><input class="fe-ta" data-doctrine="strategicBias" value="' + _esc(d.strategicBias || '') + '"></div>' +
+        '<div class="fe-row"><span>Core question</span><input class="fe-ta" data-doctrine="coreQuestion" value="' + _esc(d.coreQuestion || '') + '"></div>' +
+        '<div class="fe-row"><span>Escalation triggers</span><div class="fe-chips" data-triggers>' + triggers + '<span class="fe-chip fe-add">+ add</span></div></div></div>' +
+      '<div class="fe-sec"><div class="fe-lbl">Loadout — expected action mix</div>' + mixRows + '</div>' +
+      '<div class="fe-sec"><div class="fe-lbl">Rationale <span class="fe-req">*required</span></div>' +
+        '<textarea class="fe-ta" data-field="rationale" rows="2" placeholder="Why this evolution? (min 20 chars — saved to lineage)"></textarea></div>' +
+      '<div class="fe-diff" data-diff></div>' +
+      '<div class="fe-foot"><span class="fe-note">If rejected: 14-day cooldown.</span>' +
+        '<span class="fe-spacer"></span>' +
+        '<button class="fe-btn fe-ghost" data-fe="cancel">Cancel</button>' +
+        '<button class="fe-btn fe-sec" data-fe="propose">Propose for review</button>' +
+        '<button class="fe-btn fe-amber" data-fe="now">⚡ Evolve now</button></div>' +
+    '</div>';
+  }
+
   return {
     CAP_CEILING: CAP_CEILING,
     ALLOWED_FIELDS: ALLOWED_FIELDS,
@@ -95,6 +151,7 @@
     buildChanges: buildChanges,
     computeCostDelta: computeCostDelta,
     validateEvolution: validateEvolution,
-    diffSummary: diffSummary
+    diffSummary: diffSummary,
+    buildEvolveModalHtml: buildEvolveModalHtml
   };
 });

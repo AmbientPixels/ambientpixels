@@ -74,3 +74,24 @@ test('diffSummary: action-mix change', () => {
   const ed  = { focus: 'a', monthlyCap: 4, doctrine: {}, expectedActionMix: { 'remember': 'high' } };
   assert.deepStrictEqual(FE.diffSummary(cur, ed), [{ label: 'remember', was: 'low', now: 'high' }]);
 });
+
+const AGENT = { id: 'scribe', name: 'Scribe', role: 'Content Director', tier: 3,
+  focus: 'Strategic content.', monthlyCap: 4,
+  doctrine: { strategicBias: 'Clarity', riskTolerance: 'Low', timeHorizon: 'Immediate', coreQuestion: 'Is this unambiguous?', escalationTriggers: ['Vague directives'] },
+  expectedActionMix: { 'execute-task': 'high', 'remember': 'medium' } };
+
+test('buildEvolveModalHtml: prefills current values', () => {
+  const html = FE.buildEvolveModalHtml(AGENT);
+  assert.ok(html.includes('Strategic content.'));     // focus prefilled
+  assert.ok(html.includes('Scribe'));                  // header
+  assert.ok(/data-field="monthlyCap"[^>]*value="4"/.test(html) || html.includes('value="4"')); // cap prefilled
+});
+test('buildEvolveModalHtml: marks current risk + action levels selected', () => {
+  const html = FE.buildEvolveModalHtml(AGENT);
+  assert.ok(/data-doctrine="riskTolerance"[^>]*data-val="Low"[^>]*class="[^"]*\bon\b/.test(html));
+  assert.ok(/data-action="execute-task"[^>]*data-val="high"[^>]*class="[^"]*\bon\b/.test(html));
+});
+test('buildEvolveModalHtml: never renders protected fields as inputs', () => {
+  const html = FE.buildEvolveModalHtml(AGENT);
+  assert.ok(!/data-field="(id|name|tier|status|reportsTo)"/.test(html));
+});
