@@ -85,7 +85,11 @@ const CFO_THRESHOLD = 100;
 // ── Guardrails ──
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
-  maxGeminiCallsPerCycle: 20,
+  // Raised 20→40 (2026-06-20): on Sonnet, ~4 agents (nova/cipher/pixel/forge)
+  // exhausted 20 calls and the main loop broke, structurally starving the back
+  // half (scout/scribe/quill/echo — incl. the campaign proposer Echo) every busy
+  // cycle. 40 lets all 8 run (~5 calls/agent), still well under the 5-min lock.
+  maxGeminiCallsPerCycle: 40,
   maxNewTasksPerCycle: 6,
   maxExecutesPerCyclePerAgent: 3,
   maxContentGeneratesPerCyclePerAgent: 1,
