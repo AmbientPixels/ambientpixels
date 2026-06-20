@@ -5873,7 +5873,12 @@ Write the full deliverable first, then the structured JSON block.`;
   });
   if (_obsClamped) {
     if (typeof incPolicyGate === 'function') incPolicyGate('observation_clamp');
-    await logEvent('policy-violation', agentId, 'Observation clamp applied', cycleId, {
+    // Observation clamping is benign storage housekeeping — trimming an agent's
+    // notes down to MAX_OBSERVATIONS_PER_AGENT / MAX_OBSERVATION_CHARS. No action
+    // is blocked and the agent did nothing disallowed, so this is run-health
+    // telemetry (routes to `logs`), NOT a policy-violation (routes to the
+    // CEO-facing governanceLog). Mirrors the 2026-04-15 activation_mode downgrade.
+    await logEvent('run-health', agentId, 'Observation clamp applied', cycleId, {
       runId: cycleId,
       agentId: agentId,
       gate: 'observation_clamp',
