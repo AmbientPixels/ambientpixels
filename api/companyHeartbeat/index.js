@@ -1885,6 +1885,84 @@ module.exports = async function (context) {
     // surfaces pending product proposals in Nova's prompt block). Individual
     // handlers still re-read fresh state when mutating.
     const _promptApprovalQueueSnapshot = (await storage.getState('approvalQueue')) || [];
+    // ── Live heartbeat progress breadcrumb (powers the Heartbeat visualizer page) ──
+    // Additive + best-effort. Written incrementally inside the agent loop so the
+    // dashboard can poll /api/heartbeatProgress and watch agents resolve in real time
+    // (the run's logs/heartbeatRuns aren't durable until the final flush). EVERY write
+    // is wrapped — a failure here must NEVER affect the cycle.
+    let _hbProgress = null;
+    async function _hbPersist() {
+      try {
+        if (!_hbProgress) return;
+        _hbProgress.updatedAt = new Date().toISOString();
+        await storage.setState('heartbeatProgress', _hbProgress);
+      } catch (_e) { /* non-fatal */ }
+    }
+    async function _hbInit(order) {
+      try {
+        let _model = null;
+        try { _model = ((await storage.getState('systemConfig')) || {}).heartbeatModel || null; } catch (_me) { /* best-effort */ }
+        _hbProgress = {
+          cycleId: cycleId, runId: runId, startedAt: cycleStart, model: _model,
+          status: 'running', order: order.slice(), agents: {}, updatedAt: new Date().toISOString()
+        };
+        order.forEach(function (aid) { _hbProgress.agents[aid] = { id: aid, status: 'queued' }; });
+        await storage.setState('heartbeatProgress', _hbProgress);
+      } catch (_e) { /* non-fatal */ }
+    }
+    function _hbMark(aid, status) {
+      try {
+        if (!_hbProgress || !_hbProgress.agents[aid]) return;
+        _hbProgress.agents[aid].status = status;
+        if (status === 'thinking' && !_hbProgress.agents[aid].startedAt) {
+          _hbProgress.agents[aid].startedAt = new Date().toISOString();
+        }
+      } catch (_e) { /* non-fatal */ }
+    }
+    async function _hbDone(aid, result) {
+      try {
+        if (!_hbProgress || !_hbProgress.agents[aid]) return;
+        var rs = _agentRunStats[aid] || {};
+        var rc = (_runCounters.byAgent && _runCounters.byAgent[aid]) || {};
+        var outputs = [];
+        if (result && Array.isArray(result.taskUpdates)) {
+          result.taskUpdates.forEach(function (u) {
+            if (!u) return;
+            var kind = u.action || u.type || 'task';
+            var label = (u.task && (u.task.title || u.task.id)) || u.title || u.taskId || kind;
+            outputs.push({ kind: String(kind), label: String(label).slice(0, 140) });
+          });
+        }
+        if (result && Array.isArray(result.proposals)) {
+          result.proposals.forEach(function (p) {
+            if (!p) return;
+            var label = (p.payload && (p.payload.title || p.payload.summary)) || p.proposedAction || p.type || 'proposal';
+            outputs.push({ kind: 'proposal', label: String(label).slice(0, 140) });
+          });
+        }
+        if (result && Array.isArray(result.observations)) {
+          result.observations.forEach(function (o) { if (o) outputs.push({ kind: 'observation', label: String(o).slice(0, 180) }); });
+        }
+        var _prevStarted = (_hbProgress.agents[aid] && _hbProgress.agents[aid].startedAt) || null;
+        _hbProgress.agents[aid] = {
+          id: aid,
+          status: rs.error ? 'error' : 'done',
+          startedAt: _prevStarted,
+          finishedAt: new Date().toISOString(),
+          executed: rs.executed || 0,
+          attempted: rs.attempted || 0,
+          blocked: (rc.blocked || 0) + (rs.guardrailBlocked || 0),
+          newTasksCreated: rc.creates || 0,
+          latencyMs: rs.avgLatencyMs || 0,
+          reasoning: rs.reasoning || null,
+          error: rs.error || null,
+          outputs: outputs.slice(0, 12)
+        };
+        await _hbPersist();
+      } catch (_e) { /* non-fatal */ }
+    }
+    await _hbInit(_orderedAgents);
+
     // Pre-flight: run parallel groups' Gemini calls concurrently, cache results
     const _prefetchedResults = {};
     for (const _group of _EXEC_GROUPS) {
@@ -1898,6 +1976,8 @@ module.exports = async function (context) {
       });
       if (_parallelAgents.length > 1) {
         context.log('[Heartbeat] Parallel group: ' + _parallelAgents.join(', '));
+        for (var _hbti = 0; _hbti < _parallelAgents.length; _hbti++) { _hbMark(_parallelAgents[_hbti], 'thinking'); }
+        await _hbPersist();
         var _parallelPromises = _parallelAgents.map(function (aid) {
           return runAgentHeartbeat({
             context, agentId: aid, tasks, configs, recentSummaries, cycleId,
@@ -1967,6 +2047,8 @@ module.exports = async function (context) {
       }
 
       agentActions[agentId] = 0;
+      _hbMark(agentId, 'thinking');
+      await _hbPersist();
 
       try {
         // Use prefetched result from parallel group, or run sequentially
@@ -2001,6 +2083,7 @@ module.exports = async function (context) {
         if (result._failed) {
           _agentRunStats[agentId] = { attempted: 0, executed: 0, blocked: 0, newTasksCreated: 0, avgLatencyMs: 0, error: result._error };
           await logEvent('error', agentId, 'Heartbeat failed: ' + result._error, cycleId);
+          await _hbDone(agentId, result);
           continue;
         }
         // Process outgoing messages from this agent (Phase 4A)
@@ -2670,6 +2753,7 @@ module.exports = async function (context) {
           configs[agentId].heartbeat.lastBeat = new Date().toISOString();
           configs[agentId].heartbeat.status = 'alive';
         }
+        await _hbDone(agentId, result);
       } catch (err) {
         context.log.error('[Heartbeat] Agent', agentId, 'failed:', err.message);
         _agentRunStats[agentId] = _agentRunStats[agentId] || {
@@ -2681,6 +2765,7 @@ module.exports = async function (context) {
           error: err.message
         };
         await logEvent('error', agentId, 'Heartbeat failed: ' + err.message, cycleId);
+        await _hbDone(agentId, null);
       }
     }
 
@@ -4232,6 +4317,16 @@ module.exports = async function (context) {
       durationMs: durationMs,
       newTasks: newTasksCreated
     });
+    // Finalize the live progress breadcrumb so the visualizer flips to "complete".
+    try {
+      if (_hbProgress) {
+        _hbProgress.status = 'complete';
+        _hbProgress.finishedAt = finishedAt;
+        _hbProgress.durationMs = durationMs;
+        _hbProgress.runStatus = status;
+        await _hbPersist();
+      }
+    } catch (_hbcErr) { /* non-fatal */ }
 
     context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated, '| Skipped:', skippedAgents.length, '| Tier4 ran:', ranTier4.join(', ') || 'none');
     return { skipped: false, runId: runId };

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Heartbeat — watch the agent fleet think and act in real time." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Heartbeat — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .hb-runbar {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+    }
+    .hb-runbtn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.2rem; border-radius: 10px; border: 1px solid rgba(248,113,113,0.4);
+      background: rgba(248,113,113,0.12); color: #fca5a5;
+      font-size: var(--c-text-sm); font-weight: 600; cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .hb-runbtn:hover:not(:disabled) { background: rgba(248,113,113,0.2); color: #fff; }
+    .hb-runbtn:disabled { opacity: 0.65; cursor: default; }
+    .hb-runnote { font-size: var(--c-text-xs); opacity: 0.6; }
+    .hb-runnote.warn { color: #fbbf24; opacity: 0.95; }
+
+    .hb-hero {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.7rem; margin-bottom: 1.3rem;
+    }
+    .hb-hero-card {
+      padding: 0.8rem; border-radius: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    }
+    .hb-hero-card .hb-label { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.3rem; }
+    .hb-hero-card .hb-value { font-size: var(--c-text-lg); font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+    .hb-hero-card .hb-sub { font-size: var(--c-text-xs); opacity: 0.6; margin-top: 0.2rem; }
+
+    .hb-statepill {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: var(--c-text-sm); font-weight: 600;
+    }
+    .hb-statepill .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .hb-state-running { color: #fbbf24; } .hb-state-running .dot { background: #fbbf24; animation: hb-pulse 1.1s ease-in-out infinite; }
+    .hb-state-complete { color: #34d399; } .hb-state-complete .dot { background: #34d399; }
+    .hb-state-idle { color: rgba(255,255,255,0.55); } .hb-state-idle .dot { background: rgba(255,255,255,0.4); }
+    .hb-state-stale { color: #f87171; } .hb-state-stale .dot { background: #f87171; }
+
+    @keyframes hb-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(1.5); } }
+
+    .hb-feed { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.6rem; }
+    .hb-agent {
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 10px;
+      background: rgba(255,255,255,0.02); padding: 0.75rem 0.9rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .hb-agent.is-thinking { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.05); }
+    .hb-agent.is-done { border-color: rgba(52,211,153,0.25); }
+    .hb-agent.is-error { border-color: rgba(248,113,113,0.5); background: rgba(248,113,113,0.05); }
+    .hb-agent.is-queued, .hb-agent.is-skipped { opacity: 0.5; }
+
+    .hb-agent-top { display: flex; align-items: center; gap: 0.55rem; }
+    .hb-agent-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.25); flex: 0 0 auto; }
+    .is-thinking .hb-agent-dot { background: #fbbf24; animation: hb-pulse 1.1s ease-in-out infinite; }
+    .is-done .hb-agent-dot { background: #34d399; }
+    .is-error .hb-agent-dot { background: #f87171; }
+    .is-idle .hb-agent-dot { background: rgba(255,255,255,0.4); }
+    .hb-agent-name { font-weight: 600; text-transform: capitalize; font-size: var(--c-text-sm); color: #fff; }
+    .hb-agent-status { font-size: var(--c-text-xs); opacity: 0.65; margin-left: auto; font-variant-numeric: tabular-nums; }
+
+    .hb-reason {
+      font-size: var(--c-text-xs); line-height: 1.5; color: rgba(255,255,255,0.78);
+      margin: 0.5rem 0 0 1.55rem; padding-left: 0.7rem; border-left: 2px solid rgba(251,191,36,0.35);
+      font-style: italic;
+    }
+    .hb-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.55rem 0 0 1.55rem; }
+    .hb-chip {
+      font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 5px;
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums;
+    }
+    .hb-chip.exec { background: rgba(52,211,153,0.12); color: #6ee7b7; }
+    .hb-chip.block { background: rgba(248,113,113,0.12); color: #fca5a5; }
+    .hb-chip.tasks { background: rgba(96,165,250,0.12); color: #93c5fd; }
+
+    .hb-outputs { margin: 0.55rem 0 0 1.55rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    .hb-output { display: flex; align-items: baseline; gap: 0.5rem; font-size: var(--c-text-xs); }
+    .hb-output i { width: 14px; text-align: center; opacity: 0.6; flex: 0 0 auto; }
+    .hb-output .ok { color: rgba(255,255,255,0.82); }
+    .hb-out-kind { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.45; flex: 0 0 auto; width: 70px; }
+    .hb-idle-note { font-size: var(--c-text-xs); opacity: 0.55; margin: 0.45rem 0 0 1.55rem; }
+    .hb-err-note { font-size: var(--c-text-xs); color: #fca5a5; margin: 0.45rem 0 0 1.55rem; }
+
+    .hb-empty { font-size: var(--c-text-xs); color: rgba(255,255,255,0.5); padding: 0.6rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+
+    .hb-hist-row { border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 0.5rem; overflow: hidden; }
+    .hb-hist-hdr { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.8rem; cursor: pointer; font-size: var(--c-text-xs); }
+    .hb-hist-hdr:hover { background: rgba(255,255,255,0.03); }
+    .hb-hist-when { font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+    .hb-hist-meta { margin-left: auto; opacity: 0.6; font-variant-numeric: tabular-nums; }
+    .hb-hist-body { display: none; padding: 0.2rem 0.8rem 0.7rem; border-top: 1px solid rgba(255,255,255,0.05); }
+    .hb-hist-row.open .hb-hist-body { display: block; }
+    .hb-hist-status-ok { color: #34d399; } .hb-hist-status-err { color: #f87171; }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="hb-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-heartbeat co-icon-mr-lg dash-icon-red"></i>Heartbeat</h1>
+        <p class="act-header-sub">Watch the fleet think and act in real time — every agent's reasoning, outputs, and blocks, live as the cycle runs.</p>
+      </div>
+    </div>
+
+    <div class="hb-runbar">
+      <button id="hb-run" class="hb-runbtn"><i class="fas fa-heartbeat"></i> Run Heartbeat</button>
+      <span id="hb-runnote" class="hb-runnote"></span>
+    </div>
+
+    <div id="hb-hero" class="hb-hero"></div>
+
+    <div class="hb-feed" id="hb-feed"></div>
+
+    <div class="sys-section ws-section" id="hb-history-section">
+      <div class="sys-section-hdr" id="hb-history-toggle">
+        <i class="fas fa-clock-rotate-left"></i>
+        <strong>Recent Cycles</strong>
+        <span class="sys-count" id="hb-history-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div id="hb-history"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+    var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    var SECRET = 'pixelpusher';
+    var LOCK_TIMEOUT_MS = 6 * 60 * 1000; // a running breadcrumb older than this = stale/timed-out
+
+    var _state = { progress: null, history: [] };
+    var _runActive = false;     // a manual trigger is in flight
+    var _netTimer = null;
+    var _hidden = false;
+    var _lastHistSig = '';      // skip history DOM rebuild (and preserve expand state) when unchanged
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function H() { return { 'x-company-secret': SECRET }; }
+    function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function fmtAgo(ms) {
+      if (ms == null || isNaN(ms)) return '—';
+      var s = Math.floor(ms / 1000);
+      if (s < 60) return s + 's';
+      var m = Math.floor(s / 60); var r = s % 60;
+      return m + 'm' + (r ? ' ' + r + 's' : '');
+    }
+    function fmtClock(iso) {
+      if (!iso) return '—';
+      var d = new Date(iso); if (isNaN(d.getTime())) return '—';
+      return d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+    function kindIcon(kind) {
+      switch (String(kind || '').toLowerCase()) {
+        case 'proposal': return 'fa-paper-plane';
+        case 'observation': return 'fa-eye';
+        case 'create': case 'task': return 'fa-plus';
+        case 'move': return 'fa-arrow-right';
+        case 'update': return 'fa-pen';
+        case 'comment': return 'fa-comment';
+        case 'execute-task': case 'execute': return 'fa-circle-check';
+        case 'review-task': case 'review': return 'fa-clipboard-check';
+        case 'remember': return 'fa-brain';
+        default: return 'fa-angle-right';
+      }
+    }
+
+    // ── Networking ──
+    function fetchProgress() {
+      return fetch(API + '/heartbeatProgress', { headers: H() })
+        .then(function (r) { if (!r.ok) throw r; return r.json(); });
+    }
+
+    function tick() {
+      if (_hidden) return;
+      fetchProgress().then(function (d) {
+        _state.progress = d.progress || null;
+        _state.history = Array.isArray(d.history) ? d.history : [];
+        render();
+      }).catch(function () { /* transient — keep last render */ })
+        .then(scheduleNext);
+    }
+    function scheduleNext() {
+      if (_netTimer) clearTimeout(_netTimer);
+      var p = _state.progress;
+      var fast = _runActive || (p && p.status === 'running' && !isStale(p));
+      _netTimer = setTimeout(tick, fast ? 2000 : 6000);
+    }
+
+    function isStale(p) {
+      if (!p || p.status !== 'running') return false;
+      var started = new Date(p.startedAt).getTime();
+      return !isNaN(started) && (Date.now() - started) > LOCK_TIMEOUT_MS;
+    }
+
+    // ── Trigger ──
+    function runHeartbeat() {
+      if (_runActive) return;
+      var btn = document.getElementById('hb-run');
+      var note = document.getElementById('hb-runnote');
+      _runActive = true;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running…';
+      note.className = 'hb-runnote';
+      note.textContent = 'Triggering cycle… agents will appear below as they run.';
+      scheduleNext(); // bump to fast polling immediately
+
+      fetch(API + '/company-heartbeat-trigger', { method: 'POST', headers: H() })
+        .then(function (r) { return r.json().catch(function () { return {}; }); })
+        .then(function (res) {
+          if (res && res.skipped) {
+            var why = res.reason === 'lock'
+              ? 'A heartbeat is already running — showing that cycle live.'
+              : (res.reason === 'no_api_key' ? 'Skipped: no AI key configured on the server.' : 'Skipped: ' + esc(res.reason || 'unknown') + '.');
+            note.className = 'hb-runnote warn';
+            note.textContent = why;
+          } else {
+            note.className = 'hb-runnote';
+            note.textContent = 'Cycle complete.';
+          }
+        })
+        .catch(function (err) {
+          note.className = 'hb-runnote warn';
+          note.textContent = 'Trigger failed: ' + esc((err && err.message) || 'network error') + '.';
+        })
+        .then(function () {
+          _runActive = false;
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
+          tick();
+        });
+    }
+
+    // ── Rendering ──
+    function render() {
+      renderHero();
+      renderFeed();
+      renderHistory();
+    }
+
+    function totals(p) {
+      var t = { done: 0, executed: 0, newTasks: 0, blocked: 0, total: 0 };
+      if (!p || !p.agents) return t;
+      (p.order || Object.keys(p.agents)).forEach(function (aid) {
+        var a = p.agents[aid]; if (!a) return;
+        t.total++;
+        if (a.status === 'done' || a.status === 'error') {
+          t.done++;
+          t.executed += a.executed || 0;
+          t.newTasks += a.newTasksCreated || 0;
+          t.blocked += a.blocked || 0;
+        }
+      });
+      return t;
+    }
+
+    function renderHero() {
+      var p = _state.progress;
+      var el = document.getElementById('hb-hero');
+      if (!p) {
+        el.innerHTML = '<div class="hb-hero-card"><div class="hb-label">Status</div><div class="hb-value">Idle</div><div class="hb-sub">No cycle run yet. Hit Run Heartbeat.</div></div>';
+        return;
+      }
+      var stale = isStale(p);
+      var stateKey = stale ? 'stale' : (p.status === 'running' ? 'running' : (p.status === 'complete' ? 'complete' : 'idle'));
+      var stateLabel = stale ? 'Timed out' : (p.status === 'running' ? 'Running' : (p.status === 'complete' ? 'Complete' : cap(p.status || 'idle')));
+      var started = new Date(p.startedAt).getTime();
+      var elapsed = (p.status === 'running' && !stale)
+        ? (Date.now() - started)
+        : (p.durationMs != null ? p.durationMs : (new Date(p.finishedAt).getTime() - started));
+      var t = totals(p);
+      var html = '';
+      html += '<div class="hb-hero-card"><div class="hb-label">Status</div>'
+            + '<div class="hb-value"><span class="hb-statepill hb-state-' + stateKey + '"><span class="dot"></span>' + esc(stateLabel) + '</span></div>'
+            + '<div class="hb-sub">' + (p.status === 'running' && !stale ? 'started ' : 'ran ') + esc(fmtClock(p.startedAt)) + '</div></div>';
+      html += '<div class="hb-hero-card"><div class="hb-label">Elapsed</div><div class="hb-value">' + esc(fmtAgo(elapsed)) + '</div><div class="hb-sub">' + esc(t.done) + '/' + esc(t.total) + ' agents</div></div>';
+      html += '<div class="hb-hero-card"><div class="hb-label">Model</div><div class="hb-value" style="font-size:var(--c-text-base);">' + esc(p.model || '—') + '</div><div class="hb-sub">heartbeat engine</div></div>';
+      html += '<div class="hb-hero-card"><div class="hb-label">Executed</div><div class="hb-value">' + esc(t.executed) + '</div><div class="hb-sub">' + esc(t.newTasks) + ' new tasks · ' + esc(t.blocked) + ' blocked</div></div>';
+      el.innerHTML = html;
+    }
+
+    function renderFeed() {
+      var p = _state.progress;
+      var el = document.getElementById('hb-feed');
+      if (!p || !p.agents) {
+        el.innerHTML = '<div class="hb-empty">Run a heartbeat to watch the fleet work. Agents resolve in execution order (nova first), and a scheduled cycle will also appear here live.</div>';
+        return;
+      }
+      var order = p.order && p.order.length ? p.order : Object.keys(p.agents);
+      var complete = p.status === 'complete' || isStale(p);
+      var html = order.map(function (aid) { return agentCard(aid, p.agents[aid] || { id: aid, status: 'queued' }, complete); }).join('');
+      el.innerHTML = html;
+    }
+
+    function agentCard(aid, a, runComplete) {
+      var status = a.status || 'queued';
+      // After the run finishes, an agent still "queued" never ran → skipped.
+      if (runComplete && status === 'queued') status = 'skipped';
+      var executed = a.executed || 0;
+      var hasOutputs = Array.isArray(a.outputs) && a.outputs.length > 0;
+      var idle = (status === 'done') && executed === 0 && !hasOutputs;
+
+      var cls = 'hb-agent is-' + status + (idle ? ' is-idle' : '');
+      var statusText = '';
+      if (status === 'queued') statusText = 'queued';
+      else if (status === 'thinking') {
+        var st = new Date(a.startedAt).getTime();
+        statusText = 'working… ' + (isNaN(st) ? '' : fmtAgo(Date.now() - st));
+      }
+      else if (status === 'skipped') statusText = 'skipped this cycle';
+      else if (status === 'error') statusText = 'error';
+      else statusText = (a.latencyMs ? fmtAgo(a.latencyMs) : 'done');
+
+      var html = '<div class="' + cls + '">';
+      html += '<div class="hb-agent-top"><span class="hb-agent-dot"></span>'
+            + '<span class="hb-agent-name">' + esc(aid) + '</span>'
+            + '<span class="hb-agent-status">' + esc(statusText) + '</span></div>';
+
+      if (status === 'error') {
+        html += '<div class="hb-err-note"><i class="fas fa-triangle-exclamation"></i> ' + esc(a.error || 'agent failed this cycle') + '</div>';
+      }
+      if (a.reasoning && (status === 'done' || status === 'error')) {
+        html += '<div class="hb-reason">' + esc(a.reasoning) + '</div>';
+      }
+      if (status === 'done' || status === 'error') {
+        if (idle) {
+          html += '<div class="hb-idle-note"><i class="fas fa-moon"></i> idle — nothing needed this cycle.</div>';
+        } else {
+          html += '<div class="hb-chips">'
+                + '<span class="hb-chip exec">' + esc(executed) + ' executed</span>'
+                + (a.newTasksCreated ? '<span class="hb-chip tasks">' + esc(a.newTasksCreated) + ' new tasks</span>' : '')
+                + (a.blocked ? '<span class="hb-chip block">' + esc(a.blocked) + ' blocked</span>' : '')
+                + (a.latencyMs ? '<span class="hb-chip">' + esc(fmtAgo(a.latencyMs)) + '</span>' : '')
+                + '</div>';
+          if (hasOutputs) {
+            html += '<div class="hb-outputs">' + a.outputs.map(function (o) {
+              return '<div class="hb-output"><i class="fas ' + kindIcon(o.kind) + '"></i>'
+                   + '<span class="hb-out-kind">' + esc(o.kind) + '</span>'
+                   + '<span class="ok">' + esc(o.label) + '</span></div>';
+            }).join('') + '</div>';
+          }
+        }
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderHistory() {
+      var el = document.getElementById('hb-history');
+      var hist = _state.history || [];
+      var sig = hist.map(function (r) { return (r.runId || '') + ':' + (r.status || ''); }).join('|');
+      if (sig === _lastHistSig) return; // unchanged — leave DOM (and any expanded row) alone
+      _lastHistSig = sig;
+      document.getElementById('hb-history-count').textContent = hist.length ? hist.length : '';
+      if (!hist.length) { el.innerHTML = '<div class="hb-empty">No past cycles recorded yet.</div>'; return; }
+      el.innerHTML = hist.map(function (r, i) {
+        var aa = r.agentActions || {};
+        var statusCls = r.status === 'error' ? 'hb-hist-status-err' : 'hb-hist-status-ok';
+        var hdr = '<div class="hb-hist-hdr" data-idx="' + i + '">'
+                + '<i class="fas fa-chevron-right sys-chevron" style="transition:transform .15s;"></i>'
+                + '<span class="hb-hist-when">' + esc(fmtClock(r.startedAt)) + '</span>'
+                + '<span class="' + statusCls + '">' + esc(r.status || '—') + '</span>'
+                + '<span class="hb-hist-meta">' + esc(aa.executed || 0) + ' exec · ' + esc(aa.blocked || 0) + ' blocked · ' + esc(fmtAgo(r.durationMs)) + '</span></div>';
+        var body = '<div class="hb-hist-body">' + histAgents(r) + '</div>';
+        return '<div class="hb-hist-row" data-row="' + i + '">' + hdr + body + '</div>';
+      }).join('');
+      // wire expand
+      Array.prototype.forEach.call(el.querySelectorAll('.hb-hist-hdr'), function (h) {
+        h.addEventListener('click', function () {
+          var row = h.parentNode;
+          row.classList.toggle('open');
+          var chev = h.querySelector('.sys-chevron');
+          if (chev) chev.style.transform = row.classList.contains('open') ? 'rotate(90deg)' : '';
+        });
+      });
+    }
+
+    function histAgents(r) {
+      var pa = r.perAgent || {};
+      var skipped = {};
+      (r.skippedAgents || []).forEach(function (s) { if (s && s.agentId) skipped[s.agentId] = s.reason || 'skipped'; });
+      var ids = Object.keys(pa);
+      if (!ids.length && !Object.keys(skipped).length) return '<div class="hb-idle-note">No per-agent detail recorded.</div>';
+      var rows = ids.map(function (aid) {
+        var a = pa[aid] || {};
+        var exec = a.actionsExecuted || 0;
+        var nt = a.newTasksCreated || 0;
+        var bl = a.actionsBlocked || 0;
+        var line = '<div style="margin:0.5rem 0 0;">'
+                 + '<span class="hb-agent-name">' + esc(aid) + '</span> '
+                 + '<span class="hb-agent-status" style="margin-left:0.4rem;">' + esc(exec) + ' exec · ' + esc(nt) + ' tasks · ' + esc(bl) + ' blocked</span>';
+        if (a.error) line += '<div class="hb-err-note">' + esc(a.error) + '</div>';
+        else if (a.reasoning) line += '<div class="hb-reason">' + esc(a.reasoning) + '</div>';
+        else if (exec === 0) line += '<div class="hb-idle-note">idle — nothing needed.</div>';
+        line += '</div>';
+        return line;
+      });
+      Object.keys(skipped).forEach(function (aid) {
+        if (pa[aid]) return;
+        rows.push('<div style="margin:0.5rem 0 0;"><span class="hb-agent-name" style="opacity:0.6;">' + esc(aid) + '</span> <span class="hb-agent-status" style="margin-left:0.4rem;">skipped — ' + esc(skipped[aid]) + '</span></div>');
+      });
+      return rows.join('');
+    }
+
+    // ── Init ──
+    document.getElementById('hb-run').addEventListener('click', runHeartbeat);
+    document.getElementById('hb-history-toggle').addEventListener('click', function () {
+      document.getElementById('hb-history-section').classList.toggle('collapsed');
+    });
+    document.addEventListener('visibilitychange', function () {
+      _hidden = document.hidden;
+      if (!_hidden) tick();
+    });
+
+    // Repaint clocks every second while a run is live (so elapsed ticks between polls).
+    setInterval(function () {
+      if (_hidden) return;
+      var p = _state.progress;
+      if (_runActive || (p && p.status === 'running' && !isStale(p))) { renderHero(); renderFeed(); }
+    }, 1000);
+
+    tick();
+  })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
