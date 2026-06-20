@@ -4324,6 +4324,24 @@ module.exports = async function (context) {
         _hbProgress.finishedAt = finishedAt;
         _hbProgress.durationMs = durationMs;
         _hbProgress.runStatus = status;
+        // Reconcile agents that never reached _hbDone — e.g. the main loop hit the
+        // per-cycle Gemini-call cap (maxGeminiCallsPerCycle) and broke before them.
+        // Without this they'd render as perpetually 'thinking' / 'queued'.
+        (_hbProgress.order || []).forEach(function (aid) {
+          var ag = _hbProgress.agents[aid];
+          if (!ag || ag.status === 'done' || ag.status === 'error') return;
+          var rs = _agentRunStats[aid];
+          if (rs) {
+            ag.status = rs.error ? 'error' : 'done';
+            ag.executed = rs.executed || 0;
+            ag.reasoning = rs.reasoning || ag.reasoning || null;
+            ag.error = rs.error || null;
+            ag.latencyMs = rs.avgLatencyMs || 0;
+            if (!ag.finishedAt) ag.finishedAt = new Date().toISOString();
+          } else {
+            ag.status = 'cutoff'; // ran out of cycle budget (or never reached) — did not run
+          }
+        });
         await _hbPersist();
       }
     } catch (_hbcErr) { /* non-fatal */ }

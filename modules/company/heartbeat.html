@@ -68,23 +68,27 @@
     .hb-agent.is-thinking { border-color: rgba(251,191,36,0.5); background: rgba(251,191,36,0.05); }
     .hb-agent.is-done { border-color: rgba(52,211,153,0.25); }
     .hb-agent.is-error { border-color: rgba(248,113,113,0.5); background: rgba(248,113,113,0.05); }
-    .hb-agent.is-queued, .hb-agent.is-skipped { opacity: 0.5; }
+    .hb-agent.is-queued, .hb-agent.is-skipped, .hb-agent.is-cutoff { opacity: 0.55; }
 
-    .hb-agent-top { display: flex; align-items: center; gap: 0.55rem; }
-    .hb-agent-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.25); flex: 0 0 auto; }
-    .is-thinking .hb-agent-dot { background: #fbbf24; animation: hb-pulse 1.1s ease-in-out infinite; }
-    .is-done .hb-agent-dot { background: #34d399; }
-    .is-error .hb-agent-dot { background: #f87171; }
-    .is-idle .hb-agent-dot { background: rgba(255,255,255,0.4); }
+    .hb-agent-top { display: flex; align-items: center; gap: 0.6rem; }
+    .hb-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.18); transition: border-color 0.2s; }
+    .is-thinking .hb-avatar { border-color: #fbbf24; animation: hb-glow 1.3s ease-in-out infinite; }
+    .is-done .hb-avatar { border-color: #34d399; }
+    .is-error .hb-avatar { border-color: #f87171; }
+    .is-idle .hb-avatar { border-color: rgba(255,255,255,0.3); }
+    @keyframes hb-glow { 0%,100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.55); } 50% { box-shadow: 0 0 0 5px rgba(251,191,36,0); } }
+    .hb-loadbar { height: 3px; border-radius: 2px; background: rgba(251,191,36,0.14); margin: 0.55rem 0 0 2.6rem; overflow: hidden; position: relative; }
+    .hb-loadbar span { position: absolute; top: 0; bottom: 0; width: 35%; left: -35%; border-radius: 2px; background: linear-gradient(90deg, transparent, #fbbf24, transparent); animation: hb-slide 1.3s ease-in-out infinite; }
+    @keyframes hb-slide { 0% { left: -35%; } 100% { left: 100%; } }
     .hb-agent-name { font-weight: 600; text-transform: capitalize; font-size: var(--c-text-sm); color: #fff; }
     .hb-agent-status { font-size: var(--c-text-xs); opacity: 0.65; margin-left: auto; font-variant-numeric: tabular-nums; }
 
     .hb-reason {
       font-size: var(--c-text-xs); line-height: 1.5; color: rgba(255,255,255,0.78);
-      margin: 0.5rem 0 0 1.55rem; padding-left: 0.7rem; border-left: 2px solid rgba(251,191,36,0.35);
+      margin: 0.5rem 0 0 2.6rem; padding-left: 0.7rem; border-left: 2px solid rgba(251,191,36,0.35);
       font-style: italic;
     }
-    .hb-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.55rem 0 0 1.55rem; }
+    .hb-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.55rem 0 0 2.6rem; }
     .hb-chip {
       font-size: 0.68rem; padding: 0.15rem 0.45rem; border-radius: 5px;
       background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums;
@@ -93,13 +97,13 @@
     .hb-chip.block { background: rgba(248,113,113,0.12); color: #fca5a5; }
     .hb-chip.tasks { background: rgba(96,165,250,0.12); color: #93c5fd; }
 
-    .hb-outputs { margin: 0.55rem 0 0 1.55rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    .hb-outputs { margin: 0.55rem 0 0 2.6rem; display: flex; flex-direction: column; gap: 0.3rem; }
     .hb-output { display: flex; align-items: baseline; gap: 0.5rem; font-size: var(--c-text-xs); }
     .hb-output i { width: 14px; text-align: center; opacity: 0.6; flex: 0 0 auto; }
     .hb-output .ok { color: rgba(255,255,255,0.82); }
     .hb-out-kind { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.45; flex: 0 0 auto; width: 70px; }
-    .hb-idle-note { font-size: var(--c-text-xs); opacity: 0.55; margin: 0.45rem 0 0 1.55rem; }
-    .hb-err-note { font-size: var(--c-text-xs); color: #fca5a5; margin: 0.45rem 0 0 1.55rem; }
+    .hb-idle-note { font-size: var(--c-text-xs); opacity: 0.55; margin: 0.45rem 0 0 2.6rem; }
+    .hb-err-note { font-size: var(--c-text-xs); color: #fca5a5; margin: 0.45rem 0 0 2.6rem; }
 
     .hb-empty { font-size: var(--c-text-xs); color: rgba(255,255,255,0.5); padding: 0.6rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
 
@@ -336,13 +340,17 @@
         statusText = 'working… ' + (isNaN(st) ? '' : fmtAgo(Date.now() - st));
       }
       else if (status === 'skipped') statusText = 'skipped this cycle';
+      else if (status === 'cutoff') statusText = "didn't run — cycle hit its limit";
       else if (status === 'error') statusText = 'error';
       else statusText = (a.latencyMs ? fmtAgo(a.latencyMs) : 'done');
 
       var html = '<div class="' + cls + '">';
-      html += '<div class="hb-agent-top"><span class="hb-agent-dot"></span>'
+      html += '<div class="hb-agent-top">'
+            + '<img class="hb-avatar" src="/ambientos/img/' + esc(aid) + '.webp" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
             + '<span class="hb-agent-name">' + esc(aid) + '</span>'
             + '<span class="hb-agent-status">' + esc(statusText) + '</span></div>';
+      if (status === 'thinking') html += '<div class="hb-loadbar"><span></span></div>';
+      if (status === 'cutoff') html += '<div class="hb-idle-note"><i class="fas fa-hourglass-end"></i> the cycle reached its AI-call budget before this agent ran.</div>';
 
       if (status === 'error') {
         html += '<div class="hb-err-note"><i class="fas fa-triangle-exclamation"></i> ' + esc(a.error || 'agent failed this cycle') + '</div>';
