@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Agent Progress — all-up view of fleet XP, levels, achievements, and health." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Agent Progress — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    /* Fleet Pulse */
+    .ap-pulse { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
+    .ap-chip { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .ap-chip-label { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.35rem; }
+    .ap-chip-value { font-size: var(--c-text-lg); font-weight: 600; color: #fff; }
+    .ap-chip-top { display: inline-flex; align-items: center; gap: 0.4rem; font-size: var(--c-text-md); font-weight: 600; color: #fff; text-transform: capitalize; }
+    .ap-chip-portrait { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; }
+
+    /* Roster */
+    .ap-roster { display: flex; flex-direction: column; gap: 0.4rem; }
+    .ap-row { border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02); overflow: hidden; }
+    .ap-row.open { border-color: rgba(251,191,36,0.35); }
+    .ap-row-head { display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.85rem; cursor: pointer; font-size: var(--c-text-xs); }
+    .ap-row-head:hover { background: rgba(255,255,255,0.02); }
+    .ap-rank-num { font-weight: 700; color: #fbbf24; flex: 0 0 1.8rem; }
+    .ap-portrait { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex: 0 0 40px; background: rgba(255,255,255,0.05); }
+    .ap-id { flex: 1 1 8rem; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
+    .ap-name { font-size: var(--c-text-md); font-weight: 600; color: #fff; text-transform: capitalize; }
+    .ap-sub { font-size: var(--c-text-xs); opacity: 0.6; }
+    .ap-barwrap { flex: 0 0 11rem; display: flex; align-items: center; gap: 0.45rem; }
+    .ap-xpbar { flex: 1; height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+    .ap-xpbar-fill { height: 100%; background: linear-gradient(90deg,#fbbf24,#f59e0b); border-radius: 4px; }
+    .ap-barlabel { font-size: 0.62rem; opacity: 0.5; white-space: nowrap; }
+    .ap-stat { flex: 0 0 auto; font-weight: 600; color: #fff; white-space: nowrap; }
+    .ap-stat.ap-dim { font-weight: 400; color: rgba(255,255,255,0.6); }
+    .ap-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 9px; }
+    .ap-dot-green { background: #34d399; } .ap-dot-yellow { background: #fbbf24; } .ap-dot-red { background: #f87171; }
+    .ap-chev { opacity: 0.4; transition: transform 0.15s; flex: 0 0 auto; }
+    .ap-row.open .ap-chev { transform: rotate(180deg); }
+
+    .ap-detail { padding: 0.2rem 0.85rem 0.9rem; border-top: 1px solid rgba(255,255,255,0.05); }
+    .ap-detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; padding-top: 0.7rem; }
+    .ap-detail-h { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin: 0.6rem 0 0.35rem; }
+    .ap-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .ap-badge { font-size: 0.6rem; padding: 0.08rem 0.4rem; border-radius: 3px; border: 1px solid; }
+    .ap-badge.bronze { color: #cd9b6a; border-color: rgba(205,127,50,0.45); background: rgba(205,127,50,0.12); }
+    .ap-badge.silver { color: #cdd3da; border-color: rgba(192,192,192,0.4); background: rgba(192,192,192,0.1); }
+    .ap-badge.gold { color: #ffd76a; border-color: rgba(255,215,0,0.45); background: rgba(255,215,0,0.12); }
+    .ap-badge.platinum { color: #d9d6ff; border-color: rgba(180,170,255,0.5); background: rgba(180,170,255,0.14); }
+    .ap-counters { display: flex; flex-wrap: wrap; gap: 0.6rem; font-size: var(--c-text-xs); opacity: 0.85; }
+    .ap-counters strong { color: #fff; }
+    .ap-recent { list-style: none; margin: 0; padding: 0; font-size: var(--c-text-xs); opacity: 0.8; }
+    .ap-recent li { padding: 0.12rem 0; }
+    .ap-manage { display: inline-block; margin-top: 0.6rem; font-size: var(--c-text-xs); color: #fbbf24; text-decoration: none; }
+    .ap-manage:hover { text-decoration: underline; }
+
+    .ap-ach-summary { font-size: var(--c-text-xs); opacity: 0.6; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .ap-ach-feed { list-style: none; margin: 0; padding: 0; }
+    .ap-ach-feed li { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: var(--c-text-xs); }
+    .ap-ach-date { font-size: 0.62rem; opacity: 0.5; flex: 0 0 5rem; }
+    .ap-dim { opacity: 0.5; }
+    .ap-empty { font-size: var(--c-text-xs); color: rgba(255,255,255,0.5); padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(251,191,36,0.4); border-radius: 4px; }
+
+    @media (max-width: 720px) {
+      .ap-barwrap { display: none; }
+      .ap-sub { font-size: 0.6rem; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="ap-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-chart-line co-icon-mr-lg dash-icon-amber"></i>Agent Progress</h1>
+        <p class="act-header-sub">All-up view of the fleet — XP, levels, achievements, and health. Read-only; manage agents in Fleet.</p>
+      </div>
+    </div>
+
+    <div id="ap-pulse"></div>
+
+    <div class="sys-section" id="ap-roster-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-ranking-star"></i>
+        <strong>AGENT PROGRESS</strong>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div id="ap-roster"></div>
+      </div>
+    </div>
+
+    <div class="sys-section" id="ap-achievements-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-trophy"></i>
+        <strong>ACHIEVEMENTS</strong>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div id="ap-achievements"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/modules/company/js/agent-progress.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
