@@ -35,6 +35,25 @@
     .hb-runnote { font-size: var(--c-text-xs); opacity: 0.6; }
     .hb-runnote.warn { color: #fbbf24; opacity: 0.95; }
 
+    .hb-model { margin-bottom: 1.3rem; }
+    .hb-model-hdr {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em;
+      opacity: 0.55; margin-bottom: 0.55rem;
+    }
+    .hb-model-pills { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+    .hb-model-pill {
+      flex: 1 1 130px; padding: 0.55rem 0.7rem; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.62); cursor: pointer; font-size: var(--c-text-sm);
+      font-weight: 600; transition: background 0.15s, color 0.15s, border-color 0.15s; text-align: center;
+    }
+    .hb-model-pill:hover:not(.is-active) { border-color: rgba(255,255,255,0.28); color: rgba(255,255,255,0.88); }
+    .hb-model-pill.is-active { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.6); color: #6ee7b7; }
+    .hb-model-pill .hb-model-sub { display: block; font-size: 0.62rem; font-weight: 400; opacity: 0.7; margin-top: 0.18rem; }
+    .hb-model-note { font-size: var(--c-text-xs); opacity: 0.55; margin-top: 0.55rem; line-height: 1.45; }
+    .hb-model-note.warn { color: #fbbf24; opacity: 0.95; }
+
     .hb-hero {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 0.7rem; margin-bottom: 1.3rem;
@@ -130,6 +149,16 @@
     <div class="hb-runbar">
       <button id="hb-run" class="hb-runbtn"><i class="fas fa-heartbeat"></i> Run Heartbeat</button>
       <span id="hb-runnote" class="hb-runnote"></span>
+    </div>
+
+    <div class="hb-model" id="hb-model">
+      <div class="hb-model-hdr"><i class="fas fa-microchip"></i> AI Model Fleet</div>
+      <div class="hb-model-pills" id="hb-model-pills">
+        <button type="button" class="hb-model-pill" data-model="claude-sonnet">Sonnet 4.6<span class="hb-model-sub">Anthropic · balanced</span></button>
+        <button type="button" class="hb-model-pill" data-model="claude-haiku">Haiku 4.5<span class="hb-model-sub">Anthropic · fast, low cost</span></button>
+        <button type="button" class="hb-model-pill" data-model="gemini">Gemini Flash<span class="hb-model-sub">Google · cheapest</span></button>
+      </div>
+      <div class="hb-model-note" id="hb-model-note"></div>
     </div>
 
     <div id="hb-hero" class="hb-hero"></div>
@@ -438,8 +467,80 @@
       return rows.join('');
     }
 
+    // ── Model Fleet Picker ──
+    // Writes systemConfig.heartbeatModel — the same system-wide model switch the
+    // dashboard exposes. The heartbeat toggle is global: chat/standups/reports follow
+    // it (any Claude pick collapses to Sonnet for those); only the heartbeat honors Haiku.
+    var _activeModelKey = 'claude-sonnet';
+    var _modelLabels = { 'claude-sonnet': 'Sonnet 4.6', 'claude-haiku': 'Haiku 4.5', 'gemini': 'Gemini Flash' };
+    var _modelSaving = false;
+
+    function postHeaders() { return { 'Content-Type': 'application/json', 'x-company-secret': SECRET }; }
+
+    function renderModelNote() {
+      var note = document.getElementById('hb-model-note');
+      if (!note) return;
+      var k = _activeModelKey;
+      var routing = (k === 'claude-haiku')
+        ? 'Heartbeat runs Haiku 4.5 · chat, standups &amp; reports run Sonnet 4.6.'
+        : 'Heartbeat, chat, standups &amp; reports run ' + (k === 'claude-sonnet' ? 'Sonnet 4.6' : 'Gemini Flash') + '.';
+      note.className = 'hb-model-note';
+      note.innerHTML = routing + ' Pixel Agents &amp; image generation run separately.';
+    }
+
+    function highlightModel() {
+      var pills = document.querySelectorAll('#hb-model-pills .hb-model-pill');
+      Array.prototype.forEach.call(pills, function (btn) {
+        btn.classList.toggle('is-active', btn.getAttribute('data-model') === _activeModelKey);
+      });
+      renderModelNote();
+    }
+
+    function loadModel() {
+      fetch(API + '/company-state?key=systemConfig', { headers: H() })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (resp) {
+          var config = (resp && resp.value) || {};
+          _activeModelKey = config.heartbeatModel || 'claude-sonnet';
+          highlightModel();
+        }).catch(function () { highlightModel(); });
+    }
+
+    function initModelPicker() {
+      var container = document.getElementById('hb-model-pills');
+      if (!container) return;
+      container.addEventListener('click', function (e) {
+        var btn = e.target.closest('.hb-model-pill');
+        if (!btn || _modelSaving) return;
+        var newModel = btn.getAttribute('data-model');
+        if (newModel === _activeModelKey) return;
+        _modelSaving = true;
+        var note = document.getElementById('hb-model-note');
+        if (note) { note.className = 'hb-model-note'; note.textContent = 'Switching to ' + (_modelLabels[newModel] || newModel) + '…'; }
+        // Read-modify-write so other systemConfig fields (keywords, autoPublish, …) survive.
+        fetch(API + '/company-state?key=systemConfig', { headers: H() })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (resp) {
+            var config = (resp && resp.value) || {};
+            config.heartbeatModel = newModel;
+            return fetch(API + '/company-state', {
+              method: 'POST', headers: postHeaders(),
+              body: JSON.stringify({ key: 'systemConfig', value: config })
+            });
+          }).then(function (r) {
+            if (!r || !r.ok) throw new Error('save failed');
+            _activeModelKey = newModel;
+            highlightModel();
+          }).catch(function () {
+            if (note) { note.className = 'hb-model-note warn'; note.textContent = 'Could not switch model — try again.'; }
+          }).then(function () { _modelSaving = false; });
+      });
+      loadModel();
+    }
+
     // ── Init ──
     document.getElementById('hb-run').addEventListener('click', runHeartbeat);
+    initModelPicker();
     document.getElementById('hb-history-toggle').addEventListener('click', function () {
       document.getElementById('hb-history-section').classList.toggle('collapsed');
     });
