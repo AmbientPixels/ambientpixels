@@ -1,0 +1,207 @@
+// Run with: node api/companyHeartbeat/proposal-generator.test.js
+// Pure-function tests for the deterministic proposal generator (computeProposals).
+const assert = require('assert');
+const { computeProposals } = require('./proposal-generator');
+
+const NOW = Date.UTC(2026, 5, 20, 12, 0, 0); // 2026-06-20T12:00:00Z
+const daysAgo = (n) => new Date(NOW - n * 86400000).toISOString();
+
+// Healthy baseline: 3 active campaigns (each covers a non-declining product, each
+// has a recent completed task → not stagnant), 3 active objectives (each has a
+// recent linked task → not stale, progress 50), no declining-uncovered products,
+// empty queue. This baseline must produce ZERO proposals.
+function baseState(overrides) {
+  const s = {
+    campaigns: [
+      { id: 'c1', status: 'active', product: 'Alpha' },
+      { id: 'c2', status: 'active', product: 'Beta' },
+      { id: 'c3', status: 'active', product: 'Gamma' }
+    ],
+    objectives: [
+      { id: 'o1', status: 'active', progress: 50 },
+      { id: 'o2', status: 'active', progress: 50 },
+      { id: 'o3', status: 'active', progress: 50 }
+    ],
+    tasks: [
+      { id: 't1', campaign_id: 'c1', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't2', campaign_id: 'c2', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't3', campaign_id: 'c3', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't4', objective_id: 'o1', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't5', objective_id: 'o2', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't6', objective_id: 'o3', status: 'in-progress', updatedAt: daysAgo(1) }
+    ],
+    strategicDigest: {
+      perProduct: [
+        { product: 'Alpha', verdict: 'GROWING', traffic: { deltaPct: 10 } },
+        { product: 'Beta', verdict: 'STABLE', traffic: { deltaPct: 0 } },
+        { product: 'Gamma', verdict: 'GROWING', traffic: { deltaPct: 5 } }
+      ]
+    },
+    socialAccountStats: { bluesky: { followers: 300 }, x: { followers: 40 } },
+    approvalQueue: []
+  };
+  return Object.assign(s, overrides || {});
+}
+
+const camp = (r) => r.find((p) => p.type === 'campaign_proposal');
+const obj = (r) => r.find((p) => p.type === 'objective_proposal');
+
+// ── Test runner ──
+let pass = 0, fail = 0;
+function test(name, fn) {
+  try { fn(); pass++; console.log('  PASS ', name); }
+  catch (e) { fail++; console.log('  FAIL ', name, '\n        ', e.message); }
+}
+
+// ── CAMPAIGN: trigger conditions ──
+test('campaign fires when fewer than 3 active campaigns', () => {
+  const r = computeProposals(baseState({ campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }] }), NOW);
+  assert.ok(camp(r), 'expected a campaign_proposal');
+});
+
+test('campaign fires when a DECLINING product has no covering campaign', () => {
+  const st = baseState({});
+  st.strategicDigest.perProduct.push({ product: 'Delta', verdict: 'DECLINING', traffic: { deltaPct: -90 } });
+  const r = computeProposals(st, NOW);
+  assert.ok(camp(r), 'expected a campaign_proposal for the declining uncovered product');
+});
+
+test('campaign fires when all active campaigns are stagnant (no done task in 14d)', () => {
+  const st = baseState({
+    tasks: [
+      { id: 't1', campaign_id: 'c1', status: 'done', updatedAt: daysAgo(30) },
+      { id: 't2', campaign_id: 'c2', status: 'done', updatedAt: daysAgo(30) },
+      { id: 't3', campaign_id: 'c3', status: 'done', updatedAt: daysAgo(30) },
+      { id: 't4', objective_id: 'o1', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't5', objective_id: 'o2', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't6', objective_id: 'o3', status: 'in-progress', updatedAt: daysAgo(1) }
+    ]
+  });
+  const r = computeProposals(st, NOW);
+  assert.ok(camp(r), 'expected a campaign_proposal');
+});
+
+test('campaign does NOT fire on a healthy baseline', () => {
+  const r = computeProposals(baseState({}), NOW);
+  assert.ok(!camp(r), 'expected no campaign_proposal on healthy state');
+});
+
+// ── CAMPAIGN: dedup ──
+test('campaign suppressed when a pending campaign_proposal already exists', () => {
+  const st = baseState({
+    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }],
+    approvalQueue: [{ type: 'campaign_proposal', status: 'pending', createdAt: daysAgo(3) }]
+  });
+  assert.ok(!camp(computeProposals(st, NOW)), 'pending proposal should block a new one');
+});
+
+test('campaign suppressed when generator created one in the last 24h', () => {
+  const st = baseState({
+    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }],
+    approvalQueue: [{ type: 'campaign_proposal', status: 'rejected', source: 'auto:proposal-generator', createdAt: daysAgo(0.5) }]
+  });
+  assert.ok(!camp(computeProposals(st, NOW)), '24h dedup should block a new one');
+});
+
+// ── OBJECTIVE: trigger conditions ──
+test('objective fires when fewer than 3 active objectives', () => {
+  const r = computeProposals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }] }), NOW);
+  assert.ok(obj(r), 'expected an objective_proposal');
+});
+
+test('objective fires when an active objective is >=95% complete', () => {
+  const r = computeProposals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 99 }, { id: 'o2', status: 'active', progress: 50 }, { id: 'o3', status: 'active', progress: 50 }] }), NOW);
+  assert.ok(obj(r), 'expected an objective_proposal (successor needed)');
+});
+
+test('objective fires when an active objective is stale (no linked campaign/task in 14d)', () => {
+  // o3 has no linked task and no campaign references it → stale. o1/o2 healthy.
+  const st = baseState({
+    tasks: [
+      { id: 't1', campaign_id: 'c1', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't2', campaign_id: 'c2', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't3', campaign_id: 'c3', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't4', objective_id: 'o1', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't5', objective_id: 'o2', status: 'in-progress', updatedAt: daysAgo(1) }
+    ]
+  });
+  assert.ok(obj(computeProposals(st, NOW)), 'expected an objective_proposal for the stale objective');
+});
+
+test('objective does NOT fire on a healthy baseline', () => {
+  assert.ok(!obj(computeProposals(baseState({}), NOW)), 'expected no objective_proposal on healthy state');
+});
+
+// ── OBJECTIVE: dedup ──
+test('objective suppressed when a pending objective_proposal already exists', () => {
+  const st = baseState({
+    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }],
+    approvalQueue: [{ type: 'objective_proposal', status: 'pending', createdAt: daysAgo(3) }]
+  });
+  assert.ok(!obj(computeProposals(st, NOW)), 'pending proposal should block a new one');
+});
+
+test('objective suppressed when generator created one in the last 24h', () => {
+  const st = baseState({
+    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }],
+    approvalQueue: [{ type: 'objective_proposal', status: 'approved', source: 'auto:proposal-generator', createdAt: daysAgo(0.5) }]
+  });
+  assert.ok(!obj(computeProposals(st, NOW)), '24h dedup should block a new one');
+});
+
+// ── Fail-safe ──
+test('empty/missing state is a no-op (returns [])', () => {
+  assert.deepStrictEqual(computeProposals({}, NOW), []);
+  assert.deepStrictEqual(computeProposals(null, NOW), []);
+});
+
+test('missing campaigns array skips campaign assessment (no crash)', () => {
+  const r = computeProposals({ objectives: [{ id: 'o1', status: 'active', progress: 50 }] }, NOW);
+  assert.ok(!camp(r), 'no campaign when campaigns array absent');
+  assert.ok(obj(r), 'objective still assessed when its array present');
+});
+
+// ── Output shape (byte-match the existing handler entry shapes) ──
+test('campaign entry has the required shape', () => {
+  const e = camp(computeProposals(baseState({ campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }] }), NOW));
+  assert.strictEqual(e.type, 'campaign_proposal');
+  assert.strictEqual(e.status, 'pending');
+  assert.strictEqual(e.proposedBy, 'nova');
+  assert.strictEqual(e.source, 'auto:proposal-generator');
+  assert.ok(typeof e.name === 'string' && e.name.length > 0, 'name');
+  assert.ok(typeof e.rationale === 'string' && e.rationale.length > 0, 'rationale');
+  assert.ok(Array.isArray(e.platforms), 'platforms array');
+  assert.ok(Number.isFinite(e.frequency), 'frequency');
+  assert.ok(['daily', 'weekly', 'biweekly'].indexOf(e.cadence) !== -1, 'cadence');
+  assert.ok(typeof e.id === 'string' && e.id.indexOf('cprop_') === 0, 'id prefix');
+  assert.strictEqual(e.createdAt, new Date(NOW).toISOString());
+});
+
+test('objective entry has the required shape', () => {
+  const e = obj(computeProposals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }] }), NOW));
+  assert.strictEqual(e.type, 'objective_proposal');
+  assert.strictEqual(e.status, 'pending');
+  assert.strictEqual(e.proposedBy, 'nova');
+  assert.strictEqual(e.source, 'auto:proposal-generator');
+  assert.ok(typeof e.title === 'string' && e.title.length > 0, 'title');
+  assert.ok(typeof e.description === 'string' && e.description.length > 0, 'description');
+  assert.ok(typeof e.rationale === 'string' && e.rationale.length > 0, 'rationale');
+  assert.ok(typeof e.successCriteria === 'string' && e.successCriteria.length > 0, 'successCriteria');
+  assert.ok(typeof e.timeHorizon === 'string' && e.timeHorizon.length > 0, 'timeHorizon');
+  assert.ok(typeof e.id === 'string' && e.id.indexOf('oprop_') === 0, 'id prefix');
+  assert.strictEqual(e.createdAt, new Date(NOW).toISOString());
+});
+
+// ── At most 1 of each type per run ──
+test('emits at most one campaign and one objective per run', () => {
+  const r = computeProposals(baseState({
+    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }],
+    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }]
+  }), NOW);
+  assert.strictEqual(r.filter((p) => p.type === 'campaign_proposal').length, 1);
+  assert.strictEqual(r.filter((p) => p.type === 'objective_proposal').length, 1);
+  assert.strictEqual(r.length, 2);
+});
+
+console.log('\n' + pass + ' passed, ' + fail + ' failed');
+process.exit(fail > 0 ? 1 : 0);
