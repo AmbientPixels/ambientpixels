@@ -177,7 +177,7 @@ function _buildProposalPromptBlock(agent) {
     'You may propose a ' + g.kinds + ' when ONE of these data triggers is true RIGHT NOW. ' +
     'Do not propose otherwise. Cite the specific number/signal in rationale.\n' +
     'Your valid triggers: ' + g.triggers + '.\n' +
-    'Emit as an action. For a campaign:\n' +
+    'Put the action object in your taskUpdates array (it is an ACTION, NOT a schema-v1 proposal — do NOT put it in the proposals array, or it will be discarded). For a campaign:\n' +
     '{"type":"propose-campaign","campaign":{"name":"...","description":"...","rationale":"<cite the trigger + number>","trigger":"<one trigger key above>","product":"...","platforms":["social_bluesky"],"frequency":3,"cadence":"weekly","duration":"30 days","kpiTarget":"...","northStarMetric":"<an existing north-star metric or omit>"}}\n' +
     'For an objective:\n' +
     '{"type":"propose-objective","objective":{"title":"...","description":"...","rationale":"<cite the trigger + number>","trigger":"<one trigger key above>","successCriteria":"...","timeHorizon":"60 days","northStarMetric":"<existing metric or omit>"}}\n' +
@@ -1731,7 +1731,7 @@ Response format MUST be exactly:
 }
 
 Mapping rules:
-- taskUpdates: include ONLY create-task, update-task, move-task objects (same action object fields as legacy format); update-task may use only allowed update keys, and include objective_id for create/in-progress transitions unless objective-exempt category.
+- taskUpdates: include create-task, update-task, move-task objects, AND (only if you are proposing new work per the PROPOSE NEW WORK section) propose-campaign / propose-objective action objects (same action object fields as legacy format); update-task may use only allowed update keys, and include objective_id for create/in-progress transitions unless objective-exempt category.
 - proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed; include objective_id OR objective_suggestion, acceptanceCriteria, and evidence.runId.
 - remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by execution_mode), using only allowed L4 memory types. evidence.runId is REQUIRED for every remember action — set it to the current heartbeat runId. The ONLY exception is type="weekly_report" which aggregates a week and has no single runId. Memory writes without evidence.runId are rejected with a policy-violation.
 - observations: short warning/summary strings.

@@ -4957,7 +4957,7 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — not an authorized proposer');
         continue;
       }
-      // Echo (or any agent) proposes a new campaign for CEO approval
+      // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new campaign for CEO approval
       var _pc = action.campaign;
       var _pcName = (_pc.name || '').trim().substring(0, 100);
       if (!_pcName) {
@@ -5059,7 +5059,7 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — not an authorized proposer');
         continue;
       }
-      // Nova (or any agent) proposes a new objective for CEO approval
+      // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new objective for CEO approval
       var _po = action.objective;
       var _poTitle = (_po.title || '').trim().substring(0, 100);
       var _poDesc = (_po.description || '').trim();
