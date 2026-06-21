@@ -24,6 +24,8 @@ const { buildRevenueDigest } = require('./revenue-intel');
 const { getLedger: getRevenueLedger } = require('../_lib/stripe/revenueLedger');
 const { buildAllocationDigest } = require('./allocation-intel');
 const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD, QG_HALLUCINATION_KEYWORDS } = require('./agent-runner');
+const { selectTopProposals: _selectTopProposals } = require('./agent-proposal-select');
+const { AGENT_PROPOSAL_FLEET_CAP: _AGENT_PROPOSAL_FLEET_CAP } = require('./constants');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
 
@@ -2020,6 +2022,7 @@ module.exports = async function (context) {
       }
     }
 
+    const _stagedAgentProposals = [];
     for (const agentId of _orderedAgents) {
       if (geminiCalls >= GUARDRAILS.maxGeminiCallsPerCycle) {
         context.log('[Heartbeat] Max Gemini calls reached, stopping');
@@ -2085,6 +2088,11 @@ module.exports = async function (context) {
           await logEvent('error', agentId, 'Heartbeat failed: ' + result._error, cycleId);
           await _hbDone(agentId, result);
           continue;
+        }
+        if (result && Array.isArray(result.stagedProposals) && result.stagedProposals.length) {
+          for (var _spi = 0; _spi < result.stagedProposals.length; _spi++) {
+            _stagedAgentProposals.push(result.stagedProposals[_spi]);
+          }
         }
         // Process outgoing messages from this agent (Phase 4A)
         if (result.outgoingMessages && Array.isArray(result.outgoingMessages)) {
@@ -3045,6 +3053,31 @@ module.exports = async function (context) {
         }
       }
       return null; // fallback — caller uses publish instead of schedule
+    }
+
+    // ── Agentic proposal selection (best-first, fleet-capped) ──
+    // Agents staged campaign/objective proposals during their runs; pick the top-N per
+    // type by severity and write them to approvalQueue. Additive, CEO-approved, never
+    // auto-executes. Failure is non-fatal — proposals are a nice-to-have.
+    try {
+      if (_stagedAgentProposals.length) {
+        var _sel = _selectTopProposals(_stagedAgentProposals, _AGENT_PROPOSAL_FLEET_CAP);
+        if (_sel.selected.length) {
+          var _propQueue = (await storage.getState('approvalQueue')) || [];
+          _sel.selected.forEach(function (s) { _propQueue.push(s.payload); });
+          await storage.setState('approvalQueue', _propQueue);
+          context.log('[Heartbeat] Agentic proposals written:', _sel.selected.length,
+            'deferred:', _sel.deferred.length);
+        }
+        for (var _dfi = 0; _dfi < _sel.deferred.length; _dfi++) {
+          var _df = _sel.deferred[_dfi];
+          await logEvent('proposal-deferred', (_df.payload && _df.payload.proposedBy) || 'system',
+            'Agent proposal deferred (over fleet cap): ' + ((_df.payload && (_df.payload.name || _df.payload.title)) || _df.type),
+            cycleId, { gate: 'proposal_fleet_cap', type: _df.type, severity: _df.severity });
+        }
+      }
+    } catch (_propErr) {
+      context.log('[Heartbeat] Agentic proposal selection failed (non-fatal):', String(_propErr).substring(0, 200));
     }
 
     // ── Auto-create social actions for tasks with reviewed_copy (post-copy-pipeline) ──

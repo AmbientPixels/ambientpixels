@@ -20,8 +20,10 @@ const {
   PRODUCT_PROPOSAL_COST_CEILINGS, PRODUCT_PROPOSAL_REJECT_COOLDOWN_DAYS,
   FLEET_MUTATION_AUTHORIZED_AGENTS, PROTECTED_AGENTS,
   FLEET_MIN_SIZE, FLEET_MAX_SIZE, FLEET_PROPOSAL_MAX_PER_DAY,
-  FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS
+  FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
+  PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY
 } = require('./constants');
+const { proposalSeverity: _proposalSeverity } = require('./agent-proposal-select');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences
@@ -311,6 +313,7 @@ async function runAgentHeartbeat(ctx) {
     durationMs: 0,
     taskUpdates: [],
     proposals: [],
+    stagedProposals: [],
     newResearchIntel: null,
     newTrendInsights: null,
     guardrails: {
@@ -4950,7 +4953,11 @@ Write the full deliverable first, then the structured JSON block.`;
         result.taskUpdates.push({ action: 'reminder-created', dateId: dateEntry.id, agentId: agentId });
       }
     } else if (action.type === 'propose-campaign' && action.campaign) {
-      // Echo (or any agent) proposes a new campaign for CEO approval
+      if (!PROPOSAL_AUTHORIZED_AGENTS.has(agentId)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — not an authorized proposer');
+        continue;
+      }
+      // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new campaign for CEO approval
       var _pc = action.campaign;
       var _pcName = (_pc.name || '').trim().substring(0, 100);
       if (!_pcName) {
@@ -5037,13 +5044,22 @@ Write the full deliverable first, then the structured JSON block.`;
         createdAt: new Date().toISOString()
       };
 
-      _pcAQ.push(_pcEntry);
-      await storage.setState('approvalQueue', _pcAQ);
-      context.log('[Heartbeat]', agentId, 'created campaign proposal:', _pcEntry.id, _pcName);
+      var _pcTrigger = (action.campaign.trigger || '').trim();
+      var _pcSeverity = _proposalSeverity(_pcTrigger);
+      if (_pcSeverity === PROPOSAL_UNKNOWN_TRIGGER_SEVERITY && !_pcEntry.strategyFlag) {
+        _pcEntry.strategyFlag = 'no-data-trigger';
+      }
+      _pcEntry.trigger = _pcTrigger || null;
+      result.stagedProposals.push({ type: 'campaign_proposal', severity: _pcSeverity, payload: _pcEntry });
+      context.log('[Heartbeat]', agentId, 'staged campaign proposal:', _pcEntry.id, _pcName, 'sev', _pcSeverity);
       result.taskUpdates.push({ action: 'campaign-proposed', proposalId: _pcEntry.id, agentId: agentId });
 
     } else if (action.type === 'propose-objective' && action.objective) {
-      // Nova (or any agent) proposes a new objective for CEO approval
+      if (!PROPOSAL_AUTHORIZED_AGENTS.has(agentId)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — not an authorized proposer');
+        continue;
+      }
+      // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new objective for CEO approval
       var _po = action.objective;
       var _poTitle = (_po.title || '').trim().substring(0, 100);
       var _poDesc = (_po.description || '').trim();
@@ -5111,9 +5127,14 @@ Write the full deliverable first, then the structured JSON block.`;
         createdAt: new Date().toISOString()
       };
 
-      _poAQ.push(_poEntry);
-      await storage.setState('approvalQueue', _poAQ);
-      context.log('[Heartbeat]', agentId, 'created objective proposal:', _poEntry.id, _poTitle);
+      var _poTrigger = (action.objective.trigger || '').trim();
+      var _poSeverity = _proposalSeverity(_poTrigger);
+      if (_poSeverity === PROPOSAL_UNKNOWN_TRIGGER_SEVERITY && !_poEntry.strategyFlag) {
+        _poEntry.strategyFlag = 'no-data-trigger';
+      }
+      _poEntry.trigger = _poTrigger || null;
+      result.stagedProposals.push({ type: 'objective_proposal', severity: _poSeverity, payload: _poEntry });
+      context.log('[Heartbeat]', agentId, 'staged objective proposal:', _poEntry.id, _poTitle, 'sev', _poSeverity);
       result.taskUpdates.push({ action: 'objective-proposed', proposalId: _poEntry.id, agentId: agentId });
 
     } else if (action.type === 'request-budget' && action.request) {

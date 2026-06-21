@@ -203,5 +203,24 @@ test('emits at most one campaign and one objective per run', () => {
   assert.strictEqual(r.length, 2);
 });
 
+// ── Cron defers to a pending AGENT-sourced proposal (not just its own) ──
+test('campaign suppressed when a pending agent campaign_proposal exists', () => {
+  const st = baseState({
+    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }], // would normally trigger (count < 3)
+    approvalQueue: [{ type: 'campaign_proposal', status: 'pending', proposedBy: 'echo', source: 'agent', createdAt: daysAgo(0) }]
+  });
+  const r = computeProposals(st, NOW);
+  assert.ok(!camp(r), 'cron should defer to the pending agent campaign proposal');
+});
+
+test('objective suppressed when a pending agent objective_proposal exists', () => {
+  const st = baseState({
+    objectives: [{ id: 'o1', status: 'active', progress: 50 }], // would normally trigger (count < 3)
+    approvalQueue: [{ type: 'objective_proposal', status: 'pending', proposedBy: 'cipher', source: 'agent', createdAt: daysAgo(0) }]
+  });
+  const r = computeProposals(st, NOW);
+  assert.ok(!obj(r), 'cron should defer to the pending agent objective proposal');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
