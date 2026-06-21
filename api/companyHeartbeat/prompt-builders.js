@@ -8,6 +8,7 @@ const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('.
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
 const { _buildAllocationPromptBlock } = require('./allocation-intel');
+const { buildProgressionPromptBlock } = require('./rewards-engine');
 const { _buildEmergencePromptBlock } = require('./emergence-intel');
 
 // Agent Identity Evolution (System 14) — Forge-only FLEET HEALTH block.
@@ -242,7 +243,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1142,6 +1143,14 @@ Where relevant to your content tasks, weave in references to these trends to inc
     allocationSection = _buildAllocationPromptBlock(agent, allocationDigest) || '';
   } catch (_allocPromptErr) { allocationSection = ''; }
 
+  // Progression block (rewards system) — every agent sees their level / XP / streak +
+  // fleet standing, with a reminder that XP is earned ONLY from outcomes (not activity),
+  // so the competitive nudge drives real work, not gaming.
+  let progressionSection = '';
+  try {
+    progressionSection = buildProgressionPromptBlock(agent.id, agentRewards) || '';
+  } catch (_progPromptErr) { progressionSection = ''; }
+
   // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
   if (agent.name === 'Cipher') {
@@ -1675,7 +1684,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${productLifecycleSection}${costSection}${forgeOpsSection}${fleetHealthSection}${emergenceSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${scribeContentPerfSection}${scribeCampaignSection}${scribeQuillFeedbackSection}${scribeRecentContentSection}${scribeContentGapSection}${pixelVisualPerfSection}${pixelDesignQueueSection}${pixelProductVisualSection}${pixelDesignGapsSection}${quillCopyPerfSection}${quillFeedbackPatternSection}${quillCeoCorrectionsSection}${echoTrendSection}${campaignVelocitySection}${socialTrafficSection}${workspaceSection}${allocationSection}${progressionSection}${productLifecycleSection}${costSection}${forgeOpsSection}${fleetHealthSection}${emergenceSection}${researchDemandSection}${contentSection}${strategicSection}${cadenceSection}${reflectionCadenceSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 

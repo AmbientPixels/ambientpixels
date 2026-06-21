@@ -3,7 +3,7 @@
 const assert = require('assert');
 const {
   levelFromXp, rankFromLevel, classFor,
-  applyEvents, applyCompany, extractEvents
+  applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock
 } = require('./rewards-engine');
 
 const DAY = 86400000;
@@ -160,6 +160,28 @@ test('extractEvents credits an assist when a child task was done by a different 
   assert.ok(ev, 'assist event produced');
   assert.strictEqual(ev.agentId, 'scout', 'contributor credited');
   assert.strictEqual(ev.meta.beneficiary, 'cipher', 'beneficiary recorded');
+});
+
+// ── buildProgressionPromptBlock (Stage 5: the prompt nudge) ──
+test('progression block renders level, next-level, fleet rank, and outcome-only reminder', () => {
+  const rewards = { perAgent: {
+    scribe: { xp: 120, level: 2, rank: 'Rookie', class: 'Scribe the Author', renown: 21, streakDays: 3, achievements: [{ label: 'First Blog Shipped', tier: 'bronze' }] },
+    nova:   { xp: 16, level: 1, rank: 'Rookie', class: 'Orchestrator', renown: 10, streakDays: 2, achievements: [] }
+  } };
+  const block = buildProgressionPromptBlock('nova', rewards);
+  assert.ok(block.indexOf('YOUR PROGRESSION') !== -1, 'header');
+  assert.ok(block.indexOf('Level 1') !== -1, 'shows level');
+  assert.ok(block.indexOf('to Level 2') !== -1, 'shows next level');
+  assert.ok(/#2 of 2/.test(block), 'shows fleet rank');
+  assert.ok(block.indexOf('Scribe') !== -1, 'names the leader');
+  assert.ok(/only from outcomes/i.test(block), 'reinforces outcome-only earning');
+});
+
+test('progression block: leader gets a lead message; empty for unknown/no data', () => {
+  const rewards = { perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
+  assert.ok(/lead the fleet/i.test(buildProgressionPromptBlock('scribe', rewards)), 'leader message');
+  assert.strictEqual(buildProgressionPromptBlock('ghost', rewards), '', 'unknown agent -> empty');
+  assert.strictEqual(buildProgressionPromptBlock('nova', null), '', 'no rewards -> empty');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

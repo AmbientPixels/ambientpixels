@@ -328,6 +328,47 @@ function extractEvents(state, prevRewards) {
 }
 
 // ── IO orchestration ──────────────────────────────────────────────────────────
+// Prompt block (Stage 5: the "nudge each other" progression block).
+// Pure: given an agentId + the rewards ledger, render the per-agent YOUR PROGRESSION
+// block. Reinforces the cardinal rule (XP comes from OUTCOMES, not activity) so the
+// competitive nudge orients agents toward shipping real work, never toward gaming.
+function _cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function buildProgressionPromptBlock(agentId, rewards) {
+  if (!agentId || !rewards || !rewards.perAgent) return '';
+  var me = rewards.perAgent[agentId];
+  if (!me) return '';
+  var lvl = me.level || 1;
+  var xpForNext = 50 + 25 * lvl;
+  var cumLvl = 50 * (lvl - 1) + 25 * (lvl - 1) * lvl / 2;
+  var into = Math.max(0, (me.xp || 0) - cumLvl);
+
+  var ranked = Object.keys(rewards.perAgent)
+    .map(function (id) { return { id: id, xp: rewards.perAgent[id].xp || 0 }; })
+    .sort(function (a, b) { return b.xp - a.xp; });
+  var myIdx = ranked.findIndex(function (r) { return r.id === agentId; });
+  var myPos = myIdx + 1, N = ranked.length, leader = ranked[0];
+
+  var peerLine;
+  if (myPos === 1) {
+    var second = ranked[1];
+    peerLine = 'You lead the fleet by XP' + (second ? ' (' + _cap(second.id) + ' is #2 with ' + second.xp + ' XP, ' + ((me.xp || 0) - second.xp) + ' behind).' : '.');
+  } else {
+    var above = ranked[myIdx - 1];
+    peerLine = 'Fleet rank #' + myPos + ' of ' + N + '. ' + _cap(leader.id) + ' leads with ' + leader.xp + ' XP. Next up: ' + _cap(above.id) + ' (' + (above.xp - (me.xp || 0)) + ' XP ahead).';
+  }
+
+  var recent = Array.isArray(me.achievements) ? me.achievements.slice(-2).map(function (a) { return a.label || a.id; }) : [];
+  var recentLine = recent.length ? 'Recent unlocks: ' + recent.join(', ') + '.' : 'No achievements unlocked yet.';
+
+  return '\n═══ YOUR PROGRESSION ═══\n' +
+    'Level ' + lvl + ' ' + (me.rank || 'Rookie') + (me.class ? ' (' + me.class + ')' : '') + '. ' +
+      into + '/' + xpForNext + ' XP to Level ' + (lvl + 1) + '. Renown ' + (me.renown || 0) + '. ' + (me.streakDays || 0) + '-day streak.\n' +
+    peerLine + '\n' +
+    recentLine + '\n' +
+    'You earn XP ONLY from outcomes that land: CEO-approved work, published content, real engagement, completed peer-reviewed tasks, and assists where the helped work ships. Proposing, commenting, or messaging earns nothing. To climb, ship something real.\n';
+}
+
 async function runRewardsEngine(opts) {
   opts = opts || {};
   var storage = opts.storage;
@@ -376,5 +417,6 @@ async function runRewardsEngine(opts) {
 module.exports = {
   levelFromXp: levelFromXp, rankFromLevel: rankFromLevel, classFor: classFor,
   extractEvents: extractEvents, applyEvents: applyEvents, applyCompany: applyCompany,
+  buildProgressionPromptBlock: buildProgressionPromptBlock,
   runRewardsEngine: runRewardsEngine
 };
