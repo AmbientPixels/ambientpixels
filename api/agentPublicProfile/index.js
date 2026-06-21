@@ -186,7 +186,45 @@ async function buildSingle(id) {
     stat = { label: 'Discoveries this week', value: String(thisWeek.length) };
   }
 
-  return { id, status, stat, latestMemory, asOf: new Date().toISOString() };
+  // Progression (Stage 3): level / rank / class / XP bar / Renown / streak / badges,
+  // from the agentRewards ledger. Null when the rewards engine hasn't run yet.
+  const rewards = (await storage.getState('agentRewards')) || null;
+  const rw = rewards && rewards.perAgent && rewards.perAgent[id];
+  let progression = null;
+  if (rw) {
+    const lvl = rw.level || 1;
+    const xpForNext = 50 + 25 * lvl;                          // cost(lvl -> lvl+1)
+    const cumLvl = 50 * (lvl - 1) + 25 * (lvl - 1) * lvl / 2; // cumulative XP at lvl
+    const xpInto = Math.max(0, (rw.xp || 0) - cumLvl);
+    const pct = Math.max(0, Math.min(100, Math.round(xpInto / xpForNext * 100)));
+    progression = {
+      level: lvl, rank: rw.rank || 'Rookie', class: rw.class || '',
+      xp: rw.xp || 0, renown: rw.renown || 0, streakDays: rw.streakDays || 0,
+      xpInto, xpForNext, pct,
+      achievements: (Array.isArray(rw.achievements) ? rw.achievements.slice(-4) : [])
+        .map(a => ({ label: a.label || a.id, tier: a.tier || 'bronze' }))
+    };
+  }
+
+  // Career timeline: joined-the-fleet + doctrine evolutions + achievement unlocks.
+  const registry = (await storage.getState('agentRegistry')) || null;
+  const regAgent = (registry && Array.isArray(registry.agents)) ? registry.agents.find(a => a.id === id) : null;
+  const career = [];
+  if (regAgent && regAgent.hiredAt) career.push({ at: regAgent.hiredAt, label: 'Joined the fleet' });
+  if (regAgent && Array.isArray(regAgent.doctrineHistory)) {
+    regAgent.doctrineHistory.forEach(h => {
+      const fields = Array.isArray(h.changedFields) && h.changedFields.length ? h.changedFields.join(', ') : 'role';
+      career.push({ at: h.at, label: 'Evolved — ' + fields });
+    });
+  }
+  if (rw && Array.isArray(rw.achievements)) {
+    rw.achievements.forEach(a => career.push({ at: a.at, label: 'Unlocked — ' + (a.label || a.id) }));
+  }
+  const careerTop = career.filter(c => c.at)
+    .sort((x, y) => (Date.parse(y.at || '') || 0) - (Date.parse(x.at || '') || 0))
+    .slice(0, 8);
+
+  return { id, status, stat, latestMemory, progression, career: careerTop, asOf: new Date().toISOString() };
 }
 
 async function buildBatch() {
@@ -196,12 +234,16 @@ async function buildBatch() {
   const alloc = (await storage.getState('allocationDigest')) || null;
   const systemStatus = (alloc && alloc.system && alloc.system.status) || 'GREEN';
   const configs = (await storage.getState('agentConfigs')) || {};
+  const rewards = (await storage.getState('agentRewards')) || null;
+  const rwPA = (rewards && rewards.perAgent) || {};
   const agents = ALLOWLIST.map(id => {
     const lastHeartbeatAt = configs[id] && configs[id].heartbeat && configs[id].heartbeat.lastBeat || null;
     return {
       id,
       status: id === 'cipher' ? systemStatus : 'GREEN',
-      lastHeartbeatAt
+      lastHeartbeatAt,
+      level: (rwPA[id] && rwPA[id].level) || null,
+      rank: (rwPA[id] && rwPA[id].rank) || null
     };
   });
   return { asOf: new Date().toISOString(), agents };

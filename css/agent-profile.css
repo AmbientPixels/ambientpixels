@@ -249,6 +249,111 @@
   color: var(--color-text-tertiary);
 }
 
+/* ---- Progression (XP / rewards — Stage 3) ------------------- */
+
+.agent-prog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  max-width: var(--max-prose);
+}
+.agent-prog-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+.agent-level {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  font-weight: var(--fw-bold, 700);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  color: var(--color-bg, #1A1613);
+  background: var(--color-accent-amber);
+}
+.agent-prog-class {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.agent-xpbar {
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--color-border);
+  overflow: hidden;
+}
+.agent-xpbar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--color-accent-amber);
+}
+.agent-prog-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.agent-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.agent-badge {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-sm, 3px);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-tertiary);
+}
+.agent-badge.bronze   { border-color: rgba(176, 116, 70, 0.5);  color: #9a6a44; }
+.agent-badge.silver   { border-color: rgba(140, 140, 140, 0.5); color: #7d7d7d; }
+.agent-badge.gold     { border-color: var(--color-accent-amber); color: var(--color-accent-amber); }
+.agent-badge.platinum { border-color: rgba(120, 110, 170, 0.6); color: #6f679c; }
+
+/* Career timeline */
+.agent-timeline { list-style: none; margin: 0; padding: 0; max-width: var(--max-prose); }
+.agent-timeline li {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: baseline;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.agent-tl-date {
+  flex: 0 0 6.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  color: var(--color-text-muted);
+}
+.agent-tl-label { color: var(--color-text-body); }
+
+/* Hub card level chip */
+.agent-hub-card-lv {
+  display: inline-block;
+  margin-top: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm, 3px);
+  border: 1px solid var(--color-accent-amber);
+  color: var(--color-accent-amber);
+}
+
 /* ---- Crew (chip footer) ------------------------------------- */
 
 .agent-crew {

@@ -74,6 +74,96 @@
       }
       memoryEl.hidden = false;
     }
+
+    // Progression block (Stage 3) — inject into the live band, above the memory.
+    if (data.progression) {
+      const band = document.getElementById('agent-live-band');
+      if (band && !document.getElementById('agent-prog')) {
+        const p = data.progression;
+        const prog = document.createElement('div');
+        prog.className = 'agent-prog';
+        prog.id = 'agent-prog';
+
+        const head = document.createElement('div');
+        head.className = 'agent-prog-head';
+        const lv = document.createElement('span');
+        lv.className = 'agent-level';
+        lv.textContent = 'LV ' + p.level;
+        const cls = document.createElement('span');
+        cls.className = 'agent-prog-class';
+        cls.textContent = (p.rank || '') + (p.class ? ' · ' + p.class : '');
+        head.appendChild(lv); head.appendChild(cls);
+        prog.appendChild(head);
+
+        const bar = document.createElement('div');
+        bar.className = 'agent-xpbar';
+        const fill = document.createElement('div');
+        fill.className = 'agent-xpbar-fill';
+        fill.style.width = (p.pct || 0) + '%';
+        bar.appendChild(fill);
+        prog.appendChild(bar);
+
+        const stats = document.createElement('div');
+        stats.className = 'agent-prog-stats';
+        [p.xp + ' XP', p.xpInto + ' / ' + p.xpForNext + ' to LV ' + (p.level + 1), p.renown + ' Renown', p.streakDays + '-day streak'].forEach(function (t) {
+          const s = document.createElement('span'); s.textContent = t; stats.appendChild(s);
+        });
+        prog.appendChild(stats);
+
+        if (Array.isArray(p.achievements) && p.achievements.length) {
+          const badges = document.createElement('div');
+          badges.className = 'agent-badges';
+          p.achievements.forEach(function (b) {
+            const el = document.createElement('span');
+            el.className = 'agent-badge ' + (b.tier || 'bronze');
+            el.textContent = b.label;
+            badges.appendChild(el);
+          });
+          prog.appendChild(badges);
+        }
+
+        const mem = document.getElementById('agent-memory');
+        if (mem && mem.parentNode === band) band.insertBefore(prog, mem);
+        else band.appendChild(prog);
+      }
+    }
+
+    // Career timeline (Stage 3) — inject a section before the crew section.
+    if (Array.isArray(data.career) && data.career.length) {
+      const main = document.querySelector('main[data-agent-id]');
+      if (main && !document.getElementById('agent-career')) {
+        const sec = document.createElement('section');
+        sec.className = 'agent-sec agent-career';
+        sec.id = 'agent-career';
+        const h = document.createElement('div');
+        h.className = 'agent-sec-head';
+        const tag = document.createElement('span');
+        tag.className = 'agent-sec-tag';
+        tag.textContent = 'Career';
+        const sub = document.createElement('span');
+        sub.className = 'agent-sec-sub';
+        sub.textContent = 'Milestones + evolution';
+        h.appendChild(tag); h.appendChild(sub);
+        sec.appendChild(h);
+        const ul = document.createElement('ul');
+        ul.className = 'agent-timeline';
+        data.career.forEach(function (c) {
+          const li = document.createElement('li');
+          const dt = document.createElement('span');
+          dt.className = 'agent-tl-date';
+          dt.textContent = (c.at || '').slice(0, 10);
+          const lb = document.createElement('span');
+          lb.className = 'agent-tl-label';
+          lb.textContent = c.label || '';
+          li.appendChild(dt); li.appendChild(lb);
+          ul.appendChild(li);
+        });
+        sec.appendChild(ul);
+        const crew = main.querySelector('.agent-crew');
+        if (crew) main.insertBefore(sec, crew);
+        else main.appendChild(sec);
+      }
+    }
   }
 
   async function hydrateHub() {
@@ -97,6 +187,17 @@
       // TODO: server returns per-agent lastHeartbeatAt. Wire when available.
       const ago = agent.lastHeartbeatAt ? formatRelativeTime(agent.lastHeartbeatAt) : '3m ago';
       dot.setAttribute('title', `online · last heartbeat ${ago}`);
+
+      // Level chip (Stage 3) — only once the rewards engine has populated levels.
+      if (agent.level && !card.querySelector('.agent-hub-card-lv')) {
+        const chip = document.createElement('span');
+        chip.className = 'agent-hub-card-lv';
+        chip.textContent = 'LV ' + agent.level;
+        if (agent.rank) chip.setAttribute('title', agent.rank);
+        const roleEl = card.querySelector('.agent-hub-card-role');
+        if (roleEl && roleEl.parentNode) roleEl.parentNode.insertBefore(chip, roleEl.nextSibling);
+        else card.appendChild(chip);
+      }
     }
   }
 
