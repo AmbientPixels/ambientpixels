@@ -1086,88 +1086,102 @@
       var queueItemId = item.id || '';
       var el = document.getElementById('drawer-content');
 
-      // Show loading state immediately
-      el.innerHTML = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button><h3><i class="fas fa-exclamation-triangle" style="color:#f87171;margin-right:0.3rem;"></i>Needs Attention</h3><div style="opacity:0.4;font-size:var(--c-text-xs);">Loading task...</div>';
+      // Render the drawer from the queue item we already have. The full task is
+      // only OPTIONAL enrichment (description + past attempts) — a failed enrichment
+      // fetch must never blank the header or the CEO action buttons.
+      //   detailState: 'loading' | 'ok' | 'error'
+      function build(task, detailState) {
+        var html = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button>';
+        html += '<h3><i class="fas fa-exclamation-triangle" style="color:#f87171;margin-right:0.3rem;"></i>' + esc(item.taskTitle || item.title || 'Untitled') + '</h3>';
+
+        // Task meta
+        var agent = item.originAgent || item.assignee || '?';
+        var agentLabel = agent.charAt(0).toUpperCase() + agent.slice(1);
+        html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
+        var _badgeMap = { convergence_escalation: { label: 'Stuck', color: '#f87171' }, campaign_pace_escalation: { label: 'Campaign Pace', color: '#fbbf24' }, task_escalation: { label: 'Quality Gate', color: '#f97316' } };
+        var _badge = _badgeMap[item.type || item.kind] || _badgeMap.convergence_escalation;
+        html += '<span class="act-drawer-badge" style="background:' + _badge.color + '20;color:' + _badge.color + ';">' + _badge.label + '</span>';
+        html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">Assigned to ' + esc(agentLabel) + '</span>';
+        html += '<span style="font-size:var(--c-text-xs);opacity:0.3;margin-left:auto;">' + esc(taskId) + '</span>';
+        html += '</div>';
+
+        // Task description (enrichment — only when the full task loaded)
+        if (task && task.description) {
+          html += '<div class="act-drawer-section"><h4>Description</h4>';
+          html += '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.6);line-height:1.5;white-space:pre-wrap;">' + esc(task.description).substring(0, 500) + '</div>';
+          html += '</div>';
+        }
+
+        // Deliverables (comments with type=deliverable)
+        if (task && Array.isArray(task.comments)) {
+          var deliverables = task.comments.filter(function(c) { return c.type === 'deliverable'; });
+          if (deliverables.length > 0) {
+            html += '<div class="act-drawer-section"><h4>Deliverables (' + deliverables.length + ' attempts)</h4>';
+            deliverables.slice(-3).forEach(function(d, i) {
+              var dDate = d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '';
+              var dAgent = d.agent || '?';
+              html += '<div style="margin-bottom:0.6rem;padding:0.5rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:6px;">';
+              html += '<div style="font-size:var(--c-text-xs);opacity:0.4;margin-bottom:0.3rem;">Attempt ' + (deliverables.length - 2 + i) + ' · ' + esc(dAgent) + ' · ' + dDate + '</div>';
+              html += '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.65);line-height:1.5;white-space:pre-wrap;max-height:200px;overflow-y:auto;">' + esc(String(d.text || '').substring(0, 1000)) + '</div>';
+              html += '</div>';
+            });
+            html += '</div>';
+          }
+
+          // Review comments
+          var reviews = task.comments.filter(function(c) { return c.type === 'review-request' || c.type === 'review'; });
+          if (reviews.length > 0) {
+            html += '<div class="act-drawer-section"><h4>Reviews</h4>';
+            reviews.slice(-3).forEach(function(r) {
+              var rDate = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '';
+              html += '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.03);line-height:1.4;">';
+              html += '<span style="font-weight:600;color:rgba(255,255,255,0.7);">' + esc(r.agent || '?') + '</span> · ' + rDate;
+              html += '<div style="margin-top:0.2rem;">' + esc(String(r.text || '').substring(0, 300)) + '</div>';
+              html += '</div>';
+            });
+            html += '</div>';
+          }
+        }
+
+        // Enrichment status note — pending or failed fetch never hides the actions below
+        if (detailState === 'loading') {
+          html += '<div class="act-drawer-section" style="opacity:0.4;font-size:var(--c-text-xs);">Loading full task details…</div>';
+        } else if (detailState === 'error') {
+          html += '<div class="act-drawer-section" style="font-size:var(--c-text-xs);color:#fbbf24;opacity:0.85;">Could not load extended task details (description &amp; past attempts). You can still act on this item below.</div>';
+        }
+
+        // Actions — always available, built from the queue item alone
+        var agentOptions = ['nova','echo','scribe','cipher','pixel','forge','scout','quill'].map(function(a) {
+          return '<option value="' + a + '"' + (a === agent ? ' selected' : '') + '>' + a.charAt(0).toUpperCase() + a.slice(1) + '</option>';
+        }).join('');
+
+        html += '<div class="act-drawer-section"><h4>Actions</h4>';
+        html += '<div style="display:flex;gap:0.4rem;flex-wrap:wrap;">';
+        html += '<button class="act-btn act-btn--approve" onclick="naAccept(\'' + esc(taskId) + '\',\'' + esc(queueItemId) + '\');closeDrawer()"><i class="fas fa-check"></i> Accept</button>';
+        html += '<button class="act-btn act-btn--revision" onclick="naDirectionPrompt(\'' + esc(taskId) + '\',\'' + esc(queueItemId) + '\');closeDrawer()"><i class="fas fa-comment-dots"></i> Give Direction</button>';
+        html += '<select class="act-filter-select" style="font-size:var(--c-text-xs);padding:0.25rem 0.4rem;" onchange="if(this.value){naReassign(\'' + esc(taskId) + '\',this.value,\'' + esc(queueItemId) + '\');closeDrawer();}">';
+        html += '<option value="">Reassign...</option>' + agentOptions + '</select>';
+        html += '<button class="act-btn act-btn--reject" onclick="naCancel(\'' + esc(taskId) + '\',\'' + esc(queueItemId) + '\');closeDrawer()"><i class="fas fa-times"></i> Cancel</button>';
+        html += '</div></div>';
+
+        el.innerHTML = html;
+      }
+
+      // Render immediately from the item — actions are usable right away — then open.
+      build(null, 'loading');
       document.getElementById('drawer-overlay').classList.add('open');
 
-      // Fetch full task
+      // Enrich with the full task; any failure leaves the actionable drawer intact.
       var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
       fetch(apiBase + '/company-state?key=tasks', { headers: { 'x-company-secret': 'pixelpusher' } })
         .then(function(r) { return r.json(); })
         .then(function(data) {
           var tasks = data.value || [];
           var task = tasks.find(function(t) { return t.id === taskId; });
-
-          var html = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button>';
-          html += '<h3><i class="fas fa-exclamation-triangle" style="color:#f87171;margin-right:0.3rem;"></i>' + esc(item.taskTitle || item.title || 'Untitled') + '</h3>';
-
-          // Task meta
-          var agent = item.originAgent || item.assignee || '?';
-          var agentLabel = agent.charAt(0).toUpperCase() + agent.slice(1);
-          html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
-          var _badgeMap = { convergence_escalation: { label: 'Stuck', color: '#f87171' }, campaign_pace_escalation: { label: 'Campaign Pace', color: '#fbbf24' }, task_escalation: { label: 'Quality Gate', color: '#f97316' } };
-          var _badge = _badgeMap[item.type || item.kind] || _badgeMap.convergence_escalation;
-          html += '<span class="act-drawer-badge" style="background:' + _badge.color + '20;color:' + _badge.color + ';">' + _badge.label + '</span>';
-          html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">Assigned to ' + esc(agentLabel) + '</span>';
-          html += '<span style="font-size:var(--c-text-xs);opacity:0.3;margin-left:auto;">' + esc(taskId) + '</span>';
-          html += '</div>';
-
-          // Task description
-          if (task && task.description) {
-            html += '<div class="act-drawer-section"><h4>Description</h4>';
-            html += '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.6);line-height:1.5;white-space:pre-wrap;">' + esc(task.description).substring(0, 500) + '</div>';
-            html += '</div>';
-          }
-
-          // Deliverables (comments with type=deliverable)
-          if (task && task.comments) {
-            var deliverables = task.comments.filter(function(c) { return c.type === 'deliverable'; });
-            if (deliverables.length > 0) {
-              html += '<div class="act-drawer-section"><h4>Deliverables (' + deliverables.length + ' attempts)</h4>';
-              deliverables.slice(-3).forEach(function(d, i) {
-                var dDate = d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '';
-                var dAgent = d.agent || '?';
-                html += '<div style="margin-bottom:0.6rem;padding:0.5rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:6px;">';
-                html += '<div style="font-size:var(--c-text-xs);opacity:0.4;margin-bottom:0.3rem;">Attempt ' + (deliverables.length - 2 + i) + ' · ' + esc(dAgent) + ' · ' + dDate + '</div>';
-                html += '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.65);line-height:1.5;white-space:pre-wrap;max-height:200px;overflow-y:auto;">' + esc((d.text || '').substring(0, 1000)) + '</div>';
-                html += '</div>';
-              });
-              html += '</div>';
-            }
-
-            // Review comments
-            var reviews = task.comments.filter(function(c) { return c.type === 'review-request' || c.type === 'review'; });
-            if (reviews.length > 0) {
-              html += '<div class="act-drawer-section"><h4>Reviews</h4>';
-              reviews.slice(-3).forEach(function(r) {
-                var rDate = r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '';
-                html += '<div style="font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.03);line-height:1.4;">';
-                html += '<span style="font-weight:600;color:rgba(255,255,255,0.7);">' + esc(r.agent || '?') + '</span> · ' + rDate;
-                html += '<div style="margin-top:0.2rem;">' + esc((r.text || '').substring(0, 300)) + '</div>';
-                html += '</div>';
-              });
-              html += '</div>';
-            }
-          }
-
-          // Actions
-          var agentOptions = ['nova','echo','scribe','cipher','pixel','forge','scout','quill'].map(function(a) {
-            return '<option value="' + a + '"' + (a === agent ? ' selected' : '') + '>' + a.charAt(0).toUpperCase() + a.slice(1) + '</option>';
-          }).join('');
-
-          html += '<div class="act-drawer-section"><h4>Actions</h4>';
-          html += '<div style="display:flex;gap:0.4rem;flex-wrap:wrap;">';
-          html += '<button class="act-btn act-btn--approve" onclick="naAccept(\'' + esc(taskId) + '\',\'' + esc(queueItemId) + '\');closeDrawer()"><i class="fas fa-check"></i> Accept</button>';
-          html += '<button class="act-btn act-btn--revision" onclick="naDirectionPrompt(\'' + esc(taskId) + '\',\'' + esc(queueItemId) + '\');closeDrawer()"><i class="fas fa-comment-dots"></i> Give Direction</button>';
-          html += '<select class="act-filter-select" style="font-size:var(--c-text-xs);padding:0.25rem 0.4rem;" onchange="if(this.value){naReassign(\'' + esc(taskId) + '\',this.value,\'' + esc(queueItemId) + '\');closeDrawer();}">';
-          html += '<option value="">Reassign...</option>' + agentOptions + '</select>';
-          html += '<button class="act-btn act-btn--reject" onclick="naCancel(\'' + esc(taskId) + '\',\'' + esc(queueItemId) + '\');closeDrawer()"><i class="fas fa-times"></i> Cancel</button>';
-          html += '</div></div>';
-
-          el.innerHTML = html;
+          build(task || null, task ? 'ok' : 'error');
         })
         .catch(function() {
-          el.innerHTML = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button><h3>Error</h3><p style="opacity:0.5;">Could not load task details.</p>';
+          build(null, 'error');
         });
     }
 
