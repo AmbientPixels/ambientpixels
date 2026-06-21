@@ -249,8 +249,36 @@ const KNOWN_ACTION_TYPES = [
   'create-reminder', 'web_search', 'remember',
   'request-budget', 'approve-budget-request',
   'propose-product', 'propose-pivot', 'propose-retire',
-  'propose-hire-agent', 'propose-retire-agent', 'propose-role-evolution'
+  'propose-hire-agent', 'propose-retire-agent', 'propose-role-evolution',
+  'propose-campaign', 'propose-objective'
 ];
+
+// ── Agentic proposal generation (System: dynamic agent proposals) ──
+// The 6 strategic agents allowed to emit propose-campaign / propose-objective.
+// Quill (editor) excluded. Domain emerges from the trigger guidance in prompts.
+const PROPOSAL_AUTHORIZED_AGENTS = new Set(['nova', 'echo', 'scout', 'cipher', 'pixel', 'forge']);
+
+// Max agent-sourced proposals that reach approvalQueue per cycle, per type (best-first).
+const AGENT_PROPOSAL_FLEET_CAP = { campaign_proposal: 2, objective_proposal: 2 };
+
+// Deterministic severity per declared trigger. Unknown/missing → UNKNOWN severity + flag.
+const PROPOSAL_TRIGGER_SEVERITY = {
+  'runway-critical': 95,
+  'budget-red': 75,
+  'runway-low': 70,
+  'agent-cost-red': 50,
+  'declining-platform': 80,
+  'research-demand': 70,
+  'recurring-incident': 65,
+  'uncovered-product': 60,
+  'objective-near-complete': 55,
+  'campaign-behind-pace': 55,
+  'low-campaign-count': 50,
+  'low-objective-count': 50,
+  'design-gap': 30
+};
+const PROPOSAL_UNKNOWN_TRIGGER_SEVERITY = 10;
+
 const RESEARCH_MAX_AGE_DAYS = 30;
 const MAX_RESEARCH_INTEL_PER_DAY = 2;
 const MAX_TREND_INSIGHTS_STORE = 30;
@@ -449,6 +477,10 @@ module.exports = {
   VALID_TASK_TYPES,
   VALID_SOCIAL_TASK_TYPES,
   KNOWN_ACTION_TYPES,
+  PROPOSAL_AUTHORIZED_AGENTS,
+  AGENT_PROPOSAL_FLEET_CAP,
+  PROPOSAL_TRIGGER_SEVERITY,
+  PROPOSAL_UNKNOWN_TRIGGER_SEVERITY,
   RESEARCH_MAX_AGE_DAYS,
   MAX_RESEARCH_INTEL_PER_DAY,
   MAX_TREND_INSIGHTS_STORE,
