@@ -354,6 +354,68 @@
   color: var(--color-accent-amber);
 }
 
+/* ---- Public leaderboard (Stage 4) -------------------------- */
+.lb-empty {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.lb-row {
+  display: grid;
+  grid-template-columns: 2.4rem 44px minmax(7rem, 1fr) minmax(6rem, 13rem) 5.5rem 4.5rem 3.5rem;
+  gap: var(--sp-4);
+  align-items: center;
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.lb-rank {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: var(--fw-bold, 700);
+  color: var(--color-accent-amber);
+}
+.lb-portrait { width: 44px; height: 44px; border-radius: var(--r-sm, 4px); object-fit: cover; }
+.lb-id { display: flex; flex-direction: column; gap: var(--sp-1); min-width: 0; }
+.lb-name { font-family: var(--font-display); font-size: var(--fs-body-lg); color: var(--color-text-primary); text-decoration: none; }
+.lb-name:hover { color: var(--color-accent-amber); }
+.lb-sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.lb-barwrap { min-width: 0; }
+.lb-bar { height: 6px; border-radius: var(--r-pill); background: var(--color-border); overflow: hidden; }
+.lb-bar-fill { height: 100%; border-radius: var(--r-pill); background: var(--color-accent-amber); }
+.lb-num {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-align: right;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+.lb-num.lb-dim { color: var(--color-text-tertiary); }
+.lb-cstats { display: flex; flex-wrap: wrap; gap: var(--sp-8); margin-bottom: var(--sp-5); }
+.lb-cstat { display: flex; flex-direction: column; gap: var(--sp-1); }
+.lb-cstat-val { font-family: var(--font-display); font-size: var(--fs-display-sm, 2rem); color: var(--color-text-primary); }
+.lb-cstat-lbl {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-xs);
+  letter-spacing: var(--tracking-mono-md);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+@media (max-width: 720px) {
+  .lb-row { grid-template-columns: 1.8rem 36px 1fr auto; }
+  .lb-portrait { width: 36px; height: 36px; }
+  .lb-barwrap { grid-column: 1 / -1; }
+  .lb-num.lb-dim { display: none; }
+}
+
 /* ---- Crew (chip footer) ------------------------------------- */
 
 .agent-crew {

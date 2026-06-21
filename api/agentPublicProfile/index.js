@@ -238,15 +238,40 @@ async function buildBatch() {
   const rwPA = (rewards && rewards.perAgent) || {};
   const agents = ALLOWLIST.map(id => {
     const lastHeartbeatAt = configs[id] && configs[id].heartbeat && configs[id].heartbeat.lastBeat || null;
+    const r = rwPA[id] || {};
     return {
       id,
       status: id === 'cipher' ? systemStatus : 'GREEN',
       lastHeartbeatAt,
-      level: (rwPA[id] && rwPA[id].level) || null,
-      rank: (rwPA[id] && rwPA[id].rank) || null
+      level: r.level || null,
+      rank: r.rank || null,
+      class: r.class || '',
+      xp: r.xp || 0,
+      renown: r.renown || 0,
+      streakDays: r.streakDays || 0
     };
   });
-  return { asOf: new Date().toISOString(), agents };
+
+  // Company progression + a fleet-wide recent-unlocks feed for the public leaderboard.
+  const comp = (rewards && rewards.company) || {};
+  const company = {
+    followers: comp.lastFollowerTotal || (comp.counters && comp.counters.followers) || 0,
+    revenueCents: comp.lastRevenueCents || 0,
+    blogViews: (comp.counters && comp.counters.blogViews) || 0,
+    achievements: Array.isArray(comp.achievements) ? comp.achievements.map(a => ({ id: a.id, label: a.label })) : []
+  };
+  const milestones = [];
+  ALLOWLIST.forEach(id => {
+    const r = rwPA[id];
+    if (r && Array.isArray(r.achievements)) {
+      r.achievements.forEach(a => milestones.push({ agentId: id, label: a.label || a.id, tier: a.tier || 'bronze', at: a.at }));
+    }
+  });
+  const milestonesTop = milestones.filter(m => m.at)
+    .sort((x, y) => (Date.parse(y.at || '') || 0) - (Date.parse(x.at || '') || 0))
+    .slice(0, 12);
+
+  return { asOf: new Date().toISOString(), agents, company, milestones: milestonesTop };
 }
 
 module.exports = async function (context, req) {
