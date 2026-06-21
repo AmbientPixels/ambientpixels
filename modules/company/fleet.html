@@ -86,6 +86,33 @@
     .fl-mix-low { color: #60a5fa; background: rgba(96,165,250,0.14); }
     .fl-mix-none { color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.05); }
 
+    /* Progression (XP / rewards) — Stage 2 */
+    .fl-lvl { font-size: var(--c-text-xs); font-weight: 700; color: #1a1206; background: #fbbf24; border-radius: 3px; padding: 0.02rem 0.34rem; vertical-align: middle; letter-spacing: 0.02em; }
+    .fl-prog { margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px solid rgba(255,255,255,0.06); }
+    .fl-prog-top { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.3rem; }
+    .fl-rank { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #fbbf24; }
+    .fl-prog-next { font-size: var(--c-text-xs); opacity: 0.55; white-space: nowrap; }
+    .fl-xpbar { height: 6px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+    .fl-xpbar-fill { height: 100%; background: linear-gradient(90deg,#fbbf24,#f59e0b); border-radius: 4px; }
+    .fl-prog-stats { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.35rem; font-size: var(--c-text-xs); opacity: 0.82; }
+    .fl-prog-stats i { opacity: 0.75; margin-right: 0.2rem; }
+    .fl-badges { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.4rem; }
+    .fl-badge { font-size: 0.6rem; padding: 0.08rem 0.36rem; border-radius: 3px; border: 1px solid; }
+    .fl-badge.bronze { color: #cd9b6a; border-color: rgba(205,127,50,0.45); background: rgba(205,127,50,0.12); }
+    .fl-badge.silver { color: #cdd3da; border-color: rgba(192,192,192,0.4); background: rgba(192,192,192,0.1); }
+    .fl-badge.gold { color: #ffd76a; border-color: rgba(255,215,0,0.45); background: rgba(255,215,0,0.12); }
+    .fl-badge.platinum { color: #d9d6ff; border-color: rgba(180,170,255,0.5); background: rgba(180,170,255,0.14); }
+    .fl-badge-more { font-size: 0.6rem; opacity: 0.5; padding: 0.08rem 0.2rem; }
+
+    /* Leaderboard — Stage 2 */
+    .fl-lb-row { display: grid; grid-template-columns: 28px 1fr 70px 64px 52px; gap: 0.5rem; align-items: center; padding: 0.4rem 0.6rem; font-size: var(--c-text-xs); border-radius: 5px; }
+    .fl-lb-row:nth-child(odd) { background: rgba(255,255,255,0.02); }
+    .fl-lb-rank { font-weight: 700; color: #fbbf24; text-align: center; }
+    .fl-lb-name { font-weight: 600; color: #fff; text-transform: capitalize; }
+    .fl-lb-name small { font-weight: 400; opacity: 0.5; text-transform: none; }
+    .fl-lb-num { text-align: right; font-variant-numeric: tabular-nums; }
+    .fl-lb-num .u { opacity: 0.45; font-size: 0.6rem; margin-left: 0.12rem; }
+
     /* Evolve modal */
     .fe-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(6,9,13,0.78); display: flex; align-items: flex-start; justify-content: center; padding: 3vh 1rem; overflow-y: auto; }
     .fe-modal { width: 100%; max-width: 560px; background: #0e1218; border: 1px solid #2a3644; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,0.6); color: #e7edf5; font-size: var(--c-text-xs); padding: 1.1rem 1.2rem 1rem; }
@@ -152,6 +179,20 @@
       <div class="sys-section-body">
         <div class="fl-section" data-section="roster">
           <div id="fl-roster"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sys-section" id="fl-leaderboard-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-trophy"></i>
+        <strong>FLEET LEADERBOARD</strong>
+        <span class="sys-count" id="fl-leaderboard-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="fl-section" data-section="leaderboard">
+          <div id="fl-leaderboard"></div>
         </div>
       </div>
     </div>
@@ -239,14 +280,16 @@
         fetch(API + '/company-state?key=agentRegistry', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
         fetch(API + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
         fetch(API + '/company-state?key=runtimeMemory', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
-        fetch(API + '/allocationDigest', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();})
+        fetch(API + '/allocationDigest', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}),
+        fetch(API + '/agentRewards', { headers: { 'x-company-secret': SECRET } }).then(function(r){return r.json();}).catch(function(){ return null; })
       ]).then(function (arr) {
         return {
           registry: (arr[0] && arr[0].value) || { agents: [] },
           approvalQueue: (arr[1] && arr[1].value) || [],
           reflectionDigest: (arr[2] && arr[2].value && arr[2].value.reflectionDigest) || null,
           financeDigest: (arr[2] && arr[2].value && arr[2].value.financeDigest) || null,
-          allocationDigest: arr[3] || null
+          allocationDigest: arr[3] || null,
+          rewards: (arr[4] && arr[4].perAgent) ? arr[4] : { perAgent: {}, company: {} }
         };
       });
     }
@@ -276,6 +319,7 @@
 
       var allocPA = (d.allocationDigest && d.allocationDigest.perAgent) || {};
       var rdPA = (d.reflectionDigest && d.reflectionDigest.perAgent) || {};
+      var rewardsPA = (d.rewards && d.rewards.perAgent) || {}; // captured before the map shadows `d`
 
       var html = '<div class="fl-roster">' + active.map(function (a) {
         var isProtected = PROTECTED.has(a.id);
@@ -293,11 +337,41 @@
           return '<div class="fl-mix-row"><span>' + esc(act) + '</span><span class="fl-mix-' + esc(mix[act]) + '">' + esc(mix[act]) + '</span></div>';
         }).join('');
 
+        // Progression block (Stage 2): level chip + XP bar + stats + achievement badges.
+        var rw = rewardsPA[a.id] || null;
+        var lvlChip = '', progHtml = '';
+        if (rw) {
+          var lvl = rw.level || 1;
+          var costNext = 50 + 25 * lvl;                       // cost(lvl -> lvl+1)
+          var cumLvl = 50 * (lvl - 1) + 25 * (lvl - 1) * lvl / 2; // cumulative XP at lvl
+          var into = Math.max(0, (rw.xp || 0) - cumLvl);
+          var pct = Math.max(0, Math.min(100, Math.round(into / costNext * 100)));
+          lvlChip = ' <span class="fl-lvl">Lv ' + lvl + '</span>';
+          var ach = Array.isArray(rw.achievements) ? rw.achievements : [];
+          var badges = ach.slice(-3).map(function (b) {
+            return '<span class="fl-badge ' + esc(b.tier || 'bronze') + '" title="' + esc(b.label || b.id) + '">' + esc(b.label || b.id) + '</span>';
+          }).join('');
+          var moreN = Math.max(0, ach.length - 3);
+          progHtml = '<div class="fl-prog">' +
+            '<div class="fl-prog-top"><span class="fl-rank">' + esc(rw.rank || 'Rookie') + (rw.class ? ' · ' + esc(rw.class) : '') + '</span>' +
+              '<span class="fl-prog-next">' + into + '/' + costNext + ' to L' + (lvl + 1) + '</span></div>' +
+            '<div class="fl-xpbar"><div class="fl-xpbar-fill" style="width:' + pct + '%"></div></div>' +
+            '<div class="fl-prog-stats">' +
+              '<span><i class="fas fa-bolt"></i>' + (rw.xp || 0) + ' XP</span>' +
+              '<span><i class="fas fa-fire"></i>' + (rw.streakDays || 0) + 'd</span>' +
+              '<span><i class="fas fa-gem"></i>' + (rw.renown || 0) + '</span>' +
+              '<span><i class="fas fa-handshake"></i>' + ((rw.counters && rw.counters.assists) || 0) + '</span>' +
+            '</div>' +
+            (badges ? '<div class="fl-badges">' + badges + (moreN ? '<span class="fl-badge-more">+' + moreN + '</span>' : '') + '</div>' : '') +
+          '</div>';
+        }
+
         return '<div class="fl-agent-card' + (isProtected ? ' protected' : '') + '">' +
-          '<div class="fl-agent-head"><span class="fl-agent-name">' + esc(a.name || a.id) +
+          '<div class="fl-agent-head"><span class="fl-agent-name">' + esc(a.name || a.id) + lvlChip +
             ' <span class="fl-lv">v' + ver + '</span>' + driftBadge + '</span><span class="fl-agent-tier">T' + (a.tier||'?') + '</span></div>' +
           '<div class="fl-agent-role">' + esc(a.role || '') + '</div>' +
           (traits ? '<div class="fl-traits">' + traits + '</div>' : '') +
+          progHtml +
           '<div class="fl-agent-meta"><strong>Cap:</strong> <span class="' + capClass + '">' + esc(capText) + '</span><br>' +
             '<strong>Focus:</strong> ' + esc(String(a.focus||'').substring(0,140)) + (String(a.focus||'').length > 140 ? '…' : '') + '</div>' +
           (loadout ? '<div class="fl-loadout">' + loadout + '</div>' : '') +
@@ -632,6 +706,24 @@
       }).join('');
     }
 
+    function renderLeaderboard(d) {
+      var pa = (d.rewards && d.rewards.perAgent) || {};
+      var rows = Object.keys(pa).map(function (id) {
+        var r = pa[id] || {};
+        return { id: id, xp: r.xp || 0, level: r.level || 1, rank: r.rank || 'Rookie', renown: r.renown || 0, streak: r.streakDays || 0 };
+      }).sort(function (a, b) { return b.xp - a.xp; });
+      if (!rows.length) { emptyState('fl-leaderboard', 'No reward data yet — the rewards engine populates this hourly (or POST /api/rewards-engine-trigger).'); return; }
+      document.getElementById('fl-leaderboard').innerHTML = rows.map(function (r, i) {
+        return '<div class="fl-lb-row">' +
+          '<div class="fl-lb-rank">' + (i + 1) + '</div>' +
+          '<div class="fl-lb-name">' + esc(r.id) + ' <small>Lv ' + r.level + ' · ' + esc(r.rank) + '</small></div>' +
+          '<div class="fl-lb-num">' + r.xp + '<span class="u">xp</span></div>' +
+          '<div class="fl-lb-num">' + r.renown + '<span class="u">rn</span></div>' +
+          '<div class="fl-lb-num">' + r.streak + '<span class="u">d</span></div>' +
+        '</div>';
+      }).join('');
+    }
+
     document.querySelectorAll('.sys-section-hdr').forEach(function(hdr) {
       hdr.addEventListener('click', function() {
         hdr.parentElement.classList.toggle('collapsed');
@@ -664,6 +756,7 @@
       window._fleetData = d;
       renderHero(d);
       renderRoster(d);
+      renderLeaderboard(d);
       renderProposals(d);
       renderIntel(d);
       renderArchive(d);
@@ -679,6 +772,7 @@
 
       _applySectionDefaults({
         'fl-roster-section': { collapse: 'never', count: activeCount },
+        'fl-leaderboard-section': { collapse: 'never', count: Object.keys((d.rewards && d.rewards.perAgent) || {}).length },
         'fl-proposals-section': { collapse: 'never', count: pendingCount },
         'fl-intel-section': { collapse: 'never', count: intelCount },
         'fl-archived-section': { collapse: 'never', count: archivedCount },
