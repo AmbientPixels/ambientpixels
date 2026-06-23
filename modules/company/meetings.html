@@ -757,6 +757,23 @@
     })();
   </script>
 
+  <style id="agentic-meeting-styles">
+.am-meeting { padding:.55rem .7rem; margin-bottom:.5rem; border-left:3px solid var(--glow-teal,#2dd4bf); background:rgba(255,255,255,.03); border-radius:4px; }
+.am-meeting--skip { border-left-color:var(--mood-border,#3a3a4a); }
+.am-meeting-head { margin-bottom:.35rem; }
+.am-meta { opacity:.7; font-size:.78rem; }
+.am-cand { display:flex; align-items:center; gap:.5rem; padding:.3rem 0; border-top:1px solid rgba(255,255,255,.06); }
+.am-cand-title { flex:1; font-size:.85rem; }
+.am-cand-kind { font-size:.7rem; opacity:.6; text-transform:uppercase; letter-spacing:.04em; }
+.am-tag { font-size:.72rem; padding:.1rem .45rem; border-radius:10px; background:rgba(255,255,255,.08); opacity:.85; }
+.am-tag--done { color:#9ca3af; }
+.am-tag--ok { background:rgba(34,197,94,.18); color:#4ade80; }
+.am-tag--no { background:rgba(239,68,68,.18); color:#f87171; }
+.am-btn { font-size:.72rem; padding:.18rem .6rem; border-radius:5px; border:none; cursor:pointer; }
+.am-approve { background:rgba(34,197,94,.2); color:#4ade80; }
+.am-reject { background:rgba(239,68,68,.2); color:#f87171; }
+  </style>
+
   <!-- Agentic Meeting: button → trigger, toggle → systemConfig, render from meetingsRead -->
   <script>
     (function () {
@@ -772,27 +789,80 @@
 
       function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : String(s)); return d.innerHTML; }
 
+      function _aqMap() {
+        return fetch(apiBase + '/company-state?key=approvalQueue', { headers: hdrs() })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            var q = (d && (d.value || d)) || [];
+            if (!Array.isArray(q)) q = [];
+            var map = {};
+            q.forEach(function (e) { if (e && e.id) map[e.id] = e.status || 'pending'; });
+            return map;
+          }).catch(function () { return {}; });
+      }
+
+      function _candidateRow(c, aq) {
+        var title = esc((c.title || '').slice(0, 80));
+        if (c.blastRadius !== 'strategic') {
+          return '<div class="am-cand"><span class="am-cand-title">' + title + '</span>'
+            + '<span class="am-tag am-tag--done">✓ auto-created task</span></div>';
+        }
+        var status = c.proposalId ? (aq[c.proposalId] || 'pending') : 'pending';
+        var actions;
+        if (status === 'approved') actions = '<span class="am-tag am-tag--ok">Approved</span>';
+        else if (status === 'rejected') actions = '<span class="am-tag am-tag--no">Rejected</span>';
+        else if (!c.proposalId) actions = '<span class="am-tag">queued</span>';
+        else actions = '<button class="am-btn am-approve" data-id="' + esc(c.proposalId) + '">Approve</button>'
+          + '<button class="am-btn am-reject" data-id="' + esc(c.proposalId) + '">Reject</button>';
+        return '<div class="am-cand"><span class="am-cand-title">' + title + '</span>'
+          + '<span class="am-cand-kind">' + esc(c.kind) + '</span>' + actions + '</div>';
+      }
+
       function renderMeetings() {
-        fetch(apiBase + '/meetingsRead', { headers: hdrs() })
+        Promise.all([
+          fetch(apiBase + '/meetingsRead', { headers: hdrs() }).then(function (r) { return r.json(); }).catch(function () { return null; }),
+          _aqMap()
+        ]).then(function (res) {
+          var list = (res[0] && res[0].meetings) || [];
+          var aq = res[1] || {};
+          if (!list.length) { listEl.innerHTML = '<p style="opacity:.6;font-size:.85rem;">No agentic meetings yet.</p>'; return; }
+          listEl.innerHTML = list.slice(0, 10).map(function (m) {
+            var when = esc((m.createdAt || '').slice(0, 16).replace('T', ' '));
+            if (!m.convened) {
+              return '<div class="am-meeting am-meeting--skip"><strong>No meeting needed</strong> <span class="am-meta">· ' + when + ' · ' + esc(m.reason || '') + '</span></div>';
+            }
+            var cands = m.candidates || [];
+            var passedList = cands.filter(function (c) { return c.passed; });
+            var rejected = cands.length - passedList.length;
+            var topics = (m.agenda || []).map(function (a) { return esc(a.topic); }).join(', ') || '(agenda)';
+            var rows = passedList.map(function (c) { return _candidateRow(c, aq); }).join('');
+            return '<div class="am-meeting"><div class="am-meeting-head"><strong>' + topics + '</strong>'
+              + '<div class="am-meta">' + when + ' · ' + cands.length + ' proposed · ' + passedList.length + ' passed'
+              + (rejected > 0 ? (' · ' + rejected + ' rejected by vote') : '') + '</div></div>'
+              + (rows || '<div class="am-meta" style="padding:.25rem .1rem;">No items passed.</div>') + '</div>';
+          }).join('');
+        });
+      }
+
+      function _decide(id, decision, note) {
+        var b = { id: id, decision: decision };
+        if (note) b.ceoNote = note;
+        statusEl.textContent = (decision === 'approved' ? 'Approving…' : 'Rejecting…');
+        return fetch(apiBase + '/proposalDecide', { method: 'POST', headers: hdrs(), body: JSON.stringify(b) })
           .then(function (r) { return r.json(); })
           .then(function (d) {
-            var list = (d && d.meetings) || [];
-            if (!list.length) { listEl.innerHTML = '<p style="opacity:.6;font-size:.85rem;">No agentic meetings yet.</p>'; return; }
-            listEl.innerHTML = list.slice(0, 10).map(function (m) {
-              var when = esc((m.createdAt || '').slice(0, 16).replace('T', ' '));
-              if (!m.convened) {
-                return '<div style="padding:.5rem .65rem;margin-bottom:.4rem;border-left:3px solid var(--mood-border,#3a3a4a);background:rgba(255,255,255,.03);border-radius:4px;">'
-                  + '<strong>No meeting needed</strong> <span style="opacity:.65;font-size:.78rem;">· ' + when + ' · ' + esc(m.reason || '') + '</span></div>';
-              }
-              var passed = (m.candidates || []).filter(function (c) { return c.passed; }).length;
-              var topics = (m.agenda || []).map(function (a) { return esc(a.topic); }).join(', ') || '(agenda)';
-              var routed = m.routed ? ((m.routed.internalCreated || []).length + ' tasks, ' + (m.routed.proposalsQueued || []).length + ' to approval') : '';
-              return '<div style="padding:.5rem .65rem;margin-bottom:.4rem;border-left:3px solid var(--glow-teal,#2dd4bf);background:rgba(255,255,255,.03);border-radius:4px;">'
-                + '<strong>' + topics + '</strong>'
-                + '<div style="opacity:.7;font-size:.78rem;margin-top:.2rem;">' + when + ' · ' + (m.candidates || []).length + ' proposed · ' + passed + ' passed · ' + esc(routed) + '</div></div>';
-            }).join('');
-          }).catch(function () {});
+            statusEl.textContent = d && d.ok ? (decision === 'approved' ? 'Approved.' : 'Rejected.') : ('Error: ' + ((d && d.error) || 'unknown'));
+            renderMeetings();
+          })
+          .catch(function (e) { statusEl.textContent = 'Request failed: ' + e.message; });
       }
+
+      listEl.addEventListener('click', function (e) {
+        var ap = e.target.closest('.am-approve');
+        var rj = e.target.closest('.am-reject');
+        if (ap) { _decide(ap.getAttribute('data-id'), 'approved'); }
+        else if (rj) { var note = window.prompt('Rejection note (optional):') || ''; _decide(rj.getAttribute('data-id'), 'rejected', note); }
+      });
 
       btn.addEventListener('click', function () {
         btn.disabled = true;
