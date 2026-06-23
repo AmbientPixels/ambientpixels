@@ -22,6 +22,7 @@ const SOURCE = 'auto:proposal-generator';
 const STAGNANT_DAYS = 14;
 const STALE_DAYS = 14;
 const DEDUP_HOURS = 24;
+const EXPIRE_DAYS = 7; // unapproved generator suggestions auto-expire after this
 const OBJECTIVE_COMPLETE_PCT = 95;
 const MIN_ACTIVE_CAMPAIGNS = 3;
 const MIN_ACTIVE_OBJECTIVES = 3;
@@ -62,6 +63,44 @@ function _isStale(objective, campaigns, tasks, nowMs) {
     return oid === objective.id && _taskTime(t) >= cutoff;
   });
   return !hasRecentTask;
+}
+
+// A placeholder objective has produced nothing: zero progress, no campaign ever
+// referenced it (any status), and no task ever linked to it. These are almost
+// always the generator's OWN generic creations. Reactivating a placeholder is
+// pointless (it should be cleaned up, not re-proposed), and counting it as
+// "stale" creates a self-reinforcing loop where the generator keeps minting new
+// childless objectives. So the stale trigger ignores placeholders.
+function _isPlaceholderObjective(objective, campaigns, tasks) {
+  if (Number(objective.progress) > 0) return false;
+  var hasAnyCampaign = (campaigns || []).some(function (c) {
+    return c && (c.objective_id === objective.id || c.objectiveId === objective.id);
+  });
+  if (hasAnyCampaign) return false;
+  var hasAnyTask = (tasks || []).some(function (t) {
+    var oid = t.objective_id || t.objectiveId;
+    return oid === objective.id;
+  });
+  return !hasAnyTask;
+}
+
+// Flip generator-sourced, still-pending campaign/objective proposals to 'expired'
+// once they pass EXPIRE_DAYS without a CEO decision. Keeps stale generic
+// suggestions from accumulating in the queue. Returns the count expired. Mutates
+// the queue entries in place. Agent-sourced proposals are left untouched.
+function _expireStaleGeneratorProposals(queue, nowMs) {
+  var cutoff = nowMs - EXPIRE_DAYS * 86400000;
+  var n = 0;
+  (queue || []).forEach(function (q) {
+    if (!q || q.source !== SOURCE || q.status !== 'pending') return;
+    if (q.type !== 'campaign_proposal' && q.type !== 'objective_proposal') return;
+    if ((Date.parse(q.createdAt || '') || 0) < cutoff) {
+      q.status = 'expired';
+      q.expiredAt = new Date(nowMs).toISOString();
+      n++;
+    }
+  });
+  return n;
 }
 
 // Has the generator already proposed this type within DEDUP_HOURS, or is one pending?
@@ -218,7 +257,13 @@ function computeProposals(state, nowMs) {
       oReasons.push(nearDone.length + ' active objective(s) >= ' + OBJECTIVE_COMPLETE_PCT + '% complete (successor needed)');
       primary = primary || 'complete';
     }
-    var stale = activeObjectives.filter(function (o) { return _isStale(o, campaigns || [], tasks, nowMs); });
+    // Only SUBSTANTIVE stalled objectives warrant a reactivation proposal. Childless
+    // placeholders (progress 0, never had a campaign or task) are ignored — flagging
+    // them stale is what created the self-reinforcing "Re-activate stalled objective"
+    // loop. They should be cleaned up, not re-proposed.
+    var stale = activeObjectives.filter(function (o) {
+      return _isStale(o, campaigns || [], tasks, nowMs) && !_isPlaceholderObjective(o, campaigns || [], tasks);
+    });
     if (stale.length) {
       oReasons.push(stale.length + ' active objective(s) stale (no campaign/task activity in ' + STALE_DAYS + 'd)');
       primary = primary || 'stale';
@@ -256,23 +301,33 @@ async function runProposalGenerator(opts) {
     };
 
     var proposals = computeProposals(state, nowMs);
-    if (!proposals.length) {
-      log('[proposalGenerator] No propose-worthy conditions; nothing created.');
-      return { ok: true, created: 0, types: [] };
+
+    // Re-read queue right before write to minimize clobber. Always run expiry (even
+    // when nothing new is created) so stale generic suggestions don't pile up.
+    var queue = (await storage.getState('approvalQueue')) || [];
+    var expired = _expireStaleGeneratorProposals(queue, nowMs);
+    proposals.forEach(function (p) { queue.push(p); });
+
+    if (!proposals.length && !expired) {
+      log('[proposalGenerator] No propose-worthy conditions; nothing created or expired.');
+      return { ok: true, created: 0, expired: 0, types: [] };
     }
 
-    // Re-read queue right before write to minimize clobber, then append.
-    var queue = (await storage.getState('approvalQueue')) || [];
-    proposals.forEach(function (p) { queue.push(p); });
     await storage.setState('approvalQueue', queue);
 
     var types = proposals.map(function (p) { return p.type; });
-    log('[proposalGenerator] Created ' + proposals.length + ' proposal(s): ' + types.join(', '));
-    return { ok: true, created: proposals.length, types: types, proposals: proposals };
+    log('[proposalGenerator] Created ' + proposals.length + ' proposal(s): ' + (types.join(', ') || 'none') +
+      (expired ? ('; expired ' + expired + ' stale suggestion(s)') : ''));
+    return { ok: true, created: proposals.length, expired: expired, types: types, proposals: proposals };
   } catch (err) {
     log('[proposalGenerator] Fatal (no-op): ' + (err && err.message ? err.message : String(err)));
     return { ok: false, created: 0, error: err && err.message ? err.message : String(err) };
   }
 }
 
-module.exports = { computeProposals: computeProposals, runProposalGenerator: runProposalGenerator };
+module.exports = {
+  computeProposals: computeProposals,
+  runProposalGenerator: runProposalGenerator,
+  _expireStaleGeneratorProposals: _expireStaleGeneratorProposals,
+  _isPlaceholderObjective: _isPlaceholderObjective
+};

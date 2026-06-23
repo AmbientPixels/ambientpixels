@@ -3297,6 +3297,11 @@
               });
               Object.keys(agentTotals).forEach(function (aid) {
                 if (aid === 'quill') return; // reviewer, expected low output
+                // Synthetic closing-pass pseudo-agents (e.g. nova_closing) produce 0
+                // mutating actions by design — they're commentary-only debriefs. Mirrors
+                // the filter in ops-intel.js / emergence-intel.js so they don't trip
+                // the stall warning.
+                if (aid === 'nova_closing' || /_closing$/.test(aid)) return;
                 if (agentTotals[aid] === 0 && recent5.length >= 5) {
                   issues.push({ level: 'yellow', title: 'Agent ' + aid + ' produced 0 actions over last 5 heartbeats', detail: 'May be stalled or have no assigned work.' });
                 }

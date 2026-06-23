@@ -1363,6 +1363,18 @@
         .then(function(data) {
           var campaigns = data.value || data || [];
           if (!Array.isArray(campaigns)) campaigns = [];
+          // Dedup guard: don't create a second live campaign with the same title.
+          // Prevents accidental twins from double/batch approval. Archived/canceled
+          // campaigns don't count (a reused name is fine once the old one is retired).
+          var _norm = function(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); };
+          var _liveStatuses = ['active', 'paused', 'complete', 'completed'];
+          var dup = campaigns.find(function(c) {
+            return c && _liveStatuses.indexOf(c.status) !== -1 && _norm(c.title || c.name) === _norm(p.name);
+          });
+          if (dup) {
+            alert('A campaign named "' + (p.name || '') + '" already exists (' + dup.status + '). Skipped creating a duplicate — marking the proposal approved.');
+            return Promise.resolve(); // skip campaign write; proposal still flips to approved below
+          }
           var startDate = new Date().toISOString().substring(0, 10);
           var endDate = '';
           if (p.duration) {
@@ -1380,6 +1392,9 @@
             frequency: p.frequency || 2,
             cadence: p.cadence || 'weekly',
             northStarMetric: p.northStarMetric || null,
+            // Link to a parent objective when the proposal names one, so approved
+            // campaigns aren't born orphaned (the #1 source of "goal has no campaign").
+            objective_id: p.objective_id || p.objectiveId || p.suggestedObjectiveId || null,
             source: 'echo-proposal',
             proposalId: proposalId,
             createdAt: new Date().toISOString()
@@ -1512,6 +1527,18 @@
         .then(function(data) {
           var objectives = data.value || data || [];
           if (!Array.isArray(objectives)) objectives = [];
+          // Dedup guard: don't create a second live objective with the same title.
+          // The 00:27 twin objectives came from approving two identical generic
+          // proposals in one batch. Archived/canceled/complete don't block reuse.
+          var _norm = function(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); };
+          var _liveObjStatuses = ['active', 'on_track', 'at_risk', 'behind'];
+          var dupObj = objectives.find(function(o) {
+            return o && _liveObjStatuses.indexOf(o.status) !== -1 && _norm(o.title) === _norm(p.title);
+          });
+          if (dupObj) {
+            alert('A goal named "' + (p.title || '') + '" already exists (' + dupObj.status + '). Skipped creating a duplicate — marking the proposal approved.');
+            return Promise.resolve(); // skip objective write; proposal still flips to approved below
+          }
           // SE-2: proposals carrying northStarMetric + metricTarget + metricDeadline
           // mint a measurable objective (criteria object). Heartbeat stamps baseline
           // with the live metric value on first evaluation, then computes progress.

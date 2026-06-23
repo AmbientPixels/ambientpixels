@@ -1,7 +1,7 @@
 // Run with: node api/companyHeartbeat/proposal-generator.test.js
 // Pure-function tests for the deterministic proposal generator (computeProposals).
 const assert = require('assert');
-const { computeProposals } = require('./proposal-generator');
+const { computeProposals, _expireStaleGeneratorProposals } = require('./proposal-generator');
 
 const NOW = Date.UTC(2026, 5, 20, 12, 0, 0); // 2026-06-20T12:00:00Z
 const daysAgo = (n) => new Date(NOW - n * 86400000).toISOString();
@@ -220,6 +220,65 @@ test('objective suppressed when a pending agent objective_proposal exists', () =
   });
   const r = computeProposals(st, NOW);
   assert.ok(!obj(r), 'cron should defer to the pending agent objective proposal');
+});
+
+// ── STRICT (2026-06-22): loop guard — childless placeholder objectives ──
+// The generator's own generic "Re-activate stalled objective" creations are
+// progress 0 with no campaign and no task. Old logic flagged them stale →
+// proposed another → infinite junk loop. Placeholders must be IGNORED.
+test('objective does NOT fire to reactivate a childless placeholder (progress 0, no campaign, no task)', () => {
+  const st = baseState({
+    objectives: [
+      { id: 'o1', status: 'active', progress: 50 },
+      { id: 'o2', status: 'active', progress: 50 },
+      { id: 'o3', status: 'active', progress: 0, source: 'agent-proposal' } // placeholder
+    ],
+    tasks: [
+      { id: 't1', campaign_id: 'c1', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't2', campaign_id: 'c2', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't3', campaign_id: 'c3', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't4', objective_id: 'o1', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't5', objective_id: 'o2', status: 'in-progress', updatedAt: daysAgo(1) }
+      // o3 has no task and no campaign → placeholder, must not trigger reactivation
+    ]
+  });
+  assert.ok(!obj(computeProposals(st, NOW)), 'placeholder objective must not trigger a reactivation proposal');
+});
+
+test('objective STILL fires for a SUBSTANTIVE objective that went stale (progress > 0)', () => {
+  // o3 had real progress but no recent activity / no active campaign → genuine stall.
+  const st = baseState({
+    objectives: [
+      { id: 'o1', status: 'active', progress: 50 },
+      { id: 'o2', status: 'active', progress: 50 },
+      { id: 'o3', status: 'active', progress: 40 }
+    ],
+    tasks: [
+      { id: 't1', campaign_id: 'c1', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't2', campaign_id: 'c2', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't3', campaign_id: 'c3', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't4', objective_id: 'o1', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't5', objective_id: 'o2', status: 'in-progress', updatedAt: daysAgo(1) }
+      // o3: progress 40, no campaign, no task — substantive stall → still fires
+    ]
+  });
+  assert.ok(obj(computeProposals(st, NOW)), 'a substantive stalled objective should still get a reactivation proposal');
+});
+
+// ── STRICT (2026-06-22): unapproved generator suggestions expire after 7 days ──
+test('expireStaleGeneratorProposals flips generator-sourced pending proposals older than 7d to expired', () => {
+  const queue = [
+    { id: 'a', type: 'objective_proposal', source: 'auto:proposal-generator', status: 'pending', createdAt: daysAgo(8) },
+    { id: 'b', type: 'campaign_proposal', source: 'auto:proposal-generator', status: 'pending', createdAt: daysAgo(3) },
+    { id: 'c', type: 'objective_proposal', source: 'agent', status: 'pending', createdAt: daysAgo(30) }, // not generator-sourced
+    { id: 'd', type: 'objective_proposal', source: 'auto:proposal-generator', status: 'approved', createdAt: daysAgo(30) } // not pending
+  ];
+  const n = _expireStaleGeneratorProposals(queue, NOW);
+  assert.strictEqual(n, 1, 'only the 8-day-old generator pending proposal expires');
+  assert.strictEqual(queue.find((q) => q.id === 'a').status, 'expired');
+  assert.strictEqual(queue.find((q) => q.id === 'b').status, 'pending');
+  assert.strictEqual(queue.find((q) => q.id === 'c').status, 'pending');
+  assert.strictEqual(queue.find((q) => q.id === 'd').status, 'approved');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
