@@ -78,5 +78,32 @@ test('missing allocation → fail-open (eligible)', () => {
   assert.strictEqual(core.budgetEligible({ estimatedCost: 5 }, null).eligible, true);
 });
 
+// ── parseItemsFromReply ──
+test('parses a fenced JSON items array from reply text', () => {
+  const reply = 'I propose two things.\n```json\n{"items":[{"kind":"campaign","title":"Beacon launch"}]}\n```\nThanks.';
+  const items = core.parseItemsFromReply(reply, 'echo');
+  assert.strictEqual(items.length, 1);
+  assert.strictEqual(items[0].kind, 'campaign');
+  assert.strictEqual(items[0].proposedBy, 'echo');
+});
+test('returns [] when no JSON present', () => {
+  assert.deepStrictEqual(core.parseItemsFromReply('just talking, no proposal', 'nova'), []);
+});
+test('caps items per agent at 2', () => {
+  const reply = '{"items":[{"kind":"campaign","title":"a"},{"kind":"campaign","title":"b"},{"kind":"campaign","title":"c"}]}';
+  assert.strictEqual(core.parseItemsFromReply(reply, 'echo').length, 2);
+});
+
+// ── extractCandidates (dedupe across turns) ──
+test('extractCandidates dedupes by normalized title+kind', () => {
+  const turns = [
+    { agentId: 'echo', items: [{ kind: 'campaign', title: 'Beacon Launch', proposedBy: 'echo' }] },
+    { agentId: 'nova', items: [{ kind: 'campaign', title: 'beacon launch', proposedBy: 'nova' }] }
+  ];
+  const out = core.extractCandidates(turns);
+  assert.strictEqual(out.length, 1);
+  assert.ok(out[0].id); // assigned a stable id
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

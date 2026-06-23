@@ -57,4 +57,56 @@ function budgetEligible(candidate, allocation) {
   return { eligible: true, reason: null };
 }
 
-module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote, budgetEligible };
+const MAX_ITEMS_PER_AGENT = 2;
+const VALID_KINDS = ['research_task', 'internal_doc', 'execution_task', 'campaign', 'objective', 'product_launch', 'product_pivot', 'product_retire', 'social'];
+
+function _norm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+
+// Pull the first JSON object containing an `items` array out of a model reply.
+// Tolerates ```json fences and surrounding prose. Returns [] on anything unparseable.
+function parseItemsFromReply(reply, agentId) {
+  if (!reply || typeof reply !== 'string') return [];
+  let obj = null;
+  // Try fenced block first, then the first {...} that parses.
+  const fenced = reply.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidates = [];
+  if (fenced) candidates.push(fenced[1]);
+  const brace = reply.match(/\{[\s\S]*\}/);
+  if (brace) candidates.push(brace[0]);
+  for (const c of candidates) {
+    try { const parsed = JSON.parse(c); if (parsed && Array.isArray(parsed.items)) { obj = parsed; break; } } catch (_e) { /* keep trying */ }
+  }
+  if (!obj) return [];
+  return obj.items
+    .filter(function (it) { return it && VALID_KINDS.indexOf(it.kind) !== -1 && _norm(it.title).length > 0; })
+    .slice(0, MAX_ITEMS_PER_AGENT)
+    .map(function (it) {
+      return {
+        kind: it.kind,
+        title: String(it.title).slice(0, 140),
+        description: String(it.description || '').slice(0, 1000),
+        rationale: String(it.rationale || '').slice(0, 500),
+        estimatedCost: Number.isFinite(Number(it.estimatedCost)) ? Number(it.estimatedCost) : null,
+        targetObjectiveId: it.targetObjectiveId || null,
+        proposedBy: agentId
+      };
+    });
+}
+
+// Flatten all turns' items into a deduped candidate slate (by normalized title+kind),
+// assigning each a stable id. First proposer wins on a duplicate.
+function extractCandidates(turns) {
+  const seen = new Set();
+  const out = [];
+  (turns || []).forEach(function (turn) {
+    (turn.items || []).forEach(function (it) {
+      const key = it.kind + '::' + _norm(it.title);
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(Object.assign({ id: 'cand-' + (out.length + 1) + '-' + key.replace(/[^a-z0-9]+/gi, '').slice(0, 12) }, it));
+    });
+  });
+  return out;
+}
+
+module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote, budgetEligible, parseItemsFromReply, extractCandidates, MAX_ITEMS_PER_AGENT, VALID_KINDS };
