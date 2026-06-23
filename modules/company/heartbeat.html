@@ -389,7 +389,15 @@
       }
       if (status === 'done' || status === 'error') {
         if (idle) {
-          html += '<div class="hb-idle-note"><i class="fas fa-moon"></i> idle — nothing needed this cycle.</div>';
+          // A genuine idle has reasoning + normal latency (the model said "nothing to do").
+          // A FAILED call returns null → no reasoning + sub-second latency. Don't dress a
+          // rate-limit / out-of-credits / bad-key failure up as a quiet fleet.
+          var _failed = !a.reasoning && a.latencyMs > 0 && a.latencyMs < 1000;
+          if (_failed) {
+            html += '<div class="hb-err-note"><i class="fas fa-triangle-exclamation"></i> model call failed (' + esc(a.latencyMs) + 'ms, no response) — likely rate-limit, out of credits, or bad API key. Not a real idle.</div>';
+          } else {
+            html += '<div class="hb-idle-note"><i class="fas fa-moon"></i> idle — nothing needed this cycle.</div>';
+          }
         } else {
           html += '<div class="hb-chips">'
                 + '<span class="hb-chip exec">' + esc(executed) + ' executed</span>'
@@ -456,7 +464,12 @@
                  + '<span class="hb-agent-status" style="margin-left:0.4rem;">' + esc(exec) + ' exec · ' + esc(nt) + ' tasks · ' + esc(bl) + ' blocked</span>';
         if (a.error) line += '<div class="hb-err-note">' + esc(a.error) + '</div>';
         else if (a.reasoning) line += '<div class="hb-reason">' + esc(a.reasoning) + '</div>';
-        else if (exec === 0) line += '<div class="hb-idle-note">idle — nothing needed.</div>';
+        else if (exec === 0) {
+          var _failedH = a.avgLatencyMs > 0 && a.avgLatencyMs < 1000;
+          line += _failedH
+            ? '<div class="hb-err-note">model call failed (' + esc(a.avgLatencyMs) + 'ms) — likely rate-limit/credits/key, not a real idle.</div>'
+            : '<div class="hb-idle-note">idle — nothing needed.</div>';
+        }
         line += '</div>';
         return line;
       });

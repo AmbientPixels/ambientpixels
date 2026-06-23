@@ -3306,6 +3306,25 @@
                   issues.push({ level: 'yellow', title: 'Agent ' + aid + ' produced 0 actions over last 5 heartbeats', detail: 'May be stalled or have no assigned work.' });
                 }
               });
+
+              // Model-call failure detector — distinguishes a real "idle" run from the
+              // LLM API rejecting every call. gemini.js returns null on a non-OK response
+              // (rate-limit / out of credits / bad key) and the run still records status:ok,
+              // so it would otherwise look like a quiet fleet. The tell: every agent did
+              // nothing AND latency is sub-second (a real model call is ~1000-1800ms).
+              var _lastPa = last.perAgent || {};
+              var _lastVals = Object.keys(_lastPa)
+                .filter(function (aid) { return aid !== 'nova_closing' && !/_closing$/.test(aid); })
+                .map(function (aid) { return _lastPa[aid]; });
+              if (_lastVals.length >= 3) {
+                var _allZero = _lastVals.every(function (v) { return (v.actionsExecuted || 0) === 0 && (v.actionsAttempted || 0) === 0; });
+                var _lat = _lastVals.map(function (v) { return v.avgLatencyMs || 0; }).filter(function (x) { return x > 0; });
+                var _allFast = _lat.length > 0 && _lat.every(function (x) { return x < 1000; });
+                if (_allZero && _allFast) {
+                  var _avgLat = Math.round(_lat.reduce(function (a, b) { return a + b; }, 0) / _lat.length);
+                  issues.push({ level: 'red', title: 'Heartbeat model calls are failing (not a real idle)', detail: 'Every agent returned 0 actions at ' + _avgLat + 'ms latency — the LLM API is rejecting calls (rate-limit, out of credits, or bad API key). Check the active model and provider credits, not the campaigns/goals.' });
+                }
+              }
             } else {
               issues.push({ level: 'red', title: 'No heartbeat runs found', detail: 'Heartbeat may not be configured or has never run.' });
             }
