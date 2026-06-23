@@ -1,0 +1,5 @@
+{
+  "bindings": [
+    { "name": "meetingTimer", "type": "timerTrigger", "direction": "in", "schedule": "0 0 15 * * *" }
+  ]
+}

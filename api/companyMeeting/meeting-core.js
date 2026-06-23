@@ -282,4 +282,19 @@ async function _persistMeeting(storage, record) {
   await storage.setState('agenticMeetings', list);
 }
 
-module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote, budgetEligible, parseItemsFromReply, extractCandidates, MAX_ITEMS_PER_AGENT, VALID_KINDS, runAgenticMeeting };
+// Pure signal detector for ad-hoc (non-weekly) meetings. `state` carries simple counts
+// so this stays testable. Dedupes against same-type meetings convened in the last 7 days.
+function detectMeetingSignals(state, nowMs, recentMeetings) {
+  const s = state || {};
+  const signals = [];
+  if ((s.activeObjectiveCount || 0) < 3) signals.push({ type: 'coverage-gap', reason: 'only ' + (s.activeObjectiveCount || 0) + ' active objective(s)' });
+  if (s.finishedRecently && (s.activeObjectiveCount || 0) === 0) signals.push({ type: 'finished-initiative', reason: 'initiatives finished with none active' });
+  if ((s.researchSignalCount || 0) > 0) signals.push({ type: 'research-opportunity', reason: (s.researchSignalCount) + ' unactioned research signal(s)' });
+  const weekAgo = nowMs - 7 * 86400000;
+  const recentTypes = new Set((recentMeetings || [])
+    .filter(function (m) { return m.convened && (Date.parse(m.createdAt || '') || 0) >= weekAgo; })
+    .map(function (m) { return m.trigger; }));
+  return signals.filter(function (sig) { return !recentTypes.has('signal:' + sig.type); });
+}
+
+module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote, budgetEligible, parseItemsFromReply, extractCandidates, MAX_ITEMS_PER_AGENT, VALID_KINDS, runAgenticMeeting, detectMeetingSignals };

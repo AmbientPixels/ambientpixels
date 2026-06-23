@@ -160,6 +160,26 @@ testA('runAgenticMeeting routes internal→tasks and strategic→approvalQueue',
   assert.strictEqual(storage._state.agenticMeetings.length, 1);
 });
 
+// ── detectMeetingSignals ──
+const NOW2 = Date.UTC(2026, 5, 23, 12, 0, 0);
+test('coverage-gap fires when <3 active objectives', () => {
+  const s = core.detectMeetingSignals({ activeObjectiveCount: 1, finishedRecently: false, researchSignalCount: 0 }, NOW2, []);
+  assert.ok(s.some(function (x) { return x.type === 'coverage-gap'; }));
+});
+test('research-opportunity fires when unactioned research signals exist', () => {
+  const s = core.detectMeetingSignals({ activeObjectiveCount: 5, finishedRecently: false, researchSignalCount: 2 }, NOW2, []);
+  assert.ok(s.some(function (x) { return x.type === 'research-opportunity'; }));
+});
+test('no signals on a healthy, covered state', () => {
+  const s = core.detectMeetingSignals({ activeObjectiveCount: 4, finishedRecently: false, researchSignalCount: 0 }, NOW2, []);
+  assert.strictEqual(s.length, 0);
+});
+test('a signal is deduped if a same-type meeting convened in the last 7 days', () => {
+  const recent = [{ convened: true, trigger: 'signal:coverage-gap', createdAt: new Date(NOW2 - 2 * 86400000).toISOString() }];
+  const s = core.detectMeetingSignals({ activeObjectiveCount: 1, finishedRecently: false, researchSignalCount: 0 }, NOW2, recent);
+  assert.ok(!s.some(function (x) { return x.type === 'coverage-gap'; }));
+});
+
 (async () => {
   for (const t of _asyncTests) {
     try { await t.fn(); pass++; console.log('  PASS ', t.name); }
