@@ -1,5 +1,7 @@
 'use strict';
 
+const prompts = require('./prompts');
+
 // The 6 strategic agents who attend, discuss, and vote.
 const MEETING_ATTENDEES = ['nova', 'echo', 'scout', 'cipher', 'pixel', 'forge'];
 
@@ -109,4 +111,175 @@ function extractCandidates(turns) {
   return out;
 }
 
-module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote, budgetEligible, parseItemsFromReply, extractCandidates, MAX_ITEMS_PER_AGENT, VALID_KINDS };
+const MEETINGS_CAP = 50;
+
+// Production `capitalAllocation` is nested ({ system: { budget, spent, status } }) while the
+// pure `budgetEligible` gate expects a flat shape. Normalize here so the gate actually engages
+// in prod; pass-through when already flat (the unit-test mock) or unreadable (fail-open → null).
+function _flattenAllocation(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (raw.system && typeof raw.system === 'object') {
+    return { systemBudget: raw.system.budget, systemSpent: raw.system.spent, systemStatus: raw.system.status };
+  }
+  return raw;
+}
+
+function _routeInternalTask(candidate, meetingId, nowIso) {
+  const assignee = candidate.kind === 'research_task' ? 'scout' : (candidate.proposedBy || 'nova');
+  return {
+    id: 'task-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+    title: candidate.title,
+    description: candidate.description || candidate.rationale || '',
+    taskType: candidate.kind === 'research_task' ? 'research' : (candidate.kind === 'internal_doc' ? 'internal_doc' : 'general'),
+    status: 'todo',
+    priority: 'medium',
+    assignee: assignee,
+    objective_id: candidate.targetObjectiveId || null,
+    createdAt: nowIso,
+    updatedAt: nowIso,
+    source: 'meeting',
+    created_by: candidate.proposedBy || 'nova',
+    meetingId: meetingId
+  };
+}
+
+function _routeStrategicProposal(candidate, meeting, nowIso) {
+  const typeByKind = {
+    campaign: 'campaign_proposal', objective: 'objective_proposal',
+    product_launch: 'product_proposal', product_pivot: 'product_pivot_proposal',
+    product_retire: 'product_retire_proposal', social: 'social_proposal', execution_task: 'task_proposal'
+  };
+  return {
+    id: 'mprop_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    type: typeByKind[candidate.kind] || 'campaign_proposal',
+    status: 'pending',
+    proposedBy: candidate.proposedBy || 'nova',
+    source: 'meeting',
+    meetingId: meeting.id,
+    title: candidate.title,
+    name: candidate.title,
+    description: candidate.description || '',
+    rationale: candidate.rationale || '',
+    voteTally: { approve: candidate.approveCount, reject: candidate.rejectCount, abstain: candidate.abstainCount },
+    estimatedCost: candidate.estimatedCost,
+    createdAt: nowIso
+  };
+}
+
+// Orchestrate one agentic meeting. `callModel(prompt, agentId)` and `storage` are
+// injected for testability; in production the trigger/cron pass the real ones.
+async function runAgenticMeeting(opts) {
+  opts = opts || {};
+  const storage = opts.storage;
+  const nowMs = opts.nowMs || Date.now();
+  const nowIso = new Date(nowMs).toISOString();
+  const log = opts.log || function () {};
+  const trigger = opts.trigger || 'button';
+  const callModel = opts.callModel || require('../companyHeartbeat/gemini').callGemini;
+
+  // 1. Gather state for the agenda
+  const [objectives, campaigns, allocationRaw] = await Promise.all([
+    storage.getState('objectives').then(function (v) { return v || []; }),
+    storage.getState('campaigns').then(function (v) { return v || []; }),
+    storage.getState('capitalAllocation').then(function (v) { return v || null; })
+  ]);
+  const allocation = _flattenAllocation(allocationRaw);
+  const state = {
+    activeObjectives: objectives.filter(function (o) { return o.status === 'active'; }),
+    activeCampaigns: campaigns.filter(function (c) { return c.status === 'active'; }),
+    recentlyFinished: objectives.filter(function (o) { return o.status === 'complete' || o.status === 'archived'; }).slice(-5).map(function (o) { return o.title; }),
+    decliningProducts: [], researchSignals: []
+  };
+
+  // 2. Agenda proposal (Nova)
+  const agendaReply = await callModel(prompts.buildAgendaPrompt('nova', state), 'nova');
+  let agendaObj = null;
+  try { const m = (agendaReply || '').match(/\{[\s\S]*\}/); agendaObj = m ? JSON.parse(m[0]) : null; } catch (_e) { agendaObj = null; }
+  if (!agendaObj || agendaObj.convene === false || !Array.isArray(agendaObj.agenda) || agendaObj.agenda.length === 0) {
+    const skipRec = { id: 'amtg-' + nowMs, trigger: trigger, convened: false, reason: 'no agenda', createdAt: nowIso };
+    await _persistMeeting(storage, skipRec);
+    log('[agenticMeeting] No agenda — not convened');
+    return skipRec;
+  }
+  const agenda = agendaObj.agenda.slice(0, 3);
+
+  // 3. Discussion (each attendee once, sees prior transcript)
+  const transcriptParts = [];
+  const turns = [];
+  for (const agentId of MEETING_ATTENDEES) {
+    const reply = await callModel(prompts.buildDiscussionPrompt(agentId, agenda, transcriptParts.join('\n\n')), agentId);
+    const items = parseItemsFromReply(reply || '', agentId);
+    turns.push({ agentId: agentId, text: reply || '(no response)', items: items });
+    transcriptParts.push(agentId + ': ' + (reply || '(no response)'));
+  }
+
+  // 4. Candidate slate + budget pre-check
+  const candidates = extractCandidates(turns);
+  candidates.forEach(function (c) {
+    const be = budgetEligible(c, allocation);
+    c.eligible = be.eligible; c.ineligibleReason = be.reason;
+    c.blastRadius = classifyBlastRadius(c);
+  });
+
+  // 5. Vote (each attendee votes on eligible candidates)
+  const eligible = candidates.filter(function (c) { return c.eligible; });
+  candidates.forEach(function (c) { c.votes = []; });
+  if (eligible.length > 0) {
+    for (const agentId of MEETING_ATTENDEES) {
+      const reply = await callModel(prompts.buildVotePrompt(agentId, eligible), agentId);
+      let voteObj = null;
+      try { const m = (reply || '').match(/\{[\s\S]*\}/); voteObj = m ? JSON.parse(m[0]) : null; } catch (_e) { voteObj = null; }
+      const votes = (voteObj && Array.isArray(voteObj.votes)) ? voteObj.votes : [];
+      votes.forEach(function (v) {
+        const cand = eligible.find(function (c) { return c.id === v.id; });
+        if (cand && ['approve', 'reject', 'abstain'].indexOf(v.vote) !== -1) {
+          cand.votes.push({ agentId: agentId, vote: v.vote, rationale: String(v.rationale || '').slice(0, 200) });
+        }
+      });
+    }
+  }
+  candidates.forEach(function (c) {
+    const t = tallyVote(c.votes);
+    c.approveCount = t.approve; c.rejectCount = t.reject; c.abstainCount = t.abstain;
+    c.tiebreak = t.tiebreak; c.passed = !!c.eligible && t.passed;
+  });
+
+  // 6. Route by blast radius
+  const internalCreated = [], proposalsQueued = [];
+  const passed = candidates.filter(function (c) { return c.passed; });
+  if (passed.some(function (c) { return c.blastRadius === 'internal'; })) {
+    const tasks = (await storage.getState('tasks')) || [];
+    passed.filter(function (c) { return c.blastRadius === 'internal'; }).forEach(function (c) {
+      const t = _routeInternalTask(c, 'amtg-' + nowMs, nowIso); tasks.push(t); internalCreated.push(t.id);
+    });
+    await storage.setState('tasks', tasks);
+  }
+  if (passed.some(function (c) { return c.blastRadius === 'strategic'; })) {
+    const aq = (await storage.getState('approvalQueue')) || [];
+    const meetingStub = { id: 'amtg-' + nowMs };
+    passed.filter(function (c) { return c.blastRadius === 'strategic'; }).forEach(function (c) {
+      const p = _routeStrategicProposal(c, meetingStub, nowIso); aq.push(p); proposalsQueued.push(p.id);
+    });
+    await storage.setState('approvalQueue', aq);
+  }
+
+  // 7. Persist record
+  const record = {
+    id: 'amtg-' + nowMs, trigger: trigger, convened: true, agenda: agenda,
+    attendees: MEETING_ATTENDEES, transcript: turns.map(function (t) { return { agentId: t.agentId, text: t.text }; }),
+    candidates: candidates, routed: { internalCreated: internalCreated, proposalsQueued: proposalsQueued },
+    createdAt: nowIso, durationMs: Date.now() - nowMs
+  };
+  await _persistMeeting(storage, record);
+  log('[agenticMeeting] convened — candidates ' + candidates.length + ', passed ' + passed.length + ', internal ' + internalCreated.length + ', queued ' + proposalsQueued.length);
+  return record;
+}
+
+async function _persistMeeting(storage, record) {
+  const list = (await storage.getState('agenticMeetings')) || [];
+  list.push(record);
+  if (list.length > MEETINGS_CAP) list.splice(0, list.length - MEETINGS_CAP);
+  await storage.setState('agenticMeetings', list);
+}
+
+module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote, budgetEligible, parseItemsFromReply, extractCandidates, MAX_ITEMS_PER_AGENT, VALID_KINDS, runAgenticMeeting };

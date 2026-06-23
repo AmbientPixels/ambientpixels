@@ -3,6 +3,8 @@ const assert = require('assert');
 const core = require('./meeting-core');
 
 let pass = 0, fail = 0;
+const _asyncTests = [];
+function testA(name, fn) { _asyncTests.push({ name: name, fn: fn }); }
 function test(name, fn) {
   try { fn(); pass++; console.log('  PASS ', name); }
   catch (e) { fail++; console.log('  FAIL ', name, '\n        ', e.message); }
@@ -124,5 +126,45 @@ test('vote prompt lists the candidates and the approve/reject/abstain contract',
   assert.ok(/approve/i.test(p) && /reject/i.test(p) && /abstain/i.test(p));
 });
 
-console.log('\n' + pass + ' passed, ' + fail + ' failed');
-process.exit(fail > 0 ? 1 : 0);
+// ── runAgenticMeeting (mocked model + in-memory storage) ──
+const NOW = Date.UTC(2026, 5, 23, 12, 0, 0);
+function mockStorage(initial) {
+  const s = Object.assign({ tasks: [], approvalQueue: [], agenticMeetings: [], capitalAllocation: { systemBudget: 15, systemSpent: 5, systemStatus: 'GREEN' } }, initial || {});
+  return { getState: async (k) => s[k], setState: async (k, v) => { s[k] = v; }, _state: s };
+}
+// Scripted model: agenda convenes; echo proposes a campaign (strategic) + a research task (internal);
+// everyone approves; nova closes.
+function mockModel(prompt, agentId) {
+  if (/Prime Operator opening/.test(prompt)) return Promise.resolve('```json\n{"convene":true,"agenda":[{"topic":"Grow Bluesky","rationale":"flat 30d"}]}\n```');
+  if (/Speak briefly on the agenda/.test(prompt)) {
+    if (agentId === 'echo') return Promise.resolve('We should push Bluesky.\n```json\n{"items":[{"kind":"campaign","title":"Bluesky Growth Push","rationale":"flat followers","estimatedCost":2},{"kind":"research_task","title":"Bluesky competitor scan","rationale":"need angles","estimatedCost":0}]}\n```');
+    return Promise.resolve('Agreed, no new items from me.');
+  }
+  if (/voting on the proposed work/.test(prompt)) {
+    // Approve EVERY candidate in the slate (the global match), not just the first —
+    // both the strategic and the internal item must pass for this e2e to be meaningful.
+    const ids = (prompt.match(/"id":"(cand-[^"]+)"/g) || []).map(function (s) { return s.replace(/"id":"|"$/g, ''); });
+    const votes = ids.map(function (id) { return '{"id":"' + id + '","vote":"approve","rationale":"good"}'; });
+    return Promise.resolve('```json\n{"votes":[' + votes.join(',') + ']}\n```');
+  }
+  return Promise.resolve('(ok)');
+}
+
+testA('runAgenticMeeting routes internal→tasks and strategic→approvalQueue', async () => {
+  const storage = mockStorage();
+  const rec = await core.runAgenticMeeting({ storage, nowMs: NOW, trigger: 'button', callModel: mockModel, log: function () {} });
+  assert.strictEqual(rec.convened, true);
+  // Bluesky Growth Push (campaign=strategic) → approvalQueue; competitor scan (research=internal) → tasks
+  assert.strictEqual(storage._state.approvalQueue.filter(function (q) { return q.source === 'meeting'; }).length, 1);
+  assert.strictEqual(storage._state.tasks.filter(function (t) { return t.source === 'meeting'; }).length, 1);
+  assert.strictEqual(storage._state.agenticMeetings.length, 1);
+});
+
+(async () => {
+  for (const t of _asyncTests) {
+    try { await t.fn(); pass++; console.log('  PASS ', t.name); }
+    catch (e) { fail++; console.log('  FAIL ', t.name, '\n        ', e.message); }
+  }
+  console.log('\n' + pass + ' passed, ' + fail + ' failed');
+  process.exit(fail > 0 ? 1 : 0);
+})();
