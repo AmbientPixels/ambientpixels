@@ -28,6 +28,22 @@
       <p>On-demand collaborative decision sessions (CEO-triggered). Unlimited per day — agenda-driven, decision-engine powered.</p>
     </div>
 
+    <!-- Agentic Meeting (fleet-originated, quality-gated) -->
+    <div class="standup-section" id="agentic-meeting-panel">
+      <div class="standup-header">
+        <h3><i class="fas fa-people-group co-icon-mr-lg dash-icon-teal"></i> Agentic Meeting</h3>
+        <button class="standup-trigger-btn" id="run-agentic-meeting">
+          <i class="fas fa-gavel"></i> <span id="run-agentic-meeting-label">Run Agentic Meeting</span>
+        </button>
+      </div>
+      <p style="margin:.25rem 0 .6rem;">The fleet proposes its own agenda, debates, votes, and routes the winners — internal work auto-creates; strategic work goes to your approval queue.</p>
+      <label style="display:inline-flex;align-items:center;gap:.45rem;font-size:.85rem;">
+        <input type="checkbox" id="agentic-auto-toggle"> Auto-run weekly (autonomy)
+      </label>
+      <div id="agentic-meeting-status" style="margin-top:.5rem;font-size:.8rem;opacity:.75;"></div>
+      <div id="agentic-meeting-list" style="margin-top:.75rem;"></div>
+    </div>
+
     <!-- Meeting Controls -->
     <div class="standup-section" id="mt-section">
       <div class="standup-header">
@@ -738,6 +754,81 @@
         div.textContent = str;
         return div.innerHTML;
       }
+    })();
+  </script>
+
+  <!-- Agentic Meeting: button → trigger, toggle → systemConfig, render from meetingsRead -->
+  <script>
+    (function () {
+      if (typeof CompanyStore === 'undefined') return;
+      var apiBase = CompanyStore.getServerBase ? CompanyStore.getServerBase() : '/api';
+      function hdrs() { return CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' }; }
+      var btn = document.getElementById('run-agentic-meeting');
+      var label = document.getElementById('run-agentic-meeting-label');
+      var statusEl = document.getElementById('agentic-meeting-status');
+      var toggle = document.getElementById('agentic-auto-toggle');
+      var listEl = document.getElementById('agentic-meeting-list');
+      if (!btn || !listEl) return;
+
+      function esc(s) { var d = document.createElement('div'); d.textContent = (s == null ? '' : String(s)); return d.innerHTML; }
+
+      function renderMeetings() {
+        fetch(apiBase + '/meetingsRead', { headers: hdrs() })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            var list = (d && d.meetings) || [];
+            if (!list.length) { listEl.innerHTML = '<p style="opacity:.6;font-size:.85rem;">No agentic meetings yet.</p>'; return; }
+            listEl.innerHTML = list.slice(0, 10).map(function (m) {
+              var when = esc((m.createdAt || '').slice(0, 16).replace('T', ' '));
+              if (!m.convened) {
+                return '<div style="padding:.5rem .65rem;margin-bottom:.4rem;border-left:3px solid var(--mood-border,#3a3a4a);background:rgba(255,255,255,.03);border-radius:4px;">'
+                  + '<strong>No meeting needed</strong> <span style="opacity:.65;font-size:.78rem;">· ' + when + ' · ' + esc(m.reason || '') + '</span></div>';
+              }
+              var passed = (m.candidates || []).filter(function (c) { return c.passed; }).length;
+              var topics = (m.agenda || []).map(function (a) { return esc(a.topic); }).join(', ') || '(agenda)';
+              var routed = m.routed ? ((m.routed.internalCreated || []).length + ' tasks, ' + (m.routed.proposalsQueued || []).length + ' to approval') : '';
+              return '<div style="padding:.5rem .65rem;margin-bottom:.4rem;border-left:3px solid var(--glow-teal,#2dd4bf);background:rgba(255,255,255,.03);border-radius:4px;">'
+                + '<strong>' + topics + '</strong>'
+                + '<div style="opacity:.7;font-size:.78rem;margin-top:.2rem;">' + when + ' · ' + (m.candidates || []).length + ' proposed · ' + passed + ' passed · ' + esc(routed) + '</div></div>';
+            }).join('');
+          }).catch(function () {});
+      }
+
+      btn.addEventListener('click', function () {
+        btn.disabled = true;
+        if (label) label.textContent = 'Convening…';
+        statusEl.textContent = 'Convening the fleet… (~16 model calls, give it a moment)';
+        fetch(apiBase + '/agentic-meeting-trigger', { method: 'POST', headers: hdrs() })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            btn.disabled = false; if (label) label.textContent = 'Run Agentic Meeting';
+            if (d && d.meeting && d.meeting.convened === false) statusEl.textContent = 'Fleet decided nothing needed convening right now.';
+            else if (d && d.meeting) statusEl.textContent = 'Done — see the latest meeting below.';
+            else statusEl.textContent = 'Error: ' + ((d && d.error) || 'unknown');
+            renderMeetings();
+          })
+          .catch(function (e) { btn.disabled = false; if (label) label.textContent = 'Run Agentic Meeting'; statusEl.textContent = 'Request failed: ' + e.message; });
+      });
+
+      // Toggle reads/writes systemConfig.agenticMeetings.enabled (read-modify-write so other fields survive).
+      fetch(apiBase + '/company-state?key=systemConfig', { headers: hdrs() })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (resp) { var cfg = (resp && resp.value) || {}; toggle.checked = !!(cfg.agenticMeetings && cfg.agenticMeetings.enabled); })
+        .catch(function () {});
+      toggle.addEventListener('change', function () {
+        var desired = toggle.checked;
+        fetch(apiBase + '/company-state?key=systemConfig', { headers: hdrs() })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (resp) {
+            var cfg = (resp && resp.value) || {};
+            cfg.agenticMeetings = Object.assign({ cadence: 'weekly', maxPerWeek: 2, signalsEnabled: true }, cfg.agenticMeetings || {}, { enabled: desired });
+            return fetch(apiBase + '/company-state', { method: 'POST', headers: hdrs(), body: JSON.stringify({ key: 'systemConfig', value: cfg }) });
+          })
+          .then(function (r) { if (!r || !r.ok) throw new Error('save failed'); statusEl.textContent = desired ? 'Autonomy on — fleet may convene weekly.' : 'Autonomy off — button only.'; })
+          .catch(function () { toggle.checked = !desired; statusEl.textContent = 'Could not save the autonomy setting — try again.'; });
+      });
+
+      renderMeetings();
     })();
   </script>
 
