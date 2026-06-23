@@ -193,12 +193,21 @@ async function runAgenticMeeting(opts) {
 
   // 2. Agenda proposal (Nova)
   const agendaReply = await callModel(prompts.buildAgendaPrompt('nova', state), 'nova');
-  let agendaObj = null;
-  try { const m = (agendaReply || '').match(/\{[\s\S]*\}/); agendaObj = m ? JSON.parse(m[0]) : null; } catch (_e) { agendaObj = null; }
+  let agendaObj = null, _parseErr = null;
+  try { const m = (agendaReply || '').match(/\{[\s\S]*\}/); agendaObj = m ? JSON.parse(m[0]) : null; } catch (_e) { agendaObj = null; _parseErr = _e.message; }
   if (!agendaObj || agendaObj.convene === false || !Array.isArray(agendaObj.agenda) || agendaObj.agenda.length === 0) {
-    const skipRec = { id: 'amtg-' + nowMs, trigger: trigger, convened: false, reason: 'no agenda', createdAt: nowIso };
+    // DIAGNOSTIC: surface WHY we didn't convene so "no agenda" isn't a black box.
+    let reason;
+    if (agendaReply == null) reason = 'model returned null (API/credits/rate-limit)';
+    else if (_parseErr) reason = 'agenda JSON parse failed: ' + _parseErr;
+    else if (!agendaObj) reason = 'no JSON object found in reply';
+    else if (agendaObj.convene === false) reason = 'model declined to convene (convene:false)';
+    else if (!Array.isArray(agendaObj.agenda)) reason = 'agenda field missing/not an array';
+    else reason = 'agenda was empty';
+    const skipRec = { id: 'amtg-' + nowMs, trigger: trigger, convened: false, reason: reason,
+      debug: { replyHead: String(agendaReply == null ? '(null)' : agendaReply).slice(0, 500) }, createdAt: nowIso };
     await _persistMeeting(storage, skipRec);
-    log('[agenticMeeting] No agenda — not convened');
+    log('[agenticMeeting] Not convened: ' + reason);
     return skipRec;
   }
   const agenda = agendaObj.agenda.slice(0, 3);
