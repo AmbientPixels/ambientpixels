@@ -57,5 +57,26 @@ test('tie + Nova abstain fails (conservative default)', () => {
   assert.strictEqual(r.passed, false);
 });
 
+// ── budgetEligible ──
+const ALLOC = (over) => ({ systemBudget: 15, systemSpent: over ? 14.9 : 5, systemStatus: over ? 'RED' : 'GREEN' });
+test('no cost → always eligible', () => {
+  assert.strictEqual(core.budgetEligible({ kind: 'research_task' }, ALLOC(false)).eligible, true);
+});
+test('cost within remaining → eligible', () => {
+  assert.strictEqual(core.budgetEligible({ estimatedCost: 2 }, ALLOC(false)).eligible, true);
+});
+test('system RED → ineligible', () => {
+  const r = core.budgetEligible({ estimatedCost: 0.05 }, ALLOC(true));
+  assert.strictEqual(r.eligible, false);
+  assert.ok(/RED/.test(r.reason));
+});
+test('cost exceeds remaining → ineligible', () => {
+  const r = core.budgetEligible({ estimatedCost: 99 }, { systemBudget: 15, systemSpent: 5, systemStatus: 'GREEN' });
+  assert.strictEqual(r.eligible, false);
+});
+test('missing allocation → fail-open (eligible)', () => {
+  assert.strictEqual(core.budgetEligible({ estimatedCost: 5 }, null).eligible, true);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

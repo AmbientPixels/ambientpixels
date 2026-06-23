@@ -43,4 +43,18 @@ function tallyVote(votes) {
   return { approve: approve, reject: reject, abstain: abstain, passed: passed, tiebreak: tiebreak };
 }
 
-module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote };
+// Deterministic budget gate. Fail-OPEN on missing/unreadable allocation state so a
+// transient read error never silently blocks the whole meeting.
+function budgetEligible(candidate, allocation) {
+  const cost = Number(candidate && candidate.estimatedCost);
+  if (!Number.isFinite(cost) || cost <= 0) return { eligible: true, reason: null };
+  if (!allocation || typeof allocation !== 'object') return { eligible: true, reason: null };
+  if (allocation.systemStatus === 'RED') return { eligible: false, reason: 'system budget RED' };
+  const remaining = (Number(allocation.systemBudget) || 0) - (Number(allocation.systemSpent) || 0);
+  if (cost > remaining) {
+    return { eligible: false, reason: 'cost ' + cost + ' exceeds remaining ' + remaining.toFixed(2) };
+  }
+  return { eligible: true, reason: null };
+}
+
+module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote, budgetEligible };
