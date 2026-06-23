@@ -23,4 +23,24 @@ function classifyBlastRadius(candidate) {
   return BLAST_RADIUS_MAP[kind] || 'strategic';
 }
 
-module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius };
+// Simple majority of cast (non-abstain) votes. Exact tie → Nova decides; if Nova
+// did not approve (rejected, abstained, or absent) the item fails (conservative).
+function tallyVote(votes) {
+  let approve = 0, reject = 0, abstain = 0;
+  (votes || []).forEach(function (v) {
+    if (v.vote === 'approve') approve++;
+    else if (v.vote === 'reject') reject++;
+    else abstain++;
+  });
+  let passed, tiebreak = false;
+  if (approve > reject) passed = true;
+  else if (reject > approve) passed = false;
+  else {
+    tiebreak = true;
+    const nova = (votes || []).find(function (v) { return v.agentId === 'nova'; });
+    passed = !!(nova && nova.vote === 'approve');
+  }
+  return { approve: approve, reject: reject, abstain: abstain, passed: passed, tiebreak: tiebreak };
+}
+
+module.exports = { MEETING_ATTENDEES, BLAST_RADIUS_MAP, classifyBlastRadius, tallyVote };

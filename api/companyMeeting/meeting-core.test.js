@@ -26,5 +26,36 @@ test('unknown kind defaults to strategic (fail safe to human review)', () => {
   assert.strictEqual(core.classifyBlastRadius({ kind: 'wat' }), 'strategic');
 });
 
+// ── tallyVote ──
+const V = (agentId, vote) => ({ agentId, vote });
+test('majority approve passes', () => {
+  const r = core.tallyVote([V('nova','approve'), V('echo','approve'), V('cipher','reject')]);
+  assert.strictEqual(r.passed, true);
+  assert.strictEqual(r.approve, 2); assert.strictEqual(r.reject, 1);
+});
+test('majority reject fails', () => {
+  const r = core.tallyVote([V('nova','reject'), V('echo','reject'), V('cipher','approve')]);
+  assert.strictEqual(r.passed, false);
+});
+test('abstains are excluded from the base', () => {
+  const r = core.tallyVote([V('nova','approve'), V('echo','abstain'), V('cipher','abstain')]);
+  assert.strictEqual(r.abstain, 2);
+  assert.strictEqual(r.passed, true); // 1 approve > 0 reject
+});
+test('tie + Nova approve passes via tiebreak', () => {
+  const r = core.tallyVote([V('nova','approve'), V('echo','reject')]);
+  assert.strictEqual(r.passed, true);
+  assert.strictEqual(r.tiebreak, true);
+});
+test('tie + Nova reject fails via tiebreak', () => {
+  const r = core.tallyVote([V('nova','reject'), V('echo','approve')]);
+  assert.strictEqual(r.passed, false);
+  assert.strictEqual(r.tiebreak, true);
+});
+test('tie + Nova abstain fails (conservative default)', () => {
+  const r = core.tallyVote([V('nova','abstain'), V('echo','approve'), V('cipher','reject')]);
+  assert.strictEqual(r.passed, false);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
