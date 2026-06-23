@@ -105,5 +105,24 @@ test('extractCandidates dedupes by normalized title+kind', () => {
   assert.ok(out[0].id); // assigned a stable id
 });
 
+// ── prompts ──
+const prompts = require('./prompts');
+test('agenda prompt names the agent and asks for JSON topics', () => {
+  const p = prompts.buildAgendaPrompt('nova', { activeObjectives: [], activeCampaigns: [], recentlyFinished: [], decliningProducts: [], researchSignals: [] });
+  assert.ok(/nova/i.test(p));
+  assert.ok(/agenda/i.test(p));
+  assert.ok(/json/i.test(p));
+});
+test('discussion prompt includes the agenda + the items JSON contract', () => {
+  const p = prompts.buildDiscussionPrompt('echo', [{ topic: 'Grow X' }], 'prior transcript here');
+  assert.ok(/Grow X/.test(p));
+  assert.ok(/"items"/.test(p));
+});
+test('vote prompt lists the candidates and the approve/reject/abstain contract', () => {
+  const p = prompts.buildVotePrompt('cipher', [{ id: 'cand-1', kind: 'campaign', title: 'Beacon' }]);
+  assert.ok(/Beacon/.test(p));
+  assert.ok(/approve/i.test(p) && /reject/i.test(p) && /abstain/i.test(p));
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
