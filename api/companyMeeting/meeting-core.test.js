@@ -158,6 +158,10 @@ testA('runAgenticMeeting routes internal→tasks and strategic→approvalQueue',
   assert.strictEqual(storage._state.approvalQueue.filter(function (q) { return q.source === 'meeting'; }).length, 1);
   assert.strictEqual(storage._state.tasks.filter(function (t) { return t.source === 'meeting'; }).length, 1);
   assert.strictEqual(storage._state.agenticMeetings.length, 1);
+  // strategic candidate carries the proposalId of its queued approvalQueue entry
+  const strat = rec.candidates.find(function (c) { return c.passed && c.blastRadius === 'strategic'; });
+  assert.ok(strat && strat.proposalId, 'strategic candidate should carry proposalId');
+  assert.ok(storage._state.approvalQueue.some(function (q) { return q.id === strat.proposalId; }), 'proposalId should match a queued entry');
 });
 
 // ── detectMeetingSignals ──

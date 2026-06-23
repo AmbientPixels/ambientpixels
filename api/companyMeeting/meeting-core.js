@@ -268,6 +268,7 @@ async function runAgenticMeeting(opts) {
     const meetingStub = { id: 'amtg-' + nowMs };
     passed.filter(function (c) { return c.blastRadius === 'strategic'; }).forEach(function (c) {
       const p = _routeStrategicProposal(c, meetingStub, nowIso); aq.push(p); proposalsQueued.push(p.id);
+      c.proposalId = p.id;
     });
     await storage.setState('approvalQueue', aq);
   }
