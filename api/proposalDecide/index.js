@@ -41,7 +41,9 @@ module.exports = async function (context, req) {
     let created = null;
 
     if (decision === 'approved') {
-      const mat = materializeFromProposal(target, nowIso);
+      // Load objectives so a campaign proposal can be auto-linked to a parent goal.
+      const objectives = (await storage.getState('objectives')) || [];
+      const mat = materializeFromProposal(target, nowIso, { objectives });
       if (mat && mat.stateKey) {
         let existing = (await storage.getState(mat.stateKey)) || [];
         if (!Array.isArray(existing)) existing = [];

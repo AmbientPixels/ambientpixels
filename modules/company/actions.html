@@ -1351,18 +1351,58 @@
       document.getElementById('drawer-overlay').classList.add('open');
     }
 
+    // Campaign enrichment at approval — KEEP IN SYNC with api/proposalDecide/materialize.js.
+    // A campaign must be born workable: a guaranteed valid task type + a parent objective
+    // when one plausibly exists. Flag needsReview whenever either had to be inferred.
+    var _VALID_TASK_TYPES = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
+    var _ACTIVE_OBJ_STATUSES = ['active', 'on_track', 'at_risk', 'behind'];
+    var _MATCH_STOP_WORDS = ['the', 'and', 'for', 'launch', 'campaign', 'this', 'week', 'plus', 'new', 'with', 'into', 'our', 'ambient'];
+    function _cpNorm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+    function _cpTokens(s) { return _cpNorm(s).split(/[^a-z0-9]+/).filter(function (w) { return w.length > 2 && _MATCH_STOP_WORDS.indexOf(w) === -1; }); }
+    function _deriveTaskTypes(p) {
+      var explicit = Array.isArray(p.platforms) ? p.platforms : (Array.isArray(p.allowedTaskTypes) ? p.allowedTaskTypes : []);
+      var valid = explicit.filter(function (t) { return _VALID_TASK_TYPES.indexOf(t) !== -1; });
+      if (valid.length) return { taskTypes: valid.slice(0, 5), derived: false };
+      var hay = _cpNorm((p.name || p.title || '') + ' ' + (p.description || ''));
+      var pick;
+      if (/\b(design|visual|hero|graphic|asset|artwork|illustration|mockup|thumbnail)\b/.test(hay)) pick = ['design_asset'];
+      else if (/\b(blog|article|diary|diaries|long-?form|essay|write-?up)\b/.test(hay)) pick = ['blog_post'];
+      else if (/\b(research|competitive|landscape|analysis)\b/.test(hay)) pick = ['research'];
+      else pick = ['social_bluesky'];
+      return { taskTypes: pick, derived: true };
+    }
+    function _deriveObjectiveId(p, objectives) {
+      var objs = (objectives || []).filter(function (o) { return o && _ACTIVE_OBJ_STATUSES.indexOf(o.status) !== -1 && !o.deletedAt; });
+      var explicit = p.objective_id || p.objectiveId || p.suggestedObjectiveId || null;
+      if (explicit && objs.some(function (o) { return o.id === explicit; })) return { objectiveId: explicit, matched: false };
+      if (p.northStarMetric) { var ns = objs.find(function (o) { return o.northStarMetric && o.northStarMetric === p.northStarMetric; }); if (ns) return { objectiveId: ns.id, matched: true }; }
+      var prod = _cpNorm(p.product || '');
+      if (prod.length > 2) { var pm = objs.find(function (o) { return _cpNorm((o.title || '') + ' ' + (o.description || '')).indexOf(prod) !== -1; }); if (pm) return { objectiveId: pm.id, matched: true }; }
+      var nameTokens = _cpTokens(p.name || p.title || '');
+      if (nameTokens.length) {
+        var best = null, bestScore = 0;
+        objs.forEach(function (o) { var ot = _cpTokens(o.title || ''); var overlap = nameTokens.filter(function (w) { return ot.indexOf(w) !== -1; }).length; if (overlap > bestScore) { bestScore = overlap; best = o; } });
+        if (best && bestScore >= 2) return { objectiveId: best.id, matched: true };
+      }
+      return { objectiveId: explicit || null, matched: false };
+    }
+
     function approveCampaignProposal(proposalId) {
       var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
       // Find the proposal
       var p = (window._campaignProposals || []).find(function(x) { return x.id === proposalId; });
       if (!p) return;
 
-      // 1. Create campaign from proposal
-      fetch(apiBase + '/company-state?key=campaigns', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var campaigns = data.value || data || [];
+      // 1. Create campaign from proposal (load objectives too, for auto-linking)
+      Promise.all([
+        fetch(apiBase + '/company-state?key=campaigns', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }),
+        fetch(apiBase + '/company-state?key=objectives', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); })
+      ])
+        .then(function(results) {
+          var campaigns = results[0].value || results[0] || [];
           if (!Array.isArray(campaigns)) campaigns = [];
+          var objectives = results[1].value || results[1] || [];
+          if (!Array.isArray(objectives)) objectives = [];
           // Dedup guard: don't create a second live campaign with the same title.
           // Prevents accidental twins from double/batch approval. Archived/canceled
           // campaigns don't count (a reused name is fine once the old one is retired).
@@ -1381,6 +1421,10 @@
             var weeks = parseInt(p.duration) || 4;
             endDate = new Date(Date.now() + weeks * 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
           }
+          // Guarantee a workable campaign: valid task types + a parent objective when
+          // one plausibly exists (the #1 source of empty-type / orphaned campaigns).
+          var _tt = _deriveTaskTypes(p);
+          var _od = _deriveObjectiveId(p, objectives);
           var newCampaign = {
             id: 'camp-' + Date.now().toString(36),
             title: p.name,
@@ -1388,13 +1432,12 @@
             status: 'active',
             startDate: startDate,
             endDate: endDate || null,
-            allowedTaskTypes: p.platforms || [],
+            allowedTaskTypes: _tt.taskTypes,
             frequency: p.frequency || 2,
             cadence: p.cadence || 'weekly',
             northStarMetric: p.northStarMetric || null,
-            // Link to a parent objective when the proposal names one, so approved
-            // campaigns aren't born orphaned (the #1 source of "goal has no campaign").
-            objective_id: p.objective_id || p.objectiveId || p.suggestedObjectiveId || null,
+            objective_id: _od.objectiveId,
+            needsReview: !!(_tt.derived || _od.matched || !_od.objectiveId),
             source: 'echo-proposal',
             proposalId: proposalId,
             createdAt: new Date().toISOString()

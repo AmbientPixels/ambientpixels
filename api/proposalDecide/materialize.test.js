@@ -1,6 +1,6 @@
 // Run with: node api/proposalDecide/materialize.test.js
 const assert = require('assert');
-const { materializeFromProposal, isLiveDuplicate } = require('./materialize');
+const { materializeFromProposal, isLiveDuplicate, deriveTaskTypes, deriveObjectiveId } = require('./materialize');
 
 let pass = 0, fail = 0;
 function test(name, fn) {
@@ -61,6 +61,84 @@ test('objective dup honors objective live statuses', () => {
 });
 test('tasks never dedup', () => {
   assert.strictEqual(isLiveDuplicate('tasks', 'Audit blockers', [{ title: 'Audit blockers', status: 'todo' }]), false);
+});
+
+// ── deriveTaskTypes (campaigns must never be born with empty/invalid task types) ──
+test('deriveTaskTypes: empty platforms → social_bluesky default, flagged derived', () => {
+  const r = deriveTaskTypes({ name: 'Daily Pulse Graduation', platforms: [] });
+  assert.deepStrictEqual(r.taskTypes, ['social_bluesky']);
+  assert.strictEqual(r.derived, true);
+});
+test('deriveTaskTypes: design intent → design_asset', () => {
+  const r = deriveTaskTypes({ name: 'Design Coverage', description: 'visual hero assets per product' });
+  assert.deepStrictEqual(r.taskTypes, ['design_asset']);
+  assert.strictEqual(r.derived, true);
+});
+test('deriveTaskTypes: brand/positioning messaging is NOT design → social default', () => {
+  const r = deriveTaskTypes({ name: 'Run Loud Public Positioning', description: 'Coordinate press, social, and brand messaging.' });
+  assert.deepStrictEqual(r.taskTypes, ['social_bluesky']);
+});
+test('deriveTaskTypes: blog intent → blog_post', () => {
+  const r = deriveTaskTypes({ name: 'Heartbeat Diaries', description: 'weekly build-in-public blog' });
+  assert.deepStrictEqual(r.taskTypes, ['blog_post']);
+});
+test('deriveTaskTypes: explicit valid platforms used as-is, not flagged', () => {
+  const r = deriveTaskTypes({ name: 'x', platforms: ['social_x', 'social_bluesky'] });
+  assert.deepStrictEqual(r.taskTypes, ['social_x', 'social_bluesky']);
+  assert.strictEqual(r.derived, false);
+});
+test('deriveTaskTypes: invalid task types filtered out', () => {
+  const r = deriveTaskTypes({ name: 'x', platforms: ['bogus', 'social_x'] });
+  assert.deepStrictEqual(r.taskTypes, ['social_x']);
+  assert.strictEqual(r.derived, false);
+});
+
+// ── deriveObjectiveId (campaigns should not be born orphaned when a parent exists) ──
+const OBJS = [
+  { id: 'obj-build-public-2026h2', title: 'Run Loud: The AI Company in Public', status: 'active', northStarMetric: 'bluesky_followers' },
+  { id: 'obj-reactivate-as-bs', title: 'Re-activate AmbientScore + Blindspot', status: 'active' },
+  { id: 'obj-pulse-daily', title: 'Daily Pulse Dispatch', status: 'active' },
+  { id: 'obj-done', title: 'Old Thing', status: 'complete' }
+];
+test('deriveObjectiveId: matches active objective by title-token overlap', () => {
+  const r = deriveObjectiveId({ name: 'Run Loud Public Positioning Campaign' }, OBJS);
+  assert.strictEqual(r.objectiveId, 'obj-build-public-2026h2');
+  assert.strictEqual(r.matched, true);
+});
+test('deriveObjectiveId: matches by northStarMetric', () => {
+  const r = deriveObjectiveId({ name: 'Unrelated name zzz', northStarMetric: 'bluesky_followers' }, OBJS);
+  assert.strictEqual(r.objectiveId, 'obj-build-public-2026h2');
+});
+test('deriveObjectiveId: honors an explicit ref that points at an active objective', () => {
+  const r = deriveObjectiveId({ name: 'x', objective_id: 'obj-pulse-daily' }, OBJS);
+  assert.strictEqual(r.objectiveId, 'obj-pulse-daily');
+  assert.strictEqual(r.matched, false);
+});
+test('deriveObjectiveId: no plausible parent → null', () => {
+  const r = deriveObjectiveId({ name: 'Zzzzz Qqqqq Wwwww' }, OBJS);
+  assert.strictEqual(r.objectiveId, null);
+});
+test('deriveObjectiveId: never matches a non-active objective', () => {
+  const r = deriveObjectiveId({ name: 'Old Thing' }, OBJS);
+  assert.strictEqual(r.objectiveId, null);
+});
+
+// ── materializeFromProposal integration: never emit an unworkable campaign ──
+test('campaign_proposal with empty platforms gets derived types + matched objective + needsReview', () => {
+  const m = materializeFromProposal(
+    { id: 'mp1', type: 'campaign_proposal', name: 'Run Loud Public Positioning Campaign', description: 'press and social' },
+    NOW, { objectives: OBJS });
+  assert.ok(m.entity.allowedTaskTypes.length > 0, 'task types non-empty');
+  assert.strictEqual(m.entity.objective_id, 'obj-build-public-2026h2');
+  assert.strictEqual(m.entity.needsReview, true);
+});
+test('campaign_proposal with explicit platforms + objective is not flagged', () => {
+  const m = materializeFromProposal(
+    { id: 'mp2', type: 'campaign_proposal', name: 'Beacon Launch', platforms: ['social_x'], objective_id: 'obj-pulse-daily' },
+    NOW, { objectives: OBJS });
+  assert.deepStrictEqual(m.entity.allowedTaskTypes, ['social_x']);
+  assert.strictEqual(m.entity.objective_id, 'obj-pulse-daily');
+  assert.strictEqual(m.entity.needsReview, false);
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
