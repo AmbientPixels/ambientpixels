@@ -41,6 +41,7 @@
         <input type="checkbox" id="agentic-auto-toggle"> Auto-run weekly (autonomy)
       </label>
       <div id="agentic-meeting-status" style="margin-top:.5rem;font-size:.8rem;opacity:.75;"></div>
+      <div id="am-decisions-list" style="margin-top:.75rem;"></div>
       <div id="agentic-meeting-list" style="margin-top:.75rem;"></div>
     </div>
 
@@ -772,6 +773,10 @@
 .am-btn { font-size:.72rem; padding:.18rem .6rem; border-radius:5px; border:none; cursor:pointer; }
 .am-approve { background:rgba(34,197,94,.2); color:#4ade80; }
 .am-reject { background:rgba(239,68,68,.2); color:#f87171; }
+.am-cand--dr { flex-wrap:wrap; align-items:flex-start; gap:.4rem .5rem; }
+.am-cand-kind--ceo { background:rgba(251,191,36,.15); color:#fbbf24; padding:.1rem .45rem; border-radius:10px; font-size:.68rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; opacity:1; }
+.am-cand-rationale { font-size:.78rem; opacity:.7; margin-top:.2rem; }
+.am-cand-rationale--thesis { color:#fbbf24; opacity:.85; }
   </style>
 
   <!-- Agentic Meeting: button → trigger, toggle → systemConfig, render from meetingsRead -->
@@ -799,6 +804,39 @@
             q.forEach(function (e) { if (e && e.id) map[e.id] = e.status || 'pending'; });
             return map;
           }).catch(function () { return {}; });
+      }
+
+      function renderDecisionRequests() {
+        var el = document.getElementById('am-decisions-list');
+        if (!el) return;
+        fetch(apiBase + '/company-state?key=approvalQueue', { headers: hdrs() })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            var q = (d && (d.value || d)) || [];
+            if (!Array.isArray(q)) q = [];
+            var drs = q.filter(function (e) { return e && e.type === 'decision_request' && e.source === 'meeting'; });
+            if (!drs.length) { el.innerHTML = ''; return; }
+            var html = '<div class="am-meeting"><div class="am-meeting-head"><strong><i class="fas fa-dollar-sign" style="color:#fbbf24;margin-right:5px;"></i>CEO Decisions Requested</strong></div>';
+            drs.forEach(function (p) {
+              var status = p.status || 'pending';
+              var actions;
+              if (status === 'approved') actions = '<span class="am-tag am-tag--ok">Approved</span>';
+              else if (status === 'rejected') actions = '<span class="am-tag am-tag--no">Rejected</span>';
+              else actions = '<button class="am-btn am-approve am-dr-approve" data-id="' + esc(p.id) + '">Approve</button>'
+                + '<button class="am-btn am-reject am-dr-reject" data-id="' + esc(p.id) + '">Reject</button>';
+              html += '<div class="am-cand am-cand--dr">'
+                + '<div style="flex:1;">'
+                + '<div class="am-cand-title">' + esc(p.title || p.name || '') + ' <span class="am-cand-kind am-cand-kind--ceo">CEO DECISION</span></div>'
+                + (p.description ? '<div class="am-cand-rationale">' + esc(p.description) + '</div>' : '')
+                + (p.profitThesis ? '<div class="am-cand-rationale am-cand-rationale--thesis">Why it matters: ' + esc(p.profitThesis) + '</div>' : '')
+                + (p.voteTally ? '<div class="am-meta" style="margin-top:.2rem;">Fleet vote — approve: ' + (p.voteTally.approve || 0) + ' · reject: ' + (p.voteTally.reject || 0) + ' · abstain: ' + (p.voteTally.abstain || 0) + '</div>' : '')
+                + '</div>'
+                + '<div style="display:flex;gap:.35rem;align-items:flex-start;padding-top:.1rem;">' + actions + '</div>'
+                + '</div>';
+            });
+            html += '</div>';
+            el.innerHTML = html;
+          }).catch(function () { el.innerHTML = ''; });
       }
 
       function _candidateRow(c, aq) {
@@ -853,6 +891,7 @@
           .then(function (d) {
             statusEl.textContent = d && d.ok ? (decision === 'approved' ? 'Approved.' : 'Rejected.') : ('Error: ' + ((d && d.error) || 'unknown'));
             renderMeetings();
+            renderDecisionRequests();
           })
           .catch(function (e) { statusEl.textContent = 'Request failed: ' + e.message; });
       }
@@ -863,6 +902,16 @@
         if (ap) { _decide(ap.getAttribute('data-id'), 'approved'); }
         else if (rj) { var note = window.prompt('Rejection note (optional):') || ''; _decide(rj.getAttribute('data-id'), 'rejected', note); }
       });
+
+      var decisionsEl = document.getElementById('am-decisions-list');
+      if (decisionsEl) {
+        decisionsEl.addEventListener('click', function (e) {
+          var ap = e.target.closest('.am-dr-approve');
+          var rj = e.target.closest('.am-dr-reject');
+          if (ap) { _decide(ap.getAttribute('data-id'), 'approved'); }
+          else if (rj) { var note = window.prompt('Rejection note (optional):') || ''; _decide(rj.getAttribute('data-id'), 'rejected', note); }
+        });
+      }
 
       btn.addEventListener('click', function () {
         btn.disabled = true;
@@ -899,6 +948,7 @@
       });
 
       renderMeetings();
+      renderDecisionRequests();
     })();
   </script>
 
