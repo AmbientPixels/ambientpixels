@@ -80,20 +80,40 @@ test('missing allocation → fail-open (eligible)', () => {
   assert.strictEqual(core.budgetEligible({ estimatedCost: 5 }, null).eligible, true);
 });
 
-// ── parseItemsFromReply ──
-test('parses a fenced JSON items array from reply text', () => {
-  const reply = 'I propose two things.\n```json\n{"items":[{"kind":"campaign","title":"Beacon launch"}]}\n```\nThanks.';
+// ── parseItemsFromReply (new contract: profitThesis required; lane for execution_task) ──
+test('drops an item with no profitThesis', () => {
+  const reply = '{"items":[{"kind":"campaign","title":"Beacon launch"}]}';
+  assert.deepStrictEqual(core.parseItemsFromReply(reply, 'echo'), []);
+});
+test('keeps a strategic item that has a profitThesis', () => {
+  const reply = '{"items":[{"kind":"campaign","title":"Beacon launch","profitThesis":"+$X MRR"}]}';
   const items = core.parseItemsFromReply(reply, 'echo');
   assert.strictEqual(items.length, 1);
-  assert.strictEqual(items[0].kind, 'campaign');
   assert.strictEqual(items[0].proposedBy, 'echo');
 });
-test('returns [] when no JSON present', () => {
-  assert.deepStrictEqual(core.parseItemsFromReply('just talking, no proposal', 'nova'), []);
+test('drops a fleet_task with no owner', () => {
+  const reply = '{"items":[{"kind":"execution_task","lane":"fleet_task","title":"x","deliverable":"d","profitThesis":"p"}]}';
+  assert.deepStrictEqual(core.parseItemsFromReply(reply, 'nova'), []);
 });
-test('caps items per agent at 2', () => {
-  const reply = '{"items":[{"kind":"campaign","title":"a"},{"kind":"campaign","title":"b"},{"kind":"campaign","title":"c"}]}';
-  assert.strictEqual(core.parseItemsFromReply(reply, 'echo').length, 2);
+test('keeps a valid fleet_task with owner + deliverable + thesis', () => {
+  const reply = '{"items":[{"kind":"execution_task","lane":"fleet_task","owner":"cipher","title":"Rank products by ROI","deliverable":"memo to nova","profitThesis":"cut the worst burner"}]}';
+  const items = core.parseItemsFromReply(reply, 'cipher');
+  assert.strictEqual(items.length, 1);
+  assert.strictEqual(items[0].lane, 'fleet_task');
+  assert.strictEqual(items[0].owner, 'cipher');
+});
+test('drops an execution_task with no valid lane', () => {
+  const reply = '{"items":[{"kind":"execution_task","title":"x","profitThesis":"p"}]}';
+  assert.deepStrictEqual(core.parseItemsFromReply(reply, 'nova'), []);
+});
+test('keeps a ceo_decision with a profitThesis (no owner needed)', () => {
+  const reply = '{"items":[{"kind":"execution_task","lane":"ceo_decision","title":"Kill or fund AmbientScore","profitThesis":"$0 revenue at 75%"}]}';
+  const items = core.parseItemsFromReply(reply, 'nova');
+  assert.strictEqual(items.length, 1);
+  assert.strictEqual(items[0].lane, 'ceo_decision');
+});
+test('returns [] when no JSON present', () => {
+  assert.deepStrictEqual(core.parseItemsFromReply('just talking', 'nova'), []);
 });
 
 // ── extractCandidates (dedupe across turns) ──

@@ -79,12 +79,28 @@ function parseItemsFromReply(reply, agentId) {
     try { const parsed = JSON.parse(c); if (parsed && Array.isArray(parsed.items)) { obj = parsed; break; } } catch (_e) { /* keep trying */ }
   }
   if (!obj) return [];
+  const KNOWN = ['nova', 'echo', 'scout', 'cipher', 'pixel', 'forge', 'scribe', 'quill'];
   return obj.items
-    .filter(function (it) { return it && VALID_KINDS.indexOf(it.kind) !== -1 && _norm(it.title).length > 0; })
+    .filter(function (it) {
+      if (!it || VALID_KINDS.indexOf(it.kind) === -1 || _norm(it.title).length === 0) return false;
+      if (_norm(it.profitThesis).length === 0) return false;            // every item needs a thesis
+      if (it.kind === 'execution_task') {
+        if (it.lane !== 'fleet_task' && it.lane !== 'ceo_decision') return false;
+        if (it.lane === 'fleet_task') {
+          if (KNOWN.indexOf(String(it.owner || '').toLowerCase()) === -1) return false;
+          if (_norm(it.deliverable).length === 0) return false;
+        }
+      }
+      return true;
+    })
     .slice(0, MAX_ITEMS_PER_AGENT)
     .map(function (it) {
       return {
         kind: it.kind,
+        lane: it.lane || null,
+        owner: it.owner ? String(it.owner).toLowerCase() : null,
+        deliverable: String(it.deliverable || '').slice(0, 500),
+        profitThesis: String(it.profitThesis || '').slice(0, 300),
         title: String(it.title).slice(0, 140),
         description: String(it.description || '').slice(0, 1000),
         rationale: String(it.rationale || '').slice(0, 500),
