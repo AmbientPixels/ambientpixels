@@ -76,5 +76,30 @@ test('memory slice stays under 1500 chars', () => {
   assert.ok(s.length <= 1500, 'len=' + s.length);
 });
 
+// ── isDuplicateTopic ──
+test('collapses the AmbientScore+Blindspot cluster (>=2 shared tokens)', () => {
+  const existing = [{ title: 'AmbientScore + Blindspot Final Sprint & Insight Routing' }];
+  const cand = { title: 'AmbientScore + Blindspot — Go/No-Go Decision & Launch Scope Freeze' };
+  assert.strictEqual(brief.isDuplicateTopic(cand, existing), true);
+});
+test('collapses the Pulse Daily cluster', () => {
+  const existing = [{ title: 'Pulse Daily: Post-Launch Operating Model Decision' }];
+  const cand = { title: 'Pulse Daily: Ownership & Cadence Lock (Post-Launch SLA)' };
+  assert.strictEqual(brief.isDuplicateTopic(cand, existing), true);
+});
+test('distinct topics are NOT flagged duplicate', () => {
+  const existing = [{ title: 'AmbientScore + Blindspot Final Sprint' }];
+  const cand = { title: 'Build in Public v4: One-Sentence Narrative Lock' };
+  assert.strictEqual(brief.isDuplicateTopic(cand, existing), false);
+});
+test('same targetObjectiveId is a duplicate regardless of title', () => {
+  const existing = [{ title: 'Totally different words', targetObjectiveId: 'obj-9' }];
+  const cand = { title: 'Nothing in common here', targetObjectiveId: 'obj-9' };
+  assert.strictEqual(brief.isDuplicateTopic(cand, existing), true);
+});
+test('empty existing → never a duplicate', () => {
+  assert.strictEqual(brief.isDuplicateTopic({ title: 'anything' }, []), false);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

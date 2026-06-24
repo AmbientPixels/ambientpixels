@@ -102,4 +102,29 @@ function buildAgentMemorySlice(agentId, mem) {
   return block;
 }
 
-module.exports = { buildSharedBrief, buildAgentMemorySlice, SHARED_BRIEF_CAP, MEMORY_SLICE_CAP };
+const TOPIC_STOP_WORDS = new Set(['the', 'and', 'for', 'launch', 'campaign', 'this', 'week', 'plus',
+  'new', 'with', 'into', 'our', 'decision', 'lock', 'gate', 'scope', 'final', 'post', 'model', 'plan',
+  'review', 'sync', 'sprint', 'freeze', 'go', 'no']);
+
+function _topicTokens(s) {
+  return String(s || '').toLowerCase().split(/[^a-z0-9]+/)
+    .filter(function (w) { return w.length > 2 && !TOPIC_STOP_WORDS.has(w); });
+}
+
+// True if `candidate` repeats a topic already present in `existing` (array of
+// {title, targetObjectiveId?}). Match = same non-null targetObjectiveId, or >=2
+// shared significant title tokens.
+function isDuplicateTopic(candidate, existing) {
+  const c = candidate || {};
+  const cTokens = _topicTokens(c.title);
+  const cObj = c.targetObjectiveId || null;
+  return (existing || []).some(function (e) {
+    if (!e) return false;
+    if (cObj && e.targetObjectiveId && e.targetObjectiveId === cObj) return true;
+    const eTokens = _topicTokens(e.title);
+    const shared = cTokens.filter(function (w) { return eTokens.indexOf(w) !== -1; }).length;
+    return shared >= 2;
+  });
+}
+
+module.exports = { buildSharedBrief, buildAgentMemorySlice, isDuplicateTopic, SHARED_BRIEF_CAP, MEMORY_SLICE_CAP };
