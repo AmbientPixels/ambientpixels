@@ -109,21 +109,28 @@ test('extractCandidates dedupes by normalized title+kind', () => {
 
 // ── prompts ──
 const prompts = require('./prompts');
-test('agenda prompt names the agent and asks for JSON topics', () => {
-  const p = prompts.buildAgendaPrompt('nova', { activeObjectives: [], activeCampaigns: [], recentlyFinished: [], decliningProducts: [], researchSignals: [] });
+test('agenda prompt names the agent, includes the brief, asks for JSON topics', () => {
+  const p = prompts.buildAgendaPrompt('nova', '═══ BUSINESS BRIEF ═══\nMONEY: ...', []);
   assert.ok(/nova/i.test(p));
   assert.ok(/agenda/i.test(p));
   assert.ok(/json/i.test(p));
+  assert.ok(/BUSINESS BRIEF/.test(p));      // brief injected
+  assert.ok(/revenue|profit|cost|growth/i.test(p)); // profit framing
 });
-test('discussion prompt includes the agenda + the items JSON contract', () => {
-  const p = prompts.buildDiscussionPrompt('echo', [{ topic: 'Grow X' }], 'prior transcript here');
+test('discussion prompt includes agenda, brief, memory slice, and the lane contract', () => {
+  const p = prompts.buildDiscussionPrompt('echo', [{ topic: 'Grow X' }], 'prior transcript', 'BRIEF HERE', 'MEM HERE');
   assert.ok(/Grow X/.test(p));
   assert.ok(/"items"/.test(p));
+  assert.ok(/BRIEF HERE/.test(p));
+  assert.ok(/MEM HERE/.test(p));
+  assert.ok(/profitThesis/.test(p));        // required field documented
+  assert.ok(/fleet_task|ceo_decision/.test(p));
 });
-test('vote prompt lists the candidates and the approve/reject/abstain contract', () => {
-  const p = prompts.buildVotePrompt('cipher', [{ id: 'cand-1', kind: 'campaign', title: 'Beacon' }]);
+test('vote prompt rejects ceremony/no-thesis items', () => {
+  const p = prompts.buildVotePrompt('cipher', [{ id: 'cand-1', kind: 'execution_task', title: 'Beacon' }]);
   assert.ok(/Beacon/.test(p));
   assert.ok(/approve/i.test(p) && /reject/i.test(p) && /abstain/i.test(p));
+  assert.ok(/profitThesis|ceremony|owner/i.test(p));
 });
 
 // ── runAgenticMeeting (mocked model + in-memory storage) ──

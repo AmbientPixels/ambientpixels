@@ -1,43 +1,49 @@
 'use strict';
 
-// Compact JSON snapshot of the relevant state for the agenda step.
-function _stateSummary(state) {
-  const s = state || {};
-  return JSON.stringify({
-    activeObjectives: (s.activeObjectives || []).map(function (o) { return { id: o.id, title: o.title, progress: o.progress }; }),
-    activeCampaigns: (s.activeCampaigns || []).map(function (c) { return { id: c.id, title: c.title || c.name }; }),
-    recentlyFinished: s.recentlyFinished || [],
-    decliningProducts: s.decliningProducts || [],
-    researchSignals: s.researchSignals || []
-  });
-}
+const KNOWN_AGENTS = "nova, echo, scout, cipher, pixel, forge, scribe, quill";
 
-function buildAgendaPrompt(agentId, state) {
+function buildAgendaPrompt(agentId, brief, pendingTopics) {
+  const pending = (pendingTopics && pendingTopics.length)
+    ? ('\nAlready in front of the CEO (do NOT re-raise these): ' + pendingTopics.slice(0, 12).join('; ') + '\n')
+    : '';
   return 'You are ' + agentId + ', Prime Operator opening an AmbientOS strategy meeting.\n' +
-    'Current company state (JSON):\n' + _stateSummary(state) + '\n\n' +
-    'Decide whether there is anything worth convening the fleet on right now — a coverage gap, ' +
-    'a finished initiative needing a successor, a declining product, or a real opportunity.\n' +
-    'Reply with ONLY a fenced json block:\n' +
-    '```json\n{"convene": true, "agenda": [{"topic": "...", "rationale": "..."}]}\n```\n' +
-    'Use at most 3 agenda topics. If nothing is worth a meeting, return {"convene": false, "agenda": []}.';
+    'The company must become profitable. Read the money picture below and decide where the biggest ' +
+    'opportunity or leak is — something that moves REVENUE, COST, or GROWTH.\n\n' +
+    (brief || '(brief unavailable)') + '\n' + pending + '\n' +
+    'Convene only if there is real money-moving work. Reply with ONLY a fenced json block:\n' +
+    '```json\n{"convene": true, "agenda": [{"topic": "...", "rationale": "<cite a number from the brief>"}]}\n```\n' +
+    'At most 3 topics. If nothing is worth a meeting, return {"convene": false, "agenda": []}.';
 }
 
-function buildDiscussionPrompt(agentId, agenda, transcript) {
-  return 'You are ' + agentId + ' in an AmbientOS strategy meeting.\n' +
+function buildDiscussionPrompt(agentId, agenda, transcript, brief, memorySlice) {
+  return 'You are ' + agentId + ' in an AmbientOS strategy meeting. The goal is PROFIT.\n' +
     'AGENDA: ' + JSON.stringify(agenda) + '\n\n' +
+    (brief ? (brief + '\n\n') : '') +
+    (memorySlice ? (memorySlice + '\n\n') : '') +
     (transcript ? ('Discussion so far:\n' + transcript + '\n\n') : '') +
-    'Speak briefly on the agenda, then propose 0-2 concrete work items you believe the fleet should take on.\n' +
-    'End your reply with a fenced json block of proposals (omit the block if you propose nothing):\n' +
-    '```json\n{"items":[{"kind":"campaign|objective|research_task|internal_doc|execution_task|product_launch|product_pivot|product_retire|social",' +
-    '"title":"...","description":"...","rationale":"<cite a number or signal>","estimatedCost":0,"targetObjectiveId":"<id if execution_task under an existing objective, else omit>"}]}\n```';
+    'Speak briefly, then propose 0-2 work items that move revenue, cost, or growth.\n' +
+    'RULES:\n' +
+    '- Every item needs a "profitThesis": the revenue/cost/growth lever, citing a number from the brief.\n' +
+    '- For execution work, set "lane":\n' +
+    '    "fleet_task"   = a real agent DOES it. Requires "owner" (one of: ' + KNOWN_AGENTS + ') and a concrete "deliverable" (an artifact + how we know it is done).\n' +
+    '    "ceo_decision" = a money call only the CEO can make, with options + data.\n' +
+    '- BANNED: "convene a sync", "assign a DRI", "lock an SLA", "go/no-go gate", or any item whose deliverable is "a decision" or "a meeting". Propose WORK or a crisp CEO decision, never ceremony.\n' +
+    'End with a fenced json block (omit it if you propose nothing):\n' +
+    '```json\n{"items":[{"kind":"execution_task","lane":"fleet_task","owner":"cipher",' +
+    '"title":"...","deliverable":"...","profitThesis":"...","description":"...","rationale":"...","estimatedCost":0,' +
+    '"targetObjectiveId":"<id if under an existing objective, else omit>"}]}\n```\n' +
+    'kind may also be campaign|objective|research_task|internal_doc|product_launch|product_pivot|product_retire|social when proposing those directly.';
 }
 
 function buildVotePrompt(agentId, candidates) {
-  const slate = (candidates || []).map(function (c) { return { id: c.id, kind: c.kind, title: c.title, rationale: c.rationale }; });
+  const slate = (candidates || []).map(function (c) {
+    return { id: c.id, kind: c.kind, lane: c.lane || null, title: c.title, owner: c.owner || null, profitThesis: c.profitThesis || null };
+  });
   return 'You are ' + agentId + ' voting on the proposed work from this AmbientOS meeting.\n' +
     'CANDIDATES (JSON): ' + JSON.stringify(slate) + '\n\n' +
-    'For EACH candidate, vote approve, reject, or abstain, with a one-line rationale. Be a quality gate — ' +
-    'reject vague, duplicate, off-strategy, or low-leverage items.\n' +
+    'Be a hard quality gate. REJECT any item that: has no profitThesis, is a fleet_task with no real owner, ' +
+    'is ceremony (a sync/DRI/SLA/"make a decision"), is a duplicate, or is off-strategy/low-leverage.\n' +
+    'For EACH candidate, vote approve, reject, or abstain with a one-line rationale.\n' +
     'Reply with ONLY a fenced json block:\n' +
     '```json\n{"votes":[{"id":"cand-1","vote":"approve|reject|abstain","rationale":"..."}]}\n```';
 }
