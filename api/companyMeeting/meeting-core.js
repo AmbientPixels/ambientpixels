@@ -1,6 +1,9 @@
 'use strict';
 
 const prompts = require('./prompts');
+const meetingBrief = require('./meeting-brief');
+const { buildWorldState } = require('../companyHeartbeat/world-state-intel');
+const gemini = require('../companyHeartbeat/gemini');
 
 // The 6 strategic agents who attend, discuss, and vote.
 const MEETING_ATTENDEES = ['nova', 'echo', 'scout', 'cipher', 'pixel', 'forge'];
@@ -17,11 +20,15 @@ const BLAST_RADIUS_MAP = {
   social: 'strategic'
 };
 
-// execution_task is internal only when it attaches to an existing objective;
-// a free-floating execution task is treated as strategic (route to CEO).
+// execution_task routing: fleet_task → internal (assigned to owner); ceo_decision → strategic;
+// no lane but has targetObjectiveId → internal; otherwise strategic (route to CEO).
 function classifyBlastRadius(candidate) {
   const kind = candidate && candidate.kind;
-  if (kind === 'execution_task') return candidate.targetObjectiveId ? 'internal' : 'strategic';
+  if (kind === 'execution_task') {
+    if (candidate.lane === 'fleet_task') return 'internal';
+    if (candidate.lane === 'ceo_decision') return 'strategic';
+    return candidate.targetObjectiveId ? 'internal' : 'strategic';
+  }
   return BLAST_RADIUS_MAP[kind] || 'strategic';
 }
 
@@ -140,22 +147,50 @@ function _flattenAllocation(raw) {
   return raw;
 }
 
+function _taskTypeForOwner(owner) {
+  if (owner === 'scout') return 'research';
+  if (owner === 'scribe') return 'internal_doc';
+  return 'general';
+}
+
 function _routeInternalTask(candidate, meetingId, nowIso) {
-  const assignee = candidate.kind === 'research_task' ? 'scout' : (candidate.proposedBy || 'nova');
+  const isFleet = candidate.kind === 'execution_task' && candidate.lane === 'fleet_task';
+  const assignee = isFleet ? candidate.owner
+    : (candidate.kind === 'research_task' ? 'scout' : (candidate.proposedBy || 'nova'));
+  const taskType = isFleet ? _taskTypeForOwner(assignee)
+    : (candidate.kind === 'research_task' ? 'research' : (candidate.kind === 'internal_doc' ? 'internal_doc' : 'general'));
   return {
     id: 'task-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
     title: candidate.title,
-    description: candidate.description || candidate.rationale || '',
-    taskType: candidate.kind === 'research_task' ? 'research' : (candidate.kind === 'internal_doc' ? 'internal_doc' : 'general'),
+    description: (isFleet && candidate.deliverable) ? candidate.deliverable : (candidate.description || candidate.rationale || ''),
+    taskType: taskType,
     status: 'todo',
     priority: 'medium',
     assignee: assignee,
     objective_id: candidate.targetObjectiveId || null,
+    profitThesis: candidate.profitThesis || null,
     createdAt: nowIso,
     updatedAt: nowIso,
     source: 'meeting',
     created_by: candidate.proposedBy || 'nova',
     meetingId: meetingId
+  };
+}
+
+function _routeDecisionRequest(candidate, meetingId, nowIso) {
+  return {
+    id: 'mdec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+    type: 'decision_request',
+    status: 'pending',
+    proposedBy: candidate.proposedBy || 'nova',
+    source: 'meeting',
+    meetingId: meetingId,
+    title: candidate.title,
+    name: candidate.title,
+    description: candidate.description || '',
+    profitThesis: candidate.profitThesis || null,
+    voteTally: { approve: candidate.approveCount, reject: candidate.rejectCount, abstain: candidate.abstainCount },
+    createdAt: nowIso
   };
 }
 
@@ -191,24 +226,53 @@ async function runAgenticMeeting(opts) {
   const nowIso = new Date(nowMs).toISOString();
   const log = opts.log || function () {};
   const trigger = opts.trigger || 'button';
-  const callModel = opts.callModel || require('../companyHeartbeat/gemini').callGemini;
-
-  // 1. Gather state for the agenda
-  const [objectives, campaigns, allocationRaw] = await Promise.all([
-    storage.getState('objectives').then(function (v) { return v || []; }),
-    storage.getState('campaigns').then(function (v) { return v || []; }),
-    storage.getState('capitalAllocation').then(function (v) { return v || null; })
-  ]);
-  const allocation = _flattenAllocation(allocationRaw);
-  const state = {
-    activeObjectives: objectives.filter(function (o) { return o.status === 'active'; }),
-    activeCampaigns: campaigns.filter(function (c) { return c.status === 'active'; }),
-    recentlyFinished: objectives.filter(function (o) { return o.status === 'complete' || o.status === 'archived'; }).slice(-5).map(function (o) { return o.title; }),
-    decliningProducts: [], researchSignals: []
+  const callModel = opts.callModel || async function (prompt, agentId) {
+    const r = await gemini.callWithModel(prompt, agentId, 'claude-sonnet');
+    if (r != null) return r;
+    const active = await gemini.getActiveModel().catch(function () { return { key: 'gemini' }; });
+    return gemini.callWithModel(prompt, agentId, active.key);
   };
 
+  // 1. Gather state for the agenda + the knowledge brief
+  const [objectives, campaigns, allocationRaw, runtimeMemory, tasksState, approvalQueueState,
+    agentMemories, researchIntel, weeklyReports, agentSeedMemories, socialAccountStats] = await Promise.all([
+    storage.getState('objectives').then(function (v) { return v || []; }),
+    storage.getState('campaigns').then(function (v) { return v || []; }),
+    storage.getState('capitalAllocation').then(function (v) { return v || null; }),
+    storage.getState('runtimeMemory').then(function (v) { return v || {}; }),
+    storage.getState('tasks').then(function (v) { return v || []; }),
+    storage.getState('approvalQueue').then(function (v) { return v || []; }),
+    storage.getState('agentMemories').then(function (v) { return v || {}; }),
+    storage.getState('researchIntel').then(function (v) { return v || []; }),
+    storage.getState('weeklyReports').then(function (v) { return v || {}; }),
+    storage.getState('agentSeedMemories').then(function (v) { return v || {}; }),
+    storage.getState('socialAccountStats').then(function (v) { return v || {}; })
+  ]);
+  const allocation = _flattenAllocation(allocationRaw);
+
+  // Shared brief — reuse the heartbeat's cached worldState, else rebuild it (fail-open).
+  let worldState = runtimeMemory.worldState;
+  if (!worldState || !worldState.generatedAt) {
+    try {
+      worldState = buildWorldState({
+        financeDigest: runtimeMemory.financeDigest, revenueDigest: runtimeMemory.revenueDigest,
+        outcomeDigest: runtimeMemory.outcomeDigest, strategicDigest: runtimeMemory.strategicDigest,
+        forgeOpsDigest: runtimeMemory.forgeOpsDigest, contentDigest: runtimeMemory.contentDigest,
+        socialAccountStats: socialAccountStats, campaigns: campaigns, objectives: objectives,
+        tasks: tasksState, approvalQueue: approvalQueueState
+      }, nowMs);
+    } catch (_e) { worldState = null; }
+  }
+  let brief = '';
+  try { brief = meetingBrief.buildSharedBrief(worldState, runtimeMemory.outcomeDigest); } catch (_e) { brief = ''; }
+
+  // Topics already in front of the CEO — so Nova does not re-raise them.
+  const pendingTopics = (approvalQueueState || [])
+    .filter(function (q) { return q && q.status === 'pending' && (q.type === 'decision_request' || /_proposal$/.test(q.type || '')); })
+    .map(function (q) { return String(q.title || q.name || '').slice(0, 60); }).filter(Boolean);
+
   // 2. Agenda proposal (Nova)
-  const agendaReply = await callModel(prompts.buildAgendaPrompt('nova', state), 'nova');
+  const agendaReply = await callModel(prompts.buildAgendaPrompt('nova', brief, pendingTopics), 'nova');
   let agendaObj = null, _parseErr = null;
   try { const m = (agendaReply || '').match(/\{[\s\S]*\}/); agendaObj = m ? JSON.parse(m[0]) : null; } catch (_e) { agendaObj = null; _parseErr = _e.message; }
   if (!agendaObj || agendaObj.convene === false || !Array.isArray(agendaObj.agenda) || agendaObj.agenda.length === 0) {
@@ -232,7 +296,14 @@ async function runAgenticMeeting(opts) {
   const transcriptParts = [];
   const turns = [];
   for (const agentId of MEETING_ATTENDEES) {
-    const reply = await callModel(prompts.buildDiscussionPrompt(agentId, agenda, transcriptParts.join('\n\n')), agentId);
+    let slice = '';
+    try {
+      slice = meetingBrief.buildAgentMemorySlice(agentId, {
+        agentMemories: agentMemories, researchIntel: researchIntel,
+        weeklyReports: weeklyReports, agentSeedMemories: agentSeedMemories
+      });
+    } catch (_e) { slice = ''; }
+    const reply = await callModel(prompts.buildDiscussionPrompt(agentId, agenda, transcriptParts.join('\n\n'), brief, slice), agentId);
     const items = parseItemsFromReply(reply || '', agentId);
     turns.push({ agentId: agentId, text: reply || '(no response)', items: items });
     transcriptParts.push(agentId + ': ' + (reply || '(no response)'));
@@ -269,22 +340,53 @@ async function runAgenticMeeting(opts) {
     c.tiebreak = t.tiebreak; c.passed = !!c.eligible && t.passed;
   });
 
-  // 6. Route by blast radius
-  const internalCreated = [], proposalsQueued = [];
+  // 6. Route by blast radius, after cross-meeting dedup.
+  const internalCreated = [], proposalsQueued = [], suppressedDuplicates = [];
   const passed = candidates.filter(function (c) { return c.passed; });
-  if (passed.some(function (c) { return c.blastRadius === 'internal'; })) {
+
+  const existingTasks = (tasksState || []).filter(function (t) { return t && t.status !== 'done' && t.status !== 'archived'; });
+  const cutoff14d = nowMs - 14 * 86400000;
+  const existingDecisions = (approvalQueueState || []).filter(function (q) {
+    return q && q.type === 'decision_request' && (q.status === 'pending' || (Date.parse(q.createdAt || '') || 0) >= cutoff14d);
+  });
+  const existingProposalsByType = {}; // type → array of {title, targetObjectiveId}
+  (approvalQueueState || []).forEach(function (q) {
+    if (q && q.status === 'pending' && /_proposal$/.test(q.type || '')) {
+      (existingProposalsByType[q.type] = existingProposalsByType[q.type] || []).push({ title: q.title || q.name });
+    }
+  });
+
+  const internalPassed = passed.filter(function (c) { return c.blastRadius === 'internal'; });
+  const strategicPassed = passed.filter(function (c) { return c.blastRadius === 'strategic'; });
+
+  if (internalPassed.length) {
     const tasks = (await storage.getState('tasks')) || [];
-    passed.filter(function (c) { return c.blastRadius === 'internal'; }).forEach(function (c) {
+    const activeCount = tasks.filter(function (t) { return t && t.status !== 'done' && t.status !== 'archived'; }).length;
+    let created = 0;
+    internalPassed.forEach(function (c) {
+      if (meetingBrief.isDuplicateTopic(c, existingTasks)) { suppressedDuplicates.push({ title: c.title, lane: c.lane || c.kind }); return; }
+      if (activeCount + created >= 50) { log('[agenticMeeting] task ceiling hit, skipping: ' + c.title); return; }
       const t = _routeInternalTask(c, 'amtg-' + nowMs, nowIso); tasks.push(t); internalCreated.push(t.id);
+      existingTasks.push({ title: t.title, targetObjectiveId: t.objective_id }); created++;
     });
     await storage.setState('tasks', tasks);
   }
-  if (passed.some(function (c) { return c.blastRadius === 'strategic'; })) {
+
+  if (strategicPassed.length) {
     const aq = (await storage.getState('approvalQueue')) || [];
     const meetingStub = { id: 'amtg-' + nowMs };
-    passed.filter(function (c) { return c.blastRadius === 'strategic'; }).forEach(function (c) {
-      const p = _routeStrategicProposal(c, meetingStub, nowIso); aq.push(p); proposalsQueued.push(p.id);
-      c.proposalId = p.id;
+    strategicPassed.forEach(function (c) {
+      if (c.kind === 'execution_task' && c.lane === 'ceo_decision') {
+        if (meetingBrief.isDuplicateTopic(c, existingDecisions)) { suppressedDuplicates.push({ title: c.title, lane: 'ceo_decision' }); return; }
+        const dr = _routeDecisionRequest(c, meetingStub.id, nowIso); aq.push(dr); proposalsQueued.push(dr.id);
+        c.proposalId = dr.id; existingDecisions.push({ title: dr.title });
+      } else {
+        const p = _routeStrategicProposal(c, meetingStub, nowIso);
+        const peers = existingProposalsByType[p.type] || [];
+        if (meetingBrief.isDuplicateTopic(c, peers)) { suppressedDuplicates.push({ title: c.title, lane: c.kind }); return; }
+        aq.push(p); proposalsQueued.push(p.id); c.proposalId = p.id; peers.push({ title: p.title });
+        existingProposalsByType[p.type] = peers;
+      }
     });
     await storage.setState('approvalQueue', aq);
   }
@@ -294,6 +396,7 @@ async function runAgenticMeeting(opts) {
     id: 'amtg-' + nowMs, trigger: trigger, convened: true, agenda: agenda,
     attendees: MEETING_ATTENDEES, transcript: turns.map(function (t) { return { agentId: t.agentId, text: t.text }; }),
     candidates: candidates, routed: { internalCreated: internalCreated, proposalsQueued: proposalsQueued },
+    suppressedDuplicates: suppressedDuplicates,
     createdAt: nowIso, durationMs: Date.now() - nowMs
   };
   await _persistMeeting(storage, record);

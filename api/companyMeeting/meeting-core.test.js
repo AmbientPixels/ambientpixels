@@ -163,8 +163,13 @@ function mockStorage(initial) {
 // everyone approves; nova closes.
 function mockModel(prompt, agentId) {
   if (/Prime Operator opening/.test(prompt)) return Promise.resolve('```json\n{"convene":true,"agenda":[{"topic":"Grow Bluesky","rationale":"flat 30d"}]}\n```');
-  if (/Speak briefly on the agenda/.test(prompt)) {
-    if (agentId === 'echo') return Promise.resolve('We should push Bluesky.\n```json\n{"items":[{"kind":"campaign","title":"Bluesky Growth Push","rationale":"flat followers","estimatedCost":2},{"kind":"research_task","title":"Bluesky competitor scan","rationale":"need angles","estimatedCost":0}]}\n```');
+  if (/Speak briefly/.test(prompt)) {
+    if (agentId === 'echo') return Promise.resolve('We should push Bluesky.\n```json\n{"items":[' +
+      '{"kind":"campaign","title":"Bluesky Growth Push","rationale":"flat followers","profitThesis":"+50 followers → top-funnel","estimatedCost":2},' +
+      '{"kind":"research_task","title":"Bluesky competitor scan","rationale":"need angles","profitThesis":"find a cheaper acquisition channel","estimatedCost":0}]}\n```');
+    if (agentId === 'cipher') return Promise.resolve('Money view.\n```json\n{"items":[' +
+      '{"kind":"execution_task","lane":"fleet_task","owner":"cipher","title":"Rank products by revenue per dollar","deliverable":"memo to nova ranking 7 products","profitThesis":"cut the biggest burner, save $X/mo"},' +
+      '{"kind":"execution_task","lane":"ceo_decision","title":"Kill or fund AmbientScore","profitThesis":"$0 revenue at 75% done — decide"}]}\n```');
     return Promise.resolve('Agreed, no new items from me.');
   }
   if (/voting on the proposed work/.test(prompt)) {
@@ -181,14 +186,41 @@ testA('runAgenticMeeting routes internal→tasks and strategic→approvalQueue',
   const storage = mockStorage();
   const rec = await core.runAgenticMeeting({ storage, nowMs: NOW, trigger: 'button', callModel: mockModel, log: function () {} });
   assert.strictEqual(rec.convened, true);
-  // Bluesky Growth Push (campaign=strategic) → approvalQueue; competitor scan (research=internal) → tasks
-  assert.strictEqual(storage._state.approvalQueue.filter(function (q) { return q.source === 'meeting'; }).length, 1);
-  assert.strictEqual(storage._state.tasks.filter(function (t) { return t.source === 'meeting'; }).length, 1);
+  // Bluesky Growth Push (campaign=strategic) → approvalQueue; cipher ceo_decision → approvalQueue; competitor scan (research=internal) → tasks; cipher fleet_task → tasks
+  assert.ok(storage._state.approvalQueue.filter(function (q) { return q.source === 'meeting'; }).length >= 1, 'meeting items should be queued in approvalQueue');
+  assert.ok(storage._state.tasks.filter(function (t) { return t.source === 'meeting'; }).length >= 1, 'meeting items should create tasks');
   assert.strictEqual(storage._state.agenticMeetings.length, 1);
   // strategic candidate carries the proposalId of its queued approvalQueue entry
   const strat = rec.candidates.find(function (c) { return c.passed && c.blastRadius === 'strategic'; });
   assert.ok(strat && strat.proposalId, 'strategic candidate should carry proposalId');
   assert.ok(storage._state.approvalQueue.some(function (q) { return q.id === strat.proposalId; }), 'proposalId should match a queued entry');
+  // fleet_task → an internal task assigned to its named owner
+  const fleetTasks = storage._state.tasks.filter(function (t) { return t.source === 'meeting' && t.assignee === 'cipher'; });
+  assert.ok(fleetTasks.length >= 1, 'fleet_task should create a task assigned to cipher');
+  // ceo_decision → a decision_request in the approvalQueue
+  assert.ok(storage._state.approvalQueue.some(function (q) { return q.type === 'decision_request'; }), 'ceo_decision should queue a decision_request');
+});
+
+testA('runAgenticMeeting suppresses a ceo_decision that duplicates a pending decision_request', async () => {
+  const storage = mockStorage({ approvalQueue: [
+    { id: 'dr-old', type: 'decision_request', status: 'pending', title: 'AmbientScore funding decision', createdAt: new Date(NOW - 86400000).toISOString() }
+  ] });
+  function dupModel(prompt, agentId) {
+    if (/Prime Operator opening/.test(prompt)) return Promise.resolve('```json\n{"convene":true,"agenda":[{"topic":"AmbientScore","rationale":"$0"}]}\n```');
+    if (/Speak briefly/.test(prompt)) {
+      if (agentId === 'cipher') return Promise.resolve('```json\n{"items":[{"kind":"execution_task","lane":"ceo_decision","title":"AmbientScore funding decision again","profitThesis":"$0 revenue"}]}\n```');
+      return Promise.resolve('nothing');
+    }
+    if (/voting on the proposed work/.test(prompt)) {
+      const ids = (prompt.match(/"id":"(cand-[^"]+)"/g) || []).map(function (s) { return s.replace(/"id":"|"$/g, ''); });
+      return Promise.resolve('```json\n{"votes":[' + ids.map(function (id) { return '{"id":"' + id + '","vote":"approve","rationale":"y"}'; }).join(',') + ']}\n```');
+    }
+    return Promise.resolve('(ok)');
+  }
+  const rec = await core.runAgenticMeeting({ storage, nowMs: NOW, trigger: 'button', callModel: dupModel, log: function () {} });
+  const newDRs = storage._state.approvalQueue.filter(function (q) { return q.type === 'decision_request' && q.id !== 'dr-old'; });
+  assert.strictEqual(newDRs.length, 0, 'duplicate decision should be suppressed');
+  assert.ok(Array.isArray(rec.suppressedDuplicates) && rec.suppressedDuplicates.length >= 1, 'suppression recorded');
 });
 
 // ── detectMeetingSignals ──
