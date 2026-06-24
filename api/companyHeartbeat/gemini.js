@@ -183,4 +183,14 @@ async function getActiveModel() {
   return { key: model, modelId: MODELS[model] || model, isClaude: _isClaudeModel(model) };
 }
 
-module.exports = { callGemini, callGeminiExecute, getActiveModel };
+// Call a specific model regardless of systemConfig (used to pin meetings to Sonnet).
+// Meeting replies are free-form JSON (not the agent envelope) so the Gemini path is
+// NOT schema-gated here. Returns text, or null on missing key / API error.
+async function callWithModel(prompt, agentId, modelKey) {
+  var model = String(modelKey || '').toLowerCase();
+  if (_isClaudeModel(model)) return _callClaude(prompt, agentId, 1500, model);
+  if (model === 'gemini') return _callGeminiRaw(prompt, agentId, 1500, 0.7, 'meeting', false);
+  return callGemini(prompt, agentId); // unknown key → legacy dynamic resolution
+}
+
+module.exports = { callGemini, callGeminiExecute, getActiveModel, callWithModel, _isClaudeModel };
