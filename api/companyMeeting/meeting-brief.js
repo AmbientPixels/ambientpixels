@@ -57,4 +57,49 @@ function buildSharedBrief(worldState, outcomeDigest) {
   return block;
 }
 
-module.exports = { buildSharedBrief, SHARED_BRIEF_CAP };
+const MEMORY_SLICE_CAP = 1500;
+
+function _trim(s, n) { return String(s || '').replace(/\s+/g, ' ').trim().slice(0, n); }
+
+// Per-agent specialty memory. Returns '' when the agent has nothing.
+function buildAgentMemorySlice(agentId, mem) {
+  const id = String(agentId || '').toLowerCase();
+  const m = mem || {};
+  const seed = m.agentSeedMemories || {};
+  const memories = (m.agentMemories || {})[id] || [];
+  const research = Array.isArray(m.researchIntel) ? m.researchIntel : [];
+  const weekly = (m.weeklyReports || {})[id] || [];
+  const lines = [];
+
+  // Seed anchors (global + own)
+  const seedBits = [];
+  if (seed._global) seedBits.push(_trim(seed._global, 160));
+  if (seed[id]) seedBits.push(_trim(seed[id], 160));
+  if (seedBits.length) lines.push('ANCHORS: ' + seedBits.join(' | '));
+
+  // Latest weekly report (cipher/forge/nova)
+  if (weekly.length) {
+    const last = weekly[weekly.length - 1] || {};
+    if (last.summary) lines.push('LAST WEEKLY: ' + _trim(last.summary, 240));
+  }
+
+  // Role-specialty source: scout → research intel; everyone → own reflections/verdicts
+  if (id === 'scout' && research.length) {
+    lines.push('RESEARCH: ' + research.slice(0, 3).map(function (r) {
+      return _trim((r.title || '') + (r.summary ? ' — ' + r.summary : ''), 160);
+    }).join(' | '));
+  }
+  const focus = memories.filter(function (x) {
+    return x && (x.type === 'reflection' || (x.source && String(x.source).indexOf('experiment-verdict') !== -1));
+  }).slice(-3);
+  if (focus.length) {
+    lines.push('YOUR NOTES: ' + focus.map(function (x) { return _trim(x.content || x.text || '', 160); }).filter(Boolean).join(' | '));
+  }
+
+  if (!lines.length) return '';
+  let block = '─ YOUR MEMORY (' + id + ') ─\n' + lines.join('\n');
+  if (block.length > MEMORY_SLICE_CAP) block = block.slice(0, MEMORY_SLICE_CAP);
+  return block;
+}
+
+module.exports = { buildSharedBrief, buildAgentMemorySlice, SHARED_BRIEF_CAP, MEMORY_SLICE_CAP };

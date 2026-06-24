@@ -47,5 +47,34 @@ test('buildSharedBrief stays under the 2500-char cap', () => {
   assert.ok(b.length <= 2500, 'len=' + b.length);
 });
 
+// ── buildAgentMemorySlice ──
+const MEM = {
+  agentSeedMemories: { _global: 'Ship money, not ceremony.', cipher: 'Watch revenue/$ spend.' },
+  agentMemories: {
+    cipher: [{ type: 'reflection', content: 'AmbientScore is our only paywall.' }],
+    scout: [{ type: 'note', content: 'old note' }]
+  },
+  researchIntel: [{ title: 'Competitor X pricing', summary: 'They charge $49/mo.' }],
+  weeklyReports: { cipher: [{ summary: 'Spend flat, revenue $0.' }] }
+};
+
+test('cipher slice includes finance signal + weekly report + seed', () => {
+  const s = brief.buildAgentMemorySlice('cipher', MEM);
+  assert.ok(/revenue/i.test(s));
+  assert.ok(/AmbientScore/.test(s));      // own reflection
+});
+test('scout slice includes research intel (L7)', () => {
+  const s = brief.buildAgentMemorySlice('scout', MEM);
+  assert.ok(/Competitor X/.test(s));
+});
+test('an agent with no memory gets an empty slice', () => {
+  const s = brief.buildAgentMemorySlice('forge', { agentMemories: {}, researchIntel: [], weeklyReports: {}, agentSeedMemories: {} });
+  assert.strictEqual(s, '');
+});
+test('memory slice stays under 1500 chars', () => {
+  const s = brief.buildAgentMemorySlice('cipher', MEM);
+  assert.ok(s.length <= 1500, 'len=' + s.length);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
