@@ -211,6 +211,7 @@ function _routeStrategicProposal(candidate, meeting, nowIso) {
     name: candidate.title,
     description: candidate.description || '',
     rationale: candidate.rationale || '',
+    profitThesis: candidate.profitThesis || null,
     voteTally: { approve: candidate.approveCount, reject: candidate.rejectCount, abstain: candidate.abstainCount },
     estimatedCost: candidate.estimatedCost,
     createdAt: nowIso

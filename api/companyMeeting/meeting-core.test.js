@@ -24,6 +24,12 @@ test('execution_task is internal ONLY with a target objective', () => {
   assert.strictEqual(core.classifyBlastRadius({ kind: 'execution_task', targetObjectiveId: 'obj-1' }), 'internal');
   assert.strictEqual(core.classifyBlastRadius({ kind: 'execution_task' }), 'strategic');
 });
+test('execution_task fleet_task → internal (lane overrides targetObjectiveId check)', () => {
+  assert.strictEqual(core.classifyBlastRadius({ kind: 'execution_task', lane: 'fleet_task' }), 'internal');
+});
+test('execution_task ceo_decision → strategic', () => {
+  assert.strictEqual(core.classifyBlastRadius({ kind: 'execution_task', lane: 'ceo_decision' }), 'strategic');
+});
 test('unknown kind defaults to strategic (fail safe to human review)', () => {
   assert.strictEqual(core.classifyBlastRadius({ kind: 'wat' }), 'strategic');
 });
@@ -199,6 +205,9 @@ testA('runAgenticMeeting routes internal→tasks and strategic→approvalQueue',
   assert.ok(fleetTasks.length >= 1, 'fleet_task should create a task assigned to cipher');
   // ceo_decision → a decision_request in the approvalQueue
   assert.ok(storage._state.approvalQueue.some(function (q) { return q.type === 'decision_request'; }), 'ceo_decision should queue a decision_request');
+  // strategic proposals must carry the profit thesis through to the CEO queue
+  const campProp = storage._state.approvalQueue.find(function (q) { return q.type === 'campaign_proposal'; });
+  assert.ok(campProp && campProp.profitThesis, 'campaign proposal should carry profitThesis');
 });
 
 testA('runAgenticMeeting suppresses a ceo_decision that duplicates a pending decision_request', async () => {
