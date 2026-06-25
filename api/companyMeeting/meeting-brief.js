@@ -16,11 +16,18 @@ function buildSharedBrief(worldState, outcomeDigest) {
   const lines = [];
   lines.push('═══ BUSINESS BRIEF (money first) ═══');
 
-  // MONEY
-  const runway = (ws.company && ws.company.runwayDays != null) ? ws.company.runwayDays + 'd' : '—';
-  lines.push('MONEY: revenue ' + _money(fin.monthlyRevenue) + ' MTD / ' + _money(fin.mrr) + ' MRR / ' +
-    (fin.payingCustomers || 0) + ' paying. Spend ' + _money(fin.monthlyActual) + ' of ' + _money(fin.monthlyBudget) +
-    ' (' + (fin.status || 'unknown') + '). Net burn ' + _money(fin.netBurn) + '. Runway ' + runway + '.');
+  // MONEY — company income vs LLM/ops cost, kept DISTINCT. The "runway" from
+  // financeDigest is days-of-LLM-budget-left-this-month, NOT company cash runway;
+  // labeling it plainly stopped the fleet treating a budget-pacing number as an
+  // existential cash emergency.
+  lines.push('MONEY (company income): revenue ' + _money(fin.monthlyRevenue) + ' MTD, ' +
+    _money(fin.mrr) + ' MRR, ' + (fin.payingCustomers || 0) + ' paying customers.');
+  const budgetPacing = (ws.company && ws.company.runwayDays != null)
+    ? ('~' + ws.company.runwayDays + 'd of budget left this month at current burn')
+    : 'budget pacing n/a';
+  lines.push('LLM/OPS COST (NOT company cash runway): ' + _money(fin.monthlyActual) + ' of ' +
+    _money(fin.monthlyBudget) + '/mo AI budget (' + (fin.status || 'unknown') + '); ' + budgetPacing +
+    '. This is AI spend, not company runway.');
 
   // PRODUCTS — earns vs burns
   const prods = Array.isArray(ws.products) ? ws.products : [];

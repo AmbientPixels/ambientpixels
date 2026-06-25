@@ -27,6 +27,12 @@ test('buildSharedBrief includes the money line with revenue, spend, runway', () 
   assert.ok(/\$9\.2/.test(b));        // spend
   assert.ok(/47d/.test(b));           // runway
 });
+test('buildSharedBrief labels budget/runway as LLM/ops cost, NOT company cash runway', () => {
+  const b = brief.buildSharedBrief(WS, OUT);
+  assert.ok(/LLM/i.test(b), 'budget should be labeled LLM/ops cost');
+  assert.ok(/not company (cash|runway)/i.test(b), 'must clarify the budget is not company runway');
+  assert.ok(/company income/i.test(b), 'company income (revenue) should be a distinct line');
+});
 test('buildSharedBrief labels declining products as burning', () => {
   const b = brief.buildSharedBrief(WS, OUT);
   assert.ok(/AmbientScore/.test(b));
