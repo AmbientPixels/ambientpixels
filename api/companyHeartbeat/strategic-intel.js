@@ -28,10 +28,23 @@ function _canonicalProduct(raw) {
   return null;
 }
 
-function _verdict(trafficDeltaPct, usageDeltaPct, hasTrafficSignal, hasUsageSignal) {
-  if (!hasTrafficSignal && !hasUsageSignal) return 'NO DATA';
+// Blog-view traffic under this many combined views (7d + prior 7d) is statistical
+// noise, not a trend: a 3→0 drop is -100% but means nothing. Such products are
+// 'DORMANT' (low signal) — never DECLINING/GROWING — so they don't trip the
+// reactivation proposal generator or read as "the whole portfolio is dying".
+var MIN_TRAFFIC_VOLUME = 20;
+
+function _verdict(trafficDeltaPct, usageDeltaPct, hasTrafficSignal, hasUsageSignal, trafficVolume) {
+  // Traffic only counts toward a GROWING/DECLINING verdict once it clears the floor.
+  // (NOTE: this "traffic" is blog-post-view attribution, not real product-page traffic —
+  // App Insights topPages / productAnalytics are the real source but aren't wired in here yet.)
+  var trafficCounts = hasTrafficSignal && (Number(trafficVolume) || 0) >= MIN_TRAFFIC_VOLUME;
+  if (!trafficCounts && !hasUsageSignal) {
+    // Honest 'NO DATA' when there was truly nothing; 'DORMANT' for a sub-floor trickle.
+    return hasTrafficSignal ? 'DORMANT' : 'NO DATA';
+  }
   var signals = [];
-  if (hasTrafficSignal) signals.push(trafficDeltaPct);
+  if (trafficCounts) signals.push(trafficDeltaPct);
   if (hasUsageSignal) signals.push(usageDeltaPct);
   var worst = Math.min.apply(null, signals);
   var best = Math.max.apply(null, signals);
@@ -223,7 +236,7 @@ function buildStrategicDigest(state, existingDigest, nowMs) {
     // Verdict
     var hasUsage = usageSignal != null;
     var usageDelta = 0; // TODO: could track usage WoW if historical productUsage snapshots existed
-    var verdict = _verdict(traf.deltaPct, usageDelta, hasTraffic, hasUsage);
+    var verdict = _verdict(traf.deltaPct, usageDelta, hasTraffic, hasUsage, traf.views7d + traf.viewsPrior7d);
 
     // Product age — load launchedAt from productFacts. Used by downstream
     // consumers (Nova's PRODUCT LIFECYCLE prompt + goals.html dashboard) to
@@ -329,6 +342,8 @@ function _buildStrategicPromptBlock(agent, digest) {
 module.exports = {
   buildStrategicDigest: buildStrategicDigest,
   _buildStrategicPromptBlock: _buildStrategicPromptBlock,
+  _verdict: _verdict,
+  MIN_TRAFFIC_VOLUME: MIN_TRAFFIC_VOLUME,
   PRODUCTS: PRODUCTS,
   _canonicalProduct: _canonicalProduct
 };
