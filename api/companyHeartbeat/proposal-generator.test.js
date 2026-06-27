@@ -281,5 +281,46 @@ test('expireStaleGeneratorProposals flips generator-sourced pending proposals ol
   assert.strictEqual(queue.find((q) => q.id === 'd').status, 'approved');
 });
 
+// ── (2026-06-26) measurable objectives: metric pre-filled from follower data ──
+test('objective proposal pre-fills bluesky_followers metric when follower data exists', () => {
+  const e = obj(computeProposals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }] }), NOW));
+  assert.strictEqual(e.northStarMetric, 'bluesky_followers', 'northStarMetric set');
+  assert.ok(Number.isFinite(e.metricTarget) && e.metricTarget > 300, 'metricTarget is followers+15% (>300)');
+  assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(e.metricDeadline), 'metricDeadline is a date');
+  assert.strictEqual(e.strategyFlag, null, 'no flag when metric present');
+});
+
+test('objective proposal flags missing metric when no follower data', () => {
+  const e = obj(computeProposals(baseState({
+    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }],
+    socialAccountStats: {}
+  }), NOW));
+  assert.strictEqual(e.northStarMetric, null, 'no metric without follower data');
+  assert.strictEqual(e.metricTarget, null);
+  assert.strictEqual(e.metricDeadline, null);
+  assert.strictEqual(e.strategyFlag, 'no-north-star-metric', 'flagged for CEO to add a metric');
+});
+
+// ── (2026-06-26) product-overlap coverage: multi-product campaign covers all its targets ──
+test('campaign does NOT re-fire for a declining product already covered by a MULTI-product campaign', () => {
+  const st = baseState({
+    // one active campaign whose description targets the declining product, even though
+    // c.product names only the first target (the real-world "Re-activate A + B …" shape)
+    campaigns: [
+      { id: 'c1', status: 'active', product: 'Alpha', title: 'Re-activate Alpha + Delta', description: 'Targets: Alpha, Delta, Echo.' },
+      { id: 'c2', status: 'active', product: 'Beta' },
+      { id: 'c3', status: 'active', product: 'Gamma' }
+    ]
+  });
+  st.strategicDigest.perProduct.push({ product: 'Delta', verdict: 'DECLINING', traffic: { deltaPct: -90 } });
+  assert.ok(!camp(computeProposals(st, NOW)), 'Delta is covered by c1 description → no re-proposal');
+});
+
+test('campaign STILL fires for a declining product covered by NO campaign', () => {
+  const st = baseState({});
+  st.strategicDigest.perProduct.push({ product: 'Zeta', verdict: 'DECLINING', traffic: { deltaPct: -90 } });
+  assert.ok(camp(computeProposals(st, NOW)), 'Zeta uncovered → still proposes');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

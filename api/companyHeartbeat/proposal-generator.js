@@ -129,6 +129,34 @@ function _blueskyFollowers(socialAccountStats) {
   return Number.isFinite(n) ? n : null;
 }
 
+// Normalize a product/campaign name for substring coverage matching:
+// lowercase, strip every non-alphanumeric char. So "Pixel Agents", "PixelAgents",
+// and a "Targets: …, PixelAgents, …" description blob all reduce to "pixelagents".
+function _normName(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); }
+
+// A product is "covered" if any active campaign references it — NOT just via the
+// singular `c.product` field, but anywhere in its title/description. Multi-product
+// "Re-activate A + B + …" campaigns list every target in the description while
+// `c.product` holds only the first; the old singular-field check therefore saw the
+// rest as uncovered and re-proposed them every run. This widens coverage to the
+// full campaign text so an already-covered product stops the re-proposal loop.
+function _coveredProductSet(activeCampaigns, perProduct) {
+  var blobs = (activeCampaigns || []).map(function (c) {
+    return _normName((c.product || '') + ' ' + (c.title || c.name || '') + ' ' + (c.description || ''));
+  });
+  var set = {};
+  (perProduct || []).forEach(function (p) {
+    if (!p || !p.product) return;
+    var n = _normName(p.product);
+    if (n.length < 4) return; // too short to match reliably
+    if (blobs.some(function (b) { return b.indexOf(n) !== -1; })) set[_lc(p.product)] = true;
+  });
+  // Always honor the explicit singular product field too (covers products that
+  // aren't in perProduct at all).
+  (activeCampaigns || []).forEach(function (c) { if (c.product) set[_lc(c.product)] = true; });
+  return set;
+}
+
 function _buildCampaignProposal(reasons, targets, socialAccountStats, nowMs) {
   var iso = new Date(nowMs).toISOString();
   var names = targets.map(function (t) { return t.product; });
@@ -170,8 +198,16 @@ function _buildObjectiveProposal(reasons, primaryReason, socialAccountStats, now
     stale: 'Re-activate strategy around a stalled objective'
   };
   var followers = _blueskyFollowers(socialAccountStats);
+  // Mint a MEASURABLE objective whenever we have a live metric to anchor it. The
+  // old version always left northStarMetric/metricTarget/metricDeadline null, so the
+  // approve handler created a criteria-less placeholder whose progress never moved.
+  // With follower data we set a concrete bluesky_followers target (+15%, min +25,
+  // 60-day deadline) so the approved objective gets a real criteria object and
+  // auto-progress. Without it, we flag the proposal so the CEO knows to add a metric.
+  var metricTarget = followers != null ? (followers + Math.max(25, Math.round(followers * 0.15))) : null;
+  var metricDeadline = followers != null ? new Date(nowMs + 60 * 86400000).toISOString().slice(0, 10) : null;
   var success = followers != null
-    ? ('Grow bluesky followers from ' + followers + ' to ' + (followers + Math.max(25, Math.round(followers * 0.15))) + ' within 60 days')
+    ? ('Grow bluesky followers from ' + followers + ' to ' + metricTarget + ' within 60 days')
     : 'Define a single measurable metric and hit its 60-day target';
   return {
     id: 'oprop_' + nowMs + '_auto',
@@ -181,15 +217,17 @@ function _buildObjectiveProposal(reasons, primaryReason, socialAccountStats, now
     source: SOURCE,
     title: (titleByReason[primaryReason] || titleByReason.count).substring(0, 100),
     description: ('Auto-generated objective to keep the fleet aimed at a measurable goal. ' +
-      'Review and refine the metric/target before approving.').substring(0, 1000),
+      (followers != null
+        ? 'Pre-filled with a bluesky_followers target — adjust before approving.'
+        : 'Add a north-star metric/target before approving.')).substring(0, 1000),
     rationale: ('Auto-generated (deterministic): ' + reasons.join('; ') + '.').substring(0, 500),
     successCriteria: success.substring(0, 300),
     timeHorizon: '60 days',
     suggestedCampaigns: [],
-    northStarMetric: null,
-    metricTarget: null,
-    metricDeadline: null,
-    strategyFlag: null,
+    northStarMetric: followers != null ? 'bluesky_followers' : null,
+    metricTarget: metricTarget,
+    metricDeadline: metricDeadline,
+    strategyFlag: followers != null ? null : 'no-north-star-metric',
     createdAt: iso
   };
 }
@@ -214,8 +252,7 @@ function computeProposals(state, nowMs) {
       reasons.push('only ' + activeCampaigns.length + ' active campaign(s) (target >= ' + MIN_ACTIVE_CAMPAIGNS + ')');
     }
 
-    var covered = {};
-    activeCampaigns.forEach(function (c) { if (c.product) covered[_lc(c.product)] = true; });
+    var covered = _coveredProductSet(activeCampaigns, perProduct);
     var declUncovered = perProduct.filter(function (p) {
       return p && DECLINING_VERDICTS.indexOf(String(p.verdict || '').toUpperCase()) !== -1 && !covered[_lc(p.product)];
     });

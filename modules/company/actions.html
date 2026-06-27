@@ -1443,11 +1443,29 @@
             createdAt: new Date().toISOString()
           };
           campaigns.push(newCampaign);
-          return fetch(apiBase + '/company-state', {
+          var writes = [fetch(apiBase + '/company-state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
             body: JSON.stringify({ key: 'campaigns', value: campaigns })
-          });
+          })];
+          // Maintain the objective -> campaign back-link. Without this the parent
+          // objective's linkedCampaigns goes stale, breaking progress derivation
+          // (reads as 0/phantom) and the Goals-page timeline. Idempotent push.
+          if (_od.objectiveId) {
+            var parentObj = objectives.find(function(o) { return o.id === _od.objectiveId; });
+            if (parentObj) {
+              if (!Array.isArray(parentObj.linkedCampaigns)) parentObj.linkedCampaigns = [];
+              if (parentObj.linkedCampaigns.indexOf(newCampaign.id) === -1) {
+                parentObj.linkedCampaigns.push(newCampaign.id);
+                writes.push(fetch(apiBase + '/company-state', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+                  body: JSON.stringify({ key: 'objectives', value: objectives })
+                }));
+              }
+            }
+          }
+          return Promise.all(writes);
         })
         .then(function() {
           // 2. Update proposal status in approvalQueue

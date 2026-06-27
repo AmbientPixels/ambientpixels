@@ -51,6 +51,19 @@ module.exports = async function (context, req) {
           existing.push(mat.entity);
           await storage.setState(mat.stateKey, existing);
           created = mat.entity;
+          // Maintain the objective -> campaign back-link (mirrors the Actions-page
+          // approve path). Without it the parent objective's linkedCampaigns goes
+          // stale and progress derivation reads 0/phantom. Idempotent.
+          if (mat.stateKey === 'campaigns' && mat.entity.objective_id) {
+            const parentObj = objectives.find(function (o) { return o && o.id === mat.entity.objective_id; });
+            if (parentObj) {
+              if (!Array.isArray(parentObj.linkedCampaigns)) parentObj.linkedCampaigns = [];
+              if (parentObj.linkedCampaigns.indexOf(mat.entity.id) === -1) {
+                parentObj.linkedCampaigns.push(mat.entity.id);
+                await storage.setState('objectives', objectives);
+              }
+            }
+          }
         }
       }
       target.status = 'approved';
