@@ -186,6 +186,7 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 // Phase 3 modules
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
+const { classifyConvergence, convergenceThresholdFor } = require('./convergence');
 
 // ── Goal Generation (System 13) helpers ──
 // Extracts normalized lowercase target name from any product proposal AQ entry.
@@ -900,11 +901,11 @@ Write the full deliverable first, then the structured JSON block.`;
       // Filter out convergence-blocked tasks (5+ deliverables — would just get blocked again)
       const _convergenceBlocked = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
-        return _delCount >= 5;
+        return _delCount >= convergenceThresholdFor(t.taskType);
       });
       let _executableIdle = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
-        return _delCount < 5;
+        return _delCount < convergenceThresholdFor(t.taskType);
       });
       // CONVERGENCE ESCALATION: move convergence-blocked tasks to review + CEO escalation.
       // Do NOT auto-complete. CEO must approve or close these tasks.
@@ -1042,7 +1043,7 @@ Write the full deliverable first, then the structured JSON block.`;
           const _peerReviewCandidates = allActiveTasks.filter(t =>
             t.status === 'review' && t.assignee !== agentId &&
             t.comments && t.comments.some(c => c.type === 'deliverable') &&
-            (t.comments || []).filter(c => c.type === 'deliverable').length < 5
+            (t.comments || []).filter(c => c.type === 'deliverable').length < convergenceThresholdFor(t.taskType)
           );
           if (_peerReviewCandidates.length > 0) {
             // Domain-aware reviewer selection: prefer content agents for social/content tasks
@@ -1091,7 +1092,7 @@ Write the full deliverable first, then the structured JSON block.`;
     var _reviewStuck = (agentTasks || []).filter(function (t) {
       if (t.status !== 'review') return false;
       var _rsCount = (t.comments || []).filter(function (c) { return c.type === 'deliverable'; }).length;
-      return _rsCount >= 5;
+      return _rsCount >= convergenceThresholdFor(t.taskType);
     });
     for (var _rsi = 0; _rsi < _reviewStuck.length; _rsi++) {
       var _rsTask = _reviewStuck[_rsi];
@@ -1754,7 +1755,7 @@ Write the full deliverable first, then the structured JSON block.`;
           }
           // CONVERGENCE GUARD: if 5+ deliverables already exist, the task is looping — block and escalate
           const _deliverableCount = (_exTask.comments || []).filter(c => c.type === 'deliverable').length;
-          if (_deliverableCount >= 5) {
+          if (_deliverableCount >= convergenceThresholdFor(_exTask.taskType)) {
             context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED execute-task on', action.taskId,
               '— task has', _deliverableCount, 'deliverables already (revision loop detected). Escalating to CEO.');
             // Only add the loop-detected comment once — don't spam every heartbeat cycle
@@ -3577,7 +3578,7 @@ Write the full deliverable first, then the structured JSON block.`;
       if (task) {
         // CONVERGENCE GUARD: block review if task already has 5+ deliverables — it's looping
         const _rvDelCount = (task.comments || []).filter(c => c.type === 'deliverable').length;
-        if (_rvDelCount >= 5) {
+        if (_rvDelCount >= convergenceThresholdFor(task.taskType)) {
           const _lastRvSys = (task.comments || []).slice().reverse().find(c => c.author === 'system' || c.agentId === 'system');
           const _rvAlreadyWarned = _lastRvSys && _lastRvSys.text && _lastRvSys.text.indexOf('Revision loop') !== -1;
           if (!_rvAlreadyWarned) {
