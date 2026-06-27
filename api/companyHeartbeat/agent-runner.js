@@ -1133,13 +1133,15 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
-  // REVIEW LOOP CONVERGENCE ESCALATION: tasks stuck in 'review' status with 5+ deliverables.
-  // The peer-review injection (line 1037) excludes tasks with >=5 deliverables to prevent
-  // infinite revision loops. Without this scan those tasks become unreviewable AND invisible
-  // to the todo/in-progress convergence escalation above (which never sees 'review' status).
-  // Each agent catches their own stuck-in-review tasks; AQ + comment dedup prevents repeats.
+  // REVIEW LOOP CONVERGENCE ESCALATION: tasks stuck in 'review' status at/over threshold.
+  // The peer-review injection excludes convergence-locked tasks, so these become unreviewable
+  // AND invisible to the todo/in-progress convergence block (which never sees 'review' status).
+  // Scan ALL active tasks (not just agentTasks) so assignee-specific carve-outs don't strand
+  // them — notably pixel's agentTasks EXCLUDES its own review tasks (line ~357), so a per-agent
+  // agentTasks scan can never reach pixel's stuck review tasks. The notified/resolved flags make
+  // the sweep idempotent across the 8 agents (first agent resolves; rest are no-ops).
   {
-    var _reviewStuck = (agentTasks || []).filter(function (t) {
+    var _reviewStuck = (allActiveTasks || []).filter(function (t) {
       if (t.status !== 'review') return false;
       var _rsCount = (t.comments || []).filter(function (c) { return c.type === 'deliverable'; }).length;
       return _rsCount >= convergenceThresholdFor(t.taskType);
