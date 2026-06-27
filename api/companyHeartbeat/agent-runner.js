@@ -1098,17 +1098,16 @@ Write the full deliverable first, then the structured JSON block.`;
       var _rsTask = _reviewStuck[_rsi];
       var _rsDels = (_rsTask.comments || []).filter(function (c) { return c.type === 'deliverable'; });
       if (!_rsTask.comments) _rsTask.comments = [];
-      var _rsAlreadyEscalated = _rsTask.comments.some(function (c) {
-        return (c.text || '').indexOf('Review loop detected') !== -1 && c.type === 'system';
-      });
+      var _rsAlreadyEscalated = !!(_rsTask._convergenceState && _rsTask._convergenceState.notified);
       if (!_rsAlreadyEscalated) {
         _rsTask.comments.push({
           id: 'cmt-revloopesc-' + Date.now() + '-' + _rsi,
           author: 'system',
           type: 'system',
           createdAt: new Date().toISOString(),
-          text: '[SYSTEM] Review loop detected: ' + _rsDels.length + ' deliverables stuck in review without convergence. Peer reviewers are no longer eligible to inject (>=5 deliverables). CEO must approve the latest draft, provide direction, or close this task.'
+          text: '[SYSTEM] Review loop detected: ' + _rsDels.length + ' deliverables stuck in review without convergence. Peer reviewers are no longer eligible to inject. CEO must approve the latest draft, provide direction, or close this task.'
         });
+        _rsTask._convergenceState = Object.assign({}, _rsTask._convergenceState, { notified: true, escalatedAt: (_rsTask._convergenceState && _rsTask._convergenceState.escalatedAt) || new Date().toISOString(), deliverableCount: _rsDels.length });
         _rsTask.updatedAt = new Date().toISOString();
         context.log('[Heartbeat] REVIEW LOOP ESCALATION:', _rsTask.id, '—', _rsDels.length, 'deliverables, stuck in review, escalating to CEO');
         try {
@@ -1759,8 +1758,7 @@ Write the full deliverable first, then the structured JSON block.`;
             context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED execute-task on', action.taskId,
               '— task has', _deliverableCount, 'deliverables already (revision loop detected). Escalating to CEO.');
             // Only add the loop-detected comment once — don't spam every heartbeat cycle
-            const _lastSysCmt = (_exTask.comments || []).slice().reverse().find(c => c.author === 'system' || c.agentId === 'system');
-            const _alreadyLoopWarned = _lastSysCmt && _lastSysCmt.text && _lastSysCmt.text.indexOf('Revision loop detected') !== -1;
+            const _alreadyLoopWarned = !!(_exTask._convergenceState && _exTask._convergenceState.notified);
             if (!_alreadyLoopWarned) {
               result.taskUpdates.push({
                 action: 'comment',
@@ -1768,6 +1766,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 comment: '[SYSTEM] Revision loop detected: ' + _deliverableCount + ' deliverables on this task without convergence. Task needs CEO review to break the cycle — either approve the latest draft, provide specific direction, or close the task.',
                 agentId: 'system'
               });
+              _exTask._convergenceState = Object.assign({}, _exTask._convergenceState, { notified: true, deliverableCount: _deliverableCount });
             }
             // Move to review so CEO sees it
             if (_exTask.status !== 'review') {
@@ -3579,8 +3578,7 @@ Write the full deliverable first, then the structured JSON block.`;
         // CONVERGENCE GUARD: block review if task already has 5+ deliverables — it's looping
         const _rvDelCount = (task.comments || []).filter(c => c.type === 'deliverable').length;
         if (_rvDelCount >= convergenceThresholdFor(task.taskType)) {
-          const _lastRvSys = (task.comments || []).slice().reverse().find(c => c.author === 'system' || c.agentId === 'system');
-          const _rvAlreadyWarned = _lastRvSys && _lastRvSys.text && _lastRvSys.text.indexOf('Revision loop') !== -1;
+          const _rvAlreadyWarned = !!(task._convergenceState && task._convergenceState.notified);
           if (!_rvAlreadyWarned) {
             result.taskUpdates.push({
               action: 'comment',
@@ -3588,6 +3586,7 @@ Write the full deliverable first, then the structured JSON block.`;
               comment: '[SYSTEM] Review blocked: task is convergence-locked (' + _rvDelCount + ' deliverables). CEO must approve or close this task before further review can proceed.',
               agentId: 'system'
             });
+            task._convergenceState = Object.assign({}, task._convergenceState, { notified: true, deliverableCount: _rvDelCount });
           }
           context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED review-task on', action.taskId, '—', _rvDelCount, 'deliverables already.');
         } else {
