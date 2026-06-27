@@ -912,15 +912,65 @@ Write the full deliverable first, then the structured JSON block.`;
       for (var _cri = 0; _cri < _convergenceBlocked.length; _cri++) {
         var _crTask = _convergenceBlocked[_cri];
         var _crDels = (_crTask.comments || []).filter(function(c) { return c.type === 'deliverable'; });
+        if (!_crTask.comments) _crTask.comments = [];
+        var _crVerdict = classifyConvergence(_crTask, Date.now());
+
+        // INTERNAL low-stakes task at threshold -> accept the latest draft, done. No lock.
+        if (_crVerdict.action === 'auto-accept') {
+          if (!(_crTask._convergenceState && _crTask._convergenceState.resolved)) {
+            _crTask.status = 'done';
+            _crTask.updatedAt = new Date().toISOString();
+            _crTask._convergenceState = Object.assign({}, _crTask._convergenceState, { notified: true, resolved: 'auto-accept', deliverableCount: _crDels.length });
+            _crTask.comments.push({ id: 'cmt-convaccept-' + Date.now() + '-' + _cri, author: 'system', type: 'system', createdAt: new Date().toISOString(),
+              text: '[SYSTEM] Converged: auto-accepted latest of ' + _crDels.length + ' drafts (internal task, no external gate).' });
+            context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT:', _crTask.id, '—', _crDels.length, 'drafts, marked done');
+            try {
+              var _caAQ = (await storage.getState('approvalQueue')) || [];
+              var _caChanged = false;
+              _caAQ.forEach(function(q) { if (q && q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'auto-accept'; _caChanged = true; } });
+              if (_caChanged) await storage.setState('approvalQueue', _caAQ);
+            } catch (_caErr) { context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT: AQ resolve failed (non-fatal):', String(_caErr).substring(0, 200)); }
+            try {
+              var _caGov = (await storage.getState('governanceLog')) || [];
+              _caGov.push({ at: new Date().toISOString(), type: 'convergence-auto-accept', taskId: _crTask.id, taskTitle: _crTask.title || _crTask.id, drafts: _crDels.length });
+              await storage.setState('governanceLog', _caGov.slice(-500));
+            } catch (_cgErr) { /* non-fatal */ }
+          }
+          continue;
+        }
+
+        // PUBLIC task already escalated past the grace window -> cancel (never auto-ship unreviewed).
+        if (_crVerdict.action === 'grace-close') {
+          if (!(_crTask._convergenceState && _crTask._convergenceState.resolved)) {
+            _crTask.status = 'canceled';
+            _crTask.updatedAt = new Date().toISOString();
+            _crTask._convergenceState = Object.assign({}, _crTask._convergenceState, { resolved: 'grace-close', deliverableCount: _crDels.length });
+            _crTask.comments.push({ id: 'cmt-convgrace-' + Date.now() + '-' + _cri, author: 'system', type: 'system', createdAt: new Date().toISOString(),
+              text: '[SYSTEM] Convergence grace window elapsed (no CEO action in 48h). Canceling un-converged public task — re-create if still needed.' });
+            context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE:', _crTask.id, '— canceled after grace window');
+            try {
+              var _gcAQ = (await storage.getState('approvalQueue')) || [];
+              var _gcChanged = false;
+              _gcAQ.forEach(function(q) { if (q && q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'grace-close'; _gcChanged = true; } });
+              if (_gcChanged) await storage.setState('approvalQueue', _gcAQ);
+            } catch (_gcErr) { context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE: AQ resolve failed (non-fatal):', String(_gcErr).substring(0, 200)); }
+            try {
+              var _gcGov = (await storage.getState('governanceLog')) || [];
+              _gcGov.push({ at: new Date().toISOString(), type: 'convergence-grace-close', taskId: _crTask.id, taskTitle: _crTask.title || _crTask.id, drafts: _crDels.length });
+              await storage.setState('governanceLog', _gcGov.slice(-500));
+            } catch (_ggErr) { /* non-fatal */ }
+          }
+          continue;
+        }
+
+        // PUBLIC task at threshold (first time) or within grace -> escalate to CEO (existing behavior).
         if (_crTask.status !== 'review') {
           _crTask.status = 'review';
           _crTask.updatedAt = new Date().toISOString();
         }
-        if (!_crTask.comments) _crTask.comments = [];
-        var _crAlreadyEscalated = _crTask.comments.some(function(c) {
-          return (c.text || '').indexOf('Revision loop detected') !== -1 && c.type === 'system';
-        });
+        var _crAlreadyEscalated = !!(_crTask._convergenceState && _crTask._convergenceState.notified);
         if (!_crAlreadyEscalated) {
+          _crTask._convergenceState = Object.assign({}, _crTask._convergenceState, { notified: true, escalatedAt: (_crTask._convergenceState && _crTask._convergenceState.escalatedAt) || new Date().toISOString(), deliverableCount: _crDels.length });
           _crTask.comments.push({ id: 'cmt-convesc-' + Date.now() + '-' + _cri, author: 'system', type: 'system', createdAt: new Date().toISOString(),
             text: '[SYSTEM] Revision loop detected: ' + _crDels.length + ' deliverables without convergence. CEO must approve the latest draft, provide direction, or close this task.' });
           context.log('[Heartbeat] CONVERGENCE ESCALATION:', _crTask.id, '—', _crDels.length, 'deliverables, moved to review for CEO');
