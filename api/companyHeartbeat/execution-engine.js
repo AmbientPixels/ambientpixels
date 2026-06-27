@@ -298,6 +298,8 @@ Guidelines:
 - Be constructive — give specific, actionable feedback
 - Consider quality from your role's perspective (${agent.focus})
 - Do NOT request "Appendix A", external documents, or fictional dependencies that were not provided. Judge the deliverable based on what was actually produced.
-- Do NOT loop — if the deliverable is reasonably complete, approve it. Perfection is not the goal; actionable output is.`;
+- Do NOT loop — if the deliverable is reasonably complete, approve it. Perfection is not the goal; actionable output is.
+- STAY IN YOUR LANE: judge ONLY within your domain. A design asset is graded on visual/brand quality, a doc on clarity/accuracy — NOT on ops, finance, or SEO concerns outside your role. Concerns outside the deliverable's purpose are NOT grounds for rejection.
+- If the deliverable is adequate for its stated purpose, APPROVE. Do not demand additions beyond the task's scope.`;
 }
 module.exports = { _buildExecContextBlock, executeTask, buildExecutePrompt, reviewTask, buildReviewPrompt };
