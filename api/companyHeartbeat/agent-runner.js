@@ -1148,6 +1148,49 @@ Write the full deliverable first, then the structured JSON block.`;
       var _rsTask = _reviewStuck[_rsi];
       var _rsDels = (_rsTask.comments || []).filter(function (c) { return c.type === 'deliverable'; });
       if (!_rsTask.comments) _rsTask.comments = [];
+      var _rsVerdict = classifyConvergence(_rsTask, Date.now());
+      // INTERNAL low-stakes task stuck in review at threshold -> accept the latest draft, done.
+      if (_rsVerdict.action === 'auto-accept' && !(_rsTask._convergenceState && _rsTask._convergenceState.resolved)) {
+        _rsTask.status = 'done';
+        _rsTask.updatedAt = new Date().toISOString();
+        _rsTask._convergenceState = Object.assign({}, _rsTask._convergenceState, { notified: true, resolved: 'auto-accept', deliverableCount: _rsDels.length });
+        _rsTask.comments.push({ id: 'cmt-convaccept-rs-' + Date.now() + '-' + _rsi, author: 'system', type: 'system', createdAt: new Date().toISOString(),
+          text: '[SYSTEM] Converged: auto-accepted latest of ' + _rsDels.length + ' drafts (internal task, no external gate).' });
+        context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT (review-stuck):', _rsTask.id, '— marked done');
+        try {
+          var _rsCaAQ = (await storage.getState('approvalQueue')) || [];
+          var _rsCaChanged = false;
+          _rsCaAQ.forEach(function (q) { if (q && q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'auto-accept'; _rsCaChanged = true; } });
+          if (_rsCaChanged) await storage.setState('approvalQueue', _rsCaAQ);
+        } catch (_rsCaErr) { context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT (review-stuck): AQ resolve failed (non-fatal):', String(_rsCaErr).substring(0, 200)); }
+        try {
+          var _rsCaGov = (await storage.getState('governanceLog')) || [];
+          _rsCaGov.push({ at: new Date().toISOString(), type: 'convergence-auto-accept', taskId: _rsTask.id, taskTitle: _rsTask.title || _rsTask.id, drafts: _rsDels.length });
+          await storage.setState('governanceLog', _rsCaGov.slice(-500));
+        } catch (_rsCgErr) { /* non-fatal */ }
+        continue;
+      }
+      // PUBLIC task escalated past the grace window -> cancel (never auto-ship unreviewed).
+      if (_rsVerdict.action === 'grace-close' && !(_rsTask._convergenceState && _rsTask._convergenceState.resolved)) {
+        _rsTask.status = 'canceled';
+        _rsTask.updatedAt = new Date().toISOString();
+        _rsTask._convergenceState = Object.assign({}, _rsTask._convergenceState, { resolved: 'grace-close', deliverableCount: _rsDels.length });
+        _rsTask.comments.push({ id: 'cmt-convgrace-rs-' + Date.now() + '-' + _rsi, author: 'system', type: 'system', createdAt: new Date().toISOString(),
+          text: '[SYSTEM] Convergence grace window elapsed (no CEO action in 48h). Canceling un-converged public task — re-create if still needed.' });
+        context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE (review-stuck):', _rsTask.id, '— canceled');
+        try {
+          var _rsGcAQ = (await storage.getState('approvalQueue')) || [];
+          var _rsGcChanged = false;
+          _rsGcAQ.forEach(function (q) { if (q && q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'grace-close'; _rsGcChanged = true; } });
+          if (_rsGcChanged) await storage.setState('approvalQueue', _rsGcAQ);
+        } catch (_rsGcErr) { context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE (review-stuck): AQ resolve failed (non-fatal):', String(_rsGcErr).substring(0, 200)); }
+        try {
+          var _rsGcGov = (await storage.getState('governanceLog')) || [];
+          _rsGcGov.push({ at: new Date().toISOString(), type: 'convergence-grace-close', taskId: _rsTask.id, taskTitle: _rsTask.title || _rsTask.id, drafts: _rsDels.length });
+          await storage.setState('governanceLog', _rsGcGov.slice(-500));
+        } catch (_rsGgErr) { /* non-fatal */ }
+        continue;
+      }
       var _rsAlreadyEscalated = !!(_rsTask._convergenceState && _rsTask._convergenceState.notified);
       if (!_rsAlreadyEscalated) {
         _rsTask.comments.push({
