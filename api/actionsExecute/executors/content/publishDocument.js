@@ -45,6 +45,12 @@ async function publishDocument(action) {
   // URLs and headings are preserved). Internal docs are left exactly as authored.
   const contentMd = isPublic ? capitalizeSentencesLongform(contentMdRaw) : contentMdRaw;
 
+  // The title bypasses the body normalizer above. An all-lowercase founder-voice
+  // headline would otherwise ship to /blog/ verbatim (the body reads fine, the
+  // headline doesn't). Sentence-case the public title at the same chokepoint.
+  const rawTitle = title || doc.title;
+  const publishTitle = isPublic ? capitalizeSentencesLongform(rawTitle) : rawTitle;
+
   // Generate excerpt for blog posts
   let excerpt = '';
   if (isPublic) {
@@ -60,7 +66,7 @@ async function publishDocument(action) {
     id: 'pub_' + Date.now() + '_' + crypto.randomUUID().split('-')[0],
     documentId: documentId,
     actionId: action.id,
-    title: title || doc.title,
+    title: publishTitle,
     slug: slug,
     kind: doc.kind,
     content_md: contentMd,
