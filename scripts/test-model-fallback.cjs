@@ -34,3 +34,32 @@ assert.deepStrictEqual(R.buildChain('claude-haiku'), ['claude-haiku', 'gemini-fl
 assert.deepStrictEqual(R.buildChain('gemini'), ['gemini', 'claude-sonnet']);
 
 console.log('OK: model-registry');
+
+// ── runChain fallback behavior ──
+(async function () {
+  // primary succeeds → no fallback logged
+  let cb = [];
+  let r1 = await R.runChain(['gemini-pro', 'gemini-flash', 'claude-sonnet'],
+    async (k) => (k === 'gemini-pro' ? 'PRIMARY_OK' : null),
+    (from, to) => cb.push([from, to]));
+  assert.strictEqual(r1, 'PRIMARY_OK');
+  assert.strictEqual(cb.length, 0, 'primary success logs no fallback');
+
+  // primary fails, second succeeds → fallback logged (primary → used)
+  cb = [];
+  let r2 = await R.runChain(['gemini-pro', 'gemini-flash', 'claude-sonnet'],
+    async (k) => (k === 'gemini-flash' ? 'BACKUP_OK' : null),
+    (from, to) => cb.push([from, to]));
+  assert.strictEqual(r2, 'BACKUP_OK');
+  assert.deepStrictEqual(cb, [['gemini-pro', 'gemini-flash']]);
+
+  // whole chain fails → returns null, logs (primary → null)
+  cb = [];
+  let r3 = await R.runChain(['gemini-pro', 'gemini-flash', 'claude-sonnet'],
+    async () => null,
+    (from, to) => cb.push([from, to]));
+  assert.strictEqual(r3, null);
+  assert.deepStrictEqual(cb, [['gemini-pro', null]]);
+
+  console.log('OK: runChain fallback behavior');
+})().catch((e) => { console.error(e); process.exit(1); });

@@ -9,16 +9,14 @@ var { AGENT_ENVELOPE_SCHEMA } = require('./constants');
 
 var GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=';
 var CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 
-// Model IDs
-var MODELS = {
-  'claude': 'claude-sonnet-4-6',
-  'claude-sonnet': 'claude-sonnet-4-6',
-  'claude-haiku': 'claude-haiku-4-5-20251001',
-  'gemini': 'gemini-2.5-flash'
-};
+var registry = require('./model-registry');
+var MODELS = registry.MODELS;
+
+function _geminiUrl(modelId) {
+  return 'https://generativelanguage.googleapis.com/v1beta/models/' + modelId + ':generateContent?key=';
+}
 
 // Fallback from env var (used if systemConfig not set)
 var _envModel = (process.env.HEARTBEAT_MODEL || '').toLowerCase();
@@ -47,7 +45,7 @@ async function _resolveModel() {
 }
 
 function _isClaudeModel(model) {
-  return model === 'claude' || model === 'claude-sonnet' || model === 'claude-haiku';
+  return registry.isClaudeModel(model);
 }
 
 function _getClaudeModelId(model) {
@@ -106,8 +104,9 @@ async function _callClaude(prompt, agentId, maxTokens, modelKey) {
 // ── Gemini API call ──
 // structured=true applies the envelope schema (heartbeat agent calls only).
 // Execute/review calls return free-form deliverables and must NOT be schema-gated.
-async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, structured) {
+async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, structured, modelId) {
   if (!GEMINI_API_KEY) return null;
+  var gId = modelId || 'gemini-2.5-flash';
 
   var generationConfig = {
     temperature: temperature || 0.7,
@@ -133,7 +132,7 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
   };
 
   try {
-    var res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
+    var res = await fetch(_geminiUrl(gId) + GEMINI_API_KEY, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
@@ -149,7 +148,7 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
     if (um) {
       storage.logGeminiUsage({
         caller: caller || 'heartbeat',
-        model: 'gemini-2.5-flash',
+        model: gId,
         agentId: agentId || null,
         promptTokens: um.promptTokenCount || 0,
         completionTokens: um.candidatesTokenCount || 0,
@@ -163,18 +162,51 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
   }
 }
 
+// ── Fallback chain ──
+function _attempt(modelKey, prompt, agentId, maxTokens, temperature, caller, structured) {
+  if (_isClaudeModel(modelKey)) return _callClaude(prompt, agentId, maxTokens, modelKey);
+  return _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, structured, MODELS[modelKey]);
+}
+
+// Surface a fallback to governanceLog via the existing run-buffer logEvent.
+// Lazy-require helpers to avoid the circular require (helpers requires gemini at
+// load; by call time the module cache is complete). Logging must never break the
+// model call.
+function _logFallback(failedKey, usedKey, agentId, caller) {
+  try {
+    var h = require('./helpers');
+    if (!h || typeof h.logEvent !== 'function') return;
+    var failedId = MODELS[failedKey] || failedKey;
+    var usedId = usedKey ? (MODELS[usedKey] || usedKey) : null;
+    var summary = usedId
+      ? ('Model fallback: ' + failedId + ' → ' + usedId)
+      : ('All models failed (primary ' + failedId + ')');
+    var cyc = (typeof h.currentCycleId === 'function') ? h.currentCycleId() : null;
+    var p = h.logEvent('model-fallback', agentId || null, summary, cyc,
+      { failedModel: failedId, usedModel: usedId, caller: caller || null });
+    if (p && typeof p.catch === 'function') p.catch(function () {});
+  } catch (e) { /* never break the model call on a logging error */ }
+}
+
+async function _callWithFallback(prompt, agentId, maxTokens, temperature, caller, structured) {
+  var configured = await _resolveModel();
+  if (!MODELS[configured]) configured = 'gemini'; // unknown config → safe default
+  var chain = registry.buildChain(configured);
+  return registry.runChain(
+    chain,
+    function (modelKey) { return _attempt(modelKey, prompt, agentId, maxTokens, temperature, caller, structured); },
+    function (failedKey, usedKey) { _logFallback(failedKey, usedKey, agentId, caller); }
+  );
+}
+
 // ── Exported functions (same interface, model resolved dynamically) ──
 
 async function callGemini(prompt, agentId) {
-  var model = await _resolveModel();
-  if (_isClaudeModel(model)) return _callClaude(prompt, agentId, 1500, model);
-  return _callGeminiRaw(prompt, agentId, 1500, 0.7, 'heartbeat', true);
+  return _callWithFallback(prompt, agentId, 1500, 0.7, 'heartbeat', true);
 }
 
 async function callGeminiExecute(prompt, agentId) {
-  var model = await _resolveModel();
-  if (_isClaudeModel(model)) return _callClaude(prompt, agentId, 1200, model);
-  return _callGeminiRaw(prompt, agentId, 1200, 0.8, 'heartbeat-execute', false);
+  return _callWithFallback(prompt, agentId, 1200, 0.8, 'heartbeat-execute', false);
 }
 
 // Returns the currently active model key (for dashboard/API)
