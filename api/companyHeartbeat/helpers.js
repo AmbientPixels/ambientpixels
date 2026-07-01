@@ -686,8 +686,63 @@ function extractPublishReadyCopy(deliverable) {
   out = out.trim();
   return out || t.trim();
 }
+
+// ── Parse a blog deliverable into { title, body } ────────────────────────────
+// Scribe sometimes wraps a blog draft in a handoff memo (**TO:**/**FROM:**/
+// **SUBJECT:** ...), puts the real headline in a **Headline:** label instead of
+// an H1, and prepends an **Author:**/**Category:**/**Tags:** metadata block.
+// Publishing that verbatim ships the memo AS the post and titles it with the task
+// name. This lifts the headline (H1 or **Headline:**/**Title:** label) as the
+// title and strips the leading scaffold — but ONLY when the deliverable actually
+// starts with a memo/metadata label, so a normal draft is returned untouched.
+function parseBlogDeliverable(raw) {
+  var text = String(raw == null ? '' : raw);
+  if (!text.trim()) return { title: null, body: text };
+
+  var LABEL = /^[ \t]*\*{0,2}(TO|FROM|DATE|SUBJECT|RE|HEADLINE|TITLE|AUTHOR|BYLINE|CATEGORY|CATEGORIES|TAGS?|SLUG|META ?DESCRIPTION|WORD ?COUNT|STATUS|KIND|PLATFORM)\*{0,2}[ \t]*:[ \t]*(.*)$/i;
+  var RULE = /^[ \t]*(?:-{3,}|\*{3,}|_{3,})[ \t]*$/;
+  var INTRO = /^[ \t]*(?:here(?:'s| is| are)\b[\s\S]{0,60}?\b(?:draft|post|copy|blog|below)|this is (?:a|the|my)\b[\s\S]{0,40}?\b(?:draft|post|marketing_post|ready|blog)|below is\b|attached\b|please find\b|as requested\b|ready for (?:your )?review\b)/i;
+  var H1 = /^[ \t]*#{1,2}[ \t]+(.+)$/;
+
+  var lines = text.split('\n');
+  var firstNonBlank = '';
+  for (var a = 0; a < lines.length; a++) { if (lines[a].trim() !== '') { firstNonBlank = lines[a]; break; } }
+  // No memo/metadata scaffold at the top → passthrough (only lift an H1 title).
+  if (!LABEL.test(firstNonBlank)) {
+    var mh = text.match(new RegExp(H1.source, 'm'));
+    return { title: mh ? mh[1].replace(/\*\*/g, '').trim() : null, body: text.trim() };
+  }
+
+  // Scaffold present: capture a Headline/Title label, skip label/rule/intro/blank
+  // lines until the first line of real content.
+  var title = null, firstReal = -1;
+  for (var i = 0; i < lines.length; i++) {
+    var ln = lines[i].trim();
+    if (ln === '') continue;
+    var lm = ln.match(LABEL);
+    if (lm) {
+      var keyName = lm[1].replace(/ /g, '').toUpperCase();
+      if ((keyName === 'HEADLINE' || keyName === 'TITLE') && !title && lm[2]) {
+        title = lm[2].replace(/\*\*/g, '').trim() || null;
+      }
+      continue;
+    }
+    if (RULE.test(ln) || INTRO.test(ln)) continue;
+    firstReal = i;
+    break;
+  }
+  if (firstReal === -1) return { title: title, body: text.trim() };
+  var body = lines.slice(firstReal).join('\n').trim();
+  if (!title) {
+    var bh1 = body.split('\n')[0].match(H1);
+    if (bh1) title = bh1[1].replace(/\*\*/g, '').trim();
+  }
+  return { title: title || null, body: body };
+}
+
 module.exports = {
   _sanitizeSingleComment,
+  parseBlogDeliverable,
   generateConversationalEntityComment,
   findNearDuplicateSocialPost,
   campaignDailyPostCapStatus,

@@ -200,7 +200,12 @@ CRITICAL RULES — READ CAREFULLY:
 - Your deliverable must be COMPLETE and SELF-CONTAINED. Do NOT create placeholder sections like "Appendix A", "TBD", "To Be Populated", or reference external documents that do not exist.
 - Do NOT reference or wait for information from external sources that have not been provided to you. Work with what you have.
 - Do NOT invent fictional dependencies, missing documents, or pending inputs. If you need more context, note it briefly in a "Notes" section but still deliver complete, actionable output.
-- NEVER loop on the same request across multiple heartbeats. If you already produced a deliverable, do not produce it again unless explicitly asked for a revision.`;
+- NEVER loop on the same request across multiple heartbeats. If you already produced a deliverable, do not produce it again unless explicitly asked for a revision.${/blog/i.test((task.title || '') + ' ' + (task.description || '') + ' ' + (task.taskType || task.type || '')) ? `
+
+BLOG POST FORMAT — this task publishes to /blog/:
+- Output ONLY the post itself: a single "# Headline" (markdown H1) as the very first line, then the body prose.
+- Do NOT wrap it in a memo (no "TO:/FROM:/DATE:/SUBJECT:"), a cover note ("Here is the draft…", "ready for your review"), or a metadata block ("**Author:**/**Category:**/**Tags:**"). Put the headline in the H1 and nothing above it.
+- The deliverable IS the publishable post — write it as the founder, no handoff language.` : ''}`;
 }
 
 // ── Review a task: agent evaluates another agent's deliverable ──

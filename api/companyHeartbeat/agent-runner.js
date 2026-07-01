@@ -26,7 +26,8 @@ const {
 const { proposalSeverity: _proposalSeverity } = require('./agent-proposal-select');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
-  spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences
+  spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences,
+  parseBlogDeliverable
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
@@ -2213,13 +2214,16 @@ Write the full deliverable first, then the structured JSON block.`;
               }
               if (!_etExistingDoc) {
                 const _etDocId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-                // Extract article title from first heading (H1 or H2) in markdown (not task title)
-                const _h1Match = (deliverable || '').match(/^#{1,2}\s+(.+)$/m);
-                var _articleTitle = _h1Match ? _h1Match[1].replace(/\*\*/g, '').trim() : null;
+                // Parse the blog deliverable: lift the headline (H1 or a **Headline:**/**Title:**
+                // label) and strip any handoff-memo / metadata scaffold Scribe may wrap around the
+                // post. Without this, a memo-wrapped draft ships the TO/FROM/SUBJECT block AS the
+                // post body and titles it with the task name instead of the real headline.
+                const _parsedBlog = parseBlogDeliverable(deliverable || '');
+                var _articleTitle = _parsedBlog.title;
                 // Strip "DELIVERABLE: Blog Post —" prefix if agent included it in the heading
                 if (_articleTitle) _articleTitle = _articleTitle.replace(/^DELIVERABLE:\s*Blog Post\s*[—–\-]\s*/i, '').trim() || _articleTitle;
-                // Sanitize deliverable: strip agent meta-commentary (Notes, Revision Notes, Artifact IDs, etc.)
-                var _cleanedDeliverable = deliverable;
+                // Sanitize deliverable body: strip agent meta-commentary (Notes, Revision Notes, Artifact IDs, etc.)
+                var _cleanedDeliverable = _parsedBlog.body;
                 _cleanedDeliverable = _cleanedDeliverable.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
                 _cleanedDeliverable = _cleanedDeliverable.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
                 _cleanedDeliverable = _cleanedDeliverable.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
