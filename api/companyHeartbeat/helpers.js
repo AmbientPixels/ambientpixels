@@ -253,7 +253,8 @@ const _GOVERNANCE_TYPES = new Set([
   'system-directive-created',
   'experiment-auto-concluded',
   'emergence-signal',
-  'agent-retired', 'agent-hired', 'agent-evolved'
+  'agent-retired', 'agent-hired', 'agent-evolved',
+  'model-fallback'
 ]);
 
 let _runBuffer = null;     // { cycleId, events: [] } when a heartbeat is active
@@ -261,6 +262,13 @@ const RUN_BUFFER_MAX = 2000; // defensive cap per run — shouldn't be hit in pr
 
 function beginRunLogging(cycleId) {
   _runBuffer = { cycleId: cycleId, events: [] };
+}
+
+// Returns the cycleId of the active heartbeat run buffer, or null if no run is
+// active. Lets low-level modules (gemini.js) address the run buffer for logEvent
+// without threading cycleId through every call site.
+function currentCycleId() {
+  return _runBuffer ? _runBuffer.cycleId : null;
 }
 
 async function logEvent(type, agentId, summary, cycleId, details) {
@@ -705,6 +713,7 @@ module.exports = {
   _createActionFromHeartbeat,
   logEvent,
   beginRunLogging,
+  currentCycleId,
   flushRunLog,
   spawnQgRespawnCopyTask
 };
