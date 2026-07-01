@@ -2229,7 +2229,10 @@ Write the full deliverable first, then the structured JSON block.`;
                 _cleanedDeliverable = _cleanedDeliverable.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
                 const _etDoc = {
                   id: _etDocId,
-                  title: _articleTitle || task.title || 'Untitled Blog Post',
+                  // Sentence-case the title at creation (not just at publish) so the draft, the
+                  // approval-queue publish action, and the published post all read the same —
+                  // otherwise the CEO reviews a raw lowercase headline the agent wrote.
+                  title: capitalizeSentences(_articleTitle || task.title || 'Untitled Blog Post'),
                   kind: 'marketing_post',
                   content_md: _cleanedDeliverable,
                   status: 'draft',
