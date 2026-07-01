@@ -27,7 +27,7 @@ const { proposalSeverity: _proposalSeverity } = require('./agent-proposal-select
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences,
-  parseBlogDeliverable
+  parseBlogDeliverable, capitalizeSentencesLongform
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
@@ -2234,7 +2234,10 @@ Write the full deliverable first, then the structured JSON block.`;
                   // otherwise the CEO reviews a raw lowercase headline the agent wrote.
                   title: capitalizeSentences(_articleTitle || task.title || 'Untitled Blog Post'),
                   kind: 'marketing_post',
-                  content_md: _cleanedDeliverable,
+                  // Sentence-case the body at creation too (marketing_post is public) so the
+                  // stored draft matches what publishes — the CEO no longer reviews a raw
+                  // lowercase body.
+                  content_md: capitalizeSentencesLongform(_cleanedDeliverable),
                   status: 'draft',
                   tags: ['blog', 'auto-created-from-execute'],
                   created_by: agentId,
@@ -4161,6 +4164,9 @@ Write the full deliverable first, then the structured JSON block.`;
           const pubPublicUrl = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
 
           // Create publish_document action (requires CEO approval)
+          // Public kinds (blog) get sentence-cased title+body in the review snapshot so the
+          // CEO's approval-queue preview matches the published output — no raw lowercase in review.
+          var _pubIsPublic = doc.kind === 'marketing_post' || doc.kind === 'product_brief';
           const publishAction = {
             id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
             created_at: new Date().toISOString(),
@@ -4169,10 +4175,10 @@ Write the full deliverable first, then the structured JSON block.`;
             platform: 'site',
             payload: {
               documentId: doc.id,
-              title: doc.title,
+              title: _pubIsPublic ? capitalizeSentences(doc.title) : doc.title,
               slug: slug,
               kind: doc.kind,
-              content_md: doc.content_md,
+              content_md: _pubIsPublic ? capitalizeSentencesLongform(doc.content_md) : doc.content_md,
               target_path: pubTargetPath,
               public_url: pubPublicUrl,
               hero_image_asset_id: doc.hero_image_asset_id || null,
