@@ -108,15 +108,22 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
   if (!GEMINI_API_KEY) return null;
   var gId = modelId || 'gemini-2.5-flash';
 
+  // Thinking config is model-dependent:
+  //  • Flash / Flash-Lite: disable thinking (thinkingBudget:0). Their thinking
+  //    tokens otherwise consume maxOutputTokens and truncate the structured JSON
+  //    envelope, silently zeroing agentActions (same bug fixed in morning-report,
+  //    commit 4c76d3218). Flash accepts a 0 budget.
+  //  • Pro: only runs in thinking mode — a 0 budget returns HTTP 400
+  //    ("Budget 0 is invalid. This model only works in thinking mode."). Use
+  //    dynamic thinking (-1) and raise the output ceiling so thinking tokens don't
+  //    starve the envelope. Verified live: thinking ~400-560 tokens, output ~50,
+  //    envelope stays complete (finishReason STOP) at an 8192 ceiling.
+  var _thinking = registry.requiresThinking(gId);
   var generationConfig = {
     temperature: temperature || 0.7,
     topP: 0.9,
-    maxOutputTokens: maxTokens || 1500,
-    // Disable gemini-2.5-flash "thinking" tokens — they consume maxOutputTokens
-    // and truncate structured JSON envelopes, causing downstream parse failures
-    // that silently zero out agentActions. Same bug fixed in morning-report
-    // (commit 4c76d3218).
-    thinkingConfig: { thinkingBudget: 0 }
+    maxOutputTokens: _thinking ? Math.max(maxTokens || 1500, 8192) : (maxTokens || 1500),
+    thinkingConfig: _thinking ? { thinkingBudget: -1 } : { thinkingBudget: 0 }
   };
   if (structured) {
     // Force valid JSON envelope. Without this, Gemini 2.0 Flash narrates

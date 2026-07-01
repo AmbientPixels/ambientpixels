@@ -59,4 +59,14 @@ async function runChain(chain, attemptFn, onFallback) {
   return null;
 }
 
-module.exports = { MODELS: MODELS, FALLBACK_TAIL: FALLBACK_TAIL, providerOf: providerOf, isClaudeModel: isClaudeModel, buildChain: buildChain, runChain: runChain };
+// Models that reject thinkingBudget:0 — they ONLY run in thinking mode (Gemini
+// returns HTTP 400 "Budget 0 is invalid" otherwise). Flash / Flash-Lite accept a
+// 0 budget and NEED it, so their thinking tokens don't consume maxOutputTokens and
+// truncate the structured JSON envelope. Keyed by resolved model ID.
+var THINKING_REQUIRED = { 'gemini-2.5-pro': true };
+
+function requiresThinking(modelId) {
+  return !!THINKING_REQUIRED[modelId];
+}
+
+module.exports = { MODELS: MODELS, FALLBACK_TAIL: FALLBACK_TAIL, providerOf: providerOf, isClaudeModel: isClaudeModel, buildChain: buildChain, runChain: runChain, requiresThinking: requiresThinking };

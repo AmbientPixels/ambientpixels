@@ -33,6 +33,12 @@ assert.deepStrictEqual(R.buildChain('claude-haiku'), ['claude-haiku', 'gemini-fl
 // 'gemini' resolves to the same id as 'gemini-flash' → must NOT double-attempt flash
 assert.deepStrictEqual(R.buildChain('gemini'), ['gemini', 'claude-sonnet']);
 
+// requiresThinking: pro only runs in thinking mode (rejects thinkingBudget:0);
+// flash accepts and needs a 0 budget. Keyed by resolved model ID.
+assert.strictEqual(R.requiresThinking('gemini-2.5-pro'), true);
+assert.strictEqual(R.requiresThinking('gemini-2.5-flash'), false);
+assert.strictEqual(R.requiresThinking('claude-sonnet-4-6'), false);
+
 console.log('OK: model-registry');
 
 // ── runChain fallback behavior ──
