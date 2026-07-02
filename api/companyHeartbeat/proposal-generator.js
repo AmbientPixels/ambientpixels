@@ -33,7 +33,12 @@ const EXPIRE_DAYS = 7; // unapproved generator suggestions auto-expire after thi
 const OBJECTIVE_COMPLETE_PCT = 95;
 const MIN_ACTIVE_CAMPAIGNS = 3;
 const MIN_ACTIVE_OBJECTIVES = 3;
-const DECLINING_VERDICTS = ['DECLINING', 'NO DATA'];
+// Only a genuine DECLINING verdict warrants a reactivation campaign. 'NO DATA'
+// means the product is simply uninstrumented (no traffic telemetry), NOT that it
+// dropped — lumping it in here produced misleading "AmbientScore 0% traffic"
+// reactivation proposals for every product without analytics. Treat NO DATA as
+// "no signal", not "declining". (2026-07-02)
+const DECLINING_VERDICTS = ['DECLINING'];
 
 // Map socialAccountStats platform keys → valid campaign social task types.
 const PLATFORM_TASK_TYPE = {
@@ -120,9 +125,18 @@ function _isDeduped(queue, proposalType, nowMs) {
   });
 }
 
+// socialAccountStats is shaped { totals, platforms: { bluesky, x, linkedin, ... } }
+// in production. Older callers/tests used a flat { bluesky, x } shape. Read the
+// nested `.platforms` map when present, else fall back to the flat top level, so
+// both shapes resolve real follower/platform data (the flat-only reader silently
+// returned null in prod, forcing every proposal into its generic placeholder branch).
+function _platformStats(socialAccountStats) {
+  return (socialAccountStats && socialAccountStats.platforms) || socialAccountStats || {};
+}
+
 function _livePlatforms(socialAccountStats) {
   var out = [];
-  var stats = socialAccountStats || {};
+  var stats = _platformStats(socialAccountStats);
   Object.keys(stats).forEach(function (k) {
     var mapped = PLATFORM_TASK_TYPE[_lc(k)];
     if (mapped && out.indexOf(mapped) === -1) out.push(mapped);
@@ -131,7 +145,7 @@ function _livePlatforms(socialAccountStats) {
 }
 
 function _blueskyFollowers(socialAccountStats) {
-  var b = socialAccountStats && socialAccountStats.bluesky;
+  var b = _platformStats(socialAccountStats).bluesky;
   var n = b && Number(b.followers);
   return Number.isFinite(n) ? n : null;
 }
@@ -319,6 +333,31 @@ function computeProposals(state, nowMs) {
   return out;
 }
 
+// Observability: append a `proposal-created` event to governanceLog for each
+// generator-minted proposal, mirroring the agent-emitted path (index.js ~3076) so
+// the propose→decide funnel counts BOTH sources. Without this the generator was
+// invisible in the funnel — the whole reason agent-vs-generator volume couldn't be
+// compared. Self-contained (uses the injected storage, no helpers import) to keep
+// computeProposals pure/testable. Non-fatal: a logging failure never blocks the run.
+// `proposal-created` is a governanceLog type (see helpers.js _GOVERNANCE_TYPES).
+async function _logProposalCreated(storage, proposals, nowMs) {
+  if (!proposals || !proposals.length) return;
+  var log = (await storage.getState('governanceLog')) || [];
+  proposals.forEach(function (p, i) {
+    log.push({
+      id: 'log-' + nowMs + '-' + i + '-' + (p.id || 'prop'),
+      type: 'proposal-created',
+      agentId: p.proposedBy || 'system',
+      summary: 'Generator proposal queued: ' + (p.name || p.title || p.type),
+      cycle: 'proposal-generator-cron',
+      timestamp: new Date(nowMs).toISOString(),
+      details: { type: p.type, source: p.source || SOURCE, proposalId: p.id }
+    });
+  });
+  var trimmed = log.length > 5000 ? log.slice(-5000) : log;
+  await storage.setState('governanceLog', trimmed);
+}
+
 // ── IO orchestration ────────────────────────────────────────────────────────
 // storage is injected (../_utils/companyStorage in prod) so this stays testable.
 async function runProposalGenerator(opts) {
@@ -364,6 +403,12 @@ async function runProposalGenerator(opts) {
     }
 
     await storage.setState('approvalQueue', queue);
+
+    // Observability funnel (non-fatal): record each new proposal in governanceLog.
+    if (proposals.length) {
+      try { await _logProposalCreated(storage, proposals, nowMs); }
+      catch (_logErr) { log('[proposalGenerator] proposal-created log failed (non-fatal): ' + (_logErr && _logErr.message ? _logErr.message : String(_logErr))); }
+    }
 
     var types = proposals.map(function (p) { return p.type; });
     log('[proposalGenerator] Created ' + proposals.length + ' proposal(s): ' + (types.join(', ') || 'none') +

@@ -37,7 +37,8 @@ function baseState(overrides) {
         { product: 'Gamma', verdict: 'GROWING', traffic: { deltaPct: 5 } }
       ]
     },
-    socialAccountStats: { bluesky: { followers: 300 }, x: { followers: 40 } },
+    // Production shape: followers live under `.platforms.<name>`, not top-level.
+    socialAccountStats: { platforms: { bluesky: { followers: 300 }, x: { followers: 40 } } },
     approvalQueue: []
   };
   return Object.assign(s, overrides || {});
@@ -301,6 +302,26 @@ test('objective proposal flags missing metric when no follower data', () => {
   assert.strictEqual(e.strategyFlag, 'no-north-star-metric', 'flagged for CEO to add a metric');
 });
 
+// ── (2026-07-02) production socialAccountStats shape: followers under `.platforms` ──
+// Regression for the shape mismatch that made every generated proposal a generic
+// placeholder: the reader used the flat `.bluesky` shape while prod nests under
+// `.platforms.bluesky`. Both an objective metric AND the campaign platform list must
+// resolve from the nested shape.
+test('objective + campaign resolve real data from the production `.platforms` shape', () => {
+  const st = baseState({
+    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }], // triggers campaign (count < 3)
+    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }], // triggers objective (count < 3)
+    socialAccountStats: { platforms: { bluesky: { followers: 76 }, x: { followers: 50 }, linkedin: { followers: 0 } } }
+  });
+  const r = computeProposals(st, NOW);
+  const o = obj(r), c = camp(r);
+  assert.strictEqual(o.northStarMetric, 'bluesky_followers', 'metric resolved from .platforms.bluesky');
+  assert.strictEqual(o.metricTarget, 76 + 25, 'target = 76 + max(25, 15%)');
+  assert.strictEqual(o.strategyFlag, null, 'no missing-metric flag');
+  assert.ok(c.platforms.indexOf('social_x') !== -1 && c.platforms.indexOf('social_bluesky') !== -1,
+    'campaign platforms include the real connected platforms, not just the fallback');
+});
+
 // ── (2026-06-26) product-overlap coverage: multi-product campaign covers all its targets ──
 test('campaign does NOT re-fire for a declining product already covered by a MULTI-product campaign', () => {
   const st = baseState({
@@ -320,6 +341,14 @@ test('campaign STILL fires for a declining product covered by NO campaign', () =
   const st = baseState({});
   st.strategicDigest.perProduct.push({ product: 'Zeta', verdict: 'DECLINING', traffic: { deltaPct: -90 } });
   assert.ok(camp(computeProposals(st, NOW)), 'Zeta uncovered → still proposes');
+});
+
+// ── (2026-07-02) NO DATA is "no signal", not "declining" ──
+// Uninstrumented products (verdict NO DATA) must NOT trigger a reactivation campaign.
+test('campaign does NOT fire for a NO DATA (uninstrumented) product', () => {
+  const st = baseState({}); // 3 healthy campaigns → no count trigger, none stagnant
+  st.strategicDigest.perProduct.push({ product: 'Void', verdict: 'NO DATA', traffic: { deltaPct: 0 } });
+  assert.ok(!camp(computeProposals(st, NOW)), 'NO DATA is not a declining signal → no reactivation proposal');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
