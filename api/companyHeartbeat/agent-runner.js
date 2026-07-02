@@ -21,7 +21,7 @@ const {
   FLEET_MUTATION_AUTHORIZED_AGENTS, PROTECTED_AGENTS,
   FLEET_MIN_SIZE, FLEET_MAX_SIZE, FLEET_PROPOSAL_MAX_PER_DAY,
   FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
-  PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY
+  PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY, PROPOSAL_REJECT_COOLDOWN_DAYS
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity } = require('./agent-proposal-select');
 const {
@@ -5124,6 +5124,21 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // Rejection cooldown: don't re-propose a name the CEO rejected within the cooldown window
+      // (parity with product 7d / fleet 14d — campaign/objective previously had none).
+      var _pcCooldownMs = (PROPOSAL_REJECT_COOLDOWN_DAYS || 7) * 86400000;
+      var _pcRejected = _pcAQ.some(function (q) {
+        if (q.type !== 'campaign_proposal') return false;
+        if (!(q.status === 'rejected' || q.status === 'declined')) return false;
+        if (!q.name || q.name.trim().toLowerCase() !== _pcName.toLowerCase()) return false;
+        var _rt = q.rejectedAt || q.resolvedAt || q.updatedAt;
+        return _rt && (Date.now() - new Date(_rt).getTime()) < _pcCooldownMs;
+      });
+      if (_pcRejected) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — rejection cooldown active for:', _pcName);
+        continue;
+      }
+
       // SE-1: proposals must name the north star they serve. Flag, don't block
       // (graduated) — and no flag at all when strategy isn't seeded yet.
       var _pcNS = (_pc.northStarMetric || '').trim().substring(0, 50);
@@ -5198,6 +5213,20 @@ Write the full deliverable first, then the structured JSON block.`;
       });
       if (_poDupe) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — duplicate pending proposal');
+        continue;
+      }
+
+      // Rejection cooldown (parity with product/fleet families).
+      var _poCooldownMs = (PROPOSAL_REJECT_COOLDOWN_DAYS || 7) * 86400000;
+      var _poRejected = _poAQ.some(function (q) {
+        if (q.type !== 'objective_proposal') return false;
+        if (!(q.status === 'rejected' || q.status === 'declined')) return false;
+        if (!q.title || q.title.trim().toLowerCase() !== _poTitle.toLowerCase()) return false;
+        var _rt = q.rejectedAt || q.resolvedAt || q.updatedAt;
+        return _rt && (Date.now() - new Date(_rt).getTime()) < _poCooldownMs;
+      });
+      if (_poRejected) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — rejection cooldown active for:', _poTitle);
         continue;
       }
 

@@ -261,6 +261,11 @@ const PROPOSAL_AUTHORIZED_AGENTS = new Set(['nova', 'echo', 'scout', 'cipher', '
 // Max agent-sourced proposals that reach approvalQueue per cycle, per type (best-first).
 const AGENT_PROPOSAL_FLEET_CAP = { campaign_proposal: 2, objective_proposal: 2 };
 
+// Rejection cooldown (days) for campaign/objective proposals — a rejected proposal
+// of the same name can't be re-proposed within this window. Parity with product (7d)
+// and fleet (14d) families, which previously had cooldowns while campaign/objective did not.
+const PROPOSAL_REJECT_COOLDOWN_DAYS = 7;
+
 // Deterministic severity per declared trigger. Unknown/missing → UNKNOWN severity + flag.
 const PROPOSAL_TRIGGER_SEVERITY = {
   'runway-critical': 95,
@@ -479,6 +484,7 @@ module.exports = {
   KNOWN_ACTION_TYPES,
   PROPOSAL_AUTHORIZED_AGENTS,
   AGENT_PROPOSAL_FLEET_CAP,
+  PROPOSAL_REJECT_COOLDOWN_DAYS,
   PROPOSAL_TRIGGER_SEVERITY,
   PROPOSAL_UNKNOWN_TRIGGER_SEVERITY,
   RESEARCH_MAX_AGE_DAYS,
