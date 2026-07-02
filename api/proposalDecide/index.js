@@ -94,6 +94,20 @@ module.exports = async function (context, req) {
       } catch (_e) { /* non-fatal */ }
     }
 
+    // Observability: record the decision with detail so the propose→decide funnel is auditable.
+    try {
+      const _gl = (await storage.getState('governanceLog')) || [];
+      _gl.push({
+        id: 'log-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+        type: 'proposal-decided',
+        agentId: target.proposedBy || null,
+        summary: 'CEO ' + decision + ': ' + (target.type || '?') + ' — ' + (target.title || target.name || target.id),
+        timestamp: nowIso,
+        details: { proposalId: target.id, proposalType: target.type, decision: decision, decidedBy: 'ceo', note: ceoNote || null, materialized: !!created }
+      });
+      await storage.setState('governanceLog', _gl.slice(-500));
+    } catch (_glErr) { /* non-fatal */ }
+
     context.res = { status: 200, headers: corsHeaders, body: { ok: true, entry: target, created: created } };
   } catch (err) {
     context.res = { status: 500, headers: corsHeaders, body: { error: String(err && err.message ? err.message : err).slice(0, 300) } };

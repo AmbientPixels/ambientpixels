@@ -75,6 +75,21 @@ module.exports = async function (context, req) {
     if (ceoNote) target.ceoNote = ceoNote;
     await storage.setState('approvalQueue', aq);
 
+    // Observability: record the decision WITH detail (what/who/decision) — the audit
+    // trail previously logged CEO decisions with no context on what was decided.
+    try {
+      const _gl = (await storage.getState('governanceLog')) || [];
+      _gl.push({
+        id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+        type: 'proposal-decided',
+        agentId: target.proposedBy || null,
+        summary: 'CEO ' + decision + ': ' + (target.type || '?') + ' — ' + (target.title || target.name || (target.product && target.product.name) || target.id),
+        timestamp: target.resolvedAt,
+        details: { proposalId: target.id, proposalType: target.type, decision: decision, decidedBy: 'ceo', note: ceoNote || null }
+      });
+      await storage.setState('governanceLog', _gl.slice(-500));
+    } catch (_glErr) { /* non-fatal */ }
+
     // On rejection (either system), mirror to capitalAllocation.decisionLog.
     if (decision === 'rejected') {
       try {

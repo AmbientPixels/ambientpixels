@@ -3070,6 +3070,13 @@ module.exports = async function (context) {
           await storage.setState('approvalQueue', _propQueue);
           context.log('[Heartbeat] Agentic proposals written:', _sel.selected.length,
             'deferred:', _sel.deferred.length);
+          // Observability: log each proposal entering the queue so the propose→decide funnel is auditable.
+          for (var _sfi = 0; _sfi < _sel.selected.length; _sfi++) {
+            var _sf = _sel.selected[_sfi];
+            await logEvent('proposal-created', (_sf.payload && _sf.payload.proposedBy) || 'system',
+              'Agent proposal queued: ' + ((_sf.payload && (_sf.payload.name || _sf.payload.title)) || _sf.type),
+              cycleId, { type: _sf.type, severity: _sf.severity, source: (_sf.payload && _sf.payload.source) || 'agent' });
+          }
         }
         for (var _dfi = 0; _dfi < _sel.deferred.length; _dfi++) {
           var _df = _sel.deferred[_dfi];
