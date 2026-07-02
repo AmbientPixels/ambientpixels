@@ -30,7 +30,7 @@ var _taskTypeLabels = {
  * @param {Function} opts.log - context.log or equivalent
  * @returns {{ campaignsChanged: boolean, tasksChanged: boolean, autoFixCount: number, campaignGovEvents: Array, campaignsTouched: Set, campaignById: Object }}
  */
-function processCampaignLifecycle({ campaigns, tasks, objectives, log }) {
+function processCampaignLifecycle({ campaigns, tasks, objectives, dailyLog, log }) {
   let campaignsChanged = false;
   let autoFixCount = 0;
   const campaignGovEvents = [];
@@ -208,10 +208,22 @@ function processCampaignLifecycle({ campaigns, tasks, objectives, log }) {
     const assignee = _taskTypeToAgent[chosenType] || 'echo';
     const _cadenceDays = { daily: 1, weekly: 3, biweekly: 5 };
     const _dueDays = _cadenceDays[c.cadence] || 3;
+
+    // Daily Pulse: ground the post in that day's real dispatch (dailyLog) so it summarizes what
+    // actually happened instead of inventing content. The description propagates to Scribe's copy
+    // task. Falls back to the generic brief if no dispatch is available.
+    let _taskDesc = 'Auto-created by campaign scheduler. Campaign: ' + (c.title || c.id) + '. Create a ' + label + ' aligned with the campaign brief and objectives.';
+    if (c.id === 'camp-pulse-daily' && Array.isArray(dailyLog) && dailyLog.length) {
+      const _dispatch = dailyLog.filter(function (e) { return e && (e.status === 'published' || !e.status) && (e.title || e.summary); }).slice(-1)[0];
+      if (_dispatch) {
+        _taskDesc = "Write ONE short founder-voice Bluesky post that summarizes TODAY'S dispatch below. Use ONLY what is in the dispatch — do not invent numbers, metrics, or events. Plain build-in-public voice. Link the live pulse: https://ambientpixels.ai/pulse/\n\n=== TODAY'S DISPATCH (" + (_dispatch.date || '') + ") ===\nTitle: " + (_dispatch.title || '') + "\nSummary: " + (_dispatch.summary || '');
+      }
+    }
+
     const newTask = {
       id: 'task-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
       title: 'Draft ' + label + ' for ' + (c.title || 'campaign'),
-      description: 'Auto-created by campaign scheduler. Campaign: ' + (c.title || c.id) + '. Create a ' + label + ' aligned with the campaign brief and objectives.',
+      description: _taskDesc,
       status: 'todo',
       taskType: chosenType,
       assignee: assignee,

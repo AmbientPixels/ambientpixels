@@ -169,7 +169,9 @@ module.exports = async function (context) {
     }
 
     // ── Campaign lifecycle: normalize, auto-complete, auto-pause, reactivate, auto-replenish ──
-    const _clResult = processCampaignLifecycle({ campaigns, tasks, objectives, log: context.log.bind(context) });
+    // Load dailyLog so the Daily Pulse campaign can ground its post in the real daily dispatch.
+    const _dailyLogForCampaigns = (await storage.getState('dailyLog')) || [];
+    const _clResult = processCampaignLifecycle({ campaigns, tasks, objectives, dailyLog: _dailyLogForCampaigns, log: context.log.bind(context) });
     let campaignsChanged = _clResult.campaignsChanged;
     let autoFixCount = _clResult.autoFixCount;
     const campaignGovEvents = _clResult.campaignGovEvents;
