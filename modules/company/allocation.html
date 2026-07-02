@@ -191,15 +191,42 @@
     function renderPending(d) {
       var req = Array.isArray(d.openRequests) ? d.openRequests : [];
       if (req.length === 0) { emptyState('ca-pending', 'No pending budget requests. Agents haven\'t emitted request-budget actions this cycle.'); return; }
+      var _btnBase = 'padding:6px 14px;border-radius:6px;border:1px solid var(--aura-border,#444);cursor:pointer;font-size:0.75rem;font-weight:600;margin-right:8px;';
       var html = req.slice(0, 20).map(function (r) {
         var cls = r.status === 'pending_ceo' ? 'pending-ceo' : 'pending-cipher';
+        // Only pending_ceo requests are the CEO's to decide; pending_cipher is Cipher's.
+        var actions = r.status === 'pending_ceo'
+          ? '<div class="ca-request-actions" style="margin-top:8px;">' +
+              '<button class="ca-btn-decide" data-req="' + esc(r.id) + '" data-decision="approved" style="' + _btnBase + 'background:rgba(40,180,120,.15);color:#4cd493;">Approve</button>' +
+              '<button class="ca-btn-decide" data-req="' + esc(r.id) + '" data-decision="rejected" style="' + _btnBase + 'background:rgba(200,70,70,.12);color:#e07a7a;">Reject</button>' +
+            '</div>'
+          : '';
         return '<div class="ca-request-row ' + cls + '">' +
           '<div class="ca-request-head"><strong>' + esc(r.agentId) + ' · ' + esc(r.type) + '</strong><span class="ca-request-cost">$' + Number(r.estimatedCost || 0).toFixed(2) + '</span></div>' +
           '<div class="ca-request-just">' + esc(r.justification || '') + '</div>' +
           '<div class="ca-request-meta">' + esc(r.id) + ' · ' + esc(r.status) + ' · ' + esc((r.requestedAt || '').substring(0, 16).replace('T', ' ')) + '</div>' +
+          actions +
           '</div>';
       }).join('');
-      document.getElementById('ca-pending').innerHTML = html;
+      var host = document.getElementById('ca-pending');
+      host.innerHTML = html;
+      host.querySelectorAll('.ca-btn-decide').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var reqId = btn.getAttribute('data-req');
+          var decision = btn.getAttribute('data-decision');
+          var ceoNote = '';
+          if (decision === 'rejected') { ceoNote = (window.prompt('Reason for rejecting this budget request:') || '').trim(); if (!ceoNote) return; }
+          btn.disabled = true;
+          // The approvalQueue entry id for a budget request is 'aq_' + the pendingRequests id.
+          fetch(API + '/approveProposal', {
+            method: 'POST',
+            headers: { 'x-company-secret': SECRET, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: 'aq_' + reqId, decision: decision, ceoNote: ceoNote })
+          }).then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(function () { window.location.reload(); })
+            .catch(function (e) { alert('Failed: ' + e.message); btn.disabled = false; });
+        });
+      });
     }
 
     function renderDecisions(d) {

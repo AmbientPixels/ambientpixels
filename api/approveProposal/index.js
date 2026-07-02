@@ -16,7 +16,7 @@
 const storage = require('../_utils/companyStorage');
 const { DOMAIN_LEAD_MAP } = require('../companyHeartbeat/constants');
 
-const SUPPORTED_PREFIXES = ['product_', 'agent_'];
+const SUPPORTED_PREFIXES = ['product_', 'agent_', 'budget_request'];
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -95,6 +95,36 @@ module.exports = async function (context, req) {
         alloc.updatedAt = new Date().toISOString();
         await storage.setState('capitalAllocation', alloc);
       } catch (_e) { /* non-fatal */ }
+    }
+
+    // ── Budget request (Capital Allocation, pending_ceo tier) side-effect ──
+    // The queue entry links to capitalAllocation.pendingRequests via requestId.
+    // Without this branch a >$2 CEO-tier request could never leave pending_ceo
+    // (the queue flip happened but the underlying request stayed pending forever).
+    if (target.type === 'budget_request' && target.requestId) {
+      try {
+        const alloc = (await storage.getState('capitalAllocation')) || {};
+        const pend = Array.isArray(alloc.pendingRequests) ? alloc.pendingRequests : [];
+        const reqEntry = pend.find(function (r) { return r && r.id === target.requestId; });
+        if (reqEntry) {
+          reqEntry.status = decision; // 'approved' | 'rejected'
+          reqEntry.ceoDecision = { decision: decision, note: ceoNote || null, at: target.resolvedAt, decisionBy: 'ceo' };
+          if (decision === 'approved') {
+            // reject decisionLog is already written by the generic block above; log approvals here.
+            const log = Array.isArray(alloc.decisionLog) ? alloc.decisionLog : [];
+            log.push({
+              id: 'dlog_' + Date.now() + '_breq_' + Math.random().toString(36).substr(2, 4),
+              requestId: reqEntry.id, agentId: reqEntry.agentId || null, decisionBy: 'ceo',
+              action: 'approved', estimatedCost: Number.isFinite(reqEntry.estimatedCost) ? reqEntry.estimatedCost : null,
+              reason: ceoNote || null, at: target.resolvedAt
+            });
+            alloc.decisionLog = log.slice(-100);
+          }
+          alloc.pendingRequests = pend;
+          alloc.updatedAt = new Date().toISOString();
+          await storage.setState('capitalAllocation', alloc);
+        }
+      } catch (_e) { /* non-fatal — queue status already flipped */ }
     }
 
     // ── Agent Identity Evolution (System 14) side-effects on approve ──
