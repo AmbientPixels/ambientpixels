@@ -41,6 +41,16 @@ module.exports = async function (context, req) {
     const trimmed = log.length > MAX_ENTRIES ? log.slice(-MAX_ENTRIES) : log;
     await storage.setState(STATE_KEY, trimmed);
 
+    // Fleet-health watch: detect heartbeat throughput collapse and alert via Discord.
+    // Runs on the keepalive cadence (~5 min) so an outage is caught within minutes.
+    // Non-fatal — a failure here must never break ping recording.
+    try {
+      const { checkAndAlertFleetHealth } = require('../_utils/fleetAlerts');
+      await checkAndAlertFleetHealth(storage);
+    } catch (_fa) {
+      if (context.log && context.log.error) context.log.error('[keepalive-record] fleet-health check failed:', _fa && _fa.message);
+    }
+
     context.res = {
       status: 200,
       headers: corsHeaders,

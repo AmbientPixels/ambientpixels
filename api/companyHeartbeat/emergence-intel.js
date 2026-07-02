@@ -560,5 +560,8 @@ function _buildEmergencePromptBlock(agent, digest) {
 
 module.exports = {
   buildEmergenceDigest: buildEmergenceDigest,
-  _buildEmergencePromptBlock: _buildEmergencePromptBlock
+  _buildEmergencePromptBlock: _buildEmergencePromptBlock,
+  // Exported so the fleet-health alerter (keepalive path) reuses the exact same
+  // throughput-collapse definition instead of duplicating (and drifting from) it.
+  _computeThroughputCollapse: _computeThroughputCollapse
 };
