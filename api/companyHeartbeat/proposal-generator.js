@@ -1,12 +1,19 @@
 // Deterministic Proposal Generator (System: keep-the-fleet-fed, server-side).
 //
-// WHY THIS EXISTS: agents never emit propose-campaign / propose-objective because
-// the action has no working route through the heartbeat pipeline (the output-envelope
-// contract sends proposals into the generic `proposals` array, which is never
-// dispatched by type; and propose-campaign/-objective are absent from
-// KNOWN_ACTION_TYPES). Confirmed zero proposals in 30+ days on BOTH Gemini and Claude.
-// Rather than depend on the model, this module computes the propose-worthy condition
-// deterministically and writes proposals straight to approvalQueue for CEO approval.
+// WHY THIS EXISTS (historical): originally agents rarely/never emitted
+// propose-campaign / propose-objective, so this module computes the propose-worthy
+// condition deterministically as a safety net.
+//
+// STATUS (2026-07): the agent-emitted path DOES now route end-to-end
+// (propose-campaign/-objective are in KNOWN_ACTION_TYPES with full handlers in
+// agent-runner.js, staged → selectTopProposals → approvalQueue). So this generator
+// now runs IN PARALLEL with the agent path and can double up campaign/objective
+// proposals (its entries are tagged source:'auto:proposal-generator', proposedBy:'nova').
+// It has weaker gating than the agent path (24h dedup + 7-day expiry only — no
+// per-agent cap or capital gate). Proposal-lifecycle logging (proposal-created events)
+// now makes it possible to compare agent-vs-generator volume; once the agent path is
+// confirmed sufficient, disable this generator via systemConfig.proposalGenerator.enabled=false
+// (runtime toggle, no redeploy).
 //
 // See docs/superpowers/specs/2026-06-20-deterministic-proposal-generator-design.md
 //
@@ -337,7 +344,13 @@ async function runProposalGenerator(opts) {
       socialAccountStats: loaded[5]
     };
 
-    var proposals = computeProposals(state, nowMs);
+    // Runtime toggle: set systemConfig.proposalGenerator.enabled = false to stop the
+    // deterministic generator (e.g. once the agent-emitted path is confirmed sufficient).
+    // Default (unset) = enabled. Expiry of stale generator proposals still runs when off.
+    var _sysCfg = (await storage.getState('systemConfig')) || {};
+    var _genEnabled = !(_sysCfg.proposalGenerator && _sysCfg.proposalGenerator.enabled === false);
+    var proposals = _genEnabled ? computeProposals(state, nowMs) : [];
+    if (!_genEnabled) log('[proposalGenerator] Disabled via systemConfig.proposalGenerator.enabled=false — running expiry only.');
 
     // Re-read queue right before write to minimize clobber. Always run expiry (even
     // when nothing new is created) so stale generic suggestions don't pile up.
