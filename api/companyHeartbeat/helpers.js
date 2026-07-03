@@ -255,7 +255,7 @@ const _GOVERNANCE_TYPES = new Set([
   'emergence-signal',
   'agent-retired', 'agent-hired', 'agent-evolved',
   'model-fallback',
-  'proposal-created', 'proposal-deferred', 'proposal-decided'
+  'proposal-created', 'proposal-deferred', 'proposal-decided', 'proposal-edited'
 ]);
 
 let _runBuffer = null;     // { cycleId, events: [] } when a heartbeat is active
