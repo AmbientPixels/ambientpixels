@@ -98,6 +98,11 @@
     }
     .oa-source-badge.actual { background: rgba(52,211,153,0.15); color: #34d399; }
     .oa-source-badge.proxy { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    /* Revenue accent — green when a real dollar is attributed, neutral at $0. */
+    .oa-chip.oa-rev { background: rgba(52,211,153,0.1); }
+    .oa-chip.oa-rev strong { color: #34d399; }
+    .oa-funnel-step.oa-rev { background: rgba(52,211,153,0.14); color: #34d399; font-weight: 600; }
+    .oa-agent-card .oa-metric.oa-rev strong { color: #34d399; }
   </style>
 </head>
 <body data-theme="dark">
@@ -153,6 +158,9 @@
       return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // Revenue is stored in cents on the digest (revenueAttributedCents / revenueTotals).
+    function money(cents) { return '$' + ((Number(cents) || 0) / 100).toFixed(2); }
+
     function emptyState(id, msg) {
       document.getElementById(id).innerHTML = '<div class="oa-empty">' + esc(msg) + '</div>';
     }
@@ -168,6 +176,9 @@
       chips.push('<div class="oa-chip">Snapshots: <strong>' + (t.snapshots || 0) + '</strong></div>');
       chips.push('<div class="oa-chip">Complete (t7+): <strong>' + (t.complete || 0) + '</strong></div>');
       chips.push('<div class="oa-chip">Pending: <strong>' + (t.pending || 0) + '</strong></div>');
+      var rt = d.revenueTotals || {};
+      var attrRev = Number(rt.attributedCents) || 0;
+      chips.push('<div class="oa-chip' + (attrRev > 0 ? ' oa-rev' : '') + '">Attributed revenue: <strong>' + money(attrRev) + '</strong></div>');
       if (t.linkedinPendingCount > 0) {
         chips.push('<div class="oa-chip oa-warn">LinkedIn blind spot: <strong>' + t.linkedinPendingCount + '</strong> awaiting metrics API</div>');
       }
@@ -216,6 +227,7 @@
           + '<div class="oa-metric">Posts 7d: <strong>' + (a.posts7d || 0) + '</strong></div>'
           + '<div class="oa-metric">Posts 30d: <strong>' + (a.posts30d || 0) + '</strong></div>'
           + '<div class="oa-metric">Median engagement: <strong>' + (a.medianTotalEngagement || 0) + '</strong></div>'
+          + '<div class="oa-metric' + ((a.revenueAttributedCents || 0) > 0 ? ' oa-rev' : '') + '">Revenue attributed: <strong>' + money(a.revenueAttributedCents) + '</strong></div>'
           + (a.topHook ? '<div class="oa-metric">Top hook: <strong>' + esc(a.topHook.hook) + '</strong> (' + a.topHook.median + ' median, ' + a.topHook.samples + ' samples)</div>' : '')
           + (a.worstHook && a.worstHook.hook !== (a.topHook && a.topHook.hook) ? '<div class="oa-metric">Worst hook: ' + esc(a.worstHook.hook) + ' (' + a.worstHook.median + ')</div>' : '')
           + '</div>';
@@ -242,7 +254,7 @@
     }
 
     function renderCampaigns(d) {
-      var camps = (d.perCampaign || []).filter(function (c) { return c.postsPublished > 0; });
+      var camps = (d.perCampaign || []).filter(function (c) { return c.postsPublished > 0 || (c.revenueAttributedCents || 0) > 0; });
       if (camps.length === 0) {
         emptyState('oa-campaigns', 'No campaigns have published posts with outcome data yet. Funnel attribution requires UTM-tagged posts + blog views within the last 30 days.');
         return;
@@ -255,25 +267,29 @@
           + '<div class="oa-funnel-step">Engagements: ' + c.totalEngagements + '</div>'
           + '<div class="oa-funnel-step">Blog views: ' + c.blogViewsAttributed + '</div>'
           + '<div class="oa-funnel-step">Form submits: ' + c.formSubmitsAttributed + '</div>'
+          + '<div class="oa-funnel-step' + ((c.revenueAttributedCents || 0) > 0 ? ' oa-rev' : '') + '">Revenue: ' + money(c.revenueAttributedCents) + '</div>'
           + '</div></div>';
       }).join('');
       document.getElementById('oa-campaigns').innerHTML = html
-        + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Blog views + form submits attributed via utm_content (action ID). Starts fresh at system deploy — no historical backfill.</div>';
+        + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Blog views, form submits + revenue attributed via utm_content (action ID). Revenue survives action archival via the attribution index (no 7-day decay). Starts fresh at system deploy — no historical backfill.</div>';
     }
 
     function renderCost(d) {
       var t = d.totals || {};
-      if ((t.complete || 0) === 0) {
+      var hasRevenue = !!(d.revenueTotals && (Number(d.revenueTotals.attributedCents) || 0) > 0);
+      if ((t.complete || 0) === 0 && !hasRevenue) {
         emptyState('oa-cost', 'Cost-per-outcome available once posts reach t7. Until then, Cipher\'s ROI uses task-count proxy (see the "proxy" badge on the CEO dashboard).');
         return;
       }
       var perAgent = d.perAgent || {};
       var rows = Object.keys(perAgent).map(function (aid) {
         var a = perAgent[aid];
-        return '<tr><td>' + esc(aid) + '</td><td>' + (a.posts30d || 0) + '</td><td>' + (a.medianTotalEngagement || 0) + '</td></tr>';
+        var rev = a.revenueAttributedCents || 0;
+        return '<tr><td>' + esc(aid) + '</td><td>' + (a.posts30d || 0) + '</td><td>' + (a.medianTotalEngagement || 0) + '</td>'
+          + '<td' + (rev > 0 ? ' style="color:#34d399;font-weight:600;"' : '') + '>' + money(rev) + '</td></tr>';
       }).join('');
       document.getElementById('oa-cost').innerHTML =
-        '<table class="oa-table"><thead><tr><th>Agent</th><th>Posts 30d</th><th>Median engagement per post</th></tr></thead><tbody>'
+        '<table class="oa-table"><thead><tr><th>Agent</th><th>Posts 30d</th><th>Median engagement per post</th><th>Revenue attributed</th></tr></thead><tbody>'
         + rows + '</tbody></table>'
         + '<div style="font-size:var(--c-text-xs);opacity:0.5;margin-top:0.4rem;">Dollar cost not joined here — see Cipher\'s dashboard for $/engagement. Cross-reference against geminiUsage for per-agent cost.</div>';
     }
