@@ -27,7 +27,7 @@ module.exports = async function (context, req) {
   const id = String(body.id || '').trim();
   const patch = body.patch;
   if (!id) { context.res = { status: 400, headers: corsHeaders, body: { error: 'id required' } }; return; }
-  if (!patch || typeof patch !== 'object') { context.res = { status: 400, headers: corsHeaders, body: { error: 'patch object required' } }; return; }
+  if (!patch || typeof patch !== 'object' || Array.isArray(patch)) { context.res = { status: 400, headers: corsHeaders, body: { error: 'patch object required' } }; return; }
 
   try {
     const aq = (await storage.getState('approvalQueue')) || [];
@@ -67,6 +67,9 @@ module.exports = async function (context, req) {
         timestamp: nowIso,
         details: { proposalId: target.id, proposalType: target.type, fields: Object.keys(clean) }
       });
+      // Cap 5000 to match helpers.js `_appendToDestination` (the canonical governanceLog
+      // writer / forensic window) — deliberately NOT the 500 some sibling endpoints use,
+      // which would truncate the heartbeat's own history on every write.
       await storage.setState('governanceLog', gl.length > 5000 ? gl.slice(-5000) : gl);
     } catch (_glErr) { /* non-fatal */ }
 
