@@ -88,5 +88,16 @@ test('unknown proposal type returns error', () => {
   assert.ok(/not an editable proposal type/i.test(error || ''));
 });
 
+// ── malformed patch guard ──
+test('null patch is treated as empty (no crash, no error)', () => {
+  const { clean, error } = validatePatch('campaign_proposal', null);
+  assert.strictEqual(error, null);
+  assert.deepStrictEqual(clean, {});
+});
+test('non-object patch is treated as empty (no crash)', () => {
+  assert.deepStrictEqual(validatePatch('objective_proposal', 'oops').clean, {});
+  assert.deepStrictEqual(validatePatch('campaign_proposal', 42).clean, {});
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
