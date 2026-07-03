@@ -1318,6 +1318,35 @@
         .catch(function() { panel.style.display = 'none'; });
     }
 
+    // Shared edit helpers for proposal drawers. _pinput builds a labeled input;
+    // _pval reads a drawer field value by id. esc() is defined earlier in this file.
+    function _pinput(id, label, value, opts) {
+      opts = opts || {};
+      var v = value == null ? '' : String(value);
+      var ctl;
+      if (opts.textarea) ctl = '<textarea id="' + id + '" rows="' + (opts.rows || 2) + '" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;font-size:var(--c-text-sm);">' + esc(v) + '</textarea>';
+      else if (opts.select) {
+        ctl = '<select id="' + id + '" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;">';
+        opts.select.forEach(function (o) { ctl += '<option value="' + esc(o) + '"' + (o === v ? ' selected' : '') + '>' + esc(o) + '</option>'; });
+        ctl += '</select>';
+      } else ctl = '<input id="' + id + '" type="' + (opts.type || 'text') + '" value="' + esc(v) + '" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;font-size:var(--c-text-sm);" />';
+      return '<div style="margin-bottom:0.6rem;"><label style="display:block;font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);margin-bottom:0.2rem;">' + esc(label) + '</label>' + ctl + '</div>';
+    }
+    function _pval(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+    function _pcheckboxes(id, label, options, selected) {
+      selected = selected || [];
+      var html = '<div style="margin-bottom:0.6rem;"><label style="display:block;font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);margin-bottom:0.2rem;">' + esc(label) + '</label><div style="display:flex;gap:0.8rem;flex-wrap:wrap;">';
+      options.forEach(function (o, i) {
+        html += '<label style="font-size:var(--c-text-xs);color:#fff;display:flex;gap:0.25rem;align-items:center;"><input type="checkbox" id="' + id + '_' + i + '" value="' + esc(o) + '"' + (selected.indexOf(o) !== -1 ? ' checked' : '') + '/> ' + esc(o) + '</label>';
+      });
+      return html + '</div></div>';
+    }
+    function _pcheckboxVals(id, options) {
+      var out = [];
+      options.forEach(function (o, i) { var el = document.getElementById(id + '_' + i); if (el && el.checked) out.push(el.value); });
+      return out;
+    }
+
     function openProposalDrawer(idx) {
       var p = (window._campaignProposals || [])[idx];
       if (!p) return;
@@ -1329,26 +1358,80 @@
       if (p.strategyFlag === 'no-north-star-metric') html += '<span class="act-drawer-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;"><i class="fas fa-exclamation-triangle"></i> serves no north star</span>';
       html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">From ' + esc((p.proposedBy || '?').charAt(0).toUpperCase() + (p.proposedBy || '').slice(1)) + '</span>';
       html += '</div>';
-      if (p.description) {
-        html += '<div class="act-drawer-section"><h4>Description</h4><p style="white-space:pre-wrap;font-size:var(--c-text-base);">' + esc(p.description) + '</p></div>';
-      }
+      // Rationale + provenance stay read-only.
       if (p.rationale) {
         html += '<div class="act-drawer-section"><h4>Rationale</h4><p style="white-space:pre-wrap;font-size:var(--c-text-base);color:#a78bfa;">' + esc(p.rationale) + '</p></div>';
       }
-      html += '<div class="act-drawer-section"><h4>Details</h4><div style="font-size:var(--c-text-xs);display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;">';
-      html += '<div>Platforms: <strong>' + esc((p.platforms || []).join(', ') || 'any') + '</strong></div>';
-      html += '<div>Frequency: <strong>' + (p.frequency || '?') + '/' + esc(p.cadence || 'week') + '</strong></div>';
-      html += '<div>Duration: <strong>' + esc(p.duration || 'ongoing') + '</strong></div>';
-      html += '<div>Product: <strong>' + esc(p.product || 'general') + '</strong></div>';
-      if (p.northStarMetric) html += '<div style="grid-column:span 2;">North Star: <strong style="color:#a78bfa;">' + esc(p.northStarMetric) + '</strong></div>';
-      if (p.kpiTarget) html += '<div style="grid-column:span 2;">KPI: <strong>' + esc(p.kpiTarget) + '</strong></div>';
-      html += '</div></div>';
+      html += '<div class="act-drawer-section"><h4>Edit</h4>';
+      html += _pinput('pe_name', 'Name', p.name);
+      html += _pinput('pe_description', 'Description', p.description, { textarea: true, rows: 3 });
+      html += _pcheckboxes('pe_platforms', 'Platforms', ['social_x', 'social_linkedin', 'social_bluesky'], p.platforms || []);
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">';
+      html += _pinput('pe_frequency', 'Frequency (per period)', p.frequency, { type: 'number' });
+      html += _pinput('pe_cadence', 'Cadence', p.cadence || 'weekly', { select: ['daily', 'weekly', 'biweekly'] });
+      html += _pinput('pe_duration', 'Duration', p.duration);
+      html += _pinput('pe_product', 'Product', p.product);
+      html += '</div>';
+      html += _pinput('pe_kpiTarget', 'KPI target', p.kpiTarget);
+      html += _pinput('pe_northStarMetric', 'North-star metric', p.northStarMetric);
+      html += '<div id="pe_msg" style="min-height:1rem;font-size:var(--c-text-xs);margin-top:0.3rem;"></div>';
+      html += '</div>';
       html += '<div class="act-drawer-actions" style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">';
+      html += '<button class="act-btn act-btn--details" onclick="saveProposalEdit(\'' + p.id + '\',\'campaign_proposal\')"><i class="fas fa-save"></i> Save changes</button>';
       html += '<button class="act-btn act-btn--approve" onclick="approveCampaignProposal(\'' + p.id + '\')"><i class="fas fa-check"></i> Approve</button>';
       html += '<button class="act-btn act-btn--reject" onclick="rejectCampaignProposal(\'' + p.id + '\')"><i class="fas fa-times"></i> Reject</button>';
       html += '</div>';
       el.innerHTML = html;
       document.getElementById('drawer-overlay').classList.add('open');
+    }
+
+    // Persist drawer edits to the pending proposal, then update the cached entry
+    // in place so Approve materializes the edited values. Sibling of proposalDecide.
+    function saveProposalEdit(proposalId, type) {
+      var msg = document.getElementById('pe_msg');
+      var patch;
+      if (type === 'campaign_proposal') {
+        patch = {
+          name: _pval('pe_name'),
+          description: _pval('pe_description'),
+          platforms: _pcheckboxVals('pe_platforms', ['social_x', 'social_linkedin', 'social_bluesky']),
+          frequency: _pval('pe_frequency'),
+          cadence: _pval('pe_cadence'),
+          duration: _pval('pe_duration'),
+          product: _pval('pe_product'),
+          kpiTarget: _pval('pe_kpiTarget'),
+          northStarMetric: _pval('pe_northStarMetric')
+        };
+      } else {
+        patch = {
+          title: _pval('pe_title'),
+          description: _pval('pe_description'),
+          successCriteria: _pval('pe_successCriteria'),
+          northStarMetric: _pval('pe_northStarMetric'),
+          metricTarget: _pval('pe_metricTarget') === '' ? null : _pval('pe_metricTarget'),
+          metricDeadline: _pval('pe_metricDeadline') === '' ? null : _pval('pe_metricDeadline'),
+          timeHorizon: _pval('pe_timeHorizon')
+        };
+      }
+      if (msg) { msg.style.color = 'rgba(255,255,255,0.5)'; msg.textContent = 'Saving…'; }
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/proposalEdit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        body: JSON.stringify({ id: proposalId, patch: patch })
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+          if (!res.ok) { if (msg) { msg.style.color = '#f87171'; msg.textContent = res.j.error || 'Save failed'; } return; }
+          var lists = [window._campaignProposals, window._objectiveProposals];
+          lists.forEach(function (lst) {
+            if (!lst) return;
+            for (var i = 0; i < lst.length; i++) { if (lst[i].id === proposalId) { lst[i] = res.j.entry; } }
+          });
+          if (msg) { msg.style.color = '#34d399'; msg.textContent = 'saved ✓'; }
+          renderCampaignProposals();
+          renderObjectiveProposals();
+        })
+        .catch(function (e) { if (msg) { msg.style.color = '#f87171'; msg.textContent = 'Network error: ' + e.message; } });
     }
 
     // Campaign enrichment at approval — KEEP IN SYNC with api/proposalDecide/materialize.js.
