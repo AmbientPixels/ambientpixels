@@ -108,9 +108,11 @@ validatePatch(type, patch) -> { clean: object, error: string|null }
   - `duration` / `timeHorizon`: String, ≤50.
   - `northStarMetric`: String ≤50, or `null` (empty string → `null`).
   - `platforms`: Array; keep only values in `VALID_SOCIAL_TASK_TYPES`
-    (`social_x`, `social_linkedin`, `social_bluesky`, `social_facebook`,
-    `social_reddit`). If the array becomes empty, omit it from `clean` (keep the
-    proposal's prior value rather than blanking).
+    (`social_x`, `social_linkedin`, `social_bluesky` — the only social types the
+    campaign generator's `PLATFORM_TASK_TYPE` and the client `_VALID_TASK_TYPES`
+    accept; Facebook/Reddit are manual and NOT valid campaign task types). If the
+    array becomes empty, omit it from `clean` (keep the proposal's prior value
+    rather than blanking).
   - `frequency`: integer, clamp to `[1, 14]`; non-numeric → omit.
   - `cadence`: must be in `{ daily, weekly, biweekly }`; else omit.
   - `metricTarget`: finite number ≥ 0, or `null`; non-numeric non-null → omit.
