@@ -467,6 +467,51 @@
       });
   }
 
+  // ── Email capture (free scorecard by email) ────
+
+  var emailSendBtn = document.getElementById('as-email-send-btn');
+  var emailInput = document.getElementById('as-email-input');
+  var emailStatus = document.getElementById('as-email-status');
+
+  if (emailSendBtn) {
+    emailSendBtn.addEventListener('click', function () {
+      var email = emailInput.value.trim();
+      if (!email || !currentReportId) return;
+      emailSendBtn.disabled = true;
+      emailSendBtn.textContent = 'Sending.';
+      emailStatus.innerHTML = '';
+
+      var _attr = (window.ProductAnalytics && ProductAnalytics.getAttribution) ? ProductAnalytics.getAttribution() : { utm_content: '', utm_source: '' };
+      if (window.ProductAnalytics) ProductAnalytics.trackConversion('email_captured', { reportId: currentReportId });
+      fetch(API + '/as-analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          emailReport: true,
+          reportId: currentReportId,
+          email: email,
+          utm_content: _attr.utm_content,
+          utm_source: _attr.utm_source
+        })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          emailSendBtn.disabled = false;
+          emailSendBtn.textContent = 'Email my scorecard';
+          if (data.ok) {
+            emailStatus.innerHTML = '<p class="as-credits-balance">Sent. Check your inbox for the scorecard and report link.</p>';
+          } else {
+            emailStatus.innerHTML = '<p class="as-credits-error">' + escapeHtml(data.error || 'Could not send. Please try again.') + '</p>';
+          }
+        })
+        .catch(function () {
+          emailSendBtn.disabled = false;
+          emailSendBtn.textContent = 'Email my scorecard';
+          emailStatus.innerHTML = '<p class="as-credits-error">Could not send. Please try again.</p>';
+        });
+    });
+  }
+
   // ── Quiet CTA form (bottom of page) ──────────
 
   var qctaForm = document.getElementById('as-qcta-form');
@@ -488,5 +533,15 @@
     if (window.ProductAnalytics) ProductAnalytics.trackConversion('checkout_cancelled');
     showError('Checkout was cancelled. Your free scan results are still available below.');
     window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  // ── Auto-scan from ?url= (shared-report unlock path, outreach links) ──
+
+  var _qsUrl = new URLSearchParams(window.location.search).get('url');
+  if (_qsUrl) {
+    urlInput.value = _qsUrl;
+    if (window.ProductAnalytics) ProductAnalytics.trackFunnel('autoscan_from_link', { url: _qsUrl });
+    window.history.replaceState({}, '', window.location.pathname);
+    form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
   }
 })();

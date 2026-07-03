@@ -29,7 +29,8 @@
 
 ### AmbientScore — website conversion audit
 
-- [AmbientScore product](https://www.ambientpixels.ai/products/ambientscore/): AI-powered website conversion audit scored across 8 dimensions. Single audit ($29) or 3-pack ($89). Returns a full editorial report with prioritized recommendations.
+- [AmbientScore](https://www.ambientpixels.ai/ambientscore/): Run a free AI conversion audit of any website. Instant score across 8 dimensions with top findings shown free, no login required. Full editorial report with prioritized recommendations is $29 (or 3-pack $89).
+- [AmbientScore product page](https://www.ambientpixels.ai/products/ambientscore/): Overview of the AmbientScore audit product.
 
 ### Pixel Agents — agent marketplace
 

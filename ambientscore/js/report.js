@@ -142,8 +142,20 @@
     html += '</div>';
     html += '</div>';
 
+    // Teaser findings — the locked API response already includes them; showing
+    // real, specific findings is what earns the unlock click on shared links.
+    var teaser = report.teaserFindings || [];
+    if (teaser.length) {
+      html += '<div class="as-findings">';
+      teaser.forEach(function (f) {
+        html += buildTeaserCard(f);
+      });
+      html += '</div>';
+    }
+    var lockedCount = Math.max(0, (report.totalFindings || 0) - teaser.length);
+
     html += '<div class="as-upgrade-buttons">';
-    html += '<a class="as-buy-btn" href="/ambientscore/?url=' + encodeURIComponent(report.url || '') + '">Unlock full report . $29</a>';
+    html += '<button type="button" class="as-buy-btn" id="as-paywall-buy">Unlock full report . $29' + (lockedCount ? ' (' + lockedCount + ' more findings)' : '') + '</button>';
     html += '</div>';
 
     html += '<div class="as-credits-redeem">';
@@ -157,6 +169,40 @@
     html += '</section>';
 
     contentEl.innerHTML = html;
+
+    var buyBtn = document.getElementById('as-paywall-buy');
+    if (buyBtn) {
+      buyBtn.addEventListener('click', function () {
+        if (window.ProductAnalytics) ProductAnalytics.trackConversion('checkout_started', { priceType: 'single', reportId: reportId, from: 'paywall' });
+        buyBtn.disabled = true;
+        buyBtn.textContent = 'Redirecting.';
+        var _attr = (window.ProductAnalytics && ProductAnalytics.getAttribution) ? ProductAnalytics.getAttribution() : { utm_content: '', utm_source: '' };
+        fetch(API + '/as-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: report.url,
+            reportId: reportId,
+            createCheckout: true,
+            priceType: 'single',
+            utm_content: _attr.utm_content,
+            utm_source: _attr.utm_source
+          })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data.checkoutUrl) {
+              window.location.href = data.checkoutUrl;
+            } else {
+              throw new Error(data.error || 'Failed to create checkout session');
+            }
+          })
+          .catch(function () {
+            buyBtn.disabled = false;
+            buyBtn.textContent = 'Unlock full report . $29';
+          });
+      });
+    }
 
     var creditsCheckBtn = document.getElementById('as-credits-check-btn');
     var creditsEmailInput = document.getElementById('as-credits-email');
@@ -202,6 +248,30 @@
           });
       });
     }
+  }
+
+  function buildTeaserCard(f) {
+    var dim = dimCode(f.dimensionLabel);
+    var sev = String(f.severity || 'minor').toLowerCase();
+    if (!/^(critical|important|minor)$/.test(sev)) sev = 'minor';
+    var sevLabel = sev.charAt(0).toUpperCase() + sev.slice(1);
+    var html = '<div class="as-finding-card">';
+    html += '<div class="as-finding-badges">';
+    html += '<span class="as-finding-dim">' + esc(dim.code) + ' &middot; ' + esc(dim.short || (f.dimensionLabel || '').toUpperCase()) + '</span>';
+    html += '<span class="as-finding-severity ' + sev + '">Severity ' + esc(sevLabel) + '</span>';
+    if (f.estimatedImpact) {
+      html += '<span class="as-finding-impact">Impact ' + esc(f.estimatedImpact) + '</span>';
+    }
+    html += '</div>';
+    if (f.evidence) {
+      html += '<div class="as-finding-evidence">' + esc(f.evidence) + '</div>';
+    }
+    html += '<div class="as-finding-text">' + esc(f.finding || '') + '</div>';
+    if (f.recommendation) {
+      html += '<div class="as-finding-rec">' + esc(f.recommendation) + '</div>';
+    }
+    html += '</div>';
+    return html;
   }
 
   function redeemCredit(email) {

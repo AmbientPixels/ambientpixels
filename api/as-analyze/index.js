@@ -138,6 +138,61 @@ module.exports = async function (context, req) {
       // If verification failed, fall through to normal flow
     }
 
+    // Email-my-scorecard: send the teaser report to a captured lead (free tier).
+    // The lead is stored even if the send fails — the address is the asset.
+    if (body.emailReport && body.reportId && body.email) {
+      const email = String(body.email).trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+        context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: 'A valid email is required.' }) };
+        return;
+      }
+      if (!String(body.reportId).startsWith('ccr_')) {
+        context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: 'Valid report ID required.' }) };
+        return;
+      }
+      const emailIp = (req.headers['x-forwarded-for'] || req.headers['x-client-ip'] || 'unknown').split(',')[0].trim();
+      if (await checkRateLimit(emailIp)) {
+        context.res = { status: 429, headers: CORS, body: JSON.stringify({ error: 'Rate limit exceeded. Try again in an hour.' }) };
+        return;
+      }
+      const emailedReport = await storage.getState('cc_report_' + body.reportId);
+      if (!emailedReport) {
+        context.res = { status: 404, headers: CORS, body: JSON.stringify({ error: 'Report not found.' }) };
+        return;
+      }
+      try {
+        const leads = (await storage.getState('as_leads')) || [];
+        leads.push({
+          email: email,
+          reportId: emailedReport.id || body.reportId,
+          url: emailedReport.url || null,
+          score: emailedReport.score != null ? emailedReport.score : null,
+          utmContent: body.utm_content || null,
+          utmSource: body.utm_source || null,
+          source: 'free-scan-email',
+          ts: new Date().toISOString()
+        });
+        await storage.setState('as_leads', leads.slice(-5000));
+      } catch (leadErr) {
+        context.log.warn('[as-analyze] Lead store failed (non-fatal):', leadErr.message);
+      }
+      let sent = false;
+      try {
+        const { sendReportEmail } = require('../_lib/ambientScore/emailSender');
+        sent = await sendReportEmail(email, {
+          id: emailedReport.id || body.reportId,
+          url: emailedReport.url,
+          score: emailedReport.score,
+          grade: emailedReport.grade,
+          findings: emailedReport.teaserFindings || (emailedReport.findings || []).slice(0, 3)
+        });
+      } catch (mailErr) {
+        context.log.warn('[as-analyze] Scorecard email failed (non-fatal):', mailErr.message);
+      }
+      context.res = { status: 200, headers: CORS, body: JSON.stringify({ ok: true, sent: sent }) };
+      return;
+    }
+
     // Validate URL
     if (!url || !isValidUrl(url)) {
       context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: 'A valid HTTP/HTTPS URL is required.' }) };
