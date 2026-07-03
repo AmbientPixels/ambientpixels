@@ -224,9 +224,135 @@ function buildOutcomeDigest(outcomeSnapshots, actions, campaigns, experiments, n
   };
 }
 
+// ── Revenue attribution into the learning loop (Phase 2.4) ──
+//
+// The outcome rollup above measures engagement. These helpers thread REAL money
+// (from the revenueLedger) into the same per-agent / per-campaign rollups, so ROI
+// reflects dollars, not just likes. Pure + offline-testable (mirrors revenue-intel
+// discipline). Wired by companyHeartbeat/index.js after the revenueDigest is built.
+//
+// The join: a ledger entry's `utmContent` is the originating post's action id.
+// We resolve that action id → { agent, campaignId } via a map built from LIVE
+// actions PLUS the archived `actionAttributionIndex` (written by actionsArchiver),
+// so a purchase that lands after the post has aged out of live `actions` (the
+// first-touch UTM decay bug) still attributes.
+
+var _POSITIVE_REVENUE_TYPES = { one_time: true, subscription_initial: true, subscription_renewal: true };
+
+// Build actionId → { agent, campaignId } from live actions, with an archived
+// index as fallback. Live actions win (freshest truth). `archivedIndex` is the
+// blob shape written by actionsArchiver: { map: { actionId: { agent, campaignId } } }
+// (a flat { actionId: {...} } object is also tolerated).
+function buildActionAttributionMap(liveActions, tasks, archivedIndex) {
+  var map = {};
+  // Seed with the archived fallback first (live overrides below).
+  if (archivedIndex && typeof archivedIndex === 'object') {
+    var flat = (archivedIndex.map && typeof archivedIndex.map === 'object') ? archivedIndex.map : archivedIndex;
+    Object.keys(flat).forEach(function (aid) {
+      var v = flat[aid];
+      if (v && typeof v === 'object') {
+        map[aid] = { agent: v.agent || null, campaignId: v.campaignId || null };
+      }
+    });
+  }
+  var taskById = {};
+  (Array.isArray(tasks) ? tasks : []).forEach(function (t) { if (t && t.id) taskById[t.id] = t; });
+  (Array.isArray(liveActions) ? liveActions : []).forEach(function (a) {
+    if (!a || !a.id) return;
+    var campaignId = a.campaign_id || null;
+    if (!campaignId && a._parentTaskId && taskById[a._parentTaskId]) {
+      campaignId = taskById[a._parentTaskId].campaign_id || null;
+    }
+    var agent = a.created_by || a.createdBy || a.agentId || null;
+    map[a.id] = { agent: agent, campaignId: campaignId };
+  });
+  return map;
+}
+
+// Attribute positive ledger revenue (cents) through the action map. Only positive
+// types (one_time / subscription_*) attribute; refunds/disputes are ignored here so
+// a leak never shows as negative "earned by agent X". Returns byAgent / byCampaign
+// cent maps plus attributed/unattributed totals.
+function attributeRevenue(ledgerEntries, actionMap) {
+  var byAgent = {};
+  var byCampaign = {};
+  var attributedCents = 0;
+  var unattributedCents = 0;
+  var entries = Array.isArray(ledgerEntries) ? ledgerEntries : [];
+  var m = actionMap || {};
+  for (var i = 0; i < entries.length; i++) {
+    var e = entries[i] || {};
+    var amt = Number(e.amountCents) || 0;
+    if (!(_POSITIVE_REVENUE_TYPES[e.type] && amt > 0)) continue;
+    var ref = e.utmContent ? m[e.utmContent] : null;
+    if (ref && (ref.agent || ref.campaignId)) {
+      if (ref.agent) byAgent[ref.agent] = (byAgent[ref.agent] || 0) + amt;
+      if (ref.campaignId) byCampaign[ref.campaignId] = (byCampaign[ref.campaignId] || 0) + amt;
+      attributedCents += amt;
+    } else {
+      unattributedCents += amt;
+    }
+  }
+  return { byAgent: byAgent, byCampaign: byCampaign, attributedCents: attributedCents, unattributedCents: unattributedCents };
+}
+
+// Merge a revenue attribution result into an already-built outcome digest (in place).
+// Adds `revenueAttributedCents` to every perAgent entry and every perCampaign row,
+// creates minimal rows for agents/campaigns that earned revenue but have no snapshots
+// yet (so the first dollar is never invisible), and attaches a `revenueTotals` summary.
+function applyRevenueToOutcomeDigest(digest, attribution) {
+  if (!digest) return digest;
+  var attr = attribution || { byAgent: {}, byCampaign: {}, attributedCents: 0, unattributedCents: 0 };
+  var byAgent = attr.byAgent || {};
+  var byCampaign = attr.byCampaign || {};
+
+  digest.perAgent = digest.perAgent || {};
+  Object.keys(byAgent).forEach(function (aid) {
+    if (!digest.perAgent[aid]) {
+      digest.perAgent[aid] = { posts7d: 0, posts30d: 0, medianER: null, medianTotalEngagement: null, topHook: null, worstHook: null };
+    }
+  });
+  Object.keys(digest.perAgent).forEach(function (aid) {
+    digest.perAgent[aid].revenueAttributedCents = byAgent[aid] || 0;
+  });
+
+  if (Array.isArray(digest.perCampaign)) {
+    var present = {};
+    digest.perCampaign.forEach(function (c) {
+      c.revenueAttributedCents = byCampaign[c.campaignId] || 0;
+      present[c.campaignId] = true;
+    });
+    Object.keys(byCampaign).forEach(function (cid) {
+      if (!present[cid]) {
+        digest.perCampaign.push({
+          campaignId: cid,
+          title: String(cid).substring(0, 60),
+          postsPublished: 0,
+          postsComplete: 0,
+          totalEngagements: 0,
+          blogViewsAttributed: 0,
+          formSubmitsAttributed: 0,
+          revenueAttributedCents: byCampaign[cid]
+        });
+      }
+    });
+  }
+
+  digest.revenueTotals = {
+    attributedCents: attr.attributedCents || 0,
+    unattributedCents: attr.unattributedCents || 0,
+    byAgentCents: byAgent,
+    byCampaignCents: byCampaign
+  };
+  return digest;
+}
+
 module.exports = {
   buildOutcomeDigest: buildOutcomeDigest,
   AUTO_CONCLUDE: AUTO_CONCLUDE,
   computeER: computeER,
-  totalEngagement: totalEngagement
+  totalEngagement: totalEngagement,
+  buildActionAttributionMap: buildActionAttributionMap,
+  attributeRevenue: attributeRevenue,
+  applyRevenueToOutcomeDigest: applyRevenueToOutcomeDigest
 };

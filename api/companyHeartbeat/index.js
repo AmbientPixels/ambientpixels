@@ -16,7 +16,7 @@ const { buildResearchDemandDigest } = require('./research-intel');
 const { buildContentDigest } = require('./content-intel');
 const { buildStrategicDigest } = require('./strategic-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
-const { buildOutcomeDigest } = require('./outcome-intel');
+const { buildOutcomeDigest, buildActionAttributionMap, attributeRevenue, applyRevenueToOutcomeDigest } = require('./outcome-intel');
 const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
 const { buildStrategyDigest, evaluateObjectives } = require('./strategy-intel');
@@ -382,6 +382,23 @@ module.exports = async function (context) {
         }
       }
       context.log('[heartbeat] Revenue digest: mtd=$' + revenueDigest.mtdRevenueDollars + ' mrr=$' + revenueDigest.mrrDollars + ' paying=' + revenueDigest.payingCustomers + ' net=$' + revenueDigest.netDollars + ' attributedCampaigns=' + Object.keys(revenueDigest.byCampaign || {}).length);
+
+      // ── Revenue → learning loop (Phase 2.4) ──
+      // Thread attributed revenue into the outcome rollups so per-agent / per-campaign
+      // ROI reflects real dollars, not just engagement. Uses the live action→agent/campaign
+      // map plus the archived actionAttributionIndex (actionsArchiver) so purchases that land
+      // >RETENTION_DAYS after the originating post still attribute. Fail-open.
+      try {
+        if (outcomeDigest && _revLedger) {
+          var _archAttrIndex = null;
+          try { _archAttrIndex = await storage.getState('actionAttributionIndex'); } catch (_aiErr) { /* non-fatal */ }
+          var _actionAttrMap = buildActionAttributionMap(allActions, tasks, _archAttrIndex);
+          var _revAttr = attributeRevenue(_revLedger.entries, _actionAttrMap);
+          applyRevenueToOutcomeDigest(outcomeDigest, _revAttr);
+          runtimeMemory.outcomeDigest = outcomeDigest;
+          context.log('[heartbeat] Revenue→outcome: attributed $' + (((_revAttr.attributedCents || 0) / 100).toFixed(2)) + ' across ' + Object.keys(_revAttr.byAgent || {}).length + ' agent(s), ' + Object.keys(_revAttr.byCampaign || {}).length + ' campaign(s)');
+        }
+      } catch (_roErr) { context.log('[heartbeat] Revenue→outcome attribution failed (non-fatal):', _roErr.message); }
     } catch (_e) { context.log('[heartbeat] Revenue digest failed (non-fatal):', _e.message); }
 
     // Scout research demand digest (aggregates signals from all other digests — Scout runs last)

@@ -29,6 +29,15 @@ const archive = require('../_utils/archiveStorage');
 const RETENTION_DAYS = 7;
 const GOV_LOG_CAP = 500; // matches MAX_GOVERNANCE_LOG_ENTRIES in constants.js
 
+// Attribution-decay fix: when a finished action ages out of live `actions`, its
+// actionId→{agent,campaignId} mapping would be lost — so a purchase whose UTM
+// (first-touch, persisted in the buyer's localStorage indefinitely) points at that
+// action lands unattributed. We persist a compact append-only index at archive time
+// (companyStorage-direct key, not a company-state VALID_KEY) that the heartbeat's
+// revenue→outcome join falls back to. Capped newest-first.
+const ATTR_INDEX_KEY = 'actionAttributionIndex';
+const ATTR_INDEX_CAP = 5000;
+
 // ── Pure helpers (unit-tested in actionsArchiver.test.js) ──
 
 function _actionTs(a) {
@@ -64,6 +73,56 @@ function planArchiveAndTrim(actions, nowMs, ageDays) {
     if (_isTerminalAction(a) && a.id) toTrimIds.push(a.id);
   });
   return { toArchive: toArchive, toTrimIds: toTrimIds };
+}
+
+// Pure: extract actionId → { agent, campaignId, at } for the actions being archived.
+// campaignId resolves from the action directly, else via its parent task. Only
+// actions carrying at least an agent OR a campaign are indexed (others can't attribute).
+function buildAttributionEntries(archivedActions, taskById, atMs) {
+  const at = Number.isFinite(atMs) ? atMs : Date.now();
+  const out = {};
+  const tById = taskById || {};
+  (Array.isArray(archivedActions) ? archivedActions : []).forEach(function (a) {
+    if (!a || !a.id) return;
+    const agent = a.created_by || a.createdBy || a.agentId || null;
+    let campaignId = a.campaign_id || null;
+    if (!campaignId && a._parentTaskId && tById[a._parentTaskId]) {
+      campaignId = tById[a._parentTaskId].campaign_id || null;
+    }
+    if (!agent && !campaignId) return; // nothing attributable
+    out[a.id] = { agent: agent, campaignId: campaignId, at: at };
+  });
+  return out;
+}
+
+// Pure: merge new attribution entries into the existing index blob, dedup by
+// actionId (existing values win but backfill any missing agent/campaign), then cap
+// to `cap` newest by `at`. Returns { map, updatedAt, count }.
+function mergeAttributionIndex(existing, additions, cap, nowIso) {
+  const capN = Number.isFinite(cap) ? cap : ATTR_INDEX_CAP;
+  const map = (existing && existing.map && typeof existing.map === 'object') ? Object.assign({}, existing.map) : {};
+  const adds = additions || {};
+  Object.keys(adds).forEach(function (id) {
+    if (map[id]) {
+      const prev = map[id];
+      map[id] = {
+        agent: prev.agent || adds[id].agent || null,
+        campaignId: prev.campaignId || adds[id].campaignId || null,
+        at: prev.at || adds[id].at
+      };
+    } else {
+      map[id] = adds[id];
+    }
+  });
+  let ids = Object.keys(map);
+  if (ids.length > capN) {
+    ids.sort(function (x, y) { return (map[y].at || 0) - (map[x].at || 0); }); // newest first
+    const keep = ids.slice(0, capN);
+    const capped = {};
+    keep.forEach(function (id) { capped[id] = map[id]; });
+    return { map: capped, updatedAt: nowIso || new Date().toISOString(), count: keep.length };
+  }
+  return { map: map, updatedAt: nowIso || new Date().toISOString(), count: ids.length };
 }
 
 // ── Core run (shared by the timer module + the HTTP trigger) ──
@@ -142,18 +201,42 @@ async function runArchiver(opts) {
     log('[actionsArchiver] Archive had failures — trim skipped this run (will retry next run)');
   }
 
+  // ── Attribution-index phase: preserve actionId→{agent,campaignId} for the actions
+  // being aged out, so revenue that lands after they leave live `actions` still
+  // attributes (first-touch UTM decay fix). Only after a successful archive. Fail-open.
+  let attrIndexed = 0;
+  if (archiveOk && plan.toArchive.length > 0) {
+    try {
+      const tasksState = (await store.getState('tasks')) || [];
+      const taskById = {};
+      (Array.isArray(tasksState) ? tasksState : []).forEach(function (t) { if (t && t.id) taskById[t.id] = t; });
+      const additions = buildAttributionEntries(plan.toArchive, taskById, nowMs);
+      const addCount = Object.keys(additions).length;
+      if (addCount > 0) {
+        const existingIdx = (await store.getState(ATTR_INDEX_KEY)) || null;
+        const merged = mergeAttributionIndex(existingIdx, additions, ATTR_INDEX_CAP);
+        await store.setState(ATTR_INDEX_KEY, merged);
+        attrIndexed = addCount;
+        log('[actionsArchiver] Attribution index +' + addCount + ' (total ' + merged.count + ')');
+      }
+    } catch (attrErr) {
+      log('[actionsArchiver] Attribution index update failed (non-fatal): ' + (attrErr && attrErr.message));
+    }
+  }
+
   const durationMs = Date.now() - runStartMs;
   await _appendRunSummary(store, {
     archived: totalArchived,
     trimmed: trimmed,
+    attrIndexed: attrIndexed,
     partitions: partitionResults,
     skipped: actions.length - plan.toArchive.length,
     durationMs: durationMs
   });
 
   log('[actionsArchiver] Complete — archived ' + totalArchived + ', trimmed ' + trimmed +
-    ', kept ' + keptCount + ' in ' + durationMs + 'ms');
-  return { ok: true, archived: totalArchived, trimmed: trimmed, kept: keptCount, partitions: partitionResults };
+    ', attrIndexed ' + attrIndexed + ', kept ' + keptCount + ' in ' + durationMs + 'ms');
+  return { ok: true, archived: totalArchived, trimmed: trimmed, attrIndexed: attrIndexed, kept: keptCount, partitions: partitionResults };
 }
 
 // ── Timer entrypoint ──
@@ -177,6 +260,9 @@ module.exports = async function (context) {
 module.exports.runArchiver = runArchiver;
 module.exports.planArchiveAndTrim = planArchiveAndTrim;
 module.exports._isTerminalAction = _isTerminalAction;
+module.exports.buildAttributionEntries = buildAttributionEntries;
+module.exports.mergeAttributionIndex = mergeAttributionIndex;
+module.exports.ATTR_INDEX_KEY = ATTR_INDEX_KEY;
 
 // ── Helpers ──
 
