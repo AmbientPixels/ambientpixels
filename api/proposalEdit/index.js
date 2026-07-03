@@ -48,10 +48,15 @@ module.exports = async function (context, req) {
     target.editedBy = 'ceo';
     target._edited = true;
 
-    // Metric-flag consistency (objective only): a filled north-star clears the
-    // "serves no north star" flag; clearing it re-flags.
+    // Metric-flag consistency: keep the "serves no north star" badge honest after an edit.
+    // Objectives SHOULD carry a north star, so re-derive the flag both ways (metric added
+    // clears it; metric removed re-flags). Campaigns do NOT require a north star, so only
+    // CLEAR a pre-existing flag when the CEO adds a metric — never ADD it to a normally
+    // unflagged campaign (which would invent a badge the generator never set).
     if (target.type === 'objective_proposal') {
       target.strategyFlag = (target.northStarMetric && target.metricTarget != null) ? null : 'no-north-star-metric';
+    } else if (target.type === 'campaign_proposal' && target.strategyFlag === 'no-north-star-metric' && target.northStarMetric) {
+      target.strategyFlag = null;
     }
 
     await storage.setState('approvalQueue', aq);
