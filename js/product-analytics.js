@@ -4,7 +4,9 @@
 (function () {
   'use strict';
 
-  var INGEST_URL = '/api/productAnalyticsIngest';
+  // Direct Function App URL — the SWA /api/* rewrite answers 405 to POST, which
+  // silently dropped every beacon (0 events ingested across all products).
+  var INGEST_URL = (location.hostname === 'localhost' ? '' : 'https://ambientpixels-nova-api.azurewebsites.net') + '/api/productAnalyticsIngest';
   var FLUSH_INTERVAL_MS = 10000;
   var MAX_BUFFER = 100;
 
@@ -125,9 +127,15 @@
     var batch = _buffer.splice(0);
     var payload = JSON.stringify({ events: batch });
     try {
-      // Prefer sendBeacon for reliability (especially on pagehide)
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(INGEST_URL, new Blob([payload], { type: 'application/json' }));
+      // fetch keepalive survives pagehide AND works cross-origin with a JSON
+      // body; sendBeacon cannot (its JSON Blob needs a CORS preflight it never sends).
+      if (window.fetch) {
+        fetch(INGEST_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).catch(function () { /* silent */ });
       } else {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', INGEST_URL, true);
