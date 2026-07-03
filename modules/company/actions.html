@@ -1647,19 +1647,21 @@
       if (p.strategyFlag === 'no-north-star-metric') html += '<span class="act-drawer-badge" style="background:rgba(251,191,36,0.15);color:#fbbf24;"><i class="fas fa-exclamation-triangle"></i> serves no north star</span>';
       html += '<span style="font-size:var(--c-text-xs);opacity:0.5;">From ' + esc((p.proposedBy || '?').charAt(0).toUpperCase() + (p.proposedBy || '').slice(1)) + '</span>';
       html += '</div>';
-      if (p.description) html += '<div class="act-drawer-section"><h4>Description</h4><p style="white-space:pre-wrap;font-size:var(--c-text-base);">' + esc(p.description) + '</p></div>';
       if (p.rationale) html += '<div class="act-drawer-section"><h4>Rationale</h4><p style="white-space:pre-wrap;font-size:var(--c-text-base);color:#60a5fa;">' + esc(p.rationale) + '</p></div>';
-      html += '<div class="act-drawer-section"><h4>Details</h4><div style="font-size:var(--c-text-xs);display:grid;grid-template-columns:1fr 1fr;gap:0.3rem;">';
-      html += '<div>Success Criteria: <strong>' + esc(p.successCriteria || 'not specified') + '</strong></div>';
-      html += '<div>Time Horizon: <strong>' + esc(p.timeHorizon || 'not specified') + '</strong></div>';
-      if (p.northStarMetric) {
-        var nsLine = esc(p.northStarMetric);
-        if (p.metricTarget) nsLine += ' → ' + esc(String(p.metricTarget)) + (p.metricDeadline ? ' by ' + esc(p.metricDeadline) : '');
-        html += '<div style="grid-column:span 2;">North Star: <strong style="color:#60a5fa;">' + nsLine + '</strong>' + (p.metricTarget ? ' <span style="opacity:0.6;">(progress auto-measured on approval)</span>' : ' <span style="opacity:0.6;">(no target — legacy tracking)</span>') + '</div>';
-      }
-      if (p.suggestedCampaigns && p.suggestedCampaigns.length > 0) html += '<div style="grid-column:span 2;">Suggested Campaigns: <strong>' + esc(p.suggestedCampaigns.join(', ')) + '</strong></div>';
-      html += '</div></div>';
+      html += '<div class="act-drawer-section"><h4>Edit</h4>';
+      html += _pinput('pe_title', 'Title', p.title);
+      html += _pinput('pe_description', 'Description', p.description, { textarea: true, rows: 3 });
+      html += _pinput('pe_successCriteria', 'Success criteria', p.successCriteria, { textarea: true, rows: 2 });
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">';
+      html += _pinput('pe_northStarMetric', 'North-star metric', p.northStarMetric);
+      html += _pinput('pe_metricTarget', 'Metric target', p.metricTarget, { type: 'number' });
+      html += _pinput('pe_metricDeadline', 'Metric deadline', p.metricDeadline, { type: 'date' });
+      html += _pinput('pe_timeHorizon', 'Time horizon', p.timeHorizon);
+      html += '</div>';
+      html += '<div id="pe_msg" style="min-height:1rem;font-size:var(--c-text-xs);margin-top:0.3rem;"></div>';
+      html += '</div>';
       html += '<div class="act-drawer-actions" style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">';
+      html += '<button class="act-btn act-btn--details" onclick="saveProposalEdit(\'' + p.id + '\',\'objective_proposal\')"><i class="fas fa-save"></i> Save changes</button>';
       html += '<button class="act-btn act-btn--approve" onclick="approveObjectiveProposal(\'' + p.id + '\')"><i class="fas fa-check"></i> Approve</button>';
       html += '<button class="act-btn act-btn--reject" onclick="rejectObjectiveProposal(\'' + p.id + '\')"><i class="fas fa-times"></i> Reject</button>';
       html += '</div>';
