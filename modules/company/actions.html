@@ -1320,6 +1320,11 @@
 
     // Shared edit helpers for proposal drawers. _pinput builds a labeled input;
     // _pval reads a drawer field value by id. esc() is defined earlier in this file.
+    // Escape a value for use inside a double-quoted HTML attribute. esc() handles
+    // &,<,> (text-node encoding) but NOT the double-quote that would break out of
+    // an attribute — proposal text routinely contains quotes. Mirrors the existing
+    // esc(x).replace(/"/g,'&quot;') idiom used elsewhere in this file.
+    function _attr(v) { return esc(v == null ? '' : String(v)).replace(/"/g, '&quot;'); }
     function _pinput(id, label, value, opts) {
       opts = opts || {};
       var v = value == null ? '' : String(value);
@@ -1327,9 +1332,9 @@
       if (opts.textarea) ctl = '<textarea id="' + id + '" rows="' + (opts.rows || 2) + '" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;font-size:var(--c-text-sm);">' + esc(v) + '</textarea>';
       else if (opts.select) {
         ctl = '<select id="' + id + '" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;">';
-        opts.select.forEach(function (o) { ctl += '<option value="' + esc(o) + '"' + (o === v ? ' selected' : '') + '>' + esc(o) + '</option>'; });
+        opts.select.forEach(function (o) { ctl += '<option value="' + _attr(o) + '"' + (o === v ? ' selected' : '') + '>' + esc(o) + '</option>'; });
         ctl += '</select>';
-      } else ctl = '<input id="' + id + '" type="' + (opts.type || 'text') + '" value="' + esc(v) + '" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;font-size:var(--c-text-sm);" />';
+      } else ctl = '<input id="' + id + '" type="' + _attr(opts.type || 'text') + '" value="' + _attr(v) + '" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;font-size:var(--c-text-sm);" />';
       return '<div style="margin-bottom:0.6rem;"><label style="display:block;font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);margin-bottom:0.2rem;">' + esc(label) + '</label>' + ctl + '</div>';
     }
     function _pval(id) { var el = document.getElementById(id); return el ? el.value : ''; }
@@ -1337,7 +1342,7 @@
       selected = selected || [];
       var html = '<div style="margin-bottom:0.6rem;"><label style="display:block;font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);margin-bottom:0.2rem;">' + esc(label) + '</label><div style="display:flex;gap:0.8rem;flex-wrap:wrap;">';
       options.forEach(function (o, i) {
-        html += '<label style="font-size:var(--c-text-xs);color:#fff;display:flex;gap:0.25rem;align-items:center;"><input type="checkbox" id="' + id + '_' + i + '" value="' + esc(o) + '"' + (selected.indexOf(o) !== -1 ? ' checked' : '') + '/> ' + esc(o) + '</label>';
+        html += '<label style="font-size:var(--c-text-xs);color:#fff;display:flex;gap:0.25rem;align-items:center;"><input type="checkbox" id="' + id + '_' + i + '" value="' + _attr(o) + '"' + (selected.indexOf(o) !== -1 ? ' checked' : '') + '/> ' + esc(o) + '</label>';
       });
       return html + '</div></div>';
     }
