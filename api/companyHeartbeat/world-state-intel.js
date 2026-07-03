@@ -138,7 +138,7 @@ function buildWorldState(inputs, nowMs) {
   const now = Number.isFinite(nowMs) ? nowMs : Date.now();
   const {
     financeDigest, revenueDigest, forgeOpsDigest, outcomeDigest, strategicDigest,
-    socialAccountStats, contentDigest,
+    socialAccountStats, contentDigest, blogPostViews,
     campaigns, objectives, tasks, approvalQueue, governanceLog,
     agentExperiments, executionMode, productFacts
   } = inputs || {};
@@ -183,8 +183,14 @@ function buildWorldState(inputs, nowMs) {
     });
     followers.total = (socialAccountStats.totals && socialAccountStats.totals.followers) || (followers.x + followers.linkedin + followers.bluesky + followers.facebook);
   }
-  const blogViews30d = (contentDigest && contentDigest.topPosts)
-    ? contentDigest.topPosts.reduce((s, p) => s + (p.views30d || p.views || 0), 0)
+  // Count raw view events — contentDigest.topBlogPosts only covers posts
+  // PUBLISHED in the last 30d, undercounting views on older posts.
+  const _views30Cutoff = now - 30 * 24 * 60 * 60 * 1000;
+  const blogViews30d = Array.isArray(blogPostViews)
+    ? blogPostViews.filter(v => {
+        const t = Date.parse((v && v.timestamp) || '');
+        return Number.isFinite(t) && t >= _views30Cutoff && t <= now;
+      }).length
     : 0;
   const outTotals = (outcomeDigest && outcomeDigest.totals) || {};
   const outcomeCoverage = outTotals.snapshots
@@ -309,14 +315,10 @@ function _buildWorldStatePromptBlock(worldState) {
 
   const fin = worldState.finance || {};
   lines.push('FINANCE: $' + Number(fin.monthlyActual || 0).toFixed(2) + ' / $' + Number(fin.monthlyBudget || 0).toFixed(0) + ' monthly (' + (fin.monthlySpendPct || 0) + '%, trend ' + (fin.burnTrend || 'stable') + (fin.projectedMonthEnd ? ', projected $' + Number(fin.projectedMonthEnd).toFixed(2) : '') + '). Status: ' + (fin.status || 'unknown') + '.');
-  // Income line — shown once there is ANY revenue, so agents optimize for money
-  // earned, not just spent. Omitted at $0 to respect the hard 1500-char cap (the
-  // block already runs near it under heavy data; agents still see paying_customers
-  // 0→1 via the COMPANY STRATEGY block below, and Cipher sees full revenue detail).
-  if (Number(fin.monthlyRevenue) > 0 || Number(fin.mrr) > 0 || Number(fin.payingCustomers) > 0) {
-    const _netIncome = Math.round((Number(fin.monthlyRevenue || 0) - Number(fin.monthlyActual || 0)) * 100) / 100;
-    lines.push('REVENUE: $' + Number(fin.monthlyRevenue || 0).toFixed(2) + ' MTD, $' + Number(fin.mrr || 0).toFixed(2) + ' MRR, ' + (fin.payingCustomers || 0) + ' paying, net ' + (_netIncome >= 0 ? '+$' + _netIncome.toFixed(2) : '-$' + Math.abs(_netIncome).toFixed(2)) + ' vs LLM.');
-  }
+  // Income line — ALWAYS shown, even at $0. The whole fleet must treat zero
+  // revenue as a standing problem, not an invisible one (revenue pivot 2026-07).
+  const _netIncome = Math.round((Number(fin.monthlyRevenue || 0) - Number(fin.monthlyActual || 0)) * 100) / 100;
+  lines.push('REVENUE: $' + Number(fin.monthlyRevenue || 0).toFixed(2) + ' MTD, $' + Number(fin.mrr || 0).toFixed(2) + ' MRR, ' + (fin.payingCustomers || 0) + ' paying, net ' + (_netIncome >= 0 ? '+$' + _netIncome.toFixed(2) : '-$' + Math.abs(_netIncome).toFixed(2)) + ' vs LLM.');
 
   const fleet = worldState.fleet || {};
   const stallList = fleet.stalled && fleet.stalled.length > 0 ? ' (' + fleet.stalled.join(', ') + ')' : '';

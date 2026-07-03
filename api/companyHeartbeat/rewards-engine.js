@@ -383,7 +383,8 @@ async function runRewardsEngine(opts) {
       storage.getState('tasksArchive').then(function (v) { return v || []; }),
       storage.getState('socialAccountStats').then(function (v) { return v || {}; }),
       storage.getState('runtimeMemory').then(function (v) { return v || {}; }),
-      storage.getState('agentRewards').then(function (v) { return v || null; })
+      storage.getState('agentRewards').then(function (v) { return v || null; }),
+      storage.getState('blogPostViews').then(function (v) { return Array.isArray(v) ? v.length : 0; })
     ]);
     var state = { approvalQueue: loaded[0], blogPosts: loaded[1], outcomeSnapshots: loaded[2], tasks: loaded[3], tasksArchive: loaded[4] };
     var sas = loaded[5] || {};
@@ -393,8 +394,11 @@ async function runRewardsEngine(opts) {
     var applied = applyEvents(events, prev, nowMs);
 
     var followerTotal = 0;
-    Object.keys(sas).forEach(function (k) {
-      var f = sas[k] && Number(sas[k].followers);
+    // Prod nests platforms under socialAccountStats.platforms (same shape bug
+    // as the proposal generator, fixed 07-02); fall back to the flat shape.
+    var sasPlatforms = (sas && sas.platforms) ? sas.platforms : sas;
+    Object.keys(sasPlatforms || {}).forEach(function (k) {
+      var f = sasPlatforms[k] && Number(sasPlatforms[k].followers);
       if (Number.isFinite(f)) followerTotal += f;
     });
     var rm = loaded[6] || {};
@@ -402,7 +406,7 @@ async function runRewardsEngine(opts) {
     var rewards = applyCompany(applied.rewards, {
       followerTotal: followerTotal,
       revenueCents: Number.isFinite(rev) ? rev : undefined,
-      blogViews: undefined
+      blogViews: loaded[8]
     }, nowMs);
 
     await storage.setState('agentRewards', rewards);

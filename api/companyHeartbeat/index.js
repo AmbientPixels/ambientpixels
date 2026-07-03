@@ -437,6 +437,7 @@ module.exports = async function (context) {
         strategicDigest: strategicDigest,
         socialAccountStats: socialAccountStats,
         contentDigest: contentDigest,
+        blogPostViews: _blogPostViewsForDigest,
         campaigns: campaigns,
         objectives: objectives,
         tasks: tasks,
@@ -4056,12 +4057,35 @@ module.exports = async function (context) {
           _aeA.execution_status = 'success';
           _aeExecuted++;
           context.log('[Heartbeat] Auto-executed approved action:', _aeA.id, _aeType);
+          // Social telemetry — only the HTTP execute handler emitted these, so
+          // posts published via this path were invisible to socialMetricsEvents.
+          try {
+            const _aeTel = require('../socialMetrics/telemetry');
+            if (_aeTel.isSocialAction(_aeA)) {
+              await _aeTel.appendSocialMetricEvent(_aeTel.buildSocialTelemetryEvent(_aeA, {
+                event_type: 'execution',
+                result: 'success',
+                executed_at: _aeA.execution.finished_at,
+                post_url: (_aeResult.receipt && _aeResult.receipt.post_url) || null
+              }));
+            }
+          } catch (_aeTelErr) { context.log.warn('[Heartbeat] Social telemetry emit failed:', _aeTelErr.message); }
         } catch (_aeErr) {
           _aeA.execution.status = 'failed';
           _aeA.execution.finished_at = new Date().toISOString();
           _aeA.execution.last_error = { code: 'AUTO_EXEC_FAIL', message: _aeErr.message };
           _aeA.execution_status = 'failed';
           context.log.warn('[Heartbeat] Auto-execute failed for', _aeA.id, ':', _aeErr.message);
+          try {
+            const _aeTel = require('../socialMetrics/telemetry');
+            if (_aeTel.isSocialAction(_aeA)) {
+              await _aeTel.appendSocialMetricEvent(_aeTel.buildSocialTelemetryEvent(_aeA, Object.assign({
+                event_type: 'execution',
+                result: 'failure',
+                executed_at: _aeA.execution.finished_at
+              }, _aeTel.mapErrorToTelemetry(_aeErr))));
+            }
+          } catch (_aeTelErr) { context.log.warn('[Heartbeat] Social telemetry emit failed:', _aeTelErr.message); }
         }
         _aeChanged = true;
       }

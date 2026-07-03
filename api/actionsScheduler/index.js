@@ -166,6 +166,23 @@ module.exports = async function (context) {
           post_url: (result.receipt && result.receipt.post_url) || null
         });
 
+        // Social telemetry — grace-window posts publish via this path, which
+        // skipped the emit the HTTP execute handler does (dead pipe since 06-11).
+        try {
+          const tel = require('../socialMetrics/telemetry');
+          if (tel.isSocialAction(execAction)) {
+            const startMs = a.execution.started_at ? new Date(a.execution.started_at).getTime() : Date.now();
+            await tel.appendSocialMetricEvent(tel.buildSocialTelemetryEvent(execAction, {
+              event_type: 'execution',
+              result: 'success',
+              created_at: a.execution.started_at || new Date().toISOString(),
+              executed_at: a.execution.finished_at,
+              latency_ms: Math.max(0, new Date(a.execution.finished_at).getTime() - startMs),
+              post_url: (result.receipt && result.receipt.post_url) || ''
+            }));
+          }
+        } catch (telErr) { context.log.warn('[Scheduler] Social telemetry emit failed:', telErr.message); }
+
         context.log('[Scheduler] Successfully executed scheduled action:', a.id);
         executed++;
       } catch (execError) {
@@ -186,6 +203,17 @@ module.exports = async function (context) {
           platform: platform,
           error: a.execution.last_error.message
         });
+
+        try {
+          const tel = require('../socialMetrics/telemetry');
+          if (tel.isSocialAction(execAction)) {
+            await tel.appendSocialMetricEvent(tel.buildSocialTelemetryEvent(execAction, Object.assign({
+              event_type: 'execution',
+              result: 'failure',
+              executed_at: a.execution.finished_at
+            }, tel.mapErrorToTelemetry(execError))));
+          }
+        } catch (telErr) { context.log.warn('[Scheduler] Social telemetry emit failed:', telErr.message); }
 
         context.log.warn('[Scheduler] Failed to execute scheduled action:', a.id, execError.message || execError.code);
       }
