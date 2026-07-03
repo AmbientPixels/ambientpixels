@@ -694,6 +694,18 @@ async function runAgentHeartbeat(ctx) {
   const toolActions = normalized.taskUpdates.filter(a => a.tool === 'web_search' || a.type === 'web_search');
   const regularActions = normalized.taskUpdates.filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
 
+  // Re-route propose-* ACTION objects the LLM put in the proposals array. Left
+  // there, Fix-7 auto-wraps them into content-free generic proposals and the
+  // .campaign/.objective payload is silently lost (revenue-pivot audit finding).
+  for (let _rri = normalized.proposals.length - 1; _rri >= 0; _rri--) {
+    const _rr = normalized.proposals[_rri];
+    if (_rr && (_rr.type === 'propose-campaign' || _rr.type === 'propose-objective') && (_rr.campaign || _rr.objective)) {
+      normalized.proposals.splice(_rri, 1);
+      regularActions.push(_rr);
+      context.log('[Heartbeat]', agentId, 'rerouted', _rr.type, 'from proposals array to the action path');
+    }
+  }
+
   // Scout recursion guard: skip search if task already has research_intel
   const scoutTargetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
   const hasExistingResearch = scoutTargetTask && scoutTargetTask.research_intel;
@@ -5060,6 +5072,56 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'created reminder:', dateEntry.id, dateEntry.title, dateEntry.date);
         result.taskUpdates.push({ action: 'reminder-created', dateId: dateEntry.id, agentId: agentId });
       }
+    } else if (action.type === 'run-ambientscore-scan' && action.scan && action.scan.url) {
+      // Conversion lever (revenue pivot 2026-07): queue a free AmbientScore audit
+      // of a prospect URL. asScanRunner (timer, every 10 min) executes it
+      // out-of-band — a scan takes 20-60s and must not stretch the heartbeat —
+      // then comments score + findings + shareable report link on the given task.
+      var _SCAN_AGENTS = ['echo', 'scout', 'nova'];
+      if (_SCAN_AGENTS.indexOf(agentId) === -1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED run-ambientscore-scan — not authorized (echo/scout/nova only)');
+        await logEvent('policy-violation', agentId, 'run-ambientscore-scan blocked: not authorized', cycleId, { gate: 'scan_not_authorized' });
+        continue;
+      }
+      var _scanUrl = String(action.scan.url).trim();
+      var _scanOk = false;
+      try { var _scanU = new URL(_scanUrl); _scanOk = _scanU.protocol === 'http:' || _scanU.protocol === 'https:'; } catch (_ue) { _scanOk = false; }
+      if (!_scanOk) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED run-ambientscore-scan — invalid URL:', _scanUrl.substring(0, 100));
+        continue;
+      }
+      var _scanTaskId = action.scan.taskId || action.taskId || null;
+      if (!_scanTaskId) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED run-ambientscore-scan — scan.taskId required (results land as a task comment)');
+        continue;
+      }
+      var _scanQ = (await storage.getState('asScanQueue')) || [];
+      var _scanDup = _scanQ.some(function (q) {
+        return q && q.url === _scanUrl && (q.status === 'queued' || q.status === 'running' ||
+          (q.status === 'done' && q.finishedAt && (Date.now() - new Date(q.finishedAt).getTime()) < 7 * 86400000));
+      });
+      if (_scanDup) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED run-ambientscore-scan — URL already scanned or queued within 7d:', _scanUrl);
+        continue;
+      }
+      if (_scanQ.filter(function (q) { return q && q.status === 'queued'; }).length >= 20) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED run-ambientscore-scan — queue full (20)');
+        continue;
+      }
+      _scanQ.push({
+        id: 'scan_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        url: _scanUrl,
+        taskId: _scanTaskId,
+        requestedBy: agentId,
+        note: String(action.scan.note || '').substring(0, 300),
+        status: 'queued',
+        createdAt: new Date().toISOString(),
+        cycleId: cycleId
+      });
+      await storage.setState('asScanQueue', _scanQ.slice(-100));
+      await logEvent('scan-queued', agentId, 'AmbientScore scan queued: ' + _scanUrl, cycleId, { url: _scanUrl, taskId: _scanTaskId });
+      context.log('[Heartbeat]', agentId, 'queued AmbientScore scan:', _scanUrl, 'for task', _scanTaskId);
+
     } else if (action.type === 'propose-campaign' && action.campaign) {
       if (!PROPOSAL_AUTHORIZED_AGENTS.has(agentId)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — not an authorized proposer');
@@ -5102,15 +5164,19 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'Capital gate check failed (fail-open):', String(_pcGateErr).substring(0, 200));
       }
 
-      // Rate limit: max 1 proposal per day per agent
+      // Rate limit: max 1 proposal per day per agent. Generator-cron entries are
+      // stamped proposedBy:'nova' — exclude them or the cron silently consumes
+      // Nova's own daily quota (revenue-pivot audit finding).
       var _pcAQ = (await storage.getState('approvalQueue')) || [];
       var _pcToday = new Date().toISOString().substring(0, 10);
       var _pcTodayCount = _pcAQ.filter(function (q) {
         return q.type === 'campaign_proposal' && q.proposedBy === agentId &&
+          q.source !== 'auto:proposal-generator' &&
           q.createdAt && q.createdAt.substring(0, 10) === _pcToday;
       }).length;
       if (_pcTodayCount >= 1) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — daily limit reached (1/day)');
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: 1/day limit', cycleId, { gate: 'proposal_daily_limit', name: _pcName });
         continue;
       }
 
@@ -5121,6 +5187,7 @@ Write the full deliverable first, then the structured JSON block.`;
       });
       if (_pcDupe) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — duplicate pending proposal:', _pcName);
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: duplicate pending', cycleId, { gate: 'proposal_pending_dup', name: _pcName });
         continue;
       }
 
@@ -5136,6 +5203,7 @@ Write the full deliverable first, then the structured JSON block.`;
       });
       if (_pcRejected) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — rejection cooldown active for:', _pcName);
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: rejection cooldown', cycleId, { gate: 'proposal_reject_cooldown', name: _pcName });
         continue;
       }
 
@@ -5196,14 +5264,18 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
-      // Rate limit: 1 objective proposal per day per agent
+      // Rate limit: 1 objective proposal per day per agent. Exclude generator-cron
+      // entries (stamped proposedBy:'nova') so the cron can't eat Nova's quota.
       var _poAQ = (await storage.getState('approvalQueue')) || [];
       var _poToday = new Date().toISOString().substring(0, 10);
       var _poTodayCount = _poAQ.filter(function (q) {
-        return q.type === 'objective_proposal' && q.proposedBy === agentId && q.createdAt && q.createdAt.substring(0, 10) === _poToday;
+        return q.type === 'objective_proposal' && q.proposedBy === agentId &&
+          q.source !== 'auto:proposal-generator' &&
+          q.createdAt && q.createdAt.substring(0, 10) === _poToday;
       }).length;
       if (_poTodayCount >= 1) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — daily limit reached');
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: 1/day limit', cycleId, { gate: 'proposal_daily_limit', name: _poTitle });
         continue;
       }
 
@@ -5213,6 +5285,7 @@ Write the full deliverable first, then the structured JSON block.`;
       });
       if (_poDupe) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — duplicate pending proposal');
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: duplicate pending', cycleId, { gate: 'proposal_pending_dup', name: _poTitle });
         continue;
       }
 
@@ -5227,6 +5300,7 @@ Write the full deliverable first, then the structured JSON block.`;
       });
       if (_poRejected) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — rejection cooldown active for:', _poTitle);
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: rejection cooldown', cycleId, { gate: 'proposal_reject_cooldown', name: _poTitle });
         continue;
       }
 

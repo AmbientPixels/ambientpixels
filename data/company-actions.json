@@ -329,6 +329,17 @@
       "handler": "heartbeat-approval-queue",
       "enabled": true,
       "handler_note": "Canonical name: `cancel-objective`. Nova proposes via heartbeat → lands in approvalQueue as objective_cancellation entry. Irreversible — requires CEO approval. Handled by agent-runner.js lifecycle branch."
+    },
+    {
+      "id": "run_ambientscore_scan",
+      "name": "Queue AmbientScore audit of a prospect URL",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "growth",
+      "handler": "heartbeat",
+      "enabled": true,
+      "handler_note": "Canonical name: `run-ambientscore-scan` (echo/scout/nova only). Agent emits { scan: { url, taskId, note } } via heartbeat → agent-runner validates (URL, 7d dedup, queue cap 20) and enqueues to asScanQueue → api/asScanRunner timer (every 10 min, max 2/run, systemConfig.ambientScoreScans.dailyCap default 8/day) runs the in-process analyzer and comments score + findings + shareable report link on the task. Read-only toward the prospect site; publishing anything that USES the result still flows through CEO approval. Revenue pivot 2026-07."
     }
   ]
 }

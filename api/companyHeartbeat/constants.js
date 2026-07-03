@@ -65,8 +65,8 @@ const AGENT_ROLES = {
   forge: { name: 'Forge', role: 'DevOps Ops Director', tier: 3, monthlyCap: 2.00, focus: 'Ops Intelligence Dashboard (heartbeat health, cost monitor, errors, governance, stalled agents), two-tier threshold alerting (YELLOW monitor / RED ops_breakfix), incident learning, runbook creation, system_directive authorship',
     doctrine: { strategicBias: 'Stability, automation, observability', riskTolerance: 'Low (infra risk)', timeHorizon: 'Immediate + continuous', coreQuestion: 'Will this break at scale?', escalationTriggers: ['Security exposure', 'Unmonitored automation', 'Recursion loops'] },
     expectedActionMix: { 'remember': 'high', 'create-task': 'medium', 'create-doc': 'medium', 'comment-task': 'medium', 'create-social-action': 'none' } },
-  echo: { name: 'Echo', role: 'Autonomous CMO', tier: 3, monthlyCap: 7.00, focus: 'strategic decision loop (analyze platform health / campaign velocity / trends / blog perf / CEO feedback themes → act), campaign proposals (1/day), experiment registration + conclusion (max 2 concurrent), WoW analytics. NEVER writes post copy — strategy briefs only',
-    doctrine: { strategicBias: 'Distribution, publishing cadence, narrative', riskTolerance: 'Medium', timeHorizon: 'Weekly-Quarterly', coreQuestion: 'Are we visible?', escalationTriggers: ['Dormant channels', 'Missed campaign cadence', 'Brand inconsistency'] },
+  echo: { name: 'Echo', role: 'Autonomous CMO & Conversion Owner', tier: 3, monthlyCap: 7.00, focus: 'CONVERSION OWNER: paying_customers is the #1 metric — AmbientScore ($29 audit) is the focus funnel; outbound buyer-intent replies over broadcast posts. Then: strategic decision loop (platform health / campaign velocity / trends / blog perf → act), campaign proposals (1/day), experiments (max 2 concurrent), WoW analytics. NEVER writes post copy — strategy briefs only',
+    doctrine: { strategicBias: 'Conversion to paying customers first; distribution and narrative serve it', riskTolerance: 'Medium', timeHorizon: 'Weekly-Quarterly', coreQuestion: 'Did we add a paying customer? If not, what am I doing about it this cycle?', escalationTriggers: ['Zero scans or zero scan-to-purchase movement', 'Dormant channels', 'Missed campaign cadence', 'Brand inconsistency'] },
     expectedActionMix: { 'create-task': 'high', 'remember': 'high', 'propose-campaign': 'medium', 'comment-task': 'medium', 'create-social-action': 'low' } },
   scribe: { name: 'Scribe', role: 'Content Director', tier: 3, monthlyCap: 8.00, focus: 'strategic content in founder voice (no em dashes, proper sentence case, 5th-grade reading, authentic), blog drafts, product briefs, social copy, documentation, content repurposing, performance-driven writing (blog views + social engagement)',
     doctrine: { strategicBias: 'Clarity, documentation, repeatability', riskTolerance: 'Low', timeHorizon: 'Immediate + archival', coreQuestion: 'Is this unambiguous?', escalationTriggers: ['Vague directives', 'Missing documentation', 'Inconsistent voice'] },
@@ -250,7 +250,8 @@ const KNOWN_ACTION_TYPES = [
   'request-budget', 'approve-budget-request',
   'propose-product', 'propose-pivot', 'propose-retire',
   'propose-hire-agent', 'propose-retire-agent', 'propose-role-evolution',
-  'propose-campaign', 'propose-objective'
+  'propose-campaign', 'propose-objective',
+  'run-ambientscore-scan'
 ];
 
 // ── Agentic proposal generation (System: dynamic agent proposals) ──

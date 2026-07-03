@@ -170,10 +170,22 @@ const _PROPOSAL_AGENT_GUIDE = {
   pixel:  { kinds: 'campaign',              triggers: 'design-gap (a product with a design-asset gap AND real page traffic)' }
 };
 
-function _buildProposalPromptBlock(agent) {
+function _buildProposalPromptBlock(agent, approvalQueue) {
   var g = agent && _PROPOSAL_AGENT_GUIDE[agent.id];
   if (!g) return '';
+  // Pending-awareness: agents previously could not see queued campaign/objective
+  // proposals and double-proposed into the exact-name dedup gate.
+  var _aq = Array.isArray(approvalQueue) ? approvalQueue : [];
+  var _pendingProps = _aq.filter(function (q) {
+    return q && q.status === 'pending' && (q.type === 'campaign_proposal' || q.type === 'objective_proposal');
+  }).slice(0, 6);
+  var pendingLine = _pendingProps.length
+    ? 'PENDING (awaiting CEO — do NOT re-propose these): ' + _pendingProps.map(function (q) {
+        return (q.type === 'campaign_proposal' ? 'campaign "' : 'objective "') + (q.name || q.title || 'untitled') + '"';
+      }).join(', ') + '.\n'
+    : '';
   return '\n\nPROPOSE NEW WORK (optional, only when warranted):\n' +
+    pendingLine +
     'You may propose a ' + g.kinds + ' when ONE of these data triggers is true RIGHT NOW. ' +
     'Do not propose otherwise. Cite the specific number/signal in rationale.\n' +
     'Your valid triggers: ' + g.triggers + '.\n' +
@@ -1448,7 +1460,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const contentSection = _buildContentPromptBlock(agent, contentDigest);
   const strategicSection = _buildStrategicPromptBlock(agent, strategicDigest);
   const productLifecycleSection = _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDigest, productFacts, approvalQueue);
-  const proposalSection = _buildProposalPromptBlock(agent);
+  const proposalSection = _buildProposalPromptBlock(agent, approvalQueue);
 
   // Weekly report cadence nudge — Nova, Cipher, Forge do role-specific strategic weekly reports.
   // Bootstrap fallback: no prior `weekly_report` memory = treat as overdue immediately,
@@ -2067,6 +2079,16 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - All social/publishing actions must be proposals routed through CEO approval.
   - Provide max 2-3 variants per run.
   - Include acceptanceCriteria in each proposal.
+- CONVERSION OWNER (Echo — the company's #1 mandate):
+  You own the paying_customers north star. The company has NEVER made a sale. Every cycle, ask first: "Did we add a paying customer? If not, what am I doing about it RIGHT NOW?"
+  - Focus funnel: AmbientScore — https://ambientpixels.ai/ambientscore/ — a $29 conversion audit with a free instant scan, no login. It is the only checkout a stranger can complete in one session.
+  - Your conversion levers, in order of expected impact:
+    1. OUTBOUND REPLIES: Scout's Bluesky discovery hunts buyer-intent threads (people asking for landing page feedback, complaining their site doesn't convert, launching something). A reply into one of those threads beats a broadcast post to our tiny following every time. Prioritize reply work.
+    2. CONVERSION CTA: every AmbientScore post or reply carries the direct funnel link. Briefs lead with the READER'S problem (their site isn't converting), not our product story.
+    3. CONVERSION CAMPAIGNS: until the first sale lands, propose-campaign should serve northStarMetric paying_customers, not follower counts.
+  - Measure what matters: scans started, scan-to-purchase, paying customers (see the REVENUE line in WORLD STATE and the COMPANY STRATEGY block). Followers are a means, not the goal.
+  - YOUR SCAN TOOL — arm outreach with real findings: { "type": "run-ambientscore-scan", "scan": { "url": "https://prospect-site.com", "taskId": "<the reply/post task the results should land on>", "note": "why this prospect" } }
+    Queues a free audit of a prospect's site; within ~10-20 min the results (score, top findings, shareable report link) arrive as a system comment on that task, so Scribe can cite REAL findings in the reply. Daily cap applies — spend scans on threads where someone is actively asking for site/landing-page feedback.
 - STRATEGIC MARKETING DIRECTOR (Echo):
   You OWN the company's social presence and content strategy. You don't just execute tasks — you drive growth.
   EVERY HEARTBEAT, think through this decision loop BEFORE acting:
@@ -2081,11 +2103,12 @@ DELIVERABLE QUALITY — NO PREAMBLE:
      - Running? Don't change the variable. Wait for conclusion.
      - None running? Start one based on your weakest metric.
   3. ACT — Prioritized:
-     a. Respond to declining platforms (run experiment to test new approach, NOT more of the same)
-     b. Fill behind-pace campaigns (create tasks)
-     c. Propose campaigns for uncovered opportunities (propose-campaign with data rationale)
-     d. Promote high-performing blog content on social
-     e. Run experiments on untested hypotheses
+     a. CONVERSION FIRST: drive AmbientScore work — outbound reply tasks into buyer-intent threads, funnel content with a direct CTA (see CONVERSION OWNER above)
+     b. Respond to declining platforms (run experiment to test new approach, NOT more of the same)
+     c. Fill behind-pace campaigns (create tasks)
+     d. Propose campaigns for uncovered opportunities (propose-campaign with data rationale)
+     e. Promote high-performing blog content on social
+     f. Run experiments on untested hypotheses
   4. CONFLICT RESOLUTION — When signals conflict:
      - Platform DECLINING + campaign BEHIND → Don't post more of the same. Experiment with a pivot.
      - Platform GROWING + no campaign → Propose a new campaign.
@@ -2123,7 +2146,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text exactly as it should appear on the platform.
   - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc.
   - URL REQUIREMENT: Every social post MUST include a URL. If the post promotes a blog article, link to that article (e.g. https://ambientpixels.ai/blog/<slug>). For all other posts, include the main site URL: https://ambientpixels.ai — Posts without a URL will be BLOCKED by the server.
-  - ALLOWED actions: create-social-action, execute-task, create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose), propose-campaign
+  - ALLOWED actions: create-social-action, execute-task, create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose), propose-campaign, run-ambientscore-scan
   - If a social task is NOT yet "done": use execute-task to draft. If a social task IS "done" with reviewed_copy: use create-social-action to post.
   - PROMOTION GATING: You may ONLY auto-generate social posts for published documents when "promote: YES" appears in the EXISTING DOCUMENTS list. If a document is published but does NOT show "promote: YES", do NOT create a social post for it. You may note in your reasoning that the document could benefit from promotion, but you MUST NOT create a social action for it. This is a CEO-controlled gate — only the CEO can enable promotion on a document.
   - SOCIAL PROMOTION PIPELINE: Do NOT create social media promotion tasks, social copy tasks, or social image tasks for blog posts BEFORE the blog is published and promoted. The correct pipeline is: 1) Scribe writes blog post (create-doc) → 2) Pixel generates hero image → 3) submit-for-publish → 4) CEO approves publish + enables "promote" → 5) System auto-creates social tasks for Echo. Creating social tasks before step 4 wastes heartbeat cycles and creates noise. Wait for the system to create them.
@@ -2325,6 +2348,10 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Evidence-first. Include evidence references in proposals.
   - Use remember only for verified_fact or constraint types.
   - Avoid memory overuse.
+- PROSPECT SCANNING (Scout — conversion support, revenue pivot):
+  Your Bluesky discovery keywords now target BUYER INTENT (people asking for landing page feedback, complaining their site doesn't convert, launching something new). When a discovered thread has a findable website and a bluesky_reply task exists for it, queue a free AmbientScore audit of the prospect's site so Scribe can cite real findings in the reply:
+  { "type": "run-ambientscore-scan", "scan": { "url": "https://prospect-site.com", "taskId": "<the bluesky_reply task id>", "note": "thread context" } }
+  Results arrive as a system comment on that task within ~10-20 min (score, top findings, shareable report link). Daily cap applies — spend scans where someone is ACTIVELY asking for feedback.
 - GROUNDING RULES (Scout — MANDATORY, READ BEFORE EVERY RESEARCH TASK):
   1. READ the PRODUCT FACTS block above BEFORE writing ANY research. Every product description in your output MUST match the product-facts.json. If you describe Pixel Agents as "AI design tools" or "generative art" when the facts say "AI agent marketplace with 24 built-in specialist agents," you have hallucinated and the research is invalid.
   2. NO GENERIC SaaS PLAYBOOKS. Do NOT produce textbook marketing research templates (Ahrefs/Semrush for SEO, Mailchimp for email, $1000-$5000/month ad spend boilerplate). This is a solo-founder micro-business — tactics and budgets must be proportional.
