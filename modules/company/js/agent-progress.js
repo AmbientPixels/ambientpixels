@@ -72,7 +72,7 @@
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
   function gj(path) { return fetch(API + path, { headers: { 'x-company-secret': SECRET } }).then(function (r) { return r.json(); }).catch(function () { return null; }); }
-  function portrait(id, cls) { return '<img class="' + cls + '" src="/ambientos/img/' + esc(id) + '.webp" alt="' + esc(cap(id)) + '" loading="lazy" onerror="this.style.visibility=\'hidden\'">'; }
+  function portrait(id, cls) { if (id === 'vale') return '<i class="fas fa-user-tie ' + cls + '" title="Vale" style="color:#9b8cff;display:inline-flex;align-items:center;justify-content:center;"></i>'; return '<img class="' + cls + '" src="/ambientos/img/' + esc(id) + '.webp" alt="' + esc(cap(id)) + '" loading="lazy" onerror="this.style.visibility=\'hidden\'">'; }
   function dot(h) { return '<span class="ap-dot ap-dot-' + h + '" title="' + h + '"></span>'; }
 
   function load() {

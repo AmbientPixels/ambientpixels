@@ -152,7 +152,9 @@
       ],
       "statSource": "static",
       "statLabel": "Office of the CEO",
-      "auraColor": "var(--aura-cyan)"
+      "auraColor": "var(--aura-cyan)",
+      "icon": "fas fa-user-tie",
+      "iconColor": "#9b8cff"
     }
   ]
 }

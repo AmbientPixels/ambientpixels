@@ -35,12 +35,33 @@ function renderOwnsList(owns) {
   return owns.map(item => `<li>${escapeHtml(item)}</li>`).join('\n          ');
 }
 
+// Avatar markup for an agent at a given surface. Agents with an `icon` field
+// (e.g. Vale, who has no portrait yet) render a FontAwesome icon tile instead of
+// an <img>, mirroring how the CEO uses an icon. Agents with a portrait are
+// unchanged (byte-identical output).
+function avatarMarkup(agent, className, iconPx, imgExtra, tile) {
+  if (agent.icon) {
+    const c = escapeHtml(agent.iconColor || '#9b8cff');
+    const bg = tile ? `aspect-ratio:4/5;background:linear-gradient(135deg,${c}26,${c}0d);` : '';
+    return `<span class="${className}" role="img" aria-label="${escapeHtml(agent.name)}" style="display:flex;align-items:center;justify-content:center;${bg}color:${c};"><i class="${escapeHtml(agent.icon)}" style="font-size:${iconPx}px;"></i></span>`;
+  }
+  return `<img class="${className}" src="${agent.portrait}" alt="${escapeHtml(agent.name)}"${imgExtra}>`;
+}
+
+function heroAvatar(agent) {
+  if (agent.icon) {
+    const c = escapeHtml(agent.iconColor || '#9b8cff');
+    return `<span class="agent-hero-portrait" role="img" aria-label="${escapeHtml(agent.name)} — AmbientOS agent" style="display:flex;align-items:center;justify-content:center;aspect-ratio:4/5;background:linear-gradient(135deg,${c}26,${c}0d);color:${c};"><i class="${escapeHtml(agent.icon)}" style="font-size:180px;"></i></span>`;
+  }
+  return `<img class="agent-hero-portrait" src="${agent.portrait}" alt="${escapeHtml(agent.name)} — AmbientOS agent portrait" width="540" height="675">`;
+}
+
 function renderCrewChips(agents, currentId) {
   return agents
     .filter(a => a.id !== currentId)
     .map(a =>
       `<a class="agent-crew-chip" href="/ambientos/agents/${a.id}">
-          <img class="agent-crew-chip-avatar" src="${a.portrait}" alt="${escapeHtml(a.name)}" width="32" height="32">
+          ${avatarMarkup(a, 'agent-crew-chip-avatar', 16, ' width="32" height="32"', false)}
           <span>${escapeHtml(a.name)}</span>
         </a>`
     )
@@ -50,7 +71,7 @@ function renderCrewChips(agents, currentId) {
 function renderHubCards(agents) {
   return agents.map(a =>
     `<a class="agent-hub-card" href="/ambientos/agents/${a.id}" data-agent-id="${a.id}">
-        <img class="agent-hub-card-portrait" src="${a.portrait}" alt="${escapeHtml(a.name)} portrait" loading="lazy">
+        ${avatarMarkup(a, 'agent-hub-card-portrait', 72, ' loading="lazy"', true)}
         <h2 class="agent-hub-card-name">${escapeHtml(a.name)}.</h2>
         <p class="agent-hub-card-role">${escapeHtml(a.role)} · Tier ${a.tier}</p>
         <span class="agent-hub-card-status" data-status=""></span>
@@ -98,6 +119,7 @@ function main() {
       role: escapeHtml(agent.role),
       tier: String(agent.tier),
       portrait: agent.portrait,
+      heroAvatar: heroAvatar(agent),
       pullQuote: escapeHtml(agent.pullQuote),
       bio: escapeHtml(agent.bio),
       ownsList: renderOwnsList(agent.owns),

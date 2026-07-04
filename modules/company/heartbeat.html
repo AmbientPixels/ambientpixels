@@ -375,7 +375,9 @@
 
       var html = '<div class="' + cls + '">';
       html += '<div class="hb-agent-top">'
-            + '<img class="hb-avatar" src="/ambientos/img/' + esc(aid) + '.webp" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
+            + (aid === 'vale'
+                ? '<i class="hb-avatar fas fa-user-tie" style="color:#9b8cff;display:flex;align-items:center;justify-content:center;"></i>'
+                : '<img class="hb-avatar" src="/ambientos/img/' + esc(aid) + '.webp" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">')
             + '<span class="hb-agent-name">' + esc(aid) + '</span>'
             + '<span class="hb-agent-status">' + esc(statusText) + '</span></div>';
       if (status === 'thinking') html += '<div class="hb-loadbar"><span></span></div>';
