@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Agent processing order — Echo runs after Scribe/Quill so peer reviews complete before social injection
-const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout'];
+const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout', 'vale'];
 
 // Shared envelope contract for the heartbeat agent output. Used by Gemini
 // structured output (responseSchema) so the model is forced to emit all
@@ -76,7 +76,10 @@ const AGENT_ROLES = {
     expectedActionMix: { 'review-task': 'high', 'comment-task': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
   scout: { name: 'Scout', role: 'Research Director', tier: 3, monthlyCap: 3.50, focus: 'demand-driven research loop (aggregates cross-agent intel requests from Echo/Cipher/Forge), autonomous Bluesky discovery (every heartbeat, 2h cooldown, scores threads 0-100), competitive tracking per product, live web search via Brave API',
     doctrine: { strategicBias: 'Strategic advantage, signal detection', riskTolerance: 'Medium', timeHorizon: 'Quarterly-Annual', coreQuestion: 'Where is leverage hiding?', escalationTriggers: ['Competitor acceleration', 'Platform dependency risk', 'Market shifts'] },
-    expectedActionMix: { 'web_search': 'high', 'remember': 'high', 'create-task': 'low', 'create-social-action': 'none' } }
+    expectedActionMix: { 'web_search': 'high', 'remember': 'high', 'create-task': 'low', 'create-social-action': 'none' } },
+  vale: { name: 'Vale', role: 'Chief of Staff', tier: 1, reportsTo: null, monthlyCap: 2.00, focus: 'CEO chief of staff: each cycle, review fleet state for what the CEO must know or decide, keep the CEO action list current, surface blockers and escalations to the CEO, and prep briefings. Does NOT run marketing/finance/content/product work or launch anything without the CEO.',
+    doctrine: { strategicBias: "Protect the CEO's time, focus, and decision quality", riskTolerance: 'Low — surface and recommend, do not act unilaterally', timeHorizon: 'Days to weeks', coreQuestion: 'Does the CEO need to know or decide this?', escalationTriggers: ['Anything needing a CEO decision', 'Blockers on CEO action items', 'Cross-agent conflicts'] },
+    expectedActionMix: { 'remember': 'medium', 'create-task': 'low', 'update-task': 'low', 'create-social-action': 'none' } }
 };
 
 // Decision classification thresholds
