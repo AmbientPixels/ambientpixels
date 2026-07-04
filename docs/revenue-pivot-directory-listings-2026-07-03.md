@@ -2,12 +2,20 @@
 
 **Date:** 2026-07-03 · **Phase 2.1 (revenue pivot)** · **Action: CEO submits these manually**
 
+> ## 🗓️ Launch schedule (locked)
+> **Sat, Jul 4** (Independence Day — low traffic): submit the evergreen directories (§4), run the
+> webhook/checkout check, stage assets + copy. NO Product Hunt (Sat + US holiday = dead room).
+> **Tue, Jul 7 @ 12:01am PT:** 🚀 **Product Hunt launch** (§1) — best-traffic weekday. Post + pin the
+> maker's comment immediately. Announce on X/LinkedIn/Bluesky with the §7 tags.
+
 Nothing has ever been listed anywhere. This is the single highest-leverage traffic move
 available right now — the /ambientscore/ funnel is instrumented and live but showing **zero
 organic visitors**. Every field below is copy-paste ready and grounded in the actual product.
 
 **Product URL:** https://ambientpixels.ai/ambientscore/
 **One-liner:** A plain-English audit of where your site loses money, and the fixes ranked by impact.
+**Short one-liner (<60 chars — for capped fields/taglines):** `Find where your landing page loses money` (40)
+  - Alternates: `Grade your landing page in 60 seconds` (37) · `Why your landing page loses customers` (37) · `A conversion audit for any landing page` (39)
 **Model:** Paste a URL → letter grade + 8-dimension scorecard + top 3 leaks free. $29 for the full
 report with headline & CTA rewrites. No login. ~60 seconds.
 **Assets already live on the page:** OG image, JSON-LD schema, screenshots. No new assets needed.
@@ -21,7 +29,7 @@ any listing imply otherwise — it audits landing-page conversion only.
 
 ---
 
-## 1. Product Hunt (highest priority)
+## 1. Product Hunt (highest priority)  CEO note: Added ad scheduled to launch
 
 **Name:** AmbientScore
 **Tagline (60 char max):** `Find where your landing page loses money in 60 seconds`
@@ -55,7 +63,7 @@ any listing imply otherwise — it audits landing-page conversion only.
 
 ---
 
-## 2. Uneed (uneed.best)
+## 2. Uneed (uneed.best) - CEO note: Payment required - skipped untlie we can generate somem revenue. 
 
 **Name:** AmbientScore
 **Tagline:** Instant, plain-English conversion audit for any landing page.
@@ -75,7 +83,7 @@ any listing imply otherwise — it audits landing-page conversion only.
 
 ---
 
-## 3. BetaList (betalist.com)
+## 3. BetaList (betalist.com) CEO note: Payment required - skipped untlie we can generate somem revenue. 
 
 **Startup name:** AmbientScore
 **Pitch (one sentence):**
@@ -90,7 +98,7 @@ any listing imply otherwise — it audits landing-page conversion only.
 
 ---
 
-## 4. Free-tools / AI directories (submit to all — each is free)
+## 4. Free-tools / AI directories (submit to all — each is free)  CEO note: pending
 
 Use the same short pitch everywhere; these mostly want name + one-liner + URL + category + pricing.
 
@@ -113,7 +121,7 @@ Use the same short pitch everywhere; these mostly want name + one-liner + URL + 
 
 ---
 
-## 5. Show HN / Reddit (organic, optional, higher effort)
+## 5. Show HN / Reddit (organic, optional, higher effort) -  CEO note: pendng. 
 
 **Show HN title:**
 > Show HN: AmbientScore – paste a URL, get a plain-English conversion audit in 60s
@@ -132,7 +140,7 @@ offer free scans in exchange for feedback).
 
 ## 6. Submission checklist for the CEO
 
-- [ ] Product Hunt (schedule for a 12:01am PT Tue–Thu launch for best ranking)
+- [ ] Product Hunt — **Tue Jul 7 @ 12:01am PT** (scheduled; NOT Jul 4 — Sat + US holiday)
 - [ ] Fazier
 - [ ] Uneed
 - [ ] BetaList
@@ -153,3 +161,43 @@ for the first non-zero `page_view` / `scan_started` — that's the ceiling-test 
 Echo (Conversion Owner) can be given a task to draft alternate taglines / first-comment variants for
 A/B testing across directories — a low-risk way to exercise her new conversion mandate. Not required;
 the copy above is submit-ready as-is.
+
+---
+
+## 7. Launch tags
+
+**Honesty guardrail:** AmbientScore is a *conversion* audit, not an SEO tool. Do NOT tag it #SEO /
+#Rankings / #Keywords — it draws the wrong crowd and misrepresents the product. Tag it around
+conversion, landing pages, and CRO.
+
+### Product Hunt topics (pick up to 3)
+`Marketing` · `SaaS` · `Artificial Intelligence`
+*(Alternates if you want to swap one: `Growth Hacking`, `Analytics`, `No-Code`.)*
+
+### Directory categories / search tags (for the "category" or "tags" field on each site)
+`Conversion Rate Optimization` · `Landing Page Optimization` · `Marketing` · `AI Tools` ·
+`Website Analytics` · `Growth` · `Web Design`
+
+### Search keywords (for directory keyword/tag boxes + your own SEO)
+`conversion audit` · `landing page audit` · `website conversion` · `CRO tool` ·
+`conversion rate optimization` · `landing page grader` · `website conversion score` ·
+`conversion checklist` · `landing page feedback`
+
+### Social hashtags (for the launch-announcement posts)
+
+**Core set (use everywhere):**
+`#ProductHunt` `#SaaS` `#CRO` `#ConversionOptimization` `#LandingPage` `#Marketing` `#AI`
+
+**X / Twitter (denser is fine, 5–8):**
+> 🚀 Just launched AmbientScore on @ProductHunt — paste any URL, get a plain-English conversion
+> audit in 60s. Free scorecard, $29 full report with rewrites. No login.
+> #ProductHunt #SaaS #CRO #ConversionOptimization #LandingPage #BuildInPublic #IndieHackers #AI
+
+**LinkedIn (keep it to 3–5, professional):**
+> `#ConversionOptimization` `#SaaS` `#Marketing` `#LandingPages` `#StartupTools`
+
+**Bluesky (light, 2–3 — the platform norm):**
+> `#SaaS` `#CRO` `#BuildInPublic`
+
+**Community / momentum tags (optional):**
+`#IndieHackers` · `#BuildInPublic` · `#GrowthHacking` · `#MarTech` · `#NoCode` · `#StartupTools`
