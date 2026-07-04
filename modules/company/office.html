@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="The Office — Vale, the CEO's Chief of Staff: briefs, your personal action list, and a direct line to the fleet." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Office — AmbientOS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <link rel="stylesheet" href="/modules/company/css/meetings.css" />
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="office-main">
+
+    <div class="company-header">
+      <h1><i class="fas fa-briefcase co-icon-mr-lg dash-icon-teal"></i>The Office</h1>
+      <p>Vale — your Chief of Staff. Briefs, your action list, and a direct line to the fleet.</p>
+    </div>
+
+    <div class="office-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start; margin-top:1rem;">
+      <div class="ap-panel">
+        <div class="ap-panel-header"><span class="ap-panel-title"><i class="fas fa-list-check"></i> Your action list</span></div>
+        <div style="padding:var(--c-pad);">
+          <form id="office-action-form" style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.75rem;">
+            <input id="office-action-title" type="text" placeholder="Something only you can do..." required style="flex:1; min-width:160px;" />
+            <input id="office-action-deadline" type="date" />
+            <button type="submit" class="btn">Add</button>
+          </form>
+          <ul id="office-action-list" class="office-action-items" style="list-style:none; margin:0; padding:0;"><li>Loading...</li></ul>
+        </div>
+      </div>
+
+      <div class="ap-panel">
+        <div class="ap-panel-header"><span class="ap-panel-title"><i class="fas fa-envelope-open-text"></i> Latest brief</span></div>
+        <div style="padding:var(--c-pad);">
+          <div id="office-brief" class="office-brief">No brief yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ap-panel" style="margin-top:1.5rem;">
+      <div class="ap-panel-header"><span class="ap-panel-title"><i class="fas fa-comments"></i> Talk to Vale</span></div>
+      <div style="padding:var(--c-pad);">
+        <div id="office-chat-log" class="office-chat-log" style="min-height:160px; max-height:360px; overflow:auto;"></div>
+        <form id="office-chat-form" class="office-chat-form" style="display:flex; gap:.5rem; margin-top:.5rem; align-items:center;">
+          <input id="office-chat-input" type="text" placeholder="Ask Vale, or tell her something to remember..." style="flex:1;" required />
+          <label style="display:flex; align-items:center; gap:.25rem; font-size:.8rem; white-space:nowrap;"><input id="office-chat-remember" type="checkbox" /> remember</label>
+          <button type="submit" class="btn">Send</button>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // ── API base + auth (mirrors js/company-store.js) ──
+      // On production the SWA proxy returns 405 for POST to the external Function App, so
+      // CompanyStore targets the Function App directly (ambientpixels-nova-api...) and attaches
+      // the x-ms-client-principal header itself (self-fetched from /.auth/me). vale-state /
+      // valechat are CEO-gated on EVERY method, so we attach the principal on GETs too — unlike
+      // company-store.js, whose GET target (company-state) is anonymous-readable.
+      var API = (window.CompanyStore && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+      function authHeaders() {
+        return (window.CompanyStore && CompanyStore.getWriteHeaders)
+          ? CompanyStore.getWriteHeaders()
+          : { 'Content-Type': 'application/json' };
+      }
+      // Resolve once the CEO principal has been fetched, so the first reads pass the gate.
+      function whenAuthReady() {
+        return new Promise(function (resolve) {
+          var tries = 0;
+          (function poll() {
+            var st = (window.CompanyStore && CompanyStore.getWriteStatus) ? CompanyStore.getWriteStatus() : null;
+            if (!st || st.hasAuth || tries++ > 20) { resolve(); return; }
+            setTimeout(poll, 150);
+          })();
+        });
+      }
+
+      var chatHistory = [];
+      function h(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+      // ── Action list ──
+      function renderActions(list) {
+        var el = document.getElementById('office-action-list');
+        var open = (list || []).filter(function (a) { return a.status !== 'done'; });
+        if (!open.length) { el.innerHTML = '<li style="opacity:.5">Nothing on your plate. Nice.</li>'; return; }
+        el.innerHTML = open.map(function (a) {
+          return '<li data-id="' + h(a.id) + '"><button class="office-done" data-id="' + h(a.id) + '" title="Mark done">✓</button> ' +
+            h(a.title) + (a.deadline ? ' <span class="office-due">(due ' + h(a.deadline) + ')</span>' : '') + '</li>';
+        }).join('');
+      }
+      function loadActions() {
+        fetch(API + '/vale-state?key=ceoActionList', { headers: authHeaders() }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) { renderActions(d && d.value); })
+          .catch(function () { document.getElementById('office-action-list').innerHTML = '<li style="opacity:.5">Could not load.</li>'; });
+      }
+      document.getElementById('office-action-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var title = document.getElementById('office-action-title').value.trim();
+        var deadline = document.getElementById('office-action-deadline').value || null;
+        if (!title) return;
+        fetch(API + '/vale-state', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ op: 'action.add', action: { title: title, deadline: deadline } }) })
+          .then(function (r) { return r.json(); }).then(function (d) { renderActions(d.actionList); document.getElementById('office-action-form').reset(); });
+      });
+      document.getElementById('office-action-list').addEventListener('click', function (e) {
+        var btn = e.target.closest('.office-done'); if (!btn) return;
+        fetch(API + '/vale-state', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ op: 'action.complete', id: btn.getAttribute('data-id') }) })
+          .then(function (r) { return r.json(); }).then(function (d) { renderActions(d.actionList); });
+      });
+
+      // ── Latest brief ──
+      function loadBrief() {
+        fetch(API + '/vale-state?key=valeBriefs', { headers: authHeaders() }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            var briefs = (d && d.value) || [];
+            var last = briefs.length ? briefs[briefs.length - 1] : null;
+            document.getElementById('office-brief').innerHTML = last ? ('<div style="white-space:pre-wrap">' + h(last.text) + '</div><div style="opacity:.5;font-size:.75rem;margin-top:.5rem">' + h(last.at || '') + '</div>') : 'No brief yet.';
+          }).catch(function () {});
+      }
+
+      // ── Chat ──
+      function addBubble(role, text) {
+        var log = document.getElementById('office-chat-log');
+        var div = document.createElement('div');
+        div.className = 'office-bubble office-bubble--' + role;
+        div.innerHTML = '<strong>' + (role === 'vale' ? 'Vale' : 'You') + ':</strong> ' + h(text);
+        log.appendChild(div); log.scrollTop = log.scrollHeight;
+      }
+      document.getElementById('office-chat-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = document.getElementById('office-chat-input');
+        var remember = document.getElementById('office-chat-remember').checked;
+        var msg = input.value.trim(); if (!msg) return;
+        addBubble('user', msg); input.value = '';
+        fetch(API + '/valechat', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ message: msg, history: chatHistory, remember: remember ? msg : null }) })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            var reply = d.reply || d.error || '(no reply)';
+            addBubble('vale', reply);
+            chatHistory.push({ role: 'user', text: msg }); chatHistory.push({ role: 'vale', text: reply });
+            if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+            document.getElementById('office-chat-remember').checked = false;
+          })
+          .catch(function () { addBubble('vale', 'I could not reach the server.'); });
+      });
+
+      // Initial reads wait for the CEO principal so the gate passes on first paint.
+      whenAuthReady().then(function () {
+        loadActions();
+        loadBrief();
+      });
+    })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>
