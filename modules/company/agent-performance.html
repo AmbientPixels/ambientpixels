@@ -106,7 +106,7 @@
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
       : '/api';
     var SECRET = 'pixelpusher';
-    var ROLES = { nova: 'Prime Operator', cipher: 'Strategic CFO', pixel: 'Design Director', forge: 'Ops Director', echo: 'Strategic CMO', scribe: 'Content Director', quill: 'Editor', scout: 'Research Director' };
+    var ROLES = { nova: 'Prime Operator', cipher: 'Strategic CFO', pixel: 'Design Director', forge: 'Ops Director', echo: 'Strategic CMO', scribe: 'Content Director', quill: 'Editor', scout: 'Research Director', vale: 'Chief of Staff' };
 
     function fetchState(key) {
       return fetch(API_BASE + '/company-state?key=' + key, { headers: { 'x-company-secret': SECRET } })

@@ -275,7 +275,7 @@
     }
 
     function renderFleet(d) {
-      var agents = ['nova','cipher','pixel','forge','scribe','quill','echo','scout'];
+      var agents = ['vale','nova','cipher','pixel','forge','scribe','quill','echo','scout'];
       var stalled = new Set(((d.fleet || {}).stalled) || []);
       var html = '<div class="ws-fleet-grid">' + agents.map(function (a) {
         var cls = stalled.has(a) ? 'ws-agent-chip stalled' : 'ws-agent-chip';
