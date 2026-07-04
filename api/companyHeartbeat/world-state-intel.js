@@ -298,8 +298,10 @@ function buildWorldState(inputs, nowMs) {
 }
 
 // ── Prompt formatter ──
-// Terse, high-density. HARD CAP at 1500 chars — throw if exceeded so silent
-// bloat can't creep in as new sections are added.
+// Terse, high-density. HARD CAP at 1500 chars — clamped, never thrown: a throw
+// here degrades EVERY agent's prompt at once. Oldest RECENT events shed first,
+// hard-truncate as last resort. Bloat stays observable via the per-run
+// worldStateBlockLength stamp (watch it near the cap).
 function _buildWorldStatePromptBlock(worldState) {
   if (!worldState || !worldState.generatedAt) {
     return '\n═══ WORLD STATE — cache building, check back next heartbeat ═══\n';
@@ -354,22 +356,35 @@ function _buildWorldStatePromptBlock(worldState) {
   const aq = worldState.openApprovals || {};
   lines.push('OPEN APPROVALS: ' + (aq.count || 0) + ' pending' + (aq.oldestDays > 0 ? ' (oldest ' + aq.oldestDays + 'd)' : '') + '.');
 
+  // RECENT events kept separate so the cap clamp can shed them oldest-first.
   const events = worldState.recentEvents || [];
-  if (events.length > 0) {
-    lines.push('RECENT (7d, latest first):');
-    events.slice(0, 5).forEach(e => {
-      const ts = String(e.timestamp || '').substring(0, 16).replace('T', ' ');
-      lines.push('- ' + ts + ': ' + String(e.summary || e.type).substring(0, 80));
-    });
+  const eventLines = events.slice(0, 5).map(e => {
+    const ts = String(e.timestamp || '').substring(0, 16).replace('T', ' ');
+    return '- ' + ts + ': ' + String(e.summary || e.type).substring(0, 80);
+  });
+
+  const closing = [
+    '═══ END WORLD STATE ═══',
+    '',
+    '(Summary only — check your dashboard for detail. Do not re-state these facts verbatim; build on them.)'
+  ];
+  const compose = (ev) => '\n' + lines
+    .concat(ev.length ? ['RECENT (7d, latest first):'].concat(ev) : [])
+    .concat(closing)
+    .join('\n') + '\n';
+
+  const evKeep = eventLines.slice();
+  let block = compose(evKeep);
+  while (block.length > MAX_BLOCK_CHARS && evKeep.length > 0) {
+    evKeep.pop();
+    block = compose(evKeep);
   }
-
-  lines.push('═══ END WORLD STATE ═══');
-  lines.push('');
-  lines.push('(Summary only — check your dashboard for detail. Do not re-state these facts verbatim; build on them.)');
-
-  const block = '\n' + lines.join('\n') + '\n';
   if (block.length > MAX_BLOCK_CHARS) {
-    throw new Error('[worldState] prompt block exceeds ' + MAX_BLOCK_CHARS + ' char hard cap: ' + block.length + '. Trim fields before shipping.');
+    // Even with zero RECENT lines we are over — truncate the body but always
+    // keep the END marker + usage note so the block stays well-formed.
+    console.warn('[worldState] block over cap after shedding RECENT (' + block.length + '/' + MAX_BLOCK_CHARS + ') — hard-truncating');
+    const closingText = '\n' + closing.join('\n') + '\n';
+    block = block.substring(0, MAX_BLOCK_CHARS - closingText.length - 1) + '…' + closingText;
   }
   return block;
 }
