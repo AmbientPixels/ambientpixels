@@ -73,7 +73,7 @@ module.exports = async function (context, req) {
 
     // Load Vale's isolated personal memory (CEO-only).
     var seed = (await vs.getVale('valeSeed')) || [];
-    var memories = (await vs.getVale('valeMemory')) || [];
+    var memories = mem.pruneMemories((await vs.getVale('valeMemory')) || [], Date.now());
     var actionList = (await vs.getVale('ceoActionList')) || [];
     var memoryBlocks = mem.formatMemoryBlocks({ seed: seed, memories: memories, actionList: actionList });
 
@@ -144,7 +144,7 @@ module.exports = async function (context, req) {
     // body.correction = true stores the user's message as a PERMANENT CEO correction.
     if (body.remember || body.correction) {
       var rec = mem.makeMemory({
-        type: body.correction ? 'preference' : 'preference',
+        type: 'preference',
         text: body.correction ? message : body.remember,
         source: body.correction ? 'auto:ceo-correction' : 'vale',
         evidence: { via: 'valechat' }

@@ -36,7 +36,9 @@ function loadCanonical() {
   var raw = JSON.parse(fs.readFileSync(AGENTS_JSON, 'utf8'));
   var byId = {};
   (raw.agents || []).forEach(function (a) {
-    if (!a.isHuman) byId[a.id] = a;
+    // Skip humans and runtime-excluded personal agents (Office of the CEO, e.g. Vale) —
+    // they live only in the presentation registry, never in the heartbeat AGENT_ROLES.
+    if (!a.isHuman && a.department !== 'Office of the CEO') byId[a.id] = a;
   });
   byId._globalPolicies = raw.globalPolicies || {};
   return byId;

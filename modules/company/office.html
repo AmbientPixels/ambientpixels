@@ -116,12 +116,12 @@
         var deadline = document.getElementById('office-action-deadline').value || null;
         if (!title) return;
         fetch(API + '/vale-state', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ op: 'action.add', action: { title: title, deadline: deadline } }) })
-          .then(function (r) { return r.json(); }).then(function (d) { renderActions(d.actionList); document.getElementById('office-action-form').reset(); });
+          .then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { if (d && d.actionList) { renderActions(d.actionList); document.getElementById('office-action-form').reset(); } else { alert('Could not add — is your session signed in?'); } });
       });
       document.getElementById('office-action-list').addEventListener('click', function (e) {
         var btn = e.target.closest('.office-done'); if (!btn) return;
         fetch(API + '/vale-state', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ op: 'action.complete', id: btn.getAttribute('data-id') }) })
-          .then(function (r) { return r.json(); }).then(function (d) { renderActions(d.actionList); });
+          .then(function (r) { return r.ok ? r.json() : null; }).then(function (d) { if (d && d.actionList) renderActions(d.actionList); });
       });
 
       // ── Latest brief ──
