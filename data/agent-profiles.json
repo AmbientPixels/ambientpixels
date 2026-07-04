@@ -136,6 +136,23 @@
       "statSource": "blueskyCandidates.thisWeek",
       "statLabel": "Discoveries this week",
       "auraColor": "var(--aura-deep-violet)"
+    },
+    {
+      "id": "vale",
+      "name": "Vale",
+      "role": "Chief of Staff",
+      "tier": 1,
+      "portrait": "/ambientos/img/vale.webp",
+      "pullQuote": "I keep your world in order.",
+      "bio": "I'm the CEO's Chief of Staff. My job is the CEO, not the company. I keep his personal action list, send him a morning brief and an evening wrap, prep him before meetings, and sit between him and the eight agents so nothing important reaches him as noise. What he tells me, I remember. I never touch fleet state without his say-so.",
+      "owns": [
+        "CEO action list",
+        "Morning + evening briefs",
+        "CEO ↔ fleet liaison"
+      ],
+      "statSource": "static",
+      "statLabel": "Office of the CEO",
+      "auraColor": "var(--aura-cyan)"
     }
   ]
 }

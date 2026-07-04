@@ -83,8 +83,8 @@ function main() {
   const tplHub = readText(TPL_HUB);
   const agents = data.agents || [];
 
-  if (agents.length !== 8) {
-    console.error(`ERROR: expected 8 agents in data file, got ${agents.length}`);
+  if (agents.length < 1) {
+    console.error(`ERROR: no agents found in data file (got ${agents.length})`);
     process.exit(1);
   }
 
