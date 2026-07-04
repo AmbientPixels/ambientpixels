@@ -38,6 +38,27 @@
       "systemPrompt": null
     },
     {
+      "id": "vale",
+      "name": "Vale",
+      "role": "Chief of Staff",
+      "department": "Office of the CEO",
+      "title": "Chief of Staff — Office of the CEO",
+      "tier": 1,
+      "avatar": "/ambientos/img/vale.webp",
+      "color": "#9b8cff",
+      "icon": "fas fa-user-tie",
+      "status": "active",
+      "isHuman": false,
+      "description": "The CEO's Chief of Staff. Serves the CEO personally (not the company fleet): runs his personal action list, sends morning/evening briefs, prepares him for meetings, and is his liaison to the agents. Isolated from the heartbeat runtime.",
+      "divisions": [
+        { "id": "cos", "name": "Chief of Staff", "icon": "fas fa-user-tie", "description": "CEO action list, briefs, scheduling, meeting prep" },
+        { "id": "liaison", "name": "CEO Liaison", "icon": "fas fa-comments", "description": "Interface between the CEO and the agent fleet" }
+      ],
+      "capabilities": ["ceo-action-list", "briefings", "fleet-liaison"],
+      "automations": [],
+      "systemPrompt": null
+    },
+    {
       "id": "nova",
       "name": "Nova",
       "role": "Prime Operator & Strategic Orchestrator",
