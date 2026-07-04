@@ -1471,6 +1471,22 @@ footer.as-footer {
   border-top: 1px dotted var(--rule);
 }
 
+/* ── Launch promo line (temporary — remove when LAUNCH50 expires ~Jul 21) ── */
+.as-launch-promo {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.as-launch-promo strong {
+  border: 1px solid var(--ink);
+  padding: 2px 6px;
+  letter-spacing: 0.12em;
+}
+
 /* ── Credits Redemption ──────────────────────── */
 
 .as-credits-redeem {
