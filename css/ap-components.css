@@ -701,6 +701,7 @@ html.ap-nav-lock body { overflow: hidden; }
 .ap-pd--img .thumb.thumb--bg-gc    { background: linear-gradient(135deg, #1a2980, #26d0ce); --icon-hover: #7eebec; --icon-glow: rgba(38, 208, 206, .55); }
 .ap-pd--img .thumb.thumb--bg-xbox  { background: linear-gradient(135deg, #107c10, #0a5c0a); --icon-hover: #6fff6f; --icon-glow: rgba(16, 200, 16, .55); }
 .ap-pd--img .thumb.thumb--bg-log   { background: linear-gradient(135deg, #2e2e2e, #141414); --icon-hover: #4ade80; --icon-glow: rgba(74, 222, 128, .45); }
+.ap-pd--img .thumb.thumb--bg-pulse { background: linear-gradient(135deg, #b45309, #7c2d12); --icon-hover: #fbbf24; --icon-glow: rgba(251, 191, 36, .5); }
 
 
 /* ============================================================================
