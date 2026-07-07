@@ -15,6 +15,7 @@
   <style>
     .cv-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
     .cv-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
+    .cv-summary { max-width: var(--max-prose); font-size: var(--fs-body); line-height: var(--lh-body-loose); color: var(--color-text-body); margin: var(--sp-6) 0 0; }
     .cv-role { max-width: var(--max-prose); padding: var(--sp-8) 0; border-top: 1px solid var(--color-border); }
     .cv-role:first-of-type { border-top: none; }
     .cv-role h3 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: clamp(24px, 2.5vw, 32px); letter-spacing: var(--tracking-tight); margin: 0 0 var(--sp-2); color: var(--color-text-primary); }
@@ -38,10 +39,66 @@
     .cv-edu h3 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: 20px; margin: 0 0 var(--sp-2); color: var(--color-text-primary); }
     .cv-edu p { font-size: var(--fs-body-sm); line-height: var(--lh-body); opacity: .82; margin: 0; }
     .cv-edu .date { font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.6); margin: var(--sp-2) 0 0; }
+
+    /* §01 interactive project gallery */
+    .cv-filter { display:flex; flex-wrap:wrap; gap:var(--sp-3); margin:0 0 var(--sp-8); font-family:var(--font-mono); font-size:var(--fs-mono-xs); letter-spacing:var(--tracking-mono-md); text-transform:uppercase; }
+    .cv-filter button { padding:var(--sp-2) var(--sp-4); border:1px solid var(--color-border); background:transparent; color:var(--color-text-secondary); cursor:pointer; transition:color var(--dur-med), border-color var(--dur-med); }
+    .cv-filter button[aria-pressed="true"] { color:var(--color-text-primary); border-color:var(--color-text-primary); }
+
+    .cv-projects { display:flex; flex-direction:column; }
+    .cv-project { border-top:1px solid var(--color-border); }
+    .cv-project:first-child { border-top:none; }
+    .cv-project[hidden] { display:none; }
+    .cv-project-head { display:grid; grid-template-columns:140px 1fr auto; gap:var(--sp-5); align-items:center; width:100%; padding:var(--sp-6) 0; background:transparent; border:0; text-align:left; cursor:pointer; color:inherit; font:inherit; }
+    .cv-thumb { width:140px; height:88px; object-fit:cover; display:block; filter:grayscale(1) contrast(.92) brightness(.85); transition:filter var(--dur-med); }
+    .cv-project-head:hover .cv-thumb { filter:none; }
+    .cv-thumb--icon { display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#2e2e2e,#141414); color:#fff; }
+    .cv-thumb--icon i { font-size:36px; }
+    .cv-project-title { display:block; font-family:var(--font-display); font-weight:var(--fw-heavy); font-size:clamp(20px,2.2vw,28px); letter-spacing:var(--tracking-tight); margin:0; }
+    .cv-project-title em { font-style:italic; font-weight:var(--fw-regular); color:var(--color-text-body); }
+    .cv-project-role { display:block; font-family:var(--font-mono); font-size:var(--fs-mono-xs); letter-spacing:var(--tracking-mono-md); text-transform:uppercase; opacity:.6; margin:var(--sp-2) 0 var(--sp-3); }
+    .cv-project-heads { display:flex; flex-wrap:wrap; gap:var(--sp-2); }
+    .cv-project-toggle { font-family:var(--font-mono); font-size:var(--fs-mono-xs); opacity:.6; white-space:nowrap; }
+    .cv-project[data-open="true"] .cv-project-toggle span { display:inline-block; transform:rotate(90deg); }
+
+    .cv-chip { padding:var(--sp-1) var(--sp-3); border:1px solid var(--color-border); font-family:var(--font-mono); font-size:var(--fs-mono-xs); letter-spacing:var(--tracking-mono-sm); text-transform:uppercase; opacity:.75; }
+    .cv-cat { color:var(--color-text-primary); }
+
+    .cv-project-body { display:none; padding:0 0 var(--sp-8); max-width:var(--max-prose); }
+    .cv-project[data-open="true"] .cv-project-body { display:block; }
+    .cv-project-body p { font-size:var(--fs-body-sm); line-height:var(--lh-body); opacity:.85; margin:0 0 var(--sp-5); }
+    .cv-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:var(--sp-4); margin:0 0 var(--sp-6); }
+    .cv-metric b { display:block; font-family:var(--font-display); font-weight:var(--fw-heavy); font-size:clamp(22px,2.6vw,32px); color:var(--color-text-primary); }
+    .cv-metric span { font-family:var(--font-mono); font-size:var(--fs-mono-xs); letter-spacing:var(--tracking-mono-md); text-transform:uppercase; opacity:.6; }
+    .cv-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:var(--sp-3); margin:0 0 var(--sp-6); }
+    .cv-gallery button { padding:0; border:1px solid var(--color-border); background:none; cursor:pointer; overflow:hidden; }
+    .cv-gallery img { width:100%; aspect-ratio:16/10; object-fit:cover; display:block; transition:transform var(--dur-med); }
+    .cv-gallery button:hover img { transform:scale(1.04); }
+    .cv-video { position:relative; aspect-ratio:16/9; margin:0 0 var(--sp-6); }
+    .cv-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+    .cv-tools { display:flex; flex-wrap:wrap; gap:var(--sp-2); margin:0 0 var(--sp-5); }
+    .cv-livelink { font-family:var(--font-mono); font-size:var(--fs-mono-xs); letter-spacing:var(--tracking-mono-md); text-transform:uppercase; }
+
+    /* lightbox */
+    .cv-lightbox { position:fixed; inset:0; background:rgba(0,0,0,.93); display:none; align-items:center; justify-content:center; z-index:1000; }
+    .cv-lightbox.is-open { display:flex; }
+    .cv-lightbox img { max-width:92vw; max-height:82vh; object-fit:contain; }
+    .cv-lb-btn { position:absolute; background:transparent; border:1px solid rgba(255,255,255,.4); color:#fff; font-size:20px; width:48px; height:48px; cursor:pointer; }
+    .cv-lb-close { top:24px; right:24px; }
+    .cv-lb-prev { left:24px; top:50%; transform:translateY(-50%); }
+    .cv-lb-next { right:24px; top:50%; transform:translateY(-50%); }
+
+    @media (max-width:720px) {
+      .cv-project-head { grid-template-columns:72px 1fr auto; gap:var(--sp-4); }
+      .cv-thumb { width:72px; height:56px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .cv-thumb, .cv-gallery img, .cv-filter button { transition:none; }
+    }
   </style>
   <script defer src="/js/ap-nav-mobile.js"></script>
 </head>
-<body class="polish-hairlines polish-type" data-texture="none">
+<body class="polish-glow polish-tonal polish-hairlines polish-vignette polish-type" data-texture="paper">
   <div class="tx-layer" aria-hidden="true"></div>
 
   <nav class="ap-nav">
@@ -58,15 +115,14 @@
     <section class="ap-sec">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; STUDIO &mdash; RESUME</div>
+          <div class="ap-sec-idx">&sect; STUDIO &middot; RESUME</div>
           <h1 class="ap-display">Chad<em> Martin.</em></h1>
         </div>
         <div class="ap-sec-meta">
-          Senior Producer &amp; Technical Strategist. Producer &mdash; Xbox Support (Microsoft) via Hanson Consulting Group.
-          <br/><br/>
-          Turning complexity into clarity &mdash; through design, intent, and systems that serve millions.
+          Senior Producer and Technical Strategist. Producer, Xbox Store, Microsoft, via Hanson Consulting Group.
         </div>
       </div>
+      <p class="cv-summary">I&rsquo;ve spent 18 years building, publishing, and automating content for Xbox: from hand-coding Xbox.com splash pages in 2008, to content readiness for the Xbox One global launch, to producing the weekly merchandising that ships to the Xbox Desktop and Mobile apps across 100+ locales today. My role kept evolving from producing content to building the systems that produce it: deep fluency in publishing pipelines, CMS systems, and localization at scale, combined with the JavaScript and Node.js skills to automate the parts that shouldn&rsquo;t be manual, and the AI workflow skills to scale what&rsquo;s left.</p>
       <ul class="cv-tags">
         <li>Producer</li><li>Technical</li><li>Leadership</li><li>Strategy</li><li>AI systems</li><li>Video &amp; animation</li>
       </ul>
