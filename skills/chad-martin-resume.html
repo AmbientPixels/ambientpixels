@@ -135,15 +135,300 @@
     <section class="ap-sec ap-sec--cool">
       <div class="ap-sec-head">
         <div>
-          <div class="ap-sec-idx">&sect; 01 &mdash; FEATURED PROJECTS</div>
-          <h2 class="ap-display">Four case studies, <em>one ecosystem.</em></h2>
+          <div class="ap-sec-idx">&sect; 01 &middot; SELECTED WORK</div>
+          <h2 class="ap-display">Ten projects, <em>one throughline.</em></h2>
         </div>
+        <div class="ap-sec-meta">Xbox support, storefront tooling, data, and video. Expand any card for the full case study.</div>
       </div>
-      <div class="ap-prods">
-        <a class="ap-pd op-archive" href="/projects/xbox-support.html"><span class="n">01</span><div><h3 class="ap-display ap-display--row">Xbox Support<em> showcase.</em></h3><span class="meta">Web &middot; Support &middot; UX</span></div><p>The full Xbox Support ecosystem through interactive case studies, video walkthroughs, and screenshots across console, web, desktop, and mobile.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
-        <a class="ap-pd op-archive" href="/projects/video/xbox-video.html"><span class="n">02</span><div><h3 class="ap-display ap-display--row">Xbox video<em> content.</em></h3><span class="meta">Video &middot; Animation &middot; Support</span></div><p>Animated videos and tutorials for Xbox Support, including in-console help tools, branded support hubs, and AI-enhanced service experiences.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
-        <a class="ap-pd op-archive" href="/projects/copilotplayground.html"><span class="n">03</span><div><h3 class="ap-display ap-display--row">Copilot<em>Playground.</em></h3><span class="meta">AI/ML &middot; UX &middot; Automation</span></div><p>Led as prompt engineer, designing AI-driven prompt chains for Xbox gaming support &mdash; keyword extraction, instant answers, localized content at scale.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
-        <a class="ap-pd op-archive" href="/projects/websites/microsoft-casual-games-support.html"><span class="n">04</span><div><h3 class="ap-display ap-display--row">Microsoft<em> Casual Games.</em></h3><span class="meta">Gaming &middot; Support &middot; UX</span></div><p>Managed the migration of Microsoft Casual Games support content from Zendesk to Xbox.com &mdash; parallel updates, platform consistency, seamless user experience.</p><span class="year">Shipped</span><span class="go">&rarr;</span></a>
+
+      <div class="cv-filter" role="group" aria-label="Filter projects by category">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="web" aria-pressed="false">Web</button>
+        <button type="button" data-filter="ai" aria-pressed="false">AI &amp; Data</button>
+        <button type="button" data-filter="video" aria-pressed="false">Video</button>
+        <button type="button" data-filter="design" aria-pressed="false">Design</button>
+      </div>
+
+      <div class="cv-projects">
+
+        <article class="cv-project" data-cat="web">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-xbox-support">
+            <img class="cv-thumb" src="/images/projects/xbox-support/screen-01.jpeg" alt="Xbox Support home" loading="lazy">
+            <span>
+              <span class="cv-project-title">Xbox <em>Support.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">Web</span><span class="cv-chip">32M+ monthly</span><span class="cv-chip">40+ languages</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-xbox-support" role="region">
+            <p>Managed live publishing and platform upkeep for support.xbox.com, delivering help content and notifications across web, console, mobile apps, and desktop clients. Built the Xbox refund support experience, maintained Instant Answer search logic, and automated content scrubs and asset validation with PowerShell and C# through Azure DevOps. Led the migration from the legacy Compass CMS to Campsite.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>32M+</b><span>Monthly support users</span></div>
+              <div class="cv-metric"><b>40+</b><span>Languages and regions</span></div>
+              <div class="cv-metric"><b>WCAG 2.1 AA</b><span>Accessibility standard</span></div>
+            </div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/xbox-support/screen-01.jpeg"><img src="/images/projects/xbox-support/screen-01.jpeg" alt="Xbox Support home" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/xbox-support/screen-02.jpeg"><img src="/images/projects/xbox-support/screen-02.jpeg" alt="Cross-platform notification" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/xbox-support/screen-03.png"><img src="/images/projects/xbox-support/screen-03.png" alt="Refund flow" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/xbox-support/screen-04.jpeg"><img src="/images/projects/xbox-support/screen-04.jpeg" alt="CMS editor" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/xbox-support/screen-05.jpeg"><img src="/images/projects/xbox-support/screen-05.jpeg" alt="Troubleshooter logic" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/xbox-support/screen-06.jpeg"><img src="/images/projects/xbox-support/screen-06.jpeg" alt="Form configuration" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Campsite CMS</span><span class="cv-chip">Compass CMS</span><span class="cv-chip">PowerShell</span><span class="cv-chip">C#</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">WCAG 2.1 AA</span></div>
+            <a class="cv-livelink ap-link-mono" href="https://support.xbox.com/" target="_blank" rel="noopener noreferrer">View live &rarr;</a>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="ai">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-content-packager">
+            <span class="cv-thumb cv-thumb--icon" aria-hidden="true"><i class="fas fa-boxes-packing"></i></span>
+            <span>
+              <span class="cv-project-title">Content <em>Packager.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">AI &amp; Data</span><span class="cv-chip">122 locales</span><span class="cv-chip">5 surfaces</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-content-packager" role="region">
+            <p>Designed and shipped an internal tooling suite that automates Xbox Store creative production and localization. The Content Packager, a Node.js engine and zero-dependency web app, transformed weekly merchandising campaigns into upload-ready packages for two CMSs across five storefront surfaces and up to 122 locales, reshaping dozens of campaigns into hundreds of localized slots in seconds, with a human sign-off gate on everything that ships. Paired it with a browser-based tile editor and a readiness and QC dashboard that flags mismatches before publishing.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>122</b><span>Locales per campaign</span></div>
+              <div class="cv-metric"><b>5</b><span>Storefront surfaces</span></div>
+              <div class="cv-metric"><b>2</b><span>CMSs targeted</span></div>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Node.js</span><span class="cv-chip">Zero-dependency web app</span><span class="cv-chip">Localization</span><span class="cv-chip">QC dashboard</span></div>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="ai">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-copilot">
+            <span class="cv-thumb cv-thumb--icon" aria-hidden="true"><i class="fas fa-robot"></i></span>
+            <span>
+              <span class="cv-project-title">Copilot <em>Playground.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">AI &amp; Data</span><span class="cv-chip">22 models</span><span class="cv-chip">98.9% accuracy</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-copilot" role="region">
+            <p>Built an internal prompt-engineering toolkit that scaled localized content creation across 22 AI models. Designed prompt chains, guardrails, and the C.R.E.A.T.E. method to generate hub pages, error codes, and localized copy at speed, cutting publishing from a day to about 20 minutes across all locales.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>22</b><span>AI models</span></div>
+              <div class="cv-metric"><b>10&times;</b><span>Publishing speed</span></div>
+              <div class="cv-metric"><b>98.9%</b><span>First-pass accuracy</span></div>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Prompt engineering</span><span class="cv-chip">LangChain</span><span class="cv-chip">Azure AI Foundry</span><span class="cv-chip">Handlebars</span></div>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="ai">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-grand-central">
+            <img class="cv-thumb" src="/images/projects/grand-central/hero.png" alt="Grand Central dashboard" loading="lazy">
+            <span>
+              <span class="cv-project-title">Grand Central <em>3.0.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">AI &amp; Data</span><span class="cv-chip">500K+ links</span><span class="cv-chip">Weekly refresh</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-grand-central" role="region">
+            <p>Built a Power BI audit platform from scratch that replaced manual content audits with a weekly-refreshed dashboard. It merged Compass and CXT exports through advanced Excel logic and Power Query to track 7,490 published assets, index over 500,000 links, and monitor 71,000+ Contact Us modules across 75 locales, flagging cloud-error risks early.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>7,490</b><span>Assets tracked</span></div>
+              <div class="cv-metric"><b>500K+</b><span>Links indexed</span></div>
+              <div class="cv-metric"><b>71K+</b><span>Contact Us modules</span></div>
+            </div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/grand-central/screen-01.jpg"><img src="/images/projects/grand-central/screen-01.jpg" alt="Grand Central overview" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/grand-central/screen-02.jpg"><img src="/images/projects/grand-central/screen-02.jpg" alt="Asset tracking view" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/grand-central/screen-03.jpg"><img src="/images/projects/grand-central/screen-03.jpg" alt="Link index" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/grand-central/screen-04.jpg"><img src="/images/projects/grand-central/screen-04.jpg" alt="Error trend flags" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/grand-central/screen-05.jpg"><img src="/images/projects/grand-central/screen-05.jpg" alt="Locale breakdown" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/grand-central/screen-06.jpg"><img src="/images/projects/grand-central/screen-06.jpg" alt="Module audit" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Power BI</span><span class="cv-chip">Power Query</span><span class="cv-chip">Advanced Excel</span><span class="cv-chip">SharePoint</span></div>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="video">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-support-app">
+            <img class="cv-thumb" src="/images/projects/video/xbox-support-app-on%20console/screen-01.png" alt="Xbox Support App on console" loading="lazy">
+            <span>
+              <span class="cv-project-title">Xbox Support <em>App.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">Video</span><span class="cv-chip">30M+ users</span><span class="cv-chip">45% faster</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-support-app" role="region">
+            <p>Produced the animated case study for the Xbox Support App, an on-console support experience reaching over 30 million users a month. It featured QR article sharing, an in-game overlay, real-time service status, and AI-powered search, built on React Native and Azure, and narrated with a custom Azure AI voice.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>30M+</b><span>Console users</span></div>
+              <div class="cv-metric"><b>35%</b><span>Fewer support calls</span></div>
+              <div class="cv-metric"><b>45%</b><span>Faster resolution</span></div>
+            </div>
+            <div class="cv-video"><iframe src="https://www.youtube-nocookie.com/embed/JwpnzA3LRkM" title="Xbox Support App case study" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/video/xbox-support-app-on%20console/screen-01.png"><img src="/images/projects/video/xbox-support-app-on%20console/screen-01.png" alt="Support App frame 1" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/video/xbox-support-app-on%20console/screen-04.png"><img src="/images/projects/video/xbox-support-app-on%20console/screen-04.png" alt="Support App frame 2" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/video/xbox-support-app-on%20console/screen-07.png"><img src="/images/projects/video/xbox-support-app-on%20console/screen-07.png" alt="Support App frame 3" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/video/xbox-support-app-on%20console/screen-10.png"><img src="/images/projects/video/xbox-support-app-on%20console/screen-10.png" alt="Support App frame 4" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/video/xbox-support-app-on%20console/screen-13.png"><img src="/images/projects/video/xbox-support-app-on%20console/screen-13.png" alt="Support App frame 5" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/video/xbox-support-app-on%20console/screen-16.png"><img src="/images/projects/video/xbox-support-app-on%20console/screen-16.png" alt="Support App frame 6" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">React Native</span><span class="cv-chip">Azure</span><span class="cv-chip">After Effects</span><span class="cv-chip">Azure AI voice</span></div>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="video">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-hellblade">
+            <img class="cv-thumb" src="/images/projects/ninja-theroy/mini-hero.jpg" alt="Hellblade Help Center" loading="lazy">
+            <span>
+              <span class="cv-project-title">Hellblade, <em>Ninja Theory.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">Video</span><span class="cv-chip">1M+ users</span><span class="cv-chip">+85% awareness</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-hellblade" role="region">
+            <p>Built and launched the Xbox Support pages for both Hellblade titles simultaneously, reaching over a million monthly users in 40+ languages and cutting support tickets by 35 percent. Also produced the animated Help Center showcase, narrated by a custom Azure AI voice, which lifted Help Center awareness by 85 percent.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>1M+</b><span>Monthly users</span></div>
+              <div class="cv-metric"><b>35%</b><span>Fewer tickets</span></div>
+              <div class="cv-metric"><b>+85%</b><span>Help Center awareness</span></div>
+            </div>
+            <div class="cv-video"><iframe src="https://www.youtube-nocookie.com/embed/zhcM5tEaSfM" title="Ninja Theory Help Center showcase" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/ninja-theroy/screen01.jpeg"><img src="/images/projects/ninja-theroy/screen01.jpeg" alt="Help Center hub" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/ninja-theroy/screen02.jpeg"><img src="/images/projects/ninja-theroy/screen02.jpeg" alt="Senua's Sacrifice support" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/ninja-theroy/screen03.jpeg"><img src="/images/projects/ninja-theroy/screen03.jpeg" alt="Hellblade II support" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/ninja-theroy/screen04.jpeg"><img src="/images/projects/ninja-theroy/screen04.jpeg" alt="FAQ" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/ninja-theroy/screen05.jpeg"><img src="/images/projects/ninja-theroy/screen05.jpeg" alt="Platform specs" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/ninja-theroy/screen06.jpeg"><img src="/images/projects/ninja-theroy/screen06.jpeg" alt="Issue reporting form" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Xbox CMS</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">After Effects</span><span class="cv-chip">Azure AI voice</span></div>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="web">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-gears">
+            <img class="cv-thumb" src="/images/projects/gow/screen-01.jpeg" alt="Gears of War support hub" loading="lazy">
+            <span>
+              <span class="cv-project-title">Gears of <em>War.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">Web</span><span class="cv-chip">28+ articles</span><span class="cv-chip">12-hr deploys</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-gears" role="region">
+            <p>Led support delivery for the Gears franchise, building a unified modular content framework that cut duplication and localization cost. A streamlined pipeline reduced localization turnaround by 60 percent and dropped critical-update deployment from three days to under 12 hours across 40+ languages.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>28+</b><span>Published articles</span></div>
+              <div class="cv-metric"><b>40+</b><span>Languages</span></div>
+              <div class="cv-metric"><b>12 hrs</b><span>From 3-day deploys</span></div>
+            </div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/gow/screen-01.jpeg"><img src="/images/projects/gow/screen-01.jpeg" alt="Support hub" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/gow/screen-02.jpeg"><img src="/images/projects/gow/screen-02.jpeg" alt="Game selection" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/gow/screen-03.jpeg"><img src="/images/projects/gow/screen-03.jpeg" alt="Articles" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/gow/screen-04.jpeg"><img src="/images/projects/gow/screen-04.jpeg" alt="Troubleshooting" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/gow/screen-05.jpeg"><img src="/images/projects/gow/screen-05.jpeg" alt="Error codes" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/gow/screen-06.jpeg"><img src="/images/projects/gow/screen-06.jpeg" alt="Multiplayer help" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">HTML / CSS</span><span class="cv-chip">SharePoint</span><span class="cv-chip">Localization</span><span class="cv-chip">Azure DevOps</span></div>
+            <a class="cv-livelink ap-link-mono" href="https://support.xbox.com/en-US/game/gears-of-war" target="_blank" rel="noopener noreferrer">View live &rarr;</a>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="web">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-som">
+            <img class="cv-thumb" src="/images/projects/SoM/hero-03.jpg" alt="South of Midnight support" loading="lazy">
+            <span>
+              <span class="cv-project-title">South of <em>Midnight.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">Web</span><span class="cv-chip">40+ languages</span><span class="cv-chip">0 critical</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-som" role="region">
+            <p>Shipped the Xbox Support experience for Compulsion Games' South of Midnight, launched ahead of schedule with zero critical issues and full WCAG 2.1 AA compliance in 40+ languages. Built reusable templates that now serve other Compulsion titles.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>40+</b><span>Languages</span></div>
+              <div class="cv-metric"><b>100%</b><span>WCAG 2.1 AA</span></div>
+              <div class="cv-metric"><b>0</b><span>Critical issues at launch</span></div>
+            </div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/SoM/screen-01.jpeg"><img src="/images/projects/SoM/screen-01.jpeg" alt="Help Center hub" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/SoM/screen-02.jpeg"><img src="/images/projects/SoM/screen-02.jpeg" alt="Support overview" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/SoM/screen-03.jpeg"><img src="/images/projects/SoM/screen-03.jpeg" alt="Games and apps" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/SoM/screen-04.jpeg"><img src="/images/projects/SoM/screen-04.jpeg" alt="FAQ" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/SoM/screen-05.jpeg"><img src="/images/projects/SoM/screen-05.jpeg" alt="Accessibility settings" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/SoM/screen-06.jpeg"><img src="/images/projects/SoM/screen-06.jpeg" alt="Issue reporting form" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Xbox CMS</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">WCAG 2.1 AA</span><span class="cv-chip">Localization</span></div>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="web">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-casual">
+            <img class="cv-thumb" src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games support" loading="lazy">
+            <span>
+              <span class="cv-project-title">Microsoft <em>Casual Games.</em></span>
+              <span class="cv-project-role">Producer &middot; Microsoft Xbox &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">Web</span><span class="cv-chip">12+ titles</span><span class="cv-chip">Zero downtime</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-casual" role="region">
+            <p>Managed the migration of support content for 12+ casual game titles from Zendesk to Xbox Support. Ran both content systems in parallel with redirects, trained the support teams, and sunset the legacy site with zero downtime and full accessibility compliance.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>12+</b><span>Game titles</span></div>
+              <div class="cv-metric"><b>100%</b><span>Accessibility</span></div>
+              <div class="cv-metric"><b>0</b><span>Downtime at cutover</span></div>
+            </div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/microsoft-casual-games/screen-01.jpeg"><img src="/images/projects/microsoft-casual-games/screen-01.jpeg" alt="Casual Games hub" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/microsoft-casual-games/screen-02.jpeg"><img src="/images/projects/microsoft-casual-games/screen-02.jpeg" alt="Title support page" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/microsoft-casual-games/screen-04.jpeg"><img src="/images/projects/microsoft-casual-games/screen-04.jpeg" alt="Article view" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/microsoft-casual-games/screen-06.jpeg"><img src="/images/projects/microsoft-casual-games/screen-06.jpeg" alt="Migration mapping" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/microsoft-casual-games/screen-08.jpeg"><img src="/images/projects/microsoft-casual-games/screen-08.jpeg" alt="Deletion flow" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/microsoft-casual-games/zendesk01.jpeg"><img src="/images/projects/microsoft-casual-games/zendesk01.jpeg" alt="Legacy Zendesk, before" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Xbox CMS</span><span class="cv-chip">Zendesk</span><span class="cv-chip">Localization</span><span class="cv-chip">WCAG 2.1 AA</span></div>
+          </div>
+        </article>
+
+        <article class="cv-project" data-cat="design">
+          <button type="button" class="cv-project-head" aria-expanded="false" aria-controls="p-figma">
+            <img class="cv-thumb" src="/images/projects/figma-fleet/figma-fleet-1.png" alt="Figma Fleet onboarding toolkit" loading="lazy">
+            <span>
+              <span class="cv-project-title">Figma <em>Fleet.</em></span>
+              <span class="cv-project-role">Contract UX designer &middot; Microsoft &middot; via Hanson Consulting Group</span>
+              <span class="cv-project-heads"><span class="cv-chip cv-cat">Design</span><span class="cv-chip">12 trained</span><span class="cv-chip">40% faster</span></span>
+            </span>
+            <span class="cv-project-toggle">View case study <span>&rsaquo;</span></span>
+          </button>
+          <div class="cv-project-body" id="p-figma" role="region">
+            <p>Built a visual-first Figma onboarding toolkit for the Xbox Support content team. Annotated walkthroughs, component systems, and a keyboard-shortcut overlay trained 12 team members and cut onboarding time by 40 percent.</p>
+            <div class="cv-metrics">
+              <div class="cv-metric"><b>12</b><span>Team members trained</span></div>
+              <div class="cv-metric"><b>40%</b><span>Faster onboarding</span></div>
+              <div class="cv-metric"><b>10+</b><span>Annotated walkthroughs</span></div>
+            </div>
+            <div class="cv-gallery">
+              <button type="button" data-full="/images/projects/figma-fleet/figma-fleet-1.png"><img src="/images/projects/figma-fleet/figma-fleet-1.png" alt="Dashboard" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/figma-fleet/figma-fleet-2.png"><img src="/images/projects/figma-fleet/figma-fleet-2.png" alt="Layer naming" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/figma-fleet/figma-fleet-3.png"><img src="/images/projects/figma-fleet/figma-fleet-3.png" alt="Frame and layout" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/figma-fleet/figma-fleet-4.png"><img src="/images/projects/figma-fleet/figma-fleet-4.png" alt="Component system" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/figma-fleet/figma-fleet-6.png"><img src="/images/projects/figma-fleet/figma-fleet-6.png" alt="Prototype preview" loading="lazy"></button>
+              <button type="button" data-full="/images/projects/figma-fleet/figma-fleet-7.png"><img src="/images/projects/figma-fleet/figma-fleet-7.png" alt="Shortcut map" loading="lazy"></button>
+            </div>
+            <div class="cv-tools"><span class="cv-chip">Figma</span><span class="cv-chip">Component systems</span><span class="cv-chip">Accessibility audits</span></div>
+          </div>
+        </article>
+
       </div>
     </section>
 
