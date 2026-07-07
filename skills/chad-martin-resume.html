@@ -95,6 +95,99 @@
     @media (prefers-reduced-motion:reduce) {
       .cv-thumb, .cv-gallery img, .cv-filter button { transition:none; }
     }
+
+    /* Screen-hidden; revealed only when printing / exporting the PDF */
+    .cv-print-contact { display: none; }
+    /* Hero action buttons (moved off an inline style so print can hide them) */
+    .cv-hero-actions { display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-8); }
+
+    /* ---------------------------------------------------------------------
+       Print / PDF: flip the dark UI to a flat light document.
+       The whole design system is token-driven, so re-declaring the colour
+       tokens on :root recolours everything without a single !important.
+       (ap-base.css already strips the glow / texture / vignette in print.)
+       --------------------------------------------------------------------- */
+    @media print {
+      :root {
+        --color-bg:            #ffffff;
+        --color-surface:       #ffffff;
+        --color-text-primary:  #101010;
+        --color-text-body:     #1d1d1d;
+        --color-text-secondary: rgba(0,0,0,.72);
+        --color-text-tertiary:  rgba(0,0,0,.55);
+        --color-text-muted:     rgba(0,0,0,.45);
+        --color-border:         rgba(0,0,0,.24);
+        --color-border-soft:    rgba(0,0,0,.13);
+        --color-border-warm:        rgba(0,0,0,.24);
+        --color-border-warm-soft:   rgba(0,0,0,.13);
+        --color-border-warm-dashed: rgba(0,0,0,.13);
+        --color-accent-amber:  #9a6a12;
+        --mono-opacity-boost:  0.82;
+        --glow-opacity:        0;
+        --tx-op:               0;
+      }
+
+      html, body {
+        background: #fff;
+        color: var(--color-text-body);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Navigation, CTA, footer, and every interactive control drop away */
+      .ap-nav,
+      .ap-cta,
+      .ap-foot-wrap,
+      .cv-hero-actions,
+      .cv-filter,
+      .cv-thumb,
+      .cv-project-toggle,
+      .cv-gallery,
+      .cv-video,
+      .cv-livelink,
+      .cv-lightbox { display: none; }
+
+      /* Print-only contact line under the summary */
+      .cv-print-contact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--sp-2) var(--sp-4);
+        margin: var(--sp-5) 0 0;
+        font-family: var(--font-mono);
+        font-size: var(--fs-mono-xs);
+        letter-spacing: var(--tracking-mono-sm);
+        color: var(--color-text-secondary);
+      }
+      .cv-print-contact span::before { content: '\2022'; margin-right: var(--sp-4); opacity: .4; }
+      .cv-print-contact span:first-child::before { content: none; }
+
+      /* Tighten the page for paper */
+      main { padding: 0; }
+      .ap-sec { padding: 0 0 16px; margin: 0 auto; }
+      .ap-sec-head { margin-bottom: 12px; }
+      .ap-display { font-size: 32px; line-height: 1.03; }
+      .ap-sec-head h2 { font-size: 23px; margin-top: 6px; max-width: none; }
+      .cv-summary { font-size: 11.5pt; margin-top: 10px; }
+
+      /* Flatten the accordion: every card fully expanded, no chrome */
+      .cv-project-head { display: block; padding: 12px 0 4px; cursor: default; }
+      .cv-project-body { display: block; padding: 0 0 10px; max-width: none; }
+      .cv-project-title { font-size: 15pt; }
+      .cv-project-body p { font-size: 10.5pt; opacity: 1; }
+      .cv-metrics { grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); margin-bottom: var(--sp-4); }
+      .cv-metric b { font-size: 14pt; }
+      .cv-role p, .cv-award p, .cv-award ul li, .cv-edu p { opacity: 1; }
+
+      /* Keep logical blocks whole across page breaks */
+      .cv-project,
+      .cv-role,
+      .cv-award,
+      .cv-edu,
+      .cv-skill-group { page-break-inside: avoid; break-inside: avoid; }
+      .ap-sec-idx, .ap-sec-head, h1, h2, h3 { page-break-after: avoid; break-after: avoid; }
+
+      a { color: inherit; text-decoration: none; }
+    }
   </style>
   <script defer src="/js/ap-nav-mobile.js"></script>
 </head>
@@ -126,8 +219,14 @@
       <ul class="cv-tags">
         <li>Producer</li><li>Technical</li><li>Leadership</li><li>Strategy</li><li>AI systems</li><li>Video &amp; animation</li>
       </ul>
-      <div class="ap-cta-actions" style="display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: var(--sp-8);">
-        <a class="ap-btn ap-btn--primary" href="/skills/Chad-Martin-Resume-2025-June.pdf" download="Chad-Martin-Resume">Download resume (PDF) &rarr;</a>
+      <div class="cv-print-contact" aria-hidden="true">
+        <span>Seattle, WA</span>
+        <span>hello@ambientpixels.ai</span>
+        <span>linkedin.com/in/chad-martin-b038496</span>
+        <span>ambientpixels.ai</span>
+      </div>
+      <div class="ap-cta-actions cv-hero-actions">
+        <a class="ap-btn ap-btn--primary" href="/skills/Chad-Martin-Resume-2026-07.pdf" download="Chad-Martin-Resume">Download resume (PDF) &rarr;</a>
         <a class="ap-btn ap-btn--ghost" href="https://www.linkedin.com/in/chad-martin-b038496/" target="_blank" rel="noopener noreferrer">Connect on LinkedIn</a>
       </div>
     </section>
@@ -593,7 +692,7 @@
     <p>Producer engagements, AI tooling, platform migrations, video content: all in the playbook.</p>
     <div class="ap-cta-actions">
       <a class="ap-btn ap-btn--primary" href="/#start">Start a project &rarr;</a>
-      <a class="ap-btn ap-btn--ghost" href="/skills/Chad-Martin-Resume-2025-June.pdf" download>Download PDF</a>
+      <a class="ap-btn ap-btn--ghost" href="/skills/Chad-Martin-Resume-2026-07.pdf" download>Download PDF</a>
     </div>
     <a class="ap-link-mono" href="mailto:hello@ambientpixels.ai">Or email hello@ambientpixels.ai &rarr;</a>
   </section>
