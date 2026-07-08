@@ -69,7 +69,8 @@
     .cv-thumb { width:140px; height:88px; object-fit:cover; display:block; filter:grayscale(1) contrast(.92) brightness(.85); transition:filter var(--dur-med); }
     .cv-project-head:hover .cv-thumb { filter:none; }
     .cv-thumb--icon { display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#2e2e2e,#141414); color:#fff; }
-    .cv-thumb--icon i { font-size:36px; }
+    .cv-thumb--icon i { font-size:36px; transition:color var(--dur-med); }
+    .cv-project-head:hover .cv-thumb--icon { color:var(--color-accent-amber); }
     .cv-project-title { display:block; font-family:var(--font-display); font-weight:var(--fw-heavy); font-size:clamp(20px,2.2vw,28px); letter-spacing:var(--tracking-tight); margin:0; }
     .cv-project-title em { font-style:italic; font-weight:var(--fw-regular); color:var(--color-text-body); }
     .cv-project-role { display:block; font-family:var(--font-mono); font-size:var(--fs-mono-xs); letter-spacing:var(--tracking-mono-md); text-transform:uppercase; opacity:.6; margin:var(--sp-2) 0 var(--sp-3); }
