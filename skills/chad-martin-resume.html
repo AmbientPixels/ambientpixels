@@ -29,6 +29,9 @@
     .cv-tags { list-style: none; padding: 0; margin: var(--sp-5) 0 0; display: flex; gap: var(--sp-3); flex-wrap: wrap; font-family: var(--font-mono); font-size: var(--fs-mono-xs); letter-spacing: var(--tracking-mono-md); text-transform: uppercase; opacity: var(--mono-opacity-boost, 0.7); }
     .cv-tags li { padding: var(--sp-2) var(--sp-3); border: 1px solid var(--color-border); }
     .cv-summary { max-width: var(--max-prose); font-size: var(--fs-body); line-height: var(--lh-body-loose); color: var(--color-text-body); margin: var(--sp-6) 0 0; }
+    /* Hero impact strip: reuses .cv-metric styling; compound selector beats the base .cv-metrics grid */
+    .cv-metrics.cv-impact { grid-template-columns: repeat(4, 1fr); margin: var(--sp-8) 0 var(--sp-5); padding-top: var(--sp-6); border-top: 1px solid var(--color-border); }
+    @media (max-width: 600px) { .cv-metrics.cv-impact { grid-template-columns: repeat(2, 1fr); } }
     .cv-role { max-width: var(--max-prose); padding: var(--sp-8) 0; border-top: 1px solid var(--color-border); }
     .cv-role:first-of-type { border-top: none; }
     .cv-role h3 { font-family: var(--font-display); font-weight: var(--fw-heavy); font-size: clamp(24px, 2.5vw, 32px); letter-spacing: var(--tracking-tight); margin: 0 0 var(--sp-2); color: var(--color-text-primary); }
@@ -246,9 +249,15 @@
           Senior Producer and Technical Strategist. Producer, Xbox Store, Microsoft, via Hanson Consulting Group.
         </div>
       </div>
-      <p class="cv-summary">I&rsquo;ve spent 18 years building, publishing, and automating content for Xbox: from hand-coding Xbox.com splash pages in 2008, to content readiness for the Xbox One global launch, to producing the weekly merchandising that ships to the Xbox Desktop and Mobile apps across 100+ locales today. My role kept evolving from producing content to building the systems that produce it: deep fluency in publishing pipelines, CMS systems, and localization at scale, combined with the JavaScript and Node.js skills to automate the parts that shouldn&rsquo;t be manual, and the AI workflow skills to scale what&rsquo;s left.</p>
+      <p class="cv-summary">I&rsquo;m a content producer who builds the systems that produce content, at global scale. Across 18 years for Xbox, I went from hand-coding Xbox.com splash pages in 2008, to content readiness for the Xbox One global launch, to producing the weekly merchandising that ships to the Xbox Desktop and Mobile apps across 100+ locales today. That path took me from producing content to engineering how it gets produced: deep fluency in publishing pipelines, CMS platforms, and localization at scale, paired with the JavaScript and Node.js skills to automate what shouldn&rsquo;t be manual and the AI workflow skills to scale what&rsquo;s left.</p>
+      <div class="cv-metrics cv-impact">
+        <div class="cv-metric"><b>18 yrs</b><span>Building for Xbox</span></div>
+        <div class="cv-metric"><b>32M+</b><span>Monthly users reached</span></div>
+        <div class="cv-metric"><b>122</b><span>Locales per campaign</span></div>
+        <div class="cv-metric"><b>98.9%</b><span>First-pass content accuracy</span></div>
+      </div>
       <ul class="cv-tags">
-        <li>Producer</li><li>Technical</li><li>Leadership</li><li>Strategy</li><li>AI systems</li><li>Video &amp; animation</li>
+        <li>Content production</li><li>Systems &amp; automation</li><li>Localization at scale</li><li>Video &amp; motion</li>
       </ul>
       <div class="cv-print-contact" aria-hidden="true">
         <span>Seattle, WA</span>
