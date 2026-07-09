@@ -142,7 +142,37 @@ async function discoverAcrossKeywords(keywords, opts) {
   return results;
 }
 
+// Buyer-intent scoring (0-20) for AmbientScore prospecting. Scores a post's TEXT
+// by how strongly it signals someone wants landing-page / conversion help — so the
+// discovery score reflects REAL intent, not just "this post matched a search term".
+// Replaces the old constant keyword score that gave every candidate a flat 20.
+var _INTENT_SIGNALS = [
+  [/\b(not|isn'?t|ain'?t|aren'?t)\s+converting\b/, 12],
+  [/\bconversion rate\b/, 8],
+  [/\blow(er)? conversion\b/, 10],
+  [/\bbounce rate\b/, 8],
+  [/\bland(ing)?[\s-]?page\b/, 8],
+  [/\broast my (site|website|landing|page|homepage)\b/, 12],
+  [/\bfeedback on my (site|website|landing|page|homepage)\b/, 10],
+  [/\b(no|not getting|zero|need more)\s+(sign[\s-]?ups?|users|customers|leads|conversions)\b/, 8],
+  [/\bwhy (isn'?t|is|won'?t|aren'?t)\s+(my|the|this)\s+(site|page|website|homepage)\b/, 8],
+  [/\bjust launched\b/, 4],
+  [/\bmy (site|website|homepage|landing page)\b/, 4],
+  [/\bconvert(s|ing)?\b/, 3]
+];
+
+function intentScore(text) {
+  if (!text) return 0;
+  var t = String(text).toLowerCase();
+  var s = 0;
+  for (var i = 0; i < _INTENT_SIGNALS.length; i++) {
+    if (_INTENT_SIGNALS[i][0].test(t)) s += _INTENT_SIGNALS[i][1];
+  }
+  return Math.min(20, s);
+}
+
 module.exports = {
   searchBluesky,
-  discoverAcrossKeywords
+  discoverAcrossKeywords,
+  intentScore
 };

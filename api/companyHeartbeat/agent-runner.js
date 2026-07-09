@@ -421,6 +421,7 @@ async function runAgentHeartbeat(ctx) {
 
         // Score and add new candidates
         var _bsNewCount = 0;
+        var _bsSkipped = 0;
         for (var _bsci = 0; _bsci < _bsRawCandidates.length; _bsci++) {
           var _c = _bsRawCandidates[_bsci];
           if (_bsExistingUris[_c.uri]) continue;
@@ -431,8 +432,13 @@ async function runAgentHeartbeat(ctx) {
           var _recencyScore = Math.max(0, 30 - Math.floor(_ageMinutes / 4)); // 30 at 0min, 0 at 2h
           var _engagementScore = Math.min(30, (_c.replyCount * 3) + _c.likeCount);
           var _velocityScore = Math.min(20, Math.floor((_c._velocity || 0) * 100));
-          var _keywordScore = _c._matchedKeyword ? 20 : 0;
+          var _keywordScore = _blueskyDiscovery.intentScore(_c.text);
           var _score = _recencyScore + _engagementScore + _velocityScore + _keywordScore;
+
+          // Buyer-intent threshold: off-topic threads (no intent language) fall below this
+          // and are dropped instead of filling the 200-slot store with noise. Tunable via
+          // systemConfig.blueskyKeywords.filters.minScore (default 40).
+          if (_score < (_bsFilters.minScore || 40)) { _bsSkipped++; continue; }
 
           _bsCandidates.push({
             id: 'bsc-' + _bsNow + '-' + Math.random().toString(36).substr(2, 6),
@@ -466,7 +472,7 @@ async function runAgentHeartbeat(ctx) {
         }
 
         await storage.setState('blueskyCandidates', _bsCandidates);
-        context.log('[Heartbeat] scout: bluesky discovery complete.', _bsNewCount, 'new candidates added,', _bsCandidates.length, 'total stored');
+        context.log('[Heartbeat] scout: bluesky discovery complete.', _bsNewCount, 'new candidates added,', _bsSkipped, 'below intent threshold,', _bsCandidates.length, 'total stored');
       }
     } catch (_bsOuterErr) {
       context.log('[Heartbeat] scout: bluesky discovery failed:', String(_bsOuterErr).substring(0, 200));
