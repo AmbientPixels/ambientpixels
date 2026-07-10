@@ -55,8 +55,12 @@ async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
     }).catch(() => {});
   }
 
+  if (data?.stop_reason === 'max_tokens') {
+    throw new Error('Claude truncated output at max_tokens=' + (maxOutputTokens || 2000) + ' (caller: ' + (caller || 'ambientscore') + ')');
+  }
+
   const text = data?.content?.[0]?.text;
-  if (!text) throw new Error('Empty response from Claude');
+  if (!text) throw new Error('Empty response from Claude (stop_reason: ' + (data?.stop_reason || 'unknown') + ', caller: ' + (caller || 'ambientscore') + ')');
   return text;
 }
 
@@ -162,7 +166,8 @@ async function analyze(url) {
 
   // If both groups failed, report is not viable
   if (failedGroups >= 2) {
-    throw new Error('Analysis failed: both evaluation groups returned errors');
+    const evalErrs = errors.filter(e => e.indexOf('evaluation failed') !== -1);
+    throw new Error('Analysis failed: both evaluation groups returned errors' + (evalErrs.length ? ' :: ' + evalErrs.join(' :: ') : ''));
   }
 
   // Step 4: Compute deterministic score (site-type-aware weights)
