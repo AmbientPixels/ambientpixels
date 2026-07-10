@@ -9,6 +9,7 @@ const https = require('https');
 const querystring = require('querystring');
 const crypto = require('crypto');
 const storage = require('../../../_utils/companyStorage');
+const { truncatePreservingUrl } = require('./textLimit');
 const { retryOn429, shouldSkipDueToExistingReceipt } = require('../../../_utils/platformRetry');
 
 const LINKEDIN_API_URL = 'https://api.linkedin.com/v2/ugcPosts';
@@ -286,7 +287,8 @@ async function publishToLinkedIn(action) {
 
   if (text.length > MAX_CHARS) {
     _log('truncating', { original: text.length, limit: MAX_CHARS });
-    text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';
+    // URL-preserving: trim the prose, never drop the trailing CTA link.
+    text = truncatePreservingUrl(text, MAX_CHARS);
   }
 
   // Pre-flight: verify token is still valid + check org access

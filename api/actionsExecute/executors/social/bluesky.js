@@ -5,6 +5,7 @@
 const https = require('https');
 const crypto = require('crypto');
 const media = require('./media');
+const { truncatePreservingUrl } = require('./textLimit');
 const storage = require('../../../_utils/companyStorage');
 const { retryOn429, shouldSkipDueToExistingReceipt } = require('../../../_utils/platformRetry');
 
@@ -171,7 +172,9 @@ async function publishToBluesky(action) {
 
   if (text.length > MAX_CHARS) {
     _log('truncating', { original: text.length, limit: MAX_CHARS });
-    text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';
+    // URL-preserving: trim the prose, never drop the trailing CTA link. detectFacets()
+    // runs below on the truncated text, so the surviving link still gets its facet.
+    text = truncatePreservingUrl(text, MAX_CHARS);
   }
 
   // Authenticate

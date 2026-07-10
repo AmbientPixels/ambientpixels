@@ -2848,16 +2848,22 @@ Write the full deliverable first, then the structured JSON block.`;
       }
       const platformKey = _charLimitPlatform;
       const charLimit = PLATFORM_CHAR_LIMITS[platformKey] || 280;
-      if (postText.length > charLimit) {
-        context.log('[Heartbeat]', agentId, 'Trimming', platformKey, 'post from', postText.length, 'to', charLimit, 'chars');
-        // Preserve URL and hashtags at the end, trim the body text
-        const urlMatch = postText.match(/((?:\n\n|\n)https?:\/\/\S+(?:\n\n|\n)#[\s\S]*$)/);
-        const hashtagMatch = postText.match(/((?:\n\n|\n)#[A-Za-z][\s\S]*$)/);
-        const suffix = urlMatch ? urlMatch[1] : (hashtagMatch ? hashtagMatch[1] : '');
-        const body = suffix ? postText.substring(0, postText.length - suffix.length) : postText;
-        const maxBody = charLimit - suffix.length;
+      // URL-preserving trim: promo copy puts the CTA link at the END. Trimming the body to
+      // fit must NEVER delete that link (a post whose link is cut off is wasted). Defined
+      // once and applied both here and again after UTM injection (which lengthens the link).
+      const _trimSocialToLimit = function (rawText, limit) {
+        const src = String(rawText || '');
+        if (src.length <= limit) return src;
+        // Suffix shapes, most-specific first: URL + trailing hashtags, URL alone at the end
+        // (the common promo pattern — previously unprotected), or hashtags alone.
+        const urlWithTags = src.match(/((?:\n\n|\n)https?:\/\/\S+(?:\n\n|\n)#[\s\S]*)$/);
+        const urlOnly = src.match(/((?:\n\n|\n)https?:\/\/\S+)\s*$/);
+        const hashtagOnly = src.match(/((?:\n\n|\n)#[A-Za-z][\s\S]*)$/);
+        const suffix = urlWithTags ? urlWithTags[1] : (urlOnly ? urlOnly[1] : (hashtagOnly ? hashtagOnly[1] : ''));
+        const body = suffix ? src.substring(0, src.length - suffix.length) : src;
+        const maxBody = limit - suffix.length;
         if (maxBody > 40) {
-          // Trim body at last sentence or word boundary
+          // Trim body at last sentence or word boundary, then re-attach the protected suffix.
           let trimmed = body.substring(0, maxBody);
           const lastSentence = trimmed.match(/^([\s\S]*[.!?])\s/);
           if (lastSentence && lastSentence[1].length > maxBody * 0.5) {
@@ -2865,11 +2871,19 @@ Write the full deliverable first, then the structured JSON block.`;
           } else {
             trimmed = trimmed.substring(0, trimmed.lastIndexOf(' ')) || trimmed;
           }
-          socialPayload.text = (trimmed.trim() + suffix).trim();
-        } else {
-          // Suffix alone is too long, just hard-cut
-          socialPayload.text = postText.substring(0, charLimit - 1).trim() + '…';
+          return (trimmed.trim() + suffix).trim();
         }
+        if (suffix) {
+          // Body budget is gone but there IS a link — ship the link rather than a truncated
+          // body that drops it. Better a bare link than no link.
+          return suffix.replace(/^\n+/, '').trim().substring(0, limit);
+        }
+        // No link to protect — plain hard-cut.
+        return src.substring(0, limit - 1).trim() + '…';
+      };
+      if (postText.length > charLimit) {
+        context.log('[Heartbeat]', agentId, 'Trimming', platformKey, 'post from', postText.length, 'to', charLimit, 'chars');
+        socialPayload.text = _trimSocialToLimit(postText, charLimit);
         context.log('[Heartbeat] Trimmed result:', socialPayload.text.length, 'chars');
       }
 
@@ -3129,6 +3143,15 @@ Write the full deliverable first, then the structured JSON block.`;
         );
       } catch (_utmErr) {
         context.log('[Heartbeat]', agentId, 'UTM inject failed (non-fatal):', String(_utmErr).substring(0, 200));
+      }
+
+      // UTM injection lengthens the link, which can push a trimmed-to-limit post back over
+      // the platform cap. Re-trim the FINAL text (URL-preserving) so the stored + approved
+      // copy already fits — the executor never has to tail-chop, which would drop the link.
+      if ((newAction.payload.text || '').length > charLimit) {
+        const _preRetrim = newAction.payload.text.length;
+        newAction.payload.text = _trimSocialToLimit(newAction.payload.text, charLimit);
+        context.log('[Heartbeat]', agentId, 'Re-trimmed', platformKey, 'post after UTM from', _preRetrim, 'to', newAction.payload.text.length, 'chars');
       }
 
       // Link action to parent task if provided

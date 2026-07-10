@@ -1672,6 +1672,13 @@ You must remain within your assigned authority tier. Doctrine influences your st
         fvLines.push('\nPRINCIPLES:');
         _founderVoice.principles.forEach(function(p) { fvLines.push('- ' + p); });
       }
+      if (_founderVoice.platform_limits && typeof _founderVoice.platform_limits === 'object') {
+        fvLines.push('\nPLATFORM LENGTH LIMITS (the link counts toward the limit — keep the whole post under it):');
+        Object.keys(_founderVoice.platform_limits).forEach(function(k) {
+          fvLines.push('- ' + k + ': ' + _founderVoice.platform_limits[k]);
+        });
+      }
+      if (_founderVoice.link_rule) fvLines.push('\nLINK PLACEMENT: ' + _founderVoice.link_rule);
       // Rotate 2 random examples per heartbeat
       var examples = _founderVoice.examples.slice();
       var picked = [];

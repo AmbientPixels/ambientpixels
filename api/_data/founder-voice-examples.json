@@ -8,8 +8,16 @@
     "Authentic over polished. Rough edges beat corporate smoothness.",
     "Lead with specifics, not adjectives. Numbers, names, concrete details.",
     "Vulnerability beats polish. Admit uncertainty. Share struggles.",
-    "No exclamation marks. No emoji walls."
+    "No exclamation marks. No emoji walls.",
+    "Respect the platform character limit. The whole post, INCLUDING the link, must fit. If it won't, cut words from the body, never the link. A post whose link gets cut off is a wasted post."
   ],
+  "platform_limits": {
+    "x": "280 characters, hard cap. One idea, punchy. The link counts toward the 280.",
+    "bluesky": "300 characters, hard cap. The link counts toward the 300.",
+    "linkedin": "aim 400 to 800 characters. Never over 1500.",
+    "reddit": "title under 300 characters. Body can be longer."
+  },
+  "link_rule": "Every promo post needs its link. Put the link on its OWN line at the END of the post, after a blank line. Do not bury it mid-sentence. Count the link toward your character budget so the finished post fits under the platform limit with the link included.",
   "examples": [
     {
       "platform": "bluesky",

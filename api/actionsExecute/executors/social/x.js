@@ -5,6 +5,7 @@
 const crypto = require('crypto');
 const https = require('https');
 const media = require('./media');
+const { truncatePreservingUrl } = require('./textLimit');
 const { retryOn429, shouldSkipDueToExistingReceipt } = require('../../../_utils/platformRetry');
 
 const X_API_URL = 'https://api.x.com/2/tweets';
@@ -345,7 +346,8 @@ async function publishToX(action) {
 
   if (text.length > MAX_CHARS) {
     _log('truncating', { original: text.length, limit: MAX_CHARS });
-    text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';
+    // URL-preserving: trim the prose, never drop the trailing CTA link.
+    text = truncatePreservingUrl(text, MAX_CHARS);
   }
 
   // Upload media if provided (max 4) — uses shared media module for host allowlist + download
