@@ -68,7 +68,18 @@ function parseJsonResponse(text) {
   if (cleaned.startsWith('```')) {
     cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
   }
-  return JSON.parse(cleaned);
+  try {
+    return JSON.parse(cleaned);
+  } catch (err) {
+    // Salvage: extract the outermost JSON object/array if the model wrapped it
+    // in prose. Does not recover truncated output — that stays a parse error.
+    const first = cleaned.search(/[{[]/);
+    const last = Math.max(cleaned.lastIndexOf('}'), cleaned.lastIndexOf(']'));
+    if (first !== -1 && last > first) {
+      return JSON.parse(cleaned.slice(first, last + 1));
+    }
+    throw err;
+  }
 }
 
 // ── Analysis Pipeline ────────────────────────────────────────────
@@ -87,7 +98,7 @@ async function analyze(url) {
   try {
     const rawExtraction = await callClaude(extractionPrompt, {
       temperature: 0.3,
-      maxOutputTokens: 2000,
+      maxOutputTokens: 4000,
       caller: 'as-extraction'
     });
     extraction = parseJsonResponse(rawExtraction);
@@ -103,7 +114,7 @@ async function analyze(url) {
     const classPrompt = buildClassificationPrompt(extraction);
     const rawClass = await callClaude(classPrompt, {
       temperature: 0.2,
-      maxOutputTokens: 300,
+      maxOutputTokens: 500,
       caller: 'as-classification'
     });
     const classification = parseJsonResponse(rawClass);
@@ -123,7 +134,7 @@ async function analyze(url) {
       const prompt = buildGroupEvalPrompt(groupId, extraction, siteType, !!scraped.jsRenderedWarning);
       const raw = await callClaude(prompt, {
         temperature: 0.1,
-        maxOutputTokens: 2500,
+        maxOutputTokens: 5000,
         caller: 'as-eval-group-' + groupId
       });
       return { groupId, status: 'ok', result: parseJsonResponse(raw) };
@@ -163,7 +174,7 @@ async function analyze(url) {
     const synthPrompt = buildSynthesisPrompt(scoreResult, { _extraction: extraction, ...evaluations }, siteType);
     const rawSynthesis = await callClaude(synthPrompt, {
       temperature: 0.5,
-      maxOutputTokens: 1500,
+      maxOutputTokens: 3000,
       caller: 'as-synthesis'
     });
     synthesis = parseJsonResponse(rawSynthesis);
