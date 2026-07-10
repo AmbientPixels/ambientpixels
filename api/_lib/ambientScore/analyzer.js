@@ -32,7 +32,7 @@ async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify(body),
-    timeout: 60000
+    timeout: 120000
   });
 
   if (!res.ok) {
