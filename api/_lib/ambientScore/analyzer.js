@@ -32,7 +32,7 @@ async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
       'anthropic-version': '2023-06-01'
     },
     body: JSON.stringify(body),
-    timeout: 120000
+    timeout: 200000
   });
 
   if (!res.ok) {
@@ -138,7 +138,7 @@ async function analyze(url) {
       const prompt = buildGroupEvalPrompt(groupId, extraction, siteType, !!scraped.jsRenderedWarning);
       const raw = await callClaude(prompt, {
         temperature: 0.1,
-        maxOutputTokens: 5000,
+        maxOutputTokens: 8000,
         caller: 'as-eval-group-' + groupId
       });
       return { groupId, status: 'ok', result: parseJsonResponse(raw) };
