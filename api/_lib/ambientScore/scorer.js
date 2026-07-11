@@ -31,6 +31,18 @@ function decompressScore(raw1to10) {
   return 100;
 }
 
+// Severity rank for ordering findings, most severe first.
+// IMPORTANT: uses ?? (not ||) because `critical` maps to 0, and `0 || fallback`
+// is falsy, so || would wrongly demote critical findings below important ones
+// (that bug hid every scan's critical findings out of the top-3 teaser).
+const SEVERITY_RANK = { critical: 0, important: 1, minor: 2 };
+
+function sortFindingsBySeverity(findings) {
+  return findings.slice().sort(
+    (a, b) => (SEVERITY_RANK[a.severity] ?? 2) - (SEVERITY_RANK[b.severity] ?? 2)
+  );
+}
+
 /**
  * Compute the overall AmbientScore from dimension evaluations.
  *
@@ -126,9 +138,8 @@ function computeScore(evaluations, siteType) {
     : 5;
   const finalScore = decompressScore(rawFinalAvg);
 
-  // Sort findings by severity: critical > important > minor
-  const severityOrder = { critical: 0, important: 1, minor: 2 };
-  allFindings.sort((a, b) => (severityOrder[a.severity] || 2) - (severityOrder[b.severity] || 2));
+  // Sort findings by severity, most severe first (critical > important > minor)
+  const sortedFindings = sortFindingsBySeverity(allFindings);
 
   // Count partial dimensions
   const partialCount = Object.values(dimensionResults).filter(d => d.partial).length;
@@ -138,9 +149,9 @@ function computeScore(evaluations, siteType) {
     rawScoreAvg: Math.round(rawFinalAvg * 100) / 100, // LLM weighted average 1-10, for audit
     grade: scoreToGrade(finalScore),
     dimensions: dimensionResults,
-    findings: allFindings,
-    teaserFindings: allFindings.slice(0, 3),
-    totalFindings: allFindings.length,
+    findings: sortedFindings,
+    teaserFindings: sortedFindings.slice(0, 3),
+    totalFindings: sortedFindings.length,
     partialDimensions: partialCount,
     disclaimer: partialCount > 0
       ? partialCount + ' of 8 dimensions used estimated scores due to analysis limitations.'
@@ -148,4 +159,4 @@ function computeScore(evaluations, siteType) {
   };
 }
 
-module.exports = { computeScore };
+module.exports = { computeScore, sortFindingsBySeverity };
