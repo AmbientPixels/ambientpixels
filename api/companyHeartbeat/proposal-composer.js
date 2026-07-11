@@ -22,11 +22,11 @@ const MIN_DEADLINE_DAYS = 14;
 const MAX_DEADLINE_DAYS = 180;
 const CAPS = { title: 100, description: 1000, rationale: 500, success: 300 };
 
-// Valid campaign task types (mirrors materialize.js VALID_TASK_TYPES).
+// Valid campaign platforms — a SUBSET of materialize.js VALID_TASK_TYPES: growth
+// channels only (excludes ops/financial/general), which is what a campaign can task.
 const VALID_CAMPAIGN_PLATFORMS = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'design_asset', 'internal_doc', 'research'];
 
 function _arr(v) { return Array.isArray(v) ? v : null; }
-function _norm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
 function _normName(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ''); }
 function _platforms(sas) { return (sas && sas.platforms) || sas || {}; }
 function _followers(sas, key) {
@@ -36,14 +36,17 @@ function _followers(sas, key) {
 }
 
 // Count unique customers with a positive charge in the revenue ledger. Default 0.
+// Accepts BOTH the real production blob { entries:[...], updatedAt } and a bare array
+// (fixtures). Real entries carry customerId (often null) + customerEmail.
 function _payingCustomers(state) {
-  var ledger = _arr(state.revenueLedger) || [];
+  var raw = state.revenueLedger;
+  var ledger = Array.isArray(raw) ? raw : ((raw && _arr(raw.entries)) || []);
   var set = {};
   ledger.forEach(function (e) {
     if (!e) return;
     var amt = Number(e.amountCents != null ? e.amountCents : e.amount);
     if (!(amt > 0)) return;
-    var k = e.customerId || e.email || e.customer || e.id;
+    var k = e.customerId || e.customerEmail || e.id;
     if (k) set[String(k)] = true;
   });
   return Object.keys(set).length;
@@ -59,14 +62,13 @@ function _metricBaselines(state) {
   return out;
 }
 
-// A model-named product must resolve to a real product-facts name (substring either way).
+// A model-named product must resolve to a real product-facts name via exact
+// normalized equality (spacing/case-insensitive). Substring matching is unsafe:
+// generic "Forge"/"Ambient" would pass as real products.
 function _matchesProduct(name, names) {
   var n = _normName(name);
   if (n.length < 3) return false;
-  return (names || []).some(function (pn) {
-    var x = _normName(pn);
-    return x && (x.indexOf(n) !== -1 || n.indexOf(x) !== -1);
-  });
+  return (names || []).some(function (pn) { return _normName(pn) === n; });
 }
 
 function _validPlatforms(arr) {
@@ -88,7 +90,7 @@ function buildGrounding(signal, state) {
       .map(function (o) { return { title: o.title || '', northStarMetric: o.northStarMetric || null, progress: Number(o.progress) || 0 }; }),
     activeCampaigns: campaigns.filter(function (c) { return c && c.status === 'active'; })
       .map(function (c) { return { name: c.name || c.title || '', product: c.product || null, cadence: c.cadence || null }; }),
-    products: perProduct.map(function (p) { return { product: p.product, verdict: p.verdict, deltaPct: (p.traffic && p.traffic.deltaPct) }; })
+    products: perProduct.filter(function (p) { return p; }).map(function (p) { return { product: p.product, verdict: p.verdict, deltaPct: (p.traffic && p.traffic.deltaPct) }; })
   };
 }
 
