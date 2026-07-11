@@ -694,8 +694,15 @@
 
   function esc(str) {
     if (str == null) return '';
+    // Normalize dashes before escaping: the editorial style bans em dashes in
+    // visible copy, but LLM-generated report text often contains them. Em dash
+    // becomes a comma, en dash a hyphen. Chrome/UI strings have no such dashes,
+    // so this only affects generated prose.
+    var normalized = String(str)
+      .replace(/\s*—\s*/g, ', ')
+      .replace(/\s*–\s*/g, '-');
     var div = document.createElement('div');
-    div.textContent = String(str);
+    div.textContent = normalized;
     return div.innerHTML;
   }
 })();
