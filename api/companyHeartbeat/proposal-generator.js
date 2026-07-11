@@ -31,8 +31,6 @@ const STALE_DAYS = 14;
 const DEDUP_HOURS = 24;
 const EXPIRE_DAYS = 7; // unapproved generator suggestions auto-expire after this
 const OBJECTIVE_COMPLETE_PCT = 95;
-const MIN_ACTIVE_CAMPAIGNS = 3;
-const MIN_ACTIVE_OBJECTIVES = 3;
 // Only a genuine DECLINING verdict warrants a reactivation campaign. 'NO DATA'
 // means the product is simply uninstrumented (no traffic telemetry), NOT that it
 // dropped — lumping it in here produced misleading "AmbientScore 0% traffic"
@@ -283,7 +281,8 @@ function detectSignals(state, nowMs) {
       signals.push({
         kind: 'campaign', trigger: 'all_stagnant', severity: 2,
         subject: { product: (activeCampaigns.filter(function (c) { return c.product; })[0] || {}).product || null },
-        evidence: { stagnantDays: STAGNANT_DAYS, campaignCount: activeCampaigns.length }
+        evidence: { stagnantDays: STAGNANT_DAYS, campaignCount: activeCampaigns.length,
+          products: activeCampaigns.filter(function (c) { return c.product; }).map(function (c) { return c.product; }) }
       });
     }
   }
@@ -342,7 +341,7 @@ function _deterministicFromSignal(signal, state, nowMs) {
       return _buildCampaignProposal(reasons, targets, sas, nowMs);
     }
     var stagReasons = ['all active campaigns stagnant (no completed work in ' + STAGNANT_DAYS + 'd)'];
-    var stagTargets = signal.subject.product ? [{ product: signal.subject.product }] : [];
+    var stagTargets = (signal.evidence.products || []).map(function (p) { return { product: p }; });
     return _buildCampaignProposal(stagReasons, stagTargets, sas, nowMs);
   }
   var primary = signal.trigger === 'near_complete' ? 'complete' : 'stale';

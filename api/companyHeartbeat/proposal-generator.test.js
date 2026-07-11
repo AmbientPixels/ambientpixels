@@ -79,7 +79,12 @@ test('campaign fires when all active campaigns are stagnant (no done task in 14d
     ]
   });
   const r = computeProposals(st, NOW);
-  assert.ok(camp(r), 'expected a campaign_proposal');
+  const e = camp(r);
+  assert.ok(e, 'expected a campaign_proposal');
+  // All THREE active campaigns are stagnant → the fallback must carry every product,
+  // not just the first (regression guard: single-anchor targets drop Beta/Gamma).
+  assert.ok(e.description.indexOf('Alpha') !== -1 && e.description.indexOf('Beta') !== -1,
+    'stagnant fallback description must include more than one product');
 });
 
 test('campaign does NOT fire on a healthy baseline', () => {
@@ -362,6 +367,43 @@ test('detectSignals emits near_complete for a >=95% objective', () => {
   assert.ok(sig, 'expected an objective signal');
   assert.strictEqual(sig.trigger, 'near_complete');
   assert.strictEqual(sig.subject.objectiveId, 'o1');
+});
+
+test('detectSignals emits all_stagnant carrying every stagnant product when all campaigns are stagnant', () => {
+  const st = baseState({
+    tasks: [
+      { id: 't1', campaign_id: 'c1', status: 'done', updatedAt: daysAgo(30) },
+      { id: 't2', campaign_id: 'c2', status: 'done', updatedAt: daysAgo(30) },
+      { id: 't3', campaign_id: 'c3', status: 'done', updatedAt: daysAgo(30) },
+      { id: 't4', objective_id: 'o1', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't5', objective_id: 'o2', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't6', objective_id: 'o3', status: 'in-progress', updatedAt: daysAgo(1) }
+    ]
+  });
+  const sig = detectSignals(st, NOW).find((s) => s.kind === 'campaign' && s.trigger === 'all_stagnant');
+  assert.ok(sig, 'expected an all_stagnant campaign signal');
+  assert.deepStrictEqual(sig.evidence.products, ['Alpha', 'Beta', 'Gamma'], 'evidence carries all stagnant products');
+});
+
+test('detectSignals emits stale_objective for a substantive stalled objective (progress > 0, no campaign/task)', () => {
+  const st = baseState({
+    objectives: [
+      { id: 'o1', status: 'active', progress: 50 },
+      { id: 'o2', status: 'active', progress: 50 },
+      { id: 'o3', status: 'active', progress: 40, title: 'Stalled goal' }
+    ],
+    tasks: [
+      { id: 't1', campaign_id: 'c1', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't2', campaign_id: 'c2', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't3', campaign_id: 'c3', status: 'done', updatedAt: daysAgo(1) },
+      { id: 't4', objective_id: 'o1', status: 'in-progress', updatedAt: daysAgo(1) },
+      { id: 't5', objective_id: 'o2', status: 'in-progress', updatedAt: daysAgo(1) }
+      // o3: progress 40, no campaign, no task → substantive stall
+    ]
+  });
+  const sig = detectSignals(st, NOW).find((s) => s.kind === 'objective' && s.trigger === 'stale_objective');
+  assert.ok(sig, 'expected a stale_objective signal');
+  assert.strictEqual(sig.subject.objectiveId, 'o3');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
