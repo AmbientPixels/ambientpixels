@@ -279,6 +279,7 @@ test('objective proposal pre-fills bluesky_followers metric when follower data e
   const e = obj(computeProposals(nearDoneTrigger({}), NOW));
   assert.strictEqual(e.northStarMetric, 'bluesky_followers', 'northStarMetric set');
   assert.ok(Number.isFinite(e.metricTarget) && e.metricTarget > 300, 'metricTarget is followers+15% (>300)');
+  assert.strictEqual(e.metricBaseline, 300, 'metricBaseline = real followers baseline (anchors materialize progress)');
   assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(e.metricDeadline), 'metricDeadline is a date');
   assert.strictEqual(e.strategyFlag, null, 'no flag when metric present');
 });
