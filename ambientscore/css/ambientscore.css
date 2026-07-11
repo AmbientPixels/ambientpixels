@@ -284,6 +284,10 @@ h1.as-head em {
   pointer-events: none;
 }
 
+/* Sample scorecard rendered as a link */
+.as-scorecard-link { display: block; text-decoration: none; color: inherit; cursor: pointer; transition: transform 0.15s ease; }
+.as-scorecard-link:hover { transform: translateY(-2px); }
+
 .as-sc-top {
   display: flex;
   justify-content: space-between;
