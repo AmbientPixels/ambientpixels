@@ -3,6 +3,7 @@
 // Report ID is unguessable — no auth required.
 
 const storage = require('../_utils/companyStorage');
+const { isSample, isFullyViewable } = require('./sampleReports');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -32,8 +33,8 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // If report is locked, return teaser only
-    if (!report.unlocked) {
+    // If report is locked and not an allowlisted sample, return teaser only
+    if (!isFullyViewable(report, id)) {
       context.res = {
         status: 200,
         headers: CORS,
@@ -53,11 +54,14 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Full report
+    // Full report. For samples, force unlocked and flag isSample for the viewer.
+    const fullBody = isSample(id)
+      ? Object.assign({}, report, { unlocked: true, isSample: true })
+      : report;
     context.res = {
       status: 200,
       headers: CORS,
-      body: JSON.stringify(report)
+      body: JSON.stringify(fullBody)
     };
 
   } catch (err) {
