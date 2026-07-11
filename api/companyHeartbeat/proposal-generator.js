@@ -200,7 +200,7 @@ function _buildCampaignProposal(reasons, targets, socialAccountStats, nowMs) {
     platforms: _livePlatforms(socialAccountStats),
     frequency: 3,
     cadence: 'weekly',
-    duration: '30 days',
+    duration: 4,  // weeks (materialize.js parses duration as weeks)
     product: (names[0] || '').substring(0, 50),
     kpiTarget: kpi.substring(0, 200),
     northStarMetric: null,

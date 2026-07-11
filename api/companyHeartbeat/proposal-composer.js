@@ -105,11 +105,13 @@ function extractJson(text) {
   try { return JSON.parse(t.slice(s, e + 1)); } catch (_) { return null; }
 }
 
-function buildPrompt(signal, grounding) {
+function buildPrompt(signal, grounding, nowMs) {
   var g = grounding;
+  var _today = new Date(nowMs || Date.now()).toISOString().slice(0, 10);
   var lines = [];
   lines.push('You are Nova, prime operator of the AmbientPixels autonomous fleet.');
   lines.push('A deterministic scan found a real strategic gap. Propose the single most valuable ' + signal.kind + ' to close it.');
+  lines.push('Today is ' + _today + '. Any metricDeadline you choose must be 14 to 180 days after today.');
   lines.push('');
   lines.push('DETECTED GAP (' + signal.trigger + '): subject ' + JSON.stringify(signal.subject) + ', evidence ' + JSON.stringify(signal.evidence));
   lines.push('');
@@ -163,11 +165,29 @@ function validate(parsed, signal, grounding, nowMs) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dl)) return { ok: false, reason: 'deadline-format' };
   var dMs = Date.parse(dl + 'T00:00:00Z');
   if (!Number.isFinite(dMs)) return { ok: false, reason: 'deadline-invalid' };
-  var days = (dMs - nowMs) / 86400000;
+  var _nd = new Date(nowMs);
+  var _todayMid = Date.UTC(_nd.getUTCFullYear(), _nd.getUTCMonth(), _nd.getUTCDate());
+  var days = (dMs - _todayMid) / 86400000;
   if (days < MIN_DEADLINE_DAYS || days > MAX_DEADLINE_DAYS) return { ok: false, reason: 'deadline-out-of-window' };
 
   var product = String(parsed.product || signal.subject.product || '').trim();
   if (product && !_matchesProduct(product, grounding.productNames)) return { ok: false, reason: 'unknown-product' };
+
+  // Grounding: a campaign must target the product its signal is about. The effective
+  // `product` (parsed.product || subject.product) must match the signal's subject/evidence
+  // product(s). When the model omits product it falls back to subject.product → always
+  // passes; only a model-supplied DIFFERENT real product is rejected. Objectives are
+  // exempt — a successor to a near-complete/stale objective may legitimately pivot.
+  if (signal.kind === 'campaign' && signal.subject && signal.subject.product) {
+    var sigProducts = [signal.subject.product];
+    if (signal.evidence) {
+      (signal.evidence.decliningProducts || []).forEach(function (p) { if (p && p.product) sigProducts.push(p.product); });
+      (signal.evidence.products || []).forEach(function (p) { if (p) sigProducts.push(p); });
+    }
+    var _effNorm = _normName(product);
+    var _inSignal = sigProducts.some(function (sp) { return _normName(sp) === _effNorm; });
+    if (!_inSignal) return { ok: false, reason: 'product-off-signal' };
+  }
 
   var iso = new Date(nowMs).toISOString();
   if (signal.kind === 'objective') {
@@ -178,6 +198,7 @@ function validate(parsed, signal, grounding, nowMs) {
       rationale: rationale.substring(0, CAPS.rationale), successCriteria: successCriteria.substring(0, CAPS.success),
       timeHorizon: Math.round(days) + ' days',
       suggestedCampaigns: Array.isArray(parsed.suggestedCampaigns) ? parsed.suggestedCampaigns.slice(0, 5) : [],
+      // metricBaseline intentionally omitted: materialize.js hardcodes criteria.baseline = null.
       northStarMetric: metric, metricTarget: target, metricDeadline: dl,
       strategyFlag: null, createdAt: iso
     } };
@@ -187,7 +208,7 @@ function validate(parsed, signal, grounding, nowMs) {
     proposedBy: 'nova', source: 'auto:proposal-generator',
     name: title.substring(0, CAPS.title), description: description.substring(0, CAPS.description),
     rationale: rationale.substring(0, CAPS.rationale),
-    platforms: _validPlatforms(parsed.platforms), frequency: 3, cadence: 'weekly', duration: '30 days',
+    platforms: _validPlatforms(parsed.platforms), frequency: 3, cadence: 'weekly', duration: 4,   // weeks — materialize.js reads duration as weeks (4w ≈ 30d)
     product: product.substring(0, 50), kpiTarget: successCriteria.substring(0, 200),
     northStarMetric: metric, strategyFlag: null, createdAt: iso
   } };
@@ -197,7 +218,7 @@ function validate(parsed, signal, grounding, nowMs) {
 async function compose(signal, grounding, callModel, nowMs) {
   nowMs = nowMs || Date.now();
   var text;
-  try { text = await callModel(buildPrompt(signal, grounding)); }
+  try { text = await callModel(buildPrompt(signal, grounding, nowMs)); }
   catch (e) { return { skip: true, reason: 'model-error:' + (e && e.message ? e.message : 'unknown') }; }
   if (!text) return { skip: true, reason: 'empty-response' };
   var parsed = extractJson(text);

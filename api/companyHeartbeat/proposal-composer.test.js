@@ -186,6 +186,78 @@ test('compose skips when the model declines', async () => {
   assert.ok(r.skip);
 });
 
+// ── Fix 2: campaign product must match the triggering signal ──
+test('validate rejects a campaign naming a real but OFF-signal product', () => {
+  const gc = C.buildGrounding(campSignal, stateWith({}));
+  const p = { propose: true, kind: 'campaign', title: 'Push AmbientScore', description: 'x', rationale: 'y',
+    successCriteria: '+40 followers', product: 'AmbientScore', northStarMetric: 'bluesky_followers',
+    metricBaseline: 80, metricTarget: 120, metricDeadline: deadline(30), platforms: ['social_bluesky'] };
+  const v = C.validate(p, campSignal, gc, NOW);
+  assert.strictEqual(v.ok, false);
+  assert.strictEqual(v.reason, 'product-off-signal');
+});
+test('validate accepts a campaign whose product matches the signal', () => {
+  const gc = C.buildGrounding(campSignal, stateWith({}));
+  const p = { propose: true, kind: 'campaign', title: 'Re-engage StoryForge', description: 'x', rationale: 'y',
+    successCriteria: '+40 followers', product: 'StoryForge', northStarMetric: 'bluesky_followers',
+    metricBaseline: 80, metricTarget: 120, metricDeadline: deadline(30), platforms: ['social_bluesky'] };
+  assert.ok(C.validate(p, campSignal, gc, NOW).ok);
+});
+
+// ── Band boundaries ──
+const gBaseline = (n) => C.buildGrounding(objSignal, stateWith({ socialAccountStats: { platforms: { bluesky: { followers: n } } }, revenueLedger: [] }));
+test('validate band: baseline 80 accepts target 400 (5x) and rejects 401', () => {
+  const p1 = goodObj(); p1.northStarMetric = 'bluesky_followers'; p1.metricTarget = 400;
+  assert.ok(C.validate(p1, objSignal, grounding(), NOW).ok, 'target 400 (5x) should pass');
+  const p2 = goodObj(); p2.northStarMetric = 'bluesky_followers'; p2.metricTarget = 401;
+  assert.strictEqual(C.validate(p2, objSignal, grounding(), NOW).ok, false);
+});
+test('validate band: zero baseline accepts target 25 and rejects 26', () => {
+  const p1 = goodObj(); p1.metricTarget = 25;
+  assert.ok(C.validate(p1, objSignal, grounding(), NOW).ok, 'target 25 (abs cap) should pass');
+  const p2 = goodObj(); p2.metricTarget = 26;
+  assert.strictEqual(C.validate(p2, objSignal, grounding(), NOW).ok, false);
+});
+test('validate band: baseline exactly 10 uses the 5x multiplier (target 50 accepts)', () => {
+  const p = goodObj(); p.northStarMetric = 'bluesky_followers'; p.metricTarget = 50;
+  assert.ok(C.validate(p, objSignal, gBaseline(10), NOW).ok, 'target 50 (10*5) should pass');
+});
+test('validate band: baseline 9 uses the abs-25 cap (target 45 rejects)', () => {
+  const p = goodObj(); p.northStarMetric = 'bluesky_followers'; p.metricTarget = 45;
+  assert.strictEqual(C.validate(p, objSignal, gBaseline(9), NOW).ok, false);
+});
+
+// ── Deadline boundaries (exact day-math) ──
+test('validate deadline boundary: exactly 14 days accepts, 13 rejects', () => {
+  const p1 = goodObj(); p1.metricDeadline = deadline(14);
+  assert.ok(C.validate(p1, objSignal, grounding(), NOW).ok, '14 days should pass');
+  const p2 = goodObj(); p2.metricDeadline = deadline(13);
+  assert.strictEqual(C.validate(p2, objSignal, grounding(), NOW).ok, false);
+});
+test('validate deadline boundary: exactly 180 days accepts, 181 rejects', () => {
+  const p1 = goodObj(); p1.metricDeadline = deadline(180);
+  assert.ok(C.validate(p1, objSignal, grounding(), NOW).ok, '180 days should pass');
+  const p2 = goodObj(); p2.metricDeadline = deadline(181);
+  assert.strictEqual(C.validate(p2, objSignal, grounding(), NOW).ok, false);
+});
+
+// ── CAPS truncation + campaign duration ──
+test('validate truncates an over-long title to CAPS.title (100)', () => {
+  const p = goodObj(); p.title = 'x'.repeat(10000);
+  const v = C.validate(p, objSignal, grounding(), NOW);
+  assert.ok(v.ok, 'should be valid: ' + v.reason);
+  assert.strictEqual(v.proposal.title.length, 100);
+});
+test('validate: an accepted campaign proposal has duration === 4 (weeks)', () => {
+  const gc = C.buildGrounding(campSignal, stateWith({}));
+  const p = { propose: true, kind: 'campaign', title: 'Re-engage StoryForge', description: 'x', rationale: 'y',
+    successCriteria: '+40 followers', product: 'StoryForge', northStarMetric: 'bluesky_followers',
+    metricBaseline: 80, metricTarget: 120, metricDeadline: deadline(30), platforms: ['social_bluesky'] };
+  const v = C.validate(p, campSignal, gc, NOW);
+  assert.ok(v.ok, 'should be valid: ' + v.reason);
+  assert.strictEqual(v.proposal.duration, 4);
+});
+
 Promise.all(_pending).then(() => {
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail > 0 ? 1 : 0);
