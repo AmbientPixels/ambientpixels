@@ -10,6 +10,10 @@
 
 ---
 
+## PATH CHANGE (2026-07-10, during execution)
+
+The demo page is hosted at **`lab/oakroute.html`** (public URL **https://ambientpixels.ai/lab/oakroute.html**), NOT `ambientscore/sample.html`. Reason: `staticwebapp.config.json`'s `routes` array rewrites every unlisted `/ambientscore/*` path to `index.html`, and that file is high-blast-radius (do not edit). `/lab/*` is in `navigationFallback.exclude` and matches no route rule, so it serves static files directly with no config change. Substitute `lab/oakroute.html` / the lab URL wherever the tasks below say `ambientscore/sample.html`.
+
 ## Sequencing note (why order matters)
 
 The page must be publicly live before it can be scanned, and the scan's `reportId` is needed by Tasks 3–4. So: Task 1 builds and deploys the page, Task 2 scans it and records the real `reportId`, and Tasks 3–5 consume that id. Do not reorder.
