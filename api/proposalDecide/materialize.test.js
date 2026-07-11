@@ -41,6 +41,22 @@ test('task_proposal assignee falls back to nova', () => {
   const m = materializeFromProposal({ id: 'x', type: 'task_proposal', title: 't' }, NOW);
   assert.strictEqual(m.entity.assignee, 'nova');
 });
+test('objective_proposal with metricBaseline materializes criteria.baseline to the real value', () => {
+  const m = materializeFromProposal({
+    id: 'mprop_4', type: 'objective_proposal', title: 'Grow Bluesky', description: 'd',
+    northStarMetric: 'bluesky_followers', metricTarget: 200, metricDeadline: '2026-09-01', metricBaseline: 80
+  }, NOW);
+  assert.ok(m.entity.criteria, 'criteria should be present');
+  assert.strictEqual(m.entity.criteria.baseline, 80);
+});
+test('objective_proposal WITHOUT metricBaseline still yields criteria.baseline === null', () => {
+  const m = materializeFromProposal({
+    id: 'mprop_5', type: 'objective_proposal', title: 'Grow Bluesky', description: 'd',
+    northStarMetric: 'bluesky_followers', metricTarget: 200, metricDeadline: '2026-09-01'
+  }, NOW);
+  assert.ok(m.entity.criteria, 'criteria should be present');
+  assert.strictEqual(m.entity.criteria.baseline, null);
+});
 test('unknown type → null (status-flip only)', () => {
   assert.strictEqual(materializeFromProposal({ id: 'x', type: 'social_proposal', title: 't' }, NOW), null);
   assert.strictEqual(materializeFromProposal({ id: 'x', type: 'product_proposal', title: 't' }, NOW), null);

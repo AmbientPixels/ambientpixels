@@ -251,6 +251,7 @@ function _buildObjectiveProposal(reasons, primaryReason, socialAccountStats, now
     timeHorizon: '60 days',
     suggestedCampaigns: [],
     northStarMetric: followers != null ? 'bluesky_followers' : null,
+    metricBaseline: (followers != null ? followers : null),
     metricTarget: metricTarget,
     metricDeadline: metricDeadline,
     strategyFlag: followers != null ? null : 'no-north-star-metric',

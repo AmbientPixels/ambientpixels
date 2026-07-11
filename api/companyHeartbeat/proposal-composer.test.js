@@ -111,6 +111,14 @@ test('validate accepts a clean objective and maps to materializer shape', () => 
   assert.strictEqual(v.proposal.metricTarget, 3);
   assert.strictEqual(v.proposal.source, 'auto:proposal-generator');
   assert.ok(v.proposal.id.indexOf('oprop_') === 0);
+  assert.strictEqual(v.proposal.metricBaseline, 0, 'paying_customers baseline is 0');
+});
+
+test('validate carries the real metric baseline into metricBaseline (bluesky_followers, baseline 80)', () => {
+  const p = goodObj(); p.northStarMetric = 'bluesky_followers'; p.metricTarget = 200;
+  const v = C.validate(p, objSignal, grounding(), NOW);
+  assert.ok(v.ok, 'should be valid: ' + v.reason);
+  assert.strictEqual(v.proposal.metricBaseline, 80);
 });
 
 test('validate rejects propose:false', () => {
@@ -185,6 +193,11 @@ test('compose skips when the model declines', async () => {
   const r = await C.compose(objSignal, grounding(), () => Promise.resolve('{"propose":false}'), NOW);
   assert.ok(r.skip);
 });
+test('compose skips when the model hangs past the timeout', async () => {
+  const r = await C.compose(objSignal, grounding(), () => new Promise(() => {}), NOW, 15);
+  assert.ok(r.skip, 'expected skip on timeout');
+  assert.ok(/compose-timeout/.test(r.reason || ''), 'reason mentions timeout: ' + r.reason);
+});
 
 // ── Fix 2: campaign product must match the triggering signal ──
 test('validate rejects a campaign naming a real but OFF-signal product', () => {
@@ -248,14 +261,23 @@ test('validate truncates an over-long title to CAPS.title (100)', () => {
   assert.ok(v.ok, 'should be valid: ' + v.reason);
   assert.strictEqual(v.proposal.title.length, 100);
 });
-test('validate: an accepted campaign proposal has duration === 4 (weeks)', () => {
+test('validate: an accepted campaign proposal with a 28-day deadline has duration === 4 (weeks)', () => {
   const gc = C.buildGrounding(campSignal, stateWith({}));
   const p = { propose: true, kind: 'campaign', title: 'Re-engage StoryForge', description: 'x', rationale: 'y',
     successCriteria: '+40 followers', product: 'StoryForge', northStarMetric: 'bluesky_followers',
-    metricBaseline: 80, metricTarget: 120, metricDeadline: deadline(30), platforms: ['social_bluesky'] };
+    metricBaseline: 80, metricTarget: 120, metricDeadline: deadline(28), platforms: ['social_bluesky'] };
   const v = C.validate(p, campSignal, gc, NOW);
   assert.ok(v.ok, 'should be valid: ' + v.reason);
   assert.strictEqual(v.proposal.duration, 4);
+});
+test('validate: a longer-horizon campaign (91-day deadline) has duration === 13 (weeks)', () => {
+  const gc = C.buildGrounding(campSignal, stateWith({}));
+  const p = { propose: true, kind: 'campaign', title: 'Re-engage StoryForge', description: 'x', rationale: 'y',
+    successCriteria: '+40 followers', product: 'StoryForge', northStarMetric: 'bluesky_followers',
+    metricBaseline: 80, metricTarget: 120, metricDeadline: deadline(91), platforms: ['social_bluesky'] };
+  const v = C.validate(p, campSignal, gc, NOW);
+  assert.ok(v.ok, 'should be valid: ' + v.reason);
+  assert.strictEqual(v.proposal.duration, 13);
 });
 
 Promise.all(_pending).then(() => {

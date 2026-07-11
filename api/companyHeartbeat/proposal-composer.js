@@ -21,6 +21,7 @@ const LOW_BASELINE_ABS_CAP = 25;    // target <= 25 for near-zero baselines (e.g
 const MIN_DEADLINE_DAYS = 14;
 const MAX_DEADLINE_DAYS = 180;
 const CAPS = { title: 100, description: 1000, rationale: 500, success: 300 };
+const COMPOSE_TIMEOUT_MS = 90000; // 90s cap on a single model call (incl. its fallback chain)
 
 // Valid campaign platforms — a SUBSET of materialize.js VALID_TASK_TYPES: growth
 // channels only (excludes ops/financial/general), which is what a campaign can task.
@@ -198,7 +199,9 @@ function validate(parsed, signal, grounding, nowMs) {
       rationale: rationale.substring(0, CAPS.rationale), successCriteria: successCriteria.substring(0, CAPS.success),
       timeHorizon: Math.round(days) + ' days',
       suggestedCampaigns: Array.isArray(parsed.suggestedCampaigns) ? parsed.suggestedCampaigns.slice(0, 5) : [],
-      // metricBaseline intentionally omitted: materialize.js hardcodes criteria.baseline = null.
+      // Real baseline (grounding.baselines[metric]) passed through so materialize.js
+      // can anchor criteria.baseline instead of hardcoding it to null.
+      metricBaseline: baseline,
       northStarMetric: metric, metricTarget: target, metricDeadline: dl,
       strategyFlag: null, createdAt: iso
     } };
@@ -208,17 +211,30 @@ function validate(parsed, signal, grounding, nowMs) {
     proposedBy: 'nova', source: 'auto:proposal-generator',
     name: title.substring(0, CAPS.title), description: description.substring(0, CAPS.description),
     rationale: rationale.substring(0, CAPS.rationale),
-    platforms: _validPlatforms(parsed.platforms), frequency: 3, cadence: 'weekly', duration: 4,   // weeks — materialize.js reads duration as weeks (4w ≈ 30d)
+    platforms: _validPlatforms(parsed.platforms), frequency: 3, cadence: 'weekly',
+    duration: Math.max(1, Math.round(days / 7)),   // campaign length in weeks, aligned to the metric deadline
     product: product.substring(0, 50), kpiTarget: successCriteria.substring(0, 200),
     northStarMetric: metric, strategyFlag: null, createdAt: iso
   } };
 }
 
+// Reject if `promise` doesn't settle within ms. Note: does not abort the underlying
+// request (the injected callModel is opaque) — it just lets compose stop waiting.
+function _withTimeout(promise, ms) {
+  return new Promise(function (resolve, reject) {
+    var to = setTimeout(function () { reject(new Error('compose-timeout')); }, ms);
+    Promise.resolve(promise).then(
+      function (v) { clearTimeout(to); resolve(v); },
+      function (e) { clearTimeout(to); reject(e); }
+    );
+  });
+}
+
 // Orchestrate one composition. Returns { proposal } or { skip, reason }. Never throws.
-async function compose(signal, grounding, callModel, nowMs) {
+async function compose(signal, grounding, callModel, nowMs, timeoutMs) {
   nowMs = nowMs || Date.now();
   var text;
-  try { text = await callModel(buildPrompt(signal, grounding, nowMs)); }
+  try { text = await _withTimeout(callModel(buildPrompt(signal, grounding, nowMs)), timeoutMs || COMPOSE_TIMEOUT_MS); }
   catch (e) { return { skip: true, reason: 'model-error:' + (e && e.message ? e.message : 'unknown') }; }
   if (!text) return { skip: true, reason: 'empty-response' };
   var parsed = extractJson(text);
@@ -243,5 +259,6 @@ module.exports = {
   LOW_BASELINE_ABS_CAP: LOW_BASELINE_ABS_CAP,
   MIN_DEADLINE_DAYS: MIN_DEADLINE_DAYS,
   MAX_DEADLINE_DAYS: MAX_DEADLINE_DAYS,
-  CAPS: CAPS
+  CAPS: CAPS,
+  COMPOSE_TIMEOUT_MS: COMPOSE_TIMEOUT_MS
 };
