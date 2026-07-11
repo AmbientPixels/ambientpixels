@@ -3,7 +3,7 @@
 // the id below AND the id baked into ambientscore/index.html's hero mini-card.
 // See docs/superpowers/specs/2026-07-10-ambientscore-sample-audit-design.md
 const SAMPLE_REPORT_IDS = new Set([
-  'ccr_1783739908752_0ead8aed'
+  'ccr_1783742989787_e4366317'
 ]);
 
 function isSample(id) {
