@@ -15,4 +15,10 @@ function isFullyViewable(report, id) {
   return !!(report && report.unlocked) || isSample(id);
 }
 
-module.exports = { SAMPLE_REPORT_IDS, isSample, isFullyViewable };
+// Builds the response body. For samples, returns a COPY with unlocked/isSample
+// stamped on; for everything else returns the report unchanged. Never mutates input.
+function buildFullBody(report, id) {
+  return isSample(id) ? Object.assign({}, report, { unlocked: true, isSample: true }) : report;
+}
+
+module.exports = { SAMPLE_REPORT_IDS, isSample, isFullyViewable, buildFullBody };
