@@ -25,6 +25,13 @@
 
 'use strict';
 
+// Module-top require (NOT inside runProposalGenerator): if the composer ever fails
+// to load (broken/partial deploy), we want a load-time throw here rather than a
+// promise rejection out of runProposalGenerator — the cron awaits that function with
+// no try/catch and relies on its "any error is a no-op {ok:false}" contract. No
+// circular dependency: proposal-composer.js has no requires of its own.
+var composer = require('./proposal-composer');
+
 const SOURCE = 'auto:proposal-generator';
 const STAGNANT_DAYS = 14;
 const STALE_DAYS = 14;
@@ -395,7 +402,6 @@ async function runProposalGenerator(opts) {
   var nowMs = opts.nowMs || Date.now();
   var log = opts.log || function () {};
   var callModel = typeof opts.callModel === 'function' ? opts.callModel : null;
-  var composer = require('./proposal-composer');
   try {
     var loaded = await Promise.all([
       storage.getState('campaigns').then(function (v) { return v || []; }),
@@ -452,6 +458,14 @@ async function runProposalGenerator(opts) {
     // when nothing new is created) so stale generic suggestions don't pile up.
     var queue = (await storage.getState('approvalQueue')) || [];
     var expired = _expireStaleGeneratorProposals(queue, nowMs);
+
+    // Re-check dedup against the freshly-read queue. LLM compose latency widened the
+    // window since the initial read (loaded[3]); a concurrent cron/trigger run may
+    // have queued a same-type proposal. Drop ours if so — prevents a clobbered write
+    // and keeps the proposal-created funnel log consistent with what we actually queue.
+    // Best-effort only: two runs that both re-read before either writes still last-write-
+    // wins; this additive cron intentionally has no lock, so the window is narrowed, not closed.
+    proposals = proposals.filter(function (p) { return !_isDeduped(queue, p.type, nowMs); });
     proposals.forEach(function (p) { queue.push(p); });
 
     if (!proposals.length && !expired) {

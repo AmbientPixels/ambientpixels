@@ -110,6 +110,27 @@ test('dedup respected: pending objective_proposal blocks a new one', async () =>
   assert.strictEqual(r.created, 0, 'pending proposal blocks a new one');
 });
 
+test('mixed batch: campaign falls back deterministic while objective composes via LLM', async () => {
+  // A near-complete objective (near_complete signal) AND a declining uncovered product
+  // (declining_uncovered campaign signal) in the same run. The fake callModel returns an
+  // objective-shaped response: it validates for the objective (composedBy llm) but fails
+  // the campaign validate with a kind-mismatch → campaign falls back deterministic.
+  // Use AmbientScore (a real product NOT covered by the c1/c2/c3 campaigns) so the
+  // declining_uncovered signal actually fires (StoryForge would be covered by c3).
+  const s = nearComplete();
+  s.runtimeMemory.strategicDigest.perProduct.push({ product: 'AmbientScore', verdict: 'DECLINING', traffic: { deltaPct: -32 } });
+  const storage = makeStorage(s);
+  const r = await runProposalGenerator({ storage, nowMs: NOW, callModel: () => Promise.resolve(goodObjText) });
+  assert.strictEqual(r.created, 2, 'both a campaign and an objective proposal');
+  const q = storage._state.approvalQueue;
+  const camp = q.find((p) => p.type === 'campaign_proposal');
+  const obj = q.find((p) => p.type === 'objective_proposal');
+  assert.ok(camp, 'expected a campaign_proposal');
+  assert.ok(obj, 'expected an objective_proposal');
+  assert.strictEqual(camp.composedBy, 'deterministic', 'campaign falls back (objective-shaped model response fails campaign validate)');
+  assert.strictEqual(obj.composedBy, 'llm', 'objective composes via LLM');
+});
+
 Promise.all(_pending).then(() => {
   console.log('\n' + pass + ' passed, ' + fail + ' failed');
   process.exit(fail > 0 ? 1 : 0);
