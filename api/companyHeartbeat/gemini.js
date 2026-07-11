@@ -216,6 +216,12 @@ async function callGeminiExecute(prompt, agentId) {
   return _callWithFallback(prompt, agentId, 1200, 0.8, 'heartbeat-execute', false);
 }
 
+// Free-form JSON proposal composition (NOT the agent envelope). Dynamic model +
+// fallback chain, lower temperature for grounded output. Returns text or null.
+async function callGeminiProposal(prompt) {
+  return _callWithFallback(prompt, 'nova', 1500, 0.4, 'proposal-generator', false);
+}
+
 // Returns the currently active model key (for dashboard/API)
 async function getActiveModel() {
   var model = await _resolveModel();
@@ -232,4 +238,4 @@ async function callWithModel(prompt, agentId, modelKey) {
   return callGemini(prompt, agentId); // unknown key → legacy dynamic resolution
 }
 
-module.exports = { callGemini, callGeminiExecute, getActiveModel, callWithModel, _isClaudeModel };
+module.exports = { callGemini, callGeminiExecute, callGeminiProposal, getActiveModel, callWithModel, _isClaudeModel };
