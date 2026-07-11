@@ -6,6 +6,15 @@
 
   if (window.ProductAnalytics) ProductAnalytics.init('ambientscore');
 
+  // Keep the "Filed Qn YYYY" hero stamp current so it never dates itself.
+  (function setFiledStamp() {
+    var el = document.getElementById('as-filed-stamp');
+    if (!el) return;
+    var d = new Date();
+    var quarter = Math.floor(d.getMonth() / 3) + 1;
+    el.textContent = 'Filed Q' + quarter + ' ' + d.getFullYear() + ' . Confidential';
+  })();
+
   var API = window.location.hostname === 'localhost'
     ? '/api'
     : 'https://ambientpixels-nova-api.azurewebsites.net/api';
