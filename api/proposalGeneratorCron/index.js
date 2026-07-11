@@ -13,12 +13,14 @@
 
 const storage = require('../_utils/companyStorage');
 const { runProposalGenerator } = require('../companyHeartbeat/proposal-generator');
+const { callGeminiProposal } = require('../companyHeartbeat/gemini');
 
 module.exports = async function (context, timer) {
-  context.log('[proposalGeneratorCron] Starting deterministic proposal scan');
+  context.log('[proposalGeneratorCron] Starting proposal scan');
   const result = await runProposalGenerator({
     storage: storage,
     nowMs: Date.now(),
+    callModel: (prompt) => callGeminiProposal(prompt),
     log: function () { context.log.apply(context, arguments); }
   });
   context.log('[proposalGeneratorCron] Complete:', JSON.stringify({ ok: result.ok, created: result.created, types: result.types }));
