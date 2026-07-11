@@ -1635,6 +1635,9 @@ footer.as-footer {
 
 .as-pack-banner strong { color: var(--stamp); }
 
+/* Sample banner link (reuses .as-pack-banner) */
+.as-pack-banner a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
 .as-actions {
   display: flex;
   justify-content: flex-end;
