@@ -57,6 +57,22 @@ test('objective_proposal WITHOUT metricBaseline still yields criteria.baseline =
   assert.ok(m.entity.criteria, 'criteria should be present');
   assert.strictEqual(m.entity.criteria.baseline, null);
 });
+test('objective_proposal with EXPLICIT metricBaseline null yields criteria.baseline === null (not 0)', () => {
+  const m = materializeFromProposal({
+    id: 'mprop_6', type: 'objective_proposal', title: 'Grow Bluesky', description: 'd',
+    northStarMetric: 'bluesky_followers', metricTarget: 200, metricDeadline: '2026-09-01', metricBaseline: null
+  }, NOW);
+  assert.ok(m.entity.criteria, 'criteria should be present');
+  assert.strictEqual(m.entity.criteria.baseline, null);
+});
+test('objective_proposal with metricBaseline 0 yields criteria.baseline === 0', () => {
+  const m = materializeFromProposal({
+    id: 'mprop_7', type: 'objective_proposal', title: 'Land first paying customers', description: 'd',
+    northStarMetric: 'paying_customers', metricTarget: 3, metricDeadline: '2026-09-01', metricBaseline: 0
+  }, NOW);
+  assert.ok(m.entity.criteria, 'criteria should be present');
+  assert.strictEqual(m.entity.criteria.baseline, 0);
+});
 test('unknown type → null (status-flip only)', () => {
   assert.strictEqual(materializeFromProposal({ id: 'x', type: 'social_proposal', title: 't' }, NOW), null);
   assert.strictEqual(materializeFromProposal({ id: 'x', type: 'product_proposal', title: 't' }, NOW), null);

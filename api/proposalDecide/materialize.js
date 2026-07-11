@@ -121,7 +121,7 @@ function materializeFromProposal(proposal, nowIso, context) {
       successCriteria: p.successCriteria || '',
       timeHorizon: p.timeHorizon || '',
       northStarMetric: p.northStarMetric || null,
-      criteria: hasCriteria ? { metric: p.northStarMetric, target: Number(p.metricTarget), by: p.metricDeadline, baseline: (Number.isFinite(Number(p.metricBaseline)) ? Number(p.metricBaseline) : null) } : null,
+      criteria: hasCriteria ? { metric: p.northStarMetric, target: Number(p.metricTarget), by: p.metricDeadline, baseline: (p.metricBaseline != null && Number.isFinite(Number(p.metricBaseline)) ? Number(p.metricBaseline) : null) } : null,
       source: 'meeting',
       proposalId: p.id,
       createdAt: nowIso
