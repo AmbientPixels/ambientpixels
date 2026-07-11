@@ -55,9 +55,9 @@ function test(name, fn) {
 }
 
 // ── CAMPAIGN: trigger conditions ──
-test('campaign fires when fewer than 3 active campaigns', () => {
+test('campaign does NOT fire on count alone (fewer than 3 active campaigns)', () => {
   const r = computeProposals(baseState({ campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }] }), NOW);
-  assert.ok(camp(r), 'expected a campaign_proposal');
+  assert.ok(!camp(r), 'count padding removed — 1 healthy campaign must not propose');
 });
 
 test('campaign fires when a DECLINING product has no covering campaign', () => {
@@ -87,27 +87,25 @@ test('campaign does NOT fire on a healthy baseline', () => {
   assert.ok(!camp(r), 'expected no campaign_proposal on healthy state');
 });
 
-// ── CAMPAIGN: dedup ──
+// ── CAMPAIGN: dedup (triggered via a real declining product) ──
+function declTrigger(overrides) {
+  const st = baseState(overrides || {});
+  st.strategicDigest.perProduct.push({ product: 'Delta', verdict: 'DECLINING', traffic: { deltaPct: -90 } });
+  return st;
+}
 test('campaign suppressed when a pending campaign_proposal already exists', () => {
-  const st = baseState({
-    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }],
-    approvalQueue: [{ type: 'campaign_proposal', status: 'pending', createdAt: daysAgo(3) }]
-  });
+  const st = declTrigger({ approvalQueue: [{ type: 'campaign_proposal', status: 'pending', createdAt: daysAgo(3) }] });
   assert.ok(!camp(computeProposals(st, NOW)), 'pending proposal should block a new one');
 });
-
 test('campaign suppressed when generator created one in the last 24h', () => {
-  const st = baseState({
-    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }],
-    approvalQueue: [{ type: 'campaign_proposal', status: 'rejected', source: 'auto:proposal-generator', createdAt: daysAgo(0.5) }]
-  });
+  const st = declTrigger({ approvalQueue: [{ type: 'campaign_proposal', status: 'rejected', source: 'auto:proposal-generator', createdAt: daysAgo(0.5) }] });
   assert.ok(!camp(computeProposals(st, NOW)), '24h dedup should block a new one');
 });
 
 // ── OBJECTIVE: trigger conditions ──
-test('objective fires when fewer than 3 active objectives', () => {
+test('objective does NOT fire on count alone (fewer than 3 active objectives)', () => {
   const r = computeProposals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }] }), NOW);
-  assert.ok(obj(r), 'expected an objective_proposal');
+  assert.ok(!obj(r), 'count padding removed — 2 healthy objectives must not propose');
 });
 
 test('objective fires when an active objective is >=95% complete', () => {
@@ -133,20 +131,18 @@ test('objective does NOT fire on a healthy baseline', () => {
   assert.ok(!obj(computeProposals(baseState({}), NOW)), 'expected no objective_proposal on healthy state');
 });
 
-// ── OBJECTIVE: dedup ──
+// ── OBJECTIVE: dedup (triggered via a real near-complete objective) ──
+function nearDoneTrigger(overrides) {
+  return baseState(Object.assign({
+    objectives: [{ id: 'o1', status: 'active', progress: 99, title: 'Ship X' }, { id: 'o2', status: 'active', progress: 50 }, { id: 'o3', status: 'active', progress: 50 }]
+  }, overrides || {}));
+}
 test('objective suppressed when a pending objective_proposal already exists', () => {
-  const st = baseState({
-    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }],
-    approvalQueue: [{ type: 'objective_proposal', status: 'pending', createdAt: daysAgo(3) }]
-  });
+  const st = nearDoneTrigger({ approvalQueue: [{ type: 'objective_proposal', status: 'pending', createdAt: daysAgo(3) }] });
   assert.ok(!obj(computeProposals(st, NOW)), 'pending proposal should block a new one');
 });
-
 test('objective suppressed when generator created one in the last 24h', () => {
-  const st = baseState({
-    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }],
-    approvalQueue: [{ type: 'objective_proposal', status: 'approved', source: 'auto:proposal-generator', createdAt: daysAgo(0.5) }]
-  });
+  const st = nearDoneTrigger({ approvalQueue: [{ type: 'objective_proposal', status: 'approved', source: 'auto:proposal-generator', createdAt: daysAgo(0.5) }] });
   assert.ok(!obj(computeProposals(st, NOW)), '24h dedup should block a new one');
 });
 
@@ -164,7 +160,7 @@ test('missing campaigns array skips campaign assessment (no crash)', () => {
 
 // ── Output shape (byte-match the existing handler entry shapes) ──
 test('campaign entry has the required shape', () => {
-  const e = camp(computeProposals(baseState({ campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }] }), NOW));
+  const e = camp(computeProposals(declTrigger({}), NOW));
   assert.strictEqual(e.type, 'campaign_proposal');
   assert.strictEqual(e.status, 'pending');
   assert.strictEqual(e.proposedBy, 'nova');
@@ -179,7 +175,7 @@ test('campaign entry has the required shape', () => {
 });
 
 test('objective entry has the required shape', () => {
-  const e = obj(computeProposals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }] }), NOW));
+  const e = obj(computeProposals(nearDoneTrigger({}), NOW));
   assert.strictEqual(e.type, 'objective_proposal');
   assert.strictEqual(e.status, 'pending');
   assert.strictEqual(e.proposedBy, 'nova');
@@ -195,32 +191,23 @@ test('objective entry has the required shape', () => {
 
 // ── At most 1 of each type per run ──
 test('emits at most one campaign and one objective per run', () => {
-  const r = computeProposals(baseState({
-    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }],
-    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }]
-  }), NOW);
+  const st = declTrigger({
+    objectives: [{ id: 'o1', status: 'active', progress: 99, title: 'Ship X' }, { id: 'o2', status: 'active', progress: 50 }, { id: 'o3', status: 'active', progress: 50 }]
+  });
+  const r = computeProposals(st, NOW);
   assert.strictEqual(r.filter((p) => p.type === 'campaign_proposal').length, 1);
   assert.strictEqual(r.filter((p) => p.type === 'objective_proposal').length, 1);
   assert.strictEqual(r.length, 2);
 });
 
-// ── Cron defers to a pending AGENT-sourced proposal (not just its own) ──
+// ── Cron defers to a pending AGENT-sourced proposal (real triggers) ──
 test('campaign suppressed when a pending agent campaign_proposal exists', () => {
-  const st = baseState({
-    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }], // would normally trigger (count < 3)
-    approvalQueue: [{ type: 'campaign_proposal', status: 'pending', proposedBy: 'echo', source: 'agent', createdAt: daysAgo(0) }]
-  });
-  const r = computeProposals(st, NOW);
-  assert.ok(!camp(r), 'cron should defer to the pending agent campaign proposal');
+  const st = declTrigger({ approvalQueue: [{ type: 'campaign_proposal', status: 'pending', proposedBy: 'echo', source: 'agent', createdAt: daysAgo(0) }] });
+  assert.ok(!camp(computeProposals(st, NOW)), 'cron should defer to the pending agent campaign proposal');
 });
-
 test('objective suppressed when a pending agent objective_proposal exists', () => {
-  const st = baseState({
-    objectives: [{ id: 'o1', status: 'active', progress: 50 }], // would normally trigger (count < 3)
-    approvalQueue: [{ type: 'objective_proposal', status: 'pending', proposedBy: 'cipher', source: 'agent', createdAt: daysAgo(0) }]
-  });
-  const r = computeProposals(st, NOW);
-  assert.ok(!obj(r), 'cron should defer to the pending agent objective proposal');
+  const st = nearDoneTrigger({ approvalQueue: [{ type: 'objective_proposal', status: 'pending', proposedBy: 'cipher', source: 'agent', createdAt: daysAgo(0) }] });
+  assert.ok(!obj(computeProposals(st, NOW)), 'cron should defer to the pending agent objective proposal');
 });
 
 // ── STRICT (2026-06-22): loop guard — childless placeholder objectives ──
@@ -282,37 +269,29 @@ test('expireStaleGeneratorProposals flips generator-sourced pending proposals ol
   assert.strictEqual(queue.find((q) => q.id === 'd').status, 'approved');
 });
 
-// ── (2026-06-26) measurable objectives: metric pre-filled from follower data ──
+// ── measurable objectives: metric pre-filled from follower data (real trigger) ──
 test('objective proposal pre-fills bluesky_followers metric when follower data exists', () => {
-  const e = obj(computeProposals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }] }), NOW));
+  const e = obj(computeProposals(nearDoneTrigger({}), NOW));
   assert.strictEqual(e.northStarMetric, 'bluesky_followers', 'northStarMetric set');
   assert.ok(Number.isFinite(e.metricTarget) && e.metricTarget > 300, 'metricTarget is followers+15% (>300)');
   assert.ok(/^\d{4}-\d{2}-\d{2}$/.test(e.metricDeadline), 'metricDeadline is a date');
   assert.strictEqual(e.strategyFlag, null, 'no flag when metric present');
 });
-
 test('objective proposal flags missing metric when no follower data', () => {
-  const e = obj(computeProposals(baseState({
-    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }],
-    socialAccountStats: {}
-  }), NOW));
+  const e = obj(computeProposals(nearDoneTrigger({ socialAccountStats: {} }), NOW));
   assert.strictEqual(e.northStarMetric, null, 'no metric without follower data');
   assert.strictEqual(e.metricTarget, null);
   assert.strictEqual(e.metricDeadline, null);
   assert.strictEqual(e.strategyFlag, 'no-north-star-metric', 'flagged for CEO to add a metric');
 });
 
-// ── (2026-07-02) production socialAccountStats shape: followers under `.platforms` ──
-// Regression for the shape mismatch that made every generated proposal a generic
-// placeholder: the reader used the flat `.bluesky` shape while prod nests under
-// `.platforms.bluesky`. Both an objective metric AND the campaign platform list must
-// resolve from the nested shape.
+// ── production socialAccountStats shape: followers under `.platforms` (real triggers) ──
 test('objective + campaign resolve real data from the production `.platforms` shape', () => {
   const st = baseState({
-    campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }], // triggers campaign (count < 3)
-    objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }], // triggers objective (count < 3)
+    objectives: [{ id: 'o1', status: 'active', progress: 99, title: 'Ship X' }, { id: 'o2', status: 'active', progress: 50 }, { id: 'o3', status: 'active', progress: 50 }],
     socialAccountStats: { platforms: { bluesky: { followers: 76 }, x: { followers: 50 }, linkedin: { followers: 0 } } }
   });
+  st.strategicDigest.perProduct.push({ product: 'Delta', verdict: 'DECLINING', traffic: { deltaPct: -90 } });
   const r = computeProposals(st, NOW);
   const o = obj(r), c = camp(r);
   assert.strictEqual(o.northStarMetric, 'bluesky_followers', 'metric resolved from .platforms.bluesky');
@@ -349,6 +328,40 @@ test('campaign does NOT fire for a NO DATA (uninstrumented) product', () => {
   const st = baseState({}); // 3 healthy campaigns → no count trigger, none stagnant
   st.strategicDigest.perProduct.push({ product: 'Void', verdict: 'NO DATA', traffic: { deltaPct: 0 } });
   assert.ok(!camp(computeProposals(st, NOW)), 'NO DATA is not a declining signal → no reactivation proposal');
+});
+
+// ── (2026-07-11) detectSignals: pure detection, count triggers REMOVED ──
+const { detectSignals } = require('./proposal-generator');
+
+test('detectSignals returns [] for a healthy baseline', () => {
+  assert.deepStrictEqual(detectSignals(baseState({}), NOW), []);
+});
+
+test('detectSignals does NOT fire on count alone (fewer than 3 campaigns)', () => {
+  const sigs = detectSignals(baseState({ campaigns: [{ id: 'c1', status: 'active', product: 'Alpha' }] }), NOW);
+  assert.ok(!sigs.some((s) => s.kind === 'campaign'), 'count of 1 campaign must not produce a campaign signal');
+});
+
+test('detectSignals does NOT fire on count alone (fewer than 3 objectives)', () => {
+  const sigs = detectSignals(baseState({ objectives: [{ id: 'o1', status: 'active', progress: 50 }, { id: 'o2', status: 'active', progress: 50 }] }), NOW);
+  assert.ok(!sigs.some((s) => s.kind === 'objective'), 'count of 2 objectives must not produce an objective signal');
+});
+
+test('detectSignals emits declining_uncovered for a real DECLINING uncovered product', () => {
+  const st = baseState({});
+  st.strategicDigest.perProduct.push({ product: 'Delta', verdict: 'DECLINING', traffic: { deltaPct: -90 } });
+  const sig = detectSignals(st, NOW).find((s) => s.kind === 'campaign');
+  assert.ok(sig, 'expected a campaign signal');
+  assert.strictEqual(sig.trigger, 'declining_uncovered');
+  assert.strictEqual(sig.subject.product, 'Delta');
+});
+
+test('detectSignals emits near_complete for a >=95% objective', () => {
+  const st = baseState({ objectives: [{ id: 'o1', status: 'active', progress: 99, title: 'Ship X' }, { id: 'o2', status: 'active', progress: 50 }, { id: 'o3', status: 'active', progress: 50 }] });
+  const sig = detectSignals(st, NOW).find((s) => s.kind === 'objective');
+  assert.ok(sig, 'expected an objective signal');
+  assert.strictEqual(sig.trigger, 'near_complete');
+  assert.strictEqual(sig.subject.objectiveId, 'o1');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

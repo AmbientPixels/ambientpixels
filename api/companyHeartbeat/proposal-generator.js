@@ -253,84 +253,112 @@ function _buildObjectiveProposal(reasons, primaryReason, socialAccountStats, now
   };
 }
 
-// ── Pure core ─────────────────────────────────────────────────────────────────
-function computeProposals(state, nowMs) {
+// ── Pure detection ─────────────────────────────────────────────────────────────
+// Returns 0-N grounded signals, highest severity first. NO count-padding triggers.
+function detectSignals(state, nowMs) {
   if (!state || typeof state !== 'object') return [];
-  var out = [];
-  var queue = _arr(state.approvalQueue) || [];
   var tasks = _arr(state.tasks) || [];
   var perProduct = (state.strategicDigest && _arr(state.strategicDigest.perProduct)) || [];
-  var socialAccountStats = state.socialAccountStats || {};
+  var signals = [];
 
-  // ── Campaign assessment (only if campaigns array is present) ──
   var campaigns = _arr(state.campaigns);
-  if (campaigns && !_isDeduped(queue, 'campaign_proposal', nowMs)) {
+  if (campaigns) {
     var activeCampaigns = _activeOf(campaigns);
-    var reasons = [];
-    var targets = [];
-
-    if (activeCampaigns.length < MIN_ACTIVE_CAMPAIGNS) {
-      reasons.push('only ' + activeCampaigns.length + ' active campaign(s) (target >= ' + MIN_ACTIVE_CAMPAIGNS + ')');
-    }
-
     var covered = _coveredProductSet(activeCampaigns, perProduct);
     var declUncovered = perProduct.filter(function (p) {
       return p && DECLINING_VERDICTS.indexOf(String(p.verdict || '').toUpperCase()) !== -1 && !covered[_lc(p.product)];
     });
     if (declUncovered.length) {
-      targets = declUncovered.slice().sort(function (a, b) {
+      var sorted = declUncovered.slice().sort(function (a, b) {
         return ((a.traffic && a.traffic.deltaPct) || 0) - ((b.traffic && b.traffic.deltaPct) || 0);
       });
-      var firstDecl = targets[0];
-      var delta = firstDecl.traffic && Number.isFinite(firstDecl.traffic.deltaPct) ? (' ' + firstDecl.traffic.deltaPct + '% traffic') : '';
-      reasons.push(declUncovered.length + ' product(s) declining with no active campaign (e.g. ' + firstDecl.product + delta + ')');
+      signals.push({
+        kind: 'campaign', trigger: 'declining_uncovered', severity: 3,
+        subject: { product: sorted[0].product },
+        evidence: { decliningProducts: sorted.map(function (p) { return { product: p.product, deltaPct: (p.traffic && p.traffic.deltaPct) }; }) }
+      });
     }
-
-    var allStagnant = activeCampaigns.length > 0 && activeCampaigns.every(function (c) {
-      return _isStagnant(c, tasks, nowMs);
-    });
+    var allStagnant = activeCampaigns.length > 0 && activeCampaigns.every(function (c) { return _isStagnant(c, tasks, nowMs); });
     if (allStagnant) {
-      reasons.push('all active campaigns stagnant (no completed work in ' + STAGNANT_DAYS + 'd)');
-      if (!targets.length) {
-        targets = activeCampaigns.filter(function (c) { return c.product; }).map(function (c) { return { product: c.product }; });
-      }
+      signals.push({
+        kind: 'campaign', trigger: 'all_stagnant', severity: 2,
+        subject: { product: (activeCampaigns.filter(function (c) { return c.product; })[0] || {}).product || null },
+        evidence: { stagnantDays: STAGNANT_DAYS, campaignCount: activeCampaigns.length }
+      });
     }
-
-    if (reasons.length) out.push(_buildCampaignProposal(reasons, targets, socialAccountStats, nowMs));
   }
 
-  // ── Objective assessment (only if objectives array is present) ──
   var objectives = _arr(state.objectives);
-  if (objectives && !_isDeduped(queue, 'objective_proposal', nowMs)) {
+  if (objectives) {
     var activeObjectives = _activeOf(objectives);
-    var oReasons = [];
-    var primary = null;
-
-    if (activeObjectives.length < MIN_ACTIVE_OBJECTIVES) {
-      oReasons.push('only ' + activeObjectives.length + ' active objective(s) (target >= ' + MIN_ACTIVE_OBJECTIVES + ')');
-      primary = primary || 'count';
-    }
     var nearDone = activeObjectives.filter(function (o) { return Number(o.progress) >= OBJECTIVE_COMPLETE_PCT; });
     if (nearDone.length) {
-      oReasons.push(nearDone.length + ' active objective(s) >= ' + OBJECTIVE_COMPLETE_PCT + '% complete (successor needed)');
-      primary = primary || 'complete';
+      signals.push({
+        kind: 'objective', trigger: 'near_complete', severity: 3,
+        subject: { objectiveId: nearDone[0].id, objectiveTitle: nearDone[0].title || '' },
+        evidence: { progress: Number(nearDone[0].progress), count: nearDone.length }
+      });
     }
-    // Only SUBSTANTIVE stalled objectives warrant a reactivation proposal. Childless
-    // placeholders (progress 0, never had a campaign or task) are ignored — flagging
-    // them stale is what created the self-reinforcing "Re-activate stalled objective"
-    // loop. They should be cleaned up, not re-proposed.
     var stale = activeObjectives.filter(function (o) {
       return _isStale(o, campaigns || [], tasks, nowMs) && !_isPlaceholderObjective(o, campaigns || [], tasks);
     });
     if (stale.length) {
-      oReasons.push(stale.length + ' active objective(s) stale (no campaign/task activity in ' + STALE_DAYS + 'd)');
-      primary = primary || 'stale';
+      signals.push({
+        kind: 'objective', trigger: 'stale_objective', severity: 2,
+        subject: { objectiveId: stale[0].id, objectiveTitle: stale[0].title || '' },
+        evidence: { staleDays: STALE_DAYS, count: stale.length }
+      });
     }
-
-    if (oReasons.length) out.push(_buildObjectiveProposal(oReasons, primary, socialAccountStats, nowMs));
   }
 
-  return out;
+  signals.sort(function (a, b) { return b.severity - a.severity; });
+  return signals;
+}
+
+// Pick at most one campaign + one objective signal, honoring the existing 24h/pending dedup.
+function _pickTopPerType(signals, queue, nowMs) {
+  var picks = [];
+  var haveCampaign = false, haveObjective = false;
+  (signals || []).forEach(function (sig) {
+    if (sig.kind === 'campaign' && !haveCampaign && !_isDeduped(queue, 'campaign_proposal', nowMs)) {
+      picks.push(sig); haveCampaign = true;
+    } else if (sig.kind === 'objective' && !haveObjective && !_isDeduped(queue, 'objective_proposal', nowMs)) {
+      picks.push(sig); haveObjective = true;
+    }
+  });
+  return picks;
+}
+
+// Deterministic fallback: translate a signal into args for the existing builders.
+function _deterministicFromSignal(signal, state, nowMs) {
+  var sas = state.socialAccountStats || {};
+  if (signal.kind === 'campaign') {
+    if (signal.trigger === 'declining_uncovered') {
+      var dps = signal.evidence.decliningProducts || [];
+      var f = dps[0];
+      var delta = f && Number.isFinite(f.deltaPct) ? (' ' + f.deltaPct + '% traffic') : '';
+      var reasons = [dps.length + ' product(s) declining with no active campaign (e.g. ' + (f ? f.product : '') + delta + ')'];
+      var targets = dps.map(function (p) { return { product: p.product }; });
+      return _buildCampaignProposal(reasons, targets, sas, nowMs);
+    }
+    var stagReasons = ['all active campaigns stagnant (no completed work in ' + STAGNANT_DAYS + 'd)'];
+    var stagTargets = signal.subject.product ? [{ product: signal.subject.product }] : [];
+    return _buildCampaignProposal(stagReasons, stagTargets, sas, nowMs);
+  }
+  var primary = signal.trigger === 'near_complete' ? 'complete' : 'stale';
+  var oReasons = signal.trigger === 'near_complete'
+    ? [signal.evidence.count + ' active objective(s) >= ' + OBJECTIVE_COMPLETE_PCT + '% complete (successor needed)']
+    : [signal.evidence.count + ' active objective(s) stale (no campaign/task activity in ' + STALE_DAYS + 'd)'];
+  return _buildObjectiveProposal(oReasons, primary, sas, nowMs);
+}
+
+// ── Pure core (deterministic path) ──────────────────────────────────────────────
+// Signal-driven: detect → pick top per type → deterministic build. Returns 0-2.
+function computeProposals(state, nowMs) {
+  if (!state || typeof state !== 'object') return [];
+  var queue = _arr(state.approvalQueue) || [];
+  var picks = _pickTopPerType(detectSignals(state, nowMs), queue, nowMs);
+  return picks.map(function (sig) { return _deterministicFromSignal(sig, state, nowMs); });
 }
 
 // Observability: append a `proposal-created` event to governanceLog for each
@@ -422,7 +450,10 @@ async function runProposalGenerator(opts) {
 
 module.exports = {
   computeProposals: computeProposals,
+  detectSignals: detectSignals,
   runProposalGenerator: runProposalGenerator,
   _expireStaleGeneratorProposals: _expireStaleGeneratorProposals,
-  _isPlaceholderObjective: _isPlaceholderObjective
+  _isPlaceholderObjective: _isPlaceholderObjective,
+  _pickTopPerType: _pickTopPerType,
+  _deterministicFromSignal: _deterministicFromSignal
 };
