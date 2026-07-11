@@ -378,7 +378,7 @@ async function _logProposalCreated(storage, proposals, nowMs) {
       summary: 'Generator proposal queued: ' + (p.name || p.title || p.type),
       cycle: 'proposal-generator-cron',
       timestamp: new Date(nowMs).toISOString(),
-      details: { type: p.type, source: p.source || SOURCE, proposalId: p.id }
+      details: { type: p.type, source: p.source || SOURCE, proposalId: p.id, composedBy: p.composedBy || 'deterministic' }
     });
   });
   var trimmed = log.length > 5000 ? log.slice(-5000) : log;
@@ -386,12 +386,16 @@ async function _logProposalCreated(storage, proposals, nowMs) {
 }
 
 // ── IO orchestration ────────────────────────────────────────────────────────
-// storage is injected (../_utils/companyStorage in prod) so this stays testable.
+// storage is injected (../_utils/companyStorage in prod). opts.callModel (optional)
+// enables LLM-authored proposals; without it (or on failure) the deterministic
+// builder is used. Detect → pick top per type → compose-or-fallback → queue.
 async function runProposalGenerator(opts) {
   opts = opts || {};
   var storage = opts.storage;
   var nowMs = opts.nowMs || Date.now();
   var log = opts.log || function () {};
+  var callModel = typeof opts.callModel === 'function' ? opts.callModel : null;
+  var composer = require('./proposal-composer');
   try {
     var loaded = await Promise.all([
       storage.getState('campaigns').then(function (v) { return v || []; }),
@@ -399,15 +403,22 @@ async function runProposalGenerator(opts) {
       storage.getState('tasks').then(function (v) { return v || []; }),
       storage.getState('approvalQueue').then(function (v) { return v || []; }),
       storage.getState('runtimeMemory').then(function (v) { return v || {}; }),
-      storage.getState('socialAccountStats').then(function (v) { return v || {}; })
+      storage.getState('socialAccountStats').then(function (v) { return v || {}; }),
+      storage.getState('revenueLedger').then(function (v) { return v || []; })
     ]);
+    var productNames = [];
+    try { productNames = Object.keys(require('../_data/product-facts.json').products || {}); }
+    catch (_pfErr) { /* names optional — grounding falls back to empty */ }
+
     var state = {
       campaigns: loaded[0],
       objectives: loaded[1],
       tasks: loaded[2],
       approvalQueue: loaded[3],
       strategicDigest: (loaded[4] && loaded[4].strategicDigest) || null,
-      socialAccountStats: loaded[5]
+      socialAccountStats: loaded[5],
+      revenueLedger: loaded[6],
+      productNames: productNames
     };
 
     // Runtime toggle: set systemConfig.proposalGenerator.enabled = false to stop the
@@ -415,8 +426,27 @@ async function runProposalGenerator(opts) {
     // Default (unset) = enabled. Expiry of stale generator proposals still runs when off.
     var _sysCfg = (await storage.getState('systemConfig')) || {};
     var _genEnabled = !(_sysCfg.proposalGenerator && _sysCfg.proposalGenerator.enabled === false);
-    var proposals = _genEnabled ? computeProposals(state, nowMs) : [];
-    if (!_genEnabled) log('[proposalGenerator] Disabled via systemConfig.proposalGenerator.enabled=false — running expiry only.');
+
+    var proposals = [];
+    if (_genEnabled) {
+      var picks = _pickTopPerType(detectSignals(state, nowMs), state.approvalQueue, nowMs);
+      for (var i = 0; i < picks.length; i++) {
+        var sig = picks[i];
+        var proposal = null;
+        var composedBy = 'deterministic';
+        if (callModel) {
+          var grounding = composer.buildGrounding(sig, state);
+          var composed = await composer.compose(sig, grounding, callModel, nowMs);
+          if (composed && composed.proposal) { proposal = composed.proposal; composedBy = 'llm'; }
+          else { log('[proposalGenerator] compose skipped (' + (composed && composed.reason) + ') — using deterministic fallback for ' + sig.kind); }
+        }
+        if (!proposal) { proposal = _deterministicFromSignal(sig, state, nowMs); composedBy = 'deterministic'; }
+        proposal.composedBy = composedBy;
+        proposals.push(proposal);
+      }
+    } else {
+      log('[proposalGenerator] Disabled via systemConfig.proposalGenerator.enabled=false — running expiry only.');
+    }
 
     // Re-read queue right before write to minimize clobber. Always run expiry (even
     // when nothing new is created) so stale generic suggestions don't pile up.
