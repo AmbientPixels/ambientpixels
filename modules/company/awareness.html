@@ -254,7 +254,7 @@
         var days = a.reflectionDueDays != null ? a.reflectionDueDays + 3 : null;  // days since last reflection
         var status = !a.reflectionOverdue ? 'green' : (days && days < 6 ? 'amber' : 'red');
         var last = a.lastReflectionAt
-          ? 'last: ' + String(a.lastReflectionAt).substring(0, 10)
+          ? 'last: ' + String(a.lastReflectionAt).substring(0, 10) + (a.lastReflectionAuto ? ' (auto)' : '')
           : 'never reflected';
         return '<div class="sa-agent-card">'
           + '<h3>' + esc(aid) + '<span class="sa-status-dot sa-status-' + status + '" title="' + status + '"></span></h3>'

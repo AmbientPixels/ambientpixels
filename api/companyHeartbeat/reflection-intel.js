@@ -307,6 +307,7 @@ function buildReflectionDigest(agentDecisions, outcomeSnapshots, actions, memori
         }, null)
       : null;
     const lastReflectionAt = latestReflection ? latestReflection.timestamp : null;
+    const lastReflectionAuto = !!(latestReflection && latestReflection.source === 'auto:reflection');
     // CRITICAL: null is first-deploy case. Treat as massively overdue so nudge fires.
     // Never default to 0 (would silently suppress nudge) or cause NaN on subtraction.
     let reflectionDueDays;
@@ -339,6 +340,7 @@ function buildReflectionDigest(agentDecisions, outcomeSnapshots, actions, memori
       },
       repeatedFailures: repeatedFailures,
       lastReflectionAt: lastReflectionAt,
+      lastReflectionAuto: lastReflectionAuto,
       reflectionDueDays: reflectionDueDays,
       reflectionOverdue: reflectionOverdue
     };
