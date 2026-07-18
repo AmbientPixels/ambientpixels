@@ -27,7 +27,20 @@ const mockState = {
   ],
   blogPosts: [],
   blueskyCandidates: [],
-  socialAccountStats: { platforms: {} }
+  socialAccountStats: { platforms: {} },
+  agentRewards: {
+    perAgent: {
+      quill: {
+        xp: 80, level: 2, rank: 'Rookie', class: 'Editor the Workhorse', renown: 14, streakDays: 3,
+        achievements: [{ id: 'first_approval', label: 'First CEO Yes', tier: 'bronze', at: '2026-07-10T00:00:00Z' }],
+        recent: [
+          { at: new Date(Date.now() - 8 * 86400000).toISOString(), type: 'task_done', xp: 1, reason: 'Task done: outside the week window' },
+          { at: new Date(Date.now() - 2 * 86400000).toISOString(), type: 'blog_ship', xp: 6, reason: 'Blog shipped: Agents at work' },
+          { at: new Date(Date.now() - 1 * 86400000).toISOString(), type: 'task_done', xp: 1, reason: 'Task done: review pass' }
+        ]
+      }
+    }
+  }
 };
 
 require.cache[require.resolve('../_utils/companyStorage')] = {
@@ -128,6 +141,17 @@ function clearCache() {
     const res = await call({ id: 'forge' });
     assert(res.body.latestMemory, 'expected a latestMemory');
     assert.strictEqual(res.body.latestMemory.text, 'Real memory about deploys.');
+  });
+
+  await test('progression carries weeklyXp, streakMult and lastOutcome', async () => {
+    const res = await call({ id: 'quill' });
+    const p = res.body.progression;
+    assert(p, 'expected progression');
+    assert.strictEqual(p.weeklyXp, 7, `weeklyXp ${p.weeklyXp} !== 7 (events inside 7d only)`);
+    assert.strictEqual(p.streakMult, 1.06);
+    assert(p.lastOutcome, 'expected lastOutcome');
+    assert.strictEqual(p.lastOutcome.reason, 'Task done: review pass');
+    assert.strictEqual(p.lastOutcome.xp, 1);
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);

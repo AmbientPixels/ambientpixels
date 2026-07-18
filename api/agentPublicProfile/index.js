@@ -202,10 +202,27 @@ async function buildSingle(id) {
     const cumLvl = 50 * (lvl - 1) + 25 * (lvl - 1) * lvl / 2; // cumulative XP at lvl
     const xpInto = Math.max(0, (rw.xp || 0) - cumLvl);
     const pct = Math.max(0, Math.min(100, Math.round(xpInto / xpForNext * 100)));
+    // weeklyXp is bounded by the ledger's rolling-25 `recent` window — good enough
+    // for a display stat; streakMult mirrors the engine's 1 + min(0.25, 0.02·days).
+    const recentEvents = Array.isArray(rw.recent) ? rw.recent : [];
+    const weekAgoMs = Date.now() - 7 * 86400000;
+    const weeklyXp = recentEvents.reduce((s, e) => {
+      const t = Date.parse((e && e.at) || '');
+      return (Number.isFinite(t) && t >= weekAgoMs) ? s + (Number(e.xp) || 0) : s;
+    }, 0);
+    const lastEv = recentEvents.length ? recentEvents[recentEvents.length - 1] : null;
     progression = {
       level: lvl, rank: rw.rank || 'Rookie', class: rw.class || '',
       xp: rw.xp || 0, renown: rw.renown || 0, streakDays: rw.streakDays || 0,
       xpInto, xpForNext, pct,
+      weeklyXp,
+      streakMult: Math.round((1 + Math.min(0.25, 0.02 * (rw.streakDays || 0))) * 100) / 100,
+      lastOutcome: lastEv ? {
+        at: lastEv.at || null,
+        type: lastEv.type || '',
+        reason: String(lastEv.reason || '').slice(0, 90),
+        xp: Number(lastEv.xp) || 0
+      } : null,
       achievements: (Array.isArray(rw.achievements) ? rw.achievements.slice(-4) : [])
         .map(a => ({ label: a.label || a.id, tier: a.tier || 'bronze' }))
     };

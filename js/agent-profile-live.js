@@ -105,10 +105,26 @@
 
         const stats = document.createElement('div');
         stats.className = 'agent-prog-stats';
-        [p.xp + ' XP', p.xpInto + ' / ' + p.xpForNext + ' to LV ' + (p.level + 1), p.renown + ' Renown', p.streakDays + '-day streak'].forEach(function (t) {
+        const statBits = [p.xp + ' XP'];
+        if (typeof p.weeklyXp === 'number') statBits.push('+' + p.weeklyXp + ' XP this week');
+        statBits.push(p.xpInto + ' / ' + p.xpForNext + ' to LV ' + (p.level + 1));
+        statBits.push(p.renown + ' Renown');
+        statBits.push(p.streakDays + '-day streak' + (p.streakMult > 1 ? ' ×' + p.streakMult : ''));
+        statBits.forEach(function (t) {
           const s = document.createElement('span'); s.textContent = t; stats.appendChild(s);
         });
         prog.appendChild(stats);
+
+        if (p.lastOutcome && (p.lastOutcome.reason || p.lastOutcome.type)) {
+          const lo = document.createElement('div');
+          lo.className = 'agent-prog-stats';
+          const loBits = ['Last outcome — ' + (p.lastOutcome.reason || String(p.lastOutcome.type).replace(/_/g, ' ')), '+' + p.lastOutcome.xp + ' XP'];
+          if (p.lastOutcome.at) loBits.push(formatRelativeTime(p.lastOutcome.at));
+          const loSpan = document.createElement('span');
+          loSpan.textContent = loBits.join(' · ');
+          lo.appendChild(loSpan);
+          prog.appendChild(lo);
+        }
 
         if (Array.isArray(p.achievements) && p.achievements.length) {
           const badges = document.createElement('div');
