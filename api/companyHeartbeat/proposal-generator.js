@@ -416,11 +416,17 @@ function detectSignals(state, nowMs) {
     }).length;
     var activityFlowing = usage7 > 0 || doneTasks7 >= 3;
     if (activityFlowing && leads7 === 0 && sales7 === 0) {
+      // Name the overlapping active campaign(s) so the proposal reads as a
+      // conversion-step play, not a duplicate of the campaign already running.
+      var overlapping = _activeOf(campaigns || []).filter(function (c) {
+        return String((c && c.product) || '').toLowerCase() === String(targetProduct).toLowerCase();
+      }).map(function (c) { return String(c.name || c.id || '').substring(0, 60); }).slice(0, 3);
       signals.push({
         kind: 'campaign', trigger: 'conversion_dead', severity: 4,
         subject: { product: targetProduct, objectiveId: revObjectives[0].id },
         evidence: {
           leads7d: 0, sales7d: 0, usage7d: usage7, doneTasks7d: doneTasks7,
+          activeCampaigns: overlapping,
           objective: String(revObjectives[0].title || '').substring(0, 80)
         }
       });
@@ -431,11 +437,29 @@ function detectSignals(state, nowMs) {
   return signals;
 }
 
-// Pick at most one campaign + one objective signal, honoring the existing 24h/pending dedup.
+// A CEO "no" means no: once a generator proposal for a given trigger is rejected,
+// the same trigger stays quiet for a week instead of re-minting daily nags.
+var GENERATOR_REJECT_COOLDOWN_DAYS = 7;
+function _isRejectCooldown(queue, type, trigger, nowMs) {
+  if (!trigger) return false;
+  var cutoff = nowMs - GENERATOR_REJECT_COOLDOWN_DAYS * 86400000;
+  return (_arr(queue) || []).some(function (q) {
+    if (!q || q.type !== type || q.source !== SOURCE) return false;
+    if (q.status !== 'rejected' && q.status !== 'declined') return false;
+    if (String(q.trigger || '') !== trigger) return false;
+    var ts = Date.parse(q.rejectedAt || q.resolvedAt || q.updatedAt || q.createdAt || '');
+    return Number.isFinite(ts) && ts >= cutoff;
+  });
+}
+
+// Pick at most one campaign + one objective signal, honoring the existing 24h/pending
+// dedup plus the per-trigger rejection cooldown.
 function _pickTopPerType(signals, queue, nowMs) {
   var picks = [];
   var haveCampaign = false, haveObjective = false;
   (signals || []).forEach(function (sig) {
+    var type = sig.kind === 'campaign' ? 'campaign_proposal' : 'objective_proposal';
+    if (_isRejectCooldown(queue, type, sig.trigger, nowMs)) return;
     if (sig.kind === 'campaign' && !haveCampaign && !_isDeduped(queue, 'campaign_proposal', nowMs)) {
       picks.push(sig); haveCampaign = true;
     } else if (sig.kind === 'objective' && !haveObjective && !_isDeduped(queue, 'objective_proposal', nowMs)) {
@@ -450,10 +474,21 @@ function _deterministicFromSignal(signal, state, nowMs) {
   var sas = state.socialAccountStats || {};
   if (signal.kind === 'campaign') {
     if (signal.trigger === 'conversion_dead') {
+      var cdTarget = signal.subject.product || 'AmbientScore';
+      var cdActive = signal.evidence.activeCampaigns || [];
       var cdReasons = ['conversion dead-zone on "' + (signal.evidence.objective || 'revenue objective') + '": ' +
         (signal.evidence.usage7d || 0) + ' product usage events and ' + (signal.evidence.doneTasks7d || 0) +
         ' shipped tasks in 7d but 0 leads and 0 sales — fix the conversion step (lead capture, distribution, offer test), not content volume'];
-      return _buildCampaignProposal(cdReasons, [{ product: signal.subject.product || 'AmbientScore' }], sas, nowMs);
+      var cdP = _buildCampaignProposal(cdReasons, [{ product: cdTarget }], sas, nowMs);
+      cdP.name = ('Conversion fix — ' + cdTarget).substring(0, 100);
+      var cdIntro = cdActive.length
+        ? '"' + cdActive[0] + '" is active and shipping, but the funnel converted 0 leads and 0 sales in 7d. This is NOT a duplicate content campaign — it targets the conversion step itself: '
+        : 'Activity is flowing but the funnel converted 0 leads and 0 sales in 7d. This campaign targets the conversion step itself: ';
+      cdP.description = (cdIntro +
+        'lead capture, distribution into buyer-intent spaces, or an offer/pricing test. ' +
+        'Approve to run it alongside (or instead of) the current campaign.').substring(0, 1000);
+      cdP.kpiTarget = 'First captured lead within 14 days; first sale within 30 days';
+      return cdP;
     }
     if (signal.trigger === 'declining_uncovered') {
       var dps = signal.evidence.decliningProducts || [];
@@ -488,7 +523,11 @@ function computeProposals(state, nowMs) {
   if (!state || typeof state !== 'object') return [];
   var queue = _arr(state.approvalQueue) || [];
   var picks = _pickTopPerType(detectSignals(state, nowMs), queue, nowMs);
-  return picks.map(function (sig) { return _deterministicFromSignal(sig, state, nowMs); });
+  return picks.map(function (sig) {
+    var p = _deterministicFromSignal(sig, state, nowMs);
+    if (p && !p.trigger) p.trigger = sig.trigger; // enables the per-trigger reject cooldown
+    return p;
+  });
 }
 
 // Observability: append a `proposal-created` event to governanceLog for each
@@ -574,6 +613,7 @@ async function runProposalGenerator(opts) {
         }
         if (!proposal) { proposal = _deterministicFromSignal(sig, state, nowMs); composedBy = 'deterministic'; }
         proposal.composedBy = composedBy;
+        proposal.trigger = proposal.trigger || sig.trigger; // enables the per-trigger reject cooldown
         proposals.push(proposal);
       }
     } else {

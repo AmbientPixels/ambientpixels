@@ -532,8 +532,35 @@ test('conversion_dead deterministic fallback builds a conversion-focused campaig
   const cp = props.find((p) => p.type === 'campaign_proposal');
   assert.ok(cp, 'expected a campaign proposal');
   assert.strictEqual(cp.product, 'AmbientScore');
+  assert.strictEqual(cp.name, 'Conversion fix — AmbientScore');
+  assert.strictEqual(cp.trigger, 'conversion_dead', 'trigger stamped for the reject cooldown');
   assert.ok(/conversion dead-zone/.test(cp.rationale), 'rationale cites the dead-zone');
   assert.ok(/0 leads and 0 sales/.test(cp.rationale), 'rationale cites the zeroes');
+});
+
+test('conversion_dead proposal acknowledges the overlapping active campaign by name', () => {
+  const st = revenueState({});
+  st.campaigns = st.campaigns.concat([{ id: 'c-as', status: 'active', product: 'AmbientScore', name: 'AmbientScore Launch Week' }]);
+  const cp = computeProposalsCD(st, NOW).find((p) => p.type === 'campaign_proposal');
+  assert.ok(cp, 'expected a campaign proposal');
+  assert.ok(cp.description.includes('"AmbientScore Launch Week" is active and shipping'), 'names the running campaign');
+  assert.ok(/NOT a duplicate content campaign/.test(cp.description), 'frames itself as a conversion play');
+});
+
+test('rejected conversion_dead proposal suppresses re-minting for 7 days (same trigger only)', () => {
+  const rejected = {
+    id: 'cprop_old', type: 'campaign_proposal', source: 'auto:proposal-generator',
+    trigger: 'conversion_dead', status: 'rejected',
+    createdAt: daysAgo(3), resolvedAt: daysAgo(2)
+  };
+  const st = revenueState({ approvalQueue: [rejected] });
+  assert.deepStrictEqual(computeProposalsCD(st, NOW), [], 'CEO said no — stay quiet for a week');
+  // a rejection of a DIFFERENT trigger does not suppress conversion_dead
+  const stOther = revenueState({ approvalQueue: [Object.assign({}, rejected, { trigger: 'declining_uncovered' })] });
+  assert.ok(computeProposalsCD(stOther, NOW).some((p) => p.trigger === 'conversion_dead'));
+  // and an OLD rejection (>7d) no longer suppresses
+  const stOld = revenueState({ approvalQueue: [Object.assign({}, rejected, { createdAt: daysAgo(12), resolvedAt: daysAgo(10) })] });
+  assert.ok(computeProposalsCD(stOld, NOW).some((p) => p.trigger === 'conversion_dead'));
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
