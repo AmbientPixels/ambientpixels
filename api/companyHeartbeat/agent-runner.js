@@ -23,7 +23,7 @@ const {
   FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
   PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY, PROPOSAL_REJECT_COOLDOWN_DAYS
 } = require('./constants');
-const { proposalSeverity: _proposalSeverity } = require('./agent-proposal-select');
+const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences,
@@ -700,16 +700,23 @@ async function runAgentHeartbeat(ctx) {
   const toolActions = normalized.taskUpdates.filter(a => a.tool === 'web_search' || a.type === 'web_search');
   const regularActions = normalized.taskUpdates.filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
 
-  // Re-route propose-* ACTION objects the LLM put in the proposals array. Left
-  // there, Fix-7 auto-wraps them into content-free generic proposals and the
+  // Re-route propose-* intents the LLM put in the proposals array. Left there,
+  // Fix-7 auto-wraps them into content-free generic proposals and the
   // .campaign/.objective payload is silently lost (revenue-pivot audit finding).
-  for (let _rri = normalized.proposals.length - 1; _rri >= 0; _rri--) {
-    const _rr = normalized.proposals[_rri];
-    if (_rr && (_rr.type === 'propose-campaign' || _rr.type === 'propose-objective') && (_rr.campaign || _rr.objective)) {
-      normalized.proposals.splice(_rri, 1);
-      regularActions.push(_rr);
-      context.log('[Heartbeat]', agentId, 'rerouted', _rr.type, 'from proposals array to the action path');
+  // Shape-tolerant: catches typed variants, payload-nested, bare and flat shapes
+  // (2026-07 audit: zero agent proposals ever reached the handler gates).
+  {
+    const _lift = _liftProposalActions(normalized.proposals);
+    if (_lift.lifted.length) {
+      normalized.proposals = _lift.remaining;
+      for (const _la of _lift.lifted) {
+        regularActions.push(_la);
+        context.log('[Heartbeat]', agentId, 'rerouted', _la.type, 'from proposals array to the action path');
+      }
     }
+    // Ledger visibility: generic suggestions left behind can only become display
+    // breadcrumbs — count them so the run record shows initiative being dropped.
+    result.unroutableProposals = normalized.proposals.length;
   }
 
   // Scout recursion guard: skip search if task already has research_intel
@@ -5154,6 +5161,8 @@ Write the full deliverable first, then the structured JSON block.`;
     } else if (action.type === 'propose-campaign' && action.campaign) {
       if (!PROPOSAL_AUTHORIZED_AGENTS.has(agentId)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — not an authorized proposer');
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: not an authorized proposer', cycleId,
+          { runId: cycleId, gate: 'proposal_unauthorized', kind: 'campaign' });
         continue;
       }
       // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new campaign for CEO approval
@@ -5161,6 +5170,8 @@ Write the full deliverable first, then the structured JSON block.`;
       var _pcName = (_pc.name || '').trim().substring(0, 100);
       if (!_pcName) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — missing campaign name');
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: missing campaign name', cycleId,
+          { runId: cycleId, gate: 'proposal_missing_fields', kind: 'campaign' });
         continue;
       }
 
@@ -5277,6 +5288,8 @@ Write the full deliverable first, then the structured JSON block.`;
     } else if (action.type === 'propose-objective' && action.objective) {
       if (!PROPOSAL_AUTHORIZED_AGENTS.has(agentId)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — not an authorized proposer');
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: not an authorized proposer', cycleId,
+          { runId: cycleId, gate: 'proposal_unauthorized', kind: 'objective' });
         continue;
       }
       // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new objective for CEO approval
@@ -5290,6 +5303,9 @@ Write the full deliverable first, then the structured JSON block.`;
       // Required fields validation
       if (!_poTitle || !_poDesc || !_poRationale || !_poSuccess || !_poHorizon) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — missing required fields (title, description, rationale, successCriteria, timeHorizon)');
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: missing required fields', cycleId,
+          { runId: cycleId, gate: 'proposal_missing_fields', kind: 'objective',
+            missing: [!_poTitle && 'title', !_poDesc && 'description', !_poRationale && 'rationale', !_poSuccess && 'successCriteria', !_poHorizon && 'timeHorizon'].filter(Boolean) });
         continue;
       }
 

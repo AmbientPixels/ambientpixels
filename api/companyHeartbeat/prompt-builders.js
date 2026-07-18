@@ -163,7 +163,7 @@ function _buildProductLifecyclePromptBlock(agent, strategicDigest, allocationDig
 // Returns '' for agents not authorized to propose.
 const _PROPOSAL_AGENT_GUIDE = {
   nova:   { kinds: 'campaign or objective', triggers: 'low-campaign-count (active campaigns < 3), low-objective-count (active objectives < 3), uncovered-product (a live product with no active campaign), objective-near-complete (an active objective >= 95%)' },
-  cipher: { kinds: 'objective',             triggers: 'runway-critical (runway < 15d), runway-low (runway < 30d), budget-red (system budget RED), agent-cost-red (an agent RED on cost)' },
+  cipher: { kinds: 'objective',             triggers: 'runway-critical (LLM budget left < 15d — monthly ops cap, not company survival), runway-low (budget left < 30d), budget-red (system budget RED), agent-cost-red (an agent RED on cost)' },
   scout:  { kinds: 'campaign',              triggers: 'research-demand (a research signal shows demand for a product that has no active campaign)' },
   echo:   { kinds: 'campaign',              triggers: 'declining-platform (a platform DECLINING week-over-week), campaign-behind-pace (a campaign >= 2 weeks behind target pace)' },
   forge:  { kinds: 'objective',             triggers: 'recurring-incident (3+ of the same ops_breakfix)' },
@@ -1744,21 +1744,20 @@ Response format MUST be exactly:
 {
   "reasoning": "2-3 sentences: what matters most right now and why you're taking these actions",
   "taskUpdates": [],
-  "proposals": [],
   "remember": [],
   "observations": []
 }
 
 Mapping rules:
-- taskUpdates: include create-task, update-task, move-task objects, AND (only if you are proposing new work per the PROPOSE NEW WORK section) propose-campaign / propose-objective action objects (same action object fields as legacy format); update-task may use only allowed update keys, and include objective_id for create/in-progress transitions unless objective-exempt category.
-- proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed; include objective_id OR objective_suggestion, acceptanceCriteria, and evidence.runId.
+- taskUpdates: ALL actions go here — create-task, update-task, move-task objects, AND propose-campaign / propose-objective action objects when you are proposing new work (per the PROPOSE NEW WORK section; same action object fields as legacy format). taskUpdates is the ONLY channel that reaches the pipeline. update-task may use only allowed update keys, and include objective_id for create/in-progress transitions unless objective-exempt category.
+- Do NOT emit a "proposals" array. It is a deprecated dead path: anything placed there is DISCARDED without reaching the CEO. Work needing CEO approval is emitted as a typed ACTION in taskUpdates (propose-campaign, propose-objective) or through the normal action pipeline (create-social-action, submit-for-publish) — approval routing is automatic.
 - remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by execution_mode), using only allowed L4 memory types. evidence.runId is REQUIRED for every remember action — set it to the current heartbeat runId. The ONLY exception is type="weekly_report" which aggregates a week and has no single runId. Memory writes without evidence.runId are rejected with a policy-violation.
 - observations: short warning/summary strings.
 
 Role-specific guidance:
-- Quill: validate allowed update keys before emitting taskUpdates; if any gate risk exists, prefer proposals over taskUpdates.
-- Scribe: docs/content changes should be proposals unless objective_id is explicit; keep outputs bounded and use observations for brief notes only. When feedback is given on a deliverable, REVISE the existing draft — do NOT produce an entirely new document. Address each feedback point specifically and preserve sections that were not flagged.
-- Echo: never execute external actions directly; use proposals only for social/publishing work. Provide max 2-3 variants and ensure each proposal includes acceptanceCriteria and evidence.runId.
+- Quill: validate allowed update keys before emitting taskUpdates; if a gate blocks an update, leave a comment-task explaining what you wanted to change instead.
+- Scribe: docs/content changes flow through create-doc / execute-task with an explicit objective_id; keep outputs bounded and use observations for brief notes only. When feedback is given on a deliverable, REVISE the existing draft — do NOT produce an entirely new document. Address each feedback point specifically and preserve sections that were not flagged.
+- Echo: never execute external actions directly; social posting flows through create-social-action on tasks with reviewed_copy. Campaign pitches use the propose-campaign action in taskUpdates.
 
 Example payload:
 {
@@ -1776,12 +1775,11 @@ Example payload:
       "newStatus": "in-progress"
     }
   ],
-  "proposals": [],
   "remember": [],
   "observations": ["Triage complete for 3 tasks"]
 }
 
-REASONING/ACTION CONSISTENCY (REQUIRED): If your reasoning field describes a concrete action you intend to take this cycle (creating/updating/moving a task, making a proposal, saving a memory, posting social), that action MUST appear in the matching array (taskUpdates / proposals / remember). Empty arrays are valid ONLY when you genuinely have no action to take. Narrating intent without populating the arrays is a policy violation.
+REASONING/ACTION CONSISTENCY (REQUIRED): If your reasoning field describes a concrete action you intend to take this cycle (creating/updating/moving a task, proposing a campaign or objective, saving a memory, posting social), that action MUST appear in the matching array (taskUpdates / remember). Saying "I am proposing X" requires a propose-campaign or propose-objective action object in taskUpdates in the SAME response. Empty arrays are valid ONLY when you genuinely have no action to take. Narrating intent without populating the arrays is a policy violation.
 ` : `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 
@@ -1847,9 +1845,9 @@ GATE CHECKLIST
 
 1) EXECUTION MODE
    - If execution_mode === "manual":
-       taskUpdates = []
+       taskUpdates may contain ONLY propose-campaign / propose-objective actions
        remember = []
-       proposals + observations only
+       observations allowed
    - If execution_mode === "observe":
        taskUpdates = []
    - No exceptions.
@@ -1862,8 +1860,9 @@ GATE CHECKLIST
    - Exempt categories:
        ops_breakfix, governance, maintenance
    - If objective_id unknown:
-       DO NOT create task.
-       Emit proposal with objective_suggestion.
+       DO NOT create the task.
+       Note the gap in observations — or, if a genuinely new
+       objective is warranted, emit a propose-objective action.
 
 3) ALLOWED UPDATE KEYS
    update-task and move-task updates may ONLY include:
@@ -1877,12 +1876,12 @@ GATE CHECKLIST
    creates <= 2
    moves   <= 5
    updates <= 8
-   proposals <= 10
+   propose-campaign / propose-objective <= 1 each
    Do NOT exceed reasonable limits.
 
 5) IF A GATE WOULD FAIL
    - Do NOT attempt mutation.
-   - Emit a schema-compliant proposal (v1).
+   - Note the blocked intent in observations (one short line).
    - Do NOT output prose.
 
 Rules:
@@ -2083,9 +2082,9 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - ALLOWED actions: create-task (including system_directive), update-task, move-task, comment-task, review-task, propose-campaign, propose-objective, pause-campaign, resume-campaign, complete-campaign, archive-objective, cancel-campaign, cancel-objective, remember` : '') + (agent.name === 'Echo' ? `
 - AMBIENTOS CONTRACT (Echo — Marketing):
   - Never execute external actions directly.
-  - All social/publishing actions must be proposals routed through CEO approval.
-  - Provide max 2-3 variants per run.
-  - Include acceptanceCriteria in each proposal.
+  - Social/publishing output routes through CEO approval automatically: use create-social-action on tasks with reviewed_copy.
+  - Campaign pitches use the propose-campaign action in taskUpdates.
+  - Max 2-3 social variants per run.
 - CONVERSION OWNER (Echo — the company's #1 mandate):
   You own the paying_customers north star. The company has NEVER made a sale. Every cycle, ask first: "Did we add a paying customer? If not, what am I doing about it RIGHT NOW?"
   - Focus funnel: AmbientScore — https://ambientpixels.ai/ambientscore/ — a $29 conversion audit with a free instant scan, no login. It is the only checkout a stranger can complete in one session.
@@ -2244,8 +2243,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - PRODUCE, DON'T PLAN: If a task says "generate hero image" or "create visual for blog post", use generate-image immediately — do NOT create sub-tasks or comment that you're planning to do it.
   - HERO IMAGE PRIORITY OVERRIDE: If you have a "Generate hero image for:" task assigned to you, your ABSOLUTE FIRST action in your actions array MUST be generate-image for that task. Do NOT comment-task, do NOT review-task, do NOT create-task — put generate-image as action #1. The entire content pipeline (Scribe, Echo, publish) is blocked waiting for YOUR image. Every heartbeat you spend commenting instead of generating is a wasted cycle. Extract the document ID from the task description and use it in attachTo.` : '') + (agent.name === 'Scribe' ? `
 - AMBIENTOS CONTRACT (Scribe — Content):
-  - Documentation changes are proposals unless tied to objective_id.
-  - Use objective_suggestion if objective missing.
+  - Documentation work must be tied to an objective_id; if none fits, flag the gap in observations instead of creating orphan work.
   - Do not mutate titles/descriptions directly.
 - CONTENT DIRECTOR (Scribe):
   You OWN the content strategy. You don't just write what you're told, you decide WHAT to write based on data, and HOW to write it based on what resonates.
@@ -2352,7 +2350,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - You CANNOT modify directives or objectives
   - Focus on reviewing drafts in the review column. Approve clean work, request changes on anything off-brand.` : '') + (agent.name === 'Scout' ? `
 - AMBIENTOS CONTRACT (Scout — Research & Intelligence):
-  - Evidence-first. Include evidence references in proposals.
+  - Evidence-first. Cite concrete numbers/sources in every propose-* action and memory write.
   - Use remember only for verified_fact or constraint types.
   - Avoid memory overuse.
 - PROSPECT SCANNING (Scout — conversion support, revenue pivot):

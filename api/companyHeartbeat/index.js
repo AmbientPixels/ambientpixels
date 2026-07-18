@@ -2170,6 +2170,7 @@ module.exports = async function (context) {
           executed: result.actions || 0,
           blocked: 0,
           newTasksCreated: 0,
+          unroutableProposals: result.unroutableProposals || 0,
           avgLatencyMs: result.durationMs || 0,
           reasoning: result.reasoning || null,
           preflightSkipped: result.preflightSkipped === true,
@@ -4305,6 +4306,7 @@ module.exports = async function (context) {
         actionsExecuted: rs.executed || 0,
         actionsBlocked: (rc.blocked || 0) + (rs.guardrailBlocked || 0),
         newTasksCreated: rc.creates || 0,
+        unroutableProposals: rs.unroutableProposals || 0,
         avgLatencyMs: rs.avgLatencyMs || 0,
         error: rs.error || null,
         reasoning: rs.reasoning || null
