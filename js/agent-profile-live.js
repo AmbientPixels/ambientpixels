@@ -118,7 +118,7 @@
         if (p.lastOutcome && (p.lastOutcome.reason || p.lastOutcome.type)) {
           const lo = document.createElement('div');
           lo.className = 'agent-prog-stats';
-          const loBits = ['Last outcome — ' + (p.lastOutcome.reason || String(p.lastOutcome.type).replace(/_/g, ' ')), '+' + p.lastOutcome.xp + ' XP'];
+          const loBits = ['Last outcome — ' + String(p.lastOutcome.reason || p.lastOutcome.type).replace(/_/g, ' '), '+' + p.lastOutcome.xp + ' XP'];
           if (p.lastOutcome.at) loBits.push(formatRelativeTime(p.lastOutcome.at));
           const loSpan = document.createElement('span');
           loSpan.textContent = loBits.join(' · ');
