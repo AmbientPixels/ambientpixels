@@ -312,8 +312,8 @@ function _buildWorldStatePromptBlock(worldState) {
   lines.push('═══ WORLD STATE (as of ' + asOf + 'Z) ═══');
 
   const co = worldState.company || {};
-  const runway = co.runwayDays != null ? co.runwayDays + 'd' : '—';
-  lines.push('COMPANY: ' + (co.hero || 'AmbientOS platform') + '. Mode: ' + (co.activeMode || 'unknown') + '. Runway: ' + runway + ' at current burn.');
+  const budgetDaysLeft = co.runwayDays != null ? '~' + co.runwayDays + 'd' : '—';
+  lines.push('COMPANY: ' + (co.hero || 'AmbientOS platform') + '. Mode: ' + (co.activeMode || 'unknown') + '. LLM budget left: ' + budgetDaysLeft + ' this month (ops cap, resets monthly — NOT survival runway).');
 
   const fin = worldState.finance || {};
   lines.push('FINANCE: $' + Number(fin.monthlyActual || 0).toFixed(2) + ' / $' + Number(fin.monthlyBudget || 0).toFixed(0) + ' monthly (' + (fin.monthlySpendPct || 0) + '%, trend ' + (fin.burnTrend || 'stable') + (fin.projectedMonthEnd ? ', projected $' + Number(fin.projectedMonthEnd).toFixed(2) : '') + '). Status: ' + (fin.status || 'unknown') + '.');
