@@ -143,6 +143,37 @@
       </div>
     </div>
 
+    <section class="cmp-create" id="mh-card" style="margin-bottom:0.9rem;">
+      <div class="cmp-title"><i class="fas fa-bullhorn dash-icon-mr dash-icon-orange"></i>Milestone Herald
+        <label style="float:right;font-weight:400;font-size:.78rem;display:flex;align-items:center;gap:.4rem;cursor:pointer;">
+          <input type="checkbox" id="mh-enabled" /> Enabled
+        </label>
+      </div>
+      <p style="font-size:.78rem;opacity:.65;margin:.15rem 0 .6rem;">Agents post about their own real milestones (level-ups, badges, streaks) from the XP ledger. Tasks fire only when something actually happened — silence is the default. Every post still needs your approval.</p>
+      <div class="cmp-settings-row">
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">Platforms</span>
+          <div>
+            <label class="cmp-check-label"><input type="checkbox" id="mh-plat-bluesky" value="social_bluesky" />Bluesky</label>
+            <label class="cmp-check-label"><input type="checkbox" id="mh-plat-x" value="social_x" />X</label>
+          </div>
+        </div>
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">Fleet posts / week</span>
+          <input id="mh-fleet-cap" type="number" min="1" max="10" title="Max milestones fired across all agents per rolling 7 days" />
+        </div>
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">Min weekly XP</span>
+          <input id="mh-min-xp" type="number" min="1" max="100" title="Floor for the 'notable week' post type" />
+        </div>
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">&nbsp;</span>
+          <button class="cmp-btn" id="mh-dryrun" style="margin-top:0;">Dry Run</button>
+        </div>
+      </div>
+      <div id="mh-status" style="font-size:.75rem;opacity:.7;margin-top:.4rem;"></div>
+    </section>
+
     <div class="cmp-grid">
       <section class="cmp-create">
         <div class="cmp-title"><i class="fas fa-plus-circle dash-icon-mr dash-icon-orange"></i>New Campaign</div>
@@ -761,6 +792,80 @@
           populateObjectiveSelect(); renderAll();
         }
       }, 8000);
+    })();
+  </script>
+
+  <!-- Milestone Herald settings: toggle + caps → systemConfig.milestoneHerald (read-modify-write merge) -->
+  <script>
+    (function () {
+      if (typeof CompanyStore === 'undefined') return;
+      var apiBase = CompanyStore.getServerBase ? CompanyStore.getServerBase() : '/api';
+      function hdrs() { return CompanyStore.getWriteHeaders ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' }; }
+      var enabled = document.getElementById('mh-enabled');
+      var platBs = document.getElementById('mh-plat-bluesky');
+      var platX = document.getElementById('mh-plat-x');
+      var fleetCap = document.getElementById('mh-fleet-cap');
+      var minXp = document.getElementById('mh-min-xp');
+      var dryBtn = document.getElementById('mh-dryrun');
+      var statusEl = document.getElementById('mh-status');
+      if (!enabled || !statusEl) return;
+
+      var DEF = { enabled: true, platforms: ['social_bluesky'], fleetWeeklyCap: 3, minWeeklyXp: 10 };
+
+      fetch(apiBase + '/company-state?key=systemConfig', { headers: hdrs() })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (resp) {
+          var cfg = Object.assign({}, DEF, (resp && resp.value && resp.value.milestoneHerald) || {});
+          enabled.checked = cfg.enabled !== false;
+          var plats = Array.isArray(cfg.platforms) && cfg.platforms.length ? cfg.platforms : DEF.platforms;
+          platBs.checked = plats.indexOf('social_bluesky') !== -1;
+          platX.checked = plats.indexOf('social_x') !== -1;
+          fleetCap.value = cfg.fleetWeeklyCap || DEF.fleetWeeklyCap;
+          minXp.value = cfg.minWeeklyXp || DEF.minWeeklyXp;
+        })
+        .catch(function () { statusEl.textContent = 'Could not load Herald settings.'; });
+
+      function save() {
+        var platforms = [];
+        if (platBs.checked) platforms.push('social_bluesky');
+        if (platX.checked) platforms.push('social_x');
+        if (!platforms.length) { platBs.checked = true; platforms = ['social_bluesky']; }
+        fetch(apiBase + '/company-state?key=systemConfig', { headers: hdrs() })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (resp) {
+            var cfg = (resp && resp.value) || {};
+            cfg.milestoneHerald = Object.assign({}, DEF, cfg.milestoneHerald || {}, {
+              enabled: enabled.checked,
+              platforms: platforms,
+              fleetWeeklyCap: parseInt(fleetCap.value, 10) || DEF.fleetWeeklyCap,
+              minWeeklyXp: parseInt(minXp.value, 10) || DEF.minWeeklyXp
+            });
+            return fetch(apiBase + '/company-state', { method: 'POST', headers: hdrs(), body: JSON.stringify({ key: 'systemConfig', value: cfg }) });
+          })
+          .then(function (r) {
+            if (!r || !r.ok) throw new Error('save failed');
+            statusEl.textContent = enabled.checked ? 'Saved — Herald is ON. Daily check at 16:10 UTC; posts only when a real milestone fires.' : 'Saved — Herald is OFF. No milestone tasks will be created.';
+          })
+          .catch(function () { statusEl.textContent = 'Could not save Herald settings — try again.'; });
+      }
+      [enabled, platBs, platX, fleetCap, minXp].forEach(function (el) { el.addEventListener('change', save); });
+
+      dryBtn.addEventListener('click', function () {
+        dryBtn.disabled = true; statusEl.textContent = 'Dry run…';
+        fetch(apiBase + '/milestone-herald-trigger?dryRun=1', { method: 'POST', headers: hdrs() })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            dryBtn.disabled = false;
+            var res = d && d.result;
+            if (!res) { statusEl.textContent = 'Dry run failed: ' + ((d && d.error) || 'unknown'); return; }
+            if (res.enabled === false) { statusEl.textContent = 'Herald is disabled — enable it to detect milestones.'; return; }
+            if (res.skipped) { statusEl.textContent = 'Dry run: skipped (' + res.skipped + ').'; return; }
+            var fired = (res.fired || []).map(function (f) { return f.agentId + ':' + f.kind; }).join(', ');
+            statusEl.textContent = 'Dry run: ' + (res.fired && res.fired.length ? res.fired.length + ' would fire — ' + fired : 'nothing would fire (quiet ledger)') +
+              (res.seeded && res.seeded.length ? ' · would seed ' + res.seeded.length + ' agent watermark(s)' : '');
+          })
+          .catch(function (e) { dryBtn.disabled = false; statusEl.textContent = 'Dry run request failed: ' + e.message; });
+      });
     })();
   </script>
 
