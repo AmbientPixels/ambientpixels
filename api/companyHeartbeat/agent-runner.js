@@ -624,7 +624,10 @@ async function runAgentHeartbeat(ctx) {
 
   // Extract reflectionMemory from rejected revision (Phase 3B)
   if (parsed && typeof parsed === 'object' && parsed.reflectionMemory) {
-    var _reflText = String(parsed.reflectionMemory).substring(0, 200);
+    var _reflText = String(parsed.reflectionMemory).substring(0, 200).trim();
+    // Gemini structured output sometimes fills this optional schema field with the
+    // literal placeholder "string" — placeholder junk must never become a memory.
+    if (_reflText.length < 8 || /^string$/i.test(_reflText)) _reflText = '';
     if (_reflText && _agentMemoryStore && Array.isArray(_agentMemoryStore[agentId])) {
       _agentMemoryStore[agentId].push({
         id: 'mem-refl-' + Date.now(),

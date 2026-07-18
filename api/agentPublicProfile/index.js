@@ -67,6 +67,11 @@ function pickLatestPublicMemory(memories) {
     if (!m || typeof m.text !== 'string') continue;
     const text = m.text.trim();
     if (!text) continue;
+    // Gemini structured output sometimes emits the literal schema placeholder
+    // "string" as a reflection, and consolidation folds those into
+    // "Core belief: string". Not agent voice — fall back to the last real memory.
+    const lower = text.toLowerCase();
+    if (lower === 'string' || lower.endsWith(': string')) continue;
     // Allow non-auto sources and voice-bearing auto sources (reflection, consolidation, ceo-edit).
     // Suppress only pure system bookkeeping sources.
     if (m.source && MEMORY_NOISE_SOURCES.has(m.source)) continue;

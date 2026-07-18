@@ -13,7 +13,7 @@ const mockState = {
   agentMemories: {
     cipher: [
       { id: 'm1', type: 'feedback', source: 'cycle-123', text: 'I keep flagging Pixel waste at 38%.', timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString() },
-      { id: 'm2', type: 'consolidated_belief', source: 'auto:consolidation', text: 'auto memory should not be returned', timestamp: new Date().toISOString() }
+      { id: 'm2', type: 'feedback', source: 'auto:rate-limit', text: 'auto memory should not be returned', timestamp: new Date().toISOString() }
     ],
     nova: []
   },
@@ -72,7 +72,7 @@ function clearCache() {
     assert(res.body.stat.value.includes('13.85'));
   });
 
-  await test('latestMemory excludes auto:* sources', async () => {
+  await test('latestMemory excludes noise auto:* sources', async () => {
     const res = await call({ id: 'cipher' });
     assert(res.body.latestMemory);
     assert(!res.body.latestMemory.text.includes('auto memory'));
@@ -117,6 +117,17 @@ function clearCache() {
     assert(res.body.latestMemory);
     assert(res.body.latestMemory.text.length <= 201, `text length ${res.body.latestMemory.text.length} > 201`);
     assert(res.body.latestMemory.text.endsWith('…'));
+  });
+
+  await test('schema-placeholder junk memories are skipped', async () => {
+    mockState.agentMemories.forge = [
+      { id: 'f1', type: 'feedback', source: 'cycle-9', text: 'Real memory about deploys.', timestamp: new Date(Date.now() - 3 * 3600 * 1000).toISOString() },
+      { id: 'f2', type: 'reflection', source: 'auto:reflection', text: 'string', timestamp: new Date(Date.now() - 2 * 3600 * 1000).toISOString() },
+      { id: 'f3', type: 'consolidated_belief', source: 'auto:consolidation', text: 'Consolidated from 5 similar entries. Core belief: string', timestamp: new Date().toISOString() }
+    ];
+    const res = await call({ id: 'forge' });
+    assert(res.body.latestMemory, 'expected a latestMemory');
+    assert.strictEqual(res.body.latestMemory.text, 'Real memory about deploys.');
   });
 
   console.log(`\n${pass} passed, ${fail} failed`);
