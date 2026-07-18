@@ -1579,18 +1579,17 @@
     function rejectCampaignProposal(proposalId) {
       var note = prompt('Rejection reason (optional):') || '';
       var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
-          var item = queue.find(function(q) { return q.id === proposalId; });
-          if (item) { item.status = 'rejected'; item.rejectedAt = new Date().toISOString(); item.rejectionNote = note; }
-          return fetch(apiBase + '/company-state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-            body: JSON.stringify({ key: 'approvalQueue', value: queue })
-          });
-        })
+      // Server-side single-entry decision. The old whole-array read-modify-write
+      // here could clobber (or be clobbered by) any concurrent queue writer and
+      // silently delete entries. proposalDecide keeps the entry as status:'rejected'
+      // (feeds the generator's 7d reject-cooldown + emergence reject-rate) and logs
+      // the proposal-decided funnel event.
+      fetch(apiBase + '/proposalDecide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        body: JSON.stringify({ id: proposalId, decision: 'rejected', ceoNote: note })
+      })
+        .then(function(r) { if (!r.ok) alert('Reject failed (' + r.status + ') — refresh and retry.'); })
         .then(function() {
           closeDrawer();
           renderCampaignProposals();
@@ -1734,18 +1733,14 @@
     function rejectObjectiveProposal(proposalId) {
       var note = prompt('Rejection reason (optional):') || '';
       var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
-          var item = queue.find(function(q) { return q.id === proposalId; });
-          if (item) { item.status = 'rejected'; item.rejectedAt = new Date().toISOString(); item.rejectionNote = note; }
-          return fetch(apiBase + '/company-state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-            body: JSON.stringify({ key: 'approvalQueue', value: queue })
-          });
-        })
+      // Server-side single-entry decision — see rejectCampaignProposal for why the
+      // whole-array write was replaced.
+      fetch(apiBase + '/proposalDecide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        body: JSON.stringify({ id: proposalId, decision: 'rejected', ceoNote: note })
+      })
+        .then(function(r) { if (!r.ok) alert('Reject failed (' + r.status + ') — refresh and retry.'); })
         .then(function() { closeDrawer(); renderObjectiveProposals(); });
     }
 

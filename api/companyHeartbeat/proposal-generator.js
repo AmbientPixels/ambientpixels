@@ -120,6 +120,26 @@ function _expireStaleGeneratorProposals(queue, nowMs) {
   return n;
 }
 
+// Queue hygiene: resolved campaign/objective proposals now REMAIN in the queue
+// (status approved/rejected/expired) so the reject-cooldown, emergence reject-rate
+// and the propose→decide funnel can read them. Prune them after 30d (matches the
+// emergence 30d window) so the queue doesn't grow forever. Returns removed count.
+var RESOLVED_RETENTION_DAYS = 30;
+function _pruneResolvedProposals(queue, nowMs) {
+  if (!Array.isArray(queue)) return 0;
+  var cutoff = nowMs - RESOLVED_RETENTION_DAYS * 86400000;
+  var n = 0;
+  for (var i = queue.length - 1; i >= 0; i--) {
+    var q = queue[i];
+    if (!q) continue;
+    if (q.type !== 'campaign_proposal' && q.type !== 'objective_proposal') continue;
+    if (q.status !== 'approved' && q.status !== 'rejected' && q.status !== 'declined' && q.status !== 'expired') continue;
+    var ts = Date.parse(q.approvedAt || q.rejectedAt || q.expiredAt || q.resolvedAt || q.updatedAt || q.createdAt || '');
+    if (Number.isFinite(ts) && ts < cutoff) { queue.splice(i, 1); n++; }
+  }
+  return n;
+}
+
 // Has the generator already proposed this type within DEDUP_HOURS, or is one pending?
 function _isDeduped(queue, proposalType, nowMs) {
   var cutoff = nowMs - DEDUP_HOURS * 3600000;
@@ -624,6 +644,8 @@ async function runProposalGenerator(opts) {
     // when nothing new is created) so stale generic suggestions don't pile up.
     var queue = (await storage.getState('approvalQueue')) || [];
     var expired = _expireStaleGeneratorProposals(queue, nowMs);
+    var pruned = _pruneResolvedProposals(queue, nowMs);
+    if (pruned) log('[proposalGenerator] Pruned ' + pruned + ' resolved proposal(s) older than ' + RESOLVED_RETENTION_DAYS + 'd.');
 
     // Re-check dedup against the freshly-read queue. LLM compose latency widened the
     // window since the initial read (loaded[3]); a concurrent cron/trigger run may
@@ -634,9 +656,9 @@ async function runProposalGenerator(opts) {
     proposals = proposals.filter(function (p) { return !_isDeduped(queue, p.type, nowMs); });
     proposals.forEach(function (p) { queue.push(p); });
 
-    if (!proposals.length && !expired) {
-      log('[proposalGenerator] No propose-worthy conditions; nothing created or expired.');
-      return { ok: true, created: 0, expired: 0, types: [] };
+    if (!proposals.length && !expired && !pruned) {
+      log('[proposalGenerator] No propose-worthy conditions; nothing created, expired, or pruned.');
+      return { ok: true, created: 0, expired: 0, pruned: 0, types: [] };
     }
 
     await storage.setState('approvalQueue', queue);
@@ -662,6 +684,7 @@ module.exports = {
   detectSignals: detectSignals,
   runProposalGenerator: runProposalGenerator,
   _expireStaleGeneratorProposals: _expireStaleGeneratorProposals,
+  _pruneResolvedProposals: _pruneResolvedProposals,
   _isPlaceholderObjective: _isPlaceholderObjective,
   _pickTopPerType: _pickTopPerType,
   _deterministicFromSignal: _deterministicFromSignal

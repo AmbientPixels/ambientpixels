@@ -547,6 +547,20 @@ test('conversion_dead proposal acknowledges the overlapping active campaign by n
   assert.ok(/NOT a duplicate content campaign/.test(cp.description), 'frames itself as a conversion play');
 });
 
+test('_pruneResolvedProposals removes 30d-old resolved entries, keeps recent + pending + other kinds', () => {
+  const { _pruneResolvedProposals } = require('./proposal-generator');
+  const queue = [
+    { id: 'a', type: 'campaign_proposal', status: 'rejected', rejectedAt: daysAgo(31) },
+    { id: 'b', type: 'objective_proposal', status: 'approved', approvedAt: daysAgo(45) },
+    { id: 'c', type: 'campaign_proposal', status: 'rejected', rejectedAt: daysAgo(5) },
+    { id: 'd', type: 'campaign_proposal', status: 'pending', createdAt: daysAgo(40) },
+    { id: 'e', type: 'budget_request', status: 'rejected', rejectedAt: daysAgo(60) }
+  ];
+  const n = _pruneResolvedProposals(queue, NOW);
+  assert.strictEqual(n, 2);
+  assert.deepStrictEqual(queue.map((q) => q.id), ['c', 'd', 'e']);
+});
+
 test('rejected conversion_dead proposal suppresses re-minting for 7 days (same trigger only)', () => {
   const rejected = {
     id: 'cprop_old', type: 'campaign_proposal', source: 'auto:proposal-generator',
