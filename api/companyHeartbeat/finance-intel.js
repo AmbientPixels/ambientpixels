@@ -86,10 +86,15 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
     return Number.isFinite(ts) && ts >= sevenCutoff;
   });
   recentRuns.forEach(function (r) {
-    if (!r.agentResults) return;
-    Object.keys(r.agentResults).forEach(function (aid) {
+    // Current runs write perAgent; agentResults is the legacy pre-Apr-2026 name.
+    // Reading only the legacy field zeroed executed for every agent, which made
+    // the FLEET HEALTH block flag healthy agents as STALE retire candidates.
+    var per = r.perAgent || r.agentResults;
+    if (!per) return;
+    Object.keys(per).forEach(function (aid) {
+      if (aid.indexOf('_closing') !== -1) return; // synthetic summary agents
       if (!agentActions[aid]) agentActions[aid] = { executed: 0, blocked: 0 };
-      var ar = r.agentResults[aid];
+      var ar = per[aid];
       agentActions[aid].executed += (ar.actionsExecuted || ar.actions || 0);
       agentActions[aid].blocked += (ar.actionsBlocked || 0);
     });

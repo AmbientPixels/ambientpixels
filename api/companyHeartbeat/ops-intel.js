@@ -30,15 +30,23 @@ function buildForgeOpsDigest(heartbeatRuns, geminiUsage, governanceLog, siteInte
   var last5 = recentRuns.slice(-5);
 
   var last5Summary = last5.map(function (r) {
+    // Current run records: perAgent + agentActions {executed, blocked} + status/errorSummary.
+    // agentResults / actionsExecuted / totalActions are legacy pre-Apr-2026 names — reading
+    // only those rendered every run as "0 agents, 0 actions" and fed Forge a phantom
+    // throughput collapse.
+    var per = r.perAgent || r.agentResults || null;
+    var perCount = per ? Object.keys(per).filter(function (k) { return k.indexOf('_closing') === -1; }).length : 0;
+    var aa = r.agentActions || {};
+    var err = r.errorSummary || r.error || null;
     return {
       runId: r.runId || r.id || '',
       startedAt: r.startedAt || r.timestamp || '',
       durationMs: r.durationMs || r.duration || 0,
-      status: r.error ? 'error' : 'ok',
-      agentsRan: (r.agentResults ? Object.keys(r.agentResults).length : r.agentsRan) || 0,
-      actionsExecuted: r.actionsExecuted || r.totalActions || 0,
-      actionsBlocked: r.actionsBlocked || 0,
-      errorSummary: r.error ? String(r.error).substring(0, 100) : null
+      status: (r.status || (err ? 'error' : 'ok')) === 'ok' ? 'ok' : 'error',
+      agentsRan: perCount || r.agentsRan || 0,
+      actionsExecuted: (aa.executed != null ? aa.executed : (r.actionsExecuted || r.totalActions)) || 0,
+      actionsBlocked: (aa.blocked != null ? aa.blocked : r.actionsBlocked) || 0,
+      errorSummary: err ? String(err).substring(0, 100) : null
     };
   });
 
