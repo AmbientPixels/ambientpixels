@@ -24,7 +24,8 @@ const XP = {
   blog_ship: 6,
   social_ship: 2,
   doc_ship: 3,
-  task_done: 1
+  task_done: 1,
+  review_done: 1   // reviewer credit, only when the reviewed task lands (CEO-approved 2026-07-17)
 };
 const ENGAGEMENT_PER = 25;        // +1 XP per 25 engagements
 const ENGAGEMENT_XP_CAP = 8;      // cap engagement XP per post
@@ -52,7 +53,8 @@ const BASE_CLASS = {
 };
 const SPEC_SUFFIX = {
   assist: 'the Connector', engagement: 'the Amplifier', blog_ship: 'the Author',
-  proposal_approved: 'the Strategist', task_done: 'the Workhorse', social_ship: 'the Voice'
+  proposal_approved: 'the Strategist', task_done: 'the Workhorse', social_ship: 'the Voice',
+  review_done: 'the Gatekeeper'
 };
 
 const ACH_RENOWN = { bronze: 10, silver: 25, gold: 50, platinum: 100 };
@@ -119,7 +121,7 @@ function _newAgent(id) {
   return {
     xp: 0, level: 1, rank: 'Rookie', class: classFor(id, { recent: [] }), renown: 0,
     streakDays: 0, lastActiveDay: null, dailyXp: 0, dailyXpDay: null,
-    counters: { approvals: 0, blogs: 0, socialPosts: 0, docs: 0, tasksDone: 0, assists: 0, engagementTotal: 0 },
+    counters: { approvals: 0, blogs: 0, socialPosts: 0, docs: 0, tasksDone: 0, assists: 0, engagementTotal: 0, reviews: 0 },
     achievements: [], recent: []
   };
 }
@@ -157,6 +159,7 @@ function _bumpCounters(A, e) {
     case 'social_ship': A.counters.socialPosts++; break;
     case 'doc_ship': A.counters.docs++; break;
     case 'task_done': A.counters.tasksDone++; break;
+    case 'review_done': A.counters.reviews = (A.counters.reviews || 0) + 1; break;
     case 'engagement': A.counters.engagementTotal += (e.amount || 0); break;
     case 'assist': A.counters.assists++; break;
   }
@@ -318,6 +321,11 @@ function extractEvents(state, prevRewards) {
   tasks.forEach(function (t) {
     if (!t || t.status !== 'done') return;
     ev.push({ id: 'task_' + t.id, type: 'task_done', agentId: t.assignee || 'nova', at: t.completedAt || t.updatedAt || '' });
+    // Reviewer credit: review work lives in reviewer/reviewedAt (never assignee), and
+    // counts only when the reviewed task landed. Self-reviews earn nothing.
+    if (t.reviewer && t.reviewedAt && t.reviewer !== t.assignee) {
+      ev.push({ id: 'rev_' + t.id, type: 'review_done', agentId: t.reviewer, at: t.reviewedAt || t.completedAt || t.updatedAt || '' });
+    }
     var pid = t.parent_task_id || t.parentTaskId;
     if (pid && byId[pid] && byId[pid].assignee && t.assignee && byId[pid].assignee !== t.assignee) {
       ev.push({ id: 'assist_' + t.id, type: 'assist', agentId: t.assignee, at: t.completedAt || t.updatedAt || '', meta: { beneficiary: byId[pid].assignee } });

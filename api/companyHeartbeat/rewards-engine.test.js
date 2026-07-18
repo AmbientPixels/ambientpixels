@@ -162,6 +162,30 @@ test('extractEvents credits an assist when a child task was done by a different 
   assert.strictEqual(ev.meta.beneficiary, 'cipher', 'beneficiary recorded');
 });
 
+test('extractEvents credits the reviewer of a landed task (review_done)', () => {
+  const state = {
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {},
+    tasks: [
+      { id: 'tk1', status: 'done', assignee: 'scribe', reviewer: 'quill', reviewedAt: at(0), completedAt: at(0) },
+      { id: 'tk2', status: 'done', assignee: 'scribe', completedAt: at(0) },                       // no reviewer
+      { id: 'tk3', status: 'todo', assignee: 'scribe', reviewer: 'quill', reviewedAt: at(0) },     // not landed
+      { id: 'tk4', status: 'done', assignee: 'quill', reviewer: 'quill', reviewedAt: at(0) },      // self-review
+      { id: 'tk5', status: 'done', assignee: 'scribe', reviewer: 'quill', completedAt: at(0) }     // never reviewed
+    ],
+    tasksArchive: []
+  };
+  const revs = extractEvents(state, null).filter(e => e.type === 'review_done');
+  assert.strictEqual(revs.length, 1, 'only the landed, other-reviewed task counts');
+  assert.strictEqual(revs[0].id, 'rev_tk1');
+  assert.strictEqual(revs[0].agentId, 'quill');
+});
+
+test('a landed review awards 1 XP and ticks the reviews counter', () => {
+  const { rewards } = applyEvents([{ id: 'rev_tk1', type: 'review_done', agentId: 'quill', at: at(0) }], null, NOW);
+  assert.strictEqual(agent(rewards, 'quill').xp, 1);
+  assert.strictEqual(agent(rewards, 'quill').counters.reviews, 1);
+});
+
 // ── buildProgressionPromptBlock (Stage 5: the prompt nudge) ──
 test('progression block renders level, next-level, fleet rank, and outcome-only reminder', () => {
   const rewards = { perAgent: {

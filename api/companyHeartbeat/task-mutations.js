@@ -157,6 +157,14 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
                 if (_copyText) {
                   _parentSocialTask.reviewed_copy = _copyText;
                   _parentSocialTask.awaiting_copy_review = false;
+                  // Durable review credit: the approver was only recorded inside a comment
+                  // string, leaving reviewer invisible to the rewards engine (review_done)
+                  // and to the public-profile "Edits this week" stat, which both read
+                  // reviewer/reviewedAt.
+                  if (update.agentId && update.agentId !== 'system') {
+                    _parentSocialTask.reviewer = update.agentId;
+                    _parentSocialTask.reviewedAt = new Date().toISOString();
+                  }
                   _parentSocialTask.updatedAt = new Date().toISOString();
                   if (!_parentSocialTask.comments) _parentSocialTask.comments = [];
                   _parentSocialTask.comments.push({
