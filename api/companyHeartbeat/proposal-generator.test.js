@@ -449,12 +449,26 @@ test('conversion_dead does NOT fire without activity (no recent tasks, no scans)
   assert.ok(!detectSignals(st, NOW).some((s) => s.trigger === 'conversion_dead'));
 });
 
-test('conversion_dead counts AmbientScore scans (strategicDigest usage) as activity', () => {
+test('conversion_dead counts product usage (strategicDigest signal) as activity', () => {
   const st = revenueState({ tasks: [] });
   st.strategicDigest.perProduct.push({ product: 'AmbientScore', verdict: 'STABLE', usage: { signal: 9 }, traffic: { deltaPct: 0 } });
   const sig = detectSignals(st, NOW).find((s) => s.trigger === 'conversion_dead');
-  assert.ok(sig, 'scans alone should count as activity');
-  assert.strictEqual(sig.evidence.scans7d, 9);
+  assert.ok(sig, 'usage alone should count as activity');
+  assert.strictEqual(sig.evidence.usage7d, 9);
+});
+
+test('conversion_dead is product-agnostic: target derives from the objective\'s linked campaign', () => {
+  const st = revenueState({ tasks: [] });
+  st.campaigns = st.campaigns.concat([{ id: 'c-bs', status: 'active', product: 'Blindspot' }]);
+  st.objectives = baseState({}).objectives.concat([{
+    id: 'o-bs-rev', status: 'active', progress: 0, title: 'First Blindspot Sparks revenue',
+    northStarMetric: 'paying_customers', linkedCampaigns: ['c-bs']
+  }]);
+  st.strategicDigest.perProduct.push({ product: 'Blindspot', verdict: 'STABLE', usage: { signal: 40 }, traffic: { deltaPct: 0 } });
+  const sig = detectSignals(st, NOW).find((s) => s.trigger === 'conversion_dead');
+  assert.ok(sig, 'expected conversion_dead for the Blindspot revenue objective');
+  assert.strictEqual(sig.subject.product, 'Blindspot');
+  assert.strictEqual(sig.evidence.usage7d, 40);
 });
 
 // ── (2026-07-18) deadline_at_risk: criteria deadline closing at <50% progress ──

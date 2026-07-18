@@ -290,10 +290,24 @@ function _salesInWindow(revenueLedger, days, nowMs) {
     return Number.isFinite(ts) && ts >= cutoff;
   }).length;
 }
-function _scoreScans7d(perProduct) {
-  var as = (perProduct || []).filter(function (p) { return p && String(p.product || '') === 'AmbientScore'; })[0];
-  var sig = as && as.usage && as.usage.signal;
+function _productUsageSignal(perProduct, product) {
+  var row = (perProduct || []).filter(function (p) { return p && String(p.product || '') === String(product || ''); })[0];
+  var sig = row && row.usage && row.usage.signal;
   return Number.isFinite(Number(sig)) ? Number(sig) : 0;
+}
+// The trigger is product-agnostic: the target is whatever product the revenue
+// objective's linked campaigns point at. AmbientScore is only the fallback for a
+// revenue objective with no product-linked campaign (it is the one product with
+// a live checkout today).
+function _revenueObjectiveProduct(objective, campaigns) {
+  var linked = (objective && (_arr(objective.linkedCampaigns) || _arr(objective.linkedDirectives))) || [];
+  var byId = {};
+  (_arr(campaigns) || []).forEach(function (c) { if (c && c.id) byId[c.id] = c; });
+  for (var i = 0; i < linked.length; i++) {
+    var c = byId[linked[i]];
+    if (c && c.product) return c.product;
+  }
+  return null;
 }
 
 // Deadline-at-risk: an active objective with a real criteria deadline is running
@@ -391,21 +405,22 @@ function detectSignals(state, nowMs) {
   var _allObjectives = _arr(state.objectives);
   var revObjectives = _allObjectives ? _activeOf(_allObjectives).filter(_isRevenueObjective) : [];
   if (revObjectives.length) {
+    var targetProduct = _revenueObjectiveProduct(revObjectives[0], state.campaigns) || 'AmbientScore';
     var leads7 = _leadsInWindow(state.asLeads, 7, nowMs);
     var sales7 = _salesInWindow(state.revenueLedger, 7, nowMs);
-    var scans7 = _scoreScans7d(perProduct);
+    var usage7 = _productUsageSignal(perProduct, targetProduct);
     var doneTasks7 = tasks.filter(function (t) {
       if (!t || t.status !== 'done') return false;
       var ts = Date.parse(t.updatedAt || t.completedAt || t.createdAt || '');
       return Number.isFinite(ts) && ts >= nowMs - 7 * 86400000;
     }).length;
-    var activityFlowing = scans7 > 0 || doneTasks7 >= 3;
+    var activityFlowing = usage7 > 0 || doneTasks7 >= 3;
     if (activityFlowing && leads7 === 0 && sales7 === 0) {
       signals.push({
         kind: 'campaign', trigger: 'conversion_dead', severity: 4,
-        subject: { product: 'AmbientScore', objectiveId: revObjectives[0].id },
+        subject: { product: targetProduct, objectiveId: revObjectives[0].id },
         evidence: {
-          leads7d: 0, sales7d: 0, scans7d: scans7, doneTasks7d: doneTasks7,
+          leads7d: 0, sales7d: 0, usage7d: usage7, doneTasks7d: doneTasks7,
           objective: String(revObjectives[0].title || '').substring(0, 80)
         }
       });
@@ -436,7 +451,7 @@ function _deterministicFromSignal(signal, state, nowMs) {
   if (signal.kind === 'campaign') {
     if (signal.trigger === 'conversion_dead') {
       var cdReasons = ['conversion dead-zone on "' + (signal.evidence.objective || 'revenue objective') + '": ' +
-        (signal.evidence.scans7d || 0) + ' scans and ' + (signal.evidence.doneTasks7d || 0) +
+        (signal.evidence.usage7d || 0) + ' product usage events and ' + (signal.evidence.doneTasks7d || 0) +
         ' shipped tasks in 7d but 0 leads and 0 sales — fix the conversion step (lead capture, distribution, offer test), not content volume'];
       return _buildCampaignProposal(cdReasons, [{ product: signal.subject.product || 'AmbientScore' }], sas, nowMs);
     }
