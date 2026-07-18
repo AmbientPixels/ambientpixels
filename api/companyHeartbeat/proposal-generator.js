@@ -221,7 +221,8 @@ function _buildObjectiveProposal(reasons, primaryReason, socialAccountStats, now
   var titleByReason = {
     count: 'Establish a measurable growth objective',
     complete: 'Define the successor goal for a near-complete objective',
-    stale: 'Re-activate strategy around a stalled objective'
+    stale: 'Re-activate strategy around a stalled objective',
+    deadline: 'Rescue or replace an at-risk objective before its deadline'
   };
   var followers = _blueskyFollowers(socialAccountStats);
   // Mint a MEASURABLE objective whenever we have a live metric to anchor it. The
@@ -257,6 +258,60 @@ function _buildObjectiveProposal(reasons, primaryReason, socialAccountStats, now
     strategyFlag: followers != null ? null : 'no-north-star-metric',
     createdAt: iso
   };
+}
+
+// ── Conversion dead-zone helpers ───────────────────────────────────────────────
+// A revenue-focused objective is live and activity is flowing (scans / shipped
+// tasks), but the funnel produced ZERO leads and ZERO sales in the window. That is
+// the strongest propose-worthy gap the company has: the fix is a conversion play
+// (lead capture, distribution, offer test) — not more content volume.
+function _isRevenueObjective(o) {
+  if (!o) return false;
+  var ns = String(o.northStarMetric || (o.criteria && o.criteria.northStarMetric) || '').toLowerCase();
+  if (ns === 'paying_customers' || ns === 'mrr' || ns === 'revenue') return true;
+  return /paying customer|first sale|revenue|mrr/i.test(String(o.title || ''));
+}
+function _tsOf(e) {
+  return Date.parse((e && (e.at || e.timestamp || e.createdAt || e.created_at || e.ts)) || '');
+}
+function _leadsInWindow(asLeads, days, nowMs) {
+  var cutoff = nowMs - days * 86400000;
+  return (_arr(asLeads) || []).filter(function (e) {
+    var ts = _tsOf(e);
+    return Number.isFinite(ts) && ts >= cutoff;
+  }).length;
+}
+function _salesInWindow(revenueLedger, days, nowMs) {
+  // revenueLedger blob is { entries: [...], updatedAt } — NOT a bare array.
+  var entries = (revenueLedger && _arr(revenueLedger.entries)) || _arr(revenueLedger) || [];
+  var cutoff = nowMs - days * 86400000;
+  return entries.filter(function (e) {
+    var ts = _tsOf(e);
+    return Number.isFinite(ts) && ts >= cutoff;
+  }).length;
+}
+function _scoreScans7d(perProduct) {
+  var as = (perProduct || []).filter(function (p) { return p && String(p.product || '') === 'AmbientScore'; })[0];
+  var sig = as && as.usage && as.usage.signal;
+  return Number.isFinite(Number(sig)) ? Number(sig) : 0;
+}
+
+// Deadline-at-risk: an active objective with a real criteria deadline is running
+// out of window (≤25% of its span or ≤7d left) at under 50% progress. The metric
+// machinery measures honestly (a 0.5% objective reads 0%) — this is the sensor
+// that turns "quietly missing the deadline" into a successor/rescue proposal.
+function _isDeadlineAtRisk(o, nowMs) {
+  if (!o || !o.criteria) return false;
+  var deadline = Date.parse(o.criteria.by || o.criteria.deadline || '');
+  if (!Number.isFinite(deadline)) return false;
+  var start = Date.parse(o.criteria.baselineStampedAt || o.createdAt || '');
+  if (!Number.isFinite(start) || start >= deadline) return false;
+  var progress = Number(o.progressPercentage != null ? o.progressPercentage : o.progress) || 0;
+  if (progress >= 50) return false;
+  var left = deadline - nowMs;
+  if (left <= 0) return true; // past due and still active
+  var total = deadline - start;
+  return left <= total * 0.25 || left <= 7 * 86400000;
 }
 
 // ── Pure detection ─────────────────────────────────────────────────────────────
@@ -316,6 +371,45 @@ function detectSignals(state, nowMs) {
         evidence: { staleDays: STALE_DAYS, count: stale.length }
       });
     }
+    var atRisk = activeObjectives.filter(function (o) { return _isDeadlineAtRisk(o, nowMs); });
+    if (atRisk.length) {
+      var ar0 = atRisk[0];
+      signals.push({
+        kind: 'objective', trigger: 'deadline_at_risk', severity: 3,
+        subject: { objectiveId: ar0.id, objectiveTitle: ar0.title || '' },
+        evidence: {
+          deadline: (ar0.criteria && (ar0.criteria.by || ar0.criteria.deadline)) || null,
+          progressPct: Number(ar0.progressPercentage != null ? ar0.progressPercentage : ar0.progress) || 0,
+          daysLeft: Math.max(0, Math.round((Date.parse((ar0.criteria && (ar0.criteria.by || ar0.criteria.deadline)) || '') - nowMs) / 86400000)),
+          count: atRisk.length
+        }
+      });
+    }
+  }
+
+  // Conversion dead-zone (severity 4 — outranks every content-coverage trigger).
+  var _allObjectives = _arr(state.objectives);
+  var revObjectives = _allObjectives ? _activeOf(_allObjectives).filter(_isRevenueObjective) : [];
+  if (revObjectives.length) {
+    var leads7 = _leadsInWindow(state.asLeads, 7, nowMs);
+    var sales7 = _salesInWindow(state.revenueLedger, 7, nowMs);
+    var scans7 = _scoreScans7d(perProduct);
+    var doneTasks7 = tasks.filter(function (t) {
+      if (!t || t.status !== 'done') return false;
+      var ts = Date.parse(t.updatedAt || t.completedAt || t.createdAt || '');
+      return Number.isFinite(ts) && ts >= nowMs - 7 * 86400000;
+    }).length;
+    var activityFlowing = scans7 > 0 || doneTasks7 >= 3;
+    if (activityFlowing && leads7 === 0 && sales7 === 0) {
+      signals.push({
+        kind: 'campaign', trigger: 'conversion_dead', severity: 4,
+        subject: { product: 'AmbientScore', objectiveId: revObjectives[0].id },
+        evidence: {
+          leads7d: 0, sales7d: 0, scans7d: scans7, doneTasks7d: doneTasks7,
+          objective: String(revObjectives[0].title || '').substring(0, 80)
+        }
+      });
+    }
   }
 
   signals.sort(function (a, b) { return b.severity - a.severity; });
@@ -340,6 +434,12 @@ function _pickTopPerType(signals, queue, nowMs) {
 function _deterministicFromSignal(signal, state, nowMs) {
   var sas = state.socialAccountStats || {};
   if (signal.kind === 'campaign') {
+    if (signal.trigger === 'conversion_dead') {
+      var cdReasons = ['conversion dead-zone on "' + (signal.evidence.objective || 'revenue objective') + '": ' +
+        (signal.evidence.scans7d || 0) + ' scans and ' + (signal.evidence.doneTasks7d || 0) +
+        ' shipped tasks in 7d but 0 leads and 0 sales — fix the conversion step (lead capture, distribution, offer test), not content volume'];
+      return _buildCampaignProposal(cdReasons, [{ product: signal.subject.product || 'AmbientScore' }], sas, nowMs);
+    }
     if (signal.trigger === 'declining_uncovered') {
       var dps = signal.evidence.decliningProducts || [];
       var f = dps[0];
@@ -352,10 +452,18 @@ function _deterministicFromSignal(signal, state, nowMs) {
     var stagTargets = (signal.evidence.products || []).map(function (p) { return { product: p }; });
     return _buildCampaignProposal(stagReasons, stagTargets, sas, nowMs);
   }
-  var primary = signal.trigger === 'near_complete' ? 'complete' : 'stale';
-  var oReasons = signal.trigger === 'near_complete'
-    ? [signal.evidence.count + ' active objective(s) >= ' + OBJECTIVE_COMPLETE_PCT + '% complete (successor needed)']
-    : [signal.evidence.count + ' active objective(s) stale (no campaign/task activity in ' + STALE_DAYS + 'd)'];
+  var primary = signal.trigger === 'near_complete' ? 'complete'
+    : signal.trigger === 'deadline_at_risk' ? 'deadline' : 'stale';
+  var oReasons;
+  if (signal.trigger === 'near_complete') {
+    oReasons = [signal.evidence.count + ' active objective(s) >= ' + OBJECTIVE_COMPLETE_PCT + '% complete (successor needed)'];
+  } else if (signal.trigger === 'deadline_at_risk') {
+    oReasons = ['"' + (signal.subject.objectiveTitle || signal.subject.objectiveId) + '" is at ' +
+      signal.evidence.progressPct + '% with ' + signal.evidence.daysLeft + 'd to its ' +
+      (signal.evidence.deadline || '?') + ' deadline — decide the rescue play or the successor now, not after the miss'];
+  } else {
+    oReasons = [signal.evidence.count + ' active objective(s) stale (no campaign/task activity in ' + STALE_DAYS + 'd)'];
+  }
   return _buildObjectiveProposal(oReasons, primary, sas, nowMs);
 }
 
@@ -411,7 +519,8 @@ async function runProposalGenerator(opts) {
       storage.getState('approvalQueue').then(function (v) { return v || []; }),
       storage.getState('runtimeMemory').then(function (v) { return v || {}; }),
       storage.getState('socialAccountStats').then(function (v) { return v || {}; }),
-      storage.getState('revenueLedger').then(function (v) { return v || []; })
+      storage.getState('revenueLedger').then(function (v) { return v || []; }),
+      storage.getState('as_leads').then(function (v) { return v || []; }).catch(function () { return []; })
     ]);
     var productNames = [];
     try { productNames = Object.keys(require('../_data/product-facts.json').products || {}); }
@@ -425,6 +534,7 @@ async function runProposalGenerator(opts) {
       strategicDigest: (loaded[4] && loaded[4].strategicDigest) || null,
       socialAccountStats: loaded[5],
       revenueLedger: loaded[6],
+      asLeads: loaded[7],
       productNames: productNames
     };
 

@@ -53,6 +53,70 @@ function _verdict(trafficDeltaPct, usageDeltaPct, hasTrafficSignal, hasUsageSign
   return 'STABLE';
 }
 
+// Real product-page traffic: App Insights topPages entries mapped to products by
+// path prefix. cleanUrl from the KQL can be a full URL — strip the origin first.
+var PRODUCT_PATH_PREFIXES = {
+  '/ambientos': 'AmbientOS',
+  '/ambientscore': 'AmbientScore',
+  '/blindspot': 'Blindspot',
+  '/cardforge': 'CardForge',
+  '/pixel-agents': 'PixelAgents',
+  '/agent-forge': 'PixelAgents',
+  '/storyforge': 'StoryForge'
+};
+function _pageViewsByProduct(topPages) {
+  var out = {};
+  PRODUCTS.forEach(function (p) { out[p] = 0; });
+  (Array.isArray(topPages) ? topPages : []).forEach(function (pg) {
+    if (!pg || typeof pg.path !== 'string') return;
+    var path = pg.path.toLowerCase().replace(/^https?:\/\/[^\/]+/i, '');
+    Object.keys(PRODUCT_PATH_PREFIXES).forEach(function (prefix) {
+      if (path === prefix || path.indexOf(prefix + '/') === 0 || path.indexOf(prefix + '.') === 0) {
+        out[PRODUCT_PATH_PREFIXES[prefix]] += (Number(pg.views) || 0);
+      }
+    });
+  });
+  return out;
+}
+
+// WoW usage delta: compare today's usage signal against the snapshot closest to
+// 7 days back (6-9d tolerance). No usable baseline → 0 (reads as STABLE, never
+// DECLINING from missing data).
+function _usageDeltaFromSnapshots(snapshots, prod, current, nowMs) {
+  if (current == null) return 0;
+  var target = nowMs - 7 * 86400000;
+  var best = null, bestDist = Infinity;
+  (Array.isArray(snapshots) ? snapshots : []).forEach(function (s) {
+    if (!s || !s.at || !s.perProduct) return;
+    var ts = Date.parse(s.at);
+    if (!Number.isFinite(ts)) return;
+    var age = nowMs - ts;
+    if (age < 6 * 86400000 || age > 9 * 86400000) return;
+    var dist = Math.abs(ts - target);
+    if (dist < bestDist) { bestDist = dist; best = s; }
+  });
+  if (!best) return 0;
+  var prev = Number(best.perProduct[prod]);
+  if (!Number.isFinite(prev)) return 0;
+  if (prev <= 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - prev) / prev) * 100);
+}
+
+// Daily snapshot ring (max 1/day, last 15 days) carried inside the digest itself so
+// the existingDigest passthrough persists it — resolves the old "TODO: could track
+// usage WoW if historical productUsage snapshots existed".
+function _appendUsageSnapshot(snapshots, perProduct, nowMs) {
+  var ring = Array.isArray(snapshots) ? snapshots.slice() : [];
+  var today = new Date(nowMs).toISOString().slice(0, 10);
+  var has = ring.some(function (s) { return s && s.at && String(s.at).slice(0, 10) === today; });
+  if (!has) {
+    var pp = {};
+    perProduct.forEach(function (p) { if (p.usage.signal != null) pp[p.product] = p.usage.signal; });
+    ring.push({ at: new Date(nowMs).toISOString(), perProduct: pp });
+  }
+  return ring.slice(-15);
+}
+
 function buildStrategicDigest(state, existingDigest, nowMs) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
 
@@ -191,6 +255,11 @@ function buildStrategicDigest(state, existingDigest, nowMs) {
       : (pt.views7d > 0 ? 100 : 0);
   });
 
+  // ── Per-product: REAL page traffic (App Insights topPages, 7d) ──
+  var pageViewsByProduct = _pageViewsByProduct(state.siteTopPages);
+  var _prevUsageSnapshots = (existingDigest && Array.isArray(existingDigest.usageSnapshots))
+    ? existingDigest.usageSnapshots : [];
+
   // ── Assemble per-product rows ──
   var perProduct = PRODUCTS.map(function (prod) {
     // Usage
@@ -233,9 +302,18 @@ function buildStrategicDigest(state, existingDigest, nowMs) {
     var traf = productTraffic[prod];
     var hasTraffic = traf.views7d > 0 || traf.viewsPrior7d > 0;
 
+    // Real product-page traffic as usage-grade signal for products with no
+    // dedicated usage feed (AmbientOS, Blindspot) — a product people are visiting
+    // is not NO DATA.
+    var pageViews7d = pageViewsByProduct[prod] || 0;
+    if (usageSignal == null && pageViews7d > 0) {
+      usageSignal = pageViews7d;
+      usageLabel = pageViews7d + ' page views';
+    }
+
     // Verdict
     var hasUsage = usageSignal != null;
-    var usageDelta = 0; // TODO: could track usage WoW if historical productUsage snapshots existed
+    var usageDelta = _usageDeltaFromSnapshots(_prevUsageSnapshots, prod, usageSignal, now);
     var verdict = _verdict(traf.deltaPct, usageDelta, hasTraffic, hasUsage, traf.views7d + traf.viewsPrior7d);
 
     // Product age — load launchedAt from productFacts. Used by downstream
@@ -261,10 +339,12 @@ function buildStrategicDigest(state, existingDigest, nowMs) {
       cost: { attributedWeekly: attribCost, approximate: true },
       engagement: { posts7d: eng.posts7d, score: engScore, label: engLabel },
       research: { activeCount: res.activeCount, daysSinceNewest: res.daysSinceNewest, latestFinding: res.latestFinding },
-      traffic: { views7d: traf.views7d, viewsPrior7d: traf.viewsPrior7d, deltaPct: traf.deltaPct, hasData: hasTraffic },
+      traffic: { views7d: traf.views7d, viewsPrior7d: traf.viewsPrior7d, deltaPct: traf.deltaPct, hasData: hasTraffic, pageViews7d: pageViews7d },
       verdict: verdict
     };
   });
+
+  var usageSnapshots = _appendUsageSnapshot(_prevUsageSnapshots, perProduct, now);
 
   // ── Strategic signals — derive 2-5 cross-cutting observations ──
   var strategicSignals = [];
@@ -298,7 +378,8 @@ function buildStrategicDigest(state, existingDigest, nowMs) {
     perProduct: perProduct,
     topGrowing: topGrowing,
     topDeclining: topDeclining,
-    strategicSignals: strategicSignals
+    strategicSignals: strategicSignals,
+    usageSnapshots: usageSnapshots
   };
 }
 
@@ -319,7 +400,7 @@ function _buildStrategicPromptBlock(agent, digest) {
       ('$' + (p.cost.attributedWeekly || 0).toFixed(2)).padEnd(13),
       (p.engagement.label || '0 posts').padEnd(10),
       (p.research.activeCount + ' active' + (p.research.daysSinceNewest != null ? ' (' + p.research.daysSinceNewest + 'd)' : '')).padEnd(13),
-      (p.traffic.hasData ? (p.traffic.views7d + ' views (' + (p.traffic.deltaPct >= 0 ? '+' : '') + p.traffic.deltaPct + '%)') : 'no data').padEnd(14),
+      (p.traffic.hasData ? (p.traffic.views7d + ' views (' + (p.traffic.deltaPct >= 0 ? '+' : '') + p.traffic.deltaPct + '%)') : (p.traffic.pageViews7d > 0 ? p.traffic.pageViews7d + ' page views' : 'no data')).padEnd(14),
       p.verdict
     ];
     lines.push(row.join(' | '));
@@ -345,5 +426,8 @@ module.exports = {
   _verdict: _verdict,
   MIN_TRAFFIC_VOLUME: MIN_TRAFFIC_VOLUME,
   PRODUCTS: PRODUCTS,
-  _canonicalProduct: _canonicalProduct
+  _canonicalProduct: _canonicalProduct,
+  _pageViewsByProduct: _pageViewsByProduct,
+  _usageDeltaFromSnapshots: _usageDeltaFromSnapshots,
+  _appendUsageSnapshot: _appendUsageSnapshot
 };

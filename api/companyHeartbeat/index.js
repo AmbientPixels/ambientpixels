@@ -238,6 +238,24 @@ module.exports = async function (context) {
         try { await storage.setState('socialWeeklySnapshots', _weeklySnapshots); } catch (_e) { context.log('[heartbeat] Failed to save weekly snapshot:', _e.message); }
       }
     }
+    // Fetch site intelligence: real telemetry, social metrics, deployment config.
+    // Moved up from ~line 936: buildForgeOpsDigest below references siteIntel, and a
+    // `let` declared after that reference is a TDZ ReferenceError — the ops digest
+    // was silently failing (caught non-fatal) on every cycle, which also meant
+    // stall-alert logging never ran. Same repair idiom as the early-loads above.
+    let siteIntel = null;
+    try {
+      siteIntel = await _fetchSiteIntel(context, storage);
+      const _siParts = [];
+      if (siteIntel.telemetry) _siParts.push('telemetry');
+      if (siteIntel.socialMetrics) _siParts.push('social');
+      if (siteIntel.deployConfig) _siParts.push('deploy');
+      if (_siParts.length > 0) context.log('[Heartbeat] Site intel loaded:', _siParts.join(', '));
+    } catch (siErr) {
+      context.log('[Heartbeat] Site intel fetch failed (non-fatal):', siErr.message);
+      siteIntel = null;
+    }
+
     // Build agent performance digest (AutoResearch feedback loop)
     const _existingPerf = (runtimeMemory && runtimeMemory.agentPerformance) || null;
     let _perfHeartbeatRuns = [], _perfGeminiUsage = [], _perfGovernanceLog = [], _perfBlogPostViews = [];
@@ -304,6 +322,55 @@ module.exports = async function (context) {
     // it sees the empty module-scope init and writes lastReflectionAt:null for every
     // agent every cycle. Original load lived ~500 lines below this block.
     try { _agentMemoryStore = (await storage.getState('agentMemories')) || {}; } catch (_amErrEarly) { /* non-fatal */ }
+
+    // ── Product usage data (Cipher CFO + Nova strategic digest) — piggybacked on costIntel ──
+    // Moved up from ~line 949: it previously ran AFTER buildStrategicDigest, so the
+    // strategic per-product usage signal was permanently undefined → every product
+    // read NO DATA and the proposal generator's declining_uncovered trigger could
+    // never arm. Requires siteIntel (fetched above) + costIntel (loaded above).
+    try {
+      const [_paStats, _ccAnalytics] = await Promise.all([
+        storage.getState('pixelAgentStats'),
+        storage.getState('cc_analytics')
+      ]);
+      const _pa = _paStats || {};
+      const _cc = Array.isArray(_ccAnalytics) ? _ccAnalytics : [];
+      const _7dCutoff = Date.now() - 7 * 86400000;
+      const _cc7d = _cc.filter(e => e.timestamp && new Date(e.timestamp).getTime() > _7dCutoff);
+      const _topPages = (siteIntel && siteIntel.telemetry && siteIntel.telemetry.topPages) || [];
+      const _cfViews = _topPages.filter(p => p.path && p.path.indexOf('/cardforge') === 0).reduce((s, p) => s + (p.views || 0), 0);
+      const _sfViews = _topPages.filter(p => p.path && p.path.indexOf('/storyforge') === 0).reduce((s, p) => s + (p.views || 0), 0);
+      if (!costIntel) costIntel = {};
+      costIntel.productUsage = {
+        pixelAgents: { totalRuns: _pa._totalRuns || 0 },
+        ambientScore: { totalScans: _cc.length, scans7d: _cc7d.length, paid7d: _cc7d.filter(e => e.tier && e.tier !== 'free').length },
+        cardForge: { pageViews7d: _cfViews },
+        storyForge: { pageViews7d: _sfViews }
+      };
+      // Conversion funnel (Echo's primary KPI surface): scans → leads → sales.
+      // Follower counts measure reach; this measures the business.
+      try {
+        const [_asLeads, _revLedger] = await Promise.all([
+          storage.getState('as_leads').then(v => v || []).catch(() => []),
+          Promise.resolve().then(() => getRevenueLedger()).catch(() => null)
+        ]);
+        const _revEntries = (_revLedger && Array.isArray(_revLedger.entries)) ? _revLedger.entries
+          : (Array.isArray(_revLedger) ? _revLedger : []);
+        const _leadTs = (e) => new Date((e && (e.at || e.timestamp || e.createdAt || e.created_at)) || 0).getTime();
+        costIntel.funnel = {
+          scans7d: _cc7d.length,
+          scansTotal: _cc.length,
+          leads7d: (Array.isArray(_asLeads) ? _asLeads : []).filter(e => _leadTs(e) > _7dCutoff).length,
+          leadsTotal: Array.isArray(_asLeads) ? _asLeads.length : 0,
+          sales7d: _revEntries.filter(e => _leadTs(e) > _7dCutoff).length,
+          salesTotal: _revEntries.length
+        };
+      } catch (_fnErr) {
+        context.log('[Heartbeat] Funnel compute failed (non-fatal):', _fnErr.message);
+      }
+    } catch (_puErr) {
+      context.log('[Heartbeat] Product usage fetch failed (non-fatal):', _puErr.message);
+    }
 
     // Cipher financial intelligence digest (uses already-loaded data)
     // Outcome Attribution digest (Phase 3): per-agent / per-experiment / per-hook / per-campaign
@@ -431,7 +498,8 @@ module.exports = async function (context) {
         blogPosts: _publishedBlogPostsForDigest,
         engagementSnapshots: socialEngagementSnapshots,
         costIntel: costIntel,
-        productFacts: productFacts
+        productFacts: productFacts,
+        siteTopPages: (siteIntel && siteIntel.telemetry && siteIntel.telemetry.topPages) || []
       }, _existingStrategic, Date.now());
       if (strategicDigest) runtimeMemory.strategicDigest = strategicDigest;
     } catch (_e) { context.log('[heartbeat] Strategic digest failed:', _e.message, _e.stack ? _e.stack.split('\n').slice(0, 3).join(' | ') : ''); }
@@ -932,43 +1000,10 @@ module.exports = async function (context) {
     };
     // costIntel already loaded early (above digest block) to avoid TDZ.
 
-    // Fetch site intelligence: real telemetry, social metrics, deployment config
-    let siteIntel = null;
-    try {
-      siteIntel = await _fetchSiteIntel(context, storage);
-      const _siParts = [];
-      if (siteIntel.telemetry) _siParts.push('telemetry');
-      if (siteIntel.socialMetrics) _siParts.push('social');
-      if (siteIntel.deployConfig) _siParts.push('deploy');
-      if (_siParts.length > 0) context.log('[Heartbeat] Site intel loaded:', _siParts.join(', '));
-    } catch (siErr) {
-      context.log('[Heartbeat] Site intel fetch failed (non-fatal):', siErr.message);
-      siteIntel = null;
-    }
-
-    // ── Product usage data for Cipher (CFO) — piggybacked on costIntel ──
-    try {
-      const [_paStats, _ccAnalytics] = await Promise.all([
-        storage.getState('pixelAgentStats'),
-        storage.getState('cc_analytics')
-      ]);
-      const _pa = _paStats || {};
-      const _cc = Array.isArray(_ccAnalytics) ? _ccAnalytics : [];
-      const _7dCutoff = Date.now() - 7 * 86400000;
-      const _cc7d = _cc.filter(e => e.timestamp && new Date(e.timestamp).getTime() > _7dCutoff);
-      const _topPages = (siteIntel && siteIntel.telemetry && siteIntel.telemetry.topPages) || [];
-      const _cfViews = _topPages.filter(p => p.path && p.path.indexOf('/cardforge') === 0).reduce((s, p) => s + (p.views || 0), 0);
-      const _sfViews = _topPages.filter(p => p.path && p.path.indexOf('/storyforge') === 0).reduce((s, p) => s + (p.views || 0), 0);
-      if (!costIntel) costIntel = {};
-      costIntel.productUsage = {
-        pixelAgents: { totalRuns: _pa._totalRuns || 0 },
-        ambientScore: { totalScans: _cc.length, scans7d: _cc7d.length, paid7d: _cc7d.filter(e => e.tier && e.tier !== 'free').length },
-        cardForge: { pageViews7d: _cfViews },
-        storyForge: { pageViews7d: _sfViews }
-      };
-    } catch (_puErr) {
-      context.log('[Heartbeat] Product usage fetch failed (non-fatal):', _puErr.message);
-    }
+    // (siteIntel fetch + productUsage attach moved earlier — see the block above the
+    // performance digest and the block after the early cost load. They lived here,
+    // AFTER every intel digest was already built, so strategicDigest never saw
+    // productUsage and forgeOpsDigest hit a TDZ on siteIntel.)
 
     // v2.3: Exclude pending-approval items from heartbeat processing
     const pendingTasks = tasks.filter(t => t.status === 'pending-approval');

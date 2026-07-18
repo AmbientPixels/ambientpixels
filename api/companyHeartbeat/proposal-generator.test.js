@@ -407,5 +407,120 @@ test('detectSignals emits stale_objective for a substantive stalled objective (p
   assert.strictEqual(sig.subject.objectiveId, 'o3');
 });
 
+// ── (2026-07-18) conversion_dead: revenue objective + activity, zero conversions ──
+const { computeProposals: computeProposalsCD } = require('./proposal-generator');
+
+function revenueState(overrides) {
+  const st = baseState({});
+  st.objectives = st.objectives.concat([{ id: 'o-rev', status: 'active', progress: 0, title: 'First Paying Customer — AmbientScore Launch' }]);
+  st.asLeads = [];
+  st.revenueLedger = { entries: [], updatedAt: daysAgo(0) };
+  return Object.assign(st, overrides || {});
+}
+
+test('conversion_dead fires: revenue objective + shipped tasks, 0 leads 0 sales', () => {
+  const sigs = detectSignals(revenueState({}), NOW);
+  const sig = sigs.find((s) => s.trigger === 'conversion_dead');
+  assert.ok(sig, 'expected conversion_dead signal');
+  assert.strictEqual(sig.severity, 4);
+  assert.strictEqual(sig.kind, 'campaign');
+  assert.strictEqual(sig.subject.product, 'AmbientScore');
+  assert.strictEqual(sigs[0].trigger, 'conversion_dead', 'severity 4 must sort first');
+});
+
+test('conversion_dead detects the objective via northStarMetric, not just title', () => {
+  const st = revenueState({});
+  st.objectives = baseState({}).objectives.concat([{ id: 'o-ns', status: 'active', progress: 0, title: 'Q3 push', northStarMetric: 'paying_customers' }]);
+  assert.ok(detectSignals(st, NOW).some((s) => s.trigger === 'conversion_dead'));
+});
+
+test('conversion_dead does NOT fire when a lead landed in the window', () => {
+  const st = revenueState({ asLeads: [{ email: 'x@y.z', at: daysAgo(2) }] });
+  assert.ok(!detectSignals(st, NOW).some((s) => s.trigger === 'conversion_dead'));
+});
+
+test('conversion_dead does NOT fire when a sale landed ({entries} ledger shape)', () => {
+  const st = revenueState({ revenueLedger: { entries: [{ at: daysAgo(1), amountCents: 2900 }] } });
+  assert.ok(!detectSignals(st, NOW).some((s) => s.trigger === 'conversion_dead'));
+});
+
+test('conversion_dead does NOT fire without activity (no recent tasks, no scans)', () => {
+  const st = revenueState({ tasks: [] });
+  assert.ok(!detectSignals(st, NOW).some((s) => s.trigger === 'conversion_dead'));
+});
+
+test('conversion_dead counts AmbientScore scans (strategicDigest usage) as activity', () => {
+  const st = revenueState({ tasks: [] });
+  st.strategicDigest.perProduct.push({ product: 'AmbientScore', verdict: 'STABLE', usage: { signal: 9 }, traffic: { deltaPct: 0 } });
+  const sig = detectSignals(st, NOW).find((s) => s.trigger === 'conversion_dead');
+  assert.ok(sig, 'scans alone should count as activity');
+  assert.strictEqual(sig.evidence.scans7d, 9);
+});
+
+// ── (2026-07-18) deadline_at_risk: criteria deadline closing at <50% progress ──
+
+function atRiskObjective(overrides) {
+  return Object.assign({
+    id: 'o-risk', status: 'active', title: 'First Paying Customer',
+    progress: 0, progressPercentage: 0,
+    createdAt: daysAgo(20),
+    criteria: { metric: 'paying_customers', target: 1, baseline: 0, by: new Date(NOW + 5 * 86400000).toISOString().slice(0, 10), baselineStampedAt: daysAgo(20) }
+  }, overrides || {});
+}
+
+test('deadline_at_risk fires: 5d left of a 25d window at 0%', () => {
+  const st = baseState({ objectives: baseState({}).objectives.concat([atRiskObjective({})]) });
+  const sig = detectSignals(st, NOW).find((s) => s.trigger === 'deadline_at_risk');
+  assert.ok(sig, 'expected deadline_at_risk');
+  assert.strictEqual(sig.subject.objectiveId, 'o-risk');
+  assert.strictEqual(sig.evidence.daysLeft, 5);
+});
+
+test('deadline_at_risk does NOT fire at >=50% progress or with plenty of runway', () => {
+  const okProgress = baseState({ objectives: [atRiskObjective({ progress: 60, progressPercentage: 60 })] });
+  assert.ok(!detectSignals(okProgress, NOW).some((s) => s.trigger === 'deadline_at_risk'));
+  const plentyLeft = baseState({
+    objectives: [atRiskObjective({
+      createdAt: daysAgo(5),
+      criteria: { metric: 'x', target: 10, baseline: 0, by: new Date(NOW + 55 * 86400000).toISOString().slice(0, 10), baselineStampedAt: daysAgo(5) }
+    })]
+  });
+  assert.ok(!detectSignals(plentyLeft, NOW).some((s) => s.trigger === 'deadline_at_risk'));
+});
+
+test('deadline_at_risk does NOT fire without a criteria object', () => {
+  const st = baseState({ objectives: [atRiskObjective({ criteria: undefined })] });
+  assert.ok(!detectSignals(st, NOW).some((s) => s.trigger === 'deadline_at_risk'));
+});
+
+test('deadline_at_risk past-due objective still fires', () => {
+  const st = baseState({
+    objectives: [atRiskObjective({
+      criteria: { metric: 'x', target: 1, baseline: 0, by: new Date(NOW - 2 * 86400000).toISOString().slice(0, 10), baselineStampedAt: daysAgo(30) }
+    })]
+  });
+  const sig = detectSignals(st, NOW).find((s) => s.trigger === 'deadline_at_risk');
+  assert.ok(sig);
+  assert.strictEqual(sig.evidence.daysLeft, 0);
+});
+
+test('deadline_at_risk deterministic fallback mints the rescue objective proposal', () => {
+  const st = baseState({ objectives: baseState({}).objectives.concat([atRiskObjective({})]) });
+  const props = computeProposalsCD(st, NOW);
+  const op = props.find((p) => p.type === 'objective_proposal');
+  assert.ok(op, 'expected an objective proposal');
+  assert.ok(/Rescue or replace/.test(op.title), 'title from the deadline reason');
+  assert.ok(/rescue play or the successor/.test(op.rationale));
+});
+
+test('conversion_dead deterministic fallback builds a conversion-focused campaign proposal', () => {
+  const props = computeProposalsCD(revenueState({}), NOW);
+  const cp = props.find((p) => p.type === 'campaign_proposal');
+  assert.ok(cp, 'expected a campaign proposal');
+  assert.strictEqual(cp.product, 'AmbientScore');
+  assert.ok(/conversion dead-zone/.test(cp.rationale), 'rationale cites the dead-zone');
+  assert.ok(/0 leads and 0 sales/.test(cp.rationale), 'rationale cites the zeroes');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
