@@ -162,31 +162,20 @@
   flex-shrink: 0;
 }
 
-/* ---- Hero live band (lifted from § 02 into the hero) -------- */
+/* ---- § 02 live band (status row + memory + injected XP) ----- */
 
-.agent-hero-live {
-  margin-top: var(--sp-8);
-  padding-top: var(--sp-5);
-  border-top: 1px solid var(--color-border);
+.agent-live-body {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-5);
+  gap: var(--sp-6);
+  max-width: var(--max-prose);
 }
 
-.agent-hero-live-row {
+.agent-live-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-4);
-}
-
-.agent-hero-live-asof {
-  font-family: var(--font-mono);
-  font-size: var(--fs-mono-xs);
-  letter-spacing: var(--tracking-mono-md);
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-  margin-left: auto;
 }
 
 .agent-status-pill {

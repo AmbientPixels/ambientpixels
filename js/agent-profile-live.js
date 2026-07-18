@@ -122,8 +122,9 @@
           prog.appendChild(badges);
         }
 
+        // Place above the memory inside .agent-live-body so the column gap spaces it.
         const mem = document.getElementById('agent-memory');
-        if (mem && mem.parentNode === band) band.insertBefore(prog, mem);
+        if (mem && mem.parentNode) mem.parentNode.insertBefore(prog, mem);
         else band.appendChild(prog);
       }
     }
