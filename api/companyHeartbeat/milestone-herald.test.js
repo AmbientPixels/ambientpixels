@@ -128,6 +128,13 @@ test('fleet weekly cap keeps highest-priority milestones', () => {
   assert.deepStrictEqual(fired.map(f => f.agentId), ['b', 'c']);
 });
 
+test('non-fleet ledger entries (ceo) are ignored entirely', () => {
+  const rewards = { perAgent: { ceo: ledgerEntry({ level: 5 }), pixel: ledgerEntry() } };
+  const out = H.detectMilestones({ rewards, heraldState: freshState(), config: H.DEFAULTS, nowMs: NOW });
+  assert.deepStrictEqual(out.seededAgents, ['pixel']);
+  assert.strictEqual(out.nextWatermarks.ceo, undefined);
+});
+
 test('agents allowlist restricts detection', () => {
   const entry = ledgerEntry({ level: 3 });
   const state = { watermarks: { pixel: wmFor(ledgerEntry()) }, postLog: [] };

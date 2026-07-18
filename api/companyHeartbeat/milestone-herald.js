@@ -25,6 +25,10 @@ const OBJECTIVE_ID = 'obj-build-public';
 const PROFILE_BASE = 'https://ambientpixels.ai/ambientos/agents/';
 const STREAK_THRESHOLDS = [7, 30, 90];
 
+// Only real fleet agents may herald. The ledger also carries non-agent entries
+// (e.g. 'ceo' from task attribution) that must never produce a first-person post.
+const FLEET_AGENTS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scout', 'scribe', 'quill', 'vale'];
+
 const DEFAULTS = {
   enabled: true,
   platforms: ['social_bluesky'],   // add 'social_x' via systemConfig when creds are live
@@ -82,6 +86,7 @@ function detectMilestones({ rewards, heraldState, config, nowMs }) {
   for (const agentId of Object.keys(perAgent)) {
     const entry = perAgent[agentId];
     if (!entry || typeof entry !== 'object') continue;
+    if (FLEET_AGENTS.indexOf(agentId) === -1) continue;
     if (config.agents.length && config.agents.indexOf(agentId) === -1) {
       if (watermarks[agentId]) nextWatermarks[agentId] = watermarks[agentId];
       continue;
@@ -326,7 +331,7 @@ async function runMilestoneHerald({ storage, nowMs, log, dryRun }) {
 }
 
 module.exports = {
-  DEFAULTS, CAMPAIGN_ID, OBJECTIVE_ID, PRIORITY, STREAK_THRESHOLDS,
+  DEFAULTS, CAMPAIGN_ID, OBJECTIVE_ID, PRIORITY, STREAK_THRESHOLDS, FLEET_AGENTS,
   resolveConfig, computeWeeklyXp, detectMilestones, applyCaps,
   pickReflectionQuote, buildFactSheet, buildTasks, runMilestoneHerald
 };
