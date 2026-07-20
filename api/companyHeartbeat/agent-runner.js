@@ -2296,6 +2296,9 @@ Write the full deliverable first, then the structured JSON block.`;
                     action: 'comment', taskId: action.taskId, agentId: 'system',
                     comment: '[QUALITY GATE] Blog draft rejected — rewrite required. Issues:\n- ' + (_etQg.issues || []).slice(0, 8).join('\n- ') + '\n\nRewrite the post addressing each issue, then resubmit.'
                   });
+                  // A rejected draft has no document, so the task must not sit in
+                  // review — a peer would approve the raw deliverable and close it.
+                  result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'in-progress' });
                   try {
                     await logEvent('policy-violation', agentId, 'Quality gate rejected blog draft (execute-task auto-doc)', cycleId, {
                       runId: cycleId, gate: 'quality_gate', reason: 'haiku_rejection_doc_autodoc',

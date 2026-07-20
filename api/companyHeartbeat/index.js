@@ -2672,7 +2672,34 @@ module.exports = async function (context) {
               const _INTERNAL_TASK_TYPES = ['research', 'general', 'ops', 'bug_fix', 'editorial', 'design_asset', 'internal_doc', 'social_copy', 'finance', 'intake', 'support'];
               const _INTERNAL_TITLE_PATTERNS = /\b(traffic brief|review brief|research|analysis|audit|report|internal|ops|bugfix|hotfix)\b/i;
               const _isInternal = true; // All tasks auto-complete after peer review — CEO reviews on Task Board, not Actions page
-              if (_isInternal) {
+              // Blog tasks may only complete with a linked document — peer review is
+              // not the publish gate. Without this, a quality-gate-rejected draft that
+              // a peer then approves closes the task with nothing publishable.
+              const _TC_BLOG_TYPES = ['blog_post', 'article', 'newsletter'];
+              let _tcBlogGap = false;
+              if (_TC_BLOG_TYPES.indexOf(_tcTaskType) !== -1) {
+                try {
+                  const _tcGapDocs = (await storage.getState('documents')) || [];
+                  _tcBlogGap = !_tcGapDocs.some(d =>
+                    d.status !== 'rejected' && d.status !== 'archived' &&
+                    (d.taskId === ceo.taskId || (d.source && d.source.task_id === ceo.taskId)));
+                } catch (_tcGapErr) { _tcBlogGap = false; /* fail-open: a storage blip must not bounce the task */ }
+              }
+              if (_tcBlogGap) {
+                if (_tcTask && _tcTask.status !== 'done') {
+                  _tcTask.status = 'in-progress';
+                  _tcTask.updatedAt = new Date().toISOString();
+                  if (!_tcTask.comments) _tcTask.comments = [];
+                  _tcTask.comments.push({
+                    id: 'cmt-' + Date.now() + '-bloggate',
+                    author: 'system',
+                    text: '**Blog pipeline gate:** This `' + _tcTaskType + '` task cannot be completed without a linked document. The draft must pass the quality gate (which creates the `marketing_post` document), then go through `submit-for-publish` for CEO approval. Rewrite the draft addressing any quality-gate issues above, then re-execute.',
+                    type: 'system',
+                    createdAt: new Date().toISOString()
+                  });
+                }
+                context.log('[Heartbeat] BLOG GATE: blocked auto-complete for', _tcTaskType, 'task', ceo.taskId, '— no linked document. Reset to in-progress.');
+              } else if (_isInternal) {
                 // Internal task — auto-complete, no CEO gate needed
                 if (_tcTask && _tcTask.status !== 'done') {
                   _tcTask.status = 'done';
