@@ -40,5 +40,74 @@ test('no usable URL yields null', () => {
   assert.strictEqual(PP.extractSiteUrl({ links: ['https://github.com/me/repo'], text: '' }, BLOCK), null);
 });
 
+// ── filterProspects ──
+const NOW = Date.parse('2026-07-21T12:00:00Z');
+const CFG = Object.assign({}, BLOCK, {
+  maxScansPerDay: 3, maxDraftsPerDay: 2, maxQueuedProspects: 10,
+  minEngagement: 1, maxPostAgeHours: 24, domainCooldownDays: 30
+});
+function cand(over) {
+  return Object.assign({
+    uri: 'at://did:plc:a/app.bsky.feed.post/' + Math.random().toString(36).slice(2, 8),
+    cid: 'cid1', author: 'maker.bsky.social', authorDid: 'did:plc:a',
+    text: 'just launched https://newsite.dev', links: [],
+    indexedAt: new Date(NOW - 2 * 3600e3).toISOString(),
+    replyCount: 1, likeCount: 2
+  }, over || {});
+}
+
+test('qualifying candidate becomes a prospect', () => {
+  const out = PP.filterProspects([cand()], [], CFG, NOW);
+  assert.strictEqual(out.length, 1);
+  assert.strictEqual(out[0].status, 'discovered');
+  assert.strictEqual(out[0].domain, 'newsite.dev');
+  assert.strictEqual(out[0].author, 'maker.bsky.social');
+  assert.ok(out[0].id.indexOf('pros_') === 0);
+});
+
+test('post older than maxPostAgeHours is rejected', () => {
+  const old = cand({ indexedAt: new Date(NOW - 30 * 3600e3).toISOString() });
+  assert.strictEqual(PP.filterProspects([old], [], CFG, NOW).length, 0);
+});
+
+test('engagement floor: likes+replies below minEngagement rejected', () => {
+  const cold = cand({ replyCount: 0, likeCount: 0 });
+  assert.strictEqual(PP.filterProspects([cold], [], CFG, NOW).length, 0);
+});
+
+test('author already prospected (any status) is rejected forever', () => {
+  const existing = [{ author: 'maker.bsky.social', domain: 'x.dev', status: 'declined',
+    discoveredAt: new Date(NOW - 90 * 86400e3).toISOString() }];
+  assert.strictEqual(PP.filterProspects([cand()], existing, CFG, NOW).length, 0);
+});
+
+test('domain inside cooldown window is rejected, outside is allowed', () => {
+  const recent = [{ author: 'other.bsky.social', domain: 'newsite.dev', status: 'sent',
+    discoveredAt: new Date(NOW - 10 * 86400e3).toISOString() }];
+  assert.strictEqual(PP.filterProspects([cand()], recent, CFG, NOW).length, 0);
+  const stale = [{ author: 'other.bsky.social', domain: 'newsite.dev', status: 'sent',
+    discoveredAt: new Date(NOW - 40 * 86400e3).toISOString() }];
+  assert.strictEqual(PP.filterProspects([cand()], stale, CFG, NOW).length, 1);
+});
+
+test('daily scan cap counts prospects scan-queued today', () => {
+  const today = new Date(NOW - 3600e3).toISOString();
+  const existing = [1, 2, 3].map(function (i) {
+    return { author: 'a' + i, domain: 'd' + i + '.com', status: 'scan_queued', scanQueuedAt: today,
+      discoveredAt: today };
+  });
+  assert.strictEqual(PP.filterProspects([cand()], existing, CFG, NOW).length, 0);
+});
+
+test('candidate without extractable URL is rejected', () => {
+  const noUrl = cand({ text: 'launched my site!', links: [] });
+  assert.strictEqual(PP.filterProspects([noUrl], [], CFG, NOW).length, 0);
+});
+
+test('dedup within one batch by author and by domain', () => {
+  const a = cand(); const b = cand({ authorDid: 'did:plc:b' }); // same author handle + domain
+  assert.strictEqual(PP.filterProspects([a, b], [], CFG, NOW).length, 1);
+});
+
 console.log(pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
