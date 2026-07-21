@@ -1886,7 +1886,7 @@ GATE CHECKLIST
 
 Rules:
 - actions array can be empty if nothing needs doing
-- Max 3 actions per heartbeat
+- HARD CAP: max 3 actions per heartbeat. The server DROPS every action after the 3rd and logs a policy violation against you — over-emitting is pure wasted spend. Rank your intended actions by impact and emit ONLY the top 3.
 - Max 1 execute-task per heartbeat (it's thorough work)
 - Only create tasks that are genuinely useful
 - Only move tasks if you have reason to
