@@ -1,0 +1,25 @@
+{
+  "keywords": [
+    "just launched", "we launched", "launched my", "i built",
+    "new website", "redesigned my site", "redesigned my portfolio",
+    "portfolio feedback", "roast my landing page", "feedback on my site",
+    "site feedback welcome", "check out my new site"
+  ],
+  "ownDomains": ["ambientpixels.ai", "azurestaticapps.net"],
+  "domainBlocklist": [
+    "bit.ly", "t.co", "tinyurl.com", "linktr.ee", "lnk.bio",
+    "youtube.com", "youtu.be", "github.com", "twitter.com", "x.com",
+    "bsky.app", "medium.com", "substack.com", "instagram.com",
+    "facebook.com", "linkedin.com", "tiktok.com", "amazon.com",
+    "apple.com", "google.com", "notion.site", "docs.google.com"
+  ],
+  "defaults": {
+    "enabled": true,
+    "maxScansPerDay": 3,
+    "maxDraftsPerDay": 2,
+    "maxQueuedProspects": 10,
+    "minEngagement": 1,
+    "maxPostAgeHours": 24,
+    "domainCooldownDays": 30
+  }
+}
