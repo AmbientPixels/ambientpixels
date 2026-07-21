@@ -163,5 +163,53 @@ test('buildScanJob: matches asScanQueue shape', () => {
   assert.ok(job.id.indexOf('scan_') === 0);
 });
 
+// ── promoteReady ──
+function queuedProspect(over) {
+  return Object.assign({
+    id: 'pros_1', author: 'maker.bsky.social', domain: 'newsite.dev',
+    status: 'scan_queued', taskId: 'task_1', scanId: 'scan_1',
+    scanQueuedAt: new Date(NOW - 3600e3).toISOString(),
+    discoveredAt: new Date(NOW - 3600e3).toISOString(),
+    scanScore: null, reportId: null, promotedAt: null
+  }, over || {});
+}
+
+test('scan done → prospect task_ready + task flip to todo', () => {
+  const prospects = [queuedProspect()];
+  const scanQ = [{ id: 'scan_1', taskId: 'task_1', status: 'done', reportId: 'ccr_9', score: 61 }];
+  const r = PP.promoteReady(prospects, scanQ, CFG, NOW);
+  assert.deepStrictEqual(r.taskIdsToTodo, ['task_1']);
+  assert.strictEqual(prospects[0].status, 'task_ready');
+  assert.strictEqual(prospects[0].reportId, 'ccr_9');
+  assert.strictEqual(prospects[0].scanScore, 61);
+  assert.ok(prospects[0].promotedAt);
+});
+
+test('scan error → prospect dismissed + task close', () => {
+  const prospects = [queuedProspect()];
+  const scanQ = [{ id: 'scan_1', taskId: 'task_1', status: 'error' }];
+  const r = PP.promoteReady(prospects, scanQ, CFG, NOW);
+  assert.deepStrictEqual(r.taskIdsToClose, ['task_1']);
+  assert.strictEqual(prospects[0].status, 'dismissed');
+});
+
+test('scan still queued/running → untouched', () => {
+  const prospects = [queuedProspect()];
+  const r = PP.promoteReady(prospects, [{ id: 'scan_1', taskId: 'task_1', status: 'running' }], CFG, NOW);
+  assert.strictEqual(prospects[0].status, 'scan_queued');
+  assert.strictEqual(r.taskIdsToTodo.length, 0);
+});
+
+test('daily draft cap limits promotions', () => {
+  const done = function (n) { return { id: 'scan_' + n, taskId: 'task_' + n, status: 'done', reportId: 'r' + n }; };
+  const promotedToday = queuedProspect({ id: 'p0', taskId: 'task_0', scanId: 'scan_0',
+    status: 'task_ready', promotedAt: new Date(NOW - 1800e3).toISOString() });
+  const a = queuedProspect({ id: 'p1', taskId: 'task_1', scanId: 'scan_1', author: 'a1', domain: 'd1.com' });
+  const b = queuedProspect({ id: 'p2', taskId: 'task_2', scanId: 'scan_2', author: 'a2', domain: 'd2.com' });
+  const r = PP.promoteReady([promotedToday, a, b], [done(1), done(2)], CFG, NOW); // cap 2, 1 used
+  assert.strictEqual(r.taskIdsToTodo.length, 1);
+  assert.strictEqual(b.status, 'scan_queued'); // deferred to tomorrow
+});
+
 console.log(pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

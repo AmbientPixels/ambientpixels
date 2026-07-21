@@ -168,9 +168,48 @@ function buildScanJob(prospect, taskId, nowMs) {
   };
 }
 
+// Mutates prospects in place (house pattern: evaluateObjectives). Returns
+// { taskIdsToTodo, taskIdsToClose } for the IO shell to apply to the tasks store.
+// Promotion is capped by maxDraftsPerDay (counted from promotedAt today) so a
+// scan burst can't flood Scribe/the approval queue.
+function promoteReady(prospects, scanQueue, cfg, nowMs) {
+  var out = { taskIdsToTodo: [], taskIdsToClose: [] };
+  var jobs = {};
+  (Array.isArray(scanQueue) ? scanQueue : []).forEach(function (j) {
+    if (j && j.id) jobs[j.id] = j;
+    if (j && j.taskId && !jobs['task:' + j.taskId]) jobs['task:' + j.taskId] = j;
+  });
+  var today = _dayKey(new Date(nowMs).toISOString());
+  var promotedToday = prospects.filter(function (p) {
+    return p && p.promotedAt && _dayKey(p.promotedAt) === today;
+  }).length;
+  var budget = Math.max(0, (Number.isFinite(cfg.maxDraftsPerDay) ? cfg.maxDraftsPerDay : 2) - promotedToday);
+
+  for (var i = 0; i < prospects.length; i++) {
+    var p = prospects[i];
+    if (!p || p.status !== 'scan_queued') continue;
+    var job = (p.scanId && jobs[p.scanId]) || jobs['task:' + p.taskId];
+    if (!job) continue;
+    if (job.status === 'error' || job.status === 'failed') {
+      p.status = 'dismissed';
+      out.taskIdsToClose.push(p.taskId);
+    } else if (job.status === 'done') {
+      if (budget <= 0) continue; // stays scan_queued, promoted on a later run
+      budget--;
+      p.status = 'task_ready';
+      p.reportId = job.reportId || null;
+      p.scanScore = Number.isFinite(job.score) ? job.score : null;
+      p.promotedAt = new Date(nowMs).toISOString();
+      out.taskIdsToTodo.push(p.taskId);
+    }
+  }
+  return out;
+}
+
 module.exports = {
   extractSiteUrl: extractSiteUrl,
   filterProspects: filterProspects,
   buildReplyTask: buildReplyTask,
-  buildScanJob: buildScanJob
+  buildScanJob: buildScanJob,
+  promoteReady: promoteReady
 };
