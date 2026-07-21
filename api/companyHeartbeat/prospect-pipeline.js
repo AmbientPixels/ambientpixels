@@ -238,11 +238,134 @@ function reconcile(prospects, tasks, actions, nowMs) {
   return kept;
 }
 
+var _DEFAULTS_FILE = require('../_data/as-prospect-keywords.json');
+
+function _loadConfig(systemConfig) {
+  var file = _DEFAULTS_FILE || {};
+  var cfg = Object.assign({}, file.defaults || {});
+  cfg.keywords = (file.keywords || []).slice();
+  cfg.ownDomains = (file.ownDomains || []).slice();
+  cfg.domainBlocklist = (file.domainBlocklist || []).slice();
+  var over = (systemConfig && systemConfig.asProspecting) || {};
+  Object.keys(over).forEach(function (k) { cfg[k] = over[k]; });
+  return cfg;
+}
+
+async function _logGov(storage, type, data, nowMs) {
+  try {
+    var gov = (await storage.getState('governanceLog')) || [];
+    gov.push({ id: 'gov-' + nowMs + '-' + Math.random().toString(36).substring(2, 6),
+      type: type, data: data, timestamp: new Date(nowMs).toISOString() });
+    await storage.setState('governanceLog', gov.slice(-500));
+  } catch (_e) { /* non-fatal */ }
+}
+
+// IO shell. `discover` is injectable for tests; defaults to the shared
+// Bluesky discovery engine. All passes are idempotent per prospect id —
+// a crash mid-run reconciles from state on the next run.
+// Queue rules (spec): queue FULL → prospect stays 'discovered', retried on a
+// later run. URL already queued/running or scanned <7d → terminal 'dismissed'.
+async function runProspectPipeline(opts) {
+  var storage = opts.storage;
+  var log = opts.log || function () {};
+  var nowMs = Number.isFinite(opts.nowMs) ? opts.nowMs : Date.now();
+  var discover = opts.discover || function (keywords) {
+    var bd = require('../_utils/blueskyDiscovery');
+    return bd.discoverAcrossKeywords(keywords, { maxAgeMinutes: 24 * 60, minReplies: 0, limitPerKeyword: 15 });
+  };
+
+  var systemConfig = (await storage.getState('systemConfig')) || {};
+  var cfg = _loadConfig(systemConfig);
+  if (cfg.enabled === false) { log('[prospects] disabled via systemConfig.asProspecting.enabled'); return { skipped: 'disabled' }; }
+
+  var prospects = (await storage.getState('asProspects')) || [];
+  if (!Array.isArray(prospects)) prospects = [];
+  var tasks = (await storage.getState('tasks')) || [];
+  var scanQueue = (await storage.getState('asScanQueue')) || [];
+  if (!Array.isArray(scanQueue)) scanQueue = [];
+  var actions = (await storage.getState('actions')) || [];
+
+  // ── Pass 1: DISCOVER + QUEUE ──
+  var discovered = 0, queued = 0;
+  try {
+    var carried = prospects.filter(function (p) { return p && p.status === 'discovered'; });
+    var fresh = [];
+    var maxQueuedProspects = Number.isFinite(cfg.maxQueuedProspects) ? cfg.maxQueuedProspects : 10;
+    if (carried.length < maxQueuedProspects) {
+      var candidates = await discover(cfg.keywords);
+      fresh = filterProspects(candidates, prospects, cfg, nowMs);
+      fresh.forEach(function (p) { prospects.push(p); discovered++; });
+    } else {
+      log('[prospects] discovery skipped — discovered backlog at cap');
+    }
+    var budget = Math.max(0, (Number.isFinite(cfg.maxScansPerDay) ? cfg.maxScansPerDay : 3) - _countScansToday(prospects, nowMs));
+    var queueCandidates = carried.concat(fresh);
+    for (var i = 0; i < queueCandidates.length; i++) {
+      var p = queueCandidates[i];
+      if (budget <= 0) break; // remaining stay 'discovered' → retried next run
+      var dup = scanQueue.some(function (q) {
+        return q && q.url === p.siteUrl && (q.status === 'queued' || q.status === 'running' ||
+          (q.finishedAt && nowMs - Date.parse(q.finishedAt) < 7 * 86400e3));
+      });
+      if (dup) { p.status = 'dismissed'; continue; }
+      if (scanQueue.filter(function (q) { return q && q.status === 'queued'; }).length >= 20) break; // queue full → stays 'discovered'
+      var task = buildReplyTask(p, nowMs);
+      var job = buildScanJob(p, task.id, nowMs);
+      tasks.push(task);
+      scanQueue.push(job);
+      p.taskId = task.id;
+      p.scanId = job.id;
+      p.status = 'scan_queued';
+      p.scanQueuedAt = new Date(nowMs).toISOString();
+      queued++;
+      budget--;
+      log('[prospects] queued @' + p.author + ' → ' + p.domain + ' (scan ' + job.id + ')');
+    }
+    if (discovered > 0) await _logGov(storage, 'prospect-discovered', { count: discovered }, nowMs);
+  } catch (dErr) {
+    log('[prospects] discovery failed (non-fatal): ' + String(dErr && dErr.message || dErr).substring(0, 200));
+  }
+
+  // ── Pass 2: PROMOTE ──
+  var promo = promoteReady(prospects, scanQueue, cfg, nowMs);
+  promo.taskIdsToTodo.forEach(function (tid) {
+    var t = tasks.find(function (x) { return x && x.id === tid; });
+    if (t && t.status === 'backlog') { t.status = 'todo'; t.updatedAt = new Date(nowMs).toISOString(); }
+  });
+  promo.taskIdsToClose.forEach(function (tid) {
+    var t = tasks.find(function (x) { return x && x.id === tid; });
+    if (t && t.status !== 'done') {
+      t.status = 'done';
+      t.updatedAt = new Date(nowMs).toISOString();
+      t.comments = t.comments || [];
+      t.comments.push({ id: 'cmt-prospect-' + nowMs, author: 'system', type: 'system',
+        text: 'Scan failed for this prospect — outreach dismissed by asProspectCron.',
+        createdAt: new Date(nowMs).toISOString() });
+    }
+  });
+  if (promo.taskIdsToTodo.length > 0) {
+    await _logGov(storage, 'prospect-outreach-ready', { count: promo.taskIdsToTodo.length, taskIds: promo.taskIdsToTodo }, nowMs);
+  }
+
+  // ── Pass 3: TRACK / PRUNE ──
+  var kept = reconcile(prospects, tasks, actions, nowMs);
+
+  await storage.setState('asProspects', kept);
+  await storage.setState('tasks', tasks);
+  await storage.setState('asScanQueue', scanQueue.slice(-100));
+
+  var summary = { discovered: discovered, queued: queued, promoted: promo.taskIdsToTodo.length,
+    dismissed: promo.taskIdsToClose.length, total: kept.length };
+  log('[prospects] run complete: ' + JSON.stringify(summary));
+  return summary;
+}
+
 module.exports = {
   extractSiteUrl: extractSiteUrl,
   filterProspects: filterProspects,
   buildReplyTask: buildReplyTask,
   buildScanJob: buildScanJob,
   promoteReady: promoteReady,
-  reconcile: reconcile
+  reconcile: reconcile,
+  runProspectPipeline: runProspectPipeline
 };

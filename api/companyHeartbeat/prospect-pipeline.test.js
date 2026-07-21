@@ -241,5 +241,83 @@ test('prunes dismissed >14d, everything >60d, caps at 300', () => {
   assert.ok(kept.length <= 300, 'capped at 300');
 });
 
-console.log(pass + ' passed, ' + fail + ' failed');
-process.exit(fail ? 1 : 0);
+// ── runProspectPipeline (integration, mocked IO) ──
+function mockStorage(initial) {
+  const state = Object.assign({}, initial);
+  return {
+    _state: state,
+    getState: async function (k) { return state[k] !== undefined ? state[k] : null; },
+    setState: async function (k, v) { state[k] = v; }
+  };
+}
+
+(async function () {
+  // Run 1: discover → prospect + backlog task + scan queued
+  const storage = mockStorage({
+    systemConfig: { asProspecting: { minEngagement: 1 } },
+    tasks: [], asScanQueue: [], asProspects: [], actions: [], governanceLog: []
+  });
+  const discover = async function () { return [cand()]; };
+  const r1 = await PP.runProspectPipeline({ storage: storage, log: function () {}, nowMs: NOW, discover: discover });
+  const s = storage._state;
+
+  test('run1: prospect created, scan queued, backlog task created', () => {
+    assert.strictEqual(s.asProspects.length, 1);
+    assert.strictEqual(s.asProspects[0].status, 'scan_queued');
+    assert.ok(s.asProspects[0].scanId);
+    assert.strictEqual(s.asScanQueue.length, 1);
+    assert.strictEqual(s.tasks.length, 1);
+    assert.strictEqual(s.tasks[0].status, 'backlog');
+    assert.strictEqual(s.asScanQueue[0].taskId, s.tasks[0].id);
+    assert.strictEqual(r1.discovered, 1);
+    assert.strictEqual(r1.queued, 1);
+  });
+
+  // Run 2: scan runner finished → task promoted to todo
+  s.asScanQueue[0].status = 'done';
+  s.asScanQueue[0].reportId = 'ccr_test';
+  const r2 = await PP.runProspectPipeline({ storage: storage, log: function () {}, nowMs: NOW + 3600e3, discover: async function () { return []; } });
+  test('run2: task promoted to todo, prospect task_ready', () => {
+    assert.strictEqual(s.tasks[0].status, 'todo');
+    assert.strictEqual(s.asProspects[0].status, 'task_ready');
+    assert.strictEqual(s.asProspects[0].reportId, 'ccr_test');
+    assert.strictEqual(r2.promoted, 1);
+  });
+
+  // Kill switch
+  const storage2 = mockStorage({ systemConfig: { asProspecting: { enabled: false } } });
+  const r3 = await PP.runProspectPipeline({ storage: storage2, log: function () {}, nowMs: NOW, discover: discover });
+  test('kill switch: disabled config does nothing', () => {
+    assert.strictEqual(r3.skipped, 'disabled');
+    assert.ok(!storage2._state.asProspects || storage2._state.asProspects === null);
+  });
+
+  // Queue full: prospect persists as 'discovered' (spec rule), no task, no job
+  const fullQueue = [];
+  for (let i = 0; i < 20; i++) fullQueue.push({ id: 'q' + i, url: 'https://q' + i + '.com', status: 'queued' });
+  const storage3 = mockStorage({
+    systemConfig: {}, tasks: [], asScanQueue: fullQueue, asProspects: [], actions: [], governanceLog: []
+  });
+  const r4 = await PP.runProspectPipeline({ storage: storage3, log: function () {}, nowMs: NOW, discover: discover });
+  test('queue full: prospect stays discovered for retry, no task created', () => {
+    assert.strictEqual(storage3._state.asProspects.length, 1);
+    assert.strictEqual(storage3._state.asProspects[0].status, 'discovered');
+    assert.strictEqual(storage3._state.tasks.length, 0);
+    assert.strictEqual(storage3._state.asScanQueue.filter(q => q.taskId).length, 0);
+    assert.strictEqual(r4.discovered, 1);
+    assert.strictEqual(r4.queued, 0);
+  });
+
+  // Carried retry: previously-discovered prospect queues once the queue frees up
+  storage3._state.asScanQueue = [];
+  const r5 = await PP.runProspectPipeline({ storage: storage3, log: function () {}, nowMs: NOW + 3600e3, discover: async function () { return []; } });
+  test('carried retry: discovered prospect queues on a later run', () => {
+    assert.strictEqual(storage3._state.asProspects[0].status, 'scan_queued');
+    assert.strictEqual(storage3._state.tasks.length, 1);
+    assert.strictEqual(storage3._state.tasks[0].status, 'backlog');
+    assert.strictEqual(r5.queued, 1);
+  });
+
+  console.log(pass + ' passed, ' + fail + ' failed');
+  process.exit(fail ? 1 : 0);
+})();
