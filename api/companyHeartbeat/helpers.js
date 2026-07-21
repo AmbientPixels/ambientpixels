@@ -308,6 +308,25 @@ async function _appendToDestination(event) {
   // Keep governanceLog forensic window wide — cap at 5000 (CEO-facing trail).
   const trimmed = current.length > 5000 ? current.slice(-5000) : current;
   await storage.setState('governanceLog', trimmed);
+  await _appendToGovernanceArchive([event]);
+}
+
+// Durable audit trail: the live governanceLog is a FIFO trimmed by ~10 different
+// writers (tightest wins — historically ~200 entries ≈ 3 days), so weekly/monthly
+// audits silently undercount. Every governance event routed through this module
+// ALSO lands in `governanceLogArchive` (cap 5000 ≈ 2.5 months at current churn).
+// companyStorage-direct key, NOT in company-state VALID_KEYS — read it via a
+// script/endpoint that uses companyStorage, same as pingLog. Fail-open: archive
+// problems must never block the live log write.
+const GOVERNANCE_ARCHIVE_CAP = 5000;
+async function _appendToGovernanceArchive(events) {
+  if (!Array.isArray(events) || events.length === 0) return;
+  try {
+    const archive = (await storage.getState('governanceLogArchive')) || [];
+    const combined = archive.concat(events);
+    const trimmed = combined.length > GOVERNANCE_ARCHIVE_CAP ? combined.slice(-GOVERNANCE_ARCHIVE_CAP) : combined;
+    await storage.setState('governanceLogArchive', trimmed);
+  } catch (_e) { /* non-fatal — archive is best-effort */ }
 }
 
 async function flushRunLog() {
@@ -338,6 +357,7 @@ async function flushRunLog() {
       const trimmed = combined.length > 5000 ? combined.slice(-5000) : combined;
       await storage.setState('governanceLog', trimmed);
     } catch (_e) { /* non-fatal */ }
+    await _appendToGovernanceArchive(toGovernance);
   }
   return { logsAdded: toLogs.length, governanceAdded: toGovernance.length };
 }

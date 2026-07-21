@@ -21,7 +21,8 @@ const {
   FLEET_MUTATION_AUTHORIZED_AGENTS, PROTECTED_AGENTS,
   FLEET_MIN_SIZE, FLEET_MAX_SIZE, FLEET_PROPOSAL_MAX_PER_DAY,
   FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
-  PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY, PROPOSAL_REJECT_COOLDOWN_DAYS
+  PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY, PROPOSAL_REJECT_COOLDOWN_DAYS,
+  MAX_GOVERNANCE_LOG_ENTRIES
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
 const {
@@ -4406,7 +4407,10 @@ Write the full deliverable first, then the structured JSON block.`;
             timestamp: new Date().toISOString()
           });
           govLog.sort(function (a, b) { return String(a.timestamp || '').localeCompare(String(b.timestamp || '')); });
-          if (govLog.length > 200) govLog.splice(0, govLog.length - 200);
+          // Was a hardcoded 200-trim — the tightest of ~10 governanceLog writers, so it
+          // silently pinned the whole log to 200 entries (~3 days) while everything else
+          // respected the 500 constant. Weekly audits were undercounting because of it.
+          if (govLog.length > MAX_GOVERNANCE_LOG_ENTRIES) govLog.splice(0, govLog.length - MAX_GOVERNANCE_LOG_ENTRIES);
           await storage.setState('governanceLog', govLog);
 
           context.log('[Heartbeat]', agentId, 'submitted doc for publish:', doc.id, doc.title, '→ action:', publishAction.id);
