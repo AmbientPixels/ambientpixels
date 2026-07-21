@@ -41,6 +41,27 @@ async function _getAuthToken() {
   return _cachedToken;
 }
 
+// Collect http(s) link targets a post carries outside its plain text:
+// rich-text link facets + external-embed cards (record-level and view-level).
+// Additive helper for AmbientScore prospecting — existing consumers unaffected.
+function _extractPostLinks(p) {
+  var out = [];
+  function push(u) {
+    if (typeof u === 'string' && /^https?:\/\//i.test(u) && out.indexOf(u) === -1) out.push(u);
+  }
+  if (!p || typeof p !== 'object') return out;
+  var facets = (p.record && p.record.facets) || [];
+  for (var i = 0; i < facets.length; i++) {
+    var feats = (facets[i] && facets[i].features) || [];
+    for (var j = 0; j < feats.length; j++) {
+      if (feats[j] && feats[j].$type === 'app.bsky.richtext.facet#link') push(feats[j].uri);
+    }
+  }
+  if (p.record && p.record.embed && p.record.embed.external) push(p.record.embed.external.uri);
+  if (p.embed && p.embed.external) push(p.embed.external.uri);
+  return out;
+}
+
 /**
  * Search Bluesky for posts matching a query, filtered by age and minimum replies.
  * @param {string} q - search keyword
@@ -92,7 +113,8 @@ async function searchBluesky(q, opts) {
         indexedAt: indexedAt,
         replyCount: p.replyCount || 0,
         repostCount: p.repostCount || 0,
-        likeCount: p.likeCount || 0
+        likeCount: p.likeCount || 0,
+        links: _extractPostLinks(p)
       };
     })
     .filter(function (p) {
@@ -174,5 +196,6 @@ function intentScore(text) {
 module.exports = {
   searchBluesky,
   discoverAcrossKeywords,
-  intentScore
+  intentScore,
+  _extractPostLinks
 };
