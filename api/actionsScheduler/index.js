@@ -4,6 +4,7 @@
 
 const storage = require('../_utils/companyStorage');
 const { executeAction, isExecutable } = require('../actionsExecute/executors');
+const outcomeBaseline = require('../actionsExecute/executors/_utils/outcomeBaseline');
 
 module.exports = async function (context) {
   var demoGuard = require('../_utils/demoGuard');
@@ -182,6 +183,16 @@ module.exports = async function (context) {
             }));
           }
         } catch (telErr) { context.log.warn('[Scheduler] Social telemetry emit failed:', telErr.message); }
+
+        // Outcome Attribution t0 baseline — scheduled/grace-window posts publish via
+        // this path, which skipped the writeBaseline hook the HTTP execute handler
+        // has (same class of gap as the telemetry emit above). Consequence before
+        // this fix: outcomeSnapshots frozen since 07-10 while every ship went through
+        // the scheduler — engagement XP, outcome digests, and experiment conclusion
+        // all starved. Helper is idempotent + non-fatal.
+        try {
+          await outcomeBaseline.writeBaseline(a, context);
+        } catch (_obErr) { /* helper handles its own errors; defensive belt */ }
 
         context.log('[Scheduler] Successfully executed scheduled action:', a.id);
         executed++;
