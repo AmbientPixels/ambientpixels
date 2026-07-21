@@ -40,6 +40,11 @@ test('no usable URL yields null', () => {
   assert.strictEqual(PP.extractSiteUrl({ links: ['https://github.com/me/repo'], text: '' }, BLOCK), null);
 });
 
+test('links entry with trailing parens survives intact (not text-stripped)', () => {
+  const r = PP.extractSiteUrl({ links: ['https://site.io/page_(v2)'], text: '' }, BLOCK);
+  assert.strictEqual(r.siteUrl, 'https://site.io/page_(v2)');
+});
+
 // ── filterProspects ──
 const NOW = Date.parse('2026-07-21T12:00:00Z');
 const CFG = Object.assign({}, BLOCK, {
@@ -63,6 +68,26 @@ test('qualifying candidate becomes a prospect', () => {
   assert.strictEqual(out[0].domain, 'newsite.dev');
   assert.strictEqual(out[0].author, 'maker.bsky.social');
   assert.ok(out[0].id.indexOf('pros_') === 0);
+  assert.strictEqual(out[0].scanId, null);
+  assert.strictEqual(out[0].scanQueuedAt, null);
+  assert.strictEqual(out[0].promotedAt, null);
+});
+
+test('explicit zero config values are honored, not treated as falsy-default', () => {
+  const paused = Object.assign({}, CFG, { maxScansPerDay: 0 });
+  assert.strictEqual(PP.filterProspects([cand()], [], paused, NOW).length, 0);
+});
+
+test('partial budget: 1 scanned today + maxScansPerDay 3 admits exactly 2 of 3 distinct candidates', () => {
+  const today = new Date(NOW - 3600e3).toISOString();
+  const existing = [{ author: 'used.bsky.social', domain: 'used.dev', status: 'scan_queued',
+    scanQueuedAt: today, discoveredAt: today }];
+  const batch = [
+    cand({ author: 'one.bsky.social', authorDid: 'did:plc:one', text: 'just launched https://one.dev' }),
+    cand({ author: 'two.bsky.social', authorDid: 'did:plc:two', text: 'just launched https://two.dev' }),
+    cand({ author: 'three.bsky.social', authorDid: 'did:plc:three', text: 'just launched https://three.dev' })
+  ];
+  assert.strictEqual(PP.filterProspects(batch, existing, CFG, NOW).length, 2);
 });
 
 test('post older than maxPostAgeHours is rejected', () => {
@@ -124,6 +149,7 @@ test('buildReplyTask: backlog, scribe, threadContext, fact sheet, objective link
   assert.ok(task.description.indexOf('PROSPECT FACT SHEET') !== -1);
   assert.ok(task.description.indexOf(p.siteUrl) !== -1);
   assert.ok(task.description.indexOf(p.postText) !== -1);
+  assert.ok(task.description.indexOf('[SCAN RESULT]') !== -1);
   assert.ok(task.dueDate && task.id && task.createdAt);
 });
 

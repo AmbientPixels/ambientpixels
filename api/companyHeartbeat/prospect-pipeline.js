@@ -27,11 +27,19 @@ function _isBlockedDomain(domain, block) {
 function extractSiteUrl(candidate, block) {
   if (!candidate) return null;
   var pool = [];
-  (Array.isArray(candidate.links) ? candidate.links : []).forEach(function (u) { pool.push(u); });
+  (Array.isArray(candidate.links) ? candidate.links : []).forEach(function (u) {
+    pool.push({ u: u, fromText: false });
+  });
   var m = String(candidate.text || '').match(_URL_RE) || [];
-  m.forEach(function (u) { pool.push(u); });
+  m.forEach(function (u) { pool.push({ u: u, fromText: true }); });
   for (var i = 0; i < pool.length; i++) {
-    var raw = String(pool[i]).replace(/[.,!?;:)\]]+$/, '');
+    // Trailing-punctuation stripping only applies to URLs pulled out of free
+    // text via regex (which can capture sentence punctuation). Structured
+    // link entries (facets/embeds) are exact URIs and must not be mangled —
+    // e.g. https://en.wikipedia.org/wiki/Foo_(bar) has a meaningful ')'.
+    var raw = pool[i].fromText
+      ? String(pool[i].u).replace(/[.,!?;:)\]]+$/, '')
+      : String(pool[i].u);
     if (!/^https?:\/\//i.test(raw)) continue;
     var domain = _domainOf(raw);
     if (!domain || _isBlockedDomain(domain, block)) continue;
@@ -59,22 +67,26 @@ function filterProspects(candidates, prospects, cfg, nowMs) {
   existing.forEach(function (p) {
     if (p && p.author) seenAuthors[String(p.author).toLowerCase()] = true;
   });
-  var cooldownMs = (cfg.domainCooldownDays || 30) * 86400e3;
+  var domainCooldownDays = Number.isFinite(cfg.domainCooldownDays) ? cfg.domainCooldownDays : 30;
+  var cooldownMs = domainCooldownDays * 86400e3;
   existing.forEach(function (p) {
     if (!p || !p.domain) return;
     var t = Date.parse(p.discoveredAt || 0);
     if (Number.isFinite(t) && nowMs - t < cooldownMs) seenDomains[p.domain] = true;
   });
 
-  var budget = Math.max(0, (cfg.maxScansPerDay || 3) - _countScansToday(existing, nowMs));
-  var maxAgeMs = (cfg.maxPostAgeHours || 24) * 3600e3;
+  var maxScansPerDay = Number.isFinite(cfg.maxScansPerDay) ? cfg.maxScansPerDay : 3;
+  var budget = Math.max(0, maxScansPerDay - _countScansToday(existing, nowMs));
+  var maxPostAgeHours = Number.isFinite(cfg.maxPostAgeHours) ? cfg.maxPostAgeHours : 24;
+  var maxAgeMs = maxPostAgeHours * 3600e3;
+  var minEngagement = Number.isFinite(cfg.minEngagement) ? cfg.minEngagement : 1;
 
   for (var i = 0; i < (candidates || []).length && out.length < budget; i++) {
     var c = candidates[i];
     if (!c || !c.uri || !c.cid || !c.author) continue;
     var t = Date.parse(c.indexedAt || 0);
     if (!Number.isFinite(t) || nowMs - t > maxAgeMs) continue;
-    if (((c.likeCount || 0) + (c.replyCount || 0)) < (cfg.minEngagement || 1)) continue;
+    if (((c.likeCount || 0) + (c.replyCount || 0)) < minEngagement) continue;
     var authorKey = String(c.author).toLowerCase();
     if (seenAuthors[authorKey]) continue;
     var site = extractSiteUrl(c, cfg);
@@ -113,7 +125,7 @@ function buildReplyTask(prospect, nowMs) {
       + '- Their site: ' + prospect.siteUrl + '\n'
       + '- You are replying AS the AmbientPixels founder account.\n\n'
       + 'RULES:\n'
-      + '- Reference exactly ONE specific finding from the [asScanRunner] scan comment on this task.\n'
+      + '- Reference exactly ONE specific finding from the [SCAN RESULT] comment on this task.\n'
       + '- Include the free shareable report link from that comment.\n'
       + '- Do NOT mention pricing. Do NOT claim anything the scan did not measure.\n'
       + '- Founder voice: under 280 chars, no em dashes, no hype, 5th grade reading level.\n'
