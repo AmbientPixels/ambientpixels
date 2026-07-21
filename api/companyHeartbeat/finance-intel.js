@@ -5,6 +5,11 @@ var { FINANCE_BUDGET_DAILY, FINANCE_BUDGET_MONTHLY } = require('./constants');
 
 var THRESHOLDS = {
   dailyOverBudget: { yellow: 1.2, red: 1.5 },
+  // Monthly PROJECTION gets its own multipliers: the daily-spike ones (1.2/1.5) meant a
+  // projected month-end overrun of +10% still evaluated GREEN and Cipher never reacted
+  // (observed 2026-07-21: projected $38.55 vs $35 budget, status GREEN, no alert).
+  // A projection landing over budget at all is YELLOW; 25% over is RED.
+  monthlyProjection: { yellow: 1.0, red: 1.25 },
   wasteRate:       { yellow: 30, red: 50 },
   costPerAction:   { yellow: 0.02, red: 0.05 },
   weeklyTrend:     { yellow: 15, red: 30 }
@@ -68,7 +73,7 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
       pct: monthlyActualPct,
       projectedPct: monthlyProjectedPct,
       status: _budgetStatus(monthToDateSpend, FINANCE_BUDGET_MONTHLY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red),
-      projectedStatus: _budgetStatus(projectedMonthly, FINANCE_BUDGET_MONTHLY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red)
+      projectedStatus: _budgetStatus(projectedMonthly, FINANCE_BUDGET_MONTHLY, THRESHOLDS.monthlyProjection.yellow, THRESHOLDS.monthlyProjection.red)
     }
   };
 
@@ -193,6 +198,11 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
 
   if (budget.daily.status === 'RED') alerts.push({ level: 'RED', signal: 'Daily spend $' + budget.daily.actual + ' exceeds ' + THRESHOLDS.dailyOverBudget.red + 'x budget', recommendation: 'Identify highest-cost agent and recommend cadence reduction' });
   else if (budget.daily.status === 'YELLOW') alerts.push({ level: 'YELLOW', signal: 'Daily spend $' + budget.daily.actual + ' approaching budget limit', recommendation: 'Monitor — no action needed yet' });
+
+  // Projected month-end overrun — preventive signal so Cipher reacts BEFORE actuals blow
+  // the budget and squeeze mode (95%) starts gating campaign proposals fleet-wide.
+  if (budget.monthly.projectedStatus === 'RED') alerts.push({ level: 'RED', signal: 'Projected month-end $' + budget.monthly.projected + ' is ' + budget.monthly.projectedPct + '% of $' + budget.monthly.budget + ' budget', recommendation: 'Act now: name the top spenders (see agent efficiency) and recommend concrete cadence/cap cuts to Nova before squeeze mode trips' });
+  else if (budget.monthly.projectedStatus === 'YELLOW') alerts.push({ level: 'YELLOW', signal: 'Projected month-end $' + budget.monthly.projected + ' exceeds $' + budget.monthly.budget + ' budget (' + budget.monthly.projectedPct + '%)', recommendation: 'Preventive review: identify which agents are over their allocation caps and whether their output justifies it — escalate a trim proposal if not' });
 
   if (Math.abs(trendDelta) >= THRESHOLDS.weeklyTrend.red) alerts.push({ level: 'RED', signal: 'Weekly cost ' + (trendDelta > 0 ? '↑' : '↓') + Math.abs(trendDelta) + '% wow', recommendation: 'Investigate root cause — new campaigns or agent changes?' });
   else if (Math.abs(trendDelta) >= THRESHOLDS.weeklyTrend.yellow) alerts.push({ level: 'YELLOW', signal: 'Weekly cost trending ' + (trendDelta > 0 ? 'up' : 'down') + ' ' + Math.abs(trendDelta) + '%', recommendation: 'Monitor next cycle' });
