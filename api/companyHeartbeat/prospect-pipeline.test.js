@@ -211,5 +211,35 @@ test('daily draft cap limits promotions', () => {
   assert.strictEqual(b.status, 'scan_queued'); // deferred to tomorrow
 });
 
+// ── reconcile ──
+test('task done + reply action → sent (actionId stamped)', () => {
+  const p = queuedProspect({ status: 'task_ready' });
+  const tasks = [{ id: 'task_1', status: 'done' }];
+  const actions = [{ id: 'act_9', type: 'social_post.reply', _parentTaskId: 'task_1' }];
+  PP.reconcile([p], tasks, actions, NOW);
+  assert.strictEqual(p.status, 'sent');
+  assert.strictEqual(p.actionId, 'act_9');
+});
+
+test('task done + no reply action → declined', () => {
+  const p = queuedProspect({ status: 'task_ready' });
+  PP.reconcile([p], [{ id: 'task_1', status: 'done' }], [], NOW);
+  assert.strictEqual(p.status, 'declined');
+});
+
+test('prunes dismissed >14d, everything >60d, caps at 300', () => {
+  const mk = function (i, status, ageDays) {
+    return { id: 'p' + i, status: status, taskId: 't' + i,
+      discoveredAt: new Date(NOW - ageDays * 86400e3).toISOString() };
+  };
+  const list = [mk(1, 'dismissed', 20), mk(2, 'dismissed', 2), mk(3, 'sent', 70), mk(4, 'sent', 5)];
+  for (let i = 5; i < 320; i++) list.push(mk(i, 'sent', 1));
+  const kept = PP.reconcile(list, [], [], NOW);
+  assert.ok(!kept.some(function (p) { return p.id === 'p1'; }), 'old dismissed pruned');
+  assert.ok(kept.some(function (p) { return p.id === 'p2'; }), 'fresh dismissed kept');
+  assert.ok(!kept.some(function (p) { return p.id === 'p3'; }), '>60d pruned');
+  assert.ok(kept.length <= 300, 'capped at 300');
+});
+
 console.log(pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

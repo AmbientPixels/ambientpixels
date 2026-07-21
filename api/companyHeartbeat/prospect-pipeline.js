@@ -206,10 +206,43 @@ function promoteReady(prospects, scanQueue, cfg, nowMs) {
   return out;
 }
 
+// Stamp terminal outcomes from task/action state, then prune. Returns the
+// kept list (caller persists it). NOTE on pruning vs the one-touch-per-author
+// rule: pruning >60d entries means an author could theoretically be re-touched
+// after 60 days. Accepted in the spec (retention 60d) — the 7-day reply-task
+// dedup and domain cooldown still apply.
+function reconcile(prospects, tasks, actions, nowMs) {
+  var taskById = {};
+  (Array.isArray(tasks) ? tasks : []).forEach(function (t) { if (t && t.id) taskById[t.id] = t; });
+  var replyByTask = {};
+  (Array.isArray(actions) ? actions : []).forEach(function (a) {
+    if (a && a.type === 'social_post.reply' && a._parentTaskId) replyByTask[a._parentTaskId] = a;
+  });
+  prospects.forEach(function (p) {
+    if (!p || p.status !== 'task_ready') return;
+    var t = taskById[p.taskId];
+    if (!t || t.status !== 'done') return;
+    var reply = replyByTask[p.taskId];
+    if (reply) { p.status = 'sent'; p.actionId = reply.id; }
+    else { p.status = 'declined'; }
+  });
+  var kept = prospects.filter(function (p) {
+    if (!p) return false;
+    var age = nowMs - Date.parse(p.discoveredAt || 0);
+    if (!Number.isFinite(age)) return false;
+    if (age > 60 * 86400e3) return false;
+    if (p.status === 'dismissed' && age > 14 * 86400e3) return false;
+    return true;
+  });
+  if (kept.length > 300) kept = kept.slice(0, 300);
+  return kept;
+}
+
 module.exports = {
   extractSiteUrl: extractSiteUrl,
   filterProspects: filterProspects,
   buildReplyTask: buildReplyTask,
   buildScanJob: buildScanJob,
-  promoteReady: promoteReady
+  promoteReady: promoteReady,
+  reconcile: reconcile
 };
