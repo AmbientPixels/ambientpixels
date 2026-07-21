@@ -234,7 +234,7 @@ function reconcile(prospects, tasks, actions, nowMs) {
     if (p.status === 'dismissed' && age > 14 * 86400e3) return false;
     return true;
   });
-  if (kept.length > 300) kept = kept.slice(0, 300);
+  if (kept.length > 300) kept = kept.slice(-300);
   return kept;
 }
 

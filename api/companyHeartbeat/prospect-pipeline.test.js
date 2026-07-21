@@ -233,12 +233,24 @@ test('prunes dismissed >14d, everything >60d, caps at 300', () => {
       discoveredAt: new Date(NOW - ageDays * 86400e3).toISOString() };
   };
   const list = [mk(1, 'dismissed', 20), mk(2, 'dismissed', 2), mk(3, 'sent', 70), mk(4, 'sent', 5)];
-  for (let i = 5; i < 320; i++) list.push(mk(i, 'sent', 1));
+  for (let i = 5; i < 301; i++) list.push(mk(i, 'sent', 1));
   const kept = PP.reconcile(list, [], [], NOW);
   assert.ok(!kept.some(function (p) { return p.id === 'p1'; }), 'old dismissed pruned');
   assert.ok(kept.some(function (p) { return p.id === 'p2'; }), 'fresh dismissed kept');
   assert.ok(!kept.some(function (p) { return p.id === 'p3'; }), '>60d pruned');
   assert.ok(kept.length <= 300, 'capped at 300');
+});
+
+test('cap keeps the NEWEST 300 when over limit', () => {
+  const list = [];
+  for (let i = 0; i < 310; i++) {
+    list.push({ id: 'pc' + i, status: 'sent', taskId: 't' + i,
+      discoveredAt: new Date(NOW - (310 - i) * 60e3).toISOString() }); // ascending: pc309 newest
+  }
+  const kept = PP.reconcile(list, [], [], NOW);
+  assert.strictEqual(kept.length, 300);
+  assert.ok(kept.some(function (p) { return p.id === 'pc309'; }), 'newest kept');
+  assert.ok(!kept.some(function (p) { return p.id === 'pc0'; }), 'oldest dropped');
 });
 
 // ── runProspectPipeline (integration, mocked IO) ──
