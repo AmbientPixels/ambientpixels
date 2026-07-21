@@ -160,7 +160,12 @@ function evaluateObjectives(objectives, sources, nowMs) {
     }
     const pct = _pctToTarget(r.value, c.target, c.baseline);
     obj.measuredAt = new Date(now).toISOString();
-    obj.measuredValue = r.value;
+    // Persist when the measured VALUE moves, not only when the rounded pct does —
+    // otherwise measuredValue/measuredAt only survive to storage on a pct change
+    // (observed: dashboards showed "78, measured 07-17" for 4 days while the live
+    // count was 76, because 76→78→76 never moved the rounded pct off 0%).
+    // A frozen value still skips the write: no hourly blob churn for no news.
+    if (obj.measuredValue !== r.value) { obj.measuredValue = r.value; out.changed = true; }
     if (obj.progress !== pct) { obj.progress = pct; out.changed = true; }
     if (r.value >= Number(c.target)) {
       obj.status = 'complete';
