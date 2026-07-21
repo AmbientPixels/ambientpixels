@@ -96,4 +96,69 @@ function filterProspects(candidates, prospects, cfg, nowMs) {
   return out;
 }
 
-module.exports = { extractSiteUrl: extractSiteUrl, filterProspects: filterProspects };
+// Task shape mirrors the CEO dashboard's Draft Reply flow
+// (modules/company/bluesky-discovery.html ~line 349) — Scribe's drafter reads
+// task.threadContext {uri, cid, author}. status 'backlog' keeps it invisible to
+// agents until the scan comment lands (promoteReady flips it to 'todo').
+// source 'asProspectCron' (≠ 'heartbeat') + assignee + dueDate rides the
+// CEO/manual-task triage exception — no Nova-triage wait.
+function buildReplyTask(prospect, nowMs) {
+  var iso = new Date(nowMs).toISOString();
+  return {
+    id: 'task_' + nowMs + '_prospect_' + Math.random().toString(36).substring(2, 6),
+    title: 'Outreach reply to @' + prospect.author + ' (AmbientScore prospect)',
+    description:
+      'PROSPECT FACT SHEET (use ONLY these facts + the scan comment below)\n'
+      + '- Their post (verbatim): "' + prospect.postText + '"\n'
+      + '- Their site: ' + prospect.siteUrl + '\n'
+      + '- You are replying AS the AmbientPixels founder account.\n\n'
+      + 'RULES:\n'
+      + '- Reference exactly ONE specific finding from the [asScanRunner] scan comment on this task.\n'
+      + '- Include the free shareable report link from that comment.\n'
+      + '- Do NOT mention pricing. Do NOT claim anything the scan did not measure.\n'
+      + '- Founder voice: under 280 chars, no em dashes, no hype, 5th grade reading level.\n'
+      + '- If the post or site looks like spam, output an empty deliverable to decline.\n\n'
+      + 'Output ONLY the reply text itself. No title, no "Reply:" label, no preamble.',
+    taskType: 'bluesky_reply',
+    category: 'maintenance',
+    status: 'backlog',
+    priority: 'medium',
+    assignee: 'scribe',
+    source: 'asProspectCron',
+    created_by: 'asProspectCron',
+    objective_id: 'obj-first-customer',
+    createdAt: iso,
+    updatedAt: iso,
+    dueDate: new Date(nowMs + 3 * 86400e3).toISOString(),
+    tags: ['bluesky-reply', 'as-prospect'],
+    threadContext: {
+      uri: prospect.uri, cid: prospect.cid,
+      author: prospect.author, authorDid: prospect.authorDid,
+      originalText: prospect.postText,
+      indexedAt: prospect.discoveredAt
+    },
+    comments: []
+  };
+}
+
+// Matches the asScanQueue entry shape written by the run-ambientscore-scan
+// handler (agent-runner.js ~line 5183) — asScanRunner consumes url + taskId.
+function buildScanJob(prospect, taskId, nowMs) {
+  return {
+    id: 'scan_' + nowMs + '_' + Math.random().toString(36).substring(2, 6),
+    url: prospect.siteUrl,
+    taskId: taskId,
+    requestedBy: 'asProspectCron',
+    note: 'Outbound prospect: @' + prospect.author + ' — ' + prospect.domain,
+    status: 'queued',
+    createdAt: new Date(nowMs).toISOString(),
+    cycleId: 'asProspectCron'
+  };
+}
+
+module.exports = {
+  extractSiteUrl: extractSiteUrl,
+  filterProspects: filterProspects,
+  buildReplyTask: buildReplyTask,
+  buildScanJob: buildScanJob
+};

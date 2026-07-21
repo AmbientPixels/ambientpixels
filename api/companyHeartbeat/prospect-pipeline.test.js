@@ -109,5 +109,33 @@ test('dedup within one batch by author and by domain', () => {
   assert.strictEqual(PP.filterProspects([a, b], [], CFG, NOW).length, 1);
 });
 
+// ── builders ──
+test('buildReplyTask: backlog, scribe, threadContext, fact sheet, objective link', () => {
+  const p = PP.filterProspects([cand()], [], CFG, NOW)[0];
+  const task = PP.buildReplyTask(p, NOW);
+  assert.strictEqual(task.status, 'backlog');
+  assert.strictEqual(task.assignee, 'scribe');
+  assert.strictEqual(task.taskType, 'bluesky_reply');
+  assert.strictEqual(task.source, 'asProspectCron');
+  assert.strictEqual(task.objective_id, 'obj-first-customer');
+  assert.strictEqual(task.threadContext.uri, p.uri);
+  assert.strictEqual(task.threadContext.cid, p.cid);
+  assert.strictEqual(task.threadContext.author, p.author);
+  assert.ok(task.description.indexOf('PROSPECT FACT SHEET') !== -1);
+  assert.ok(task.description.indexOf(p.siteUrl) !== -1);
+  assert.ok(task.description.indexOf(p.postText) !== -1);
+  assert.ok(task.dueDate && task.id && task.createdAt);
+});
+
+test('buildScanJob: matches asScanQueue shape', () => {
+  const p = PP.filterProspects([cand()], [], CFG, NOW)[0];
+  const job = PP.buildScanJob(p, 'task_x', NOW);
+  assert.strictEqual(job.url, p.siteUrl);
+  assert.strictEqual(job.taskId, 'task_x');
+  assert.strictEqual(job.status, 'queued');
+  assert.strictEqual(job.requestedBy, 'asProspectCron');
+  assert.ok(job.id.indexOf('scan_') === 0);
+});
+
 console.log(pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
