@@ -107,11 +107,36 @@ function normalizeAgentResult(parsed) {
 
   // ── New format: { taskUpdates, proposals, remember, observations } ──
   if (parsed.taskUpdates || parsed.proposals || parsed.remember || parsed.observations) {
-    // taskUpdates → actions (same format the processing loop expects)
+    // taskUpdates → actions (same format the processing loop expects).
+    // This branch previously pushed ANY object with zero type validation while the
+    // legacy branch validated against KNOWN_ACTION_TYPES — so typeless/malformed
+    // entries reached the processing loop, fell through every handler as no-ops,
+    // and dedup-collided on the bare "action" summary key (first one "executed",
+    // siblings silently dropped — confirmed via silent-drop audit 2026-07-21).
     if (Array.isArray(parsed.taskUpdates)) {
       for (var j = 0; j < parsed.taskUpdates.length; j++) {
         var tu = parsed.taskUpdates[j];
-        if (tu && typeof tu === 'object') normalized.actions.push(tu);
+        if (!tu || typeof tu !== 'object') continue;
+        // Tool-call shape ({tool: 'web_search'}) is typeless by design — the runner
+        // routes it via `toolActions`, not the regular action loop. Pass through.
+        if (tu.tool === 'web_search') { normalized.actions.push(tu); continue; }
+        // Shape-tolerant lift: LLMs sometimes emit the type under `action` or
+        // `actionType` instead of `type`. Rescue when it names a known type.
+        if (!tu.type) {
+          var _alt = (typeof tu.action === 'string' && tu.action) ||
+                     (typeof tu.actionType === 'string' && tu.actionType) || '';
+          if (_alt && KNOWN_ACTION_TYPES.indexOf(_alt) !== -1) tu.type = _alt;
+        }
+        var _tuType = tu.type || '';
+        if (_tuType === 'proposal') {
+          normalized.proposals.push(tu.proposal || tu);
+        } else if (KNOWN_ACTION_TYPES.indexOf(_tuType) !== -1) {
+          normalized.actions.push(tu);
+        } else {
+          // Same treatment as the legacy branch: visible warning, not a silent no-op.
+          normalized.observations.push('[unknown-action-type] ' + (_tuType || '(missing type)') + ': ' +
+            String(tu.summary || JSON.stringify(tu)).substring(0, 200));
+        }
       }
     }
     // proposals
