@@ -845,6 +845,20 @@ Write the full deliverable first, then the structured JSON block.`;
   result.actionAttempts = Array.isArray(actions) ? actions.length : 0;
   let actionCount = 0;
 
+  // Silent-drop audit: several skip paths below drop an action with only a console log,
+  // which made the attempted-vs-executed gap invisible (observed: Nova 71 attempted →
+  // 24 executed over 24h with zero governance entries). Count per gate here and emit
+  // ONE aggregate event per gate after the loop — per-action logging would flood the
+  // 200-entry governanceLog FIFO.
+  const _silentDrops = {};
+  function _countSilentDrop(gate, sample) {
+    if (!_silentDrops[gate]) _silentDrops[gate] = { count: 0, samples: [] };
+    _silentDrops[gate].count++;
+    if (sample && _silentDrops[gate].samples.length < 3) {
+      _silentDrops[gate].samples.push(String(sample).substring(0, 120));
+    }
+  }
+
   // SERVER-SIDE FORCED HERO IMAGE: If Pixel has a hero image task idle 10+ min and didn't produce generate-image, inject it
   if (agentId === 'pixel') {
     const _pixelHeroTask = agentTasks.find(t =>
@@ -1342,12 +1356,14 @@ Write the full deliverable first, then the structured JSON block.`;
     // Block forbidden actions for Tier 4 sub-agents
     if (isTier4 && TIER4_FORBIDDEN.indexOf(action.type) !== -1) {
       context.log('[Heartbeat]', agentId, 'BLOCKED forbidden action:', action.type, '(Tier 4 restriction)');
+      _countSilentDrop('tier4_forbidden', action.type);
       continue;
     }
 
     // Only Echo can create social posts (server-side enforcement)
     if (action.type === 'create-social-action' && agentId !== 'echo') {
       context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action (only Echo can post)');
+      _countSilentDrop('social_echo_only', action.taskId || action.type);
       continue;
     }
 
@@ -1364,11 +1380,13 @@ Write the full deliverable first, then the structured JSON block.`;
       // Block: social action on a non-social task
       if (action.type === 'create-social-action' && _ttType !== 'general' && _ttSocial.indexOf(_ttType) === -1) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— taskType is', _ttType, '(expected social_x/social_linkedin/social_bluesky/social_reddit)');
+        _countSilentDrop('pipeline_type_mismatch', action.type + ' on ' + _ttType + ' [' + action.taskId + ']');
         continue;
       }
       // Block: content package on a non-content task
       if (action.type === 'create-content-package' && _ttType !== 'general' && _ttContent.indexOf(_ttType) === -1) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-content-package on', action.taskId, '— taskType is', _ttType, '(expected design_asset)');
+        _countSilentDrop('pipeline_type_mismatch', action.type + ' on ' + _ttType + ' [' + action.taskId + ']');
         continue;
       }
       // Warn: create-doc on task that doesn't require docs (soft — log only)
@@ -1391,15 +1409,22 @@ Write the full deliverable first, then the structured JSON block.`;
       const dlead = skipTarget ? (skipTarget.domainLead || DOMAIN_LEAD_MAP[(skipTarget.assignee || '').toLowerCase()] || '?') : '?';
       context.log('[Heartbeat] Nova SKIPPED action on', action.taskId,
         '— handled by domain lead (' + dlead + '), not High/Blocked/Overdue');
+      _countSilentDrop('nova_domain_lead_skip', action.taskId);
       continue;
     }
 
     const _isDedupeExempt = _DEDUP_EXEMPT.has(action.type);
-    const summary = agent.name + ': ' + (action.summary || action.type || 'action') + (action.taskId ? ' [' + action.taskId + ']' : '');
+    // create-task carries no taskId yet, so without a discriminator N different creates
+    // in one cycle all key as "Agent: create-task" and only the first survives the
+    // dedupe below. Key on the proposed title to keep distinct creates distinct.
+    const _createTitleKey = (action.type === 'create-task' && action.task && action.task.title)
+      ? ' — ' + String(action.task.title).substring(0, 80) : '';
+    const summary = agent.name + ': ' + (action.summary || action.type || 'action') + (action.taskId ? ' [' + action.taskId + ']' : '') + _createTitleKey;
 
     // Dedupe (skipped for work-producing actions)
     if (!_isDedupeExempt && recentSummaries.has(summary)) {
       context.log('[Heartbeat]', agentId, 'skipping duplicate:', summary);
+      _countSilentDrop('summary_dedup', summary);
       continue;
     }
 
@@ -1430,6 +1455,7 @@ Write the full deliverable first, then the structured JSON block.`;
       // SERVER-SIDE GUARD: block agents from creating hero image tasks — system auto-creates them
       if ((action.task.assignee || '').toLowerCase() === 'pixel' && /hero\s*image/i.test(action.task.title || '')) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: hero image tasks are auto-created by the system, not agents. Title:', action.task.title);
+        _countSilentDrop('hero_image_autocreated', action.task.title);
         continue;
       }
 
@@ -6203,6 +6229,26 @@ Write the full deliverable first, then the structured JSON block.`;
       context.log('[Heartbeat]', agentId, 'Rate-limit auto-memory failed (non-fatal):', String(_rlErr).substring(0, 200));
     }
   }
+
+  // Silent-drop aggregates — one event per gate per run so the attempted-vs-executed
+  // gap is auditable from governanceLog instead of only ephemeral console logs.
+  // nova_domain_lead_skip is by-design routing (Nova deferring to a dept head), so it
+  // routes to run-health telemetry, not the CEO-facing policy-violation stream — same
+  // split as the observation_clamp downgrade above.
+  try {
+    for (var _sdGate in _silentDrops) {
+      var _sd = _silentDrops[_sdGate];
+      var _sdEventType = _sdGate === 'nova_domain_lead_skip' ? 'run-health' : 'policy-violation';
+      await logEvent(_sdEventType, agentId,
+        'Dropped ' + _sd.count + ' action(s) without execution: ' + _sdGate, cycleId, {
+          runId: cycleId, gate: _sdGate, reason: 'silent_drop_aggregate',
+          count: _sd.count, samples: _sd.samples
+        });
+    }
+  } catch (_sdErr) {
+    context.log('[Heartbeat]', agentId, 'silent-drop aggregate logging failed (non-fatal):', String(_sdErr).substring(0, 200));
+  }
+  result.silentDrops = _silentDrops;
 
   result.durationMs = Date.now() - _agentRunStartMs;
   return result;

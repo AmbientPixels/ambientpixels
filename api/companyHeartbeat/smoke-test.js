@@ -139,8 +139,8 @@ async function runSmokeTests() {
 
   // ── 1. Constants load correctly ──
   console.log('\x1b[36m[Constants]\x1b[0m');
-  test('AGENT_IDS has 8 agents', () => {
-    assert.strictEqual(AGENT_IDS.length, 8);
+  test('AGENT_IDS has 9 agents (8 founders + vale)', () => {
+    assert.strictEqual(AGENT_IDS.length, 9);
   });
   test('All agents have roles defined', () => {
     AGENT_IDS.forEach(id => assert.ok(AGENT_ROLES[id], 'Missing role for ' + id));
