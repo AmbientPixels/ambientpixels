@@ -280,7 +280,8 @@ function reconcile(prospects, tasks, actions, nowMs) {
       || (reply.execution && reply.execution.status === 'success')
       || reply.execution_status === 'success';
     if (approved) { p.status = 'sent'; p.actionId = reply.id; return; }
-    var rejected = reply.approval && reply.approval.status === 'rejected';
+    var rejected = reply.approval &&
+      (reply.approval.status === 'rejected' || reply.approval.status === 'cancelled');
     if (rejected) { p.status = 'declined'; return; }
     // pending: no stamp yet, a later run re-checks
   });
@@ -404,9 +405,13 @@ async function runProspectPipeline(opts) {
     var t = tasks.find(function (x) { return x && x.id === tid; });
     if (t && t.status === 'backlog') { t.status = 'todo'; t.updatedAt = new Date(nowMs).toISOString(); tasksDirty = true; }
   });
-  var toClose = promo.taskIdsToClose.concat(sweep.taskIdsToClose);
+  // Close-comment copy is branched by ORIGIN — the promote path closes
+  // because a scan genuinely failed; the orphan-sweep path closes because
+  // the job/task link was lost (crash or a concurrent asScanQueue write),
+  // and the prospect is being reverted for a retry, not dismissed. Using
+  // the promote copy on an orphan close would assert something false.
   var closeSeen = {};
-  toClose.forEach(function (tid) {
+  function _closeTaskWithCopy(tid, comment) {
     if (closeSeen[tid]) return;
     closeSeen[tid] = true;
     var t = tasks.find(function (x) { return x && x.id === tid; });
@@ -415,13 +420,21 @@ async function runProspectPipeline(opts) {
       t.updatedAt = new Date(nowMs).toISOString();
       t.comments = t.comments || [];
       t.comments.push({ id: 'cmt-prospect-' + nowMs, author: 'system', type: 'system',
-        text: 'Scan failed for this prospect — outreach dismissed by asProspectCron.',
-        createdAt: new Date(nowMs).toISOString() });
+        text: comment, createdAt: new Date(nowMs).toISOString() });
       tasksDirty = true;
     }
+  }
+  promo.taskIdsToClose.forEach(function (tid) {
+    _closeTaskWithCopy(tid, 'Scan failed for this prospect — outreach dismissed by asProspectCron.');
+  });
+  sweep.taskIdsToClose.forEach(function (tid) {
+    _closeTaskWithCopy(tid, 'Scan job lost (crash or concurrent queue write) — task closed, prospect re-queued by asProspectCron.');
   });
   if (toTodo.length > 0) {
     govEvents.push({ type: 'prospect-outreach-ready', data: { count: toTodo.length, taskIds: toTodo } });
+  }
+  if (sweep.reverted.length > 0) {
+    log('[prospects] orphan sweep reverted ' + sweep.reverted.length + ' stranded prospect(s) for retry');
   }
 
   // ── Pass 3: TRACK / PRUNE ──
@@ -445,7 +458,7 @@ async function runProspectPipeline(opts) {
   }
 
   var summary = { discovered: discovered, queued: queued, promoted: promo.taskIdsToTodo.length,
-    dismissed: promo.taskIdsToClose.length, total: kept.length };
+    dismissed: promo.taskIdsToClose.length, swept: sweep.reverted.length, total: kept.length };
   log('[prospects] run complete: ' + JSON.stringify(summary));
   return summary;
 }

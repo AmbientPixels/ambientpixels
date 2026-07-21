@@ -248,6 +248,15 @@ test('task done + REJECTED reply action → declined', () => {
   assert.strictEqual(p.status, 'declined');
 });
 
+test('task done + CANCELLED reply action → declined (terminal, same as rejected)', () => {
+  const p = queuedProspect({ status: 'task_ready' });
+  const tasks = [{ id: 'task_1', status: 'done' }];
+  const actions = [{ id: 'act_9', type: 'social_post.reply', _parentTaskId: 'task_1',
+    approval: { status: 'cancelled' } }];
+  PP.reconcile([p], tasks, actions, NOW);
+  assert.strictEqual(p.status, 'declined');
+});
+
 test('task done + no reply action → declined', () => {
   const p = queuedProspect({ status: 'task_ready' });
   PP.reconcile([p], [{ id: 'task_1', status: 'done' }], [], NOW);
@@ -348,6 +357,7 @@ function mockStorage(initial) {
     assert.strictEqual(s.asScanQueue[0].taskId, s.tasks[0].id);
     assert.strictEqual(r1.discovered, 1);
     assert.strictEqual(r1.queued, 1);
+    assert.strictEqual(r1.swept, 0, 'clean run sweeps nothing, but the key is always present');
   });
 
   // Run 2: scan runner finished → task promoted to todo
@@ -393,6 +403,26 @@ function mockStorage(initial) {
     assert.strictEqual(storage3._state.tasks.length, 1);
     assert.strictEqual(storage3._state.tasks[0].status, 'backlog');
     assert.strictEqual(r5.queued, 1);
+  });
+
+  // Orphan sweep wiring: a stranded scan_queued prospect (no job, old enough
+  // to clear the age guard) should close its task with the HONEST orphan
+  // copy, not the promote-path "scan failed" copy — no scan failed here, the
+  // prospect is being reverted for a retry, not dismissed.
+  const orphanProspect = queuedProspect({ id: 'pros_orphan', taskId: 'task_orphan', scanId: 'scan_orphan',
+    scanQueuedAt: new Date(NOW - 40 * 60e3).toISOString() });
+  const storage5 = mockStorage({
+    systemConfig: {}, tasks: [{ id: 'task_orphan', status: 'backlog', comments: [] }],
+    asScanQueue: [], asProspects: [orphanProspect], actions: [], governanceLog: []
+  });
+  const r6 = await PP.runProspectPipeline({ storage: storage5, log: function () {}, nowMs: NOW, discover: async function () { return []; } });
+  test('orphan sweep wiring: orphan-closed task gets honest "Scan job lost" copy', () => {
+    const t = storage5._state.tasks.find(function (x) { return x.id === 'task_orphan'; });
+    assert.strictEqual(t.status, 'done');
+    assert.ok(t.comments.some(function (c) { return c.text.indexOf('Scan job lost') !== -1; }), 'orphan copy present');
+    assert.ok(!t.comments.some(function (c) { return c.text.indexOf('Scan failed for this prospect') !== -1; }), 'promote copy absent');
+    assert.strictEqual(storage5._state.asProspects.find(function (p) { return p.id === 'pros_orphan'; }).status, 'discovered');
+    assert.strictEqual(r6.swept, 1);
   });
 
   // Dirty-flag: a run with nothing to discover/promote/sweep must not rewrite
