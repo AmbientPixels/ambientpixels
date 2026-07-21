@@ -66,7 +66,7 @@ function _extractPostLinks(p) {
  * Search Bluesky for posts matching a query, filtered by age and minimum replies.
  * @param {string} q - search keyword
  * @param {Object} opts - { maxAgeMinutes, minReplies, limit }
- * @returns {Promise<Array>} [{ uri, cid, author, authorDid, text, indexedAt, replyCount, repostCount, likeCount }]
+ * @returns {Promise<Array>} [{ uri, cid, author, authorDid, text, indexedAt, replyCount, repostCount, likeCount, links }]
  */
 async function searchBluesky(q, opts) {
   opts = opts || {};
