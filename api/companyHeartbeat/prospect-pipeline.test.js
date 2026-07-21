@@ -211,14 +211,41 @@ test('daily draft cap limits promotions', () => {
   assert.strictEqual(b.status, 'scan_queued'); // deferred to tomorrow
 });
 
+test('scan status "failed" (asScanRunner\'s actual value) → dismissed + close', () => {
+  const prospects = [queuedProspect()];
+  const scanQ = [{ id: 'scan_1', taskId: 'task_1', status: 'failed' }];
+  const r = PP.promoteReady(prospects, scanQ, CFG, NOW);
+  assert.deepStrictEqual(r.taskIdsToClose, ['task_1']);
+  assert.strictEqual(prospects[0].status, 'dismissed');
+});
+
 // ── reconcile ──
-test('task done + reply action → sent (actionId stamped)', () => {
+test('task done + APPROVED reply action → sent (actionId stamped)', () => {
   const p = queuedProspect({ status: 'task_ready' });
   const tasks = [{ id: 'task_1', status: 'done' }];
-  const actions = [{ id: 'act_9', type: 'social_post.reply', _parentTaskId: 'task_1' }];
+  const actions = [{ id: 'act_9', type: 'social_post.reply', _parentTaskId: 'task_1',
+    approval: { status: 'approved' } }];
   PP.reconcile([p], tasks, actions, NOW);
   assert.strictEqual(p.status, 'sent');
   assert.strictEqual(p.actionId, 'act_9');
+});
+
+test('task done + PENDING reply action → stays task_ready (no premature stamp)', () => {
+  const p = queuedProspect({ status: 'task_ready' });
+  const tasks = [{ id: 'task_1', status: 'done' }];
+  const actions = [{ id: 'act_9', type: 'social_post.reply', _parentTaskId: 'task_1',
+    approval: { status: 'pending' } }];
+  PP.reconcile([p], tasks, actions, NOW);
+  assert.strictEqual(p.status, 'task_ready');
+});
+
+test('task done + REJECTED reply action → declined', () => {
+  const p = queuedProspect({ status: 'task_ready' });
+  const tasks = [{ id: 'task_1', status: 'done' }];
+  const actions = [{ id: 'act_9', type: 'social_post.reply', _parentTaskId: 'task_1',
+    approval: { status: 'rejected' } }];
+  PP.reconcile([p], tasks, actions, NOW);
+  assert.strictEqual(p.status, 'declined');
 });
 
 test('task done + no reply action → declined', () => {
@@ -253,13 +280,51 @@ test('cap keeps the NEWEST 300 when over limit', () => {
   assert.ok(!kept.some(function (p) { return p.id === 'pc0'; }), 'oldest dropped');
 });
 
+// ── sweepOrphans ──
+test('orphan sweep: no-job scan_queued older than 30min reverts to discovered + closes task', () => {
+  const p = queuedProspect({ scanQueuedAt: new Date(NOW - 40 * 60e3).toISOString() });
+  const tasks = [{ id: 'task_1', status: 'backlog' }];
+  const r = PP.sweepOrphans([p], [], tasks, NOW); // empty scanQueue → no job found for scan_1/task_1
+  assert.deepStrictEqual(r.reverted, ['pros_1']);
+  assert.deepStrictEqual(r.taskIdsToClose, ['task_1']);
+  assert.strictEqual(p.status, 'discovered');
+  assert.strictEqual(p.taskId, null);
+  assert.strictEqual(p.scanId, null);
+  assert.strictEqual(p.scanQueuedAt, null);
+});
+
+test('orphan sweep: no-job scan_queued YOUNGER than 30min is untouched (age guard)', () => {
+  const p = queuedProspect({ scanQueuedAt: new Date(NOW - 5 * 60e3).toISOString() });
+  const tasks = [{ id: 'task_1', status: 'backlog' }];
+  const r = PP.sweepOrphans([p], [], tasks, NOW);
+  assert.strictEqual(r.reverted.length, 0);
+  assert.strictEqual(p.status, 'scan_queued');
+});
+
+test('orphan sweep: task_ready with backlog task gets reflipped', () => {
+  const p = queuedProspect({ status: 'task_ready', taskId: 'task_1' });
+  const tasks = [{ id: 'task_1', status: 'backlog' }];
+  const r = PP.sweepOrphans([p], [], tasks, NOW);
+  assert.deepStrictEqual(r.reflipTaskIds, ['task_1']);
+  assert.strictEqual(p.status, 'task_ready');
+});
+
+test('orphan sweep: task_ready with missing task is dismissed', () => {
+  const p = queuedProspect({ status: 'task_ready', taskId: 'task_missing' });
+  const r = PP.sweepOrphans([p], [], [], NOW);
+  assert.strictEqual(p.status, 'dismissed');
+  assert.strictEqual(r.reflipTaskIds.length, 0);
+});
+
 // ── runProspectPipeline (integration, mocked IO) ──
 function mockStorage(initial) {
   const state = Object.assign({}, initial);
+  const writes = [];
   return {
     _state: state,
+    _writes: writes,
     getState: async function (k) { return state[k] !== undefined ? state[k] : null; },
-    setState: async function (k, v) { state[k] = v; }
+    setState: async function (k, v) { writes.push(k); state[k] = v; }
   };
 }
 
@@ -328,6 +393,18 @@ function mockStorage(initial) {
     assert.strictEqual(storage3._state.tasks.length, 1);
     assert.strictEqual(storage3._state.tasks[0].status, 'backlog');
     assert.strictEqual(r5.queued, 1);
+  });
+
+  // Dirty-flag: a run with nothing to discover/promote/sweep must not rewrite
+  // tasks or asScanQueue (asProspects always persists).
+  const storage4 = mockStorage({
+    systemConfig: {}, tasks: [], asScanQueue: [], asProspects: [], actions: [], governanceLog: []
+  });
+  await PP.runProspectPipeline({ storage: storage4, log: function () {}, nowMs: NOW, discover: async function () { return []; } });
+  test('dirty-flag: empty run writes asProspects but not tasks or asScanQueue', () => {
+    assert.ok(storage4._writes.includes('asProspects'));
+    assert.ok(!storage4._writes.includes('tasks'));
+    assert.ok(!storage4._writes.includes('asScanQueue'));
   });
 
   console.log(pass + ' passed, ' + fail + ' failed');
