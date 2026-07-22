@@ -132,6 +132,7 @@ function buildPrompt(signal, grounding, nowMs) {
     lines.push('{"propose":true,"kind":"campaign","title":"...","description":"...","rationale":"...","successCriteria":"...","product":"<a real product name or empty>","northStarMetric":"<a metric key above>","metricBaseline":<number>,"metricTarget":<number>,"metricDeadline":"YYYY-MM-DD","platforms":["social_bluesky"]}');
   }
   lines.push('Rules: metricTarget beats baseline but stays realistic (<= ~5x; for a 0 baseline propose a small count <= 25). metricDeadline 14-180 days out. If nothing here is genuinely worth proposing, return {"propose":false}.');
+  lines.push('PRICING RULE: agents cannot create discounts, sales, promo codes, or trials — pricing is CEO-only and does not exist until implemented in Stripe. You may RECOMMEND an offer, but then your rationale MUST state: "REQUIRES CEO: implement the discount in Stripe and add it to product-facts offers before any content ships." Content claiming a nonexistent offer is auto-blocked by the quality gate.');
   return lines.join('\n');
 }
 

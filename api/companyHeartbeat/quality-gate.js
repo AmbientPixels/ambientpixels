@@ -72,6 +72,59 @@ var AGENT_PERSONA_PATTERNS = [
 // cut by 60%+"; standing guidance is 400-800 chars. 1500 is the generous hard line.
 var LINKEDIN_MAX_CHARS = 1500;
 
+// ── Offer-claim detector (2026-07-22) ───────────────────────────────────────
+// The Genesis Sale incident: the proposal composer invented a campaign whose brief
+// promised "a significant discount", and every downstream agent treated that prose
+// as ground truth — copy claiming "a big discount" reached the approval queue while
+// NO Stripe coupon, code, or terms existed anywhere. Numeric claim-grounding never
+// fired because "a big discount" has no number. This detector closes the class:
+// copy that claims an offer must match an ACTIVE entry in product-facts.json's
+// top-level `offers` array (the source of truth for live offers — the CEO adds an
+// entry when the real pricing artifact exists in Stripe). Pricing is human-only;
+// agents can propose offers but cannot make them true.
+//
+// Deliberately NOT matched: "free scan" / "free report" (real, always-on product
+// facts), "sales" (the noun). Matched: discount(s/ed), N% off / percent off,
+// "sale" as a standalone word, promo/coupon codes, free trial, half price,
+// early-bird pricing.
+var OFFER_CLAIM_RX = /\b(?:discount(?:s|ed)?|\d{1,3}\s?%\s?off|percent\s+off|sale|promo\s?-?codes?|coupon(?:s|\s?codes?)?|free\s+trials?|half\s+price|early\s*-?\s*bird\s+(?:price|pricing|rate|offer))\b/i;
+
+// Revenue REPORTS are not offer claims: "we made our first sale!" announces an
+// outcome, not a promotion. Scrub report-phrasing before matching so the fleet's
+// (hopefully imminent) first-sale celebration post isn't blocked.
+var SALE_REPORT_SCRUB_RX = /\b(?:first|made|got|landed|closed|celebrating)\s+(?:a\s+|another\s+|our\s+(?:first\s+)?)?sale\b/gi;
+
+// offers = product-facts.json top-level `offers` array (or an override for tests).
+// An offer grounds claims when active !== false and not expired at nowMs.
+function detectUngroundedOffer(text, offers, nowMs) {
+  var t = String(text || '');
+  var m = t.replace(SALE_REPORT_SCRUB_RX, '').match(OFFER_CLAIM_RX);
+  if (!m) return { claimed: false, grounded: true, matchedPhrase: null, issue: null };
+  var now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  var live = (Array.isArray(offers) ? offers : []).filter(function (o) {
+    if (!o || o.active === false) return false;
+    if (o.expires) {
+      var exp = Date.parse(o.expires);
+      if (Number.isFinite(exp) && exp < now) return false;
+    }
+    return true;
+  });
+  if (live.length > 0) return { claimed: true, grounded: true, matchedPhrase: m[0], issue: null };
+  return {
+    claimed: true,
+    grounded: false,
+    matchedPhrase: m[0],
+    issue: 'Copy claims an offer ("' + m[0] + '") but product-facts lists no active offer — ' +
+      'the discount does not exist yet. The CEO must implement pricing (Stripe coupon/promo code) ' +
+      'and add it to product-facts.json `offers` before content can claim it.'
+  };
+}
+
+// Default offers source: product-facts.json (static JSON — compile-time data, not a
+// state read, so the offline backtest contract holds). Missing key → [] (no offers).
+var _FILE_OFFERS = [];
+try { _FILE_OFFERS = require('../_data/product-facts.json').offers || []; } catch (_e) { /* keep [] */ }
+
 function detectContentLeaks(text, platform) {
   var t = String(text || '');
   var refusal = REFUSAL_PATTERNS.some(function (rx) { return rx.test(t); });
@@ -245,6 +298,9 @@ function composeQualityVerdict(opts) {
   var repeatPromo = opts.repeatPromo || { exceeded: false };
   var grounding = opts.grounding || null; // result of findUngroundedClaims, or null = not checked
 
+  // Offer-claim check: opts.offers overrides (tests/backtest); default = product-facts.
+  var offer = detectUngroundedOffer(opts.text || '', opts.offers !== undefined ? opts.offers : _FILE_OFFERS, opts.nowMs);
+
   var issues = [];
   var deterministicFlags = {
     refusalLeak: !!leaks.refusal,
@@ -255,10 +311,12 @@ function composeQualityVerdict(opts) {
     repeatPromoUrl: !!repeatPromo.exceeded,
     semanticDup: !!opts.semanticDup,
     dailyCap: !!opts.dailyCap,
+    ungroundedOffer: !!(offer.claimed && !offer.grounded),
     ungroundedClaims: grounding ? grounding.ungrounded : []
   };
 
   issues = issues.concat(leaks.issues || []);
+  if (offer.claimed && !offer.grounded) issues.push(offer.issue);
   // repeat-promo is a creation-time DEFER gate (serialize same-link posts), not a content
   // failure — if the action exists anyway, surface it as information for the AQ badge.
   if (repeatPromo.exceeded) {
@@ -266,7 +324,7 @@ function composeQualityVerdict(opts) {
       (repeatPromo.matchId || 'recent post') + ') — consider deciding that one first.');
   }
 
-  var hardFail = leaks.any;
+  var hardFail = leaks.any || (offer.claimed && !offer.grounded);
 
   // LLM verdict with grounded-stat suppression
   var llmFail = false;
@@ -315,6 +373,7 @@ var SOCIAL_ATTEMPTS_CAP = 2;
 
 module.exports = {
   SOCIAL_ATTEMPTS_CAP: SOCIAL_ATTEMPTS_CAP,
+  detectUngroundedOffer: detectUngroundedOffer,
   detectContentLeaks: detectContentLeaks,
   looksLikeDocScaffold: looksLikeDocScaffold,
   repeatPromoUrlStatus: repeatPromoUrlStatus,
