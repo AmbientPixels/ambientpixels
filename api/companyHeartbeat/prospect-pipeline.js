@@ -238,6 +238,19 @@ function promoteReady(prospects, scanQueue, cfg, nowMs) {
       p.status = 'dismissed';
       out.taskIdsToClose.push(p.taskId);
     } else if (job.status === 'done') {
+      // Outreach quality floor: a near-zero score on a completed scan almost
+      // always means the scraper hit a bot wall and audited an empty shell
+      // (first prod case: amazon.ca product page → 7/100 "no headline
+      // whatsoever"). Sending that "free report" would embarrass the brand —
+      // dismiss instead of promoting.
+      var _minScore = Number.isFinite(cfg.minOutreachScore) ? cfg.minOutreachScore : 15;
+      if (Number.isFinite(job.score) && job.score < _minScore) {
+        p.status = 'dismissed';
+        p.scanScore = job.score;
+        p.reportId = job.reportId || null;
+        out.taskIdsToClose.push(p.taskId);
+        continue;
+      }
       if (budget <= 0) continue; // stays scan_queued, promoted on a later run
       budget--;
       p.status = 'task_ready';
@@ -425,7 +438,7 @@ async function runProspectPipeline(opts) {
     }
   }
   promo.taskIdsToClose.forEach(function (tid) {
-    _closeTaskWithCopy(tid, 'Scan failed for this prospect — outreach dismissed by asProspectCron.');
+    _closeTaskWithCopy(tid, 'Scan unusable for outreach (failed, or scored below the quality floor — usually a bot-blocked page) — dismissed by asProspectCron.');
   });
   sweep.taskIdsToClose.forEach(function (tid) {
     _closeTaskWithCopy(tid, 'Scan job lost (crash or concurrent queue write) — task closed, prospect re-queued by asProspectCron.');

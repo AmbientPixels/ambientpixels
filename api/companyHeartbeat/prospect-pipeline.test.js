@@ -200,6 +200,23 @@ test('scan still queued/running → untouched', () => {
   assert.strictEqual(r.taskIdsToTodo.length, 0);
 });
 
+test('scan score below outreach floor → dismissed, not promoted (bot-wall guard)', () => {
+  const prospects = [queuedProspect()];
+  const scanQ = [{ id: 'scan_1', taskId: 'task_1', status: 'done', reportId: 'ccr_amz', score: 7 }];
+  const r = PP.promoteReady(prospects, scanQ, CFG, NOW);
+  assert.strictEqual(prospects[0].status, 'dismissed');
+  assert.deepStrictEqual(r.taskIdsToClose, ['task_1']);
+  assert.strictEqual(r.taskIdsToTodo.length, 0);
+});
+
+test('outreach floor is tunable: floor 80 dismisses a 75 scan', () => {
+  const prospects = [queuedProspect()];
+  const scanQ = [{ id: 'scan_1', taskId: 'task_1', status: 'done', reportId: 'ccr_x', score: 75 }];
+  const strict = Object.assign({}, CFG, { minOutreachScore: 80 });
+  PP.promoteReady(prospects, scanQ, strict, NOW);
+  assert.strictEqual(prospects[0].status, 'dismissed');
+});
+
 test('daily draft cap limits promotions', () => {
   const done = function (n) { return { id: 'scan_' + n, taskId: 'task_' + n, status: 'done', reportId: 'r' + n }; };
   const promotedToday = queuedProspect({ id: 'p0', taskId: 'task_0', scanId: 'scan_0',
