@@ -373,6 +373,7 @@ var SOCIAL_ATTEMPTS_CAP = 2;
 
 module.exports = {
   SOCIAL_ATTEMPTS_CAP: SOCIAL_ATTEMPTS_CAP,
+  FILE_OFFERS: _FILE_OFFERS,
   detectUngroundedOffer: detectUngroundedOffer,
   detectContentLeaks: detectContentLeaks,
   looksLikeDocScaffold: looksLikeDocScaffold,

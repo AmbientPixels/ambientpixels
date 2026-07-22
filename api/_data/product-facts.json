@@ -75,6 +75,6 @@
     "url": "https://ambientpixels.ai",
     "tone": "Speak as AmbientPixels, not as an individual. Focus on what we build, ship, and learn. No corporate buzzwords."
   },
-  "_offersNote": "Source of truth for LIVE offers (discounts, sales, promo codes, trials). Content claiming any offer is HARD-BLOCKED by the quality gate unless a matching entry here is active and unexpired (quality-gate.js detectUngroundedOffer). Only the CEO adds entries, and only AFTER the real pricing artifact exists in Stripe. Shape: {\"name\": \"Genesis Sale\", \"code\": \"GENESIS\", \"discountPct\": 50, \"appliesTo\": \"AmbientScore single audit ($29)\", \"active\": true, \"expires\": \"2026-08-15\"}",
+  "_offersNote": "Static base of the LIVE-offers registry. Content claiming any offer (discount/sale/promo code/trial) is HARD-BLOCKED by the quality gate unless an active, unexpired entry exists here OR in the runtime registry systemConfig.offers (written by POST /api/as-offer-create, which creates the real Stripe coupon+promotion code first). Pricing is CEO-only. Entry shape: {\"name\": \"Genesis Sale\", \"code\": \"GENESIS\", \"discountPct\": 50, \"appliesTo\": \"AmbientScore single audit ($29)\", \"active\": true, \"expires\": \"2026-08-15\"}",
   "offers": []
 }

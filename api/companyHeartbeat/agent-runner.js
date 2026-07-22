@@ -3256,10 +3256,16 @@ Write the full deliverable first, then the structured JSON block.`;
         // circuit-breaker / AQ-badge logic consumes the composed verdict unchanged.
         try {
           var _qgvTask = action.taskId ? tasks.find(function (t) { return t.id === action.taskId; }) : null;
+          // Live offers: runtime registry (systemConfig.offers, written by as-offer-create
+          // after the CEO implements pricing in Stripe) layered over the static file.
+          // Fail-open to file-only — a transient read error must not block posting.
+          var _rtOffers = null;
+          try { _rtOffers = ((await storage.getState('systemConfig')) || {}).offers; } catch (_roErr) { /* file offers only */ }
           _qgResult = QGV.composeQualityVerdict({
             llm: _qgResult,
             text: _postText,
             platform: newAction.platform,
+            offers: QGV.FILE_OFFERS.concat(Array.isArray(_rtOffers) ? _rtOffers : []),
             grounding: QGV.findUngroundedClaims(_postText, QGV.buildGroundingText(_qgvTask, _productFacts))
           });
         } catch (_qgvErr) {

@@ -51,6 +51,49 @@ async function createCheckoutSession({ reportId, url, email, priceType, utmConte
   };
 }
 
+// ── Create Offer (coupon + promotion code) ───────────────────────
+// CEO-only path (as-offer-create endpoint). Creates the real pricing artifact:
+// a one-time percent-off coupon plus a customer-facing promotion code with a
+// redemption cap and expiry. The existing checkout already passes
+// allow_promotion_codes, so the code works the moment this returns.
+
+async function createOffer({ name, code, percentOff, maxRedemptions, expiresAt }) {
+  if (!STRIPE_SECRET_KEY) throw new Error('Stripe is not configured');
+  const pct = Number(percentOff);
+  if (!Number.isFinite(pct) || pct <= 0 || pct > 100) throw new Error('percentOff must be 1-100');
+  if (!code || !/^[A-Z0-9_-]{3,30}$/i.test(String(code))) throw new Error('code must be 3-30 alphanumeric chars');
+
+  const headers = {
+    'Authorization': 'Bearer ' + STRIPE_SECRET_KEY,
+    'Content-Type': 'application/x-www-form-urlencoded'
+  };
+
+  const couponParams = new URLSearchParams();
+  couponParams.append('percent_off', String(pct));
+  couponParams.append('duration', 'once');
+  couponParams.append('name', String(name || code).slice(0, 40));
+  const couponRes = await axios.post(STRIPE_BASE + '/coupons', couponParams.toString(), { headers, timeout: 15000 });
+
+  const promoParams = new URLSearchParams();
+  promoParams.append('coupon', couponRes.data.id);
+  promoParams.append('code', String(code).toUpperCase());
+  if (Number.isFinite(Number(maxRedemptions)) && Number(maxRedemptions) > 0) {
+    promoParams.append('max_redemptions', String(Number(maxRedemptions)));
+  }
+  const expMs = Date.parse(expiresAt || '');
+  if (Number.isFinite(expMs)) promoParams.append('expires_at', String(Math.floor(expMs / 1000)));
+  const promoRes = await axios.post(STRIPE_BASE + '/promotion_codes', promoParams.toString(), { headers, timeout: 15000 });
+
+  return {
+    couponId: couponRes.data.id,
+    promotionCodeId: promoRes.data.id,
+    code: promoRes.data.code,
+    percentOff: pct,
+    maxRedemptions: promoRes.data.max_redemptions || null,
+    expiresAt: promoRes.data.expires_at ? new Date(promoRes.data.expires_at * 1000).toISOString() : null
+  };
+}
+
 // ── Verify Checkout Session ──────────────────────────────────────
 
 async function verifySession(sessionId) {
@@ -102,4 +145,4 @@ function verifyWebhookSignature(payload, signature) {
   }
 }
 
-module.exports = { createCheckoutSession, verifySession, verifyWebhookSignature };
+module.exports = { createCheckoutSession, createOffer, verifySession, verifyWebhookSignature };

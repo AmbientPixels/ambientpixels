@@ -3499,6 +3499,7 @@ module.exports = async function (context) {
               llm: _aqQualityGate,
               text: _rcText,
               platform: _platform,
+              offers: QGV.FILE_OFFERS.concat(Array.isArray(_systemConfig.offers) ? _systemConfig.offers : []),
               grounding: QGV.findUngroundedClaims(_rcText, QGV.buildGroundingText(_pt, productFacts))
             });
             context.log('[QualityGate] AUTO-POST', _platform, 'pass:', _aqQualityGate.pass, 'confidence:', _aqQualityGate.confidence, 'det:', JSON.stringify(_aqQualityGate.deterministicFlags || {}));
