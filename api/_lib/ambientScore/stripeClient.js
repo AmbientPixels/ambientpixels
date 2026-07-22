@@ -75,7 +75,11 @@ async function createOffer({ name, code, percentOff, maxRedemptions, expiresAt }
   const couponRes = await axios.post(STRIPE_BASE + '/coupons', couponParams.toString(), { headers, timeout: 15000 });
 
   const promoParams = new URLSearchParams();
-  promoParams.append('coupon', couponRes.data.id);
+  // This account's Stripe API version requires the nested `promotion` object —
+  // the legacy flat `coupon` param returns "Received unknown parameter: coupon"
+  // (verified live 2026-07-22 creating the GENESIS code).
+  promoParams.append('promotion[type]', 'coupon');
+  promoParams.append('promotion[coupon]', couponRes.data.id);
   promoParams.append('code', String(code).toUpperCase());
   if (Number.isFinite(Number(maxRedemptions)) && Number(maxRedemptions) > 0) {
     promoParams.append('max_redemptions', String(Number(maxRedemptions)));
