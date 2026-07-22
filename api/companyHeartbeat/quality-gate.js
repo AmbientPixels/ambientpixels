@@ -109,7 +109,22 @@ function detectUngroundedOffer(text, offers, nowMs) {
     }
     return true;
   });
-  if (live.length > 0) return { claimed: true, grounded: true, matchedPhrase: m[0], issue: null };
+  if (live.length > 0) {
+    // Qualifier strictness: a LIFETIME claim needs an offer actually marked
+    // lifetime — the first prod miss was a "big lifetime discount" post passing
+    // because the (one-time) GENESIS offer was live. Existence isn't enough
+    // when the copy promises a stronger deal than any real offer grants.
+    if (/\blifetime\b/i.test(t) && !live.some(function (o) { return o.lifetime === true; })) {
+      return {
+        claimed: true,
+        grounded: false,
+        matchedPhrase: m[0],
+        issue: 'Copy claims a LIFETIME offer but every active offer is one-time — ' +
+          'no lifetime deal exists. Cite the real terms of an active offer instead.'
+      };
+    }
+    return { claimed: true, grounded: true, matchedPhrase: m[0], issue: null };
+  }
   return {
     claimed: true,
     grounded: false,

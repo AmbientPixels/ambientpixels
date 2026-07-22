@@ -281,7 +281,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1570,6 +1570,25 @@ You must remain within your assigned authority tier. Doctrine influences your st
     if (productFacts.company) {
       pfLines.push('\nCompany: ' + productFacts.company.name + ' (' + productFacts.company.url + ')');
       pfLines.push('Tone: ' + productFacts.company.tone);
+    }
+    // Live offers registry — the ONLY discounts/sales that exist. Content claiming
+    // any other offer (or stronger terms, e.g. "lifetime") is auto-rejected by the
+    // quality gate's offer-claim detector. Genesis Sale lesson: agents invented a
+    // discount before one existed; now they see the real terms to cite.
+    var _liveOffers = (Array.isArray(activeOffers) ? activeOffers : []).filter(function (o) {
+      return o && o.active !== false && (!o.expires || Date.parse(o.expires) >= Date.now());
+    });
+    if (_liveOffers.length > 0) {
+      pfLines.push('\n💰 ACTIVE OFFERS (REAL and claimable — cite these terms EXACTLY):');
+      _liveOffers.forEach(function (o) {
+        pfLines.push('• ' + o.name + ': code ' + o.code + ' at checkout = ' + o.discountPct + '% off ' + (o.appliesTo || '') +
+          (o.maxRedemptions ? ' — first ' + o.maxRedemptions + ' redemptions only' : '') +
+          (o.expires ? ', ends ' + String(o.expires).slice(0, 10) : '') +
+          (o.lifetime === true ? '. Lifetime.' : '. One-time use — NEVER call it a lifetime deal.'));
+      });
+      pfLines.push('No other discounts, sales, codes, or trials exist. Do not invent stronger terms.');
+    } else {
+      pfLines.push('\n💰 OFFERS: NONE are currently live. Do NOT mention discounts, sales, promo codes, or trials — such copy is auto-rejected by the quality gate.');
     }
     pfLines.push('\n🚫 COMMON HALLUCINATIONS TO AVOID (these have been flagged by quality gate — do NOT repeat):');
     pfLines.push('- Do NOT invent pricing, run limits, or tier names (e.g. "5 runs/day free", "legendary-tier agent")');

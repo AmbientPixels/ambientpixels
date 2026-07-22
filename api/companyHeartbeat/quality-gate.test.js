@@ -58,6 +58,25 @@ test('free scan / free report / normal copy are NOT offer claims', () => {
     .forEach(t => assert.strictEqual(QG.detectUngroundedOffer(t, [], NOW).claimed, false, t));
 });
 
+test('lifetime claim is NOT grounded by a one-time offer (Founders Circle miss)', () => {
+  const fc = "I'm opening up a small Founder's Circle to get early feedback. You get a big lifetime discount for helping us out.";
+  const r = QG.detectUngroundedOffer(fc, [ACTIVE_OFFER], NOW); // GENESIS is one-time
+  assert.strictEqual(r.claimed, true);
+  assert.strictEqual(r.grounded, false);
+  assert.ok(/lifetime/i.test(r.issue));
+});
+
+test('lifetime claim IS grounded by an offer marked lifetime', () => {
+  const fc = 'Founders get a lifetime discount on AmbientScore.';
+  const lifetimeOffer = Object.assign({}, ACTIVE_OFFER, { lifetime: true });
+  assert.strictEqual(QG.detectUngroundedOffer(fc, [lifetimeOffer], NOW).grounded, true);
+});
+
+test('non-lifetime claim still grounds against the one-time offer', () => {
+  const ok = 'Use code GENESIS for 50% off the $29 audit. First 20 people, ends Aug 5.';
+  assert.strictEqual(QG.detectUngroundedOffer(ok, [ACTIVE_OFFER], NOW).grounded, true);
+});
+
 // ── composeQualityVerdict integration ──
 test('verdict hard-fails offer-claiming copy when no active offers exist', () => {
   const v = QG.composeQualityVerdict({ text: GENESIS_COPY, platform: 'bluesky', offers: [] });

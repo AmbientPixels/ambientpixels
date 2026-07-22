@@ -295,6 +295,19 @@ function _fleetProposalGate(agentId, type, targetKey, approvalQueue) {
   return { blocked: false };
 }
 
+// Live-offers registry (systemConfig.offers, written by as-offer-create) with a
+// 5-min cache so 9 agents/heartbeat don't each re-read the blob. Fail-open to []
+// — content agents then see the "NO offers live" prompt line, the safe default.
+var _offersCache = { at: 0, offers: [] };
+async function _getActiveOffers() {
+  if (Date.now() - _offersCache.at < 5 * 60e3) return _offersCache.offers;
+  try {
+    var _sc = (await storage.getState('systemConfig')) || {};
+    _offersCache = { at: Date.now(), offers: Array.isArray(_sc.offers) ? _sc.offers : [] };
+  } catch (_e) { _offersCache.at = Date.now(); }
+  return _offersCache.offers;
+}
+
 async function runAgentHeartbeat(ctx) {
   if (typeof ctx !== 'object' || ctx === null) throw new Error('runAgentHeartbeat: ctx must be an object');
   const { context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, executionMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, pendingMessages, approvalQueue, emergenceDigest } = ctx;
@@ -511,7 +524,8 @@ async function runAgentHeartbeat(ctx) {
   }
 
   const _agentRewards = (await storage.getState('agentRewards')) || null; // rewards ledger for the YOUR PROGRESSION block
-  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards };
+  const _activeOffers = await _getActiveOffers(); // live offers registry → ACTIVE OFFERS prompt block (content agents)
+  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers };
   const prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
