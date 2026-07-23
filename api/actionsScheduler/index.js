@@ -241,6 +241,33 @@ module.exports = async function (context) {
       context.log('[Scheduler] No scheduled actions due');
     }
 
+    // ── Approval-queue reconciliation (2026-07-23) ──
+    // The dashboard removes a queue entry when the CEO decides its action, but a
+    // heartbeat mid-run can clobber that removal with its own wholesale
+    // approvalQueue write (observed: two rejected bluesky_reply drafts
+    // resurrected as pending). Sweep: any PENDING entry whose linked action is
+    // already decided (approved/rejected/cancelled or executed) is resolved
+    // here, so a lost-update can strand an entry for at most one 10-min tick.
+    try {
+      const aq = (await storage.getState('approvalQueue')) || [];
+      const actionById = {};
+      actions.forEach(function (a) { if (a && a.id) actionById[a.id] = a; });
+      const kept = aq.filter(function (entry) {
+        if (!entry || entry.status !== 'pending' || !entry.action_id) return true;
+        const act = actionById[entry.action_id];
+        if (!act) return true; // action archived/unknown — leave for other prunes
+        const decided = act.approval && ['approved', 'rejected', 'cancelled', 'overridden'].indexOf(act.approval.status) !== -1;
+        const done = act.execution_status === 'success' || (act.execution && act.execution.status === 'success');
+        return !(decided || done);
+      });
+      if (kept.length !== aq.length) {
+        await storage.setState('approvalQueue', kept);
+        context.log('[Scheduler] AQ reconciliation: resolved', aq.length - kept.length, 'stranded entrie(s) whose actions were already decided');
+      }
+    } catch (aqErr) {
+      context.log.warn('[Scheduler] AQ reconciliation failed (non-fatal):', aqErr.message);
+    }
+
   } catch (err) {
     context.log.error('[Scheduler] Fatal error:', err.message || err);
   }
