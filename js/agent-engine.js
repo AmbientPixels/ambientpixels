@@ -3034,6 +3034,11 @@ var AgentEngine = (function () {
         a.approval.approved_by = 'Pixelpusher'; // track who rejected
         a.approval.approved_at = new Date().toISOString();
         a.updatedAt = new Date().toISOString();
+        // Guard: actions that never executed (e.g. social_post.reply approved but
+        // never picked up) have NO execution object — writing .status on undefined
+        // threw here and killed the whole cancel before _saveActions, making
+        // cancel silently do nothing (observed 2026-07-23 on three zombie replies).
+        a.execution = a.execution || {};
         a.execution.status = 'failed';
         a.execution.finished_at = new Date().toISOString();
         a.execution_status = 'failed';

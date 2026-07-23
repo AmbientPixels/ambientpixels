@@ -86,27 +86,47 @@ module.exports = async function (context) {
       const _manualPlatforms = ['reddit', 'facebook'];
       if (_manualPlatforms.indexOf((a.platform || '').toLowerCase()) !== -1) continue;
 
-      // Must have a scheduled_for time that has passed
-      const scheduledFor = (a.payload && a.payload.scheduled_for) || null;
-      if (!scheduledFor) continue;
-      const scheduledTime = new Date(scheduledFor).getTime();
-      if (isNaN(scheduledTime) || scheduledTime > now) continue;
+      // Replies execute IMMEDIATELY on approval — they answer live conversations
+      // and never carry payload.scheduled_for, which the gate below would skip
+      // forever. That gap meant NO approved social_post.reply ever posted (found
+      // 2026-07-23: replies from 07-15/21/22 sitting approved with null execution
+      // — the outreach pipeline's "sent" statuses were phantom). Staleness guard:
+      // replying to a 3+ day-old thread reads as necro — fail it instead.
+      const isReply = a.type === 'social_post.reply';
+      if (isReply) {
+        const replyAgeMs = now - new Date(a.created_at || 0).getTime();
+        if (!Number.isFinite(replyAgeMs) || replyAgeMs > 3 * 24 * 60 * 60 * 1000) {
+          a.execution = a.execution || {};
+          a.execution.status = 'failed';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution.last_error = { code: 'STALE_REPLY', message: 'Reply approved but older than 3 days — posting now would be necro. Not sent.' };
+          a.execution_status = 'failed';
+          actions[i] = a;
+          continue;
+        }
+      } else {
+        // Must have a scheduled_for time that has passed
+        const scheduledFor = (a.payload && a.payload.scheduled_for) || null;
+        if (!scheduledFor) continue;
+        const scheduledTime = new Date(scheduledFor).getTime();
+        if (isNaN(scheduledTime) || scheduledTime > now) continue;
 
-      // If scheduled time is past but within 7 days, post now (CEO already approved)
-      // Only fail if >7 days stale (content likely irrelevant)
-      const staleMs = now - scheduledTime;
-      if (staleMs > 7 * 24 * 60 * 60 * 1000) {
-        context.log('[Scheduler] Skipping stale scheduled action:', a.id, '(scheduled_for:', scheduledFor, ', stale:', Math.round(staleMs / 86400000), 'd)');
-        a.execution = a.execution || {};
-        a.execution.status = 'failed';
-        a.execution.finished_at = new Date().toISOString();
-        a.execution.last_error = { code: 'STALE_SCHEDULE', message: 'Scheduled time is more than 7 days ago' };
-        a.execution_status = 'failed';
-        actions[i] = a;
-        continue;
-      }
-      if (staleMs > 24 * 60 * 60 * 1000) {
-        context.log('[Scheduler] Action', a.id, 'schedule was', Math.round(staleMs / 3600000), 'h ago — posting now (CEO approved)');
+        // If scheduled time is past but within 7 days, post now (CEO already approved)
+        // Only fail if >7 days stale (content likely irrelevant)
+        const staleMs = now - scheduledTime;
+        if (staleMs > 7 * 24 * 60 * 60 * 1000) {
+          context.log('[Scheduler] Skipping stale scheduled action:', a.id, '(scheduled_for:', scheduledFor, ', stale:', Math.round(staleMs / 86400000), 'd)');
+          a.execution = a.execution || {};
+          a.execution.status = 'failed';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution.last_error = { code: 'STALE_SCHEDULE', message: 'Scheduled time is more than 7 days ago' };
+          a.execution_status = 'failed';
+          actions[i] = a;
+          continue;
+        }
+        if (staleMs > 24 * 60 * 60 * 1000) {
+          context.log('[Scheduler] Action', a.id, 'schedule was', Math.round(staleMs / 3600000), 'h ago — posting now (CEO approved)');
+        }
       }
 
       const platform = a.platform || 'unknown';
@@ -117,8 +137,9 @@ module.exports = async function (context) {
         continue;
       }
 
-      // Check if the platform adapter exists for publish
-      if (!isExecutable('social_post.publish', platform)) {
+      // Check if the platform adapter exists (replies route through the reply
+      // executor, scheduled posts through publish)
+      if (!isExecutable(isReply ? 'social_post.reply' : 'social_post.publish', platform)) {
         context.log('[Scheduler] No executor for', platform, ', skipping', a.id);
         continue;
       }
@@ -143,10 +164,11 @@ module.exports = async function (context) {
       actions[i] = a;
       await storage.setState('actions', actions);
 
-      context.log('[Scheduler] Executing scheduled action:', a.id, 'platform:', platform);
+      context.log('[Scheduler] Executing', isReply ? 'approved reply' : 'scheduled action', ':', a.id, 'platform:', platform);
 
-      // Execute — override the type to social_post.publish for the executor
-      const execAction = Object.assign({}, a, { type: 'social_post.publish' });
+      // Execute — scheduled posts route through the publish executor; replies keep
+      // their own type so the reply executor (AT-protocol root/parent) handles them.
+      const execAction = Object.assign({}, a, { type: isReply ? 'social_post.reply' : 'social_post.publish' });
 
       try {
         const result = await executeAction(execAction);
@@ -163,7 +185,7 @@ module.exports = async function (context) {
           actionId: a.id,
           type: actionType,
           platform: platform,
-          scheduled_for: scheduledFor,
+          scheduled_for: (a.payload && a.payload.scheduled_for) || (isReply ? 'immediate-reply' : null),
           post_url: (result.receipt && result.receipt.post_url) || null
         });
 
