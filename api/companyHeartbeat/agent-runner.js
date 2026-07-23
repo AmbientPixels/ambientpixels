@@ -632,6 +632,29 @@ async function runAgentHeartbeat(ctx) {
     }
   }
 
+  // TEMP DIAGNOSTIC (2026-07-23, remove after empty-envelope root cause is fixed):
+  // agents — Nova worst, ~3/cycle — emit literal {} entries in taskUpdates while
+  // their reasoning describes real mutations (zero real Nova output since at least
+  // 07-18). Capture what the model ACTUALLY wrote: the parsed top-level keys (is
+  // the real work under a key we ignore?) and the raw response segment around
+  // taskUpdates. Routes to the `logs` state key (run-health), NOT governanceLog.
+  try {
+    if (parsed && Array.isArray(parsed.taskUpdates) &&
+        parsed.taskUpdates.some(function (t) { return t && typeof t === 'object' && !Array.isArray(t) && Object.keys(t).length === 0; })) {
+      var _dgKeys = Object.keys(parsed).map(function (k) {
+        var v = parsed[k];
+        return k + (Array.isArray(v) ? '[' + v.length + ']' : '');
+      }).join(',');
+      var _dgTu = parsed.taskUpdates.map(function (t) {
+        return t && typeof t === 'object' ? '{' + Object.keys(t).join('|') + '}' : String(t);
+      }).join(' ');
+      var _dgIdx = String(response).indexOf('"taskUpdates"');
+      var _dgRaw = (_dgIdx >= 0 ? String(response).substring(_dgIdx, _dgIdx + 700) : String(response).substring(0, 700)).replace(/\s+/g, ' ');
+      await logEvent('run-health', agentId, 'EMPTY-ENVELOPE-DIAG keys=' + _dgKeys + ' tu=' + _dgTu + ' raw=' + _dgRaw, cycleId,
+        { runId: cycleId, gate: 'empty_envelope_diag' });
+    }
+  } catch (_dgErr) { /* diagnostic only — never break the run */ }
+
   // Extract reasoning from agent response (Phase 2B)
   if (parsed && typeof parsed === 'object' && parsed.reasoning) {
     result.reasoning = String(parsed.reasoning).substring(0, 600);
