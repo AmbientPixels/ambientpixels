@@ -68,9 +68,13 @@ var AGENT_PERSONA_PATTERNS = [
   /\bi (?:handle|manage|run) the (?:money|finances|ops|infrastructure) here\b/i
 ];
 
-// LinkedIn length ceiling — CEO rejection note on act_1775873900346: "Way too long --
-// cut by 60%+"; standing guidance is 400-800 chars. 1500 is the generous hard line.
-var LINKEDIN_MAX_CHARS = 1500;
+// Per-platform hard length ceilings, checked against the FINAL text (after UTM
+// injection). LinkedIn: CEO rejection note on act_1775873900346 ("Way too long --
+// cut by 60%+"); standing guidance is 400-800 chars, 1500 is the generous hard line.
+// X and Bluesky are the platforms' own caps — copy over the cap only ships after a
+// mid-sentence tail-chop at publish, which is exactly the "post looks cut off"
+// failure this gate exists to stop (2026-07-22: 19 of 39 recent posts were over).
+var PLATFORM_HARD_CHAR_LIMITS = { linkedin: 1500, x: 280, bluesky: 300 };
 
 // ── Offer-claim detector (2026-07-22) ───────────────────────────────────────
 // The Genesis Sale incident: the proposal composer invented a campaign whose brief
@@ -146,13 +150,19 @@ function detectContentLeaks(text, platform) {
   var metaLeak = META_LEAK_PATTERNS.some(function (rx) { return rx.test(t); });
   var placeholder = PLACEHOLDER_PATTERN.test(t);
   var persona = AGENT_PERSONA_PATTERNS.some(function (rx) { return rx.test(t); });
-  var overlong = String(platform || '') === 'linkedin' && t.length > LINKEDIN_MAX_CHARS;
+  var _platKey = String(platform || '').toLowerCase();
+  var _lengthCap = PLATFORM_HARD_CHAR_LIMITS[_platKey] || 0;
+  var overlong = _lengthCap > 0 && t.length > _lengthCap;
   var issues = [];
   if (refusal) issues.push('Refusal/internal-policy text leaked into post payload — this is not publishable copy');
   if (metaLeak) issues.push('Revision/editor commentary leaked into post payload');
   if (placeholder) issues.push('Unfilled placeholder (e.g. "[link to blog post]") left in post copy');
   if (persona) issues.push('Agent persona presented as a person in public copy ("i\'m scribe" / "forge out") — public posts speak as the founder/brand, never as an agent character');
-  if (overlong) issues.push('LinkedIn post is ' + t.length + ' chars — hard ceiling is ' + LINKEDIN_MAX_CHARS + ' (aim 400-800). Cut by 60%+');
+  if (overlong) {
+    issues.push(_platKey === 'linkedin'
+      ? 'LinkedIn post is ' + t.length + ' chars — hard ceiling is ' + PLATFORM_HARD_CHAR_LIMITS.linkedin + ' (aim 400-800). Cut by 60%+'
+      : _platKey + ' post is ' + t.length + ' chars — the platform cap is ' + _lengthCap + ' and anything over ships cut off mid-sentence. Rewrite to fit, counting the full link (tracking params add ~55 chars).');
+  }
   return {
     refusal: refusal, metaLeak: metaLeak, placeholder: placeholder, persona: persona, overlong: overlong,
     any: refusal || metaLeak || placeholder || persona || overlong, issues: issues

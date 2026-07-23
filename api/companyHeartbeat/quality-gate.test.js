@@ -98,5 +98,41 @@ test('non-offer copy is unaffected by the offers list', () => {
   assert.strictEqual(v.pass, true);
 });
 
+// ── per-platform length caps (2026-07-22 — over-limit posts shipping cut off) ──
+const LONG_TAIL = '\n\nhttps://ambientpixels.ai/pulse/?utm_source=bluesky&utm_content=act_1784692937685_vr29ey';
+
+test('bluesky copy over 300 chars hard-fails with the length issue', () => {
+  const text = 'a'.repeat(260) + LONG_TAIL; // 260 + 90 = 350 chars
+  const v = QG.composeQualityVerdict({ text, platform: 'bluesky', offers: [] });
+  assert.strictEqual(v.pass, false);
+  assert.strictEqual(v.confidence, 100);
+  assert.strictEqual(v.deterministicFlags.overlong, true);
+  assert.ok(v.issues.some(i => /platform cap is 300/.test(i)));
+});
+
+test('x copy over 280 chars hard-fails; 280 exactly passes', () => {
+  const over = QG.composeQualityVerdict({ text: 'a'.repeat(281), platform: 'x', offers: [] });
+  assert.strictEqual(over.deterministicFlags.overlong, true);
+  const atCap = QG.composeQualityVerdict({ text: 'a'.repeat(280), platform: 'x', offers: [] });
+  assert.strictEqual(atCap.deterministicFlags.overlong, false);
+});
+
+test('bluesky copy within 300 chars passes the length check', () => {
+  const text = 'a'.repeat(200) + LONG_TAIL; // 290 chars
+  const v = QG.composeQualityVerdict({ text, platform: 'bluesky', offers: [] });
+  assert.strictEqual(v.deterministicFlags.overlong, false);
+});
+
+test('linkedin keeps its 1500 hard line', () => {
+  const v = QG.composeQualityVerdict({ text: 'a'.repeat(1501), platform: 'linkedin', offers: [] });
+  assert.strictEqual(v.deterministicFlags.overlong, true);
+  assert.ok(v.issues.some(i => /1500/.test(i)));
+});
+
+test('platforms without a cap (reddit/facebook) are not length-checked', () => {
+  const v = QG.composeQualityVerdict({ text: 'a'.repeat(5000), platform: 'reddit', offers: [] });
+  assert.strictEqual(v.deterministicFlags.overlong, false);
+});
+
 console.log(pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

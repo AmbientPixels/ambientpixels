@@ -2892,7 +2892,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Server-side enforcement: platform character limits — auto-trim to fit
       // Use task's taskType (reflects rotation) over agent's platform guess
-      const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000, reddit: 40000 };
+      const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000, reddit: 40000, facebook: 63206 };
       var _charLimitPlatform = (socialPayload.platform || 'x').toLowerCase();
       if (action.taskId) {
         var _clTask = tasks.find(function(t) { return t.id === action.taskId; });
@@ -2935,9 +2935,16 @@ Write the full deliverable first, then the structured JSON block.`;
         // No link to protect — plain hard-cut.
         return src.substring(0, limit - 1).trim() + '…';
       };
-      if (postText.length > charLimit) {
-        context.log('[Heartbeat]', agentId, 'Trimming', platformKey, 'post from', postText.length, 'to', charLimit, 'chars');
-        socialPayload.text = _trimSocialToLimit(postText, charLimit);
+      // UTM injection (after the action is created below) appends ~55 chars to each untagged
+      // own-domain link. Reserve that headroom in this FIRST trim so the post-UTM re-trim
+      // almost never has to cut copy a second time.
+      const _utmTagCount = (String(postText || '').match(/https?:\/\/(?:www\.)?ambientpixels\.ai(?:\/[^\s)]*)?/gi) || [])
+        .filter(function (u) { return u.indexOf('utm_') === -1; }).length;
+      const _utmReserve = _utmTagCount * ('?utm_source='.length + platformKey.length + '&utm_content='.length + 24);
+      const _trimLimit = Math.max(charLimit - _utmReserve, 80);
+      if (postText.length > _trimLimit) {
+        context.log('[Heartbeat]', agentId, 'Trimming', platformKey, 'post from', postText.length, 'to', _trimLimit, 'chars');
+        socialPayload.text = _trimSocialToLimit(postText, _trimLimit);
         context.log('[Heartbeat] Trimmed result:', socialPayload.text.length, 'chars');
       }
 

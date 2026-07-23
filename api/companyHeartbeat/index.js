@@ -28,6 +28,9 @@ const { selectTopProposals: _selectTopProposals } = require('./agent-proposal-se
 const { AGENT_PROPOSAL_FLEET_CAP: _AGENT_PROPOSAL_FLEET_CAP } = require('./constants');
 const { processCampaignLifecycle } = require('./campaign-lifecycle');
 const { callGemini } = require('./gemini');
+// URL-preserving truncation shared with the social executors — the auto-post funnel
+// re-trims the FINAL (post-UTM) text with it so the link is never the part that gets cut.
+const { truncatePreservingUrl: _truncatePreservingUrl } = require('../actionsExecute/executors/social/textLimit');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
 const productFacts = require('../_data/product-facts.json');
@@ -3260,8 +3263,16 @@ module.exports = async function (context) {
           // Platform character limit enforcement (same as agent-runner.js line 1628)
           const _PLAT_LIMITS = { x: 280, bluesky: 300, linkedin: 3000, reddit: 40000, facebook: 63206 };
           const _charLimit = _PLAT_LIMITS[_platform] || 280;
-          if (_rcText.length > _charLimit) {
-            context.log('[Heartbeat] AUTO-POST: Trimming', _platform, 'from', _rcText.length, 'to', _charLimit, 'chars');
+          // UTM injection (below, once the action id exists) appends ~55 chars to each
+          // untagged own-domain link AFTER this trim runs. Reserve that headroom now —
+          // this was the root cause of 2026-07's over-cap posts: copy trimmed to exactly
+          // 300, then UTM pushed it to ~350 and the executor tail-chopped it mid-sentence.
+          const _utmTagCount = (_rcText.match(/https?:\/\/(?:www\.)?ambientpixels\.ai(?:\/[^\s)]*)?/gi) || [])
+            .filter(function (u) { return u.indexOf('utm_') === -1; }).length;
+          const _utmReserve = _utmTagCount * ('?utm_source='.length + _platform.length + '&utm_content='.length + 24);
+          const _trimLimit = Math.max(_charLimit - _utmReserve, 80);
+          if (_rcText.length > _trimLimit) {
+            context.log('[Heartbeat] AUTO-POST: Trimming', _platform, 'from', _rcText.length, 'to', _trimLimit, 'chars');
             // Extract any ambientpixels.ai URL and hashtags to preserve them during trimming
             var _blogUrl = '';
             var _hashTail = '';
@@ -3277,7 +3288,7 @@ module.exports = async function (context) {
             var _keepSuffix = '';
             if (_blogUrl) _keepSuffix += '\n' + _blogUrl;
             if (_hashTail.trim()) _keepSuffix += ' ' + _hashTail.trim();
-            var _maxBody = _charLimit - _keepSuffix.length;
+            var _maxBody = _trimLimit - _keepSuffix.length;
             if (_maxBody > 40) {
               var _trimmed = _bodyText.substring(0, _maxBody);
               var _lastSent = _trimmed.match(/^([\s\S]*[.!?])\s/);
@@ -3290,11 +3301,11 @@ module.exports = async function (context) {
             } else {
               // Suffix alone exceeds limit — drop hashtags, keep URL
               _keepSuffix = _blogUrl ? '\n' + _blogUrl : '';
-              _maxBody = _charLimit - _keepSuffix.length;
+              _maxBody = _trimLimit - _keepSuffix.length;
               if (_maxBody > 40) {
                 _rcText = (_bodyText.substring(0, _maxBody).trim() + _keepSuffix).trim();
               } else {
-                _rcText = _rcText.substring(0, _charLimit - 1).trim() + '…';
+                _rcText = _rcText.substring(0, _trimLimit - 1).trim() + '…';
               }
             }
             context.log('[Heartbeat] AUTO-POST: Trimmed to', _rcText.length, 'chars');
@@ -3485,11 +3496,28 @@ module.exports = async function (context) {
             context.log('[Heartbeat] AUTO-POST UTM inject failed (non-fatal):', String(_utmErr).substring(0, 200));
           }
 
+          // Invariant guard: the UTM reserve above is an estimate — if the final text still
+          // exceeds the platform cap (e.g. the URL-missing safety net appended a link after
+          // the trim), re-trim URL-preserving NOW so the stored, CEO-approved, and published
+          // copy are the same text and the executor never has to cut anything at publish.
+          try {
+            if ((_newAction.payload.text || '').length > _charLimit) {
+              const _preReLen = _newAction.payload.text.length;
+              _newAction.payload.text = _truncatePreservingUrl(_newAction.payload.text, _charLimit);
+              context.log('[Heartbeat] AUTO-POST: Re-trimmed', _platform, 'post after UTM from', _preReLen, 'to', _newAction.payload.text.length, 'chars');
+            }
+          } catch (_rtErr) {
+            context.log('[Heartbeat] AUTO-POST re-trim failed (non-fatal):', String(_rtErr).substring(0, 150));
+          }
+
           _actionsStore.push(_newAction);
-          // Quality gate: validate content against product facts before queuing
+          // Quality gate: validate content against product facts before queuing.
+          // Validate the FINAL payload text (post-UTM, post-re-trim) — the pre-UTM _rcText
+          // is shorter than what actually ships, which blinded the length check.
+          const _finalPostText = (_newAction.payload && _newAction.payload.text) || _rcText;
           var _aqQualityGate = null;
           try {
-            _aqQualityGate = await _validateContentQuality(_rcText, _platform, context);
+            _aqQualityGate = await _validateContentQuality(_finalPostText, _platform, context);
           } catch (_qgErr) { context.log('[QualityGate] AUTO-POST error (fail-open):', String(_qgErr).substring(0, 100)); }
           // A2+A3: compose LLM result with deterministic checks (leaks, persona, length,
           // claim grounding vs the task chain) into ONE verdict — downstream reject /
@@ -3497,10 +3525,10 @@ module.exports = async function (context) {
           try {
             _aqQualityGate = QGV.composeQualityVerdict({
               llm: _aqQualityGate,
-              text: _rcText,
+              text: _finalPostText,
               platform: _platform,
               offers: QGV.FILE_OFFERS.concat(Array.isArray(_systemConfig.offers) ? _systemConfig.offers : []),
-              grounding: QGV.findUngroundedClaims(_rcText, QGV.buildGroundingText(_pt, productFacts))
+              grounding: QGV.findUngroundedClaims(_finalPostText, QGV.buildGroundingText(_pt, productFacts))
             });
             context.log('[QualityGate] AUTO-POST', _platform, 'pass:', _aqQualityGate.pass, 'confidence:', _aqQualityGate.confidence, 'det:', JSON.stringify(_aqQualityGate.deterministicFlags || {}));
           } catch (_qgvErr) {
