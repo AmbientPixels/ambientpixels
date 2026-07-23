@@ -126,12 +126,22 @@ async function _callGeminiRaw(prompt, agentId, maxTokens, temperature, caller, s
     thinkingConfig: _thinking ? { thinkingBudget: -1 } : { thinkingBudget: 0 }
   };
   if (structured) {
-    // Force valid JSON envelope. Without this, Gemini 2.0 Flash narrates
-    // intent in `reasoning` but ships empty taskUpdates/proposals arrays
-    // under multi-section prompts (world-state + intel + reflection + etc).
-    // Schema is shared with the prompt contract in normalization.js.
+    // Force valid JSON SYNTAX for the envelope. Without JSON mode, Gemini 2.0
+    // Flash narrated intent in `reasoning` but shipped empty arrays under
+    // multi-section prompts (why this block exists, 2026-04-15).
+    //
+    // Do NOT re-add `responseSchema: AGENT_ENVELOPE_SCHEMA` here. Its array
+    // items were declared as propertyless OBJECTs, and gemini-2.5-pro enforces
+    // the schema STRICTLY: agents could only emit literal {} entries in
+    // taskUpdates/remember/proposals — Nova produced zero real mutations for
+    // days while narrating her intent in observations, and empty {} remembers /
+    // dead proposals trace to the same lockout (root-caused 2026-07-23 via
+    // raw-envelope capture: "taskUpdates": [ { }, { }, { } ], ~289 empty
+    // entries/day fleet-wide; agents landing on the Claude fallback, which
+    // ignores the schema, kept working — that was the healthy/broken split).
+    // JSON mime mode alone keeps syntax valid while leaving fields free; the
+    // prompt contract + normalization.js validation own the shape.
     generationConfig.responseMimeType = 'application/json';
-    generationConfig.responseSchema = AGENT_ENVELOPE_SCHEMA;
   }
   var body = {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
