@@ -488,6 +488,84 @@ function _computeThroughputCollapse(heartbeatRuns, nowMs) {
   return { metrics: metrics, signals: signals };
 }
 
+// Signal 7: envelope health — the substrate sentinel (2026-07-23). Watches the
+// layer BELOW agent behavior: are envelopes carrying real fields at all? Born
+// from the responseSchema lockout, where every agent-level monitor correctly
+// fired at the symptoms (stalls, cost-per-action) for three weeks while the
+// cause — a model-API config emitting only {} entries — stayed invisible.
+function _computeEnvelopeHealth(heartbeatRuns, logs, nowMs) {
+  var t = EMERGENCE_THRESHOLDS.envelopeHealth;
+  var signals = [];
+  var metrics = { windowRuns: t.windowRuns, qualifyingRuns: 0, mutedAgents: [], junk24h: 0 };
+
+  // Prong 1: muted agents — real LLM latency, zero attempted actions, persistently.
+  var realKeys = function (perAgent) {
+    return Object.keys(perAgent || {}).filter(function (k) { return k.indexOf('_closing') === -1; });
+  };
+  var qualifying = (heartbeatRuns || []).filter(function (r) {
+    return r && r.perAgent && realKeys(r.perAgent).length > 0;
+  });
+  var window = qualifying.slice(-t.windowRuns);
+  metrics.qualifyingRuns = window.length;
+
+  if (window.length >= t.minRunsRequired) {
+    var perAgent = {};
+    window.forEach(function (r) {
+      realKeys(r.perAgent).forEach(function (aid) {
+        var v = r.perAgent[aid] || {};
+        if (!perAgent[aid]) perAgent[aid] = { present: 0, mutedRuns: 0 };
+        perAgent[aid].present++;
+        if ((v.actionsAttempted || 0) === 0 && (v.avgLatencyMs || 0) > t.latencyFloorMs) {
+          perAgent[aid].mutedRuns++;
+        }
+      });
+    });
+    var muted = Object.keys(perAgent).filter(function (aid) {
+      var a = perAgent[aid];
+      return a.present >= t.minRunsRequired && (a.mutedRuns / a.present) >= t.emptyRunRatio;
+    });
+    metrics.mutedAgents = muted;
+    if (muted.length >= t.mutedAgents.yellow) {
+      var mutedLevel = muted.length >= t.mutedAgents.red ? 'RED' : 'YELLOW';
+      signals.push({
+        level: mutedLevel,
+        signalType: 'envelope-health',
+        subject: 'muted-agents',
+        signal: muted.length + ' agent(s) making real LLM calls but emitting ZERO valid actions across ' +
+          Math.round(t.emptyRunRatio * 100) + '%+ of the last ' + window.length + ' runs: ' + muted.join(', '),
+        recommendation: 'The model is responding but the envelope is empty/malformed — this is the responseSchema-lockout signature (July 2026: a schema with propertyless OBJECT items muted most of the fleet for 3 weeks). Check gemini.js generationConfig and the [unknown-action-type] entries in the logs state key for what the model is actually emitting. This is a substrate/config problem, NOT an agent-behavior problem.',
+        threshold: { mutedAgents: t.mutedAgents, emptyRunRatio: t.emptyRunRatio, latencyFloorMs: t.latencyFloorMs },
+        evidence: { mutedAgents: muted, windowRuns: window.length },
+        at: new Date(nowMs).toISOString()
+      });
+    }
+  }
+
+  // Prong 2: junk-envelope rate — the normalizer's reject trail in `logs`.
+  var dayAgo = nowMs - 24 * 3600e3;
+  var junk = (Array.isArray(logs) ? logs : []).filter(function (e) {
+    if (!e) return false;
+    var ts = Date.parse(e.timestamp || 0);
+    if (!Number.isFinite(ts) || ts < dayAgo || ts > nowMs) return false;
+    return String(e.summary || e.text || '').indexOf('[unknown-action-type]') !== -1;
+  }).length;
+  metrics.junk24h = junk;
+  if (junk >= t.junkPerDay.yellow) {
+    signals.push({
+      level: junk >= t.junkPerDay.red ? 'RED' : 'YELLOW',
+      signalType: 'envelope-health',
+      subject: 'junk-envelopes',
+      signal: junk + ' malformed/typeless envelope entries rejected by the normalizer in 24h (healthy baseline: 0)',
+      recommendation: 'Agents are emitting entries the taskUpdates contract does not recognize. Inspect recent [unknown-action-type] entries in the logs state key — if they are empty {} objects, suspect model/schema config (gemini.js); if they carry fields under wrong names, extend the shape-tolerant lift in normalization.js.',
+      threshold: { junkPerDay: t.junkPerDay },
+      evidence: { junk24h: junk },
+      at: new Date(nowMs).toISOString()
+    });
+  }
+
+  return { metrics: metrics, signals: signals };
+}
+
 function buildEmergenceDigest(ctx, nowMsIn) {
   var nowMs = Number.isFinite(nowMsIn) ? nowMsIn : Date.now();
   var approvalQueue = Array.isArray(ctx && ctx.approvalQueue) ? ctx.approvalQueue : [];
@@ -500,6 +578,7 @@ function buildEmergenceDigest(ctx, nowMsIn) {
   var redStreak = _computeCapitalRedStreak(capitalAllocation, heartbeatRuns, nowMs);
   var depth    = _computeApprovalDepth(approvalQueue, nowMs);
   var throughput = _computeThroughputCollapse(heartbeatRuns, nowMs);
+  var envelope = _computeEnvelopeHealth(heartbeatRuns, (ctx && ctx.logs) || [], nowMs);
 
   var allSignals = []
     .concat(propRate.signals)
@@ -507,7 +586,8 @@ function buildEmergenceDigest(ctx, nowMsIn) {
     .concat(churn.signals)
     .concat(redStreak.signals)
     .concat(depth.signals)
-    .concat(throughput.signals);
+    .concat(throughput.signals)
+    .concat(envelope.signals);
 
   // Trim to EMERGENCE_SIGNALS_MAX (FIFO — keep most recent if over)
   if (allSignals.length > EMERGENCE_SIGNALS_MAX) {
@@ -524,7 +604,8 @@ function buildEmergenceDigest(ctx, nowMsIn) {
       fleetChurn:   churn.metrics,
       capitalRedStreak: redStreak.metrics,
       approvalDepth: depth.metrics,
-      throughputCollapse: throughput.metrics
+      throughputCollapse: throughput.metrics,
+      envelopeHealth: envelope.metrics
     },
     lastCronRun: new Date(nowMs).toISOString()
   };
@@ -563,5 +644,6 @@ module.exports = {
   _buildEmergencePromptBlock: _buildEmergencePromptBlock,
   // Exported so the fleet-health alerter (keepalive path) reuses the exact same
   // throughput-collapse definition instead of duplicating (and drifting from) it.
-  _computeThroughputCollapse: _computeThroughputCollapse
+  _computeThroughputCollapse: _computeThroughputCollapse,
+  _computeEnvelopeHealth: _computeEnvelopeHealth
 };

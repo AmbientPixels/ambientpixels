@@ -195,6 +195,24 @@ const EMERGENCE_THRESHOLDS = {
     // dead for ~21h while the aggregate stayed healthy (prefetch group kept
     // working). A single silent agent is left to ops-intel's per-agent stall.
     silentAgents: { yellow: 2, red: 4 }
+  },
+  // Signal 7: envelope health — the substrate sentinel. Added after the 07-2026
+  // responseSchema lockout ran THREE WEEKS undetected: agents made real LLM calls
+  // (healthy latency) but their envelopes carried only empty/malformed entries, so
+  // no throughput/stall/latency signal fired cleanly. Two prongs:
+  //  • muted agents: attempted===0 in ≥ emptyRunRatio of the window's runs WHILE
+  //    avgLatencyMs > latencyFloorMs (the model responded — the envelope was empty).
+  //    Fast-fail zeros (<floor) belong to throughputCollapse, not here. yellow:1
+  //    because ONE persistently-muted agent (Nova, 24/24 runs) was the real incident.
+  //  • junk rate: '[unknown-action-type]' log entries per 24h (the normalizer's
+  //    reject trail). Observed during the incident: ~289/day; healthy: 0.
+  envelopeHealth: {
+    windowRuns: 12,
+    minRunsRequired: 6,
+    latencyFloorMs: 2000,
+    emptyRunRatio: 0.75,
+    mutedAgents: { yellow: 1, red: 3 },
+    junkPerDay:  { yellow: 20, red: 100 }
   }
 };
 

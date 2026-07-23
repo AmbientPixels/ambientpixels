@@ -25,13 +25,14 @@ module.exports = async function (context, timer) {
   context.log('[emergenceCheckCron] Starting daily emergence scan');
 
   try {
-    const [approvalQueue, governanceLog, capitalAllocation, agentRegistry, heartbeatRuns, prevDigest] = await Promise.all([
+    const [approvalQueue, governanceLog, capitalAllocation, agentRegistry, heartbeatRuns, prevDigest, logsState] = await Promise.all([
       storage.getState('approvalQueue').then(v => v || []),
       storage.getState('governanceLog').then(v => v || []),
       storage.getState('capitalAllocation').then(v => v || {}),
       storage.getState('agentRegistry').then(v => v || { agents: [] }),
       storage.getState('heartbeatRuns').then(v => v || []),
-      storage.getState('emergenceDigest').then(v => v || null)
+      storage.getState('emergenceDigest').then(v => v || null),
+      storage.getState('logs').then(v => v || [])
     ]);
 
     const digest = buildEmergenceDigest({
@@ -40,7 +41,8 @@ module.exports = async function (context, timer) {
       capitalAllocation: capitalAllocation,
       agentRegistry: agentRegistry,
       heartbeatRuns: heartbeatRuns,
-      prevDigest: prevDigest
+      prevDigest: prevDigest,
+      logs: logsState
     }, startMs);
 
     // Persist digest
