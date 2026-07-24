@@ -30,9 +30,11 @@ module.exports = async function (context) {
     for (let i = 0; i < actions.length; i++) {
       const a = actions[i];
 
-      // Must be social_post.schedule type
+      // social_post.schedule (timed) AND social_post.reply (immediate-on-approval).
+      // The reply support added 2026-07-23 was unreachable behind this filter for
+      // a day — replies were dropped HERE before the isReply branch below ever ran.
       const actionType = a.type || a.action_type;
-      if (actionType !== 'social_post.schedule') continue;
+      if (actionType !== 'social_post.schedule' && actionType !== 'social_post.reply') continue;
 
       // Must be approved (or overridden)
       const approvalStatus = a.approval ? a.approval.status : null;

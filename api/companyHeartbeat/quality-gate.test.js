@@ -77,6 +77,34 @@ test('non-lifetime claim still grounds against the one-time offer', () => {
   assert.strictEqual(QG.detectUngroundedOffer(ok, [ACTIVE_OFFER], NOW).grounded, true);
 });
 
+// ── detectFabricatedUrl ──
+test('invented ambientpixels.ai paths are fabricated (the /score/ incident)', () => {
+  ['https://ambientpixels.ai/score/devalvaro.vercel.app',
+   'https://ambientpixels.ai/score/report/d4f2ca',
+   'https://ambientpixels.ai/founders-circle']
+    .forEach(u => assert.strictEqual(QG.detectFabricatedUrl('check it: ' + u).fabricated, true, u));
+});
+
+test('real ambientpixels.ai URLs pass', () => {
+  ['https://ambientpixels.ai/ambientscore/report.html?id=ccr_1784680800286_19e6ca54',
+   'https://ambientpixels.ai/ambient-score?utm_source=bluesky&utm_content=act_x',
+   'https://ambientpixels.ai/ambient-score', 'https://ambientpixels.ai/pulse/',
+   'https://ambientpixels.ai/blog/some-post', 'https://ambientpixels.ai/',
+   'https://ambientpixels.ai']
+    .forEach(u => assert.strictEqual(QG.detectFabricatedUrl('see ' + u).fabricated, false, u));
+});
+
+test('external URLs are never our problem', () => {
+  assert.strictEqual(QG.detectFabricatedUrl('congrats on https://kempock.com launch').fabricated, false);
+});
+
+test('verdict hard-fails copy carrying a fabricated own-domain URL', () => {
+  const v = QG.composeQualityVerdict({ text: 'Free report here: https://ambientpixels.ai/score/report/abc123', platform: 'bluesky', offers: [] });
+  assert.strictEqual(v.pass, false);
+  assert.strictEqual(v.deterministicFlags.fabricatedUrl, true);
+  assert.ok(v.issues.some(i => /fabricated|does not exist/i.test(i)));
+});
+
 // ── composeQualityVerdict integration ──
 test('verdict hard-fails offer-claiming copy when no active offers exist', () => {
   const v = QG.composeQualityVerdict({ text: GENESIS_COPY, platform: 'bluesky', offers: [] });

@@ -144,6 +144,52 @@ function detectUngroundedOffer(text, offers, nowMs) {
 var _FILE_OFFERS = [];
 try { _FILE_OFFERS = require('../_data/product-facts.json').offers || []; } catch (_e) { /* keep [] */ }
 
+// ── Fabricated own-domain URL detector (2026-07-24) ─────────────────────────
+// Scribe invented plausible-looking report links (/score/<site>, /score/report/<id>)
+// in two approved outreach replies — the real shareable link sat verbatim in the
+// task's scan comment, but the model "prettified" it into paths that 404 (or worse,
+// SPA-rewrite to the homepage, which masks the breakage with an HTTP 200). Any
+// ambientpixels.ai URL in public copy must match a REAL route. External domains are
+// not checked — we only vouch for our own paths. Extend the allowlist when real
+// public routes ship; an unlisted-but-real path failing here is a one-line fix,
+// while a fabricated path reaching a prospect costs credibility we don't have yet.
+var _OWN_URL_ALLOWLIST = [
+  /^\/$/,
+  /^\/?$/,
+  /^\/ambient-score(?:[/?#]|$)/,
+  /^\/ambientscore\/report\.html\?id=ccr_[\w]+/,
+  /^\/ambientscore(?:[/?#]|$)/,
+  /^\/pulse(?:[/?#]|$)/,
+  /^\/blog(?:[/?#]|$)/,
+  /^\/ambientos(?:[/?#]|$)/,
+  /^\/lab(?:[/?#]|$)/,
+  /^\/cardforge(?:[/?#]|$)/,
+  /^\/storyforge(?:[/?#]|$)/,
+  /^\/pixel-agents(?:[/?#]|$)/,
+  /^\/agent-forge(?:[/?#]|$)/,
+  /^\/blindspot(?:[/?#]|$)/
+];
+
+function detectFabricatedUrl(text) {
+  var m = String(text || '').match(/https?:\/\/(?:www\.)?ambientpixels\.ai(\/[^\s"'<>)\]]*)?/gi) || [];
+  for (var i = 0; i < m.length; i++) {
+    var path;
+    try { path = new URL(m[i]).pathname + (new URL(m[i]).search || ''); } catch (_e) { continue; }
+    if (path === '' || path === '/') continue;
+    var ok = _OWN_URL_ALLOWLIST.some(function (rx) { return rx.test(path); });
+    if (!ok) {
+      return {
+        fabricated: true,
+        url: m[i],
+        issue: 'Copy links ' + m[i] + ' — that path does not exist on ambientpixels.ai (fabricated URL). ' +
+          'Report links must be copied EXACTLY from the [SCAN RESULT] comment (/ambientscore/report.html?id=ccr_...); ' +
+          'never invent or prettify URLs.'
+      };
+    }
+  }
+  return { fabricated: false, url: null, issue: null };
+}
+
 function detectContentLeaks(text, platform) {
   var t = String(text || '');
   var refusal = REFUSAL_PATTERNS.some(function (rx) { return rx.test(t); });
@@ -325,6 +371,7 @@ function composeQualityVerdict(opts) {
 
   // Offer-claim check: opts.offers overrides (tests/backtest); default = product-facts.
   var offer = detectUngroundedOffer(opts.text || '', opts.offers !== undefined ? opts.offers : _FILE_OFFERS, opts.nowMs);
+  var fabUrl = detectFabricatedUrl(opts.text || '');
 
   var issues = [];
   var deterministicFlags = {
@@ -337,11 +384,13 @@ function composeQualityVerdict(opts) {
     semanticDup: !!opts.semanticDup,
     dailyCap: !!opts.dailyCap,
     ungroundedOffer: !!(offer.claimed && !offer.grounded),
+    fabricatedUrl: !!fabUrl.fabricated,
     ungroundedClaims: grounding ? grounding.ungrounded : []
   };
 
   issues = issues.concat(leaks.issues || []);
   if (offer.claimed && !offer.grounded) issues.push(offer.issue);
+  if (fabUrl.fabricated) issues.push(fabUrl.issue);
   // repeat-promo is a creation-time DEFER gate (serialize same-link posts), not a content
   // failure — if the action exists anyway, surface it as information for the AQ badge.
   if (repeatPromo.exceeded) {
@@ -349,7 +398,7 @@ function composeQualityVerdict(opts) {
       (repeatPromo.matchId || 'recent post') + ') — consider deciding that one first.');
   }
 
-  var hardFail = leaks.any || (offer.claimed && !offer.grounded);
+  var hardFail = leaks.any || (offer.claimed && !offer.grounded) || fabUrl.fabricated;
 
   // LLM verdict with grounded-stat suppression
   var llmFail = false;
@@ -400,6 +449,7 @@ module.exports = {
   SOCIAL_ATTEMPTS_CAP: SOCIAL_ATTEMPTS_CAP,
   FILE_OFFERS: _FILE_OFFERS,
   detectUngroundedOffer: detectUngroundedOffer,
+  detectFabricatedUrl: detectFabricatedUrl,
   detectContentLeaks: detectContentLeaks,
   looksLikeDocScaffold: looksLikeDocScaffold,
   repeatPromoUrlStatus: repeatPromoUrlStatus,
