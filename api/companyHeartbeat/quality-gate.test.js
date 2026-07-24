@@ -96,6 +96,27 @@ test('real ambientpixels.ai URLs pass', () => {
 
 test('external URLs are never our problem', () => {
   assert.strictEqual(QG.detectFabricatedUrl('congrats on https://kempock.com launch').fabricated, false);
+  assert.strictEqual(QG.detectFabricatedUrl('nice site delilahsdawson.com!').fabricated, false);
+});
+
+test('invented brand DOMAINS are fabricated, scheme or not (the ambientscore.ai incident)', () => {
+  ['ambientscore.ai/s/delilahsdawson-com',
+   'https://ambientscore.ai/report/x',
+   'http://www.ambient-score.io/x',
+   'ambientos.com/dashboard',
+   'ambientpixels.com/ambient-score']
+    .forEach(u => assert.strictEqual(QG.detectFabricatedUrl('link: ' + u).fabricated, true, u));
+});
+
+test('the real domain passes with or without scheme', () => {
+  ['ambientpixels.ai/ambient-score',
+   'www.ambientpixels.ai/pulse/',
+   'https://ambientpixels.ai/ambientscore/report.html?id=ccr_abc123']
+    .forEach(u => assert.strictEqual(QG.detectFabricatedUrl('see ' + u).fabricated, false, u));
+});
+
+test('bare-domain fabricated PATHS on the real domain are also caught', () => {
+  assert.strictEqual(QG.detectFabricatedUrl('report: ambientpixels.ai/score/foo').fabricated, true);
 });
 
 test('verdict hard-fails copy carrying a fabricated own-domain URL', () => {

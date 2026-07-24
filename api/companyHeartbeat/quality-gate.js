@@ -170,18 +170,37 @@ var _OWN_URL_ALLOWLIST = [
   /^\/blindspot(?:[/?#]|$)/
 ];
 
+// Brand-name hosts the model invents (ambientscore.ai went out in a draft — the
+// domain does not even resolve). Any ambient* brand host that is not EXACTLY
+// ambientpixels.ai is fabricated, on any TLD, scheme optional.
+var _BRAND_HOST_RX = /(?:https?:\/\/)?((?:www\.)?ambient-?(?:pixels?|score|os)[\w-]*\.[a-z][a-z.]+)(\/[^\s"'<>)\]]*)?/gi;
+
 function detectFabricatedUrl(text) {
-  var m = String(text || '').match(/https?:\/\/(?:www\.)?ambientpixels\.ai(\/[^\s"'<>)\]]*)?/gi) || [];
-  for (var i = 0; i < m.length; i++) {
-    var path;
-    try { path = new URL(m[i]).pathname + (new URL(m[i]).search || ''); } catch (_e) { continue; }
+  var t = String(text || '');
+
+  // Prong 1: brand-domain check (scheme optional — bare "ambientscore.ai/x" counts).
+  var bm;
+  _BRAND_HOST_RX.lastIndex = 0;
+  while ((bm = _BRAND_HOST_RX.exec(t)) !== null) {
+    var host = String(bm[1]).toLowerCase().replace(/^www\./, '');
+    if (host !== 'ambientpixels.ai') {
+      return {
+        fabricated: true,
+        url: bm[0],
+        issue: 'Copy links ' + bm[0] + ' — that domain does not exist. The ONLY real domain is ambientpixels.ai ' +
+          '(the product page is ambientpixels.ai/ambient-score; report links are /ambientscore/report.html?id=ccr_...). ' +
+          'Copy links EXACTLY from the [SCAN RESULT] comment; never invent domains or URLs.'
+      };
+    }
+    // Real domain — validate the path (prong 2), scheme optional.
+    var path = (bm[2] || '');
     if (path === '' || path === '/') continue;
     var ok = _OWN_URL_ALLOWLIST.some(function (rx) { return rx.test(path); });
     if (!ok) {
       return {
         fabricated: true,
-        url: m[i],
-        issue: 'Copy links ' + m[i] + ' — that path does not exist on ambientpixels.ai (fabricated URL). ' +
+        url: bm[0],
+        issue: 'Copy links ' + bm[0] + ' — that path does not exist on ambientpixels.ai (fabricated URL). ' +
           'Report links must be copied EXACTLY from the [SCAN RESULT] comment (/ambientscore/report.html?id=ccr_...); ' +
           'never invent or prettify URLs.'
       };
