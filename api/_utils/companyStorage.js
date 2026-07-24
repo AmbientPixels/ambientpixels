@@ -380,18 +380,31 @@ async function migrateStore(payload) {
 // ── Gemini API Usage Tracking ──
 // Gemini pricing (per 1M tokens). 2.0-flash retained for historical usage entries.
 const GEMINI_PRICING = {
+  'gemini-2.5-pro': { input: 1.25, output: 10.00 },
   'gemini-2.5-flash': { input: 0.30, output: 2.50 },
   'gemini-2.0-flash': { input: 0.10, output: 0.40 },
   'gemini-2.0-flash-lite': { input: 0.025, output: 0.10 },
   'default': { input: 0.30, output: 2.50 }
 };
 
+// The fleet logs EVERY heartbeat/chat/report call through logGeminiUsage — including
+// the Claude fallback-chain calls, whose model ids are claude-*. Before this resolver
+// those fell to the Gemini default rate and underpriced Claude spend ~10x (and
+// gemini-2.5-pro fell to flash rates, ~4x under). Entries logged before 2026-07-23
+// still carry the underpriced totalCost — do not trust historical cost data.
+function resolveLlmPricing(model) {
+  if (GEMINI_PRICING[model]) return GEMINI_PRICING[model];
+  if (CLAUDE_PRICING[model]) return CLAUDE_PRICING[model];
+  if (/^claude/.test(model)) return CLAUDE_PRICING['default'];
+  return GEMINI_PRICING['default'];
+}
+
 async function logGeminiUsage(entry) {
   // entry: { caller, model, promptTokens, completionTokens, totalTokens, timestamp, agentId? }
   try {
     const usage = (await getState('geminiUsage')) || [];
     const model = entry.model || 'gemini-2.5-flash';
-    const pricing = GEMINI_PRICING[model] || GEMINI_PRICING['default'];
+    const pricing = resolveLlmPricing(model);
     const inputCost = (entry.promptTokens || 0) * pricing.input / 1000000;
     const outputCost = (entry.completionTokens || 0) * pricing.output / 1000000;
 
@@ -468,11 +481,13 @@ async function getGeminiCostSummary(days) {
 }
 
 // ── Claude API Usage Tracking ──
-// Claude pricing (per 1M tokens)
+// Claude pricing (per 1M tokens). Haiku 4.5 list price is $1/$5 — the old
+// 0.80/4.00 here was Claude 3.5 Haiku's rate, corrected 2026-07-23.
 const CLAUDE_PRICING = {
+  'claude-sonnet-4-6': { input: 3.00, output: 15.00 },
   'claude-sonnet-4-6-20250514': { input: 3.00, output: 15.00 },
   'claude-sonnet-4-5-20250514': { input: 3.00, output: 15.00 },
-  'claude-haiku-4-5-20251001': { input: 0.80, output: 4.00 },
+  'claude-haiku-4-5-20251001': { input: 1.00, output: 5.00 },
   'default': { input: 3.00, output: 15.00 }
 };
 
@@ -582,5 +597,6 @@ module.exports = {
   // Claude Usage
   logClaudeUsage,
   getClaudeCostSummary,
-  CLAUDE_PRICING
+  CLAUDE_PRICING,
+  resolveLlmPricing
 };

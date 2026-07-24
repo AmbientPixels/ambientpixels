@@ -227,6 +227,11 @@
           <div class="ceo-obs-light-label">Keepalive</div>
           <div class="ceo-obs-light-value" id="ceo-strip-val-keepalive">—</div>
         </div>
+        <div class="ceo-obs-light" title="Estimated Anthropic credits remaining — sync the balance on the Costs page">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-credits"></div>
+          <div class="ceo-obs-light-label">Credits</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-credits">—</div>
+        </div>
         <div id="ceo-strip-alert-row"></div>
       </div>
 
@@ -1429,6 +1434,7 @@
       var _allocDigest = null;
       var _awarenessDigest = null;
       var _keepaliveStatus = null;
+      var _llmCredits = null;
 
       function _fetchSystemDigests() {
         var base = (typeof getApiBase === 'function') ? getApiBase() : '/api';
@@ -1444,14 +1450,19 @@
             .catch(function () { return null; }),
           fetch(base + '/keepalive-status', { headers: headers })
             .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; }),
+          fetch(base + '/llmCredits', { headers: headers })
+            .then(function (r) { return r.ok ? r.json() : null; })
             .catch(function () { return null; })
         ]).then(function (results) {
           _allocDigest = results[0];
           _awarenessDigest = results[1];
           _keepaliveStatus = results[2];
+          _llmCredits = results[3];
           try { _renderBudgetDot(); } catch (e) { console.warn('[Dashboard] _renderBudgetDot error:', e); }
           try { _renderFleetDot(); } catch (e) { console.warn('[Dashboard] _renderFleetDot error:', e); }
           try { _renderKeepaliveDot(); } catch (e) { console.warn('[Dashboard] _renderKeepaliveDot error:', e); }
+          try { _renderCreditsDot(); } catch (e) { console.warn('[Dashboard] _renderCreditsDot error:', e); }
           try { renderCeoAgentGrid(); } catch (e) { console.warn('[Dashboard] renderCeoAgentGrid error:', e); }
           try { renderCeoInbox(); } catch (e) { console.warn('[Dashboard] renderCeoInbox error:', e); }
         });
@@ -1537,6 +1548,29 @@
         else if (ageMin < 60) label = ageMin + 'm ago';
         else label = Math.floor(ageMin / 60) + 'h ago';
         val.textContent = label;
+      }
+
+      function _renderCreditsDot() {
+        var dot = document.getElementById('ceo-strip-dot-credits');
+        var val = document.getElementById('ceo-strip-val-credits');
+        if (!dot || !val) return;
+        if (!_llmCredits || !_llmCredits.configured) {
+          dot.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          val.textContent = _llmCredits ? 'not set' : '—';
+          return;
+        }
+        var rem = _llmCredits.remainingUsd;
+        var days = _llmCredits.daysLeft;
+        var dotClass;
+        if (rem <= 5 || (days !== null && days <= 7)) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--bad';
+        } else if (rem <= 20 || (days !== null && days <= 30)) {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--warn';
+        } else {
+          dotClass = 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+        }
+        dot.className = dotClass;
+        val.textContent = '$' + rem.toFixed(2) + (days !== null ? ' · ~' + days + 'd' : '');
       }
 
       // ── CEO Agent Health Grid ──

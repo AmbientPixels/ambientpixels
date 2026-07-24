@@ -289,6 +289,24 @@
       </div>
     </div>
 
+    <!-- Anthropic Credits Panel -->
+    <div class="sys-section" id="cost-credits-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-battery-half"></i>
+        <strong>Anthropic Credits</strong>
+        <span class="sys-count" id="cost-credits-count"></span>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div class="cost-panel">
+          <div class="cost-panel-header">
+            <span class="cost-panel-title"><i class="fas fa-battery-half" style="color:#DC6956;"></i> Claude Credits Remaining (estimate)</span>
+          </div>
+          <div class="cost-panel-body" id="credits-panel"><div class="cost-empty">Loading credits data...</div></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Azure Panel -->
     <div class="sys-section" id="cost-azure-section">
       <div class="sys-section-hdr">
@@ -431,6 +449,7 @@
     // Start cost fetches immediately (don't wait for AgentEngine which may be slow)
     fetchGemini(30);
     fetchClaude(30);
+    fetchCredits();
     fetchAzure(30);
 
     // Agent-dependent renders need registry
@@ -609,6 +628,73 @@
     document.getElementById('claude-range').addEventListener('change', function () {
       fetchClaude(parseInt(this.value) || 30);
     });
+
+    // ── Anthropic Credits ──
+    function fetchCredits() {
+      var el = document.getElementById('credits-panel');
+      fetch(apiBase + '/llmCredits')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) { el.innerHTML = '<div class="cost-empty">Could not load credits data.</div>'; return; }
+          renderCreditsPanel(el, data);
+        })
+        .catch(function () { el.innerHTML = '<div class="cost-empty">Network error.</div>'; });
+    }
+
+    function renderCreditsPanel(el, data) {
+      var html = '';
+      if (data.configured) {
+        var remColor = data.remainingUsd <= 5 ? '#f87171' : (data.remainingUsd <= 20 ? '#fbbf24' : '#34d399');
+        html += '<div class="cost-kpi-row">';
+        html += kpi('$' + data.remainingUsd.toFixed(2), 'Est. Remaining', remColor);
+        html += kpi('$' + data.balanceUsd.toFixed(2), 'Balance Set ' + (data.asOf || '').substring(0, 10), '#60a5fa');
+        html += kpi('$' + data.claudeSpendSinceUsd.toFixed(2), 'Claude Spend Since', '#DC6956');
+        html += kpi(data.daysLeft !== null ? '~' + data.daysLeft + 'd' : '···', 'Left at Current Burn ($' + data.dailyBurnUsd.toFixed(2) + '/d)', '#a855f7');
+        html += '</div>';
+        if (!data.coverageComplete) {
+          html += '<div class="cost-empty" style="color:#fbbf24;">Usage history only covers ~30 days, so spend since your sync date is undercounted. Re-sync the balance below.</div>';
+        }
+        setText('cost-credits-count', '$' + data.remainingUsd.toFixed(2) + ' left');
+      } else {
+        html += '<div class="cost-empty">No balance recorded yet. Enter your credit balance from console.anthropic.com to start tracking.</div>';
+        setText('cost-credits-count', 'not set');
+      }
+      html += '<div class="cost-sub-label" style="margin-top:0.6rem;">Sync balance from console.anthropic.com</div>';
+      html += '<div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.35rem; flex-wrap:wrap;">';
+      html += '<input type="number" step="0.01" min="0" id="credits-balance-input" class="cost-select" style="width:130px;" placeholder="e.g. 25.00">';
+      html += '<button id="credits-save-btn" class="cost-select" style="cursor:pointer; background:rgba(220,105,86,0.15); border-color:rgba(220,105,86,0.5);">Save (as of now)</button>';
+      html += '<span id="credits-save-status" style="font-size:0.8rem; opacity:0.7;"></span>';
+      html += '</div>';
+      html += '<div style="font-size:0.72rem; opacity:0.5; margin-top:0.4rem;">Estimate only — Anthropic exposes no balance API. Spend counts every logged Claude call (fleet + products) since the sync date.</div>';
+      el.innerHTML = html;
+
+      document.getElementById('credits-save-btn').addEventListener('click', saveCreditsBalance);
+    }
+
+    function saveCreditsBalance() {
+      var input = document.getElementById('credits-balance-input');
+      var status = document.getElementById('credits-save-status');
+      var val = parseFloat(input.value);
+      if (isNaN(val) || val < 0) { status.textContent = 'Enter a valid amount'; return; }
+      status.textContent = 'Saving...';
+      var wh = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {};
+      fetch(apiBase + '/company-state?key=systemConfig', { headers: wh })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (resp) {
+          var config = (resp && resp.value) || {};
+          config.anthropicCredits = { balanceUsd: val, asOf: new Date().toISOString() };
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: Object.assign({ 'Content-Type': 'application/json' }, wh),
+            body: JSON.stringify({ key: 'systemConfig', value: config })
+          });
+        })
+        .then(function (r) {
+          if (r && r.ok) { status.textContent = 'Saved'; fetchCredits(); }
+          else { status.textContent = 'Save failed'; }
+        })
+        .catch(function () { status.textContent = 'Save failed'; });
+    }
 
     // ── Azure ──
     function fetchAzure(days) {
