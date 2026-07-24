@@ -1279,6 +1279,43 @@
     }
 
     // ── Campaign Proposals ──
+    // ── Proposal overlap detection (2026-07-24) ──
+    // Born from the sprawl incident: a proposal wave got wholesale-approved and
+    // SEVEN near-identical conversion campaigns gridlocked the posting slots.
+    // Word-overlap similarity on title+description, thresholds calibrated against
+    // that real data: the six clones scored 0.32-0.48 vs Genesis (same objective),
+    // legit campaigns (Pulse 0.12, Herald 0.16, Showcase 0.22) stayed clear.
+    function _wordOverlap(a, b) {
+      function w(s) {
+        var out = {}; var n = 0;
+        String(s || '').toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).forEach(function (x) {
+          if (x.length > 2 && !out[x]) { out[x] = true; n++; }
+        });
+        return { set: out, size: n };
+      }
+      var A = w(a), B = w(b);
+      if (!A.size || !B.size) return 0;
+      var hit = 0;
+      Object.keys(A.set).forEach(function (x) { if (B.set[x]) hit++; });
+      return hit / Math.min(A.size, B.size);
+    }
+    // candidates: [{label, text, objId}] — returns array of overlapping labels.
+    function _overlapLabels(text, objId, candidates) {
+      var hits = [];
+      (candidates || []).forEach(function (c) {
+        var sim = _wordOverlap(text, c.text);
+        if (sim >= 0.5 || (objId && c.objId && objId === c.objId && sim >= 0.30)) hits.push(c.label);
+      });
+      return hits;
+    }
+    function _overlapChip(labels, vsWhat) {
+      if (!labels.length) return '';
+      return '<div style="font-size:var(--c-text-xs);color:#fbbf24;padding:0.25rem 0.4rem;margin-top:0.25rem;background:rgba(251,191,36,0.07);border-left:2px solid rgba(251,191,36,0.5);border-radius:3px;">' +
+        '<i class="fas fa-exclamation-triangle" style="font-size:0.5rem;margin-right:4px;"></i>Overlaps ' + vsWhat + ': ' +
+        esc(labels.slice(0, 3).join(', ')) + (labels.length > 3 ? ' +' + (labels.length - 3) : '') +
+        ' — approve at most one per intent.</div>';
+    }
+
     function renderCampaignProposals() {
       var panel = document.getElementById('campaign-proposals-panel');
       var list = document.getElementById('campaign-proposals-list');
@@ -1286,11 +1323,15 @@
       if (!panel || !list) return;
 
       var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
+      var hdrs = { headers: { 'x-company-secret': 'pixelpusher' } };
+      Promise.all([
+        fetch(apiBase + '/company-state?key=approvalQueue', hdrs).then(function(r) { return r.json(); }),
+        fetch(apiBase + '/company-state?key=campaigns', hdrs).then(function(r) { return r.json(); }).catch(function() { return { value: [] }; })
+      ])
+        .then(function(results) {
+          var queue = results[0].value || results[0] || [];
           if (!Array.isArray(queue)) queue = [];
+          var activeCampaigns = (results[1].value || results[1] || []).filter(function(c) { return c && c.status === 'active'; });
           var proposals = queue.filter(function(item) { return item.type === 'campaign_proposal' && item.status === 'pending'; });
 
           if (proposals.length === 0) { panel.style.display = 'none'; return; }
@@ -1304,13 +1345,26 @@
             var agent = esc(p.proposedBy || '?');
             var platforms = (p.platforms || []).join(', ');
             var created = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '';
-            html += '<div class="act-row" style="padding:0.5rem 0;cursor:pointer;" onclick="openProposalDrawer(' + idx + ')">';
+            // Overlap check: vs ACTIVE campaigns and vs the OTHER pending proposals.
+            var pText = (p.name || '') + ' ' + (p.description || '');
+            var pObj = p.objective_id || p.objectiveId || null;
+            var activeHits = _overlapLabels(pText, pObj, activeCampaigns.map(function(c) {
+              return { label: c.title || c.name, text: (c.title || c.name || '') + ' ' + (c.description || ''), objId: c.objective_id };
+            }));
+            var peerHits = _overlapLabels(pText, pObj, proposals.filter(function(q, j) { return j !== idx; }).map(function(q) {
+              return { label: q.name, text: (q.name || '') + ' ' + (q.description || ''), objId: q.objective_id || q.objectiveId };
+            }));
+            html += '<div class="act-row" style="flex-direction:column;align-items:stretch;padding:0.5rem 0;cursor:pointer;" onclick="openProposalDrawer(' + idx + ')">';
+            html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
             html += '<div class="act-row-icon" style="background:rgba(139,92,246,0.08);color:#a78bfa;"><i class="fas fa-bullhorn"></i></div>';
             html += '<div class="act-row-info">';
             html += '<div class="act-row-title">' + name + '</div>';
             html += '<div class="act-row-meta">' + agent + ' · ' + esc(platforms) + ' · ' + created + '</div>';
             html += '</div>';
             html += '<button class="act-btn act-btn--details" onclick="event.stopPropagation();openProposalDrawer(' + idx + ')"><i class="fas fa-eye"></i></button>';
+            html += '</div>';
+            html += _overlapChip(activeHits, 'active campaigns');
+            html += _overlapChip(peerHits, 'other pending proposals');
             html += '</div>';
           });
           list.innerHTML = html;
@@ -1604,11 +1658,15 @@
       if (!panel || !list) return;
 
       var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
+      var hdrs = { headers: { 'x-company-secret': 'pixelpusher' } };
+      Promise.all([
+        fetch(apiBase + '/company-state?key=approvalQueue', hdrs).then(function(r) { return r.json(); }),
+        fetch(apiBase + '/company-state?key=objectives', hdrs).then(function(r) { return r.json(); }).catch(function() { return { value: [] }; })
+      ])
+        .then(function(results) {
+          var queue = results[0].value || results[0] || [];
           if (!Array.isArray(queue)) queue = [];
+          var activeObjectives = (results[1].value || results[1] || []).filter(function(o) { return o && o.status === 'active'; });
           var proposals = queue.filter(function(item) { return item.type === 'objective_proposal' && item.status === 'pending'; });
 
           if (proposals.length === 0) { panel.style.display = 'none'; return; }
@@ -1621,13 +1679,29 @@
             var name = esc(p.title || 'Untitled');
             var agent = esc(p.proposedBy || '?');
             var created = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '';
-            html += '<div class="act-row" style="padding:0.5rem 0;cursor:pointer;" onclick="openObjProposalDrawer(' + idx + ')">';
+            // Objectives ARE the intent layer — no objective-id scoping, higher flat
+            // bar (0.45). The 07-24 duplicate ("Grow Bluesky Audience" ⊂ "Grow
+            // Bluesky Audience to Build Top-of-Funnel") scores 1.0 on this metric.
+            var pText = (p.title || '') + ' ' + (p.description || '');
+            var activeHits = [];
+            activeObjectives.forEach(function(o) {
+              if (_wordOverlap(pText, (o.title || '') + ' ' + (o.description || '')) >= 0.45) activeHits.push(o.title);
+            });
+            var peerHits = [];
+            proposals.forEach(function(q, j) {
+              if (j !== idx && _wordOverlap(pText, (q.title || '') + ' ' + (q.description || '')) >= 0.45) peerHits.push(q.title);
+            });
+            html += '<div class="act-row" style="flex-direction:column;align-items:stretch;padding:0.5rem 0;cursor:pointer;" onclick="openObjProposalDrawer(' + idx + ')">';
+            html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
             html += '<div class="act-row-icon" style="background:rgba(96,165,250,0.08);color:#60a5fa;"><i class="fas fa-bullseye"></i></div>';
             html += '<div class="act-row-info">';
             html += '<div class="act-row-title">' + name + '</div>';
             html += '<div class="act-row-meta">' + agent + ' · ' + esc(p.timeHorizon || '') + ' · ' + created + '</div>';
             html += '</div>';
             html += '<button class="act-btn act-btn--details" onclick="event.stopPropagation();openObjProposalDrawer(' + idx + ')"><i class="fas fa-eye"></i></button>';
+            html += '</div>';
+            html += _overlapChip(activeHits, 'active objectives');
+            html += _overlapChip(peerHits, 'other pending proposals');
             html += '</div>';
           });
           list.innerHTML = html;
