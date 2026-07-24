@@ -368,7 +368,12 @@ async function runAgentHeartbeat(ctx) {
   // Other agents: keep 'review' visible (e.g. Scribe needs to submit-for-publish after hero image attached)
   // Skip _archived tasks — they're tombstones from canceled-objective/campaign sweeps that the anti-oscillation
   // pattern keeps in the array. Picking them up triggers objective_canceled_freeze gate violations every cycle.
+  // Backlog tasks are invisible to everyone but Nova (who triages them) — 'backlog' is the
+  // parking state flows rely on (prospect-pipeline holds reply tasks in backlog until the
+  // scan lands + the daily draft budget promotes them; 2026-07-24: Scribe drafted straight
+  // from backlog, blowing past maxDraftsPerDay because this filter only excluded 'done').
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived
+    && !(agentId !== 'nova' && t.status === 'backlog')
     && !(agentId === 'pixel' && t.status === 'review'));
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
   const allActiveTasks = agentId === 'nova'
@@ -2068,6 +2073,27 @@ Write the full deliverable first, then the structured JSON block.`;
               // to 280 chars max (bluesky cap is 300, leave headroom).
               let _finalReply = capitalizeSentences(_replyText).substring(0, 280);
               const _tc = task.threadContext;
+              // Crash-idempotency guard (2026-07-24 fruitfop incident): reply actions +
+              // AQ entries are written to storage immediately, but the task close rides
+              // end-of-run persistence. A cycle that dies between the two leaves the task
+              // open, and the next cycle re-drafts — the CEO then sees duplicate outreach
+              // to the same prospect. If a pending reply for this task already exists,
+              // close the task instead of drafting a second one.
+              const _actionsStoreForReply = (await storage.getState('actions')) || [];
+              const _pendingReplyDup = _actionsStoreForReply.find(function (a) {
+                return a && a.type === 'social_post.reply' && a._parentTaskId === action.taskId &&
+                  a.approval && a.approval.status === 'pending';
+              });
+              if (_pendingReplyDup) {
+                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+                result.taskUpdates.push({
+                  action: 'comment', taskId: action.taskId,
+                  comment: 'A reply for this task is already pending CEO approval (' + _pendingReplyDup.id + ') — closed without a second draft (crash-recovery dedup).',
+                  agentId: 'system'
+                });
+                context.log('[Heartbeat] scribe: bluesky-reply dedup — pending reply already exists for task', action.taskId);
+                continue;
+              }
               // Create a social_post.reply action
               const _replyActionId = 'act_' + Date.now() + '_bsreply_' + Math.random().toString(36).substr(2, 5);
               const _replyAction = {
@@ -2089,7 +2115,6 @@ Write the full deliverable first, then the structured JSON block.`;
                 _parentTaskId: action.taskId,
                 approval: { status: 'pending' }
               };
-              const _actionsStoreForReply = (await storage.getState('actions')) || [];
               _actionsStoreForReply.push(_replyAction);
               await storage.setState('actions', _actionsStoreForReply);
 
@@ -2098,6 +2123,27 @@ Write the full deliverable first, then the structured JSON block.`;
               try {
                 _qgReplyResult = await _validateContentQuality(_finalReply, 'bluesky', context);
               } catch (_qgErr) { /* fail-open */ }
+              // Compose with the deterministic detectors — fabricated URLs, content leaks,
+              // ungrounded offer claims, platform length. 2026-07-24 fruitfop incident:
+              // Haiku alone passed invented report links (ambientpixels.ai/score/<site>,
+              // ambientscore.ai/s/<site>) at confidence 95 on THIS path — the detector
+              // shipped 07-23 but was only wired into create-social-action + auto-post.
+              // Replies are the copy that carries report links; deterministic failures
+              // return confidence 100 so the >= 70 reject branch below always fires.
+              try {
+                var _rtReplyOffers = null;
+                try { _rtReplyOffers = ((await storage.getState('systemConfig')) || {}).offers; } catch (_roErr) { /* file offers only */ }
+                _qgReplyResult = QGV.composeQualityVerdict({
+                  llm: _qgReplyResult,
+                  text: _finalReply,
+                  platform: 'bluesky',
+                  offers: QGV.FILE_OFFERS.concat(Array.isArray(_rtReplyOffers) ? _rtReplyOffers : []),
+                  grounding: QGV.findUngroundedClaims(_finalReply, QGV.buildGroundingText(task, _productFacts))
+                });
+                context.log('[QualityGate] bluesky-reply pass:', _qgReplyResult.pass, 'confidence:', _qgReplyResult.confidence, 'det:', JSON.stringify(_qgReplyResult.deterministicFlags || {}));
+              } catch (_qgvErr) {
+                context.log('[QualityGate] bluesky-reply compose error (LLM-only fallback):', String(_qgvErr).substring(0, 150));
+              }
 
               if (_qgReplyResult && !_qgReplyResult.pass && (_qgReplyResult.confidence || 0) >= 70) {
                 // Rejected — remove action, reset task for Scribe rewrite
@@ -2156,6 +2202,18 @@ Write the full deliverable first, then the structured JSON block.`;
                 continue;
               }
 
+              // Stamp the composed verdict on the ACTION too — grace-window + dashboards
+              // read action.qualityGate; before this the reply path left it null, which
+              // made the fruitfop incident invisible until someone diffed the AQ entries.
+              if (_qgReplyResult) {
+                _replyAction.qualityGate = {
+                  pass: !!_qgReplyResult.pass, confidence: _qgReplyResult.confidence || 0,
+                  issues: (_qgReplyResult.issues || []).slice(0, 6),
+                  deterministicFlags: _qgReplyResult.deterministicFlags || null
+                };
+                await storage.setState('actions', _actionsStoreForReply);
+              }
+
               // Add to approval queue as bluesky_reply kind
               const _aqQueue = (await storage.getState('approvalQueue')) || [];
               const _aqReplyEntry = {
@@ -2185,6 +2243,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   pass: !!_qgReplyResult.pass,
                   confidence: _qgReplyResult.confidence || 0,
                   issues: _qgReplyResult.issues || [],
+                  deterministicFlags: _qgReplyResult.deterministicFlags || null,
                   model: 'claude-haiku-4-5-20251001',
                   checkedAt: new Date().toISOString()
                 };
