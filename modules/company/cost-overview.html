@@ -210,6 +210,11 @@
         <div class="cost-stat-sub" id="cs-claude-sub">—</div>
       </div>
       <div class="cost-stat-card">
+        <div class="cost-stat-value" style="color:#34d399;" id="cs-credits">—</div>
+        <div class="cost-stat-label">Anthropic Credits</div>
+        <div class="cost-stat-sub" id="cs-credits-sub">—</div>
+      </div>
+      <div class="cost-stat-card">
         <div class="cost-stat-value" style="color:#0078D4;" id="cs-azure">—</div>
         <div class="cost-stat-label">Azure</div>
         <div class="cost-stat-sub" id="cs-azure-sub">—</div>
@@ -655,9 +660,14 @@
           html += '<div class="cost-empty" style="color:#fbbf24;">Usage history only covers ~30 days, so spend since your sync date is undercounted. Re-sync the balance below.</div>';
         }
         setText('cost-credits-count', '$' + data.remainingUsd.toFixed(2) + ' left');
+        var csEl = document.getElementById('cs-credits');
+        if (csEl) { csEl.textContent = '$' + data.remainingUsd.toFixed(2); csEl.style.color = remColor; }
+        setText('cs-credits-sub', data.daysLeft !== null ? '~' + data.daysLeft + 'd left at current burn' : 'remaining');
       } else {
         html += '<div class="cost-empty">No balance recorded yet. Enter your credit balance from console.anthropic.com to start tracking.</div>';
         setText('cost-credits-count', 'not set');
+        setText('cs-credits', '—');
+        setText('cs-credits-sub', 'not set');
       }
       html += '<div class="cost-sub-label" style="margin-top:0.6rem;">Sync balance from console.anthropic.com</div>';
       html += '<div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.35rem; flex-wrap:wrap;">';
