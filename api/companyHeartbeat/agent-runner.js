@@ -2320,7 +2320,10 @@ Write the full deliverable first, then the structured JSON block.`;
             const _etTaskText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
             const _etDeliverableLower = (deliverable || '').toLowerCase();
             const _isBlogByType = (task.taskType === 'blog_post' || task.taskType === 'article');
-            const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article|marketing.*brief|content.*brief|draft.*brief/.test(_etTaskText);
+            // "brief" patterns removed: internal briefs (outreach/marketing/content) are specs,
+            // not blog posts — matching them minted a public marketing_post + hero image from
+            // an internal outreach-brief task (doc_1784991675727, 2026-07-25).
+            const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article/.test(_etTaskText);
             const _isBlogByContent = /document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\/|submit.*ceo.*approv.*publish/.test(_etDeliverableLower);
             const _isSocialCopyTask = task.tags && task.tags.indexOf('social-copy') !== -1;
             const _isBlogTask = agentId === 'scribe' && !_isSocialCopyTask && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
@@ -4528,6 +4531,22 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // At most ONE pending content.package per agent. Images are generated (paid API
+      // calls) BEFORE approval, so an unattended queue turns the design-gap prompt into
+      // an hourly generation loop — 17 packages piled up 07-23→07-25 while the gap
+      // detector (which only counts tasks) kept nagging. Same idiom as repeat_promo_url.
+      const _cpAq = (await storage.getState('approvalQueue')) || [];
+      const _cpPendingMine = _cpAq.filter(function (q) {
+        return (q.kind === 'content.package' || q.type === 'content.package') &&
+          q.status === 'pending' && q.createdBy === agentId;
+      });
+      if (_cpPendingMine.length > 0) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-content-package:', _cpPendingMine.length, 'package(s) already pending CEO approval');
+        await logEvent('policy-violation', agentId, 'Content package blocked — prior package awaiting CEO decision', cycleId,
+          { runId: cycleId, gate: 'content_package_pending', pendingCount: _cpPendingMine.length, topic: cpTopic.substring(0, 80) });
+        continue;
+      }
+
       // Load config defaults
       let _ceConfig = null;
       try { _ceConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* use hardcoded defaults */ }
@@ -4765,7 +4784,16 @@ Write the full deliverable first, then the structured JSON block.`;
       let _imgCeConfig = null;
       try { _imgCeConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* defaults */ }
 
-      const imgPreset = (img.preset || (_imgCeConfig && _imgCeConfig.defaultPreset) || 'ap-quiet-editorial').trim();
+      let imgPreset = (img.preset || (_imgCeConfig && _imgCeConfig.defaultPreset) || 'ap-quiet-editorial').trim();
+      // Blog heroes always use the house editorial preset. The per-product preset map is
+      // for social/campaign assets — product inference on a meta/company post shipped an
+      // off-brand ap-corporate-tech hero (img_1784930449822, 2026-07-24). All 20 published
+      // posts use the house style; change BLOG_HEADER_PRESET only on CEO direction.
+      const BLOG_HEADER_PRESET = 'ap-quiet-editorial';
+      if (imgPurpose === 'blog_header' && imgPreset !== BLOG_HEADER_PRESET) {
+        context.log('[Heartbeat]', agentId, 'generate-image: blog_header preset', imgPreset, '→ house style', BLOG_HEADER_PRESET);
+        imgPreset = BLOG_HEADER_PRESET;
+      }
       // Map purpose → default outputType (agent can override)
       const PURPOSE_OUTPUT_MAP = { 'blog_header': 'blog_image', 'inline_illustration': 'blog_image', 'social_media': 'x_image' };
       const imgOutputType = (img.outputType && imageEngine.PURPOSES && imageEngine.PURPOSES[img.outputType]) ? img.outputType : PURPOSE_OUTPUT_MAP[imgPurpose];

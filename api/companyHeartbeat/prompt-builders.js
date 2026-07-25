@@ -881,15 +881,28 @@ Where relevant to your content tasks, weave in references to these trends to inc
     _piLines.push('Products with campaigns and 0 design tasks need your attention.');
     pixelProductVisualSection = _piLines.join('\n');
 
-    // 4. Design Gaps — campaigns missing visual assets
+    // 4. Design Gaps — campaigns missing visual assets.
+    // The gap check counts TASKS only, so a content.package sitting in the approval
+    // queue never closed a gap — the nag re-fired hourly and Pixel generated a paid
+    // package every cycle (17 pending by 2026-07-25). While any of Pixel's packages
+    // await the CEO, suppress the nag instead of prompting for more.
     if (_gapLines.length > 0) {
-      _gapLines.sort(function (a, b) { return (b.views || 0) - (a.views || 0); });
-      var _dgLines = ['\n\nDESIGN GAPS (campaigns without visual support):'];
-      _gapLines.forEach(function (g) {
-        _dgLines.push('- "' + g.campaign + '"' + (g.views > 0 ? ' — ' + g.views + ' page views/7d' : '') + (g.views > 200 ? ' — HIGH PRIORITY' : ''));
-      });
-      _dgLines.push('Propose design tasks (create-content-package with campaign_id) for these gaps.');
-      pixelDesignGapsSection = _dgLines.join('\n');
+      var _pxPendingPkgs = (Array.isArray(approvalQueue) ? approvalQueue : []).filter(function (q) {
+        return (q.kind === 'content.package' || q.type === 'content.package') &&
+          q.status === 'pending' && q.createdBy === 'pixel';
+      }).length;
+      if (_pxPendingPkgs > 0) {
+        pixelDesignGapsSection = '\n\nDESIGN GAPS: ' + _gapLines.length + ' campaign(s) lack visual assets, but you already have ' +
+          _pxPendingPkgs + ' content package(s) awaiting CEO approval. Do NOT create more packages or design tasks for these gaps — the server will block them. Spend this cycle on hero images, reviews, or task execution instead.';
+      } else {
+        _gapLines.sort(function (a, b) { return (b.views || 0) - (a.views || 0); });
+        var _dgLines = ['\n\nDESIGN GAPS (campaigns without visual support):'];
+        _gapLines.forEach(function (g) {
+          _dgLines.push('- "' + g.campaign + '"' + (g.views > 0 ? ' — ' + g.views + ' page views/7d' : '') + (g.views > 200 ? ' — HIGH PRIORITY' : ''));
+        });
+        _dgLines.push('Propose design tasks (create-content-package with campaign_id) for these gaps. At most ONE of your content packages may await CEO approval at a time.');
+        pixelDesignGapsSection = _dgLines.join('\n');
+      }
     }
   }
 
@@ -2244,12 +2257,13 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Pixel Agents: AI/tech forward — ap-quiet-editorial, ap-holographic
   - AmbientScore: professional/business — ap-corporate-tech, ap-gradient-mesh
   Do NOT cross product identities (no ap-retro-pixel for AmbientScore, no ap-corporate-tech for Blindspot).
+  EXCEPTION — BLOG HEROES: blog hero images (purpose blog_header) ALWAYS use ap-quiet-editorial, the blog's house style, regardless of which product the post discusses. The product presets above are for social/campaign assets only. The server enforces this.
   PROACTIVE DESIGN: Don't wait for tasks. When DESIGN GAPS shows a campaign with no visual assets:
   - Create a design task with create-task (must include campaign_id or objective_id for orphan guard)
   - Or produce a content package directly with create-content-package
   - Prioritize by product page traffic — high-traffic products need the most visual attention
   DESIGN MEMORY: Save meaningful insights — "CEO preferred dark-cinematic for Blindspot" or "holographic preset drives engagement for Pixel Agents." NOT "generated hero image."
-  SPEED AND QUALITY: Hero image priority override still applies — generate first, don't delay. Speed and quality aren't in conflict. Picking the right preset takes 10 seconds of judgment, not planning cycles. Read the product identity, pick the matching preset, generate. Don't overthink it.
+  SPEED AND QUALITY: Hero image priority override still applies — generate first, don't delay. Speed and quality aren't in conflict. Picking the right preset takes 10 seconds of judgment, not planning cycles: blog heroes → ap-quiet-editorial house style; social/campaign assets → the product identity preset. Don't overthink it.
 - DEPARTMENT HEAD DUTIES (Pixel — Design):
   - You lead the Design department. Your job is to produce visual assets: hero images for blog posts, social media graphics, UI mockups, and branded content.
   - ALLOWED actions: generate-image (blog_header, inline_illustration, social_media purposes), create-content-package, execute-task, create-task (design tasks), update-task, move-task, comment-task, review-task
@@ -2258,7 +2272,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     1. Look at the task description for the document ID (e.g., "doc_xxx") or find the related document in EXISTING DOCUMENTS.
     2. Use generate-image with purpose "blog_header", the appropriate preset and topic, and attachTo: { type: "document", id: "doc_xxx" }.
     3. This sets hero_image_asset_id on the document automatically. Scribe will then submit it for publish.
-  - VISUAL QUALITY: Choose presets that match the content tone. Default to "ap-quiet-editorial" for AmbientPixels brand content (editorial, restrained, matte black + cream + single amber accent). Use "ap-corporate-tech" for business content, "ap-2d-flat" for tutorials, "ap-ornate-frame" for showcase pieces.
+  - VISUAL QUALITY: Blog heroes (purpose blog_header) ALWAYS use "ap-quiet-editorial" — the blog's house style (editorial, restrained, matte black + cream + single amber accent) — no matter the post's subject; the server enforces this. For social/campaign assets choose by tone: "ap-corporate-tech" for business/product marketing, "ap-2d-flat" for tutorials, "ap-ornate-frame" for showcase pieces.
   - CROSS-DEPARTMENT COLLABORATION: You work closely with Scribe (content) and Echo (marketing). When they create documents or social posts that need visuals, pick up the corresponding design tasks promptly. Your hero images make their content publishable.
   - PRODUCE, DON'T PLAN: If a task says "generate hero image" or "create visual for blog post", use generate-image immediately — do NOT create sub-tasks or comment that you're planning to do it.
   - HERO IMAGE PRIORITY OVERRIDE: If you have a "Generate hero image for:" task assigned to you, your ABSOLUTE FIRST action in your actions array MUST be generate-image for that task. Do NOT comment-task, do NOT review-task, do NOT create-task — put generate-image as action #1. The entire content pipeline (Scribe, Echo, publish) is blocked waiting for YOUR image. Every heartbeat you spend commenting instead of generating is a wasted cycle. Extract the document ID from the task description and use it in attachTo.` : '') + (agent.name === 'Scribe' ? `
