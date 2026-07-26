@@ -478,6 +478,60 @@ async function runProspectPipeline(opts) {
   return summary;
 }
 
+// ── Deterministic report-link repair ─────────────────────────────────────────
+// The drafter model has NEVER reliably copied the report link: the execute
+// prompt truncates task comments to 200 chars, so the URL (at char ~560-840 of
+// the [SCAN RESULT] comment) was invisible — Scribe invented URLs (fruitfop
+// incident) and, once the fabricated-URL gate started rejecting those, learned
+// to omit links entirely ("happy to share the report"). The link is the
+// conversion path — splice the REAL report URL in server-side instead of
+// trusting the model to copy it. Pure function; no scan comment → no-op.
+var BSKY_REPLY_MAX = 296; // bluesky hard cap 300, headroom for trailing edges
+var _OUR_URL_RE = /(?:https?:\/\/)?(?:www\.)?[a-z0-9.-]*ambient(?:pixels|score)[a-z0-9.-]*\.[a-z]{2,}(?:\/[^\s"')\]]*)?/gi;
+var _HEDGE_RE = /\s*(?:happy to share[^.!?]*|let me know if[^.!?]*|just say the word[^.!?]*|if you(?:'d| would)? ?(?:like|want)[^.!?]*)[.!?]["']?\s*$/i;
+
+function repairReplyLink(replyText, scanCommentText) {
+  var text = String(replyText || '').trim();
+  var m = String(scanCommentText || '').match(/https:\/\/ambientpixels\.ai\/ambientscore\/report\.html\?id=ccr_[a-z0-9_]+/i);
+  if (!m || !text) return text;
+  var realUrl = m[0];
+  if (text.indexOf(realUrl) === -1) {
+    if ((text.match(_OUR_URL_RE) || []).length > 0) {
+      // Model invented an ambientpixels/ambientscore URL — swap the first for the
+      // real link, drop any extras. The prospect's own domain is left untouched.
+      var first = true;
+      text = text.replace(_OUR_URL_RE, function () {
+        if (first) { first = false; return realUrl; }
+        return '';
+      }).replace(/[ \t]{2,}/g, ' ').trim();
+    } else {
+      // No link at all — strip a trailing "want the link?" hedge, then append.
+      text = text.replace(_HEDGE_RE, '').trim();
+      if (text && !/[.!?]$/.test(text)) text += '.';
+      text = (text ? text + ' ' : '') + 'Full report: ' + realUrl;
+    }
+  }
+  return _fitWithLink(text, realUrl);
+}
+
+// Over the platform cap: trim the TEXT at a word boundary, never the link.
+function _fitWithLink(text, realUrl) {
+  if (text.length <= BSKY_REPLY_MAX) return text;
+  var linkIdx = text.lastIndexOf(realUrl);
+  if (linkIdx === -1) return text.substring(0, BSKY_REPLY_MAX);
+  var tail = text.slice(linkIdx);
+  var head = text.slice(0, linkIdx).trim();
+  var budget = BSKY_REPLY_MAX - tail.length - 1;
+  if (head.length > budget) {
+    head = head.slice(0, budget);
+    var sp = head.lastIndexOf(' ');
+    if (sp > 40) head = head.slice(0, sp);
+    head = head.replace(/[,;:\-\s]+$/, '');
+    if (head && !/[.!?]$/.test(head)) head += '.';
+  }
+  return (head ? head + ' ' : '') + tail;
+}
+
 module.exports = {
   extractSiteUrl: extractSiteUrl,
   filterProspects: filterProspects,
@@ -486,5 +540,6 @@ module.exports = {
   promoteReady: promoteReady,
   sweepOrphans: sweepOrphans,
   reconcile: reconcile,
+  repairReplyLink: repairReplyLink,
   runProspectPipeline: runProspectPipeline
 };

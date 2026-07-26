@@ -25,6 +25,7 @@ const {
   MAX_GOVERNANCE_LOG_ENTRIES
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
+const { repairReplyLink: _repairReplyLink } = require('./prospect-pipeline');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences,
@@ -2072,6 +2073,24 @@ Write the full deliverable first, then the structured JSON block.`;
               // Enforce proper sentence-case (founder-voice writes lowercase), then truncate
               // to 280 chars max (bluesky cap is 300, leave headroom).
               let _finalReply = capitalizeSentences(_replyText).substring(0, 280);
+              // Deterministic report-link repair: swap invented ambient* URLs for the real
+              // report link from the [SCAN RESULT] comment, or append it when omitted.
+              // The drafter can't be trusted to copy it (see repairReplyLink in
+              // prospect-pipeline.js). No scan comment (CEO-curated replies) → no-op.
+              try {
+                const _prospectScanCmt = (task.comments || []).find(function (c) {
+                  return String(c.text || '').indexOf('[SCAN RESULT]') === 0;
+                });
+                if (_prospectScanCmt) {
+                  const _repairedReply = _repairReplyLink(_finalReply, _prospectScanCmt.text);
+                  if (_repairedReply !== _finalReply) {
+                    context.log('[Heartbeat] scribe: bluesky-reply report-link repair applied for task', action.taskId);
+                    _finalReply = _repairedReply;
+                  }
+                }
+              } catch (_lrErr) {
+                context.log('[Heartbeat] scribe: link repair failed (non-fatal):', String(_lrErr).substring(0, 120));
+              }
               const _tc = task.threadContext;
               // Crash-idempotency guard (2026-07-24 fruitfop incident): reply actions +
               // AQ entries are written to storage immediately, but the task close rides

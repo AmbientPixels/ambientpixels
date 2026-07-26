@@ -136,7 +136,12 @@ function buildExecutePrompt(agent, task, workspaceFiles, costIntel, siteIntel, s
       // Brief-correction comments from the quality-gate hallucination path carry ~2000 chars of
       // actionable facts (hallucinated claims + correct product facts). A 200-char truncation
       // would drop the entire correction instruction. Keep full content for this prefix.
-      var _budget = (typeof c.id === 'string' && c.id.indexOf('cmt-qgbrief-') === 0) ? 2500 : 200;
+      // [SCAN RESULT] comments carry the shareable report URL at char ~560-840 — truncating
+      // them hid the link from the reply drafter, who then invented URLs (fruitfop incident)
+      // or omitted links. [SCAN FAILED] carries the write-without-findings instruction.
+      var _txt = String(c.text || '');
+      var _budget = (typeof c.id === 'string' && c.id.indexOf('cmt-qgbrief-') === 0) ? 2500
+        : (_txt.indexOf('[SCAN RESULT]') === 0 || _txt.indexOf('[SCAN FAILED]') === 0) ? 1200 : 200;
       return '- [' + (c.type || 'comment') + ' by ' + (c.author || 'unknown') + '] ' + c.text.substring(0, _budget);
     })
     .join('\n') || '(none)';

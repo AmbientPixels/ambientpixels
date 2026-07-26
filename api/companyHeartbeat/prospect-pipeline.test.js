@@ -454,6 +454,58 @@ function mockStorage(initial) {
     assert.ok(!storage4._writes.includes('asScanQueue'));
   });
 
+  // ── repairReplyLink ──
+  const SCAN_CMT = '[SCAN RESULT] AmbientScore audit of https://example.com: score 40/100, grade F. ' +
+    'Top findings: something | something else ' +
+    'Shareable free report (score + top findings visible, rest paywalled): ' +
+    'https://ambientpixels.ai/ambientscore/report.html?id=ccr_1784767200260_f872bced ' +
+    'Use 1-2 specific findings in your reply or post.';
+  const REAL = 'https://ambientpixels.ai/ambientscore/report.html?id=ccr_1784767200260_f872bced';
+
+  test('repairReplyLink: fabricated ambientscore.ai URL swapped for real report link', () => {
+    const out = PP.repairReplyLink('Nice site. We ran a scan. Report: ambientscore.ai/s/example-com', SCAN_CMT);
+    assert.ok(out.includes(REAL));
+    assert.ok(!out.includes('ambientscore.ai/s/'));
+  });
+
+  test('repairReplyLink: fabricated ambientpixels.ai path swapped', () => {
+    const out = PP.repairReplyLink('We scanned it. Details: https://ambientpixels.ai/score/example.com', SCAN_CMT);
+    assert.ok(out.includes(REAL));
+    assert.ok(!out.includes('/score/'));
+  });
+
+  test('repairReplyLink: linkless hedge stripped and real link appended', () => {
+    const out = PP.repairReplyLink('We ran a free scan and saw one thing. Happy to share the report, just say the word.', SCAN_CMT);
+    assert.ok(out.includes(REAL));
+    assert.ok(!/happy to share/i.test(out));
+    assert.ok(out.length <= 296);
+  });
+
+  test('repairReplyLink: prospect own domain untouched, link appended', () => {
+    const out = PP.repairReplyLink('We scanned example.com and the headline needs work.', SCAN_CMT);
+    assert.ok(out.includes('example.com and the headline'));
+    assert.ok(out.includes(REAL));
+  });
+
+  test('repairReplyLink: already-correct link left alone', () => {
+    const text = 'Good stuff. Full report: ' + REAL;
+    assert.strictEqual(PP.repairReplyLink(text, SCAN_CMT), text);
+  });
+
+  test('repairReplyLink: no scan comment → no-op', () => {
+    const text = 'We made a full report if you want to see it.';
+    assert.strictEqual(PP.repairReplyLink(text, ''), text);
+    assert.strictEqual(PP.repairReplyLink(text, '[SCAN FAILED] blocked'), text);
+  });
+
+  test('repairReplyLink: over-cap trims text at word boundary, keeps link whole', () => {
+    const long = 'A'.repeat(120) + ' ' + 'B'.repeat(120) + ' ' + 'C'.repeat(80) + ' final words here';
+    const out = PP.repairReplyLink(long, SCAN_CMT);
+    assert.ok(out.length <= 296);
+    assert.ok(out.endsWith(REAL));
+    assert.ok(out.includes(REAL));
+  });
+
   console.log(pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
 })();
