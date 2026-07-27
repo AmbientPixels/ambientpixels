@@ -29,7 +29,7 @@ const { repairReplyLink: _repairReplyLink } = require('./prospect-pipeline');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences,
-  parseBlogDeliverable, capitalizeSentencesLongform
+  parseBlogDeliverable, capitalizeSentencesLongform, titleSimilarity
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
@@ -5400,6 +5400,30 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // Semantic dedup (parity with propose-objective) — exact-name matching is how six
+      // near-identical conversion campaigns piled up before the 2026-07-24 consolidation.
+      // Fuzzy-match the name against ACTIVE campaigns and pending proposals.
+      var _pcSemHit = null;
+      var _pcActive = (activeDirectives || []).filter(function (c) { return c && c.status === 'active'; });
+      for (var _pci = 0; _pci < _pcActive.length && !_pcSemHit; _pci++) {
+        if (titleSimilarity(_pcName, _pcActive[_pci].title || _pcActive[_pci].name) >= 0.6) {
+          _pcSemHit = { why: 'name ~ active campaign', id: _pcActive[_pci].id, other: _pcActive[_pci].title || _pcActive[_pci].name };
+        }
+      }
+      if (!_pcSemHit) {
+        var _pcPendSem = _pcAQ.find(function (q) {
+          return q.type === 'campaign_proposal' && q.status === 'pending' && q.name &&
+            titleSimilarity(_pcName, q.name) >= 0.6;
+        });
+        if (_pcPendSem) _pcSemHit = { why: 'name ~ pending proposal', id: _pcPendSem.id, other: _pcPendSem.name };
+      }
+      if (_pcSemHit) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — semantic duplicate (' + _pcSemHit.why + '):', _pcSemHit.id);
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: semantic duplicate of ' + _pcSemHit.id, cycleId,
+          { gate: 'proposal_semantic_dup', name: _pcName, matched: _pcSemHit.id, matchedTitle: String(_pcSemHit.other || '').substring(0, 80), why: _pcSemHit.why });
+        continue;
+      }
+
       // Rejection cooldown: don't re-propose a name the CEO rejected within the cooldown window
       // (parity with product 7d / fleet 14d — campaign/objective previously had none).
       var _pcCooldownMs = (PROPOSAL_REJECT_COOLDOWN_DAYS || 7) * 86400000;
@@ -5500,6 +5524,41 @@ Write the full deliverable first, then the structured JSON block.`;
       if (_poDupe) {
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — duplicate pending proposal');
         await logEvent('policy-violation', agentId, 'propose-objective blocked: duplicate pending', cycleId, { gate: 'proposal_pending_dup', name: _poTitle });
+        continue;
+      }
+
+      // Semantic dedup — exact-title only let rewordings through: three first-customer
+      // objectives went live simultaneously (obj-first-customer / obj-mrz8kvg9 /
+      // obj-ms2msmuy, CEO escalation 2026-07-27). Block when the title fuzzy-matches
+      // an ACTIVE objective or pending proposal (>=0.6), or when the proposal targets
+      // the same north-star metric an active objective already owns — same metric =
+      // same intent regardless of wording (the "Budget Compliance" vs "Financial
+      // Guardrails" class that lexical matching misses).
+      var _poActiveObjs = (activeObjectives || []).filter(function (o) { return o && (!o.status || o.status === 'active'); });
+      var _poSemHit = null;
+      for (var _psi = 0; _psi < _poActiveObjs.length && !_poSemHit; _psi++) {
+        if (titleSimilarity(_poTitle, _poActiveObjs[_psi].title) >= 0.6) {
+          _poSemHit = { why: 'title ~ active objective', id: _poActiveObjs[_psi].id, other: _poActiveObjs[_psi].title };
+        }
+      }
+      if (!_poSemHit) {
+        var _poPendSem = _poAQ.find(function (q) {
+          return q.type === 'objective_proposal' && q.status === 'pending' && q.title &&
+            titleSimilarity(_poTitle, q.title) >= 0.6;
+        });
+        if (_poPendSem) _poSemHit = { why: 'title ~ pending proposal', id: _poPendSem.id, other: _poPendSem.title };
+      }
+      var _poNSPre = String(_po.northStarMetric || '').trim();
+      if (!_poSemHit && _poNSPre) {
+        var _poMetricOwner = _poActiveObjs.find(function (o) {
+          return (o.northStarMetric || (o.criteria && o.criteria.metric) || '') === _poNSPre;
+        });
+        if (_poMetricOwner) _poSemHit = { why: 'metric "' + _poNSPre + '" ~ active objective', id: _poMetricOwner.id, other: _poMetricOwner.title };
+      }
+      if (_poSemHit) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — semantic duplicate (' + _poSemHit.why + '):', _poSemHit.id);
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: semantic duplicate of ' + _poSemHit.id, cycleId,
+          { gate: 'proposal_semantic_dup', name: _poTitle, matched: _poSemHit.id, matchedTitle: String(_poSemHit.other || '').substring(0, 80), why: _poSemHit.why });
         continue;
       }
 

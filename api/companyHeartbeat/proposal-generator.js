@@ -31,6 +31,7 @@
 // no try/catch and relies on its "any error is a no-op {ok:false}" contract. No
 // circular dependency: proposal-composer.js has no requires of its own.
 var composer = require('./proposal-composer');
+var helpers = require('./helpers'); // titleSimilarity — semantic proposal dedup
 
 const SOURCE = 'auto:proposal-generator';
 const STAGNANT_DAYS = 14;
@@ -654,6 +655,32 @@ async function runProposalGenerator(opts) {
     // Best-effort only: two runs that both re-read before either writes still last-write-
     // wins; this additive cron intentionally has no lock, so the window is narrowed, not closed.
     proposals = proposals.filter(function (p) { return !_isDeduped(queue, p.type, nowMs); });
+
+    // Semantic dedup vs ACTIVE objectives/campaigns + pending proposals — the type-level
+    // throttle above is content-blind, which let the generator re-propose intents that
+    // were already live under different wording (duplicate-objective CEO escalation,
+    // 2026-07-27). Mirrors the proposal_semantic_dup gate in agent-runner.
+    proposals = proposals.filter(function (p) {
+      var pTitle = p.title || p.name || '';
+      if (!pTitle) return true;
+      var against = (p.type === 'objective_proposal' ? state.objectives : state.campaigns) || [];
+      var live = against.filter(function (x) { return x && (!x.status || x.status === 'active'); });
+      for (var li = 0; li < live.length; li++) {
+        if (helpers.titleSimilarity(pTitle, live[li].title || live[li].name) >= 0.6) {
+          log('[proposalGenerator] Dropped ' + p.type + ' "' + pTitle.substring(0, 60) + '" — semantic dup of active ' + live[li].id);
+          return false;
+        }
+      }
+      var pend = queue.find(function (q) {
+        return q.type === p.type && q.status === 'pending' &&
+          helpers.titleSimilarity(pTitle, q.title || q.name || '') >= 0.6;
+      });
+      if (pend) {
+        log('[proposalGenerator] Dropped ' + p.type + ' "' + pTitle.substring(0, 60) + '" — semantic dup of pending ' + pend.id);
+        return false;
+      }
+      return true;
+    });
     proposals.forEach(function (p) { queue.push(p); });
 
     if (!proposals.length && !expired && !pruned) {

@@ -577,5 +577,42 @@ test('rejected conversion_dead proposal suppresses re-minting for 7 days (same t
   assert.ok(computeProposalsCD(stOld, NOW).some((p) => p.trigger === 'conversion_dead'));
 });
 
+// ── titleSimilarity (helpers) — semantic proposal dedup ──
+const { titleSimilarity } = require('./helpers');
+
+test('titleSimilarity: the real duplicate-objective pair scores >= 0.6', () => {
+  const s = titleSimilarity(
+    "Activate the AmbientScore Founder's Program to Secure Charter Customers",
+    'Secure Founding Customer for AmbientScore via a High-Touch Pilot Program'
+  );
+  assert.ok(s >= 0.6, 'expected >= 0.6, got ' + s);
+});
+
+test('titleSimilarity: reworded first-customer objective matches the north-star original', () => {
+  const s = titleSimilarity(
+    'First Paying Customer — AmbientScore Launch',
+    'Secure Our First Paying Customer for the AmbientScore Launch'
+  );
+  assert.ok(s >= 0.6, 'expected >= 0.6, got ' + s);
+});
+
+test('titleSimilarity: distinct campaigns sharing only the brand token stay below 0.6', () => {
+  const s = titleSimilarity('AmbientScore Genesis Sale', 'Activate AmbientScore Pro');
+  assert.ok(s < 0.6, 'expected < 0.6, got ' + s);
+});
+
+test('titleSimilarity: unrelated objectives stay below 0.6', () => {
+  const s = titleSimilarity(
+    'Grow Bluesky Audience to Build Top-of-Funnel',
+    'System Stability Hardening: Eradicate Recurring Latency and Governance Failures'
+  );
+  assert.ok(s < 0.6, 'expected < 0.6, got ' + s);
+});
+
+test('titleSimilarity: empty/short inputs return 0', () => {
+  assert.strictEqual(titleSimilarity('', 'Anything Here'), 0);
+  assert.strictEqual(titleSimilarity('a to', 'the of'), 0);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
