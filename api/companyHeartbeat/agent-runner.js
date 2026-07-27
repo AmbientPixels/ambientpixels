@@ -373,9 +373,21 @@ async function runAgentHeartbeat(ctx) {
   // parking state flows rely on (prospect-pipeline holds reply tasks in backlog until the
   // scan lands + the daily draft budget promotes them; 2026-07-24: Scribe drafted straight
   // from backlog, blowing past maxDraftsPerDay because this filter only excluded 'done').
+  // Echo: hide tasks whose social action is already submitted (pending CEO decision)
+  // or whose auto-action budget is exhausted. She re-burned all 3 actions/cycle
+  // re-attempting them — 72 attempted / 0 executed across the 24 runs to 2026-07-26,
+  // the same pending-state disease as Pixel's content-package loop. Both flags are
+  // cleared by the CEO rejection/revision paths, which makes the task visible again.
+  const _echoParked = t =>
+    agentId === 'echo' &&
+    (t._social_action_created === true || (t._social_action_attempts || 0) >= QGV.SOCIAL_ATTEMPTS_CAP);
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived
     && !(agentId !== 'nova' && t.status === 'backlog')
-    && !(agentId === 'pixel' && t.status === 'review'));
+    && !(agentId === 'pixel' && t.status === 'review')
+    && !_echoParked(t));
+  const _parkedPendingCount = agentId === 'echo'
+    ? tasks.filter(t => t.assignee === agentId && t.status !== 'done' && !t._archived && _echoParked(t)).length
+    : 0;
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
   const allActiveTasks = agentId === 'nova'
     ? tasks.filter(t => t.status !== 'done' && !t._archived)
@@ -531,7 +543,7 @@ async function runAgentHeartbeat(ctx) {
 
   const _agentRewards = (await storage.getState('agentRewards')) || null; // rewards ledger for the YOUR PROGRESSION block
   const _activeOffers = await _getActiveOffers(); // live offers registry → ACTIVE OFFERS prompt block (content agents)
-  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers };
+  const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount };
   const prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)

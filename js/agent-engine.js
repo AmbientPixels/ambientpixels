@@ -2816,7 +2816,10 @@ var AgentEngine = (function () {
       data: data,
       timestamp: new Date().toISOString()
     });
-    if (log.length > 200) log = log.slice(-200);
+    // 500 matches the server's MAX_GOVERNANCE_LOG_ENTRIES (raised from 200 on
+    // 2026-07-21) — the old 200 trim here silently chopped ~300 entries of the
+    // server-retained log on every CEO decision click.
+    if (log.length > 500) log = log.slice(-500);
     _saveStorage(GOVERNANCE_LOG_KEY, log);
   }
 

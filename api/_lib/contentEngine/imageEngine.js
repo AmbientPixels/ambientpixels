@@ -12,7 +12,10 @@ const ENGINE_VERSION = '1.8.1';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
 const GEMINI_IMAGE_PROVIDER = process.env.GEMINI_IMAGE_PROVIDER || 'multimodal';
-const IMAGE_COST_PER_IMAGE = parseFloat(process.env.IMAGE_COST_ESTIMATE_PER_IMAGE) || 0.01;
+// 0.039 ≈ real Gemini 2.5 Flash Image billing (~1290 output tokens/image at $30/1M).
+// The old 0.01 default underpriced image spend ~4x — same class as the 2026-07-23
+// fleet-call repricing. Env var still overrides.
+const IMAGE_COST_PER_IMAGE = parseFloat(process.env.IMAGE_COST_ESTIMATE_PER_IMAGE) || 0.039;
 const STORAGE_ACCOUNT = 'cardforgeblobdata';
 const IMAGES_CONTAINER = process.env.GENERATED_IMAGES_CONTAINER || 'generated-images';
 const STATE_CONTAINER = 'company-state';
@@ -594,6 +597,21 @@ async function bumpTotalGenerations(n) {
  * Path: usage/YYYY/MM/usage_<timestamp>_<packageId>.json
  */
 async function writeUsageRecord(record) {
+  // Mirror the spend into geminiUsage so Cipher / the allocation digest / the
+  // Cost Center see image generation — the usage/ blobs below are otherwise
+  // invisible to every finance surface. Non-fatal: blob record is the primary.
+  try {
+    const _companyStorage = require('../../_utils/companyStorage');
+    await _companyStorage.logGeminiUsage({
+      caller: 'image-engine:' + (record.source || 'unknown'),
+      model: record.model || GEMINI_IMAGE_MODEL,
+      agentId: record.createdBy || null,
+      flatCost: Number(record.estimatedCost) || (IMAGE_COST_PER_IMAGE * (record.imagesGenerated || 1)),
+      timestamp: record.timestamp
+    });
+  } catch (guErr) {
+    console.warn('[imageEngine] geminiUsage mirror failed (non-fatal):', guErr.message);
+  }
   var now = new Date();
   var yearMonth = now.getFullYear() + '/' + String(now.getMonth() + 1).padStart(2, '0');
   var blobPath = 'usage/' + yearMonth + '/usage_' + now.getTime() + '_' + record.packageId + '.json';

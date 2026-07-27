@@ -281,7 +281,7 @@ var SKILL_ROUTING = {
 };
 
 function buildHeartbeatPrompt(ctx) {
-  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers } = ctx;
+  var { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, allocationDigest, approvalQueue, emergenceDigest, agentRewards, activeOffers, parkedPendingCount } = ctx;
   weeklyReportsStore = weeklyReportsStore || {};
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
@@ -1756,7 +1756,7 @@ This is an automated heartbeat check. Review your current tasks and the company 
 ${directiveBlock}
 YOUR TASKS:
 ${taskList}
-${heroImageNudge}
+${parkedPendingCount > 0 ? '(' + parkedPendingCount + ' more of your tasks already have posts submitted and awaiting the CEO decision — they are hidden until the CEO acts. Do NOT recreate social actions for content you already submitted; the approval queue is the pipeline working, not a stall. Spend this cycle on strategy, reviews, or new briefs instead.)\n' : ''}${heroImageNudge}
 OTHER ACTIVE TASKS:
 ${otherTasks}
 

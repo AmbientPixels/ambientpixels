@@ -400,13 +400,20 @@ function resolveLlmPricing(model) {
 }
 
 async function logGeminiUsage(entry) {
-  // entry: { caller, model, promptTokens, completionTokens, totalTokens, timestamp, agentId? }
+  // entry: { caller, model, promptTokens, completionTokens, totalTokens, timestamp, agentId?, flatCost? }
+  // flatCost: non-token spend (image generation bills per image, not per token).
+  // Before this, image-gen cost lived only in the imageEngine usage/ blobs —
+  // invisible to Cipher, the allocation digest, and the Cost Center.
   try {
     const usage = (await getState('geminiUsage')) || [];
     const model = entry.model || 'gemini-2.5-flash';
     const pricing = resolveLlmPricing(model);
-    const inputCost = (entry.promptTokens || 0) * pricing.input / 1000000;
-    const outputCost = (entry.completionTokens || 0) * pricing.output / 1000000;
+    let inputCost = (entry.promptTokens || 0) * pricing.input / 1000000;
+    let outputCost = (entry.completionTokens || 0) * pricing.output / 1000000;
+    if (Number.isFinite(entry.flatCost) && entry.flatCost > 0) {
+      inputCost = 0;
+      outputCost = entry.flatCost;
+    }
 
     usage.push({
       id: 'gu_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
