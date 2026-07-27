@@ -272,7 +272,16 @@ const KNOWN_ACTION_TYPES = [
   'propose-product', 'propose-pivot', 'propose-retire',
   'propose-hire-agent', 'propose-retire-agent', 'propose-role-evolution',
   'propose-campaign', 'propose-objective',
-  'run-ambientscore-scan'
+  'run-ambientscore-scan',
+  // Campaign/objective lifecycle — Nova's Layer-2 authority (Apr 2026 trust system).
+  // Omitted when this list became the normalizer's strict gate (f8cfa924, 07-21),
+  // which silently revoked the authority: handlers at agent-runner ~6237-6308 were
+  // unreachable, and Nova's budget-crisis pause-campaign attempts bounced as
+  // [unknown-action-type] ~13x over 07-26/27 — the envelope-health YELLOW that
+  // flagged this. Nobody hit the gap earlier because Nova was mute (schema lockout)
+  // until 07-23 and had no lifecycle need until the overrun.
+  'pause-campaign', 'resume-campaign', 'complete-campaign', 'cancel-campaign',
+  'archive-objective', 'cancel-objective'
 ];
 
 // ── Agentic proposal generation (System: dynamic agent proposals) ──

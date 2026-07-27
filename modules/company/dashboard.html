@@ -3271,8 +3271,10 @@
         var campaigns = AgentEngine.getCampaigns ? AgentEngine.getCampaigns() : [];
         campaigns.forEach(function (c) {
           if (!c || c.deletedAt || c.status !== 'active') return;
-          if (!c.cadence) issues.push({ level: 'red', title: 'Campaign "' + (c.title || c.id) + '" missing cadence', detail: 'Auto-replenish will skip this campaign. No tasks will be created.' });
-          if (!c.frequency) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" missing frequency', detail: 'Defaults to 1 per period. Set explicitly to avoid confusion.' });
+          // cadenceExempt: event-driven campaigns (Milestone Herald) create tasks from
+          // their own cron, not auto-replenish — no cadence is BY DESIGN, not a defect.
+          if (!c.cadence && !c.cadenceExempt) issues.push({ level: 'red', title: 'Campaign "' + (c.title || c.id) + '" missing cadence', detail: 'Auto-replenish will skip this campaign. No tasks will be created.' });
+          if (!c.frequency && !c.cadenceExempt) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" missing frequency', detail: 'Defaults to 1 per period. Set explicitly to avoid confusion.' });
           if (!c.allowedTaskTypes || c.allowedTaskTypes.length === 0) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" has no task types', detail: 'Will create generic tasks. Set allowedTaskTypes for proper routing.' });
           if (c.needsReview) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" was auto-configured at approval', detail: 'Task types and/or its objective link were inferred from the proposal. Confirm routing (' + ((c.allowedTaskTypes || []).join(', ') || 'none') + ') and parent goal, then clear the flag.' });
           if (c.endDate && new Date(c.endDate).getTime() < Date.now()) issues.push({ level: 'yellow', title: 'Campaign "' + (c.title || c.id) + '" past end date but still active', detail: 'End date: ' + c.endDate.substring(0, 10) + '. Should be completed or extended.' });
