@@ -5414,9 +5414,15 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Semantic dedup (parity with propose-objective) — exact-name matching is how six
       // near-identical conversion campaigns piled up before the 2026-07-24 consolidation.
-      // Fuzzy-match the name against ACTIVE campaigns and pending proposals.
+      // Fuzzy-match the name against ACTIVE + PAUSED campaigns and pending proposals.
+      // Paused counts: "Founding Partner Initiative" was minted while its near-twin
+      // "Founding Partner Program" sat paused (2026-07-28) — resume exists for that.
+      // activeDirectives is pre-filtered to active (index.js ~1017), so read the full
+      // list from storage — one extra get on a rare action path.
       var _pcSemHit = null;
-      var _pcActive = (activeDirectives || []).filter(function (c) { return c && c.status === 'active'; });
+      var _pcAllCamps = [];
+      try { _pcAllCamps = (await storage.getState('campaigns')) || []; } catch (_pcCErr) { _pcAllCamps = activeDirectives || []; }
+      var _pcActive = _pcAllCamps.filter(function (c) { return c && !c.deletedAt && (c.status === 'active' || c.status === 'paused'); });
       for (var _pci = 0; _pci < _pcActive.length && !_pcSemHit; _pci++) {
         if (titleSimilarity(_pcName, _pcActive[_pci].title || _pcActive[_pci].name) >= 0.6) {
           _pcSemHit = { why: 'name ~ active campaign', id: _pcActive[_pci].id, other: _pcActive[_pci].title || _pcActive[_pci].name };
@@ -6238,6 +6244,32 @@ Write the full deliverable first, then the structured JSON block.`;
       // Nova can pause an active campaign (reversible, auto-execute)
       var _pauseCamps = (await storage.getState('campaigns')) || [];
       var _pauseTarget = _pauseCamps.find(function (c) { return c.id === action.campaignId && c.status === 'active'; });
+      // CEO-resume protection: a campaign the CEO explicitly resumed is a standing
+      // human decision — agents may not override it for 7 days. Nova re-paused both
+      // CEO-resumed campaigns within hours on 2026-07-28 (pause war). A fresh CEO
+      // resume restarts the window; after 7 days the agent case can be re-argued.
+      if (_pauseTarget && _pauseTarget.resumedBy === 'ceo' &&
+          Date.now() - Date.parse(_pauseTarget.resumedAt || 0) < 7 * 86400000) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED pause-campaign — CEO resumed this campaign', _pauseTarget.resumedAt, ':', action.campaignId);
+        await logEvent('policy-violation', agentId, 'pause-campaign blocked: CEO-resumed campaign is protected 7d', cycleId,
+          { gate: 'ceo_resume_protected', campaignId: action.campaignId, resumedAt: _pauseTarget.resumedAt });
+        try {
+          if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+          _agentMemoryStore[agentId].push({
+            id: 'mem_' + Date.now() + '_crp_' + Math.random().toString(36).substr(2, 4),
+            type: 'feedback',
+            text: 'The CEO explicitly resumed "' + (_pauseTarget.title || action.campaignId) + '" — my pause was blocked (7-day protection). CEO decisions on campaign state are standing orders; argue the case in observations instead of re-pausing. Note: pausing campaigns cuts posting volume, NOT the heartbeat LLM spend that drives the budget.',
+            source: 'auto:governance',
+            timestamp: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 30 * 86400000).toISOString(),
+            evidence: { runId: cycleId }
+          });
+          if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+            _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+          }
+        } catch (_crpErr) { /* non-fatal */ }
+        continue;
+      }
       if (_pauseTarget) {
         _pauseTarget.status = 'paused';
         _pauseTarget.pausedAt = new Date().toISOString();
