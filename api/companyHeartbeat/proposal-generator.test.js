@@ -577,6 +577,41 @@ test('rejected conversion_dead proposal suppresses re-minting for 7 days (same t
   assert.ok(computeProposalsCD(stOld, NOW).some((p) => p.trigger === 'conversion_dead'));
 });
 
+// ── _reconcileMaterializedProposals — approval-race self-heal ──
+const { _reconcileMaterializedProposals } = require('./proposal-generator');
+
+test('reconcile: pending proposal matching an active same-title campaign is auto-approved', () => {
+  const q = [{ type: 'campaign_proposal', status: 'pending', name: 'AmbientScore First Believers Conversion' }];
+  const healed = _reconcileMaterializedProposals(q, [{ id: 'c9', status: 'active', title: 'AmbientScore  First Believers Conversion ' }], [], NOW);
+  assert.strictEqual(healed, 1);
+  assert.strictEqual(q[0].status, 'approved');
+  assert.ok(q[0].resolutionNote.includes('c9'));
+});
+
+test('reconcile: paused entity still counts as materialized (Nova pauses minutes after approval)', () => {
+  const q = [{ type: 'objective_proposal', status: 'pending', title: 'Activate the Program' }];
+  const healed = _reconcileMaterializedProposals(q, [], [{ id: 'o9', status: 'paused', title: 'Activate the Program' }], NOW);
+  assert.strictEqual(healed, 1);
+});
+
+test('reconcile: canceled entity does NOT match — re-pitching a canceled intent is legitimate', () => {
+  const q = [{ type: 'campaign_proposal', status: 'pending', name: 'Operation: Patient Zero' }];
+  const healed = _reconcileMaterializedProposals(q, [{ id: 'c1', status: 'canceled', title: 'Operation: Patient Zero' }], [], NOW);
+  assert.strictEqual(healed, 0);
+  assert.strictEqual(q[0].status, 'pending');
+});
+
+test('reconcile: different title untouched; resolved entries untouched', () => {
+  const q = [
+    { type: 'campaign_proposal', status: 'pending', name: 'Fresh New Idea' },
+    { type: 'campaign_proposal', status: 'rejected', name: 'Old Thing' }
+  ];
+  const healed = _reconcileMaterializedProposals(q, [{ id: 'c1', status: 'active', title: 'Old Thing' }], [], NOW);
+  assert.strictEqual(healed, 0);
+  assert.strictEqual(q[0].status, 'pending');
+  assert.strictEqual(q[1].status, 'rejected');
+});
+
 // ── titleSimilarity (helpers) — semantic proposal dedup ──
 const { titleSimilarity } = require('./helpers');
 

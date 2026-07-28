@@ -126,6 +126,46 @@ function _expireStaleGeneratorProposals(queue, nowMs) {
 // and the propose→decide funnel can read them. Prune them after 30d (matches the
 // emergence 30d window) so the queue doesn't grow forever. Returns removed count.
 var RESOLVED_RETENTION_DAYS = 30;
+// Approval-race self-heal: the dashboard approve removes the queue entry and
+// materializes the campaign/objective, but any concurrent reader that writes the
+// whole approvalQueue back afterwards resurrects the entry as pending (observed
+// 2026-07-28: both 01:38 CEO approvals boomeranged, and the overlap chips then
+// flagged them against their own just-created entities). A pending proposal whose
+// SAME-normalized-title entity already exists in a non-canceled state has by
+// definition been decided — resolve it instead of asking the CEO again. Exact
+// title only: fuzzy auto-resolve could eat a genuinely new proposal. Canceled
+// entities deliberately don't match — re-pitching a canceled intent is legitimate.
+function _normProposalTitle(s) {
+  return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+function _reconcileMaterializedProposals(queue, campaigns, objectives, nowMs) {
+  var healed = 0;
+  var iso = new Date(nowMs).toISOString();
+  function live(list) {
+    return (list || []).filter(function (x) {
+      var st = (x && x.status) || 'active';
+      return st === 'active' || st === 'paused' || st === 'complete' || st === 'completed';
+    });
+  }
+  var liveCampaigns = live(campaigns);
+  var liveObjectives = live(objectives);
+  queue.forEach(function (q) {
+    if (!q || q.status !== 'pending') return;
+    if (q.type !== 'campaign_proposal' && q.type !== 'objective_proposal') return;
+    var title = _normProposalTitle(q.title || q.name);
+    if (!title) return;
+    var pool = q.type === 'campaign_proposal' ? liveCampaigns : liveObjectives;
+    var match = pool.find(function (x) { return _normProposalTitle(x.title || x.name) === title; });
+    if (!match) return;
+    q.status = 'approved';
+    q.resolvedAt = iso;
+    q.ceoDecision = q.ceoDecision || 'approved';
+    q.resolutionNote = 'auto-reconciled: ' + match.id + ' already exists — entry was resurrected by a concurrent queue write after CEO approval.';
+    healed++;
+  });
+  return healed;
+}
+
 function _pruneResolvedProposals(queue, nowMs) {
   if (!Array.isArray(queue)) return 0;
   var cutoff = nowMs - RESOLVED_RETENTION_DAYS * 86400000;
@@ -647,6 +687,8 @@ async function runProposalGenerator(opts) {
     var expired = _expireStaleGeneratorProposals(queue, nowMs);
     var pruned = _pruneResolvedProposals(queue, nowMs);
     if (pruned) log('[proposalGenerator] Pruned ' + pruned + ' resolved proposal(s) older than ' + RESOLVED_RETENTION_DAYS + 'd.');
+    var healed = _reconcileMaterializedProposals(queue, state.campaigns, state.objectives, nowMs);
+    if (healed) log('[proposalGenerator] Auto-reconciled ' + healed + ' race-resurrected proposal(s) whose entity already exists.');
 
     // Re-check dedup against the freshly-read queue. LLM compose latency widened the
     // window since the initial read (loaded[3]); a concurrent cron/trigger run may
@@ -683,9 +725,9 @@ async function runProposalGenerator(opts) {
     });
     proposals.forEach(function (p) { queue.push(p); });
 
-    if (!proposals.length && !expired && !pruned) {
-      log('[proposalGenerator] No propose-worthy conditions; nothing created, expired, or pruned.');
-      return { ok: true, created: 0, expired: 0, pruned: 0, types: [] };
+    if (!proposals.length && !expired && !pruned && !healed) {
+      log('[proposalGenerator] No propose-worthy conditions; nothing created, expired, pruned, or reconciled.');
+      return { ok: true, created: 0, expired: 0, pruned: 0, healed: 0, types: [] };
     }
 
     await storage.setState('approvalQueue', queue);
@@ -699,7 +741,7 @@ async function runProposalGenerator(opts) {
     var types = proposals.map(function (p) { return p.type; });
     log('[proposalGenerator] Created ' + proposals.length + ' proposal(s): ' + (types.join(', ') || 'none') +
       (expired ? ('; expired ' + expired + ' stale suggestion(s)') : ''));
-    return { ok: true, created: proposals.length, expired: expired, types: types, proposals: proposals };
+    return { ok: true, created: proposals.length, expired: expired, healed: healed, types: types, proposals: proposals };
   } catch (err) {
     log('[proposalGenerator] Fatal (no-op): ' + (err && err.message ? err.message : String(err)));
     return { ok: false, created: 0, error: err && err.message ? err.message : String(err) };
@@ -712,6 +754,7 @@ module.exports = {
   runProposalGenerator: runProposalGenerator,
   _expireStaleGeneratorProposals: _expireStaleGeneratorProposals,
   _pruneResolvedProposals: _pruneResolvedProposals,
+  _reconcileMaterializedProposals: _reconcileMaterializedProposals,
   _isPlaceholderObjective: _isPlaceholderObjective,
   _pickTopPerType: _pickTopPerType,
   _deterministicFromSignal: _deterministicFromSignal
