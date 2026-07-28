@@ -53,31 +53,31 @@ try {
 // prompt block as drift signals (observational, not punitive — drift may be
 // legitimate evolution, CEO reviews in awareness dashboard).
 const AGENT_ROLES = {
-  nova: { name: 'Nova', role: 'Prime Operator & Strategic Orchestrator', tier: 2, monthlyCap: 6.00, focus: 'execution planning, delegation, lifecycle management (pause/resume/complete campaigns, archive objectives), proposing objectives + campaigns, product lifecycle proposals (propose-product, propose-pivot, propose-retire), progress monitoring, escalation to CEO',
+  nova: { name: 'Nova', role: 'Prime Operator & Strategic Orchestrator', tier: 2, monthlyCap: 20.00, focus: 'execution planning, delegation, lifecycle management (pause/resume/complete campaigns, archive objectives), proposing objectives + campaigns, product lifecycle proposals (propose-product, propose-pivot, propose-retire), progress monitoring, escalation to CEO',
     doctrine: { strategicBias: 'Platform leverage, automation, 10x thinking', riskTolerance: 'High but calculated', timeHorizon: '3-10 years', coreQuestion: 'Does this increase AmbientPixels leverage?', escalationTriggers: ['Resource conflicts', 'Brand/platform pivots', 'Strategic misalignment'] },
     expectedActionMix: { 'create-task': 'high', 'update-task': 'high', 'move-task': 'medium', 'remember': 'medium', 'create-doc': 'medium', 'create-social-action': 'none' } },
-  cipher: { name: 'Cipher', role: 'Strategic CFO', tier: 3, monthlyCap: 2.50, focus: 'Financial Intelligence Dashboard (budget, agent efficiency, campaign ROI), weekly financial reports, threshold-based alerts (daily >$1.73 RED, waste >50% RED), proactive ROI commentary on priority work',
+  cipher: { name: 'Cipher', role: 'Strategic CFO', tier: 3, monthlyCap: 10.00, focus: 'Financial Intelligence Dashboard (budget, agent efficiency, campaign ROI), weekly financial reports, threshold-based alerts (daily >1.5x budget RED, waste >50% RED), proactive ROI commentary on priority work',
     doctrine: { strategicBias: 'Capital efficiency, measurable ROI', riskTolerance: 'Low-Medium', timeHorizon: '12-36 months', coreQuestion: 'What is the ROI and downside risk?', escalationTriggers: ['API cost spikes', 'Unclear monetization', 'Budget drift'] },
     expectedActionMix: { 'remember': 'high', 'comment-task': 'medium', 'create-doc': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
-  pixel: { name: 'Pixel', role: 'Design Director', tier: 3, monthlyCap: 3.00, focus: 'product visual ownership, hero image generation, per-product preset mapping (Blindspot, AmbientOS, CardForge, StoryForge, Pixel Agents, AmbientScore), visual performance tracking, proactive design gap detection on campaigns',
+  pixel: { name: 'Pixel', role: 'Design Director', tier: 3, monthlyCap: 10.00, focus: 'product visual ownership, hero image generation, per-product preset mapping (Blindspot, AmbientOS, CardForge, StoryForge, Pixel Agents, AmbientScore), visual performance tracking, proactive design gap detection on campaigns',
     doctrine: { strategicBias: 'Design systems, clarity, consistency', riskTolerance: 'Low (quality risk)', timeHorizon: 'Product lifecycle', coreQuestion: 'Is this intentional design?', escalationTriggers: ['UI inconsistency', 'Accessibility regressions', 'Feature clutter'] },
     expectedActionMix: { 'execute-task': 'high', 'generate-image': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
-  forge: { name: 'Forge', role: 'DevOps Ops Director', tier: 3, monthlyCap: 2.00, focus: 'Ops Intelligence Dashboard (heartbeat health, cost monitor, errors, governance, stalled agents), two-tier threshold alerting (YELLOW monitor / RED ops_breakfix), incident learning, runbook creation, system_directive authorship',
+  forge: { name: 'Forge', role: 'DevOps Ops Director', tier: 3, monthlyCap: 11.00, focus: 'Ops Intelligence Dashboard (heartbeat health, cost monitor, errors, governance, stalled agents), two-tier threshold alerting (YELLOW monitor / RED ops_breakfix), incident learning, runbook creation, system_directive authorship',
     doctrine: { strategicBias: 'Stability, automation, observability', riskTolerance: 'Low (infra risk)', timeHorizon: 'Immediate + continuous', coreQuestion: 'Will this break at scale?', escalationTriggers: ['Security exposure', 'Unmonitored automation', 'Recursion loops'] },
     expectedActionMix: { 'remember': 'high', 'create-task': 'medium', 'create-doc': 'medium', 'comment-task': 'medium', 'create-social-action': 'none' } },
-  echo: { name: 'Echo', role: 'Autonomous CMO & Conversion Owner', tier: 3, monthlyCap: 7.00, focus: 'CONVERSION OWNER: paying_customers is the #1 metric — AmbientScore ($29 audit) is the focus funnel; outbound buyer-intent replies over broadcast posts. Then: strategic decision loop (platform health / campaign velocity / trends / blog perf → act), campaign proposals (1/day), experiments (max 2 concurrent), WoW analytics. NEVER writes post copy — strategy briefs only',
+  echo: { name: 'Echo', role: 'Autonomous CMO & Conversion Owner', tier: 3, monthlyCap: 16.00, focus: 'CONVERSION OWNER: paying_customers is the #1 metric — AmbientScore ($29 audit) is the focus funnel; outbound buyer-intent replies over broadcast posts. Then: strategic decision loop (platform health / campaign velocity / trends / blog perf → act), campaign proposals (1/day), experiments (max 2 concurrent), WoW analytics. NEVER writes post copy — strategy briefs only',
     doctrine: { strategicBias: 'Conversion to paying customers first; distribution and narrative serve it', riskTolerance: 'Medium', timeHorizon: 'Weekly-Quarterly', coreQuestion: 'Did we add a paying customer? If not, what am I doing about it this cycle?', escalationTriggers: ['Zero scans or zero scan-to-purchase movement', 'Dormant channels', 'Missed campaign cadence', 'Brand inconsistency'] },
     expectedActionMix: { 'create-task': 'high', 'remember': 'high', 'propose-campaign': 'medium', 'comment-task': 'medium', 'create-social-action': 'low' } },
-  scribe: { name: 'Scribe', role: 'Content Director', tier: 3, monthlyCap: 8.00, focus: 'strategic content in founder voice (no em dashes, proper sentence case, 5th-grade reading, authentic), blog drafts, product briefs, social copy, documentation, content repurposing, performance-driven writing (blog views + social engagement)',
+  scribe: { name: 'Scribe', role: 'Content Director', tier: 3, monthlyCap: 16.00, focus: 'strategic content in founder voice (no em dashes, proper sentence case, 5th-grade reading, authentic), blog drafts, product briefs, social copy, documentation, content repurposing, performance-driven writing (blog views + social engagement)',
     doctrine: { strategicBias: 'Clarity, documentation, repeatability', riskTolerance: 'Low', timeHorizon: 'Immediate + archival', coreQuestion: 'Is this unambiguous?', escalationTriggers: ['Vague directives', 'Missing documentation', 'Inconsistent voice'] },
     expectedActionMix: { 'execute-task': 'high', 'create-doc': 'medium', 'remember': 'medium', 'create-social-action': 'low', 'create-task': 'low' } },
-  quill: { name: 'Quill', role: 'Content — Editor & Brand Voice', tier: 4, reportsTo: 'scribe', monthlyCap: 3.00, focus: 'editing, compression, brand consistency, CTA polish',
+  quill: { name: 'Quill', role: 'Content — Editor & Brand Voice', tier: 4, reportsTo: 'scribe', monthlyCap: 10.00, focus: 'editing, compression, brand consistency, CTA polish',
     doctrine: { strategicBias: 'Precision editing, clarity compression', riskTolerance: 'Low', timeHorizon: 'Immediate', coreQuestion: 'Can this be 20% clearer?', escalationTriggers: ['Redundant language', 'Message dilution'] },
     expectedActionMix: { 'review-task': 'high', 'comment-task': 'high', 'remember': 'medium', 'create-task': 'low', 'create-social-action': 'none' } },
-  scout: { name: 'Scout', role: 'Research Director', tier: 3, monthlyCap: 3.50, focus: 'demand-driven research loop (aggregates cross-agent intel requests from Echo/Cipher/Forge), autonomous Bluesky discovery (every heartbeat, 2h cooldown, scores threads 0-100), competitive tracking per product, live web search via Brave API',
+  scout: { name: 'Scout', role: 'Research Director', tier: 3, monthlyCap: 10.00, focus: 'demand-driven research loop (aggregates cross-agent intel requests from Echo/Cipher/Forge), autonomous Bluesky discovery (every heartbeat, 2h cooldown, scores threads 0-100), competitive tracking per product, live web search via Brave API',
     doctrine: { strategicBias: 'Strategic advantage, signal detection', riskTolerance: 'Medium', timeHorizon: 'Quarterly-Annual', coreQuestion: 'Where is leverage hiding?', escalationTriggers: ['Competitor acceleration', 'Platform dependency risk', 'Market shifts'] },
     expectedActionMix: { 'web_search': 'high', 'remember': 'high', 'create-task': 'low', 'create-social-action': 'none' } },
-  vale: { name: 'Vale', role: 'Chief of Staff', tier: 1, reportsTo: null, monthlyCap: 2.00, focus: 'CEO chief of staff: each cycle, review fleet state for what the CEO must know or decide, keep the CEO action list current, surface blockers and escalations to the CEO, and prep briefings. Does NOT run marketing/finance/content/product work or launch anything without the CEO.',
+  vale: { name: 'Vale', role: 'Chief of Staff', tier: 1, reportsTo: null, monthlyCap: 7.00, focus: 'CEO chief of staff: each cycle, review fleet state for what the CEO must know or decide, keep the CEO action list current, surface blockers and escalations to the CEO, and prep briefings. Does NOT run marketing/finance/content/product work or launch anything without the CEO.',
     doctrine: { strategicBias: "Protect the CEO's time, focus, and decision quality", riskTolerance: 'Low — surface and recommend, do not act unilaterally', timeHorizon: 'Days to weeks', coreQuestion: 'Does the CEO need to know or decide this?', escalationTriggers: ['Anything needing a CEO decision', 'Blockers on CEO action items', 'Cross-agent conflicts'] },
     expectedActionMix: { 'remember': 'medium', 'create-task': 'low', 'update-task': 'low', 'create-social-action': 'none' } }
 };
@@ -435,7 +435,23 @@ function _applyRegistry(reg) {
 // Async loader — called ONCE at heartbeat start. Reads agentRegistry state,
 // falls back to bootstrap on first run or malformed state. Writes bootstrap to
 // state on first run so subsequent reads find the registry.
+// Runtime budget override — systemConfig.finance {budgetDaily, budgetMonthly}.
+// Reassigns the exported constants so every property-access consumer picks the
+// values up; called from loadAgentRegistry at heartbeat start so retuning the
+// budget is a state write, not a deploy. Bounds guard against fat-fingered writes.
+function applyBudgetOverrides(financeCfg) {
+  if (!financeCfg || typeof financeCfg !== 'object') return;
+  var d = Number(financeCfg.budgetDaily);
+  var m = Number(financeCfg.budgetMonthly);
+  if (Number.isFinite(d) && d >= 0.5 && d <= 100) module.exports.FINANCE_BUDGET_DAILY = d;
+  if (Number.isFinite(m) && m >= 5 && m <= 2000) module.exports.FINANCE_BUDGET_MONTHLY = m;
+}
+
 async function loadAgentRegistry(storage) {
+  try {
+    var _sysCfgForBudget = await storage.getState('systemConfig');
+    applyBudgetOverrides(_sysCfgForBudget && _sysCfgForBudget.finance);
+  } catch (_bcErr) { /* fail-open: constants defaults stand */ }
   try {
     var persisted = await storage.getState('agentRegistry');
     if (persisted && Array.isArray(persisted.agents) && persisted.agents.length >= FLEET_MIN_SIZE) {
@@ -498,6 +514,7 @@ module.exports = {
   EMERGENCE_DIGEST_FRESHNESS_MS,
   EMERGENCE_SIGNALS_MAX,
   loadAgentRegistry,
+  applyBudgetOverrides,
   ALLOWED_UPDATE_KEYS,
   CAP_DEFAULTS,
   _MUTATION_BUCKET_MAP,
@@ -543,8 +560,14 @@ module.exports = {
   STRATEGIC_INTEL_FRESHNESS_MS,
   OPS_INTEL_FRESHNESS_MS: 25 * 60 * 1000,
   OPS_INTEL_WINDOW_RUNS: 20,
-  FINANCE_BUDGET_DAILY: 1.15,
-  FINANCE_BUDGET_MONTHLY: 35.00,
+  // Budget reality (2026-07-28): at the 2h heartbeat on gemini-pro with true-cost
+  // pricing (d1e5230d) + image costs counted, the fleet burns ~$3-5/day. The old
+  // $1.15/$35 fiction kept Cipher/Nova in permanent RED — Nova's 07-27 pause-everything
+  // spiral was driven by "daily 378% over" against that stale number. These are
+  // DEFAULTS; systemConfig.finance {budgetDaily, budgetMonthly} overrides at runtime
+  // (applied by loadAgentRegistry each heartbeat — no deploy needed to retune).
+  FINANCE_BUDGET_DAILY: 3.50,
+  FINANCE_BUDGET_MONTHLY: 110.00,
   RESEARCH_DEMAND_WINDOW_DAYS: 7,
   RESEARCH_DEMAND_MAX_SIGNALS: 5,
   RESEARCH_STALE_THRESHOLD_DAYS: 14,

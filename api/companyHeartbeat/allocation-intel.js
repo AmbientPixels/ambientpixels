@@ -5,9 +5,11 @@
 var {
   AGENT_IDS,
   AGENT_ROLES,
-  FINANCE_BUDGET_MONTHLY,
   CAPITAL_DECISION_THRESHOLDS
 } = require('./constants');
+// Property access so applyBudgetOverrides' runtime reassignment is visible —
+// a destructured number would be a stale copy of the deploy-time default.
+var _CONST = require('./constants');
 
 function _monthKey(ms) {
   var d = new Date(ms);
@@ -67,7 +69,7 @@ function _inferDriver(agentId, outcomeDigest) {
 function buildAllocationDigest(geminiUsage, financeDigest, outcomeDigest, capitalAllocation, nowMs) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
   var month = _monthKey(now);
-  var systemBudget = FINANCE_BUDGET_MONTHLY;
+  var systemBudget = _CONST.FINANCE_BUDGET_MONTHLY;
 
   var spendByAgent = _aggregateSpendByAgent(geminiUsage, month);
   var systemSpent = Object.keys(spendByAgent).reduce(function (s, k) { return s + spendByAgent[k]; }, 0);

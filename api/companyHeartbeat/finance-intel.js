@@ -1,7 +1,9 @@
 // finance-intel.js — Cipher's financial intelligence digest builder
 // Mirrors ops-intel.js pattern: builds digest from raw data, formats into prompt block
 
-var { FINANCE_BUDGET_DAILY, FINANCE_BUDGET_MONTHLY } = require('./constants');
+// Property access (not destructure) so applyBudgetOverrides' runtime reassignment
+// of the exported constants is visible here — a destructured number is a stale copy.
+var _CONST = require('./constants');
 
 var THRESHOLDS = {
   dailyOverBudget: { yellow: 1.2, red: 1.5 },
@@ -50,9 +52,9 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
   var trendDelta = prevWeekSpend > 0 ? Math.round(((thisWeekSpend - prevWeekSpend) / prevWeekSpend) * 100) : 0;
   var trendDirection = trendDelta > 15 ? 'rising' : (trendDelta < -15 ? 'falling' : 'flat');
 
-  var dailyPct = FINANCE_BUDGET_DAILY > 0 ? Math.round((avgDailySpend / FINANCE_BUDGET_DAILY) * 100) : 0;
-  var monthlyActualPct = FINANCE_BUDGET_MONTHLY > 0 ? Math.round((monthToDateSpend / FINANCE_BUDGET_MONTHLY) * 100) : 0;
-  var monthlyProjectedPct = FINANCE_BUDGET_MONTHLY > 0 ? Math.round((projectedMonthly / FINANCE_BUDGET_MONTHLY) * 100) : 0;
+  var dailyPct = _CONST.FINANCE_BUDGET_DAILY > 0 ? Math.round((avgDailySpend / _CONST.FINANCE_BUDGET_DAILY) * 100) : 0;
+  var monthlyActualPct = _CONST.FINANCE_BUDGET_MONTHLY > 0 ? Math.round((monthToDateSpend / _CONST.FINANCE_BUDGET_MONTHLY) * 100) : 0;
+  var monthlyProjectedPct = _CONST.FINANCE_BUDGET_MONTHLY > 0 ? Math.round((projectedMonthly / _CONST.FINANCE_BUDGET_MONTHLY) * 100) : 0;
 
   function _budgetStatus(actual, budget, yellowMult, redMult) {
     if (actual > budget * redMult) return 'RED';
@@ -65,15 +67,15 @@ function buildFinanceDigest(geminiUsage, heartbeatRuns, campaigns, tasks, perfor
   // early-warning signal isn't lost. `status` reflects actuals; `projectedStatus`
   // reflects projection — consumers can pick the signal that fits their use case.
   var budget = {
-    daily: { actual: Math.round(avgDailySpend * 100) / 100, budget: FINANCE_BUDGET_DAILY, pct: dailyPct, status: _budgetStatus(avgDailySpend, FINANCE_BUDGET_DAILY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red) },
+    daily: { actual: Math.round(avgDailySpend * 100) / 100, budget: _CONST.FINANCE_BUDGET_DAILY, pct: dailyPct, status: _budgetStatus(avgDailySpend, _CONST.FINANCE_BUDGET_DAILY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red) },
     monthly: {
       actual: Math.round(monthToDateSpend * 100) / 100,
       projected: Math.round(projectedMonthly * 100) / 100,
-      budget: FINANCE_BUDGET_MONTHLY,
+      budget: _CONST.FINANCE_BUDGET_MONTHLY,
       pct: monthlyActualPct,
       projectedPct: monthlyProjectedPct,
-      status: _budgetStatus(monthToDateSpend, FINANCE_BUDGET_MONTHLY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red),
-      projectedStatus: _budgetStatus(projectedMonthly, FINANCE_BUDGET_MONTHLY, THRESHOLDS.monthlyProjection.yellow, THRESHOLDS.monthlyProjection.red)
+      status: _budgetStatus(monthToDateSpend, _CONST.FINANCE_BUDGET_MONTHLY, THRESHOLDS.dailyOverBudget.yellow, THRESHOLDS.dailyOverBudget.red),
+      projectedStatus: _budgetStatus(projectedMonthly, _CONST.FINANCE_BUDGET_MONTHLY, THRESHOLDS.monthlyProjection.yellow, THRESHOLDS.monthlyProjection.red)
     }
   };
 
@@ -247,9 +249,9 @@ function _buildFinancePromptBlock(agent, digest) {
   lines.push('\nBUDGET STATUS:');
   var daily = b.daily || {};
   var monthly = b.monthly || {};
-  lines.push('- Daily: $' + (daily.actual || 0) + ' / $' + (daily.budget || FINANCE_BUDGET_DAILY) + ' (' + (daily.pct || 0) + '%) ' + (daily.status || 'GREEN'));
-  lines.push('- Month to date: $' + (monthly.actual || 0) + ' / $' + (monthly.budget || FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.pct || 0) + '%) ' + (monthly.status || 'GREEN'));
-  lines.push('- Monthly projected: $' + (monthly.projected || 0) + ' / $' + (monthly.budget || FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.projectedPct || 0) + '%) ' + (monthly.projectedStatus || 'GREEN'));
+  lines.push('- Daily: $' + (daily.actual || 0) + ' / $' + (daily.budget || _CONST.FINANCE_BUDGET_DAILY) + ' (' + (daily.pct || 0) + '%) ' + (daily.status || 'GREEN'));
+  lines.push('- Month to date: $' + (monthly.actual || 0) + ' / $' + (monthly.budget || _CONST.FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.pct || 0) + '%) ' + (monthly.status || 'GREEN'));
+  lines.push('- Monthly projected: $' + (monthly.projected || 0) + ' / $' + (monthly.budget || _CONST.FINANCE_BUDGET_MONTHLY) + ' (' + (monthly.projectedPct || 0) + '%) ' + (monthly.projectedStatus || 'GREEN'));
   lines.push('- Trend: ' + _arrow(trend.deltaPct || 0) + ' week-over-week');
 
   // Revenue (income vs spend) — present once the revenue pipe has populated digest.revenue.
