@@ -1666,8 +1666,11 @@ You must remain within your assigned authority tier. Doctrine influences your st
     // 2. Platform health from socialAccountStats
     if (socialAccountStats && typeof socialAccountStats === 'object') {
       var platformParts = [];
+      // Payload nests platforms under .platforms (see socialAccountStats API); keep
+      // the flat lookup as fallback for any legacy shape.
+      var _sasPlatforms = socialAccountStats.platforms || socialAccountStats;
       ['bluesky', 'linkedin', 'x', 'twitter'].forEach(function(p) {
-        var s = socialAccountStats[p];
+        var s = _sasPlatforms[p];
         if (s && (s.followers != null || s.follower_count != null)) {
           var count = s.followers != null ? s.followers : s.follower_count;
           var delta = s.followersDelta7d || s.delta_followers_7d || 0;

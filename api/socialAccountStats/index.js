@@ -359,6 +359,66 @@ function buildDemoAccountStats() {
   };
 }
 
+// ── Refresh (shared by HTTP handler and socialAccountStatsRefreshCron) ──
+
+async function refreshAccountStats() {
+  // Pull from all platforms in parallel
+  var results = await Promise.all([
+    pullXAccountStats(),
+    pullLinkedInAccountStats(),
+    pullBlueskyAccountStats()
+  ]);
+
+  var platforms = {};
+  var errors = [];
+  for (var i = 0; i < results.length; i++) {
+    var r = results[i];
+    if (r.ok) {
+      platforms[r.platform] = r;
+    } else {
+      errors.push(r.error || 'Unknown error');
+    }
+  }
+
+  // Aggregate totals
+  var totalFollowers = 0;
+  var totalPosts = 0;
+  var allRecentPosts = [];
+  var platformKeys = Object.keys(platforms);
+  for (var j = 0; j < platformKeys.length; j++) {
+    var pl = platforms[platformKeys[j]];
+    totalFollowers += (pl.followers || 0);
+    totalPosts += (pl.posts_count || pl.tweets_count || 0);
+    if (Array.isArray(pl.recentPosts)) {
+      pl.recentPosts.forEach(function (post) {
+        allRecentPosts.push(Object.assign({ platform: platformKeys[j] }, post));
+      });
+    }
+  }
+
+  // Sort recent posts by date desc
+  allRecentPosts.sort(function (a, b) {
+    return Date.parse(b.created_at || '') - Date.parse(a.created_at || '');
+  });
+
+  var payload = {
+    _cachedAt: new Date().toISOString(),
+    totals: {
+      followers: totalFollowers,
+      posts: totalPosts,
+      platforms_connected: platformKeys.length,
+      platforms_errored: errors.length
+    },
+    platforms: platforms,
+    recentPosts: allRecentPosts.slice(0, 20),
+    errors: errors
+  };
+
+  // Persist cache
+  await storage.setState(CACHE_KEY, payload);
+  return payload;
+}
+
 // ── Main handler ──
 
 module.exports = async function (context, req) {
@@ -412,60 +472,7 @@ module.exports = async function (context, req) {
       }
     }
 
-    // Pull from all platforms in parallel
-    var results = await Promise.all([
-      pullXAccountStats(),
-      pullLinkedInAccountStats(),
-      pullBlueskyAccountStats()
-    ]);
-
-    var platforms = {};
-    var errors = [];
-    for (var i = 0; i < results.length; i++) {
-      var r = results[i];
-      if (r.ok) {
-        platforms[r.platform] = r;
-      } else {
-        errors.push(r.error || 'Unknown error');
-      }
-    }
-
-    // Aggregate totals
-    var totalFollowers = 0;
-    var totalPosts = 0;
-    var allRecentPosts = [];
-    var platformKeys = Object.keys(platforms);
-    for (var j = 0; j < platformKeys.length; j++) {
-      var pl = platforms[platformKeys[j]];
-      totalFollowers += (pl.followers || 0);
-      totalPosts += (pl.posts_count || pl.tweets_count || 0);
-      if (Array.isArray(pl.recentPosts)) {
-        pl.recentPosts.forEach(function (post) {
-          allRecentPosts.push(Object.assign({ platform: platformKeys[j] }, post));
-        });
-      }
-    }
-
-    // Sort recent posts by date desc
-    allRecentPosts.sort(function (a, b) {
-      return Date.parse(b.created_at || '') - Date.parse(a.created_at || '');
-    });
-
-    var payload = {
-      _cachedAt: new Date().toISOString(),
-      totals: {
-        followers: totalFollowers,
-        posts: totalPosts,
-        platforms_connected: platformKeys.length,
-        platforms_errored: errors.length
-      },
-      platforms: platforms,
-      recentPosts: allRecentPosts.slice(0, 20),
-      errors: errors
-    };
-
-    // Persist cache
-    await storage.setState(CACHE_KEY, payload);
+    var payload = await refreshAccountStats();
 
     context.res = {
       status: 200,
@@ -481,3 +488,5 @@ module.exports = async function (context, req) {
     };
   }
 };
+
+module.exports.refreshAccountStats = refreshAccountStats;
