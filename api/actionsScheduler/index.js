@@ -218,6 +218,38 @@ module.exports = async function (context) {
           await outcomeBaseline.writeBaseline(a, context);
         } catch (_obErr) { /* helper handles its own errors; defensive belt */ }
 
+        // Parent-task auto-complete — scheduled/grace-window posts publish via
+        // this path, which skipped the auto-close hook the HTTP execute handler
+        // has (actionsExecute/index.js ~455). Third instance of the
+        // handler-vs-scheduler hook gap, after telemetry (06-11) and outcome
+        // baseline (07-10). Consequence before this fix: every scheduler-shipped
+        // post left its parent task stuck in todo with _social_action_created
+        // set — 9 published promo tasks were sitting as "stuck in todo"
+        // dashboard warnings on 2026-07-29. Mirrors the HTTP hook; non-fatal.
+        if (a._parentTaskId) {
+          try {
+            const tasks = (await storage.getState('tasks')) || [];
+            const parentTask = tasks.find(function (t) { return t && t.id === a._parentTaskId; });
+            if (parentTask && ['done', 'canceled', 'archived'].indexOf(parentTask.status) === -1) {
+              parentTask.status = 'done';
+              parentTask.completedAt = new Date().toISOString();
+              parentTask.updatedAt = new Date().toISOString();
+              if (!parentTask.comments) parentTask.comments = [];
+              parentTask.comments.push({
+                id: 'cmt-autoclose-' + Date.now(),
+                author: 'system',
+                text: 'Task auto-completed: social post published successfully on ' + platform + ' (scheduler). Post URL: ' + ((result.receipt && result.receipt.post_url) || 'N/A'),
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              await storage.setState('tasks', tasks);
+              context.log('[Scheduler] Auto-completed parent task:', a._parentTaskId, 'after successful', platform, 'post');
+            }
+          } catch (taskErr) {
+            context.log.warn('[Scheduler] Failed to auto-complete parent task (non-fatal):', taskErr.message);
+          }
+        }
+
         context.log('[Scheduler] Successfully executed scheduled action:', a.id);
         executed++;
       } catch (execError) {
