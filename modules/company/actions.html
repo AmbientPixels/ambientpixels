@@ -1493,141 +1493,44 @@
         .catch(function (e) { if (msg) { msg.style.color = '#f87171'; msg.textContent = 'Network error: ' + e.message; } });
     }
 
-    // Campaign enrichment at approval — KEEP IN SYNC with api/proposalDecide/materialize.js.
-    // A campaign must be born workable: a guaranteed valid task type + a parent objective
-    // when one plausibly exists. Flag needsReview whenever either had to be inferred.
-    var _VALID_TASK_TYPES = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
-    var _ACTIVE_OBJ_STATUSES = ['active', 'on_track', 'at_risk', 'behind'];
-    var _MATCH_STOP_WORDS = ['the', 'and', 'for', 'launch', 'campaign', 'this', 'week', 'plus', 'new', 'with', 'into', 'our', 'ambient'];
-    function _cpNorm(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
-    function _cpTokens(s) { return _cpNorm(s).split(/[^a-z0-9]+/).filter(function (w) { return w.length > 2 && _MATCH_STOP_WORDS.indexOf(w) === -1; }); }
-    function _deriveTaskTypes(p) {
-      var explicit = Array.isArray(p.platforms) ? p.platforms : (Array.isArray(p.allowedTaskTypes) ? p.allowedTaskTypes : []);
-      var valid = explicit.filter(function (t) { return _VALID_TASK_TYPES.indexOf(t) !== -1; });
-      if (valid.length) return { taskTypes: valid.slice(0, 5), derived: false };
-      var hay = _cpNorm((p.name || p.title || '') + ' ' + (p.description || ''));
-      var pick;
-      if (/\b(design|visual|hero|graphic|asset|artwork|illustration|mockup|thumbnail)\b/.test(hay)) pick = ['design_asset'];
-      else if (/\b(blog|article|diary|diaries|long-?form|essay|write-?up)\b/.test(hay)) pick = ['blog_post'];
-      else if (/\b(research|competitive|landscape|analysis)\b/.test(hay)) pick = ['research'];
-      else pick = ['social_bluesky'];
-      return { taskTypes: pick, derived: true };
-    }
-    function _deriveObjectiveId(p, objectives) {
-      var objs = (objectives || []).filter(function (o) { return o && _ACTIVE_OBJ_STATUSES.indexOf(o.status) !== -1 && !o.deletedAt; });
-      var explicit = p.objective_id || p.objectiveId || p.suggestedObjectiveId || null;
-      if (explicit && objs.some(function (o) { return o.id === explicit; })) return { objectiveId: explicit, matched: false };
-      if (p.northStarMetric) { var ns = objs.find(function (o) { return o.northStarMetric && o.northStarMetric === p.northStarMetric; }); if (ns) return { objectiveId: ns.id, matched: true }; }
-      var prod = _cpNorm(p.product || '');
-      if (prod.length > 2) { var pm = objs.find(function (o) { return _cpNorm((o.title || '') + ' ' + (o.description || '')).indexOf(prod) !== -1; }); if (pm) return { objectiveId: pm.id, matched: true }; }
-      var nameTokens = _cpTokens(p.name || p.title || '');
-      if (nameTokens.length) {
-        var best = null, bestScore = 0;
-        objs.forEach(function (o) { var ot = _cpTokens(o.title || ''); var overlap = nameTokens.filter(function (w) { return ot.indexOf(w) !== -1; }).length; if (overlap > bestScore) { bestScore = overlap; best = o; } });
-        if (best && bestScore >= 2) return { objectiveId: best.id, matched: true };
-      }
-      return { objectiveId: explicit || null, matched: false };
+    // Proposal approvals materialize SERVER-SIDE via /api/proposalDecide (same
+    // endpoint the reject path already uses). The old client-side materialize twin
+    // ("KEEP IN SYNC with materialize.js") drifted from the server copy and is how
+    // the semantic-dup + sibling-linking gates got bypassed — removed 2026-07-28.
+    // The server enforces: exact + semantic dedup, the active-objective cap,
+    // sibling-aware campaign linking, and orphan-campaign adoption.
+    function _decideProposal(proposalId, rerender) {
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/proposalDecide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        body: JSON.stringify({ id: proposalId, decision: 'approved' })
+      })
+        .then(function(r) { return r.json().then(function(j) { return { ok: r.ok, j: j }; }); })
+        .then(function(res) {
+          if (!res.ok) {
+            alert(res.j && res.j.error ? res.j.error : 'Approve failed — refresh and retry.');
+            return;
+          }
+          var notes = [];
+          if (res.j.materializeNote) notes.push('Note: ' + res.j.materializeNote + '.');
+          if (res.j.adoptedCampaigns && res.j.adoptedCampaigns.length) {
+            notes.push('Linked ' + res.j.adoptedCampaigns.length + ' waiting campaign(s): ' +
+              res.j.adoptedCampaigns.map(function(c) { return '"' + c.title + '"'; }).join(', ') + '.');
+          }
+          if (res.j.created && res.j.created.pendingObjectiveProposalId) {
+            notes.push('Campaign created UNLINKED — it pairs with pending objective proposal ' +
+              res.j.created.pendingObjectiveProposalId + '. Approve that objective to auto-link, or link manually.');
+          }
+          if (notes.length) alert(notes.join('\n'));
+          closeDrawer();
+          rerender();
+        })
+        .catch(function(e) { alert('Network error: ' + e.message); });
     }
 
     function approveCampaignProposal(proposalId) {
-      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      // Find the proposal
-      var p = (window._campaignProposals || []).find(function(x) { return x.id === proposalId; });
-      if (!p) return;
-
-      // 1. Create campaign from proposal (load objectives too, for auto-linking)
-      Promise.all([
-        fetch(apiBase + '/company-state?key=campaigns', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }),
-        fetch(apiBase + '/company-state?key=objectives', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); })
-      ])
-        .then(function(results) {
-          var campaigns = results[0].value || results[0] || [];
-          if (!Array.isArray(campaigns)) campaigns = [];
-          var objectives = results[1].value || results[1] || [];
-          if (!Array.isArray(objectives)) objectives = [];
-          // Dedup guard: don't create a second live campaign with the same title.
-          // Prevents accidental twins from double/batch approval. Archived/canceled
-          // campaigns don't count (a reused name is fine once the old one is retired).
-          var _norm = function(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); };
-          var _liveStatuses = ['active', 'paused', 'complete', 'completed'];
-          var dup = campaigns.find(function(c) {
-            return c && _liveStatuses.indexOf(c.status) !== -1 && _norm(c.title || c.name) === _norm(p.name);
-          });
-          if (dup) {
-            alert('A campaign named "' + (p.name || '') + '" already exists (' + dup.status + '). Skipped creating a duplicate — marking the proposal approved.');
-            return Promise.resolve(); // skip campaign write; proposal still flips to approved below
-          }
-          var startDate = new Date().toISOString().substring(0, 10);
-          var endDate = '';
-          if (p.duration) {
-            var weeks = parseInt(p.duration) || 4;
-            endDate = new Date(Date.now() + weeks * 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-          }
-          // Guarantee a workable campaign: valid task types + a parent objective when
-          // one plausibly exists (the #1 source of empty-type / orphaned campaigns).
-          var _tt = _deriveTaskTypes(p);
-          var _od = _deriveObjectiveId(p, objectives);
-          var newCampaign = {
-            id: 'camp-' + Date.now().toString(36),
-            title: p.name,
-            description: p.description || '',
-            status: 'active',
-            startDate: startDate,
-            endDate: endDate || null,
-            allowedTaskTypes: _tt.taskTypes,
-            frequency: p.frequency || 2,
-            cadence: p.cadence || 'weekly',
-            northStarMetric: p.northStarMetric || null,
-            objective_id: _od.objectiveId,
-            needsReview: !!(_tt.derived || _od.matched || !_od.objectiveId),
-            source: 'echo-proposal',
-            proposalId: proposalId,
-            createdAt: new Date().toISOString()
-          };
-          campaigns.push(newCampaign);
-          var writes = [fetch(apiBase + '/company-state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-            body: JSON.stringify({ key: 'campaigns', value: campaigns })
-          })];
-          // Maintain the objective -> campaign back-link. Without this the parent
-          // objective's linkedCampaigns goes stale, breaking progress derivation
-          // (reads as 0/phantom) and the Goals-page timeline. Idempotent push.
-          if (_od.objectiveId) {
-            var parentObj = objectives.find(function(o) { return o.id === _od.objectiveId; });
-            if (parentObj) {
-              if (!Array.isArray(parentObj.linkedCampaigns)) parentObj.linkedCampaigns = [];
-              if (parentObj.linkedCampaigns.indexOf(newCampaign.id) === -1) {
-                parentObj.linkedCampaigns.push(newCampaign.id);
-                writes.push(fetch(apiBase + '/company-state', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-                  body: JSON.stringify({ key: 'objectives', value: objectives })
-                }));
-              }
-            }
-          }
-          return Promise.all(writes);
-        })
-        .then(function() {
-          // 2. Update proposal status in approvalQueue
-          return fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } });
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
-          var item = queue.find(function(q) { return q.id === proposalId; });
-          if (item) { item.status = 'approved'; item.approvedAt = new Date().toISOString(); }
-          return fetch(apiBase + '/company-state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-            body: JSON.stringify({ key: 'approvalQueue', value: queue })
-          });
-        })
-        .then(function() {
-          closeDrawer();
-          renderCampaignProposals();
-        });
+      _decideProposal(proposalId, renderCampaignProposals);
     }
 
     function rejectCampaignProposal(proposalId) {
@@ -1743,65 +1646,10 @@
     }
 
     function approveObjectiveProposal(proposalId) {
-      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      var p = (window._objectiveProposals || []).find(function(x) { return x.id === proposalId; });
-      if (!p) return;
-      fetch(apiBase + '/company-state?key=objectives', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var objectives = data.value || data || [];
-          if (!Array.isArray(objectives)) objectives = [];
-          // Dedup guard: don't create a second live objective with the same title.
-          // The 00:27 twin objectives came from approving two identical generic
-          // proposals in one batch. Archived/canceled/complete don't block reuse.
-          var _norm = function(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); };
-          var _liveObjStatuses = ['active', 'on_track', 'at_risk', 'behind'];
-          var dupObj = objectives.find(function(o) {
-            return o && _liveObjStatuses.indexOf(o.status) !== -1 && _norm(o.title) === _norm(p.title);
-          });
-          if (dupObj) {
-            alert('A goal named "' + (p.title || '') + '" already exists (' + dupObj.status + '). Skipped creating a duplicate — marking the proposal approved.');
-            return Promise.resolve(); // skip objective write; proposal still flips to approved below
-          }
-          // SE-2: proposals carrying northStarMetric + metricTarget + metricDeadline
-          // mint a measurable objective (criteria object). Heartbeat stamps baseline
-          // with the live metric value on first evaluation, then computes progress.
-          var hasCriteria = p.northStarMetric && isFinite(Number(p.metricTarget)) && Number(p.metricTarget) > 0 && p.metricDeadline;
-          objectives.push({
-            id: 'obj-' + Date.now().toString(36),
-            title: p.title,
-            description: p.description || '',
-            status: 'active',
-            progress: 0,
-            successCriteria: p.successCriteria || '',
-            timeHorizon: p.timeHorizon || '',
-            northStarMetric: p.northStarMetric || null,
-            criteria: hasCriteria ? { metric: p.northStarMetric, target: Number(p.metricTarget), by: p.metricDeadline, baseline: null } : null,
-            source: 'agent-proposal',
-            proposalId: proposalId,
-            createdAt: new Date().toISOString()
-          });
-          return fetch(apiBase + '/company-state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-            body: JSON.stringify({ key: 'objectives', value: objectives })
-          });
-        })
-        .then(function() {
-          return fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } });
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
-          var item = queue.find(function(q) { return q.id === proposalId; });
-          if (item) { item.status = 'approved'; item.approvedAt = new Date().toISOString(); }
-          return fetch(apiBase + '/company-state', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-            body: JSON.stringify({ key: 'approvalQueue', value: queue })
-          });
-        })
-        .then(function() { closeDrawer(); renderObjectiveProposals(); });
+      // Server-side materialize via proposalDecide — enforces semantic dedup,
+      // the active-objective cap, and adopts any orphan campaigns waiting on
+      // this objective. See _decideProposal.
+      _decideProposal(proposalId, renderObjectiveProposals);
     }
 
     function rejectObjectiveProposal(proposalId) {

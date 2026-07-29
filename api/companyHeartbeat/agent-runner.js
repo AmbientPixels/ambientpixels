@@ -22,6 +22,7 @@ const {
   FLEET_MIN_SIZE, FLEET_MAX_SIZE, FLEET_PROPOSAL_MAX_PER_DAY,
   FLEET_PROPOSAL_COST_CEILINGS, FLEET_PROPOSAL_REJECT_COOLDOWN_DAYS,
   PROPOSAL_AUTHORIZED_AGENTS, PROPOSAL_UNKNOWN_TRIGGER_SEVERITY, PROPOSAL_REJECT_COOLDOWN_DAYS,
+  MAX_ACTIVE_OBJECTIVES,
   MAX_GOVERNANCE_LOG_ENTRIES
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
@@ -5472,12 +5473,22 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'propose-campaign missing/unknown northStarMetric ("' + _pcNS + '") — flagging for CEO scrutiny');
       }
 
+      // Optional explicit parent goal — lets Nova propose a campaign FOR a specific
+      // (e.g. orphaned) objective. Honored by materialize's explicit-ref tier at
+      // approval. Invalid/unknown ids are dropped to null (fuzzy tiers take over).
+      var _pcObjRef = String(_pc.objectiveId || _pc.objective_id || '').trim() || null;
+      if (_pcObjRef && !(activeObjectives || []).some(function (o) { return o && o.id === _pcObjRef && (!o.status || o.status === 'active'); })) {
+        context.log('[Heartbeat]', agentId, 'propose-campaign objectiveId "' + _pcObjRef + '" is not an active objective — dropping ref');
+        _pcObjRef = null;
+      }
+
       var _pcEntry = {
         id: 'cprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         type: 'campaign_proposal',
         status: 'pending',
         proposedBy: agentId,
         name: _pcName,
+        suggestedObjectiveId: _pcObjRef,
         description: (_pc.description || _pc.brief || '').substring(0, 1000),
         rationale: (_pc.rationale || '').substring(0, 500),
         platforms: Array.isArray(_pc.platforms) ? _pc.platforms.slice(0, 5) : [],
@@ -5550,6 +5561,18 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // Hard cap on ACTIVE objectives (backstop against goal proliferation — 11
+      // accumulated by 2026-07-28, 8 orphaned). With the cap hit, the right move
+      // is linking/archiving existing goals, not minting another. proposalDecide
+      // enforces the same cap at approve time.
+      var _poActiveObjs = (activeObjectives || []).filter(function (o) { return o && (!o.status || o.status === 'active'); });
+      if (_poActiveObjs.length >= MAX_ACTIVE_OBJECTIVES) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — active-objective cap reached (' + _poActiveObjs.length + '/' + MAX_ACTIVE_OBJECTIVES + ')');
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: active-objective cap (' + _poActiveObjs.length + '/' + MAX_ACTIVE_OBJECTIVES + ')', cycleId,
+          { gate: 'objective_cap', name: _poTitle });
+        continue;
+      }
+
       // Semantic dedup — exact-title only let rewordings through: three first-customer
       // objectives went live simultaneously (obj-first-customer / obj-mrz8kvg9 /
       // obj-ms2msmuy, CEO escalation 2026-07-27). Block when the title fuzzy-matches
@@ -5557,7 +5580,6 @@ Write the full deliverable first, then the structured JSON block.`;
       // the same north-star metric an active objective already owns — same metric =
       // same intent regardless of wording (the "Budget Compliance" vs "Financial
       // Guardrails" class that lexical matching misses).
-      var _poActiveObjs = (activeObjectives || []).filter(function (o) { return o && (!o.status || o.status === 'active'); });
       var _poSemHit = null;
       for (var _psi = 0; _psi < _poActiveObjs.length && !_poSemHit; _psi++) {
         if (titleSimilarity(_poTitle, _poActiveObjs[_psi].title) >= 0.6) {
@@ -6326,6 +6348,55 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'archived objective:', action.objectiveId);
         result.taskUpdates.push({ action: 'objective-archived', objectiveId: action.objectiveId, agentId: agentId });
       }
+
+    } else if (action.type === 'link-campaign-to-objective' && action.campaignId && action.objectiveId) {
+      // Nova adopts an orphaned goal / re-parents a campaign (reversible, auto-
+      // execute — same trust tier as pause/resume). Added 2026-07-28 with the
+      // objective-consolidation hardening: 8 of 11 objectives sat orphaned while
+      // campaigns dogpiled obj-first-customer.
+      if (agentId !== 'nova') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED link-campaign-to-objective — Nova-only lifecycle action');
+        await logEvent('policy-violation', agentId, 'link-campaign-to-objective blocked: Nova-only', cycleId,
+          { gate: 'lifecycle_unauthorized', campaignId: action.campaignId, objectiveId: action.objectiveId });
+        continue;
+      }
+      var _lkCamps = (await storage.getState('campaigns')) || [];
+      var _lkObjs = (await storage.getState('objectives')) || [];
+      var _lkCamp = _lkCamps.find(function (c) { return c && c.id === action.campaignId && !c.deletedAt && (c.status === 'active' || c.status === 'paused'); });
+      var _lkObj = _lkObjs.find(function (o) { return o && o.id === action.objectiveId && o.status === 'active' && !o.deletedAt; });
+      if (!_lkCamp || !_lkObj) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED link-campaign-to-objective — ' + (!_lkCamp ? 'campaign not found/not linkable: ' + action.campaignId : 'objective not found/not active: ' + action.objectiveId));
+        continue;
+      }
+      if (_lkCamp.objective_id === _lkObj.id) {
+        context.log('[Heartbeat]', agentId, 'link-campaign-to-objective no-op — already linked:', action.campaignId, '→', action.objectiveId);
+        continue;
+      }
+      var _lkPrev = _lkCamp.objective_id || null;
+      _lkCamp.objective_id = _lkObj.id;
+      _lkCamp.pendingObjectiveProposalId = null;
+      _lkCamp.linkedBy = agentId;
+      _lkCamp.linkedAt = new Date().toISOString();
+      _lkCamp.linkReason = (action.reason || '').substring(0, 300);
+      // Maintain both back-link arrays (linkedCampaigns + legacy linkedDirectives):
+      // strip from every other objective, add to the new parent. Progress/timeline
+      // derivation on the Goals page reads these.
+      _lkObjs.forEach(function (o) {
+        if (!o) return;
+        ['linkedCampaigns', 'linkedDirectives'].forEach(function (k) {
+          if (!Array.isArray(o[k])) return;
+          if (o.id !== _lkObj.id) { o[k] = o[k].filter(function (id) { return id !== _lkCamp.id; }); }
+        });
+      });
+      if (!Array.isArray(_lkObj.linkedCampaigns)) _lkObj.linkedCampaigns = [];
+      if (_lkObj.linkedCampaigns.indexOf(_lkCamp.id) === -1) _lkObj.linkedCampaigns.push(_lkCamp.id);
+      if (Array.isArray(_lkObj.linkedDirectives) && _lkObj.linkedDirectives.indexOf(_lkCamp.id) === -1) _lkObj.linkedDirectives.push(_lkCamp.id);
+      await storage.setState('campaigns', _lkCamps);
+      await storage.setState('objectives', _lkObjs);
+      await logEvent('campaign-linked', agentId, 'Linked campaign "' + (_lkCamp.title || _lkCamp.id) + '" to objective "' + (_lkObj.title || _lkObj.id) + '"' + (_lkPrev ? ' (was ' + _lkPrev + ')' : ' (was orphaned)'), cycleId,
+        { campaignId: _lkCamp.id, objectiveId: _lkObj.id, previousObjectiveId: _lkPrev, reason: _lkCamp.linkReason });
+      context.log('[Heartbeat]', agentId, 'linked campaign', _lkCamp.id, '→ objective', _lkObj.id, _lkPrev ? '(was ' + _lkPrev + ')' : '(was orphaned)');
+      result.taskUpdates.push({ action: 'campaign-linked', campaignId: _lkCamp.id, objectiveId: _lkObj.id, agentId: agentId });
 
     } else if (action.type === 'cancel-campaign' && action.campaignId) {
       // Irreversible — goes to CEO approval queue

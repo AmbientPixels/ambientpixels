@@ -309,6 +309,17 @@
       "handler_note": "Canonical name: `archive-objective`. Nova auto-executes soft-archive after 14+ days of no activity. Handled by agent-runner.js lifecycle branch."
     },
     {
+      "id": "link_campaign_to_objective",
+      "name": "Link a campaign to an objective",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "strategy",
+      "handler": "heartbeat",
+      "enabled": true,
+      "handler_note": "Canonical name: `link-campaign-to-objective`. Nova auto-executes reversibly in heartbeat — re-parents an active/paused campaign onto an ACTIVE objective, maintaining linkedCampaigns back-links both ways. Added 2026-07-28 (orphaned-goal consolidation). Handled by agent-runner.js lifecycle branch."
+    },
+    {
       "id": "cancel_campaign",
       "name": "Cancel a campaign (irreversible)",
       "riskLevel": "high",

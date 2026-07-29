@@ -1,6 +1,6 @@
 // Run with: node api/proposalDecide/materialize.test.js
 const assert = require('assert');
-const { materializeFromProposal, isLiveDuplicate, deriveTaskTypes, deriveObjectiveId } = require('./materialize');
+const { materializeFromProposal, isLiveDuplicate, findLiveDuplicate, adoptOrphanCampaigns, deriveTaskTypes, deriveObjectiveId } = require('./materialize');
 
 let pass = 0, fail = 0;
 function test(name, fn) {
@@ -17,8 +17,12 @@ test('campaign_proposal → campaigns entity', () => {
   assert.ok(/^camp-/.test(m.entity.id));
   assert.strictEqual(m.entity.title, 'Beacon Launch');
   assert.strictEqual(m.entity.status, 'active');
-  assert.strictEqual(m.entity.source, 'meeting');
+  assert.strictEqual(m.entity.source, 'proposal');
   assert.strictEqual(m.entity.proposalId, 'mprop_1');
+});
+test('campaign_proposal from a meeting keeps source: meeting', () => {
+  const m = materializeFromProposal({ id: 'mprop_1b', type: 'campaign_proposal', name: 'Beacon Launch', meetingId: 'amtg-1' }, NOW);
+  assert.strictEqual(m.entity.source, 'meeting');
 });
 test('objective_proposal → objectives entity', () => {
   const m = materializeFromProposal({ id: 'mprop_2', type: 'objective_proposal', title: 'Grow Bluesky', description: 'd' }, NOW);
@@ -171,6 +175,113 @@ test('campaign_proposal with explicit platforms + objective is not flagged', () 
   assert.deepStrictEqual(m.entity.allowedTaskTypes, ['social_x']);
   assert.strictEqual(m.entity.objective_id, 'obj-pulse-daily');
   assert.strictEqual(m.entity.needsReview, false);
+});
+
+// ── findLiveDuplicate (semantic + metric detectors — 2026-07-28 hardening) ──
+test('findLiveDuplicate: exact title → why exact-title', () => {
+  const hit = findLiveDuplicate('campaigns', { name: 'beacon   launch' }, [{ id: 'c1', title: 'Beacon Launch', status: 'active' }]);
+  assert.ok(hit);
+  assert.strictEqual(hit.why, 'exact-title');
+});
+test('findLiveDuplicate: reworded twin caught semantically (the Founder\'s/Founding Partner class)', () => {
+  const hit = findLiveDuplicate('objectives',
+    { title: "Activate the AmbientScore Founder's Program" },
+    [{ id: 'o1', title: 'AmbientScore Founding Partner Program', status: 'active' }]);
+  assert.ok(hit, 'expected a semantic hit');
+  assert.strictEqual(hit.why, 'semantic-title');
+  assert.strictEqual(hit.entity.id, 'o1');
+});
+test('findLiveDuplicate: same north-star metric = same intent regardless of wording', () => {
+  const hit = findLiveDuplicate('objectives',
+    { title: 'Totally Different Wording Here', northStarMetric: 'paying_customers' },
+    [{ id: 'o2', title: 'First Paying Customer', status: 'active', northStarMetric: 'paying_customers' }]);
+  assert.ok(hit);
+  assert.strictEqual(hit.why, 'north-star-metric');
+});
+test('findLiveDuplicate: different intent on same product is NOT a dup', () => {
+  const hit = findLiveDuplicate('objectives',
+    { title: 'System Stability Hardening for AmbientScore' },
+    [{ id: 'o3', title: 'First Paying Customer — AmbientScore Launch', status: 'active' }]);
+  assert.strictEqual(hit, null);
+});
+test('findLiveDuplicate: canceled/archived entities never block', () => {
+  const hit = findLiveDuplicate('objectives',
+    { title: 'Grow Bluesky Audience' },
+    [{ id: 'o4', title: 'Grow Bluesky Audience', status: 'canceled' }]);
+  assert.strictEqual(hit, null);
+});
+test('isLiveDuplicate wrapper stays exact-only (back-compat)', () => {
+  const existing = [{ id: 'o1', title: 'AmbientScore Founding Partner Program', status: 'active' }];
+  assert.strictEqual(isLiveDuplicate('objectives', "Activate the AmbientScore Founder's Program", existing), false);
+  assert.strictEqual(isLiveDuplicate('objectives', 'ambientscore  founding partner program', existing), true);
+});
+
+// ── Sibling-race: pending-objective deferral (2026-07-28) ──
+const PENDING_SIBLING = [{ id: 'oprop_9', type: 'objective_proposal', status: 'pending', title: 'AmbientScore Founding Partner Program' }];
+test('deriveObjectiveId: defers to a pending sibling objective proposal instead of mislinking', () => {
+  const r = deriveObjectiveId(
+    { name: 'AmbientScore Founding Partner Push', product: 'ambientscore' },
+    [{ id: 'obj-old', title: 'Re-activate AmbientScore + Blindspot', status: 'active' }],
+    PENDING_SIBLING);
+  assert.strictEqual(r.objectiveId, null, 'must NOT product-match the old objective');
+  assert.strictEqual(r.deferredToProposalId, 'oprop_9');
+});
+test('deriveObjectiveId: active north-star owner beats deferral (metric ownership is authoritative)', () => {
+  const r = deriveObjectiveId(
+    { name: 'AmbientScore Founding Partner Push', northStarMetric: 'paying_customers' },
+    [{ id: 'obj-fc', title: 'First Paying Customer', status: 'active', northStarMetric: 'paying_customers' }],
+    PENDING_SIBLING);
+  assert.strictEqual(r.objectiveId, 'obj-fc');
+  assert.strictEqual(r.deferredToProposalId, undefined);
+});
+test('deriveObjectiveId: product tier picks BEST title match, not first', () => {
+  const r = deriveObjectiveId(
+    { name: 'AmbientScore Founding Partner Q4 Push', product: 'ambientscore' },
+    [
+      { id: 'obj-old', title: 'First Paying Customer — AmbientScore Launch', status: 'active' },
+      { id: 'obj-new', title: 'AmbientScore Founding Partner Program', status: 'active' }
+    ], []);
+  assert.strictEqual(r.objectiveId, 'obj-new');
+});
+test('materialize: deferred campaign stamps pendingObjectiveProposalId + needsReview', () => {
+  const m = materializeFromProposal(
+    { id: 'mp9', type: 'campaign_proposal', name: 'AmbientScore Founding Partner Push', product: 'ambientscore' },
+    NOW, { objectives: [{ id: 'obj-old', title: 'Re-activate AmbientScore + Blindspot', status: 'active' }], pendingObjectiveProposals: PENDING_SIBLING });
+  assert.strictEqual(m.entity.objective_id, null);
+  assert.strictEqual(m.entity.pendingObjectiveProposalId, 'oprop_9');
+  assert.strictEqual(m.entity.needsReview, true);
+});
+
+// ── adoptOrphanCampaigns (the other half of the sibling-race fix) ──
+test('adoptOrphanCampaigns: adopts by deferral stamp', () => {
+  const camps = [{ id: 'c1', title: 'Some Campaign', status: 'active', objective_id: null, pendingObjectiveProposalId: 'oprop_9' }];
+  const obj = { id: 'obj-new', title: 'Zz Unrelated Title' };
+  const adopted = adoptOrphanCampaigns(obj, 'oprop_9', camps);
+  assert.strictEqual(adopted.length, 1);
+  assert.strictEqual(camps[0].objective_id, 'obj-new');
+  assert.strictEqual(camps[0].pendingObjectiveProposalId, null);
+});
+test('adoptOrphanCampaigns: adopts orphan by title similarity', () => {
+  const camps = [{ id: 'c2', title: 'AmbientScore Founding Partner Push', status: 'paused', objective_id: null }];
+  const adopted = adoptOrphanCampaigns({ id: 'obj-new', title: 'AmbientScore Founding Partner Program' }, 'oprop_x', camps);
+  assert.strictEqual(adopted.length, 1);
+  assert.strictEqual(camps[0].objective_id, 'obj-new');
+});
+test('adoptOrphanCampaigns: adopts orphan by north-star metric', () => {
+  const camps = [{ id: 'c3', title: 'Zz Unrelated', status: 'active', objective_id: null, northStarMetric: 'paying_customers' }];
+  const adopted = adoptOrphanCampaigns({ id: 'obj-new', title: 'Qq Different', northStarMetric: 'paying_customers' }, null, camps);
+  assert.strictEqual(adopted.length, 1);
+});
+test('adoptOrphanCampaigns: never re-parents an already-linked campaign', () => {
+  const camps = [{ id: 'c4', title: 'AmbientScore Founding Partner Push', status: 'active', objective_id: 'obj-old' }];
+  const adopted = adoptOrphanCampaigns({ id: 'obj-new', title: 'AmbientScore Founding Partner Program' }, null, camps);
+  assert.strictEqual(adopted.length, 0);
+  assert.strictEqual(camps[0].objective_id, 'obj-old');
+});
+test('adoptOrphanCampaigns: ignores canceled/completed campaigns', () => {
+  const camps = [{ id: 'c5', title: 'AmbientScore Founding Partner Push', status: 'canceled', objective_id: null }];
+  const adopted = adoptOrphanCampaigns({ id: 'obj-new', title: 'AmbientScore Founding Partner Program' }, null, camps);
+  assert.strictEqual(adopted.length, 0);
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

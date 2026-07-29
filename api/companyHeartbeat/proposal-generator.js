@@ -32,6 +32,7 @@
 // circular dependency: proposal-composer.js has no requires of its own.
 var composer = require('./proposal-composer');
 var helpers = require('./helpers'); // titleSimilarity — semantic proposal dedup
+var { MAX_ACTIVE_OBJECTIVES } = require('./constants');
 
 const SOURCE = 'auto:proposal-generator';
 const STAGNANT_DAYS = 14;
@@ -723,6 +724,19 @@ async function runProposalGenerator(opts) {
       }
       return true;
     });
+
+    // Active-objective cap (backstop against goal proliferation — 11 accumulated
+    // by 2026-07-28). Mirrors the objective_cap gate in agent-runner + proposalDecide.
+    var _activeObjCount = (state.objectives || []).filter(function (o) {
+      return o && o.status === 'active' && !o.deletedAt;
+    }).length;
+    if (_activeObjCount >= MAX_ACTIVE_OBJECTIVES) {
+      proposals = proposals.filter(function (p) {
+        if (p.type !== 'objective_proposal') return true;
+        log('[proposalGenerator] Dropped objective_proposal "' + String(p.title || p.name || '').substring(0, 60) + '" — active-objective cap (' + _activeObjCount + '/' + MAX_ACTIVE_OBJECTIVES + ')');
+        return false;
+      });
+    }
     proposals.forEach(function (p) { queue.push(p); });
 
     if (!proposals.length && !expired && !pruned && !healed) {

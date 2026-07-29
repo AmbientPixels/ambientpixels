@@ -281,7 +281,11 @@ const KNOWN_ACTION_TYPES = [
   // flagged this. Nobody hit the gap earlier because Nova was mute (schema lockout)
   // until 07-23 and had no lifecycle need until the overrun.
   'pause-campaign', 'resume-campaign', 'complete-campaign', 'cancel-campaign',
-  'archive-objective', 'cancel-objective'
+  'archive-objective', 'cancel-objective',
+  // Orphan-goal adoption (Nova) — re-parent an existing campaign onto an
+  // active objective. Reversible, auto-execute. Added 2026-07-28 with the
+  // objective-consolidation hardening.
+  'link-campaign-to-objective'
 ];
 
 // ── Agentic proposal generation (System: dynamic agent proposals) ──
@@ -296,6 +300,13 @@ const AGENT_PROPOSAL_FLEET_CAP = { campaign_proposal: 2, objective_proposal: 2 }
 // of the same name can't be re-proposed within this window. Parity with product (7d)
 // and fleet (14d) families, which previously had cooldowns while campaign/objective did not.
 const PROPOSAL_REJECT_COOLDOWN_DAYS = 7;
+
+// Hard ceiling on ACTIVE objectives. The company runs ~3 real strategic intents;
+// 11 objectives accumulated by 2026-07-28 (8 orphaned, 5 restating the same
+// first-customer goal). Enforced at propose time (agent-runner), generation time
+// (proposal-generator), and materialize time (proposalDecide) — backstop against
+// re-proliferation, not a planning tool. Same pattern as the 50-task ceiling.
+const MAX_ACTIVE_OBJECTIVES = 5;
 
 // Deterministic severity per declared trigger. Unknown/missing → UNKNOWN severity + flag.
 const PROPOSAL_TRIGGER_SEVERITY = {
@@ -533,6 +544,7 @@ module.exports = {
   PROPOSAL_AUTHORIZED_AGENTS,
   AGENT_PROPOSAL_FLEET_CAP,
   PROPOSAL_REJECT_COOLDOWN_DAYS,
+  MAX_ACTIVE_OBJECTIVES,
   PROPOSAL_TRIGGER_SEVERITY,
   PROPOSAL_UNKNOWN_TRIGGER_SEVERITY,
   RESEARCH_MAX_AGE_DAYS,

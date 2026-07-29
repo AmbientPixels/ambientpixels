@@ -3,7 +3,8 @@
 // entity (campaign/objective/task) and flips the approvalQueue entry. On reject,
 // flips status + records a decisionLog mirror (same shape approveProposal writes).
 const storage = require('../_utils/companyStorage');
-const { materializeFromProposal, isLiveDuplicate } = require('./materialize');
+const { materializeFromProposal, findLiveDuplicate, adoptOrphanCampaigns } = require('./materialize');
+const { MAX_ACTIVE_OBJECTIVES } = require('../companyHeartbeat/constants');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,21 +40,72 @@ module.exports = async function (context, req) {
 
     const nowIso = new Date().toISOString();
     let created = null;
+    let adopted = [];
+    let materializeNote = null;
 
     if (decision === 'approved') {
-      // Load objectives so a campaign proposal can be auto-linked to a parent goal.
+      // Load objectives so a campaign proposal can be auto-linked to a parent goal,
+      // and pending objective proposals so a same-batch campaign can DEFER linking
+      // to its sibling instead of mislinking to an older objective.
       const objectives = (await storage.getState('objectives')) || [];
-      const mat = materializeFromProposal(target, nowIso, { objectives });
+      const pendingObjectiveProposals = aq.filter(function (q) {
+        return q && q.id !== target.id && q.type === 'objective_proposal' && q.status === 'pending';
+      });
+
+      // Hard cap on ACTIVE objectives (backstop against goal proliferation —
+      // 11 accumulated by 2026-07-28, 8 of them orphaned). Refuse, don't
+      // silently approve-without-creating: the CEO should archive or cancel a
+      // goal first, or reject this proposal.
+      if (target.type === 'objective_proposal') {
+        const activeCount = objectives.filter(function (o) {
+          return o && o.status === 'active' && !o.deletedAt;
+        }).length;
+        if (activeCount >= MAX_ACTIVE_OBJECTIVES) {
+          context.res = { status: 409, headers: corsHeaders, body: {
+            error: 'Active-objective cap reached (' + activeCount + '/' + MAX_ACTIVE_OBJECTIVES + '). Archive or cancel an objective first, or reject this proposal.',
+            gate: 'objective_cap'
+          } };
+          return;
+        }
+      }
+
+      const mat = materializeFromProposal(target, nowIso, { objectives, pendingObjectiveProposals });
       if (mat && mat.stateKey) {
         let existing = (await storage.getState(mat.stateKey)) || [];
         if (!Array.isArray(existing)) existing = [];
-        if (!isLiveDuplicate(mat.stateKey, mat.entity.title, existing)) {
+        const dup = findLiveDuplicate(mat.stateKey, target, existing);
+        if (dup && dup.why !== 'exact-title') {
+          // Semantic / metric duplicate — block and inform rather than silently
+          // materialize a reworded twin. The CEO can reject this proposal, or
+          // rename it in the drawer if it is genuinely distinct.
+          context.res = { status: 409, headers: corsHeaders, body: {
+            error: 'Near-duplicate of live ' + (mat.stateKey === 'objectives' ? 'objective' : 'campaign') +
+              ' "' + String(dup.entity.title || dup.entity.name || dup.entity.id).slice(0, 80) + '" (' + dup.why + '). ' +
+              'Reject this proposal, or edit its title/metric if it is genuinely distinct.',
+            gate: 'proposal_semantic_dup',
+            duplicateOf: dup.entity.id
+          } };
+          return;
+        }
+        if (!dup) {
           existing.push(mat.entity);
+          // A new objective adopts orphan campaigns that were deferred to it (or
+          // plainly belong to it) — the other half of the sibling-race fix.
+          if (mat.stateKey === 'objectives') {
+            let camps = (await storage.getState('campaigns')) || [];
+            if (!Array.isArray(camps)) camps = [];
+            adopted = adoptOrphanCampaigns(mat.entity, target.id, camps);
+            if (adopted.length) {
+              mat.entity.linkedCampaigns = adopted.map(function (c) { return c.id; });
+              await storage.setState('campaigns', camps);
+            }
+          }
           await storage.setState(mat.stateKey, existing);
           created = mat.entity;
-          // Maintain the objective -> campaign back-link (mirrors the Actions-page
-          // approve path). Without it the parent objective's linkedCampaigns goes
-          // stale and progress derivation reads 0/phantom. Idempotent.
+          target.materializedId = mat.entity.id;
+          // Maintain the objective -> campaign back-link. Without it the parent
+          // objective's linkedCampaigns goes stale and progress derivation reads
+          // 0/phantom. Idempotent.
           if (mat.stateKey === 'campaigns' && mat.entity.objective_id) {
             const parentObj = objectives.find(function (o) { return o && o.id === mat.entity.objective_id; });
             if (parentObj) {
@@ -64,6 +116,9 @@ module.exports = async function (context, req) {
               }
             }
           }
+        } else {
+          materializeNote = 'exact-duplicate of ' + dup.entity.id + ' — entity not re-created';
+          target.materializeNote = materializeNote;
         }
       }
       target.status = 'approved';
@@ -108,7 +163,11 @@ module.exports = async function (context, req) {
       await storage.setState('governanceLog', _gl.slice(-500));
     } catch (_glErr) { /* non-fatal */ }
 
-    context.res = { status: 200, headers: corsHeaders, body: { ok: true, entry: target, created: created } };
+    context.res = { status: 200, headers: corsHeaders, body: {
+      ok: true, entry: target, created: created,
+      adoptedCampaigns: adopted.map(function (c) { return { id: c.id, title: c.title }; }),
+      materializeNote: materializeNote
+    } };
   } catch (err) {
     context.res = { status: 500, headers: corsHeaders, body: { error: String(err && err.message ? err.message : err).slice(0, 300) } };
   }

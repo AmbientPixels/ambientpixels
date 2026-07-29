@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, _agentPersonalityData, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
+const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, _agentPersonalityData, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES, MAX_ACTIVE_OBJECTIVES } = require("./constants");
 const { _buildSocialIntelPromptBlock, _buildCampaignVelocityBlock } = require('./social-intel');
 const { _buildForgeOpsPromptBlock } = require('./ops-intel');
 const { _buildFinancePromptBlock } = require('./finance-intel');
@@ -539,15 +539,18 @@ IMPORTANT: Create specific leaf tasks for each campaign directly (e.g. "Draft Q1
         objectiveTaskMap[t.objective_id].push(t.title);
       }
     });
-    // Build objective → campaign map from BOTH directions:
-    // 1) campaign.linkedObjectives (array on campaign)
-    // 2) objective.linkedCampaigns (array set from goals page, normalized from old linkedDirective)
+    // Build objective → campaign map from ALL THREE directions:
+    // 1) campaign.objective_id (canonical — what materialize/link actions write)
+    // 2) campaign.linkedObjectives (array on campaign)
+    // 3) objective.linkedCampaigns (array set from goals page, normalized from old linkedDirective)
     const objectiveCmpMap = {};
     const _allCampaigns = activeDirectives.length > 0 ? activeDirectives : [];
     const _cmpById = {};
     _allCampaigns.forEach(c => { _cmpById[c.id] = c; });
     _allCampaigns.forEach(c => {
-      (c.linkedObjectives || []).forEach(objId => {
+      const dirs = (c.linkedObjectives || []).slice();
+      if (c.objective_id && dirs.indexOf(c.objective_id) === -1) dirs.push(c.objective_id);
+      dirs.forEach(objId => {
         if (!objectiveCmpMap[objId]) objectiveCmpMap[objId] = [];
         if (!objectiveCmpMap[objId].some(x => x.id === c.id)) {
           objectiveCmpMap[objId].push({ id: c.id, title: c.title });
@@ -571,7 +574,7 @@ IMPORTANT: Create specific leaf tasks for each campaign directly (e.g. "Draft Q1
       const linked = objectiveTaskMap[o.id];
       const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET \u2014 needs task creation]';
       const cmps = objectiveCmpMap[o.id];
-      const cmpInfo = cmps ? ' campaigns: ' + cmps.map(c => '"' + c.title + '" (id: ' + c.id + ')').join(', ') : '';
+      const cmpInfo = cmps ? ' campaigns: ' + cmps.map(c => '"' + c.title + '" (id: ' + c.id + ')').join(', ') : ' [NO CAMPAIGNS \u2014 ORPHANED GOAL]';
       return '- "' + o.title + '" (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + cmpInfo + ')' + linkInfo;
     }).join('\n');
     objectivesSection = `\n\nACTIVE GOALS (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for a goal):
@@ -2088,9 +2091,10 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     You can propose objectives and campaigns to the CEO for approval:
     - propose-objective: { "type": "propose-objective", "objective": { "title": "...", "description": "...", "rationale": "...", "successCriteria": "...", "timeHorizon": "...", "northStarMetric": "...", "metricTarget": N, "metricDeadline": "YYYY-MM-DD" } }
       metricTarget + metricDeadline = the measurable goal for your northStarMetric (e.g. 150 bluesky followers by 2026-07-31). On CEO approval the objective's progress is then COMPUTED from live metrics and auto-completes at target — objectives without them get unmeasured legacy tracking.
-    - propose-campaign: { "type": "propose-campaign", "campaign": { "name": "...", "description": "...", "rationale": "...", "platforms": [...], "frequency": N, "cadence": "weekly", "northStarMetric": "..." } }
+    - propose-campaign: { "type": "propose-campaign", "campaign": { "name": "...", "description": "...", "rationale": "...", "platforms": [...], "frequency": N, "cadence": "weekly", "northStarMetric": "...", "objectiveId": "obj-..." } }
     ALL fields are required. Rationale must cite specific agent data (Echo analytics, Cipher ROI, Scout research, Forge alerts) AND "northStarMetric" must name the COMPANY STRATEGY north star this serves (exact metric name). Proposals serving no north star get flagged for CEO scrutiny.
-    Max 1 objective proposal + 1 campaign proposal per day. CEO approves → auto-created. CEO rejects → feedback stored.
+    "objectiveId" (optional but STRONGLY preferred): the ACTIVE GOAL this campaign serves — copy the exact id from ACTIVE GOALS. Campaigns proposed for a goal marked [NO CAMPAIGNS — ORPHANED GOAL] should always set it. Without it the system guesses the parent goal at approval.
+    Max 1 objective proposal + 1 campaign proposal per day. Max ${MAX_ACTIVE_OBJECTIVES} ACTIVE objectives company-wide — at the cap, new objective proposals are blocked; consolidate or archive first. CEO approves → auto-created. CEO rejects → feedback stored.
   - LIFECYCLE MANAGEMENT:
     You can manage campaign and objective lifecycle:
     - pause-campaign: { "type": "pause-campaign", "campaignId": "...", "reason": "..." } — pauses active campaign. Use when Cipher flags negative ROI or Echo reports declining platform. CEO-RESUMED campaigns (resumedBy: ceo) are protected for 7 days — server-enforced; do not re-pause them, make your case in observations instead.
@@ -2098,8 +2102,14 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     BUDGET REALITY CHECK: pausing campaigns cuts POSTING VOLUME only — it does NOT materially reduce LLM spend. The heartbeat itself is the dominant cost, and that lever (model tier, interval) belongs to the CEO. Never pause near-zero-cost visibility campaigns (Milestone Herald, Daily Pulse) for budget reasons. Under a budget squeeze the right portfolio is the cheap visibility loops plus AT MOST ONE conversion campaign — not zero campaigns, and not a fresh campaign to replace one you just paused (the semantic-dup gate blocks near-duplicates; resume the original instead).
     - complete-campaign: { "type": "complete-campaign", "campaignId": "..." } — marks campaign complete when all tasks done.
     - archive-objective: { "type": "archive-objective", "objectiveId": "..." } — soft-archives stale objectives (no active campaigns, no tasks 14+ days).
+    - link-campaign-to-objective: { "type": "link-campaign-to-objective", "campaignId": "...", "objectiveId": "...", "reason": "..." } — re-parents an existing active/paused campaign onto an ACTIVE goal (reversible, auto-executes, Nova-only).
     - cancel-campaign/cancel-objective: Goes to CEO approval queue (irreversible). Use when fundamentally misaligned, not just underperforming.
     Always cite the specific data signal that triggered the lifecycle change.
+  - ORPHANED GOALS (goals marked [NO CAMPAIGNS — ORPHANED GOAL] in ACTIVE GOALS): a goal with no campaigns and no tasks executes NOTHING — it is dead strategy. Every cycle, if any active goal is orphaned, do exactly ONE of:
+    1. link-campaign-to-objective — when an existing campaign genuinely serves that goal (this is the usual fix), OR
+    2. propose-campaign with "objectiveId" set to the orphaned goal — when no existing campaign fits, OR
+    3. archive-objective — when the goal is stale or its intent is already covered by another goal.
+    NEVER propose a new objective while an orphaned near-duplicate goal exists — consolidate first. Duplicated goals split the fleet's attention and are blocked by the semantic-dup gate anyway.
   - KEEP THE FLEET FED (proactive work generation — don't wait for the CEO to seed work): The fleet must never idle or coast on dead work. Propose new strategic work when ANY of these holds:
     - Fewer than 3 active campaigns, OR active campaigns are STAGNANT (most at ~0% velocity, little/no output shipped this week, flat or declining metrics). Many stalled campaigns is NOT coverage — propose fresh campaigns and pause/pivot the dead ones.
     - Fewer than 3 active objectives, OR existing objectives are stale (no active campaigns or tasks 14+ days). Propose a new MEASURABLE objective (northStarMetric + metricTarget + metricDeadline).
@@ -2112,7 +2122,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     The target agent sees this prominently and must act on it before other work. Limit: 1 active directive per agent.
     Use directives for: persistent stalls, repeated blocked patterns, role misalignment, failure to follow pipeline rules.
     Do NOT use directives for: normal task assignment (use create-task), one-time corrections (use comment-task), or style feedback (let Quill handle).
-  - ALLOWED actions: create-task (including system_directive), update-task, move-task, comment-task, review-task, propose-campaign, propose-objective, pause-campaign, resume-campaign, complete-campaign, archive-objective, cancel-campaign, cancel-objective, remember` : '') + (agent.name === 'Echo' ? `
+  - ALLOWED actions: create-task (including system_directive), update-task, move-task, comment-task, review-task, propose-campaign, propose-objective, pause-campaign, resume-campaign, complete-campaign, archive-objective, link-campaign-to-objective, cancel-campaign, cancel-objective, remember` : '') + (agent.name === 'Echo' ? `
 - AMBIENTOS CONTRACT (Echo — Marketing):
   - Never execute external actions directly.
   - Social/publishing output routes through CEO approval automatically: use create-social-action on tasks with reviewed_copy.
