@@ -2136,8 +2136,13 @@ Write the full deliverable first, then the structured JSON block.`;
                 payload: {
                   text: _finalReply,
                   reply: {
-                    // Top-level reply: root and parent point to the same post
-                    root: { uri: _tc.uri, cid: _tc.cid },
+                    // threadContext.root carries the TRUE thread root when the task
+                    // replies mid-thread (engagement loop: their comment sits under a
+                    // post that may itself be a reply). Without it bsky renders the
+                    // reply detached. Top-level replies fall back to root === parent.
+                    root: (_tc.root && _tc.root.uri && _tc.root.cid)
+                      ? { uri: _tc.root.uri, cid: _tc.root.cid }
+                      : { uri: _tc.uri, cid: _tc.cid },
                     parent: { uri: _tc.uri, cid: _tc.cid }
                   }
                 },

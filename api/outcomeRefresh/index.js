@@ -1,4 +1,9 @@
-// outcomeRefresh — Timer Trigger (daily @ 14:00 UTC)
+// outcomeRefresh — Timer Trigger (daily @ 14:35 UTC)
+//
+// 14:35, NOT :00 — the heartbeat fires on even hours (14:00) and persists the
+// tasks array wholesale at end-of-run; the Engagement Reply Loop below appends
+// tasks, so a :00 start would race that save almost daily. :35 also clears the
+// asProspectCron (:25 even hours) and asScanRunner (:10 grid) task writers.
 //
 // Phase 1 of the Outcome Attribution System. Walks `outcomeSnapshots` entries
 // whose `complete: false` (i.e., haven't reached the t7 maturity sample yet)
@@ -118,9 +123,12 @@ async function fetchXMetrics(postId) {
 }
 
 // ── Bluesky metrics fetch (AT Protocol, public) ──
+// depth=1 (was 0): same free endpoint also returns thread.replies[] — the
+// Engagement Reply Loop harvests those. Metrics extraction unchanged; the
+// thread rides along on _thread for the harvest pass.
 async function fetchBlueskyMetrics(atUri) {
   if (!atUri) throw { code: 'BSKY_NO_URI', message: 'missing at_uri' };
-  const url = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=' + encodeURIComponent(atUri) + '&depth=0';
+  const url = 'https://public.api.bsky.app/xrpc/app.bsky.feed.getPostThread?uri=' + encodeURIComponent(atUri) + '&depth=1';
   const res = await httpGet(url, { 'Accept': 'application/json' });
   if (res.status !== 200 || !res.body || !res.body.thread || !res.body.thread.post) {
     throw { code: 'BSKY_API_ERROR_' + res.status, message: String(res.raw).substring(0, 200) };
@@ -131,7 +139,8 @@ async function fetchBlueskyMetrics(atUri) {
     comments: p.replyCount || 0,
     reposts: (p.repostCount || 0) + (p.quoteCount || 0),
     views: 0,  // Bluesky does not expose view count publicly
-    clicks: 0
+    clicks: 0,
+    _thread: res.body.thread
   };
 }
 
@@ -251,6 +260,7 @@ module.exports = async function (context) {
   const maxAgeMs = MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
   let fetched = 0;
   let completedThisRun = 0;
+  const threadCache = {}; // actionId → depth=1 thread from this run's metric fetches (engagement harvest reuses, no double fetch)
 
   const keys = Object.keys(store);
   for (let i = 0; i < keys.length; i++) {
@@ -285,6 +295,7 @@ module.exports = async function (context) {
         clicks: m.clicks
       };
       s.samples.push(sample);
+      if ((s.platform || '').toLowerCase() === 'bluesky' && m._thread) threadCache[s.actionId] = m._thread;
       fetched++;
       if (lag === 't7') {
         s.engagementRate = computeEngagementRate(sample);
@@ -372,5 +383,25 @@ module.exports = async function (context) {
     }
   } catch (err) {
     context.log.warn('[outcomeRefresh] decision backfill failed (non-fatal):', (err && err.message) || String(err));
+  }
+
+  // ── Engagement Reply Loop (2026-07-28) ──
+  // Comments on OUR bluesky posts → CEO-gated reply-draft tasks for Scribe.
+  // Runs AFTER the snapshot save so a harvest failure can never lose samples.
+  // Reuses this run's depth=1 threads via threadCache; fetches the rest itself.
+  // Non-fatal by contract: outcome refresh must never die because of harvesting.
+  try {
+    const engagement = require('../companyHeartbeat/engagement-reply');
+    const erSummary = await engagement.runEngagementReplyLoop({
+      storage: storage,
+      log: context.log,
+      snapshots: store,
+      threadCache: threadCache,
+      fetchThread: async (atUri) => (await fetchBlueskyMetrics(atUri))._thread,
+      nowMs: now
+    });
+    context.log('[outcomeRefresh] engagement-reply:', JSON.stringify(erSummary));
+  } catch (err) {
+    context.log.warn('[outcomeRefresh] engagement-reply failed (non-fatal):', (err && err.message) || String(err));
   }
 };
