@@ -204,6 +204,26 @@ test('findLiveDuplicate: different intent on same product is NOT a dup', () => {
     [{ id: 'o3', title: 'First Paying Customer — AmbientScore Launch', status: 'active' }]);
   assert.strictEqual(hit, null);
 });
+test('findLiveDuplicate: COMPLETED campaign does not semantically block a distinct successor (the Build-in-Public false positive)', () => {
+  const hit = findLiveDuplicate('campaigns',
+    { name: 'LinkedIn Build-in-Public: The First Customer Journey' },
+    [{ id: 'c-bip', title: 'Build in Public', status: 'completed' }]);
+  assert.strictEqual(hit, null);
+});
+test('findLiveDuplicate: COMPLETED campaign still blocks EXACT name reuse', () => {
+  const hit = findLiveDuplicate('campaigns',
+    { name: 'build in public' },
+    [{ id: 'c-bip', title: 'Build in Public', status: 'completed' }]);
+  assert.ok(hit);
+  assert.strictEqual(hit.why, 'exact-title');
+});
+test('findLiveDuplicate: ACTIVE campaign still semantically blocks rewordings', () => {
+  const hit = findLiveDuplicate('campaigns',
+    { name: 'AmbientScore Founding Partner Push' },
+    [{ id: 'c-fpp', title: 'AmbientScore Founding Partner Program', status: 'active' }]);
+  assert.ok(hit);
+  assert.strictEqual(hit.why, 'semantic-title');
+});
 test('findLiveDuplicate: canceled/archived entities never block', () => {
   const hit = findLiveDuplicate('objectives',
     { title: 'Grow Bluesky Audience' },

@@ -204,12 +204,23 @@ function findLiveDuplicate(stateKey, proposal, existing) {
   });
   const exact = liveEntities.find(function (e) { return _norm(e.title || e.name) === n; });
   if (exact) return { entity: exact, why: 'exact-title' };
-  const sem = liveEntities.find(function (e) {
+  // Semantic + metric detectors consider only entities that can still accept
+  // work (active/paused et al) — NOT complete/completed. A finished campaign is
+  // history; a distinct successor sharing brand vocabulary must not be blocked
+  // ("Build in Public" [completed] blocked "LinkedIn Build-in-Public: The First
+  // Customer Journey" — CEO false positive 2026-07-29; two shared tokens vs a
+  // two-token title scores 1.0 under smaller-set overlap). Exact-title reuse
+  // still blocks against completed entities so a same-named campaign isn't
+  // silently recreated.
+  const openEntities = liveEntities.filter(function (e) {
+    return e.status !== 'complete' && e.status !== 'completed';
+  });
+  const sem = openEntities.find(function (e) {
     return titleSimilarity(title, e.title || e.name || '') >= SEMANTIC_DUP_THRESHOLD;
   });
   if (sem) return { entity: sem, why: 'semantic-title' };
   if (stateKey === 'objectives' && typeof p === 'object' && p.northStarMetric) {
-    const ns = liveEntities.find(function (e) {
+    const ns = openEntities.find(function (e) {
       return (e.northStarMetric || (e.criteria && e.criteria.metric) || '') === p.northStarMetric;
     });
     if (ns) return { entity: ns, why: 'north-star-metric' };
