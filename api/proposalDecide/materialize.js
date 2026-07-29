@@ -123,7 +123,12 @@ function materializeFromProposal(proposal, nowIso, context) {
   const ctx = context || {};
   const title = p.title || p.name || '';
   if (p.type === 'campaign_proposal') {
-    const weeks = parseInt(p.duration, 10) || 0;
+    // Duration contract is WEEKS (composer emits numeric weeks), but agent
+    // proposals carry free text like "90 days" — parseInt read that as 90
+    // WEEKS and minted a 2028 end date (2026-07-29). Convert day-phrased
+    // durations to weeks before applying.
+    let weeks = parseInt(p.duration, 10) || 0;
+    if (weeks > 0 && /day/i.test(String(p.duration))) weeks = Math.max(1, Math.round(weeks / 7));
     const endDate = weeks > 0 ? new Date(_ts(nowIso) + weeks * 7 * 86400000).toISOString().slice(0, 10) : null;
     // Never mint an unworkable campaign: guarantee task types, try to find a parent
     // goal, and flag for CEO review whenever either had to be inferred.

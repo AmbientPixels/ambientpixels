@@ -20,6 +20,17 @@ test('campaign_proposal → campaigns entity', () => {
   assert.strictEqual(m.entity.source, 'proposal');
   assert.strictEqual(m.entity.proposalId, 'mprop_1');
 });
+test('campaign_proposal duration \"90 days\" converts to ~13 weeks, not 90 weeks', () => {
+  const m = materializeFromProposal({ id: 'mp_d', type: 'campaign_proposal', name: 'Duration Check', duration: '90 days' }, NOW);
+  const end = new Date(m.entity.endDate).getTime(), start = Date.parse(NOW);
+  const days = Math.round((end - start) / 86400000);
+  assert.ok(days >= 84 && days <= 98, 'expected ~90 days, got ' + days);
+});
+test('campaign_proposal numeric duration stays weeks', () => {
+  const m = materializeFromProposal({ id: 'mp_d2', type: 'campaign_proposal', name: 'Duration Check 2', duration: 4 }, NOW);
+  const days = Math.round((new Date(m.entity.endDate).getTime() - Date.parse(NOW)) / 86400000);
+  assert.strictEqual(days, 28);
+});
 test('campaign_proposal from a meeting keeps source: meeting', () => {
   const m = materializeFromProposal({ id: 'mprop_1b', type: 'campaign_proposal', name: 'Beacon Launch', meetingId: 'amtg-1' }, NOW);
   assert.strictEqual(m.entity.source, 'meeting');
