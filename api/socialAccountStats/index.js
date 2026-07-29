@@ -111,6 +111,9 @@ async function pullLinkedInAccountStats() {
       'Authorization': 'Bearer ' + token,
       'X-Restli-Protocol-Version': '2.0.0'
     });
+    if (orgRes.status === 401) {
+      return { ok: false, error: 'LinkedIn: access token rejected (HTTP 401): ' + ((orgRes.data && orgRes.data.message) || (orgRes.raw || '').slice(0, 200)) };
+    }
     var orgName = '';
     var vanity = '';
     if (orgRes.status === 200 && orgRes.data) {
@@ -118,8 +121,8 @@ async function pullLinkedInAccountStats() {
       vanity = orgRes.data.vanityName || '';
     }
 
-    // 2. Follower count via networkSizes
-    var followerUrl = 'https://api.linkedin.com/v2/networkSizes/urn:li:organization:' + orgId + '?edgeType=CompanyFollowedByMember';
+    // 2. Follower count via networkSizes (URN must be percent-encoded or LinkedIn returns 400)
+    var followerUrl = 'https://api.linkedin.com/v2/networkSizes/' + encodeURIComponent('urn:li:organization:' + orgId) + '?edgeType=CompanyFollowedByMember';
     var followerRes = await _httpGet(followerUrl, {
       'Authorization': 'Bearer ' + token,
       'X-Restli-Protocol-Version': '2.0.0'
