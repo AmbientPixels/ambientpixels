@@ -1,6 +1,7 @@
 const https = require('https');
 const storage = require('../_utils/companyStorage');
 const demoGuard = require('../_utils/demoGuard');
+const linkedinAuth = require('../_utils/linkedinAuth');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -99,10 +100,10 @@ async function pullXAccountStats() {
 
 // ── LinkedIn ──
 
-async function pullLinkedInAccountStats() {
-  var token = process.env.LINKEDIN_ACCESS_TOKEN || '';
+async function pullLinkedInAccountStats(isRetry) {
+  var token = await linkedinAuth.getAccessToken(isRetry === true);
   var orgId = process.env.LINKEDIN_ORG_ID || '107826087';
-  if (!token) return { ok: false, error: 'LINKEDIN_ACCESS_TOKEN not set' };
+  if (!token) return { ok: false, error: 'LinkedIn: no access token available (env + blob empty, refresh failed)' };
 
   try {
     // 1. Org info
@@ -112,6 +113,8 @@ async function pullLinkedInAccountStats() {
       'X-Restli-Protocol-Version': '2.0.0'
     });
     if (orgRes.status === 401) {
+      // Token rejected despite blob bookkeeping — force one refresh and retry
+      if (isRetry !== true) return pullLinkedInAccountStats(true);
       return { ok: false, error: 'LinkedIn: access token rejected (HTTP 401): ' + ((orgRes.data && orgRes.data.message) || (orgRes.raw || '').slice(0, 200)) };
     }
     var orgName = '';

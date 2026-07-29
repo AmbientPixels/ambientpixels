@@ -1,6 +1,7 @@
 const https = require('https');
 const storage = require('../_utils/companyStorage');
 const socialTelemetry = require('../socialMetrics/telemetry');
+const linkedinAuth = require('../_utils/linkedinAuth');
 
 const LOOKBACK_DAYS = 30;
 const MAX_SNAPSHOTS = 50000;
@@ -113,9 +114,9 @@ async function _persistLastPulledAt() {
   await storage.setState('socialEngagementMeta', next);
 }
 
-async function _pullLinkedInMetrics(postId) {
-  const token = process.env.LINKEDIN_ACCESS_TOKEN || '';
-  if (!token) throw { code: 'AUTH_LINKEDIN_TOKEN_MISSING', message: 'LINKEDIN_ACCESS_TOKEN not set', status: 401 };
+async function _pullLinkedInMetrics(postId, isRetry) {
+  const token = await linkedinAuth.getAccessToken(isRetry === true);
+  if (!token) throw { code: 'AUTH_LINKEDIN_TOKEN_MISSING', message: 'No LinkedIn access token available', status: 401 };
   if (!postId) throw { code: 'PAYLOAD_POST_ID_MISSING', message: 'Missing LinkedIn post id', status: 400 };
 
   const encoded = encodeURIComponent(postId);
@@ -125,6 +126,10 @@ async function _pullLinkedInMetrics(postId) {
     'X-Restli-Protocol-Version': '2.0.0'
   });
 
+  if (res.status === 401 && isRetry !== true) {
+    // Token rejected — force one refresh and retry
+    return _pullLinkedInMetrics(postId, true);
+  }
   if (res.status !== 200 || !res.data) {
     throw { code: 'LINKEDIN_ENGAGEMENT_LOOKUP_FAILED', status: res.status, message: (res.data && (res.data.message || res.data.error)) || (res.raw || '').slice(0, 300) };
   }
