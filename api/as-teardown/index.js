@@ -95,6 +95,28 @@ module.exports = async function (context, req) {
     // ── POST actions ──
     const body = req.body || {};
 
+    // CEO-only ops view: the queue is storage-direct (not a company-state
+    // key), so this is the one way to inspect order states remotely.
+    if (body.action === 'status') {
+      if (req.headers['x-company-secret'] !== 'pixelpusher') {
+        context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Forbidden.' } };
+        return;
+      }
+      const queue = (await storage.getState('as_teardown_queue')) || [];
+      context.res = {
+        status: 200,
+        headers: CORS_HEADERS,
+        body: {
+          orders: queue.map(o => ({
+            orderId: o.orderId, url: o.url, email: o.email, status: o.status,
+            paidAt: o.paidAt, retryCount: o.retryCount || 0, error: o.error || null,
+            key: composer.buildTeardownToken(o.orderId)
+          }))
+        }
+      };
+      return;
+    }
+
     if (body.action === 'checkout') {
       const url = String(body.url || '').trim();
       const email = String(body.email || '').trim();
