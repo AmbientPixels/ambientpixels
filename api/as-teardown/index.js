@@ -167,7 +167,13 @@ module.exports = async function (context, req) {
       const SITE_URL = process.env.AS_SITE_URL || process.env.CC_SITE_URL || 'https://ambientpixels.ai';
       const viewLink = SITE_URL + '/ambientscore/teardown.html?id=' + orderId + '&key=' + composer.buildTeardownToken(orderId);
       const emailSender = require('../_lib/ambientScore/emailSender');
-      await emailSender.sendTeardownDeliveryEmail(order.email, doc, viewLink);
+      const sent = await emailSender.sendTeardownDeliveryEmail(order.email, doc, viewLink);
+      if (!sent) {
+        // The sender swallows errors and returns false — surface it instead of
+        // marking a delivery that never left the building.
+        context.res = { status: 502, headers: CORS_HEADERS, body: { error: 'Delivery email failed to send. Order left in draft_ready; try again or deliver manually.' } };
+        return;
+      }
 
       const nowIso = new Date().toISOString();
       order.status = 'delivered';
