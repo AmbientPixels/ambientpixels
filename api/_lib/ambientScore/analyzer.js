@@ -272,4 +272,4 @@ function buildFallbackSynthesis(scoreResult) {
   };
 }
 
-module.exports = { analyze };
+module.exports = { analyze, callClaude };

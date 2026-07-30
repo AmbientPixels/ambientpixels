@@ -34,6 +34,63 @@ module.exports = async function (context, req) {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
+
+      // Teardown orders ($199 done-for-you) — queue for asTeardownRunner and
+      // stop here; they carry no reportId so nothing below applies. Every
+      // side effect is non-fatal: the webhook must always return 200.
+      if (session.metadata?.teardown === '1') {
+        const composer = require('../_lib/ambientScore/teardownComposer');
+        let order = null;
+        try {
+          const queue = (await storage.getState('as_teardown_queue')) || [];
+          const result = composer.queueTeardownOrder(session, queue, new Date().toISOString());
+          order = result.order;
+          if (order) {
+            await storage.setState('as_teardown_queue', result.queue);
+            context.log('[as-webhook] Teardown order queued: ' + order.orderId + ' for ' + order.url);
+          } else {
+            context.log('[as-webhook] Teardown session already queued or invalid: ' + session.id);
+          }
+        } catch (queueErr) {
+          context.log.error('[as-webhook] Teardown queueing failed:', queueErr.message);
+        }
+
+        if (order && order.email) {
+          try {
+            const emailSender = require('../_lib/ambientScore/emailSender');
+            await emailSender.sendTeardownAckEmail(order.email, order.orderId);
+          } catch (ackErr) {
+            context.log.warn('[as-webhook] Teardown ack email failed (non-fatal):', ackErr.message);
+          }
+        }
+
+        if (order) {
+          try {
+            const { dispatchDiscord } = require('../_utils/fleetAlerts');
+            await dispatchDiscord({
+              title: 'Teardown order paid: $199',
+              description: order.url + (order.goal ? ('\nGoal: ' + order.goal) : '') + '\nDraft lands within 15 minutes.',
+              color: 0x2E7D32
+            });
+          } catch (alertErr) {
+            context.log.warn('[as-webhook] Teardown Discord alert failed (non-fatal):', alertErr.message);
+          }
+        }
+
+        await revenueRecorder.recordCheckoutRevenue({
+          event: event,
+          session: session,
+          product: 'ambientscore',
+          type: 'one_time',
+          plan: 'teardown',
+          fallbackCents: 19900,
+          log: context.log
+        });
+
+        context.res = { status: 200, body: JSON.stringify({ received: true }) };
+        return;
+      }
+
       const reportId = session.metadata?.reportId;
       const email = session.customer_details?.email;
 

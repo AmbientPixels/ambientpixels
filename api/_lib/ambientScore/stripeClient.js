@@ -51,6 +51,51 @@ async function createCheckoutSession({ reportId, url, email, priceType, utmConte
   };
 }
 
+// ── Create Teardown Checkout ($199 done-for-you) ─────────────────
+// Inline price_data: no pre-created Stripe Price or env var needed. Metadata
+// carries the full intake (url + goal) so the webhook can queue the order
+// without any post-payment form.
+
+const TEARDOWN_PRICE_CENTS = 19900;
+
+async function createTeardownCheckout({ url, email, goal, utmContent, utmSource }) {
+  if (!STRIPE_SECRET_KEY) throw new Error('Stripe is not configured');
+  if (!url) throw new Error('url required');
+
+  const params = new URLSearchParams();
+  params.append('mode', 'payment');
+  params.append('allow_promotion_codes', 'true');
+  params.append('line_items[0][price_data][currency]', 'usd');
+  params.append('line_items[0][price_data][unit_amount]', String(TEARDOWN_PRICE_CENTS));
+  params.append('line_items[0][price_data][product_data][name]', 'AmbientScore Conversion Teardown');
+  params.append('line_items[0][price_data][product_data][description]', 'Done-for-you conversion audit with rewrites. Delivered within 48 hours.');
+  params.append('line_items[0][quantity]', '1');
+  params.append('success_url', SITE_URL + '/ambientscore/teardown-thanks.html?session_id={CHECKOUT_SESSION_ID}');
+  params.append('cancel_url', SITE_URL + '/ambientscore/?cancelled=1');
+  params.append('metadata[teardown]', '1');
+  params.append('metadata[url]', String(url).slice(0, 450));
+  if (goal) params.append('metadata[goal]', String(goal).slice(0, 450));
+  if (email) {
+    params.append('metadata[email]', String(email).slice(0, 200));
+    params.append('customer_email', email);
+  }
+  if (utmContent) params.append('metadata[utm_content]', String(utmContent).slice(0, 120));
+  if (utmSource) params.append('metadata[utm_source]', String(utmSource).slice(0, 50));
+
+  const res = await axios.post(STRIPE_BASE + '/checkout/sessions', params.toString(), {
+    headers: {
+      'Authorization': 'Bearer ' + STRIPE_SECRET_KEY,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    timeout: 15000
+  });
+
+  return {
+    checkoutUrl: res.data.url,
+    sessionId: res.data.id
+  };
+}
+
 // ── Create Offer (coupon + promotion code) ───────────────────────
 // CEO-only path (as-offer-create endpoint). Creates the real pricing artifact:
 // a one-time percent-off coupon plus a customer-facing promotion code with a
@@ -149,4 +194,4 @@ function verifyWebhookSignature(payload, signature) {
   }
 }
 
-module.exports = { createCheckoutSession, createOffer, verifySession, verifyWebhookSignature };
+module.exports = { createCheckoutSession, createTeardownCheckout, createOffer, verifySession, verifyWebhookSignature };

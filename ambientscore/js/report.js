@@ -157,7 +157,7 @@
     html += '<div class="as-upgrade-buttons">';
     html += '<button type="button" class="as-buy-btn" id="as-paywall-buy">Unlock full report . $29' + (lockedCount ? ' (' + lockedCount + ' more findings)' : '') + '</button>';
     html += '</div>';
-    html += '<p class="as-launch-promo">Launch week: 50% off with code <strong>LAUNCH50</strong> on the payment page</p>';
+    html += '<p class="as-td-upsell">Want it done for you? <a href="/ambientscore/#teardown">$199 teardown, delivered in 48 hours.</a></p>';
 
     html += '<div class="as-credits-redeem">';
     html += '<p class="as-credits-divider">Or redeem a pack credit</p>';

@@ -536,6 +536,55 @@
     });
   }
 
+  // ── Teardown commission form ($199 done-for-you) ──────────
+
+  var tdForm = document.getElementById('as-td-form');
+  if (tdForm) {
+    tdForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var tdUrl = document.getElementById('as-td-url').value.trim();
+      var tdEmail = document.getElementById('as-td-email').value.trim();
+      var tdGoal = document.getElementById('as-td-goal').value.trim();
+      var tdBtn = document.getElementById('as-td-submit');
+      var tdStatus = document.getElementById('as-td-status');
+      if (!tdUrl || !tdEmail) return;
+
+      if (window.ProductAnalytics) ProductAnalytics.trackConversion('checkout_started', { priceType: 'teardown', from: 'landing' });
+      tdBtn.disabled = true;
+      tdBtn.textContent = 'Preparing your order.';
+      tdStatus.textContent = '';
+
+      var _attr = (window.ProductAnalytics && ProductAnalytics.getAttribution) ? ProductAnalytics.getAttribution() : { utm_content: '', utm_source: '' };
+      fetch(API + '/as-teardown', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'checkout',
+          url: tdUrl,
+          email: tdEmail,
+          goal: tdGoal,
+          utmContent: _attr.utm_content || '',
+          utmSource: _attr.utm_source || ''
+        })
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (res) {
+          if (res.ok && res.data.checkoutUrl) {
+            window.location.href = res.data.checkoutUrl;
+          } else {
+            tdStatus.textContent = res.data.error || 'Could not start checkout. Please try again.';
+            tdBtn.disabled = false;
+            tdBtn.textContent = 'Commission My Teardown . $199';
+          }
+        })
+        .catch(function () {
+          tdStatus.textContent = 'Network error. Please try again.';
+          tdBtn.disabled = false;
+          tdBtn.textContent = 'Commission My Teardown . $199';
+        });
+    });
+  }
+
   // ── Handle cancelled return from Stripe ────────
 
   if (window.location.search.includes('cancelled=1')) {
