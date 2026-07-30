@@ -235,6 +235,7 @@ function buildEngagementReplyTask(entry, scanCommentText, nowMs) {
   ];
   if (scanCommentText) {
     rules.push('- They asked about the audit: cite ONLY facts from the [SCAN RESULT] comment on this task. If a link belongs in the reply, copy the report link EXACTLY from that comment. Invented or prettified URLs are auto-rejected.');
+    rules.push('- ONLY IF they ask about paid help, deeper analysis, or having the work done for them: you may mention the $199 Conversion Teardown (done for you, five conversion killers with rewrites, delivered within 48 hours) at ambientpixels.ai/ambientscore/#teardown. Never volunteer it otherwise.');
   } else {
     rules.push('- NO links and NO pitch. Do not mention pricing, discounts, or the product unless they asked.');
   }

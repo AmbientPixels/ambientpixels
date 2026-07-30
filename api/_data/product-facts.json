@@ -31,8 +31,9 @@
     "AmbientScore": {
       "launchedAt": "2026-03-07",
       "status": "active",
-      "description": "Website conversion scoring tool that analyzes landing pages for conversion optimization",
+      "description": "Website conversion audit product: free scan with letter grade, paid full report, and a done-for-you Conversion Teardown service",
       "features": ["URL-based scanning", "conversion score rating", "AI-generated recommendations", "scan history"],
+      "pricing": ["free scan: letter grade plus 3 teaser findings, no login", "$29 full report: all findings, headline and CTA rewrites, priority roadmap (3-pack $89)", "$199 Conversion Teardown: done-for-you service with five conversion killers, before/after copy rewrites, and a four week fix order; human-reviewed, delivered within 48 hours, at ambientpixels.ai/ambientscore/#teardown"],
       "notThis": ["it is NOT an SEO tool", "it does NOT track rankings", "it does NOT monitor competitors", "it is NOT an accessibility or WCAG compliance tool"]
     },
     "Blindspot": {
