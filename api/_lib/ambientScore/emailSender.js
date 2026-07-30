@@ -99,6 +99,18 @@ function escapeHtml(str) {
 // ── Teardown emails ($199 done-for-you product) ──────────────────
 // Editorial register: cream paper, ink text, single red accent. No em dashes.
 
+// Derive a plaintext part from the HTML — multipart mail out-delivers
+// HTML-only from young sender domains by a wide margin.
+function htmlToPlainText(html) {
+  return String(html || '')
+    .replace(/<a\s[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, '$2: $1')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&rsaquo;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 async function sendAcsEmail(toEmail, subject, innerHtml) {
   if (!ACS_CONNECTION_STRING) {
     console.warn('[AS Email] ACS_CONNECTION_STRING not configured, skipping email');
@@ -125,7 +137,7 @@ async function sendAcsEmail(toEmail, subject, innerHtml) {
 </html>`;
     const message = {
       senderAddress: process.env.ACS_SENDER_EMAIL || 'DoNotReply@ambientpixels.ai',
-      content: { subject, html: htmlBody },
+      content: { subject, html: htmlBody, plainText: htmlToPlainText(innerHtml) },
       recipients: { to: [{ address: toEmail }] }
     };
     const poller = await client.beginSend(message);
