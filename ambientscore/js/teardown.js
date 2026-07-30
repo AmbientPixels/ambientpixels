@@ -5,9 +5,12 @@
 (function () {
   'use strict';
 
+  // Direct to the Function App on prod — the SWA same-origin /api proxy
+  // 404s GETs to index.html and 405s POSTs (long-standing; all AS frontends
+  // route around it the same way).
   var API = window.location.hostname === 'localhost'
-    ? 'http://localhost:7071/api'
-    : '/api';
+    ? '/api'
+    : 'https://ambientpixels-nova-api.azurewebsites.net/api';
 
   var params = new URLSearchParams(window.location.search);
   var orderId = params.get('id');
