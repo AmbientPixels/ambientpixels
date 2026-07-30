@@ -8,12 +8,14 @@ const path = require('path');
 const fs = require('fs');
 
 const { extractUserInfo } = require('../_utils/cfAuth');
+const { PA_LIMITS } = require('../_lib/stripe/entitlements');
+const gate = require('./entitlementGate');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
-const RATE_LIMIT_ANON = 5;
-const RATE_LIMIT_AUTH = 25; // IP and userId are separate rate limit buckets — logging in resets your allowance
+const RATE_LIMIT_ANON = PA_LIMITS.anonDaily;
+const RATE_LIMIT_AUTH = PA_LIMITS.freeDaily; // free tier; IP and userId are separate buckets — logging in doubles your allowance. Pro/credits enforced below.
 
 // Built-in scaffold agent for Agent Forge prompt generation
 const SCAFFOLD_AGENT = {
@@ -140,38 +142,74 @@ module.exports = async function (context, req) {
       }
     }
 
-    // Rate limiting — per-user (authenticated) or per-IP (anonymous), skip for CEO
+    // Billing + rate limiting — CEO/admin/Pro run unlimited, free tiers get a
+    // daily allowance, purchased credits extend past the free allowance.
     const isCEO = req.headers['x-company-secret'] === 'pixelpusher';
     const { userId, isAuthenticated } = extractUserInfo(req, context);
-    const isAuthed = isCEO || isAuthenticated;
     const clientIP = getClientIP(req);
     const ipHash = hashIP(clientIP);
     const today = todayKey();
-    let rateLimits = {};
-    let userRuns = 0;
+    const cost = agent.rateLimitCost || 1;
     const dailyLimit = isAuthenticated ? RATE_LIMIT_AUTH : RATE_LIMIT_ANON;
 
-    if (!isCEO) {
+    // Entitlement lookup (authenticated only) — fail-open to the free tier so
+    // a billing-storage outage can never take the product down.
+    let isPro = false;
+    let credits = 0;
+    if (!isCEO && isAuthenticated) {
+      if (gate.isAdminUser(userId)) {
+        isPro = true;
+      } else {
+        try {
+          const entRecord = await gate.loadPaEntitlements(userId);
+          isPro = gate.hasFlag(entRecord, 'paUnlimitedRuns');
+          credits = (entRecord && entRecord.paCredits) || 0;
+        } catch (entErr) {
+          context.log.warn('[PixelAgentRun] entitlements lookup failed (fail-open to free tier):', entErr.message);
+        }
+      }
+    }
+    const unlimited = isCEO || isPro;
+
+    let rateLimits = {};
+    let userRuns = 0;
+    let usingCredits = false;
+
+    if (!unlimited) {
       try {
         rateLimits = (await storage.getState('pixelAgentRateLimits')) || {};
       } catch { rateLimits = {}; }
 
-      // IP and userId are separate rate limit buckets — logging in resets your allowance
+      // IP and userId are separate rate limit buckets — logging in doubles your allowance
       const userKey = isAuthenticated ? userId + '_' + today : ipHash + '_' + today;
       userRuns = rateLimits[userKey] || 0;
 
-      const cost = agent.rateLimitCost || 1;
       if (userRuns + cost > dailyLimit) {
-        context.res = {
-          status: 429,
-          headers: corsHeaders,
-          body: {
-            error: 'Daily limit reached',
-            message: 'You\'ve used all ' + dailyLimit + ' runs for today. Come back tomorrow!',
-            remaining: 0
+        if (isAuthenticated && credits >= cost) {
+          usingCredits = true; // paid credits carry the run past the free allowance
+        } else {
+          let message;
+          if (!isAuthenticated) {
+            message = 'You\'ve used all ' + dailyLimit + ' free runs for today. Sign in to get ' + RATE_LIMIT_AUTH + ' free runs a day.';
+          } else if (credits > 0) {
+            message = 'This agent costs ' + cost + ' runs and you have ' + credits + ' credit' + (credits !== 1 ? 's' : '') + ' left. Top up a run pack or go Pro for unlimited runs.';
+          } else {
+            message = 'You\'ve used all ' + dailyLimit + ' free runs for today. Buy a run pack or go Pro for unlimited runs.';
           }
-        };
-        return;
+          context.res = {
+            status: 429,
+            headers: corsHeaders,
+            body: {
+              error: 'Daily limit reached',
+              message: message,
+              remaining: 0,
+              credits: credits,
+              tier: 'free',
+              upgradeUrl: '/pixel-agents/upgrade.html'
+            }
+          };
+          return;
+        }
       }
     }
 
@@ -343,15 +381,25 @@ module.exports = async function (context, req) {
     // Generate run ID
     const runId = 'run-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex');
 
-    // Update rate limit (skip for CEO)
-    if (!isCEO) {
-      const userKey = isAuthenticated ? userId + '_' + today : ipHash + '_' + today;
-      rateLimits[userKey] = userRuns + (agent.rateLimitCost || 1);
-      // Clean old entries (keep only today's)
-      for (const key of Object.keys(rateLimits)) {
-        if (!key.endsWith('_' + today)) delete rateLimits[key];
+    // Post-success accounting — consume a credit or count against the free
+    // allowance. Runs only after Claude succeeded so a 502 never costs anyone.
+    if (!unlimited) {
+      if (usingCredits) {
+        try {
+          credits = await gate.consumePaCredits(userId, cost);
+        } catch (credErr) {
+          context.log.warn('[PixelAgentRun] credit consumption failed (run already delivered):', credErr.message);
+          credits = Math.max(0, credits - cost);
+        }
+      } else {
+        const userKey = isAuthenticated ? userId + '_' + today : ipHash + '_' + today;
+        rateLimits[userKey] = userRuns + cost;
+        // Clean old entries (keep only today's)
+        for (const key of Object.keys(rateLimits)) {
+          if (!key.endsWith('_' + today)) delete rateLimits[key];
+        }
+        storage.setState('pixelAgentRateLimits', rateLimits).catch(() => {});
       }
-      storage.setState('pixelAgentRateLimits', rateLimits).catch(() => {});
     }
 
     // Store run result for share URLs
@@ -422,7 +470,9 @@ module.exports = async function (context, req) {
         raw: rawText,
         runId,
         timestamp: runRecord.timestamp,
-        remaining: isCEO ? 999 : Math.max(0, dailyLimit - userRuns - (agent.rateLimitCost || 1)),
+        remaining: unlimited ? 999 : (usingCredits ? 0 : Math.max(0, dailyLimit - userRuns - cost)),
+        credits: isAuthenticated ? credits : null,
+        tier: unlimited ? 'pro' : 'free',
         shareUrl: '/api/pixel-agent-share?run=' + runId
       }
     };

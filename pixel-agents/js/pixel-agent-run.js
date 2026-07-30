@@ -348,6 +348,11 @@ async function runAgent() {
 
     if (!res.ok) {
       showError(data.message || data.error || 'Something went wrong.');
+      if (res.status === 429) {
+        // Daily limit hit — surface the upgrade path
+        const upsell = document.getElementById('pa-error-upsell');
+        if (upsell) upsell.classList.add('is-visible');
+      }
       return;
     }
 
@@ -357,10 +362,16 @@ async function runAgent() {
     // Funnel: agent_run_completed
     if (window.ProductAnalytics) try { ProductAnalytics.track('agent_run_completed', { agentId: currentAgent.id, runId: data.runId }); } catch (_) {}
 
-    // Update remaining
+    // Update remaining allowance line (Pro = unlimited, credits shown when held)
     const remainEl = document.getElementById('pa-remaining');
-    if (typeof data.remaining === 'number') {
-      remainEl.textContent = data.remaining + ' free run' + (data.remaining !== 1 ? 's' : '') + ' remaining today';
+    if (data.tier === 'pro') {
+      remainEl.textContent = 'Pro — unlimited runs';
+    } else if (typeof data.remaining === 'number') {
+      let line = data.remaining + ' free run' + (data.remaining !== 1 ? 's' : '') + ' remaining today';
+      if (typeof data.credits === 'number' && data.credits > 0) {
+        line += ' · ' + data.credits + ' credit' + (data.credits !== 1 ? 's' : '');
+      }
+      remainEl.textContent = line;
     }
 
     renderResult(data);
@@ -537,6 +548,8 @@ function showError(msg) {
 
   const errEl = document.getElementById('pa-error');
   document.getElementById('pa-error-text').textContent = msg;
+  const upsell = document.getElementById('pa-error-upsell');
+  if (upsell) upsell.classList.remove('is-visible');
   errEl.style.display = '';
 }
 

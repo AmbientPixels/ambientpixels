@@ -76,6 +76,21 @@ const _mockAgents = [
     active: false,
     systemPrompt: 'Should not be accessible',
     userPromptTemplate: '{{input}}'
+  },
+  {
+    id: 'expensive-agent',
+    name: 'Expensive Agent',
+    active: true,
+    inputType: 'textarea',
+    inputValidation: 'text',
+    systemPrompt: 'You cost 2 runs.',
+    userPromptTemplate: 'Do: {{input}}',
+    outputFormat: 'structured',
+    outputSections: [{ key: 'result', label: 'Result', type: 'text' }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 1000 },
+    tier: 'epic',
+    icon: 'fas fa-gem',
+    rateLimitCost: 2
   }
 ];
 
@@ -85,6 +100,23 @@ require('fs').readFileSync = function(filePath, encoding) {
   }
   return _origReadFileSync(filePath, encoding);
 };
+
+// Mock entitlement gate (billing) — default: no record (free tier).
+// index.js holds the same module object, so property overrides take effect.
+const gateModule = require('./entitlementGate');
+var _mockEntitlements = {};
+var _consumeCalls = [];
+function mockGateDefaults() {
+  gateModule.loadPaEntitlements = async (userId) => _mockEntitlements[userId] || null;
+  gateModule.consumePaCredits = async (userId, cost) => {
+    _consumeCalls.push({ userId, cost });
+    const r = _mockEntitlements[userId];
+    if (!r) return 0;
+    r.paCredits = Math.max(0, (r.paCredits || 0) - cost);
+    return r.paCredits;
+  };
+}
+mockGateDefaults();
 
 // Set mock API key
 process.env.ANTHROPIC_API_KEY = 'test-key-mock';
@@ -146,6 +178,9 @@ async function asyncTest(name, fn) {
 function resetMocks() {
   _mockStorage = {};
   _mockFetchCalls = [];
+  _mockEntitlements = {};
+  _consumeCalls = [];
+  mockGateDefaults();
   _mockFetchResponse = {
     ok: true,
     status: 200,
@@ -295,6 +330,88 @@ async function runSmokeTests() {
       headers: { 'Content-Type': 'application/json', 'x-forwarded-for': '5.6.7.8' }
     }));
     assert.strictEqual(ctx.res.status, 200);
+  });
+
+  // ── Billing Enforcement ──
+  function authHeaders(userId) {
+    const principal = Buffer.from(JSON.stringify({ userId: userId, claims: [] })).toString('base64');
+    return { 'Content-Type': 'application/json', 'x-cf-auth-principal': principal, 'x-forwarded-for': '9.9.9.9' };
+  }
+  const _today = new Date().toISOString().split('T')[0];
+
+  await asyncTest('Authed free tier: run succeeds with tier/credits fields', async function() {
+    resetMocks();
+    var ctx = mockContext();
+    await handler(ctx, mockReq({ headers: authHeaders('user-free') }));
+    assert.strictEqual(ctx.res.status, 200);
+    assert.strictEqual(ctx.res.body.tier, 'free');
+    assert.strictEqual(ctx.res.body.credits, 0);
+    assert.strictEqual(ctx.res.body.remaining, 9);
+  });
+
+  await asyncTest('Authed free tier: 429 at 10-run limit with upsell fields', async function() {
+    resetMocks();
+    _mockStorage.pixelAgentRateLimits = {};
+    _mockStorage.pixelAgentRateLimits['user-free_' + _today] = 10;
+    var ctx = mockContext();
+    await handler(ctx, mockReq({ headers: authHeaders('user-free') }));
+    assert.strictEqual(ctx.res.status, 429);
+    assert.strictEqual(ctx.res.body.credits, 0);
+    assert.strictEqual(ctx.res.body.tier, 'free');
+    assert.ok(ctx.res.body.upgradeUrl.includes('upgrade'));
+    assert.ok(ctx.res.body.message.includes('Pro'));
+  });
+
+  await asyncTest('Credits extend past the free allowance and are consumed on success', async function() {
+    resetMocks();
+    _mockStorage.pixelAgentRateLimits = {};
+    _mockStorage.pixelAgentRateLimits['user-credit_' + _today] = 10;
+    _mockEntitlements['user-credit'] = { userId: 'user-credit', tier: 'free', subscriptionStatus: null, flags: {}, purchases: [], paCredits: 3 };
+    var ctx = mockContext();
+    await handler(ctx, mockReq({ headers: authHeaders('user-credit') }));
+    assert.strictEqual(ctx.res.status, 200);
+    assert.strictEqual(ctx.res.body.remaining, 0);
+    assert.strictEqual(ctx.res.body.credits, 2);
+    assert.strictEqual(_consumeCalls.length, 1);
+    assert.strictEqual(_consumeCalls[0].cost, 1);
+    // free-allowance counter untouched while running on credits
+    assert.strictEqual(_mockStorage.pixelAgentRateLimits['user-credit_' + _today], 10);
+  });
+
+  await asyncTest('Insufficient credits for a cost-2 agent returns 429', async function() {
+    resetMocks();
+    _mockStorage.pixelAgentRateLimits = {};
+    _mockStorage.pixelAgentRateLimits['user-short_' + _today] = 10;
+    _mockEntitlements['user-short'] = { userId: 'user-short', tier: 'free', subscriptionStatus: null, flags: {}, purchases: [], paCredits: 1 };
+    var ctx = mockContext();
+    await handler(ctx, mockReq({ headers: authHeaders('user-short'), body: { agentId: 'expensive-agent', input: 'test' } }));
+    assert.strictEqual(ctx.res.status, 429);
+    assert.ok(ctx.res.body.message.includes('costs 2 runs'));
+    assert.strictEqual(_consumeCalls.length, 0);
+  });
+
+  await asyncTest('Pro subscriber runs past the daily limit without rate-limit writes', async function() {
+    resetMocks();
+    _mockStorage.pixelAgentRateLimits = {};
+    _mockStorage.pixelAgentRateLimits['user-pro_' + _today] = 50;
+    _mockEntitlements['user-pro'] = { userId: 'user-pro', tier: 'pro', subscriptionStatus: 'active', flags: {}, purchases: [] };
+    var ctx = mockContext();
+    await handler(ctx, mockReq({ headers: authHeaders('user-pro') }));
+    assert.strictEqual(ctx.res.status, 200);
+    assert.strictEqual(ctx.res.body.tier, 'pro');
+    assert.strictEqual(ctx.res.body.remaining, 999);
+    assert.strictEqual(_mockStorage.pixelAgentRateLimits['user-pro_' + _today], 50);
+    assert.strictEqual(_consumeCalls.length, 0);
+  });
+
+  await asyncTest('Entitlements lookup failure fails open to free tier', async function() {
+    resetMocks();
+    gateModule.loadPaEntitlements = async function() { throw new Error('blob down'); };
+    var ctx = mockContext();
+    await handler(ctx, mockReq({ headers: authHeaders('user-outage') }));
+    assert.strictEqual(ctx.res.status, 200);
+    assert.strictEqual(ctx.res.body.tier, 'free');
+    assert.strictEqual(ctx.res.body.remaining, 9);
   });
 
   // ── Response Shape ──

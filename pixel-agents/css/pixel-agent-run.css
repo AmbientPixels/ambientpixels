@@ -348,6 +348,16 @@
   color: var(--pa-text);
 }
 
+/* Upgrade CTA — revealed only on 429 daily-limit errors via .is-visible */
+.pa-run-error .pa-error-upsell {
+  display: none;
+}
+
+.pa-run-error .pa-error-upsell.is-visible {
+  display: inline-flex;
+  margin-left: 0.75rem;
+}
+
 /* ── Result ── */
 .pa-run-result {
   margin-top: 1rem;

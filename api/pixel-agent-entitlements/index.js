@@ -1,7 +1,7 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { extractUserInfo } = require('../_utils/cfAuth');
-const { loadEntitlements, toClientSafe, hasFlag, isAdminUser } = require('../_lib/stripe/entitlements');
+const { loadEntitlements, toClientSafe, hasFlag, isAdminUser, PA_LIMITS } = require('../_lib/stripe/entitlements');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
@@ -20,12 +20,12 @@ const FREE_DEFAULTS = {
   paUnlimitedRuns: false,
   paPriorityQueue: false,
   paEarlyAccess: false,
-  dailyLimit: 3,
+  dailyLimit: PA_LIMITS.freeDaily,
   credits: 0
 };
 
 const PRO_VALUES = {
-  dailyLimit: 999
+  dailyLimit: PA_LIMITS.proDaily
 };
 
 function toPixelAgentsResponse(record) {

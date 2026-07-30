@@ -5,6 +5,14 @@ const { getProduct } = require('./productCatalog');
 
 const PRO_FLAGS = ['hdExport', 'premiumEffects', 'extraCardSlots', 'sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves', 'paUnlimitedRuns', 'paPriorityQueue', 'paEarlyAccess'];
 
+// Pixel Agents run-allowance policy — single source of truth, consumed by
+// pixel-agent-run (enforcement) and pixel-agent-entitlements (display).
+const PA_LIMITS = {
+  anonDaily: 5,    // per IP hash
+  freeDaily: 10,   // per authenticated userId; credits extend past this
+  proDaily: 999    // display value only — Pro skips rate limiting entirely
+};
+
 // Admin user IDs that always get Pro entitlements (for dev/testing)
 const ADMIN_USER_IDS = (process.env.ENTITLEMENTS_ADMIN_IDS || '').split(',').filter(Boolean);
 
@@ -182,5 +190,6 @@ module.exports = {
   deactivateSubscription,
   markSubscriptionAtRisk,
   isAdminUser,
-  PRO_FLAGS
+  PRO_FLAGS,
+  PA_LIMITS
 };
