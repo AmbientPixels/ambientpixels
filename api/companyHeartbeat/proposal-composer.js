@@ -77,8 +77,28 @@ function _validPlatforms(arr) {
   return v.length ? v.slice(0, 5) : ['social_bluesky'];
 }
 
+// Recent CEO proposal decisions (last 7d) — so a new proposal can't contradict a
+// fresh CEO call without knowing it exists (Echo proposed abandoning LinkedIn 6h
+// after the CEO approved+protected a LinkedIn campaign, 2026-07-29).
+var DECISION_LOOKBACK_MS = 7 * 24 * 60 * 60 * 1000;
+function _recentDecisions(state, nowMs) {
+  return (_arr(state.approvalQueue) || []).filter(function (q) {
+    if (!q || (q.type !== 'campaign_proposal' && q.type !== 'objective_proposal')) return false;
+    if (q.status !== 'approved' && q.status !== 'rejected') return false;
+    var t = Date.parse(q.approvedAt || q.rejectedAt || q.resolvedAt || q.updatedAt || q.createdAt || '');
+    return Number.isFinite(t) && (nowMs - t) < DECISION_LOOKBACK_MS;
+  }).slice(-8).map(function (q) {
+    return {
+      kind: q.type === 'campaign_proposal' ? 'campaign' : 'objective',
+      name: q.name || q.title || '',
+      decision: q.status,
+      note: (q.rejectionNote || q.ceoNote || '').slice(0, 200) || null
+    };
+  });
+}
+
 // Build the focused grounding packet the model reasons over.
-function buildGrounding(signal, state) {
+function buildGrounding(signal, state, nowMs) {
   state = state || {};
   var objectives = _arr(state.objectives) || [];
   var campaigns = _arr(state.campaigns) || [];
@@ -91,7 +111,8 @@ function buildGrounding(signal, state) {
       .map(function (o) { return { title: o.title || '', northStarMetric: o.northStarMetric || null, progress: Number(o.progress) || 0 }; }),
     activeCampaigns: campaigns.filter(function (c) { return c && c.status === 'active'; })
       .map(function (c) { return { name: c.name || c.title || '', product: c.product || null, cadence: c.cadence || null }; }),
-    products: perProduct.filter(function (p) { return p; }).map(function (p) { return { product: p.product, verdict: p.verdict, deltaPct: (p.traffic && p.traffic.deltaPct) }; })
+    products: perProduct.filter(function (p) { return p; }).map(function (p) { return { product: p.product, verdict: p.verdict, deltaPct: (p.traffic && p.traffic.deltaPct) }; }),
+    recentDecisions: _recentDecisions(state, nowMs || Date.now())
   };
 }
 
@@ -122,6 +143,10 @@ function buildPrompt(signal, grounding, nowMs) {
   lines.push('- Product verdicts: ' + JSON.stringify(g.products));
   lines.push('- Metrics you may anchor on (metric: current baseline): ' + JSON.stringify(g.baselines));
   lines.push('- Real product names (only these may be named): ' + JSON.stringify(g.productNames));
+  if (g.recentDecisions && g.recentDecisions.length) {
+    lines.push('- Recent CEO decisions (last 7d): ' + JSON.stringify(g.recentDecisions));
+    lines.push('CONSISTENCY RULE: active campaigns and the decisions above are current CEO-endorsed strategy. Do NOT propose work that contradicts or duplicates them unless your rationale NAMES the campaign/decision and justifies the change with data newer than that decision. A rejected item above must not be re-proposed in different words.');
+  }
   lines.push('');
   lines.push('The company north star is paying customers. Prefer a move that advances revenue when the data supports it.');
   lines.push('');

@@ -184,8 +184,26 @@ function _buildProposalPromptBlock(agent, approvalQueue) {
         return (q.type === 'campaign_proposal' ? 'campaign "' : 'objective "') + (q.name || q.title || 'untitled') + '"';
       }).join(', ') + '.\n'
     : '';
+  // Decision-awareness: Echo proposed abandoning LinkedIn 6h after the CEO
+  // approved+protected a LinkedIn campaign (2026-07-29) — agents never saw
+  // recent CEO calls, so nothing stopped a same-day strategy contradiction.
+  var _decCutoff = Date.now() - 7 * 86400000;
+  var _recentDecided = _aq.filter(function (q) {
+    if (!q || (q.type !== 'campaign_proposal' && q.type !== 'objective_proposal')) return false;
+    if (q.status !== 'approved' && q.status !== 'rejected') return false;
+    var t = Date.parse(q.approvedAt || q.rejectedAt || q.resolvedAt || q.updatedAt || q.createdAt || '');
+    return Number.isFinite(t) && t > _decCutoff;
+  }).slice(-6);
+  var decisionsLine = _recentDecided.length
+    ? 'RECENT CEO DECISIONS (last 7d — current strategy, do NOT contradict or re-propose): ' + _recentDecided.map(function (q) {
+        var note = String(q.rejectionNote || q.ceoNote || '').trim();
+        return 'CEO ' + q.status + ' ' + (q.type === 'campaign_proposal' ? 'campaign' : 'objective') + ' "' + (q.name || q.title || 'untitled') + '"' + (note ? ' — "' + note.slice(0, 150) + '"' : '');
+      }).join('; ') + '.\n' +
+      'If your proposal pivots away from, duplicates, or conflicts with an ACTIVE campaign or a decision above, do not propose it — unless your rationale NAMES it and justifies the change with data newer than that decision.\n'
+    : '';
   return '\n\nPROPOSE NEW WORK (optional, only when warranted):\n' +
     pendingLine +
+    decisionsLine +
     'You may propose a ' + g.kinds + ' when ONE of these data triggers is true RIGHT NOW. ' +
     'Do not propose otherwise. Cite the specific number/signal in rationale.\n' +
     'Your valid triggers: ' + g.triggers + '.\n' +

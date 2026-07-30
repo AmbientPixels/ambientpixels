@@ -668,7 +668,7 @@ async function runProposalGenerator(opts) {
         var proposal = null;
         var composedBy = 'deterministic';
         if (callModel) {
-          var grounding = composer.buildGrounding(sig, state);
+          var grounding = composer.buildGrounding(sig, state, nowMs);
           var composed = await composer.compose(sig, grounding, callModel, nowMs);
           if (composed && composed.proposal) { proposal = composed.proposal; composedBy = 'llm'; }
           else { log('[proposalGenerator] compose skipped (' + (composed && composed.reason) + ') — using deterministic fallback for ' + sig.kind); }
