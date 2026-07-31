@@ -566,6 +566,34 @@ testAsync('retirement drafts skip roles exempted from the ladder', async () => {
     'but no retirement is drafted for a ladder-exempt support role');
 });
 
+test('a mid-month reallocation never puts an agent retroactively over cap', () => {
+  // Caps are MONTHLY but recomputed hourly from a 14-day window and compared against
+  // month-to-date spend. Without a floor at spend, the first real sale drops the
+  // non-earners' caps below what they already spent and flips them RED — which blocks
+  // campaign proposals and trips the budget-panic loop, on money already spent.
+  // Exact live scenario from 2026-07-31: two $199 teardown sales paid echo+scribe,
+  // and 7 of 9 agents flipped RED because their new caps fell under month-to-date spend.
+  const base = { nova: 20, cipher: 10, pixel: 10, forge: 11, scribe: 16, quill: 10, echo: 16, scout: 10, vale: 7 };
+  const spent = { nova: 8.72, cipher: 5.62, pixel: 7.13, forge: 6.29, scribe: 7.17, quill: 5.41, echo: 8.41, scout: 7.07, vale: 5.51 };
+  const per = {};
+  Object.keys(base).forEach(id => { per[id] = mkA(0); });
+  [['echo', 168], ['scribe', 148]].forEach(([id, xp]) => {
+    per[id].revenueRecent = [{ at: new Date(AUG - 86400000).toISOString(), xp: xp }];
+  });
+  const ids = Object.keys(base);
+  const plan = computeBudgetPlan(mkLedger('2026-08', per, { par: 40 }), {
+    poolDollars: 110, activeIds: ids, baselineCaps: base, spentByAgent: spent, nowMs: AUG
+  });
+  ids.forEach(id => {
+    assert.ok(plan.perAgent[id] >= spent[id],
+      id + ' cap ($' + plan.perAgent[id] + ') must not fall under its $' + spent[id] + ' already spent');
+    // and not merely equal to it — a frozen agent is barely better than a RED one
+    const headroom = (plan.perAgent[id] - spent[id]) / plan.perAgent[id];
+    assert.ok(headroom > 0.30, id + ' keeps working headroom (got ' + (headroom * 100).toFixed(0) + '%)');
+  });
+  assert.ok(plan.perAgent.echo > base.echo, 'the earners still gain (echo $' + plan.perAgent.echo + ')');
+});
+
 test('merit budget needs a minimum signal before it reallocates', () => {
   const led = mkLedger('2026-08', {
     nova: mkA(0), scribe: mkA(0),

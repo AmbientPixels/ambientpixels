@@ -68,6 +68,9 @@ const PROBATION_RANKS = 2;     // bottom-2 = probation (only when fleet >= 6)
 // Below it, one stray point of signal — a single anonymous scan credited by fallback —
 // would hand one agent the entire merit pool and flip everyone else over cap mid-month.
 const MERIT_MIN_SIGNAL = 30;
+// A mid-month reallocation floors each cap at spend × this, so a constrained agent still
+// has room to work rather than being frozen at exactly what it already spent.
+const SPEND_FLOOR_HEADROOM = 1.5;
 const MERIT_FLOOR_PCT = 0.4;
 const MERIT_PCT = 0.6;
 const SQUEEZE_CAP_MULT = 0.7;
@@ -691,6 +694,27 @@ function computeBudgetPlan(rewards, opts) {
   // below poolDollars in those cases. Consumers must not assume exact-sum.
   if (freed > 0 && champion && perAgent[champion] != null && !championSqueezed) perAgent[champion] += freed;
 
+  // Caps are MONTHLY but this plan is recomputed continuously from a 14-day window, while
+  // allocation-intel compares each cap to MONTH-TO-DATE spend. Without this floor the first
+  // real sale drops every non-earner's cap below money they already spent and flips them
+  // RED — which blocks campaign proposals and trips the budget-panic loop, retroactively,
+  // for spending that was legitimate when it happened. A reallocation may take away future
+  // headroom; it must never make the past a violation. The plan can exceed the pool while
+  // floors bind — that is the honest trade, and it resets next month.
+  // Floor at spend PLUS working headroom — a cap equal to money already spent leaves an
+  // agent frozen (YELLOW with nothing left) rather than merely constrained. At month start
+  // spend is ~0 so this is a no-op and the plan is exactly the merit split.
+  var spentBy = opts.spentByAgent || null;
+  if (spentBy) {
+    ids.forEach(function (id) {
+      var s = Number(spentBy[id]);
+      if (Number.isFinite(s) && s > 0) {
+        var floorWithHeadroom = _round2(s * SPEND_FLOOR_HEADROOM);
+        if (floorWithHeadroom > perAgent[id]) perAgent[id] = floorWithHeadroom;
+      }
+    });
+  }
+
   ids.forEach(function (id) { perAgent[id] = _round2(perAgent[id]); });
   return { enabled: true, perAgent: perAgent, poolDollars: pool, trailing: trail, computedAt: _iso(nowMs) };
 }
@@ -801,7 +825,8 @@ async function runRewardsEngine(opts) {
       storage.getState('actionAttributionIndex').then(function (v) { return (v && v.map) ? v.map : {}; }),
       storage.getState('campaigns').then(function (v) { return v || []; }),
       storage.getState('systemConfig').then(function (v) { return v || {}; }),
-      storage.getState('agentRegistry').then(function (v) { return v || null; })
+      storage.getState('agentRegistry').then(function (v) { return v || null; }),
+      storage.getState('capitalAllocation').then(function (v) { return v || null; })
     ]);
     var cfg = normalizeRewardsConfig(loaded[15]);
     var registry = loaded[16];
@@ -864,9 +889,20 @@ async function runRewardsEngine(opts) {
           if (a && a.id && Number.isFinite(Number(a.monthlyCap))) baselineCaps[a.id] = Number(a.monthlyCap);
         });
       }
+      // Month-to-date spend floors each cap so a mid-month reallocation can never make
+      // already-spent money a violation (see computeBudgetPlan).
+      var spentByAgent = {};
+      var _alloc = loaded[17];
+      if (_alloc && _alloc.perAgent) {
+        Object.keys(_alloc.perAgent).forEach(function (id) {
+          var s = Number(_alloc.perAgent[id] && _alloc.perAgent[id].spent);
+          if (Number.isFinite(s) && s > 0) spentByAgent[id] = s;
+        });
+      }
       rewards.budgetPlan = computeBudgetPlan(rewards, {
         poolDollars: pool, floorPct: cfg.meritBudget.floorPct, meritPct: cfg.meritBudget.meritPct,
-        squeezeMult: cfg.squeezeMult, activeIds: activeIds, baselineCaps: baselineCaps, nowMs: nowMs
+        squeezeMult: cfg.squeezeMult, activeIds: activeIds, baselineCaps: baselineCaps,
+        spentByAgent: spentByAgent, nowMs: nowMs
       });
     } else {
       rewards.budgetPlan = { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
