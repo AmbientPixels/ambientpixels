@@ -890,7 +890,6 @@ Where relevant to your content tasks, weave in references to these trends to inc
 
     var _pxActiveCamps = (activeDirectives || []).filter(function (c) { return c.status === 'active'; });
     var _piLines = ['\n\nPRODUCT VISUAL IDENTITY & ASSET STATUS:'];
-    var _gapLines = [];
 
     Object.keys(_pxProductMap).forEach(function (prod) {
       var pm = _pxProductMap[prod];
@@ -912,8 +911,7 @@ Where relevant to your content tasks, weave in references to these trends to inc
           var doneTasks = designTasks.filter(function (t) { return t.status === 'done'; }).length;
           var totalTasks = designTasks.length;
           if (totalTasks === 0) {
-            _piLines.push('  Campaign: "' + (c.title || '').substring(0, 35) + '" — 0 design tasks NEEDS ASSETS');
-            _gapLines.push({ campaign: (c.title || '').substring(0, 40), views: views });
+            _piLines.push('  Campaign: "' + (c.title || '').substring(0, 35) + '" — 0 design tasks');
           } else {
             _piLines.push('  Campaign: "' + (c.title || '').substring(0, 35) + '" — ' + doneTasks + '/' + totalTasks + ' design tasks');
           }
@@ -922,32 +920,17 @@ Where relevant to your content tasks, weave in references to these trends to inc
         _piLines.push('  No active campaign');
       }
     });
-    _piLines.push('Products with campaigns and 0 design tasks need your attention.');
     pixelProductVisualSection = _piLines.join('\n');
 
-    // 4. Design Gaps — campaigns missing visual assets.
-    // The gap check counts TASKS only, so a content.package sitting in the approval
-    // queue never closed a gap — the nag re-fired hourly and Pixel generated a paid
-    // package every cycle (17 pending by 2026-07-25). While any of Pixel's packages
-    // await the CEO, suppress the nag instead of prompting for more.
-    if (_gapLines.length > 0) {
-      var _pxPendingPkgs = (Array.isArray(approvalQueue) ? approvalQueue : []).filter(function (q) {
-        return (q.kind === 'content.package' || q.type === 'content.package') &&
-          q.status === 'pending' && q.createdBy === 'pixel';
-      }).length;
-      if (_pxPendingPkgs > 0) {
-        pixelDesignGapsSection = '\n\nDESIGN GAPS: ' + _gapLines.length + ' campaign(s) lack visual assets, but you already have ' +
-          _pxPendingPkgs + ' content package(s) awaiting CEO approval. Do NOT create more packages or design tasks for these gaps — the server will block them. Spend this cycle on hero images, reviews, or task execution instead.';
-      } else {
-        _gapLines.sort(function (a, b) { return (b.views || 0) - (a.views || 0); });
-        var _dgLines = ['\n\nDESIGN GAPS (campaigns without visual support):'];
-        _gapLines.forEach(function (g) {
-          _dgLines.push('- "' + g.campaign + '"' + (g.views > 0 ? ' — ' + g.views + ' page views/7d' : '') + (g.views > 200 ? ' — HIGH PRIORITY' : ''));
-        });
-        _dgLines.push('Propose design tasks (create-content-package with campaign_id) for these gaps. At most ONE of your content packages may await CEO approval at a time.');
-        pixelDesignGapsSection = _dgLines.join('\n');
-      }
-    }
+    // DESIGN GAPS nag REMOVED (2026-07-31, CEO decision). It prompted Pixel to fill
+    // every campaign-without-design-tasks "gap" via create-content-package — but a
+    // package is not a task, so the gap never read as filled and a new paid package
+    // followed every CEO decision (flood: 17 pending by 07-25; then capped to one
+    // pending by the content_package_pending gate; now: no proactive prompting at
+    // all). Nothing downstream consumed the images — zero social actions ever
+    // attached media. create-content-package itself remains available for explicit
+    // design_asset tasks; blog heroes (generate-image blog_header) are unaffected.
+    // pixelDesignGapsSection stays '' — declaration + prompt assembly untouched.
   }
 
   // ── Scribe Content Intelligence (5 blocks) ──
