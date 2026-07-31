@@ -498,12 +498,18 @@ function rolloverSeason(prev, nowMs, opts) {
   var par = (r.seasonMeta && Number.isFinite(r.seasonMeta.par)) ? r.seasonMeta.par : null;
   var fleet = activeIds.filter(function (id) { return r.perAgent[id]; });
   var ranked = fleet.map(function (id) { return { id: id, sx: r.perAgent[id].seasonXp || 0 }; })
-    .sort(function (a, b) { return b.sx - a.sx; });
+    .sort(function (a, b) { return (b.sx - a.sx) || (a.id < b.id ? -1 : 1); });
   var transitions = [];
+
+  var prevParts = String(prev.season).split('-');
+  var monthsSkipped = Math.max(0,
+    (Number(nowMonth.slice(0, 4)) - Number(prevParts[0])) * 12 +
+    (Number(nowMonth.slice(5, 7)) - Number(prevParts[1])) - 1);
 
   ranked.forEach(function (row, i) {
     var A = r.perAgent[row.id];
     var belowPar = par != null && row.sx < par;
+    // Deliberate: a multi-month engine outage = ONE rollover, ONE miss — misses measure agent performance, not cron uptime.
     if (par != null) A.parMisses = belowPar ? (A.parMisses || 0) + 1 : 0;
     else A.parMisses = A.parMisses || 0;
     var from = A.ladderStatus || 'safe';
@@ -516,6 +522,14 @@ function rolloverSeason(prev, nowMs, opts) {
     A.seasonRevenueXp = 0;
   });
 
+  var inFleet = {};
+  fleet.forEach(function (id) { inFleet[id] = true; });
+  Object.keys(r.perAgent).forEach(function (id) {
+    if (inFleet[id]) return;
+    r.perAgent[id].seasonXp = 0;
+    r.perAgent[id].seasonRevenueXp = 0;
+  });
+
   var tiers = {};
   ranked.forEach(function (row, i) {
     var probation = fleet.length >= 6 && i >= ranked.length - PROBATION_RANKS;
@@ -523,7 +537,7 @@ function rolloverSeason(prev, nowMs, opts) {
   });
 
   var nextPar = Math.max(parFloor, Math.round(SEASON_PAR_GROWTH * _median(ranked.map(function (x) { return x.sx; }))));
-  r.seasonMeta = { par: nextPar, startedAt: _iso(nowMs), previousChampion: ranked.length ? ranked[0].id : null };
+  r.seasonMeta = { par: nextPar, startedAt: _iso(nowMs), previousChampion: ranked.length ? ranked[0].id : null, monthsSkipped: monthsSkipped };
   r.privileges = { enabled: true, season: nowMonth, tiers: tiers };
   r.season = nowMonth;
   return { rewards: r, rolled: true, transitions: transitions };

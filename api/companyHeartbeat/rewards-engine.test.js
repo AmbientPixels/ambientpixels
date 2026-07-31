@@ -431,22 +431,27 @@ test('rollover archives standings, resets season XP, sets scaled par', () => {
 });
 
 test('par misses escalate the ladder: watch -> squeezed -> retirement_pending', () => {
-  const below = { par: 40 };
-  let prev = mkLedger('2026-07', { echo: mkA(100), scribe: mkA(90), nova: mkA(80), quill: mkA(70), pixel: mkA(5) }, below);
-  let r = rolloverSeason(prev, AUG, { activeIds: IDS5, parFloor: 40 });
-  assert.strictEqual(r.rewards.perAgent.pixel.parMisses, 1);
-  assert.strictEqual(r.rewards.perAgent.pixel.ladderStatus, 'watch');
-  // simulate two more below-par seasons
-  r.rewards.perAgent.pixel.parMisses = 2;
-  r.rewards.perAgent.pixel.ladderStatus = 'squeezed';
-  r.rewards.season = '2026-08';
-  r.rewards.perAgent.pixel.seasonXp = 0;
+  // pixel stays at seasonXp 0 (always below par) across three real rollovers;
+  // the other four earn 100 each month so they never miss par.
+  const prev = mkLedger('2026-07', { echo: mkA(100), scribe: mkA(90), nova: mkA(80), quill: mkA(70), pixel: mkA(0) }, { par: 40 });
+  const r1 = rolloverSeason(prev, AUG, { activeIds: IDS5, parFloor: 40 });
+  assert.strictEqual(r1.rewards.perAgent.pixel.parMisses, 1);
+  assert.strictEqual(r1.rewards.perAgent.pixel.ladderStatus, 'watch');
+  assert.ok(!r1.transitions.some(t => t.agentId === 'pixel' && t.to === 'retirement_pending'));
+
+  ['echo', 'scribe', 'nova', 'quill'].forEach(id => { r1.rewards.perAgent[id].seasonXp = 100; });
   const SEP = Date.UTC(2026, 8, 1, 1, 0, 0);
-  ['echo', 'scribe', 'nova', 'quill'].forEach(id => { r.rewards.perAgent[id].seasonXp = 100; });
-  const r2 = rolloverSeason(r.rewards, SEP, { activeIds: IDS5, parFloor: 40 });
-  assert.strictEqual(r2.rewards.perAgent.pixel.parMisses, 3);
-  assert.strictEqual(r2.rewards.perAgent.pixel.ladderStatus, 'retirement_pending');
-  assert.ok(r2.transitions.some(t => t.agentId === 'pixel' && t.to === 'retirement_pending'), 'transition reported');
+  const r2 = rolloverSeason(r1.rewards, SEP, { activeIds: IDS5, parFloor: 40 });
+  assert.strictEqual(r2.rewards.perAgent.pixel.parMisses, 2);
+  assert.strictEqual(r2.rewards.perAgent.pixel.ladderStatus, 'squeezed');
+  assert.ok(!r2.transitions.some(t => t.agentId === 'pixel' && t.to === 'retirement_pending'));
+
+  ['echo', 'scribe', 'nova', 'quill'].forEach(id => { r2.rewards.perAgent[id].seasonXp = 100; });
+  const OCT = Date.UTC(2026, 9, 1, 1, 0, 0);
+  const r3 = rolloverSeason(r2.rewards, OCT, { activeIds: IDS5, parFloor: 40 });
+  assert.strictEqual(r3.rewards.perAgent.pixel.parMisses, 3);
+  assert.strictEqual(r3.rewards.perAgent.pixel.ladderStatus, 'retirement_pending');
+  assert.ok(r3.transitions.some(t => t.agentId === 'pixel' && t.to === 'retirement_pending'), 'transition reported only on the third rollover');
 });
 
 test('at-or-above-par season resets misses; privilege tiers derive from final ranks', () => {
@@ -485,6 +490,32 @@ test('no rollover mid-season; bootstrap ledger without seasonMeta counts no miss
   const rb = rolloverSeason(boot, AUG, { activeIds: ['echo', 'scribe'], parFloor: 40 });
   assert.strictEqual(rb.rewards.perAgent.echo.parMisses, 0, 'no par existed -> no miss');
   assert.strictEqual(rb.rewards.seasonMeta.par, 40, 'par floors at 40');
+});
+
+test('non-fleet perAgent entries (e.g. ceo) get season accumulators reset on rollover', () => {
+  const prev = mkLedger('2026-07', { echo: mkA(100), scribe: mkA(80) }, { par: 40 });
+  prev.perAgent.ceo = mkA(9999);
+  const r = rolloverSeason(prev, AUG, { activeIds: ['echo', 'scribe'], parFloor: 40 });
+  assert.strictEqual(r.rewards.perAgent.ceo.seasonXp, 0, 'non-fleet seasonXp reset');
+  assert.strictEqual(r.rewards.perAgent.ceo.seasonHistory.length, 0, 'but no history/rank for non-fleet');
+});
+
+test('ranking ties break alphabetically by id, independent of activeIds order', () => {
+  const per = { nova: mkA(50), echo: mkA(50), scribe: mkA(50) };
+  const r1 = rolloverSeason(mkLedger('2026-07', JSON.parse(JSON.stringify(per)), { par: 40 }), AUG, { activeIds: ['nova', 'scribe', 'echo'], parFloor: 40 });
+  const r2 = rolloverSeason(mkLedger('2026-07', JSON.parse(JSON.stringify(per)), { par: 40 }), AUG, { activeIds: ['echo', 'scribe', 'nova'], parFloor: 40 });
+  assert.strictEqual(r1.rewards.seasonMeta.previousChampion, 'echo');
+  assert.strictEqual(r2.rewards.seasonMeta.previousChampion, 'echo', 'champion stable across input orders');
+  assert.deepStrictEqual(r1.rewards.privileges.tiers, r2.rewards.privileges.tiers, 'tiers stable across input orders');
+});
+
+test('multi-month gap = one rollover, one miss, gap recorded', () => {
+  const prev = mkLedger('2026-07', { echo: mkA(100), scribe: mkA(5) }, { par: 40 });
+  const NOV = Date.UTC(2026, 10, 1, 1, 0, 0);
+  const r = rolloverSeason(prev, NOV, { activeIds: ['echo', 'scribe'], parFloor: 40 });
+  assert.strictEqual(r.rewards.season, '2026-11');
+  assert.strictEqual(r.rewards.perAgent.scribe.parMisses, 1, 'one miss despite 3-month gap (deliberate)');
+  assert.strictEqual(r.rewards.seasonMeta.monthsSkipped, 3, 'gap recorded honestly');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
