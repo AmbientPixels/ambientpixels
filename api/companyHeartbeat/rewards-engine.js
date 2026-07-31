@@ -47,6 +47,10 @@ const FALLBACK_WINDOW_MS = 30 * 86400000;
 const REVENUE_XP = { saleBase: 100, perDollar: 1, lead: 15, scan: 3 };
 const UNATTRIBUTED_SHARE = 0.5;   // organic conversions: half pays the fallback set
 const POSITIVE_SALE_TYPES = { one_time: true, subscription_initial: true, subscription_renewal: true };
+const CAP_EXEMPT_TYPES = { revenue_sale: true, funnel_lead: true };
+const TASK_DONE_DAILY_XP_CAP = 3;
+const REVENUE_LANE_TYPES = { revenue_sale: true, funnel_lead: true, funnel_scan: true };
+const REVENUE_RECENT_CAP = 300;
 
 const RANKS = [
   { min: 50, name: 'Legend' },
@@ -58,12 +62,12 @@ const RANKS = [
 
 const BASE_CLASS = {
   nova: 'Orchestrator', cipher: 'Strategist', pixel: 'Artisan', forge: 'Engineer',
-  echo: 'Herald', scout: 'Pathfinder', scribe: 'Scribe', quill: 'Editor'
+  echo: 'Herald', scout: 'Pathfinder', scribe: 'Scribe', quill: 'Editor', vale: 'Steward'
 };
 const SPEC_SUFFIX = {
   assist: 'the Connector', engagement: 'the Amplifier', blog_ship: 'the Author',
   proposal_approved: 'the Strategist', task_done: 'the Workhorse', social_ship: 'the Voice',
-  review_done: 'the Gatekeeper'
+  review_done: 'the Gatekeeper', revenue_sale: 'the Closer', funnel_lead: 'the Hunter'
 };
 
 const ACH_RENOWN = { bronze: 10, silver: 25, gold: 50, platinum: 100 };
@@ -83,7 +87,10 @@ const ACHIEVEMENTS = [
   { id: 'streak_90', label: '90-Day Streak', tier: 'platinum', test: a => a.streakDays >= 90 },
   { id: 'level_10', label: 'Reached Level 10', tier: 'silver', test: a => a.level >= 10 },
   { id: 'level_25', label: 'Reached Level 25', tier: 'gold', test: a => a.level >= 25 },
-  { id: 'level_50', label: 'Reached Level 50', tier: 'platinum', test: a => a.level >= 50 }
+  { id: 'level_50', label: 'Reached Level 50', tier: 'platinum', test: a => a.level >= 50 },
+  { id: 'first_lead', label: 'First Lead Captured', tier: 'bronze', test: a => (a.counters.leads || 0) >= 1 },
+  { id: 'first_sale', label: 'First Blood — Attributed Sale', tier: 'platinum', test: a => (a.counters.sales || 0) >= 1 },
+  { id: 'sales_10', label: '10 Attributed Sales', tier: 'platinum', test: a => (a.counters.sales || 0) >= 10 }
 ];
 
 const COMPANY_ACH = [
@@ -130,8 +137,9 @@ function classFor(agentId, entry) {
 function _newAgent(id) {
   return {
     xp: 0, level: 1, rank: 'Rookie', class: classFor(id, { recent: [] }), renown: 0,
-    streakDays: 0, lastActiveDay: null, dailyXp: 0, dailyXpDay: null,
-    counters: { approvals: 0, blogs: 0, socialPosts: 0, docs: 0, tasksDone: 0, assists: 0, engagementTotal: 0, reviews: 0 },
+    streakDays: 0, lastActiveDay: null, dailyXp: 0, dailyXpDay: null, dailyTaskXp: 0,
+    seasonXp: 0, seasonRevenueXp: 0, revenueRecent: [],
+    counters: { approvals: 0, blogs: 0, socialPosts: 0, docs: 0, tasksDone: 0, assists: 0, engagementTotal: 0, reviews: 0, sales: 0, leads: 0, scansAttributed: 0 },
     achievements: [], recent: []
   };
 }
@@ -149,6 +157,13 @@ function _initRewards(prev, nowMs) {
   if (!Array.isArray(r.company.achievements)) r.company.achievements = [];
   if (!Array.isArray(r.processedEventIds)) r.processedEventIds = [];
   if (!r.assistPairs || typeof r.assistPairs !== 'object') r.assistPairs = {};
+  Object.keys(r.perAgent).forEach(function (id) {
+    var A = r.perAgent[id];
+    if (typeof A.seasonXp !== 'number') A.seasonXp = 0;
+    if (typeof A.seasonRevenueXp !== 'number') A.seasonRevenueXp = 0;
+    if (!Array.isArray(A.revenueRecent)) A.revenueRecent = [];
+    if (typeof A.dailyTaskXp !== 'number') A.dailyTaskXp = 0;
+  });
   r.updatedAt = _iso(nowMs);
   r.season = _iso(nowMs).substring(0, 7);
   return r;
@@ -158,6 +173,7 @@ function _streakMult(streakDays) { return 1 + Math.min(0.25, 0.02 * (streakDays 
 function _overflowRenown(lost) { return lost > 0 ? Math.ceil(lost / OVERFLOW_RENOWN_DIVISOR) : 0; }
 
 function _baseXpFor(e) {
+  if (e.xpOverride != null && Number.isFinite(Number(e.xpOverride))) return Number(e.xpOverride);
   if (e.type === 'engagement') return Math.min(ENGAGEMENT_XP_CAP, Math.floor((e.amount || 0) / ENGAGEMENT_PER));
   if (e.type === 'assist') return Math.round(ASSIST_BASE * ASSIST_RATIO);
   return XP[e.type] || 0;
@@ -172,6 +188,9 @@ function _bumpCounters(A, e) {
     case 'review_done': A.counters.reviews = (A.counters.reviews || 0) + 1; break;
     case 'engagement': A.counters.engagementTotal += (e.amount || 0); break;
     case 'assist': A.counters.assists++; break;
+    case 'revenue_sale': A.counters.sales = (A.counters.sales || 0) + 1; break;
+    case 'funnel_lead': A.counters.leads = (A.counters.leads || 0) + 1; break;
+    case 'funnel_scan': A.counters.scansAttributed = (A.counters.scansAttributed || 0) + 1; break;
   }
 }
 function _assistAllowed(rewards, from, to, atIso) {
@@ -221,21 +240,39 @@ function applyEvents(events, prevRewards, nowMs) {
     }
 
     _updateStreak(A, day);
-    if (A.dailyXpDay !== day) { A.dailyXp = 0; A.dailyXpDay = day; }
+    if (A.dailyXpDay !== day) { A.dailyXp = 0; A.dailyTaskXp = 0; A.dailyXpDay = day; }
 
     var computed = Math.round(_baseXpFor(e) * _streakMult(A.streakDays));
-    var allowed = Math.max(0, DAILY_XP_CAP - A.dailyXp);
-    var granted = Math.min(computed, allowed);
-    var lost = computed - granted;
-    A.dailyXp += granted;
+    var granted, lost = 0;
+    if (e.type === 'task_done') {
+      // Churn nerf: task lane pays at most 3 XP/day; lane overflow mints NOTHING.
+      granted = Math.max(0, Math.min(computed, TASK_DONE_DAILY_XP_CAP - A.dailyTaskXp));
+      A.dailyTaskXp += granted;
+      A.dailyXp += granted;
+    } else if (CAP_EXEMPT_TYPES[e.type]) {
+      granted = computed;                     // sales/leads are never haircut
+    } else {
+      var allowed = Math.max(0, DAILY_XP_CAP - A.dailyXp);
+      granted = Math.min(computed, allowed);
+      lost = computed - granted;
+      A.dailyXp += granted;
+    }
     A.xp += granted;
+    A.seasonXp += granted;
+    if (REVENUE_LANE_TYPES[e.type] && granted > 0) {
+      A.seasonRevenueXp += granted;
+      A.revenueRecent.unshift({ at: e.at || _iso(nowMs), xp: granted });
+      if (A.revenueRecent.length > REVENUE_RECENT_CAP) A.revenueRecent = A.revenueRecent.slice(0, REVENUE_RECENT_CAP);
+    }
     var renownGain = _overflowRenown(lost);
     A.renown += renownGain;
 
     _bumpCounters(A, e);
-    A.recent.unshift({ at: e.at, type: e.type, xp: granted, renown: renownGain, reason: e.type, sourceId: e.id });
-    if (A.recent.length > RECENT_CAP) A.recent = A.recent.slice(0, RECENT_CAP);
-    newAwards.push({ agentId: aid, type: e.type, xp: granted, renown: renownGain, sourceId: e.id });
+    if (!(granted === 0 && renownGain === 0 && e.type === 'task_done')) {
+      A.recent.unshift({ at: e.at, type: e.type, xp: granted, renown: renownGain, reason: e.type, sourceId: e.id });
+      if (A.recent.length > RECENT_CAP) A.recent = A.recent.slice(0, RECENT_CAP);
+      newAwards.push({ agentId: aid, type: e.type, xp: granted, renown: renownGain, sourceId: e.id });
+    }
   });
 
   // recompute level/rank/class + unlock achievements (renown only, dedup by id)

@@ -339,5 +339,43 @@ test('_emitSplit never distributes more than the nominal budget to a large fallb
   assert.strictEqual(evs.length, 1, 'recipient list trimmed to budget');
 });
 
+// ── Task 3: economy application ──
+test('revenue_sale is exempt from the daily cap and accrues season + revenue XP', () => {
+  const { rewards } = applyEvents([
+    { id: 'appr_x1', type: 'proposal_approved', agentId: 'echo', at: at(0, 1) },   // 8 XP
+    { id: 'sale_e1__echo', type: 'revenue_sale', agentId: 'echo', xpOverride: 43, at: at(0, 2) }
+  ], null, NOW);
+  const a = agent(rewards, 'echo');
+  assert.ok(a.xp >= 8 + 43, 'sale not haircut by the 12/day cap (got ' + a.xp + ')');
+  assert.ok(a.seasonXp >= 8 + 43, 'season XP accrues');
+  assert.ok(a.seasonRevenueXp >= 43, 'revenue-lane season XP tracked');
+  assert.strictEqual(a.counters.sales, 1);
+  assert.ok(Array.isArray(a.revenueRecent) && a.revenueRecent.length === 1);
+  assert.ok(a.achievements.some(x => x.id === 'first_sale'), 'first_sale unlocked');
+});
+
+test('task_done lane-caps at 3 XP/day: 4th task pays nothing and mints no renown', () => {
+  const evs = [1, 2, 3, 4].map(n => ({ id: 'tk_lane_' + n, type: 'task_done', agentId: 'scribe', at: at(0, n) }));
+  const { rewards } = applyEvents(evs, null, NOW);
+  const a = agent(rewards, 'scribe');
+  assert.strictEqual(a.xp, 3, 'lane cap 3');
+  assert.strictEqual(a.renown, 0, 'no renown from lane overflow');
+  assert.strictEqual(a.counters.tasksDone, 4, 'counter still counts all tasks');
+});
+
+test('funnel_lead exempt from cap; funnel_scan is NOT exempt', () => {
+  const evs = [
+    { id: 'lead_a__echo', type: 'funnel_lead', agentId: 'echo', xpOverride: 15, at: at(0, 1) },
+    { id: 'appr_c1', type: 'proposal_approved', agentId: 'echo', at: at(0, 2) },     // fills cap: 8
+    { id: 'appr_c2', type: 'proposal_approved', agentId: 'echo', at: at(0, 3) },     // 8 -> capped at 4
+    { id: 'scan_s1__echo', type: 'funnel_scan', agentId: 'echo', xpOverride: 3, at: at(0, 4) } // cap full -> 0
+  ];
+  const { rewards } = applyEvents(evs, null, NOW);
+  const a = agent(rewards, 'echo');
+  // lead 15 (exempt) + capped non-exempt lanes 12 = 27
+  assert.strictEqual(a.xp, 27);
+  assert.strictEqual(a.counters.leads, 1);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
