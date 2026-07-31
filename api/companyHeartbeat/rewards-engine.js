@@ -59,6 +59,11 @@ const LADDER_BY_MISSES = ['safe', 'watch', 'squeezed', 'retirement_pending'];
 const VANGUARD_RANKS = 2;      // top-2 = vanguard
 const PROBATION_RANKS = 2;     // bottom-2 = probation (only when fleet >= 6)
 
+const MERIT_FLOOR_PCT = 0.4;
+const MERIT_PCT = 0.6;
+const SQUEEZE_CAP_MULT = 0.7;
+const TRAILING_REVENUE_WINDOW_MS = 14 * 86400000;
+
 const RANKS = [
   { min: 50, name: 'Legend' },
   { min: 40, name: 'Elite' },
@@ -543,6 +548,55 @@ function rolloverSeason(prev, nowMs, opts) {
   return { rewards: r, rolled: true, transitions: transitions };
 }
 
+function _round2(n) { return Math.round(n * 100) / 100; }
+
+function computeTrailingRevenueXp(A, nowMs) {
+  var cutoff = nowMs - TRAILING_REVENUE_WINDOW_MS;
+  return _arr(A && A.revenueRecent).reduce(function (s, r) {
+    var t = Date.parse(r && r.at || 0) || 0;
+    return t >= cutoff ? s + (Number(r.xp) || 0) : s;
+  }, 0);
+}
+
+// The continuous meritocracy: floor + performance share, squeeze redistribution.
+// Pre-revenue (all trailing 0) this reduces to an even split == current behavior.
+function computeBudgetPlan(rewards, opts) {
+  opts = opts || {};
+  var nowMs = opts.nowMs || Date.now();
+  var pool = Number(opts.poolDollars) || 0;
+  var floorPct = Number.isFinite(opts.floorPct) ? opts.floorPct : MERIT_FLOOR_PCT;
+  var meritPct = Number.isFinite(opts.meritPct) ? opts.meritPct : MERIT_PCT;
+  var squeezeMult = Number.isFinite(opts.squeezeMult) ? opts.squeezeMult : SQUEEZE_CAP_MULT;
+  var ids = ((opts.activeIds && opts.activeIds.length) ? opts.activeIds : FLEET_AGENTS)
+    .filter(function (id) { return rewards && rewards.perAgent && rewards.perAgent[id]; });
+  if (!ids.length || pool <= 0) return { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
+
+  var trail = {};
+  var total = 0;
+  ids.forEach(function (id) { trail[id] = computeTrailingRevenueXp(rewards.perAgent[id], nowMs); total += trail[id]; });
+
+  var perAgent = {};
+  ids.forEach(function (id) {
+    var floorShare = (pool * floorPct) / ids.length;
+    var meritShare = total > 0 ? pool * meritPct * (trail[id] / total) : (pool * meritPct) / ids.length;
+    perAgent[id] = floorShare + meritShare;
+  });
+
+  var champion = rewards.seasonMeta && rewards.seasonMeta.previousChampion;
+  var freed = 0;
+  ids.forEach(function (id) {
+    if ((rewards.perAgent[id].ladderStatus || 'safe') === 'squeezed') {
+      var cut = perAgent[id] * (1 - squeezeMult);
+      perAgent[id] -= cut;
+      freed += cut;
+    }
+  });
+  if (freed > 0 && champion && perAgent[champion] != null) perAgent[champion] += freed;
+
+  ids.forEach(function (id) { perAgent[id] = _round2(perAgent[id]); });
+  return { enabled: true, perAgent: perAgent, poolDollars: pool, trailing: trail, computedAt: _iso(nowMs) };
+}
+
 // ── IO orchestration ──────────────────────────────────────────────────────────
 // Prompt block (Stage 5: the "nudge each other" progression block).
 // Pure: given an agentId + the rewards ledger, render the per-agent YOUR PROGRESSION
@@ -640,5 +694,6 @@ module.exports = {
   buildProgressionPromptBlock: buildProgressionPromptBlock,
   resolveContributors: resolveContributors, conversionFallbackAgents: conversionFallbackAgents,
   rolloverSeason: rolloverSeason,
+  computeBudgetPlan: computeBudgetPlan, computeTrailingRevenueXp: computeTrailingRevenueXp,
   runRewardsEngine: runRewardsEngine
 };

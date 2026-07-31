@@ -4,7 +4,7 @@ const assert = require('assert');
 const {
   levelFromXp, rankFromLevel, classFor,
   applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock,
-  resolveContributors, conversionFallbackAgents, rolloverSeason
+  resolveContributors, conversionFallbackAgents, rolloverSeason, computeBudgetPlan
 } = require('./rewards-engine');
 
 const DAY = 86400000;
@@ -516,6 +516,41 @@ test('multi-month gap = one rollover, one miss, gap recorded', () => {
   assert.strictEqual(r.rewards.season, '2026-11');
   assert.strictEqual(r.rewards.perAgent.scribe.parMisses, 1, 'one miss despite 3-month gap (deliberate)');
   assert.strictEqual(r.rewards.seasonMeta.monthsSkipped, 3, 'gap recorded honestly');
+});
+
+// ── Task 5: merit budget plan ──
+test('pre-revenue (all trailing 0) the plan is an even split of the pool', () => {
+  const led = mkLedger('2026-08', { echo: mkA(0), scribe: mkA(0), nova: mkA(0), quill: mkA(0) }, { par: 40 });
+  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
+  assert.strictEqual(plan.perAgent.echo, 25);
+  assert.strictEqual(plan.perAgent.quill, 25);
+});
+
+test('trailing revenue XP shifts the 60% merit share; floor guarantees survival', () => {
+  const led = mkLedger('2026-08', {
+    echo: mkA(0, { revenueRecent: [{ at: new Date(AUG - 2 * 86400000).toISOString(), xp: 60 }] }),
+    scribe: mkA(0, { revenueRecent: [{ at: new Date(AUG - 3 * 86400000).toISOString(), xp: 20 }] }),
+    nova: mkA(0), quill: mkA(0)
+  }, { par: 40 });
+  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
+  // floor: 40/4 = 10 each. merit 60: echo 45, scribe 15, others 0.
+  assert.strictEqual(plan.perAgent.echo, 55);
+  assert.strictEqual(plan.perAgent.scribe, 25);
+  assert.strictEqual(plan.perAgent.nova, 10);
+  // entries older than 14d are ignored
+  led.perAgent.echo.revenueRecent = [{ at: new Date(AUG - 20 * 86400000).toISOString(), xp: 60 }];
+  const plan2 = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
+  assert.strictEqual(plan2.perAgent.scribe, 70, 'scribe now sole earner: 10 + 60');
+});
+
+test('squeezed agents lose 30%, redistributed to the previous champion', () => {
+  const led = mkLedger('2026-08', {
+    echo: mkA(0), scribe: mkA(0), nova: mkA(0), quill: mkA(0, { ladderStatus: 'squeezed' })
+  }, { par: 40 });
+  led.seasonMeta = { par: 40, previousChampion: 'echo' };
+  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
+  assert.strictEqual(plan.perAgent.quill, 17.5, '25 * 0.7');
+  assert.strictEqual(plan.perAgent.echo, 32.5, '25 + freed 7.5');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
