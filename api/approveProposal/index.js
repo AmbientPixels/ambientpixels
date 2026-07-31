@@ -6,15 +6,17 @@
 //
 // Atomicity (System 14 retire is the complex case):
 //   Write order: approvalQueue (status flip) → tasks (reassignment) →
-//   agentRegistry (archive) → governanceLog (audit). On partial failure CEO
-//   retries — all steps are idempotent by state-check, not proposal-ID tracking
-//   (except evolve's doctrineHistory which uses proposalId).
+//   agentRegistry (archive) → agentInheritance (knowledge escrow, non-fatal) →
+//   governanceLog (audit). On partial failure CEO retries — all steps are
+//   idempotent by state-check, not proposal-ID tracking (except evolve's
+//   doctrineHistory which uses proposalId).
 //
 // Downstream side-effects for product_* approvals (editing product-facts.json,
 // creating launch campaign) remain MANUAL. Agent_* approvals fully automated.
 
 const storage = require('../_utils/companyStorage');
 const { DOMAIN_LEAD_MAP } = require('../companyHeartbeat/constants');
+const { buildEscrow, captureEscrow } = require('../_utils/inheritanceEscrow');
 
 const SUPPORTED_PREFIXES = ['product_', 'agent_', 'budget_request'];
 
@@ -208,13 +210,54 @@ module.exports = async function (context, req) {
             await storage.setState('agentRegistry', registry);
           }
 
+          // Step 2.5: Track C Phase 1 — freeze this agent's knowledge into the
+          // inheritance escrow. Retirement deletes nothing, but memoryConsolidate
+          // keeps collapsing an archived agent's memories, so the snapshot has to be
+          // taken now. Non-fatal by design: a storage failure must never block a CEO
+          // retirement, and agentMemories is left intact as the recovery path.
+          let inheritanceCaptured = false;
+          let inheritanceCounts = { memories: 0, reports: 0 };
+          try {
+            const escrowStore = (await storage.getState('agentInheritance')) || {};
+            const existing = (escrowStore.escrows || {})[targetAgentId];
+            if (existing) {
+              inheritanceCaptured = true;
+              inheritanceCounts = {
+                memories: existing.memoryCount || 0,
+                reports: existing.reportCount || 0
+              };
+            } else {
+              const allMemories = (await storage.getState('agentMemories')) || {};
+              const allReports = (await storage.getState('weeklyReports')) || {};
+              const nowIso = new Date().toISOString();
+              const escrow = buildEscrow({
+                agentId: targetAgentId,
+                registryEntry: reg || {},
+                memories: allMemories[targetAgentId],
+                reports: allReports[targetAgentId],
+                retiredAt: target.resolvedAt,
+                retiredReason: ceoNote || (target.retire.rationale || '').substring(0, 500),
+                capturedAt: nowIso
+              });
+              const captured = captureEscrow(escrowStore, escrow, nowIso);
+              if (captured.added) await storage.setState('agentInheritance', captured.store);
+              inheritanceCaptured = captured.added;
+              inheritanceCounts = { memories: escrow.memoryCount, reports: escrow.reportCount };
+            }
+          } catch (_inhErr) {
+            context.log.error('[approveProposal] inheritance capture failed (non-fatal):',
+              String(_inhErr).substring(0, 200));
+          }
+
           // Step 3: governance log (non-fatal)
           try {
             const gov = (await storage.getState('governanceLog')) || [];
             gov.push({
               at: target.resolvedAt, type: 'agent-retired',
               targetAgent: targetAgentId, reassignedCount: reassignedCount,
-              ceoNote: ceoNote, proposalId: target.id
+              ceoNote: ceoNote, proposalId: target.id,
+              inheritanceCaptured: inheritanceCaptured,
+              inheritanceCounts: inheritanceCounts
             });
             await storage.setState('governanceLog', gov.slice(-500));
           } catch (_e) { /* non-fatal */ }
