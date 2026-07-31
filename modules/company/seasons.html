@@ -38,7 +38,12 @@
     .sn-badge.blue   { background: rgba(96,165,250,0.12); color: #60a5fa; border-color: rgba(96,165,250,0.25); }
     .sn-badge.purple { background: rgba(138,43,226,0.16); color: #b388ff; border-color: rgba(138,43,226,0.3); }
 
-    /* Table */
+    /* Table — the 8-column standings cannot fit a phone; scroll it inside its own box
+       rather than letting it push the page body sideways. The shared .sb-content flex
+       item defaults to min-width:auto, which would otherwise let the table's intrinsic
+       width stretch the whole layout; scoped here so only this page is affected. */
+    .sb-main, .sb-content { min-width: 0; }
+    .sn-scroll { overflow-x: auto; }
     .sn-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-base); }
     .sn-table th { text-align: left; font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em;
                    opacity: 0.5; padding: 0.5rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 500; }

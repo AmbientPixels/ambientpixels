@@ -41,7 +41,9 @@
         revenueXp: rx,
         churnXp: Math.max(0, sx - rx),
         revenueShare: sx > 0 ? Math.round(rx / sx * 100) : 0,
-        ladderStatus: a.ladderStatus || 'safe',
+        // null = the ladder has never judged this agent (it only writes at a rollover).
+        // Do NOT default to 'safe' — that would render a cleared verdict nobody earned.
+        ladderStatus: a.ladderStatus || null,
         tier: (rewards && rewards.privileges && rewards.privileges.enabled !== false &&
                rewards.privileges.tiers && rewards.privileges.tiers[id]) || 'line',
         lifetimeXp: a.xp || 0
@@ -130,9 +132,13 @@
   function cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
   function gj(path) { return fetch(API + path, { headers: { 'x-company-secret': SECRET } }).then(function (r) { return r.json(); }).catch(function () { return null; }); }
   function money(cents) { return '$' + (Math.round((cents || 0) / 100 * 100) / 100).toLocaleString(); }
+  // Budget caps arrive as raw floats (13.23, 9.5, 39.4) — render them as money, not as data.
+  function dollars(n) { return '$' + Number(n).toFixed(2); }
+  function plural(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
 
   var LADDER_LABEL = { safe: 'Safe', watch: 'Watch', squeezed: 'Squeezed', retirement_pending: 'Retirement pending' };
   var LADDER_CLASS = { safe: 'green', watch: 'amber', squeezed: 'red', retirement_pending: 'red' };
+  var TIER_LABEL = { vanguard: 'Vanguard', line: 'Line', probation: 'Probation' };
   var TIER_CLASS = { vanguard: 'purple', line: 'blue', probation: 'amber' };
 
   function load() {
@@ -159,7 +165,7 @@
       : '<span class="sn-badge green">Scored · par ' + esc(String(meta.par)) + '</span>';
 
     var cards = [
-      { l: 'Season', v: esc(r.season || '—'), s: dl == null ? '' : dl + ' days left' },
+      { l: 'Season', v: esc(r.season || '—'), s: dl == null ? '' : plural(dl, 'day') + ' left' },
       { l: 'Par', v: meta.par == null ? '—' : String(meta.par), s: state === 'unscored' ? 'not yet set' : 'to stay safe' },
       { l: 'Fleet revenue XP', v: String(eo.totalRevenueXp), s: eo.fleetRevenueShare + '% of all season XP' },
       { l: 'Earning agents', v: eo.earningAgents + ' / ' + eo.rows.length, s: eo.idleAgents + ' with no season XP' }
@@ -183,7 +189,7 @@
     var rows = seasonStandings(r);
     if (!rows.length) { document.getElementById('sn-standings').innerHTML = '<div class="sn-empty">No season data yet.</div>'; return; }
 
-    var html = '<table class="sn-table"><thead><tr>' +
+    var html = '<div class="sn-scroll"><table class="sn-table"><thead><tr>' +
       '<th>#</th><th>Agent</th><th>Season XP</th><th>Revenue / Churn</th><th>Par</th><th>Ladder</th><th>Tier</th><th>Budget</th>' +
       '</tr></thead><tbody>' +
       rows.map(function (row, i) {
@@ -194,18 +200,21 @@
             ' <span class="sn-dim">(' + row.revenueShare + '% rev)</span>';
         var parCell = pct == null ? '<span class="sn-dim">unscored</span>'
           : '<div class="sn-bar" title="' + row.seasonXp + ' / ' + par + '"><div class="sn-bar-fill" style="width:' + pct + '%"></div></div>';
+        var ladderCell = row.ladderStatus == null
+          ? '<span class="sn-dim" title="The ladder only rules at a season rollover. No season has been scored yet, so nobody has been judged.">not yet judged</span>'
+          : '<span class="sn-badge ' + (LADDER_CLASS[row.ladderStatus] || 'blue') + '">' + esc(LADDER_LABEL[row.ladderStatus] || row.ladderStatus) + '</span>';
         return '<tr>' +
           '<td>' + (i + 1) + '</td>' +
           '<td class="sn-agent">' + esc(cap(row.id)) + '</td>' +
           '<td class="sn-num">' + row.seasonXp + '</td>' +
           '<td>' + split + '</td>' +
           '<td>' + parCell + '</td>' +
-          '<td><span class="sn-badge ' + (LADDER_CLASS[row.ladderStatus] || 'blue') + '">' + esc(LADDER_LABEL[row.ladderStatus] || row.ladderStatus) + '</span></td>' +
-          '<td><span class="sn-badge ' + (TIER_CLASS[row.tier] || 'blue') + '">' + esc(row.tier) + '</span></td>' +
-          '<td class="sn-num">' + (alloc.cap != null ? '$' + alloc.cap : '—') +
-            (alloc.spent != null ? ' <span class="sn-dim">/ $' + alloc.spent + '</span>' : '') + '</td>' +
+          '<td>' + ladderCell + '</td>' +
+          '<td><span class="sn-badge ' + (TIER_CLASS[row.tier] || 'blue') + '">' + esc(TIER_LABEL[row.tier] || row.tier) + '</span></td>' +
+          '<td class="sn-num">' + (alloc.cap != null ? dollars(alloc.cap) : '—') +
+            (alloc.spent != null ? ' <span class="sn-dim">/ ' + dollars(alloc.spent) + '</span>' : '') + '</td>' +
           '</tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
     document.getElementById('sn-standings').innerHTML = html;
   }
 
@@ -251,11 +260,11 @@
       '</div>';
 
     var list = evs.length
-      ? '<table class="sn-table"><thead><tr><th>When</th><th>Agent paid</th><th>Revenue XP</th></tr></thead><tbody>' +
+      ? '<div class="sn-scroll"><table class="sn-table"><thead><tr><th>When</th><th>Agent paid</th><th>Revenue XP</th></tr></thead><tbody>' +
         evs.map(function (e) {
           return '<tr><td class="sn-dim">' + esc(String(e.at || '').slice(0, 16).replace('T', ' ')) + '</td>' +
             '<td class="sn-agent">' + esc(cap(e.id)) + '</td><td class="sn-num">' + e.xp + '</td></tr>';
-        }).join('') + '</tbody></table>'
+        }).join('') + '</tbody></table></div>'
       : '<div class="sn-empty">No revenue-lane payouts recorded.</div>';
 
     document.getElementById('sn-attribution').innerHTML = alarm + cards + list;

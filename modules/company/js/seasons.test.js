@@ -50,6 +50,16 @@ test('an agent with zero season XP reports 0% revenue share, not NaN', () => {
   assert.strictEqual(row.churnXp, 0);
 });
 
+test('an agent the ladder has never judged reports no status, not a green Safe', () => {
+  // The engine only writes ladderStatus at a season rollover. Before the first one it is
+  // absent, which means "never judged" — not "judged and cleared". Defaulting to 'safe'
+  // here would put nine green pills next to an UNSCORED SEASON banner.
+  const virgin = { perAgent: { echo: { xp: 5, seasonXp: 5, seasonRevenueXp: 0 } } };
+  assert.strictEqual(S.seasonStandings(virgin)[0].ladderStatus, null, 'absent stays absent');
+  const judged = { perAgent: { echo: { xp: 5, seasonXp: 5, seasonRevenueXp: 0, ladderStatus: 'watch' } } };
+  assert.strictEqual(S.seasonStandings(judged)[0].ladderStatus, 'watch', 'real history is preserved');
+});
+
 test('privilege tier falls back to line when privileges are absent or disabled', () => {
   const base = { perAgent: { echo: agent(5, 0) } };
   assert.strictEqual(S.seasonStandings(base)[0].tier, 'line');
