@@ -458,6 +458,24 @@ function applyBudgetOverrides(financeCfg) {
   if (Number.isFinite(m) && m >= 5 && m <= 2000) module.exports.FINANCE_BUDGET_MONTHLY = m;
 }
 
+// Merit budget (Revenue Seasons, 2026-07-30): the rewards engine precomputes per-agent
+// dollar caps in agentRewards.budgetPlan; here we only READ them and apply to the
+// in-memory AGENT_ROLES rows (never persisted back to agentRegistry — caps are derived
+// state, recomputed every run). Bounds guard against a malformed plan.
+async function _applyMeritBudget(storage) {
+  try {
+    var rw = await storage.getState('agentRewards');
+    var plan = rw && rw.budgetPlan;
+    if (!plan || plan.enabled === false || !plan.perAgent) return;
+    AGENT_IDS.forEach(function (id) {
+      var cap = Number(plan.perAgent[id]);
+      if (Number.isFinite(cap) && cap >= 0.5 && cap <= 200 && AGENT_ROLES[id]) {
+        AGENT_ROLES[id].monthlyCap = Math.round(cap * 100) / 100;
+      }
+    });
+  } catch (_mbErr) { /* fail-open: registry caps stand */ }
+}
+
 async function loadAgentRegistry(storage) {
   try {
     var _sysCfgForBudget = await storage.getState('systemConfig');
@@ -467,6 +485,7 @@ async function loadAgentRegistry(storage) {
     var persisted = await storage.getState('agentRegistry');
     if (persisted && Array.isArray(persisted.agents) && persisted.agents.length >= FLEET_MIN_SIZE) {
       _applyRegistry(persisted);
+      await _applyMeritBudget(storage);
       return persisted;
     }
     // Bootstrap on first run — write defaults so state is source-of-truth thereafter
@@ -476,6 +495,7 @@ async function loadAgentRegistry(storage) {
     };
     await storage.setState('agentRegistry', bootstrap);
     _applyRegistry(bootstrap);
+    await _applyMeritBudget(storage);
     return bootstrap;
   } catch (_e) {
     // Fail-open: leave AGENT_IDS/AGENT_ROLES at their bootstrap values (already populated)

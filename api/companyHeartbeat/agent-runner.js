@@ -1389,16 +1389,22 @@ Write the full deliverable first, then the structured JSON block.`;
   // Work-producing actions bypass dedup entirely — deliverables are always unique
   const _DEDUP_EXEMPT = new Set(['execute-task', 'create-doc', 'create-social-action', 'generate-image', 'create-content-package', 'review-task']);
 
+  // Revenue Seasons privilege tier — vanguard +1 action slot, probation -1 (floor 1).
+  const _privTier = (_agentRewards && _agentRewards.privileges && _agentRewards.privileges.enabled !== false &&
+    _agentRewards.privileges.tiers && _agentRewards.privileges.tiers[agentId]) || 'line';
+  const _slotCap = Math.max(1, GUARDRAILS.maxActionsPerCyclePerAgent +
+    (_privTier === 'vanguard' ? 1 : (_privTier === 'probation' ? -1 : 0)));
+
   for (const action of actions) {
     // Rate limit: previously silent `break` dropped remaining actions without logging.
     // Now: log each dropped action as a policy-violation + continue the loop so we catch
     // the full scale. End-of-agent block writes an auto-memory so the agent sees the drop
     // next cycle (closes the learning loop via the existing memory injection path).
-    if (actionCount >= GUARDRAILS.maxActionsPerCyclePerAgent) {
+    if (actionCount >= _slotCap) {
       await logEvent('policy-violation', agentId,
-        'Rate limit exceeded: action dropped (cap ' + GUARDRAILS.maxActionsPerCyclePerAgent + ')', cycleId,
+        'Rate limit exceeded: action dropped (cap ' + _slotCap + ')', cycleId,
         { runId: cycleId, gate: 'rate_limit', reason: 'max_actions_per_cycle_exceeded',
-          cap: GUARDRAILS.maxActionsPerCyclePerAgent, droppedActionType: action.type });
+          cap: _slotCap, droppedActionType: action.type });
       result.rateLimitDropped = (result.rateLimitDropped || 0) + 1;
       continue;
     }
@@ -5368,6 +5374,12 @@ Write the full deliverable first, then the structured JSON block.`;
           { runId: cycleId, gate: 'proposal_unauthorized', kind: 'campaign' });
         continue;
       }
+      if (_privTier === 'probation') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-campaign — probation tier (Revenue Seasons)');
+        await logEvent('policy-violation', agentId, 'propose-campaign blocked: probation privilege tier', cycleId,
+          { runId: cycleId, gate: 'privilege_probation', kind: 'campaign' });
+        continue;
+      }
       // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new campaign for CEO approval
       var _pc = action.campaign;
       var _pcName = (_pc.name || '').trim().substring(0, 100);
@@ -5533,6 +5545,12 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — not an authorized proposer');
         await logEvent('policy-violation', agentId, 'propose-objective blocked: not an authorized proposer', cycleId,
           { runId: cycleId, gate: 'proposal_unauthorized', kind: 'objective' });
+        continue;
+      }
+      if (_privTier === 'probation') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-objective — probation tier (Revenue Seasons)');
+        await logEvent('policy-violation', agentId, 'propose-objective blocked: probation privilege tier', cycleId,
+          { runId: cycleId, gate: 'privilege_probation', kind: 'objective' });
         continue;
       }
       // An authorized strategic agent (PROPOSAL_AUTHORIZED_AGENTS) proposes a new objective for CEO approval
