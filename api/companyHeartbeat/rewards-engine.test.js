@@ -579,6 +579,10 @@ test('a partial first season is not scored: no par seeded means no par misses', 
   IDS.forEach(id => {
     assert.strictEqual(r.rewards.perAgent[id].parMisses, 0, id + ' takes no miss for a partial season');
     assert.strictEqual(r.rewards.perAgent[id].ladderStatus, 'safe', id + ' stays safe');
+    // An unscored season must not hand out privileges OR penalties. Echo has 1 XP here
+    // (one task), which is a real spread — without the par==null tier gate that single
+    // point would demote the bottom two agents to the economy model for a month.
+    assert.strictEqual(r.rewards.privileges.tiers[id], 'line', id + ' gets no tier from an unscored season');
   });
   assert.strictEqual(r.rewards.seasonMeta.par, 40, 'the first real par is set for the season ahead');
 });

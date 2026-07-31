@@ -574,13 +574,16 @@ function rolloverSeason(prev, nowMs, opts) {
     r.perAgent[id].seasonRevenueXp = 0;
   });
 
-  // Privilege tiers need a REAL season signal. If every agent finished on the same
-  // season XP (the bootstrap season, or a fully idle month), rank order carries no
-  // information — award nobody vanguard and punish nobody with probation.
+  // Privilege tiers need a REAL season signal. An unscored season (no par existed, so
+  // nobody could pass or fail it) confers no privileges and imposes no penalties — the
+  // same rationale that keeps it from counting par misses. Likewise a season where every
+  // agent finished level: rank order carries no information. Without the `par == null`
+  // half, a single point of XP — one anonymous visitor's scan credited by fallback —
+  // would demote real agents to the economy model for a month.
   var spread = ranked.length ? (ranked[0].sx - ranked[ranked.length - 1].sx) : 0;
   var tiers = {};
   ranked.forEach(function (row, i) {
-    if (spread <= 0) { tiers[row.id] = 'line'; return; }
+    if (par == null || spread <= 0) { tiers[row.id] = 'line'; return; }
     var probation = fleet.length >= 6 && i >= ranked.length - PROBATION_RANKS;
     tiers[row.id] = i < VANGUARD_RANKS ? 'vanguard' : (probation ? 'probation' : 'line');
   });
