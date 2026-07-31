@@ -27,6 +27,7 @@ const {
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
 const { repairReplyLink: _repairReplyLink } = require('./prospect-pipeline');
+const SUTM = require('../_utils/socialUtm');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
   spawnQgRespawnCopyTask, findNearDuplicateSocialPost, campaignDailyPostCapStatus, capitalizeSentences,
@@ -2126,6 +2127,24 @@ Write the full deliverable first, then the structured JSON block.`;
               } catch (_lrErr) {
                 context.log('[Heartbeat] scribe: link repair failed (non-fatal):', String(_lrErr).substring(0, 120));
               }
+              // Outcome attribution: the report link is the only thing a prospect can
+              // click, and until now it carried no UTM (0/24 coverage) — so a sale from
+              // outbound could never match the attribution chain, which keys on
+              // utm_content = the originating action id. Stamp it with this reply's own
+              // id, the same key the scheduled-post path uses.
+              //
+              // Minted here rather than at action-creation below because the tag has to
+              // be in the text BEFORE the length is settled: the suffix is ~63 chars
+              // against a 280 cap, and replies put the link inline after a colon, so the
+              // scheduled path's trim (newline-anchored) would cut the link off the end.
+              const _replyActionId = 'act_' + Date.now() + '_bsreply_' + Math.random().toString(36).substr(2, 5);
+              try {
+                const _stamped = SUTM.injectUtm(_finalReply, 'bluesky', _replyActionId);
+                _finalReply = SUTM.trimPreservingTrailingUrl(_stamped, 280);
+              } catch (_utmErr) {
+                // Non-fatal: an untracked reply is a measurement loss, not a lost sale.
+                context.log('[Heartbeat] scribe: reply UTM inject failed (non-fatal):', String(_utmErr).substring(0, 120));
+              }
               const _tc = task.threadContext;
               // Crash-idempotency guard (2026-07-24 fruitfop incident): reply actions +
               // AQ entries are written to storage immediately, but the task close rides
@@ -2148,8 +2167,9 @@ Write the full deliverable first, then the structured JSON block.`;
                 context.log('[Heartbeat] scribe: bluesky-reply dedup — pending reply already exists for task', action.taskId);
                 continue;
               }
-              // Create a social_post.reply action
-              const _replyActionId = 'act_' + Date.now() + '_bsreply_' + Math.random().toString(36).substr(2, 5);
+              // Create a social_post.reply action (_replyActionId was minted above, so
+              // the UTM tag in payload.text and this action's id are the same value —
+              // that identity is what makes attribution resolvable).
               const _replyAction = {
                 id: _replyActionId,
                 created_at: new Date().toISOString(),

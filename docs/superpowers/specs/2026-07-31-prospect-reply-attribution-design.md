@@ -62,7 +62,7 @@ Inject UTM on the reply path immediately after the reply action id is minted (`a
 ### Explicitly not changed
 
 - `asScanRunner/index.js:73` keeps minting the bare canonical link. That link is quoted into the `[SCAN RESULT]` task comment and compared verbatim by the quality gate and `_repairReplyLink`. Adding UTM at the mint site would mean the QG's exact-match comparison is against a URL carrying another action's id — wrong, and it would break link repair.
-- `quality-gate.js:204` keeps requiring exact copies. The stamp happens **after** the gate runs, so there is no conflict to resolve.
+- `quality-gate.js` keeps its fabricated-URL detector unchanged. **Correction to an earlier assumption in this spec:** the stamp actually runs *before* the gate, not after — it has to, because the tag must be in the text before the length is settled. That is safe because the detector does not compare against the `[SCAN RESULT]` link at all; it validates the *path* against `_OWN_URL_ALLOWLIST` (`quality-gate.js:156-171`), and `/^\/ambientscore\/report\.html\?id=ccr_[\w]+/` carries no end anchor, so a trailing `&utm_...` still matches. Verified: `detectFabricatedUrl` returns `fabricated: false` on the stamped link, identical to the untagged one, and `composeQualityVerdict` passes with no issues. The prompt text at `quality-gate.js:204` telling agents to copy links exactly is also untouched — it constrains the *drafter*, and the drafter still does not touch the URL.
 - `social_post.schedule` is untouched — it already works.
 
 ## 5. How we will know it worked
