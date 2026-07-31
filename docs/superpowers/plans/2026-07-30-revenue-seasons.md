@@ -1,5 +1,23 @@
 # Revenue Seasons Implementation Plan
 
+> **STATUS: COMPLETE — all 9 tasks implemented, reviewed and deployed 2026-07-31.**
+> Every task passed an independent spec-compliance review and a code-quality review; all
+> findings were fixed (see the `fix(rewards):` commits from `014a82e0` through `a8915daa`).
+> Engine tests 73/73, smoke 25/25. The step checkboxes below were not ticked during
+> execution — treat this document as a historical record, and the spec's Status block
+> (`docs/superpowers/specs/2026-07-30-revenue-seasons-design.md`) as the source of truth
+> for what shipped and how it deviates from the original design.
+>
+> **Changed after this plan was written** (all reviewed, all in the spec's deviation list):
+> the budget floor follows the CEO's hand-tuned registry caps instead of an even split;
+> privilege tiers and par misses both require a scored season; par is capped at 120;
+> nova/cipher are floored at `line` tier and vale/quill are exempt from retirement drafts;
+> merit reallocation needs a 30-XP fleet signal and floors each cap at spend × 1.5.
+>
+> **Deliberately deferred:** per-tier image-budget share (§8) ships with the dashboard
+> fast-follow. Tracks C (retirement knowledge inheritance) and D (outbound gig agents)
+> were never in this plan's scope.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rework the agent XP economy so revenue outcomes dominate, add monthly seasons with a rising par, and make standings purchase real operational power (budget, model tier, action slots, proposal rights) with an escalating watch → squeeze → retirement ladder.
