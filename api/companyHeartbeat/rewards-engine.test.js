@@ -605,5 +605,21 @@ test('ladder consequence lines are stated verbatim for hot states', () => {
   assert.ok(/retirement/i.test(rp) && /successor/i.test(rp), 'existential line');
 });
 
+test('non-fleet agent ids render without a season rank line (no rank #0 garbage)', () => {
+  const led = mkLedger('2026-08', { nova: mkA(5), ceo: mkA(3) }, { par: 40 });
+  const block = buildProgressionPromptBlock('ceo', led, AUG);
+  assert.ok(block.length > 0, 'still renders for known perAgent entry');
+  assert.ok(!/rank #0/i.test(block), 'no rank #0');
+  assert.ok(!/#0 of/.test(block), 'no zero-index rank at all');
+});
+
+test('bare mid-season ledger degrades cleanly: no ladder line, LINE tier, assists in guide', () => {
+  const led = { perAgent: { scribe: { xp: 120, level: 2, rank: 'Rookie' }, nova: { xp: 16, level: 1, rank: 'Rookie' } } };
+  const block = buildProgressionPromptBlock('nova', led, AUG);
+  assert.ok(!/LADDER:/.test(block), 'no ladder line when no status');
+  assert.ok(/LINE/.test(block), 'defaults to LINE tier');
+  assert.ok(/assists/i.test(block), 'assists restored to earning guide');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

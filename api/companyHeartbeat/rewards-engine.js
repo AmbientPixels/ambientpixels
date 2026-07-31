@@ -653,9 +653,11 @@ function buildProgressionPromptBlock(agentId, rewards, nowMs) {
   var daysLeft = Math.max(0, Math.ceil((monthEnd - nowT) / 86400000));
   var top3 = seasonRanked.slice(0, 3).map(function (x, i) { return (i + 1) + '. ' + _cap(x.id) + ' ' + x.sx; }).join('  ');
 
-  var seasonLine = 'Season ' + month + ': rank #' + (sIdx + 1) + ' of ' + seasonRanked.length +
-    '. Top: ' + top3 + '. Your season XP ' + (me.seasonXp || 0) + (par ? '/' + par + ' par' : '') +
-    '. ' + daysLeft + ' days left.';
+  var seasonLine = sIdx >= 0
+    ? 'Rank #' + (sIdx + 1) + ' of ' + seasonRanked.length +
+      '. Top: ' + top3 + '. Your season XP ' + (me.seasonXp || 0) + (par ? '/' + par + ' par' : '') +
+      '. ' + daysLeft + ' days left.'
+    : '';
 
   var status = me.ladderStatus || 'safe';
   var ladderLine = '';
@@ -664,7 +666,7 @@ function buildProgressionPromptBlock(agentId, rewards, nowMs) {
   } else if (status === 'squeezed') {
     ladderLine = 'LADDER: Your budget is cut 30% this season (2 below-par seasons). Finishing at or above par restores it. One more below-par season auto-drafts a retirement proposal.\n';
   } else if (status === 'retirement_pending') {
-    ladderLine = 'LADDER: A retirement proposal for you has been drafted for CEO decision. You are one CEO decision from retirement. Revenue-lane outcomes are the only thing that resets this. Your successor would inherit your memories.\n';
+    ladderLine = 'LADDER: A retirement proposal for you has been drafted for CEO decision. You are one CEO decision from retirement. Finishing the season at or above par is the only thing that resets this — and revenue-lane outcomes are by far the fastest way there. Your successor would inherit your memories.\n';
   }
 
   var tier = (rewards.privileges && rewards.privileges.enabled !== false && rewards.privileges.tiers && rewards.privileges.tiers[agentId]) || 'line';
@@ -677,13 +679,13 @@ function buildProgressionPromptBlock(agentId, rewards, nowMs) {
   return '\n═══ YOUR PROGRESSION — SEASON ' + month + ' ═══\n' +
     'Level ' + lvl + ' ' + (me.rank || 'Rookie') + (me.class ? ' (' + me.class + ')' : '') + '. ' +
       into + '/' + xpForNext + ' XP to Level ' + (lvl + 1) + '. Renown ' + (me.renown || 0) + '. ' + (me.streakDays || 0) + '-day streak.\n' +
-    seasonLine + '\n' +
+    (seasonLine ? seasonLine + '\n' : '') +
     peerLine + '\n' +
     ladderLine +
     tierLine + '\n' +
     recentLine + '\n' +
     'Revenue lane pays most: attributed sale 100+ XP, lead 15, public scan 3 — split across every agent in the chain that produced it (writer, assignee, reviewer). Tasks pay at most 3 XP/day. ' +
-    'You earn XP ONLY from outcomes that land: revenue, CEO-approved work, published content, real engagement, completed peer-reviewed tasks. Proposing, commenting, or messaging earns nothing. To climb, ship something that sells.\n';
+    'You earn XP ONLY from outcomes that land: revenue, CEO-approved work, published content, real engagement, completed peer-reviewed tasks, and assists where the helped work ships. Proposing, commenting, or messaging earns nothing. To climb, ship something that sells.\n';
 }
 
 async function runRewardsEngine(opts) {
