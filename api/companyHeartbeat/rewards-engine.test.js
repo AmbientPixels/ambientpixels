@@ -377,5 +377,30 @@ test('funnel_lead exempt from cap; funnel_scan is NOT exempt', () => {
   assert.strictEqual(a.counters.leads, 1);
 });
 
+test('xpOverride shares are exact — streak multiplier never inflates revenue events', () => {
+  // build a 3-day streak first (mult 1.06), then a sale share of 43
+  const evs = [
+    { id: 'st_1', type: 'task_done', agentId: 'forge', at: at(0) },
+    { id: 'st_2', type: 'task_done', agentId: 'forge', at: at(1) },
+    { id: 'st_3', type: 'task_done', agentId: 'forge', at: at(2) },
+    { id: 'sale_ex__forge', type: 'revenue_sale', agentId: 'forge', xpOverride: 43, at: at(2, 1) }
+  ];
+  const { rewards } = applyEvents(evs, null, NOW);
+  assert.strictEqual(agent(rewards, 'forge').seasonRevenueXp, 43, 'share paid exactly, no streak inflation');
+});
+
+test('task_done lane cap composes with the global 12/day cap regardless of event order', () => {
+  // non-exempt lanes fill the global cap FIRST, then task_done arrives
+  const evs = [
+    { id: 'appr_o1', type: 'proposal_approved', agentId: 'scout', at: at(0, 1) },  // 8
+    { id: 'appr_o2', type: 'proposal_approved', agentId: 'scout', at: at(0, 2) },  // 8 -> 4 (cap)
+    { id: 'tk_o1', type: 'task_done', agentId: 'scout', at: at(0, 3) },
+    { id: 'tk_o2', type: 'task_done', agentId: 'scout', at: at(0, 4) },
+    { id: 'tk_o3', type: 'task_done', agentId: 'scout', at: at(0, 5) }
+  ];
+  const { rewards } = applyEvents(evs, null, NOW);
+  assert.strictEqual(agent(rewards, 'scout').xp, 12, 'global daily cap holds regardless of order');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

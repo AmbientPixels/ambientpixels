@@ -242,11 +242,12 @@ function applyEvents(events, prevRewards, nowMs) {
     _updateStreak(A, day);
     if (A.dailyXpDay !== day) { A.dailyXp = 0; A.dailyTaskXp = 0; A.dailyXpDay = day; }
 
-    var computed = Math.round(_baseXpFor(e) * _streakMult(A.streakDays));
+    var hasOverride = e.xpOverride != null && Number.isFinite(Number(e.xpOverride));
+    var computed = hasOverride ? Number(e.xpOverride) : Math.round(_baseXpFor(e) * _streakMult(A.streakDays));
     var granted, lost = 0;
     if (e.type === 'task_done') {
-      // Churn nerf: task lane pays at most 3 XP/day; lane overflow mints NOTHING.
-      granted = Math.max(0, Math.min(computed, TASK_DONE_DAILY_XP_CAP - A.dailyTaskXp));
+      // Churn nerf: task lane pays at most 3 XP/day, AND still sits inside the global 12/day cap.
+      granted = Math.max(0, Math.min(computed, TASK_DONE_DAILY_XP_CAP - A.dailyTaskXp, DAILY_XP_CAP - A.dailyXp));
       A.dailyTaskXp += granted;
       A.dailyXp += granted;
     } else if (CAP_EXEMPT_TYPES[e.type]) {
