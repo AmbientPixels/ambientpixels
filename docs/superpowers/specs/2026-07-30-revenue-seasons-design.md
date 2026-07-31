@@ -1,7 +1,15 @@
 # Revenue Seasons — Design Spec
 
 **Date:** 2026-07-30
-**Status:** Approved direction (CEO brainstorm 07-30); spec pending CEO review
+**Status:** IMPLEMENTED 2026-07-31 (Tracks A+B). Plan: `docs/superpowers/plans/2026-07-30-revenue-seasons.md`. Engine tests 64/64. Awaiting CEO decision to deploy (commits are local; nothing is live yet). Tracks C (retirement knowledge inheritance) and D (outbound gig agents) remain unbuilt.
+
+**Deviations from this spec, decided during implementation (all reviewed):**
+- The survival floor follows the CEO's hand-tuned registry caps rather than an even split. §7 assumed today's caps *were* an even split; they are not (nova $20 … vale $7, summing $110), so an even split would have silently overwritten deliberate allocation. Only the merit 60% tracks revenue. Pre-revenue the plan now reproduces today's caps exactly.
+- Privilege tiers are suppressed entirely in a zero-spread season, and rank ties break on lifetime XP before id. Without this the first rollover — where `seasonXp` is a brand-new field and every agent sits at 0 — would have ranked alphabetically and put Scribe (the fleet's highest-XP agent) on probation for its name.
+- The `retirement_pending` prompt copy says par is what resets the ladder (any XP source), not "revenue-lane outcomes only" — matching what `rolloverSeason` actually does.
+- Per-tier image-budget share (§8) is deferred to the dashboard fast-follow.
+
+**Status history:** Approved direction (CEO brainstorm 07-30); spec CEO-reviewed 07-30
 **Tracks:** A (revenue-first economy) + B (competition with real stakes). Track C (retirement knowledge inheritance) and Track D (outbound gig agents) are follow-up specs.
 
 ## 1. Problem
