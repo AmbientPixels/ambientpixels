@@ -677,13 +677,85 @@ testAsync('runRewardsEngine drafts ONE retirement proposal on transition, never 
   assert.strictEqual(drafts[0].retire.targetAgent, 'quill');
   assert.strictEqual(drafts[0].proposedBy, 'rewards-engine');
   // re-run: no duplicate
-  await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
+  const res2 = await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
+  assert.strictEqual(res2.ok, true);
   drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal');
   assert.strictEqual(drafts.length, 1, 'dedup across runs');
   // protected agent: no draft
   st = fakeStorage(seed('nova'));
-  await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  const res3 = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(res3.ok, true);
   assert.strictEqual(st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal').length, 0, 'nova is protected');
+});
+
+testAsync('an existing pending draft suppresses a fresh transition draft (dedup guard)', async () => {
+  const per = {};
+  FLEET_TEST_IDS.forEach(id => { per[id] = mkA(id === 'quill' ? 0 : 100); });
+  per.quill.parMisses = 2;
+  per.quill.ladderStatus = 'squeezed';
+  const st = fakeStorage({
+    approvalQueue: [{
+      id: 'retpr_seeded', type: 'agent_retire_proposal', status: 'pending', proposedBy: 'forge',
+      retire: { targetAgent: 'quill', rationale: 'seeded by the manual path' }, createdAt: at(-1)
+    }],
+    blogPosts: [], outcomeSnapshots: {}, tasks: [], tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, campaigns: [], actions: [], actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [] }, as_leads: [], cc_analytics: [], systemConfig: {},
+    agentRewards: mkLedger('2026-07', per, { par: 40 }),
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  // rollover DOES fire here (transition to retirement_pending) — the pending entry must suppress the append
+  const res = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  assert.strictEqual(res.rolled, true, 'rollover fired, so a draft was genuinely attempted');
+  assert.strictEqual(st.db.agentRewards.perAgent.quill.ladderStatus, 'retirement_pending', 'transition happened');
+  const drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal' && q.retire.targetAgent === 'quill');
+  assert.strictEqual(drafts.length, 1, 'still exactly one — the seeded entry, no duplicate appended');
+  assert.strictEqual(drafts[0].id, 'retpr_seeded');
+});
+
+testAsync('kill switch across a month boundary: rollover fires on re-enable with gap recorded', async () => {
+  const per = {};
+  FLEET_TEST_IDS.forEach(id => { per[id] = mkA(50); });
+  const st = fakeStorage({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasks: [], tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, campaigns: [], actions: [], actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [] }, as_leads: [], cc_analytics: [],
+    systemConfig: { rewards: { enabled: false } },
+    agentRewards: mkLedger('2026-07', per, { par: 40 }),
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  // disabled run AFTER the month boundary — must NOT consume the rollover
+  let res = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  assert.strictEqual(st.db.agentRewards.season, '2026-07', 'stale season preserved while disabled');
+  // re-enable: rollover fires now
+  st.db.systemConfig = { rewards: { enabled: true } };
+  res = await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  assert.strictEqual(res.rolled, true, 'missed rollover fires on re-enable');
+  assert.strictEqual(st.db.agentRewards.season, '2026-08');
+});
+
+testAsync('retirement drafts carry real orphans from the registry', async () => {
+  const per = {};
+  FLEET_TEST_IDS.forEach(id => { per[id] = mkA(id === 'scribe' ? 0 : 100); });
+  per.scribe.parMisses = 2;
+  per.scribe.ladderStatus = 'squeezed';
+  const st = fakeStorage({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasks: [], tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, campaigns: [], actions: [], actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [] }, as_leads: [], cc_analytics: [], systemConfig: {},
+    agentRewards: mkLedger('2026-07', per, { par: 40 }),
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => (
+      { id, status: 'active', reportsTo: (id === 'quill' ? 'scribe' : 'nova') }
+    )) }
+  });
+  const res = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  const draft = st.db.approvalQueue.find(q => q.type === 'agent_retire_proposal');
+  assert.ok(draft, 'draft created');
+  assert.deepStrictEqual(draft.retire.orphans, ['quill'], 'reportsTo dependants captured');
 });
 
 testAsync('systemConfig.rewards.enabled=false skips seasons/budget/drafts but legacy lanes still pay', async () => {
@@ -697,7 +769,8 @@ testAsync('systemConfig.rewards.enabled=false skips seasons/budget/drafts but le
     agentRewards: null,
     agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
   });
-  await runRewardsEngine({ storage: st, nowMs: NOW, log: () => {} });
+  const resOff = await runRewardsEngine({ storage: st, nowMs: NOW, log: () => {} });
+  assert.strictEqual(resOff.ok, true);
   const led = st.db.agentRewards;
   assert.ok(led.perAgent.scribe.counters.blogs >= 1, 'legacy blog lane still pays');
   assert.ok(!led.budgetPlan || led.budgetPlan.enabled === false, 'no merit budget when disabled');

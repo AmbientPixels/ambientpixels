@@ -790,23 +790,37 @@ async function runRewardsEngine(opts) {
     }
     if (rewards.privileges) rewards.privileges.enabled = cfg.enabled && cfg.privileges.enabled;
 
-    await storage.setState('agentRewards', rewards);
+    // While disabled, keep the stale season marker: _initRewards (inside applyEvents)
+    // stamps the current month unconditionally, which would silently consume a rollover
+    // the kill switch skipped. Preserving it lets the missed rollover fire on re-enable,
+    // with rolloverSeason's monthsSkipped recording the gap honestly.
+    if (!cfg.enabled && prev && prev.season) rewards.season = prev.season;
 
     // Retirement drafts — the ladder's final rung. IO-layer append, dedup-guarded
     // (transition-only + pending-queue check), never for protected agents, never
     // below fleet minimum. CEO decides; approveProposal owns the side effects.
+    //
+    // ORDER MATTERS: the queue is written BEFORE the ledger. If the ledger write then
+    // fails, the next run re-rolls the season and re-fires the transition, and the
+    // pending-dup check below makes the re-append a no-op. The reverse order would
+    // consume the transition and lose the draft forever.
     if (cfg.enabled && rolled.transitions.length) {
       var pending = _arr(loaded[0]);
       var drafts = 0;
       rolled.transitions.forEach(function (t) {
         if (t.to !== 'retirement_pending' || PROTECTED_AGENTS[t.agentId]) return;
-        if (activeIds.length - 1 < FLEET_MIN) return;
+        if (activeIds.length - 1 - drafts < FLEET_MIN) return;
         var dup = pending.some(function (q) {
           return q && q.type === 'agent_retire_proposal' && q.status === 'pending' &&
             q.retire && q.retire.targetAgent === t.agentId;
         });
         if (dup) return;
         var A = rewards.perAgent[t.agentId] || {};
+        var orphans = (registry && Array.isArray(registry.agents))
+          ? registry.agents.filter(function (a) {
+              return a && a.status === 'active' && a.reportsTo === t.agentId;
+            }).map(function (a) { return a.id; })
+          : [];
         pending.push({
           id: 'retpr_' + nowMs + '_rwd' + drafts,
           type: 'agent_retire_proposal',
@@ -817,7 +831,7 @@ async function runRewardsEngine(opts) {
             rationale: ('Season ladder: ' + (A.parMisses || 3) + ' consecutive below-par seasons. Auto-drafted by the rewards ladder per the 2026-07-30 Revenue Seasons spec. CEO decision required.').substring(0, 500),
             reassignmentPlan: 'Standard retire flow: open tasks reassign to the domain lead on approval. Successor seeding (knowledge inheritance) is Track C.',
             estimatedWinddownCost: 0,
-            orphans: []
+            orphans: orphans
           },
           estimatedCost: 0,
           evidence: { source: 'rewards-ladder', season: (prev && prev.season) || null, parMisses: A.parMisses || null },
@@ -827,6 +841,8 @@ async function runRewardsEngine(opts) {
       });
       if (drafts > 0) await storage.setState('approvalQueue', pending);
     }
+
+    await storage.setState('agentRewards', rewards);
 
     log('[rewardsEngine] events=' + events.length + ' awards=' + applied.newAwards.length + ' followers=' + followerTotal + ' rolled=' + rolled.rolled);
     return { ok: true, events: events.length, awards: applied.newAwards.length, rolled: rolled.rolled };
