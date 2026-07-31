@@ -5,7 +5,7 @@ const {
   levelFromXp, rankFromLevel, classFor,
   applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock,
   resolveContributors, conversionFallbackAgents, rolloverSeason, computeBudgetPlan,
-  runRewardsEngine
+  runRewardsEngine, SEASON_PAR_CEILING
 } = require('./rewards-engine');
 
 const DAY = 86400000;
@@ -521,6 +521,71 @@ test('multi-month gap = one rollover, one miss, gap recorded', () => {
   assert.strictEqual(r.rewards.seasonMeta.monthsSkipped, 3, 'gap recorded honestly');
 });
 
+// ── Incentive-shape tuning (CEO-approved 2026-07-31) ──
+test('par is capped so it never outruns what a real season can produce', () => {
+  // Pure 110%-of-median makes par exceed the median by construction, so >half the fleet
+  // is below par forever regardless of absolute output. Cap the growth target.
+  const per = {};
+  ['echo', 'scribe', 'nova', 'quill', 'vale'].forEach(id => { per[id] = mkA(400); });
+  const r = rolloverSeason(mkLedger('2026-07', per, { par: 40 }), AUG, {
+    activeIds: ['echo', 'scribe', 'nova', 'quill', 'vale'], parFloor: 40
+  });
+  assert.ok(r.rewards.seasonMeta.par <= SEASON_PAR_CEILING,
+    'par capped at ' + SEASON_PAR_CEILING + ' (got ' + r.rewards.seasonMeta.par + ')');
+});
+
+test('protected agents are floored at line — the orchestrator is never crippled', () => {
+  const IDS = ['nova', 'cipher', 'echo', 'scribe', 'forge', 'quill'];
+  const per = {};
+  // nova + cipher finish dead last on season XP
+  IDS.forEach(id => { per[id] = mkA((id === 'nova' || id === 'cipher') ? 1 : 100); });
+  const r = rolloverSeason(mkLedger('2026-07', per, { par: 40 }), AUG, { activeIds: IDS, parFloor: 40 });
+  const tiers = r.rewards.privileges.tiers;
+  assert.strictEqual(tiers.nova, 'line', 'nova never demoted below line');
+  assert.strictEqual(tiers.cipher, 'line', 'cipher never demoted below line');
+  // ...but they still take the par miss, so budget pressure and prompts still apply
+  assert.strictEqual(r.rewards.perAgent.nova.parMisses, 1, 'protection is capability-only, not accountability');
+});
+
+testAsync('retirement drafts skip roles exempted from the ladder', async () => {
+  const per = {};
+  FLEET_TEST_IDS.forEach(id => { per[id] = mkA(id === 'vale' ? 0 : 100); });
+  per.vale.parMisses = 2;
+  per.vale.ladderStatus = 'squeezed';
+  const st = fakeStorage({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasks: [], tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, campaigns: [], actions: [], actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [] }, as_leads: [], cc_analytics: [], systemConfig: {},
+    agentRewards: mkLedger('2026-07', per, { par: 40 }),
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  const res = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  assert.strictEqual(st.db.agentRewards.perAgent.vale.ladderStatus, 'retirement_pending', 'ladder still tracks');
+  assert.strictEqual(st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal').length, 0,
+    'but no retirement is drafted for a ladder-exempt support role');
+});
+
+test('merit budget needs a minimum signal before it reallocates', () => {
+  const led = mkLedger('2026-08', {
+    nova: mkA(0), scribe: mkA(0),
+    echo: mkA(0, { revenueRecent: [{ at: new Date(AUG - 86400000).toISOString(), xp: 1 }] })
+  }, { par: 40 });
+  const base = { nova: 50, scribe: 30, echo: 20 };
+  // one lone scan point must NOT hand echo the entire merit pool
+  const plan = computeBudgetPlan(led, {
+    poolDollars: 100, activeIds: ['nova', 'scribe', 'echo'], baselineCaps: base, nowMs: AUG
+  });
+  assert.strictEqual(plan.perAgent.nova, 50, 'baseline holds below the signal threshold');
+  assert.strictEqual(plan.perAgent.echo, 20, 'one point of noise buys nothing');
+  // above the threshold, merit engages normally
+  led.perAgent.echo.revenueRecent = [{ at: new Date(AUG - 86400000).toISOString(), xp: 60 }];
+  const live = computeBudgetPlan(led, {
+    poolDollars: 100, activeIds: ['nova', 'scribe', 'echo'], baselineCaps: base, nowMs: AUG
+  });
+  assert.ok(live.perAgent.echo > 20, 'real earnings do move the budget (got ' + live.perAgent.echo + ')');
+});
+
 // ── Payout idempotence across fallback-set drift (final-review hardening) ──
 test('an unattributed event pays ONCE — a later fallback-set change never re-pays it', () => {
   const mkState = (assignees) => ({
@@ -680,14 +745,18 @@ test('trailing revenue XP shifts the 60% merit share; floor guarantees survival'
     nova: mkA(0), quill: mkA(0)
   }, { par: 40 });
   const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
+  // total trailing 80 >= MERIT_MIN_SIGNAL, so merit engages.
   // floor: 40/4 = 10 each. merit 60: echo 45, scribe 15, others 0.
   assert.strictEqual(plan.perAgent.echo, 55);
   assert.strictEqual(plan.perAgent.scribe, 25);
   assert.strictEqual(plan.perAgent.nova, 10);
-  // entries older than 14d are ignored
+  // entries older than 14d are ignored — echo's earnings age out, scribe becomes the
+  // sole earner. Scribe's 40 still clears the signal threshold, so merit stays live.
   led.perAgent.echo.revenueRecent = [{ at: new Date(AUG - 20 * 86400000).toISOString(), xp: 60 }];
+  led.perAgent.scribe.revenueRecent = [{ at: new Date(AUG - 3 * 86400000).toISOString(), xp: 40 }];
   const plan2 = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
   assert.strictEqual(plan2.perAgent.scribe, 70, 'scribe now sole earner: 10 + 60');
+  assert.strictEqual(plan2.perAgent.echo, 10, 'aged-out earnings buy nothing');
 });
 
 test('squeezed agents lose 30%, redistributed to the previous champion', () => {
@@ -819,11 +888,12 @@ testAsync('runRewardsEngine drafts ONE retirement proposal on transition, never 
     agentRewards: mkPrev(targetId),
     agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
   });
-  let st = fakeStorage(seed('quill'));
+  // scout: neither protected (nova/cipher) nor ladder-exempt (vale/quill)
+  let st = fakeStorage(seed('scout'));
   await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
   let drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal');
   assert.strictEqual(drafts.length, 1, 'draft appended');
-  assert.strictEqual(drafts[0].retire.targetAgent, 'quill');
+  assert.strictEqual(drafts[0].retire.targetAgent, 'scout');
   assert.strictEqual(drafts[0].proposedBy, 'rewards-engine');
   // re-run: no duplicate
   const res2 = await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });

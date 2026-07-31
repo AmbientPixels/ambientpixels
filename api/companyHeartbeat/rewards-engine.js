@@ -54,11 +54,20 @@ const REVENUE_RECENT_CAP = 300;
 
 const SEASON_PAR_FLOOR = 40;
 const SEASON_PAR_GROWTH = 1.10;
+// Par rises with the fleet but is CAPPED. Pure 110%-of-median sits above the median by
+// construction, so more than half the fleet would miss par every season forever no matter
+// how much they produced — the ladder would measure rank, not performance. The ceiling
+// makes par an absolute bar a competent agent can actually clear and stay clear of.
+const SEASON_PAR_CEILING = 120;
 const SEASON_HISTORY_CAP = 12;
 const LADDER_BY_MISSES = ['safe', 'watch', 'squeezed', 'retirement_pending'];
 const VANGUARD_RANKS = 2;      // top-2 = vanguard
 const PROBATION_RANKS = 2;     // bottom-2 = probation (only when fleet >= 6)
 
+// Minimum trailing revenue XP across the fleet before merit reallocation engages.
+// Below it, one stray point of signal — a single anonymous scan credited by fallback —
+// would hand one agent the entire merit pool and flip everyone else over cap mid-month.
+const MERIT_MIN_SIGNAL = 30;
 const MERIT_FLOOR_PCT = 0.4;
 const MERIT_PCT = 0.6;
 const SQUEEZE_CAP_MULT = 0.7;
@@ -66,6 +75,16 @@ const TRAILING_REVENUE_WINDOW_MS = 14 * 86400000;
 
 const PROTECTED_AGENTS = { nova: true, cipher: true };   // mirror constants.js PROTECTED_AGENTS — never auto-draft retirement
 const FLEET_MIN = 5;                                     // mirror constants.js FLEET_MIN_SIZE
+// Capability floor: protected agents can miss par and feel budget pressure like anyone,
+// but must never lose the tools the fleet depends on. Nova is the orchestrator and the
+// only product proposer; Cipher owns finance. Crippling either to punish a bad season
+// costs the company more than the lesson is worth.
+const TIER_FLOOR_AGENTS = PROTECTED_AGENTS;
+// Ladder-exempt: structurally low-volume support roles. Their value is availability and
+// judgement, not output volume, so a volume-ranked ladder would retire them on a cycle
+// no matter how well they did the job. They still earn, rank, and show a ladder status —
+// it just never drafts their retirement.
+const RETIREMENT_EXEMPT_AGENTS = { vale: true, quill: true };
 
 const RANKS = [
   { min: 50, name: 'Legend' },
@@ -585,10 +604,12 @@ function rolloverSeason(prev, nowMs, opts) {
   ranked.forEach(function (row, i) {
     if (par == null || spread <= 0) { tiers[row.id] = 'line'; return; }
     var probation = fleet.length >= 6 && i >= ranked.length - PROBATION_RANKS;
+    if (probation && TIER_FLOOR_AGENTS[row.id]) probation = false;   // floored, never crippled
     tiers[row.id] = i < VANGUARD_RANKS ? 'vanguard' : (probation ? 'probation' : 'line');
   });
 
-  var nextPar = Math.max(parFloor, Math.round(SEASON_PAR_GROWTH * _median(ranked.map(function (x) { return x.sx; }))));
+  var nextPar = Math.min(SEASON_PAR_CEILING,
+    Math.max(parFloor, Math.round(SEASON_PAR_GROWTH * _median(ranked.map(function (x) { return x.sx; })))));
   r.seasonMeta = { par: nextPar, startedAt: _iso(nowMs), previousChampion: ranked.length ? ranked[0].id : null, monthsSkipped: monthsSkipped };
   r.privileges = { enabled: true, season: nowMonth, tiers: tiers };
   r.season = nowMonth;
@@ -646,10 +667,11 @@ function computeBudgetPlan(rewards, opts) {
     return (Number.isFinite(v) && v > 0) ? (v / baseTotal) : 0;
   };
 
+  var meritLive = total >= MERIT_MIN_SIGNAL;
   var perAgent = {};
   ids.forEach(function (id) {
     var floorShare = pool * floorPct * baseShare(id);
-    var meritShare = total > 0 ? pool * meritPct * (trail[id] / total) : pool * meritPct * baseShare(id);
+    var meritShare = meritLive ? pool * meritPct * (trail[id] / total) : pool * meritPct * baseShare(id);
     perAgent[id] = floorShare + meritShare;
   });
 
@@ -871,7 +893,7 @@ async function runRewardsEngine(opts) {
       var pending = _arr(loaded[0]);
       var drafts = 0;
       rolled.transitions.forEach(function (t) {
-        if (t.to !== 'retirement_pending' || PROTECTED_AGENTS[t.agentId]) return;
+        if (t.to !== 'retirement_pending' || PROTECTED_AGENTS[t.agentId] || RETIREMENT_EXEMPT_AGENTS[t.agentId]) return;
         if (activeIds.length - 1 - drafts < FLEET_MIN) return;
         var dup = pending.some(function (q) {
           return q && q.type === 'agent_retire_proposal' && q.status === 'pending' &&
@@ -923,5 +945,6 @@ module.exports = {
   rolloverSeason: rolloverSeason,
   computeBudgetPlan: computeBudgetPlan, computeTrailingRevenueXp: computeTrailingRevenueXp,
   normalizeRewardsConfig: normalizeRewardsConfig,
-  runRewardsEngine: runRewardsEngine
+  runRewardsEngine: runRewardsEngine,
+  SEASON_PAR_CEILING: SEASON_PAR_CEILING, MERIT_MIN_SIGNAL: MERIT_MIN_SIGNAL
 };
