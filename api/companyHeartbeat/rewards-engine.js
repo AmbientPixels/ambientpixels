@@ -192,7 +192,11 @@ function _initRewards(prev, nowMs) {
     if (!Array.isArray(A.revenueRecent)) A.revenueRecent = [];
     if (typeof A.dailyTaskXp !== 'number') A.dailyTaskXp = 0;
   });
-  if (!r.seasonMeta) r.seasonMeta = { par: SEASON_PAR_FLOOR, startedAt: _iso(nowMs), previousChampion: null };
+  // par starts NULL, not at the floor. The season in progress when this ledger is first
+  // created is a partial one (deploy → month end); scoring it against a full-month par
+  // would put the whole fleet on relegation watch for a season that never happened.
+  // rolloverSeason's `par == null` branch takes no misses and sets the first real par.
+  if (!r.seasonMeta) r.seasonMeta = { par: null, startedAt: _iso(nowMs), previousChampion: null };
   r.updatedAt = _iso(nowMs);
   r.season = _iso(nowMs).substring(0, 7);
   return r;
@@ -408,6 +412,12 @@ function conversionFallbackAgents(state, nowMs) {
 // Split totalXp across the chain (or the 50% fallback set) as per-recipient events.
 // idBase must be stable; per-recipient ids get '__<agent>' so dedup is per share.
 function _emitSplit(ev, idBase, type, totalXp, at, utmContent, ctx, state, nowMs) {
+  // Pay each source event EXACTLY once, ever. Per-recipient dedup alone is not enough:
+  // both the recipient set and each share are recomputed from mutable state every run
+  // (the conversion-campaign fallback set changes as the fleet works, and `reviewer` is
+  // stamped on a task after the fact), so a changed chain would mint brand-new ids for
+  // an event that was already paid. Freezing on the source id makes the first payout final.
+  if (ctx && ctx.paidBases && ctx.paidBases[idBase]) return;
   var who = resolveContributors(utmContent, ctx);
   var xp = totalXp;
   if (!who.length) {
@@ -474,10 +484,18 @@ function extractEvents(state, prevRewards) {
 
   // ── Revenue lane (2026-07-30): sales, leads, public scans ──────────────────
   var nowMs = state._nowMs || Date.now();
+  // Source ids already paid to ANY recipient (ledger ids are '<idBase>__<agent>').
+  var paidBases = {};
+  _arr(prevRewards && prevRewards.processedEventIds).forEach(function (pid) {
+    var s = String(pid);
+    var i = s.lastIndexOf('__');
+    if (i > 0) paidBases[s.slice(0, i)] = true;
+  });
   var ctx = {
     actionsById: (state.actionsById && typeof state.actionsById === 'object') ? state.actionsById : {},
     attributionIndex: (state.attributionIndex && typeof state.attributionIndex === 'object') ? state.attributionIndex : {},
-    tasksById: byId
+    tasksById: byId,
+    paidBases: paidBases
   };
   _arr(state.revenueLedgerEntries).forEach(function (r) {
     if (!r || !r.id || !POSITIVE_SALE_TYPES[r.type] || !(r.amountCents > 0)) return;
@@ -704,7 +722,9 @@ function buildProgressionPromptBlock(agentId, rewards, nowMs) {
       '. ' + daysLeft + ' days left.'
     : '';
 
-  var status = me.ladderStatus || 'safe';
+  // A disabled ladder must not keep threatening agents with consequences that are no
+  // longer enforced — the prompt is the one channel a kill switch could otherwise miss.
+  var status = (rewards.laddersActive === false) ? 'safe' : (me.ladderStatus || 'safe');
   var ladderLine = '';
   if (status === 'watch') {
     ladderLine = 'LADDER: You are on relegation watch (1 below-par season). Finish at or above par or your budget gets cut next season.\n';
@@ -827,6 +847,8 @@ async function runRewardsEngine(opts) {
       rewards.budgetPlan = { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
     }
     if (rewards.privileges) rewards.privileges.enabled = cfg.enabled && cfg.privileges.enabled;
+    // Read by the prompt block so the kill switch reaches the agent-facing ladder text too.
+    rewards.laddersActive = !!cfg.enabled;
 
     // While disabled, keep the stale season marker: _initRewards (inside applyEvents)
     // stamps the current month unconditionally, which would silently consume a rollover

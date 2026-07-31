@@ -521,7 +521,69 @@ test('multi-month gap = one rollover, one miss, gap recorded', () => {
   assert.strictEqual(r.rewards.seasonMeta.monthsSkipped, 3, 'gap recorded honestly');
 });
 
+// ── Payout idempotence across fallback-set drift (final-review hardening) ──
+test('an unattributed event pays ONCE — a later fallback-set change never re-pays it', () => {
+  const mkState = (assignees) => ({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], _nowMs: NOW,
+    campaigns: [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }],
+    tasks: assignees.map((a, i) => ({ id: 'tk' + i, campaign_id: 'camp-conv', assignee: a, updatedAt: at(-2) })),
+    actionsById: {}, attributionIndex: {},
+    revenueLedgerEntries: [{ id: 'evt_1', type: 'one_time', amountCents: 2900, utmContent: null, occurredAt: at(-1) }],
+    asLeads: [], scans: []
+  });
+  let led = null;
+  const run = (assignees) => {
+    const r = applyEvents(extractEvents(mkState(assignees), led), led, NOW);
+    led = r.rewards;
+  };
+  run(['echo']);                       // fallback = [echo] -> floor(129*0.5) = 64
+  run(['echo']);                       // stable set, already idempotent
+  run(['echo', 'cipher']);             // cipher joins the campaign
+  run(['echo', 'cipher', 'forge']);    // and forge
+  const total = Object.keys(led.perAgent).reduce((s, id) => s + led.perAgent[id].xp, 0);
+  assert.strictEqual(total, 64, 'one sale pays its budget exactly once (got ' + total + ')');
+  assert.strictEqual(led.perAgent.echo.counters.sales, 1);
+  assert.ok(!led.perAgent.cipher, 'a late joiner is never retro-credited for a past sale');
+});
+
+test('an attributed event pays once even if a reviewer is stamped on the task later', () => {
+  // reviewer/reviewedAt are set post-hoc by social-copy propagation, so the chain can
+  // grow between runs — the first payout decision must stand.
+  const mkState = (withReviewer) => ({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], campaigns: [], _nowMs: NOW,
+    tasks: [Object.assign({ id: 'tk1', assignee: 'echo' }, withReviewer ? { reviewer: 'quill' } : {})],
+    actionsById: { act_1: { id: 'act_1', created_by: 'scribe', _parentTaskId: 'tk1' } },
+    attributionIndex: {},
+    revenueLedgerEntries: [{ id: 'evt_2', type: 'one_time', amountCents: 2900, utmContent: 'act_1', occurredAt: at(-1) }],
+    asLeads: [], scans: []
+  });
+  let r = applyEvents(extractEvents(mkState(false), null), null, NOW);   // 2 contributors -> 64 each
+  r = applyEvents(extractEvents(mkState(true), r.rewards), r.rewards, NOW);  // quill appears later
+  const total = Object.keys(r.rewards.perAgent).reduce((s, id) => s + r.rewards.perAgent[id].xp, 0);
+  assert.strictEqual(total, 128, 'chain growth does not re-pay the sale (got ' + total + ')');
+  assert.ok(!r.rewards.perAgent.quill, 'late reviewer is not retro-paid');
+});
+
 // ── Bootstrap-season + baseline-cap safety (post-review hardening) ──
+test('a partial first season is not scored: no par seeded means no par misses', () => {
+  // _initRewards seeds seasonMeta on a fresh ledger. If it seeded a real par, the first
+  // rollover would judge the hours between deploy and month-end as a full season and put
+  // the entire fleet on relegation watch.
+  const fresh = applyEvents([{ id: 'tk_seed', type: 'task_done', agentId: 'echo', at: at(0) }], null, NOW).rewards;
+  assert.strictEqual(fresh.seasonMeta.par, null, 'fresh ledger has no par to judge against');
+  fresh.season = '2026-07';
+  const IDS = ['echo', 'scribe', 'nova', 'quill', 'vale', 'forge'];
+  IDS.forEach(id => { if (!fresh.perAgent[id]) fresh.perAgent[id] = mkA(0); });
+  const r = rolloverSeason(fresh, AUG, { activeIds: IDS, parFloor: 40 });
+  assert.strictEqual(r.rolled, true, 'season still rolls');
+  IDS.forEach(id => {
+    assert.strictEqual(r.rewards.perAgent[id].parMisses, 0, id + ' takes no miss for a partial season');
+    assert.strictEqual(r.rewards.perAgent[id].ladderStatus, 'safe', id + ' stays safe');
+  });
+  assert.strictEqual(r.rewards.seasonMeta.par, 40, 'the first real par is set for the season ahead');
+});
+
+
 test('a zero-spread season assigns NO tiers — everyone line (bootstrap season guard)', () => {
   // First rollover under Revenue Seasons: seasonXp is a brand-new field, so every
   // agent is at 0. Ranking would be pure alphabetical — must not hand out real
@@ -795,6 +857,34 @@ testAsync('an existing pending draft suppresses a fresh transition draft (dedup 
   const drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal' && q.retire.targetAgent === 'quill');
   assert.strictEqual(drafts.length, 1, 'still exactly one — the seeded entry, no duplicate appended');
   assert.strictEqual(drafts[0].id, 'retpr_seeded');
+});
+
+testAsync('kill switch also silences the ladder text agents read (no stale threats)', async () => {
+  const per = {};
+  FLEET_TEST_IDS.forEach(id => { per[id] = mkA(50); });
+  per.quill.ladderStatus = 'retirement_pending';
+  per.quill.parMisses = 3;
+  per.vale.ladderStatus = 'squeezed';
+  const st = fakeStorage({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasks: [], tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, campaigns: [], actions: [], actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [] }, as_leads: [], cc_analytics: [],
+    systemConfig: { rewards: { enabled: false } },
+    agentRewards: mkLedger('2026-08', per, { par: 40 }),
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  const res = await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  const led = st.db.agentRewards;
+  assert.strictEqual(led.laddersActive, false, 'ledger records that the ladder is off');
+  const quillBlock = buildProgressionPromptBlock('quill', led, AUG);
+  assert.ok(!/LADDER:/.test(quillBlock), 'no ladder line while disabled');
+  assert.ok(!/retirement/i.test(quillBlock), 'no stale retirement threat');
+  assert.ok(!/budget is cut/i.test(buildProgressionPromptBlock('vale', led, AUG)), 'no stale squeeze claim');
+  // and it comes back when re-enabled
+  st.db.systemConfig = { rewards: { enabled: true } };
+  await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
+  assert.ok(/LADDER:/.test(buildProgressionPromptBlock('quill', st.db.agentRewards, AUG)), 'ladder returns on re-enable');
 });
 
 testAsync('kill switch across a month boundary: rollover fires on re-enable with gap recorded', async () => {
