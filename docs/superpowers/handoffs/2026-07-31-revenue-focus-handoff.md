@@ -55,7 +55,17 @@ Load-bearing invariants, each learned from a real defect — do not "simplify" t
 
 ---
 
-## 4. NEXT TASK: the Seasons dashboard
+## 4. BUILT 2026-07-31 — the Seasons dashboard (needs a visual check)
+
+**Shipped:** `modules/company/seasons.html`, `modules/company/js/seasons.js` (+ `seasons.test.js`, 13 tests green), registered in `sidebar.js` under Command. Commit `ecab8128`.
+
+All four panels are implemented as specified below. Pure functions are node-tested and were verified against **live production data** before the UI was written — standings, par state, effort/outcome split and the attribution alarm all produced correct output.
+
+**NOT YET VERIFIED: how it actually looks in a browser.** Everything under `/modules/company/*` is auth-gated and returns 401 for existing and non-existent files alike, so deployment and rendering could not be confirmed from the CLI. **First job for the next session: open https://ambientpixels.ai/modules/company/seasons.html while logged in** and check layout, the collapse toggles, and that the panels populate. Likely small CSS fixes; the data layer is proven.
+
+Expected content on first view (live values as of 2026-07-31 ~18:30Z): season 2026-07 marked **UNSCORED**, 1 day left, par null; Echo 173 and Scribe 160 season XP with everyone else at 0; effort-vs-outcome showing 95% revenue share (an artifact of the two sales backfilling at once, not a behaviour change — do not over-read it); attribution showing **$398 / 100% unattributed**.
+
+### Original spec (as built)
 
 **Goal:** one page that answers "is this economy measuring anything real?" — not a vanity leaderboard.
 

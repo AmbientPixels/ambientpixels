@@ -12,22 +12,21 @@ Context in one line: we shipped a revenue-first XP economy ("Revenue Seasons") a
 the whole agent memory stack today. The company earned its first $398 and cannot explain
 where it came from — 62 fleet actions last week produced 0 leads and 0 public scans.
 
-Your task: build the Seasons dashboard described in §4 of the handoff.
+Your first task: the Seasons dashboard is BUILT (modules/company/seasons.html +
+js/seasons.js, 13 tests green, logic verified against live data) but has never been seen in
+a browser — everything under /modules/company/ is auth-gated, so I could not confirm it
+renders. Open https://ambientpixels.ai/modules/company/seasons.html while logged in, check
+the four panels populate and the layout holds, and fix whatever is off. The data layer is
+proven; expect CSS/layout issues only. §4 of the handoff lists the exact values you should
+see.
 
-It is a company module page that answers "is this economy measuring anything real?" — not a
-vanity leaderboard. Four panels: season header (with an honest "unscored season" state),
-standings with the revenue-XP-vs-churn split, effort vs outcome, and the attribution trace
-with its unattributed counter (100% today). If you only get one panel done, make it effort
-vs outcome — that's the one that would have surfaced our funnel problem weeks ago.
+After that, pick up §5 (open items) — most valuable next is Track C, retirement knowledge
+inheritance: agent prompts already promise "your successor would inherit your memories" and
+that is not yet true.
 
-Copy modules/company/agent-progress.html + js/agent-progress.js as the template (pure
-functions in a separate JS file with node tests, matching how the engine was built). All the
-data comes from one call to GET /api/agentRewards. Register the page with one line in
-modules/company/js/sidebar.js.
-
-Before you write code: brainstorm the panel design with me and get my approval on the plan.
 Read §3 of the handoff (Hazards) before touching any state — several of those cost us real
 incidents today, especially that POST /api/company-state is full-replace with no merge.
+For anything substantial, brainstorm the design with me and get approval before writing code.
 
 This repo auto-pushes to production within minutes of a commit, so verify before you commit:
 run the test suites, and check any live change against real state rather than assuming.
