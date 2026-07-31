@@ -1,6 +1,10 @@
-# Handoff — Revenue Seasons + memory retune SHIPPED; Seasons dashboard is next
+# Handoff — Revenue Seasons, memory retune and Seasons dashboard all SHIPPED
 
-**Date:** 2026-07-31 · **Prior work:** complete, deployed, verified live. **Next task:** build the Seasons dashboard (§4).
+**Date:** 2026-07-31 · **Prior work:** complete, deployed, verified live (one exception below).
+
+**Start here next session:**
+1. **5-minute visual check** — open `https://ambientpixels.ai/modules/company/seasons.html` logged in. The dashboard is built and its logic is proven against live data, but it has never been seen in a browser (auth-gated; the CLI cannot confirm rendering). §4 lists the exact values you should see. Expect CSS/layout fixes only.
+2. **Then Track C** — retirement knowledge inheritance (§5). Agent prompts already promise *"your successor would inherit your memories"* and that is not yet true.
 
 **Read first:** skill `agent-rewards`; memories `project_revenue_seasons`, `project_revenue_first_retune`, `project_seed_memory_truncation`, `feedback_systemconfig_read_modify_write`.
 
@@ -100,8 +104,20 @@ Expected content on first view (live values as of 2026-07-31 ~18:30Z): season 20
 ---
 
 ## 6. Live state at handoff
-- All work committed and pushed; working tree clean.
+- All work committed and pushed; working tree clean. Test suites: engine **73/73**, dashboard **13/13**, smoke **25/25**.
 - Revenue Seasons fully ON: `laddersActive: true`, `budgetPlan` live, merit budget re-enabled, all 9 agents GREEN.
 - `systemConfig.rewards = { meritBudget: { enabled: true } }`; `heartbeatModel: gemini-pro`; GENESIS offer present and inactive.
 - Season `2026-07`, `par: null` (unscored — correct). First scored season is August; first possible retirement draft is 2026-10-01, CEO-gated.
+- Seeds and doctrine both retuned revenue-first and confirmed in a live heartbeat (9 actions, 0 errors).
+- Seasons dashboard committed (`ecab8128`) and linked in nav under **Command** (`sidebar.js:58`, no mode gate). Rendering unverified — see item 1 at the top.
 - Approval queue: 2 unrelated pending items (1 content package, 1 campaign proposal).
+
+## 7. Files worth knowing
+| Path | What |
+|---|---|
+| `api/companyHeartbeat/rewards-engine.js` | the whole economy; pure functions + one IO orchestrator |
+| `api/companyHeartbeat/rewards-engine.test.js` | 73 tests — run before any economy change |
+| `modules/company/seasons.html` + `js/seasons.js` + `js/seasons.test.js` | the dashboard |
+| `docs/superpowers/specs/2026-07-30-revenue-seasons-design.md` | design + every deviation, source of truth |
+| `docs/superpowers/handoffs/2026-07-31-seeds-pre-retune-backup.json` | pre-retune seed backup (recovery) |
+| `.claude/skills/agent-rewards/SKILL.md` | mechanics reference — consult before assuming |

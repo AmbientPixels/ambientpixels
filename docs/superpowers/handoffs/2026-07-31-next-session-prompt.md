@@ -1,40 +1,46 @@
 # Copy-paste prompt to start the next session
 
-Paste everything in the fenced block below as the first message of a new Claude Code session.
+Paste the fenced block below as the first message of a new Claude Code session.
 
 ```
 Read ambientpixels/docs/superpowers/handoffs/2026-07-31-revenue-focus-handoff.md first —
-it is the record of what shipped today and the plan for what's next. Also load the
-agent-rewards skill and the memories project_revenue_seasons, project_revenue_first_retune,
-and project_seed_memory_truncation.
+it is the record of what shipped and what's next. Also load the agent-rewards skill and the
+memories project_revenue_seasons, project_revenue_first_retune, and
+project_seed_memory_truncation.
 
-Context in one line: we shipped a revenue-first XP economy ("Revenue Seasons") and retuned
-the whole agent memory stack today. The company earned its first $398 and cannot explain
-where it came from — 62 fleet actions last week produced 0 leads and 0 public scans.
+Context in one line: yesterday we shipped a revenue-first XP economy ("Revenue Seasons"),
+retuned the entire agent memory stack to match, and built a Seasons dashboard. The company
+earned its first $398 and cannot explain where it came from — 62 fleet actions in a week
+produced 0 leads and 0 public scans.
 
-Your first task: the Seasons dashboard is BUILT (modules/company/seasons.html +
-js/seasons.js, 13 tests green, logic verified against live data) but has never been seen in
-a browser — everything under /modules/company/ is auth-gated, so I could not confirm it
-renders. Open https://ambientpixels.ai/modules/company/seasons.html while logged in, check
-the four panels populate and the layout holds, and fix whatever is off. The data layer is
-proven; expect CSS/layout issues only. §4 of the handoff lists the exact values you should
-see.
+Start with these two, in order:
 
-After that, pick up §5 (open items) — most valuable next is Track C, retirement knowledge
-inheritance: agent prompts already promise "your successor would inherit your memories" and
-that is not yet true.
+1. VISUAL CHECK (5 min). modules/company/seasons.html is built, its pure functions are
+   node-tested, and its logic was verified against live production data — but it has never
+   been seen in a browser, because everything under /modules/company/ is auth-gated and the
+   CLI cannot confirm rendering. Open https://ambientpixels.ai/modules/company/seasons.html
+   logged in, confirm the four panels populate and the layout holds, and fix what's off.
+   §4 of the handoff lists the exact values you should see. Expect CSS/layout only.
 
-Read §3 of the handoff (Hazards) before touching any state — several of those cost us real
-incidents today, especially that POST /api/company-state is full-replace with no merge.
-For anything substantial, brainstorm the design with me and get approval before writing code.
+2. TRACK C — retirement knowledge inheritance. Agent prompts already tell agents "your
+   successor would inherit your memories" and that is not true yet. Design it before the
+   first retirement draft can fire (earliest 2026-10-01, CEO-gated). Brainstorm the design
+   with me and get approval before writing code.
 
-This repo auto-pushes to production within minutes of a commit, so verify before you commit:
-run the test suites, and check any live change against real state rather than assuming.
+Read §3 of the handoff (Hazards) before touching any state. Several of those cost real
+incidents: POST /api/company-state is FULL REPLACE with no merge (it destroyed
+systemConfig.heartbeatModel once), approveProposal takes `id` not `proposalId`, and
+`doctrine` is replaced wholesale on approve.
+
+This repo auto-pushes to production within minutes of a commit, and the fleet spends real
+money on a 2-hour heartbeat. Verify before you commit: run the test suites (engine 73,
+dashboard 13, smoke 25) and check live changes against real state rather than assuming.
 ```
 
 ## Why this prompt is shaped this way
-- Points at ONE document as the source of truth rather than restating everything (the handoff is already precise).
-- Names the task and the success criterion (which panel matters most) so scope survives a context squeeze.
-- Front-loads the hazards, because every one of them cost time or caused an incident today.
-- Asks for a design checkpoint before code — the dashboard has real design choices (what "unscored season" looks like, how to show the split) that are cheaper to settle in conversation.
-- States the deploy risk explicitly: this repo pushes to a live autonomous fleet.
+- Points at ONE document as the source of truth instead of restating it, so it cannot drift.
+- Leads with the smallest highest-certainty task (the visual check) so the session starts with a win and closes the one genuinely unverified thing.
+- Names the honest limitation — the dashboard was never rendered — rather than implying it is done.
+- Front-loads the three hazards that actually caused incidents, with the specific consequence of each.
+- States the deploy risk plainly: auto-push, live autonomous fleet, real money.
+- Asks for a design checkpoint on Track C, which has real architectural choices (what a successor inherits, and how consent/pruning works).
