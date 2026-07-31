@@ -290,7 +290,11 @@ function buildSiteContextBlock() {
 var SKILL_ROUTING = {
   nova:   ['ambientos-guide'],
   echo:   ['ambientos-guide'],
-  scribe: ['ambientos-guide', 'pixel-agents', 'cardforge'],
+  // scribe carries the heaviest base prompt (founder voice + product facts + deep task
+  // descriptions); product skills pushed her past the 30K preflight ceiling twice
+  // (storyforge 2026-04-15, cardforge+pixel-agents 2026-07-29 — 46h silent outage).
+  // Product accuracy is still enforced by the productFacts block + quality gate.
+  scribe: ['ambientos-guide'],
   quill:  ['ambientos-guide'],
   pixel:  ['ambientos-guide', 'pixel-agents'],
   cipher: ['ambientos-guide'],
@@ -328,7 +332,26 @@ function buildHeartbeatPrompt(ctx) {
     support: '→ Nova should triage: classify taskType, assign to correct agent.'
   };
 
-  const taskList = agentTasks.map(t => {
+  // Degraded rebuild (ctx._degrade, set by agent-runner when the assembled prompt
+  // exceeds the 30K-token preflight ceiling): cap the assigned-task list at the 12
+  // most urgent. An uncapped list makes prompt size proportional to queue depth,
+  // which is a death spiral — skipped agent → tasks pile up → prompt grows → still
+  // skipped (Scribe, 2026-07-29, 46h silent). Normal builds are untouched.
+  var _degrade = ctx._degrade === true;
+  var _taskListSource = agentTasks;
+  var _taskListOverflowNote = '';
+  if (_degrade && agentTasks.length > 12) {
+    var _degPrio = { critical: 0, high: 1, medium: 2, low: 3 };
+    _taskListSource = agentTasks.slice().sort(function (a, b) {
+      var pa = _degPrio[a.priority] !== undefined ? _degPrio[a.priority] : 3;
+      var pb = _degPrio[b.priority] !== undefined ? _degPrio[b.priority] : 3;
+      if (pa !== pb) return pa - pb;
+      return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+    }).slice(0, 12);
+    _taskListOverflowNote = '\n(+' + (agentTasks.length - 12) + ' more assigned tasks not shown — your queue is over the prompt size budget. Work through the tasks above first; the rest surface as these complete.)';
+  }
+
+  const taskList = _taskListSource.map(t => {
     const src = t.source === 'heartbeat' ? 'agent' : 'CEO';
     const _tType = t.taskType || 'general';
     let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', type: ' + _tType + ', source: ' + src + ', id: ' + t.id;
@@ -366,7 +389,7 @@ function buildHeartbeatPrompt(ctx) {
       });
     }
     return line;
-  }).join('\n') || '(none assigned)';
+  }).join('\n') + _taskListOverflowNote || '(none assigned)';
 
   // SERVER-SIDE HERO IMAGE NUDGE: If Pixel has a hero image task idle for 5+ min, inject urgent override
   let heroImageNudge = '';
@@ -1644,6 +1667,10 @@ You must remain within your assigned authority tier. Doctrine influences your st
   var skillsSystemBlock = ''; // kept for backward compat; not used anymore
   if (skillsData && Array.isArray(skillsData.skills) && skillsData.skills.length > 0) {
     var _routedIds = SKILL_ROUTING[agent.id] || ['ambientos-guide'];
+    // Degraded rebuild: product skills are the single largest prompt section
+    // (~12K chars each) — drop down to the universal skill so the agent runs
+    // this cycle instead of being preflight-skipped entirely.
+    if (_degrade) _routedIds = ['ambientos-guide'];
     var _routedSkills = _routedIds
       .map(function (id) {
         return skillsData.skills.find(function (s) { return s.id === id; });

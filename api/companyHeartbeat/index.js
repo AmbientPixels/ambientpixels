@@ -2213,6 +2213,7 @@ module.exports = async function (context) {
           reasoning: result.reasoning || null,
           preflightSkipped: result.preflightSkipped === true,
           preflightEstimatedTokens: result.preflightEstimatedTokens || null,
+          promptDegraded: result.promptDegraded === true,
           guardrailBlocked: ((result.guardrails && result.guardrails.orphanBlocked) || 0)
             + ((result.guardrails && result.guardrails.exactDupBlocked) || 0)
             + ((result.guardrails && result.guardrails.fuzzyDupBlocked) || 0)
@@ -4402,6 +4403,15 @@ module.exports = async function (context) {
         error: rs.error || null,
         reasoning: rs.reasoning || null
       };
+      // Preflight outcomes must survive into the persisted run record — a skip
+      // that only lives in _agentRunStats reads as a clean 0/0 run and hid
+      // Scribe's 46h prompt-ceiling outage (2026-07-29). Truthy-only to keep
+      // healthy records lean.
+      if (rs.preflightSkipped) {
+        perAgent[aid].preflightSkipped = true;
+        perAgent[aid].preflightEstimatedTokens = rs.preflightEstimatedTokens || null;
+      }
+      if (rs.promptDegraded) perAgent[aid].promptDegraded = true;
     });
 
     const guardrailTotal = (_guardrailCounts.orphanBlocked || 0)

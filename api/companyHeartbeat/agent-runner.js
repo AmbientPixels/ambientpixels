@@ -545,17 +545,33 @@ async function runAgentHeartbeat(ctx) {
   const _agentRewards = (await storage.getState('agentRewards')) || null; // rewards ledger for the YOUR PROGRESSION block
   const _activeOffers = await _getActiveOffers(); // live offers registry → ACTIVE OFFERS prompt block (content agents)
   const _promptCtx = { agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, _agentMemoryStore, agentConfigs: configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, outcomeDigest, reflectionDigest, worldState, strategyDigest, productFacts, skillsData, forgeOpsDigest, financeDigest, allocationDigest, researchDemandDigest, contentDigest, strategicDigest, recentActivityDigest, socialAccountStats, weeklyReportsStore, publishedBlogPosts, siteIntel, pendingMessages, approvalQueue, emergenceDigest, agentRewards: _agentRewards, activeOffers: _activeOffers, parkedPendingCount: _parkedPendingCount };
-  const prompt = buildHeartbeatPrompt(_promptCtx);
+  let prompt = buildHeartbeatPrompt(_promptCtx);
 
   // Pre-flight prompt size guard (rough estimate: ~4 chars per token)
-  const _estimatedTokens = Math.ceil(prompt.length / 4);
+  let _estimatedTokens = Math.ceil(prompt.length / 4);
   const _sizeStats = _promptCtx._sizeStats || { total: prompt.length, estimatedTokens: _estimatedTokens, sections: {} };
   try {
     await logEvent('prompt-size', agentId, 'Prompt assembled', cycleId, _sizeStats);
   } catch (_pse) { /* non-fatal */ }
 
   if (_estimatedTokens > 30000) {
-    context.log.warn('[Heartbeat] ' + agentId + ': prompt exceeds 30K token ceiling (' + _estimatedTokens + ' est.) — skipping this cycle');
+    // Degrade instead of going dark (2026-07-31). A preflight-skipped agent never
+    // sees its prompt, so no system_directive can revive it, and its queue keeps
+    // growing the tasks section — a death spiral (Scribe was silently skipped for
+    // 46h/23 runs). Rebuild with universal skill only + capped task list; only
+    // skip if the degraded prompt is STILL over the ceiling.
+    const _preDegradeTokens = _estimatedTokens;
+    _promptCtx._degrade = true;
+    prompt = buildHeartbeatPrompt(_promptCtx);
+    _estimatedTokens = Math.ceil(prompt.length / 4);
+    result.promptDegraded = true;
+    context.log.warn('[Heartbeat] ' + agentId + ': prompt over 30K ceiling (' + _preDegradeTokens + ' est.) — degraded rebuild at ' + _estimatedTokens + ' est. tokens');
+    try {
+      await logEvent('prompt-degraded', agentId, 'Prompt over 30K ceiling — rebuilt with universal skill + capped task list', cycleId, { beforeTokens: _preDegradeTokens, afterTokens: _estimatedTokens });
+    } catch (_pde) { /* non-fatal */ }
+  }
+  if (_estimatedTokens > 30000) {
+    context.log.warn('[Heartbeat] ' + agentId + ': prompt exceeds 30K token ceiling even after degraded rebuild (' + _estimatedTokens + ' est.) — skipping this cycle');
     result.preflightSkipped = true;
     result.preflightEstimatedTokens = _estimatedTokens;
     result.durationMs = Date.now() - _agentRunStartMs;

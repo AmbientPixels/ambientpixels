@@ -485,6 +485,27 @@ function _computeThroughputCollapse(heartbeatRuns, nowMs) {
     });
   }
 
+  // Single-agent silent outage (2026-07-31): the fleet-level silent threshold
+  // needs >=2 agents, so one dead agent among a healthy fleet never fired —
+  // Scribe's 46h preflight-skip outage was invisible here while fleet averages
+  // stayed green. Below the fleet threshold, surface each silent agent
+  // individually at YELLOW (subject = agent id, so cross-run dedup applies).
+  if (silent.length >= 1 && silent.length < t.silentAgents.yellow) {
+    silent.forEach(function (id) {
+      signals.push({
+        id: _id('esig'),
+        level: 'YELLOW',
+        signalType: 'agent-silent-outage',
+        subject: id,
+        signal: 'Agent ' + id + ' produced 0 actions across the last ' + n + ' runs at sub-second latency — the LLM call is not happening (failed call or preflight prompt-size skip), not an idle choice.',
+        recommendation: 'Check heartbeatRuns perAgent.' + id + ' for preflightSkipped/promptDegraded and the prompt-size log events for estimatedTokens near the 30K ceiling. A system_directive cannot fix this — a skipped agent never sees its prompt.',
+        threshold: { windowRuns: t.windowRuns, latencyFloorMs: t.latencyFloorMs },
+        evidence: { agent: id, windowRuns: n, silentAgents: silent },
+        at: new Date(nowMs).toISOString()
+      });
+    });
+  }
+
   return { metrics: metrics, signals: signals };
 }
 
