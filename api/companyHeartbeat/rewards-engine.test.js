@@ -4,7 +4,8 @@ const assert = require('assert');
 const {
   levelFromXp, rankFromLevel, classFor,
   applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock,
-  resolveContributors, conversionFallbackAgents, rolloverSeason, computeBudgetPlan
+  resolveContributors, conversionFallbackAgents, rolloverSeason, computeBudgetPlan,
+  runRewardsEngine
 } = require('./rewards-engine');
 
 const DAY = 86400000;
@@ -16,6 +17,8 @@ function test(name, fn) {
   try { fn(); pass++; console.log('  PASS ', name); }
   catch (e) { fail++; console.log('  FAIL ', name, '\n        ', e.message); }
 }
+const asyncTests = [];
+function testAsync(name, fn) { asyncTests.push({ name, fn }); }
 const agent = (r, id) => r.perAgent[id];
 
 // ── helpers ──
@@ -621,5 +624,91 @@ test('bare mid-season ledger degrades cleanly: no ladder line, LINE tier, assist
   assert.ok(/assists/i.test(block), 'assists restored to earning guide');
 });
 
-console.log('\n' + pass + ' passed, ' + fail + ' failed');
-process.exit(fail > 0 ? 1 : 0);
+// ── Task 7: IO wiring ──
+const FLEET_TEST_IDS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scout', 'scribe', 'quill', 'vale'];
+function fakeStorage(seed) {
+  const db = Object.assign({}, seed);
+  return {
+    db,
+    getState: async (k) => (k in db ? JSON.parse(JSON.stringify(db[k])) : null),
+    setState: async (k, v) => { db[k] = JSON.parse(JSON.stringify(v)); }
+  };
+}
+
+testAsync('runRewardsEngine pays an attributed sale end-to-end and attaches budgetPlan', async () => {
+  const st = fakeStorage({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, agentRewards: null,
+    tasks: [{ id: 'tk1', assignee: 'echo', reviewer: 'quill', campaign_id: 'camp-conv', updatedAt: at(-1) }],
+    campaigns: [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }],
+    actions: [{ id: 'act_1', created_by: 'scribe', _parentTaskId: 'tk1' }],
+    actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [{ id: 'evt_1', type: 'one_time', amountCents: 2900, utmContent: 'act_1', occurredAt: at(0) }] },
+    as_leads: [], cc_analytics: [], systemConfig: {},
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  const res = await runRewardsEngine({ storage: st, nowMs: NOW, log: () => {} });
+  assert.strictEqual(res.ok, true);
+  const led = st.db.agentRewards;
+  assert.ok(led.perAgent.scribe.counters.sales >= 1, 'writer credited');
+  assert.ok(led.perAgent.echo.seasonRevenueXp > 0, 'assignee credited');
+  assert.ok(led.budgetPlan && led.budgetPlan.perAgent, 'budgetPlan attached');
+});
+
+testAsync('runRewardsEngine drafts ONE retirement proposal on transition, never for protected agents', async () => {
+  const mkPrev = (targetId) => {
+    const per = {};
+    FLEET_TEST_IDS.forEach(id => { per[id] = mkA(id === targetId ? 0 : 100); });
+    per[targetId].parMisses = 2;
+    per[targetId].ladderStatus = 'squeezed';
+    return mkLedger('2026-07', per, { par: 40 });
+  };
+  const seed = (targetId) => ({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasks: [], tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, campaigns: [], actions: [], actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [] }, as_leads: [], cc_analytics: [], systemConfig: {},
+    agentRewards: mkPrev(targetId),
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  let st = fakeStorage(seed('quill'));
+  await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  let drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal');
+  assert.strictEqual(drafts.length, 1, 'draft appended');
+  assert.strictEqual(drafts[0].retire.targetAgent, 'quill');
+  assert.strictEqual(drafts[0].proposedBy, 'rewards-engine');
+  // re-run: no duplicate
+  await runRewardsEngine({ storage: st, nowMs: AUG + 3600000, log: () => {} });
+  drafts = st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal');
+  assert.strictEqual(drafts.length, 1, 'dedup across runs');
+  // protected agent: no draft
+  st = fakeStorage(seed('nova'));
+  await runRewardsEngine({ storage: st, nowMs: AUG, log: () => {} });
+  assert.strictEqual(st.db.approvalQueue.filter(q => q.type === 'agent_retire_proposal').length, 0, 'nova is protected');
+});
+
+testAsync('systemConfig.rewards.enabled=false skips seasons/budget/drafts but legacy lanes still pay', async () => {
+  const st = fakeStorage({
+    approvalQueue: [], blogPosts: [{ id: 'b1', author: 'scribe', publishedAt: at(0) }],
+    outcomeSnapshots: {}, tasks: [], tasksArchive: [], blogPostViews: [], socialAccountStats: {}, runtimeMemory: {},
+    campaigns: [], actions: [], actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [{ id: 'evt_9', type: 'one_time', amountCents: 2900, utmContent: null, occurredAt: at(0) }] },
+    as_leads: [], cc_analytics: [],
+    systemConfig: { rewards: { enabled: false } },
+    agentRewards: null,
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  await runRewardsEngine({ storage: st, nowMs: NOW, log: () => {} });
+  const led = st.db.agentRewards;
+  assert.ok(led.perAgent.scribe.counters.blogs >= 1, 'legacy blog lane still pays');
+  assert.ok(!led.budgetPlan || led.budgetPlan.enabled === false, 'no merit budget when disabled');
+  assert.ok(!Object.keys(led.perAgent).some(id => (led.perAgent[id].counters.sales || 0) > 0), 'revenue lane off');
+});
+
+(async () => {
+  for (const t of asyncTests) {
+    try { await t.fn(); pass++; console.log('  PASS ', t.name); }
+    catch (e) { fail++; console.log('  FAIL ', t.name, '\n        ', e.message); }
+  }
+  console.log('\n' + pass + ' passed, ' + fail + ' failed');
+  process.exit(fail > 0 ? 1 : 0);
+})();

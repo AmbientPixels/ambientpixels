@@ -64,6 +64,9 @@ const MERIT_PCT = 0.6;
 const SQUEEZE_CAP_MULT = 0.7;
 const TRAILING_REVENUE_WINDOW_MS = 14 * 86400000;
 
+const PROTECTED_AGENTS = { nova: true, cipher: true };   // mirror constants.js PROTECTED_AGENTS — never auto-draft retirement
+const FLEET_MIN = 5;                                     // mirror constants.js FLEET_MIN_SIZE
+
 const RANKS = [
   { min: 50, name: 'Legend' },
   { min: 40, name: 'Elite' },
@@ -122,6 +125,19 @@ function _hash(s) { s = String(s || ''); var h = 5381; for (var i = 0; i < s.len
 function _iso(ms) { return new Date(ms).toISOString(); }
 function _day(iso) { return String(iso || '').substring(0, 10); }
 function _dayDiff(d1, d2) { return Math.round((Date.parse(d2) - Date.parse(d1)) / 86400000); }
+
+function normalizeRewardsConfig(sysCfg) {
+  var c = (sysCfg && sysCfg.rewards) || {};
+  var mb = c.meritBudget || {};
+  return {
+    enabled: c.enabled !== false,
+    meritBudget: { enabled: mb.enabled !== false, floorPct: Number.isFinite(mb.floorPct) ? mb.floorPct : MERIT_FLOOR_PCT, meritPct: Number.isFinite(mb.meritPct) ? mb.meritPct : MERIT_PCT },
+    privileges: { enabled: !c.privileges || c.privileges.enabled !== false },
+    parFloor: Number.isFinite(c.parFloor) ? c.parFloor : SEASON_PAR_FLOOR,
+    squeezeMult: Number.isFinite(c.squeezeMult) ? c.squeezeMult : SQUEEZE_CAP_MULT,
+    budgetMonthly: Number.isFinite(c.budgetMonthly) ? c.budgetMonthly : null
+  };
+}
 
 // cumulative XP required to BE at level n. cost(k->k+1) = 50 + 25k.
 function _cumulativeForLevel(n) { return 50 * (n - 1) + 25 * (n - 1) * n / 2; }
@@ -703,16 +719,50 @@ async function runRewardsEngine(opts) {
       storage.getState('socialAccountStats').then(function (v) { return v || {}; }),
       storage.getState('runtimeMemory').then(function (v) { return v || {}; }),
       storage.getState('agentRewards').then(function (v) { return v || null; }),
-      storage.getState('blogPostViews').then(function (v) { return Array.isArray(v) ? v.length : 0; })
+      storage.getState('blogPostViews').then(function (v) { return Array.isArray(v) ? v.length : 0; }),
+      storage.getState('revenueLedger').then(function (v) { return (v && Array.isArray(v.entries)) ? v.entries : []; }),
+      storage.getState('as_leads').then(function (v) { return v || []; }),
+      storage.getState('cc_analytics').then(function (v) { return v || []; }),
+      storage.getState('actions').then(function (v) { return v || []; }),
+      storage.getState('actionAttributionIndex').then(function (v) { return (v && v.map) ? v.map : {}; }),
+      storage.getState('campaigns').then(function (v) { return v || []; }),
+      storage.getState('systemConfig').then(function (v) { return v || {}; }),
+      storage.getState('agentRegistry').then(function (v) { return v || null; })
     ]);
-    var state = { approvalQueue: loaded[0], blogPosts: loaded[1], outcomeSnapshots: loaded[2], tasks: loaded[3], tasksArchive: loaded[4] };
-    var sas = loaded[5] || {};
-    var prev = loaded[7];
+    var cfg = normalizeRewardsConfig(loaded[15]);
+    var registry = loaded[16];
+    var activeIds = (registry && Array.isArray(registry.agents))
+      ? registry.agents.filter(function (a) { return a && a.status === 'active'; }).map(function (a) { return a.id; })
+      : FLEET_AGENTS;
 
-    var events = extractEvents(state, prev);
-    var applied = applyEvents(events, prev, nowMs);
+    var actionsById = {};
+    _arr(loaded[12]).forEach(function (a) { if (a && a.id) actionsById[a.id] = a; });
+
+    var state = {
+      approvalQueue: loaded[0], blogPosts: loaded[1], outcomeSnapshots: loaded[2],
+      tasks: loaded[3], tasksArchive: loaded[4], _nowMs: nowMs
+    };
+    if (cfg.enabled) {
+      state.revenueLedgerEntries = loaded[9];
+      state.asLeads = loaded[10];
+      state.scans = loaded[11];
+      state.actionsById = actionsById;
+      state.attributionIndex = loaded[13];
+      state.campaigns = loaded[14];
+    }
+
+    var prev = loaded[7];
+    // ORDER MATTERS: rollover must see the RAW prev.season before _initRewards
+    // (inside applyEvents/applyCompany) stamps the current month over it.
+    var rolled = cfg.enabled
+      ? rolloverSeason(prev, nowMs, { activeIds: activeIds, parFloor: cfg.parFloor })
+      : { rewards: prev, rolled: false, transitions: [] };
+
+    var events = extractEvents(state, rolled.rewards);
+    var applied = applyEvents(events, rolled.rewards, nowMs);
 
     var followerTotal = 0;
+    var sas = loaded[5] || {};
     // Prod nests platforms under socialAccountStats.platforms (same shape bug
     // as the proposal generator, fixed 07-02); fall back to the flat shape.
     var sasPlatforms = (sas && sas.platforms) ? sas.platforms : sas;
@@ -728,9 +778,58 @@ async function runRewardsEngine(opts) {
       blogViews: loaded[8]
     }, nowMs);
 
+    if (cfg.enabled && cfg.meritBudget.enabled) {
+      var pool = cfg.budgetMonthly != null ? cfg.budgetMonthly
+        : (loaded[15] && loaded[15].finance && Number(loaded[15].finance.budgetMonthly)) || 110;
+      rewards.budgetPlan = computeBudgetPlan(rewards, {
+        poolDollars: pool, floorPct: cfg.meritBudget.floorPct, meritPct: cfg.meritBudget.meritPct,
+        squeezeMult: cfg.squeezeMult, activeIds: activeIds, nowMs: nowMs
+      });
+    } else {
+      rewards.budgetPlan = { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
+    }
+    if (rewards.privileges) rewards.privileges.enabled = cfg.enabled && cfg.privileges.enabled;
+
     await storage.setState('agentRewards', rewards);
-    log('[rewardsEngine] events=' + events.length + ' awards=' + applied.newAwards.length + ' followers=' + followerTotal);
-    return { ok: true, events: events.length, awards: applied.newAwards.length };
+
+    // Retirement drafts — the ladder's final rung. IO-layer append, dedup-guarded
+    // (transition-only + pending-queue check), never for protected agents, never
+    // below fleet minimum. CEO decides; approveProposal owns the side effects.
+    if (cfg.enabled && rolled.transitions.length) {
+      var pending = _arr(loaded[0]);
+      var drafts = 0;
+      rolled.transitions.forEach(function (t) {
+        if (t.to !== 'retirement_pending' || PROTECTED_AGENTS[t.agentId]) return;
+        if (activeIds.length - 1 < FLEET_MIN) return;
+        var dup = pending.some(function (q) {
+          return q && q.type === 'agent_retire_proposal' && q.status === 'pending' &&
+            q.retire && q.retire.targetAgent === t.agentId;
+        });
+        if (dup) return;
+        var A = rewards.perAgent[t.agentId] || {};
+        pending.push({
+          id: 'retpr_' + nowMs + '_rwd' + drafts,
+          type: 'agent_retire_proposal',
+          status: 'pending',
+          proposedBy: 'rewards-engine',
+          retire: {
+            targetAgent: t.agentId,
+            rationale: ('Season ladder: ' + (A.parMisses || 3) + ' consecutive below-par seasons. Auto-drafted by the rewards ladder per the 2026-07-30 Revenue Seasons spec. CEO decision required.').substring(0, 500),
+            reassignmentPlan: 'Standard retire flow: open tasks reassign to the domain lead on approval. Successor seeding (knowledge inheritance) is Track C.',
+            estimatedWinddownCost: 0,
+            orphans: []
+          },
+          estimatedCost: 0,
+          evidence: { source: 'rewards-ladder', season: (prev && prev.season) || null, parMisses: A.parMisses || null },
+          createdAt: _iso(nowMs)
+        });
+        drafts++;
+      });
+      if (drafts > 0) await storage.setState('approvalQueue', pending);
+    }
+
+    log('[rewardsEngine] events=' + events.length + ' awards=' + applied.newAwards.length + ' followers=' + followerTotal + ' rolled=' + rolled.rolled);
+    return { ok: true, events: events.length, awards: applied.newAwards.length, rolled: rolled.rolled };
   } catch (err) {
     log('[rewardsEngine] Fatal (no-op): ' + (err && err.message ? err.message : String(err)));
     return { ok: false, error: err && err.message ? err.message : String(err) };
@@ -744,5 +843,6 @@ module.exports = {
   resolveContributors: resolveContributors, conversionFallbackAgents: conversionFallbackAgents,
   rolloverSeason: rolloverSeason,
   computeBudgetPlan: computeBudgetPlan, computeTrailingRevenueXp: computeTrailingRevenueXp,
+  normalizeRewardsConfig: normalizeRewardsConfig,
   runRewardsEngine: runRewardsEngine
 };
