@@ -518,8 +518,13 @@ function rolloverSeason(prev, nowMs, opts) {
   var parFloor = Number.isFinite(opts.parFloor) ? opts.parFloor : SEASON_PAR_FLOOR;
   var par = (r.seasonMeta && Number.isFinite(r.seasonMeta.par)) ? r.seasonMeta.par : null;
   var fleet = activeIds.filter(function (id) { return r.perAgent[id]; });
-  var ranked = fleet.map(function (id) { return { id: id, sx: r.perAgent[id].seasonXp || 0 }; })
-    .sort(function (a, b) { return (b.sx - a.sx) || (a.id < b.id ? -1 : 1); });
+  // Rank by season XP, then LIFETIME xp, then id. The lifetime tie-break matters:
+  // without it an all-tied season (e.g. the first season after seasonXp is introduced)
+  // ranks purely alphabetically, which would hand the fleet's top producer a probation
+  // penalty for its name. See also the zero-spread guard on tiers below.
+  var ranked = fleet.map(function (id) {
+    return { id: id, sx: r.perAgent[id].seasonXp || 0, lx: r.perAgent[id].xp || 0 };
+  }).sort(function (a, b) { return (b.sx - a.sx) || (b.lx - a.lx) || (a.id < b.id ? -1 : 1); });
   var transitions = [];
 
   var prevParts = String(prev.season).split('-');
@@ -551,8 +556,13 @@ function rolloverSeason(prev, nowMs, opts) {
     r.perAgent[id].seasonRevenueXp = 0;
   });
 
+  // Privilege tiers need a REAL season signal. If every agent finished on the same
+  // season XP (the bootstrap season, or a fully idle month), rank order carries no
+  // information — award nobody vanguard and punish nobody with probation.
+  var spread = ranked.length ? (ranked[0].sx - ranked[ranked.length - 1].sx) : 0;
   var tiers = {};
   ranked.forEach(function (row, i) {
+    if (spread <= 0) { tiers[row.id] = 'line'; return; }
     var probation = fleet.length >= 6 && i >= ranked.length - PROBATION_RANKS;
     tiers[row.id] = i < VANGUARD_RANKS ? 'vanguard' : (probation ? 'probation' : 'line');
   });
@@ -588,32 +598,51 @@ function computeBudgetPlan(rewards, opts) {
   }
   var squeezeMult = Number.isFinite(opts.squeezeMult) ? opts.squeezeMult : SQUEEZE_CAP_MULT;
   if (!(squeezeMult >= 0 && squeezeMult <= 1)) squeezeMult = SQUEEZE_CAP_MULT;
-  var ids = ((opts.activeIds && opts.activeIds.length) ? opts.activeIds : FLEET_AGENTS)
-    .filter(function (id) { return rewards && rewards.perAgent && rewards.perAgent[id]; });
+  // An explicit roster is authoritative: EVERY active agent gets a floor whether or not it
+  // has earned a ledger entry yet. Filtering to ledger-present agents would divide the whole
+  // pool among the handful who happen to have earned, inflating their caps far above the
+  // registry. Without a roster, fall back to fleet agents that do have entries.
+  var per = (rewards && rewards.perAgent) || {};
+  var ids = (opts.activeIds && opts.activeIds.length)
+    ? opts.activeIds.slice()
+    : FLEET_AGENTS.filter(function (id) { return per[id]; });
   if (!ids.length || pool <= 0) return { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
 
   var trail = {};
   var total = 0;
-  ids.forEach(function (id) { trail[id] = computeTrailingRevenueXp(rewards.perAgent[id], nowMs); total += trail[id]; });
+  ids.forEach(function (id) { trail[id] = computeTrailingRevenueXp(per[id], nowMs); total += trail[id]; });
+
+  // The survival floor follows the CEO's hand-tuned per-agent caps (role weight), NOT an
+  // even split — flattening them would silently overwrite deliberate allocation. Only the
+  // merit portion is performance-driven. Pre-revenue this reproduces today's caps exactly.
+  // Falls back to an even split when no usable baseline is supplied.
+  var base = opts.baselineCaps || null;
+  var baseTotal = 0;
+  if (base) ids.forEach(function (id) { var v = Number(base[id]); if (Number.isFinite(v) && v > 0) baseTotal += v; });
+  var baseShare = function (id) {
+    if (!base || baseTotal <= 0) return 1 / ids.length;
+    var v = Number(base[id]);
+    return (Number.isFinite(v) && v > 0) ? (v / baseTotal) : 0;
+  };
 
   var perAgent = {};
   ids.forEach(function (id) {
-    var floorShare = (pool * floorPct) / ids.length;
-    var meritShare = total > 0 ? pool * meritPct * (trail[id] / total) : (pool * meritPct) / ids.length;
+    var floorShare = pool * floorPct * baseShare(id);
+    var meritShare = total > 0 ? pool * meritPct * (trail[id] / total) : pool * meritPct * baseShare(id);
     perAgent[id] = floorShare + meritShare;
   });
 
   var champion = rewards.seasonMeta && rewards.seasonMeta.previousChampion;
   var freed = 0;
   ids.forEach(function (id) {
-    if ((rewards.perAgent[id].ladderStatus || 'safe') === 'squeezed') {
+    if (((per[id] && per[id].ladderStatus) || 'safe') === 'squeezed') {
       var cut = perAgent[id] * (1 - squeezeMult);
       perAgent[id] -= cut;
       freed += cut;
     }
   });
-  var championSqueezed = champion && rewards.perAgent[champion] &&
-    (rewards.perAgent[champion].ladderStatus || 'safe') === 'squeezed';
+  var championSqueezed = champion && per[champion] &&
+    (per[champion].ladderStatus || 'safe') === 'squeezed';
   // Freed budget is deliberately DROPPED (not redistributed) when the champion is
   // absent from the active roster or is themselves squeezed — the pool may sum
   // below poolDollars in those cases. Consumers must not assume exact-sum.
@@ -781,9 +810,18 @@ async function runRewardsEngine(opts) {
     if (cfg.enabled && cfg.meritBudget.enabled) {
       var pool = cfg.budgetMonthly != null ? cfg.budgetMonthly
         : (loaded[15] && loaded[15].finance && Number(loaded[15].finance.budgetMonthly)) || 110;
+      // Baseline = the CEO's hand-tuned registry caps. They weight the survival floor so
+      // the plan preserves deliberate role allocation instead of flattening it; only the
+      // merit portion moves with revenue.
+      var baselineCaps = {};
+      if (registry && Array.isArray(registry.agents)) {
+        registry.agents.forEach(function (a) {
+          if (a && a.id && Number.isFinite(Number(a.monthlyCap))) baselineCaps[a.id] = Number(a.monthlyCap);
+        });
+      }
       rewards.budgetPlan = computeBudgetPlan(rewards, {
         poolDollars: pool, floorPct: cfg.meritBudget.floorPct, meritPct: cfg.meritBudget.meritPct,
-        squeezeMult: cfg.squeezeMult, activeIds: activeIds, nowMs: nowMs
+        squeezeMult: cfg.squeezeMult, activeIds: activeIds, baselineCaps: baselineCaps, nowMs: nowMs
       });
     } else {
       rewards.budgetPlan = { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };

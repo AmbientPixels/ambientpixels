@@ -51,14 +51,18 @@ var _probExpiry = 0;
 async function _probationSet() {
   var now = Date.now();
   if (_probCache && now < _probExpiry) return _probCache;
-  var set = {};
+  var set = Object.create(null);   // null-proto: an agent id can never collide with Object.prototype keys
   try {
     var rw = await storage.getState('agentRewards');
     var priv = rw && rw.privileges;
     if (priv && priv.enabled !== false && priv.tiers) {
       Object.keys(priv.tiers).forEach(function (id) { if (priv.tiers[id] === 'probation') set[id] = true; });
     }
-  } catch (e) { /* fail-open */ }
+  } catch (e) {
+    // Fail-open WITHOUT caching: a transient blob error must not pin "nobody is on
+    // probation" for the full TTL. Next call retries.
+    return set;
+  }
   _probCache = set;
   _probExpiry = now + CACHE_TTL_MS;
   return set;

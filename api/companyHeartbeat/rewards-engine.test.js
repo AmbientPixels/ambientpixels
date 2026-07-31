@@ -521,6 +521,84 @@ test('multi-month gap = one rollover, one miss, gap recorded', () => {
   assert.strictEqual(r.rewards.seasonMeta.monthsSkipped, 3, 'gap recorded honestly');
 });
 
+// ── Bootstrap-season + baseline-cap safety (post-review hardening) ──
+test('a zero-spread season assigns NO tiers — everyone line (bootstrap season guard)', () => {
+  // First rollover under Revenue Seasons: seasonXp is a brand-new field, so every
+  // agent is at 0. Ranking would be pure alphabetical — must not hand out real
+  // privileges (or penalties) on alphabetical order.
+  const IDS9 = ['cipher', 'echo', 'forge', 'nova', 'pixel', 'quill', 'scout', 'scribe', 'vale'];
+  const per = {};
+  IDS9.forEach(id => { per[id] = mkA(0, { xp: id === 'scribe' ? 543 : 15 }); });
+  const r = rolloverSeason(mkLedger('2026-07', per, { par: 40 }), AUG, { activeIds: IDS9, parFloor: 40 });
+  const tiers = r.rewards.privileges.tiers;
+  IDS9.forEach(id => assert.strictEqual(tiers[id], 'line', id + ' must be line in a zero-spread season'));
+});
+
+test('with a real season spread, ties break on lifetime XP before alphabetical', () => {
+  const IDS6 = ['cipher', 'echo', 'forge', 'nova', 'scribe', 'vale'];
+  const per = {};
+  // scribe + vale tie on season XP but scribe has vastly more lifetime XP
+  IDS6.forEach(id => { per[id] = mkA(id === 'nova' ? 100 : 10, { xp: id === 'scribe' ? 543 : 12 }); });
+  const r = rolloverSeason(mkLedger('2026-07', per, { par: 40 }), AUG, { activeIds: IDS6, parFloor: 40 });
+  const tiers = r.rewards.privileges.tiers;
+  // nova leads outright on season XP; scribe wins every remaining tie on lifetime XP,
+  // so it ranks #2 — the alphabetical order (cipher, echo, forge...) would have buried it.
+  assert.strictEqual(tiers.scribe, 'vanguard', 'lifetime leader outranks alphabetical peers on a tie');
+  assert.notStrictEqual(tiers.scribe, 'probation', 'the fleet top producer is never demoted on a tie');
+});
+
+test('pre-revenue budget plan preserves baseline (CEO-tuned) caps instead of flattening', () => {
+  const led = mkLedger('2026-08', { nova: mkA(0), scribe: mkA(0), vale: mkA(0) }, { par: 40 });
+  const baseline = { nova: 20, scribe: 16, vale: 7 };   // sums 43
+  const plan = computeBudgetPlan(led, {
+    poolDollars: 43, activeIds: ['nova', 'scribe', 'vale'], baselineCaps: baseline, nowMs: AUG
+  });
+  assert.strictEqual(plan.perAgent.nova, 20, 'hand-tuned cap preserved pre-revenue');
+  assert.strictEqual(plan.perAgent.scribe, 16);
+  assert.strictEqual(plan.perAgent.vale, 7);
+});
+
+test('with revenue, the floor stays baseline-proportional and merit follows earnings', () => {
+  const led = mkLedger('2026-08', {
+    nova: mkA(0), scribe: mkA(0),
+    vale: mkA(0, { revenueRecent: [{ at: new Date(AUG - 86400000).toISOString(), xp: 100 }] })
+  }, { par: 40 });
+  const plan = computeBudgetPlan(led, {
+    poolDollars: 100, activeIds: ['nova', 'scribe', 'vale'],
+    baselineCaps: { nova: 50, scribe: 30, vale: 20 }, nowMs: AUG
+  });
+  // floor 40 by baseline share: nova 20, scribe 12, vale 8. merit 60 all to vale.
+  assert.strictEqual(plan.perAgent.nova, 20);
+  assert.strictEqual(plan.perAgent.scribe, 12);
+  assert.strictEqual(plan.perAgent.vale, 68, 'sole earner takes the whole merit pool');
+});
+
+test('every active agent gets a floor even with no ledger entry yet (pool not concentrated)', () => {
+  // Only scribe has earned anything; the other two must still receive their baseline floor
+  // rather than letting scribe+peers absorb the entire pool.
+  const led = mkLedger('2026-08', { scribe: mkA(0) }, { par: 40 });
+  const plan = computeBudgetPlan(led, {
+    poolDollars: 100, activeIds: ['nova', 'scribe', 'vale'],
+    baselineCaps: { nova: 50, scribe: 30, vale: 20 }, nowMs: AUG
+  });
+  assert.strictEqual(Object.keys(plan.perAgent).length, 3, 'all three active agents present');
+  assert.strictEqual(plan.perAgent.nova, 50, 'ledger-less agent keeps its baseline allocation');
+  assert.strictEqual(plan.perAgent.vale, 20);
+  const sum = Object.values(plan.perAgent).reduce((s, v) => s + v, 0);
+  assert.ok(Math.abs(sum - 100) < 0.05, 'plan still sums to the pool');
+});
+
+test('missing/partial baselineCaps falls back to an even split (no crash)', () => {
+  const led = mkLedger('2026-08', { nova: mkA(0), scribe: mkA(0) }, { par: 40 });
+  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['nova', 'scribe'], nowMs: AUG });
+  assert.strictEqual(plan.perAgent.nova, 50, 'no baseline -> even split');
+  const partial = computeBudgetPlan(led, {
+    poolDollars: 100, activeIds: ['nova', 'scribe'], baselineCaps: { nova: 10 }, nowMs: AUG
+  });
+  const sum = Object.values(partial.perAgent).reduce((s, v) => s + v, 0);
+  assert.ok(sum <= 100 + 1e-6 && sum > 0, 'partial baseline still yields a sane plan');
+});
+
 // ── Task 5: merit budget plan ──
 test('pre-revenue (all trailing 0) the plan is an even split of the pool', () => {
   const led = mkLedger('2026-08', { echo: mkA(0), scribe: mkA(0), nova: mkA(0), quill: mkA(0) }, { par: 40 });
@@ -645,12 +723,17 @@ testAsync('runRewardsEngine pays an attributed sale end-to-end and attaches budg
     actionAttributionIndex: { map: {} },
     revenueLedger: { entries: [{ id: 'evt_1', type: 'one_time', amountCents: 2900, utmContent: 'act_1', occurredAt: at(0) }] },
     as_leads: [], cc_analytics: [], systemConfig: {},
-    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+    // mirrors the live registry: hand-tuned per-agent caps, not a flat split
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => (
+      { id, status: 'active', monthlyCap: ({ nova: 20, scribe: 16, echo: 16, forge: 11, vale: 7 })[id] || 10 }
+    )) }
   });
   const res = await runRewardsEngine({ storage: st, nowMs: NOW, log: () => {} });
   assert.strictEqual(res.ok, true);
   const led = st.db.agentRewards;
   assert.ok(led.perAgent.scribe.counters.sales >= 1, 'writer credited');
+  assert.ok(led.budgetPlan.perAgent.nova > led.budgetPlan.perAgent.vale,
+    'registry baseline caps weight the plan (nova $20 vs vale $7), not a flat split');
   assert.ok(led.perAgent.echo.seasonRevenueXp > 0, 'assignee credited');
   assert.ok(led.budgetPlan && led.budgetPlan.perAgent, 'budgetPlan attached');
 });

@@ -1229,6 +1229,16 @@ Where relevant to your content tasks, weave in references to these trends to inc
     progressionSection = buildProgressionPromptBlock(agent.id, agentRewards) || '';
   } catch (_progPromptErr) { progressionSection = ''; }
 
+  // Action-slot cap stated in the rules below. Must track the privilege tier the server
+  // actually enforces (agent-runner _slotCap), or vanguard's extra slot is unusable and
+  // probation gets a policy violation for obeying its own prompt. Base 3 on any failure.
+  let _promptSlotCap = 3;
+  try {
+    var _pTier = (agentRewards && agentRewards.privileges && agentRewards.privileges.enabled !== false &&
+      agentRewards.privileges.tiers && agentRewards.privileges.tiers[agent.id]) || 'line';
+    _promptSlotCap = Math.max(1, 3 + (_pTier === 'vanguard' ? 1 : (_pTier === 'probation' ? -1 : 0)));
+  } catch (_slotErr) { _promptSlotCap = 3; }
+
   // Cost intelligence — Cipher gets the full Financial Intelligence Dashboard; fallback to raw data
   let costSection = '';
   if (agent.name === 'Cipher') {
@@ -1952,7 +1962,7 @@ GATE CHECKLIST
 
 Rules:
 - actions array can be empty if nothing needs doing
-- HARD CAP: max 3 actions per heartbeat. The server DROPS every action after the 3rd and logs a policy violation against you — over-emitting is pure wasted spend. Rank your intended actions by impact and emit ONLY the top 3.
+- HARD CAP: max ${_promptSlotCap} actions per heartbeat. The server DROPS every action after the ${_promptSlotCap}${_promptSlotCap === 3 ? 'rd' : (_promptSlotCap === 2 ? 'nd' : 'th')} and logs a policy violation against you — over-emitting is pure wasted spend. Rank your intended actions by impact and emit ONLY the top ${_promptSlotCap}.
 - Max 1 execute-task per heartbeat (it's thorough work)
 - Only create tasks that are genuinely useful
 - Only move tasks if you have reason to
