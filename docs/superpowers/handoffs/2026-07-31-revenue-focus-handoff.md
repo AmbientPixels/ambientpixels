@@ -36,7 +36,17 @@ And the reason the fleet isn't chasing revenue is **not** disobedience — see b
 
 ---
 
-## 3. NEXT: memory retune (highest leverage, partly diagnosed)
+## 3. DONE 2026-07-31 (was "next") — memory retune COMPLETE
+
+Both halves shipped and verified live; the sections below are kept as the record of what was found and done.
+
+- **Seeds restructured:** all 10 keys priority-first, 27,884 → 12,420 chars, **0 dropped** (was 14,962). Every seed opens with `## PRIORITY: REVENUE FIRST` sized to survive the 400/600-char execution window. Backup at `docs/superpowers/handoffs/2026-07-31-seeds-pre-retune-backup.json`. Also fixed a stale **$49** full-report price in Echo's model post (real price $29).
+- **Doctrine rewritten for all 9 agents** via `fleetProposalCreate` → `approveProposal`, `doctrineHistory` preserved. New core questions and the shared "Revenue arrived that we cannot attribute" trigger are listed in memory `project_revenue_first_retune`. **`approveProposal` takes `id`, not `proposalId`** — the wrong name 400s and leaves proposals pending.
+- **Verified:** registry updated 18:17:28Z; the heartbeat starting 18:17:46Z ran on both new seeds and new doctrine — 9 actions, 0 errors.
+
+**Remaining from this section: the Seasons dashboard (§4).** Watch whether the fleet's action mix shifts toward prospect replies and conversion work, and whether outbound links start carrying tracking ids.
+
+## (Historical) memory retune findings
 
 ### 3a. The seed-memory truncation bug — fix this first
 Full detail in memory `project_seed_memory_truncation`. Summary: **54% of `agentSeedMemories` is silently truncated** before reaching any prompt. The CEO's `## Current Phase — REVENUE FIRST (CEO directive, 2026-07-31)` section sits at the bottom of a 7,598-char `_global` where only 2,000 chars survive — **no agent has ever seen it**. Same for scribe's `## Revenue Phase` and echo's `## Current Priority`.
