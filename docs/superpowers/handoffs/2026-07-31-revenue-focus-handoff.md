@@ -1,28 +1,16 @@
-# Handoff — Revenue Seasons shipped; memory retune + Seasons dashboard next
+# Handoff — Revenue Seasons + memory retune SHIPPED; Seasons dashboard is next
 
-**Date:** 2026-07-31 · **Status of prior work:** COMPLETE and deployed.
+**Date:** 2026-07-31 · **Prior work:** complete, deployed, verified live. **Next task:** build the Seasons dashboard (§4).
 
-Read first: skill `agent-rewards`, memories `project_revenue_seasons`, `project_seed_memory_truncation`, `feedback_systemconfig_read_modify_write`.
-
----
-
-## 1. What shipped today (done, verified, do not redo)
-
-**Revenue Seasons** — the agent XP economy is now revenue-first with real stakes. Spec `docs/superpowers/specs/2026-07-30-revenue-seasons-design.md` (Status block lists every deviation), plan `docs/superpowers/plans/2026-07-30-revenue-seasons.md` (header marks it complete). 73 engine tests + 25 smoke green, all pushed, live and verified against production.
-
-Mechanics live in the `agent-rewards` skill. The load-bearing invariants (each learned from a real defect):
-- Each source event pays **exactly once ever** — `paidBases` from `processedEventIds`.
-- An **unscored season** (par null) confers no par misses AND no privilege tiers.
-- The budget floor follows the CEO's **hand-tuned registry caps**, never an even split.
-- A mid-month reallocation **floors each cap at spend × 1.5** so past spending can never become a violation.
-
-**FIRST REVENUE: $398** — two $199 AmbientScore Teardowns, 1 paying customer, both **unattributed** (no UTM, no lead, no campaign). The economy paid Echo 168 / Scribe 148 revenue XP via the conversion-campaign fallback.
+**Read first:** skill `agent-rewards`; memories `project_revenue_seasons`, `project_revenue_first_retune`, `project_seed_memory_truncation`, `feedback_systemconfig_read_modify_write`.
 
 ---
 
-## 2. The finding that should drive the next session
+## 1. Context: the company just made its first money, and can't explain it
 
-The fleet's funnel is producing nothing while money arrives from somewhere untracked:
+**FIRST REVENUE: $398** — two $199 AmbientScore Teardowns, 1 paying customer, on 2026-07-30. Both sales are **unattributed**: no UTM, no lead record, no campaign. The outbound prospect pipeline shows no conversion either (49 prospects: 16 sent, 7 declined, 0 won).
+
+Meanwhile the fleet's own funnel produced nothing:
 
 | Last 7 days | |
 |---|---|
@@ -30,83 +18,80 @@ The fleet's funnel is producing nothing while money arrives from somewhere untra
 | Public scans | **0** |
 | Leads | **0** |
 | Attributed revenue | **$0** |
-| Actual revenue | **$398**, source unknown |
 
-And the reason the fleet isn't chasing revenue is **not** disobedience — see below.
-
----
-
-## 3. DONE 2026-07-31 (was "next") — memory retune COMPLETE
-
-Both halves shipped and verified live; the sections below are kept as the record of what was found and done.
-
-- **Seeds restructured:** all 10 keys priority-first, 27,884 → 12,420 chars, **0 dropped** (was 14,962). Every seed opens with `## PRIORITY: REVENUE FIRST` sized to survive the 400/600-char execution window. Backup at `docs/superpowers/handoffs/2026-07-31-seeds-pre-retune-backup.json`. Also fixed a stale **$49** full-report price in Echo's model post (real price $29).
-- **Doctrine rewritten for all 9 agents** via `fleetProposalCreate` → `approveProposal`, `doctrineHistory` preserved. New core questions and the shared "Revenue arrived that we cannot attribute" trigger are listed in memory `project_revenue_first_retune`. **`approveProposal` takes `id`, not `proposalId`** — the wrong name 400s and leaves proposals pending.
-- **Verified:** registry updated 18:17:28Z; the heartbeat starting 18:17:46Z ran on both new seeds and new doctrine — 9 actions, 0 errors.
-
-**Remaining from this section: the Seasons dashboard (§4).** Watch whether the fleet's action mix shifts toward prospect replies and conversion work, and whether outbound links start carrying tracking ids.
-
-## (Historical) memory retune findings
-
-### 3a. The seed-memory truncation bug — fix this first
-Full detail in memory `project_seed_memory_truncation`. Summary: **54% of `agentSeedMemories` is silently truncated** before reaching any prompt. The CEO's `## Current Phase — REVENUE FIRST (CEO directive, 2026-07-31)` section sits at the bottom of a 7,598-char `_global` where only 2,000 chars survive — **no agent has ever seen it**. Same for scribe's `## Revenue Phase` and echo's `## Current Priority`.
-
-Budgets: `_global` 2000 heartbeat / **600 execution**; per-agent 1500 / **400 execution**.
-
-**The fix:** restructure so priorities lead and everything fits.
-1. `_global`: REVENUE FIRST directive in the first ~500 chars (survives into execution prompts), then non-negotiables (no fabricated claims/numbers/offers; quality gates and CEO approval stay), then whatever background fits.
-2. Cut the product catalog from `_global` — `api/_data/product-facts.json` is already injected as its own `productFactsBlock` in the same prompt. Duplicated spend of a scarce budget. Also cut/compress the org chart.
-3. Per agent: priority first (inside 350 chars), role specifics after, total under 1500.
-
-**Backup taken** before any edit — full pre-change seed JSON is in the session scratchpad; re-fetch with `GET /api/company-state?key=agentSeedMemories` and keep a copy before writing.
-
-**Write path:** `POST /api/company-state` body `{"key":"agentSeedMemories","value":{...}}` — **full replace, no server-side merge.** GET → modify → POST the complete object. (I destroyed `systemConfig.heartbeatModel` + the offers array this way today; recovered only because I'd printed it earlier.)
-
-### 3b. Doctrine rewrite — second-order but real
-**Eight of nine agents have no revenue orientation in doctrine**, which sits *above* the progression block in the prompt and frames their strategic lens. Only Echo is revenue-written (use it as the model). Current core questions: nova "Does this increase AmbientPixels leverage?", cipher "What is the ROI and downside risk?", scribe "Is this unambiguous?", scout "Where is leverage hiding?", pixel "Is this intentional design?", quill "Can this be 20% clearer?".
-
-Drafted replacements (CEO had not yet approved these):
-- nova → *"Does this move a paying customer closer, or is it motion?"*
-- cipher → *"What did we earn this week, what did it cost to earn, and whose work produced it?"*
-- scribe → *"Does this give a reason to click, and does that click reach a checkout?"*
-- scout → *"Who is the buyer, and what would make them pay this week?"*
-- pixel → *"Does this remove friction from the path to purchase?"*
-- quill → *"Does this land the offer, or just read well?"*
-- forge → owns instrumentation: *"Can we prove what caused our last dollar?"*
-- vale → keep (CEO-facing role is correct), add a revenue-surfacing trigger.
-- Shared new escalation trigger for all: **"Revenue arrived that we cannot attribute."**
-
-**Hazards:**
-- `agent.focus` is the **first line of every prompt, untruncated, unweighted** — the strongest single lever. One registry field.
-- The live doctrine is `agentRegistry.agents[].doctrine`. **Editing `constants.js` does nothing to a live fleet** (`_applyRegistry` wipes and repopulates `AGENT_ROLES` from registry state every heartbeat).
-- The Memory Stack page's **L2 "Operating Doctrine" reads `company-agents.json → operatingDoctrine`, which never reaches any prompt.** Editing what that page displays is a no-op.
-- `escalationTriggers.join(', ')` is unguarded — a non-array kills that agent's cycle.
-- Preferred write path: `POST /api/fleetProposalCreate` (type `agent_evolution_proposal`) → `POST /api/approveProposal` — preserves `doctrineHistory` lineage. Fleet Command's "⚡ Evolve now" button chains both. Allowed fields: `focus`, `monthlyCap` (≤$5 ceiling), `doctrine`, `expectedActionMix`.
-
-### 3c. Note: the memory-stack page is READ-ONLY
-`modules/company/memory-stack.html` is diagnostics only (GET-only API, no save). Real edit surfaces: `modules/company/memories.html` (seeds L3, runtime-memory delete), `modules/company/workspace.html` (CEO notes L5, agent configs L8), Fleet Command evolve (doctrine).
+That gap — busy fleet, zero measurable funnel movement, money arriving from an untracked channel — is the thing the next session should keep in view. It is also what the dashboard in §4 is designed to make visible.
 
 ---
 
-## 4. THEN: Seasons dashboard
+## 2. What shipped today (do NOT redo)
 
-Template: copy `modules/company/agent-progress.html` + `modules/company/js/agent-progress.js` (separate JS with node-testable pure functions + a `.test.js` — matches how the engine was built). All data from **one call**: `GET /api/agentRewards` (no params; carries `perAgent[].seasonXp/seasonRevenueXp/parMisses/ladderStatus/seasonHistory/revenueRecent`, `season`, `seasonMeta`, `privileges.tiers`, `budgetPlan`, `laddersActive`). Revenue context from `/api/revenueDigest` and `/api/as-funnel`.
+### Revenue Seasons — the XP economy is now revenue-first with real stakes
+Spec `docs/superpowers/specs/2026-07-30-revenue-seasons-design.md` (Status block lists every deviation). Plan `docs/superpowers/plans/2026-07-30-revenue-seasons.md` (header marks it complete). 73 engine tests + 25 smoke green. Mechanics live in the `agent-rewards` skill.
 
-Nav = one line in `modules/company/js/sidebar.js` NAV array. No route config needed.
+Load-bearing invariants, each learned from a real defect — do not "simplify" these:
+- Each source event pays **exactly once ever** (`paidBases` from `processedEventIds`).
+- An **unscored season** (par null) confers no par misses AND no privilege tiers.
+- The budget floor follows the CEO's **hand-tuned registry caps**, never an even split.
+- A mid-month reallocation **floors each cap at spend × 1.5** — past spending can never become a violation.
+- Protected from tier demotion: nova, cipher. Exempt from retirement drafts: vale, quill (plus nova, cipher).
 
-Four panels:
-1. **Season header** — season, days left, par, champion, and an honest **"unscored season"** state (July is partial; must not imply probation).
-2. **Standings** — rank, season XP, **revenue XP vs churn split**, par progress bar, ladder pill, privilege tier, budget cap vs spend.
-3. **Effort vs outcome** — actions produced vs revenue XP earned. Would have surfaced the 62-actions/0-leads problem weeks ago. Build this first if only one panel ships.
-4. **Attribution trace** — each revenue event and who it paid, with the unattributed counter (**100%** today).
-
-Gotchas: `budgetPlan.perAgent` may **not sum to the pool** (spend floors can push it over) — don't render as a 100% stacked bar. Season ranking (seasonXp, lifetime-XP tie-break) differs from the existing Fleet leaderboard sort (career XP) — **don't reuse `renderLeaderboard`**; the Fleet leaderboard currently contradicts the season race (Scribe leads career 703, Echo leads season 168) and should be relabelled or switched. CDN scripts ARE allowed (Chart.js is already loaded on dashboard/agent-intelligence), but hand-rolled div sparklines are the dominant pattern on these pages.
+### Memory retune — the revenue agenda now actually reaches the fleet
+- **Seeds restructured** (`agentSeedMemories`): was 27,884 chars authored with **14,962 silently truncated away** — including the CEO's own `REVENUE FIRST` directive, which no agent had ever seen. Now 12,420 chars, **0 dropped**, every seed opening with `## PRIORITY: REVENUE FIRST` sized to survive the execution-prompt window. Backup: `docs/superpowers/handoffs/2026-07-31-seeds-pre-retune-backup.json`.
+- **Doctrine rewritten for all 9 agents** via `fleetProposalCreate` → `approveProposal` (lineage preserved in `doctrineHistory`). New core questions + the shared trigger *"Revenue arrived that we cannot attribute"* are tabulated in memory `project_revenue_first_retune`.
+- Fixed a stale **$49** full-report price inside Echo's "use as template" model post (real price is **$29**).
+- Verified: registry updated 18:17:28Z; the heartbeat starting 18:17:46Z ran on both new seeds and new doctrine — 9 actions, 0 errors.
 
 ---
 
-## 5. Open items carried forward
-- **Track C** — retirement knowledge inheritance. The prompt already tells agents "your successor would inherit your memories"; that is not yet true.
-- **Track D** — outbound gig agents earning revenue outside the company.
-- Per-tier image-budget share (spec §8), deferred to the dashboard fast-follow.
-- Accepted minor follow-ups (logged in the `agent-rewards` skill): rate-limit auto-memory text still cites the base cap of 3; a public scan pays 1 XP not the advertised 3 (always unattributed → halved → trimmed); `company.counters.revenueCents` derives from `runtimeMemory.revenueDigest` while agent XP derives from `revenueLedger`; `processedEventIds` 3000-FIFO horizon fills faster now that events fan out per recipient.
-- Par is clearable by churn (~14 days at 3 XP/day) while the revenue lane needs traffic that barely exists. Watch season 1 (August) and retune `SEASON_PAR_CEILING` / `MERIT_MIN_SIGNAL` from evidence.
+## 3. Hazards that will bite you (all learned the hard way today)
+
+- **`POST /api/company-state` is FULL REPLACE, no server-side merge.** A partial write to `systemConfig` destroyed `heartbeatModel` and the offers array. Always GET → modify → POST the complete object, and print the original first so recovery is possible. The key goes in the **body** (`{"key":...,"value":...}`), not the query string.
+- **`approveProposal` takes `id`, NOT `proposalId`.** Wrong name returns 400 and leaves proposals pending in the queue.
+- **`doctrine` is replaced wholesale on approve** — supply every field (`strategicBias`, `riskTolerance`, `timeHorizon`, `coreQuestion`, `escalationTriggers`) or it is lost.
+- **`escalationTriggers` must stay a non-empty array** — `prompt-builders.js` does an unguarded `.join(', ')`; a bad value kills that agent's cycle.
+- **Editing `constants.js` does nothing to a live fleet** — `_applyRegistry` wipes and repopulates `AGENT_ROLES` from `agentRegistry` state every heartbeat.
+- **The Memory Stack page is READ-ONLY**, and its L2 "Operating Doctrine" reads `company-agents.json → operatingDoctrine`, a field that **never reaches any prompt**. Editing what that page shows is a no-op. Live doctrine is `agentRegistry.agents[].doctrine`.
+- Seed budgets are silent: `_global` **2000** heartbeat / **600** execution; per-agent **1500** / **400**. Nothing warns you when content is dropped.
+
+---
+
+## 4. NEXT TASK: the Seasons dashboard
+
+**Goal:** one page that answers "is this economy measuring anything real?" — not a vanity leaderboard.
+
+**Template:** copy `modules/company/agent-progress.html` + `modules/company/js/agent-progress.js` (+ its `.test.js`). That page is the direct predecessor (agent XP) and follows the pure-functions-with-node-tests discipline the engine uses. `modules/company/revenue.html` is the smaller single-file alternative if no test-worthy logic is needed.
+
+**Data:** everything from **one call** — `GET /api/agentRewards` (no params, `x-company-secret` header). It carries `perAgent[].seasonXp / seasonRevenueXp / parMisses / ladderStatus / seasonHistory / revenueRecent / counters`, plus root `season`, `seasonMeta{par,startedAt,previousChampion,monthsSkipped}`, `privileges{enabled,season,tiers}`, `budgetPlan{perAgent,poolDollars,trailing}`, `laddersActive`. Revenue context: `GET /api/revenueDigest`, `GET /api/as-funnel`. Note `agentRewards` is **not** a `company-state` VALID_KEY — it has its own endpoint.
+
+**Nav:** one object in the `NAV` array in `modules/company/js/sidebar.js` (e.g. under System → Agents). No route config needed.
+
+**Four panels, in reading order:**
+1. **Season header** — season, days left, par, champion, and an explicit **"unscored season"** state (July is partial; must not imply anyone is on probation).
+2. **Standings** — rank, season XP, **revenue XP vs churn XP split**, par progress bar, ladder pill, privilege tier, budget cap vs spend. Daily glance.
+3. **Effort vs outcome** — actions produced vs revenue XP earned, per agent. *Build this first if only one panel ships* — it is the panel that would have surfaced the 62-actions/0-leads problem weeks ago.
+4. **Attribution trace** — each revenue event and which agents it paid, with a prominent unattributed counter (**100%** today).
+
+**Gotchas:**
+- `budgetPlan.perAgent` may **not sum to `poolDollars`** (spend floors can push it over) — never render as a 100% stacked bar.
+- Season ranking is `seasonXp` with a **lifetime-XP tie-break**; the existing Fleet leaderboard sorts by **career XP** — do not reuse `renderLeaderboard`. The two currently contradict each other (Scribe leads career at 703, Echo leads the season at 168); consider relabelling or switching the Fleet one.
+- Zero-spread / null-par seasons deliberately produce all-`line` tiers — render that honestly.
+- CDN scripts ARE allowed (Chart.js already loads on `dashboard.html` / `agent-intelligence.html`), but hand-rolled div sparklines are the dominant pattern on these pages — prefer them.
+- Page CSS lives inline in each HTML file with a page-prefix (`ap-`, `fl-`, `rev-`). Shared components: `.sys-section`, `.dash-panel`, `.dash-stat-card`, `.dash-badge`, `.dash-empty`.
+
+---
+
+## 5. Open items after the dashboard
+- **Track C — retirement knowledge inheritance.** The prompt already tells agents *"your successor would inherit your memories."* That is not yet true. Build it before the first retirement draft can fire (earliest 2026-10-01).
+- **Track D — outbound gig agents** doing small paid jobs outside the company. The only track that creates *new* demand rather than competing over existing work.
+- Per-tier image-budget share (spec §8), deferred to this dashboard's fast-follow.
+- **Retune from evidence after season 1 (August):** par is clearable by churn (~14 days at 3 XP/day) while the revenue lane needs traffic that barely exists. Levers: `SEASON_PAR_CEILING`, `MERIT_MIN_SIGNAL`, `SEASON_PAR_GROWTH`.
+- Accepted minor follow-ups (in the `agent-rewards` skill): rate-limit auto-memory text still cites the base cap of 3; a public scan pays 1 XP not the advertised 3 (always unattributed → halved → trimmed); `company.counters.revenueCents` derives from `runtimeMemory.revenueDigest` while agent XP derives from `revenueLedger`; `processedEventIds` 3000-FIFO horizon fills faster now that events fan out per recipient.
+
+---
+
+## 6. Live state at handoff
+- All work committed and pushed; working tree clean.
+- Revenue Seasons fully ON: `laddersActive: true`, `budgetPlan` live, merit budget re-enabled, all 9 agents GREEN.
+- `systemConfig.rewards = { meritBudget: { enabled: true } }`; `heartbeatModel: gemini-pro`; GENESIS offer present and inactive.
+- Season `2026-07`, `par: null` (unscored — correct). First scored season is August; first possible retirement draft is 2026-10-01, CEO-gated.
+- Approval queue: 2 unrelated pending items (1 content package, 1 campaign proposal).
