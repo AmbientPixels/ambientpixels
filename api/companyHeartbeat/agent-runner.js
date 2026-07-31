@@ -26,7 +26,7 @@ const {
   MAX_GOVERNANCE_LOG_ENTRIES
 } = require('./constants');
 const { proposalSeverity: _proposalSeverity, liftProposalActions: _liftProposalActions } = require('./agent-proposal-select');
-const { repairReplyLink: _repairReplyLink } = require('./prospect-pipeline');
+const { repairReplyLink: _repairReplyLink, findBlockingReply: _findBlockingReply } = require('./prospect-pipeline');
 const SUTM = require('../_utils/socialUtm');
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment,
@@ -2146,25 +2146,28 @@ Write the full deliverable first, then the structured JSON block.`;
                 context.log('[Heartbeat] scribe: reply UTM inject failed (non-fatal):', String(_utmErr).substring(0, 120));
               }
               const _tc = task.threadContext;
-              // Crash-idempotency guard (2026-07-24 fruitfop incident): reply actions +
+              // Duplicate-outreach guard (2026-07-24 fruitfop incident): reply actions +
               // AQ entries are written to storage immediately, but the task close rides
               // end-of-run persistence. A cycle that dies between the two leaves the task
-              // open, and the next cycle re-drafts — the CEO then sees duplicate outreach
-              // to the same prospect. If a pending reply for this task already exists,
-              // close the task instead of drafting a second one.
+              // open, and the next cycle re-drafts — the prospect gets messaged twice.
+              //
+              // Widened 2026-07-31: the original guard only matched a reply still PENDING
+              // approval, so once the first was approved and executed it stopped matching
+              // and a second draft sailed through. zimpirate.bsky.social was double-messaged
+              // on 07-28, four days after that guard shipped. findBlockingReply now blocks on
+              // anything not rejected — see prospect-pipeline.js for why rejected is exempt.
               const _actionsStoreForReply = (await storage.getState('actions')) || [];
-              const _pendingReplyDup = _actionsStoreForReply.find(function (a) {
-                return a && a.type === 'social_post.reply' && a._parentTaskId === action.taskId &&
-                  a.approval && a.approval.status === 'pending';
-              });
+              const _pendingReplyDup = _findBlockingReply(_actionsStoreForReply, action.taskId);
               if (_pendingReplyDup) {
+                const _dupStatus = (_pendingReplyDup.approval && _pendingReplyDup.approval.status) || 'pending';
                 result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
                 result.taskUpdates.push({
                   action: 'comment', taskId: action.taskId,
-                  comment: 'A reply for this task is already pending CEO approval (' + _pendingReplyDup.id + ') — closed without a second draft (crash-recovery dedup).',
+                  comment: 'A reply for this task already exists (' + _pendingReplyDup.id + ', ' + _dupStatus +
+                    ') — closed without a second draft. One prospect, one reply.',
                   agentId: 'system'
                 });
-                context.log('[Heartbeat] scribe: bluesky-reply dedup — pending reply already exists for task', action.taskId);
+                context.log('[Heartbeat] scribe: bluesky-reply dedup —', _dupStatus, 'reply already exists for task', action.taskId);
                 continue;
               }
               // Create a social_post.reply action (_replyActionId was minted above, so

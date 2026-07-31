@@ -532,7 +532,31 @@ function _fitWithLink(text, realUrl) {
   return (head ? head + ' ' : '') + tail;
 }
 
+// One prospect, one reply. Returns the existing reply that should block a second
+// draft for this task, or null.
+//
+// The original guard (0a9eb9ec, after the 07-24 fruitfop incident) matched only
+// approval.status === 'pending' — a crash-recovery guard. But once the first reply
+// is APPROVED and executed it stops matching, so the next cycle drafts another and
+// the prospect gets messaged twice. That is how zimpirate.bsky.social received
+// near-duplicate outreach on 07-28, four days after the guard shipped: 3 of 21
+// 'sent' prospects ended up double-messaged.
+//
+// Anything not rejected blocks — the prospect either has the message or is about to.
+// A REJECTED reply deliberately does NOT block: it never reached anyone, and
+// redrafting after a rejection is how the copy improves. An absent/unknown status
+// blocks, because we cannot prove it was never sent.
+function findBlockingReply(actions, taskId) {
+  if (!Array.isArray(actions) || !taskId) return null;
+  return actions.find(function (a) {
+    if (!a || a.type !== 'social_post.reply' || a._parentTaskId !== taskId) return false;
+    var st = (a.approval && a.approval.status) || 'pending';
+    return st !== 'rejected';
+  }) || null;
+}
+
 module.exports = {
+  findBlockingReply: findBlockingReply,
   extractSiteUrl: extractSiteUrl,
   filterProspects: filterProspects,
   buildReplyTask: buildReplyTask,

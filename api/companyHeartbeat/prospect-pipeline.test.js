@@ -506,6 +506,56 @@ function mockStorage(initial) {
     assert.ok(out.includes(REAL));
   });
 
+  // ── findBlockingReply — one prospect, one reply ──
+  // Regression guard. The original dedup matched only status === 'pending', so once
+  // the first reply was approved and executed it stopped matching and the next cycle
+  // drafted a second. Real duplicate outreach reached fruitfop + vocalai (07-24) and
+  // zimpirate (07-28, four days AFTER the pending-only guard shipped in 0a9eb9ec).
+  const RLY = (over) => Object.assign({
+    id: 'act_1', type: 'social_post.reply', _parentTaskId: 'task_z73q',
+    approval: { status: 'pending' }
+  }, over || {});
+
+  test('findBlockingReply: no prior replies → nothing blocks', () => {
+    assert.strictEqual(PP.findBlockingReply([], 'task_z73q'), null);
+  });
+
+  test('findBlockingReply: a pending reply blocks (original behaviour preserved)', () => {
+    const hit = PP.findBlockingReply([RLY()], 'task_z73q');
+    assert.ok(hit && hit.id === 'act_1');
+  });
+
+  test('findBlockingReply: an APPROVED reply blocks — the zimpirate regression', () => {
+    // This is the case that shipped duplicate outreach to a real prospect.
+    const hit = PP.findBlockingReply([RLY({ approval: { status: 'approved' } })], 'task_z73q');
+    assert.ok(hit, 'an already-approved reply MUST block a second draft');
+  });
+
+  test('findBlockingReply: a rejected reply does NOT block', () => {
+    // It never reached the prospect, and redraft-after-rejection is how copy improves.
+    assert.strictEqual(PP.findBlockingReply([RLY({ approval: { status: 'rejected' } })], 'task_z73q'), null);
+  });
+
+  test('findBlockingReply: a missing approval object blocks', () => {
+    // Cannot prove it was never sent, so refuse to send a second.
+    const hit = PP.findBlockingReply([RLY({ approval: undefined })], 'task_z73q');
+    assert.ok(hit, 'unknown status must be treated as blocking');
+  });
+
+  test('findBlockingReply: replies for other tasks are ignored', () => {
+    assert.strictEqual(PP.findBlockingReply([RLY({ _parentTaskId: 'task_other' })], 'task_z73q'), null);
+  });
+
+  test('findBlockingReply: non-reply action types are ignored', () => {
+    assert.strictEqual(PP.findBlockingReply([RLY({ type: 'social_post.schedule' })], 'task_z73q'), null);
+  });
+
+  test('findBlockingReply: garbage input does not throw', () => {
+    assert.strictEqual(PP.findBlockingReply(null, 'task_z73q'), null);
+    assert.strictEqual(PP.findBlockingReply([null, undefined, {}], 'task_z73q'), null);
+    assert.strictEqual(PP.findBlockingReply([RLY()], ''), null);
+  });
+
   console.log(pass + ' passed, ' + fail + ' failed');
   process.exit(fail ? 1 : 0);
 })();
