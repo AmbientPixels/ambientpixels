@@ -553,5 +553,30 @@ test('squeezed agents lose 30%, redistributed to the previous champion', () => {
   assert.strictEqual(plan.perAgent.echo, 32.5, '25 + freed 7.5');
 });
 
+test('a squeezed champion does not refund their own cut to themselves', () => {
+  const led = mkLedger('2026-08', {
+    echo: mkA(0, { ladderStatus: 'squeezed' }), scribe: mkA(0), nova: mkA(0), quill: mkA(0)
+  }, { par: 40 });
+  led.seasonMeta = { par: 40, previousChampion: 'echo' };
+  const plan = computeBudgetPlan(led, { poolDollars: 100, activeIds: ['echo', 'scribe', 'nova', 'quill'], nowMs: AUG });
+  assert.strictEqual(plan.perAgent.echo, 17.5, 'squeezed champion keeps the 30% cut');
+});
+
+test('invalid floor/merit percentages fall back to defaults; sum never exceeds pool', () => {
+  const led = mkLedger('2026-08', { echo: mkA(0), scribe: mkA(0) }, { par: 40 });
+  const plan = computeBudgetPlan(led, { poolDollars: 100, floorPct: 0.6, meritPct: 0.6, activeIds: ['echo', 'scribe'], nowMs: AUG });
+  assert.strictEqual(plan.perAgent.echo, 50, 'invalid 0.6+0.6 config ignored, defaults used');
+  const total = Object.values(plan.perAgent).reduce((s, v) => s + v, 0);
+  assert.ok(total <= 100 + 1e-6, 'never allocates more than the pool');
+});
+
+test('disabled-plan fallback shape for empty roster or zero pool', () => {
+  const empty = computeBudgetPlan({ perAgent: {} }, { poolDollars: 100, nowMs: AUG });
+  assert.strictEqual(empty.enabled, false);
+  assert.deepStrictEqual(empty.perAgent, {});
+  const noPool = computeBudgetPlan(mkLedger('2026-08', { echo: mkA(0) }, null), { poolDollars: 0, activeIds: ['echo'], nowMs: AUG });
+  assert.strictEqual(noPool.enabled, false);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

@@ -566,7 +566,12 @@ function computeBudgetPlan(rewards, opts) {
   var pool = Number(opts.poolDollars) || 0;
   var floorPct = Number.isFinite(opts.floorPct) ? opts.floorPct : MERIT_FLOOR_PCT;
   var meritPct = Number.isFinite(opts.meritPct) ? opts.meritPct : MERIT_PCT;
+  if (!(floorPct >= 0 && floorPct <= 1 && meritPct >= 0 && meritPct <= 1 &&
+        Math.abs(floorPct + meritPct - 1) < 1e-9)) {
+    floorPct = MERIT_FLOOR_PCT; meritPct = MERIT_PCT;   // invalid config: fall back to defaults
+  }
   var squeezeMult = Number.isFinite(opts.squeezeMult) ? opts.squeezeMult : SQUEEZE_CAP_MULT;
+  if (!(squeezeMult >= 0 && squeezeMult <= 1)) squeezeMult = SQUEEZE_CAP_MULT;
   var ids = ((opts.activeIds && opts.activeIds.length) ? opts.activeIds : FLEET_AGENTS)
     .filter(function (id) { return rewards && rewards.perAgent && rewards.perAgent[id]; });
   if (!ids.length || pool <= 0) return { enabled: false, perAgent: {}, computedAt: _iso(nowMs) };
@@ -591,7 +596,12 @@ function computeBudgetPlan(rewards, opts) {
       freed += cut;
     }
   });
-  if (freed > 0 && champion && perAgent[champion] != null) perAgent[champion] += freed;
+  var championSqueezed = champion && rewards.perAgent[champion] &&
+    (rewards.perAgent[champion].ladderStatus || 'safe') === 'squeezed';
+  // Freed budget is deliberately DROPPED (not redistributed) when the champion is
+  // absent from the active roster or is themselves squeezed — the pool may sum
+  // below poolDollars in those cases. Consumers must not assume exact-sum.
+  if (freed > 0 && champion && perAgent[champion] != null && !championSqueezed) perAgent[champion] += freed;
 
   ids.forEach(function (id) { perAgent[id] = _round2(perAgent[id]); });
   return { enabled: true, perAgent: perAgent, poolDollars: pool, trailing: trail, computedAt: _iso(nowMs) };
