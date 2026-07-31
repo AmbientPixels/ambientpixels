@@ -349,7 +349,11 @@ function _emitSplit(ev, idBase, type, totalXp, at, utmContent, ctx, state, nowMs
     xp = Math.floor(totalXp * UNATTRIBUTED_SHARE);
   }
   if (!who.length || xp <= 0) return;
-  var share = Math.max(1, Math.floor(xp / who.length));
+  var share = Math.floor(xp / who.length);
+  if (share < 1) {
+    who = who.slice(0, Math.max(1, Math.floor(xp)));  // deterministic: chain order / sorted fallback
+    share = 1;
+  }
   who.forEach(function (id) {
     ev.push({ id: idBase + '__' + id, type: type, agentId: id, xpOverride: share, at: at || '' });
   });

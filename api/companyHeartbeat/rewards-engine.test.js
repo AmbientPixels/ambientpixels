@@ -325,5 +325,19 @@ test('lead ids are stable across runs (ts + email hash) so dedup holds', () => {
   assert.deepStrictEqual(a, b);
 });
 
+test('_emitSplit never distributes more than the nominal budget to a large fallback set', () => {
+  const s = REV_STATE();
+  // 6 agents active on the conversion campaign -> fallback set of 6
+  s.tasks = ['echo', 'scribe', 'pixel', 'scout', 'forge', 'quill'].map((a, i) => (
+    { id: 'tf' + i, campaign_id: 'camp-conv', assignee: a, updatedAt: at(-2) }
+  ));
+  s.actionsById = {};   // force fallback path
+  s.scans = [{ reportId: 'ccr_big', tier: 'free', timestamp: at(0) }];
+  const evs = extractEvents(s, null).filter(e => e.type === 'funnel_scan');
+  const total = evs.reduce((sum, e) => sum + e.xpOverride, 0);
+  assert.ok(total <= 1, 'scan budget = floor(3*0.5) = 1; got ' + total);
+  assert.strictEqual(evs.length, 1, 'recipient list trimmed to budget');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
