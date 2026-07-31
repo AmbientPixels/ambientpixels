@@ -39,6 +39,12 @@ const FOLLOWER_DRIP_SPLIT = 0.5;  // renown per new follower, per content agent
 const RECENT_CAP = 25;
 const PROCESSED_CAP = 3000;
 
+// ── Revenue Seasons constants (2026-07-30 spec) ─────────────────────────────
+const FLEET_AGENTS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scout', 'scribe', 'quill', 'vale'];
+const _FLEET_SET = {}; FLEET_AGENTS.forEach(function (id) { _FLEET_SET[id] = true; });
+const CONVERSION_METRIC_RX = /revenue|customer|sale|checkout|conversion|lead/i;
+const FALLBACK_WINDOW_MS = 30 * 86400000;
+
 const RANKS = [
   { min: 50, name: 'Legend' },
   { min: 40, name: 'Elite' },
@@ -285,6 +291,50 @@ function applyCompany(rewards, stats, nowMs) {
   return r;
 }
 
+// ── Attribution: utm_content (= action id) -> causal chain of fleet agents ───
+// ctx: { actionsById, attributionIndex, tasksById } — all plain maps, all optional.
+function resolveContributors(utmContent, ctx) {
+  ctx = ctx || {};
+  var out = [];
+  if (!utmContent) return out;
+  var a = (ctx.actionsById || {})[utmContent];
+  if (a) {
+    if (a.created_by) out.push(a.created_by);
+    var t = a._parentTaskId && (ctx.tasksById || {})[a._parentTaskId];
+    if (t) {
+      if (t.assignee) out.push(t.assignee);
+      if (t.reviewer) out.push(t.reviewer);
+    }
+  } else {
+    // action trimmed by actionsArchiver — attribution survives in the index
+    var ix = ((ctx.attributionIndex || {})[utmContent]) || null;
+    if (ix && ix.agent) out.push(ix.agent);
+  }
+  var seen = {};
+  return out.filter(function (id) {
+    if (!_FLEET_SET[id] || seen[id]) return false;
+    seen[id] = true; return true;
+  });
+}
+
+// Fallback for unattributed conversions: distinct assignees of tasks touched in the
+// last 30d that belong to ACTIVE campaigns whose northStarMetric reads as conversion.
+function conversionFallbackAgents(state, nowMs) {
+  state = state || {};
+  var conv = {};
+  _arr(state.campaigns).forEach(function (c) {
+    if (c && c.id && c.status === 'active' && CONVERSION_METRIC_RX.test(c.northStarMetric || '')) conv[c.id] = true;
+  });
+  var cutoff = nowMs - FALLBACK_WINDOW_MS;
+  var agents = {};
+  _arr(state.tasks).concat(_arr(state.tasksArchive)).forEach(function (t) {
+    if (!t || !conv[t.campaign_id] || !_FLEET_SET[t.assignee]) return;
+    var ts = Date.parse(t.updatedAt || t.completedAt || t.createdAt || 0) || 0;
+    if (ts >= cutoff) agents[t.assignee] = true;
+  });
+  return Object.keys(agents).sort();
+}
+
 // ── extractEvents: durable state -> normalized events with stable ids ─────────
 function extractEvents(state, prevRewards) {
   state = state || {};
@@ -430,5 +480,6 @@ module.exports = {
   levelFromXp: levelFromXp, rankFromLevel: rankFromLevel, classFor: classFor,
   extractEvents: extractEvents, applyEvents: applyEvents, applyCompany: applyCompany,
   buildProgressionPromptBlock: buildProgressionPromptBlock,
+  resolveContributors: resolveContributors, conversionFallbackAgents: conversionFallbackAgents,
   runRewardsEngine: runRewardsEngine
 };

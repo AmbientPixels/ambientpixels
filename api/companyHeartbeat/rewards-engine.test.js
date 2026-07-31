@@ -3,7 +3,8 @@
 const assert = require('assert');
 const {
   levelFromXp, rankFromLevel, classFor,
-  applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock
+  applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock,
+  resolveContributors, conversionFallbackAgents
 } = require('./rewards-engine');
 
 const DAY = 86400000;
@@ -206,6 +207,54 @@ test('progression block: leader gets a lead message; empty for unknown/no data',
   assert.ok(/lead the fleet/i.test(buildProgressionPromptBlock('scribe', rewards)), 'leader message');
   assert.strictEqual(buildProgressionPromptBlock('ghost', rewards), '', 'unknown agent -> empty');
   assert.strictEqual(buildProgressionPromptBlock('nova', null), '', 'no rewards -> empty');
+});
+
+// ── Task 1: attribution resolver ──
+test('resolveContributors walks action -> task -> reviewer and dedups to fleet agents', () => {
+  const ctx = {
+    actionsById: { act_1: { id: 'act_1', created_by: 'scribe', _parentTaskId: 'tk1' } },
+    attributionIndex: {},
+    tasksById: { tk1: { id: 'tk1', assignee: 'echo', reviewer: 'quill', campaign_id: 'camp-x' } }
+  };
+  assert.deepStrictEqual(resolveContributors('act_1', ctx), ['scribe', 'echo', 'quill']);
+});
+
+test('resolveContributors falls back to actionAttributionIndex for trimmed actions', () => {
+  const ctx = {
+    actionsById: {},
+    attributionIndex: { act_old: { agent: 'echo', campaignId: 'camp-x', at: '2026-07-01T00:00:00Z' } },
+    tasksById: {}
+  };
+  assert.deepStrictEqual(resolveContributors('act_old', ctx), ['echo']);
+});
+
+test('resolveContributors filters system/ceo/unknown and returns [] on no match', () => {
+  const ctx = {
+    actionsById: { act_2: { id: 'act_2', created_by: 'system', _parentTaskId: 'tk2' } },
+    attributionIndex: {},
+    tasksById: { tk2: { id: 'tk2', assignee: 'ceo' } }
+  };
+  assert.deepStrictEqual(resolveContributors('act_2', ctx), []);
+  assert.deepStrictEqual(resolveContributors('missing', ctx), []);
+  assert.deepStrictEqual(resolveContributors(null, ctx), []);
+});
+
+test('conversionFallbackAgents = assignees of recent tasks on active conversion campaigns', () => {
+  const state = {
+    campaigns: [
+      { id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' },
+      { id: 'camp-paused', status: 'paused', northStarMetric: 'revenue' },
+      { id: 'camp-brand', status: 'active', northStarMetric: 'bluesky followers' }
+    ],
+    tasks: [
+      { id: 't1', campaign_id: 'camp-conv', assignee: 'echo', updatedAt: at(-3) },
+      { id: 't2', campaign_id: 'camp-conv', assignee: 'scribe', updatedAt: at(-40) },  // stale >30d
+      { id: 't3', campaign_id: 'camp-paused', assignee: 'pixel', updatedAt: at(-3) },  // paused campaign
+      { id: 't4', campaign_id: 'camp-brand', assignee: 'scout', updatedAt: at(-3) }    // not conversion
+    ],
+    tasksArchive: []
+  };
+  assert.deepStrictEqual(conversionFallbackAgents(state, NOW), ['echo']);
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
