@@ -55,6 +55,7 @@
       links: [
         { href: BASE + 'dashboard.html', label: 'Dashboard', icon: 'fa-gauge-high', match: ['dashboard.html'] },
         { href: BASE + 'agent-progress.html', label: 'Agent Progress', icon: 'fa-chart-line', match: ['agent-progress.html'] },
+        { href: BASE + 'seasons.html', label: 'Seasons', icon: 'fa-trophy', match: ['seasons.html'] },
         { href: BASE + 'standup.html', label: 'Standup', icon: 'fa-users', match: ['standup.html'] },
         { href: BASE + 'meetings.html', label: 'Meetings', icon: 'fa-video', match: ['meetings.html'] }
       ]

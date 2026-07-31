@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Seasons — revenue-first agent standings, par progress, ladder status, and revenue attribution." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Seasons — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    /* Season header */
+    .sn-statechip { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+    .sn-champ { font-size: var(--c-text-xs); opacity: 0.6; }
+    .sn-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
+    .sn-hero-card { padding: 0.8rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .sn-label { font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 0.35rem; }
+    .sn-value { font-size: var(--c-text-xl); font-weight: 600; line-height: var(--c-lh-tight); }
+    .sn-sub { font-size: var(--c-text-xs); opacity: 0.55; margin-top: 0.25rem; }
+    .sn-red { color: #ef4444; }
+
+    /* Badges */
+    .sn-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: var(--c-text-xs);
+                font-weight: 500; border: 1px solid transparent; white-space: nowrap; }
+    .sn-badge.green  { background: rgba(52,211,153,0.12); color: #34d399; border-color: rgba(52,211,153,0.25); }
+    .sn-badge.amber  { background: rgba(251,191,36,0.12); color: #fbbf24; border-color: rgba(251,191,36,0.25); }
+    .sn-badge.red    { background: rgba(239,68,68,0.12);  color: #ef4444; border-color: rgba(239,68,68,0.25); }
+    .sn-badge.blue   { background: rgba(96,165,250,0.12); color: #60a5fa; border-color: rgba(96,165,250,0.25); }
+    .sn-badge.purple { background: rgba(138,43,226,0.16); color: #b388ff; border-color: rgba(138,43,226,0.3); }
+
+    /* Table */
+    .sn-table { width: 100%; border-collapse: collapse; font-size: var(--c-text-base); }
+    .sn-table th { text-align: left; font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: 0.05em;
+                   opacity: 0.5; padding: 0.5rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 500; }
+    .sn-table td { padding: 0.55rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+    .sn-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .sn-agent { font-weight: 600; }
+    .sn-num { font-variant-numeric: tabular-nums; }
+    .sn-dim { opacity: 0.45; font-size: var(--c-text-xs); }
+    .sn-rev { color: #34d399; font-weight: 600; }
+    .sn-churn { color: #94a3b8; }
+
+    /* Par bar */
+    .sn-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; min-width: 70px; }
+    .sn-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg,#fbbf24,#f59e0b); transition: width 0.3s; }
+
+    /* Effort vs outcome */
+    .sn-verdict { padding: 0.7rem 0.85rem; border-radius: 8px; background: rgba(255,255,255,0.03);
+                  border-left: 3px solid #60a5fa; margin-bottom: 0.9rem; font-size: var(--c-text-base); }
+    .sn-verdict.red { border-left-color: #ef4444; background: rgba(239,68,68,0.06); }
+    .sn-legend { font-size: var(--c-text-xs); opacity: 0.6; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .sn-key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-left: 0.6rem; }
+    .sn-eo-row { display: grid; grid-template-columns: 90px 1fr 110px; gap: 0.6rem; align-items: center; margin-bottom: 0.4rem; }
+    .sn-eo-name { font-size: var(--c-text-base); font-weight: 500; }
+    .sn-eo-track { display: flex; height: 14px; border-radius: 4px; overflow: hidden; background: rgba(255,255,255,0.04); }
+    .sn-eo-rev { background: #34d399; }
+    .sn-eo-churn { background: #475569; }
+    .sn-eo-val { font-size: var(--c-text-xs); opacity: 0.6; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .sn-empty { padding: 1rem; opacity: 0.5; font-size: var(--c-text-base); }
+    @media (max-width: 700px) {
+      .sn-eo-row { grid-template-columns: 70px 1fr 80px; }
+      .sn-table th:nth-child(8), .sn-table td:nth-child(8) { display: none; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <main class="content-section" id="sn-main">
+    <div class="company-header">
+      <div>
+        <h1><i class="fas fa-trophy co-icon-mr-lg dash-icon-amber"></i>Seasons</h1>
+        <p class="act-header-sub">Revenue-first agent standings. Answers one question: is this economy measuring anything real? Read-only — the engine writes the ledger.</p>
+      </div>
+    </div>
+
+    <div id="sn-header"></div>
+
+    <div class="sys-section" id="sn-standings-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-ranking-star"></i>
+        <strong>SEASON STANDINGS</strong>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div id="sn-standings"><div class="sn-empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <div class="sys-section" id="sn-effort-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-scale-unbalanced"></i>
+        <strong>EFFORT VS OUTCOME</strong>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div id="sn-effort"><div class="sn-empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <div class="sys-section" id="sn-attribution-section">
+      <div class="sys-section-hdr">
+        <i class="fas fa-link-slash"></i>
+        <strong>REVENUE ATTRIBUTION</strong>
+        <i class="fas fa-chevron-down sys-chevron"></i>
+      </div>
+      <div class="sys-section-body">
+        <div id="sn-attribution"><div class="sn-empty">Loading…</div></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/modules/company/js/seasons.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+</body>
+</html>
