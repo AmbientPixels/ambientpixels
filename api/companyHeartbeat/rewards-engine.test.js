@@ -257,5 +257,73 @@ test('conversionFallbackAgents = assignees of recent tasks on active conversion 
   assert.deepStrictEqual(conversionFallbackAgents(state, NOW), ['echo']);
 });
 
+// ── Task 2: revenue-lane extraction ──
+const REV_STATE = () => ({
+  approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [],
+  _nowMs: NOW, // extractEvents has no nowMs param; fallback attribution reads state._nowMs
+  tasks: [{ id: 'tk1', assignee: 'echo', reviewer: 'quill', campaign_id: 'camp-conv', updatedAt: at(-1) }],
+  campaigns: [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }],
+  actionsById: { act_1: { id: 'act_1', created_by: 'scribe', _parentTaskId: 'tk1' } },
+  attributionIndex: {},
+  revenueLedgerEntries: [], asLeads: [], scans: []
+});
+
+test('an attributed sale splits 100 + $-XP across the causal chain, floor 1 each', () => {
+  const s = REV_STATE();
+  s.revenueLedgerEntries = [{ id: 'evt_1', type: 'one_time', amountCents: 2900, utmContent: 'act_1', occurredAt: at(0) }];
+  const evs = extractEvents(s, null).filter(e => e.type === 'revenue_sale');
+  // total = 100 + 29 = 129, 3 contributors (scribe, echo, quill) -> 43 each
+  assert.strictEqual(evs.length, 3);
+  assert.ok(evs.every(e => e.xpOverride === 43));
+  const ids = evs.map(e => e.id).sort();
+  assert.deepStrictEqual(ids, ['sale_evt_1__echo', 'sale_evt_1__quill', 'sale_evt_1__scribe']);
+});
+
+test('refunds, disputes and cancellations emit no sale events', () => {
+  const s = REV_STATE();
+  s.revenueLedgerEntries = [
+    { id: 'evt_r', type: 'refund', amountCents: -2900, utmContent: 'act_1', occurredAt: at(0) },
+    { id: 'evt_d', type: 'dispute', amountCents: -2900, occurredAt: at(0) },
+    { id: 'evt_c', type: 'subscription_canceled', amountCents: 0, occurredAt: at(0) }
+  ];
+  assert.strictEqual(extractEvents(s, null).filter(e => e.type === 'revenue_sale').length, 0);
+});
+
+test('an unattributed sale pays 50% to conversion-campaign agents; company keeps the rest', () => {
+  const s = REV_STATE();
+  s.revenueLedgerEntries = [{ id: 'evt_2', type: 'one_time', amountCents: 2900, utmContent: null, occurredAt: at(0) }];
+  const evs = extractEvents(s, null).filter(e => e.type === 'revenue_sale');
+  // fallback set = ['echo'] (task on active conversion campaign) -> floor(129*0.5) = 64
+  assert.strictEqual(evs.length, 1);
+  assert.strictEqual(evs[0].agentId, 'echo');
+  assert.strictEqual(evs[0].xpOverride, 64);
+  assert.strictEqual(evs[0].id, 'sale_evt_2__echo');
+});
+
+test('a lead pays 15 XP through the same chain; scans pay 3 via fallback', () => {
+  const s = REV_STATE();
+  s.asLeads = [{ email: 'x@y.z', utmContent: 'act_1', ts: at(0) }];
+  s.scans = [
+    { reportId: 'ccr_1', tier: 'free', timestamp: at(0) },
+    { reportId: 'ccr_2', tier: 'agent', timestamp: at(0) },     // internal — excluded
+    { tier: 'failed', timestamp: at(0) }                        // failed — excluded
+  ];
+  const leads = extractEvents(s, null).filter(e => e.type === 'funnel_lead');
+  assert.strictEqual(leads.length, 3, 'lead split across scribe/echo/quill');
+  assert.ok(leads.every(e => e.xpOverride === 5), '15/3 = 5 each');
+  const scans = extractEvents(s, null).filter(e => e.type === 'funnel_scan');
+  assert.strictEqual(scans.length, 1, 'only the public scan, via fallback');
+  assert.strictEqual(scans[0].agentId, 'echo');
+  assert.strictEqual(scans[0].id, 'scan_ccr_1__echo');
+});
+
+test('lead ids are stable across runs (ts + email hash) so dedup holds', () => {
+  const s = REV_STATE();
+  s.asLeads = [{ email: 'x@y.z', utmContent: 'act_1', ts: at(0) }];
+  const a = extractEvents(s, null).filter(e => e.type === 'funnel_lead').map(e => e.id).sort();
+  const b = extractEvents(s, null).filter(e => e.type === 'funnel_lead').map(e => e.id).sort();
+  assert.deepStrictEqual(a, b);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

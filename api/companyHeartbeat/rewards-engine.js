@@ -44,6 +44,9 @@ const FLEET_AGENTS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scout', 'scri
 const _FLEET_SET = {}; FLEET_AGENTS.forEach(function (id) { _FLEET_SET[id] = true; });
 const CONVERSION_METRIC_RX = /revenue|customer|sale|checkout|conversion|lead/i;
 const FALLBACK_WINDOW_MS = 30 * 86400000;
+const REVENUE_XP = { saleBase: 100, perDollar: 1, lead: 15, scan: 3 };
+const UNATTRIBUTED_SHARE = 0.5;   // organic conversions: half pays the fallback set
+const POSITIVE_SALE_TYPES = { one_time: true, subscription_initial: true, subscription_renewal: true };
 
 const RANKS = [
   { min: 50, name: 'Legend' },
@@ -96,6 +99,7 @@ const COMPANY_ACH = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function _arr(v) { return Array.isArray(v) ? v : []; }
+function _hash(s) { s = String(s || ''); var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); }
 function _iso(ms) { return new Date(ms).toISOString(); }
 function _day(iso) { return String(iso || '').substring(0, 10); }
 function _dayDiff(d1, d2) { return Math.round((Date.parse(d2) - Date.parse(d1)) / 86400000); }
@@ -335,6 +339,22 @@ function conversionFallbackAgents(state, nowMs) {
   return Object.keys(agents).sort();
 }
 
+// Split totalXp across the chain (or the 50% fallback set) as per-recipient events.
+// idBase must be stable; per-recipient ids get '__<agent>' so dedup is per share.
+function _emitSplit(ev, idBase, type, totalXp, at, utmContent, ctx, state, nowMs) {
+  var who = resolveContributors(utmContent, ctx);
+  var xp = totalXp;
+  if (!who.length) {
+    who = conversionFallbackAgents(state, nowMs);
+    xp = Math.floor(totalXp * UNATTRIBUTED_SHARE);
+  }
+  if (!who.length || xp <= 0) return;
+  var share = Math.max(1, Math.floor(xp / who.length));
+  who.forEach(function (id) {
+    ev.push({ id: idBase + '__' + id, type: type, agentId: id, xpOverride: share, at: at || '' });
+  });
+}
+
 // ── extractEvents: durable state -> normalized events with stable ids ─────────
 function extractEvents(state, prevRewards) {
   state = state || {};
@@ -380,6 +400,28 @@ function extractEvents(state, prevRewards) {
     if (pid && byId[pid] && byId[pid].assignee && t.assignee && byId[pid].assignee !== t.assignee) {
       ev.push({ id: 'assist_' + t.id, type: 'assist', agentId: t.assignee, at: t.completedAt || t.updatedAt || '', meta: { beneficiary: byId[pid].assignee } });
     }
+  });
+
+  // ── Revenue lane (2026-07-30): sales, leads, public scans ──────────────────
+  var nowMs = state._nowMs || Date.now();
+  var ctx = {
+    actionsById: (state.actionsById && typeof state.actionsById === 'object') ? state.actionsById : {},
+    attributionIndex: (state.attributionIndex && typeof state.attributionIndex === 'object') ? state.attributionIndex : {},
+    tasksById: byId
+  };
+  _arr(state.revenueLedgerEntries).forEach(function (r) {
+    if (!r || !r.id || !POSITIVE_SALE_TYPES[r.type] || !(r.amountCents > 0)) return;
+    var total = REVENUE_XP.saleBase + Math.floor(r.amountCents / 100) * REVENUE_XP.perDollar;
+    _emitSplit(ev, 'sale_' + r.id, 'revenue_sale', total, r.occurredAt || r.recordedAt, r.utmContent, ctx, state, nowMs);
+  });
+  _arr(state.asLeads).forEach(function (l) {
+    if (!l || !l.ts) return;
+    _emitSplit(ev, 'lead_' + _day(l.ts).replace(/-/g, '') + '_' + _hash(l.ts + '|' + (l.email || '')),
+      'funnel_lead', REVENUE_XP.lead, l.ts, l.utmContent, ctx, state, nowMs);
+  });
+  _arr(state.scans).forEach(function (s) {
+    if (!s || s.tier === 'agent' || s.tier === 'failed' || !s.reportId) return;
+    _emitSplit(ev, 'scan_' + s.reportId, 'funnel_scan', REVENUE_XP.scan, s.timestamp, null, ctx, state, nowMs);
   });
 
   return ev;
