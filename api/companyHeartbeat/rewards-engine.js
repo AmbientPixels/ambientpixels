@@ -614,7 +614,7 @@ function computeBudgetPlan(rewards, opts) {
 // competitive nudge orients agents toward shipping real work, never toward gaming.
 function _cap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
 
-function buildProgressionPromptBlock(agentId, rewards) {
+function buildProgressionPromptBlock(agentId, rewards, nowMs) {
   if (!agentId || !rewards || !rewards.perAgent) return '';
   var me = rewards.perAgent[agentId];
   if (!me) return '';
@@ -641,12 +641,49 @@ function buildProgressionPromptBlock(agentId, rewards) {
   var recent = Array.isArray(me.achievements) ? me.achievements.slice(-2).map(function (a) { return a.label || a.id; }) : [];
   var recentLine = recent.length ? 'Recent unlocks: ' + recent.join(', ') + '.' : 'No achievements unlocked yet.';
 
-  return '\n═══ YOUR PROGRESSION ═══\n' +
+  var nowT = nowMs || Date.now();
+  var seasonRanked = Object.keys(rewards.perAgent)
+    .filter(function (id) { return _FLEET_SET[id]; })
+    .map(function (id) { return { id: id, sx: rewards.perAgent[id].seasonXp || 0 }; })
+    .sort(function (a, b) { return (b.sx - a.sx) || (a.id < b.id ? -1 : 1); });
+  var sIdx = seasonRanked.findIndex(function (x) { return x.id === agentId; });
+  var par = (rewards.seasonMeta && rewards.seasonMeta.par) || null;
+  var month = rewards.season || _iso(nowT).substring(0, 7);
+  var monthEnd = Date.UTC(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 1);
+  var daysLeft = Math.max(0, Math.ceil((monthEnd - nowT) / 86400000));
+  var top3 = seasonRanked.slice(0, 3).map(function (x, i) { return (i + 1) + '. ' + _cap(x.id) + ' ' + x.sx; }).join('  ');
+
+  var seasonLine = 'Season ' + month + ': rank #' + (sIdx + 1) + ' of ' + seasonRanked.length +
+    '. Top: ' + top3 + '. Your season XP ' + (me.seasonXp || 0) + (par ? '/' + par + ' par' : '') +
+    '. ' + daysLeft + ' days left.';
+
+  var status = me.ladderStatus || 'safe';
+  var ladderLine = '';
+  if (status === 'watch') {
+    ladderLine = 'LADDER: You are on relegation watch (1 below-par season). Finish at or above par or your budget gets cut next season.\n';
+  } else if (status === 'squeezed') {
+    ladderLine = 'LADDER: Your budget is cut 30% this season (2 below-par seasons). Finishing at or above par restores it. One more below-par season auto-drafts a retirement proposal.\n';
+  } else if (status === 'retirement_pending') {
+    ladderLine = 'LADDER: A retirement proposal for you has been drafted for CEO decision. You are one CEO decision from retirement. Revenue-lane outcomes are the only thing that resets this. Your successor would inherit your memories.\n';
+  }
+
+  var tier = (rewards.privileges && rewards.privileges.enabled !== false && rewards.privileges.tiers && rewards.privileges.tiers[agentId]) || 'line';
+  var tierLine = tier === 'vanguard'
+    ? 'Privileges: VANGUARD — +1 action slot, full model tier, proposal rights.'
+    : tier === 'probation'
+      ? 'Privileges: PROBATION — -1 action slot, economy model, campaign/objective proposals blocked. Climb the season board to restore them.'
+      : 'Privileges: LINE — standard slots and model.';
+
+  return '\n═══ YOUR PROGRESSION — SEASON ' + month + ' ═══\n' +
     'Level ' + lvl + ' ' + (me.rank || 'Rookie') + (me.class ? ' (' + me.class + ')' : '') + '. ' +
       into + '/' + xpForNext + ' XP to Level ' + (lvl + 1) + '. Renown ' + (me.renown || 0) + '. ' + (me.streakDays || 0) + '-day streak.\n' +
+    seasonLine + '\n' +
     peerLine + '\n' +
+    ladderLine +
+    tierLine + '\n' +
     recentLine + '\n' +
-    'You earn XP ONLY from outcomes that land: CEO-approved work, published content, real engagement, completed peer-reviewed tasks, and assists where the helped work ships. Proposing, commenting, or messaging earns nothing. To climb, ship something real.\n';
+    'Revenue lane pays most: attributed sale 100+ XP, lead 15, public scan 3 — split across every agent in the chain that produced it (writer, assignee, reviewer). Tasks pay at most 3 XP/day. ' +
+    'You earn XP ONLY from outcomes that land: revenue, CEO-approved work, published content, real engagement, completed peer-reviewed tasks. Proposing, commenting, or messaging earns nothing. To climb, ship something that sells.\n';
 }
 
 async function runRewardsEngine(opts) {

@@ -578,5 +578,32 @@ test('disabled-plan fallback shape for empty roster or zero pool', () => {
   assert.strictEqual(noPool.enabled, false);
 });
 
+// ── Task 6: prompt block v2 ──
+test('prompt block shows season standings, par progress and earning guide', () => {
+  const led = mkLedger('2026-08', {
+    echo: mkA(0, { seasonXp: 50, level: 4, rank: 'Rookie', xp: 388 }),
+    scribe: mkA(0, { seasonXp: 30, level: 5, rank: 'Rookie', xp: 543 }),
+    nova: mkA(0, { seasonXp: 5, level: 1, rank: 'Rookie', xp: 37 })
+  }, { par: 40, previousChampion: null });
+  led.privileges = { enabled: true, season: '2026-08', tiers: { echo: 'vanguard', scribe: 'line', nova: 'probation' } };
+  const block = buildProgressionPromptBlock('nova', led, AUG + 10 * 86400000);
+  assert.ok(/SEASON/.test(block), 'season header');
+  assert.ok(/#3 of 3/.test(block), 'season rank');
+  assert.ok(/5\/40/.test(block), 'par progress seasonXp/par');
+  assert.ok(/days (left|remain)/i.test(block), 'days remaining');
+  assert.ok(/probation/i.test(block), 'privilege tier shown');
+  assert.ok(/sale/i.test(block) && /lead/i.test(block), 'earning guide names the revenue lane');
+});
+
+test('ladder consequence lines are stated verbatim for hot states', () => {
+  const led = mkLedger('2026-08', {
+    echo: mkA(0, { seasonXp: 50 }), nova: mkA(0, { seasonXp: 5, parMisses: 2, ladderStatus: 'squeezed' }),
+    quill: mkA(0, { seasonXp: 1, parMisses: 3, ladderStatus: 'retirement_pending' })
+  }, { par: 40 });
+  assert.ok(/budget is cut 30%/i.test(buildProgressionPromptBlock('nova', led, AUG)), 'squeeze line');
+  const rp = buildProgressionPromptBlock('quill', led, AUG);
+  assert.ok(/retirement/i.test(rp) && /successor/i.test(rp), 'existential line');
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);
