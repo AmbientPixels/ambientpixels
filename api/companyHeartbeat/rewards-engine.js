@@ -52,6 +52,13 @@ const TASK_DONE_DAILY_XP_CAP = 3;
 const REVENUE_LANE_TYPES = { revenue_sale: true, funnel_lead: true, funnel_scan: true };
 const REVENUE_RECENT_CAP = 300;
 
+const SEASON_PAR_FLOOR = 40;
+const SEASON_PAR_GROWTH = 1.10;
+const SEASON_HISTORY_CAP = 12;
+const LADDER_BY_MISSES = ['safe', 'watch', 'squeezed', 'retirement_pending'];
+const VANGUARD_RANKS = 2;      // top-2 = vanguard
+const PROBATION_RANKS = 2;     // bottom-2 = probation (only when fleet >= 6)
+
 const RANKS = [
   { min: 50, name: 'Legend' },
   { min: 40, name: 'Elite' },
@@ -164,6 +171,7 @@ function _initRewards(prev, nowMs) {
     if (!Array.isArray(A.revenueRecent)) A.revenueRecent = [];
     if (typeof A.dailyTaskXp !== 'number') A.dailyTaskXp = 0;
   });
+  if (!r.seasonMeta) r.seasonMeta = { par: SEASON_PAR_FLOOR, startedAt: _iso(nowMs), previousChampion: null };
   r.updatedAt = _iso(nowMs);
   r.season = _iso(nowMs).substring(0, 7);
   return r;
@@ -173,7 +181,6 @@ function _streakMult(streakDays) { return 1 + Math.min(0.25, 0.02 * (streakDays 
 function _overflowRenown(lost) { return lost > 0 ? Math.ceil(lost / OVERFLOW_RENOWN_DIVISOR) : 0; }
 
 function _baseXpFor(e) {
-  if (e.xpOverride != null && Number.isFinite(Number(e.xpOverride))) return Number(e.xpOverride);
   if (e.type === 'engagement') return Math.min(ENGAGEMENT_XP_CAP, Math.floor((e.amount || 0) / ENGAGEMENT_PER));
   if (e.type === 'assist') return Math.round(ASSIST_BASE * ASSIST_RATIO);
   return XP[e.type] || 0;
@@ -469,6 +476,59 @@ function extractEvents(state, prevRewards) {
   return ev;
 }
 
+function _median(nums) {
+  var s = nums.slice().sort(function (a, b) { return a - b; });
+  if (!s.length) return 0;
+  var m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+// Season rollover. Call FIRST each run, on the raw previous ledger (before
+// _initRewards stamps the current month over prev.season). Returns
+// { rewards, rolled, transitions: [{agentId, from, to}] }.
+function rolloverSeason(prev, nowMs, opts) {
+  opts = opts || {};
+  var nowMonth = _iso(nowMs).substring(0, 7);
+  if (!prev || !prev.perAgent || !prev.season || prev.season === nowMonth) {
+    return { rewards: prev, rolled: false, transitions: [] };
+  }
+  var r = JSON.parse(JSON.stringify(prev));
+  var activeIds = (opts.activeIds && opts.activeIds.length) ? opts.activeIds : FLEET_AGENTS;
+  var parFloor = Number.isFinite(opts.parFloor) ? opts.parFloor : SEASON_PAR_FLOOR;
+  var par = (r.seasonMeta && Number.isFinite(r.seasonMeta.par)) ? r.seasonMeta.par : null;
+  var fleet = activeIds.filter(function (id) { return r.perAgent[id]; });
+  var ranked = fleet.map(function (id) { return { id: id, sx: r.perAgent[id].seasonXp || 0 }; })
+    .sort(function (a, b) { return b.sx - a.sx; });
+  var transitions = [];
+
+  ranked.forEach(function (row, i) {
+    var A = r.perAgent[row.id];
+    var belowPar = par != null && row.sx < par;
+    if (par != null) A.parMisses = belowPar ? (A.parMisses || 0) + 1 : 0;
+    else A.parMisses = A.parMisses || 0;
+    var from = A.ladderStatus || 'safe';
+    A.ladderStatus = LADDER_BY_MISSES[Math.min(A.parMisses, 3)];
+    if (A.ladderStatus !== from) transitions.push({ agentId: row.id, from: from, to: A.ladderStatus });
+    if (!Array.isArray(A.seasonHistory)) A.seasonHistory = [];
+    A.seasonHistory.unshift({ season: r.season, seasonXp: row.sx, seasonRevenueXp: A.seasonRevenueXp || 0, rank: i + 1, par: par, belowPar: belowPar });
+    if (A.seasonHistory.length > SEASON_HISTORY_CAP) A.seasonHistory = A.seasonHistory.slice(0, SEASON_HISTORY_CAP);
+    A.seasonXp = 0;
+    A.seasonRevenueXp = 0;
+  });
+
+  var tiers = {};
+  ranked.forEach(function (row, i) {
+    var probation = fleet.length >= 6 && i >= ranked.length - PROBATION_RANKS;
+    tiers[row.id] = i < VANGUARD_RANKS ? 'vanguard' : (probation ? 'probation' : 'line');
+  });
+
+  var nextPar = Math.max(parFloor, Math.round(SEASON_PAR_GROWTH * _median(ranked.map(function (x) { return x.sx; }))));
+  r.seasonMeta = { par: nextPar, startedAt: _iso(nowMs), previousChampion: ranked.length ? ranked[0].id : null };
+  r.privileges = { enabled: true, season: nowMonth, tiers: tiers };
+  r.season = nowMonth;
+  return { rewards: r, rolled: true, transitions: transitions };
+}
+
 // ── IO orchestration ──────────────────────────────────────────────────────────
 // Prompt block (Stage 5: the "nudge each other" progression block).
 // Pure: given an agentId + the rewards ledger, render the per-agent YOUR PROGRESSION
@@ -565,5 +625,6 @@ module.exports = {
   extractEvents: extractEvents, applyEvents: applyEvents, applyCompany: applyCompany,
   buildProgressionPromptBlock: buildProgressionPromptBlock,
   resolveContributors: resolveContributors, conversionFallbackAgents: conversionFallbackAgents,
+  rolloverSeason: rolloverSeason,
   runRewardsEngine: runRewardsEngine
 };

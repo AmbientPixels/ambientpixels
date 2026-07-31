@@ -4,7 +4,7 @@ const assert = require('assert');
 const {
   levelFromXp, rankFromLevel, classFor,
   applyEvents, applyCompany, extractEvents, buildProgressionPromptBlock,
-  resolveContributors, conversionFallbackAgents
+  resolveContributors, conversionFallbackAgents, rolloverSeason
 } = require('./rewards-engine');
 
 const DAY = 86400000;
@@ -400,6 +400,91 @@ test('task_done lane cap composes with the global 12/day cap regardless of event
   ];
   const { rewards } = applyEvents(evs, null, NOW);
   assert.strictEqual(agent(rewards, 'scout').xp, 12, 'global daily cap holds regardless of order');
+});
+
+// ── Task 4: season rollover ──
+const mkLedger = (season, perAgent, seasonMeta) => ({
+  season, seasonMeta: seasonMeta || null, perAgent, company: { counters: {} }, processedEventIds: [], assistPairs: {}
+});
+const mkA = (seasonXp, extra) => Object.assign({
+  xp: seasonXp, level: 1, rank: 'Rookie', renown: 0, streakDays: 0, lastActiveDay: null,
+  dailyXp: 0, dailyXpDay: null, seasonXp, seasonRevenueXp: 0, revenueRecent: [],
+  counters: {}, achievements: [], recent: [], parMisses: 0, ladderStatus: 'safe', seasonHistory: []
+}, extra || {});
+const AUG = Date.UTC(2026, 7, 1, 1, 0, 0);   // 2026-08-01
+const IDS5 = ['echo', 'scribe', 'nova', 'quill', 'pixel'];
+
+test('rollover archives standings, resets season XP, sets scaled par', () => {
+  const prev = mkLedger('2026-07', {
+    echo: mkA(100), scribe: mkA(80), nova: mkA(50), quill: mkA(10), pixel: mkA(5)
+  }, { par: 40 });
+  const r = rolloverSeason(prev, AUG, { activeIds: IDS5, parFloor: 40 });
+  assert.strictEqual(r.rewards.season, '2026-08');
+  const e = r.rewards.perAgent.echo;
+  assert.strictEqual(e.seasonXp, 0, 'season XP reset');
+  assert.strictEqual(e.seasonHistory[0].season, '2026-07');
+  assert.strictEqual(e.seasonHistory[0].rank, 1);
+  assert.strictEqual(e.seasonHistory[0].belowPar, false);
+  // median of [100,80,50,10,5] = 50 -> par = max(40, round(55)) = 55
+  assert.strictEqual(r.rewards.seasonMeta.par, 55);
+  assert.strictEqual(r.rewards.seasonMeta.previousChampion, 'echo');
+});
+
+test('par misses escalate the ladder: watch -> squeezed -> retirement_pending', () => {
+  const below = { par: 40 };
+  let prev = mkLedger('2026-07', { echo: mkA(100), scribe: mkA(90), nova: mkA(80), quill: mkA(70), pixel: mkA(5) }, below);
+  let r = rolloverSeason(prev, AUG, { activeIds: IDS5, parFloor: 40 });
+  assert.strictEqual(r.rewards.perAgent.pixel.parMisses, 1);
+  assert.strictEqual(r.rewards.perAgent.pixel.ladderStatus, 'watch');
+  // simulate two more below-par seasons
+  r.rewards.perAgent.pixel.parMisses = 2;
+  r.rewards.perAgent.pixel.ladderStatus = 'squeezed';
+  r.rewards.season = '2026-08';
+  r.rewards.perAgent.pixel.seasonXp = 0;
+  const SEP = Date.UTC(2026, 8, 1, 1, 0, 0);
+  ['echo', 'scribe', 'nova', 'quill'].forEach(id => { r.rewards.perAgent[id].seasonXp = 100; });
+  const r2 = rolloverSeason(r.rewards, SEP, { activeIds: IDS5, parFloor: 40 });
+  assert.strictEqual(r2.rewards.perAgent.pixel.parMisses, 3);
+  assert.strictEqual(r2.rewards.perAgent.pixel.ladderStatus, 'retirement_pending');
+  assert.ok(r2.transitions.some(t => t.agentId === 'pixel' && t.to === 'retirement_pending'), 'transition reported');
+});
+
+test('at-or-above-par season resets misses; privilege tiers derive from final ranks', () => {
+  // 6 agents — probation only applies when fleet >= 6
+  const IDS6 = ['echo', 'scribe', 'nova', 'forge', 'quill', 'pixel'];
+  const prev = mkLedger('2026-07', {
+    echo: mkA(100), scribe: mkA(80), nova: mkA(50, { parMisses: 1, ladderStatus: 'watch' }),
+    forge: mkA(45), quill: mkA(42), pixel: mkA(41)
+  }, { par: 40 });
+  const r = rolloverSeason(prev, AUG, { activeIds: IDS6, parFloor: 40 });
+  assert.strictEqual(r.rewards.perAgent.nova.parMisses, 0, 'recovery resets');
+  assert.strictEqual(r.rewards.perAgent.nova.ladderStatus, 'safe');
+  const tiers = r.rewards.privileges.tiers;
+  assert.strictEqual(tiers.echo, 'vanguard');
+  assert.strictEqual(tiers.scribe, 'vanguard');
+  assert.strictEqual(tiers.nova, 'line');
+  assert.strictEqual(tiers.forge, 'line');
+  assert.strictEqual(tiers.quill, 'probation');
+  assert.strictEqual(tiers.pixel, 'probation');
+});
+
+test('probation is skipped for small fleets (< 6 agents)', () => {
+  const prev = mkLedger('2026-07', {
+    echo: mkA(100), scribe: mkA(80), nova: mkA(50), quill: mkA(45), pixel: mkA(41)
+  }, { par: 40 });
+  const r = rolloverSeason(prev, AUG, { activeIds: IDS5, parFloor: 40 });
+  const tiers = r.rewards.privileges.tiers;
+  assert.strictEqual(tiers.pixel, 'line', 'no probation at fleet size 5');
+});
+
+test('no rollover mid-season; bootstrap ledger without seasonMeta counts no misses', () => {
+  const prev = mkLedger('2026-08', { echo: mkA(5) }, { par: 40 });
+  const r = rolloverSeason(prev, AUG, { activeIds: ['echo'], parFloor: 40 });
+  assert.strictEqual(r.rolled, false, 'same month: no-op');
+  const boot = mkLedger('2026-07', { echo: mkA(0), scribe: mkA(0) }, null);   // pre-seasons ledger
+  const rb = rolloverSeason(boot, AUG, { activeIds: ['echo', 'scribe'], parFloor: 40 });
+  assert.strictEqual(rb.rewards.perAgent.echo.parMisses, 0, 'no par existed -> no miss');
+  assert.strictEqual(rb.rewards.seasonMeta.par, 40, 'par floors at 40');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
