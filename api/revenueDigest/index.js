@@ -10,11 +10,11 @@
 
 const storage = require('../_utils/companyStorage');
 const { buildRevenueDigest } = require('../companyHeartbeat/revenue-intel');
-const { getLedger } = require('../_lib/stripe/revenueLedger');
+const { getLedger, LEDGER_KEY, POSITIVE_TYPES } = require('../_lib/stripe/revenueLedger');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, x-company-secret, x-ms-client-principal',
   'Content-Type': 'application/json'
 };
@@ -47,6 +47,47 @@ module.exports = async function (context, req) {
   const principal = (req.headers && req.headers['x-ms-client-principal']) || '';
   if (!storage.validateSecret(secret) && !principal) {
     context.res = { status: 403, headers: corsHeaders, body: JSON.stringify({ error: 'Unauthorized' }) };
+    return;
+  }
+
+  // CEO-only maintenance: remove $0 "positive" entries (dry-run test checkouts
+  // via 100%-off coupons). One such entry marked obj-first-customer complete and
+  // put "1 paying" in WORLD STATE off a fake sale — with the fleet now optimizing
+  // revenue metrics, the ledger must be truth. Legitimate $0 markers
+  // (subscription_canceled) are NOT positive types and are never touched.
+  // Strict secret gate (not principal) — this mutates the append-only ledger.
+  if (req.method === 'POST') {
+    const body = req.body || {};
+    if (body.action !== 'prune-test-entries') {
+      context.res = { status: 400, headers: corsHeaders, body: JSON.stringify({ error: 'Unknown action. Supported: prune-test-entries' }) };
+      return;
+    }
+    if (secret !== 'pixelpusher') {
+      context.res = { status: 403, headers: corsHeaders, body: JSON.stringify({ error: 'Forbidden' }) };
+      return;
+    }
+    try {
+      const ledger = await getLedger();
+      const removed = [];
+      const kept = [];
+      for (const e of ledger.entries) {
+        const isZeroPositive = e && POSITIVE_TYPES.indexOf(e.type) !== -1 && (!Number.isFinite(e.amountCents) || e.amountCents === 0);
+        if (isZeroPositive) removed.push(e); else kept.push(e);
+      }
+      if (removed.length > 0) {
+        ledger.entries = kept;
+        ledger.updatedAt = new Date().toISOString();
+        ledger.lastPrune = { at: ledger.updatedAt, removedIds: removed.map(e => e.id), reason: 'zero-amount positive entries (test checkouts)' };
+        await storage.setState(LEDGER_KEY, ledger);
+      }
+      context.res = {
+        status: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({ ok: true, removedCount: removed.length, removed: removed, remaining: kept.length })
+      };
+    } catch (err) {
+      context.res = { status: 500, headers: corsHeaders, body: JSON.stringify({ error: 'Prune failed', details: err && err.message ? err.message : String(err) }) };
+    }
     return;
   }
 

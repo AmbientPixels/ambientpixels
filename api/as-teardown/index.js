@@ -117,6 +117,36 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // CEO-only recovery: put a failed order back to 'paid' so the runner picks
+    // it up on its next tick. A failed $199 order is refund territory — this is
+    // the remote path to retry one after a transient upstream outage without
+    // touching storage by hand. Secret-gated like status.
+    if (body.action === 'requeue') {
+      if (req.headers['x-company-secret'] !== 'pixelpusher') {
+        context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Forbidden.' } };
+        return;
+      }
+      const requeueId = String(body.id || body.orderId || '');
+      const rqQueue = (await storage.getState('as_teardown_queue')) || [];
+      const rqOrder = rqQueue.find(o => o && o.orderId === requeueId);
+      if (!rqOrder) {
+        context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Order not found.', orderId: requeueId } };
+        return;
+      }
+      if (rqOrder.status !== 'failed') {
+        context.res = { status: 409, headers: CORS_HEADERS, body: { error: 'Only failed orders can be requeued.', orderId: requeueId, status: rqOrder.status } };
+        return;
+      }
+      rqOrder.status = 'paid';
+      rqOrder.retryCount = 0;
+      rqOrder.error = null;
+      rqOrder.requeuedAt = new Date().toISOString();
+      await storage.setState('as_teardown_queue', rqQueue);
+      context.log('[as-teardown] Order requeued by CEO:', requeueId);
+      context.res = { status: 200, headers: CORS_HEADERS, body: { ok: true, orderId: requeueId, status: 'paid' } };
+      return;
+    }
+
     if (body.action === 'checkout') {
       const url = String(body.url || '').trim();
       const email = String(body.email || '').trim();

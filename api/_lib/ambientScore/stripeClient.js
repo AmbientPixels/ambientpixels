@@ -23,6 +23,15 @@ async function createCheckoutSession({ reportId, url, email, priceType, utmConte
   const params = new URLSearchParams();
   params.append('mode', 'payment');
   params.append('allow_promotion_codes', 'true');
+  // Card + Link only. With dashboard-automatic payment methods, BNPL types
+  // (which carry minimum-amount floors) make Stripe reject customer-ENTERED
+  // promo codes ("This code is invalid") when the discount would drop the
+  // total below their floor — hit live 2026-07-30 with a valid 100%-off code
+  // (and it tainted GENESIS's redemption numbers). Server-side pre-applied
+  // discounts dodge this; entered codes don't. BNPL adds nothing at this
+  // price point, so pin the methods instead.
+  params.append('payment_method_types[0]', 'card');
+  params.append('payment_method_types[1]', 'link');
   params.append('line_items[0][price]', priceId);
   params.append('line_items[0][quantity]', '1');
   params.append('success_url', SITE_URL + '/ambientscore/report.html?id=' + reportId + '&session_id={CHECKOUT_SESSION_ID}');
@@ -65,6 +74,9 @@ async function createTeardownCheckout({ url, email, goal, utmContent, utmSource 
   const params = new URLSearchParams();
   params.append('mode', 'payment');
   params.append('allow_promotion_codes', 'true');
+  // Same card+link pinning as createCheckoutSession — see comment there.
+  params.append('payment_method_types[0]', 'card');
+  params.append('payment_method_types[1]', 'link');
   params.append('line_items[0][price_data][currency]', 'usd');
   params.append('line_items[0][price_data][unit_amount]', String(TEARDOWN_PRICE_CENTS));
   params.append('line_items[0][price_data][product_data][name]', 'AmbientScore Conversion Teardown');

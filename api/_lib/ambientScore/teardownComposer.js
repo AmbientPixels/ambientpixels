@@ -144,6 +144,28 @@ function validateTeardown(t) {
   return null;
 }
 
+// Transient upstream failures must not burn a paid order: td_1785382746857_2faa
+// died as 'failed' (refund territory) on three "Claude returned 500" bursts —
+// the two temperature attempts fired back-to-back into the same outage. Retry
+// transient errors with backoff INSIDE an attempt; only real output problems
+// (parse/validation) fall through to the cooler second attempt.
+const TRANSIENT_ERR_RX = /returned 5\d\d|returned 429|overloaded|timeout|ETIMEDOUT|ECONNRESET|ECONNABORTED|socket hang up/i;
+
+async function _callClaudeWithBackoff(callClaude, prompt, opts) {
+  const waitsMs = [0, 2000, 8000];
+  let lastErr = null;
+  for (const w of waitsMs) {
+    if (w) await new Promise(function (r) { setTimeout(r, w); });
+    try {
+      return await callClaude(prompt, opts);
+    } catch (err) {
+      lastErr = err;
+      if (!TRANSIENT_ERR_RX.test(String(err && err.message))) throw err;
+    }
+  }
+  throw lastErr;
+}
+
 // One composition call; on malformed output retry once cooler, then throw.
 async function composeTeardown(report, goal, callClaude) {
   const prompt = buildTeardownPrompt(report, goal);
@@ -151,7 +173,7 @@ async function composeTeardown(report, goal, callClaude) {
   let lastErr = null;
   for (const opts of attempts) {
     try {
-      const raw = await callClaude(prompt, {
+      const raw = await _callClaudeWithBackoff(callClaude, prompt, {
         temperature: opts.temperature,
         maxOutputTokens: 3500,
         caller: 'as-teardown-compose'
