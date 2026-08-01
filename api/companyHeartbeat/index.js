@@ -21,7 +21,7 @@ const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
 const { buildStrategyDigest, evaluateObjectives } = require('./strategy-intel');
 const { buildRevenueDigest } = require('./revenue-intel');
-const { getLedger: getRevenueLedger, resolveInternalEmails: _resolveInternalEmails } = require('../_lib/stripe/revenueLedger');
+const { getLedger: getRevenueLedger, resolveInternalEmails: _resolveInternalEmails, isInternalEntry: _isInternalRevenue } = require('../_lib/stripe/revenueLedger');
 const { buildAllocationDigest } = require('./allocation-intel');
 const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD, QG_HALLUCINATION_KEYWORDS } = require('./agent-runner');
 const { selectTopProposals: _selectTopProposals } = require('./agent-proposal-select');
@@ -360,13 +360,22 @@ module.exports = async function (context) {
         const _revEntries = (_revLedger && Array.isArray(_revLedger.entries)) ? _revLedger.entries
           : (Array.isArray(_revLedger) ? _revLedger : []);
         const _leadTs = (e) => new Date((e && (e.at || e.timestamp || e.createdAt || e.created_at)) || 0).getTime();
+        // Founder/test purchases are excluded — this funnel feeds the MARKET
+        // REALITY prompt block every agent reads, and "2 sales" from the CEO's own
+        // checkout test is the single most misleading number we could put there.
+        let _extEntries = _revEntries;
+        try {
+          const _fnEmails = await _resolveInternalEmails();
+          if (_fnEmails.length) _extEntries = _revEntries.filter(e => !_isInternalRevenue(e, _fnEmails));
+        } catch (_feErr) { /* unconfigured => exclude nothing, never zero real sales */ }
         costIntel.funnel = {
           scans7d: _cc7d.length,
           scansTotal: _cc.length,
           leads7d: (Array.isArray(_asLeads) ? _asLeads : []).filter(e => _leadTs(e) > _7dCutoff).length,
           leadsTotal: Array.isArray(_asLeads) ? _asLeads.length : 0,
-          sales7d: _revEntries.filter(e => _leadTs(e) > _7dCutoff).length,
-          salesTotal: _revEntries.length
+          sales7d: _extEntries.filter(e => _leadTs(e) > _7dCutoff).length,
+          salesTotal: _extEntries.length,
+          internalSalesExcluded: _revEntries.length - _extEntries.length
         };
       } catch (_fnErr) {
         context.log('[Heartbeat] Funnel compute failed (non-fatal):', _fnErr.message);

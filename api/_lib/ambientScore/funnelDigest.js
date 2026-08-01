@@ -20,6 +20,9 @@
  * The conversion funnel is built on PUBLIC scans, because that is real inbound demand.
  */
 
+// Single definition of "is this our own money" — see revenueLedger.isInternalEntry.
+const _isInternalEntry = require('../stripe/revenueLedger').isInternalEntry;
+
 const POSITIVE_TYPES = ['one_time', 'subscription_initial', 'subscription_renewal'];
 
 function _toMs(v) {
@@ -137,7 +140,14 @@ function buildFunnelDigest(input) {
   });
 
   // ── Revenue (AmbientScore only) ──────────────────────────────────────
-  var asEntries = ledger.entries.filter(function (e) { return e && e.product === 'ambientscore'; });
+  // Founder/test purchases are excluded from the funnel's revenue figures — this
+  // endpoint is the CEO's "is the business working" view, and two LIVE-mode
+  // self-purchases reading as "1 paying customer, $398" is exactly the wrong
+  // answer. Unconfigured list excludes nothing (see revenueLedger.isInternalEntry).
+  var _intEmails = Array.isArray(input.internalEmails) ? input.internalEmails : [];
+  var asEntries = ledger.entries.filter(function (e) {
+    return e && e.product === 'ambientscore' && !_isInternalEntry(e, _intEmails);
+  });
   var positives = asEntries.filter(function (e) { return POSITIVE_TYPES.indexOf(e.type) !== -1; });
   var refunds = asEntries.filter(function (e) { return e.type === 'refund' || e.type === 'dispute'; });
 

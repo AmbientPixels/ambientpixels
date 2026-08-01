@@ -14,7 +14,7 @@
 
 const storage = require('../_utils/companyStorage');
 const { buildFunnelDigest } = require('../_lib/ambientScore/funnelDigest');
-const { getLedger } = require('../_lib/stripe/revenueLedger');
+const { getLedger, resolveInternalEmails } = require('../_lib/stripe/revenueLedger');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -38,17 +38,20 @@ module.exports = async function (context, req) {
   }
 
   try {
-    const [scans, leads, ledger] = await Promise.all([
+    const [scans, leads, ledger, internalEmails] = await Promise.all([
       storage.getState('cc_analytics'),
       storage.getState('as_leads'),
-      getLedger()
+      getLedger(),
+      resolveInternalEmails().catch(function () { return []; })
     ]);
 
     const digest = buildFunnelDigest({
       scans: Array.isArray(scans) ? scans : [],
       leads: Array.isArray(leads) ? leads : [],
       ledger: ledger || { entries: [] },
-      nowMs: Date.now()
+      nowMs: Date.now(),
+      // Founder/test purchases must not read as customers on the CEO's funnel view.
+      internalEmails: internalEmails
     });
 
     context.res = { status: 200, headers: corsHeaders, body: JSON.stringify(digest) };
