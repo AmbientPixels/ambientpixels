@@ -366,31 +366,42 @@ async function runAgenticMeeting(opts) {
   }
 
   if (strategicPassed.length) {
-    const aq = (await storage.getState('approvalQueue')) || [];
-    const existingDecisions = aq.filter(function (q) {
-      return q && q.type === 'decision_request' && (q.status === 'pending' || (Date.parse(q.createdAt || '') || 0) >= cutoff14d);
-    });
-    const existingProposalsByType = {};
-    aq.forEach(function (q) {
-      if (q && q.status === 'pending' && /_proposal$/.test(q.type || '')) {
-        (existingProposalsByType[q.type] = existingProposalsByType[q.type] || []).push({ title: q.title || q.name });
-      }
-    });
+    // Duplicate-suppression reads the queue and the routing appends to it, so both run
+    // inside the mutation — deciding "not a duplicate" against a snapshot and appending
+    // to that snapshot later is how a concurrent run's proposals get clobbered, and how
+    // ours get queued despite a peer that landed in between. The mutator may re-run, so
+    // every accumulator it feeds is reset at the top of each attempt.
     const meetingStub = { id: 'amtg-' + nowMs };
-    strategicPassed.forEach(function (c) {
-      if (c.kind === 'execution_task' && c.lane === 'ceo_decision') {
-        if (meetingBrief.isDuplicateTopic(c, existingDecisions)) { suppressedDuplicates.push({ title: c.title, lane: 'ceo_decision' }); return; }
-        const dr = _routeDecisionRequest(c, meetingStub.id, nowIso); aq.push(dr); proposalsQueued.push(dr.id);
-        c.proposalId = dr.id; existingDecisions.push({ title: dr.title });
-      } else {
-        const p = _routeStrategicProposal(c, meetingStub, nowIso);
-        const peers = existingProposalsByType[p.type] || [];
-        if (meetingBrief.isDuplicateTopic(c, peers)) { suppressedDuplicates.push({ title: c.title, lane: c.kind }); return; }
-        aq.push(p); proposalsQueued.push(p.id); c.proposalId = p.id; peers.push({ title: p.title });
-        existingProposalsByType[p.type] = peers;
-      }
+    await storage.mutateState('approvalQueue', function (fresh) {
+      const aq = Array.isArray(fresh) ? fresh : [];
+      proposalsQueued.length = 0;
+      suppressedDuplicates.length = 0;
+      strategicPassed.forEach(function (c) { delete c.proposalId; });
+
+      const existingDecisions = aq.filter(function (q) {
+        return q && q.type === 'decision_request' && (q.status === 'pending' || (Date.parse(q.createdAt || '') || 0) >= cutoff14d);
+      });
+      const existingProposalsByType = {};
+      aq.forEach(function (q) {
+        if (q && q.status === 'pending' && /_proposal$/.test(q.type || '')) {
+          (existingProposalsByType[q.type] = existingProposalsByType[q.type] || []).push({ title: q.title || q.name });
+        }
+      });
+      strategicPassed.forEach(function (c) {
+        if (c.kind === 'execution_task' && c.lane === 'ceo_decision') {
+          if (meetingBrief.isDuplicateTopic(c, existingDecisions)) { suppressedDuplicates.push({ title: c.title, lane: 'ceo_decision' }); return; }
+          const dr = _routeDecisionRequest(c, meetingStub.id, nowIso); aq.push(dr); proposalsQueued.push(dr.id);
+          c.proposalId = dr.id; existingDecisions.push({ title: dr.title });
+        } else {
+          const p = _routeStrategicProposal(c, meetingStub, nowIso);
+          const peers = existingProposalsByType[p.type] || [];
+          if (meetingBrief.isDuplicateTopic(c, peers)) { suppressedDuplicates.push({ title: c.title, lane: c.kind }); return; }
+          aq.push(p); proposalsQueued.push(p.id); c.proposalId = p.id; peers.push({ title: p.title });
+          existingProposalsByType[p.type] = peers;
+        }
+      });
+      return proposalsQueued.length ? aq : undefined;
     });
-    await storage.setState('approvalQueue', aq);
   }
 
   // 7. Persist record

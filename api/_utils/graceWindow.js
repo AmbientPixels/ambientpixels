@@ -52,8 +52,13 @@ async function runGraceWindow(context) {
     cfg.autoPublish = Object.assign({}, ap, { enabled: false, disabledBy: 'breaker', disabledAt: new Date().toISOString() });
     await storage.setState('systemConfig', cfg);
     const escId = 'aq-grace-breaker-' + new Date().toISOString().slice(0, 10);
-    if (!aq.some(q => q && q.id === escId)) {
-      aq.push({
+    // Conditional append against fresh state: the dedup check and the write have to
+    // see the same queue, and an unconditional wholesale write from a concurrent
+    // heartbeat would otherwise drop this escalation entirely.
+    await storage.mutateState('approvalQueue', function (fresh) {
+      const arr = Array.isArray(fresh) ? fresh : [];
+      if (arr.some(q => q && q.id === escId)) return undefined; // already escalated today
+      arr.push({
         id: escId, kind: 'task_escalation', taskId: null,
         taskTitle: 'Auto-publish breaker tripped', originAgent: 'system',
         classification: 'executive_required', riskLevel: 'medium', status: 'pending',
@@ -61,8 +66,8 @@ async function runGraceWindow(context) {
         preview: 'CEO rejected ' + breakerHits.length + ' grace-published posts within 7 days (' +
           breakerHits.map(b => b.id).join(', ') + '). Auto-publish disabled itself. Re-enable via systemConfig.autoPublish.enabled after review.'
       });
-      await storage.setState('approvalQueue', aq);
-    }
+      return arr;
+    });
     await _logGovernance('auto-publish-breaker', 'Auto-publish self-disabled: ' + breakerHits.length + ' grace-published posts CEO-rejected within 7d',
       { rejectedActionIds: breakerHits.map(b => b.id) });
     log('BREAKER TRIPPED — auto-publish disabled (' + breakerHits.length + ' rejects in 7d)');
@@ -115,13 +120,7 @@ async function runGraceWindow(context) {
     const sched = a.payload.scheduled_for ? new Date(a.payload.scheduled_for).getTime() : 0;
     if (!sched || sched < now) a.payload.scheduled_for = new Date(now + 5 * 60 * 1000).toISOString();
     a.updatedAt = new Date().toISOString();
-    const q = aqByActionId[a.id];
-    if (q && (q.status === 'pending' || !q.status)) {
-      q.status = 'approved';
-      q.resolvedAt = new Date().toISOString();
-      q.decision_note = 'Auto-approved by grace window';
-    }
-    approved.push(a.id);
+    approved.push(a.id); // AQ entries are flipped below, against fresh state
     slots--;
     await _logGovernance('auto-publish-grace', 'Grace window auto-approved ' + a.platform + ' post ' + a.id +
       ' (pending ' + Math.round((now - new Date(a.created_at || now).getTime()) / 36e5) + 'h, QG conf ' + (qg.confidence != null ? qg.confidence : '?') + ')',
@@ -131,7 +130,24 @@ async function runGraceWindow(context) {
 
   if (approved.length > 0) {
     await storage.setState('actions', actions);
-    await storage.setState('approvalQueue', aq);
+    // Replay the queue flips onto fresh state rather than the snapshot read at the
+    // top of the run — that snapshot is minutes old by now, and writing it back
+    // wholesale is exactly what resurrected two rejected bluesky_reply drafts as
+    // pending on 2026-07-23. Idempotent: each flip is guarded on status.
+    const resolvedAt = new Date().toISOString();
+    await storage.mutateState('approvalQueue', function (fresh) {
+      const arr = Array.isArray(fresh) ? fresh : [];
+      let changed = false;
+      approved.forEach(function (actionId) {
+        const q = arr.find(e => e && e.action_id === actionId);
+        if (!q || (q.status && q.status !== 'pending')) return;
+        q.status = 'approved';
+        q.resolvedAt = resolvedAt;
+        q.decision_note = 'Auto-approved by grace window';
+        changed = true;
+      });
+      return changed ? arr : undefined;
+    });
   }
   return { enabled: true, approved: approved.length, approvedIds: approved, grantedToday: grantedToday + approved.length };
 }

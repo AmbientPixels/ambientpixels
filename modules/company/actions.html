@@ -1299,10 +1299,15 @@
       Object.keys(A.set).forEach(function (x) { if (B.set[x]) hit++; });
       return hit / Math.min(A.size, B.size);
     }
-    // candidates: [{label, text, objId}] — returns array of overlapping labels.
-    function _overlapLabels(text, objId, candidates) {
+    // candidates: [{label, text, objId, srcId}] — returns array of overlapping labels.
+    // srcId is the proposal a live entity was materialized FROM. A proposal can never
+    // overlap its own child: when a queue entry is stranded 'pending' after a lost
+    // approvalQueue write (see the actionsScheduler AQ reconciliation), its twin is
+    // already live and scores ~1.0 — it would flag itself forever.
+    function _overlapLabels(text, objId, candidates, selfId) {
       var hits = [];
       (candidates || []).forEach(function (c) {
+        if (selfId && c.srcId && c.srcId === selfId) return;
         var sim = _wordOverlap(text, c.text);
         if (sim >= 0.5 || (objId && c.objId && objId === c.objId && sim >= 0.30)) hits.push(c.label);
       });
@@ -1349,8 +1354,8 @@
             var pText = (p.name || '') + ' ' + (p.description || '');
             var pObj = p.objective_id || p.objectiveId || null;
             var activeHits = _overlapLabels(pText, pObj, activeCampaigns.map(function(c) {
-              return { label: c.title || c.name, text: (c.title || c.name || '') + ' ' + (c.description || ''), objId: c.objective_id };
-            }));
+              return { label: c.title || c.name, text: (c.title || c.name || '') + ' ' + (c.description || ''), objId: c.objective_id, srcId: c.proposalId || null };
+            }), p.id);
             var peerHits = _overlapLabels(pText, pObj, proposals.filter(function(q, j) { return j !== idx; }).map(function(q) {
               return { label: q.name, text: (q.name || '') + ' ' + (q.description || ''), objId: q.objective_id || q.objectiveId };
             }));
@@ -1588,6 +1593,7 @@
             var pText = (p.title || '') + ' ' + (p.description || '');
             var activeHits = [];
             activeObjectives.forEach(function(o) {
+              if (o.proposalId && o.proposalId === p.id) return; // never overlap its own materialized child
               if (_wordOverlap(pText, (o.title || '') + ' ' + (o.description || '')) >= 0.45) activeHits.push(o.title);
             });
             var peerHits = [];

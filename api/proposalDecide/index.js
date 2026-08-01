@@ -43,6 +43,24 @@ module.exports = async function (context, req) {
     let adopted = [];
     let materializeNote = null;
 
+    // The queue flip is applied to FRESH state, not to the `aq` snapshot read above.
+    // Materialization below costs several blob round-trips, and until 2026-08-01 any
+    // concurrent wholesale approvalQueue write in that window silently swallowed this
+    // update — cprop_1785542400009_auto's campaign went live while its proposal sat
+    // 'pending' forever. Conditional write + retry via mutateState; the patch is a
+    // field-set on one entry, so re-running it against fresh state is idempotent.
+    async function flipQueueEntry(patch) {
+      const res = await storage.mutateState('approvalQueue', function (fresh) {
+        const arr = Array.isArray(fresh) ? fresh : [];
+        const live = arr.find(function (q) { return q && q.id === id; });
+        if (!live) return undefined; // entry pruned mid-flight — nothing to flip
+        Object.assign(live, patch);
+        return arr;
+      });
+      Object.assign(target, patch); // keep the echoed response body in sync
+      return res;
+    }
+
     if (decision === 'approved') {
       // Load objectives so a campaign proposal can be auto-linked to a parent goal,
       // and pending objective proposals so a same-batch campaign can DEFER linking
@@ -121,17 +139,15 @@ module.exports = async function (context, req) {
           target.materializeNote = materializeNote;
         }
       }
-      target.status = 'approved';
-      target.approvedAt = nowIso;
-      target.resolvedBy = 'ceo';
-      if (ceoNote) target.ceoNote = ceoNote;
-      await storage.setState('approvalQueue', aq);
+      const patch = { status: 'approved', approvedAt: nowIso, resolvedBy: 'ceo' };
+      if (target.materializedId) patch.materializedId = target.materializedId;
+      if (target.materializeNote) patch.materializeNote = target.materializeNote;
+      if (ceoNote) patch.ceoNote = ceoNote;
+      await flipQueueEntry(patch);
     } else {
-      target.status = 'rejected';
-      target.rejectedAt = nowIso;
-      target.resolvedBy = 'ceo';
-      if (ceoNote) target.rejectionNote = ceoNote;
-      await storage.setState('approvalQueue', aq);
+      const patch = { status: 'rejected', rejectedAt: nowIso, resolvedBy: 'ceo' };
+      if (ceoNote) patch.rejectionNote = ceoNote;
+      await flipQueueEntry(patch);
       // Mirror rejection into capitalAllocation.decisionLog (non-fatal).
       try {
         const alloc = (await storage.getState('capitalAllocation')) || {};

@@ -1019,10 +1019,13 @@ Write the full deliverable first, then the structured JSON block.`;
               text: '[SYSTEM] Converged: auto-accepted latest of ' + _crDels.length + ' drafts (internal task, no external gate).' });
             context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT:', _crTask.id, '—', _crDels.length, 'drafts, marked done');
             try {
-              var _caAQ = (await storage.getState('approvalQueue')) || [];
               var _caChanged = false;
-              _caAQ.forEach(function(q) { if (q && q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'auto-accept'; _caChanged = true; } });
-              if (_caChanged) await storage.setState('approvalQueue', _caAQ);
+              await storage.mutateState('approvalQueue', function (_fresh) {
+                var _caAQ = Array.isArray(_fresh) ? _fresh : [];
+                _caChanged = false;
+                _caAQ.forEach(function(q) { if (q && q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'auto-accept'; _caChanged = true; } });
+                return _caChanged ? _caAQ : undefined;
+              });
             } catch (_caErr) { context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT: AQ resolve failed (non-fatal):', String(_caErr).substring(0, 200)); }
             try {
               var _caGov = (await storage.getState('governanceLog')) || [];
@@ -1043,10 +1046,13 @@ Write the full deliverable first, then the structured JSON block.`;
               text: '[SYSTEM] Convergence grace window elapsed (no CEO action in 48h). Canceling un-converged public task — re-create if still needed.' });
             context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE:', _crTask.id, '— canceled after grace window');
             try {
-              var _gcAQ = (await storage.getState('approvalQueue')) || [];
               var _gcChanged = false;
-              _gcAQ.forEach(function(q) { if (q && q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'grace-close'; _gcChanged = true; } });
-              if (_gcChanged) await storage.setState('approvalQueue', _gcAQ);
+              await storage.mutateState('approvalQueue', function (_fresh) {
+                var _gcAQ = Array.isArray(_fresh) ? _fresh : [];
+                _gcChanged = false;
+                _gcAQ.forEach(function(q) { if (q && q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'grace-close'; _gcChanged = true; } });
+                return _gcChanged ? _gcAQ : undefined;
+              });
             } catch (_gcErr) { context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE: AQ resolve failed (non-fatal):', String(_gcErr).substring(0, 200)); }
             try {
               var _gcGov = (await storage.getState('governanceLog')) || [];
@@ -1070,23 +1076,30 @@ Write the full deliverable first, then the structured JSON block.`;
           context.log('[Heartbeat] CONVERGENCE ESCALATION:', _crTask.id, '—', _crDels.length, 'deliverables, moved to review for CEO');
           // Push convergence_escalation to approvalQueue so it appears in Needs Attention panel
           try {
-            var _ceAQ = (await storage.getState('approvalQueue')) || [];
-            var _ceAlreadyInQueue = _ceAQ.some(function(q) { return q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending'; });
-            if (!_ceAlreadyInQueue) {
-              _ceAQ.push({
-                id: 'aq-convesc-' + _crTask.id + '-' + Date.now(),
-                type: 'convergence_escalation',
-                taskId: _crTask.id,
-                taskTitle: _crTask.title || _crTask.id,
-                originAgent: _crTask.assignee || agentId,
-                attempts: _crDels.length,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-              });
+            // Built outside the mutation so a conflict retry re-appends the same id.
+            var _ceEntry = {
+              id: 'aq-convesc-' + _crTask.id + '-' + Date.now(),
+              type: 'convergence_escalation',
+              taskId: _crTask.id,
+              taskTitle: _crTask.title || _crTask.id,
+              originAgent: _crTask.assignee || agentId,
+              attempts: _crDels.length,
+              status: 'pending',
+              createdAt: new Date().toISOString()
+            };
+            // The already-queued check has to run against the queue the write lands on,
+            // or two heartbeat paths both pass it and double-escalate the same task.
+            var _ceAdded = false;
+            await storage.mutateState('approvalQueue', function (_fresh) {
+              var _ceAQ = Array.isArray(_fresh) ? _fresh : [];
+              _ceAdded = false;
+              if (_ceAQ.some(function(q) { return q && q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending'; })) return undefined;
+              _ceAQ.push(_ceEntry);
               if (_ceAQ.length > 100) _ceAQ.splice(0, _ceAQ.length - 100);
-              await storage.setState('approvalQueue', _ceAQ);
-              context.log('[Heartbeat] CONVERGENCE ESCALATION: added to approvalQueue for task', _crTask.id);
-            }
+              _ceAdded = true;
+              return _ceAQ;
+            });
+            if (_ceAdded) context.log('[Heartbeat] CONVERGENCE ESCALATION: added to approvalQueue for task', _crTask.id);
           } catch (_ceErr) {
             context.log('[Heartbeat] CONVERGENCE ESCALATION: approvalQueue write failed (non-fatal):', String(_ceErr).substring(0, 200));
           }
@@ -1254,10 +1267,13 @@ Write the full deliverable first, then the structured JSON block.`;
           text: '[SYSTEM] Converged: auto-accepted latest of ' + _rsDels.length + ' drafts (internal task, no external gate).' });
         context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT (review-stuck):', _rsTask.id, '— marked done');
         try {
-          var _rsCaAQ = (await storage.getState('approvalQueue')) || [];
           var _rsCaChanged = false;
-          _rsCaAQ.forEach(function (q) { if (q && q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'auto-accept'; _rsCaChanged = true; } });
-          if (_rsCaChanged) await storage.setState('approvalQueue', _rsCaAQ);
+          await storage.mutateState('approvalQueue', function (_fresh) {
+            var _rsCaAQ = Array.isArray(_fresh) ? _fresh : [];
+            _rsCaChanged = false;
+            _rsCaAQ.forEach(function (q) { if (q && q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'auto-accept'; _rsCaChanged = true; } });
+            return _rsCaChanged ? _rsCaAQ : undefined;
+          });
         } catch (_rsCaErr) { context.log('[Heartbeat] CONVERGENCE AUTO-ACCEPT (review-stuck): AQ resolve failed (non-fatal):', String(_rsCaErr).substring(0, 200)); }
         try {
           var _rsCaGov = (await storage.getState('governanceLog')) || [];
@@ -1275,10 +1291,13 @@ Write the full deliverable first, then the structured JSON block.`;
           text: '[SYSTEM] Convergence grace window elapsed (no CEO action in 48h). Canceling un-converged public task — re-create if still needed.' });
         context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE (review-stuck):', _rsTask.id, '— canceled');
         try {
-          var _rsGcAQ = (await storage.getState('approvalQueue')) || [];
           var _rsGcChanged = false;
-          _rsGcAQ.forEach(function (q) { if (q && q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'grace-close'; _rsGcChanged = true; } });
-          if (_rsGcChanged) await storage.setState('approvalQueue', _rsGcAQ);
+          await storage.mutateState('approvalQueue', function (_fresh) {
+            var _rsGcAQ = Array.isArray(_fresh) ? _fresh : [];
+            _rsGcChanged = false;
+            _rsGcAQ.forEach(function (q) { if (q && q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending') { q.status = 'resolved'; q.resolvedAt = new Date().toISOString(); q.resolution = 'grace-close'; _rsGcChanged = true; } });
+            return _rsGcChanged ? _rsGcAQ : undefined;
+          });
         } catch (_rsGcErr) { context.log('[Heartbeat] CONVERGENCE GRACE-CLOSE (review-stuck): AQ resolve failed (non-fatal):', String(_rsGcErr).substring(0, 200)); }
         try {
           var _rsGcGov = (await storage.getState('governanceLog')) || [];
@@ -1300,25 +1319,28 @@ Write the full deliverable first, then the structured JSON block.`;
         _rsTask.updatedAt = new Date().toISOString();
         context.log('[Heartbeat] REVIEW LOOP ESCALATION:', _rsTask.id, '—', _rsDels.length, 'deliverables, stuck in review, escalating to CEO');
         try {
-          var _rsAQ = (await storage.getState('approvalQueue')) || [];
-          var _rsAlreadyInQueue = _rsAQ.some(function (q) {
-            return q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending';
-          });
-          if (!_rsAlreadyInQueue) {
-            _rsAQ.push({
-              id: 'aq-revloopesc-' + _rsTask.id + '-' + Date.now(),
-              type: 'convergence_escalation',
-              taskId: _rsTask.id,
-              taskTitle: _rsTask.title || _rsTask.id,
-              originAgent: _rsTask.assignee || agentId,
-              attempts: _rsDels.length,
-              status: 'pending',
-              createdAt: new Date().toISOString()
-            });
+          // Built outside the mutation so a conflict retry re-appends the same id.
+          var _rsEntry = {
+            id: 'aq-revloopesc-' + _rsTask.id + '-' + Date.now(),
+            type: 'convergence_escalation',
+            taskId: _rsTask.id,
+            taskTitle: _rsTask.title || _rsTask.id,
+            originAgent: _rsTask.assignee || agentId,
+            attempts: _rsDels.length,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+          };
+          var _rsAdded = false;
+          await storage.mutateState('approvalQueue', function (_fresh) {
+            var _rsAQ = Array.isArray(_fresh) ? _fresh : [];
+            _rsAdded = false;
+            if (_rsAQ.some(function (q) { return q && q.type === 'convergence_escalation' && q.taskId === _rsTask.id && q.status === 'pending'; })) return undefined;
+            _rsAQ.push(_rsEntry);
             if (_rsAQ.length > 100) _rsAQ.splice(0, _rsAQ.length - 100);
-            await storage.setState('approvalQueue', _rsAQ);
-            context.log('[Heartbeat] REVIEW LOOP ESCALATION: added to approvalQueue for task', _rsTask.id);
-          }
+            _rsAdded = true;
+            return _rsAQ;
+          });
+          if (_rsAdded) context.log('[Heartbeat] REVIEW LOOP ESCALATION: added to approvalQueue for task', _rsTask.id);
         } catch (_rsErr) {
           context.log('[Heartbeat] REVIEW LOOP ESCALATION: approvalQueue write failed (non-fatal):', String(_rsErr).substring(0, 200));
         }
@@ -1990,22 +2012,24 @@ Write the full deliverable first, then the structured JSON block.`;
             // No auto-complete for social or social-copy tasks — CEO must review via approval queue.
             // Push convergence_escalation to approvalQueue (backup path)
             try {
-              var _ce2AQ = (await storage.getState('approvalQueue')) || [];
-              var _ce2Already = _ce2AQ.some(function(q) { return q.type === 'convergence_escalation' && q.taskId === _exTask.id && q.status === 'pending'; });
-              if (!_ce2Already) {
-                _ce2AQ.push({
-                  id: 'aq-convesc-' + _exTask.id + '-' + Date.now(),
-                  type: 'convergence_escalation',
-                  taskId: _exTask.id,
-                  taskTitle: _exTask.title || _exTask.id,
-                  originAgent: _exTask.assignee || agentId,
-                  attempts: _deliverableCount,
-                  status: 'pending',
-                  createdAt: new Date().toISOString()
-                });
+              // Built outside the mutation so a conflict retry re-appends the same id.
+              var _ce2Entry = {
+                id: 'aq-convesc-' + _exTask.id + '-' + Date.now(),
+                type: 'convergence_escalation',
+                taskId: _exTask.id,
+                taskTitle: _exTask.title || _exTask.id,
+                originAgent: _exTask.assignee || agentId,
+                attempts: _deliverableCount,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+              };
+              await storage.mutateState('approvalQueue', function (_fresh) {
+                var _ce2AQ = Array.isArray(_fresh) ? _fresh : [];
+                if (_ce2AQ.some(function(q) { return q && q.type === 'convergence_escalation' && q.taskId === _exTask.id && q.status === 'pending'; })) return undefined;
+                _ce2AQ.push(_ce2Entry);
                 if (_ce2AQ.length > 100) _ce2AQ.splice(0, _ce2AQ.length - 100);
-                await storage.setState('approvalQueue', _ce2AQ);
-              }
+                return _ce2AQ;
+              });
             } catch (_ce2Err) {
               context.log('[Heartbeat] CONVERGENCE ESCALATION (backup): approvalQueue write failed:', String(_ce2Err).substring(0, 200));
             }
@@ -2297,7 +2321,6 @@ Write the full deliverable first, then the structured JSON block.`;
               }
 
               // Add to approval queue as bluesky_reply kind
-              const _aqQueue = (await storage.getState('approvalQueue')) || [];
               const _aqReplyEntry = {
                 id: 'aq-reply-' + _replyActionId,
                 kind: 'bluesky_reply',
@@ -2330,9 +2353,13 @@ Write the full deliverable first, then the structured JSON block.`;
                   checkedAt: new Date().toISOString()
                 };
               }
-              _aqQueue.push(_aqReplyEntry);
-              if (_aqQueue.length > 100) _aqQueue.splice(0, _aqQueue.length - 100);
-              await storage.setState('approvalQueue', _aqQueue);
+              await storage.mutateState('approvalQueue', function (_fresh) {
+                const _aqQueue = Array.isArray(_fresh) ? _fresh : [];
+                if (_aqQueue.some(function (q) { return q && q.id === _aqReplyEntry.id; })) return undefined;
+                _aqQueue.push(_aqReplyEntry);
+                if (_aqQueue.length > 100) _aqQueue.splice(0, _aqQueue.length - 100);
+                return _aqQueue;
+              });
 
               // Now safe to add the deliverable (QG passed) and mark done
               result.taskUpdates.push({
@@ -2591,9 +2618,13 @@ Write the full deliverable first, then the structured JSON block.`;
                 const _riPayload = { id: _riId, title: task.title, summary: deliverable.substring(0, 600), content: deliverable, task_id: action.taskId, created_at: _riNow, agent: 'scout', source: 'execute-task' };
                 _riActStore.push({ id: _riId, type: 'research_intel.approve', created_at: _riNow, created_by: 'scout', payload: _riPayload, approval: { status: 'pending' }, execution: { status: 'pending' }, requires_approval: true, risk_level: 'low', brand_impact: 'low', budget_impact: 0, classification: 'advisory', _parentTaskId: action.taskId, source: 'heartbeat' });
                 await storage.setState('actions', _riActStore);
-                const _riAQStore = (await storage.getState('approvalQueue')) || [];
-                _riAQStore.push({ id: 'aq-' + _riId, kind: 'research.intel', type: 'research.intel', action_id: _riId, title: task.title, summary: deliverable.substring(0, 300), task_id: action.taskId, originAgent: 'scout', status: 'pending', createdAt: _riNow });
-                await storage.setState('approvalQueue', _riAQStore);
+                const _riAQEntry = { id: 'aq-' + _riId, kind: 'research.intel', type: 'research.intel', action_id: _riId, title: task.title, summary: deliverable.substring(0, 300), task_id: action.taskId, originAgent: 'scout', status: 'pending', createdAt: _riNow };
+                await storage.mutateState('approvalQueue', function (_fresh) {
+                  const _riAQStore = Array.isArray(_fresh) ? _fresh : [];
+                  if (_riAQStore.some(function (q) { return q && q.id === _riAQEntry.id; })) return undefined;
+                  _riAQStore.push(_riAQEntry);
+                  return _riAQStore;
+                });
                 result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '**Research intel submitted for CEO approval** (id: `' + _riId + '`). Once approved, Scout\'s findings will be stored to the company knowledge base and available to all agents.', agentId: 'system' });
                 context.log('[Heartbeat] RESEARCH INTEL: submitted to AQ for CEO approval, task:', action.taskId, 'intel:', _riId);
               }
@@ -3476,28 +3507,31 @@ Write the full deliverable first, then the structured JSON block.`;
           });
           // Add to approval queue as a task escalation so CEO sees it in needs-action feed
           try {
-            var _aqEsc = (await storage.getState('approvalQueue')) || [];
             var _inlineEscId = 'aq-qgesc-' + _qgParentForCount.id;
-            if (_aqEsc.some(function (q) { return q && q.id === _inlineEscId; })) {
-              context.log('[QualityGate] circuit-breaker AQ entry already exists for', _qgParentForCount.id, '— skipping duplicate push');
-            } else {
-              _aqEsc.push({
-                id: _inlineEscId,
-                kind: 'task_escalation',
-                taskId: _qgParentForCount.id,
-                taskTitle: _qgParentForCount.title || 'Quality-gate escalation',
-                originAgent: agentId,
-                classification: 'executive_required',
-                riskLevel: 'medium',
-                budgetImpact: 0,
-                brandImpact: 'medium',
-                status: 'pending',
-                submittedAt: new Date().toISOString(),
-                preview: 'Quality gate failed ' + _priorFails + ' times. Latest issues: ' + ((_qgResult.issues || []).slice(0, 3).join('; ')).substring(0, 200),
-                qualityGate: { pass: false, confidence: _qgResult.confidence || 0, issues: _qgResult.issues || [], failCount: _priorFails }
-              });
-            }
-            await storage.setState('approvalQueue', _aqEsc);
+            var _escEntry = {
+              id: _inlineEscId,
+              kind: 'task_escalation',
+              taskId: _qgParentForCount.id,
+              taskTitle: _qgParentForCount.title || 'Quality-gate escalation',
+              originAgent: agentId,
+              classification: 'executive_required',
+              riskLevel: 'medium',
+              budgetImpact: 0,
+              brandImpact: 'medium',
+              status: 'pending',
+              submittedAt: new Date().toISOString(),
+              preview: 'Quality gate failed ' + _priorFails + ' times. Latest issues: ' + ((_qgResult.issues || []).slice(0, 3).join('; ')).substring(0, 200),
+              qualityGate: { pass: false, confidence: _qgResult.confidence || 0, issues: _qgResult.issues || [], failCount: _priorFails }
+            };
+            var _escDup = false;
+            await storage.mutateState('approvalQueue', function (_fresh) {
+              var _aqEsc = Array.isArray(_fresh) ? _fresh : [];
+              _escDup = _aqEsc.some(function (q) { return q && q.id === _inlineEscId; });
+              if (_escDup) return undefined;
+              _aqEsc.push(_escEntry);
+              return _aqEsc;
+            });
+            if (_escDup) context.log('[QualityGate] circuit-breaker AQ entry already exists for', _qgParentForCount.id, '— skipping duplicate push');
           } catch (_aqEscErr) { context.log('[Heartbeat] circuit-breaker AQ push failed:', String(_aqEscErr).substring(0, 200)); }
           try {
             await logEvent('policy-violation', agentId, 'Quality gate circuit breaker tripped', cycleId, {
@@ -3626,7 +3660,6 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // Add to approval queue (quality gate passed or no result)
-      const approvalQueue = (await storage.getState('approvalQueue')) || [];
       var _aqEntry = {
         id: 'aq-' + newAction.id,
         kind: 'action',
@@ -3652,9 +3685,13 @@ Write the full deliverable first, then the structured JSON block.`;
           checkedAt: new Date().toISOString()
         };
       }
-      approvalQueue.push(_aqEntry);
-      if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
-      await storage.setState('approvalQueue', approvalQueue);
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        var approvalQueue = Array.isArray(_fresh) ? _fresh : [];
+        if (approvalQueue.some(function (q) { return q && q.id === _aqEntry.id; })) return undefined;
+        approvalQueue.push(_aqEntry);
+        if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+        return approvalQueue;
+      });
 
       // Auto-advance parent task to review if taskId provided
       // Fallback: if no taskId but agent has a matching active task, auto-link
@@ -3812,9 +3849,11 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
-      // Update or re-add to approval queue
+      // Update or re-add to approval queue. This snapshot is READ-ONLY — it only
+      // supplies the previous entry's id while building the replacement. The write
+      // below re-locates the entry in fresh state.
       const approvalQueue = (await storage.getState('approvalQueue')) || [];
-      const aqIdx = approvalQueue.findIndex(q => q.action_id === orig.id);
+      const aqIdx = approvalQueue.findIndex(q => q && q.action_id === orig.id);
       // Extract media preview for revised social post
       var _revisedPreviewImage = null;
       if (orig.payload && Array.isArray(orig.payload.media) && orig.payload.media.length > 0) {
@@ -3866,13 +3905,19 @@ Write the full deliverable first, then the structured JSON block.`;
         previewImageUrl: _revisedPreviewImage,
         revisionCount: orig.approval.revision_count || 0
       };
-      if (aqIdx !== -1) {
-        approvalQueue[aqIdx] = aqEntry;
-      } else {
-        approvalQueue.push(aqEntry);
-      }
-      if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
-      await storage.setState('approvalQueue', approvalQueue);
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const q = Array.isArray(_fresh) ? _fresh : [];
+        const idx = q.findIndex(e => e && e.action_id === orig.id);
+        if (idx !== -1) {
+          // Keep the LIVE entry's id — the snapshot above may name an entry that has
+          // since been replaced.
+          q[idx] = Object.assign({}, aqEntry, { id: q[idx].id || aqEntry.id });
+        } else {
+          q.push(aqEntry);
+        }
+        if (q.length > 100) q.splice(0, q.length - 100);
+        return q;
+      });
 
       context.log('[Heartbeat]', agentId, 'revised action:', orig.id, '| revision #' + orig.approval.revision_count);
       result.taskUpdates.push({ action: 'action-revised', actionId: orig.id, agentId: agentId });
@@ -4512,8 +4557,7 @@ Write the full deliverable first, then the structured JSON block.`;
           }
 
           // Add to CEO approval queue
-          const approvalQueue = (await storage.getState('approvalQueue')) || [];
-          approvalQueue.push({
+          const _sfpAqEntry = {
             id: 'aq-' + publishAction.id,
             kind: 'action',
             actionType: 'publish_document',
@@ -4534,9 +4578,14 @@ Write the full deliverable first, then the structured JSON block.`;
             artifactId: sfpArtifactId,
             heroImageUrl: _heroImageUrl,
             heroImageAssetId: doc.hero_image_asset_id || null
+          };
+          await storage.mutateState('approvalQueue', function (_fresh) {
+            const approvalQueue = Array.isArray(_fresh) ? _fresh : [];
+            if (approvalQueue.some(function (q) { return q && q.id === _sfpAqEntry.id; })) return undefined;
+            approvalQueue.push(_sfpAqEntry);
+            if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+            return approvalQueue;
           });
-          if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
-          await storage.setState('approvalQueue', approvalQueue);
 
           // Update doc status AFTER action + AQ are persisted.
           // If we crash here, the doc stays draft but action + AQ exist,
@@ -4782,10 +4831,12 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       };
 
-      const cpQueue = (await storage.getState('approvalQueue')) || [];
-      cpQueue.push(cpApprovalItem);
-      if (cpQueue.length > 200) cpQueue = cpQueue.slice(-200);
-      await storage.setState('approvalQueue', cpQueue);
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const cpQueue = Array.isArray(_fresh) ? _fresh : [];
+        if (cpQueue.some(function (q) { return q && q.id === cpApprovalItem.id; })) return undefined;
+        cpQueue.push(cpApprovalItem);
+        return cpQueue.length > 200 ? cpQueue.slice(-200) : cpQueue;
+      });
 
       // Write usage record
       try {
@@ -5797,8 +5848,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // CEO-escalated tier also lands in approvalQueue
       if (_rbStatus === 'pending_ceo') {
-        var _rbAQ = (await storage.getState('approvalQueue')) || [];
-        _rbAQ.push({
+        var _rbAqEntry = {
           id: 'aq_' + _rbId,
           type: 'budget_request',
           kind: 'budget_request',
@@ -5809,8 +5859,13 @@ Write the full deliverable first, then the structured JSON block.`;
           requestType: _rbType,
           justification: _rbEntry.justification,
           createdAt: new Date().toISOString()
+        };
+        await storage.mutateState('approvalQueue', function (_fresh) {
+          var _rbAQ = Array.isArray(_fresh) ? _fresh : [];
+          if (_rbAQ.some(function (q) { return q && q.id === _rbAqEntry.id; })) return undefined;
+          _rbAQ.push(_rbAqEntry);
+          return _rbAQ;
         });
-        await storage.setState('approvalQueue', _rbAQ);
       }
 
       _rbAlloc.pendingRequests = _rbPending;
@@ -5952,8 +6007,22 @@ Write the full deliverable first, then the structured JSON block.`;
         evidence: { runId: cycleId },
         createdAt: new Date().toISOString()
       };
-      _ppAQ.push(_ppEntry);
-      await storage.setState('approvalQueue', _ppAQ);
+      // Re-run the dup/rate gate INSIDE the mutation: the snapshot gate above ran before
+      // the async capital gate, so a concurrent run may have queued a twin since.
+      let _ppBlockedLate = null;
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const arr = Array.isArray(_fresh) ? _fresh : [];
+        _ppBlockedLate = null;
+        if (arr.some(function (q) { return q && q.id === _ppEntry.id; })) return undefined;
+        const g = _productProposalGate(agentId, 'product_proposal', _ppName.toLowerCase(), arr);
+        if (g.blocked) { _ppBlockedLate = g.reason; return undefined; }
+        arr.push(_ppEntry);
+        return arr;
+      });
+      if (_ppBlockedLate) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-product —', _ppBlockedLate);
+        continue;
+      }
       context.log('[Heartbeat]', agentId, 'propose-product:', _ppEntry.id, _ppName, '$' + _ppEntry.estimatedCost);
       result.taskUpdates.push({ action: 'product-proposed', proposalId: _ppEntry.id, agentId: agentId });
 
@@ -6019,8 +6088,22 @@ Write the full deliverable first, then the structured JSON block.`;
         evidence: { runId: cycleId },
         createdAt: new Date().toISOString()
       };
-      _pivAQ.push(_pivEntry);
-      await storage.setState('approvalQueue', _pivAQ);
+      // Re-run the dup/rate gate INSIDE the mutation: the snapshot gate above ran
+      // before the async capital gate, so a concurrent run may have queued a twin since.
+      let _pivAQBlockedLate = null;
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const arr = Array.isArray(_fresh) ? _fresh : [];
+        _pivAQBlockedLate = null;
+        if (arr.some(function (q) { return q && q.id === _pivEntry.id; })) return undefined;
+        const g = _productProposalGate(agentId, 'product_pivot_proposal', _pivMatch.toLowerCase(), arr);
+        if (g.blocked) { _pivAQBlockedLate = g.reason; return undefined; }
+        arr.push(_pivEntry);
+        return arr;
+      });
+      if (_pivAQBlockedLate) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-pivot —', _pivAQBlockedLate);
+        continue;
+      }
       context.log('[Heartbeat]', agentId, 'propose-pivot:', _pivEntry.id, _pivMatch, '$' + _pivEntry.estimatedCost);
       result.taskUpdates.push({ action: 'pivot-proposed', proposalId: _pivEntry.id, agentId: agentId });
 
@@ -6089,8 +6172,22 @@ Write the full deliverable first, then the structured JSON block.`;
         evidence: { runId: cycleId },
         createdAt: new Date().toISOString()
       };
-      _retAQ.push(_retEntry);
-      await storage.setState('approvalQueue', _retAQ);
+      // Re-run the dup/rate gate INSIDE the mutation: the snapshot gate above ran
+      // before the async capital gate, so a concurrent run may have queued a twin since.
+      let _retAQBlockedLate = null;
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const arr = Array.isArray(_fresh) ? _fresh : [];
+        _retAQBlockedLate = null;
+        if (arr.some(function (q) { return q && q.id === _retEntry.id; })) return undefined;
+        const g = _productProposalGate(agentId, 'product_retire_proposal', _retMatch.toLowerCase(), arr);
+        if (g.blocked) { _retAQBlockedLate = g.reason; return undefined; }
+        arr.push(_retEntry);
+        return arr;
+      });
+      if (_retAQBlockedLate) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire —', _retAQBlockedLate);
+        continue;
+      }
       context.log('[Heartbeat]', agentId, 'propose-retire:', _retEntry.id, _retMatch, '$' + _retEntry.estimatedCost);
       result.taskUpdates.push({ action: 'retire-proposed', proposalId: _retEntry.id, agentId: agentId });
 
@@ -6176,8 +6273,22 @@ Write the full deliverable first, then the structured JSON block.`;
         evidence: { runId: cycleId },
         createdAt: new Date().toISOString()
       };
-      _hrAQ.push(_hrEntry);
-      await storage.setState('approvalQueue', _hrAQ);
+      // Re-run the dup/rate gate INSIDE the mutation: the snapshot gate above ran
+      // before the async capital gate, so a concurrent run may have queued a twin since.
+      let _hrAQBlockedLate = null;
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const arr = Array.isArray(_fresh) ? _fresh : [];
+        _hrAQBlockedLate = null;
+        if (arr.some(function (q) { return q && q.id === _hrEntry.id; })) return undefined;
+        const g = _fleetProposalGate(agentId, 'agent_hire_proposal', 'hire:' + _hrId, arr);
+        if (g.blocked) { _hrAQBlockedLate = g.reason; return undefined; }
+        arr.push(_hrEntry);
+        return arr;
+      });
+      if (_hrAQBlockedLate) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-hire-agent —', _hrAQBlockedLate);
+        continue;
+      }
       context.log('[Heartbeat]', agentId, 'propose-hire-agent:', _hrEntry.id, _hrId, '$' + _hrCap);
       result.taskUpdates.push({ action: 'agent-hire-proposed', proposalId: _hrEntry.id, agentId: agentId });
 
@@ -6244,8 +6355,22 @@ Write the full deliverable first, then the structured JSON block.`;
         evidence: { runId: cycleId },
         createdAt: new Date().toISOString()
       };
-      _raAQ.push(_raEntry);
-      await storage.setState('approvalQueue', _raAQ);
+      // Re-run the dup/rate gate INSIDE the mutation: the snapshot gate above ran
+      // before the async capital gate, so a concurrent run may have queued a twin since.
+      let _raAQBlockedLate = null;
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const arr = Array.isArray(_fresh) ? _fresh : [];
+        _raAQBlockedLate = null;
+        if (arr.some(function (q) { return q && q.id === _raEntry.id; })) return undefined;
+        const g = _fleetProposalGate(agentId, 'agent_retire_proposal', 'retire:' + _raTarget, arr);
+        if (g.blocked) { _raAQBlockedLate = g.reason; return undefined; }
+        arr.push(_raEntry);
+        return arr;
+      });
+      if (_raAQBlockedLate) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-retire-agent —', _raAQBlockedLate);
+        continue;
+      }
       context.log('[Heartbeat]', agentId, 'propose-retire-agent:', _raEntry.id, _raTarget, 'orphans:', _raOrphans.length);
       result.taskUpdates.push({ action: 'agent-retire-proposed', proposalId: _raEntry.id, agentId: agentId });
 
@@ -6319,8 +6444,22 @@ Write the full deliverable first, then the structured JSON block.`;
         evidence: { runId: cycleId },
         createdAt: new Date().toISOString()
       };
-      _evAQ.push(_evEntry);
-      await storage.setState('approvalQueue', _evAQ);
+      // Re-run the dup/rate gate INSIDE the mutation: the snapshot gate above ran
+      // before the async capital gate, so a concurrent run may have queued a twin since.
+      let _evAQBlockedLate = null;
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const arr = Array.isArray(_fresh) ? _fresh : [];
+        _evAQBlockedLate = null;
+        if (arr.some(function (q) { return q && q.id === _evEntry.id; })) return undefined;
+        const g = _fleetProposalGate(agentId, 'agent_evolution_proposal', 'evolve:' + _evTarget, arr);
+        if (g.blocked) { _evAQBlockedLate = g.reason; return undefined; }
+        arr.push(_evEntry);
+        return arr;
+      });
+      if (_evAQBlockedLate) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED propose-role-evolution —', _evAQBlockedLate);
+        continue;
+      }
       context.log('[Heartbeat]', agentId, 'propose-role-evolution:', _evEntry.id, _evTarget, 'fields:', Object.keys(_evChanges).join(','));
       result.taskUpdates.push({ action: 'agent-evolution-proposed', proposalId: _evEntry.id, agentId: agentId });
 
@@ -6457,8 +6596,8 @@ Write the full deliverable first, then the structured JSON block.`;
 
     } else if (action.type === 'cancel-campaign' && action.campaignId) {
       // Irreversible — goes to CEO approval queue
-      var _ccAQ = (await storage.getState('approvalQueue')) || [];
-      _ccAQ.push({
+      // Built outside the mutation so a conflict retry re-appends the same id.
+      var _ccEntry = {
         id: 'ccancel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         type: 'campaign_cancellation',
         status: 'pending',
@@ -6466,13 +6605,18 @@ Write the full deliverable first, then the structured JSON block.`;
         campaignId: action.campaignId,
         reason: (action.reason || '').substring(0, 500),
         createdAt: new Date().toISOString()
+      };
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        var _ccAQ = Array.isArray(_fresh) ? _fresh : [];
+        if (_ccAQ.some(function (q) { return q && q.id === _ccEntry.id; })) return undefined;
+        _ccAQ.push(_ccEntry);
+        return _ccAQ;
       });
-      await storage.setState('approvalQueue', _ccAQ);
       context.log('[Heartbeat]', agentId, 'proposed campaign cancellation:', action.campaignId);
 
     } else if (action.type === 'cancel-objective' && action.objectiveId) {
-      var _coAQ = (await storage.getState('approvalQueue')) || [];
-      _coAQ.push({
+      // Built outside the mutation so a conflict retry re-appends the same id.
+      var _coEntry = {
         id: 'ocancel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
         type: 'objective_cancellation',
         status: 'pending',
@@ -6480,8 +6624,13 @@ Write the full deliverable first, then the structured JSON block.`;
         objectiveId: action.objectiveId,
         reason: (action.reason || '').substring(0, 500),
         createdAt: new Date().toISOString()
+      };
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        var _coAQ = Array.isArray(_fresh) ? _fresh : [];
+        if (_coAQ.some(function (q) { return q && q.id === _coEntry.id; })) return undefined;
+        _coAQ.push(_coEntry);
+        return _coAQ;
       });
-      await storage.setState('approvalQueue', _coAQ);
       context.log('[Heartbeat]', agentId, 'proposed objective cancellation:', action.objectiveId);
     }
 

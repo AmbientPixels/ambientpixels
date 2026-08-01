@@ -11,6 +11,15 @@ function makeStorage(initial) {
   return {
     getState: (k) => Promise.resolve(state[k]),
     setState: (k, v) => { state[k] = v; return Promise.resolve(); },
+    // Mirrors companyStorage.mutateState: read → mutate → write, and `undefined`
+    // from the mutator means abort without writing.
+    mutateState: async (k, fn) => {
+      const cur = k in state ? state[k] : null;
+      const next = await fn(cur, { attempt: 1, exists: k in state });
+      if (next === undefined) return { ok: true, written: false, attempts: 1, value: cur };
+      state[k] = next;
+      return { ok: true, written: true, attempts: 1, value: next };
+    },
     _state: state
   };
 }

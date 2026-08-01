@@ -109,11 +109,13 @@ module.exports = async function (context, req) {
       await storage.setState('pixelAgentSubmissions', submissions);
 
       // Remove from approval queue
-      let approvalQueue = (await storage.getState('approvalQueue')) || [];
-      approvalQueue = approvalQueue.filter(aq =>
-        !(aq.type === 'agent_forge_submission' && aq.submissionId === submissionId)
-      );
-      await storage.setState('approvalQueue', approvalQueue);
+      await storage.mutateState('approvalQueue', function (fresh) {
+        const arr = Array.isArray(fresh) ? fresh : [];
+        const kept = arr.filter(aq =>
+          !(aq && aq.type === 'agent_forge_submission' && aq.submissionId === submissionId)
+        );
+        return kept.length === arr.length ? undefined : kept; // already removed
+      });
 
       context.log('[AgentApprove] Approved:', submission.agentConfig.name);
 
@@ -137,11 +139,13 @@ module.exports = async function (context, req) {
       await storage.setState('pixelAgentSubmissions', submissions);
 
       // Remove from approval queue
-      let approvalQueue = (await storage.getState('approvalQueue')) || [];
-      approvalQueue = approvalQueue.filter(aq =>
-        !(aq.type === 'agent_forge_submission' && aq.submissionId === submissionId)
-      );
-      await storage.setState('approvalQueue', approvalQueue);
+      await storage.mutateState('approvalQueue', function (fresh) {
+        const arr = Array.isArray(fresh) ? fresh : [];
+        const kept = arr.filter(aq =>
+          !(aq && aq.type === 'agent_forge_submission' && aq.submissionId === submissionId)
+        );
+        return kept.length === arr.length ? undefined : kept; // already removed
+      });
 
       context.log('[AgentApprove] Rejected:', submission.agentConfig.name, reason);
 

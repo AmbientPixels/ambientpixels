@@ -87,19 +87,73 @@ async function getState(key) {
   }
 }
 
-async function setState(key, value) {
+// ── Optimistic concurrency (2026-08-01) ──
+// Blob writes are unconditional last-writer-wins, so two overlapping
+// read-modify-write cycles on the same key silently lose one of them. Seen twice on
+// `approvalQueue`: 2026-07-23 (two rejected bluesky_reply drafts resurrected as
+// pending) and 2026-08-01 (cprop_1785542400009_auto stranded 'pending' after its
+// campaign camp-ms9nl7dy-dcbp had already gone live).
+//
+// getStateWithMeta exposes the blob ETag, setState accepts an ifMatch/ifNoneMatch,
+// and mutateState wraps read → mutate → conditional write with retry so a conflict
+// re-runs the mutation against fresh state instead of clobbering it. Plain
+// setState(key, value) is unchanged and still unconditional — callers opt in.
+class ConcurrencyError extends Error {
+  constructor(key) {
+    super('Concurrent write conflict on "' + key + '"');
+    this.name = 'ConcurrencyError';
+    this.key = key;
+  }
+}
+
+// Like getState, but also returns the blob ETag and distinguishes "absent" (404)
+// from "read failed". That distinction matters: getState collapses both to null and
+// callers do `|| []`, which turns a transient read error into a write of empty state
+// over live data. mutateState refuses to write when the read failed.
+async function getStateWithMeta(key) {
+  const container = await _initBlob();
+
+  if (container) {
+    try {
+      const blob = container.getBlockBlobClient(prefixBlobKey(key + '.json'));
+      const download = await blob.download(0);
+      const body = await streamToString(download.readableStreamBody);
+      return { value: JSON.parse(body), etag: download.etag || null, exists: true, failed: false };
+    } catch (err) {
+      if (err.statusCode === 404) return { value: null, etag: null, exists: false, failed: false };
+      console.error('[CompanyStorage] Blob read error:', key, err.message);
+      return { value: null, etag: null, exists: false, failed: true };
+    }
+  }
+
+  // Local fallback has no ETag — mutateState degrades to plain read-modify-write.
+  return { value: await getState(key), etag: null, exists: true, failed: false, local: true };
+}
+
+async function setState(key, value, opts) {
+  opts = opts || {};
   const container = await _initBlob();
 
   if (container) {
     try {
       const blob = container.getBlockBlobClient(prefixBlobKey(key + '.json'));
       const content = JSON.stringify(value, null, 2);
-      await blob.upload(content, Buffer.byteLength(content), {
+      const uploadOpts = {
         blobHTTPHeaders: { blobContentType: 'application/json' },
         overwrite: true
-      });
+      };
+      // ifNoneMatch '*' = create-only, so two concurrent first-writers can't clobber.
+      if (opts.ifMatch) uploadOpts.conditions = { ifMatch: opts.ifMatch };
+      else if (opts.ifNoneMatch) uploadOpts.conditions = { ifNoneMatch: opts.ifNoneMatch };
+      await blob.upload(content, Buffer.byteLength(content), uploadOpts);
       return true;
     } catch (err) {
+      // 412 PreconditionFailed / 409 BlobAlreadyExists — the blob moved under us.
+      // Only conditional callers asked to hear about this; unconditional ones keep
+      // the historical "log and return false" behaviour.
+      if ((opts.ifMatch || opts.ifNoneMatch) && (err.statusCode === 412 || err.statusCode === 409)) {
+        throw new ConcurrencyError(key);
+      }
       console.error('[CompanyStorage] Blob write error:', key, err.message);
       return false;
     }
@@ -114,6 +168,57 @@ async function setState(key, value) {
     console.error('[CompanyStorage] Local write error:', key, err.message);
     return false;
   }
+}
+
+const MUTATE_RETRIES = 5;
+
+function _sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+// mutateState(key, mutator) — the safe read-modify-write primitive.
+//
+//   mutator(currentValue, info) must RETURN the new value to write, or return
+//   `undefined` to abort without writing (e.g. the record you wanted is gone).
+//   It may be called more than once, so it must be idempotent and must derive
+//   everything from its `currentValue` argument — never from a snapshot captured
+//   outside. That is the whole point: on conflict the mutation re-runs against
+//   fresh state rather than overwriting whoever won the race.
+//
+// Returns { ok, written, attempts, value }. Throws ConcurrencyError if every
+// attempt conflicts, and a plain Error if the underlying read failed.
+async function mutateState(key, mutator, opts) {
+  opts = opts || {};
+  const retries = Number.isFinite(opts.retries) ? opts.retries : MUTATE_RETRIES;
+  let lastConflict = null;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const meta = await getStateWithMeta(key);
+    if (meta.failed) {
+      throw new Error('[CompanyStorage] read failed for "' + key + '" — refusing to write over unread state');
+    }
+
+    const next = await mutator(meta.value, { attempt: attempt, exists: meta.exists });
+    if (next === undefined) {
+      return { ok: true, written: false, attempts: attempt, value: meta.value };
+    }
+
+    let writeOpts = {};
+    if (!meta.local) writeOpts = meta.exists && meta.etag ? { ifMatch: meta.etag } : { ifNoneMatch: '*' };
+
+    try {
+      const ok = await setState(key, next, writeOpts);
+      if (!ok) return { ok: false, written: false, attempts: attempt, value: meta.value };
+      return { ok: true, written: true, attempts: attempt, value: next };
+    } catch (err) {
+      if (err && err.name === 'ConcurrencyError') {
+        lastConflict = err;
+        await _sleep(40 * attempt); // brief linear backoff before re-reading
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastConflict || new ConcurrencyError(key);
 }
 
 async function appendLog(logEvent) {
@@ -580,7 +685,13 @@ async function getClaudeCostSummary(days) {
 
 module.exports = {
   getState,
+  getStateWithMeta,
   setState,
+  mutateState,
+  ConcurrencyError,
+  // Test seam: inject a fake blob container so the conditional-write / retry path
+  // can be exercised without Azure. Production never calls this.
+  _setContainerClientForTests: function (fake) { containerClient = fake; },
   appendLog,
   getLogs,
   validateSecret,

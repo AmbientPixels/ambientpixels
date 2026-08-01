@@ -71,11 +71,20 @@ module.exports = async function (context, req) {
       return;
     }
 
-    target.status = decision;
-    target.resolvedAt = new Date().toISOString();
-    target.resolvedBy = 'ceo';
-    if (ceoNote) target.ceoNote = ceoNote;
-    await storage.setState('approvalQueue', aq);
+    // Conditional write against fresh state — an unconditional wholesale
+    // approvalQueue write from a concurrent heartbeat used to silently swallow this
+    // flip and resurrect the entry as pending. Re-applying a field patch to the live
+    // entry is idempotent, so mutateState may safely re-run it on conflict.
+    const patch = { status: decision, resolvedAt: new Date().toISOString(), resolvedBy: 'ceo' };
+    if (ceoNote) patch.ceoNote = ceoNote;
+    await storage.mutateState('approvalQueue', function (fresh) {
+      const arr = Array.isArray(fresh) ? fresh : [];
+      const live = arr.find(function (q) { return q && q.id === id; });
+      if (!live) return undefined; // entry pruned mid-flight — nothing to flip
+      Object.assign(live, patch);
+      return arr;
+    });
+    Object.assign(target, patch); // keep the echoed response body in sync
 
     // Observability: record the decision WITH detail (what/who/decision) — the audit
     // trail previously logged CEO decisions with no context on what was decided.

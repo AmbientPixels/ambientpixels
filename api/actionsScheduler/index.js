@@ -305,20 +305,64 @@ module.exports = async function (context) {
     // already decided (approved/rejected/cancelled or executed) is resolved
     // here, so a lost-update can strand an entry for at most one 10-min tick.
     try {
-      const aq = (await storage.getState('approvalQueue')) || [];
       const actionById = {};
       actions.forEach(function (a) { if (a && a.id) actionById[a.id] = a; });
-      const kept = aq.filter(function (entry) {
-        if (!entry || entry.status !== 'pending' || !entry.action_id) return true;
-        const act = actionById[entry.action_id];
-        if (!act) return true; // action archived/unknown — leave for other prunes
-        const decided = act.approval && ['approved', 'rejected', 'cancelled', 'overridden'].indexOf(act.approval.status) !== -1;
-        const done = act.execution_status === 'success' || (act.execution && act.execution.status === 'success');
-        return !(decided || done);
+
+      // ── Proposal-entry reconciliation (2026-08-01) ──
+      // Same lost-update, different entry shape. proposalDecide writes the entity
+      // FIRST and the approvalQueue flip LAST, so a clobbered AQ write leaves the
+      // campaign/objective live while its proposal sits 'pending' forever. The sweep
+      // above can't catch it: proposal entries carry no `action_id`, so they fall out
+      // at the first guard. Observed on cprop_1785542400009_auto — campaign
+      // camp-ms9nl7dy-dcbp went live, the entry stayed pending, and the dashboard's
+      // overlap detector then flagged the proposal as overlapping its own twin.
+      // Materialized entities stamp `proposalId` (proposalDecide/materialize.js), so
+      // that back-link is the evidence the decision already happened.
+      // The proposalId back-links are resolved once up front so the mutator below
+      // stays synchronous and cheap to re-run if the conditional write conflicts.
+      const materializedBy = {};
+      for (const key of ['campaigns', 'objectives', 'tasks']) {
+        let live = (await storage.getState(key)) || [];
+        if (!Array.isArray(live)) live = [];
+        live.forEach(function (e) { if (e && e.proposalId && !materializedBy[e.proposalId]) materializedBy[e.proposalId] = e; });
+      }
+
+      let pruned = 0;
+      let healed = 0;
+      const res = await storage.mutateState('approvalQueue', function (fresh) {
+        pruned = 0; healed = 0; // recomputed from scratch on every attempt
+        const aq = Array.isArray(fresh) ? fresh : [];
+
+        const kept = aq.filter(function (entry) {
+          if (!entry || entry.status !== 'pending' || !entry.action_id) return true;
+          const act = actionById[entry.action_id];
+          if (!act) return true; // action archived/unknown — leave for other prunes
+          const decided = act.approval && ['approved', 'rejected', 'cancelled', 'overridden'].indexOf(act.approval.status) !== -1;
+          const done = act.execution_status === 'success' || (act.execution && act.execution.status === 'success');
+          return !(decided || done);
+        });
+        pruned = aq.length - kept.length;
+
+        kept.forEach(function (entry) {
+          if (!entry || entry.status !== 'pending' || entry.action_id) return;
+          if (typeof entry.type !== 'string' || !/_proposal$/.test(entry.type)) return;
+          const ent = materializedBy[entry.id];
+          if (!ent) return;
+          entry.status = 'approved';
+          entry.approvedAt = new Date().toISOString();
+          entry.resolvedBy = 'system:aq-reconciliation';
+          entry.materializedId = ent.id;
+          entry.reconcileNote = 'Entity ' + ent.id + ' already live from this proposal — approvalQueue flip was lost; healed by scheduler sweep.';
+          healed++;
+        });
+
+        return (pruned > 0 || healed > 0) ? kept : undefined;
       });
-      if (kept.length !== aq.length) {
-        await storage.setState('approvalQueue', kept);
-        context.log('[Scheduler] AQ reconciliation: resolved', aq.length - kept.length, 'stranded entrie(s) whose actions were already decided');
+
+      if (res.written) {
+        context.log('[Scheduler] AQ reconciliation: resolved', pruned,
+          'stranded entrie(s) whose actions were already decided;', healed,
+          'proposal entrie(s) healed to approved (attempt', res.attempts + ')');
       }
     } catch (aqErr) {
       context.log.warn('[Scheduler] AQ reconciliation failed (non-fatal):', aqErr.message);

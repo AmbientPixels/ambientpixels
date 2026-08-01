@@ -926,41 +926,48 @@ async function runRewardsEngine(opts) {
     // pending-dup check below makes the re-append a no-op. The reverse order would
     // consume the transition and lose the draft forever.
     if (cfg.enabled && rolled.transitions.length) {
-      var pending = _arr(loaded[0]);
+      // The dedup check and the append must see the same queue, so both run inside the
+      // mutation — `loaded[0]` is a snapshot taken before the whole scoring pass and is
+      // far too stale to write back wholesale. Re-runnable: `drafts` resets per attempt
+      // and the pending-dup guard makes a re-append a no-op.
       var drafts = 0;
-      rolled.transitions.forEach(function (t) {
-        if (t.to !== 'retirement_pending' || PROTECTED_AGENTS[t.agentId] || RETIREMENT_EXEMPT_AGENTS[t.agentId]) return;
-        if (activeIds.length - 1 - drafts < FLEET_MIN) return;
-        var dup = pending.some(function (q) {
-          return q && q.type === 'agent_retire_proposal' && q.status === 'pending' &&
-            q.retire && q.retire.targetAgent === t.agentId;
+      await storage.mutateState('approvalQueue', function (fresh) {
+        var pending = _arr(fresh);
+        drafts = 0;
+        rolled.transitions.forEach(function (t) {
+          if (t.to !== 'retirement_pending' || PROTECTED_AGENTS[t.agentId] || RETIREMENT_EXEMPT_AGENTS[t.agentId]) return;
+          if (activeIds.length - 1 - drafts < FLEET_MIN) return;
+          var dup = pending.some(function (q) {
+            return q && q.type === 'agent_retire_proposal' && q.status === 'pending' &&
+              q.retire && q.retire.targetAgent === t.agentId;
+          });
+          if (dup) return;
+          var A = rewards.perAgent[t.agentId] || {};
+          var orphans = (registry && Array.isArray(registry.agents))
+            ? registry.agents.filter(function (a) {
+                return a && a.status === 'active' && a.reportsTo === t.agentId;
+              }).map(function (a) { return a.id; })
+            : [];
+          pending.push({
+            id: 'retpr_' + nowMs + '_rwd' + drafts,
+            type: 'agent_retire_proposal',
+            status: 'pending',
+            proposedBy: 'rewards-engine',
+            retire: {
+              targetAgent: t.agentId,
+              rationale: ('Season ladder: ' + (A.parMisses || 3) + ' consecutive below-par seasons. Auto-drafted by the rewards ladder per the 2026-07-30 Revenue Seasons spec. CEO decision required.').substring(0, 500),
+              reassignmentPlan: 'Standard retire flow: open tasks reassign to the domain lead on approval. Successor seeding (knowledge inheritance) is Track C.',
+              estimatedWinddownCost: 0,
+              orphans: orphans
+            },
+            estimatedCost: 0,
+            evidence: { source: 'rewards-ladder', season: (prev && prev.season) || null, parMisses: A.parMisses || null },
+            createdAt: _iso(nowMs)
+          });
+          drafts++;
         });
-        if (dup) return;
-        var A = rewards.perAgent[t.agentId] || {};
-        var orphans = (registry && Array.isArray(registry.agents))
-          ? registry.agents.filter(function (a) {
-              return a && a.status === 'active' && a.reportsTo === t.agentId;
-            }).map(function (a) { return a.id; })
-          : [];
-        pending.push({
-          id: 'retpr_' + nowMs + '_rwd' + drafts,
-          type: 'agent_retire_proposal',
-          status: 'pending',
-          proposedBy: 'rewards-engine',
-          retire: {
-            targetAgent: t.agentId,
-            rationale: ('Season ladder: ' + (A.parMisses || 3) + ' consecutive below-par seasons. Auto-drafted by the rewards ladder per the 2026-07-30 Revenue Seasons spec. CEO decision required.').substring(0, 500),
-            reassignmentPlan: 'Standard retire flow: open tasks reassign to the domain lead on approval. Successor seeding (knowledge inheritance) is Track C.',
-            estimatedWinddownCost: 0,
-            orphans: orphans
-          },
-          estimatedCost: 0,
-          evidence: { source: 'rewards-ladder', season: (prev && prev.season) || null, parMisses: A.parMisses || null },
-          createdAt: _iso(nowMs)
-        });
-        drafts++;
+        return drafts > 0 ? pending : undefined;
       });
-      if (drafts > 0) await storage.setState('approvalQueue', pending);
     }
 
     await storage.setState('agentRewards', rewards);

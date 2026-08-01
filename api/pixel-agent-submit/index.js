@@ -317,8 +317,9 @@ module.exports = async function (context, req) {
       // If not auto-approved, add to CEO queue
       if (!autoApproved) {
         try {
-          let approvalQueue = (await storage.getState('approvalQueue')) || [];
-          approvalQueue.push({
+          // Entry built outside the mutator so a conflict retry re-appends the same
+          // id rather than queueing the submission twice.
+          const aqEntry = {
             id: 'aq-agent-' + Date.now(),
             type: 'agent_forge_submission',
             submissionId,
@@ -330,9 +331,13 @@ module.exports = async function (context, req) {
             originalAgentId: originalAgentId || null,
             status: 'pending',
             createdAt: new Date().toISOString()
+          };
+          await storage.mutateState('approvalQueue', function (fresh) {
+            let arr = Array.isArray(fresh) ? fresh : [];
+            if (arr.some(q => q && q.id === aqEntry.id)) return undefined;
+            arr.push(aqEntry);
+            return arr.length > 500 ? arr.slice(-500) : arr;
           });
-          if (approvalQueue.length > 500) approvalQueue = approvalQueue.slice(-500);
-          await storage.setState('approvalQueue', approvalQueue);
           context.log('[AgentSubmit] Added to CEO queue:', agentConfig.name);
         } catch (aqErr) {
           context.log.warn('[AgentSubmit] Failed to add to approval queue:', aqErr.message);

@@ -872,7 +872,16 @@ function fakeStorage(seed) {
   return {
     db,
     getState: async (k) => (k in db ? JSON.parse(JSON.stringify(db[k])) : null),
-    setState: async (k, v) => { db[k] = JSON.parse(JSON.stringify(v)); }
+    setState: async (k, v) => { db[k] = JSON.parse(JSON.stringify(v)); },
+    // Mirrors companyStorage.mutateState: read → mutate → write, and `undefined`
+    // from the mutator means abort without writing.
+    mutateState: async (k, fn) => {
+      const cur = k in db ? JSON.parse(JSON.stringify(db[k])) : null;
+      const next = await fn(cur, { attempt: 1, exists: k in db });
+      if (next === undefined) return { ok: true, written: false, attempts: 1, value: cur };
+      db[k] = JSON.parse(JSON.stringify(next));
+      return { ok: true, written: true, attempts: 1, value: next };
+    }
   };
 }
 

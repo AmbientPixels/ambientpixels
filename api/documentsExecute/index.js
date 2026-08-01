@@ -633,25 +633,24 @@ async function handleDocPublish(context, req, body) {
 // ── Helper: update approval queue entry ──
 async function _updateApprovalQueue(actionId, status, meta) {
   try {
-    const queue = (await storage.getState('approvalQueue')) || [];
     const now = new Date().toISOString();
     const m = meta || {};
-    for (let i = 0; i < queue.length; i++) {
-      if (queue[i].action_id === actionId) {
-        queue[i].status = status;
-        queue[i].resolvedAt = now;
-        queue[i].ceoDecision = status; // 'approved' | 'rejected'
-        queue[i].resolvedBy = m.resolvedBy || 'ceo';
-        if (status === 'rejected' && m.decisionNote) {
-          queue[i].rejectionReason = m.decisionNote;
-          queue[i].decisionNote = m.decisionNote;
-        } else if (m.decisionNote) {
-          queue[i].decisionNote = m.decisionNote;
-        }
-        break;
+    await storage.mutateState('approvalQueue', function (queue) {
+      const arr = Array.isArray(queue) ? queue : [];
+      const entry = arr.find(function (q) { return q && q.action_id === actionId; });
+      if (!entry) return undefined;
+      entry.status = status;
+      entry.resolvedAt = now;
+      entry.ceoDecision = status; // 'approved' | 'rejected'
+      entry.resolvedBy = m.resolvedBy || 'ceo';
+      if (status === 'rejected' && m.decisionNote) {
+        entry.rejectionReason = m.decisionNote;
+        entry.decisionNote = m.decisionNote;
+      } else if (m.decisionNote) {
+        entry.decisionNote = m.decisionNote;
       }
-    }
-    await storage.setState('approvalQueue', queue);
+      return arr;
+    });
   } catch (e) { /* non-fatal */ }
 }
 

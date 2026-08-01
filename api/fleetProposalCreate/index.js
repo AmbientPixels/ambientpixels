@@ -198,18 +198,23 @@ module.exports = async function (context, req) {
 
     if (!entry) return _err(context, 500, 'failed to build entry');
 
-    // Dedup: check for existing pending proposal with same target/type
-    const aq = (await storage.getState('approvalQueue')) || [];
+    // Dedup: check for existing pending proposal with same target/type. The check has
+    // to run INSIDE the mutation — checking a snapshot and appending to it later is
+    // how two concurrent creators both pass the dedup and both land an entry.
     const targetKey = type + ':' + (entry.hire ? entry.hire.id : (entry.retire ? entry.retire.targetAgent : entry.evolution.targetAgent));
-    const dupe = aq.some(function (q) {
-      if (q.type !== type || q.status !== 'pending') return false;
-      const qTargetKey = q.type + ':' + (q.hire ? q.hire.id : (q.retire ? q.retire.targetAgent : (q.evolution ? q.evolution.targetAgent : '')));
-      return qTargetKey === targetKey;
+    let dupe = false;
+    await storage.mutateState('approvalQueue', function (fresh) {
+      const arr = Array.isArray(fresh) ? fresh : [];
+      dupe = arr.some(function (q) {
+        if (!q || q.type !== type || q.status !== 'pending') return false;
+        const qTargetKey = q.type + ':' + (q.hire ? q.hire.id : (q.retire ? q.retire.targetAgent : (q.evolution ? q.evolution.targetAgent : '')));
+        return qTargetKey === targetKey;
+      });
+      if (dupe) return undefined;
+      arr.push(entry);
+      return arr;
     });
     if (dupe) return _err(context, 409, 'duplicate pending proposal for target');
-
-    aq.push(entry);
-    await storage.setState('approvalQueue', aq);
 
     context.res = {
       status: 200,

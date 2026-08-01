@@ -59,7 +59,19 @@ module.exports = async function (context, req) {
       target.strategyFlag = null;
     }
 
-    await storage.setState('approvalQueue', aq);
+    // Conditional write against fresh state so a concurrent wholesale approvalQueue
+    // write can't silently discard the CEO's edit. `target` above is the snapshot
+    // copy; the same field set is replayed onto the live entry, which is idempotent.
+    const editPatch = Object.assign({}, clean, {
+      editedAt: nowIso, editedBy: 'ceo', _edited: true, strategyFlag: target.strategyFlag
+    });
+    await storage.mutateState('approvalQueue', function (fresh) {
+      const arr = Array.isArray(fresh) ? fresh : [];
+      const live = arr.find(function (q) { return q && q.id === id; });
+      if (!live) return undefined; // entry pruned mid-flight — nothing to edit
+      Object.assign(live, editPatch);
+      return arr;
+    });
 
     // Observability (non-fatal): record the edit in the CEO-facing audit trail.
     try {

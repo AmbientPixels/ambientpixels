@@ -103,14 +103,13 @@ async function publishDocument(action) {
 
   // Update approval queue
   try {
-    const queue = (await storage.getState('approvalQueue')) || [];
-    for (let i = 0; i < queue.length; i++) {
-      if (queue[i].action_id === action.id) {
-        queue[i].status = 'approved';
-        break;
-      }
-    }
-    await storage.setState('approvalQueue', queue);
+    await storage.mutateState('approvalQueue', function (queue) {
+      const arr = Array.isArray(queue) ? queue : [];
+      const entry = arr.find(function (q) { return q && q.action_id === action.id; });
+      if (!entry) return undefined;
+      entry.status = 'approved';
+      return arr;
+    });
   } catch (e) { /* non-fatal */ }
 
   // v2.4.4: Mark artifact as published with canonical URL

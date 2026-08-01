@@ -808,7 +808,9 @@ module.exports = async function (context) {
     // tagged task is done with a deliverable comment, copy the content into payload.content_md
     // and flip the action back to pending so it re-enters the CEO approval queue.
     // Mirrors core logic from the revise-action handler at agent-runner.js:3122-3247.
-    const _promoteAQ = (await storage.getState('approvalQueue')) || [];
+    // AQ edits are collected as patches keyed by action_id and replayed against fresh
+    // state after the loop, instead of mutating a snapshot read before it.
+    const _promotePatches = [];
     let _promotedAny = false;
     for (const _pra of publishRevisions) {
       const _actionId = _pra.id;
@@ -869,14 +871,14 @@ module.exports = async function (context) {
         _pra.execution.last_error = null;
       }
       // Update AQ entry (mirrors agent-runner.js:3220-3239)
-      const _aqIdx = _promoteAQ.findIndex(q => q.action_id === _actionId);
-      if (_aqIdx !== -1) {
-        _promoteAQ[_aqIdx].status = 'pending';
-        _promoteAQ[_aqIdx].submittedAt = new Date().toISOString();
-        _promoteAQ[_aqIdx].preview = _revText.substring(0, 120);
-        if (_pra.payload.hero_image_url) _promoteAQ[_aqIdx].heroImageUrl = _pra.payload.hero_image_url;
-        if (_pra.payload.hero_image_asset_id) _promoteAQ[_aqIdx].heroImageAssetId = _pra.payload.hero_image_asset_id;
-      }
+      const _aqPatch = {
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        preview: _revText.substring(0, 120)
+      };
+      if (_pra.payload.hero_image_url) _aqPatch.heroImageUrl = _pra.payload.hero_image_url;
+      if (_pra.payload.hero_image_asset_id) _aqPatch.heroImageAssetId = _pra.payload.hero_image_asset_id;
+      _promotePatches.push({ actionId: _actionId, patch: _aqPatch });
       _doneTask._revision_promoted = true;
       _doneTask.updatedAt = new Date().toISOString();
       _doneTask.comments = _doneTask.comments || [];
@@ -910,14 +912,31 @@ module.exports = async function (context) {
     }
     if (_promotedAny) {
       await storage.setState('actions', allActions);
-      await storage.setState('approvalQueue', _promoteAQ);
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const arr = Array.isArray(_fresh) ? _fresh : [];
+        let touched = false;
+        _promotePatches.forEach(function (p) {
+          const entry = arr.find(q => q && q.action_id === p.actionId);
+          if (!entry) return;
+          Object.assign(entry, p.patch);
+          touched = true;
+        });
+        return touched ? arr : undefined;
+      });
     }
 
     // ── CEO Needs Attention escalations: overdue + stale revisions ──
     try {
-      const _naAQ = (await storage.getState('approvalQueue')) || [];
-      let _naChanged = false;
+      // Auto-resolve + prune are a pure function of (queue, tasks), so the whole sweep
+      // runs inside the mutation and simply re-runs against fresh state on a conflict.
+      // Log lines are buffered so a retry doesn't emit a duplicate trail.
       const _naNow = Date.now();
+      let _naChanged = false;
+      const _naLogs = [];
+      await storage.mutateState('approvalQueue', function (_fresh) {
+      const _naAQ = Array.isArray(_fresh) ? _fresh : [];
+      _naChanged = false;
+      _naLogs.length = 0;
 
       // Overdue + stale revision escalations removed from Needs Attention — both are agent
       // execution concerns, not CEO action items. Only convergence (stuck) remains: tasks
@@ -933,7 +952,7 @@ module.exports = async function (context) {
           _arEsc.resolvedAt = new Date().toISOString();
           _arEsc._autoResolved = 'task_' + (_arTask._archived ? 'archived' : _arTask.status);
           _naChanged = true;
-          context.log('[Heartbeat] Auto-resolved escalation', _arEsc.id, 'for task', _arEsc.taskId, '(', _arEsc._autoResolved, ')');
+          _naLogs.push(['[Heartbeat] Auto-resolved escalation', _arEsc.id, 'for task', _arEsc.taskId, '(', _arEsc._autoResolved, ')']);
         }
       }
 
@@ -947,7 +966,7 @@ module.exports = async function (context) {
           _orphanItem.resolvedAt = new Date().toISOString();
           _orphanItem._autoResolved = 'task_not_found';
           _naChanged = true;
-          context.log('[Heartbeat] Auto-resolved orphaned AQ item', _orphanItem.id, '— task', _orphanItem.taskId, 'no longer exists');
+          _naLogs.push(['[Heartbeat] Auto-resolved orphaned AQ item', _orphanItem.id, '— task', _orphanItem.taskId, 'no longer exists']);
         }
       }
 
@@ -973,10 +992,11 @@ module.exports = async function (context) {
         }
       }
 
-      if (_naChanged) {
-        if (_naAQ.length > 100) _naAQ.splice(0, _naAQ.length - 100);
-        await storage.setState('approvalQueue', _naAQ);
-      }
+      if (!_naChanged) return undefined;
+      if (_naAQ.length > 100) _naAQ.splice(0, _naAQ.length - 100);
+      return _naAQ;
+      });
+      _naLogs.forEach(function (args) { context.log.apply(context, args); });
     } catch (_naErr) {
       context.log('[Heartbeat] Needs Attention escalation check failed (non-fatal):', String(_naErr).substring(0, 200));
     }
@@ -1123,8 +1143,16 @@ module.exports = async function (context) {
     // ── Backfill: re-resolve hero image URLs for pending publish AQ entries ──
     // Covers the case where Scribe submitted before Pixel generated the image
     try {
-      const _aqBackfill = (await storage.getState('approvalQueue')) || [];
+      // imageAssets is hoisted out of the loop (it was re-read per item) so the sweep
+      // below can run inside the mutation and re-run cleanly against fresh state.
+      // Buffered logs keep a retry from emitting a duplicate trail.
+      const _bfImgAssets = (await storage.getState('imageAssets')) || [];
       let _aqChanged = false;
+      const _bfLogs = [];
+      await storage.mutateState('approvalQueue', function (_fresh) {
+      const _aqBackfill = Array.isArray(_fresh) ? _fresh : [];
+      _aqChanged = false;
+      _bfLogs.length = 0;
       for (let _bfi = 0; _bfi < _aqBackfill.length; _bfi++) {
         const _bfItem = _aqBackfill[_bfi];
         if (_bfItem.status !== 'pending') continue;
@@ -1136,7 +1164,7 @@ module.exports = async function (context) {
             allActions[_bfActIdxQ].payload.hero_image_url = _bfItem.heroImageUrl;
             allActions[_bfActIdxQ].payload.hero_image_asset_id = allActions[_bfActIdxQ].payload.hero_image_asset_id || _bfItem.heroImageAssetId || null;
             _aqChanged = true;
-            context.log('[Heartbeat] Backfilled hero_image_url into action payload from AQ entry:', _bfItem.id);
+            _bfLogs.push(['[Heartbeat] Backfilled hero_image_url into action payload from AQ entry:', _bfItem.id]);
           }
           continue;
         }
@@ -1151,7 +1179,6 @@ module.exports = async function (context) {
           }
         }
         if (_bfItem.heroImageAssetId) {
-          const _bfImgAssets = (await storage.getState('imageAssets')) || [];
           const _bfAsset = _bfImgAssets.find(a => a.id === _bfItem.heroImageAssetId);
           if (_bfAsset && _bfAsset.url) {
             _bfItem.heroImageUrl = _bfAsset.url;
@@ -1162,12 +1189,14 @@ module.exports = async function (context) {
               allActions[_bfActIdx].payload.hero_image_url = _bfAsset.url;
               allActions[_bfActIdx].payload.hero_image_asset_id = _bfItem.heroImageAssetId;
             }
-            context.log('[Heartbeat] Backfilled hero image for AQ entry:', _bfItem.id, '→', _bfAsset.url);
+            _bfLogs.push(['[Heartbeat] Backfilled hero image for AQ entry:', _bfItem.id, '→', _bfAsset.url]);
           }
         }
       }
+      return _aqChanged ? _aqBackfill : undefined;
+      });
+      _bfLogs.forEach(function (args) { context.log.apply(context, args); });
       if (_aqChanged) {
-        await storage.setState('approvalQueue', _aqBackfill);
         await storage.setState('actions', allActions);
       }
     } catch (_bfErr) { context.log.warn('[Heartbeat] Hero image backfill failed (non-fatal):', _bfErr.message); }
@@ -1240,7 +1269,9 @@ module.exports = async function (context) {
       });
       if (_pubReadyDocs.length > 0) {
         let _prDocsChanged = false;
-        var _prApprovalQueue = (await storage.getState('approvalQueue')) || [];
+        // Entries are collected during the loop (which awaits) and appended in one
+        // mutation afterwards, so the append lands on fresh state.
+        var _prAqEntries = [];
         for (var _pri = 0; _pri < _pubReadyDocs.length; _pri++) {
           var _prDoc = _pubReadyDocs[_pri];
           var _prSlug = _prDoc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -1288,7 +1319,7 @@ module.exports = async function (context) {
           };
           allActions.push(_prAction);
           // Add proper AQ entry (mirrors agent-runner submit-for-publish structure)
-          _prApprovalQueue.push({
+          _prAqEntries.push({
             id: 'aq-' + _prAction.id,
             kind: 'action',
             actionType: 'publish_document',
@@ -1319,8 +1350,18 @@ module.exports = async function (context) {
           }
           context.log('[Heartbeat] PROACTIVE PUBLISH: auto-submitted doc', _prDoc.id, '"' + (_prDoc.title || '') + '" for CEO approval');
         }
-        if (_prApprovalQueue.length > 100) _prApprovalQueue.splice(0, _prApprovalQueue.length - 100);
-        await storage.setState('approvalQueue', _prApprovalQueue);
+        await storage.mutateState('approvalQueue', function (_fresh) {
+          var _prApprovalQueue = Array.isArray(_fresh) ? _fresh : [];
+          var added = 0;
+          _prAqEntries.forEach(function (e) {
+            if (_prApprovalQueue.some(function (q) { return q && q.id === e.id; })) return;
+            _prApprovalQueue.push(e);
+            added++;
+          });
+          if (!added) return undefined;
+          if (_prApprovalQueue.length > 100) _prApprovalQueue.splice(0, _prApprovalQueue.length - 100);
+          return _prApprovalQueue;
+        });
         await storage.setState('actions', allActions);
         if (_prDocsChanged) await storage.setState('documents', documents);
       }
@@ -1339,7 +1380,10 @@ module.exports = async function (context) {
         return true;
       });
       if (_orphanDocs.length > 0) {
+        // READ-ONLY snapshot — only feeds the "does an AQ entry already exist" check
+        // inside the loop. New entries are collected and appended in one mutation below.
         var _orpAQ = (await storage.getState('approvalQueue')) || [];
+        var _orpAqEntries = [];
         var _orpChanged = false;
         var _orpActionsChanged = false;
         for (var _oi = 0; _oi < _orphanDocs.length; _oi++) {
@@ -1385,7 +1429,7 @@ module.exports = async function (context) {
             };
             allActions.push(_orpNewAction);
             _orpActionsChanged = true;
-            _orpAQ.push({
+            _orpAqEntries.push({
               id: 'aq-' + _orpNewAction.id, kind: 'action', actionType: 'publish_document',
               action_id: _orpNewAction.id, taskId: null, taskTitle: _orpDoc.title,
               originAgent: 'system', classification: 'executive_required',
@@ -1406,7 +1450,7 @@ module.exports = async function (context) {
               var _orpHero2 = _orpImgAssets2.find(function(a) { return a.id === _orpDoc.hero_image_asset_id; });
               if (_orpHero2 && _orpHero2.url) _orpHeroUrl2 = _orpHero2.url;
             } catch (_e) {}
-            _orpAQ.push({
+            _orpAqEntries.push({
               id: 'aq-' + _orpAction.id, kind: 'action', actionType: 'publish_document',
               action_id: _orpAction.id,
               taskId: (_orpAction.action_payload && _orpAction.action_payload.taskId) || null,
@@ -1426,8 +1470,23 @@ module.exports = async function (context) {
           // else: both action and AQ exist — healthy state, no recovery needed
         }
         if (_orpChanged) {
-          if (_orpAQ.length > 100) _orpAQ.splice(0, _orpAQ.length - 100);
-          await storage.setState('approvalQueue', _orpAQ);
+          await storage.mutateState('approvalQueue', function (_fresh) {
+            var arr = Array.isArray(_fresh) ? _fresh : [];
+            var added = 0;
+            _orpAqEntries.forEach(function (e) {
+              // Re-check both keys against fresh state: another run may have recovered
+              // the same orphan while we were reading imageAssets.
+              var exists = arr.some(function (q) {
+                return q && (q.id === e.id || (q.documentId === e.documentId && q.actionType === 'publish_document'));
+              });
+              if (exists) return;
+              arr.push(e);
+              added++;
+            });
+            if (!added) return undefined;
+            if (arr.length > 100) arr.splice(0, arr.length - 100);
+            return arr;
+          });
         }
         if (_orpActionsChanged) {
           await storage.setState('actions', allActions);
@@ -3150,9 +3209,16 @@ module.exports = async function (context) {
       if (_stagedAgentProposals.length) {
         var _sel = _selectTopProposals(_stagedAgentProposals, _AGENT_PROPOSAL_FLEET_CAP);
         if (_sel.selected.length) {
-          var _propQueue = (await storage.getState('approvalQueue')) || [];
-          _sel.selected.forEach(function (s) { _propQueue.push(s.payload); });
-          await storage.setState('approvalQueue', _propQueue);
+          await storage.mutateState('approvalQueue', function (_fresh) {
+            var _propQueue = Array.isArray(_fresh) ? _fresh : [];
+            var added = 0;
+            _sel.selected.forEach(function (s) {
+              if (_propQueue.some(function (q) { return q && q.id === s.payload.id; })) return;
+              _propQueue.push(s.payload);
+              added++;
+            });
+            return added ? _propQueue : undefined;
+          });
           context.log('[Heartbeat] Agentic proposals written:', _sel.selected.length,
             'deferred:', _sel.deferred.length);
           // Observability: log each proposal entering the queue so the propose→decide funnel is auditable.
@@ -3185,7 +3251,12 @@ module.exports = async function (context) {
       });
       if (_pendingPosts.length > 0) {
         const _actionsStore = (await storage.getState('actions')) || [];
+        // READ-ONLY snapshot — feeds the idempotency checks inside the loop. Actual
+        // appends/patches are collected below and replayed against fresh state in one
+        // mutation, so a concurrent wholesale write can't swallow them.
         const _aq = (await storage.getState('approvalQueue')) || [];
+        const _aqAppends = [];
+        const _aqSuperseded = [];
         for (const _pt of _pendingPosts) {
           const _platform = (_pt.taskType || '').replace('social_', '') || 'x';
           // Sanitize reviewed_copy (same chain as agent-runner)
@@ -3570,7 +3641,7 @@ module.exports = async function (context) {
               // Idempotency guard: skip AQ push if an escalation entry for this task already exists
               var _apEscId = 'aq-qgesc-' + _pt.id;
               if (!_aq.some(function (q) { return q && q.id === _apEscId; })) {
-                _aq.push({
+                _aqAppends.push({
                   id: _apEscId,
                   kind: 'task_escalation',
                   taskId: _pt.id,
@@ -3664,7 +3735,7 @@ module.exports = async function (context) {
               checkedAt: new Date().toISOString()
             };
           }
-          _aq.push(_aqEntry);
+          _aqAppends.push(_aqEntry);
           _pt._social_action_pending = false;
           _pt._social_action_created = true;
           context.log('[Heartbeat] AUTO-POST: created social action for task', _pt.id, 'platform:', _platform, 'type:', _actionReq.type, _scheduledFor ? ('scheduled_for: ' + _scheduledFor) : '(publish now)', 'rc_len:', _pt.reviewed_copy.length);
@@ -3678,13 +3749,27 @@ module.exports = async function (context) {
             _oldAct.approval.decision_note = (_oldAct.approval.decision_note || '') + '\n[AUTO] Superseded by revised action ' + _newAction.id;
             _oldAct.updatedAt = new Date().toISOString();
             // Also update the AQ entry
-            var _oldAqIdx = _aq.findIndex(function (q) { return q.action_id === _oldAct.id; });
-            if (_oldAqIdx !== -1) _aq[_oldAqIdx].status = 'superseded';
+            _aqSuperseded.push(_oldAct.id);
             context.log('[Heartbeat] AUTO-POST: superseded old revision action', _oldAct.id, 'for task', _pt.id);
           });
         }
         await storage.setState('actions', _actionsStore);
-        await storage.setState('approvalQueue', _aq);
+        await storage.mutateState('approvalQueue', function (_fresh) {
+          const arr = Array.isArray(_fresh) ? _fresh : [];
+          let touched = 0;
+          _aqAppends.forEach(function (e) {
+            if (arr.some(function (q) { return q && q.id === e.id; })) return;
+            arr.push(e);
+            touched++;
+          });
+          _aqSuperseded.forEach(function (actionId) {
+            const entry = arr.find(function (q) { return q && q.action_id === actionId; });
+            if (!entry || entry.status === 'superseded') return;
+            entry.status = 'superseded';
+            touched++;
+          });
+          return touched ? arr : undefined;
+        });
         context.log('[Heartbeat] AUTO-POST: created', _pendingPosts.length, 'social action(s) from reviewed_copy pipeline');
       }
     }
@@ -3868,7 +3953,8 @@ module.exports = async function (context) {
       }
 
       if (_paceEscalations.length > 0) {
-        _paceAQ = (await storage.getState('approvalQueue')) || [];
+        // Collects the NEW entries only; appended to fresh state in one mutation below.
+        _paceAQ = [];
         for (var _ei = 0; _ei < _paceEscalations.length; _ei++) {
           var _cpe = _paceEscalations[_ei];
           _paceAQ.push({
@@ -3909,8 +3995,18 @@ module.exports = async function (context) {
 
           context.log('[Heartbeat] Campaign pace escalation created for:', _cpe.id, '- weeks behind:', _cpe.paceBehindWeeks);
         }
-        if (_paceAQ.length > 200) _paceAQ.splice(0, _paceAQ.length - 200);
-        await storage.setState('approvalQueue', _paceAQ);
+        await storage.mutateState('approvalQueue', function (_fresh) {
+          var arr = Array.isArray(_fresh) ? _fresh : [];
+          var added = 0;
+          _paceAQ.forEach(function (e) {
+            if (arr.some(function (q) { return q && q.id === e.id; })) return;
+            arr.push(e);
+            added++;
+          });
+          if (!added) return undefined;
+          if (arr.length > 200) arr.splice(0, arr.length - 200);
+          return arr;
+        });
         for (var _pgi = 0; _pgi < _paceGovEvents.length; _pgi++) {
           campaignGovEvents.push(_paceGovEvents[_pgi]);
         }
@@ -4207,9 +4303,11 @@ module.exports = async function (context) {
 
     // Persist escalations to approval queue
     if (_pendingEscalations.length > 0) {
-      const approvalQueue = (await storage.getState('approvalQueue')) || [];
+      // Entries (and their ids) are built once, outside the mutation, so a conflict
+      // retry re-appends the same rows rather than minting fresh ids each attempt.
+      const _escEntries = [];
       for (const esc of _pendingEscalations) {
-        approvalQueue.push({
+        _escEntries.push({
           id: 'appr-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
           taskId: esc.taskId,
           taskTitle: esc.taskTitle,
@@ -4226,8 +4324,18 @@ module.exports = async function (context) {
           ceoDecision: null
         });
       }
-      if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
-      await storage.setState('approvalQueue', approvalQueue);
+      await storage.mutateState('approvalQueue', function (_fresh) {
+        const approvalQueue = Array.isArray(_fresh) ? _fresh : [];
+        let added = 0;
+        _escEntries.forEach(function (e) {
+          if (approvalQueue.some(function (q) { return q && q.id === e.id; })) return;
+          approvalQueue.push(e);
+          added++;
+        });
+        if (!added) return undefined;
+        if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
+        return approvalQueue;
+      });
       context.log('[Heartbeat] Escalated', _pendingEscalations.length, 'tasks to CEO approval queue');
 
       // Log escalation events

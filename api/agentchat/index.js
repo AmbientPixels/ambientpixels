@@ -658,8 +658,9 @@ async function executeChatActions(context, actions, agentId) {
             if (actionsStore.length > 500) actionsStore.splice(0, actionsStore.length - 500);
             await storage.setState('actions', actionsStore);
 
-            const approvalQueue = (await storage.getState('approvalQueue')) || [];
-            approvalQueue.push({
+            // Entry built outside the mutator so a conflict retry re-appends the same
+            // id rather than minting a second one.
+            const aqEntry = {
               id: 'aq-' + publishAction.id, kind: 'action', actionType: 'publish_document',
               action_id: publishAction.id, taskId: action.taskId || null,
               taskTitle: 'Publish: ' + newDoc.title, originAgent: agentId,
@@ -668,9 +669,14 @@ async function executeChatActions(context, actions, agentId) {
               timestamp: publishAction.created_at,
               preview: (newDoc.content_md || '').substring(0, 120),
               documentId: newDoc.id, slug: slug, docKind: newDoc.kind
+            };
+            await storage.mutateState('approvalQueue', function (fresh) {
+              const arr = Array.isArray(fresh) ? fresh : [];
+              if (arr.some(function (q) { return q && q.id === aqEntry.id; })) return undefined;
+              arr.push(aqEntry);
+              if (arr.length > 100) arr.splice(0, arr.length - 100);
+              return arr;
             });
-            if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
-            await storage.setState('approvalQueue', approvalQueue);
             docSummary += ' → Auto-submitted for blog publish (awaiting CEO approval)';
           }
 
@@ -762,8 +768,9 @@ async function executeChatActions(context, actions, agentId) {
           var propCamp = action.campaign || {};
           var propName = (propCamp.name || '').trim();
           if (!propName) { results.push({ type: 'propose-campaign', success: false, summary: 'Campaign name required' }); break; }
-          var aq = (await storage.getState('approvalQueue')) || [];
-          aq.push({
+          // Entry built outside the mutator so a conflict retry re-appends the same
+          // id rather than minting a second proposal.
+          var campEntry = {
             id: 'cprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
             type: 'campaign_proposal', status: 'pending', proposedBy: agentId,
             name: propName, description: (propCamp.description || '').substring(0, 1000),
@@ -773,8 +780,13 @@ async function executeChatActions(context, actions, agentId) {
             duration: (propCamp.duration || '').substring(0, 50),
             product: (propCamp.product || '').substring(0, 50),
             createdAt: new Date().toISOString()
+          };
+          await storage.mutateState('approvalQueue', function (fresh) {
+            var arr = Array.isArray(fresh) ? fresh : [];
+            if (arr.some(function (q) { return q && q.id === campEntry.id; })) return undefined;
+            arr.push(campEntry);
+            return arr;
           });
-          await storage.setState('approvalQueue', aq);
           results.push({ type: 'propose-campaign', success: true, summary: 'Proposed campaign: ' + propName + ' (pending CEO approval)' });
           break;
         }
@@ -782,8 +794,9 @@ async function executeChatActions(context, actions, agentId) {
           var propObj = action.objective || {};
           var propTitle = (propObj.title || '').trim();
           if (!propTitle) { results.push({ type: 'propose-objective', success: false, summary: 'Objective title required' }); break; }
-          var oaq = (await storage.getState('approvalQueue')) || [];
-          oaq.push({
+          // Entry built outside the mutator so a conflict retry re-appends the same
+          // id rather than minting a second proposal.
+          var objEntry = {
             id: 'oprop_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
             type: 'objective_proposal', status: 'pending', proposedBy: agentId,
             title: propTitle, description: (propObj.description || '').substring(0, 1000),
@@ -791,8 +804,13 @@ async function executeChatActions(context, actions, agentId) {
             successCriteria: (propObj.successCriteria || '').substring(0, 300),
             timeHorizon: (propObj.timeHorizon || '').substring(0, 50),
             createdAt: new Date().toISOString()
+          };
+          await storage.mutateState('approvalQueue', function (fresh) {
+            var arr = Array.isArray(fresh) ? fresh : [];
+            if (arr.some(function (q) { return q && q.id === objEntry.id; })) return undefined;
+            arr.push(objEntry);
+            return arr;
           });
-          await storage.setState('approvalQueue', oaq);
           results.push({ type: 'propose-objective', success: true, summary: 'Proposed objective: ' + propTitle + ' (pending CEO approval)' });
           break;
         }

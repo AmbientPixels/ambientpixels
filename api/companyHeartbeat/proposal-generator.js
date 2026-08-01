@@ -682,69 +682,81 @@ async function runProposalGenerator(opts) {
       log('[proposalGenerator] Disabled via systemConfig.proposalGenerator.enabled=false — running expiry only.');
     }
 
-    // Re-read queue right before write to minimize clobber. Always run expiry (even
-    // when nothing new is created) so stale generic suggestions don't pile up.
-    var queue = (await storage.getState('approvalQueue')) || [];
-    var expired = _expireStaleGeneratorProposals(queue, nowMs);
-    var pruned = _pruneResolvedProposals(queue, nowMs);
-    if (pruned) log('[proposalGenerator] Pruned ' + pruned + ' resolved proposal(s) older than ' + RESOLVED_RETENTION_DAYS + 'd.');
-    var healed = _reconcileMaterializedProposals(queue, state.campaigns, state.objectives, nowMs);
-    if (healed) log('[proposalGenerator] Auto-reconciled ' + healed + ' race-resurrected proposal(s) whose entity already exists.');
+    // Expiry, prune, heal, BOTH dedup passes and the append all run INSIDE the mutation
+    // so they judge the same queue the write lands on. This block used to re-read late
+    // "to minimize clobber" and still conceded the race in its own comment — the window
+    // was narrowed, not closed. mutateState closes it: a conflicting write makes the
+    // whole block re-run against fresh state. Everything it accumulates (counts, the
+    // accepted set, log lines) is therefore reset at the top of every attempt, and log
+    // lines are buffered so a retry doesn't emit a misleading duplicate trail.
+    var candidates = proposals;
+    var expired = 0, pruned = 0, healed = 0;
+    var accepted = [];
+    var notes = [];
+    await storage.mutateState('approvalQueue', function (fresh) {
+      var queue = Array.isArray(fresh) ? fresh : [];
+      expired = 0; pruned = 0; healed = 0; accepted = []; notes = [];
 
-    // Re-check dedup against the freshly-read queue. LLM compose latency widened the
-    // window since the initial read (loaded[3]); a concurrent cron/trigger run may
-    // have queued a same-type proposal. Drop ours if so — prevents a clobbered write
-    // and keeps the proposal-created funnel log consistent with what we actually queue.
-    // Best-effort only: two runs that both re-read before either writes still last-write-
-    // wins; this additive cron intentionally has no lock, so the window is narrowed, not closed.
-    proposals = proposals.filter(function (p) { return !_isDeduped(queue, p.type, nowMs); });
+      expired = _expireStaleGeneratorProposals(queue, nowMs);
+      pruned = _pruneResolvedProposals(queue, nowMs);
+      if (pruned) notes.push('[proposalGenerator] Pruned ' + pruned + ' resolved proposal(s) older than ' + RESOLVED_RETENTION_DAYS + 'd.');
+      healed = _reconcileMaterializedProposals(queue, state.campaigns, state.objectives, nowMs);
+      if (healed) notes.push('[proposalGenerator] Auto-reconciled ' + healed + ' race-resurrected proposal(s) whose entity already exists.');
 
-    // Semantic dedup vs ACTIVE objectives/campaigns + pending proposals — the type-level
-    // throttle above is content-blind, which let the generator re-propose intents that
-    // were already live under different wording (duplicate-objective CEO escalation,
-    // 2026-07-27). Mirrors the proposal_semantic_dup gate in agent-runner.
-    proposals = proposals.filter(function (p) {
-      var pTitle = p.title || p.name || '';
-      if (!pTitle) return true;
-      var against = (p.type === 'objective_proposal' ? state.objectives : state.campaigns) || [];
-      var live = against.filter(function (x) { return x && (!x.status || x.status === 'active'); });
-      for (var li = 0; li < live.length; li++) {
-        if (helpers.titleSimilarity(pTitle, live[li].title || live[li].name) >= 0.6) {
-          log('[proposalGenerator] Dropped ' + p.type + ' "' + pTitle.substring(0, 60) + '" — semantic dup of active ' + live[li].id);
+      // Type-level throttle: a concurrent cron/trigger run may have queued a same-type
+      // proposal while we were waiting on LLM compose.
+      accepted = candidates.filter(function (p) { return !_isDeduped(queue, p.type, nowMs); });
+
+      // Semantic dedup vs ACTIVE objectives/campaigns + pending proposals — the type-level
+      // throttle above is content-blind, which let the generator re-propose intents that
+      // were already live under different wording (duplicate-objective CEO escalation,
+      // 2026-07-27). Mirrors the proposal_semantic_dup gate in agent-runner.
+      accepted = accepted.filter(function (p) {
+        var pTitle = p.title || p.name || '';
+        if (!pTitle) return true;
+        var against = (p.type === 'objective_proposal' ? state.objectives : state.campaigns) || [];
+        var live = against.filter(function (x) { return x && (!x.status || x.status === 'active'); });
+        for (var li = 0; li < live.length; li++) {
+          if (helpers.titleSimilarity(pTitle, live[li].title || live[li].name) >= 0.6) {
+            notes.push('[proposalGenerator] Dropped ' + p.type + ' "' + pTitle.substring(0, 60) + '" — semantic dup of active ' + live[li].id);
+            return false;
+          }
+        }
+        var pend = queue.find(function (q) {
+          return q.type === p.type && q.status === 'pending' &&
+            helpers.titleSimilarity(pTitle, q.title || q.name || '') >= 0.6;
+        });
+        if (pend) {
+          notes.push('[proposalGenerator] Dropped ' + p.type + ' "' + pTitle.substring(0, 60) + '" — semantic dup of pending ' + pend.id);
           return false;
         }
-      }
-      var pend = queue.find(function (q) {
-        return q.type === p.type && q.status === 'pending' &&
-          helpers.titleSimilarity(pTitle, q.title || q.name || '') >= 0.6;
+        return true;
       });
-      if (pend) {
-        log('[proposalGenerator] Dropped ' + p.type + ' "' + pTitle.substring(0, 60) + '" — semantic dup of pending ' + pend.id);
-        return false;
-      }
-      return true;
-    });
 
-    // Active-objective cap (backstop against goal proliferation — 11 accumulated
-    // by 2026-07-28). Mirrors the objective_cap gate in agent-runner + proposalDecide.
-    var _activeObjCount = (state.objectives || []).filter(function (o) {
-      return o && o.status === 'active' && !o.deletedAt;
-    }).length;
-    if (_activeObjCount >= MAX_ACTIVE_OBJECTIVES) {
-      proposals = proposals.filter(function (p) {
-        if (p.type !== 'objective_proposal') return true;
-        log('[proposalGenerator] Dropped objective_proposal "' + String(p.title || p.name || '').substring(0, 60) + '" — active-objective cap (' + _activeObjCount + '/' + MAX_ACTIVE_OBJECTIVES + ')');
-        return false;
-      });
-    }
-    proposals.forEach(function (p) { queue.push(p); });
+      // Active-objective cap (backstop against goal proliferation — 11 accumulated
+      // by 2026-07-28). Mirrors the objective_cap gate in agent-runner + proposalDecide.
+      var _activeObjCount = (state.objectives || []).filter(function (o) {
+        return o && o.status === 'active' && !o.deletedAt;
+      }).length;
+      if (_activeObjCount >= MAX_ACTIVE_OBJECTIVES) {
+        accepted = accepted.filter(function (p) {
+          if (p.type !== 'objective_proposal') return true;
+          notes.push('[proposalGenerator] Dropped objective_proposal "' + String(p.title || p.name || '').substring(0, 60) + '" — active-objective cap (' + _activeObjCount + '/' + MAX_ACTIVE_OBJECTIVES + ')');
+          return false;
+        });
+      }
+
+      if (!accepted.length && !expired && !pruned && !healed) return undefined; // nothing to persist
+      accepted.forEach(function (p) { queue.push(p); });
+      return queue;
+    });
+    notes.forEach(function (n) { log(n); });
+    proposals = accepted;
 
     if (!proposals.length && !expired && !pruned && !healed) {
       log('[proposalGenerator] No propose-worthy conditions; nothing created, expired, pruned, or reconciled.');
       return { ok: true, created: 0, expired: 0, pruned: 0, healed: 0, types: [] };
     }
-
-    await storage.setState('approvalQueue', queue);
 
     // Observability funnel (non-fatal): record each new proposal in governanceLog.
     if (proposals.length) {

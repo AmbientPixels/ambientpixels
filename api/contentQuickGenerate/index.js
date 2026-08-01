@@ -279,10 +279,12 @@ module.exports = async function (context, req) {
         }
       };
 
-      var queue = (await storage.getState('approvalQueue')) || [];
-      queue.push(approvalItem);
-      if (queue.length > 200) queue = queue.slice(-200);
-      await storage.setState('approvalQueue', queue);
+      await storage.mutateState('approvalQueue', function (fresh) {
+        var arr = Array.isArray(fresh) ? fresh : [];
+        if (arr.some(function (q) { return q && q.id === approvalItem.id; })) return undefined; // already appended
+        arr.push(approvalItem);
+        return arr.length > 200 ? arr.slice(-200) : arr;
+      });
       approvalItemId = approvalItem.id;
       context.log('[quickGenerate] Approval queue item added:', approvalItemId);
     }

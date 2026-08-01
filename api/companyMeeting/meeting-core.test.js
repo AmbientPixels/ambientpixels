@@ -163,7 +163,20 @@ test('vote prompt rejects ceremony/no-thesis items', () => {
 const NOW = Date.UTC(2026, 5, 23, 12, 0, 0);
 function mockStorage(initial) {
   const s = Object.assign({ tasks: [], approvalQueue: [], agenticMeetings: [], capitalAllocation: { systemBudget: 15, systemSpent: 5, systemStatus: 'GREEN' } }, initial || {});
-  return { getState: async (k) => s[k], setState: async (k, v) => { s[k] = v; }, _state: s };
+  return {
+    getState: async (k) => s[k],
+    setState: async (k, v) => { s[k] = v; },
+    // Mirrors companyStorage.mutateState: read → mutate → write, and `undefined`
+    // from the mutator means abort without writing.
+    mutateState: async (k, fn) => {
+      const cur = k in s ? s[k] : null;
+      const next = await fn(cur, { attempt: 1, exists: k in s });
+      if (next === undefined) return { ok: true, written: false, attempts: 1, value: cur };
+      s[k] = next;
+      return { ok: true, written: true, attempts: 1, value: next };
+    },
+    _state: s
+  };
 }
 // Scripted model: agenda convenes; echo proposes a campaign (strategic) + a research task (internal);
 // everyone approves; nova closes.
