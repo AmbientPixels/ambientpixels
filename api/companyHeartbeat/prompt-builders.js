@@ -381,10 +381,22 @@ function buildHeartbeatPrompt(ctx) {
       line += '\n  Description: ' + desc;
     }
     if (t.comments && t.comments.length > 0) {
-      const recent = t.comments.slice(-3);
+      // Pin the latest system-critical comment (scan results, QG feedback) into the
+      // preview window: agent "blocked" chatter once evicted a [SCAN RESULT] from the
+      // last-3 slice, and the agent then declared the task blocked every cycle because
+      // it could no longer see the data it claimed was missing (self-reinforcing).
+      const _isCriticalComment = c => /^(\[SCAN RESULT\]|\[SCAN FAILED\]|QUALITY GATE FAILED)/.test(String(c.text || c.comment || c.body || ''));
+      let recent = t.comments.slice(-3);
+      if (!recent.some(_isCriticalComment)) {
+        const _pinned = t.comments.filter(_isCriticalComment).slice(-1)[0];
+        if (_pinned) recent = [_pinned].concat(recent.slice(-2));
+      }
       recent.forEach(c => {
         const who = c.user || c.author || 'unknown';
-        const text = String(c.text || c.comment || c.body || '').substring(0, 150);
+        // Critical comments often open with a long URL — 150 chars could be all URL
+        // and no findings, so give them a bigger preview budget.
+        const _budget = _isCriticalComment(c) ? 300 : 150;
+        const text = String(c.text || c.comment || c.body || '').substring(0, _budget);
         line += '\n  Comment (' + who + '): ' + text;
       });
     }
@@ -1842,6 +1854,7 @@ ${worldStateBlock}${marketRealityBlock}${companyStrategyBlock}${personalityBlock
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
+(Task descriptions and comments below are TRUNCATED PREVIEWS to save prompt space. The FULL description and COMPLETE comments — including full [SCAN RESULT] findings and report links — are always provided when you execute-task. NEVER mark a task blocked or refuse to execute because a preview looks cut off; execute it and the complete content will be in your execution prompt.)
 ${taskList}
 ${parkedPendingCount > 0 ? '(' + parkedPendingCount + ' more of your tasks already have posts submitted and awaiting the CEO decision — they are hidden until the CEO acts. Do NOT recreate social actions for content you already submitted; the approval queue is the pipeline working, not a stall. Spend this cycle on strategy, reviews, or new briefs instead.)\n' : ''}${heroImageNudge}
 OTHER ACTIVE TASKS:

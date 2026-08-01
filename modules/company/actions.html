@@ -1331,12 +1331,18 @@
       var hdrs = { headers: { 'x-company-secret': 'pixelpusher' } };
       Promise.all([
         fetch(apiBase + '/company-state?key=approvalQueue', hdrs).then(function(r) { return r.json(); }),
-        fetch(apiBase + '/company-state?key=campaigns', hdrs).then(function(r) { return r.json(); }).catch(function() { return { value: [] }; })
+        fetch(apiBase + '/company-state?key=campaigns', hdrs).then(function(r) { return r.json(); }).catch(function() { return { value: [] }; }),
+        fetch(apiBase + '/company-state?key=objectives', hdrs).then(function(r) { return r.json(); }).catch(function() { return { value: [] }; })
       ])
         .then(function(results) {
           var queue = results[0].value || results[0] || [];
           if (!Array.isArray(queue)) queue = [];
           var activeCampaigns = (results[1].value || results[1] || []).filter(function(c) { return c && c.status === 'active'; });
+          // Active objectives feed the routing/goal line on each card and the
+          // parent-objective select in the drawer (propose-time linkage, 2026-08-01).
+          window._activeObjectivesForProposals = (results[2].value || results[2] || []).filter(function(o) {
+            return o && (!o.status || o.status === 'active') && !o.deletedAt;
+          });
           var proposals = queue.filter(function(item) { return item.type === 'campaign_proposal' && item.status === 'pending'; });
 
           if (proposals.length === 0) { panel.style.display = 'none'; return; }
@@ -1348,7 +1354,12 @@
           proposals.forEach(function(p, idx) {
             var name = esc(p.name || 'Untitled');
             var agent = esc(p.proposedBy || '?');
-            var platforms = (p.platforms || []).join(', ');
+            var platforms = (p.platforms || []).join(', ') + (p.platformsDerived ? ' (inferred)' : '');
+            var _cardObjId = p.suggestedObjectiveId || p.objective_id || p.objectiveId || null;
+            var _cardObj = _cardObjId ? (window._activeObjectivesForProposals || []).filter(function(o) { return o.id === _cardObjId; })[0] : null;
+            var goalLabel = _cardObjId
+              ? ((_cardObj ? (_cardObj.title || _cardObjId) : _cardObjId) + (p.objectiveDerived ? ' (inferred)' : ''))
+              : 'no parent goal';
             var created = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '';
             // Overlap check: vs ACTIVE campaigns and vs the OTHER pending proposals.
             var pText = (p.name || '') + ' ' + (p.description || '');
@@ -1364,7 +1375,7 @@
             html += '<div class="act-row-icon" style="background:rgba(139,92,246,0.08);color:#a78bfa;"><i class="fas fa-bullhorn"></i></div>';
             html += '<div class="act-row-info">';
             html += '<div class="act-row-title">' + name + '</div>';
-            html += '<div class="act-row-meta">' + agent + ' · ' + esc(platforms) + ' · ' + created + '</div>';
+            html += '<div class="act-row-meta">' + agent + ' · ' + esc(platforms) + ' · goal: ' + esc(goalLabel) + ' · ' + created + '</div>';
             html += '</div>';
             html += '<button class="act-btn act-btn--details" onclick="event.stopPropagation();openProposalDrawer(' + idx + ')"><i class="fas fa-eye"></i></button>';
             html += '</div>';
@@ -1429,7 +1440,19 @@
       html += '<div class="act-drawer-section"><h4>Edit</h4>';
       html += _pinput('pe_name', 'Name', p.name);
       html += _pinput('pe_description', 'Description', p.description, { textarea: true, rows: 3 });
-      html += _pcheckboxes('pe_platforms', 'Platforms', ['social_x', 'social_linkedin', 'social_bluesky'], p.platforms || []);
+      html += _pcheckboxes('pe_platforms', 'Platforms' + (p.platformsDerived ? ' — inferred from title, confirm' : ''), ['social_x', 'social_linkedin', 'social_bluesky'], p.platforms || []);
+      // Parent objective: propose-time derivation stamps suggestedObjectiveId so the
+      // CEO confirms/corrects the goal link BEFORE approval — a campaign approved with
+      // an explicit link is born clean instead of flagged needsReview after the fact.
+      var _peObjs = window._activeObjectivesForProposals || [];
+      var _peSelObj = p.suggestedObjectiveId || '';
+      html += '<div style="margin-bottom:0.6rem;"><label style="display:block;font-size:var(--c-text-xs);color:rgba(255,255,255,0.5);margin-bottom:0.2rem;">Parent objective' + (p.objectiveDerived ? ' — inferred, confirm or change' : '') + '</label>';
+      html += '<select id="pe_objectiveId" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:6px;padding:0.4rem;">';
+      html += '<option value=""' + (_peSelObj ? '' : ' selected') + '>— none (will surface as orphaned) —</option>';
+      _peObjs.forEach(function (o) {
+        html += '<option value="' + _attr(o.id) + '"' + (o.id === _peSelObj ? ' selected' : '') + '>' + esc(o.title || o.id) + '</option>';
+      });
+      html += '</select></div>';
       html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">';
       html += _pinput('pe_frequency', 'Frequency (per period)', p.frequency, { type: 'number' });
       html += _pinput('pe_cadence', 'Cadence', p.cadence || 'weekly', { select: ['daily', 'weekly', 'biweekly'] });
@@ -1464,7 +1487,8 @@
           duration: _pval('pe_duration'),
           product: _pval('pe_product'),
           kpiTarget: _pval('pe_kpiTarget'),
-          northStarMetric: _pval('pe_northStarMetric')
+          northStarMetric: _pval('pe_northStarMetric'),
+          suggestedObjectiveId: _pval('pe_objectiveId') || null
         };
       } else {
         patch = {

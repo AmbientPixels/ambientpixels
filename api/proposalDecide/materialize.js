@@ -75,11 +75,11 @@ function deriveObjectiveId(p, objectives, pendingObjectiveProposals) {
   });
   const explicit = p.objective_id || p.objectiveId || p.suggestedObjectiveId || null;
   if (explicit && objs.some(function (o) { return o.id === explicit; })) {
-    return { objectiveId: explicit, matched: false };
+    return { objectiveId: explicit, matched: false, via: 'explicit' };
   }
   if (p.northStarMetric) {
     const ns = objs.find(function (o) { return o.northStarMetric && o.northStarMetric === p.northStarMetric; });
-    if (ns) return { objectiveId: ns.id, matched: true };
+    if (ns) return { objectiveId: ns.id, matched: true, via: 'metric' };
   }
   const pName = p.name || p.title || '';
   const sibling = (pendingObjectiveProposals || []).find(function (q) {
@@ -100,7 +100,7 @@ function deriveObjectiveId(p, objectives, pendingObjectiveProposals) {
       const s = titleSimilarity(pName, o.title || '');
       if (s > pmScore) { pmScore = s; pmBest = o; }
     });
-    if (pmBest) return { objectiveId: pmBest.id, matched: true };
+    if (pmBest) return { objectiveId: pmBest.id, matched: true, via: 'product' };
   }
   const nameTokens = _tokens(pName);
   if (nameTokens.length) {
@@ -110,7 +110,7 @@ function deriveObjectiveId(p, objectives, pendingObjectiveProposals) {
       const overlap = nameTokens.filter(function (w) { return ot.indexOf(w) !== -1; }).length;
       if (overlap > bestScore) { bestScore = overlap; best = o; }
     });
-    if (best && bestScore >= 2) return { objectiveId: best.id, matched: true };
+    if (best && bestScore >= 2) return { objectiveId: best.id, matched: true, via: 'tokens' };
   }
   return { objectiveId: explicit || null, matched: false };
 }
@@ -146,8 +146,15 @@ function materializeFromProposal(proposal, nowIso, context) {
       cadence: p.cadence || 'weekly',
       northStarMetric: p.northStarMetric || null,
       objective_id: od.objectiveId,
+      objectiveLinkVia: od.via || null,
       pendingObjectiveProposalId: od.deferredToProposalId || null,
-      needsReview: !!(tt.derived || od.matched || !od.objectiveId),
+      // needsReview only for GENUINE guesses: derived task types, no parent at
+      // all, or a fuzzy link (product/token tiers). Explicit refs and north-star
+      // metric equality are deterministic — flagging them meant every agent
+      // proposal nagged the CEO forever (2026-08-01). Propose-time derivation in
+      // agent-runner now stamps platforms + suggestedObjectiveId onto the
+      // proposal itself, so the CEO reviews routing BEFORE approval instead.
+      needsReview: !!(tt.derived || !od.objectiveId || (od.matched && od.via !== 'metric')),
       source: p.meetingId ? 'meeting' : (p.source || 'proposal'),
       proposalId: p.id,
       createdAt: nowIso

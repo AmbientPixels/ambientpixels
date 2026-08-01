@@ -187,6 +187,22 @@ test('campaign_proposal with explicit platforms + objective is not flagged', () 
   assert.strictEqual(m.entity.objective_id, 'obj-pulse-daily');
   assert.strictEqual(m.entity.needsReview, false);
 });
+test('campaign_proposal metric-equality objective link is deterministic → not flagged (2026-08-01)', () => {
+  const m = materializeFromProposal(
+    { id: 'mp3', type: 'campaign_proposal', name: 'Zz Unrelated Wording Blitz', platforms: ['social_x'], northStarMetric: 'bluesky_followers' },
+    NOW, { objectives: OBJS });
+  assert.strictEqual(m.entity.objective_id, 'obj-build-public-2026h2');
+  assert.strictEqual(m.entity.objectiveLinkVia, 'metric');
+  assert.strictEqual(m.entity.needsReview, false);
+});
+test('campaign_proposal fuzzy token-overlap link still flags for review', () => {
+  const m = materializeFromProposal(
+    { id: 'mp4', type: 'campaign_proposal', name: 'Run Loud Public Positioning Campaign', platforms: ['social_x'] },
+    NOW, { objectives: OBJS });
+  assert.strictEqual(m.entity.objective_id, 'obj-build-public-2026h2');
+  assert.strictEqual(m.entity.objectiveLinkVia, 'tokens');
+  assert.strictEqual(m.entity.needsReview, true);
+});
 
 // ── findLiveDuplicate (semantic + metric detectors — 2026-07-28 hardening) ──
 test('findLiveDuplicate: exact title → why exact-title', () => {

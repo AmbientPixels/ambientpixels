@@ -34,6 +34,7 @@ const {
   parseBlogDeliverable, capitalizeSentencesLongform, titleSimilarity
 } = require('./helpers');
 const { appendDecision } = require('./_utils/decisionLog');
+const { deriveTaskTypes: _deriveTaskTypes, deriveObjectiveId: _deriveObjectiveId } = require('../proposalDecide/materialize');
 const QGV = require('./quality-gate'); // composed quality verdict (A2+A3)
 const { evaluateDocQualityGate } = require('./doc-quality-gate'); // shared blog/long-form fact-check decision
 const _productFacts = require('../_data/product-facts.json');
@@ -5606,6 +5607,33 @@ Write the full deliverable first, then the structured JSON block.`;
         strategyFlag: (strategyDigest && !_pcNSValid) ? 'no-north-star-metric' : null,
         createdAt: new Date().toISOString()
       };
+
+      // PROPOSE-TIME DERIVATION (2026-08-01): approval-time inference stamped
+      // needsReview on essentially every agent campaign, because agents rarely
+      // fill platforms/objectiveId even though the contract carries both. Derive
+      // HERE so the CEO sees (and can correct) the routing + parent goal on the
+      // proposal card BEFORE approving — materialize then honors the explicit
+      // values and the campaign is born clean instead of flagged after the fact.
+      if (_pcEntry.platforms.length === 0) {
+        var _pcTT = _deriveTaskTypes({ name: _pcName, description: _pcEntry.description });
+        _pcEntry.platforms = _pcTT.taskTypes;
+        _pcEntry.platformsDerived = true;
+      }
+      if (!_pcEntry.suggestedObjectiveId) {
+        // Sibling guard: when a matching objective proposal is pending (in the
+        // queue OR staged this same cycle), leave the link EMPTY — materialize's
+        // deferral+adoption path owns that case. Pre-stamping an older objective
+        // here would re-create the exact 07-28 mislink disease.
+        var _pcPendingObjs = _pcAQ.filter(function (q) { return q && q.type === 'objective_proposal' && q.status === 'pending'; })
+          .concat((result.stagedProposals || [])
+            .filter(function (s) { return s && s.type === 'objective_proposal' && s.payload; })
+            .map(function (s) { return Object.assign({ status: 'pending' }, s.payload); }));
+        var _pcOD = _deriveObjectiveId(_pcEntry, activeObjectives || [], _pcPendingObjs);
+        if (_pcOD.objectiveId && !_pcOD.deferredToProposalId) {
+          _pcEntry.suggestedObjectiveId = _pcOD.objectiveId;
+          _pcEntry.objectiveDerived = true;
+        }
+      }
 
       var _pcTrigger = (action.campaign.trigger || '').trim();
       var _pcSeverity = _proposalSeverity(_pcTrigger);

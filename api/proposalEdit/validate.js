@@ -28,7 +28,18 @@ function _campaign(patch, clean) {
   }
   if ('platforms' in patch && Array.isArray(patch.platforms)) {
     var plats = patch.platforms.filter(function (p) { return VALID_SOCIAL_TASK_TYPES.indexOf(p) !== -1; });
-    if (plats.length) clean.platforms = plats;
+    if (plats.length) {
+      clean.platforms = plats;
+      // CEO touched routing → it is no longer an inference (drawer "(inferred)" marker clears).
+      clean.platformsDerived = false;
+    }
+  }
+  if ('suggestedObjectiveId' in patch) {
+    var so = _str(patch.suggestedObjectiveId).trim();
+    clean.suggestedObjectiveId = so ? so.slice(0, 60) : null;
+    // Materialize's explicit-ref tier validates the id against ACTIVE objectives at
+    // approval and falls back to fuzzy tiers if it went stale — no IO needed here.
+    clean.objectiveDerived = false;
   }
   if ('frequency' in patch) {
     var f = Math.floor(Number(patch.frequency));
