@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientOS component gallery — the ap-* primitives every company page builds on." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Components — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    /* Gallery chrome only — nothing here is part of the primitive layer. */
+    .gal-block { margin-bottom: 34px; }
+    .gal-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--c-sep);
+    }
+    .gal-head h2 {
+      font-size: var(--c-text-lg);
+      font-weight: 600;
+      margin: 0;
+      color: var(--c-text);
+    }
+    .gal-use {
+      font-size: var(--c-text-xs);
+      color: var(--c-text-3);
+    }
+    .gal-note {
+      font-size: var(--c-text-base);
+      color: var(--c-text-2);
+      margin: 0 0 14px;
+      max-width: 78ch;
+    }
+    .gal-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .gal-code {
+      display: block;
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: var(--c-surface-2);
+      border-radius: var(--c-r-sm);
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+      font-size: var(--c-text-xs);
+      color: var(--c-text-2);
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="content-section" id="components-main">
+
+  <div class="ap-page-header">
+    <div class="ap-page-header-left">
+      <h1>Components</h1>
+      <p>The <code>ap-*</code> primitives. Build pages from these, not from a new <code>&lt;style&gt;</code> block.</p>
+    </div>
+    <div class="ap-page-header-right">
+      <span class="ap-state ap-state--info">v1</span>
+    </div>
+  </div>
+
+  <p class="gal-note">
+    Everything below is defined in <code>modules/company/css/company.css</code> and built on the
+    <code>--c-*</code> tokens, so all three themes are automatic. Cycle the theme from the rail at
+    the bottom-left to check any of them.
+  </p>
+
+  <!-- ── Stat tile ─────────────────────────────── -->
+  <section class="gal-block">
+    <div class="gal-head">
+      <h2>Stat tile</h2>
+      <span class="gal-use">KPI rows · page summaries · the cockpit</span>
+    </div>
+    <p class="gal-note">
+      Semantic colour goes on the value, never the tile — so a row of tiles reads as one object
+      and only the numbers that need attention pull the eye.
+    </p>
+    <div class="ap-kpi-grid">
+      <div class="ap-kpi">
+        <div class="ap-kpi-label">Needs action</div>
+        <div class="ap-kpi-value ap-kpi-value--critical">7</div>
+        <div class="ap-kpi-sub">2 over 24h old</div>
+      </div>
+      <div class="ap-kpi">
+        <div class="ap-kpi-label">Active tasks</div>
+        <div class="ap-kpi-value">27</div>
+        <div class="ap-kpi-sub"><span class="ap-kpi-delta ap-kpi-delta--up"><i class="fas fa-arrow-up"></i>4</span> vs yesterday</div>
+      </div>
+      <div class="ap-kpi">
+        <div class="ap-kpi-label">Daily burn</div>
+        <div class="ap-kpi-value ap-kpi-value--warn">$1.38<span class="ap-kpi-unit">/d</span></div>
+        <div class="ap-kpi-sub"><span class="ap-kpi-delta ap-kpi-delta--down"><i class="fas fa-arrow-down"></i>12%</span> week over week</div>
+      </div>
+      <div class="ap-kpi">
+        <div class="ap-kpi-label">Fleet</div>
+        <div class="ap-kpi-value ap-kpi-value--good">9/9</div>
+        <div class="ap-kpi-sub">no stalls</div>
+      </div>
+      <div class="ap-kpi">
+        <div class="ap-kpi-label">Followers</div>
+        <div class="ap-kpi-value ap-kpi-value--none">Not connected</div>
+        <div class="ap-kpi-sub">no platform keys in Azure</div>
+      </div>
+    </div>
+    <code class="gal-code">&lt;div class="ap-kpi-grid"&gt;
+  &lt;div class="ap-kpi"&gt;
+    &lt;div class="ap-kpi-label"&gt;Needs action&lt;/div&gt;
+    &lt;div class="ap-kpi-value ap-kpi-value--critical"&gt;7&lt;/div&gt;
+    &lt;div class="ap-kpi-sub"&gt;2 over 24h old&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code>
+    <p class="gal-note" style="margin-top:14px">
+      <strong>Use <code>--none</code> when a number does not exist.</strong> The last tile is the fix for
+      every <code>—</code> and <code>0</code> on the current dashboard that actually means "never measured".
+      A zero is a measurement; an em-dash is a shrug.
+    </p>
+  </section>
+
+  <!-- ── Status chip ───────────────────────────── -->
+  <section class="gal-block">
+    <div class="gal-head">
+      <h2>Status chip</h2>
+      <span class="gal-use">row state · agent health · queue state</span>
+    </div>
+    <p class="gal-note">
+      Semantic, not colour-named. Every chip carries a dot <em>and</em> a word, so state never rides
+      on hue alone. Use <code>.ap-badge</code> for counts and categories; use this for state.
+    </p>
+    <div class="gal-row">
+      <span class="ap-state ap-state--good">Healthy</span>
+      <span class="ap-state ap-state--warn">Behind pace</span>
+      <span class="ap-state ap-state--critical">Stalled</span>
+      <span class="ap-state ap-state--info">Pending review</span>
+      <span class="ap-state ap-state--neutral">Archived</span>
+    </div>
+    <div class="gal-row" style="margin-top:12px">
+      <span class="ap-badge ap-badge--blue">24 tasks</span>
+      <span class="ap-badge ap-badge--purple">social_copy</span>
+      <span class="ap-badge">draft</span>
+    </div>
+    <code class="gal-code">&lt;span class="ap-state ap-state--critical"&gt;Stalled&lt;/span&gt;</code>
+  </section>
+
+  <!-- ── Panel ─────────────────────────────────── -->
+  <section class="gal-block">
+    <div class="gal-head">
+      <h2>Panel</h2>
+      <span class="gal-use">every grouped region on every page</span>
+    </div>
+    <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--c-gap)">
+      <div class="ap-panel">
+        <div class="ap-panel-header">
+          <div class="ap-panel-title"><i class="fas fa-bolt"></i>Pending approvals</div>
+          <span class="ap-panel-badge">3</span>
+        </div>
+        <div class="ap-panel-body">
+          <p style="margin:0;font-size:var(--c-text-base);color:var(--c-text-2)">
+            Panel body. Padding, separators and radius all come from tokens — never hardcode them.
+          </p>
+        </div>
+      </div>
+      <div class="ap-panel">
+        <div class="ap-panel-header">
+          <div class="ap-panel-title"><i class="fas fa-inbox"></i>Inbound</div>
+        </div>
+        <div class="ap-empty">
+          <i class="fas fa-inbox"></i>
+          No submissions in the last 7 days.
+        </div>
+      </div>
+    </div>
+    <code class="gal-code">&lt;div class="ap-panel"&gt;
+  &lt;div class="ap-panel-header"&gt;
+    &lt;div class="ap-panel-title"&gt;&lt;i class="fas fa-bolt"&gt;&lt;/i&gt;Pending approvals&lt;/div&gt;
+    &lt;span class="ap-panel-badge"&gt;3&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="ap-panel-body"&gt;…&lt;/div&gt;
+&lt;/div&gt;</code>
+  </section>
+
+  <!-- ── Empty state ───────────────────────────── -->
+  <section class="gal-block">
+    <div class="gal-head">
+      <h2>Empty state</h2>
+      <span class="gal-use">any panel with nothing to show</span>
+    </div>
+    <p class="gal-note">
+      An empty state should say what would appear here and why it hasn't — never just "None".
+      Twelve pages currently render blank scaffolding instead.
+    </p>
+    <div class="ap-panel">
+      <div class="ap-empty">
+        <i class="fas fa-wave-square"></i>
+        No emergence signals in the last 7 days. Signals appear when a pattern crosses a threshold.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Data table ────────────────────────────── -->
+  <section class="gal-block">
+    <div class="gal-head">
+      <h2>Data table</h2>
+      <span class="gal-use">rosters · audit logs · queues</span>
+    </div>
+    <p class="gal-note">
+      The <code>.ap-table-wrap</code> is not optional — it is what stops a wide table scrolling the whole
+      page sideways. Numeric columns take <code>.ap-num</code> for right alignment and tabular figures;
+      <code>data-state</code> on a row paints the severity rail.
+    </p>
+    <div class="ap-table-wrap">
+      <table class="ap-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Role</th>
+            <th class="ap-num">Tasks</th>
+            <th class="ap-num">Spend</th>
+            <th>State</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-state="good">
+            <td>Scribe</td><td>Content Director</td>
+            <td class="ap-num">19</td><td class="ap-num">$0.15</td>
+            <td><span class="ap-state ap-state--good">Healthy</span></td>
+          </tr>
+          <tr data-state="warn">
+            <td>Echo</td><td>Autonomous CMO</td>
+            <td class="ap-num">6</td><td class="ap-num">$0.14</td>
+            <td><span class="ap-state ap-state--warn">Behind pace</span></td>
+          </tr>
+          <tr data-state="critical">
+            <td>Quill</td><td>Editor &amp; Brand Voice</td>
+            <td class="ap-num">0</td><td class="ap-num">$0.10</td>
+            <td><span class="ap-state ap-state--critical">Blocked</span></td>
+          </tr>
+          <tr>
+            <td>Vale</td><td>Chief of Staff</td>
+            <td class="ap-num">0</td><td class="ap-num">$0.09</td>
+            <td><span class="ap-state ap-state--neutral">Idle</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <code class="gal-code">&lt;div class="ap-table-wrap"&gt;
+  &lt;table class="ap-table"&gt;
+    &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Agent&lt;/th&gt;&lt;th class="ap-num"&gt;Tasks&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+    &lt;tbody&gt;
+      &lt;tr data-state="critical"&gt;
+        &lt;td&gt;Quill&lt;/td&gt;&lt;td class="ap-num"&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+    &lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;</code>
+  </section>
+
+</div>
+
+<script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

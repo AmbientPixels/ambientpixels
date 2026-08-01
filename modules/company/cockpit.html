@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientOS Cockpit — what needs a decision right now, on one screen." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Cockpit — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    /* ── Cockpit shell ──
+       Full width by design. sidebar.css caps .content-section at 1200px;
+       an #id rule is the sanctioned override, so the global cap stays intact
+       for every other page. */
+    #cockpit-main {
+      max-width: none;
+      margin: 0;
+      padding: 12px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      height: calc(100vh - 56px);
+      box-sizing: border-box;
+    }
+
+    /* The contract: the PAGE never scrolls. Individual panels do. */
+    .ck-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+      gap: 12px;
+      flex: 1;
+      min-height: 0;
+    }
+    .ck-col { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+
+    .ck-panel { display: flex; flex-direction: column; min-height: 0; }
+    .ck-panel > .ap-panel-body,
+    .ck-scroll { overflow-y: auto; min-height: 0; flex: 1; }
+
+    .ck-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .ck-head h1 {
+      font-size: var(--c-text-xl);
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+      color: var(--c-text);
+    }
+    .ck-head-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: var(--c-text-xs);
+      color: var(--c-text-2);
+      flex-wrap: wrap;
+    }
+
+    /* ── Decision row ── */
+    .ck-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 14px;
+      align-items: start;
+      padding: 11px var(--c-pad);
+      border-bottom: 1px solid var(--c-sep);
+      text-decoration: none;
+      color: inherit;
+    }
+    .ck-item:last-child { border-bottom: none; }
+    .ck-item:hover { background: var(--c-surface-2); }
+    .ck-item:focus-visible { outline: 2px solid var(--c-accent); outline-offset: -2px; }
+    .ck-item-title {
+      font-size: var(--c-text-base);
+      font-weight: 600;
+      color: var(--c-text);
+      line-height: var(--c-lh-tight);
+    }
+    .ck-item-preview {
+      grid-column: 1 / -1;
+      font-size: var(--c-text-xs);
+      color: var(--c-text-2);
+      line-height: var(--c-lh-base);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .ck-item-meta {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: var(--c-text-xs);
+      color: var(--c-text-3);
+    }
+
+    /* ── Compact list rows (attention / fleet) ── */
+    .ck-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px var(--c-pad);
+      border-bottom: 1px solid var(--c-sep);
+      font-size: var(--c-text-base);
+      text-decoration: none;
+      color: inherit;
+    }
+    .ck-row:last-child { border-bottom: none; }
+    .ck-row:hover { background: var(--c-surface-2); }
+    /* The title must be the thing that shrinks — otherwise a long task name
+       runs underneath the state chip. */
+    .ck-row-main { min-width: 0; flex: 1 1 auto; }
+    .ck-row > .ap-state { flex: 0 0 auto; }
+    /* Must be block — text-overflow does nothing on an inline box, which is
+       how a long task title ended up running under the state chip. */
+    .ck-row-title {
+      display: block;
+      color: var(--c-text);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ck-row-sub { display: block; font-size: var(--c-text-xs); color: var(--c-text-3); }
+
+    /* ── Burn meter ── */
+    .ck-meter {
+      height: 8px;
+      border-radius: var(--c-r-pill);
+      background: var(--c-surface-3);
+      overflow: hidden;
+      position: relative;
+      margin: 10px 0 6px;
+    }
+    .ck-meter-fill { height: 100%; border-radius: var(--c-r-pill); }
+    .ck-meter-mark {
+      position: absolute;
+      top: -3px;
+      bottom: -3px;
+      width: 2px;
+      background: var(--c-text);
+      opacity: 0.55;
+    }
+    .ck-meter-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--c-text-xs);
+      color: var(--c-text-3);
+    }
+
+    .ck-ok {
+      padding: 22px 16px;
+      text-align: center;
+      color: var(--c-text-2);
+      font-size: var(--c-text-base);
+    }
+    .ck-ok i { display: block; font-size: 20px; margin-bottom: 8px; color: var(--c-green); opacity: 0.65; }
+
+    .ck-agents { display: flex; flex-wrap: wrap; gap: 5px; padding: var(--c-pad); }
+    .ck-agent {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--c-text-xs);
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: var(--c-r-pill);
+      background: var(--c-surface-2);
+      color: var(--c-text-2);
+    }
+    .ck-agent::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--c-green); }
+    .ck-agent--idle::before { background: var(--c-text-3); }
+    .ck-agent--stalled::before { background: var(--c-red); }
+    .ck-agent b { color: var(--c-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    /* Below a laptop the single-screen contract cannot hold — let it scroll. */
+    @media (max-width: 1100px) {
+      #cockpit-main { height: auto; }
+      .ck-body { grid-template-columns: 1fr; }
+      .ck-scroll, .ck-panel > .ap-panel-body { max-height: 420px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="content-section" id="cockpit-main">
+
+  <div class="ck-head">
+    <h1>Cockpit</h1>
+    <div class="ck-head-meta">
+      <span id="ck-heartbeat" class="ap-state ap-state--neutral">checking…</span>
+      <span id="ck-mode" class="ap-state ap-state--neutral">mode —</span>
+      <span id="ck-generated" style="color:var(--c-text-3)"></span>
+      <a class="ap-btn" href="/modules/company/dashboard.html"><i class="fas fa-table-list"></i>Full report</a>
+      <button type="button" class="ap-btn ap-btn--primary" id="ck-refresh"><i class="fas fa-rotate"></i>Refresh</button>
+    </div>
+  </div>
+
+  <div class="ap-kpi-grid" id="ck-kpis">
+    <div class="ap-kpi"><div class="ap-kpi-label">Waiting on you</div><div class="ap-kpi-value ap-kpi-value--muted">·</div></div>
+    <div class="ap-kpi"><div class="ap-kpi-label">Overdue</div><div class="ap-kpi-value ap-kpi-value--muted">·</div></div>
+    <div class="ap-kpi"><div class="ap-kpi-label">Active work</div><div class="ap-kpi-value ap-kpi-value--muted">·</div></div>
+    <div class="ap-kpi"><div class="ap-kpi-label">Fleet</div><div class="ap-kpi-value ap-kpi-value--muted">·</div></div>
+    <div class="ap-kpi"><div class="ap-kpi-label">Projected spend</div><div class="ap-kpi-value ap-kpi-value--muted">·</div></div>
+  </div>
+
+  <div class="ck-body">
+
+    <!-- ── Primary: the decision queue ── -->
+    <div class="ck-col">
+      <div class="ap-panel ck-panel" style="flex:1">
+        <div class="ap-panel-header">
+          <div class="ap-panel-title"><i class="fas fa-gavel"></i>Waiting on you</div>
+          <a class="ap-btn" href="/modules/company/actions.html">Open Actions</a>
+        </div>
+        <div class="ck-scroll" id="ck-queue">
+          <div class="ap-empty"><i class="fas fa-spinner fa-spin"></i>Loading queue…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Secondary: state ── -->
+    <div class="ck-col">
+
+      <div class="ap-panel ck-panel" style="flex:1.1">
+        <div class="ap-panel-header">
+          <div class="ap-panel-title"><i class="fas fa-triangle-exclamation"></i>Needs attention</div>
+          <span class="ap-panel-badge" id="ck-attention-count">–</span>
+        </div>
+        <div class="ck-scroll" id="ck-attention">
+          <div class="ap-empty"><i class="fas fa-spinner fa-spin"></i>Loading…</div>
+        </div>
+      </div>
+
+      <div class="ap-panel ck-panel">
+        <div class="ap-panel-header">
+          <div class="ap-panel-title"><i class="fas fa-users-gear"></i>Fleet</div>
+          <span class="ap-panel-badge" id="ck-run-summary">–</span>
+        </div>
+        <div class="ck-agents" id="ck-fleet">
+          <span class="ck-agent ck-agent--idle">loading…</span>
+        </div>
+      </div>
+
+      <div class="ap-panel">
+        <div class="ap-panel-header">
+          <div class="ap-panel-title"><i class="fas fa-coins"></i>Burn</div>
+          <span id="ck-burn-state" class="ap-state ap-state--neutral">–</span>
+        </div>
+        <div class="ap-panel-body" id="ck-burn">
+          <div class="ck-meter"><div class="ck-meter-fill" style="width:0"></div></div>
+          <div class="ck-meter-legend"><span>–</span><span>–</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Same hostname test the rest of the app uses. Never hardcode the absolute
+  // host — that is what CORS-broke action-audit and governance-report.
+  var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+  var HEAD = { 'x-company-secret': 'pixelpusher' };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  function ago(iso) {
+    if (!iso) return null;
+    var ms = Date.now() - new Date(iso).getTime();
+    if (isNaN(ms)) return null;
+    var m = Math.floor(ms / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return m + 'm ago';
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  }
+
+  function getJSON(path) {
+    return fetch(API + path, { headers: HEAD })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+  }
+  function stateKey(key) {
+    return getJSON('/company-state?key=' + key).then(function (d) {
+      return (d && d.value !== undefined) ? d.value : d;
+    });
+  }
+
+  function kpi(label, value, cls, sub) {
+    return '<div class="ap-kpi">'
+      + '<div class="ap-kpi-label">' + esc(label) + '</div>'
+      + '<div class="ap-kpi-value ' + (cls || '') + '">' + esc(value) + '</div>'
+      + (sub ? '<div class="ap-kpi-sub">' + sub + '</div>' : '')
+      + '</div>';
+  }
+
+  // ── Renderers ─────────────────────────────────
+
+  // The queue is not uniform. Proposals carry `type`/`name`/`proposedBy`/`createdAt`;
+  // action-backed items carry `kind`/`taskTitle`/`originAgent`/`submittedAt`. Normalise
+  // once here so the renderer only deals with one shape.
+  function normalise(q) {
+    var kind = q.kind || q.type || 'action';
+    var title = q.taskTitle || q.title || q.name
+      || (q.campaign && (q.campaign.title || q.campaign.name))
+      || (q.objective && q.objective.title);
+    var body = q.preview || q.replyText || q.description || '';
+    // For a generic `action` wrapper the "title" IS the truncated body — don't print it twice.
+    if (!title && body) { title = body.slice(0, 90); }
+    if (title && body && body.indexOf(title.replace(/\.\.\.$/, '').trim()) === 0) { body = ''; }
+    return {
+      id: q.id,
+      actionId: q.action_id || null,
+      kind: kind,
+      title: title || 'Untitled ' + kind.replace(/_/g, ' '),
+      body: body,
+      agent: q.originAgent || q.proposedBy || null,
+      at: q.submittedAt || q.createdAt || null,
+      risk: q.riskLevel || q.risk_level || null
+    };
+  }
+
+  // Each social action is queued twice: once under its specific kind
+  // (bluesky_reply) and once as a generic `action` with the same action_id.
+  // That is one decision, so show it once — keeping the typed entry, which
+  // has the real title and the full draft.
+  function dedupe(items) {
+    var byAction = {};
+    items.forEach(function (it) {
+      if (!it.actionId) return;
+      var prev = byAction[it.actionId];
+      if (!prev || (prev.kind === 'action' && it.kind !== 'action')) byAction[it.actionId] = it;
+    });
+    var kept = {};
+    return items.filter(function (it) {
+      if (!it.actionId) return true;
+      if (byAction[it.actionId] !== it) return false;
+      if (kept[it.actionId]) return false;
+      kept[it.actionId] = true;
+      return true;
+    });
+  }
+
+  function renderQueue(queue) {
+    var pending = dedupe((queue || [])
+      .filter(function (q) { return q.status === 'pending'; })
+      .map(normalise));
+    if (!pending.length) {
+      $('ck-queue').innerHTML = '<div class="ck-ok"><i class="fas fa-check-circle"></i>'
+        + 'Nothing waiting on you. The fleet is clear to keep working.</div>';
+      return 0;
+    }
+    // Oldest first — the thing that has been blocked longest is the thing to decide.
+    pending.sort(function (a, b) { return new Date(a.at || 0) - new Date(b.at || 0); });
+
+    var KIND = {
+      bluesky_reply:          { label: 'Bluesky reply',   cls: 'ap-state--info' },
+      convergence_escalation: { label: 'Stuck task',      cls: 'ap-state--critical' },
+      campaign_proposal:      { label: 'Campaign',        cls: 'ap-state--info' },
+      objective_proposal:     { label: 'Objective',       cls: 'ap-state--info' },
+      product_proposal:       { label: 'Product',         cls: 'ap-state--warn' },
+      agent_hire_proposal:    { label: 'Hire agent',      cls: 'ap-state--warn' },
+      agent_retire_proposal:  { label: 'Retire agent',    cls: 'ap-state--critical' },
+      budget_request:         { label: 'Budget',          cls: 'ap-state--warn' },
+      action:                 { label: 'Action',          cls: 'ap-state--neutral' }
+    };
+
+    $('ck-queue').innerHTML = pending.map(function (q) {
+      var kind = KIND[q.kind] || { label: String(q.kind).replace(/_/g, ' '), cls: 'ap-state--neutral' };
+      var age = ago(q.at);
+      var stale = q.at && (Date.now() - new Date(q.at).getTime()) > 864e5;
+      return '<a class="ck-item" href="/modules/company/actions.html">'
+        + '<div class="ck-item-title">' + esc(q.title) + '</div>'
+        + '<span class="ap-state ' + kind.cls + '">' + esc(kind.label) + '</span>'
+        + (q.body ? '<div class="ck-item-preview">' + esc(q.body) + '</div>' : '')
+        + '<div class="ck-item-meta">'
+        +   (q.agent ? '<span>' + esc(q.agent) + '</span>' : '')
+        +   (age ? '<span>· ' + esc(age) + '</span>' : '')
+        +   (q.risk ? '<span>· ' + esc(q.risk) + ' risk</span>' : '')
+        +   (stale ? '<span class="ap-state ap-state--warn">over 24h</span>' : '')
+        + '</div>'
+        + '</a>';
+    }).join('');
+    return pending.length;
+  }
+
+  function renderAttention(tasks, world) {
+    var now = Date.now();
+    var active = (tasks || []).filter(function (t) {
+      return ['done', 'archived', 'backlog', 'canceled'].indexOf(t.status) === -1;
+    });
+    var items = [];
+
+    (world && world.fleet && world.fleet.stalled || []).forEach(function (a) {
+      items.push({ title: a + ' has produced nothing for 5+ cycles', sub: 'stalled agent',
+                   state: 'critical', href: '/modules/company/fleet.html' });
+    });
+
+    active.filter(function (t) { return t.blocked; }).forEach(function (t) {
+      items.push({ title: t.title, sub: 'blocked · ' + (t.assignee || 'unassigned'),
+                   state: 'critical', href: '/modules/company/tasks.html' });
+    });
+
+    active.filter(function (t) {
+      return t.dueDate && new Date(t.dueDate).getTime() < now;
+    }).sort(function (a, b) {
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    }).forEach(function (t) {
+      items.push({ title: t.title, sub: 'overdue ' + (ago(t.dueDate) || '') + ' · ' + (t.assignee || 'unassigned'),
+                   state: 'warn', href: '/modules/company/tasks.html' });
+    });
+
+    $('ck-attention-count').textContent = items.length;
+    if (!items.length) {
+      $('ck-attention').innerHTML = '<div class="ck-ok"><i class="fas fa-check-circle"></i>'
+        + 'Nothing overdue, blocked or stalled.</div>';
+      return 0;
+    }
+    $('ck-attention').innerHTML = items.map(function (i) {
+      return '<a class="ck-row" href="' + i.href + '">'
+        + '<span class="ck-row-main"><span class="ck-row-title">' + esc(i.title) + '</span>'
+        + '<span class="ck-row-sub">' + esc(i.sub) + '</span></span>'
+        + '<span class="ap-state ap-state--' + i.state + '">' + (i.state === 'critical' ? 'Blocked' : 'Overdue') + '</span>'
+        + '</a>';
+    }).join('');
+    return items.length;
+  }
+
+  function renderFleet(run, world) {
+    var per = (run && run.perAgent) || {};
+    var ids = Object.keys(per).filter(function (k) { return k.indexOf('_closing') === -1; });
+    var stalled = (world && world.fleet && world.fleet.stalled) || [];
+
+    if (!ids.length) {
+      $('ck-fleet').innerHTML = '<span class="ck-agent ck-agent--idle">no run data</span>';
+      return;
+    }
+    $('ck-fleet').innerHTML = ids.map(function (id) {
+      var a = per[id] || {};
+      var executed = a.actionsExecuted || 0;
+      var cls = stalled.indexOf(id) !== -1 ? 'ck-agent--stalled' : (executed ? '' : 'ck-agent--idle');
+      var why = a.error ? 'error: ' + a.error
+              : a.preflightSkipped ? 'skipped — prompt too large'
+              : executed ? executed + ' actions this run' : 'no actions this run';
+      return '<span class="ck-agent ' + cls + '" title="' + esc(why) + '">'
+        + esc(id) + ' <b>' + executed + '</b></span>';
+    }).join('');
+
+    var act = (run && run.agentActions) || {};
+    $('ck-run-summary').textContent = (act.executed || 0) + ' actions · '
+      + (run.durationMs ? Math.round(run.durationMs / 1000) + 's' : '–');
+  }
+
+  function renderBurn(fin) {
+    if (!fin) return { value: '—', cls: 'ap-kpi-value--none' };
+    var budget = fin.monthlyBudget || 0;
+    var projected = fin.projectedMonthEnd || 0;
+    var actual = fin.monthlyActual || 0;
+    var pct = budget ? Math.min(100, (projected / budget) * 100) : 0;
+    var actualPct = budget ? Math.min(100, (actual / budget) * 100) : 0;
+
+    // Status from the PROJECTION, not spend-to-date. Spend-to-date says GREEN
+    // on the 1st of the month no matter how fast the burn is.
+    var over = budget && projected > budget;
+    var near = budget && projected > budget * 0.85;
+    var state = over ? 'critical' : near ? 'warn' : 'good';
+    var fill = over ? 'var(--c-red)' : near ? 'var(--c-amber)' : 'var(--c-green)';
+
+    $('ck-burn-state').className = 'ap-state ap-state--' + state;
+    $('ck-burn-state').textContent = over ? 'Over budget' : near ? 'Close' : 'On budget';
+
+    $('ck-burn').innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
+      +   '<span style="font-size:var(--c-text-xs);color:var(--c-text-2)">projected month-end</span>'
+      +   '<span style="font-size:var(--c-text-lg);font-weight:700;font-variant-numeric:tabular-nums;color:'
+      +     (over ? 'var(--c-red)' : 'var(--c-text)') + '">$' + projected.toFixed(2) + '</span>'
+      + '</div>'
+      + '<div class="ck-meter"><div class="ck-meter-fill" style="width:' + pct + '%;background:' + fill + '"></div>'
+      +   '<div class="ck-meter-mark" style="left:' + actualPct + '%" title="spent so far"></div></div>'
+      + '<div class="ck-meter-legend"><span>$' + actual.toFixed(2) + ' spent</span>'
+      +   '<span>$' + budget.toFixed(0) + ' budget</span></div>'
+      + '<div style="margin-top:8px;font-size:var(--c-text-xs);color:var(--c-text-2)">'
+      +   'burn ' + esc(fin.burnTrend || '—') + ' · $' + (fin.dailyAvg || 0).toFixed(2) + '/day'
+      + '</div>';
+
+    return {
+      value: '$' + Math.round(projected),
+      cls: over ? 'ap-kpi-value--critical' : near ? 'ap-kpi-value--warn' : 'ap-kpi-value--good',
+      sub: 'of $' + Math.round(budget) + ' budget'
+    };
+  }
+
+  function renderHeartbeat(run) {
+    var el = $('ck-heartbeat');
+    var at = run && (run.finishedAt || run.startedAt || run.ts);
+    if (!at) { el.className = 'ap-state ap-state--critical'; el.textContent = 'No heartbeat data'; return; }
+    var hrs = (Date.now() - new Date(at).getTime()) / 36e5;
+    // Cadence is every 2h on even hours; 3h is late, 6h is a real outage.
+    var state = hrs > 6 ? 'critical' : hrs > 3 ? 'warn' : 'good';
+    el.className = 'ap-state ap-state--' + state;
+    el.textContent = 'Heartbeat ' + ago(at);
+  }
+
+  // ── Load ──────────────────────────────────────
+
+  function load() {
+    $('ck-refresh').disabled = true;
+
+    Promise.allSettled([
+      getJSON('/worldState'),
+      stateKey('approvalQueue'),
+      stateKey('tasks'),
+      stateKey('heartbeatRuns'),
+      stateKey('execution_mode')
+    ]).then(function (res) {
+      var val = function (i) { return res[i].status === 'fulfilled' ? res[i].value : null; };
+      var world = val(0) || {};
+      var queue = val(1) || [];
+      var tasks = val(2) || [];
+      var runs  = val(3) || [];
+      var mode  = val(4);
+      var run   = runs.length ? runs[runs.length - 1] : null;
+
+      var waiting   = renderQueue(queue);
+      var attention = renderAttention(tasks, world);
+      renderFleet(run, world);
+      renderHeartbeat(run);
+      var burn = renderBurn(world.finance);
+
+      var active = tasks.filter(function (t) {
+        return ['done', 'archived', 'backlog', 'canceled'].indexOf(t.status) === -1;
+      }).length;
+      // Count the agents that actually ran, not worldState.fleet.total — that
+      // field lags the registry (it still says 8 while 9 agents report in).
+      var ran = Object.keys((run && run.perAgent) || {}).filter(function (k) {
+        return k.indexOf('_closing') === -1;
+      }).length;
+      var stalledN = (world.fleet && world.fleet.stalledCount) || 0;
+      var fleetTotal = ran || (world.fleet && world.fleet.total) || 0;
+
+      $('ck-kpis').innerHTML = [
+        kpi('Waiting on you', waiting,
+            waiting ? 'ap-kpi-value--critical' : 'ap-kpi-value--good',
+            waiting ? 'oldest first, below' : 'queue clear'),
+        kpi('Needs attention', attention,
+            attention ? 'ap-kpi-value--warn' : 'ap-kpi-value--good',
+            attention ? 'overdue, blocked or stalled' : 'nothing flagged'),
+        kpi('Active work', active, '', 'tasks in flight'),
+        kpi('Fleet', fleetTotal ? (fleetTotal - stalledN) + '/' + fleetTotal : '—',
+            stalledN ? 'ap-kpi-value--critical' : 'ap-kpi-value--good',
+            stalledN ? stalledN + ' stalled' : 'all reporting'),
+        kpi('Projected spend', burn.value, burn.cls, burn.sub)
+      ].join('');
+
+      var m = (typeof mode === 'string' ? mode : (mode && mode.value)) || 'unknown';
+      $('ck-mode').textContent = 'mode ' + m;
+      $('ck-mode').className = 'ap-state ap-state--' + (m === 'active' ? 'good' : m === 'frozen' ? 'critical' : 'warn');
+
+      $('ck-generated').textContent = world.generatedAt ? 'state ' + ago(world.generatedAt) : '';
+
+      var failed = res.filter(function (r) { return r.status === 'rejected'; }).length;
+      if (failed) {
+        $('ck-generated').textContent += (failed + ' source' + (failed > 1 ? 's' : '') + ' unavailable');
+        $('ck-generated').style.color = 'var(--c-amber)';
+      }
+    }).catch(function (e) {
+      $('ck-queue').innerHTML = '<div class="ap-empty"><i class="fas fa-plug-circle-xmark"></i>'
+        + 'Could not reach the API. ' + esc(e && e.message ? e.message : '') + '</div>';
+    }).then(function () {
+      $('ck-refresh').disabled = false;
+    });
+  }
+
+  $('ck-refresh').addEventListener('click', load);
+  load();
+  // Cadence is 2h; a 2-minute poll is plenty and stops when the tab is hidden.
+  var timer = setInterval(function () { if (!document.hidden) load(); }, 120000);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) load();
+  });
+  window.addEventListener('beforeunload', function () { clearInterval(timer); });
+})();
+</script>
+
+<script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

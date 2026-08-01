@@ -1609,3 +1609,233 @@ body[data-mode="operator"]  .ap-admin-only    { display: none !important; }
 .sys-section.collapsed .sys-section-body { display: none; }
 .sys-section.collapsed .sys-chevron { transform: rotate(-90deg); }
 .sys-section.dimmed .sys-section-hdr { opacity: 0.4; }
+
+/* ════════════════════════════════════════════
+   AP Primitives — completes the ap-* layer
+   Panel + empty state already existed above.
+   These three were the patterns every page was
+   re-inventing in its own <style> block.
+   Built on tokens only, so all three themes
+   come for free. Gallery: /modules/company/
+   components.html
+   ════════════════════════════════════════════ */
+
+/* ── Stat Tile ──
+   The KPI card. Replaces ~40 hand-rolled variants.
+   Semantic colour goes on the VALUE, never the tile. */
+.ap-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--c-gap);
+}
+
+.ap-kpi {
+  background: var(--c-surface);
+  border-radius: var(--c-r);
+  padding: var(--c-pad);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ap-kpi--bare {
+  background: none;
+  padding: 0;
+}
+
+.ap-kpi-label {
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--c-text-3);
+  line-height: var(--c-lh-tight);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ap-kpi-value {
+  font-size: var(--c-text-2xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-kpi-value--good     { color: var(--c-green); }
+.ap-kpi-value--warn     { color: var(--c-amber); }
+.ap-kpi-value--critical { color: var(--c-red); }
+.ap-kpi-value--muted    { color: var(--c-text-3); }
+
+/* A stat with nothing behind it says so, and says it quietly.
+   Never render a 0 or a dash where the real answer is "not measured". */
+.ap-kpi-value--none {
+  color: var(--c-text-3);
+  font-size: var(--c-text-lg);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.ap-kpi-unit {
+  font-size: var(--c-text-md);
+  font-weight: 600;
+  color: var(--c-text-2);
+  margin-left: 1px;
+}
+
+.ap-kpi-sub {
+  font-size: var(--c-text-xs);
+  color: var(--c-text-2);
+  line-height: var(--c-lh-tight);
+}
+
+.ap-kpi-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-kpi-delta--up   { color: var(--c-green); }
+.ap-kpi-delta--down { color: var(--c-red); }
+.ap-kpi-delta--flat { color: var(--c-text-3); }
+
+/* ── Status Chip ──
+   Semantic state, not a colour name. Always carries a dot
+   AND a text label, so state never rides on hue alone.
+   Use .ap-badge for counts and categories; use this for state. */
+.ap-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  line-height: var(--c-lh-tight);
+  padding: 2px 9px 2px 7px;
+  border-radius: var(--c-r-pill);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.ap-state::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.ap-state--good {
+  color: var(--c-green);
+  background: rgba(52,211,153,0.13);
+  border-color: rgba(52,211,153,0.28);
+}
+.ap-state--warn {
+  color: var(--c-amber);
+  background: rgba(251,191,36,0.13);
+  border-color: rgba(251,191,36,0.28);
+}
+.ap-state--critical {
+  color: var(--c-red);
+  background: rgba(239,68,68,0.13);
+  border-color: rgba(239,68,68,0.30);
+}
+.ap-state--info {
+  color: var(--c-blue);
+  background: rgba(96,165,250,0.13);
+  border-color: rgba(96,165,250,0.28);
+}
+.ap-state--neutral {
+  color: var(--c-text-2);
+  background: var(--c-surface-2);
+  border-color: var(--c-sep-strong);
+}
+
+/* ── Data Table ──
+   The wrapper is not optional — it is what stops wide tables
+   scrolling the whole page sideways. */
+.ap-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--c-r);
+  background: var(--c-surface);
+}
+
+.ap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--c-text-base);
+  line-height: var(--c-lh-base);
+}
+
+.ap-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--c-surface-2);
+  color: var(--c-text-3);
+  font-size: var(--c-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 10px var(--c-pad);
+  border-bottom: 1px solid var(--c-sep);
+  white-space: nowrap;
+}
+
+.ap-table tbody td {
+  padding: 10px var(--c-pad);
+  border-bottom: 1px solid var(--c-sep);
+  color: var(--c-text-2);
+  vertical-align: middle;
+}
+
+.ap-table tbody tr:last-child td { border-bottom: none; }
+
+.ap-table tbody tr:hover td { background: var(--c-surface-2); }
+
+/* First cell is the row's identity — it gets the full-strength ink. */
+.ap-table tbody td:first-child { color: var(--c-text); font-weight: 500; }
+
+.ap-table th.ap-num,
+.ap-table td.ap-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ap-table td.ap-num { color: var(--c-text); }
+
+/* Severity rail — encodes row state in form as well as colour. */
+.ap-table tbody tr[data-state] td:first-child {
+  box-shadow: inset 3px 0 0 0 var(--c-text-3);
+}
+.ap-table tbody tr[data-state="good"]     td:first-child { box-shadow: inset 3px 0 0 0 var(--c-green); }
+.ap-table tbody tr[data-state="warn"]     td:first-child { box-shadow: inset 3px 0 0 0 var(--c-amber); }
+.ap-table tbody tr[data-state="critical"] td:first-child { box-shadow: inset 3px 0 0 0 var(--c-red); }
+
+.ap-table--compact thead th,
+.ap-table--compact tbody td { padding: 6px 12px; }
+
+/* ── Theme corrections ──
+   The semantic data colours are fixed by design ("NEVER change these"),
+   but #34d399 / #fbbf24 on a white ground is unreadable. Darken the INK
+   on light grounds only; the hue identity is preserved. */
+body[data-theme="light"] .ap-state--good     { color: #17734a; background: rgba(23,115,74,0.10);  border-color: rgba(23,115,74,0.25); }
+body[data-theme="light"] .ap-state--warn     { color: #8a5a06; background: rgba(138,90,6,0.10);   border-color: rgba(138,90,6,0.25); }
+body[data-theme="light"] .ap-state--critical { color: #b02a1f; background: rgba(176,42,31,0.10);  border-color: rgba(176,42,31,0.25); }
+body[data-theme="light"] .ap-state--info     { color: #1d4ed8; background: rgba(29,78,216,0.09);  border-color: rgba(29,78,216,0.25); }
+
+body[data-theme="light"] .ap-kpi-value--good     { color: #17734a; }
+body[data-theme="light"] .ap-kpi-value--warn     { color: #8a5a06; }
+body[data-theme="light"] .ap-kpi-value--critical { color: #b02a1f; }
+body[data-theme="light"] .ap-kpi-delta--up       { color: #17734a; }
+body[data-theme="light"] .ap-kpi-delta--down     { color: #b02a1f; }
+
+body[data-theme="dim"] .ap-state--good     { color: #4ade80; }
+body[data-theme="dim"] .ap-state--critical { color: #f87171; }
