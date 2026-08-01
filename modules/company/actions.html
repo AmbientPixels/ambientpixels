@@ -945,7 +945,17 @@
     }
 
     function renderPending() {
+      // Bluesky replies with a dedicated Reply Drafts entry render ONLY in that
+      // panel (it shows the original thread for context) — listing them here too
+      // made the same draft appear in two queues. Replies WITHOUT a queue entry
+      // (older drafts, or entries lost to the queue's 100-cap) still show here
+      // so they never become unapprovable.
+      var _replyPanelIds = {};
+      AE.getApprovalQueue().forEach(function (q) {
+        if (q && q.kind === 'bluesky_reply' && q.status === 'pending' && q.action_id) _replyPanelIds[q.action_id] = true;
+      });
       var all = AE.getActions().filter(function (a) {
+        if (a.type === 'social_post.reply' && _replyPanelIds[a.id]) return false;
         return a.approval && a.approval.status === 'pending';
       });
       var items = applyFilters(all);
@@ -1035,9 +1045,18 @@
         .then(function(data) {
           var queue = data.value || data || [];
           if (!Array.isArray(queue)) queue = [];
-          // Build action→qualityGate lookup for badge rendering
+          // Build action→qualityGate lookup for badge rendering.
+          // Duplicate mirrors can share an action_id (a generic 'aq-<id>' backfill
+          // next to the kind-specific 'aq-reply-<id>' entry) — never let a
+          // context-less duplicate overwrite an entry that carries threadContext,
+          // or the drawer's "Replying To" card goes blank.
           window._aqItemsByActionId = {};
-          queue.forEach(function(item) { if (item.action_id) window._aqItemsByActionId[item.action_id] = item; });
+          queue.forEach(function(item) {
+            if (!item.action_id) return;
+            var prev = window._aqItemsByActionId[item.action_id];
+            if (prev && prev.threadContext && !item.threadContext) return;
+            window._aqItemsByActionId[item.action_id] = item;
+          });
 
           var naTypes = ['convergence_escalation', 'campaign_pace_escalation', 'task_escalation'];
           var items = queue.filter(function(item) {

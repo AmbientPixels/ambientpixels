@@ -3265,8 +3265,14 @@ var AgentEngine = (function () {
     for (var j = queue.length - 1; j >= 0; j--) {
       var entry = queue[j];
       if (!entry.action_id) continue;
-      if (entry.kind !== 'action' && entry.kind !== 'research.intel') continue;
+      // Register EVERY action-backed entry regardless of kind BEFORE the kind
+      // filter. bluesky_reply entries were skipped here, so the backfill below
+      // saw their actions as queue-less and minted a second generic 'aq-<id>'
+      // mirror — and that context-less duplicate then overwrote the
+      // threadContext-rich entry in the dashboard's action_id lookup map,
+      // hiding the "Replying To" card (observed 2026-08-01).
       queueActionIds[entry.action_id] = true;
+      if (entry.kind !== 'action' && entry.kind !== 'research.intel' && entry.kind !== 'bluesky_reply') continue;
       var action = actionMap[entry.action_id];
       if (!action) {
         // Orphan: approvalQueue entry with no matching action — remove it
