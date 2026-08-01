@@ -1471,6 +1471,49 @@ You must remain within your assigned authority tier. Doctrine influences your st
     worldStateBlock = '\n═══ WORLD STATE — build error, see logs ═══\n';
   }
 
+  // ── MARKET REALITY (2026-08-01) ──
+  // The funnel numbers existed but were gated behind `agent.name === 'Echo'`, so
+  // eight of nine agents — including Nova, who assigns the work, and Scribe, who
+  // writes the outbound copy — could not see that nobody was arriving. The fleet
+  // could report a green week while zero strangers reached the product.
+  //
+  // Deliberately NOT gated on non-zero: a zero here IS the signal, and hiding it
+  // is exactly the failure this block exists to prevent. Kept to a few lines —
+  // see project_seed_memory_truncation for what happens when prompt blocks sprawl.
+  let marketRealityBlock = '';
+  try {
+    const _f = costIntel && costIntel.funnel;
+    if (_f) {
+      const _dry = (_f.scans7d || 0) === 0;
+      marketRealityBlock = '\n═══ MARKET REALITY (last 7 days) ═══\n' +
+        'Public scans: ' + (_f.scans7d || 0) + ' · Leads: ' + (_f.leads7d || 0) + ' · Sales: ' + (_f.sales7d || 0) +
+        '  (lifetime: ' + (_f.scansTotal || 0) + ' / ' + (_f.leadsTotal || 0) + ' / ' + (_f.salesTotal || 0) + ')\n' +
+        (_dry
+          ? 'NOBODY REACHED THE PRODUCT THIS WEEK. Output that no stranger sees is not progress. ' +
+            'Before proposing more content, ask what would put one real visitor in front of the scan.\n'
+          : 'This is the only scoreboard that reflects the outside world. Internal throughput is not a substitute.\n');
+      // Outbound click-through, only once there is signal — a permanent "0 clicks"
+      // line would be noise in every prompt forever. Wired 2026-08-01; see the
+      // `outbound` rollup in outcome-intel.js.
+      const _ob = outcomeDigest && outcomeDigest.outbound;
+      if (_ob) {
+        let _sent = 0, _views = 0, _checkouts = 0;
+        Object.keys(_ob).forEach(function (k) {
+          _sent += _ob[k].repliesSent || 0;
+          _views += _ob[k].reportViews || 0;
+          _checkouts += _ob[k].checkoutStarted || 0;
+        });
+        if (_views > 0) {
+          marketRealityBlock += 'Outbound: ' + _sent + ' replies sent → ' + _views + ' report views → ' +
+            _checkouts + ' checkouts started.' +
+            (_checkouts === 0 ? ' They click but do not buy — the offer or the report is the problem, not the volume.\n' : '\n');
+        }
+      }
+    }
+  } catch (_mrErr) {
+    marketRealityBlock = '';
+  }
+
   // Strategic Engine SE-1: COMPANY STRATEGY block — CEO's north-star KPI tree.
   // Sits directly under WORLD STATE (facts), giving agents direction. Empty
   // string when companyStrategy is unseeded; never blocks prompt assembly.
@@ -1795,7 +1838,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   const _assembledPrompt = `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${worldStateBlock}${companyStrategyBlock}${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
+${worldStateBlock}${marketRealityBlock}${companyStrategyBlock}${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${reflectionCalloutBlock}${outcomesBlock}${reflectionPromptBlock}${productFactsBlock}${skillsSystemBlock}${skillsBlock}${recentActivityBlock}${founderVoiceBlock}${messagesBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 ${directiveBlock}
 YOUR TASKS:
@@ -2608,6 +2651,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       estimatedTokens: Math.ceil(_assembledPrompt.length / 4),
       sections: {
         worldState: (worldStateBlock || '').length,
+        marketReality: (marketRealityBlock || '').length,
         personality: (personalityBlock || '').length,
         doctrine: (doctrineBlock || '').length,
         seedMemories: (seedBlock || '').length,
