@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientOS Agents — roster, progression, awareness and memory for the whole fleet." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Agents — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    #agents-main { max-width: 1500px; margin: 0 auto; padding: 14px 18px 40px; }
+
+    .ag-bar { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+    .ag-bar h1 { font-size: var(--c-text-xl); font-weight: 700; margin: 0; letter-spacing: -0.02em; color: var(--c-text); }
+    .ag-bar-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: var(--c-text-xs); color: var(--c-text-2); }
+
+    .ag-tabpanel { display: none; }
+    .ag-tabpanel.is-active { display: block; }
+
+    .ag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--c-gap); }
+
+    /* Roster row identity */
+    .ag-name { display: flex; align-items: center; gap: 8px; }
+    .ag-lv {
+      font-size: 10px; font-weight: 700; letter-spacing: .04em;
+      padding: 1px 6px; border-radius: var(--c-r-pill);
+      background: var(--c-surface-3); color: var(--c-text-2);
+      font-variant-numeric: tabular-nums;
+    }
+    .ag-role { font-size: var(--c-text-xs); color: var(--c-text-3); }
+
+    .ag-bar-track { height: 6px; border-radius: var(--c-r-pill); background: var(--c-surface-3); overflow: hidden; min-width: 90px; }
+    .ag-bar-fill { height: 100%; border-radius: var(--c-r-pill); background: var(--c-accent); }
+
+    .ag-clickable { cursor: pointer; }
+
+    /* ── Drawer ── */
+    .ag-scrim {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+      opacity: 0; pointer-events: none; transition: opacity .15s; z-index: 1100;
+    }
+    .ag-scrim.is-open { opacity: 1; pointer-events: auto; }
+    .ag-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(560px, 94vw);
+      background: var(--c-bg);
+      border-left: 1px solid var(--c-sep-strong);
+      transform: translateX(100%);
+      transition: transform .18s ease;
+      z-index: 1101;
+      display: flex; flex-direction: column;
+    }
+    .ag-drawer.is-open { transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .ag-scrim, .ag-drawer { transition: none; }
+    }
+    .ag-drawer-head {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+      padding: 16px var(--c-pad-lg) 14px;
+      border-bottom: 1px solid var(--c-sep);
+    }
+    .ag-drawer-head h2 { margin: 0 0 3px; font-size: var(--c-text-lg); font-weight: 700; color: var(--c-text); }
+    .ag-drawer-body { overflow-y: auto; padding: var(--c-pad-lg); display: flex; flex-direction: column; gap: 18px; }
+    .ag-close {
+      background: none; border: none; color: var(--c-text-2); cursor: pointer;
+      font-size: 18px; line-height: 1; padding: 4px 6px; border-radius: var(--c-r-sm);
+    }
+    .ag-close:hover { color: var(--c-text); background: var(--c-surface-2); }
+
+    .ag-dl { display: grid; grid-template-columns: 128px 1fr; gap: 6px 14px; font-size: var(--c-text-base); margin: 0; }
+    .ag-dl dt { color: var(--c-text-3); font-size: var(--c-text-xs); text-transform: uppercase; letter-spacing: .06em; padding-top: 2px; }
+    .ag-dl dd { margin: 0; color: var(--c-text-2); }
+
+    .ag-mem { border-left: 2px solid var(--c-sep-strong); padding: 2px 0 2px 10px; margin-bottom: 10px; }
+    .ag-mem-meta { font-size: var(--c-text-xs); color: var(--c-text-3); margin-bottom: 2px; }
+    .ag-mem-text { font-size: var(--c-text-xs); color: var(--c-text-2); line-height: var(--c-lh-base); }
+
+    .ag-ach { display: flex; flex-wrap: wrap; gap: 5px; }
+    .ag-ach span {
+      font-size: 10px; padding: 2px 7px; border-radius: var(--c-r-pill);
+      background: var(--c-surface-2); color: var(--c-text-2);
+    }
+    .ag-ach span[data-tier="gold"]   { color: var(--c-amber); }
+    .ag-ach span[data-tier="silver"] { color: var(--c-text); }
+
+    .ag-sub { font-size: var(--c-text-xs); color: var(--c-text-3); margin: 0 0 10px; }
+  </style>
+</head>
+<body>
+
+<div class="content-section" id="agents-main">
+
+  <div class="ag-bar">
+    <h1>Agents</h1>
+    <div class="ag-bar-meta">
+      <span id="ag-season" class="ap-state ap-state--neutral">season —</span>
+      <span id="ag-run" style="color:var(--c-text-3)"></span>
+      <button type="button" class="ap-btn" id="ag-refresh"><i class="fas fa-rotate"></i>Refresh</button>
+    </div>
+  </div>
+
+  <div class="ap-kpi-grid" id="ag-kpis" style="margin-bottom:16px"></div>
+
+  <div class="ap-tabs" id="ag-tabs" role="tablist">
+    <a class="ap-tab ap-tab--active" href="#tab=roster"      role="tab" data-tab="roster"><i class="fas fa-users"></i>Roster</a>
+    <a class="ap-tab"                href="#tab=progression" role="tab" data-tab="progression"><i class="fas fa-trophy"></i>Progression</a>
+    <a class="ap-tab"                href="#tab=awareness"   role="tab" data-tab="awareness"><i class="fas fa-brain"></i>Awareness</a>
+    <a class="ap-tab"                href="#tab=memory"      role="tab" data-tab="memory"><i class="fas fa-database"></i>Memory</a>
+  </div>
+
+  <div style="margin-top:16px">
+
+    <section class="ag-tabpanel is-active" data-panel="roster">
+      <div class="ap-table-wrap">
+        <table class="ap-table">
+          <thead>
+            <tr>
+              <th>Agent</th><th>Tier</th><th class="ap-num">Level</th>
+              <th class="ap-num">This run</th><th>Budget</th><th>Role fit</th><th>State</th>
+            </tr>
+          </thead>
+          <tbody id="ag-roster"><tr><td colspan="7">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="ag-sub" style="margin-top:10px">Select any agent for full detail. Archived agents appear at the bottom.</p>
+    </section>
+
+    <section class="ag-tabpanel" data-panel="progression">
+      <div class="ag-grid">
+        <div class="ap-panel">
+          <div class="ap-panel-header"><div class="ap-panel-title"><i class="fas fa-ranking-star"></i>Season standings</div>
+            <span class="ap-panel-badge" id="ag-par">par —</span></div>
+          <div class="ap-table-wrap">
+            <table class="ap-table ap-table--compact">
+              <thead><tr><th>#</th><th>Agent</th><th class="ap-num">Season XP</th><th>Par</th><th>Ladder</th></tr></thead>
+              <tbody id="ag-standings"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="ap-panel">
+          <div class="ap-panel-header"><div class="ap-panel-title"><i class="fas fa-medal"></i>Lifetime</div></div>
+          <div class="ap-table-wrap">
+            <table class="ap-table ap-table--compact">
+              <thead><tr><th>Agent</th><th>Class</th><th class="ap-num">XP</th><th class="ap-num">Renown</th><th class="ap-num">Streak</th></tr></thead>
+              <tbody id="ag-lifetime"><tr><td colspan="5">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ag-tabpanel" data-panel="awareness">
+      <div class="ap-panel">
+        <div class="ap-panel-header"><div class="ap-panel-title"><i class="fas fa-brain"></i>Reflection &amp; role fit</div>
+          <span class="ap-panel-badge" id="ag-aware-badge">—</span></div>
+        <div class="ap-table-wrap">
+          <table class="ap-table ap-table--compact">
+            <thead><tr><th>Agent</th><th>Last reflection</th><th>Role fit</th><th class="ap-num">Fatigue</th><th class="ap-num">Repeat fails</th></tr></thead>
+            <tbody id="ag-awareness"><tr><td colspan="5">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="ag-tabpanel" data-panel="memory">
+      <div class="ap-panel">
+        <div class="ap-panel-header">
+          <div class="ap-panel-title"><i class="fas fa-database"></i>Memory</div>
+          <select id="ag-mem-filter" class="ap-btn" style="padding:5px 10px"><option value="">All agents</option></select>
+        </div>
+        <div class="ap-panel-body" id="ag-memory" style="max-height:60vh;overflow-y:auto">Loading…</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="ag-scrim" id="ag-scrim"></div>
+<aside class="ag-drawer" id="ag-drawer" role="dialog" aria-modal="true" aria-labelledby="ag-drawer-title" aria-hidden="true">
+  <div class="ag-drawer-head">
+    <div>
+      <h2 id="ag-drawer-title">Agent</h2>
+      <div class="ag-role" id="ag-drawer-role"></div>
+    </div>
+    <button type="button" class="ag-close" id="ag-drawer-close" aria-label="Close">&times;</button>
+  </div>
+  <div class="ag-drawer-body" id="ag-drawer-body"></div>
+</aside>
+
+<script>
+(function () {
+  'use strict';
+
+  var API = (location.hostname.indexOf('ambientpixels.ai') !== -1)
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+  var HEAD = { 'x-company-secret': 'pixelpusher' };
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function ago(iso) {
+    if (!iso) return null;
+    var ms = Date.now() - new Date(iso).getTime();
+    if (isNaN(ms)) return null;
+    var m = Math.floor(ms / 60000);
+    if (m < 60) return m + 'm ago';
+    var h = Math.floor(m / 60);
+    if (h < 24) return h + 'h ago';
+    return Math.floor(h / 24) + 'd ago';
+  }
+  function getJSON(p) {
+    return fetch(API + p, { headers: HEAD }).then(function (r) {
+      if (!r.ok) throw new Error(r.status); return r.json();
+    });
+  }
+  function stateKey(k) {
+    return getJSON('/company-state?key=' + k).then(function (d) {
+      return (d && d.value !== undefined) ? d.value : d;
+    });
+  }
+
+  var DATA = { agents: [], rewards: {}, awareness: {}, memories: {}, run: null, meta: {}, alloc: {} };
+
+  // ── Merge every source into one agent record ──────────────
+  function build(registry, rewards, aware, memories, run, alloc) {
+    var reg = (registry && registry.agents) || [];
+    var per = (rewards && rewards.perAgent) || {};
+    var awPer = (aware && aware.digest && aware.digest.perAgent) || {};
+    var runPer = (run && run.perAgent) || {};
+    var allocPer = (alloc && alloc.perAgent) || {};
+    var tiers = (rewards && rewards.privileges && rewards.privileges.tiers) || {};
+
+    return reg.map(function (a) {
+      var r = per[a.id] || {};
+      var w = awPer[a.id] || {};
+      var h = runPer[a.id] || {};
+      var c = allocPer[a.id] || {};
+      return {
+        id: a.id, name: a.name || a.id, role: a.role || '', tier: a.tier,
+        status: a.status, focus: a.focus, doctrine: a.doctrine || {},
+        monthlyCap: a.monthlyCap,
+        xp: r.xp || 0, seasonXp: r.seasonXp || 0, level: r.level || 0,
+        rank: r.rank, cls: r.class, renown: r.renown || 0,
+        streak: r.streakDays || 0, counters: r.counters || {},
+        achievements: r.achievements || [],
+        // Absent ladderStatus means the season has never been judged.
+        // Never render that as "Safe" — it is unknown, not good news.
+        ladder: Object.prototype.hasOwnProperty.call(r, 'ladderStatus') ? r.ladderStatus : null,
+        privilege: tiers[a.id] || null,
+        drift: (w.roleAdherence && w.roleAdherence.drift) || null,
+        actual: (w.roleAdherence && w.roleAdherence.actual) || {},
+        reflectionAt: w.lastReflectionAt || null,
+        reflectionOverdue: !!w.reflectionOverdue,
+        fatigue: (w.strategyFatigue || []).length,
+        repeatFails: (w.repeatedFailures || []).length,
+        coreQuestion: w.coreQuestion || (a.doctrine && a.doctrine.coreQuestion) || null,
+        ranExecuted: h.actionsExecuted || 0,
+        ranAttempted: h.actionsAttempted || 0,
+        ranError: h.error || null,
+        preflightSkipped: !!h.preflightSkipped,
+        reasoning: h.reasoning || null,
+        latency: h.avgLatencyMs || 0,
+        spent: c.spent, cap: c.cap != null ? c.cap : a.monthlyCap, spendPct: c.pct,
+        memories: (memories && memories[a.id]) || []
+      };
+    });
+  }
+
+  function agentState(a) {
+    if (a.status !== 'active') return { cls: 'neutral', label: 'Archived' };
+    if (a.ranError) return { cls: 'critical', label: 'Error' };
+    if (a.preflightSkipped) return { cls: 'critical', label: 'Skipped' };
+    if (a.repeatFails > 0) return { cls: 'warn', label: 'Repeat fails' };
+    if (a.reflectionOverdue) return { cls: 'warn', label: 'Reflection due' };
+    if (!a.ranExecuted) return { cls: 'neutral', label: 'Idle' };
+    return { cls: 'good', label: 'Active' };
+  }
+
+  function driftChip(d) {
+    if (!d) return '<span class="ap-state ap-state--neutral">No data</span>';
+    if (d === 'on-role') return '<span class="ap-state ap-state--good">On role</span>';
+    if (d.indexOf('under-producing') === 0) return '<span class="ap-state ap-state--warn">' + esc(d.replace(/-/g, ' ')) + '</span>';
+    return '<span class="ap-state ap-state--warn">' + esc(d.replace(/-/g, ' ')) + '</span>';
+  }
+
+  // ── Renderers ─────────────────────────────────────────────
+  function renderRoster(list) {
+    var active = list.filter(function (a) { return a.status === 'active'; });
+    var archived = list.filter(function (a) { return a.status !== 'active'; });
+    var rows = active.concat(archived).map(function (a) {
+      var st = agentState(a);
+      var pct = (a.spendPct != null) ? a.spendPct
+        : (a.cap && a.spent != null ? Math.round(a.spent / a.cap * 100) : null);
+      var budget = (a.spent != null && a.cap)
+        ? '<div class="ag-bar-track" title="$' + a.spent.toFixed(2) + ' of $' + a.cap + '">'
+          + '<div class="ag-bar-fill" style="width:' + Math.min(100, pct || 0) + '%"></div></div>'
+          + '<span class="ag-role">$' + a.spent.toFixed(2) + ' / $' + a.cap + '</span>'
+        : '<span class="ag-role">—</span>';
+      return '<tr data-state="' + (st.cls === 'good' ? 'good' : st.cls === 'critical' ? 'critical' : st.cls === 'warn' ? 'warn' : '') + '"'
+        + ' class="ag-clickable" data-agent="' + esc(a.id) + '" tabindex="0">'
+        + '<td><div class="ag-name">' + esc(a.name) + ' <span class="ag-lv">Lv ' + a.level + '</span></div>'
+        +   '<div class="ag-role">' + esc(a.role) + '</div></td>'
+        + '<td>T' + esc(a.tier) + '</td>'
+        + '<td class="ap-num">' + a.xp.toLocaleString() + ' <span class="ag-role">xp</span></td>'
+        + '<td class="ap-num">' + a.ranExecuted + (a.ranAttempted > a.ranExecuted ? ' <span class="ag-role">/' + a.ranAttempted + '</span>' : '') + '</td>'
+        + '<td>' + budget + '</td>'
+        + '<td>' + driftChip(a.drift) + '</td>'
+        + '<td><span class="ap-state ap-state--' + st.cls + '">' + esc(st.label) + '</span></td>'
+        + '</tr>';
+    }).join('');
+    $('ag-roster').innerHTML = rows || '<tr><td colspan="7">No agents in the registry.</td></tr>';
+  }
+
+  function renderProgression(list, meta) {
+    var active = list.filter(function (a) { return a.status === 'active'; });
+    var par = (meta && meta.par) || 0;
+    $('ag-par').textContent = par ? 'par ' + par : 'no par set';
+
+    var ranked = active.slice().sort(function (x, y) {
+      return (y.seasonXp - x.seasonXp) || (y.xp - x.xp) || (x.id < y.id ? -1 : 1);
+    });
+    $('ag-standings').innerHTML = ranked.map(function (a, i) {
+      var pct = par ? Math.min(100, Math.round(a.seasonXp / par * 100)) : 0;
+      var met = par && a.seasonXp >= par;
+      // Unscored is its own state. Do not colour it as passing.
+      var ladder = a.ladder
+        ? '<span class="ap-state ap-state--' + (a.ladder === 'safe' ? 'good' : a.ladder === 'watch' ? 'warn' : 'critical') + '">' + esc(a.ladder) + '</span>'
+        : '<span class="ap-state ap-state--neutral">Unscored</span>';
+      return '<tr class="ag-clickable" data-agent="' + esc(a.id) + '" tabindex="0">'
+        + '<td>' + (i + 1) + '</td>'
+        + '<td>' + esc(a.name) + '</td>'
+        + '<td class="ap-num">' + a.seasonXp.toLocaleString() + '</td>'
+        + '<td>' + (par
+            ? '<div class="ag-bar-track"><div class="ag-bar-fill" style="width:' + pct + '%;background:'
+              + (met ? 'var(--c-green)' : 'var(--c-amber)') + '"></div></div>'
+            : '<span class="ag-role">—</span>') + '</td>'
+        + '<td>' + ladder + '</td>'
+        + '</tr>';
+    }).join('') || '<tr><td colspan="5">No season data.</td></tr>';
+
+    $('ag-lifetime').innerHTML = active.slice().sort(function (x, y) { return y.xp - x.xp; })
+      .map(function (a) {
+        return '<tr class="ag-clickable" data-agent="' + esc(a.id) + '" tabindex="0">'
+          + '<td>' + esc(a.name) + '</td>'
+          + '<td><span class="ag-role">' + esc(a.cls || '—') + '</span></td>'
+          + '<td class="ap-num">' + a.xp.toLocaleString() + '</td>'
+          + '<td class="ap-num">' + a.renown.toLocaleString() + '</td>'
+          + '<td class="ap-num">' + (a.streak ? a.streak + 'd' : '—') + '</td>'
+          + '</tr>';
+      }).join('');
+  }
+
+  function renderAwareness(list, globals) {
+    var active = list.filter(function (a) { return a.status === 'active'; });
+    $('ag-aware-badge').textContent = globals
+      ? (globals.reflectionsOverdue || 0) + ' overdue · ' + (globals.roleDriftCount || 0) + ' drifting'
+      : '—';
+    $('ag-awareness').innerHTML = active.map(function (a) {
+      return '<tr class="ag-clickable" data-agent="' + esc(a.id) + '" tabindex="0"'
+        + (a.reflectionOverdue ? ' data-state="warn"' : '') + '>'
+        + '<td>' + esc(a.name) + '</td>'
+        + '<td>' + (a.reflectionAt
+            ? esc(ago(a.reflectionAt)) + (a.reflectionOverdue ? ' <span class="ap-state ap-state--warn">due</span>' : '')
+            : '<span class="ap-state ap-state--warn">never</span>') + '</td>'
+        + '<td>' + driftChip(a.drift) + '</td>'
+        + '<td class="ap-num">' + a.fatigue + '</td>'
+        + '<td class="ap-num">' + a.repeatFails + '</td>'
+        + '</tr>';
+    }).join('') || '<tr><td colspan="5">No awareness data.</td></tr>';
+  }
+
+  function renderMemory(list, only) {
+    var pick = list.filter(function (a) { return !only || a.id === only; });
+    var out = pick.map(function (a) {
+      if (!a.memories.length) return '';
+      return '<div style="margin-bottom:18px"><div class="ap-section-title">' + esc(a.name)
+        + ' · ' + a.memories.length + '</div>'
+        + a.memories.slice(-8).reverse().map(function (m) {
+            return '<div class="ag-mem"><div class="ag-mem-meta">'
+              + esc(m.type || 'note') + (m.source ? ' · ' + esc(m.source) : '')
+              + (m.at || m.createdAt ? ' · ' + esc(ago(m.at || m.createdAt)) : '') + '</div>'
+              + '<div class="ag-mem-text">' + esc(String(m.content || m.text || '').slice(0, 320)) + '</div></div>';
+          }).join('')
+        + '</div>';
+    }).join('');
+    $('ag-memory').innerHTML = out || '<div class="ap-empty"><i class="fas fa-database"></i>No memories stored for this selection.</div>';
+  }
+
+  function renderKpis(list, rewards, aware) {
+    var active = list.filter(function (a) { return a.status === 'active'; });
+    var g = (aware && aware.digest && aware.digest.globals) || {};
+    var idle = active.filter(function (a) { return !a.ranExecuted; }).length;
+    var broken = active.filter(function (a) { return a.ranError || a.preflightSkipped; }).length;
+    var totalSeason = active.reduce(function (s, a) { return s + a.seasonXp; }, 0);
+    function tile(l, v, c, s) {
+      return '<div class="ap-kpi"><div class="ap-kpi-label">' + l + '</div>'
+        + '<div class="ap-kpi-value ' + (c || '') + '">' + v + '</div>'
+        + (s ? '<div class="ap-kpi-sub">' + s + '</div>' : '') + '</div>';
+    }
+    $('ag-kpis').innerHTML = [
+      tile('Active fleet', active.length, 'ap-kpi-value--good',
+           list.length - active.length ? (list.length - active.length) + ' archived' : 'none archived'),
+      tile('Idle this run', idle, idle ? 'ap-kpi-value--warn' : 'ap-kpi-value--good',
+           idle ? 'produced no actions' : 'all produced work'),
+      tile('Errors', broken, broken ? 'ap-kpi-value--critical' : 'ap-kpi-value--good',
+           broken ? 'errored or skipped' : 'no failures'),
+      tile('Reflections due', g.reflectionsOverdue || 0,
+           (g.reflectionsOverdue || 0) >= 3 ? 'ap-kpi-value--warn' : 'ap-kpi-value--good', 'cadence is 3 days'),
+      tile('Season XP', totalSeason.toLocaleString(), '',
+           'par ' + ((rewards && rewards.seasonMeta && rewards.seasonMeta.par) || '—') + ' per agent')
+    ].join('');
+  }
+
+  // ── Drawer ────────────────────────────────────────────────
+  function openAgent(id, push) {
+    var a = DATA.agents.filter(function (x) { return x.id === id; })[0];
+    if (!a) return;
+    $('ag-drawer-title').textContent = a.name + ' · Lv ' + a.level + (a.rank ? ' ' + a.rank : '');
+    $('ag-drawer-role').textContent = a.role + (a.cls ? ' · ' + a.cls : '');
+
+    var st = agentState(a);
+    var counters = Object.keys(a.counters).filter(function (k) { return a.counters[k]; });
+    var mix = Object.keys(a.actual);
+
+    $('ag-drawer-body').innerHTML =
+        '<div><span class="ap-state ap-state--' + st.cls + '">' + esc(st.label) + '</span> '
+      +   (a.privilege ? '<span class="ap-badge">' + esc(a.privilege) + '</span> ' : '')
+      +   '<span class="ap-badge">T' + esc(a.tier) + '</span></div>'
+
+      + (a.coreQuestion ? '<div><div class="ap-section-title">Core question</div>'
+        + '<div style="font-size:var(--c-text-base);color:var(--c-text-2)">' + esc(a.coreQuestion) + '</div></div>' : '')
+
+      + '<div><div class="ap-section-title">This heartbeat</div><dl class="ag-dl">'
+      +   '<dt>Actions</dt><dd>' + a.ranExecuted + ' executed of ' + a.ranAttempted + ' attempted</dd>'
+      +   '<dt>Latency</dt><dd>' + (a.latency ? Math.round(a.latency / 1000) + 's' : '—') + '</dd>'
+      +   (a.ranError ? '<dt>Error</dt><dd style="color:var(--c-red)">' + esc(a.ranError) + '</dd>' : '')
+      +   (a.preflightSkipped ? '<dt>Skipped</dt><dd style="color:var(--c-red)">prompt exceeded the size limit</dd>' : '')
+      + '</dl>'
+      + (a.reasoning ? '<div class="ag-mem" style="margin-top:10px"><div class="ag-mem-meta">stated reasoning</div>'
+        + '<div class="ag-mem-text">' + esc(a.reasoning.slice(0, 420)) + '</div></div>' : '')
+      + '</div>'
+
+      + '<div><div class="ap-section-title">Progression</div><dl class="ag-dl">'
+      +   '<dt>Season XP</dt><dd>' + a.seasonXp.toLocaleString()
+      +     (DATA.meta.par ? ' of ' + DATA.meta.par + ' par' : '') + '</dd>'
+      +   '<dt>Lifetime XP</dt><dd>' + a.xp.toLocaleString() + '</dd>'
+      +   '<dt>Renown</dt><dd>' + a.renown.toLocaleString() + '</dd>'
+      +   '<dt>Streak</dt><dd>' + (a.streak ? a.streak + ' days' : '—') + '</dd>'
+      +   '<dt>Ladder</dt><dd>' + (a.ladder ? esc(a.ladder) : 'never judged this season') + '</dd>'
+      + '</dl>'
+      + (a.achievements.length
+        ? '<div class="ag-ach" style="margin-top:10px">' + a.achievements.slice(-10).map(function (x) {
+            return '<span data-tier="' + esc(x.tier) + '">' + esc(x.label) + '</span>';
+          }).join('') + '</div>' : '')
+      + '</div>'
+
+      + '<div><div class="ap-section-title">Role fit</div>'
+      +   '<div style="margin-bottom:8px">' + driftChip(a.drift) + '</div>'
+      +   (mix.length
+          ? '<dl class="ag-dl">' + mix.map(function (k) {
+              return '<dt>' + esc(k) + '</dt><dd>' + a.actual[k] + ' in 7d'
+                + (a.doctrine && a.doctrine.expectedActionMix ? '' : '') + '</dd>';
+            }).join('') + '</dl>'
+          : '<div class="ag-sub">No actions recorded in the last 7 days.</div>')
+      + '</div>'
+
+      + (counters.length ? '<div><div class="ap-section-title">Career totals</div><dl class="ag-dl">'
+        + counters.map(function (k) {
+            return '<dt>' + esc(k.replace(/([A-Z])/g, ' $1').toLowerCase()) + '</dt><dd>'
+              + a.counters[k].toLocaleString() + '</dd>';
+          }).join('') + '</dl></div>' : '')
+
+      + '<div><div class="ap-section-title">Recent memory · ' + a.memories.length + '</div>'
+      +   (a.memories.length
+          ? a.memories.slice(-5).reverse().map(function (m) {
+              return '<div class="ag-mem"><div class="ag-mem-meta">' + esc(m.type || 'note')
+                + (m.at || m.createdAt ? ' · ' + esc(ago(m.at || m.createdAt)) : '') + '</div>'
+                + '<div class="ag-mem-text">' + esc(String(m.content || m.text || '').slice(0, 260)) + '</div></div>';
+            }).join('')
+          : '<div class="ag-sub">No memories stored.</div>')
+      + '</div>'
+
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:4px">'
+      +   '<a class="ap-btn" href="/modules/company/fleet.html">Evolve / retire</a>'
+      +   '<a class="ap-btn" href="/modules/company/agent-chat.html?agent=' + encodeURIComponent(a.id) + '">Chat</a>'
+      +   '<a class="ap-btn" href="/modules/company/tasks.html">Tasks</a>'
+      + '</div>';
+
+    $('ag-drawer').classList.add('is-open');
+    $('ag-drawer').setAttribute('aria-hidden', 'false');
+    $('ag-scrim').classList.add('is-open');
+    $('ag-drawer-close').focus();
+    if (push) setHash({ agent: id });
+  }
+
+  function closeDrawer() {
+    $('ag-drawer').classList.remove('is-open');
+    $('ag-drawer').setAttribute('aria-hidden', 'true');
+    $('ag-scrim').classList.remove('is-open');
+    setHash({});
+  }
+
+  // ── Hash routing: tab + open agent are both linkable ──────
+  function parseHash() {
+    var out = {};
+    location.hash.replace(/^#/, '').split('&').forEach(function (p) {
+      var kv = p.split('=');
+      if (kv[0]) out[kv[0]] = decodeURIComponent(kv[1] || '');
+    });
+    return out;
+  }
+  function setHash(extra) {
+    var cur = parseHash();
+    var next = { tab: extra.tab || cur.tab || 'roster' };
+    if (extra.agent) next.agent = extra.agent;
+    var s = Object.keys(next).map(function (k) { return k + '=' + encodeURIComponent(next[k]); }).join('&');
+    history.replaceState(null, '', '#' + s);
+  }
+  function selectTab(name, push) {
+    var found = false;
+    [].forEach.call(document.querySelectorAll('.ap-tab'), function (t) {
+      var on = t.getAttribute('data-tab') === name;
+      if (on) found = true;
+      t.classList.toggle('ap-tab--active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    if (!found) return selectTab('roster', push);
+    [].forEach.call(document.querySelectorAll('.ag-tabpanel'), function (p) {
+      p.classList.toggle('is-active', p.getAttribute('data-panel') === name);
+    });
+    if (push) setHash({ tab: name });
+  }
+  function applyHash() {
+    var h = parseHash();
+    selectTab(h.tab || 'roster', false);
+    if (h.agent) openAgent(h.agent, false); else closeDrawer2();
+  }
+  function closeDrawer2() {
+    $('ag-drawer').classList.remove('is-open');
+    $('ag-drawer').setAttribute('aria-hidden', 'true');
+    $('ag-scrim').classList.remove('is-open');
+  }
+
+  // ── Load ──────────────────────────────────────────────────
+  function load() {
+    $('ag-refresh').disabled = true;
+    Promise.allSettled([
+      stateKey('agentRegistry'),
+      getJSON('/agentRewards'),
+      getJSON('/awarenessDigest'),
+      stateKey('agentMemories'),
+      stateKey('heartbeatRuns'),
+      stateKey('capitalAllocation')
+    ]).then(function (res) {
+      var v = function (i) { return res[i].status === 'fulfilled' ? res[i].value : null; };
+      var registry = v(0) || {};
+      var rewards  = v(1) || {};
+      var aware    = v(2) || {};
+      var memories = v(3) || {};
+      var runs     = v(4) || [];
+      var alloc    = v(5) || {};
+      var run = runs.length ? runs[runs.length - 1] : null;
+
+      DATA.agents = build(registry, rewards, aware, memories, run, alloc);
+      DATA.meta = (rewards && rewards.seasonMeta) || {};
+
+      renderKpis(DATA.agents, rewards, aware);
+      renderRoster(DATA.agents);
+      renderProgression(DATA.agents, DATA.meta);
+      renderAwareness(DATA.agents, (aware.digest && aware.digest.globals) || null);
+
+      var sel = $('ag-mem-filter');
+      sel.innerHTML = '<option value="">All agents</option>' + DATA.agents.map(function (a) {
+        return '<option value="' + esc(a.id) + '">' + esc(a.name) + '</option>';
+      }).join('');
+      renderMemory(DATA.agents, '');
+
+      $('ag-season').textContent = 'season ' + (rewards.season || '—')
+        + (DATA.meta.par ? ' · par ' + DATA.meta.par : '');
+      $('ag-season').className = 'ap-state ap-state--' + (rewards.laddersActive ? 'info' : 'neutral');
+      $('ag-run').textContent = run ? 'last run ' + (ago(run.finishedAt || run.startedAt) || '') : '';
+
+      var failed = res.filter(function (r) { return r.status === 'rejected'; }).length;
+      if (failed) $('ag-run').textContent += '  ·  ' + failed + ' source(s) unavailable';
+
+      applyHash();
+    }).then(function () { $('ag-refresh').disabled = false; });
+  }
+
+  // ── Events ────────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    var tab = e.target.closest('.ap-tab');
+    if (tab) { e.preventDefault(); selectTab(tab.getAttribute('data-tab'), true); return; }
+    var row = e.target.closest('[data-agent]');
+    if (row) { openAgent(row.getAttribute('data-agent'), true); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeDrawer();
+    if (e.key === 'Enter') {
+      var row = e.target.closest && e.target.closest('[data-agent]');
+      if (row) openAgent(row.getAttribute('data-agent'), true);
+    }
+  });
+  $('ag-drawer-close').addEventListener('click', closeDrawer);
+  $('ag-scrim').addEventListener('click', closeDrawer);
+  $('ag-refresh').addEventListener('click', load);
+  $('ag-mem-filter').addEventListener('change', function () { renderMemory(DATA.agents, this.value); });
+  window.addEventListener('hashchange', applyHash);
+
+  load();
+})();
+</script>
+
+<script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

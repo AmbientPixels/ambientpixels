@@ -122,6 +122,7 @@
           label: 'Agents',
           icon: 'fa-users-gear',
           links: [
+            { href: BASE + 'agents.html', label: 'Agents', icon: 'fa-users', match: ['agents.html'] },
             { href: BASE + 'fleet.html', label: 'Fleet', icon: 'fa-users-gear', match: ['fleet.html'], minMode: 'admin' },
             { href: BASE + 'agent-performance.html', label: 'Agent Perf', icon: 'fa-gauge-high', match: ['agent-performance.html'] },
             { href: BASE + 'agent-intelligence.html', label: 'Agent Intel', icon: 'fa-lightbulb', match: ['agent-intelligence.html'] },

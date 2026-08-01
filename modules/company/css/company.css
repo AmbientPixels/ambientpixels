@@ -244,6 +244,9 @@
 
 .ap-tab {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 10px 16px;
   font-family: var(--c-font);
   font-size: var(--c-text-base);
@@ -253,8 +256,11 @@
   border: none;
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
   transition: color 0.12s;
 }
+
+.ap-tab i { font-size: 12px; opacity: 0.75; }
 
 .ap-tab:hover { color: var(--c-text); }
 
