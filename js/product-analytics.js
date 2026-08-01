@@ -86,6 +86,31 @@
   }
 
   function _buildEvent(event, category, props) {
+    // Stamp first-touch attribution onto EVERY event.
+    //
+    // Previously utm only reached events whose call site remembered to call
+    // getAttribution() and pass it through — so checkout_started and email_captured
+    // were attributable, but paywall_shown (the actual "they clicked the link"
+    // signal) was not. Outbound clicks were therefore invisible: we could see a
+    // purchase but never the visit that led to it. Injecting centrally kills that
+    // whole class of bug and makes every future event attributable by default.
+    //
+    // Goes in props, not at the top level: productAnalyticsIngest sanitises to an
+    // explicit field list and would drop unknown top-level fields, but passes props
+    // through untouched.
+    var p = {};
+    var k;
+    for (k in (props || {})) { if (Object.prototype.hasOwnProperty.call(props, k)) p[k] = props[k]; }
+    try {
+      if (!p.utm_content) {
+        var c = localStorage.getItem('ap_utm_content');
+        if (c) {
+          p.utm_content = c;
+          var s = localStorage.getItem('ap_utm_source');
+          if (s && !p.utm_source) p.utm_source = s;
+        }
+      }
+    } catch (e) { /* private mode / blocked storage — attribution is best-effort, never break tracking */ }
     return {
       id: _genId('evt'),
       product: _product,
@@ -96,7 +121,7 @@
       userId: _userId,
       isAuth: _isAuth,
       page: location.pathname,
-      props: props || {}
+      props: p
     };
   }
 

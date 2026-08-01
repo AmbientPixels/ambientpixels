@@ -196,6 +196,32 @@ function buildOutcomeDigest(outcomeSnapshots, actions, campaigns, experiments, n
     };
   });
 
+  // ── Outbound reply funnel (2026-08-01) ──
+  // Prospect replies are the company's only channel that talks to buyers, and until
+  // the UTM fix they were completely unmeasured. They need their own rollup because
+  // they carry campaignId: null (so perCampaign misses them entirely) and because a
+  // click lands within minutes while `complete` only flips at t7 — so this pass runs
+  // over ALL reply snapshots, not just complete ones.
+  //
+  // reportViews with no checkoutStarted = clicked and bounced (offer/report problem).
+  // Zero reportViews = the message or targeting never earned the click.
+  //
+  // Identified by the reply action-id shape minted in agent-runner (act_<ms>_bsreply_<rand>).
+  const outbound = {};
+  snaps.filter(s => s && String(s.actionId || '').indexOf('_bsreply_') !== -1).forEach(s => {
+    const aid = s.createdBy || 'unknown';
+    if (!outbound[aid]) {
+      outbound[aid] = { repliesSent: 0, reportViews: 0, checkoutStarted: 0, reportUnlocked: 0, emailCaptured: 0 };
+    }
+    const o = outbound[aid];
+    const d = s.downstream || {};
+    o.repliesSent += 1;
+    o.reportViews += d.reportViews || 0;
+    o.checkoutStarted += d.checkoutStarted || 0;
+    o.reportUnlocked += d.reportUnlocked || 0;
+    o.emailCaptured += d.emailCaptured || 0;
+  });
+
   // ── Rewrite impact ──
   // Posts with a quality-gate rewrite in their history (we can't detect this
   // from snapshots alone — it requires agentDecisions from Phase 5). Stub
@@ -217,6 +243,7 @@ function buildOutcomeDigest(outcomeSnapshots, actions, campaigns, experiments, n
       linkedinPendingCount: linkedinPendingCount
     },
     perAgent: perAgent,
+    outbound: outbound,
     perExperiment: perExperiment,
     perHook: perHook,
     perCampaign: perCampaign,

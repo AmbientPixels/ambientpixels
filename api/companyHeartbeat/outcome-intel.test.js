@@ -138,5 +138,48 @@ test('e2e: build digest then thread revenue in', () => {
   assert.strictEqual(digest.perAgent.echo.revenueAttributedCents, 2900, 'echo stub carries revenue');
 });
 
+// ── outbound reply funnel ──
+// Prospect replies carry campaignId: null and are only `complete` at t7, but a
+// click happens within minutes — so this rollup must NOT depend on completeness.
+const reply = (id, createdBy, down, extra) => Object.assign({
+  actionId: id, createdBy: createdBy, campaignId: null, complete: false,
+  samples: [], downstream: down || {}
+}, extra || {});
+
+test('outbound: counts replies sent and their click funnel per agent', () => {
+  const d = buildOutcomeDigest([
+    reply('act_1_bsreply_aaa', 'scribe', { reportViews: 3, checkoutStarted: 1 }),
+    reply('act_2_bsreply_bbb', 'scribe', { reportViews: 2, reportUnlocked: 1 })
+  ], [], [], [], Date.now());
+  assert.strictEqual(d.outbound.scribe.repliesSent, 2);
+  assert.strictEqual(d.outbound.scribe.reportViews, 5);
+  assert.strictEqual(d.outbound.scribe.checkoutStarted, 1);
+  assert.strictEqual(d.outbound.scribe.reportUnlocked, 1);
+});
+
+test('outbound: incomplete snapshots still count — a click is not a t7 metric', () => {
+  const d = buildOutcomeDigest([
+    reply('act_1_bsreply_aaa', 'scribe', { reportViews: 4 }, { complete: false })
+  ], [], [], [], Date.now());
+  assert.strictEqual(d.outbound.scribe.repliesSent, 1, 'must not wait for t7');
+  assert.strictEqual(d.outbound.scribe.reportViews, 4);
+});
+
+test('outbound: scheduled posts are excluded — this rollup is outbound only', () => {
+  const d = buildOutcomeDigest([
+    reply('act_1785477821876_9pxbwm', 'echo', { reportViews: 9 })
+  ], [], [], [], Date.now());
+  assert.strictEqual(Object.keys(d.outbound).length, 0, 'non-reply action must not appear');
+});
+
+test('outbound: zero clicks reports honestly rather than vanishing', () => {
+  // The alarm case — replies going out and nobody clicking.
+  const d = buildOutcomeDigest([
+    reply('act_1_bsreply_aaa', 'scribe', {})
+  ], [], [], [], Date.now());
+  assert.strictEqual(d.outbound.scribe.repliesSent, 1);
+  assert.strictEqual(d.outbound.scribe.reportViews, 0);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

@@ -204,12 +204,40 @@ function computeEngagementRate(sample) {
 }
 
 // ── Downstream attribution (Phase 2 UTM) ──
-// Walks blogPostViews + formIntake looking for utm_content === actionId.
-// Populates snapshot.downstream counts. Non-fatal.
-async function backfillDownstream(store, blogViews, formIntakeEvents) {
+// Walks blogPostViews + formIntake + ProductAnalytics events looking for
+// utm_content === actionId. Populates snapshot.downstream counts. Non-fatal.
+//
+// The analytics source (added 2026-08-01) is what makes OUTBOUND measurable: a
+// prospect reply links to /ambientscore/report.html, which touches neither
+// blogPostViews nor formIntake, so a click on a reply used to leave no trace at
+// all. Counting the funnel stages separately is the diagnostic — reportViews with
+// no checkoutStarted means clicked-and-bounced (offer/report problem), while zero
+// reportViews means the message or targeting never earned the click.
+//
+// Attribution lives in props.utm_content: productAnalyticsIngest sanitises events
+// to an explicit top-level field list but passes props through untouched.
+function backfillDownstream(store, blogViews, formIntakeEvents, analyticsEvents) {
   const byActionBV = {};
   const byActionFS = {};
   const bvSubTypes = {};
+  const byActionPA = {};
+
+  // ProductAnalytics event name -> the downstream counter it feeds.
+  const PA_EVENT_MAP = {
+    paywall_shown: 'reportViews',
+    checkout_started: 'checkoutStarted',
+    report_unlocked: 'reportUnlocked',
+    email_captured: 'emailCaptured'
+  };
+  for (let i = 0; i < (analyticsEvents || []).length; i++) {
+    const e = analyticsEvents[i];
+    const field = e && PA_EVENT_MAP[e.event];
+    if (!field) continue;
+    const actId = e.props && e.props.utm_content;
+    if (!actId) continue;
+    if (!byActionPA[actId]) byActionPA[actId] = {};
+    byActionPA[actId][field] = (byActionPA[actId][field] || 0) + 1;
+  }
 
   for (let i = 0; i < (blogViews || []).length; i++) {
     const v = blogViews[i];
@@ -234,6 +262,11 @@ async function backfillDownstream(store, blogViews, formIntakeEvents) {
     s.downstream.blogViews = byActionBV[s.actionId] || 0;
     s.downstream.formSubmits = byActionFS[s.actionId] || 0;
     s.downstream.submissionTypes = bvSubTypes[s.actionId] || {};
+    const pa = byActionPA[s.actionId] || {};
+    s.downstream.reportViews = pa.reportViews || 0;
+    s.downstream.checkoutStarted = pa.checkoutStarted || 0;
+    s.downstream.reportUnlocked = pa.reportUnlocked || 0;
+    s.downstream.emailCaptured = pa.emailCaptured || 0;
   }
 }
 
@@ -321,7 +354,20 @@ module.exports = async function (context) {
     // Normalize blogViews shape (existing schema is {slug,timestamp,views}; Phase 2 extends with utmContent)
     const flatBV = Array.isArray(blogViews) ? blogViews : [];
     const flatFS = Array.isArray(formIntakeEvents) ? formIntakeEvents : [];
-    await backfillDownstream(store, flatBV, flatFS);
+    // ProductAnalytics events over the snapshot window — the only record that a
+    // prospect clicked a reply link (report.html touches neither of the above).
+    // Own try/catch: a missing daily blob must not cost us the blogViews backfill.
+    let paEvents = [];
+    try {
+      const pa = require('../_utils/productAnalytics');
+      const _end = new Date();
+      const _start = new Date(_end.getTime() - 30 * 86400000);
+      const _iso = (d) => d.toISOString().substring(0, 10);
+      paEvents = (await pa.readEventRange(_iso(_start), _iso(_end))) || [];
+    } catch (paErr) {
+      context.log.warn('[outcomeRefresh] analytics read failed (non-fatal):', (paErr && paErr.message) || String(paErr));
+    }
+    backfillDownstream(store, flatBV, flatFS, paEvents);
   } catch (err) {
     context.log.warn('[outcomeRefresh] downstream backfill failed (non-fatal):', (err && err.message) || String(err));
   }
@@ -405,3 +451,6 @@ module.exports = async function (context) {
     context.log.warn('[outcomeRefresh] engagement-reply failed (non-fatal):', (err && err.message) || String(err));
   }
 };
+
+// Exposed for unit tests — the Azure binding still uses the default export.
+module.exports._backfillDownstream = backfillDownstream;
