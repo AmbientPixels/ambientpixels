@@ -910,6 +910,57 @@ testAsync('runRewardsEngine pays an attributed sale end-to-end and attaches budg
   assert.ok(led.budgetPlan && led.budgetPlan.perAgent, 'budgetPlan attached');
 });
 
+testAsync('a founder self-purchase pays NO revenue XP', async () => {
+  // The economy paid echo 168 / scribe 148 revenue XP for two $199 LIVE-mode charges
+  // the founder made to test his own checkout — ~95% of all July season XP, and it
+  // made echo season champion. Internal money must never move the standings.
+  const mkSeed = (email) => ({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, agentRewards: null,
+    tasks: [{ id: 'tk1', assignee: 'echo', reviewer: 'quill', campaign_id: 'camp-conv', updatedAt: at(-1) }],
+    campaigns: [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }],
+    actions: [{ id: 'act_1', created_by: 'scribe', _parentTaskId: 'tk1' }],
+    actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [{ id: 'evt_1', type: 'one_time', amountCents: 19900, customerEmail: email, utmContent: 'act_1', occurredAt: at(0) }] },
+    as_leads: [], cc_analytics: [],
+    systemConfig: { internalRevenueEmails: ['founder@example.com'] },
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+
+  const stInternal = fakeStorage(mkSeed('founder@example.com'));
+  await runRewardsEngine({ storage: stInternal, nowMs: NOW, log: () => {} });
+  // Not merely zero XP — the internal sale must produce no earning entry at all.
+  const _perI = stInternal.db.agentRewards.perAgent;
+  assert.strictEqual(((_perI.scribe || {}).seasonRevenueXp) || 0, 0,
+    'internal sale must pay no revenue XP');
+  assert.strictEqual(((_perI.echo || {}).seasonRevenueXp) || 0, 0,
+    'and none to the assignee either');
+
+  // Control: the identical sale from a real stranger still pays.
+  const stReal = fakeStorage(mkSeed('stranger@example.com'));
+  await runRewardsEngine({ storage: stReal, nowMs: NOW, log: () => {} });
+  assert.ok(stReal.db.agentRewards.perAgent.scribe.seasonRevenueXp > 0,
+    'a real customer must still pay — this must not become a blanket revenue block');
+});
+
+testAsync('with no internal list configured, revenue is treated as real', async () => {
+  // "We do not know" must not silently become "it is all internal" — that would
+  // zero out the revenue lane the moment config went missing.
+  const st = fakeStorage({
+    approvalQueue: [], blogPosts: [], outcomeSnapshots: {}, tasksArchive: [], blogPostViews: [],
+    socialAccountStats: {}, runtimeMemory: {}, agentRewards: null,
+    tasks: [{ id: 'tk1', assignee: 'echo', reviewer: 'quill', campaign_id: 'camp-conv', updatedAt: at(-1) }],
+    campaigns: [{ id: 'camp-conv', status: 'active', northStarMetric: 'paying customers' }],
+    actions: [{ id: 'act_1', created_by: 'scribe', _parentTaskId: 'tk1' }],
+    actionAttributionIndex: { map: {} },
+    revenueLedger: { entries: [{ id: 'evt_1', type: 'one_time', amountCents: 2900, customerEmail: 'anyone@example.com', utmContent: 'act_1', occurredAt: at(0) }] },
+    as_leads: [], cc_analytics: [], systemConfig: {},
+    agentRegistry: { agents: FLEET_TEST_IDS.map(id => ({ id, status: 'active' })) }
+  });
+  await runRewardsEngine({ storage: st, nowMs: NOW, log: () => {} });
+  assert.ok(st.db.agentRewards.perAgent.scribe.seasonRevenueXp > 0, 'unconfigured => pays normally');
+});
+
 testAsync('runRewardsEngine drafts ONE retirement proposal on transition, never for protected agents', async () => {
   const mkPrev = (targetId) => {
     const per = {};

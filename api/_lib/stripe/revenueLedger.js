@@ -108,6 +108,15 @@ async function recordRevenue(entry, storageOverride) {
     recordedAt: nowIso
   };
 
+  // Stamp internal/external at write time so the classification survives an email
+  // later changing hands. Consumers still derive-on-read (isInternalEntry checks the
+  // email too), so this is belt-and-braces, not the only line of defence. Non-fatal:
+  // a config read failure must never block recording real money.
+  try {
+    const _internalEmails = await resolveInternalEmails(storageOverride);
+    if (_internalEmails.length) normalized.internal = isInternalEntry(normalized, _internalEmails);
+  } catch (_intErr) { /* leave unstamped — derive-on-read still classifies it */ }
+
   ledger.entries.push(normalized);
   ledger.updatedAt = nowIso;
 
@@ -120,10 +129,85 @@ async function recordRevenue(entry, storageOverride) {
   return { recorded: !!ok, reason: ok ? 'appended' : 'storage-error', id: normalized.id, entry: normalized };
 }
 
+/**
+ * ── Internal vs external revenue (2026-08-01) ──
+ *
+ * The company recorded two $199 founder self-purchases as customer revenue. They
+ * were LIVE-mode Stripe charges, so nothing downstream could tell them apart: they
+ * counted as "first revenue" in revenueDigest, as-funnel, the Seasons dashboard and
+ * the XP economy, which paid 316 revenue XP for them and made echo season champion.
+ * For a system whose purpose is measuring whether it makes money, that is the most
+ * expensive kind of wrong.
+ *
+ * DERIVE-ON-READ by design: classification comes from the email at read time, so the
+ * two historical entries are corrected with NO mutation of the financial record.
+ * Entries written from now on are also stamped with `internal` so the flag survives
+ * an email changing hands later.
+ *
+ * Configured in systemConfig.internalRevenueEmails (CEO-owned, no deploy, no app
+ * restart), falling back to the INTERNAL_REVENUE_EMAILS / CEO_EMAILS env vars.
+ * NOTE: CEO_EMAILS is NOT currently set on the Function App — systemConfig is the
+ * live path. An unconfigured list classifies NOTHING as internal: "we do not know"
+ * must never silently become "it is all real".
+ */
+function parseInternalEmails(systemConfig, envValue) {
+  var out = [];
+  var raw = (systemConfig && systemConfig.internalRevenueEmails) || null;
+  if (Array.isArray(raw)) out = raw.slice();
+  else if (typeof raw === 'string') out = raw.split(',');
+  else if (envValue) out = String(envValue).split(',');
+  return out
+    .map(function (s) { return String(s == null ? '' : s).trim().toLowerCase(); })
+    .filter(Boolean);
+}
+
+function isInternalEntry(entry, internalEmails) {
+  if (!entry || typeof entry !== 'object') return false;
+  if (entry.internal === true) return true;
+  var list = Array.isArray(internalEmails) ? internalEmails : [];
+  if (!list.length) return false;
+  var em = entry.customerEmail;
+  if (typeof em !== 'string') return false;
+  return list.indexOf(em.trim().toLowerCase()) !== -1;
+}
+
+/**
+ * Split positive-type entries into external (real customers) and internal
+ * (self-purchases / tests). Internal entries are RETAINED, never dropped —
+ * hiding them would repeat the original mistake in the opposite direction.
+ */
+function splitRevenue(entries, internalEmails) {
+  var external = [], internal = [], externalCents = 0, internalCents = 0;
+  var list = Array.isArray(entries) ? entries : [];
+  for (var i = 0; i < list.length; i++) {
+    var e = list[i];
+    if (!e || POSITIVE_TYPES.indexOf(e.type) === -1) continue;
+    var cents = Number.isFinite(e.amountCents) ? e.amountCents : 0;
+    if (isInternalEntry(e, internalEmails)) { internal.push(e); internalCents += cents; }
+    else { external.push(e); externalCents += cents; }
+  }
+  return {
+    external: external, internal: internal,
+    externalCents: externalCents, internalCents: internalCents,
+    configured: Array.isArray(internalEmails) && internalEmails.length > 0
+  };
+}
+
+/** IO wrapper: resolve the internal-email list from systemConfig, then env. */
+async function resolveInternalEmails(storageOverride) {
+  var cfg = null;
+  try { cfg = await _storage(storageOverride).getState('systemConfig'); } catch (_e) { cfg = null; }
+  return parseInternalEmails(cfg, process.env.INTERNAL_REVENUE_EMAILS || process.env.CEO_EMAILS || '');
+}
+
 module.exports = {
   LEDGER_KEY: LEDGER_KEY,
   POSITIVE_TYPES: POSITIVE_TYPES,
   VALID_TYPES: VALID_TYPES,
   getLedger: getLedger,
-  recordRevenue: recordRevenue
+  recordRevenue: recordRevenue,
+  parseInternalEmails: parseInternalEmails,
+  isInternalEntry: isInternalEntry,
+  splitRevenue: splitRevenue,
+  resolveInternalEmails: resolveInternalEmails
 };

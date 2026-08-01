@@ -46,6 +46,13 @@ const CONVERSION_METRIC_RX = /revenue|customer|sale|checkout|conversion|lead/i;
 const FALLBACK_WINDOW_MS = 30 * 86400000;
 const REVENUE_XP = { saleBase: 100, perDollar: 1, lead: 15, scan: 3 };
 const UNATTRIBUTED_SHARE = 0.5;   // organic conversions: half pays the fallback set
+// The engine is otherwise standalone by design (isolation pattern — no heartbeat
+// coupling). This single import is deliberate: revenue classification must have ONE
+// definition. A third local copy of "what counts as real money" is precisely the
+// drift that let founder self-purchases become season-deciding XP. Both functions
+// are pure and revenueLedger's storage import is lazy, so test isolation holds.
+const { parseInternalEmails: _parseInternalEmails, isInternalEntry: _isInternalEntry } = require('../_lib/stripe/revenueLedger');
+
 const POSITIVE_SALE_TYPES = { one_time: true, subscription_initial: true, subscription_renewal: true };
 const CAP_EXEMPT_TYPES = { revenue_sale: true, funnel_lead: true };
 const TASK_DONE_DAILY_XP_CAP = 3;
@@ -842,7 +849,21 @@ async function runRewardsEngine(opts) {
       tasks: loaded[3], tasksArchive: loaded[4], _nowMs: nowMs
     };
     if (cfg.enabled) {
-      state.revenueLedgerEntries = loaded[9];
+      // Internal money must never move the standings. The economy paid echo 168 /
+      // scribe 148 revenue XP for two $199 LIVE-mode charges the founder made testing
+      // his own checkout — ~95% of July's season XP, and it decided the champion.
+      // Classification is derive-on-read from systemConfig.internalRevenueEmails, so
+      // historical entries are corrected without touching the financial record.
+      // An UNCONFIGURED list filters nothing: "we don't know" must not silently
+      // become "it's all internal" and zero out the revenue lane.
+      var _internalEmails = _parseInternalEmails(loaded[15],
+        process.env.INTERNAL_REVENUE_EMAILS || process.env.CEO_EMAILS || '');
+      var _rawLedger = _arr(loaded[9]);
+      state.revenueLedgerEntries = _internalEmails.length
+        ? _rawLedger.filter(function (e) { return !_isInternalEntry(e, _internalEmails); })
+        : _rawLedger;
+      var _filtered = _rawLedger.length - state.revenueLedgerEntries.length;
+      if (_filtered > 0) log('[rewards] excluded ' + _filtered + ' internal revenue entr' + (_filtered === 1 ? 'y' : 'ies') + ' from XP');
       state.asLeads = loaded[10];
       state.scans = loaded[11];
       state.actionsById = actionsById;

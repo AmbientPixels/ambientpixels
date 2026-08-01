@@ -17,6 +17,10 @@
  * entitlements-blob enumeration in the hourly heartbeat.
  */
 
+// Single definition of "is this our own money" — a local copy is how founder
+// self-purchases became season-deciding revenue XP in the first place.
+var _isInternalEntry = require('../_lib/stripe/revenueLedger').isInternalEntry;
+
 var POSITIVE_TYPES = ['one_time', 'subscription_initial', 'subscription_renewal'];
 
 function _isPositiveType(t) { return POSITIVE_TYPES.indexOf(t) !== -1; }
@@ -54,9 +58,30 @@ function _round2(n) { return Math.round(n * 100) / 100; }
  * @param {number} nowMs
  * @returns {object} revenueDigest (cents canonical; a few *Dollars convenience fields)
  */
-function buildRevenueDigest(ledger, spendCents, nowMs, actionToCampaign) {
+function buildRevenueDigest(ledger, spendCents, nowMs, actionToCampaign, internalEmails) {
   var now = (typeof nowMs === 'number') ? nowMs : Date.now();
-  var entries = (ledger && Array.isArray(ledger.entries)) ? ledger.entries : [];
+  var _allEntries = (ledger && Array.isArray(ledger.entries)) ? ledger.entries : [];
+
+  // Internal (founder / test) purchases are excluded from every headline number.
+  // Two LIVE-mode $199 self-purchases were reported as the company's "first
+  // revenue" across this digest, as-funnel, the Seasons dashboard and the XP
+  // economy. They are RETAINED and reported separately below — never deleted.
+  // An unconfigured list excludes nothing: "we don't know" must not become
+  // "it's all internal". See _lib/stripe/revenueLedger.isInternalEntry.
+  var _emails = Array.isArray(internalEmails) ? internalEmails : [];
+  var _internalEntries = _emails.length
+    ? _allEntries.filter(function (e) { return _isInternalEntry(e, _emails); })
+    : [];
+  var entries = _emails.length
+    ? _allEntries.filter(function (e) { return !_isInternalEntry(e, _emails); })
+    : _allEntries;
+  var _internalGrossCents = 0;
+  for (var _ii = 0; _ii < _internalEntries.length; _ii++) {
+    var _ie = _internalEntries[_ii];
+    if (_ie && _isPositiveType(_ie.type) && Number.isFinite(_ie.amountCents) && _ie.amountCents > 0) {
+      _internalGrossCents += _ie.amountCents;
+    }
+  }
   var monthPrefix = _monthPrefix(now);
   var priorPrefix = _priorMonthPrefix(now);
   var spend = Number.isFinite(spendCents) ? Math.round(spendCents) : 0;
@@ -172,6 +197,12 @@ function buildRevenueDigest(ledger, spendCents, nowMs, actionToCampaign) {
   return {
     generatedAt: new Date(now).toISOString(),
     month: monthPrefix,
+    // Internal revenue, reported not hidden. `internalFilterConfigured: false` means
+    // nothing was classified — treat every figure here as unverified, not as proof
+    // that all revenue is external.
+    internalGrossCents: _internalGrossCents,
+    internalSaleCount: _internalEntries.length,
+    internalFilterConfigured: _emails.length > 0,
     // canonical cents
     mtdRevenueCents: mtdNetCents,
     mtdGrossCents: mtdGrossCents,

@@ -21,7 +21,7 @@ const { buildReflectionDigest } = require('./reflection-intel');
 const { buildWorldState } = require('./world-state-intel');
 const { buildStrategyDigest, evaluateObjectives } = require('./strategy-intel');
 const { buildRevenueDigest } = require('./revenue-intel');
-const { getLedger: getRevenueLedger } = require('../_lib/stripe/revenueLedger');
+const { getLedger: getRevenueLedger, resolveInternalEmails: _resolveInternalEmails } = require('../_lib/stripe/revenueLedger');
 const { buildAllocationDigest } = require('./allocation-intel');
 const { runAgentHeartbeat, _validateContentQuality, _countQgFailures, _isHallucinationFailure, _detectProductFromTask, QG_FAIL_CIRCUIT_BREAKER_THRESHOLD, QG_HALLUCINATION_KEYWORDS } = require('./agent-runner');
 const { selectTopProposals: _selectTopProposals } = require('./agent-proposal-select');
@@ -442,7 +442,13 @@ module.exports = async function (context) {
           if (_cid) _actionToCampaign[a.id] = _cid;
         });
       } catch (_mapErr) { context.log('[heartbeat] action→campaign map failed (non-fatal):', _mapErr.message); }
-      revenueDigest = buildRevenueDigest(_revLedger, _spendCents, Date.now(), _actionToCampaign);
+      // Founder/test purchases are excluded from every headline revenue figure and
+      // reported separately as internalGrossCents. Non-fatal: a config read failure
+      // yields an empty list, which excludes NOTHING rather than silently zeroing
+      // real revenue.
+      let _internalEmails = [];
+      try { _internalEmails = await _resolveInternalEmails(); } catch (_ieErr) { _internalEmails = []; }
+      revenueDigest = buildRevenueDigest(_revLedger, _spendCents, Date.now(), _actionToCampaign, _internalEmails);
       if (revenueDigest) {
         runtimeMemory.revenueDigest = revenueDigest;
         if (financeDigest) {

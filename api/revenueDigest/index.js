@@ -10,7 +10,7 @@
 
 const storage = require('../_utils/companyStorage');
 const { buildRevenueDigest } = require('../companyHeartbeat/revenue-intel');
-const { getLedger, LEDGER_KEY, POSITIVE_TYPES } = require('../_lib/stripe/revenueLedger');
+const { getLedger, LEDGER_KEY, POSITIVE_TYPES, resolveInternalEmails } = require('../_lib/stripe/revenueLedger');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -106,7 +106,8 @@ module.exports = async function (context, req) {
     if (isStale) {
       const ledger = await getLedger();
       const spendCents = await _mtdSpendCents();
-      digest = buildRevenueDigest(ledger, spendCents, Date.now());
+      const internalEmails = await resolveInternalEmails();
+      digest = buildRevenueDigest(ledger, spendCents, Date.now(), null, internalEmails);
       digest._builtOnDemand = true;
     }
 
