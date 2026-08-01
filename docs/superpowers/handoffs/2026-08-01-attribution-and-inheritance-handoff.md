@@ -1,5 +1,13 @@
 # Handoff — outbound attribution fixed, Track C Phase 1 shipped, Season 1 live
 
+> **⛔ CORRECTION added after this handoff was first written.** The "$398 first revenue" was **the CEO's own test purchases** — external revenue is **$0**. The `revenueLedger` blob shows both entries as `customerEmail: thechadmartin@gmail.com`, `sourceId: cs_live_...`, $199 each at 02:38:00 and 02:40:12 on 2026-07-30 — 11 and 13 minutes after the Teardown shipped (`691d0cba`, 02:26:50Z) and ~17 minutes *before* the commits that stopped `/ambientscore/*` rewriting teardown.html to index and fixed its 404ing API route. No public visitor could have completed that flow at 02:38.
+>
+> Live mode, so real money moved and Stripe took ~$66 in fees. It paid echo 168 / scribe 148 revenue XP (~95% of all July season XP) and made echo Season-1 `previousChampion`; a refund pays nothing but does **not** claw back awarded XP.
+>
+> **Consequence for §1 below:** the utm finding (0/24 on replies) is independently verified and the fix stands, but the framing "money arrived from an untracked channel" is **wrong** — it arrived from no channel. Read §1 with that correction in mind.
+>
+> Read the ledger with: `MSYS_NO_PATHCONV=1 az storage blob download --account-name cardforgeblobdata --container-name company-state --name revenueLedger.json --account-key <key>` — it is storage-direct, not a `company-state` VALID_KEY, so no endpoint exposes per-entry rows.
+
 **Date:** 2026-08-01 (session ran through the month boundary) · All work committed, pushed and deployed. Working tree clean.
 
 **Read first:** memories `project_prospect_reply_attribution`, `project_retirement_inheritance`, `project_revenue_seasons`; skill `agent-rewards`.
