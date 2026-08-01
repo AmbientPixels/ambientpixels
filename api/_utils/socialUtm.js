@@ -26,6 +26,16 @@
 // Own-domain URLs only. Third-party links in copy must never be rewritten.
 const OWN_URL_RE = /https?:\/\/(?:www\.)?ambientpixels\.ai(?:\/[^\s)]*)?/gi;
 
+// The reply pipeline's working cap — mirrors BSKY_REPLY_MAX in prospect-pipeline.js
+// (Bluesky's hard cap is 300; 296 leaves headroom for trailing edges).
+//
+// Trimming replies at 280 instead was a second, tighter, undocumented cap, and it
+// caused a live incident on 2026-08-01: the ~63-char UTM suffix put an ordinary
+// reply 12 chars over 280, the sentence-boundary fallback then cut the body from
+// 149 to 77 chars, and the scan finding — the only reason a stranger has to click —
+// was deleted. The link survived; the message did not. Trim at the real cap.
+const BSKY_LIMIT = 296;
+
 function _suffix(platform, actionId) {
   return 'utm_source=' + encodeURIComponent(String(platform || '')) +
          '&utm_content=' + encodeURIComponent(String(actionId || ''));
@@ -83,4 +93,4 @@ function trimPreservingTrailingUrl(text, limit) {
   return src.substring(0, limit - 1).trim() + '…';
 }
 
-module.exports = { injectUtm, utmReserve, trimPreservingTrailingUrl, OWN_URL_RE };
+module.exports = { injectUtm, utmReserve, trimPreservingTrailingUrl, OWN_URL_RE, BSKY_LIMIT };

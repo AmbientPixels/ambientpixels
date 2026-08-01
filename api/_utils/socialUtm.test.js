@@ -112,5 +112,27 @@ test('a 280-char reply survives UTM injection with the link intact and fits Blue
   assert.ok(final.indexOf('report.html?id=ccr_1784853000319_0045708f') !== -1, 'report id must survive');
 });
 
+// ── regression: the trim must not eat the reason to click ──
+test('a 12-char overflow must not cost 72 chars of message', () => {
+  // LIVE INCIDENT 2026-08-01. Trimming at 280 put a normal reply 12 chars over, and
+  // the sentence-boundary fallback cut the body 149 -> 77, deleting the scan finding
+  // — the only reason a stranger has to click. The link survived; the message did not.
+  const bare = 'https://ambientpixels.ai/ambientscore/report.html?id=ccr_1785286200235_8c848dd9';
+  const draft = 'Love the vibe of "ship across a diamond sea". I ran a quick scan on the page. '
+    + 'The headline says what kind of thing it is, not why to stay and listen. ' + bare;
+  const stamped = u.injectUtm(draft, 'bluesky', 'act_1785552464730_bsreply_zaznt');
+  const final = u.trimPreservingTrailingUrl(stamped, u.BSKY_LIMIT);
+  assert.ok(final.length <= 300, 'must fit Bluesky, got ' + final.length);
+  assert.ok(/headline/i.test(final), 'the scan finding MUST survive — it is the reason to click');
+  assert.ok(final.indexOf('utm_content=') !== -1, 'tracking still present');
+  assert.ok(final.indexOf('ccr_1785286200235_8c848dd9') !== -1, 'report id still present');
+});
+
+test('BSKY_LIMIT matches the working cap used by the reply pipeline', () => {
+  // prospect-pipeline.js defines BSKY_REPLY_MAX = 296 (hard cap 300, headroom for
+  // trailing edges). Trimming at 280 was a second, tighter, undocumented cap.
+  assert.strictEqual(u.BSKY_LIMIT, 296);
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail > 0 ? 1 : 0);

@@ -2164,7 +2164,10 @@ Write the full deliverable first, then the structured JSON block.`;
               const _replyActionId = 'act_' + Date.now() + '_bsreply_' + Math.random().toString(36).substr(2, 5);
               try {
                 const _stamped = SUTM.injectUtm(_finalReply, 'bluesky', _replyActionId);
-                _finalReply = SUTM.trimPreservingTrailingUrl(_stamped, 280);
+                // Trim at the pipeline's real working cap (296), NOT 280. Trimming at
+                // 280 put ordinary replies ~12 chars over and the sentence-boundary
+                // fallback then deleted the scan finding — see BSKY_LIMIT in socialUtm.js.
+                _finalReply = SUTM.trimPreservingTrailingUrl(_stamped, SUTM.BSKY_LIMIT);
               } catch (_utmErr) {
                 // Non-fatal: an untracked reply is a measurement loss, not a lost sale.
                 context.log('[Heartbeat] scribe: reply UTM inject failed (non-fatal):', String(_utmErr).substring(0, 120));
