@@ -1,0 +1,259 @@
+/* ═══════════════════════════════════════════════════════════
+   Resume Roast — SEO landing page styles
+   Leans on the Pixel Agents design system tokens
+   (pixel-agents-design-system.css). Page-specific classes are
+   rr-* ; shared pa-* classes come from the DS files.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Benefit cards ── */
+.rr-benefits {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.rr-benefit {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rr-benefit i {
+  color: var(--pa-primary);
+  font-size: var(--pa-t-md);
+}
+.rr-benefit h3 {
+  font-family: var(--pa-font-display);
+  font-size: var(--pa-t-base);
+  color: var(--pa-text);
+  margin: 0;
+}
+.rr-benefit p {
+  font-size: var(--pa-t-sm);
+  line-height: 1.55;
+  color: var(--pa-text-muted);
+  margin: 0;
+}
+
+/* ── Sample roast output ── */
+.rr-sample {
+  max-width: 720px;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep-strong);
+  border-radius: var(--pa-radius-md);
+  overflow: hidden;
+}
+.rr-sample-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--pa-sep);
+  background: var(--pa-surface-raised);
+  font-family: var(--pa-font-mono);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pa-text-faint);
+}
+.rr-sample-body {
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.rr-score {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.rr-score-num {
+  font-family: var(--pa-font-display);
+  font-size: var(--pa-t-2xl);
+  font-weight: 700;
+  color: var(--pa-warning);
+  line-height: 1;
+}
+.rr-score-label {
+  font-size: var(--pa-t-sm);
+  color: var(--pa-text-muted);
+}
+.rr-score-bar {
+  height: 6px;
+  border-radius: var(--pa-radius-pill);
+  background: var(--pa-sep-strong);
+  overflow: hidden;
+}
+.rr-score-bar span {
+  display: block;
+  height: 100%;
+  width: 61%;
+  border-radius: var(--pa-radius-pill);
+  background: linear-gradient(90deg, var(--pa-primary), var(--pa-warning));
+}
+.rr-verdict {
+  margin: 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--pa-primary);
+  font-family: var(--pa-font-accent);
+  font-style: italic;
+  font-size: var(--pa-t-md);
+  line-height: 1.45;
+  color: var(--pa-ink-80);
+}
+.rr-sample-section h4 {
+  font-family: var(--pa-font-display);
+  font-size: var(--pa-t-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--pa-text-faint);
+  margin: 0 0 0.5rem;
+}
+.rr-sample-section ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.rr-sample-section li {
+  font-size: var(--pa-t-sm);
+  line-height: 1.6;
+  color: var(--pa-text-muted);
+  padding-left: 1.4rem;
+  position: relative;
+}
+.rr-sample-section li::before {
+  position: absolute;
+  left: 0;
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+}
+.rr-sample-section--roast li::before {
+  content: '\f06d'; /* fire */
+  color: var(--pa-primary);
+}
+.rr-sample-section--strengths li::before {
+  content: '\f00c'; /* check */
+  color: var(--pa-success);
+}
+.rr-sample-foot {
+  padding: 1rem 1.25rem 1.5rem;
+  text-align: center;
+  border-top: 1px dashed var(--pa-sep-strong);
+}
+.rr-sample-foot p {
+  margin: 0 0 0.75rem;
+  font-size: var(--pa-t-sm);
+  color: var(--pa-text-faint);
+}
+
+/* ── How it works ── */
+.rr-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  counter-reset: rr-step;
+}
+.rr-step {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-md);
+  padding: 1.25rem;
+}
+.rr-step::before {
+  counter-increment: rr-step;
+  content: '0' counter(rr-step);
+  display: block;
+  font-family: var(--pa-font-mono);
+  font-size: var(--pa-t-sm);
+  color: var(--pa-primary);
+  margin-bottom: 0.5rem;
+}
+.rr-step h3 {
+  font-family: var(--pa-font-display);
+  font-size: var(--pa-t-base);
+  color: var(--pa-text);
+  margin: 0 0 0.4rem;
+}
+.rr-step p {
+  font-size: var(--pa-t-sm);
+  line-height: 1.55;
+  color: var(--pa-text-muted);
+  margin: 0;
+}
+
+/* ── SEO prose block ── */
+.rr-prose {
+  max-width: 720px;
+}
+.rr-prose p {
+  font-size: var(--pa-t-sm);
+  line-height: 1.7;
+  color: var(--pa-text-muted);
+  margin: 0 0 1rem;
+}
+.rr-prose strong {
+  color: var(--pa-text);
+}
+
+/* ── FAQ (same pattern as /pixel-agents/faq.html) ── */
+.pa-faq-list { max-width: 720px; }
+.pa-faq-list details {
+  margin-bottom: 0.5rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-sep);
+  border-radius: var(--pa-radius-md);
+  overflow: hidden;
+}
+.pa-faq-list details[open] { border-color: var(--pa-primary-border); }
+.pa-faq-list summary {
+  padding: 1rem 1.25rem;
+  font-family: var(--pa-font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pa-text);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pa-faq-list summary::-webkit-details-marker { display: none; }
+.pa-faq-list summary::marker { content: ''; }
+/* Neutralize the sitewide ▶/▼ from css/components.css `details summary::before` */
+.pa-faq-list details summary::before,
+.pa-faq-list details[open] summary::before {
+  display: none;
+}
+.pa-faq-list summary::after {
+  content: '+';
+  font-size: 1.2rem;
+  color: var(--pa-text-muted);
+  transition: transform 0.2s;
+}
+.pa-faq-list details[open] summary::after {
+  content: '\2212';
+  color: var(--pa-primary);
+}
+.pa-faq-list .pa-faq-answer {
+  padding: 0 1.25rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--pa-text-muted);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .rr-benefits { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .rr-steps { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .rr-benefits { grid-template-columns: 1fr; }
+  .rr-score-num { font-size: var(--pa-t-xl); }
+}

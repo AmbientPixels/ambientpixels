@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Paste your resume and get a brutally honest AI review in under a minute: an ATS score out of 100, a section-by-section roast, and rewrite tips that land interviews. Free — no signup, no email." />
+
+  <!-- Preconnect to external origins so DNS+TCP+TLS happen in parallel with HTML parse -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://ambientpixels-nova-api.azurewebsites.net" crossorigin />
+
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Free Resume Roast — AI Resume Review with ATS Score | Pixel Agents</title>
+
+  <!-- SEO -->
+  <link rel="canonical" href="https://ambientpixels.ai/resume-roast/" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Free Resume Roast — Brutally Honest AI Resume Review" />
+  <meta property="og:description" content="ATS score out of 100, a section-by-section roast, and concrete rewrite tips. Free, no signup — get roasted before a recruiter does it for you." />
+  <meta property="og:url" content="https://ambientpixels.ai/resume-roast/" />
+  <meta property="og:image" content="https://ambientpixels.ai/pixel-agents/img/og-card.png" />
+  <meta property="og:site_name" content="AmbientPixels" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Free Resume Roast — Brutally Honest AI Resume Review" />
+  <meta name="twitter:description" content="ATS score out of 100, a section-by-section roast, and concrete rewrite tips. Free, no signup." />
+  <meta name="twitter:image" content="https://ambientpixels.ai/pixel-agents/img/og-card.png" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Resume Roast",
+    "url": "https://ambientpixels.ai/resume-roast/",
+    "description": "Free AI resume review. Paste your resume text and get an ATS compatibility score, a section-by-section roast, and actionable rewrite tips to land more interviews.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "name": "Free",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "5 roasts/day without an account, 10 roasts/day signed in."
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "AmbientPixels",
+      "url": "https://ambientpixels.ai"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Resume Roast really free?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. You get 5 roasts a day with no account at all — no email, no credit card. Signing in with a free account raises that to 10 a day." }
+      },
+      {
+        "@type": "Question",
+        "name": "What is an ATS score?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Most large employers run resumes through Applicant Tracking System (ATS) software before a human ever reads them. The ATS score (0–100) estimates how well your resume survives that screening: keyword relevance, structure, and formatting that parsers can actually read." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it work for CVs and non-US resumes?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Paste any resume or CV text in English — the roast covers structure, impact, and clarity, which apply everywhere. ATS conventions skew US/UK, so weigh that part accordingly." }
+      },
+      {
+        "@type": "Question",
+        "name": "My resume is a PDF or Word file — how do I roast it?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Open the file, select all the text, copy it, and paste it into the agent. No file upload needed — the roast works from the text, which is also exactly what an ATS parser sees." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I fix my resume and run it again?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes — that is the whole point. Apply the rewrite tips, paste the new version, and watch the score move. Your daily free runs are enough for a full edit loop." }
+      },
+      {
+        "@type": "Question",
+        "name": "Who built Resume Roast?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Resume Roast is one of the purpose-built AI agents on Pixel Agents by AmbientPixels — a marketplace of specialized agents for audits, reviews, and creative work." }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "AmbientPixels", "item": "https://ambientpixels.ai/" },
+      { "@type": "ListItem", "position": 2, "name": "Pixel Agents", "item": "https://ambientpixels.ai/pixel-agents/" },
+      { "@type": "ListItem", "position": 3, "name": "Resume Roast", "item": "https://ambientpixels.ai/resume-roast/" }
+    ]
+  }
+  </script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+
+  <!-- Shared site CSS -->
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+
+  <!-- Pixel Agents design system -->
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-design-system.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-layout.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents-components.css" />
+
+  <!-- Page styles -->
+  <link rel="stylesheet" href="/resume-roast/resume-roast.css" />
+
+  <!-- Telemetry — deferred so it never blocks the HTML parser -->
+  <script src="/js/telemetry-config.js"></script>
+  <script src="/js/telemetry-appinsights.js" defer></script>
+  <script src="/js/product-analytics.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.ProductAnalytics) {
+        ProductAnalytics.init('pixelagents');
+        document.querySelectorAll('[data-rr-cta]').forEach(function (el) {
+          el.addEventListener('click', function () {
+            try { ProductAnalytics.track('cta_click', { agentId: 'resume-roast', placement: el.getAttribute('data-rr-cta') }); } catch (_) {}
+          });
+        });
+      }
+    });
+  </script>
+</head>
+<body class="pa-shell" data-theme="dark">
+
+  <!-- ═══════════════════════════════════
+       SIDEBAR (Desktop)
+       ═══════════════════════════════════ -->
+  <aside class="pa-sidebar">
+    <div class="pa-sidebar-logo">
+      <svg class="pa-logo-icon" width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <path d="M22 12 L10 12 L10 52 L22 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+        <path d="M42 12 L54 12 L54 52 L42 52" stroke="#f4ede2" stroke-width="4" fill="none" stroke-linecap="square"/>
+        <rect x="22" y="22" width="20" height="20" fill="#ef4f2a" opacity="0.18"/>
+        <rect x="28" y="28" width="8" height="8" fill="#ef4f2a"/>
+      </svg>
+      <span class="pa-logo-wordmark"><span class="pa-logo-accent">Pixel</span> Agents</span>
+    </div>
+
+    <div class="pa-sidebar-operator">
+      <span class="pa-sidebar-operator-dot"></span>
+      <span>Operator</span>
+    </div>
+
+    <nav class="pa-sidebar-nav">
+      <a href="/pixel-agents/" data-nav="explore">
+        <i class="fas fa-compass"></i><span>Explore</span>
+      </a>
+      <a href="/pixel-agents/#agent-grid" data-nav="agents">
+        <i class="fas fa-robot"></i><span>Agents</span>
+      </a>
+      <a href="/agent-forge/" data-nav="forge">
+        <i class="fas fa-hammer"></i><span>Forge</span>
+      </a>
+      <a href="/pixel-agents/analytics.html" data-nav="activity">
+        <i class="fas fa-chart-line"></i><span>Activity</span>
+      </a>
+    </nav>
+
+    <div class="pa-sidebar-resources">
+      <a href="/pixel-agents/docs.html" data-nav="docs"><i class="fas fa-book"></i><span>Docs</span></a>
+      <a href="/pixel-agents/faq.html" data-nav="faq"><i class="fas fa-circle-question"></i><span>FAQ</span></a>
+      <a href="/pixel-agents/contact.html" data-nav="contact"><i class="fas fa-envelope"></i><span>Contact</span></a>
+    </div>
+
+    <div class="pa-sidebar-footer">
+      <a href="/pixel-agents/run.html?agent=resume-roast" class="pa-sidebar-cta" data-rr-cta="sidebar">
+        <i class="fas fa-fire"></i><span>Roast My Resume</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════
+       TOP BAR
+       ═══════════════════════════════════ -->
+  <header class="pa-topbar-v2">
+    <span class="pa-wordmark">Resume Roast</span>
+    <div class="pa-topbar-actions">
+      <a class="pa-signin-pill" href="/pixel-agents/login.html?redirect=/resume-roast/">
+        <i class="fas fa-sign-in-alt"></i> <span class="pa-signin-pill__label">Sign In</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════ -->
+  <main class="pa-main">
+
+    <!-- ── Hero ── -->
+    <section class="pa-hero-v3 pa-noise">
+      <div class="pa-hero-v3__inner">
+        <div class="pa-hero-v3__content">
+          <div class="pa-hero-protocol">
+            <span>Free AI Resume Review</span>
+            <span class="pa-blink"></span>
+          </div>
+          <h1 class="pa-hero-v3__title">Get your resume roasted before a recruiter does.</h1>
+          <p class="pa-hero-v3__sub">
+            Paste your resume, get a brutally honest review in under a minute: an
+            <strong>ATS score out of 100</strong>, a section-by-section roast, and
+            concrete rewrite tips that land interviews.
+          </p>
+          <div class="pa-hero-v3__ctas">
+            <a href="/pixel-agents/run.html?agent=resume-roast" class="pa-btn-primary" data-rr-cta="hero">
+              Roast my resume — free <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="#sample-roast" class="pa-btn-secondary">See a sample roast</a>
+          </div>
+          <div class="pa-hero-v3__pills">
+            <span class="pa-hero-pill"><i class="fas fa-bolt"></i> Results in under a minute</span>
+            <span class="pa-hero-pill"><i class="fas fa-user-slash"></i> No signup, no email</span>
+            <span class="pa-hero-pill"><i class="fas fa-rotate"></i> 5 free roasts a day</span>
+          </div>
+        </div>
+        <div class="pa-hero-v3__portrait">
+          <div class="pa-hero-v3__portrait-frame">
+            <img class="pa-hero-v3__portrait-img" src="/pixel-agents/img/resume-roast.webp" alt="Resume Roast — AI resume review agent" width="480" height="600" />
+            <div class="pa-hero-v3__portrait-caption">
+              Agent online · <span class="pa-hero-v3__portrait-name">Resume Roast</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── What you get ── -->
+    <section class="pa-section">
+      <div class="pa-section-header">
+        <div>
+          <h2>What the roast covers</h2>
+          <p class="pa-section-sub">One paste. Four verdicts. Zero sugar-coating.</p>
+        </div>
+      </div>
+      <div class="rr-benefits">
+        <div class="rr-benefit">
+          <i class="fas fa-gauge-high"></i>
+          <h3>ATS Score (0–100)</h3>
+          <p>How well your resume survives the applicant tracking software that screens it before a human ever reads it.</p>
+        </div>
+        <div class="rr-benefit">
+          <i class="fas fa-fire"></i>
+          <h3>The Roast</h3>
+          <p>3–5 specific weak points, called out honestly — buzzwords, missing numbers, formatting that parsers choke on.</p>
+        </div>
+        <div class="rr-benefit">
+          <i class="fas fa-thumbs-up"></i>
+          <h3>What's Working</h3>
+          <p>Your genuine strengths, so you know exactly what to keep when you rewrite.</p>
+        </div>
+        <div class="rr-benefit">
+          <i class="fas fa-pen-fancy"></i>
+          <h3>Rewrite Tips + Pro Tip</h3>
+          <p>Concrete, specific suggestions to fix the weak spots — plus one killer career tip to take with you.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Sample roast ── -->
+    <section class="pa-section" id="sample-roast">
+      <div class="pa-section-header">
+        <div>
+          <h2>What a roast looks like</h2>
+          <p class="pa-section-sub">Sample output — yours will be about <em>your</em> resume.</p>
+        </div>
+      </div>
+      <div class="rr-sample">
+        <div class="rr-sample-head">
+          <span>Resume Roast · sample output</span>
+          <span>agent: resume-roast</span>
+        </div>
+        <div class="rr-sample-body">
+          <div>
+            <div class="rr-score">
+              <span class="rr-score-num">61</span>
+              <span class="rr-score-label">/ 100 ATS compatibility</span>
+            </div>
+            <div class="rr-score-bar"><span></span></div>
+          </div>
+          <blockquote class="rr-verdict">
+            "Solid experience buried under buzzwords — this reads like a mission statement, not a track record."
+          </blockquote>
+          <div class="rr-sample-section rr-sample-section--roast">
+            <h4>The Roast</h4>
+            <ul>
+              <li>"Responsible for managing cross-functional synergies" — nobody has ever hired a synergy manager. Say what you shipped.</li>
+              <li>Your last three bullets contain zero numbers. Recruiters skim for digits — give them one per bullet.</li>
+              <li>A two-column layout looks great to you and like scrambled soup to an ATS parser.</li>
+            </ul>
+          </div>
+          <div class="rr-sample-section rr-sample-section--strengths">
+            <h4>What's Working</h4>
+            <ul>
+              <li>Clean reverse-chronological structure that parsers and humans can both follow.</li>
+              <li>Job titles match the roles you're actually applying for — keyword relevance is there.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="rr-sample-foot">
+          <p>Rewrite tips and the pro tip come with your own roast.</p>
+          <a href="/pixel-agents/run.html?agent=resume-roast" class="pa-btn-primary" data-rr-cta="sample">
+            Get my score <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── How it works ── -->
+    <section class="pa-section">
+      <div class="pa-section-header">
+        <div>
+          <h2>How it works</h2>
+          <p class="pa-section-sub">No file upload, no account, no waiting.</p>
+        </div>
+      </div>
+      <div class="rr-steps">
+        <div class="rr-step">
+          <h3>Paste your resume</h3>
+          <p>Copy the text out of your PDF or doc and paste it in. Plain text is exactly what an ATS parser sees anyway.</p>
+        </div>
+        <div class="rr-step">
+          <h3>Get scored and roasted</h3>
+          <p>The agent scores ATS compatibility, lists your strengths, and roasts the weak points — specific, constructive, a little funny.</p>
+        </div>
+        <div class="rr-step">
+          <h3>Fix it and re-run</h3>
+          <p>Apply the rewrite tips, paste the new version, and watch the score climb before you send another application.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Why honest feedback ── -->
+    <section class="pa-section">
+      <div class="pa-section-header">
+        <div>
+          <h2>Why a roast beats resume tips</h2>
+        </div>
+      </div>
+      <div class="rr-prose">
+        <p>
+          Generic resume advice tells you to "use action verbs" and "quantify achievements." You've read that
+          article. Your resume still isn't getting callbacks, and nobody will tell you why —
+          friends are too polite, and recruiters don't send feedback, they send silence.
+        </p>
+        <p>
+          A roast is different: it looks at <strong>your actual resume</strong> and names the specific lines
+          that are hurting you. Most large employers screen applications with ATS software before a human reads
+          them, so the roast starts with an <strong>ATS compatibility score</strong> — then covers what a human
+          skimming for six seconds will and won't see. Brutal on the page, so the interview isn't.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── FAQ ── -->
+    <section class="pa-section" id="faq">
+      <div class="pa-section-header">
+        <div>
+          <h2>Frequently asked questions</h2>
+        </div>
+      </div>
+      <div class="pa-faq-list">
+        <details>
+          <summary>Is Resume Roast really free?</summary>
+          <div class="pa-faq-answer">
+            Yes. You get 5 roasts a day with no account at all — no email, no credit card. Signing in with a
+            free account raises that to 10 a day.
+          </div>
+        </details>
+        <details>
+          <summary>What is an ATS score?</summary>
+          <div class="pa-faq-answer">
+            Most large employers run resumes through Applicant Tracking System (ATS) software before a human
+            ever reads them. The ATS score (0–100) estimates how well your resume survives that screening:
+            keyword relevance, structure, and formatting that parsers can actually read.
+          </div>
+        </details>
+        <details>
+          <summary>Does it work for CVs and non-US resumes?</summary>
+          <div class="pa-faq-answer">
+            Yes. Paste any resume or CV text in English — the roast covers structure, impact, and clarity,
+            which apply everywhere. ATS conventions skew US/UK, so weigh that part accordingly.
+          </div>
+        </details>
+        <details>
+          <summary>My resume is a PDF or Word file — how do I roast it?</summary>
+          <div class="pa-faq-answer">
+            Open the file, select all the text, copy it, and paste it into the agent. No file upload needed —
+            the roast works from the text, which is also exactly what an ATS parser sees.
+          </div>
+        </details>
+        <details>
+          <summary>Can I fix my resume and run it again?</summary>
+          <div class="pa-faq-answer">
+            Yes — that is the whole point. Apply the rewrite tips, paste the new version, and watch the score
+            move. Your daily free runs are enough for a full edit loop.
+          </div>
+        </details>
+        <details>
+          <summary>Who built Resume Roast?</summary>
+          <div class="pa-faq-answer">
+            Resume Roast is one of the purpose-built AI agents on
+            <a href="/pixel-agents/">Pixel Agents</a> by AmbientPixels — a marketplace of specialized agents
+            for audits, reviews, and creative work.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ── Closing CTA ── -->
+    <section class="pa-manifesto pa-noise">
+      <div class="pa-manifesto__inner">
+        <div class="pa-manifesto__content">
+          <div class="pa-manifesto__eyebrow"><span class="pa-manifesto__rule"></span>Last Call</div>
+          <h2 class="pa-manifesto__title">
+            Your next application deserves
+            <span class="pa-manifesto__title-accent">a better resume.</span>
+          </h2>
+          <p class="pa-manifesto__body">
+            Sixty seconds from now you'll know your ATS score, your three weakest lines, and exactly how to fix them.
+          </p>
+        </div>
+        <div class="pa-manifesto__aside">
+          <div class="pa-manifesto__cta">
+            <a class="pa-btn-editorial" href="/pixel-agents/run.html?agent=resume-roast" data-rr-cta="footer">
+              Roast my resume <span aria-hidden="true">→</span>
+            </a>
+            <p class="pa-manifesto__footnote">Free. No signup. 5 roasts a day.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="pa-footer-v2">
+      <span>&copy; 2026 Pixel Agents</span>
+      <div class="pa-footer-links">
+        <a href="/pixel-agents/">All Agents</a>
+        <a href="/agent-forge/">Agent Forge</a>
+        <a href="/ambientscore/">AmbientScore</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ═══════════════════════════════════
+       BOTTOM NAV (Mobile)
+       ═══════════════════════════════════ -->
+  <nav class="pa-bottom-nav">
+    <a href="/pixel-agents/"><i class="fas fa-compass"></i><span>Explore</span></a>
+    <a href="/pixel-agents/#agent-grid"><i class="fas fa-robot"></i><span>Agents</span></a>
+    <a href="/pixel-agents/run.html?agent=resume-roast" class="active"><i class="fas fa-fire"></i><span>Roast</span></a>
+    <a href="/agent-forge/"><i class="fas fa-hammer"></i><span>Forge</span></a>
+  </nav>
+
+</body>
+</html>
