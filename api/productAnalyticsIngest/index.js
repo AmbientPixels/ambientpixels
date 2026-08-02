@@ -4,9 +4,12 @@
 
 const pa = require('../_utils/productAnalytics');
 
+// Must stay a superset of productAnalyticsQuery's VALID_PRODUCTS — events
+// rejected here are dropped silently, which reads as "zero traffic" downstream.
 const VALID_PRODUCTS = [
   'ambientscore', 'blindspot', 'cardforge', 'storyforge',
-  'tileforge', 'blog', 'nova', 'dashboard'
+  'tileforge', 'blog', 'nova', 'dashboard',
+  'pixelagents', 'agentforge'
 ];
 const VALID_CATEGORIES = ['funnel', 'engagement', 'conversion', 'error'];
 const MAX_BATCH = 200;
